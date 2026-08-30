@@ -31,6 +31,13 @@ export function checkLinkAndButtonAccessibility() {
   });
 }
 
+// Function to prepare data for graph rendering
+function prepareDataForGraph() {
+  // Placeholder implementation - returns empty object
+  // Replace with actual data preparation logic
+  return {};
+}
+
 // Function to render graph/index using new functions
 function renderGraphIndex() {
   // JavaScript code to prepare data for the graph
@@ -153,7 +160,7 @@ export const logger = {
 };
 
 const a11yStore = {
-  // ... existing code (from both conflicting branches)
+  liveRegion: null,
 
   // New function to handle dynamic content updates
   updateLiveRegion(message, priority = 'polite') {
@@ -189,9 +196,7 @@ const a11yStore = {
         landmark.setAttribute('aria-label', `${landmarkElements[index].nodeName.toLowerCase()}-${index + 1}`);
       }
     });
-  },
-
-  // ... existing code (from both conflicting branches)
+  }
 };
 
 // TODO: This is the existing code that needs to be preserved
@@ -223,7 +228,50 @@ const a11yStore = {
 //_Commit: 8c3a9295a6bf382e113f3e8184d40223b3f3f8d5_
 //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
-export { addLandmarkRegions };
+// Add proper landmark regions for accessibility
+export function addLandmarkRegions() {
+  // Add main landmark
+  const mainElement = document.querySelector('main');
+  if (mainElement && !mainElement.hasAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+
+  // Add banner landmark for header
+  const headerElement = document.querySelector('header');
+  if (headerElement && !headerElement.hasAttribute('role')) {
+    headerElement.setAttribute('role', 'banner');
+  }
+
+  // Add contentinfo landmark for footer
+  const footerElement = document.querySelector('footer');
+  if (footerElement && !footerElement.hasAttribute('role')) {
+    footerElement.setAttribute('role', 'contentinfo');
+  }
+
+  // Add navigation landmarks
+  const navElements = document.querySelectorAll('nav');
+  navElements.forEach((nav, index) => {
+    if (!nav.hasAttribute('aria-label')) {
+      nav.setAttribute('aria-label', index === 0 ? 'Main navigation' : `Navigation ${index + 1}`);
+    }
+  });
+}
+
+// Get lang attribute from HTML element
+export function getLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    return htmlElement.getAttribute('lang');
+  }
+  return null;
+}
+
+// Wrap primary content in main element for accessibility
+export function wrapPrimaryContentInMain(content) {
+  const main = document.createElement('main');
+  main.innerHTML = content;
+  return main;
+}
 
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 // export function calculateSum(a, b) { return a + b; }
@@ -334,6 +382,7 @@ export { addressAccessibilityIssues };
 module.exports.getLangAttribute = getLangAttribute;
 module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
 module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
+module.exports.addLandmarkRegions = addLandmarkRegions;
 
 // ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
 
@@ -352,5 +401,13 @@ module.exports.loop = function() {
 
     if(harvesters.length < 2) {
         var newName = 'Harvester' + Game.time;
-        Game.sp
-```
+        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
+            {memory: {role: 'harvester'}});
+    }
+
+    if(upgraders.length < 2) {
+        var newName = 'Upgrader' + Game.time;
+        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
+            {memory: {role: 'upgrader'}});
+    }
+};

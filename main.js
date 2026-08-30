@@ -57,14 +57,14 @@ function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
-  button.ariaLabel = 'rotate back';
+  button.setAttribute('aria-label', 'rotate back');
   button.textContent = 'rotate back';
   button.addEventListener('click', rotateBack);
   return button;
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.getElementById('unrotate');
+const fakeLink = document.querySelector('.some-selector');
 if (fakeLink && fakeLink.tagName === 'A') {
   const parent = fakeLink.parentElement;
   const newButton = createUnrotateButton();
@@ -88,10 +88,10 @@ function getConfig() {
 }
 
 // Example usage for SVGs:
-// const svg1 = document.querySelector('.icon-svg-1');
-// const svg2 = document.querySelector('.icon-svg-2');
-// addSvgAccessibility(svg1, 'Description of first icon');
-// addSvgAccessibility(svg2, 'Description of second icon');
+// const svg1 = document.querySelector('.svg1');
+// const svg2 = document.querySelector('.svg2');
+// if (svg1) svg1.setAttribute('aria-label', 'Description of first icon');
+// if (svg2) svg2.setAttribute('aria-label', 'Description of second icon');
 
 // REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // Ensure all <th> elements have scope attribute
@@ -121,7 +121,7 @@ function setupSkipLinks() {
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = document.getElementById(skipLink.getAttribute('href').replace('#', ''));
+      const target = document.getElementById(skipLink.getAttribute('href').substring(1));
       if (target) {
         target.focus();
         target.scrollIntoView({ behavior: 'smooth' });
@@ -136,7 +136,7 @@ function setupSkipLinks() {
 function setupButtonAccessibility() {
   const buttons = document.querySelectorAll('button');
   buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+    if (!button.textContent.trim() && !button.getAttribute('aria-label')) {
       button.setAttribute('aria-label', 'Action button');
     }
   });
@@ -164,7 +164,7 @@ function addLandmarkRoles() {
   const header = document.querySelector('header');
   if (header) header.setAttribute('role', 'banner');
 
-  const mainContent = document.getElementById('main-content');
+  const mainContent = document.querySelector('main');
   if (mainContent) mainContent.setAttribute('role', 'main');
 
   const footer = document.querySelector('footer');
@@ -173,20 +173,20 @@ function addLandmarkRoles() {
 
 // Function to add accessible names to 2 SVGs
 function addSvgAccessibleNames() {
-  const svg1 = document.getElementById('svg1');
+  const svg1 = document.querySelector('.svg1');
   if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
 
-  const svg2 = document.getElementById('svg2');
+  const svg2 = document.querySelector('.svg2');
   if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
 }
 
 // Function to ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[aria-landmark]');
+  const landmarks = document.querySelectorAll('[role="main"], [role="banner"], [role="contentinfo"]');
   const landmarkIds = new Set();
 
   landmarks.forEach((landmark) => {
-    const id = landmark.getAttribute('aria-labelledby');
+    const id = landmark.id;
     if (landmarkIds.has(id)) {
       console.error('Duplicate landmark ID encountered:', id);
     } else {
@@ -197,16 +197,20 @@ function ensureUniqueLandmarks() {
 
 // Function to fix 1 fake link issue
 function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('[href="#"]:not([ aria-hidden ])');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach((link) => {
-    link.removeAttribute('href');
+    if (link.getAttribute('aria-hidden') === 'true') {
+      const button = document.createElement('button');
+      button.textContent = link.textContent;
+      link.parentNode.replaceChild(button, link);
+    }
   });
 }
 
 // Initialize accessibility improvements
 function initializeAccessibility() {
   // Replace fake links with proper buttons
-  const fakeLink = document.getElementById('unrotate');
+  const fakeLink = document.querySelector('.some-selector');
   if (fakeLink && fakeLink.tagName === 'A') {
     const parent = fakeLink.parentElement;
     const newButton = createUnrotateButton();
@@ -217,9 +221,9 @@ function initializeAccessibility() {
   ensureThScope();
 
   // Add accessible names to SVGs
-  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    if (!svg.hasAttribute('aria-hidden') || svg.getAttribute('aria-hidden') !== 'true') {
+    if (!svg.getAttribute('aria-label') || svg.getAttribute('aria-label') === '') {
       svg.setAttribute('aria-label', `Icon ${index + 1}`);
     }
   });
@@ -275,38 +279,4 @@ export function calculateDiscount(price, discount) {
 }
 
 function greet(name) {
-  return `Hello, ${name}!`;
-}
-
-function add(a, b) {
-  return a + b;
-}
-
-// Export existing functionality and new functions
-export { 
-  initialize, 
-  getConfig, 
-  setupSkipLinks, 
-  setupButtonAccessibility, 
-  createInPageButton, 
-  performTask, 
-  handleEvent, 
-  greet, 
-  add, 
-  calculateDiscount, 
-  newFunction 
-};
-
-// Compatibility for CommonJS if needed (as per HEAD)
-module.exports.newFunction = newFunction;
-
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initialize);
-  } else {
-    initialize();
-  }
-}
-
-// More existing code that should be preserved
+  return `Hello, ${name

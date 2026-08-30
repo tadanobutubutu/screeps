@@ -70,7 +70,7 @@ const accessibilityUtils = {
 
 const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
   }
   return element;
 };
@@ -133,7 +133,7 @@ async function handleCredentialResponse(response) {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`${timestamp} [${level.toUpperCase()}]: ${message}`);
+  console.log(timestamp + " [" + level.toUpperCase() + "]: " + message);
 }
 
 // Export functionality with accessibility support
@@ -144,14 +144,14 @@ const exportUtils = {
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
-    link.setAttribute('aria-label', `Download ${filename}`);
+    link.setAttribute('aria-label', "Download " + filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     
     // Announce download completion to screen readers
-    accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
+    accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
   },
 
   exportToJSON: (data, filename) => {
@@ -169,7 +169,7 @@ const exportUtils = {
     for (const row of data) {
       const values = headers.map(header => {
         const escaped = ('' + row[header]).replace(/"/g, '\\"');
-        return `"${escaped}"`;
+        return "\"" + escaped + "\"";
       });
       csvRows.push(values.join(','));
     }
@@ -187,7 +187,7 @@ function readFileSafe(filePath) {
   try {
     return fs.readFileSync(filePath, 'utf8');
   } catch (error) {
-    log(`Error reading file ${filePath}: ${error.message}`, 'error');
+    log("Error reading file " + filePath + ": " + error.message, 'error');
     return null;
   }
 }
@@ -265,6 +265,25 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
+  
+  let result = inputData;
+  
+  // Trim whitespace if enabled
+  if (trimWhitespace) {
+    result = result.trim();
+  }
+  
+  // Apply uppercase if enabled
+  if (uppercase) {
+    result = result.toUpperCase();
+  }
+  
+  // Apply max length if specified
+  if (maxLength !== null && result.length > maxLength) {
+    result = result.substring(0, maxLength);
+  }
+  
+  return result;
 }
 
 // Initialize on DOM ready

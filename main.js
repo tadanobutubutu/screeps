@@ -19,11 +19,11 @@ const _usedLandmarkIds = new Set();
  * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
-    const candidate = `${baseName}-${Date.now()}`;
+    let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 7);
-        candidate = `${candidate}-${suffix}`;
+        const suffix = Math.random().toString(36).substring(2, 9);
+        candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -74,7 +74,7 @@ function replaceMyButtonId() {
  */
 function addProperLandmarkRegions() {
   // Create main landmark
-  const main = document.createElement('main');
+  const main = document.querySelector('main') || document.createElement('main');
   main.setAttribute('role', 'main');
   main.id = 'main-content';
 
@@ -110,19 +110,19 @@ function addProperLandmarkRegions() {
  */
 function addProperAccountManagement() {
   // Add aria-expanded to collapsible menus/buttons
-  const collapsibles = document.querySelectorAll('[aria-controls]');
-  collapsibles.forEach(element => {
-    if (!element.hasAttribute('aria-expanded')) {
-      element.setAttribute('aria-expanded', 'false');
+  const collapsibles = document.querySelectorAll('[aria-expanded]');
+  collapsibles.forEach(el => {
+    if (el.getAttribute('aria-expanded') === 'true') {
+      el.setAttribute('aria-expanded', 'false');
     }
   });
 
   // Add aria-labels to form inputs
-  const inputs = document.querySelectorAll('input:not([aria-label]):not([aria-labelledby])');
+  const inputs = document.querySelectorAll('input');
   inputs.forEach((input, index) => {
     const id = input.id || `input-${index}`;
     input.id = id;
-    if (!document.querySelector(`label[for="${id}"]`)) {
+    if (!input.getAttribute('aria-label')) {
       input.setAttribute('aria-label', `Input field ${index + 1}`);
     }
   });
@@ -136,12 +136,12 @@ function addProperAccountManagement() {
  */
 function addAriaToFormControls() {
   // Add required aria attributes to form controls
-  const formControls = document.querySelectorAll('button, input, select, textarea');
+  const formControls = document.querySelectorAll('input, select, textarea');
 
   formControls.forEach(control => {
     // Ensure all form controls have accessible names
-    if (!control.getAttribute('aria-label') && !control.getAttribute('aria-labelledby')) {
-      const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
+    if (control.id && control.id !== control.getAttribute('aria-labelledby')) {
+      const label = document.querySelector(`label[for="${control.id}"]`) || null;
       if (label) {
         label.id = label.id || `label-${control.id}`;
         control.setAttribute('aria-labelledby', label.id);
@@ -149,7 +149,7 @@ function addAriaToFormControls() {
     }
 
     // Mark required fields appropriately
-    if (control.hasAttribute('required') && !control.getAttribute('aria-required')) {
+    if (control.hasAttribute('required') && !control.hasAttribute('aria-required')) {
       control.setAttribute('aria-required', 'true');
     }
   });
@@ -159,8 +159,6 @@ function addAriaToFormControls() {
 // Assumes you have already set the id on the button element in your code.
 replaceMyButtonId();
 
-addProperLandmarkRegions();
-addProperAccountManagement();
 addAriaToFormControls();
 
 module.exports = {

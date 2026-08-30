@@ -351,6 +351,7 @@ export default function Dashboard() {
                                 onMouseLeave={() => setSummaryHover(false)}
                                 onFocus={() => setSummaryHover(true)}
                                 onBlur={() => setSummaryHover(false)}
+                                aria-keyshortcuts="Alt+c"
                                 aria-label={
                                     copiedSummary
                                         ? 'サマリーをコピーしました'
@@ -471,6 +472,7 @@ export default function Dashboard() {
                                     width: '0.9rem',
                                     height: '0.9rem',
                                 }}
+                                aria-keyshortcuts="Alt+a"
                                 aria-label="自動更新 (60秒ごと, Alt + A)"
                             />
                             <span
@@ -830,7 +832,7 @@ export default function Dashboard() {
                                 }}
                                 placeholder="部屋を検索... (Escでクリア)"
                                 aria-label="部屋名で検索"
-                                aria-keyshortcuts="Escape"
+                                aria-keyshortcuts="Alt+s Escape"
                                 style={{
                                     fontSize: '0.75rem',
                                     padding: roomQuery
@@ -1020,6 +1022,7 @@ export default function Dashboard() {
                     <summary
                         className="interactive-hint"
                         aria-expanded={detailsOpen}
+                        aria-keyshortcuts="Alt+d"
                         title={
                             detailsOpen
                                 ? '生データを非表示にします (Alt + D)'

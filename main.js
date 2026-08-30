@@ -40,12 +40,66 @@ function validateLandmark(landmark) {
 }
 
 /**
- * Main JavaScript module for landmark element validation
+ * Main JavaScript module for Screeps bot
  * @module main
  */
 
+// Screeps game module
+const GameModule = {
+  manageRoom: function(room) {
+    // Room management
+    const sources = room.find(FIND_SOURCES);
+    const hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
+    
+    if (hostileCreeps.length > 0) {
+      this.defendRoom(room, hostileCreeps);
+    }
+  },
+  
+  defendRoom: function(room, hostiles) {
+    const towers = room.find(FIND_MY_STRUCTURES, {
+      filter: { structureType: STRUCTURE_TOWER }
+    });
+    
+    towers.forEach(tower => {
+      tower.attack(hostiles[0]);
+    });
+  },
+  
+  harvest: function(creep) {
+    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    if (target) {
+      if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(target);
+      }
+    }
+  },
+  
+  upgrade: function(creep) {
+    if (creep.room.controller) {
+      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(creep.room.controller);
+      }
+    }
+  },
+  
+  ensureUniqueLandmarks: function(landmarks) {
+    const uniqueLandmarks = [];
+    landmarks.forEach(landmark => {
+      if (!uniqueLandmarks.includes(landmark)) {
+        uniqueLandmarks.push(landmark);
+      }
+    });
+    return uniqueLandmarks;
+  }
+};
+
+// Export the GameModule
+module.exports.GameModule = GameModule;
+
 /**
- * Configuration for landmark checks */
+ * Configuration for landmark checks 
+ */
 const config = {
   requiredLandmarks: ['main', 'header', 'footer'],
   optionalLandmarks: ['nav', 'aside', 'section'],
@@ -312,5 +366,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  GameModule
 };

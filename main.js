@@ -36,7 +36,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -118,7 +118,7 @@ function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
     } else {
       let generatedId = `${prefix}-${index}`;
       while (usedIds.has(generatedId)) {
-        generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+        generatedId = `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
       }
       landmark.id = generatedId;
       usedIds.add(generatedId);
@@ -134,7 +134,7 @@ function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
  * @returns {string|null} The language code or null if not set
  */
 function getLangAttribute() {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
@@ -296,7 +296,7 @@ function createInPageButton(text, onClick) {
   button.type = 'button';
   
   // Ensure button has an accessible name
-  if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+  if (!button.textContent.trim() && !button.getAttribute('aria-label')) {
     throw new Error('Button must have either text content or aria-label');
   }
   
@@ -340,85 +340,4 @@ function validateTableAccessibility(table) {
 /**
  * Validates table structure for proper accessibility
  * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result with structure issues
- */
-function validateTableStructure(table) {
-  const issues = [];
-  
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
-  }
-  
-  // Check for thead and tbody
-  const thead = table.querySelector('thead');
-  const tbody = table.querySelector('tbody');
-  
-  if (!thead) {
-    issues.push('Table should have a thead section');
-  }
-  
-  if (!tbody) {
-    issues.push('Table should have a tbody section');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates that landmarks have proper roles
- * @param {Document|Element} root - Root element to search within
- * @returns {Object} Validation result with landmark issues
- */
-function validateLandmark(root = document) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
-  
-  // Check for main landmark
-  const mainElements = root.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    issues.push('Page should have at least one main landmark');
-  } else if (mainElements.length > 1) {
-    issues.push('Page should have only one main landmark');
-  }
-  
-  // Check for header landmark
-  const headerElements = root.querySelectorAll('header, [role="banner"]');
-  if (headerElements.length > 1) {
-    issues.push('Page should have only one header landmark');
-  }
-  
-  // Check for footer landmark
-  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
-  if (footerElements.length > 1) {
-    issues.push('Page should have only one footer landmark');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-// Existing placeholder functions for function1 and function2 (referenced in exports)
-function function1() {
-  return 'function1';
-}
-
-function function2() {
-  return 'function2';
-}
-
-module.exports = {
-  ensureElementHasId,
-  addAriaLabel,
-  setLanguageAttribute,
-  ensureUniqueLandmarks,
-  initApp,
-  displayModuleStructure,
-  functionA,
-  functionB,
-  loop
-};
+ *

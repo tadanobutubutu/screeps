@@ -75,7 +75,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'add-lang-attribute':
         fixedIssue.fixApplied = 'Added lang attribute to HTML element.';
         // Actual implementation from HEAD
-        const htmlElement = document.querySelector('html');
+        const htmlElement = document.documentElement;
         if (htmlElement) {
           htmlElement.setAttribute('lang', 'en');
         }

@@ -61,6 +61,11 @@ function fixAccessibilityIssues() {
   // New code...
 }
 
+// New function to calculate the sum of two numbers
+function calculateSum(a, b) {
+  return a + b;
+}
+
 // DOM-based accessibility code
 
 // Add lang attribute to HTML element

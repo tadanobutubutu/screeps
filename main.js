@@ -45,7 +45,7 @@ function createInPageButton(buttonText, onClickHandler) {
   return button;
 }
 
-// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
+// If the `rotateBack` function is defined elsewhere in main.js, ensure it\'s called when the button is clicked.
 // If not, define it here:
 export function rotateBack() {
   // Your code to rotate back
@@ -70,7 +70,7 @@ export function rotateBack() {
 // Use unique aria-label or aria-labelledby for landmark regions
 
 // REACT_036: Fix fake link issue - convert <a href="#"> to <button> with proper ARIA
-function createUnrotateButton() {
+export function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
@@ -81,7 +81,7 @@ function createUnrotateButton() {
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.querySelector('a[href="#"]');
+const fakeLink = document.querySelector('a[href="#"]') || document.querySelector('.fake-link-selector');
 if (fakeLink && fakeLink.tagName === 'A') {
   const parent = fakeLink.parentElement;
   const newButton = createUnrotateButton();
@@ -112,11 +112,11 @@ function getConfig() {
 
 // REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // Ensure all <th> elements have scope attribute
-function ensureThScope() {
+export function ensureThScope() {
   const thElements = document.querySelectorAll('th');
   thElements.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      // Determine if it's a column header or row header based on context
+    if (!th.getAttribute('scope')) {
+      // Determine if it\'s a column header or row header based on context
       const parent = th.parentElement;
       const parentTagName = parent ? parent.tagName.toLowerCase() : '';
       const isFirstCell = parent && Array.from(parent.children).indexOf(th) === 0;
@@ -138,7 +138,7 @@ function setupSkipLinks() {
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = document.querySelector(skipLink.getAttribute('href') || '');
+      const target = document.getElementById(skipLink.getAttribute('href').slice(1));
       if (target) {
         target.focus();
         target.scrollIntoView({ behavior: 'smooth' });
@@ -199,11 +199,11 @@ function addSvgAccessibleNames() {
 
 // Function to ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"]');
+  const landmarks = document.querySelectorAll('[role="main"], [role="banner"], [role="contentinfo"]');
   const landmarkIds = new Set();
 
   landmarks.forEach((landmark) => {
-    const id = landmark.id;
+    const id = landmark.getAttribute('id');
     if (landmarkIds.has(id)) {
       console.error('Duplicate landmark ID encountered:', id);
     } else {
@@ -224,7 +224,7 @@ function fixFakeLink() {
 // Initialize accessibility improvements
 function initializeAccessibility() {
   // Replace fake links with proper buttons
-  const fakeLink = document.querySelector('a[href="#"]');
+  const fakeLink = document.querySelector('a[href="#"]') || document.querySelector('.fake-link-selector');
   if (fakeLink && fakeLink.tagName === 'A') {
     const parent = fakeLink.parentElement;
     const newButton = createUnrotateButton();

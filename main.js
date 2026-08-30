@@ -336,13 +336,13 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraph,
   calculateSum,
-  transformInputData,
-  newFocusTrap,
+  sanitizeFilename,
+  readFileSafe,
   processData,
   filterValidItems,
   groupByCategory,
-  sanitizeFilename,
-  readFileSafe,
-  log,
-  generateAccessibilityReport
+  transformInputData,
+  newFocusTrap,
+  generateAccessibilityReport,
+  log
 };

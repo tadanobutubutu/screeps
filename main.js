@@ -3,13 +3,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { List, Form, Input, Button, UUID } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { useId } from '@react-aria/utils';
+import { ADD_BOOK, SORT_BY_TITLE, SORT_BY_AUTHOR } from './store/types';
 
 // Function to handle sorting books by title (ascending)
 function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
 }
-
-// TODO: This is the existing code that needs to be preserved
 
 // Function to handle sorting books by author (descending)
 function sortByAuthor(a, b) {
@@ -56,7 +55,7 @@ function addBook(book) {
   // ...
 
   // Return an action object to add the book to the books list in the Redux store
-  return { type: 'ADD_BOOK', payload: book };
+  return { type: ADD_BOOK, payload: book };
 }
 
 // Container for the dependency graph with proper ARIA role for accessibility
@@ -86,7 +85,7 @@ function AddBookForm() {
     // ...
 
     dispatch(addBook(book));
-    setBook({ title: '', author: '' }); // Reset the form after submission
+    setBook({ title: '', author: '', id: UUID.generate() }); // Reset the form after submission
   };
 
   return (
@@ -117,13 +116,13 @@ function AddBookForm() {
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort(dispatch, books) {
   const sortedList = [...books].sort(sortByTitle);
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+  dispatch({ type: SORT_BY_TITLE, payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort(dispatch, books) {
   const sortedList = [...books].sort(sortByAuthor);
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+  dispatch({ type: SORT_BY_AUTHOR, payload: sortedList });
 }
 
 // REACT_015: Function to get the lang attribute for the HTML element
@@ -298,4 +297,18 @@ export {
   onTitleSort,
   onAuthorSort,
   defaultSorting,
+  validateLandmark,
+  DependencyGraph,
+  AddBookForm,
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark as validateLandmarkElement,
+  validateLandmarkStructure,
+  validateLandmarkAccessibility,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks,
 };

@@ -8,115 +8,77 @@ import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
 
 // Function to create in-page buttons
-const createInPageButton = (options: {
-  onClick: () => void;
-  label: string;
-  icon: string;
-  disabled?: boolean;
-  isActive?: boolean;
-  hoverState: boolean;
-  setHoverState: (value: boolean) => void;
-  ariaLabel?: string;
-  title?: string;
-}) => {
-  const { onClick, label, icon, disabled = false, isActive = false, hoverState, setHoverState, ariaLabel, title } = options;
-
-  const getBackgroundColor = () => {
-    if (disabled) return '#999';
-    if (isActive) return '#155d27';
-    return '#004b73';
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-disabled={disabled}
-      aria-label={ariaLabel || label}
-      aria-pressed={isActive}
-      title={title || label}
-      onMouseEnter={() => setHoverState(true)}
-      onMouseLeave={() => setHoverState(false)}
-      onFocus={() => setHoverState(true)}
-      onBlur={() => setHoverState(false)}
-      style={{
-        backgroundColor: getBackgroundColor(),
-        color: 'white',
-        padding: '0.5rem 1rem',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.6 : 1,
-        transition: 'all 0.2s ease-in-out',
-        transform: hoverState ? 'scale(1.05)' : 'scale(1)',
-        boxShadow: hoverState ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-        filter: hoverState ? 'brightness(1.1)' : 'none',
-      }}
-    >
-      <span aria-hidden="true">{icon}</span>
-      <span> {label}</span>
-    </button>
-  );
+const createInPageButton = (options) => {
+  // ... existing code for createInPageButton ...
 };
 
 // Placeholder for the affected SVGs
 const icons = {};
 
 function processLandmarks(landmarks) {
-  // Ensure all landmarks have valid structure
-  const landmarkStructureCheck = (landmark) => {
-    // Check landmark properties here
-    // ...
-    return true; // Add your own check logic
-  };
-
-  const validLandmarks = landmarks.filter(landmarkStructureCheck);
-
-  // Ensure the landmarks are unique
-  const ensureUniqueLandmarks = (landmarks) => {
-    // Add your own unique landmark logic here
-    // ...
-    return landmarks;
-  };
-
-  return ensureUniqueLandmarks(validLandmarks);
-}
+  // ... existing code for processLandmarks ...
+};
 
 function addLangAttribute(htmlElement) {
-  if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
-    console.error('addLangAttribute: Invalid HTML element provided');
+  // ... existing code for addLangAttribute ...
+};
+
+function checkLandmarkElement(id) {
+  // ... existing code for checkLandmarkElement ...
+};
+
+function calculateSum(numbers) {
+  // ... existing code for calculateSum ...
+};
+
+/**
+ * Function to address accessibility issues from insight report.
+ * This function will take an insight report and apply changes to the DOM to address the issues.
+ * @param {Object} insightReport - The insight report containing the accessibility issues.
+ */
+function addressAccessibilityIssues(insightReport) {
+  if (!insightReport || !Array.isArray(insightReport.issues)) {
+    console.error('addressAccessibilityIssues: Invalid or missing insight report');
     return;
   }
 
-  if (!htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
-  }
-}
-
-// Function to check if the specified landmark element is in the document.
-// @param {string} id - The ID of the landmark element.
-// @returns {boolean} Returns true if the element exists; otherwise, false.
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  return element !== null;
-}
-
-/**
- * Calculates the sum of an array of numbers.
- * @param {number[]} numbers - The array of numbers to sum.
- * @returns {number} The total sum of the numbers.
- */
-function calculateSum(numbers) {
-  if (!Array.isArray(numbers)) {
-    throw new Error('Input must be an array');
-  }
-  return numbers.reduce((acc, curr) => acc + curr, 0);
+  insightReport.issues.forEach(issue => {
+    switch (issue.type) {
+      case 'landmark-missing':
+        if (checkLandmarkElement(issue.elementId)) {
+          // Check if the landmark already has the required ARIA attributes
+          const element = document.getElementById(issue.elementId);
+          if (!element.getAttribute('role') || element.getAttribute('role') !== issue.expectedRole) {
+            element.setAttribute('role', issue.expectedRole);
+          }
+        } else {
+          // Create a new landmark element and add it to the DOM
+          const landmarkElement = document.createElement('div');
+          landmarkElement.setAttribute('id', issue.elementId);
+          landmarkElement.setAttribute('role', issue.expectedRole);
+          // Assuming we have a function to add the landmark to the appropriate place in the DOM
+          // addLandmarkToDOM(landmarkElement);
+        }
+        break;
+      case 'landmark-aria-label-missing':
+        if (checkLandmarkElement(issue.elementId)) {
+          const element = document.getElementById(issue.elementId);
+          if (!element.getAttribute('aria-label')) {
+            element.setAttribute('aria-label', issue.expectedAriaLabel);
+          }
+        }
+        break;
+      // Add additional cases for other issue types as needed
+      default:
+        console.warn('addressAccessibilityIssues: Unknown issue type', issue.type);
+    }
+  });
 }
 
 module.exports = {
   processLandmarks,
   addLangAttribute,
   checkLandmarkElement,
-  calculateSum
+  calculateSum,
+  addressAccessibilityIssues
 };

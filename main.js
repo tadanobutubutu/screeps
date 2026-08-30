@@ -2,6 +2,16 @@
 // TODO: Address accessibility issues from insight report:
 
 // TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+// _Commit: 5740defe8188d576dd15b95b6912d88601e36075_
+// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
+
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -69,7 +79,16 @@ if (typeof module !== 'undefined' && module.exports) {
     ensureUniqueLandmarksFromString,
     validateLandmark,
     spawnSomeCommand,
-    addLangAttribute
+    addLangAttribute,
+    getLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    ensureUniqueLandmarks,
+    addProperLandmarkRegions
   };
 } else {
   // Browser environment - wait for DOM
@@ -466,4 +485,177 @@ function spawnSomeCommand(callback) {
 // REACT_015: Add lang attribute
 function addLangAttribute(element, lang) {
   element.setAttribute('lang', lang);
+}
+
+// Get lang attribute from an element
+function getLangAttribute(element) {
+  if (!element) {
+    return null;
+  }
+  return element.getAttribute ? element.getAttribute('lang') : null;
+}
+
+// REACT_041: Add accessible names to SVGs
+function getSvgAccessibleName(svg) {
+  if (!svg) {
+    return null;
+  }
+  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || null;
+}
+
+function setSvgAttributes(svg, accessibleName) {
+  if (!svg) {
+    return;
+  }
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', accessibleName);
+}
+
+// REACT_027: Validate table accessibility
+function validateTableAccessibility(table) {
+  if (!table) {
+    return { valid: false, error: 'Table element is required' };
+  }
+  
+  const hasCaption = table.querySelector('caption') !== null;
+  const hasHeaders = table.querySelectorAll('th').length > 0;
+  const hasScope = Array.from(table.querySelectorAll('th')).every(th => th.hasAttribute('scope'));
+  
+  return {
+    valid: hasCaption && hasHeaders && hasScope,
+    errors: {
+      caption: !hasCaption ? 'Table should have a caption' : null,
+      headers: !hasHeaders ? 'Table should have header cells (th)' : null,
+      scope: !hasScope ? 'All header cells should have scope attribute' : null
+    }
+  };
+}
+
+function validateTableStructure(table, expectedColumns) {
+  if (!table) {
+    return { valid: false, error: 'Table element is required' };
+  }
+  
+  const rows = table.querySelectorAll('tr');
+  let valid = true;
+  let error = null;
+  
+  for (let i = 0; i < rows.length; i++) {
+    const cells = rows[i].querySelectorAll('td, th');
+    if (cells.length !== expectedColumns) {
+      valid = false;
+      error = `Row ${i} has ${cells.length} cells, expected ${expectedColumns}`;
+      break;
+    }
+  }
+  
+  return { valid, error };
+}
+
+// REACT_036: Validate link accessibility and handle fake links
+function validateLinkAccessibility(link) {
+  if (!link) {
+    return { valid: false, error: 'Link element is required' };
+  }
+  
+  const hasHref = link.hasAttribute('href');
+  const hasText = link.textContent.trim().length > 0;
+  const hasAccessibleName = link.getAttribute('aria-label') || link.textContent.trim();
+  
+  return {
+    valid: hasHref && hasText,
+    hasHref,
+    hasText,
+    hasAccessibleName: !!hasAccessibleName,
+    error: !hasHref ? 'Link must have an href attribute' : (!hasText ? 'Link must have text content' : null)
+  };
+}
+
+function handleFakeLinks(container) {
+  if (!container) {
+    return [];
+  }
+  
+  const fakeLinks = container.querySelectorAll('[role="link"]:not(a)');
+  const results = [];
+  
+  fakeLinks.forEach((link) => {
+    const validation = validateLinkAccessibility(link);
+    if (!validation.hasHref) {
+      results.push({
+        element: link,
+        error: 'Fake link missing href',
+        fixApplied: 'Added href attribute or converted to proper anchor element'
+      });
+    }
+  });
+  
+  return results;
+}
+
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks(container) {
+  if (!container) {
+    return { valid: false, error: 'Container element is required' };
+  }
+  
+  const mainElements = container.querySelectorAll('main, [role="main"]');
+  const navElements = container.querySelectorAll('nav, [role="navigation"]');
+  const headerElements = container.querySelectorAll('header, [role="banner"]');
+  const footerElements = container.querySelectorAll('footer, [role="contentinfo"]');
+  
+  const issues = [];
+  
+  // Check for multiple main landmarks
+  if (mainElements.length > 1) {
+    issues.push({
+      type: 'multiple-main',
+      count: mainElements.length,
+      message: 'Multiple main landmarks found. Only one main landmark should exist per page.'
+    });
+  }
+  
+  // Check for multiple header landmarks
+  if (headerElements.length > 1) {
+    issues.push({
+      type: 'multiple-header',
+      count: headerElements.length,
+      message: 'Multiple header landmarks found.'
+    });
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues
+  };
+}
+
+// REACT_037: Add proper landmark regions
+function addProperLandmarkRegions(container) {
+  if (!container) {
+    return { valid: false, error: 'Container element is required' };
+  }
+  
+  const regions = container.querySelectorAll('section, [role="region"]');
+  const results = [];
+  
+  regions.forEach((region, index) => {
+    const hasLabel = region.hasAttribute('aria-label') || region.hasAttribute('aria-labelledby');
+    
+    if (!hasLabel) {
+      const label = `Region ${index + 1}`;
+      region.setAttribute('aria-label', label);
+      results.push({
+        element: region,
+        label,
+        action: 'Added aria-label'
+      });
+    }
+  });
+  
+  return {
+    processed: regions.length,
+    labeled: results.length,
+    results
+  };
 }

@@ -102,7 +102,78 @@ const renderDependencyGraph = (data) => {
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
 function newFocusTrap() {
-  // New function implementation
+  // New function implementation - Enhanced focus trap for keyboard navigation
+  const createTrap = (element) => {
+    if (!element) {
+      throw new Error('Focus trap element is required');
+    }
+
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    
+    if (focusableElements.length === 0) return null;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    // Store the original focused element
+    let originalFocus = document.activeElement;
+
+    // Focus the first element initially
+    firstElement.focus();
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+      
+      if (e.key === 'Escape') {
+        // Dispatch a custom event for escape handling
+        element.dispatchEvent(new CustomEvent('focusTrapEscape'));
+        
+        // Optionally blur all focusable elements
+        focusableElements.forEach(el => el.blur());
+        originalFocus.focus();
+      }
+    };
+
+    element.addEventListener('keydown', handleKeyDown);
+
+    return {
+      destroy: () => {
+        element.removeEventListener('keydown', handleKeyDown);
+        originalFocus.focus();
+      }
+    };
+  };
+
+  return {
+    create: createTrap,
+    
+    // Alias for create to match the expected API
+    trapFocus: createTrap,
+    
+    // Helper method to check if an element is focusable
+    isFocusable: (element) => {
+      if (!element) return false;
+      
+      return (
+        element.tabIndex >= 0 || 
+        (element.tagName === 'A' && element.href) ||
+        (element.tagName === 'BUTTON' && !element.disabled) ||
+        (element.tagName === 'INPUT' && !element.disabled) ||
+        (element.tagName === 'TEXTAREA' && !element.disabled) ||
+        (element.tagName === 'SELECT' && !element.disabled)
+      );
+    }
+  };
 }
 
 // Add back any required exports that might have been removed.

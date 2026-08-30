@@ -59,6 +59,7 @@ function addressReactAccessibilityIssues(insightReport) {
 // appropriate modules.
 // Updated: imported and used dependencyGraphContent and indexContent in the
 // relevant rendering functions.
+// TODO: This is the existing code that needs to be preserved
 
 function wrapPrimaryContentInMain() {
   const primaryContent = document.getElementById('primary-content');

@@ -274,28 +274,26 @@ export function addSvgAccessibleNames(html) {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
-    // Handle case where attrs might be undefined (for <svg> without attributes)
+  return html.replace(/<svg\b([^>]*)>((?:[^<]|>[^<])*?)<\/svg>/gi, (match, attrs, content) => {
     const attributes = attrs || '';
-    const existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
-    
-    if (existingLabel) {
+    const hasAriaLabel = /aria-label=["']/.test(attributes);
+    const hasAriaLabelledBy = /aria-labelledby=["']/.test(attributes);
+    if (hasAriaLabel || hasAriaLabelledBy) {
       return match;
     }
     
-    // Extract title if present
-    const titleMatch = attributes.match(/<title>([^<]+)<\/title>/i);
-    let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
+    const label = `SVG image ${++svgCounter}`;
+    const titleId = `svg-title-${svgCounter}`;
+    const titleElement = `<title id="${titleId}">${label}</title>`;
     
-    // Check for id to reference
-    const idMatch = attributes.match(/id="([^"]+)"/);
-    if (idMatch) {
-      return `<svg${attributes} role="img" aria-labelledby="title-${idMatch[1]}">`;
+    // Ensure role="img" is present
+    if (!/role=["']img["']/.test(attributes)) {
+      const newAttrs = attributes + ' role="img" aria-labelledby="' + titleId + '"';
+      return `<svg${newAttrs}>${titleElement}${content}</svg>`;
     }
     
-    // Add inline title for accessibility
-    const titleId = `svg-title-${svgCounter}`;
-    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
+    // Prepend title and add aria-labelledby if role is already present
+    return `<svg${attributes} aria-labelledby="${titleId}">${titleElement}${content}</svg>`;
   });
 }
 
@@ -304,3 +302,80 @@ export function addSvgAccessibleNames(html) {
  * Converts additional <main> landmarks to <section> so only one <main> exists per page.
  * Also assigns unique IDs to other landmark types.
  * @param {string} html - The HTML string
+ * @returns {string} HTML with unique landmarks
+ */
+export function ensureUniqueLandmarks(html) {
+  if (typeof html !== 'string') return html;
+
+  let mainCount = 0;
+  const result = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
+    mainCount++;
+    if (mainCount === 1) {
+      return match;
+    }
+    return `<section${attrs ? ' ' + attrs : ''}>`;
+  });
+
+  // Replace closing </main> tags accordingly
+  let mainCloseCount = 0;
+  return result.replace(/<\/main>/gi, (match) => {
+    mainCloseCount++;
+    if (mainCloseCount === 1) {
+      return match;
+    }
+    return '</section>';
+  });
+}
+
+/**
+ * Fixes fake link issues by ensuring all links have href attributes
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with fixed links
+ */
+export function fixFakeLinkIssue(html) {
+  if (typeof html !== 'string') return html;
+  
+  return html.replace(/<a\b([^>]*?)>/gi, (match, attrs) => {
+    // Check if href is present
+    if (attrs.includes('href=') || attrs.includes('href ')) {
+      return match;
+    }
+    
+    // Add href="#" to fix fake link issue
+    return `<a${attrs} href="#">`;
+  });
+}
+
+/**
+ * Adds proper landmark regions to HTML structure
+ * Ensures the document has appropriate ARIA landmarks
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with proper landmarks
+ */
+export function addProperLandmarkRegions(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Ensure the document has a main landmark
+  let result = addMainLandmark(html);
+  
+  // Add header landmark if missing
+  if (!result.includes('<header')) {
+    result = result.replace(/<body([^>]*)>/gi, (match, attrs) => {
+      return `<body${attrs || ''}><header role="banner">`;
+    }).replace(/<\/body>/i, '</header></body>');
+  }
+  
+  // Add nav landmark if missing
+  if (!result.includes('<nav') && !result.includes('<nav ')) {
+    result = result.replace(/<body([^>]*)>/gi, (match, attrs) => {
+      return `<body${attrs || ''}><nav role="navigation">`;
+    }).replace(/<\/body>/i, '</nav></body>');
+  }
+  
+  // Add footer landmark if missing
+  if (!result.includes('<footer') && !result.includes('<footer ')) {
+    result = result.replace(/<\/body>/i, '<footer role="contentinfo"></footer></body>');
+  }
+  
+  return result;
+}

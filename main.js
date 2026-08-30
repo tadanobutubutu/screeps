@@ -108,33 +108,93 @@ function newFocusTrap() {
   };
 }
 
-function addressAccessibilityIssuesFromInsightReport(report) {
-  // Implementation for addressing accessibility issues
-  // This is a placeholder and should be replaced with actual implementation
-  console.log('Addressing accessibility issues from insight report:', report);
-}
-
-// Function for handling focus trap for keyboard navigation (NEW)
-function handleFocusTrap(container) {
-  // Implementation of handleFocusTrap function
-}
-
-// Function to implement the new feature as required by the issue (NEW)
-function implementNewFunction(input) {
-  // Implementation based on issue requirements
-  // This is a placeholder implementation that should be replaced
-  // with the actual logic once requirements are clarified
-  // New function as per the issue requirements
-  // Placeholder logic for the new function
-  console.log('New function implementation:', input);
-  // Placeholder logic for demonstration
-  console.log('Implementing new feature:', input);
-  // For the sake of the example, let's assume we're transforming the input string to uppercase
-  if (typeof input === 'string') {
-    return input.toUpperCase();
+// Validate table accessibility (REACT_027)
+const validateTableAccessibility = (tableElement) => {
+  if (!tableElement || tableElement.tagName !== 'TABLE') {
+    return { valid: false, errors: ['Invalid table element'] };
   }
-  return input; // Return the input unchanged if it's not a string
-}
+
+  const errors = [];
+  
+  // Check for caption
+  const caption = tableElement.querySelector('caption');
+  if (!caption) {
+    errors.push('Table missing caption');
+  }
+  
+  // Check for summary or aria-label
+  const summary = tableElement.getAttribute('summary') || tableElement.getAttribute('aria-label');
+  if (!summary) {
+    errors.push('Table missing summary or aria-label');
+  }
+  
+  // Check headers
+  const headers = tableElement.querySelectorAll('th');
+  if (headers.length === 0) {
+    errors.push('Table missing header cells');
+  }
+  
+  // Check scope attributes on header cells
+  headers.forEach((th) => {
+    if (!th.hasAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors,
+    tableElement
+  };
+};
+
+// Validate table structure (REACT_027)
+const validateTableStructure = (tableElement) => {
+  if (!tableElement || tableElement.tagName !== 'TABLE') {
+    return { valid: false, errors: ['Invalid table element'] };
+  }
+
+  const errors = [];
+  
+  // Check for thead and tbody
+  const hasThead = !!tableElement.querySelector('thead');
+  const hasTbody = !!tableElement.querySelector('tbody');
+  
+  if (!hasThead) {
+    errors.push('Table missing thead');
+  }
+  
+  if (!hasTbody) {
+    errors.push('Table missing tbody');
+  }
+  
+  // Check row structure
+  const rows = tableElement.querySelectorAll('tr');
+  if (rows.length === 0) {
+    errors.push('Table has no rows');
+  }
+  
+  // Check for consistent column count
+  let columnCount = null;
+  rows.forEach((row, index) => {
+    const cells = row.querySelectorAll('td, th');
+    if (columnCount === null) {
+      columnCount = cells.length;
+    } else if (cells.length !== columnCount) {
+      errors.push(`Row ${index} has inconsistent column count`);
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors,
+    tableElement
+  };
+};
+
+// Add back any required exports that might have been removed.
+// For example, if the issue requires adding back an export like `calculateSum`, you would add:
+function calculateSum(a, b) { return a + b; }
 
 // Credential response handling
 async function handleCredentialResponse(response) {
@@ -180,7 +240,7 @@ function filterValidItems(items, validator) {
 
 // Initialize accessibility features
 const initAccessibility = () => {
-  // ... (existing code)
+  // ... (existing code);
 };
 
 function groupByCategory(items, getCategory) {
@@ -270,8 +330,9 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraph,
   calculateSum,
+  newFocusTrap,
+  validateTableAccessibility,
+  validateTableStructure,
   transformInputData,
-  handleFocusTrap,
-  implementNewFunction,
   addressAccessibilityIssuesFromInsightReport
 };

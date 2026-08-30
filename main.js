@@ -8,8 +8,6 @@ const main = () => {
 // TODO: Create or update the affected functions to be accessible
 // The functions below have been created to match the exported names
 
-// main.js - Combined utility and accessibility features
-
 // Existing functionality preserved
 function exampleFunction() {
   return 'example';
@@ -104,8 +102,6 @@ function initializeAccessibility() {
   addARIAAttributes();
   addAccessibleNamesToSvg();
 }
-
-// TODO: add the new functions or changes requested in the issue
 
 /**
  * Checks if a value is an empty string, null, or undefined

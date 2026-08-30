@@ -242,4 +242,140 @@ function fixFakeLinkIssue() {
   });
 }
 
+// Renders a dependency graph into the container element.
+// @param {HTMLElement} container - The container element where the graph will be rendered.
+// @param {Object} graphData - The dependency graph data (nodes and edges).
+// @returns {void}
+export function renderDependencyGraph(container, graphData) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+  if (!graphData || !Array.isArray(graphData.nodes) || !Array.isArray(graphData.edges)) {
+    throw new Error('Graph data must contain nodes and edges arrays');
+  }
+
+  ensureElementHasId(container, 'dependencyGraph');
+  addAriaLabel(container, 'Dependency Graph');
+  container.setAttribute('role', 'img');
+
+  // Clear any existing content
+  container.innerHTML = '';
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '400');
+  svg.setAttribute('viewBox', '0 0 800 400');
+  container.appendChild(svg);
+
+  // Simple layout: place nodes in a grid-like pattern
+  const nodeCount = graphData.nodes.length;
+  const cols = Math.ceil(Math.sqrt(nodeCount));
+  const cellWidth = 800 / cols;
+  const cellHeight = 400 / Math.ceil(nodeCount / cols);
+
+  graphData.nodes.forEach((node, index) => {
+    const row = Math.floor(index / cols);
+    const col = index % cols;
+    const cx = cellWidth * col + cellWidth / 2;
+    const cy = cellHeight * row + cellHeight / 2;
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', cx);
+    circle.setAttribute('cy', cy);
+    circle.setAttribute('r', 20);
+    circle.setAttribute('fill', '#4a90e2');
+    circle.setAttribute('stroke', '#2c3e50');
+    circle.setAttribute('stroke-width', '2');
+    svg.appendChild(circle);
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', cx);
+    text.setAttribute('y', cy + 5);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', '#fff');
+    text.setAttribute('font-size', '12');
+    text.textContent = node.id || `node-${index}`;
+    svg.appendChild(text);
+  });
+
+  // Draw edges as simple lines
+  const nodeMap = new Map();
+  graphData.nodes.forEach((node, index) => {
+    const row = Math.floor(index / cols);
+    const col = index % cols;
+    nodeMap.set(node.id || `node-${index}`, {
+      x: cellWidth * col + cellWidth / 2,
+      y: cellHeight * row + cellHeight / 2,
+    });
+  });
+
+  graphData.edges.forEach((edge) => {
+    const source = nodeMap.get(edge.source);
+    const target = nodeMap.get(edge.target);
+    if (!source || !target) {
+      return;
+    }
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', source.x);
+    line.setAttribute('y1', source.y);
+    line.setAttribute('x2', target.x);
+    line.setAttribute('y2', target.y);
+    line.setAttribute('stroke', '#888');
+    line.setAttribute('stroke-width', '1.5');
+    svg.appendChild(line);
+  });
+}
+
+// Displays the module structure for debugging purposes.
+// @param {HTMLElement} container - The container element where the structure will be displayed.
+// @param {Object} moduleStructure - The module structure data.
+// @returns {void}
+export function displayModuleStructure(container, moduleStructure) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+  if (!moduleStructure || typeof moduleStructure !== 'object') {
+    throw new Error('Module structure must be an object');
+  }
+
+  ensureElementHasId(container, 'moduleStructure');
+  addAriaLabel(container, 'Module Structure');
+
+  container.innerHTML = '';
+  const pre = document.createElement('pre');
+  pre.style.background = '#f4f4f4';
+  pre.style.padding = '12px';
+  pre.style.borderRadius = '4px';
+  pre.style.overflow = 'auto';
+  pre.textContent = JSON.stringify(moduleStructure, null, 2);
+  container.appendChild(pre);
+}
+
+// Export bot logic for Screeps
+export function runScreepsBotLogic(creep) {
+  if (!creep) {
+    throw new Error('Creep object is required');
+  }
+
+  if (creep.memory.role === 'harvester') {
+    if (creep.carry.energy < creep.carryCapacity) {
+      const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+      if (source) {
+        creep.harvest(source);
+      }
+    } else {
+      const target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: (structure) =>
+          (structure.structureType === STRUCTURE_EXTENSION ||
+            structure.structureType === STRUCTURE_SPAWN) &&
+          structure.energy < structure.energyCapacity,
+      });
+      if (target) {
+        creep.transfer(target, RESOURCE_ENERGY);
+      }
+    }
+  }
+  return creep;
+}
+
 // ... (Preserve the existing code that needs to be preserved)

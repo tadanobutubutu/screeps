@@ -86,7 +86,7 @@ function validateInput(input) {
     return false;
   }
   return true;
-};
+}
 
 // Language attribute functions
 function getLangAttribute() {
@@ -236,6 +236,23 @@ if (typeof isSecureContext === 'function' && isSecureContext()) {
   initApp();
 } else {
   console.warn('Application is not running in a secure context. Some features may not be available.');
+}
+
+function getConfig() {
+  return CONFIG;
+}
+
+function getVersion() {
+  return VERSION;
+}
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+function addressAccessibilityIssues(rootElement) {
+  // Ensure the root container has an accessible name
+  if (rootElement) {
+    rootElement.setAttribute('role', 'main');
+  }
 }
 
 // Address accessibility issues from insight report

@@ -36,7 +36,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}-${Date.now().toString(36)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -70,7 +70,73 @@ function addAriaLabel(element, label) {
   }
 }
 
-// TODO: Implement functions to render dependency graphs and display module structure for debugging purposes.
+// Implement functions to render dependency graphs and display module structure for debugging purposes.
+
+/**
+ * Renders a dependency graph showing module relationships
+ * @param {Object} modules - Object containing module information with dependencies
+ * @returns {Object} Graph data structure with nodes and edges
+ */
+function renderDependencyGraph(modules = {}) {
+  const graph = {
+    nodes: [],
+    edges: []
+  };
+
+  if (!modules || typeof modules !== 'object') {
+    console.log('No modules provided for dependency graph');
+    return graph;
+  }
+
+  // Create nodes for each module
+  Object.keys(modules).forEach(moduleName => {
+    graph.nodes.push({
+      id: moduleName,
+      label: moduleName
+    });
+
+    // Check for dependencies
+    const module = modules[moduleName];
+    if (module.dependencies && Array.isArray(module.dependencies)) {
+      module.dependencies.forEach(dep => {
+        graph.edges.push({
+          from: moduleName,
+          to: dep
+        });
+      });
+    }
+  });
+
+  console.log('Dependency graph rendered:', graph);
+  return graph;
+}
+
+/**
+ * Displays the module structure for debugging purposes
+ * Helps developers understand the current structure of loaded modules.
+ * @param {Object} modules - Object containing module information
+ * @returns {Object} Module structure object with names and metadata
+ */
+function displayModuleStructure(modules = {}) {
+  if (!modules || typeof modules !== 'object') {
+    console.log('No modules provided for structure display');
+    return {};
+  }
+
+  const structure = {};
+
+  Object.keys(modules).forEach(moduleName => {
+    const module = modules[moduleName];
+    structure[moduleName] = {
+      name: moduleName,
+      dependencies: module.dependencies || [],
+      exports: module.exports ? Object.keys(module.exports) : []
+    };
+  });
+
+  console.log('Displaying module structure for modules:', structure);
+  return structure;
+}
 
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
@@ -130,14 +196,6 @@ function initApp() {
   renderDependencyGraph();
 }
 
-// Placeholder for module structure display utility.
-// Helps developers understand the current structure of loaded modules.
-function displayModuleStructure(modules) {
-  // Future implementation could format and print module hierarchy
-  console.log('Displaying module structure for modules:', modules);
-  return {};
-}
-
 // Function to reset body rotation
 function resetRotation() {
   document.body.style.transform = 'rotate(0deg)';
@@ -164,11 +222,6 @@ const functionA = {
 };
 
 // TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
-function renderDependencyGraph(modules) {
-  // Future implementation could traverse and log module dependencies
-  console.log('Rendering dependency graph for modules:', modules);
-  return {};
-}
 
 // Placeholder for bot logic for Screeps
 function loop() {
@@ -219,101 +272,4 @@ function createInPageButton(text, onClick) {
   button.type = 'button';
   
   // Ensure button has an accessible name
-  if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
-    throw new Error('Button must have either text content or aria-label');
-  }
-  
-  if (onClick) {
-    button.addEventListener('click', onClick);
-  }
-  
-  return button;
-}
-
-/**
- * Validates table accessibility requirements
- * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result with issues array
- */
-function validateTableAccessibility(table) {
-  const issues = [];
-  
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
-  }
-  
-  // Check for caption
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    issues.push('Table should have a caption for accessibility');
-  }
-  
-  // Check for th elements with scope or headers
-  const headers = table.querySelectorAll('th');
-  if (headers.length === 0) {
-    issues.push('Table should have header cells (th) for accessibility');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates table structure for proper accessibility
- * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result with structure issues
- */
-function validateTableStructure(table) {
-  const issues = [];
-  
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
-  }
-  
-  // Check for thead and tbody
-  const thead = table.querySelector('thead');
-  const tbody = table.querySelector('tbody');
-  
-  if (!thead) {
-    issues.push('Table should have a thead section');
-  }
-  
-  if (!tbody) {
-    issues.push('Table should have a tbody section');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates that landmarks have proper roles
- * @param {Document|Element} root - Root element to search within
- * @returns {Object} Validation result with landmark issues
- */
-function validateLandmark(root = document) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
-  
-  // Check for main landmark
-  const mainElements = root.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    issues.push('Page should have at least one main landmark');
-  } else if (mainElements.length > 1) {
-    issues.push('Page should have only one main landmark');
-  }
-  
-  // Check for header landmark
-  const headerElements = root.querySelectorAll('header, [role="banner"]');
-  if (headerElements.length > 1) {
-    issues.push('Page should have only one header landmark');
-  }
-  
-  // Check for footer landmark
-  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
-  if (footerElements.length > 1) {
-    issues.push('Page
+  if (!button.textContent && !

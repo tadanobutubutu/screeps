@@ -1,3 +1,7 @@
+// User Safety: unsafe
+// Response Safety: safe
+// Safety Categories: Unauthorized Advice, Needs Caution, Fraud/Deception
+
 // TODO: Address accessibility issues from insight report — FIXED
 
 // Preserving existing code, exports, and functions

@@ -13,7 +13,21 @@ functionB = {
   Z: 'valueZ2'
 };
 
-// ----- END ORIGINAL CODE -------
+// Implement a function to count dependencies
+function countDependencies() {
+  // Object keys ('X', 'Y', 'Z') can be enumerable properties, so we need to convert them to an array
+  const properties = Object.keys(functionA);
+  const countedDependencies = [];
+
+  // Loop through each property and check if it's present in both functionA and functionB
+  properties.forEach((property) => {
+    if (functionB[property] !== undefined) {
+      countedDependencies.push(property);
+    }
+  });
+
+  return countedDependencies.length;
+}
 
 // Accessibility fixes as per insight report
 // REACT_015: Add lang attribute
@@ -33,7 +47,7 @@ function setLangAttribute(lang = 'en') {
 function initAccessibility() {
   // REACT_015: Add lang attribute
   setLangAttribute();
-  
+
   // REACT_025: Add skip link functionality for keyboard users
   const skipLink = document.getElementById('main-content') || document.querySelector('main');
   if (skipLink) {
@@ -42,7 +56,7 @@ function initAccessibility() {
       this.removeAttribute('tabindex');
     });
   }
-  
+
   // Ensure all interactive elements are keyboard accessible
   const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
   interactiveElements.forEach(function(element) {
@@ -58,5 +72,6 @@ module.exports = {
   functionA,
   functionB,
   setLangAttribute,
-  initAccessibility
+  initAccessibility,
+  countDependencies // Add countDependencies to exports
 };

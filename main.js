@@ -1,3 +1,4 @@
+// TODO: Add back any required exports that might have been removed.
 // Existing code starts here
 
 // This is the existing code that needs to be preserved
@@ -6,36 +7,6 @@
 // More existing code that should be preserved
 
 // Existing code ends here
-
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
-// Addressed accessibility issues from insight report
-
-// ... (other code in main.js)
-
-/**
- * Creates an in-page button element with optional click handler.
- * @param {string} buttonText - The label text for the button
- * @param {Function} onClickHandler - Callback function triggered when the button is clicked
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(buttonText, onClickHandler) {
-  const button = document.createElement('button');
-  button.textContent = buttonText;
-  if (onClickHandler && typeof onClickHandler === 'function') {
-    button.addEventListener('click', onClickHandler);
-  }
-  return button;
-}
-
-// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
-// If not, define it here:
-export function rotateBack() {
-  // Your code to rotate back
-  console.log('Reverting back the rotation.');
-}
-
-// ... (other code in main.js)
 
 // Additional accessibility-related code changes:
 // Ensure that all interactive elements have appropriate keyboard support
@@ -64,16 +35,42 @@ function createUnrotateButton() {
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.getElementById('someFakeLinkId');
-if (fakeLink && fakeLink.tagName === 'A') {
-  const parent = fakeLink.parentElement;
-  const newButton = createUnrotateButton();
-  parent.replaceChild(newButton, fakeLink);
+function replaceFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach((link) => {
+    if (link.getAttribute('aria-hidden') === 'true') {
+      const parent = link.parentElement;
+      const newButton = createUnrotateButton();
+      parent.replaceChild(newButton, link);
+    }
+  });
 }
 
 // Add lang attribute to HTML element
 if (typeof document !== 'undefined') {
   document.documentElement.lang = 'en-US';
+}
+
+/**
+ * Creates an in-page button element with optional click handler.
+ * @param {string} buttonText - The label text for the button
+ * @param {Function} onClickHandler - Callback function triggered when the button is clicked
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(buttonText, onClickHandler) {
+  const button = document.createElement('button');
+  button.textContent = buttonText;
+  if (onClickHandler && typeof onClickHandler === 'function') {
+    button.addEventListener('click', onClickHandler);
+  }
+  return button;
+}
+
+// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
+// If not, define it here:
+export function rotateBack() {
+  // Your code to rotate back
+  console.log('Reverting back the rotation.');
 }
 
 /**
@@ -86,12 +83,6 @@ function getConfig() {
     timeout: 5000
   };
 }
-
-// Example usage for SVGs:
-// const svg1 = ...
-// const svg2 = ...
-// svg1.appendChild(titleElement, 'Description of first icon');
-// svg2.appendChild(titleElement, 'Description of second icon');
 
 // REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // Ensure all <th> elements have scope attribute
@@ -121,7 +112,7 @@ function setupSkipLinks() {
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = document.getElementById(skipLink.getAttribute('href').slice(1));
+      const target = document.querySelector(skipLink.getAttribute('href') || '');
       if (target) {
         target.focus();
         target.scrollIntoView({ behavior: 'smooth' });
@@ -173,19 +164,11 @@ function addLandmarkRoles() {
 
 // Function to add accessible names to 2 SVGs
 function addSvgAccessibleNames() {
-  const svg1 = document.getElementById('svg1');
-  if (svg1) {
-    const title = document.createElement('title');
-    title.textContent = 'SVG image 1';
-    svg1.insertBefore(title, svg1.firstChild);
-  }
+  const svg1 = document.querySelector('.svg-1');
+  if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
 
-  const svg2 = document.getElementById('svg2');
-  if (svg2) {
-    const title = document.createElement('title');
-    title.textContent = 'SVG image 2';
-    svg2.insertBefore(title, svg2.firstChild);
-  }
+  const svg2 = document.querySelector('.svg-2');
+  if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
 }
 
 // Function to ensure unique landmarks (2 issues)
@@ -194,7 +177,7 @@ function ensureUniqueLandmarks() {
   const landmarkIds = new Set();
 
   landmarks.forEach((landmark) => {
-    const id = landmark.getAttribute('id');
+    const id = landmark.id;
     if (landmarkIds.has(id)) {
       console.error('Duplicate landmark ID encountered:', id);
     } else {
@@ -203,38 +186,16 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// Function to fix 1 fake link issue
-function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
-  fakeLinks.forEach((link) => {
-    if (!link.textContent.trim() && link.getAttribute('aria-hidden') === 'true') {
-      // Handle fake link
-    }
-  });
-}
-
 // Initialize accessibility improvements
 function initializeAccessibility() {
   // Replace fake links with proper buttons
-  const fakeLink = document.getElementById('someFakeLinkId');
-  if (fakeLink && fakeLink.tagName === 'A') {
-    const parent = fakeLink.parentElement;
-    const newButton = createUnrotateButton();
-    parent.replaceChild(newButton, fakeLink);
-  }
+  replaceFakeLinks();
 
   // Ensure table headers have proper scope
   ensureThScope();
 
   // Add accessible names to SVGs
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach((svg, index) => {
-    if (!svg.querySelector('title') || svg.getAttribute('aria-hidden') !== 'true') {
-      const title = document.createElement('title');
-      title.textContent = `Icon ${index + 1}`;
-      svg.insertBefore(title, svg.firstChild);
-    }
-  });
+  addSvgAccessibleNames();
 }
 
 // Initialize the application with accessibility improvements
@@ -264,8 +225,11 @@ function initialize() {
   // Accessibility: Ensure unique landmarks (2 issues)
   ensureUniqueLandmarks();
 
-  // Accessibility: Fix 1 fake link issue
-  fixFakeLink();
+  // Accessibility: Fix fake link issue
+  replaceFakeLinks();
+
+  // Initialize all accessibility features
+  initializeAccessibility();
 }
 
 // New function or change requested in the issue
@@ -320,5 +284,3 @@ if (typeof document !== 'undefined') {
     initialize();
   }
 }
-
-// More existing code that should be preserved

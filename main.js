@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 
 // New utility function to create a web resource button suitable for accessibility
 function createAccessibleWebResourceButton(url, text) {

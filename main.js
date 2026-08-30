@@ -1,4 +1,3 @@
-// Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
@@ -79,10 +78,15 @@ function addressAccessibilityIssues() {
   };
 }
 
+// Function to generate a key for each book item
+function generateKey(book) {
+  return `${book.id}-${book.title}`;
+}
+
 // Function to render a single book item
 function BookItem(book) {
   return (
-    <List.Item>
+    <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
         description={book.author}
@@ -100,10 +104,10 @@ function addBook(book, dispatch) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-// Function to handle form submission with accessibility improvements
+// Handle form submission with accessibility improvements
 function handleAddBookSubmit(event, book, setError, setSubmitting, dispatch, announceToScreenReader, manageFocus) {
   event.preventDefault();
-  
+
   // Validate book data
   if (!book.title.trim() || !book.author.trim()) {
     setError('Please fill in all required fields');
@@ -115,20 +119,20 @@ function handleAddBookSubmit(event, book, setError, setSubmitting, dispatch, ann
     announceToScreenReader('Error: Please fill in all required fields');
     return;
   }
-  
+
   setError('');
   setSubmitting(true);
-  
+
   // Add the book
   addBook(book, dispatch);
-  
+
   // Reset form after successful submission
   // Use setTimeout to ensure state updates are processed
   setTimeout(() => {
     setSubmitting(false);
     // Move focus back to submit button for keyboard accessibility
     const submitButton = document.getElementById('add-book-submit');
-    if ( submittingButton) {
+    if ( submitButton) {
       submitButton.focus();
     }
     announceToScreenReader('Book added successfully');
@@ -141,7 +145,7 @@ function AddBookForm({ dispatch, announceToScreenReader, manageFocus }) {
   const [author, setAuthor] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setSubmitting] = useState(false);
-  
+
   // Create book object
   const book = {
     id: Date.now(),
@@ -149,7 +153,7 @@ function AddBookForm({ dispatch, announceToScreenReader, manageFocus }) {
     author: author,
     createdAt: new Date().toISOString()
   };
-  
+
   // Handle input changes with proper labeling for screen readers
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
@@ -158,7 +162,7 @@ function AddBookForm({ dispatch, announceToScreenReader, manageFocus }) {
       setError('');
     }
   };
-  
+
   const handleAuthorChange = (e) => {
     setAuthor(e.target.value);
     // Clear error when user starts typing
@@ -166,14 +170,14 @@ function AddBookForm({ dispatch, announceToScreenReader, manageFocus }) {
       setError('');
     }
   };
-  
+
   // Handle form submission
   const onSubmit = (e) => handleAddBookSubmit(e, book, setError, setSubmitting, dispatch, announceToScreenReader, manageFocus);
-  
+
   return (
     <form onSubmit={onSubmit} aria-labelledby="add-book-heading" role="form">
       <h2 id="add-book-heading">Add New Book</h2>
-      
+
       <div>
         <label htmlFor="book-title" id="book-title-label">
           Title <span aria-hidden="true">*</span>
@@ -191,7 +195,7 @@ function AddBookForm({ dispatch, announceToScreenReader, manageFocus }) {
           disabled={isSubmitting}
         />
       </div>
-      
+
       <div>
         <label htmlFor="book-author" id="book-author-label">
           Author <span aria-hidden="true">*</span>
@@ -209,7 +213,7 @@ function AddBookForm({ dispatch, announceToScreenReader, manageFocus }) {
           disabled={isSubmitting}
         />
       </div>
-      
+
       {error && (
         <div
           id="add-book-error"
@@ -221,7 +225,7 @@ function AddBookForm({ dispatch, announceToScreenReader, manageFocus }) {
           {error}
         </div>
       )}
-      
+
       <button
         id="add-book-submit"
         type="submit"
@@ -258,7 +262,7 @@ function onAuthorSort(getBooksList, dispatch) {
 function Main() {
   const dispatch = useDispatch();
   const [sorting, setSorting] = useState(defaultSorting);
-  
+
   // Initialize accessibility utilities
   const { announceToScreenReader, manageFocus } = addressAccessibilityIssues();
 
@@ -285,8 +289,9 @@ function Main() {
           />
         )}
         aria-label="Book list"
+        itemLayout="horizontal"
       />
-      <AddBookForm 
+      <AddBookForm
         dispatch={dispatch}
         announceToScreenReader={announceToScreenReader}
         manageFocus={manageFocus}

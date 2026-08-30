@@ -526,5 +526,7 @@ module.exports = {
   handleFakeLinks,
   personName,
   main,
-  mainExecution
+  mainExecution,
+  functionA: main.functionA,
+  functionB: main.functionB
 };

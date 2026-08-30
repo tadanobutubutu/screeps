@@ -1,5 +1,14 @@
 // TODO: This is the existing code that needs to be preserved
 
+// New function for creating in-page buttons
+function createInPageButton(buttonId, buttonText) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  document.body.appendChild(button);
+  return button;
+}
+
 function checkLandmarkElements() {
     // TODO: Implement this function for checking landmark elements
     // Example logic to check for landmark elements
@@ -131,6 +140,7 @@ module.exports = {
   // Existing exports that need to be preserved
   // ...
 
+  createInPageButton,
   checkLandmarkElements,
   createResourceButton, // NEW export for the utility function
   renderDependencyGraph,

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -12,6 +9,7 @@ import { indexContent } from './indexContent';
 
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
+const dispatch = useDispatch();
 
 // Function to handle sorting books by title (ascending)
 export function sortByTitle(a, b) {
@@ -24,7 +22,7 @@ export function sortByAuthor(a, b) {
 }
 
 // Function to generate a key for each book item
-export function generateKey(book) {
+function generateKey(book) {
   return book.id || `${book.title}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
@@ -34,7 +32,6 @@ export function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        ...
       />
     </List.Item>
   );
@@ -48,9 +45,6 @@ export function addBook(book) {
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
-
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 export function onTitleSort() {
@@ -66,13 +60,14 @@ export function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
-// Export utility functions
-export { defaultSorting, onTitleSort, onAuthorSort };
+// Function to improve accessibility for adding a new book
+function improveAccessibilityForAddBook() {
+  // Implement accessibility improvements for adding a new book
+}
 
 // Render the main component containing the book list and sorting controls
 function Main() {
-  const [sorting, setSorting] = useState(defaultSorting);
-  const dispatch = useDispatch();
+  const [sorting, setSorting] = useState(sortByTitle);
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -116,6 +111,3 @@ function Main() {
 
 // Export the Main component
 export default Main;
-```
-
-This resolved file maintains both changes, adding the `generateKey` function to generate the key based on `book.id` or a random key if `book.id` is missing, as well as the sorting functions for the book list by title and author. It also simplifies typing by removing a few unused functions and exports for `sortByTitle` and `sortByAuthor`.

@@ -1,6 +1,3 @@
-Here's the resolved version of the `main.js` file:
-
-```javascript
 // Import required module(s) and export the new necessary function(s)
 const fs = require('fs');
 const path = require('path');
@@ -123,7 +120,7 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
   title.textContent = accessibleName;
 
   // Insert title as first child
-  svgElement.insertBefore(title, ...
+  svgElement.insertBefore(title, ...);
 
   // Add aria-labelledby attribute
   ... title.id);
@@ -195,6 +192,3 @@ export function getUniqueLandmarkName(baseName, existingNames) {
   }
   return newName;
 }
-```
-
-This version of the file resolves the merge conflict by integrating both changes. The `app` initialization and the `addLandmarks` function are kept, and the functions that were removed in one branch but added in another are reintroduced. The styles and comments are preserved as much as possible.

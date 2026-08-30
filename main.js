@@ -99,7 +99,7 @@ function validateTableStructure() {
       isValid = false;
       error = 'Table has no rows';
     } else {
-      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td, th').length);
+      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('th, td').length);
       const allSame = cellCounts.every(count => count === cellCounts[0]);
       
       if (!allSame) {

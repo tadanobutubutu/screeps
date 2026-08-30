@@ -294,6 +294,69 @@ if (typeof document !== 'undefined') {
   }
 }
 
+// New function: validateTableAccessibility
+function validateTableAccessibility(tableElement) {
+  const issues = [];
+
+  if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
+    issues.push('Element is not a TABLE element');
+    return issues;
+  }
+
+  // Check for presence of <caption> (accessibility best practice for table description)
+  const caption = tableElement.querySelector('caption');
+  if (!caption || !caption.textContent.trim()) {
+    issues.push('TABLE is missing a descriptive caption');
+  }
+
+  // Check that all rows have consistent number of cells
+  const rows = Array.from(tableElement.querySelectorAll('tr'));
+  let expectedCellCount = null;
+
+  rows.forEach((row, rowIndex) => {
+    const cells = Array.from(row.children).filter(
+      child => ['TH', 'TD'].includes(child.tagName.toUpperCase())
+    );
+
+    if (expectedCellCount === null && cells.length > 0) {
+      expectedCellCount = cells.length;
+    }
+
+    if (expectedCellCount !== null && cells.length !== expectedCellCount) {
+      issues.push(`Row ${rowIndex + 1} has inconsistent number of cells`);
+    }
+  });
+
+  // Check that TH elements exist (header row/column should be marked)
+  const thCells = tableElement.querySelectorAll('th');
+  if (thCells.length === 0) {
+    issues.push('TABLE has no header cells (TH) defined');
+  }
+
+  return issues;
+}
+
+/**
+ * Ensures the element has an id. If the element doesn't have an id,
+ * generates one and assigns it to the element.
+ * @param {HTMLElement} element - The element to check and modify
+ * @param {string} [prefix='element'] - Prefix for the generated id
+ * @returns {string} The element's id (existing or newly generated)
+ */
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+  
+  if (element.id) {
+    return element.id;
+  }
+  
+  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  element.id = id;
+  return id;
+}
+
 // Export the newFocusTrap function as a standalone utility
 const newFocusTrap = accessibilityUtils.newFocusTrap;
 
@@ -315,5 +378,7 @@ module.exports = {
   filterValidItems,
   initAccessibility,
   groupByCategory,
-  transformInputData
+  transformInputData,
+  validateTableAccessibility,
+  ensureElementHasId
 };

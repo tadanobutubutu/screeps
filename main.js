@@ -148,7 +148,7 @@ function improveAccessibility(container) {
   }
 
   // Ensure all clickable elements are focusable
-  const focusable = container.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+  const focusable = container.querySelectorAll('button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -196,13 +196,11 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      const title = svg.querySelector('title');
-      if (title) {
-        const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
-        title.id = titleId;
-        svg.setAttribute('aria-labelledby', titleId);
-      }
+    const title = svg.querySelector('title');
+    if (title) {
+      const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+      title.id = titleId;
+      svg.setAttribute('aria-labelledby', titleId);
     }
   });
 }
@@ -247,7 +245,7 @@ function addProperLandmarkRegions(affectedElements) {
   if (!affectedElements || !Array.isArray(affectedElements)) return;
 
   affectedElements.forEach(el => {
-    if (el && el.tagName && !el.hasAttribute('role')) {
+    if (el && el.tagName) {
       el.setAttribute('role', 'region');
     }
   });

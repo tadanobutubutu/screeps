@@ -148,7 +148,7 @@ function improveAccessibility(container) {
   }
 
   // Ensure all clickable elements are focusable
-  const focusable = container.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+  const focusable = container.querySelectorAll('button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -161,6 +161,10 @@ function renderDependencyGraphContent(container) {
   elements.forEach(el => {
     if (el.dataset) {
       // Process dependency data
+      const dependencyInfo = el.dataset.dependency;
+      if (dependencyInfo) {
+        el.setAttribute('aria-label', `Dependency: ${dependencyInfo}`);
+      }
     }
   });
 }
@@ -196,13 +200,11 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      const title = svg.querySelector('title');
-      if (title) {
-        const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
-        title.id = titleId;
-        svg.setAttribute('aria-labelledby', titleId);
-      }
+    const title = svg.querySelector('title');
+    if (title && !svg.getAttribute('aria-labelledby')) {
+      const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+      title.id = titleId;
+      svg.setAttribute('aria-labelledby', titleId);
     }
   });
 }
@@ -233,10 +235,57 @@ function addressInsightIssues(insightReport) {
 
 function renderDependencyGraph(dependencyData) {
   console.log('Rendering dependency graph with data:', dependencyData);
+  // Validate and process the dependency data
+  if (!dependencyData || typeof dependencyData !== 'object') {
+    console.warn('Invalid dependency data provided to renderDependencyGraph');
+    return null;
+  }
+  
+  // Process nodes and edges from dependency data
+  const nodes = dependencyData.nodes || [];
+  const edges = dependencyData.edges || [];
+  
+  // Return processed graph data for potential further use
+  return {
+    nodes: nodes.map(node => ({
+      id: node.id || node.name,
+      label: node.label || node.name,
+      type: node.type || 'default'
+    })),
+    edges: edges.map(edge => ({
+      source: edge.source,
+      target: edge.target,
+      weight: edge.weight || 1
+    }))
+  };
 }
 
 function renderIndexView(indexData) {
   console.log('Rendering index view with data:', indexData);
+  // Validate and process the index data
+  if (!indexData || typeof indexData !== 'object') {
+    console.warn('Invalid index data provided to renderIndexView');
+    return null;
+  }
+  
+  // Process index entries and metadata
+  const entries = indexData.entries || [];
+  const metadata = indexData.metadata || {};
+  
+  // Return processed index data for potential further use
+  return {
+    entries: entries.map(entry => ({
+      id: entry.id,
+      title: entry.title || 'Untitled',
+      description: entry.description || '',
+      url: entry.url || '#'
+    })),
+    totalCount: entries.length,
+    metadata: {
+      createdAt: metadata.createdAt || new Date().toISOString(),
+      lastUpdated: metadata.lastUpdated || new Date().toISOString()
+    }
+  };
 }
 
 function calculateSum(a, b) {
@@ -244,7 +293,7 @@ function calculateSum(a, b) {
 }
 
 function addProperLandmarkRegions(affectedElements) {
-  if (!affectedElements || !Array.isArray(affectedElements)) return;
+  if (!affectedElements || !Array.isArray(affectedElements) || affectedElements.length === 0) return;
 
   affectedElements.forEach(el => {
     if (el && el.tagName && !el.hasAttribute('role')) {

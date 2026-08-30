@@ -253,6 +253,351 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+// Accessibility issue resolution functions (REACT_015, REACT_017, REACT_025, REACT_036, REACT_041)
+
+/**
+ * REACT_015: Add lang attribute to HTML element
+ * Ensures the html element has a valid lang attribute for accessibility
+ * @param {Document} doc - The document to check
+ * @returns {Object} - Result object with valid status and any errors
+ */
+function addLangAttribute(doc) {
+  const result = { valid: true, errors: [] };
+  
+  if (!doc || !doc.documentElement) {
+    result.valid = false;
+    result.errors.push('Document or documentElement not found');
+    return result;
+  }
+  
+  const htmlElement = doc.documentElement;
+  const lang = htmlElement.getAttribute('lang');
+  
+  if (!lang || lang.trim() === '') {
+    htmlElement.setAttribute('lang', 'en');
+    result.errors.push('Added missing lang attribute with default value "en"');
+  }
+  
+  return result;
+}
+
+/**
+ * REACT_025: Ensure unique landmarks - fixes duplicate landmark IDs
+ * @param {Document} doc - The document to validate
+ * @returns {Object} - Object containing validation results and fixes applied
+ */
+function ensureUniqueLandmarksInDoc(doc) {
+  const results = {
+    valid: true,
+    duplicates: [],
+    fixes: []
+  };
+  
+  if (!doc || !doc.body) {
+    results.valid = false;
+    results.errors = ['Document body not found'];
+    return results;
+  }
+  
+  const landmarkSelectors = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
+  const idMap = {};
+  
+  // Find all elements with IDs within landmark containers
+  landmarkSelectors.forEach(selector => {
+    const elements = doc.querySelectorAll(selector);
+    elements.forEach(el => {
+      if (el.id) {
+        if (idMap[el.id]) {
+          idMap[el.id].push(el);
+        } else {
+          idMap[el.id] = [el];
+        }
+      }
+    });
+  });
+  
+  // Identify duplicates
+  Object.keys(idMap).forEach(id => {
+    if (idMap[id].length > 1) {
+      results.duplicates.push({ id, count: idMap[id].length, elements: idMap[id] });
+      results.valid = false;
+      
+      // Fix duplicates by making IDs unique
+      idMap[id].forEach((el, index) => {
+        if (index > 0) {
+          const newId = id + '-' + index;
+          el.setAttribute('data-original-id', el.getAttribute('id'));
+          el.id = newId;
+          results.fixes.push({ 
+            type: 'duplicate-id-fixed', 
+            original: id, 
+            new: newId, 
+            element: el.tagName 
+          });
+        }
+      });
+    }
+  });
+  
+  return results;
+}
+
+/**
+ * REACT_036: Fix fake link issues - converts anchor elements without href to buttons
+ * or adds proper href attributes to links that should be links
+ * @param {Document} doc - The document to process
+ * @returns {Object} - Object containing found fake links and fixes applied
+ */
+function fixFakeLinks(doc) {
+  const results = {
+    fakeLinks: [],
+    fixes: []
+  };
+  
+  if (!doc) {
+    return results;
+  }
+  
+  const anchors = doc.querySelectorAll ? doc.querySelectorAll('a') : [];
+  
+  anchors.forEach(anchor => {
+    const href = anchor.getAttribute('href');
+    const onclick = anchor.getAttribute('onclick');
+    const role = anchor.getAttribute('role');
+    
+    // Check if it's a fake link (anchor without href)
+    if (!href && (onclick || role === 'button')) {
+      results.fakeLinks.push({
+        element: anchor,
+        tag: anchor.tagName,
+        text: anchor.textContent,
+        hasOnclick: !!onclick,
+        hasRoleButton: role === 'button'
+      });
+      
+      // Fix: Convert to button element for semantic correctness
+      const button = doc.createElement('button');
+      
+      // Copy relevant attributes
+      Array.from(anchor.attributes).forEach(attr => {
+        if (attr.name !== 'href' && attr.name !== 'role') {
+          button.setAttribute(attr.name, attr.value);
+        }
+      });
+      
+      // Set button type to prevent form submission
+      button.setAttribute('type', 'button');
+      
+      // Copy inner content
+      button.innerHTML = anchor.innerHTML;
+      
+      // Copy class
+      if (anchor.className) {
+        button.className = anchor.className;
+      }
+      
+      // Replace anchor with button
+      if (anchor.parentNode) {
+        anchor.parentNode.replaceChild(button, anchor);
+        results.fixes.push({
+          type: 'converted-to-button',
+          originalText: button.textContent.substring(0, 50)
+        });
+      }
+    }
+  });
+  
+  return results;
+}
+
+/**
+ * REACT_041: Add accessible names to SVG elements
+ * @param {Document} doc - The document to process
+ * @returns {Object} - Object containing SVGs processed and fixes applied
+ */
+function addSvgAccessibleNames(doc) {
+  const results = {
+    processed: 0,
+    fixed: 0,
+    fixes: []
+  };
+  
+  if (!doc) {
+    return results;
+  }
+  
+  const svgs = doc.querySelectorAll ? doc.querySelectorAll('svg') : [];
+  
+  svgs.forEach((svg, index) => {
+    results.processed++;
+    
+    const hasAriaLabel = svg.getAttribute('aria-label');
+    const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
+    const titleElement = svg.querySelector('title');
+    
+    // Skip if already has accessible name
+    if (hasAriaLabel || hasAriaLabelledby) {
+      return;
+    }
+    
+    // Try to generate accessible name
+    let accessibleName = null;
+    
+    // Check for existing title element
+    if (titleElement && titleElement.textContent) {
+      accessibleName = titleElement.textContent;
+    }
+    
+    // Check for adjacent caption or desc
+    const adjacentCaption = svg.parentElement?.querySelector('figcaption');
+    if (adjacentCaption && !accessibleName) {
+      accessibleName = adjacentCaption.textContent;
+    }
+    
+    // Generate name if none found
+    if (!accessibleName) {
+      accessibleName = 'SVG graphic ' + (index + 1);
+    }
+    
+    // If no title element exists, create one
+    if (!titleElement) {
+      const newTitle = doc.createElement('title');
+      newTitle.textContent = accessibleName;
+      newTitle.id = 'svg-title-' + index + '-' + Math.random().toString(36).substr(2, 9);
+      svg.insertBefore(newTitle, svg.firstChild);
+    }
+    
+    // Set aria-labelledby to reference the title
+    const titleId = titleElement?.id || newTitle?.id;
+    if (titleId) {
+      svg.setAttribute('aria-labelledby', titleId);
+      results.fixed++;
+      results.fixes.push({
+        type: 'added-accessible-name',
+        name: accessibleName,
+        method: titleElement ? 'aria-labelledby' : 'title-and-aria-labelledby'
+      });
+    }
+  });
+  
+  return results;
+}
+
+/**
+ * REACT_017: Add landmark roles and fix landmark issues
+ * @param {Document} doc - The document to process
+ * @returns {Object} - Object containing landmark fixes applied
+ */
+function addLandmarkRoles(doc) {
+  const results = {
+    fixes: [],
+    errors: []
+  };
+  
+  if (!doc || !doc.body) {
+    results.errors.push('Document body not found');
+    return results;
+  }
+  
+  const landmarkElements = {
+    'header': { role: 'banner', allowMultiple: false },
+    'footer': { role: 'contentinfo', allowMultiple: false },
+    'main': { role: 'main', allowMultiple: false },
+    'nav': { role: 'navigation', allowMultiple: true },
+    'aside': { role: 'complementary', allowMultiple: true },
+    'section': { role: 'region', allowMultiple: true, requiresLabel: true },
+    'article': { role: 'article', allowMultiple: true, requiresLabel: true }
+  };
+  
+  Object.keys(landmarkElements).forEach(tag => {
+    const config = landmarkElements[tag];
+    const elements = doc.querySelectorAll(tag);
+    
+    elements.forEach((el, index) => {
+      const currentRole = el.getAttribute('role');
+      
+      // Check if role is already set
+      if (!currentRole) {
+        el.setAttribute('role', config.role);
+        results.fixes.push({
+          element: tag,
+          action: 'added-role',
+          value: config.role,
+          index: index
+        });
+      }
+      
+      // Add accessible name to sections and articles that need labels
+      if (config.requiresLabel && !el.id && !el.getAttribute('aria-label')) {
+        const label = 'section-' + tag + '-' + index;
+        el.setAttribute('aria-label', label);
+        results.fixes.push({
+          element: tag,
+          action: 'added-label',
+          value: label,
+          index: index
+        });
+      }
+    });
+  });
+  
+  return results;
+}
+
+/**
+ * Comprehensive accessibility fix function that addresses all insight report issues
+ * @param {Document} doc - The document to fix
+ * @param {Object} insightReport - The insight report with specific issues to address
+ * @returns {Object} - Summary of all fixes applied
+ */
+function fixAccessibilityIssues(doc, insightReport) {
+  const summary = {
+    REACT_015: null,
+    REACT_017: null,
+    REACT_025: null,
+    REACT_036: null,
+    REACT_041: null,
+    errors: []
+  };
+  
+  try {
+    // REACT_015: Add lang attribute
+    summary.REACT_015 = addLangAttribute(doc);
+  } catch (e) {
+    summary.errors.push({ issue: 'REACT_015', error: e.message });
+  }
+  
+  try {
+    // REACT_017: Add landmark roles
+    summary.REACT_017 = addLandmarkRoles(doc);
+  } catch (e) {
+    summary.errors.push({ issue: 'REACT_017', error: e.message });
+  }
+  
+  try {
+    // REACT_025: Ensure unique landmarks
+    summary.REACT_025 = ensureUniqueLandmarksInDoc(doc);
+  } catch (e) {
+    summary.errors.push({ issue: 'REACT_025', error: e.message });
+  }
+  
+  try {
+    // REACT_036: Fix fake links
+    summary.REACT_036 = fixFakeLinks(doc);
+  } catch (e) {
+    summary.errors.push({ issue: 'REACT_036', error: e.message });
+  }
+  
+  try {
+    // REACT_041: Add accessible names to SVGs
+    summary.REACT_041 = addSvgAccessibleNames(doc);
+  } catch (e) {
+    summary.errors.push({ issue: 'REACT_041', error: e.message });
+  }
+  
+  return summary;
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +616,12 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  // New accessibility functions for insight report issues
+  addLangAttribute,
+  ensureUniqueLandmarksInDoc,
+  fixFakeLinks,
+  addSvgAccessibleNames,
+  addLandmarkRoles,
+  fixAccessibilityIssues
 };

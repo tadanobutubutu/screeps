@@ -125,11 +125,14 @@ function validateLandmarkAttributes(element) {
  const role = element.getAttribute('role');
  const tagName = element.tagName.toLowerCase();
 
- if (role && !validLandmarks.includes(role)) {
+ if (role && !validLandmarks.includes(role.toLowerCase())) {
  return false;
  }
 
- // TODO: Implement function for ensuring unique landmarks
+ return true;
+}
+
+// Ensure unique landmarks
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks) || landmarks.length === 0) {
     return landmarks;
@@ -148,11 +151,28 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
- return true;
-}
-
-function addProperLandmarkRegions() {
- // Code for adding proper landmark regions
+// Code for adding proper landmark regions
+function addLandmarkRegions(container) {
+ const elements = container ? container.querySelectorAll('header, nav, main, aside, footer') : [];
+ 
+ const landmarkMapping = {
+   header: 'banner',
+   nav: 'navigation',
+   main: 'main',
+   aside: 'complementary',
+   footer: 'contentinfo'
+ };
+ 
+ elements.forEach(element => {
+   const tagName = element.tagName.toLowerCase();
+   const role = landmarkMapping[tagName];
+   
+   if (role && !element.getAttribute('role')) {
+     element.setAttribute('role', role);
+   }
+ });
+ 
+ return elements.length;
 }
 
 // SVG accessibility functions
@@ -172,13 +192,15 @@ function setSvgAttributes(svg, accessibleName) {
  svg.setAttribute('aria-label', accessibleName);
 }
 
-function addSvgAccessibleNames(svgElements) {
+function addSvgAccessibleNames(container) {
  // Code for adding accessible names to SVGs
- if (!svgElements || !Array.isArray(svgElements)) return;
+ const svgElements = container ? container.querySelectorAll('svg') : document.querySelectorAll('svg');
+ 
+ if (!svgElements || svgElements.length === 0) return;
 
  svgElements.forEach(svg => {
- const accessibleName = getSvgAccessibleName(svg);
- setSvgAttributes(svg, accessibleName);
+   const accessibleName = getSvgAccessibleName(svg);
+   setSvgAttributes(svg, accessibleName);
  });
 }
 
@@ -200,19 +222,18 @@ function fixFakeLinkIssue(element) {
  if (!element) return;
 
  // Convert fake links (buttons styled as links) to proper buttons or links
- if (element.tagName === 'BUTTON' && element.classList.contains('fake-link')) {
- element.classList.remove('fake-link');
- element.setAttribute('role', 'button');
+ if (element.tagName === 'BUTTON' && element.getAttribute('href')) {
+   element.setAttribute('role', 'button');
 
- // Add accessible name if missing
- if (!element.getAttribute('aria-label') && !element.textContent.trim()) {
- console.warn('Fake link element missing accessible name');
- }
+   // Add accessible name if missing
+   if (!element.getAttribute('aria-label') && !element.textContent.trim()) {
+     console.warn('Fake link element missing accessible name');
+   }
  }
 }
 
 // Main accessibility issue handler
-function addressAccessibilityIssues(insightReport) {
+function handleAccessibilityIssues(insightReport) {
  // Implementation of the function to address accessibility issues
  // This addresses issues from the insight report structure
 
@@ -221,43 +242,44 @@ function addressAccessibilityIssues(insightReport) {
  }
 
  insightReport.issues.forEach(issue => {
- console.log(`Accessibility issue detected: ${issue.type} - ${issue.message || 'No message'}`);
+   console.log(`Accessibility issue detected: ${issue.type} - ${issue.message || 'No message'}`);
 
- switch (issue.type) {
- case 'REACT_015':
- if (issue.element) {
- addLangAttribute(issue.element);
- }
- break;
- case 'REACT_027':
- if (issue.element) {
- validateTableStructure();
- fixTableStructure(issue.element);
- }
- break;
- case 'REACT_017':
- if (issue.element) {
- addMainLandmark(issue.element);
- }
- break;
- case 'REACT_025':
- if (issue.element) {
- ensureUniqueLandmarks(issue.element);
- }
- break;
- case 'REACT_041':
- if (issue.elements && Array.isArray(issue.elements)) {
- addSvgAccessibleNames(issue.elements);
- }
- break;
- case 'REACT_036':
- if (issue.element) {
- fixFakeLinkIssue(issue.element);
- }
- break;
- default:
- console.log(`Unknown issue type: ${issue.type}`);
- }
+   switch (issue.type) {
+   case 'REACT_015':
+   if (issue.element) {
+     addLangAttribute(issue.element);
+   }
+   break;
+   case 'REACT_027':
+   if (issue.element) {
+     validateTableStructure();
+     fixTableStructure();
+   }
+   break;
+   case 'REACT_017':
+   if (issue.element) {
+     addMainLandmark();
+     addLandmarkRegions(issue.element);
+   }
+   break;
+   case 'REACT_025':
+   if (issue.element) {
+     ensureUniqueLandmarks(issue.elements);
+   }
+   break;
+   case 'REACT_041':
+   if (issue.elements && Array.isArray(issue.elements)) {
+     issue.elements.forEach(el => addSvgAccessibleNames(el));
+   }
+   break;
+   case 'REACT_036':
+   if (issue.element) {
+     fixFakeLinkIssue(issue.element);
+   }
+   break;
+   default:
+   console.log(`Unknown issue type: ${issue.type}`);
+   }
  });
 }
 
@@ -277,22 +299,16 @@ function processAccessibilityReport(report) {
  const findings = {};
 
  if (report) {
- if (report.REACT_015) findings.langAttribute = true;
- if (report.REACT_027) findings.tableissues = report.REACT_027.count || 0;
- if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
- if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
- if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
- if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
+   if (report.REACT_015) findings.langAttribute = true;
+   if (report.REACT_027) findings.tableissues = report.REACT_027.count || 0;
+   if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
+   if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
+   if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
+   if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
  }
 
  return findings;
 }
 
 // Example usage of the new function
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-
-// Add back removed exports
-module.exports = {
- config,
- addLangAttribute
-};
+// const report = getInsightReport(); // Hypothetical function

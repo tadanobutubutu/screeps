@@ -696,6 +696,13 @@ function checkTableAccessibility(table) {
 // Export new function if necessary
 export { checkTableAccessibility };
 
+// Resolved: merged renderPage from HEAD with updateGraphRendering from origin/main
+function renderPage(data) {
+  // Code to render the page
+  renderDependencyGraph(dependencyGraphContent);
+  renderIndex(indexContent);
+}
+
 // Update the existing function using the new functions for rendering graph/index
 // Assuming newFunction is meant to be used to update the rendering of graph/index
 function updateGraphRendering() {

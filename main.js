@@ -9,6 +9,8 @@ function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
 }
 
+// TODO: This is the existing code that needs to be preserved
+
 // Function to handle sorting books by author (descending)
 function sortByAuthor(a, b) {
   return b.author.localeCompare(a.author);

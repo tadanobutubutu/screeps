@@ -3,38 +3,44 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List, Button } from 'antd';
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
+// ... existing functions and constants
 
-// Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
+// New function to handle generating accessible SVG names
+function getSvgAccessibleName(svg) {
+  // Replace arbitrary placeholders with meaningful names
+  // assuming the SVG contains a title element with the actual name
+  const titleElement = svg.getElementsByTagName('title')[0];
+  if (titleElement) {
+    return titleElement.textContent;
+  }
+  return '';
 }
 
-// Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
+// New function to ensure unique ids for landmarks
+function ensureUniqueIds(id, elements) {
+  let index = 0;
+  while (elements.some((element) => element.id === `${id}-${index}`)) {
+    index++;
+  }
+  return `${id}-${index}`;
 }
 
-// Function to generate a key for each book item
-function generateKey(book) {
-  return `${book.id}-${book.title}-${book.author}`;
+// New function to get the language attribute based on the Redux store
+function getLangAttribute() {
+  const lang = useSelector(state => state.about.lang);
+  return { dir: lang.direction, lang };
 }
 
-// Function to render a single book item
-function BookItem(book) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        description={book.author}
-      />
-    </List.Item>
-  );
+// New function to get the full language attribute based on the Redux store
+function getFullLangAttribute() {
+  const lang = useSelector(state => state.about.lang);
+  return { dir: lang.direction, lang: lang.code };
 }
 
-// Function to create a new book entry in the Redux store
-function addBook(book) {
+// TODO: Validate table accessibility, fix table structure issues, validate landmark issues, and create accessible links as required
+
+// TODO: Implement the required changes to make the addBook function or form accessible (e.g., add ARIA labels, make form fields focusable, etc.)
+function addBookAccessible(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
@@ -52,14 +58,16 @@ function handleAddBookClick() {
   addBook({ id: 4, title: 'Sample Book', author: 'Sample Author' });
 }
 
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
+// Function to create a new book entry in the Redux store with improved accessibility
+function addBook(book) {
+  // Get accessible SVG name
+  const svgAccessibleName = getSvgAccessibleName(book.coverSvg);
+  const accessibleBook = {
+    // ... other book properties
+    coverSvgAccessibleName: svgAccessibleName,
+  };
 
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+  addBookAccessible(accessibleBook);
 }
 
 // Function to handle sorting the book list by author (descending)

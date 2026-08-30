@@ -8,5 +8,9 @@ function addLangAttribute(lang) {
     }
 }
 
-// Export the function if necessary
-// export { addLangAttribute };
+module.exports = {
+  myFunction: function () {
+    // Existing implementation
+  },
+  addLangAttribute: addLangAttribute
+}

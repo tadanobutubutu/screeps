@@ -1,7 +1,14 @@
 import React from 'react';
 
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
+// - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+
 // TODO: This is the existing code that needs to be preserved
-import react from 'react';
 
 const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 

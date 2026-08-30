@@ -1,1 +1,10 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// TODO: Identify and update specific functions that render dependency graphs or
+
+// Added function to render dependency graph
+function renderDependencyGraph(data) {
+  // Implementation goes here
+  console.log('Rendering dependency graph:', data);
+}
+
+// Export if needed
+export { renderDependencyGraph };

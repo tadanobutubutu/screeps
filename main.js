@@ -257,35 +257,31 @@ const a11yStore = {
     });
   },
 
-  // Address accessibility issues from insight report
-  addressAccessibilityIssues(report) {
-    if (!report) return;
-    a11yStore.addressAccessibilityIssues(report);
-  },
-
   // Preserve existing code functionality
   preserveExistingCode() {
     // Placeholder to ensure existing functionality is maintained
     console.log("Preserving existing code and accessibility features");
   },
+
+  // Address accessibility issues from insight report
+  addressAccessibilityIssues(report) {
+    if (!report) return;
+  }
 };
 
 // Standalone function to address accessibility issues from insight report
 function addressAccessibilityIssues(report) {
   if (!report) return;
-  a11yStore.addressAccessibilityIssues(report);
 }
 
-// New functions to address specific accessibility issues
-
 // Get person name for accessible labeling
-personName() {
+function personName() {
   const nameElement = document.querySelector('[data-person-name]');
   return nameElement ? nameElement.textContent.trim() : 'User';
-},
+}
 
 // Validate and fix table accessibility
-validateTableAccessibility() {
+function validateTableAccessibility() {
   if (!window) return;
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
@@ -299,10 +295,10 @@ validateTableAccessibility() {
       table.setAttribute('aria-label', 'Table');
     }
   });
-},
+}
 
 // Validate and fix table structure
-validateTableStructure() {
+function validateTableStructure() {
   if (!window) return;
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
@@ -325,10 +321,10 @@ validateTableStructure() {
       table.appendChild(tbody);
     }
   });
-},
+}
 
 // Validate landmark elements
-validateLandmark() {
+function validateLandmark() {
   if (!window) return;
   const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
   landmarks.forEach(el => {
@@ -336,10 +332,10 @@ validateLandmark() {
       // Optionally add a role, but leave as is for now
     }
   });
-},
+}
 
 // Validate landmark structure
-validateLandmarkStructure() {
+function validateLandmarkStructure() {
   if (!window) return;
   const main = document.querySelector('main');
   if (main) {
@@ -348,15 +344,15 @@ validateLandmarkStructure() {
       console.warn('Landmarks nested within main may be incorrect.');
     }
   }
-},
+}
 
 // Get accessible name for SVG
-getSvgAccessibleName(svg) {
+function getSvgAccessibleName(svg) {
   return svg.getAttribute('aria-label') || svg.getAttribute('title') || 'Image';
-},
+}
 
 // Ensure unique landmark IDs
-ensureUniqueLandmarks() {
+function ensureUniqueLandmarks() {
   if (!window) return;
   const landmarks = document.querySelectorAll('[role="landmark"], main, nav, header, footer, aside');
   const idSet = new Set();
@@ -372,50 +368,96 @@ ensureUniqueLandmarks() {
   });
 }
 
-// New function to handle dynamic content updates
-updateLiveRegion(message, priority = 'polite') {
-  if (!this.liveRegion) return;
-  this.announce(message, priority);
+// New function to add focus styles
+function addFocusStyles() {
+  const style = document.createElement('style');
+  style.textContent = `
+    :focus {
+      outline: 2px solid #005fcc;
+      outline-offset: 2px;
+    }
+    .focus-visible {
+      outline: 2px solid #005fcc;
+      outline-offset: 2px;
+    }
+  `;
+  document.head.appendChild(style);
 }
 
-// New function to check landmark elements
-checkLandmarkElements() {
-  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-  landmarkElements.forEach(tag => {
-    const landmark = document.querySelector(tag);
-    if (landmark && landmark.id === '') {
-      landmark.id = `${tag}-${Math.floor(Math.random() * 1000)}`;
+// New function to setup focus visible polyfill
+function setupFocusVisiblePolyfill() {
+  if (typeof window === 'undefined') return;
+  
+  let isFocusVisible = false;
+  
+  document.addEventListener('keydown', () => {
+    isFocusVisible = true;
+  });
+  
+  document.addEventListener('mousedown', () => {
+    isFocusVisible = false;
+  });
+  
+  document.addEventListener('focusin', (e) => {
+    if (isFocusVisible) {
+      e.target.classList.add('focus-visible');
     }
+  });
+  
+  document.addEventListener('focusout', (e) => {
+    e.target.classList.remove('focus-visible');
   });
 }
 
-// New function to add SVG accessibility props
-addSVGAccessibilityProps() {
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    svg.setAttribute('role', 'img');
-    if (!svg.getAttribute('aria-labelledby')) {
-      const titleText = svg.getAttribute('title') || 'Image description';
-      const descriptionId = `svg-desc-${Math.floor(Math.random() * 1000)}`;
-      svg.setAttribute('aria-labelledby', descriptionId);
+// New function to enhance dynamic content
+function enhanceDynamicContent() {
+  // Setup MutationObserver for dynamic content
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          // Apply accessibility attributes to new elements
+          if (node.querySelectorAll) {
+            // Add accessibility to new buttons
+            const newButtons = node.querySelectorAll('button:not([id])');
+            newButtons.forEach(btn => {
+              if (!btn.id) {
+                btn.id = `btn-${Math.floor(Math.random() * 10000)}`;
+              }
+            });
 
-      const descriptionElement = document.createElement('desc');
-      descriptionElement.id = descriptionId;
-      descriptionElement.textContent = titleText;
-      svg.appendChild(descriptionElement);
-    }
+            // Add accessibility to new SVGs
+            const newSvgs = node.querySelectorAll('svg:not([role])');
+            newSvgs.forEach(svg => {
+              if (!svg.hasAttribute('role')) {
+                svg.setAttribute('role', 'img');
+              }
+              if (!svg.hasAttribute('aria-labelledby')) {
+                const titleText = svg.getAttribute('title') || 'Image description';
+                const descriptionId = `svg-desc-${Math.floor(Math.random() * 10000)}`;
+                svg.setAttribute('aria-labelledby', descriptionId);
+
+                const desc = document.createElement('desc');
+                desc.id = descriptionId;
+                desc.textContent = titleText;
+                svg.appendChild(desc);
+              }
+            });
+          }
+        }
+      });
+    });
   });
-}
 
-// Address accessibility issues from insight report
-addressAccessibilityIssues(report) {
-  if (!report) return;
-  a11yStore.addressAccessibilityIssues(report);
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
 }
 
 // Exporting the module
 module.exports = {
-  newFunction,
+  newFunction: a11yStore.preserveExistingCode.bind(a11yStore),
   a11yStore,
   addressAccessibilityIssues,
   getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
@@ -430,5 +472,8 @@ module.exports = {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  addFocusStyles,
+  setupFocusVisiblePolyfill,
+  enhanceDynamicContent
 };

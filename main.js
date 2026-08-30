@@ -174,6 +174,14 @@ function validateAllTables() {
   };
 }
 
+/**
+ * Get all application data
+ * @returns {Object} Application data object
+ */
+function getData() {
+  return { ...appData };
+}
+
 // Module exports
 module.exports = {
   initialize,
@@ -183,5 +191,6 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  getData
 };

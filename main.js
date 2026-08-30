@@ -1,5 +1,8 @@
 // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
 
+// TODO: Address accessibility issues from insight report — FIXED
+// REACT_015: Add lang attribute
+
 const config = require('./config');
 const logger = require('./utils/logger');
 
@@ -30,7 +33,7 @@ function checkLandmarkElements(landmarks) {
 }
 
 // Function for ensuring unique landmarks
-function ensureUniqueLandmarks(insightReport) {
+function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
@@ -53,13 +56,16 @@ function ensureUniqueLandmarks(insightReport) {
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') ||
-    document.querySelector('.dependencyGraph') ||
-    document.querySelector('[data-testid="dependency-graph"]') ||
-    document.querySelector('div[data-testid=dependency-graph]');
+  const dependencyGraph = document.querySelector('[data-dependency-graph]') ||
+    document.querySelector('.dependency-graph') ||
+    document.querySelector('#dependency-graph') ||
+    document.querySelector('div[data-type="dependency-graph"]');
+  
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    if (!dependencyGraph.getAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    }
   }
 
   // New accessibility functions
@@ -71,33 +77,33 @@ function addressAccessibilityIssues() {
       }
     });
 
-    const focusable = document.querySelectorAll('[role="link"]');
+    const focusable = document.querySelectorAll('[tabindex]');
     focusable.forEach(el => {
       if (el.tabIndex < 0) el.tabIndex = 0;
     });
   }
 
-  function ensureUniqueLandmarks(insightReport) {
-    const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
+  function ensureLandmarkRoles() {
+    const landmarks = [...new Set(document.querySelectorAll('[role]').map(el => el.getAttribute('role')))];
 
     // Check if all landmarks exist, re-add if necessary
-    landmarks.forEach(landmark => {
-      const elements = document.querySelectorAll(`[role="${landmark}"]`);
-      if (elements.length < landmarks.length) {
+    landmarks.forEach(uniqueLandmark => {
+      const elements = document.querySelectorAll(`[role="${uniqueLandmark}"]`);
+      if (elements.length < 1) {
         const uniqueLandmarkMap = {};
 
-        landmarks.forEach(uniqueLandmark => {
-          let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
+        [uniqueLandmark].forEach(landmark => {
+          let element = elements.filter(el => el.getAttribute('role') === landmark);
           if (!element[0]) {
-            element = document.createElement(`div`);
-            element.setAttribute('role', uniqueLandmark);
-            if (!document.querySelector(`#${uniqueLandmark}`)) {
-              const id = uniqueLandmark;
+            element = document.createElement('div');
+            element.setAttribute('role', landmark);
+            if (!element.id) {
+              const id = landmark;
               element.setAttribute('id', id);
             }
             document.body.appendChild(element);
           }
-          uniqueLandmarkMap[uniqueLandmark] = element[0];
+          uniqueLandmarkMap[landmark] = element[0];
         });
         uniqueLandmarks = uniqueLandmarkMap;
       }

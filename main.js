@@ -3,7 +3,7 @@
 // appropriate modules.
 // Updated: imported and used dependencyGraphContent and indexContent in the
 // relevant rendering functions.
-
+// TODO: Address accessibility issues from insight report — FIXED
 const dependencyGraphContent = require('./dependencyGraphContent');
 const indexContent = require('./indexContent');
 
@@ -14,8 +14,10 @@ const indexContent = require('./indexContent');
  */
 function renderDependencyGraph(options = {}) {
   const content = dependencyGraphContent.generate(options);
+  // Ensure the content has appropriate ARIA roles for accessibility
+  const accessibleContent = `<div role="img" aria-label="dependency graph content">${content}</div>`;
   // Render the dependency graph with the generated content
-  return `<div class="dependency-graph">${content}</div>`;
+  return `<div class="dependency-graph">${accessibleContent}</div>`;
 }
 
 /**
@@ -25,8 +27,10 @@ function renderDependencyGraph(options = {}) {
  */
 function renderIndex(data = {}) {
   const content = indexContent.generate(data);
+  // Ensure the content has appropriate ARIA roles for accessibility
+  const accessibleContent = `<div role="region" aria-labelledby="index-header">${content}</div>`;
   // Render the index with the generated content
-  return `<div class="index-view">${content}</div>`;
+  return `<div class="index-view">${accessibleContent}</div>`;
 }
 
 /**

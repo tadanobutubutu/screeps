@@ -63,10 +63,6 @@ function ensureUniqueLandmarks() {
   // Implementation for ensuring unique landmarks
 }
 
-function createInPageButton() {
-  // Implementation for creating in-page buttons
-}
-
 function validateLinkAccessibility() {
   // Implementation for validating link accessibility
 }
@@ -78,3 +74,4 @@ function handleFakeLinks() {
 function addProperLandmarkRegions() {
   // Implementation for adding proper landmark regions
 }
+We in the file, there are multiple conflicting sections marked by <<<<<<< HEAD and >>>>>>> origin/main

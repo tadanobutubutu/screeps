@@ -66,47 +66,47 @@ function ensureUniqueLandmarks(landmarks) {
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') ||
-    document.querySelector('.dependencyGraph') ||
-    document.querySelector('[data-testid="dependency-graph"]') ||
-    document.querySelector('div[data-testid=dependency-graph]');
+  const dependencyGraph = document.querySelector('[data-dependency-graph]') ||
+    document.querySelector('.dependency-graph') ||
+    document.getElementById('dependency-graph') ||
+    document.querySelector('[role="region"]');
+  
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
   }
 
   function improveAccessibility() {
-    const buttons = document.querySelectorAll('button');
+    const buttons = dependencyGraph ? dependencyGraph.querySelectorAll('button') : document.querySelectorAll('button');
     buttons.forEach(button => {
       if (!button.getAttribute('aria-label')) {
         button.setAttribute('aria-label', button.textContent || 'Button');
       }
     });
 
-    const focusable = document.querySelectorAll('[role="link"]');
+    const focusable = dependencyGraph ? dependencyGraph.querySelectorAll('a, button, input, select, textarea, [tabindex]') : document.querySelectorAll('a, button, input, select, textarea, [tabindex]');
     focusable.forEach(el => {
       if (el.tabIndex < 0) el.tabIndex = 0;
     });
   }
 
-  const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
+  const landmarks = [...document.querySelectorAll('[data-issue]')].filter(issue => issue.ariaRole);
 
   // Check if all landmarks exist, re-add if necessary
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    const elements = document.querySelectorAll(`[role="${landmark.ariaRole}"]`);
     if (elements.length < landmarks.length) {
       const uniqueLandmarkMap = {};
 
-      landmarks.forEach(uniqueLandmark => {
+      Object.keys(landmark).forEach(uniqueLandmark => {
         let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
         if (!element[0]) {
-          element = document.createElement('div');
-          element.setAttribute('role', uniqueLandmark);
-          if (!document.querySelector(`#${uniqueLandmark}`)) {
+          element = document.querySelectorAll(`[name="${uniqueLandmark}"]`);
+          element[0].setAttribute('role', uniqueLandmark);
+          if (!element[0].getAttribute('id')) {
             const id = uniqueLandmark;
-            element.setAttribute('id', id);
+            element[0].setAttribute('id', id);
           }
-          document.body.appendChild(element);
         }
         uniqueLandmarkMap[uniqueLandmark] = element[0];
       });
@@ -114,7 +114,31 @@ function addressAccessibilityIssues() {
     }
   });
 
-  improveAccessibility();
+  return improveAccessibility();
+}
+
+// Function to ensure elements have unique IDs
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) return null;
+  
+  let id = element.getAttribute('id');
+  if (!id) {
+    id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.setAttribute('id', id);
+  }
+  return id;
+}
+
+// Function to add aria-label to elements that need it
+function addAriaLabel(element, label) {
+  if (!element) return false;
+  
+  const existingLabel = element.getAttribute('aria-label');
+  if (!existingLabel) {
+    element.setAttribute('aria-label', label);
+    return true;
+  }
+  return false;
 }
 
 // New function to render dependency graphs

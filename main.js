@@ -9,343 +9,327 @@
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 // Main entry point for dependency visualization tool
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
 
-const fs = require('fs');
-const path = require('path');
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
-/**
- * Calculates the depth of dependency tree
- * @param {Object} dependencies - The dependency object
- * @param {string} currentKey - Current key being processed
- * @returns {number} Maximum depth of the dependency tree
- */
-function getDependencyDepth(dependencies, currentKey = '') {
-  if (!dependencies || typeof dependencies !== 'object') {
-    return 0;
-  }
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+document.documentElement.lang = 'en';
+
+reportWebVitals();
+
+const VERSION = '1.0.0';
+
+const CONFIG = {
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  env: process.env.NODE_ENV || 'development'
+};
+
+function initialize() {
+  console.log('Application initialized');
+  return true;
+}
+
+function getConfig() {
+  return CONFIG;
+}
+
+function getVersion() {
+  return VERSION;
+}
+
+// Function to get the lang attribute
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+// Function to validate table accessibility
+function validateTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  const issues = [];
   
-  let maxDepth = 0;
-  const keys = Object.keys(dependencies);
-  
-  keys.forEach(key => {
-    const value = dependencies[key];
-    if (typeof value === 'object' && value !== null) {
-      const nestedDepth = getDependencyDepth(value, key);
-      maxDepth = Math.max(maxDepth, nestedDepth + 1);
+  tables.forEach((table, index) => {
+    const hasCaption = table.querySelector('caption') !== null;
+    const hasAriaLabel = table.getAttribute('aria-label') !== null;
+    const hasAriaLabelledby = table.getAttribute('aria-labelledby') !== null;
+    
+    if (!hasCaption && !hasAriaLabel && !hasAriaLabelledby) {
+      issues.push({
+        type: 'REACT_027',
+        message: `Table ${index + 1} lacks accessible name (caption, aria-label, or aria-labelledby)`,
+        severity: 'warning'
+      });
     }
   });
   
-  return maxDepth;
+  return issues;
 }
 
-// TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
-
-/**
- * Renders a dependency graph as ASCII art for debugging purposes.
- * @param {Object} dependencies - The dependency object
- * @param {string} prefix - Current prefix for indentation
- * @param {boolean} isLast - Whether this is the last item at current level
- * @returns {string} ASCII representation of the dependency graph
- */
-function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
-  if (!dependencies || typeof dependencies !== 'object') {
-    return '';
-  }
+// Function to validate table structure
+function validateTableStructure() {
+  const tables = document.querySelectorAll('table');
+  const issues = [];
   
-  let output = '';
-  const keys = Object.keys(dependencies);
-  
-  keys.forEach((key, index) => {
-    const isLastItem = index === keys.length - 1;
-    const connector = isLast ? '└── ' : '├── ';
-    const value = dependencies[key];
+  tables.forEach((table, index) => {
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    const headers = table.querySelectorAll('th');
     
-    output += `${prefix}${connector}${key}`;
+    if (!thead) {
+      issues.push({
+        type: 'REACT_027',
+        message: `Table ${index + 1} missing thead element`,
+        severity: 'warning'
+      });
+    }
     
-    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      output += '/\n';
-      const extension = isLast ? '    ' : '│   ';
-      output += renderDependencyGraph(value, prefix + extension, isLastItem);
-    } else {
-      output += ` -> ${value}\n`;
+    if (!tbody) {
+      issues.push({
+        type: 'REACT_027',
+        message: `Table ${index + 1} missing tbody element`,
+        severity: 'warning'
+      });
+    }
+    
+    if (headers.length === 0) {
+      issues.push({
+        type: 'REACT_027',
+        message: `Table ${index + 1} missing th elements for headers`,
+        severity: 'warning'
+      });
     }
   });
   
-  return output;
+  return issues;
 }
 
-/**
- * Displays module structure for debugging purposes.
- * @param {Array} modules - Array of module objects
- * @returns {string} Formatted module structure display
- */
-function displayModuleStructure(modules) {
-  if (!Array.isArray(modules)) {
-    return 'Error: modules must be an array';
+// Function to get SVG accessible name
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return '';
+  
+  // Check for title element inside SVG
+  const title = svgElement.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent;
   }
   
-  let output = 'Module Structure:\n';
-  output += '==================\n\n';
+  // Check for aria-label attribute
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
   
-  modules.forEach((mod, index) => {
-    const name = mod.name || mod.id || `Module ${index + 1}`;
-    output += `${index + 1}. ${name}\n`;
-    
-    if (mod.dependencies && Array.isArray(mod.dependencies)) {
-      output += `   Dependencies: ${mod.dependencies.join(', ')}\n`;
+  // Check for aria-labelledby attribute
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const referencedElement = document.getElementById(ariaLabelledby);
+    if (referencedElement) {
+      return referencedElement.textContent;
     }
-    
-    if (mod.path) {
-      output += `   Path: ${mod.path}\n`;
+  }
+  
+  return '';
+}
+
+// Function to validate SVG accessibility
+function validateSvgAccessibility() {
+  const svgs = document.querySelectorAll('svg');
+  const issues = [];
+  
+  svgs.forEach((svg, index) => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (!accessibleName) {
+      issues.push({
+        type: 'REACT_041',
+        message: `SVG ${index + 1} lacks accessible name (title, aria-label, or aria-labelledby)`,
+        severity: 'warning'
+      });
     }
-    
-    output += '\n';
   });
   
-  return output;
+  return issues;
 }
 
-/**
- * Generates a dependency report for debugging
- * @param {Object} dependencies - The dependency object
- * @returns {Object} Report containing statistics
- */
-function generateDependencyReport(dependencies) {
-  return {
-    totalDependencies: Object.keys(dependencies).length,
-    maxDepth: getDependencyDepth(dependencies),
-    graph: renderDependencyGraph(dependencies)
-  };
-}
-
-/**
- * Main processing function
- */
-function main() {
-  const sampleDependencies = {
-    'express': '4.18.2',
-    'lodash': {
-      'isArray': '4.0.0',
-      'merge': {
-        'isObject': '4.0.0'
+// Function to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+  const issues = [];
+  
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(landmark);
+    const roleAttr = `[role="${landmark}"]`;
+    const roleElements = document.querySelectorAll(roleAttr);
+    
+    // For main, header, footer, aside - there should typically be only one
+    if (['main', 'header', 'footer', 'aside'].includes(landmark)) {
+      if (elements.length > 1 || roleElements.length > 1) {
+        issues.push({
+          type: 'REACT_025',
+          message: `Multiple ${landmark} landmarks detected (${elements.length + roleElements.length} found)`,
+          severity: 'warning'
+        });
       }
     }
+  });
+  
+  return issues;
+}
+
+// Function to fix fake link issues
+function fixFakeLinkIssues() {
+  const issues = [];
+  
+  // Find elements with onclick that look like links but aren't
+  const anchorsWithoutHref = document.querySelectorAll('a:not([href])');
+  const clickableElements = document.querySelectorAll('[onclick]');
+  
+  clickableElements.forEach((element, index) => {
+    const tagName = element.tagName.toLowerCase();
+    const hasHref = element.getAttribute('href');
+    const hasOnClick = element.getAttribute('onclick') !== null;
+    
+    // Check if element looks like a link (has cursor pointer, styled as link, etc.)
+    const computedStyle = window.getComputedStyle(element);
+    const isClickable = computedStyle.cursor === 'pointer' || 
+                        element.classList.contains('link') ||
+                        computedStyle.textDecoration === 'underline';
+    
+    if (isClickable && !hasHref && hasOnClick) {
+      // Check if it's in a navigation context
+      const parentNav = element.closest('nav');
+      const parentList = element.closest('ul, ol');
+      
+      if (parentNav || parentList) {
+        issues.push({
+          type: 'REACT_036',
+          message: `Element ${index + 1} appears to be a fake link (clickable element without href in navigation)`,
+          severity: 'warning',
+          suggestion: 'Consider using an <a> element with href attribute for proper accessibility'
+        });
+      }
+    }
+  });
+  
+  return issues;
+}
+
+// Function to create accessible in-page button
+function createInPageButton(options = {}) {
+  const { id, text, onClick, className = '' } = options;
+  
+  const button = document.createElement('button');
+  if (id) button.id = id;
+  button.textContent = text || 'Button';
+  button.className = className;
+  button.type = 'button';
+  
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+  
+  return button;
+}
+
+// Function to add accessible name to person name element
+function personName(element) {
+  if (!element) return null;
+  
+  // Check if element already has accessible name
+  const existingAriaLabel = element.getAttribute('aria-label');
+  const existingAriaLabelledby = element.getAttribute('aria-labelledby');
+  
+  if (existingAriaLabel || existingAriaLabelledby) {
+    return existingAriaLabel || 'Person name';
+  }
+  
+  // If element has text content, use it
+  const textContent = element.textContent?.trim();
+  if (textContent) {
+    element.setAttribute('aria-label', textContent);
+  }
+  
+  return element;
+}
+
+// Main function to address all accessibility issues
+function addressAccessibilityIssues() {
+  const results = {
+    langAttribute: getLangAttribute(),
+    tableAccessibilityIssues: validateTableAccessibility(),
+    tableStructureIssues: validateTableStructure(),
+    svgAccessibilityIssues: validateSvgAccessibility(),
+    landmarkIssues: ensureUniqueLandmarks(),
+    fakeLinkIssues: fixFakeLinkIssues()
   };
   
-  console.log('Dependency Graph:');
-  console.log(renderDependencyGraph(sampleDependencies));
+  // Log all issues
+  const allIssues = [
+    ...results.tableAccessibilityIssues,
+    ...results.tableStructureIssues,
+    ...results.svgAccessibilityIssues,
+    ...results.landmarkIssues,
+    ...results.fakeLinkIssues
+  ];
   
-  console.log('Depth:', getDependencyDepth(sampleDependencies));
-}
-
-/**
- * Validates table accessibility
- * @param {HTMLElement} table - The table element to validate
- */
-function validateTableAccessibility(table) {
-  // Implementation for table accessibility validation
-  if (!table) return false;
-  return true;
-}
-
-/**
- * Validates table structure
- * @param {HTMLElement} table - The table element to validate
- */
-function validateTableStructure(table) {
-  // Implementation for table structure validation
-  if (!table) return false;
-  return true;
-}
-
-/**
- * Validates landmark accessibility
- */
-function validateLandmark() {
-  // Implementation for landmark validation
-}
-
-/**
- * Validates landmark structure
- */
-function validateLandmarkStructure() {
-  // Implementation for landmark structure validation
-}
-
-/**
- * Gets accessible name for SVG element
- * @param {HTMLElement} svg - The SVG element
- * @returns {string} Accessible name
- */
-function getSvgAccessibleName(svg) {
-  // Implementation for getting SVG accessible name
-  return svg ? svg.getAttribute('aria-label') || '' : '';
-}
-
-/**
- * Sets SVG attributes for accessibility
- * @param {HTMLElement} svg - The SVG element
- * @param {string} accessibleName - The accessible name
- */
-function setSvgAttributes(svg, accessibleName) {
-  // Implementation for setting SVG attributes
-  if (svg) {
-    svg.setAttribute('role', 'img');
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
+  if (allIssues.length > 0) {
+    console.group('Accessibility Issues Found:');
+    allIssues.forEach(issue => {
+      console.warn(`${issue.type}: ${issue.message}`);
+      if (issue.suggestion) {
+        console.info(`Suggestion: ${issue.suggestion}`);
+      }
+    });
+    console.groupEnd();
   }
+  
+  return {
+    totalIssues: allIssues.length,
+    issues: allIssues,
+    lang: results.langAttribute
+  };
 }
 
-/**
- * Creates an in-page button with accessibility considerations
- */
-function createInPageButton() {
-  // Implementation for creating in-page button
-}
-
-/**
- * Validates link accessibility
- */
-function validateLinkAccessibility() {
-  // Implementation for link accessibility validation
-}
-
-/**
- * Handles fake links appropriately
- */
-function handleFakeLinks() {
-  // Implementation for handling fake links
-}
-
-// New function to fix accessibility issues as per the insight report
-function fixAccessibilityIssues() {
-  // Code to fix accessibility issues as per the insight report
-}
-
-/**
- * Divides two numbers with proper error handling
- * @param {number} dividend - The number to be divided
- * @param {number} divisor - The number to divide by
- * @returns {number} Result of division
- */
-function divide(dividend, divisor) {
-  if (typeof dividend !== 'number' || typeof divisor !== 'number') {
-    throw new Error('Both dividend and divisor must be numbers');
-  }
-  if (divisor === 0) {
-    throw new Error('Division by zero is not allowed');
-  }
-  return dividend / divisor;
-}
-
-function formatProductName(product) {
-  return `${product.name} - ${product.category}`;
-}
-
-function renderProductCard(product) {
-  return `<div class="product-card"><h3>${product.name}</h3><p>${product.category}</p></div>`;
-}
-
-function renderProductList(products) {
-  const container = document.getElementById('product-list');
-  container.innerHTML = products.map(renderProductCard).join('');
-  return container;
-}
-
-function calculateDiscount(subtotal) {
-  return subtotal > 100 ? subtotal * 0.1 : 0;
-}
-
-function formatCurrency(amount) {
-  return `$${amount.toFixed(2)}`;
-}
-
-function formatDate(date) {
-  return date.toLocaleDateString();
-}
-
-function calculateTotalPrice(cart) {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = calculateDiscount(subtotal);
-  return subtotal - discount;
-}
-
-function renderCart(cart) {
-  const total = calculateTotalPrice(cart);
-  return `
-    <div class="cart">
-      <h2>Shopping Cart</h2>
-      <p>Total: ${formatCurrency(total)}</p>
-      <p>Date: ${formatDate(new Date())}</p>
-    </div>
-  `;
-}
-
-function validateInput(input) {
-  return input && input.products && Array.isArray(input.products);
-}
-
-function validateAndRender(input) {
-  if (validateInput(input)) {
-    return renderProductList(input.products);
-  }
-  return null;
-}
-
-function renderPage() {
-  // Implementation for rendering the page
-}
-
-function someFunction() {
-  // ... implementation ...
-}
-
-// Exporting for both ES modules and CommonJS compatibility
-export function exportedFunction() {
-  return 'This is an exported function';
-}
-
-// Export UI / product functions
 export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage,
-  divide,
-  displayModuleStructure,
-  generateDependencyReport,
-  getDependencyDepth
-};
-
-// Exporting for CommonJS compatibility
-module.exports = {
-  renderDependencyGraph,
-  displayModuleStructure,
-  getDependencyDepth,
-  generateDependencyReport,
-  main,
+  VERSION,
+  CONFIG,
+  initialize,
+  getConfig,
+  getVersion,
+  addressAccessibilityIssues,
+  getLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
   getSvgAccessibleName,
-  setSvgAttributes,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssues,
   createInPageButton,
-  fixAccessibilityIssues,
-  divide,
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage,
-  someFunction
+  personName
 };
 
-// Run if executed directly
-if (require.main === module) {
-  main();
-}
+export default {
+  VERSION,
+  CONFIG,
+  initialize,
+  getConfig,
+  getVersion,
+  addressAccessibilityIssues,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssues,
+  createInPageButton,
+  personName
+};

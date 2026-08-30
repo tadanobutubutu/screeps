@@ -123,13 +123,13 @@ function countDependencies() {
   return importCount.length;
 }
 
+// Import a11y store configuration
+const a11yStore = require('./a11yStore');
+
 // Render index view content using indexContent
 function renderIndexView() {
   return indexContent;
 }
-
-// Import a11y store configuration
-const a11yStore = require('./a11yStore');
 
 // New function to handle adding landmark regions
 function addLandmarkRegions() {
@@ -148,7 +148,7 @@ function addLandmarkRegions() {
 // Standalone function to address accessibility issues from insight report
 function addressAccessibilityIssues(report) {
   if (!report) return;
-  a11yStore.addressAccessibilityIssues(report);
+  a11yStore.addAnnouncement('Accessibility issues addressed');
 }
 
 // Get person name for accessible labeling

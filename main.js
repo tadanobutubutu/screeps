@@ -1,3 +1,6 @@
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice
+
 // main.js - Screeps bot with utility and accessibility features
 
 // Utility functions for common tasks

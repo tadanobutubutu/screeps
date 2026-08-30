@@ -387,7 +387,7 @@ function main() {
 }
 
 // Run if executed directly
-if (require.main === module) {
+if (typeof require !== 'undefined' && require.main === module) {
   main();
 }
 
@@ -437,7 +437,7 @@ function fixFakeLinks() {
 }
 
 // Add lang attribute to HTML element
-function addLangAttribute() {
+function addLangAttributeToHtml() {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.lang) {
     htmlElement.setAttribute('lang', 'en');
@@ -486,11 +486,11 @@ function fixTableHeaderCellScope() {
 }
 
 // Add main landmark
-function addMainLandmark() {
+function addMainLandmarkToPage() {
   const mainElements = document.querySelectorAll('main, [role="main"]');
   mainElements.forEach(main => {
     if (!main.getAttribute('role')) {
-      main.setAttribute('role', 'main');
+      main.getAttribute('role', 'main');
     }
   });
   // If no main element exists, create one for the main content
@@ -529,9 +529,9 @@ function implementNewFunction() {
   addressAccessibilityIssues();
   fixFakeLinks();
   ensureUniqueLandmarks();
-  addLangAttribute();
+  addLangAttributeToHtml();
   fixTableStructureIssues();
-  addMainLandmark();
+  addMainLandmarkToPage();
   addSvgAccessibleNames();
   fixTableHeaderCellScope();
 }
@@ -539,12 +539,12 @@ function implementNewFunction() {
 // Existing code preserved below
 function applicationMain() {
   console.log('Running main application');
-  return someFunction();
+  return applicationMain();
 }
 
 // Export all functions for use elsewhere in the repository
 
-module.exports = {
+export {
   config,
   appState,
   initializeApp,

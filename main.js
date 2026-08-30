@@ -90,7 +90,7 @@ function addLangAttribute(htmlElement) {
   }
 
   if (!htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
+    htmlElement.setAttribute('lang',en); // Default to English if not specified
   }
 }
 

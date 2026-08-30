@@ -26,7 +26,7 @@ function ensureUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 7);
+        const suffix = Math.random().toString(36).substring(2, 9);
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -59,6 +59,16 @@ function addAriaLabel(element, label) {
     if (!element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
+}
+
+/**
+ * This function gets the language attribute without region (if provided)
+ * @returns {string} - the language attribute without region (if provided)
+ */
+function getLangAttribute() {
+    const lang = document.documentElement.lang || '';
+    // Return just the base language (e.g., 'en' from 'en-US')
+    return lang.split('-')[0];
 }
 
 /**
@@ -120,7 +130,7 @@ function addProperLandmarkRegions() {
   main.id = 'main-content';
 
   // Create navigation landmark
-  const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
+  const nav = document.querySelector('nav') || document.createElement('nav');
   nav.setAttribute('role', 'navigation');
   nav.id = nav.id || 'primary-navigation';
 
@@ -151,10 +161,10 @@ function addProperLandmarkRegions() {
  */
 function addProperAccountManagement() {
   // Add aria-expanded to collapsible menus/buttons
-  const collapsibles = document.querySelectorAll('[aria-expanded], .collapsible');
-  collapsibles.forEach(item => {
-    if (!item.hasAttribute('aria-expanded')) {
-      item.setAttribute('aria-expanded', 'false');
+  const collapsibles = document.querySelectorAll('.collapsible');
+  collapsibles.forEach(collapsible => {
+    if (!collapsible.hasAttribute('aria-expanded')) {
+      collapsible.setAttribute('aria-expanded', 'false');
     }
   });
 
@@ -184,7 +194,7 @@ function addAriaToFormControls() {
     if (!control.id && !control.getAttribute('aria-label')) {
       const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
       if (label) {
-        label.id = label.id || `label-${control.id}`;
+        label.id = label.id || `label-${Math.random().toString(36).substr(2, 9)}`;
         control.setAttribute('aria-labelledby', label.id);
       }
     }
@@ -240,10 +250,7 @@ function isLinkAccessible(link) {
 
 // Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
 // Assumes you have already set the id on the button element in your code.
-replaceMyButtonId();
 
-addProperLandmarkRegions();
-addProperAccountManagement();
 addAriaToFormControls();
 
 module.exports = {

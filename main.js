@@ -174,6 +174,9 @@ function validateAllTables() {
   };
 }
 
+// Add lang attribute to HTML element
+document.documentElement.setAttribute('lang', 'en');
+
 // Module exports
 module.exports = {
   initialize,

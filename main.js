@@ -77,333 +77,210 @@ function addLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
-function addressAccessibilityIssues(insightReport) {
-  // Implementation of the function to address accessibility issues
-  // This addresses issues from the insight report:
-  // - REACT_015: Add lang attribute to HTML element
-  // - REACT_027: Fix 26 table structure issues
-  // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs
-  // - REACT_025: Ensure unique landmarks (2 issues)
-  // - REACT_036: Fix 1 fake link issue
-
-  if (!insightReport || !insightReport.issues) {
-    return;
+// TODO: Implement credential response handling
+function handleCredentialResponse(response) {
+  if (!response) {
+    return { success: false, error: 'No response provided' };
   }
 
-  // Address accessibility issues from insight report
-  insightReport.issues.forEach(issue => {
-    switch (issue.type) {
-      case 'REACT_015':
-        // Add lang attribute to HTML element
-        if (issue.element) {
-          addLangAttribute(issue.element);
-        }
-        break;
-      case 'REACT_027':
-        // Fix table structure issues
-        if (issue.type === 'structure') {
-          validateTableStructure();
-          fixTableStructure();
-        } else {
-          validateTableAccessibility();
-        }
-        break;
-      case 'REACT_017':
-        // Add/fix landmark issues
-        if (issue.structure) {
-          validateLandmarkStructure();
-          addMainLandmark();
-        } else {
-          validateLandmark();
-        }
-        addLandmarkRegions();
-        break;
-      case 'REACT_041':
-        // Add accessible names to SVGs
-        if (issue.svg) {
-          const accessibleName = getSvgAccessibleName(issue.svg);
-          setSvgAttributes(issue.svg, accessibleName);
-        }
-        break;
-      case 'REACT_025':
-        // Ensure unique landmarks
-        ensureUniqueLandmarks();
-        break;
-      case 'REACT_036':
-        // Fix fake link issues
-        handleFakeLinks();
-        createInPageButton();
-        break;
-      default:
-        // Handle unknown issue types
-        break;
+  if (response.error) {
+    return {
+      success: false,
+      error: response.error_description || response.error || 'Unknown credential error'
+    };
+  }
+
+  if (!response.credential) {
+    return { success: false, error: 'No credential in response' };
+  }
+
+  try {
+    const credentialParts = response.credential.split('.');
+    if (credentialParts.length !== 3) {
+      return { success: false, error: 'Invalid credential format' };
     }
-  });
-}
 
-// REACT_015: Add lang attribute to HTML element
-function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (!htmlElement.getAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
+    const payload = JSON.parse(atob(credentialParts[1].replace(/-/g, '+').replace(/_/g, '/')));
+
+    if (payload.exp && Date.now() >= payload.exp * 1000) {
+      return { success: false, error: 'Credential has expired' };
+    }
+
+    return {
+      success: true,
+      credential: response.credential,
+      payload: payload,
+      expiresAt: payload.exp ? new Date(payload.exp * 1000) : null
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to parse credential: ' + (error.message || 'Unknown error') };
   }
 }
 
-// REACT_027: Fix table structure issues
-function fixTableStructure() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    if (!table.querySelector('thead')) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
-        const cells = firstRow.querySelectorAll('th, td');
-        cells.forEach(cell => {
-          const newTh = document.createElement('th');
-          newTh.textContent = cell.textContent;
-          if (cell.hasAttribute('scope')) {
-            newTh.setAttribute('scope', cell.getAttribute('scope'));
-          } else {
-            newTh.setAttribute('scope', 'col');
-          }
-          headerRow.appendChild(newTh);
-        });
-        thead.appendChild(headerRow);
-        table.insertBefore(thead, table.firstChild);
+function validateCredential(credential) {
+  if (!credential || typeof credential !== 'string') {
+    return false;
+  }
+
+  const parts = credential.split('.');
+  if (parts.length !== 3) {
+    return false;
+  }
+
+  try {
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+
+    if (payload.exp && Date.now() >= payload.exp * 1000) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+function processCredentialToken(credential) {
+  if (!credential || typeof credential !== 'string') {
+    return null;
+  }
+
+  const parts = credential.split('.');
+  if (parts.length !== 3) {
+    return null;
+  }
+
+  try {
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return {
+      iss: payload.iss,
+      sub: payload.sub,
+      aud: payload.aud,
+      exp: payload.exp,
+      iat: payload.iat,
+      email: payload.email,
+      name: payload.name,
+      picture: payload.picture
+    };
+  } catch (error) {
+    console.error('Error processing credential token:', error);
+    return null;
+  }
+}
+
+function handleCredentialError(error) {
+  if (!error) {
+    return 'An unknown error occurred';
+  }
+
+  if (error.code === 'invalid_token') {
+    return 'The credential token is invalid or has been revoked';
+  }
+
+  if (error.code === 'token_expired') {
+    return 'The credential token has expired. Please sign in again.';
+  }
+
+  if (error.code === 'invalid_grant') {
+    return 'The credential grant is invalid or expired';
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return 'An error occurred while processing credentials';
+}
+
+function validateCredentialResponse(response) {
+  if (!response || typeof response !== 'object') {
+    return { valid: false, error: 'Invalid response format' };
+  }
+
+  if (!response.credential || typeof response.credential !== 'string') {
+    return { valid: false, error: 'Missing or invalid credential field' };
+  }
+
+  if (response.credential.length === 0) {
+    return { valid: false, error: 'Credential cannot be empty' };
+  }
+
+  try {
+    const parts = response.credential.split('.');
+    if (parts.length !== 3) {
+      return { valid: false, error: 'Credential must have 3 parts' };
+    }
+
+    const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+
+    if (payload.exp && Date.now() >= payload.exp * 1000) {
+      return { valid: false, error: 'Credential has expired' };
+    }
+
+    return { valid: true, payload: payload };
+  } catch (error) {
+    return { valid: false, error: 'Failed to validate credential: ' + (error.message || 'Parse error') };
+  }
+}
+
+class CredentialCache {
+  constructor() {
+    this.cache = {};
+    this.cacheDuration = appState.config?.credentialCacheDuration || 300000;
+  }
+
+  set(credential, data) {
+    try {
+      const encrypted = this.encryptCredential(credential);
+      this.cache[credential] = {
+        data: data,
+        expiresAt: Date.now() + this.cacheDuration
+      };
+      return true;
+    } catch (error) {
+      console.error('Error caching credential:', error);
+      return false;
+    }
+  }
+
+  get(credential) {
+    try {
+      const cached = this.cache[credential];
+      if (!cached) return null;
+
+      if (Date.now() >= cached.expiresAt) {
+        delete this.cache[credential];
+        return null;
       }
+
+      return cached.data;
+    } catch (error) {
+      console.error('Error retrieving cached credential:', error);
+      return null;
     }
-    if (!table.querySelector('tbody')) {
-      const rows = Array.from(table.querySelectorAll('tr'));
-      const thead = table.querySelector('thead');
-      const rowsAfterHeader = thead ? rows.slice(1) : rows;
-      if (rowsAfterHeader.length > 0) {
-        const tbody = document.createElement('tbody');
-        rowsAfterHeader.forEach(row => {
-          tbody.appendChild(row);
-        });
-        table.appendChild(tbody);
+  }
+
+  clear() {
+    this.cache = {};
+  }
+
+  cleanup() {
+    const now = Date.now();
+    Object.keys(this.cache).forEach(key => {
+      if (!this.cache[key].expiresAt || now >= this.cache[key].expiresAt) {
+        delete this.cache[key];
       }
-    }
-  });
-}
+    });
+  }
 
-// REACT_017: Add/fix 2 landmark issues
-function addMainLandmark() {
-  let mainElement = document.querySelector('main');
-  if (!mainElement) {
-    mainElement = document.createElement('main');
-    mainElement.id = 'main-content';
-    const existingContent = document.body.querySelector(':not(script):not(style)');
-    if (existingContent) {
-      document.body.insertBefore(mainElement, existingContent);
-    } else {
-      document.body.appendChild(mainElement);
-    }
-  } else {
-    if (!mainElement.id) {
-      mainElement.id = 'main-content';
-    }
-    if (!mainElement.hasAttribute('role') || mainElement.getAttribute('role') !== 'main') {
-      mainElement.setAttribute('role', 'main');
-    }
+  encryptCredential(credential) {
+    return Buffer.from(credential).toString('base64');
+  }
+
+  decryptCredential(encrypted) {
+    return Buffer.from(encrypted, 'base64').toString('utf8');
   }
 }
 
-// REACT_025: Ensure unique landmarks
-function ensureUniqueLandmarks() {
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-  landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
-    if (elements.length > 1) {
-      let isFirst = true;
-      elements.forEach(element => {
-        if (isFirst) {
-          isFirst = false;
-        } else {
-          element.removeAttribute('role');
-        }
-      });
-    }
-  });
-}
-
-// REACT_041: Add accessible names to 2 SVGs
-function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
-  svgs.forEach((svg, index) => {
-    const title = svg.querySelector('title');
-    if (title) {
-      const titleId = `svg-title-${index}-${Date.now()}`;
-      title.id = titleId;
-      svg.setAttribute('aria-labelledby', titleId);
-    } else {
-      const fallbackId = `svg-fallback-${index}-${Date.now()}`;
-      const newTitle = document.createElement('title');
-      newTitle.id = fallbackId;
-      newTitle.textContent = `SVG image ${index + 1}`;
-      svg.insertBefore(newTitle, svg.firstChild);
-      svg.setAttribute('aria-labelledby', fallbackId);
-    }
-  });
-}
-
-// REACT_036: Fix 1 fake link issue
-function fixFakeLinkIssue() {
-  const anchors = document.querySelectorAll('a');
-  anchors.forEach(anchor => {
-    if (!anchor.href || anchor.href === '#' || anchor.href === 'javascript:void(0)' || anchor.href === 'javascript:;') {
-      if (!anchor.hasAttribute('onclick')) {
-        const text = anchor.textContent.trim();
-        const button = document.createElement('button');
-        button.textContent = text;
-        Array.from(anchor.attributes).forEach(attr => {
-          if (attr.name !== 'href' && attr.name !== 'onclick') {
-            button.setAttribute(attr.name, attr.value);
-          }
-        });
-        anchor.parentNode.replaceChild(button, anchor);
-      }
-    }
-  });
-}
-
-// Configuration
-const config = {
-  // Configuration options
-};
-
-// App state
-const appState = {
-  // Application state
-};
-
-// Initialize function
-function initialize() {
-  // Initialization code
-}
-
-// Initialize app
-function initializeApp() {
-  // Initialize the app
-}
-
-// Process data
-function processData(data) {
-  // Process data
-}
-
-// Fetch user
-function fetchUser(userId) {
-  // Fetch user data
-}
-
-// Clear cache
-function clearCache() {
-  // Clear cache
-}
-
-// Validate input
-function validateInput(input) {
-  // Validate input
-}
-
-// Main execution
-function main() {
-  initialize();
-  console.log('Main function executed');
-}
-
-// Run if executed directly
-if (require.main === module) {
-  main();
-}
-
-function getInsightReport() {
-  // Mock implementation to get insight report
-  return {
-    issues: []
-  };
-}
-
-function processAccessibilityReport(report) {
-  // Process accessibility report and return findings
-  const findings = {
-    langAttribute: false,
-    tableIssues: 0,
-    landmarkIssues: 0,
-    svgIssues: 0,
-    uniqueLandmarkIssues: 0,
-    fakeLinkIssues: 0
-  };
-
-  if (report) {
-    if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027.count || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
-  }
-
-  return findings;
-}
-
-// Example usage of the new function (if applicable)
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
-
-// Add back removed exports
-module.exports = {
-  config,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  processAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  getInsightReport,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  // Added from origin/main
-  someFunction: function() {
-    return 'some value';
-  },
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
-  helper: function(input) {
-    return input ? input.toUpperCase() : '';
-  },
-  formatDate: function(date) {
-    if (!(date instanceof Date)) {
-      date = new Date(date);
-    }
-    return date.toISOString().split('T')[0];
-  }
-};
+const credentialCache = new

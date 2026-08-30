@@ -260,6 +260,41 @@ function personName() {
   // ...
 }
 
+function handleFocusTrap(element) {
+  if (!element || typeof element.querySelectorAll !== 'function') {
+    return;
+  }
+
+  const focusableElements = Array.from(element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  ));
+
+  if (focusableElements.length === 0) {
+    return;
+  }
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', function(event) {
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    if (event.shiftKey) {
+      if (document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+  });
+}
+
 /**
  * Revoke a session
  * @param {string} sessionId - The session ID to revoke

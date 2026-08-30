@@ -343,6 +343,79 @@ if (typeof document !== 'undefined' && document.addEventListener) {
   });
 }
 
+// Add proper landmark regions to ensure accessibility structure
+function addProperLandmarkRegions() {
+  // Ensure there is exactly one main landmark
+  const mains = document.querySelectorAll('main');
+  if (mains.length === 0) {
+    const main = document.createElement('main');
+    main.id = 'main-content';
+    main.setAttribute('role', 'main');
+    const body = document.body;
+    if (body) {
+      // Move existing content (excluding header/footer/nav) into main
+      const nodesToMove = [];
+      for (let i = 0; i < body.childNodes.length; i++) {
+        const child = body.childNodes[i];
+        if (child.nodeType === 1) {
+          const tag = child.tagName && child.tagName.toLowerCase();
+          if (tag !== 'header' && tag !== 'footer' && tag !== 'nav' && tag !== 'aside') {
+            nodesToMove.push(child);
+          }
+        }
+      }
+      body.insertBefore(main, body.firstChild);
+      nodesToMove.forEach(node => main.appendChild(node));
+    }
+  } else if (mains.length > 1) {
+    // Keep only the first main, move others' content into it
+    const firstMain = mains[0];
+    for (let i = 1; i < mains.length; i++) {
+      const extraMain = mains[i];
+      while (extraMain.firstChild) {
+        firstMain.appendChild(extraMain.firstChild);
+      }
+      extraMain.parentNode.removeChild(extraMain);
+    }
+  }
+
+  // Ensure complementary (aside) landmarks have aria-label
+  const asides = document.querySelectorAll('aside');
+  asides.forEach((aside, index) => {
+    if (!aside.hasAttribute('aria-label') && !aside.hasAttribute('aria-labelledby')) {
+      aside.setAttribute('aria-label', `Complementary content ${index + 1}`);
+    }
+  });
+
+  // Ensure navigation landmarks have aria-label
+  const navs = document.querySelectorAll('nav');
+  navs.forEach((nav, index) => {
+    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+      nav.setAttribute('aria-label', `Navigation ${index + 1}`);
+    }
+  });
+
+  // Ensure banner landmarks (header) have aria-label if there are multiple
+  const headers = document.querySelectorAll('header');
+  if (headers.length > 1) {
+    headers.forEach((header, index) => {
+      if (!header.hasAttribute('aria-label') && !header.hasAttribute('aria-labelledby')) {
+        header.setAttribute('aria-label', `Banner ${index + 1}`);
+      }
+    });
+  }
+
+  // Ensure contentinfo landmarks (footer) have aria-label if there are multiple
+  const footers = document.querySelectorAll('footer');
+  if (footers.length > 1) {
+    footers.forEach((footer, index) => {
+      if (!footer.hasAttribute('aria-label') && !footer.hasAttribute('aria-labelledby')) {
+        footer.setAttribute('aria-label', `Content info ${index + 1}`);
+      }
+    });
+  }
+}
+
 // Export functions that might be required by other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -367,7 +440,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getBrowserName,
     getLangAttribute,
     getSvgAccessibleName,
-    setSvgAttributes
+    setSvgAttributes,
+    addProperLandmarkRegions
   };
 }
 

@@ -160,6 +160,74 @@ function validateTableStructure() {
 }
 
 /**
+ * Address accessibility issues from insight report
+ * Attempts to automatically fix common accessibility problems in tables
+ * @param {boolean} applyFixes - Whether to apply fixes or just report issues (default: true)
+ * @returns {Object} Results of addressing accessibility issues
+ */
+function addressAccessibilityIssues(applyFixes = true) {
+  const tables = getTables();
+  const results = {
+    tablesProcessed: 0,
+    issuesAddressed: 0,
+    remainingIssues: [],
+    tables: []
+  };
+  
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+    const tableResult = {
+      index: i,
+      issuesAddressed: 0,
+      fixed: []
+    };
+    
+    // Address missing headers
+    if (!table.headers || !Array.isArray(table.headers) || table.headers.length === 0) {
+      if (applyFixes) {
+        // Auto-generate basic headers based on first row cell count
+        const rowLength = table.rows && table.rows[0] ? table.rows[0].length : 1;
+        table.headers = Array.from({ length: rowLength }, (_, idx) => `Column ${idx + 1}`);
+        tableResult.fixed.push('Auto-generated headers for table');
+      }
+      tableResult.issuesAddressed++;
+      results.issuesAddressed++;
+    }
+    
+    // Address missing rows array
+    if (!table.rows || !Array.isArray(table.rows)) {
+      if (applyFixes) {
+        table.rows = [];
+        tableResult.fixed.push('Initialized empty rows array');
+      }
+      tableResult.issuesAddressed++;
+      results.issuesAddressed++;
+    }
+    
+    // Address missing ARIA attributes
+    if (table.ariaLabel === undefined && table.caption === undefined) {
+      if (applyFixes) {
+        // Prefer aria-label for accessibility
+        table.ariaLabel = table.caption || `Table ${i + 1}`;
+        tableResult.fixed.push('Added aria-label for table');
+      }
+      tableResult.issuesAddressed++;
+      results.issuesAddressed++;
+    }
+    
+    results.tables.push(tableResult);
+    results.tablesProcessed++;
+  }
+  
+  // Re-validate to check remaining issues
+  const revalidation = validateTableAccessibility();
+  results.remainingIssues = revalidation.errors;
+  results.isAccessible = revalidation.isValid;
+  
+  return results;
+}
+
+/**
  * Validate all tables (convenience function)
  * @returns {Object} Combined validation results
  */
@@ -183,5 +251,6 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  addressAccessibilityIssues
 };

@@ -1,94 +1,154 @@
-// Import necessary dependencies
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
+// Landmark data structure
+const landmarks = [];
 
-// Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
-}
+// Application data structure
+const appData = {
+    title: 'Frontend Application',
+    version: '1.0.0'
+};
 
-// Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
-}
+let icons = {};
 
-// Function to generate a key for each book item
-function generateKey(book) {
-  return `${book.id}-${book.title}-${book.author}`;
-}
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
-// Function to render a single book item
-function BookItem(book) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        description={book.author}
-      />
-    </List.Item>
-  );
-}
+// Implemented validateLandmark functionality
+function validateLandmark(landmark) {
+  const errors = [];
 
-// Function to create a new book entry in the Redux store
-function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
+  // Check if landmark exists
+  if (!landmark) {
+    errors.push('Landmark is required');
+    return { valid: false, errors };
+  }
 
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
-}
+  // Validate name
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
+  }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
+  // Validate latitude
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
 
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
+  // Validate longitude
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
 
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
-}
-
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-}
-
-// Render the main component containing the book list and sorting controls
-function Main() {
-  const [sorting, setSorting] = useState(defaultSorting);
-
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
+  // Additional validation changes from the other branch
+  if (Array.isArray(landmark) && landmark.length > 0) {
+    if (!landmark[0].name || typeof landmark[0].name !== 'string' || landmark[0].name.trim() === '') {
+      errors.push('Landmark array must have a name');
     }
-  }, [sorting]);
+  }
 
-  // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(BookItem);
+  // Check for updated validation changes from another branch that also checks for array composition
+  if (Array.isArray(landmark)) {
+    landmark.forEach(innerLandmark => {
+      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+        errors.push('Landmark array must have valid names');
+      }
+    });
+  }
 
-  // Render the list of book items and sorting controls
-  return (
-    <div lang="en">
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
-    </div>
-  );
+  return {
+    valid: errors.length === 0,
+    errors
+  };
 }
 
-// Export the Main component
-export default Main;
+/**
+ * Function to check if the specified landmark element is in the document.
+ * @param {string} id - The ID of the landmark element.
+ * @returns {boolean} Returns true if the element exists; otherwise, false.
+ */
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  return element !== null;
+}
+
+// Ensure unique landmarks by filtering duplicates
+function ensureUniqueLandmarks(landmarksArray) {
+  if (!landmarksArray || landmarksArray.length === 0) {
+      return {};
+  }
+  const seen = new Set();
+  return landmarksArray.filter(landmark => {
+    const key = landmark.name + '_' + (landmark.role || 'default');
+    // Merge both approaches for checking uniqueness
+    if (seen.has(key)) {
+        return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+// ... (previous and updated code remains as it is)
+
+// Updated function: ensures landmarks uniqueness when there's an array structure
+function ensureLandmarkUniqueness(elements) {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+
+  const elementsById = {};
+
+  if (Array.isArray(elements)) {
+    for (const landmark of elements) {
+      if (landmark.id) {
+        if (!elementsById[landmark.id]) {
+          elementsById[landmark.id] = true;
+        } else {
+          landmark.id += '_duplicate';
+        }
+      }
+    }
+  }
+
+  return elements;
+}
+
+// Export functions for testing
+export {
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  landmarkStructureCheck,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  isSecureContext,
+  initApp,
+  landmarks,
+  appData,
+  icons,
+  validateLandmark,
+  ensureFocusableElements,
+  renderDependencyGraphContent,
+  ensureLandmarkUniqueness,
+  validateSvgAccessibility,
+  processUniqueElements,
+  addressInsightIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  addProperLandmarkRegions,
+  countDependencies
+};

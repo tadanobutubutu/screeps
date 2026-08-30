@@ -29,6 +29,8 @@ export default function Dashboard() {
     const [copiedAllRooms, setCopiedAllRooms] = useState(false);
     const [copyAllHover, setCopyAllHover] = useState(false);
     const [roomQuery, setRoomQuery] = useState('');
+    const [summaryDetailsHover, setSummaryDetailsHover] = useState(false);
+    const [summaryDetailsFocused, setSummaryDetailsFocused] = useState(false);
 
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -250,7 +252,7 @@ export default function Dashboard() {
         );
     if (error)
         return (
-            <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <main role="alert" aria-live="assertive" style={{ padding: '2rem', fontFamily: 'monospace' }}>
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                 <pre
                     tabIndex={0}
@@ -858,7 +860,10 @@ export default function Dashboard() {
                             />
                             {roomQuery && (
                                 <button
-                                    onClick={() => setRoomQuery('')}
+                                    onClick={() => {
+                                        setRoomQuery('');
+                                        searchInputRef.current?.focus();
+                                    }}
                                     aria-label="検索キーワードをクリア (Escape)"
                                     aria-keyshortcuts="Escape"
                                     title="検索をクリア (Escape)"
@@ -1023,6 +1028,10 @@ export default function Dashboard() {
                         className="interactive-hint"
                         aria-expanded={detailsOpen}
                         aria-keyshortcuts="Alt+d"
+                        onMouseEnter={() => setSummaryDetailsHover(true)}
+                        onMouseLeave={() => setSummaryDetailsHover(false)}
+                        onFocus={() => setSummaryDetailsFocused(true)}
+                        onBlur={() => setSummaryDetailsFocused(false)}
                         title={
                             detailsOpen
                                 ? '生データを非表示にします (Alt + D)'
@@ -1034,12 +1043,21 @@ export default function Dashboard() {
                                 : '生データを表示します (Alt + D)'
                         }
                         style={{
-                            color: '#4a5568',
-                            padding: '0.2rem 0',
+                            color: summaryDetailsHover || summaryDetailsFocused ? '#004b73' : '#4a5568',
+                            padding: '0.2rem 0.4rem',
+                            borderRadius: '4px',
                             cursor: 'pointer',
-                            display: 'flex',
+                            display: 'inline-flex',
                             alignItems: 'center',
                             gap: '0.4rem',
+                            transition: 'all 0.2s ease-in-out',
+                            backgroundColor: summaryDetailsFocused
+                                ? 'rgba(0, 75, 115, 0.1)'
+                                : summaryDetailsHover
+                                  ? '#edf2f7'
+                                  : 'transparent',
+                            outline: summaryDetailsFocused ? '2px solid #004b73' : 'none',
+                            outlineOffset: '1px',
                         }}
                     >
                         <span

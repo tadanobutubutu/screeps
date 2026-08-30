@@ -77,10 +77,10 @@ const CONFIG = {
 // Import dependencyGraphRenderer, addressAccessibilityIssue038, personName, addressAccessibilityIssueForSpecificElement, totalDependencies, addressOldAccessibilityIssues, and dependencyGraphContent
 const DependencyGraphRenderer = require('./dependencyGraphRenderer');
 const addressAccessibilityIssue038 = require('./accessibilityFunctions').addressAccessibilityIssue038;
-const newFunction = require('./accessibilityFunctions').newFunction;
-const addressAccessibilityIssueForSpecificElement = require('./accessibilityFunctions').addressAccessibilityIssueForSpecificElement;
-const totalDependencies = require('./accessibilityFunctions').totalDependencies;
-const addressOldAccessibilityIssues = require('./accessibilityFunctions').addressOldAccessibilityIssues;
+const newFunctionImport = require('./accessibilityFunctions').newFunction;
+const addressAccessibilityIssueForSpecificElementImport = require('./accessibilityFunctions').addressAccessibilityIssueForSpecificElement;
+const totalDependenciesImport = require('./accessibilityFunctions').totalDependencies;
+const addressOldAccessibilityIssuesImport = require('./accessibilityFunctions').addressOldAccessibilityIssues;
 
 // Import a11yStore from both branches
 const a11yStore = require('./a11yStore');
@@ -651,5 +651,3 @@ module.exports = {
   CONFIG,
   addressAccessibilityIssue038Inline
 };
-
-export { a11yStore, addressAccessibilityIssues, handleNewAccessibilityIssue, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, createInPageButton, personName, getLangAttribute, getFullLangAttribute, newFunction, totalDependencies, addressAccessibilityIssuesFromInsightReport, formatDate, generateId, countDependencies, dependencyGraphContent, setHtmlLangAttribute, detectAndSetLang, convertAnchorsToButtons, ensureElementHasId, addAriaLabel, renderDependencyGraph, DependencyGraphRenderer, addressAccessibilityIssue038, addressAccessibilityIssueForSpecificElement, newAccessibilityFunction, addressOldAccessibilityIssues, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, checkAccessibility, checkLandmarkElement, wrapPrimaryContentInMain, checkLandmarks, renderIndexView, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, setFormElementAccessibleNames, addA11yAttributesToInteractiveElements, CONFIG, addressAccessibilityIssue038Inline };

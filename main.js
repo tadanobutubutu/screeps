@@ -17,9 +17,13 @@ functionB = {
   Z: 'valueZ2'
 };
 
+// REACT_015: Add lang attribute
+const lang = 'en';
+
 // Export affected functions to make them accessible
 module.exports = {
   ...affectedFunctions,
   functionA,
   functionB,
+  lang,
 };

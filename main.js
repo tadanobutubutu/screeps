@@ -7,11 +7,11 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 // Preserve existing functionality
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
+import { getLangAttribute, getFullLangAttribute, createInPageButton } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks, createAccessibleLink } from './utils/linkAccessibilityUtils';
 
 // TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -38,11 +38,11 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function ensureUniqueLandmarkId(baseName) {
+function createUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
+        const suffix = Math.floor(Math.random() * 9000) + 1000;
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -72,148 +72,185 @@ function uniqueLandmarks(landmarks) {
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (!element.hasAttribute('aria-label')) {
+    if (element && !element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
 
 /**
- * Adds lang attribute as per the issue requirement
+ * Adds lang attribute to the HTML element as per the REACT_015 requirement.
+ * Uses the getFullLangAttribute utility to get the proper lang value.
  */
 function addLangAttribute() {
-  // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('some-selector');
-  if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en'); // Example: English
-  }
+    const htmlElement = document.documentElement;
+    if (htmlElement) {
+        const langValue = getFullLangAttribute ? getFullLangAttribute() : getLangAttribute();
+        htmlElement.setAttribute('lang', langValue);
+    }
 }
 
 // ... other fixes ...
 
 // DOM-based accessibility code
 
-// Add lang attribute to HTML element
-... getLangAttribute());
+// Add lang attribute to HTML element (REACT_015)
+if (typeof document !== 'undefined') {
+    addLangAttribute();
+}
 
-// Create in-page button with accessibility considerations
+// Create in-page button with accessibility considerations (REACT_041)
 createInPageButton();
 
-// Validate table structure and accessibility
+// Validate table structure and accessibility (REACT_027)
 // Assuming you have a table element with an id of 'myTable'
-const table = ...
-validateTableAccessibility(table);
-validateTableStructure(table);
+const table = document.getElementById('myTable');
+if (table) {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+}
 
-// Add/fix landmark issues
+// Add/fix landmark issues (REACT_017)
 validateLandmark();
-...
+validateLandmarkStructure();
 
-// Add accessible names to SVGs
-// Assuming you have an SVG element with an id of 'mySvg'
-const svg = ...
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
+// Add accessible names to SVGs (REACT_041)
+// Assuming you have SVG elements with class 'accessible-svg'
+const svgElements = document.querySelectorAll('svg');
+svgElements.forEach((svg) => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+});
 
-// Ensure unique landmarks
-// This would be handled by the appropriate function call
-...
+// Ensure unique landmarks (REACT_025)
+// Get all landmarks and ensure they have unique IDs
+if (typeof ensureUniqueLandmarks === 'function') {
+    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="search"]');
+    ensureUniqueLandmarks(Array.from(landmarks));
+}
+
+// Handle fake links (REACT_036)
 handleFakeLinks();
+
+// Handle link accessibility (REACT_036)
+validateLinkAccessibility();
 
 // ... rest of your code ...
 
 // React / UI related functions
 
-// TODO: Add these imported modules to the relevant rendering functions
-
+// Utility function to format product name
 function formatProductName(product) {
-  return `${product.name} - ...
+    return `${product.name} - ${product.category || 'Unknown'}`;
 }
 
+// Render the product list with accessibility
 function renderProductList(products) {
-  const container = ...
-  container.innerHTML = ...
-  return container;
+    const container = document.getElementById('product-list');
+    if (!container) return null;
+    container.innerHTML = products.map(product => `
+        <article class="product-card" aria-labelledby="product-${product.id}">
+            <h3 id="product-${product.id}">${formatProductName(product)}</h3>
+            <p>${product.description || ''}</p>
+            <button aria-label="View details for ${formatProductName(product)}">View Details</button>
+        </article>
+    `).join('');
+    return container;
 }
 
+// Calculate total price with discount
 function calculateTotalPrice(cart) {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = calculateDiscount(subtotal);
-  return subtotal - discount;
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const discount = calculateDiscount(subtotal);
+    return subtotal - discount;
 }
 
+// Render cart with accessibility
 function renderCart(cart) {
-  const total = calculateTotalPrice(cart);
-  return `
-    <div class="cart">
-      <h2>Shopping Cart</h2>
-      <p>Total: ...
-      <p>Date: ${formatDate(new Date())}</p>
-    </div>
-  `;
+    const total = calculateTotalPrice(cart);
+    return `
+        <section class="cart" aria-labelledby="cart-heading">
+            <h2 id="cart-heading">Shopping Cart</h2>
+            <p>Total: <span aria-live="polite">$${total.toFixed(2)}</span></p>
+            <p>Date: ${formatDate(new Date())}</p>
+        </section>
+    `;
 }
 
+// Validate input and render appropriate message
 function validateAndRender(input) {
-  if (validateInput(input)) {
-    return ...
-  }
-  return '<p>Invalid input</p>';
+    if (validateInput(input)) {
+        return `<p class="success" role="status">Input validated successfully</p>`;
+    }
+    return '<p class="error" role="alert">Invalid input</p>';
 }
 
+// Render full page with accessibility landmarks
 function renderPage(data) {
-  const header = renderHeader(data.title);
-  const content = ...
-  const footer = renderFooter();
-  return `${header}${content}${footer}`;
+    const header = renderHeader(data.title);
+    const content = `<main id="main-content">${data.content || ''}</main>`;
+    const footer = renderFooter();
+    return `${header}${content}${footer}`;
 }
 
 // Exporting if necessary (no exports were requested to be removed)
 export function someFunction() {
-  // ... implementation ...
+    // ... implementation ...
 }
 
 // Export UI / product functions
 export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage
+    formatProductName,
+    renderProductList,
+    calculateTotalPrice,
+    renderCart,
+    validateAndRender,
+    renderPage
 };
 
 // Export accessibility utility functions
 export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks
+    getLangAttribute,
+    getFullLangAttribute,
+    createInPageButton,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    ensureUniqueLandmarks,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    createAccessibleLink
 };
 
 // Export utility functions
 export {
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput
+    formatCurrency,
+    formatDate,
+    calculateDiscount,
+    validateInput
 };
 
 // Export component functions
 export {
-  renderHeader,
-  renderFooter,
-  renderProductCard
+    renderHeader,
+    renderFooter,
+    renderProductCard
+};
+
+// Export landmark utility functions
+export {
+    createUniqueLandmarkId,
+    uniqueLandmarks,
+    addAriaLabel,
+    addLangAttribute
 };
 
 // Export state
 export {
-  state,
-  updateState
+    state,
+    updateState
 };
 
 // ... other exports ...

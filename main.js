@@ -1,3 +1,5 @@
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];

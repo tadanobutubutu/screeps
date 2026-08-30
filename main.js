@@ -225,10 +225,151 @@ function YouHaveComponent() {
 
 // ... rest of the code
 
+// Implement function for generating a report based on accessibility issues
+/**
+ * Generates a report based on accessibility issues found in the document
+ * @returns {Object} An object containing the accessibility report with issues categorized by type
+ */
+function generateAccessibilityReport() {
+  const issues = {
+    tables: [],
+    landmarks: [],
+    links: [],
+    images: [],
+    buttons: [],
+    forms: [],
+    other: []
+  };
+
+  // Check for tables without proper structure
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    if (!table.querySelector('tbody') && table.querySelectorAll('tr').length > 0) {
+      issues.tables.push({
+        element: 'table',
+        index,
+        issue: 'Missing tbody element',
+        suggestion: 'Add a tbody element to properly structure the table'
+      });
+    }
+  });
+
+  // Check for landmarks
+  const mainLandmarks = document.querySelectorAll('main');
+  if (mainLandmarks.length === 0) {
+    issues.landmarks.push({
+      element: 'main',
+      issue: 'Missing main landmark',
+      suggestion: 'Add a main landmark to identify the primary content'
+    });
+  }
+  if (mainLandmarks.length > 1) {
+    issues.landmarks.push({
+      element: 'main',
+      issue: 'Multiple main landmarks found',
+      suggestion: 'Ensure only one main landmark exists per page'
+    });
+  }
+
+  // Check for links without accessible names
+  const links = document.querySelectorAll('a');
+  links.forEach((link, index) => {
+    const hasText = link.textContent.trim().length > 0;
+    const hasAriaLabel = link.getAttribute('aria-label');
+    const hasAriaLabelledby = link.getAttribute('aria-labelledby');
+    if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
+      issues.links.push({
+        element: 'a',
+        index,
+        issue: 'Link missing accessible name',
+        suggestion: 'Add text content, aria-label, or aria-labelledby to the link'
+      });
+    }
+  });
+
+  // Check for images without alt text
+  const images = document.querySelectorAll('img');
+  images.forEach((img, index) => {
+    const hasAlt = img.hasAttribute('alt');
+    const altValue = img.getAttribute('alt');
+    if (!hasAlt) {
+      issues.images.push({
+        element: 'img',
+        index,
+        issue: 'Image missing alt attribute',
+        suggestion: 'Add alt attribute to describe the image'
+      });
+    } else if (altValue === '') {
+      issues.images.push({
+        element: 'img',
+        index,
+        issue: 'Image has empty alt attribute',
+        suggestion: 'Use alt="" for decorative images or add appropriate description'
+      });
+    }
+  });
+
+  // Check for buttons without accessible names
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    const hasText = button.textContent.trim().length > 0;
+    const hasAriaLabel = button.getAttribute('aria-label');
+    const hasAriaLabelledby = button.getAttribute('aria-labelledby');
+    if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
+      issues.buttons.push({
+        element: 'button',
+        index,
+        issue: 'Button missing accessible name',
+        suggestion: 'Add text content, aria-label, or aria-labelledby to the button'
+      });
+    }
+  });
+
+  // Check for form inputs without labels
+  const inputs = document.querySelectorAll('input');
+  inputs.forEach((input, index) => {
+    const inputType = input.getAttribute('type');
+    // Skip hidden and submit buttons
+    if (inputType === 'hidden' || inputType === 'submit' || inputType === 'button') return;
+    
+    const id = input.getAttribute('id');
+    const label = id ? document.querySelector(`label[for="${id}"]`) : null;
+    const hasAriaLabel = input.getAttribute('aria-label');
+    const hasAriaLabelledby = input.getAttribute('aria-labelledby');
+    if (!label && !hasAriaLabel && !hasAriaLabelledby) {
+      issues.forms.push({
+        element: 'input',
+        index,
+        inputType: inputType || 'text',
+        issue: 'Input missing associated label',
+        suggestion: 'Add a label element with matching for attribute or aria-label/aria-labelledby'
+      });
+    }
+  });
+
+  // Count total issues
+  const totalIssues = Object.values(issues).reduce((sum, category) => sum + category.length, 0);
+
+  return {
+    totalIssues,
+    issues,
+    timestamp: new Date().toISOString(),
+    summary: {
+      tables: issues.tables.length,
+      landmarks: issues.landmarks.length,
+      links: issues.links.length,
+      images: issues.images.length,
+      buttons: issues.buttons.length,
+      forms: issues.forms.length
+    }
+  };
+}
+
 // React-specific exports
 // Exports
 export { YouHaveComponent };
 export { addLangAttribute, fixTableStructure, addMainLandmark };
 export { announceToScreenReader, updateContent, handleKeyboardInteraction, trapFocus, createInPageButton };
+export { generateAccessibilityReport };
 export { default as App } from './App';
 export { default as reportWebVitals } from './reportWebVitals';

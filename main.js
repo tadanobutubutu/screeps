@@ -244,6 +244,51 @@ function fixUniqueLandmarks(insightReport) {
   ensureUniqueLandmarks();
 }
 
+// Function for generating a report based on accessibility issues
+function generateAccessibilityReport(insightReport) {
+  const issues = insightReport.issues || [];
+  const report = {
+    totalIssues: issues.length,
+    issuesByCode: {},
+    issuesBySeverity: { critical: 0, serious: 0, moderate: 0, minor: 0 },
+    details: []
+  };
+
+  issues.forEach(issue => {
+    // Count issues by code
+    if (!report.issuesByCode[issue.code]) {
+      report.issuesByCode[issue.code] = 0;
+    }
+    report.issuesByCode[issue.code] += 1;
+
+    // Count issues by severity
+    const severity = (issue.severity || 'moderate').toLowerCase();
+    if (report.issuesBySeverity[severity] !== undefined) {
+      report.issuesBySeverity[severity] += 1;
+    } else {
+      report.issuesBySeverity.moderate += 1;
+    }
+
+    // Add issue details
+    report.details.push({
+      code: issue.code,
+      selector: issue.selector,
+      severity: severity,
+      message: issue.message || '',
+      ariaRole: issue.ariaRole || null,
+      ariaLabel: issue.ariaLabel || null
+    });
+  });
+
+  // Add a summary of resolved and unresolved issues
+  report.summary = {
+    resolved: 0,
+    unresolved: report.totalIssues
+  };
+
+  return report;
+}
+
 function implementNewFunction() {
   addressAccessibilityIssues();
   fixFakeLinks();
@@ -282,7 +327,8 @@ module.exports = {
   main,
   addressAccessibilityIssues,
   renderDependencyGraphContent,
-  fixUniqueLandmarks
+  fixUniqueLandmarks,
+  generateAccessibilityReport
 };
 
 main();

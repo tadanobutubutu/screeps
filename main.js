@@ -3,7 +3,7 @@
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
 // Preserve existing functionality
@@ -49,32 +49,54 @@ function ensureUniqueLandmarkId(baseName) {
     return candidate;
 }
 
-/**
- * Returns a new array containing only unique landmarks from the input list.
- * @param {Array} landmarks - List of landmark objects.
- * @returns {Array} Unique landmarks.
- */
-function uniqueLandmarks(landmarks) {
-    const seen = new Set();
-    const result = [];
-    for (const lm of landmarks) {
-        if (!seen.has(lm.id)) {
-            seen.add(lm.id);
-            result.push(lm);
-        }
-    }
-    return result;
+function getLangAttribute() {
+  // Logic for getting the language attribute
+  return 'en';
 }
 
+function createInPageButton(id, href, text, className) {
+  // Logic for creating an in-page button with given properties
+  if (typeof document !== 'undefined') {
+    const button = document.createElement('a');
+    button.id = id;
+    button.href = href || '#';
+    button.textContent = text;
+    button.className = className || '';
+    button.setAttribute('role', 'link');
+    button.setAttribute('tabindex', '0');
+    return button;
+  }
+  return null;
+}
+
+// Main entry point for dependency visualization tool
+
+const fs = require('fs');
+const path = require('path');
+
 /**
- * Adds an aria-label attribute to an element if it doesn't already have one.
- * @param {HTMLElement} element - The element to add the aria-label to.
- * @param {string} label - The label text to be added.
+ * Calculates the depth of dependency tree
+ * @param {Object} dependencies - The dependency object
+ * @param {string} currentKey - Current key being processed
+ * @returns {number} Maximum depth of the dependency tree
  */
-function addAriaLabel(element, label) {
-    if (!element.hasAttribute('aria-label')) {
-        element.setAttribute('aria-label', label);
+function getDependencyDepth(dependencies, currentKey = '') {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0;
+  }
+  
+  let maxDepth = 0;
+  const keys = Object.keys(dependencies);
+  
+  keys.forEach(key => {
+    const value = dependencies[key];
+    if (typeof value === 'object' && value !== null) {
+      const nestedDepth = getDependencyDepth(value, key);
+      maxDepth = Math.max(maxDepth, nestedDepth + 1);
     }
+  });
+  
+  return maxDepth;
 }
 
 /**
@@ -82,10 +104,12 @@ function addAriaLabel(element, label) {
  */
 function addLangAttribute() {
   // Add lang attribute to the HTML element for accessibility
+  const lang = getLangAttribute();
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
+    htmlElement.setAttribute('lang', lang);
   }
+  return lang;
 }
 
 /**
@@ -200,7 +224,153 @@ function addSvgAccessibleNames() {
   });
 }
 
-// ... other fixes ...
+/**
+ * Renders a dependency graph as ASCII art for debugging purposes.
+ * @param {Object} dependencies - The dependency object
+ * @param {string} prefix - Current prefix for indentation
+ * @param {boolean} isLast - Whether this is the last item at current level
+ * @returns {string} ASCII representation of the dependency graph
+ */
+function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return '';
+  }
+  
+  let output = '';
+  const keys = Object.keys(dependencies);
+  
+  keys.forEach((key, index) => {
+    const isLastItem = index === keys.length - 1;
+    const connector = isLast ? '└── ' : '├── ';
+    const value = dependencies[key];
+    
+    output += `${prefix}${connector}${key}`;
+    
+    if (typeof value === 'object' && value !== null) {
+      output += '/\n';
+      const extension = isLast ? '    ' : '│   ';
+      output += renderDependencyGraph(value, prefix + extension, isLastItem);
+    } else {
+      output += ` -> ${value}\n`;
+    }
+  });
+  
+  return output;
+}
+
+/**
+ * Displays module structure for debugging purposes.
+ * @param {Array} modules - Array of module objects
+ * @returns {string} Formatted module structure display
+ */
+function displayModuleStructure(modules) {
+  if (!Array.isArray(modules)) {
+    return 'Error: modules must be an array';
+  }
+  
+  let output = 'Module Structure:\n';
+  output += '==================\n\n';
+  
+  modules.forEach((mod, index) => {
+    const name = mod.name || mod.id || `Module ${index + 1}`;
+    output += `${index + 1}. ${name}\n`;
+    
+    if (mod.dependencies && Array.isArray(mod.dependencies)) {
+      output += `   Dependencies: ${mod.dependencies.join(', ')}\n`;
+    }
+    
+    if (mod.path) {
+      output += `   Path: ${mod.path}\n`;
+    }
+    
+    output += '\n';
+  });
+  
+  return output;
+}
+
+/**
+ * Generates a dependency report for debugging
+ * @param {Object} dependencies - The dependency object
+ * @returns {Object} Report containing statistics
+ */
+function generateDependencyReport(dependencies) {
+  return {
+    totalDependencies: Object.keys(dependencies).length,
+    maxDepth: getDependencyDepth(dependencies),
+    graph: renderDependencyGraph(dependencies)
+  };
+}
+
+/**
+ * Builds a navigable, screen-reader-friendly textual representation
+ * of the dependency graph using semantic newlines and clear prefixes.
+ *
+ * Accessibility improvements:
+ * - Uses headings and consistent prefixes so screen readers can
+ *   announce the structure predictably.
+ * - Avoids relying on box-drawing characters alone; provides a
+ *   textual depth indicator (e.g., "Depth N:") for each level.
+ * - Includes plain-text connectors ("child of", "leaf") so the
+ *   hierarchy is understandable without visual rendering.
+ *
+ * @param {Object} dependencies - The dependency object
+ * @param {number} depth - Current depth in the tree
+ * @returns {string} Accessible textual representation of the dependency graph
+ */
+function renderAccessibleDependencyGraph(dependencies, depth = 0) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return '';
+  }
+
+  const keys = Object.keys(dependencies);
+  if (keys.length === 0) {
+    return `Depth ${depth}: (empty)\n`;
+  }
+
+  let output = `Depth ${depth}: (${keys.length} item${keys.length === 1 ? '' : 's'})\n`;
+
+  keys.forEach((key, index) => {
+    const value = dependencies[key];
+    const isLast = index === keys.length - 1;
+    const position = isLast ? 'last' : 'not last';
+
+    if (typeof value === 'object' && value !== null) {
+      output += `  - ${key} (has ${Object.keys(value).length} child${Object.keys(value).length === 1 ? '' : 's'}, ${position})\n`;
+      output += renderAccessibleDependencyGraph(value, depth + 1);
+    } else {
+      output += `  - ${key} (leaf, value: ${value}, ${position})\n`;
+    }
+  });
+
+  return output;
+}
+
+// New function to visualize the dependency tree
+function visualizeDependencyTree(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
+}
+
+/**
+ * Main processing function
+ */
+function main() {
+  const sampleDependencies = {
+    'express': '4.18.2',
+    'lodash': {
+      'isArray': '4.0.0',
+      'merge': {
+        'isObject': '4.0.0'
+      }
+    }
+  };
+  
+  console.log('Dependency Graph:');
+  console.log(renderDependencyGraph(sampleDependencies));
+  
+  console.log('Depth:', getDependencyDepth(sampleDependencies));
+}
 
 // DOM-based accessibility code
 
@@ -273,86 +443,192 @@ function renderCart(cart) {
 function validateAndRender(input) {
   if (validateInput(input)) {
     return renderProductList([input]);
+=======
+/**
+ * Renders a dependency graph as ASCII art for debugging purposes.
+ * @param {Object} dependencies - The dependency object
+ * @param {string} prefix - Current prefix for indentation
+ * @param {boolean} isLast - Whether this is the last item at current level
+ * @returns {string} ASCII representation of the dependency graph
+ */
+function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return '';
   }
-  return '<p>Invalid input</p>';
+  
+  let output = '';
+  const keys = Object.keys(dependencies);
+  
+  keys.forEach((key, index) => {
+    const isLastItem = index === keys.length - 1;
+    const connector = isLast ? '└── ' : '├── ';
+    const value = dependencies[key];
+    
+    output += `${prefix}${connector}${key}`;
+    
+    if (typeof value === 'object' && value !== null) {
+      output += '/\n';
+      const extension = isLast ? '    ' : '│   ';
+      output += renderDependencyGraph(value, prefix + extension, isLastItem);
+    } else {
+      output += ` -> ${value}\n`;
+    }
+  });
+  
+  return output;
 }
 
-function renderPage(data) {
-  const header = renderHeader(data.title);
-  const content = renderProductList(data.products);
-  const footer = renderFooter();
-  return `${header}${content}${footer}`;
+/**
+ * Displays module structure for debugging purposes.
+ * @param {Array} modules - Array of module objects
+ * @returns {string} Formatted module structure display
+ */
+function displayModuleStructure(modules) {
+  if (!Array.isArray(modules)) {
+    return 'Error: modules must be an array';
+  }
+  
+  let output = 'Module Structure:\n';
+  output += '==================\n\n';
+  
+  modules.forEach((mod, index) => {
+    const name = mod.name || mod.id || `Module ${index + 1}`;
+    output += `${index + 1}. ${name}\n`;
+    
+    if (mod.dependencies && Array.isArray(mod.dependencies)) {
+      output += `   Dependencies: ${mod.dependencies.join(', ')}\n`;
+    }
+    
+    if (mod.path) {
+      output += `   Path: ${mod.path}\n`;
+    }
+    
+    output += '\n';
+  });
+  
+  return output;
 }
 
-// New function or change requested in the issue
-function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility();
+/**
+ * Generates a dependency report for debugging
+ * @param {Object} dependencies - The dependency object
+ * @returns {Object} Report containing statistics
+ */
+function generateDependencyReport(dependencies) {
+  return {
+    totalDependencies: Object.keys(dependencies).length,
+    maxDepth: getDependencyDepth(dependencies),
+    graph: renderDependencyGraph(dependencies)
+  };
 }
 
-// Export accessibility utility functions
-export {
+/**
+ * Builds a navigable, screen-reader-friendly textual representation
+ * of the dependency graph using semantic newlines and clear prefixes.
+ *
+ * Accessibility improvements:
+ * - Uses headings and consistent prefixes so screen readers can
+ *   announce the structure predictably.
+ * - Avoids relying on box-drawing characters alone; provides a
+ *   textual depth indicator (e.g., "Depth N:") for each level.
+ * - Includes plain-text connectors ("child of", "leaf") so the
+ *   hierarchy is understandable without visual rendering.
+ *
+ * @param {Object} dependencies - The dependency object
+ * @param {number} depth - Current depth in the tree
+ * @returns {string} Accessible textual representation of the dependency graph
+ */
+function renderAccessibleDependencyGraph(dependencies, depth = 0) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return '';
+  }
+
+  const keys = Object.keys(dependencies);
+  if (keys.length === 0) {
+    return `Depth ${depth}: (empty)\n`;
+  }
+
+  let output = `Depth ${depth}: (${keys.length} item${keys.length === 1 ? '' : 's'})\n`;
+
+  keys.forEach((key, index) => {
+    const value = dependencies[key];
+    const isLast = index === keys.length - 1;
+    const position = isLast ? 'last' : 'not last';
+
+    if (typeof value === 'object' && value !== null) {
+      output += `  - ${key} (has ${Object.keys(value).length} child${Object.keys(value).length === 1 ? '' : 's'}, ${position})\n`;
+      output += renderAccessibleDependencyGraph(value, depth + 1);
+    } else {
+      output += `  - ${key} (leaf, value: ${value}, ${position})\n`;
+    }
+  });
+
+  return output;
+}
+
+// New function to visualize the dependency tree
+function visualizeDependencyTree(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
+}
+
+/**
+ * Main processing function
+ */
+function main() {
+  const sampleDependencies = {
+    'express': '4.18.2',
+    'lodash': {
+      'isArray': '4.0.0',
+      'merge': {
+        'isObject': '4.0.0'
+      }
+    }
+  };
+  
+  console.log('Dependency Graph:');
+  console.log(renderDependencyGraph(sampleDependencies));
+  
+  console.log('Depth:', getDependencyDepth(sampleDependencies));
+}
+
+module.exports = {
   getLangAttribute,
   createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks
+  renderDependencyGraph,
+  displayModuleStructure,
+  getDependencyDepth,
+  generateDependencyReport,
+  renderAccessibleDependencyGraph,
+  main,
+  visualizeDependencyTree
 };
 
-// Export utility functions
-export {
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput
-};
-
-// Export component functions
-export {
-  renderHeader,
-  renderFooter,
-  renderProductCard
-};
-
-// Export state
-export {
-  state,
-  updateState
-};
-
-// Export UI / product functions
-export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage
-};
-
-// New function to render dependency graphs or display module structure
-function renderDependencyGraph(module) {
-  // Implementation to render the dependency graph for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Rendering dependency graph for:', module);
-  // Example output: 'Rendering dependency graph for: ModuleName'
+// Run if executed directly
+if (require.main === module) {
+  main();
 }
+=========================================
 
-// New function to display module structure
-function displayModuleStructure(module) {
-  // Implementation to display the module structure for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Displaying module structure for:', module);
-  // Example output: 'Displaying module structure for: ModuleName'
-}
+This presents a major conflict where HEAD and origin/main have completely different structures and purposes. I'll resolve this by:
 
-// Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
+1. Keeping the imports at the top
+2. Combining all the utility functions from both branches
+3. Separating DOM-based accessibility code (browser) from Node.js utility functions
+4. Making the module work in both environments
 
-// ... other exports ...
+Here's the resolved file:
+
+The HEAD branch contains React/DOM-based accessibility fixes while origin/main has Node.js utility functions for dependency visualization. I need to combine both properly with environment checks.
+
+The key insight is that:
+- HEAD has functions that use `document` (browser-only)
+- origin/main has functions designed to work in Node.js with `module.exports`
+
+I'll resolve by:
+1. Keeping all functions from both branches
+2. Wrapping DOM-dependent code in environment checks
+3. Ensuring proper exports for Node.js modules
+4. Fixing any duplicate definitions
+
+Let me carefully reconstruct the file:

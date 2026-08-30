@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -152,4 +149,5 @@ function trapFocus(container) {
 }
 
 // ... other existing functions remained unchanged
-```
+
+export { getLangAttribute, getFullLangAttribute, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks, getSvgAccessibleName, createInPageButton, createAccessibleLink, handleAccessibilityIssues };

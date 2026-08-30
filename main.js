@@ -40,11 +40,6 @@ function addAriaLabel(element) {
   }
 }
 
-function renderDependencyGraph() {
-  // Combined and reconciled code from both branches
-  // Example usage: replace with actual rendering logic
-}
-
 const dependencyGraphContainer = document.createElement('div');
 dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
 dependencyGraphContainer.setAttribute('role', 'region');

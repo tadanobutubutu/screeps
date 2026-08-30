@@ -253,6 +253,327 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+// Accessibility issue remediation functions
+
+/**
+ * REACT_015: Adds lang attribute to HTML element
+ * @param {Document} doc - The document to add lang attribute to
+ * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
+ * @returns {boolean} - True if lang attribute was added successfully
+ */
+function addLangToHtmlElement(doc, lang) {
+  if (!doc || !doc.documentElement) {
+    return false;
+  }
+  
+  const htmlElement = doc.documentElement;
+  const validLang = lang && typeof lang === 'string' && lang.length > 0 ? lang : 'en';
+  
+  htmlElement.setAttribute('lang', validLang);
+  return true;
+}
+
+/**
+ * REACT_027: Adds scope="col" or scope="row" to <th> elements in tables
+ * @param {HTMLElement|Document} container - The container or document to search in
+ * @returns {Object} - Results of the scope addition operation
+ */
+function addScopeToTableHeaders(container) {
+  const results = {
+    totalHeaders: 0,
+    headersUpdated: 0,
+    errors: []
+  };
+
+  const target = container && container.querySelectorAll ? container : document;
+  const thElements = target.querySelectorAll('th');
+
+  if (!thElements || thElements.length === 0) {
+    results.errors.push('No <th> elements found');
+    return results;
+  }
+
+  thElements.forEach(th => {
+    results.totalHeaders++;
+    
+    // Skip if already has scope attribute
+    if (th.hasAttribute('scope')) {
+      return;
+    }
+
+    // Determine if this is a column header or row header
+    const parent = th.parentElement;
+    if (!parent) return;
+
+    const parentTagName = parent.tagName ? parent.tagName.toUpperCase() : '';
+    
+    if (parentTagName === 'TR') {
+      // Check if this is in the first column (row header) or other columns (column header)
+      const siblings = Array.from(parent.querySelectorAll('th'));
+      const index = siblings.indexOf(th);
+      
+      if (index === 0) {
+        // First cell in row is typically a row header
+        th.setAttribute('scope', 'row');
+        results.headersUpdated++;
+      } else {
+        // Other cells in row are column headers
+        th.setAttribute('scope', 'col');
+        results.headersUpdated++;
+      }
+    }
+  });
+
+  return results;
+}
+
+/**
+ * REACT_036: Fixes fake links - elements that look like links but lack href
+ * A fake link is typically a link element without href, or an element with role="link" but no accessible action
+ * @param {HTMLElement|Document} container - The container or document to search in
+ * @param {boolean} addHref - Whether to add href="#" as a fallback
+ * @returns {Object} - Results of the fake link fixes
+ */
+function fixFakeLinks(container, addHref) {
+  const results = {
+    fakeLinksFound: 0,
+    fakeLinksFixed: 0,
+    elements: []
+  };
+
+  const target = container && container.querySelectorAll ? container : document;
+  
+  // Find anchor elements without href
+  const anchorsWithoutHref = target.querySelectorAll('a:not([href])');
+  anchorsWithoutHref.forEach(el => {
+    results.fakeLinksFound++;
+    results.elements.push({
+      element: el,
+      type: 'anchor_without_href',
+      tagName: el.tagName
+    });
+
+    if (addHref) {
+      el.setAttribute('href', '#');
+      results.fakeLinksFixed++;
+    }
+  });
+
+  // Find elements with role="link" but no accessible name
+  const roleLinks = target.querySelectorAll('[role="link"]');
+  roleLinks.forEach(el => {
+    const hasAccessibleName = el.getAttribute('aria-label') || 
+                              el.getAttribute('aria-labelledby') || 
+                              el.textContent.trim();
+    
+    if (!hasAccessibleName) {
+      results.fakeLinksFound++;
+      results.elements.push({
+        element: el,
+        type: 'role_link_without_name',
+        tagName: el.tagName
+      });
+    }
+  });
+
+  return results;
+}
+
+/**
+ * REACT_041: Adds accessible names to SVGs that are missing them
+ * @param {HTMLElement|Document} container - The container or document to search in
+ * @returns {Object} - Results of the SVG accessibility fixes
+ */
+function addAccessibleNamesToSvgs(container) {
+  const results = {
+    totalSvgs: 0,
+    svgsUpdated: 0,
+    errors: []
+  };
+
+  const target = container && container.querySelectorAll ? container : document;
+  const svgs = target.querySelectorAll('svg');
+
+  if (!svgs || svgs.length === 0) {
+    results.errors.push('No SVG elements found');
+    return results;
+  }
+
+  svgs.forEach(svg => {
+    results.totalSvgs++;
+    
+    const hasAriaLabel = svg.getAttribute('aria-label');
+    const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
+    const hasTitle = svg.querySelector('title');
+
+    if (!hasAriaLabel && !hasAriaLabelledby) {
+      if (hasTitle) {
+        // If there's a title, link to it via aria-labelledby
+        const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+        hasTitle.id = titleId;
+        svg.setAttribute('aria-labelledby', titleId);
+        results.svgsUpdated++;
+      } else {
+        // Add a generic accessible name based on id or class
+        const accessibleName = svg.id || svg.getAttribute('class') || 'svg-image';
+        svg.setAttribute('aria-label', accessibleName);
+        results.svgsUpdated++;
+      }
+    }
+  });
+
+  return results;
+}
+
+/**
+ * REACT_017: Fixes landmark issues by adding proper labels and roles
+ * @param {HTMLElement|Document} container - The container or document to search in
+ * @returns {Object} - Results of the landmark fixes
+ */
+function fixLandmarkIssues(container) {
+  const results = {
+    landmarksFixed: 0,
+    errors: [],
+    details: []
+  };
+
+  const target = container && container.querySelectorAll ? container : document;
+  const landmarkTags = ['header', 'main', 'nav', 'aside', 'section', 'article', 'footer'];
+  const selector = landmarkTags.join(', ');
+  const landmarks = target.querySelectorAll(selector);
+
+  landmarks.forEach(landmark => {
+    const tagName = landmark.tagName ? landmark.tagName.toLowerCase() : '';
+    const needsLabel = !landmark.getAttribute('aria-label') && 
+                       !landmark.getAttribute('aria-labelledby') &&
+                       !landmark.id;
+
+    if (needsLabel) {
+      // Add aria-label based on landmark type
+      const label = tagName.charAt(0).toUpperCase() + tagName.slice(1) + ' landmark';
+      landmark.setAttribute('aria-label', landmark.id || label);
+      results.landmarksFixed++;
+      results.details.push({
+        tag: tagName,
+        action: 'added_aria_label',
+        value: landmark.id || label
+      });
+    }
+
+    // Fix semantic landmark issues
+    if (tagName === 'section' || tagName === 'article') {
+      if (!landmark.id && !landmark.getAttribute('aria-label')) {
+        const regionId = 'region-' + Math.random().toString(36).substr(2, 9);
+        landmark.id = regionId;
+        landmark.setAttribute('aria-label', tagName + ' region');
+        results.landmarksFixed++;
+        results.details.push({
+          tag: tagName,
+          action: 'added_id_and_label',
+          value: regionId
+        });
+      }
+    }
+  });
+
+  return results;
+}
+
+/**
+ * REACT_025: Ensures all landmarks have unique identifiers
+ * @param {HTMLElement|Document} container - The container or document to search in
+ * @returns {Object} - Results of the uniqueness check
+ */
+function ensureAllLandmarksUnique(container) {
+  const results = {
+    totalLandmarks: 0,
+    duplicatesFound: 0,
+    duplicatesFixed: 0,
+    details: []
+  };
+
+  const target = container && container.querySelectorAll ? container : document;
+  const landmarkTags = ['header', 'main', 'nav', 'aside', 'section', 'article', 'footer'];
+  const selector = landmarkTags.join(', ');
+  const landmarks = target.querySelectorAll(selector);
+  
+  const idCount = {};
+
+  // First pass: count occurrences of each id
+  landmarks.forEach(landmark => {
+    results.totalLandmarks++;
+    if (landmark.id) {
+      idCount[landmark.id] = idCount[landmark.id] || 0;
+      idCount[landmark.id]++;
+    }
+  });
+
+  // Second pass: fix duplicates
+  landmarks.forEach(landmark => {
+    if (landmark.id && idCount[landmark.id] > 1) {
+      results.duplicatesFound++;
+      const newId = landmark.id + '-' + Math.random().toString(36).substr(2, 9);
+      landmark.id = newId;
+      results.duplicatesFixed++;
+      results.details.push({
+        action: 'renamed_duplicate_id',
+        oldId: landmark.id,
+        newId: newId
+      });
+    }
+  });
+
+  return results;
+}
+
+/**
+ * Comprehensive function to address all accessibility issues from insight report
+ * @param {Document} doc - The document to fix
+ * @param {Object} insightReport - The insight report with issues
+ * @returns {Object} - Summary of all fixes applied
+ */
+function addressAllAccessibilityIssues(doc, insightReport) {
+  const summary = {
+    issuesAddressed: [],
+    results: {}
+  };
+
+  if (!doc) {
+    summary.error = 'Document is required';
+    return summary;
+  }
+
+  // REACT_015: Add lang attribute to HTML element
+  const langCode = (insightReport && insightReport.lang) ? insightReport.lang : 'en';
+  const langResult = addLangToHtmlElement(doc, langCode);
+  summary.results['REACT_015'] = langResult;
+  if (langResult) {
+    summary.issuesAddressed.push('REACT_015');
+  }
+
+  // REACT_017: Add/fix landmark issues
+  summary.results['REACT_017'] = fixLandmarkIssues(doc);
+  summary.issuesAddressed.push('REACT_017');
+
+  // REACT_041: Add accessible names to SVGs
+  summary.results['REACT_041'] = addAccessibleNamesToSvgs(doc);
+  summary.issuesAddressed.push('REACT_041');
+
+  // REACT_025: Ensure unique landmarks
+  summary.results['REACT_025'] = ensureAllLandmarksUnique(doc);
+  summary.issuesAddressed.push('REACT_025');
+
+  // REACT_036: Fix fake link issues
+  summary.results['REACT_036'] = fixFakeLinks(doc, true);
+  summary.issuesAddressed.push('REACT_036');
+
+  // REACT_027: Add scope to table headers
+  summary.results['REACT_027'] = addScopeToTableHeaders(doc);
+  summary.issuesAddressed.push('REACT_027');
+
+  return summary;
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +592,12 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  addLangToHtmlElement,
+  addScopeToTableHeaders,
+  fixFakeLinks,
+  addAccessibleNamesToSvgs,
+  fixLandmarkIssues,
+  ensureAllLandmarksUnique,
+  addressAllAccessibilityIssues
 };

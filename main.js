@@ -65,7 +65,7 @@ function renderDependencyGraph(graph) {
         lines.push(`  "${edge.from}" -> "${edge.to}";`);
     }
 
-    lines.push('}`);
+    lines.push('}');
     return lines.join('\n');
 }
 

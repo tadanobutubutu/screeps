@@ -41,16 +41,65 @@ function renderDependencyGraph(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html><head><title>Dependencies</title></head><body>';
-    html += '<h1>Dependency Index</h1>';
+    let html = '<!DOCTYPE html><html lang="en"><head><title>Dependencies</title></head><body>';
+    html += '<header role="banner"><h1>Dependency Index</h1></header>';
+    html += '<main role="main">';
     html += '<ul>';
     
     for (const pkg of packages) {
         html += `<li>${pkg.name} - ${pkg.version}</li>`;
     }
     
-    html += '</ul></body></html>';
+    html += '</ul>';
+    html += '</main>';
+    html += '<footer role="contentinfo"></footer>';
+    html += '</body></html>';
     return html;
+}
+
+/**
+ * Adds proper landmark regions to HTML content for accessibility
+ * @param {string} htmlContent - The HTML content to add landmarks to
+ * @returns {string} - HTML with proper landmark regions
+ */
+function addProperLandmarkRegions(htmlContent) {
+    let result = htmlContent;
+    
+    // Add lang attribute to html element if missing
+    if (!result.includes('lang=')) {
+        result = result.replace('<html>', '<html lang="en">');
+    }
+    
+    // Add header landmark if not present
+    if (!result.includes('role="banner"') && !result.includes('<header')) {
+        const bodyMatch = result.match(/<body>(.*)$/s);
+        if (bodyMatch) {
+            result = result.replace(
+                '<body>',
+                '<body><header role="banner"></header>'
+            );
+        }
+    }
+    
+    // Add main landmark wrapper if content exists but no main landmark
+    if (!result.includes('role="main"') && !result.includes('<main')) {
+        // Wrap list content in main landmark
+        result = result.replace(
+            '<ul>',
+            '<main role="main"><ul>'
+        );
+        result = result.replace(
+            '</ul></body>',
+            '</ul></main><footer role="contentinfo"></footer></body>'
+        );
+    }
+    
+    // Add footer landmark if not present
+    if (!result.includes('role="contentinfo"') && !result.includes('<footer')) {
+        result = result.replace('</body>', '<footer role="contentinfo"></footer></body>');
+    }
+    
+    return result;
 }
 
 /**
@@ -69,5 +118,6 @@ function main() {
 module.exports = {
     renderDependencyGraph,
     renderIndexView,
+    addProperLandmarkRegions,
     main
 };

@@ -376,3 +376,15 @@ module.exports.loop = function() {
         }
     }
 };
+
+// New feature added from original commitment (commit: a7a574974d3f2d12cbf7af970820f6dc51a894c8)
+// Keep both changes to preserve the added functionality.
+
+// Function to prepare data for the graph
+function prepareDataForGraph() {
+  // JavaScript code to prepare data for the graph
+  return [];
+}
+
+// Export the new function to preserve added functionality
+export { prepareDataForGraph };

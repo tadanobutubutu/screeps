@@ -19,13 +19,16 @@ function generateKey(book) {
   return book.id || `${book.title}-${book.author}`;
 }
 
-function BookItem({ key, title, author }) {
-  return <List.Item key={key}>
-    <List.Item.Meta
-      title={title}
-      description={`by ${author}`}
-    />
-  </List.Item>;
+// Function to render a single book item
+function BookItem(book) {
+  return (
+    <List.Item key={generateKey(book)}>
+      <List.Item.Meta
+        title={book.title}
+        description={`by ${book.author}`}
+      />
+    </List.Item>
+  );
 }
 
 function addBook(book) {
@@ -36,26 +39,33 @@ function addBook(book) {
   return { type: 'ADD_BOOK', payload: book };
 }
 
-const AddBookForm = ({ dispatch }) => {
-  const [title, setTitle] = React.useState('');
-  const [author, setAuthor] = React.useState('');
-  const [error, setError] = React.useState('');
+// Accessible Add Book Form Component
+function AddBookForm() {
+  const dispatch = useDispatch();
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Validate input
     if (!title.trim() || !author.trim()) {
       setError('Both title and author are required');
       return;
     }
 
+    // Create new book object
     const newBook = {
       id: Date.now().toString(),
       title: title.trim(),
       author: author.trim()
     };
 
+    // Dispatch action to add book
     dispatch({ type: 'ADD_BOOK', payload: newBook });
+
+    // Reset form
     setTitle('');
     setAuthor('');
     setError('');
@@ -102,7 +112,7 @@ const AddBookForm = ({ dispatch }) => {
       </div>
     </form>
   );
-};
+}
 
 const defaultSorting = sortByTitle;
 
@@ -118,12 +128,14 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// Render the main component containing the book list and sorting controls
 function Main() {
   const books = useSelector(state => state.books.list);
   const dispatch = useDispatch();
-  const [sorting, setSorting] = React.useState(defaultSorting);
+  const [sorting, setSorting] = useState(defaultSorting);
 
-  React.useEffect(() => {
+  // UseEffect hook to handle sorting book list updates
+  useEffect(() => {
     if (sorting === sortByTitle) {
       const sortedList = [...books].sort(sortByTitle);
       dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
@@ -133,10 +145,12 @@ function Main() {
     }
   }, [sorting, books, dispatch]);
 
+  // Map the book list to the BookItem function to create book items
   const bookItems = books.map((book, index) => (
     <BookItem key={generateKey(book)} {...book} />
   ));
 
+  // Render the list of book items and sorting controls
   return (
     <div>
       <AddBookForm />
@@ -154,6 +168,3 @@ function Main() {
 }
 
 export { Main };
-```
-
-This version of the file resolves the Git conflict by selecting logic from both branches. It maintains the Redux store update functionality present in the first branch for sorting and adding books, as well as implementing the `AddBookForm` component from the second branch. Also, it removes parts that were merged in the second version and are no longer relevant to this file, such as accessibility enhancements, table and SVG utility functions, and some variable assignments.

@@ -8,6 +8,42 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Ensure unique landmarks
 
+/**
+ * Counts the number of dependencies declared in a given module source.
+ * Supports both CommonJS (`require(...)`) and ES Modules (`import ... from ...`,
+ * `import '...'`) dependency syntaxes. Duplicate dependencies are counted only once.
+ *
+ * @param {string} source - The source code of the module to analyze.
+ * @returns {number} The count of unique dependencies found in the source.
+ */
+function countDependencies(source) {
+  if (typeof source !== 'string' || source.length === 0) {
+    return 0;
+  }
+
+  const dependencies = new Set();
+
+  // Match ES Module import statements:
+  //   import foo from 'mod';
+  //   import { a, b } from 'mod';
+  //   import * as foo from 'mod';
+  //   import 'mod';
+  const importRegex = /import\s+(?:(?:[\w*${}\s,]+\s+from\s+)|)(['"])([^'"]+)\1/g;
+  let importMatch;
+  while ((importMatch = importRegex.exec(source)) !== null) {
+    dependencies.add(importMatch[2]);
+  }
+
+  // Match CommonJS require(...) calls, including dynamic require('mod').
+  const requireRegex = /require\(\s*(['"])([^'"]+)\1\s*\)/g;
+  let requireMatch;
+  while ((requireMatch = requireRegex.exec(source)) !== null) {
+    dependencies.add(requireMatch[2]);
+  }
+
+  return dependencies.size;
+}
+
 // Internal set to track used landmark IDs
 const _usedLandmarkIds = new Set();
 
@@ -409,7 +445,7 @@ if (typeof module !== 'undefined' && module.exports) {
     getRandomInt,
     clamp,
     deepClone,
-    someFunction
+    someFunction,
+    countDependencies
   };
 }
-```

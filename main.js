@@ -596,6 +596,29 @@ if (isSecureContext()) {
 // Register the service worker
 registerSW();
 
+// Add back any required exports that might have been removed.
+// These ES6 named exports complement the existing CommonJS module.exports.
+export {
+  validateLandmark,
+  config,
+  isLandmark,
+  validateLandmarks,
+  getLandmarkElements,
+  SomeModule,
+  setSvgAccessibleName,
+  improveAccessibility,
+  renderDependencyGraphContent,
+  ensureLandmarkUniqueness,
+  ensureUniqueLandmarks,
+  validateSvgAccessibility,
+  processUniqueElements,
+  addressInsightIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  addProperLandmarkRegions
+};
+
 module.exports = {
   config,
   appState,

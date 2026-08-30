@@ -1,11 +1,14 @@
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// Added functionalities:
+// - Add aria-label to SVGs without title elements (DONE: addAriaLabelToSVGs)
+// - Add aria-labelledby to SVGs with title elements (DONE: addAriaLabelledbyToSVGs)
+// - Add Proper Landmark Regions (DONE: addProperLandmarkRegions)
 
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -309,6 +312,67 @@ export function fixFakeLinkIssue(element) {
     return button;
   }
   return element;
+}
+
+// Added functionalities
+
+// Add aria-label to SVGs without title elements
+export function addAriaLabelToSVGs(svgElements, accessibleNames) {
+  if (!Array.isArray(svgElements)) return [];
+
+  const updates = [];
+
+  svgElements.forEach((svg, index) => {
+    const accessibleName = Array.isArray(accessibleNames)
+      ? accessibleNames[index]
+      : accessibleNames;
+
+    if (svg && accessibleName && !svg.querySelector('title')) {
+      svg.setAttribute('aria-label', accessibleName);
+      updates.push({ element: svg, accessibleName });
+    }
+  });
+
+  return updates;
+}
+
+// Add aria-labelledby to SVGs with title elements
+export function addAriaLabelledbyToSVGs(svgElements) {
+  if (!Array.isArray(svgElements)) return [];
+
+  const updates = [];
+
+  svgElements.forEach((svg) => {
+    const title = svg.querySelector('title');
+    if (svg && title && title.id) {
+      svg.setAttribute('aria-labelledby', title.id);
+      updates.push({ element: svg, labelledbyId: title.id });
+    }
+  });
+
+  return updates;
+}
+
+// Add Proper Landmark Regions
+export function addProperLandmarkRegions(container = document.body) {
+  if (!container) return [];
+
+  const updates = [];
+
+  const addLandmarkIfMissing = (selector, tag, role) => {
+    if (!container.querySelector(selector)) {
+      const landmark = document.createElement(tag);
+      if (role) {
+        landmark.setAttribute('role', role);
+      }
+      container.appendChild(landmark);
+      updates.push({ element: landmark, tag, role });
+    }
+  };
+
+  addLandmarkIfMissing('main[role="main"], main', 'main', 'main');
+
+  return updates;
 }
 
 const container = document.getElementById('root');

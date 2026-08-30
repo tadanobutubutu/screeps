@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
 const React = require('react');
 const ReactDOM = require('react-dom');
 const Landmark = require('./Landmark');

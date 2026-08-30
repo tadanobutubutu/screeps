@@ -42,6 +42,7 @@ function ensureUniqueLandmarkId(baseName) {
 function uniqueLandmarks(landmarks) {
     const seen = new Set();
     const result = [];
+    if (!landmarks) return result;
     for (const lm of landmarks) {
         if (!seen.has(lm.id)) {
             seen.add(lm.id);
@@ -58,6 +59,14 @@ function addLangAttribute() {
   if (elementToModify) {
     elementToModify.setAttribute('lang', 'en'); // Example: English
   }
+}
+
+/**
+ * Gets the language attribute from the HTML element.
+ * @returns {string} The language attribute value.
+ */
+function getLangAttribute() {
+  return document.documentElement.getAttribute('lang') || '';
 }
 
 /**
@@ -106,8 +115,10 @@ function addProperLandmarkRegions() {
 
   // Create navigation landmark
   const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
-  nav.setAttribute('role', 'navigation');
-  nav.id = nav.id || 'primary-navigation';
+  if (nav) {
+    nav.setAttribute('role', 'navigation');
+    nav.id = nav.id || 'primary-navigation';
+  }
 
   // Create banner/header landmark
   const header = document.querySelector('header') || document.querySelector('[role="banner"]') || document.createElement('header');
@@ -188,13 +199,148 @@ function addAriaToFormControls() {
  */
 function addAccessibleNamesToSVGs(svgs) {
   svgs.forEach(svg => {
-    const id = `svg-${Date.now()}`;
+    const id = `svg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
     svg.setAttribute('id', id);
-    const label = document.createElement('label');
-    label.setAttribute('for', id);
-    label.textContent = 'SVG description';
-    svg.parentNode.insertBefore(label, svg);
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = 'SVG description';
+    svg.insertBefore(title, svg.firstChild);
   });
+}
+
+/**
+ * Gets accessible name for an SVG element.
+ * @param {SVGElement} svg - The SVG element.
+ * @returns {string} The accessible name.
+ */
+function getSvgAccessibleName(svg) {
+  const title = svg.querySelector('title');
+  if (title && title.textContent.trim()) {
+    return title.textContent.trim();
+  }
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelledBy = document.getElementById(ariaLabelledby);
+    if (labelledBy) {
+      return labelledBy.textContent.trim();
+    }
+  }
+  return '';
+}
+
+/**
+ * Validates landmark accessibility.
+ * @param {HTMLElement} landmark - The landmark element to validate.
+ * @returns {Object} Validation result with issues array.
+ */
+function validateLandmark(landmark) {
+  const issues = [];
+  if (!landmark.hasAttribute('role') && !['main', 'nav', 'header', 'footer', 'aside', 'section'].includes(landmark.tagName.toLowerCase())) {
+    issues.push('Landmark missing role attribute');
+  }
+  if (!landmark.id) {
+    issues.push('Landmark missing unique ID');
+  }
+  return { valid: issues.length === 0, issues };
+}
+
+/**
+ * Validates landmark structure.
+ * @returns {Array} Array of validation results for all landmarks.
+ */
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="region"], main, nav, header, footer, aside, section');
+  const results = [];
+  landmarks.forEach(landmark => {
+    results.push({ element: landmark, ...validateLandmark(landmark) });
+  });
+  return results;
+}
+
+/**
+ * Ensures all landmarks have unique IDs.
+ * @returns {void}
+ */
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="region"], main, nav, header, footer, aside, section');
+  landmarks.forEach(landmark => {
+    if (!landmark.id) {
+      const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+      landmark.id = ensureUniqueLandmarkId(role);
+    }
+  });
+}
+
+/**
+ * Creates an accessible in-page button.
+ * @param {string} text - Button text.
+ * @param {Function} onClick - Click handler.
+ * @returns {HTMLButtonElement} The created button.
+ */
+function createInPageButton(text, onClick) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = text;
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+  return button;
+}
+
+/**
+ * Creates an accessible link.
+ * @param {string} text - Link text.
+ * @param {string} href - Link href.
+ * @returns {HTMLAnchorElement} The created link.
+ */
+function createAccessibleLink(text, href) {
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  return link;
+}
+
+/**
+ * Handles accessibility issues by running all validation and fix functions.
+ * @returns {Object} Summary of issues found and fixed.
+ */
+function handleAccessibilityIssues() {
+  const summary = {
+    landmarks: validateLandmarkStructure(),
+    tables: [],
+    svgs: [],
+    links: []
+  };
+
+  // Validate tables
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      summary.tables.push({ element: table, issue: 'Table without headers' });
+    }
+  });
+
+  // Check SVGs
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!getSvgAccessibleName(svg)) {
+      summary.svgs.push({ element: svg, issue: 'SVG missing accessible name' });
+    }
+  });
+
+  // Check links
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (!isLinkAccessible(link)) {
+      summary.links.push({ element: link, issue: 'Link missing accessible name' });
+    }
+  });
+
+  return summary;
 }
 
 /**
@@ -314,7 +460,7 @@ function initializeAccessibility() {
   const announcer = createAnnouncer();
   
   // Ensure all landmarks have unique IDs
-  uniqueLandmarks();
+  ensureUniqueLandmarks();
   
   // Improve keyboard navigation
   improveKeyboardNavigation();
@@ -394,5 +540,13 @@ module.exports = {
   addLiveRegionForDynamicContent,
   isLinkAccessible,
   addAriaLabel,
-  addLangAttribute
+  addLangAttribute,
+  getLangAttribute,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues
 };

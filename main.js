@@ -36,6 +36,15 @@ function renderDependencyGraph(dependencies) {
 }
 
 /**
+ * Counts the number of dependencies
+ * @param {Object} dependencies - The dependencies object
+ * @returns {number} - The count of dependencies
+ */
+function countDependencies(dependencies) {
+    return Object.keys(dependencies).length;
+}
+
+/**
  * Renders the index view with all packages
  * @param {Array} packages - List of packages to display
  * @returns {string} - HTML string for the index view
@@ -69,5 +78,6 @@ function main() {
 module.exports = {
     renderDependencyGraph,
     renderIndexView,
+    countDependencies,
     main
 };

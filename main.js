@@ -103,20 +103,6 @@ function createInPageButton(buttonText, onClickHandler) {
   return button;
 }
 
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  if (!element) {
-    return false;
-  }
-  
-  // Validate that the landmark has required properties
-  if (element.getAttribute('name') && element.getAttribute('coordinates')) {
-    return true;
-  }
-  
-  return false;
-}
-
 // If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
 // If not, define it here:
 export function rotateBack() {

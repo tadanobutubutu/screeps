@@ -61,6 +61,19 @@ function detectAndSetLang(content) {
 }
 
 /**
+ * Sets the lang attribute on the HTML element
+ * @param {string} lang - The language code to set
+ * @returns {boolean} True if successfully set
+ */
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang;
+    return true;
+  }
+  return false;
+}
+
+/**
  * Addresses accessibility issues from an insight report
  * @param {Object|Array} insightReport - The insight report containing accessibility issues
  * @param {Object} [options] - Options for handling the issues
@@ -166,6 +179,221 @@ function personName(name, isLink) {
     // Render as a span for non-link content
     return `<span aria-label="Person: ${name}">${name}</span>`;
   }
+}
+
+/**
+ * Creates an accessible in-page button element (not a fake link)
+ * @param {string} text - The button text
+ * @param {Function} onClick - Click handler
+ * @param {Object} [attributes] - Additional attributes
+ * @returns {string} HTML string for the button
+ */
+function createInPageButton(text, onClick, attributes = {}) {
+  if (!text) {
+    return '';
+  }
+  
+  const attrs = {
+    type: 'button',
+    'aria-label': text,
+    ...attributes
+  };
+  
+  const attrString = Object.entries(attrs)
+    .map(([key, value]) => `${key}="${value}"`)
+    .join(' ');
+  
+  return `<button ${attrString}>${text}</button>`;
+}
+
+/**
+ * Validates landmark elements for accessibility
+ * @param {Element|string} container - Container element or selector
+ * @returns {Object} Validation results
+ */
+function validateLandmark(container) {
+  const root = typeof container === 'string' 
+    ? (typeof document !== 'undefined' ? document.querySelector(container) : null)
+    : container;
+    
+  if (!root) {
+    return {
+      valid: false,
+      landmarks: [],
+      issues: [{ type: 'container_not_found', message: 'Container element not found' }]
+    };
+  }
+  
+  const landmarkSelectors = [
+    'header', 'nav', 'main', 'footer', 'aside', 'section',
+    '[role="banner"]', '[role="navigation"]', '[role="main"]',
+    '[role="contentinfo"]', '[role="complementary"]', '[role="region"]',
+    '[role="search"]', '[role="form"]'
+  ];
+  
+  const landmarks = [];
+  const issues = [];
+  
+  landmarkSelectors.forEach(selector => {
+    const elements = root.querySelectorAll(selector);
+    elements.forEach(el => {
+      const role = el.getAttribute('role') || el.tagName.toLowerCase();
+      const label = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || '';
+      
+      landmarks.push({
+        element: el,
+        role,
+        label,
+        hasLabel: !!label
+      });
+      
+      if (!label && ['navigation', 'region', 'search', 'form'].includes(role)) {
+        issues.push({
+          type: 'missing_landmark_label',
+          element: el,
+          role,
+          message: `Landmark with role "${role}" should have an accessible name`
+        });
+      }
+    });
+  });
+  
+  return {
+    valid: issues.length === 0,
+    landmarks,
+    issues
+  };
+}
+
+/**
+ * Validates landmark structure for uniqueness and proper nesting
+ * @param {Element|string} container - Container element or selector
+ * @returns {Object} Validation results
+ */
+function validateLandmarkStructure(container) {
+  const root = typeof container === 'string' 
+    ? (typeof document !== 'undefined' ? document.querySelector(container) : null)
+    : container;
+    
+  if (!root) {
+    return {
+      valid: false,
+      issues: [{ type: 'container_not_found', message: 'Container element not found' }]
+    };
+  }
+  
+  const landmarks = root.querySelectorAll(
+    'header, nav, main, footer, aside, section, ' +
+    '[role="banner"], [role="navigation"], [role="main"], ' +
+    '[role="contentinfo"], [role="complementary"], [role="region"], ' +
+    '[role="search"], [role="form"]'
+  );
+  
+  const issues = [];
+  const roleCounts = {};
+  const labelledRoles = {};
+  
+  landmarks.forEach((landmark, index) => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    const label = landmark.getAttribute('aria-label') || 
+                  (landmark.getAttribute('aria-labelledby') ? 
+                    `#${landmark.getAttribute('aria-labelledby')}` : '');
+    
+    // Count roles
+    roleCounts[role] = (roleCounts[role] || 0) + 1;
+    
+    // Track labelled roles for uniqueness check
+    if (label) {
+      if (!labelledRoles[role]) labelledRoles[role] = [];
+      labelledRoles[role].push(label);
+    }
+    
+    // Check for duplicate unlabelled landmarks of same type
+    if (!label && roleCounts[role] > 1) {
+      issues.push({
+        type: 'duplicate_unlabelled_landmark',
+        element: landmark,
+        role,
+        message: `Multiple <${role}> landmarks without unique labels`
+      });
+    }
+  });
+  
+  // Check for required landmarks
+  const requiredRoles = ['main'];
+  requiredRoles.forEach(role => {
+    if (!roleCounts[role] && !roleCounts[role === 'main' ? 'main' : role]) {
+      issues.push({
+        type: 'missing_required_landmark',
+        role,
+        message: `Required landmark "${role}" is missing`
+      });
+    }
+  });
+  
+  return {
+    valid: issues.length === 0,
+    roleCounts,
+    labelledRoles,
+    issues
+  };
+}
+
+/**
+ * Gets an accessible name for an SVG element
+ * @param {SVGElement|string} svg - SVG element or selector
+ * @returns {Object} Accessible name information
+ */
+function getSvgAccessibleName(svg) {
+  const element = typeof svg === 'string' 
+    ? (typeof document !== 'undefined' ? document.querySelector(svg) : null)
+    : svg;
+    
+  if (!element) {
+    return {
+      name: '',
+      hasName: false,
+      method: 'none',
+      issues: [{ type: 'element_not_found', message: 'SVG element not found' }]
+    };
+  }
+  
+  // Check for various accessible name sources in priority order
+  const ariaLabel = element.getAttribute('aria-label');
+  if (ariaLabel) {
+    return { name: ariaLabel, hasName: true, method: 'aria-label' };
+  }
+  
+  const ariaLabelledBy = element.getAttribute('aria-labelledby');
+  if (ariaLabelledBy && typeof document !== 'undefined') {
+    const labelEl = document.getElementById(ariaLabelledBy);
+    if (labelEl) {
+      return { name: labelEl.textContent.trim(), hasName: true, method: 'aria-labelledby' };
+    }
+  }
+  
+  const titleEl = element.querySelector('title');
+  if (titleEl && titleEl.textContent.trim()) {
+    return { name: titleEl.textContent.trim(), hasName: true, method: 'title_element' };
+  }
+  
+  const descEl = element.querySelector('desc');
+  if (descEl && descEl.textContent.trim()) {
+    return { name: descEl.textContent.trim(), hasName: true, method: 'desc_element' };
+  }
+  
+  // Check for role="img" with no name
+  const role = element.getAttribute('role');
+  if (role === 'img') {
+    return {
+      name: '',
+      hasName: false,
+      method: 'none',
+      issues: [{ type: 'missing_accessible_name', message: 'SVG with role="img" requires an accessible name' }]
+    };
+  }
+  
+  return { name: '', hasName: false, method: 'none' };
 }
 
 // Main validation function for web accessibility
@@ -477,5 +705,9 @@ module.exports = {
     getDate,
     personName,
     setHtmlLangAttribute,
-    detectAndSetLang
+    detectAndSetLang,
+    createInPageButton,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName
 };

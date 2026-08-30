@@ -133,6 +133,9 @@ function AddBookForm() {
   );
 }
 
+// Export necessary functions for use in other modules
+export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, AddBookForm, onTitleSort, onAuthorSort };
+
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
@@ -608,6 +611,7 @@ module.exports = {
   generateKey,
   BookItem,
   addBook,
+  AddBookForm,
   onTitleSort,
   onAuthorSort,
   getLangAttribute,
@@ -632,6 +636,5 @@ module.exports = {
   isInitialized,
   appData,
   processLandmarks,
-  addLandmarks,
   setSvgAccessibleName
 };

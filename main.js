@@ -1,17 +1,3 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by setHtmlLangAttribute() and detectAndSetLang())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-// For example, if the page is in English, set lang to 'en'
-
 const { greeting } = require('./utils');
 const path = require('path');
 const fs = require('fs');
@@ -33,14 +19,21 @@ const config = {
 
 /**
  * Detects the language of the given content and sets the HTML lang attribute
- * @param {string} content - The text content to analyze
+ * @param {string} [content] - The text content to analyze (optional)
  * @returns {string} The detected language code
  */
 function detectAndSetLang(content) {
   // Simple language detection based on common patterns
   let lang = 'en'; // Default to English
-  
-  if (content) {
+
+  // If no content provided, fall back to browser/navigator language
+  if (!content) {
+    if (typeof navigator !== 'undefined') {
+      lang = navigator.language || navigator.userLanguage || 'en';
+      // Normalize to primary subtag (e.g. 'en-US' -> 'en')
+      lang = lang.split('-')[0] || 'en';
+    }
+  } else {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
@@ -56,7 +49,12 @@ function detectAndSetLang(content) {
       lang = 'de'; // German
     }
   }
-  
+
+  // Apply to the document if available
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang;
+  }
+
   return lang;
 }
 
@@ -93,7 +91,7 @@ function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
     };
 
     if (!insightReport) {
-        result.details.push({
+        console.error({
             type: 'error',
             message: 'No insight report provided'
         });
@@ -171,13 +169,13 @@ function personName(name, isLink) {
   if (!name) {
     return '';
   }
-  
+
   if (isLink) {
     // Properly implement as a link with href attribute to avoid fake link issues
-    return `<a href="#" aria-label="Person: ${name}">${name}</a>`;
+    return `<a href="#" aria-label="${name}">${name}</a>`;
   } else {
     // Render as a span for non-link content
-    return `<span aria-label="Person: ${name}">${name}</span>`;
+    return `<span aria-label="${name}">${name}</span>`;
   }
 }
 
@@ -192,17 +190,17 @@ function createInPageButton(text, onClick, attributes = {}) {
   if (!text) {
     return '';
   }
-  
+
   const attrs = {
     type: 'button',
     'aria-label': text,
     ...attributes
   };
-  
+
   const attrString = Object.entries(attrs)
     .map(([key, value]) => `${key}="${value}"`)
     .join(' ');
-  
+
   return `<button ${attrString}>${text}</button>`;
 }
 
@@ -212,10 +210,10 @@ function createInPageButton(text, onClick, attributes = {}) {
  * @returns {Object} Validation results
  */
 function validateLandmark(container) {
-  const root = typeof container === 'string' 
+  const root = typeof container === 'string'
     ? (typeof document !== 'undefined' ? document.querySelector(container) : null)
     : container;
-    
+
   if (!root) {
     return {
       valid: false,
@@ -223,30 +221,30 @@ function validateLandmark(container) {
       issues: [{ type: 'container_not_found', message: 'Container element not found' }]
     };
   }
-  
+
   const landmarkSelectors = [
     'header', 'nav', 'main', 'footer', 'aside', 'section',
     '[role="banner"]', '[role="navigation"]', '[role="main"]',
     '[role="contentinfo"]', '[role="complementary"]', '[role="region"]',
     '[role="search"]', '[role="form"]'
   ];
-  
+
   const landmarks = [];
   const issues = [];
-  
+
   landmarkSelectors.forEach(selector => {
     const elements = root.querySelectorAll(selector);
     elements.forEach(el => {
       const role = el.getAttribute('role') || el.tagName.toLowerCase();
       const label = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || '';
-      
+
       landmarks.push({
         element: el,
         role,
         label,
         hasLabel: !!label
       });
-      
+
       if (!label && ['navigation', 'region', 'search', 'form'].includes(role)) {
         issues.push({
           type: 'missing_landmark_label',
@@ -257,7 +255,7 @@ function validateLandmark(container) {
       }
     });
   });
-  
+
   return {
     valid: issues.length === 0,
     landmarks,
@@ -271,43 +269,43 @@ function validateLandmark(container) {
  * @returns {Object} Validation results
  */
 function validateLandmarkStructure(container) {
-  const root = typeof container === 'string' 
+  const root = typeof container === 'string'
     ? (typeof document !== 'undefined' ? document.querySelector(container) : null)
     : container;
-    
+
   if (!root) {
     return {
       valid: false,
       issues: [{ type: 'container_not_found', message: 'Container element not found' }]
     };
   }
-  
+
   const landmarks = root.querySelectorAll(
     'header, nav, main, footer, aside, section, ' +
     '[role="banner"], [role="navigation"], [role="main"], ' +
     '[role="contentinfo"], [role="complementary"], [role="region"], ' +
     '[role="search"], [role="form"]'
   );
-  
+
   const issues = [];
   const roleCounts = {};
   const labelledRoles = {};
-  
+
   landmarks.forEach((landmark, index) => {
     const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    const label = landmark.getAttribute('aria-label') || 
-                  (landmark.getAttribute('aria-labelledby') ? 
+    const label = landmark.getAttribute('aria-label') ||
+                  (landmark.getAttribute('aria-labelledby') ?
                     `#${landmark.getAttribute('aria-labelledby')}` : '');
-    
+
     // Count roles
     roleCounts[role] = (roleCounts[role] || 0) + 1;
-    
+
     // Track labelled roles for uniqueness check
     if (label) {
       if (!labelledRoles[role]) labelledRoles[role] = [];
       labelledRoles[role].push(label);
     }
-    
+
     // Check for duplicate unlabelled landmarks of same type
     if (!label && roleCounts[role] > 1) {
       issues.push({
@@ -318,7 +316,7 @@ function validateLandmarkStructure(container) {
       });
     }
   });
-  
+
   // Check for required landmarks
   const requiredRoles = ['main'];
   requiredRoles.forEach(role => {
@@ -330,7 +328,7 @@ function validateLandmarkStructure(container) {
       });
     }
   });
-  
+
   return {
     valid: issues.length === 0,
     roleCounts,
@@ -345,10 +343,10 @@ function validateLandmarkStructure(container) {
  * @returns {Object} Accessible name information
  */
 function getSvgAccessibleName(svg) {
-  const element = typeof svg === 'string' 
+  const element = typeof svg === 'string'
     ? (typeof document !== 'undefined' ? document.querySelector(svg) : null)
     : svg;
-    
+
   if (!element) {
     return {
       name: '',
@@ -357,13 +355,13 @@ function getSvgAccessibleName(svg) {
       issues: [{ type: 'element_not_found', message: 'SVG element not found' }]
     };
   }
-  
+
   // Check for various accessible name sources in priority order
   const ariaLabel = element.getAttribute('aria-label');
   if (ariaLabel) {
     return { name: ariaLabel, hasName: true, method: 'aria-label' };
   }
-  
+
   const ariaLabelledBy = element.getAttribute('aria-labelledby');
   if (ariaLabelledBy && typeof document !== 'undefined') {
     const labelEl = document.getElementById(ariaLabelledBy);
@@ -371,17 +369,17 @@ function getSvgAccessibleName(svg) {
       return { name: labelEl.textContent.trim(), hasName: true, method: 'aria-labelledby' };
     }
   }
-  
+
   const titleEl = element.querySelector('title');
   if (titleEl && titleEl.textContent.trim()) {
     return { name: titleEl.textContent.trim(), hasName: true, method: 'title_element' };
   }
-  
+
   const descEl = element.querySelector('desc');
   if (descEl && descEl.textContent.trim()) {
     return { name: descEl.textContent.trim(), hasName: true, method: 'desc_element' };
   }
-  
+
   // Check for role="img" with no name
   const role = element.getAttribute('role');
   if (role === 'img') {
@@ -392,7 +390,7 @@ function getSvgAccessibleName(svg) {
       issues: [{ type: 'missing_accessible_name', message: 'SVG with role="img" requires an accessible name' }]
     };
   }
-  
+
   return { name: '', hasName: false, method: 'none' };
 }
 
@@ -401,23 +399,23 @@ function validateWebAccessibility(url) {
     if (!url) {
         throw new Error('URL is required');
     }
-    
+
     console.log(`Validating: ${url}`);
-    
+
     const results = {
         accessibility: null,
         structure: null,
         errors: [],
         warnings: []
     };
-    
+
     try {
         results.accessibility = validateTableAccessibility(url);
         results.structure = validateTableStructure(url);
     } catch (error) {
         results.errors.push(error.message);
     }
-    
+
     return results;
 }
 
@@ -445,10 +443,10 @@ function getTableRows(table) {
 
 // Validate table accessibility
 function validateTableAccessibility(tableOrUrl) {
-    const tables = typeof tableOrUrl === 'string' 
-        ? document.querySelectorAll('table') 
+    const tables = typeof tableOrUrl === 'string'
+        ? document.querySelectorAll('table')
         : [tableOrUrl];
-    
+
     const accessibilityResults = {
         hasHeaders: true,
         hasScope: true,
@@ -457,10 +455,10 @@ function validateTableAccessibility(tableOrUrl) {
         issues: [],
         score: 100
     };
-    
+
     tables.forEach((table, index) => {
         const headers = table.querySelectorAll('th');
-        
+
         // Check if table has headers
         if (headers.length === 0) {
             accessibilityResults.issues.push({
@@ -471,7 +469,7 @@ function validateTableAccessibility(tableOrUrl) {
             accessibilityResults.hasHeaders = false;
             accessibilityResults.score -= 20;
         }
-        
+
         // Check for scope attributes
         headers.forEach((header, hIndex) => {
             if (!header.hasAttribute('scope')) {
@@ -485,11 +483,11 @@ function validateTableAccessibility(tableOrUrl) {
                 accessibilityResults.score -= 10;
             }
         });
-        
+
         // Check for proper associations (id/headers)
         const cells = table.querySelectorAll('td');
         if (cells.length > 0 && headers.length > 0) {
-            const hasProperAssociation = headers[0].hasAttribute('id') || 
+            const hasProperAssociation = headers[0].hasAttribute('id') ||
                 cells[0].hasAttribute('headers');
             if (!hasProperAssociation) {
                 accessibilityResults.issues.push({
@@ -502,16 +500,16 @@ function validateTableAccessibility(tableOrUrl) {
             }
         }
     });
-    
+
     return accessibilityResults;
 }
 
 // Validate table structure
 function validateTableStructure(tableOrUrl) {
-    const tables = typeof tableOrUrl === 'string' 
-        ? document.querySelectorAll('table') 
+    const tables = typeof tableOrUrl === 'string'
+        ? document.querySelectorAll('table')
         : [tableOrUrl];
-    
+
     const structureResults = {
         hasCaption: true,
         hasSummary: true,
@@ -521,7 +519,7 @@ function validateTableStructure(tableOrUrl) {
         issues: [],
         score: 100
     };
-    
+
     tables.forEach((table, index) => {
         // Check for caption
         const caption = table.querySelector('caption');
@@ -534,7 +532,7 @@ function validateTableStructure(tableOrUrl) {
             structureResults.hasCaption = false;
             structureResults.score -= 15;
         }
-        
+
         // Check for summary (via aria-describedby or summary attribute)
         const hasSummaryAttr = table.hasAttribute('summary');
         const hasAriaDescription = table.hasAttribute('aria-describedby');
@@ -547,7 +545,7 @@ function validateTableStructure(tableOrUrl) {
             structureResults.hasSummary = false;
             structureResults.score -= 10;
         }
-        
+
         // Check for thead
         const thead = table.querySelector('thead');
         if (!thead) {
@@ -559,7 +557,7 @@ function validateTableStructure(tableOrUrl) {
             structureResults.hasThead = false;
             structureResults.score -= 10;
         }
-        
+
         // Check for tbody
         const tbody = table.querySelector('tbody');
         if (!tbody) {
@@ -571,20 +569,20 @@ function validateTableStructure(tableOrUrl) {
             structureResults.hasTbody = false;
             structureResults.score -= 10;
         }
-        
+
         // Check column consistency
         const rows = table.querySelectorAll('tr');
         if (rows.length > 1) {
             const firstRowCells = rows[0].querySelectorAll('th, td').length;
             let inconsistent = false;
-            
+
             rows.forEach((row, rIndex) => {
                 const cellCount = row.querySelectorAll('th, td').length;
                 if (cellCount !== firstRowCells) {
                     inconsistent = true;
                 }
             });
-            
+
             if (inconsistent) {
                 structureResults.issues.push({
                     table: index,
@@ -596,7 +594,7 @@ function validateTableStructure(tableOrUrl) {
             }
         }
     });
-    
+
     return structureResults;
 }
 
@@ -606,17 +604,17 @@ function validateTableStructure(tableOrUrl) {
  */
 function countDependencies() {
   const packagePath = path.join(process.cwd(), 'package.json');
-  
+
   try {
     const packageContent = fs.readFileSync(packagePath, 'utf8');
     const packageJson = JSON.parse(packageContent);
-    
+
     const dependencies = packageJson.dependencies || {};
     const devDependencies = packageJson.devDependencies || {};
-    
+
     const dependencyCount = Object.keys(dependencies).length;
     const devDependencyCount = Object.keys(devDependencies).length;
-    
+
     return {
       dependencies: dependencyCount,
       devDependencies: devDependencyCount,
@@ -647,21 +645,7 @@ function renderDependencyGraph(deps) {
         "- Development Dependencies: " + deps.devDependencies,
         ""
     ];
-    
-    if (deps.dependencies > 0) {
-        lines.push("Core Dependencies:");
-        deps.dependencies.forEach(dep => {
-            lines.push(`  • ${dep.name} (${dep.version})`);
-        });
-    }
-    
-    if (deps.devDependencies > 0) {
-        lines.push("Development Dependencies:");
-        deps.devDependencies.forEach(dep => {
-            lines.push(`  • ${dep.name} (${dep.version})`);
-        });
-    }
-    
+
     return lines.join("\n");
 }
 

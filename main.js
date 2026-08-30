@@ -273,3 +273,108 @@ module.exports = {
   calculateSum,
   addProperLandmarkRegions
 };
+
+// New accessibility functions
+
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.lang || navigator.language || 'en';
+  }
+  return 'en';
+}
+
+function personName(person) {
+  if (!person) return 'Unknown';
+  return person.name || person.fullName || 'Unknown';
+}
+
+function validateTableAccessibility(table) {
+  if (!table || table.tagName !== 'TABLE') {
+    return { valid: false, errors: ['Invalid table element'] };
+  }
+  const errors = [];
+  const hasCaption = !!table.querySelector('caption');
+  const hasHeaders = !!table.querySelectorAll('th').length;
+  if (!hasCaption) errors.push('Table missing caption');
+  if (!hasHeaders) errors.push('Table missing header cells');
+  return { valid: errors.length === 0, errors };
+}
+
+function validateTableStructure(table) {
+  if (!table || table.tagName !== 'TABLE') {
+    return { valid: false, errors: ['Invalid table element'] };
+  }
+  const errors = [];
+  const hasThead = !!table.querySelector('thead');
+  const hasTbody = !!table.querySelector('tbody') || table.querySelectorAll('tr').length > 0;
+  if (!hasThead) errors.push('Table missing thead');
+  if (!hasTbody) errors.push('Table missing tbody');
+  return { valid: errors.length === 0, errors };
+}
+
+function validateLandmarkStructure(landmark) {
+  if (!landmark) {
+    return { valid: false, errors: ['Landmark element required'] };
+  }
+  const errors = [];
+  const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+  const validRoles = ['main', 'header', 'footer', 'nav', 'aside', 'section', 'article'];
+  if (!validRoles.includes(role)) {
+    errors.push('Invalid landmark role');
+  }
+  if (!landmark.id && !landmark.getAttribute('aria-label')) {
+    errors.push('Landmark should have an id or aria-label');
+  }
+  return { valid: errors.length === 0, errors };
+}
+
+function createInPageButton(label, onClick) {
+  const button = document.createElement('button');
+  button.textContent = label;
+  button.setAttribute('aria-label', label);
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  return button;
+}
+
+function newFocusTrap(container) {
+  if (!container) return null;
+  const focusableElements = container.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+  if (focusableElements.length === 0) return null;
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  function handleKeyDown(event) {
+    if (event.key === 'Tab') {
+      if (event.shiftKey) {
+        if (document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+  }
+
+  container.addEventListener('keydown', handleKeyDown);
+
+  return {
+    destroy: () => {
+      container.removeEventListener('keydown', handleKeyDown);
+    }
+  };
+}
+
+// Export new functions
+module.exports.getLangAttribute = getLangAttribute;
+module.exports.personName = personName;
+module.exports.validateTableAccessibility = validateTableAccessibility;
+module.exports.validateTableStructure = validateTableStructure;
+module.exports.validateLandmarkStructure = validateLandmarkStructure;
+module.exports.createInPageButton = createInPageButton;
+module.exports.newFocusTrap = newFocusTrap;

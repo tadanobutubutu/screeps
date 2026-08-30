@@ -3,6 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
 
+// Import dependency graph and index content from appropriate modules
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
+
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
 
@@ -46,7 +50,31 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return book.id;
+  return book.id || `${book.title}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// Function to render dependency graph content
+function renderDependencyGraph() {
+  return (
+    <div className="dependency-graph">
+      {dependencyGraphContent}
+    </div>
+  );
+}
+
+// Function to render index view content
+function renderIndexView() {
+  return (
+    <div className="index-view">
+      {indexContent}
+    </div>
+  );
+}
+
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = ['react', 'react-redux', 'antd'];
+  return dependencies.length;
 }
 
 // Function to render a single book item
@@ -55,14 +83,14 @@ function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        description={book.author}
+        ...
       />
     </List.Item>
   );
 }
 
 // Function to create a new book entry in the Redux store
-function addBook(book) {
+export function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
@@ -80,27 +108,25 @@ const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
-// Function to count dependencies
-function countDependencies() {
-  const dependencies = ['react', 'react-redux', 'antd'];
-  return dependencies.length;
-}
+// Export utility functions
+export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies };
 
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const dispatch = useDispatch();
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -120,8 +146,21 @@ function Main() {
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />
-      {/* Implement the required changes to improve accessibility for adding a new book */}
+      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
+      {/* Example of adding a new book form with accessibility considerations */}
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        // Assuming there's a function to get the form data
+        const newBook = getFormData();
+        addBook(newBook);
+      }}>
+        <label htmlFor="title">Title:</label>
+        <input type="text" id="title" name="title" required />
+        <label htmlFor="author">Author:</label>
+        <input type="text" id="author" name="author" required />
+        <button type="submit">Add Book</button>
+      </form>
     </div>
   );
 }

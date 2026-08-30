@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -36,11 +33,11 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function ensureUniqueLandmarkId(baseName) {
+function generateUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
+        const suffix = Math.floor(Math.random() * 10);
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -66,10 +63,9 @@ function uniqueLandmarks(landmarks) {
 
 // Add lang attribute as per the issue requirement
 function addLangAttribute() {
-  // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('some-selector');
+  const elementToModify = document.documentElement;
   if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en'); // Example: English
+    elementToModify.lang = 'en'; // Example: English
   }
 }
 
@@ -79,7 +75,7 @@ function addLangAttribute() {
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (!element.hasAttribute('aria-label')) {
+    if (element && !element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
@@ -103,10 +99,10 @@ function getFullLangAttribute() {
 // ... existing functions from both branches
 
 // Accessibility helper functions
-function setupKeyboardNavigation(element, options = {}) {
+function handleKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
 
-  element.addEventListener('keydown', (event) => {
+  return function(event) {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -127,7 +123,7 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-  });
+  };
 }
 
 function trapFocus(container) {
@@ -138,7 +134,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  container.addEventListener('keydown', (event) => {
+  const keydownHandler = function(event) {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -148,8 +144,9 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  });
+  };
+
+  container.addEventListener('keydown', keydownHandler);
 }
 
 // ... other existing functions remained unchanged
-```

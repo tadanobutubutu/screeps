@@ -36,7 +36,7 @@ function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
     } else {
       let generatedId = `${prefix}-${index}`;
       while (usedIds.has(generatedId)) {
-        generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+        generatedId = `${prefix}-${Math.floor(Math.random() * 900000) + 100000}`;
       }
       landmark.id = generatedId;
       usedIds.add(generatedId);
@@ -79,7 +79,7 @@ let internalFunction2 = () => {
  * @param {string} prefix - Optional prefix for the generated id
  * @returns {string} The id of the element
  */
-function ensureElementHasId(element, prefix = 'element') {
+export function ensureElementHasId(element, prefix = 'element') {
   if (!element) {
     throw new Error('Element is required');
   }
@@ -88,7 +88,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}-${Math.floor(Math.random() * 900000) + 100000}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -99,7 +99,7 @@ function ensureElementHasId(element, prefix = 'element') {
  * @param {string} label - The label text
  * @returns {void}
  */
-function addAriaLabel(element, label) {
+export function addAriaLabel(element, label) {
   if (!element) {
     throw new Error('Element is required');
   }
@@ -116,8 +116,8 @@ function addAriaLabel(element, label) {
  * Sets the lang attribute on the HTML element based on the page content
  * @param {string} languageCode - The language code (e.g., 'en', 'es', 'fr')
  */
-function setLanguageAttribute(languageCode) {
-  const htmlElement = document.querySelector('html');
+export function setLanguageAttribute(languageCode) {
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', languageCode);
   }
@@ -127,21 +127,20 @@ function setLanguageAttribute(languageCode) {
 
 // Ensure all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
 // Adds an aria-label to the dependencyGraph container if it doesn't already have one
-function addDepGraphAriaLabel() {
-  const container = document.getElementById('dependencyGraph');
+export function addDepGraphAriaLabel() {
+  const container = document.querySelector('[data-dependency-graph]') || document.getElementById('dependencyGraph');
   addAriaLabel(container, 'Dependency Graph');
 }
 
 // Fixes 26 table structure issues for accessibility
 // Ensures tables have proper headers, captions, and scope attributes
-function fixTableStructureIssues() {
+export function fixTableAccessibility() {
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     // Add caption if missing
     if (!table.querySelector('caption')) {
       const caption = document.createElement('caption');
       caption.textContent = table.getAttribute('aria-label') || 'Data table';
-      caption.classList.add('sr-only');
       table.prepend(caption);
     }
 
@@ -159,7 +158,7 @@ function fixTableStructureIssues() {
 }
 
 // Adds/fixes 2 landmark issues by ensuring a main landmark exists
-function addMainLandmark() {
+export function addMainLandmark() {
   let mainElement = document.querySelector('main');
   if (!mainElement) {
     mainElement = document.createElement('main');
@@ -182,19 +181,19 @@ function addMainLandmark() {
 }
 
 // Adds accessible names to SVG elements that lack them
-function addSvgAccessibleNames() {
+export function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg) => {
     const hasAccessibleName =
-      svg.hasAttribute('aria-label') ||
-      svg.hasAttribute('aria-labelledby') ||
-      svg.hasAttribute('role') ||
+      svg.getAttribute('aria-label') ||
+      svg.getAttribute('aria-labelledby') ||
+      svg.getAttribute('title') ||
       svg.querySelector('title');
 
     if (!hasAccessibleName) {
       // Try to use nearby text or generate one
       const parent = svg.parentElement;
-      const nearbyText = parent ? parent.textContent.trim().substring(0, 50) : '';
+      const nearbyText = parent ? parent.textContent.substring(0, 50) : '';
       const label = nearbyText || 'Decorative icon';
       svg.setAttribute('aria-label', label);
       svg.setAttribute('role', 'img');
@@ -203,7 +202,7 @@ function addSvgAccessibleNames() {
 }
 
 // Ensures unique landmarks by removing duplicate main elements
-function ensureUniqueLandmarks() {
+export function ensureUniqueLandmarks() {
   const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     // Keep the first <main> and convert others to <section> or <div>
@@ -221,8 +220,8 @@ function ensureUniqueLandmarks() {
 
 // Fixes fake link issues (e.g., divs/buttons styled as links but not using <a>)
 // Replaces fake links with proper anchor elements
-function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('[role="link"], .fake-link, [data-fake-link]');
+export function fixFakeLinkIssue() {
+  const fakeLinks = document.querySelectorAll('.fake-link, [data-fake-link]');
   fakeLinks.forEach((fakeLink) => {
     const href = fakeLink.getAttribute('data-href') || fakeLink.getAttribute('href') || '#';
     const text = fakeLink.textContent;

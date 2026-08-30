@@ -282,6 +282,20 @@ function add(a, b) {
   return a + b;
 }
 
+/**
+ * Count the number of dependencies in package.json
+ * @param {Object} packageJson - The package.json object
+ * @returns {number} The count of dependencies
+ */
+export function countDependencies(packageJson) {
+  if (!packageJson || typeof packageJson !== 'object') {
+    return 0;
+  }
+  
+  const deps = packageJson.dependencies || packageJson.devDependencies || {};
+  return Object.keys(deps).length;
+}
+
 // Export existing functionality and new functions
 export { 
   initialize, 

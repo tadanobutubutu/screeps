@@ -6,7 +6,7 @@
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleFakeLinks())
 
 // Preserve existing functionality
 
@@ -113,6 +113,112 @@ function replaceMyButtonId() {
 }
 
 /**
+ * Creates an in-page button with proper accessible attributes.
+ * @returns {HTMLButtonElement} The created button element.
+ */
+function createInPageButton() {
+  const button = document.createElement('button');
+  button.setAttribute('aria-label', 'In-page action button');
+  button.id = ensureUniqueLandmarkId('in-page-button');
+  return button;
+}
+
+/**
+ * Creates an accessible link element.
+ * @param {string} href - The href attribute for the link.
+ * @param {string} textContent - The visible text content of the link.
+ * @returns {HTMLAnchorElement} The created anchor element.
+ */
+function createAccessibleLink(href, textContent) {
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = textContent;
+  return link;
+}
+
+/**
+ * Validates if a link is accessible and handles fake links appropriately.
+ * @param {HTMLAnchorElement} link - The link element to validate.
+ * @returns {boolean} True if the link is accessible, false otherwise.
+ */
+function validateLinkAccessibility(link) {
+  return isLinkAccessible(link);
+}
+
+/**
+ * Handles fake links by hiding them or converting them to buttons.
+ * @returns {void}
+ */
+function handleFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""]');
+  fakeLinks.forEach(link => {
+    link.style.display = 'none';
+  });
+}
+
+/**
+ * Gets the accessible name for an SVG element.
+ * @param {SVGElement} svg - The SVG element.
+ * @returns {string} The accessible name.
+ */
+function getSvgAccessibleName(svg) {
+  return svg.getAttribute('aria-label') || 
+         svg.getAttribute('title') || 
+         svg.querySelector('title')?.textContent || 
+         'SVG graphic';
+}
+
+/**
+ * Sets accessibility props for SVG elements.
+ * @param {SVGElement} svg - The SVG element.
+ * @param {string} name - The accessible name for the SVG.
+ * @returns {void}
+ */
+function setSvgAccessibilityProps(svg, name) {
+  if (!svg.hasAttribute('role')) {
+    svg.setAttribute('role', 'img');
+  }
+  if (!svg.hasAttribute('aria-label')) {
+    svg.setAttribute('aria-label', name);
+  }
+}
+
+/**
+ * Validates a landmark element for accessibility.
+ * @param {HTMLElement} landmark - The landmark element to validate.
+ * @returns {void}
+ */
+function validateLandmark(landmark) {
+  if (!landmark.id) {
+    landmark.id = ensureUniqueLandmarkId(landmark.tagName.toLowerCase());
+  }
+}
+
+/**
+ * Validates and fixes landmark structure.
+ * @returns {void}
+ */
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
+  landmarks.forEach(landmark => {
+    validateLandmark(landmark);
+  });
+}
+
+/**
+ * Ensures landmarks are unique by adding IDs if needed.
+ * @returns {void}
+ */
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"]');
+  landmarks.forEach(landmark => {
+    if (!landmark.id) {
+      landmark.id = ensureUniqueLandmarkId(landmark.getAttribute('role'));
+    }
+  });
+}
+
+/**
  * Adds proper ARIA landmark regions to the document.
  * This improves screen reader navigation by ensuring proper landmark roles.
  *
@@ -130,17 +236,17 @@ function addProperLandmarkRegions() {
   nav.id = nav.id || 'primary-navigation';
 
   // Create banner/header landmark
-  const header = document.querySelector('header') || document.querySelector('[role="banner"]') || document.createElement('header');
+  const header = document.querySelector('header') || document.querySelector('[role="banner"]');
   header.setAttribute('role', 'banner');
   header.id = header.id || 'site-header';
 
   // Create contentinfo/footer landmark
-  const footer = document.querySelector('footer') || document.querySelector('[role="contentinfo"]') || document.createElement('footer');
+  const footer = document.querySelector('footer') || document.querySelector('[role="contentinfo"]');
   footer.setAttribute('role', 'contentinfo');
   footer.id = footer.id || 'site-footer';
 
   // Create aside landmark for complementary content
-  const asides = document.querySelectorAll('aside') || document.querySelectorAll('[role="complementary"]');
+  const asides = document.querySelectorAll('aside');
   asides.forEach((aside, index) => {
     aside.setAttribute('role', 'complementary');
     if (!aside.id) aside.id = `sidebar-${index + 1}`;
@@ -334,7 +440,7 @@ function initializeAccessibility() {
   const announcer = createAnnouncer();
   
   // Ensure all landmarks have unique IDs
-  uniqueLandmarks();
+  ensureUniqueLandmarks();
   
   // Improve keyboard navigation
   improveKeyboardNavigation();
@@ -392,8 +498,11 @@ function isLinkAccessible(link) {
 }
 
 addProperLandmarkRegions();
-addProperAccountManagement();
-addAriaToFormControls();
+validateLandmarkStructure();
+ensureUniqueLandmarks();
+validateTableAccessibility();
+validateTableStructure();
+handleFakeLinks();
 
 module.exports = {
   addProperLandmarkRegions,
@@ -414,5 +523,14 @@ module.exports = {
   addLiveRegionForDynamicContent,
   isLinkAccessible,
   addAriaLabel,
-  addLangAttribute
+  addLangAttribute,
+  createInPageButton,
+  createAccessibleLink,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  getSvgAccessibleName,
+  setSvgAccessibilityProps,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks
 };

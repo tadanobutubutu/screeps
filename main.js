@@ -42,8 +42,93 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
+// TODO: This is the existing code that needs to be preserved
+// ----- END ORIGINAL CODE -----
+
+// Accessible form component for adding new books
+function AddBookForm() {
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setError('');
+    setSuccessMessage('');
+
+    if (!title.trim() || !author.trim()) {
+      setError('Both title and author are required');
+      return;
+    }
+
+    const newBook = {
+      id: Date.now(),
+      title: title.trim(),
+      author: author.trim()
+    };
+
+    addBook(newBook);
+    setTitle('');
+    setAuthor('');
+    setSuccessMessage('Book added successfully!');
+
+    // Clear success message after 3 seconds
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 3000);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} aria-label="Add new book form">
+      <div>
+        <label htmlFor="book-title" id="book-title-label">
+          Book Title:
+        </label>
+        <input
+          id="book-title"
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          aria-describedby="book-title-label"
+          aria-required="true"
+          placeholder="Enter book title"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="book-author" id="book-author-label">
+          Author:
+        </label>
+        <input
+          id="book-author"
+          type="text"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          aria-describedby="book-author-label"
+          aria-required="true"
+          placeholder="Enter author name"
+        />
+      </div>
+
+      {error && (
+        <div role="alert" aria-live="polite">
+          {error}
+        </div>
+      )}
+
+      {successMessage && (
+        <div role="status" aria-live="polite">
+          {successMessage}
+        </div>
+      )}
+
+      <button type="submit" aria-label="Add book to list">
+        Add Book
+      </button>
+    </form>
+  );
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
@@ -84,8 +169,7 @@ function Main() {
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List dataSource={bookItems} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      <AddBookForm />
     </div>
   );
 }

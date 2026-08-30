@@ -6,15 +6,6 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
-// NEW: ADD YOUR CODE HERE
-// TODO: The new function to check link accessibility
-// This function will be used to validate the accessibility of links
-function checkLinkAccessibility() {
-    // Implementation for checking link accessibility
-    // For now, assume that all links have correct text and appropriate roles
-    return "All links are accessible";
-}
-
 // Preserve existing functionality
 // Importing the necessary functions (for illustration purposes)
 import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
@@ -37,7 +28,6 @@ import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessib
 // - REACT_036: Fix 1 fake link issue
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // (Added functions for REACT_017 and new REACT_025)
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
 // Internal set to track used landmark IDs
 // Global set to track used landmark IDs
@@ -75,6 +65,37 @@ function uniqueLandmarks(landmarks) {
     }
     return result;
 }
+
+// Existing code preserved
+function existingFunction() {
+  // existing code
+}
+
+/**
+ * Checks link accessibility.
+ * @returns {string[]}
+ */
+function checkLinkAccessibility() {
+  // Implementation for checking link accessibility
+  // This function will be used to validate the accessibility of links
+  const links = document.querySelectorAll('a');
+  const issues = [];
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    const text = link.textContent.trim();
+    if (!text && !link.getAttribute('aria-label')) {
+      issues.push(`Link with href "${href}" has no accessible text`);
+    }
+  });
+  return issues;
+}
+
+// Example of adding a new function
+function newFunction() {
+  // Function body
+}
+
+// Don't forget to test your new additions in the test file
 
 // ... rest of your code ...
 
@@ -173,7 +194,8 @@ export {
   getSvgAccessibleName,
   setSvgAttributes,
   validateLinkAccessibility,
-  handleFakeLinks
+  handleFakeLinks,
+  checkLinkAccessibility,
 };
 
 // Export utility functions
@@ -224,6 +246,6 @@ function displayModuleStructure(module) {
 }
 
 // Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
+export { renderDependencyGraph, displayModuleStructure };
 
 // ... other exports ...

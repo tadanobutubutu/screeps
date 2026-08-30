@@ -272,7 +272,7 @@ function announceToScreenReader(message) {
 /**
  * Calculate the difference of two numbers
  * @param {number} a - First number
- * @param {number} b - Second number
+ * @param {b} b - Second number
  * @returns {number} Difference of a and b
  */
 function calculateDifference(a, b) {
@@ -282,7 +282,7 @@ function calculateDifference(a, b) {
 /**
  * Calculate the product of two numbers
  * @param {number} a - First number
- * @param {number} b - Second number
+ * @param {b} b - Second number
  * @returns {number} Product of a and b
  */
 function calculateProduct(a, b) {
@@ -508,6 +508,8 @@ function addressAccessibilityIssues(insightReport) {
         break;
       case 'add-lang-attribute':
         fixedIssue.fixApplied = 'Added lang attribute to HTML element.';
+        // Using addLangAttribute function to set lang attribute
+        addLangAttribute(document.documentElement, 'en');
         break;
       case 'add-landmark-roles':
         fixedIssue.fixApplied = 'Added landmark roles and fixed landmark issues.';

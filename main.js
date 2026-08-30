@@ -22,74 +22,51 @@ module.exports = function() {
     fixFakeLinkIssues();
     createAccessibleLink();
     
+    // Harvest and upgrade logic
+    harvestAndUpgradeLogic();
+
     // Your existing Screeps logic here
     // ...
 };
 
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
-// Accessibility helper functions
-function getLangAttribute() {
-    return 'en';
-}
-
-function wrapPrimaryContentInMain() {
-    return '<main role="main"></main>';
-}
-
-function validateTableAccessibility() {
-    // Validate table accessibility issues
-}
-
-// REACT_015: Add lang attribute to HTML element
-function addLangAttribute(lang = 'en') {
-  const doc = getDocument();
-  if (doc && doc.documentElement) {
-    if (doc.documentElement.lang !== lang) {
-      doc.documentElement.setAttribute('lang', lang);
+// Harvest and upgrade logic function
+function harvestAndUpgradeLogic() {
+    // Implement harvest and upgrade logic
+    // Example:
+    for (let creep of Game.creeps) {
+        if (creep.memory.working) {
+            if (creep.store.getFreeCapacity() > 0) {
+                let source = creep.pos.findClosestByRange(FIND_SOURCES);
+                if (source) {
+                    creep.harvest(source);
+                }
+            } else {
+                let target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+                    filter: (structure) => {
+                        return structure.structureType === STRUCTURE_EXTENSION ||
+                               structure.structureType === STRUCTURE_SPAWN ||
+                               structure.structureType === STRUCTURE_TOWER;
+                    }
+                });
+                if (target) {
+                    creep.upgradeStructure(target);
+                }
+            }
+        } else {
+            let target = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
+            if (target) {
+                creep.build(target);
+            } else {
+                let target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+                if (target) {
+                    creep.attack(target);
+                } else {
+                    creep.moveTo(Game.flags.Worker);
+                }
+            }
+        }
     }
-  }
 }
 
-// REACT_027: Fix table structure issues
-function validateTableStructure() {
-    // Validate table structure
-}
-
-function validateLandmark() {
-    // Validate landmark
-}
-
-function validateLandmarkStructure() {
-    // Validate landmark structure
-}
-
-function addFixLandmarkIssues() {
-    // Add and fix landmark issues
-}
-
-function getSvgAccessibleName() {
-    // Get SVG accessible name
-}
-
-function addAriaToFormControls() {
-    // Add ARIA to form controls
-}
-
-function ensureUniqueLandmarks() {
-    // Ensure unique landmarks
-}
-
-function fixFakeLinkIssues() {
-    // Fix fake link issues
-}
-
-function createAccessibleLink() {
-    // Create accessible link
-}
+// Existing helper functions...
+// ...

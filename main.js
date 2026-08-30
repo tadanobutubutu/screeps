@@ -40,6 +40,12 @@ function validateTableStructure() {
   // ...
 }
 
+// New function to render dependency graphs
+function renderDependencyGraph(dependencyData) {
+  // Implementation for rendering dependency graphs
+  // ...
+}
+
 // Export functions
 module.exports = {
   formatDate,
@@ -55,5 +61,6 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
+  renderDependencyGraph, // Export the new function
   // ... any other relevant functions extracted from the conflicting code base
 };

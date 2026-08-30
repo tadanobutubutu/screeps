@@ -15,9 +15,13 @@ if (typeof document !== 'undefined') {
 }
 
 // Adding the new function at the end
-function newFunction() {
-  // Your new function code here
-  return 'newFunction executed';
+function createInPageButton(buttonId, textContent, onClickCallback) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = textContent;
+  button.addEventListener('click', onClickCallback);
+  document.body.appendChild(button);
+  return button;
 }
 
 // Initialize accessibility features
@@ -49,10 +53,7 @@ function addressAccessibilityIssues(report) {
 }
 
 import { requiredModule } from './required-module.js';
-=======
 // ... Existing code in main.js ...
->>>>>>> origin/main
-
 // Function to render graph/index using new functions
 import { renderGraph } from './newGraphRenderingFunctions'; // Assuming you have a separate file for the new functions
 
@@ -163,7 +164,7 @@ export default {
   calculateProduct,
   isNumber,
   clamp,
-  newNecessaryFunction,
+  createInPageButton,
   newFunction,
   addressAccessibilityIssues,
   preserveExistingCode,
@@ -207,132 +208,4 @@ export function generateAccessibilityReport() {
     ]
   };
 }
-=======
 // ... Existing code in main.js ...
->>>>>>> origin/main
-
-// Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
-function addressAccessibilityIssues() {
-  // Internationalization support
-  const translations = {
-    'en': {
-      landmark: 'landmark',
-      'svg1-title': 'SVG Content',
-      'svg2-title': 'Additional SVG'
-    }
-  };
-
-  const landmarks = document.querySelectorAll('[role="landmark"]');
-  landmarks.forEach((landmark, index) => {
-    landmark.setAttribute('aria-label', `${translations['en'].landmark}-${index + 1}`);
-    // Additional landmark processing...
-  });
-
-  const svg1 = document.querySelector('.svg1');
-  const svg2 = document.querySelector('.svg2');
-  if (svg1) svg1.setAttribute('aria-labelledby', 'svg1-title');
-  if (svg2) svg2.setAttribute('aria-labelledby', 'svg2-title');
-
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    console.warn('Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.');
-    // The static fix should be applied in the source files
-    // - Replace one <main> with <section role="region" ...
-    // - Same fix
-  }
-
-  const fakeLinks = document.querySelectorAll('.fake-link');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'presentation');
-  });
-
-  // Implement this function for checking link and button accessibility
-  function checkLinksAndButtons() {
-    const links = document.querySelectorAll('a');
-    const buttons = document.querySelectorAll('button');
-
-    links.forEach(link => {
-      // Check if link needs explicit role="link"
-      if (!link.hasAttribute('href') && link.getAttribute('role') !== 'link') {
-        link.setAttribute('role', 'link');
-      }
-      // Check for link without href attribute
-      if (!link.hasAttribute('href')) {
-        console.error('Accessibility Error: Link without href attribute', link);
-      }
-    });
-
-    buttons.forEach(button => {
-      // Check if button needs explicit role="button"
-      if (button.getAttribute('role') !== 'button') {
-        button.setAttribute('role', 'button');
-      }
-      // Check for accessible name for buttons
-      const hasText = button.textContent.trim().length > 0;
-      const hasAriaLabel = button.hasAttribute('aria-label');
-      const hasAriaLabelledby = button.hasAttribute('aria-labelledby');
-
-      if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
-        console.error('Accessibility Error: Button without accessible name', button);
-      }
-    });
-  }
-
-  // Call the function to check accessibility
-  checkLinksAndButtons();
-}
-
-export function rotateBack() {
-  // Implementation for rotateBack function
-  console.log('rotateBack called');
-  return true;
-}
-
-export { addressAccessibilityIssues };
-
-module.exports.getLangAttribute = getLangAttribute;
-module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
-module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
-
-// ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
-
-module.exports.loop = function() {
-    // Clear the memory of dead creeps
-    for(var name in Memory.creeps) {
-        if(!Game.creeps[name]) {
-            delete Memory.creeps[name];
-        }
-    }
-
-    // TODO: Add implementation details
-
-    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-
-    if(harvesters.length < 2) {
-        var newName = 'Harvester' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
-            {memory: {role: 'harvester'}});
-    }
-
-    if(upgraders.length < 2) {
-        var newName = 'Upgrader' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
-            {memory: {role: 'upgrader'}});
-    }
-
-    for(var name in Game.rooms) {
-        console.log('Room "'+name+'" has ' + Game.rooms[name].energyAvailable + ' energy');
-    }
-
-    for(var name in Game.creeps) {
-        var creep = Game.creeps[name];
-        if(creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
-        }
-        if(creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-        }
-    }
-}
->>>>>>> origin/main

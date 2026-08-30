@@ -279,7 +279,7 @@ function validateLandmarkStructure() {
 
     if (!results.main.exists) {
         validation.isValid = false;
-        ... required <main> landmark element');
+        ... required <main> landmark element';
     }
 
     return validation;

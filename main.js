@@ -50,6 +50,23 @@ function formatDate(date) {
   return date.toISOString().split('T')[0];
 }
 
+// Function for addressing accessibility issues from insight report
+function addressAccessibilityIssues(report) {
+    if (!report || typeof report !== 'object') {
+        return [];
+    }
+    
+    const issues = report.issues || report.accessibilityIssues || [];
+    if (!Array.isArray(issues)) {
+        return [];
+    }
+    
+    return issues.filter(issue => {
+        if (!issue || typeof issue !== 'object') return false;
+        return issue.type === 'accessibility' || issue.category === 'accessibility';
+    });
+}
+
 // Original rendering functions from HEAD
 function renderDependencyGraph(graph) {
     if (!graph || typeof graph !== 'object') {
@@ -144,5 +161,7 @@ module.exports = {
   // Utility functions from HEAD
   sum,
   isEven,
-  getTimestamp
+  getTimestamp,
+  // Accessibility function
+  addressAccessibilityIssues
 };

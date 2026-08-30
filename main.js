@@ -34,6 +34,19 @@ function BookItem(book) {
   );
 }
 
+// Function to validate the landmark property of a book
+function validateLandmark(book) {
+  if (!book || typeof book !== 'object') {
+    return false;
+  }
+  
+  if (!book.landmark || typeof book.landmark !== 'string' || book.landmark.trim() === '') {
+    return false;
+  }
+  
+  return true;
+}
+
 // Function to create a new book entry in the Redux store
 function addBook(book) {
   // Perform any necessary validation or processing before adding the book

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -48,10 +45,27 @@ export function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-// Function to count dependencies
-function countDependencies() {
-  const dependencies = ['react', 'react-redux', 'antd'];
-  return dependencies.length;
+// Implement the required changes to improve accessibility for the addBook function or form
+function enhanceAccessibilityForAddBook() {
+  // Implement accessibility improvements here
+  // Example: Adding ARIA attributes, keyboard navigation, etc.
+}
+
+// Default sorting function for the book list
+const defaultSorting = sortByTitle;
+
+// Function to handle sorting the book list by title (ascending)
+function onTitleSort() {
+  const sortedList = [...getBooksList].sort(sortByTitle);
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+}
+
+// Function to handle sorting the book list by author (descending)
+function onAuthorSort() {
+  const sortedList = [...getBooksList].sort(sortByAuthor);
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
 // Render the main component containing the book list and sorting controls
@@ -78,12 +92,13 @@ function Main() {
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />
       <Button onClick={addBook}>Add Book</Button>
+      {/* Implement the required changes to improve accessibility for adding a new book */}
+      {/* ... */}
+      {/* Example accessibility improvement: */}
+      <button onClick={enhanceAccessibilityForAddBook} aria-label="Enhance accessibility for adding a new book">Enhance Accessibility</button>
     </main>
   );
 }
 
 // Export the Main component
 export default Main;
-```
-
-This file contains essential features from both changesets. It resolves the Git merge conflict by integrating the `generateKey()` function, the `BookItem()` function, the `addBook()` function, and the `Main()` component. Furthermore, it removes the unnecessary duplicate functions to count dependencies in both changesets.

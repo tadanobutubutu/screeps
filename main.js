@@ -18,8 +18,8 @@ function getDocument() {
 function addLangAttribute(lang = 'en') {
   const doc = getDocument();
   if (doc && doc.documentElement) {
-    if (!doc.documentElement.getAttribute('lang')) {
-      doc.documentElement.setAttribute('lang', lang);
+    if ... {
+      ... lang);
     }
   }
 }
@@ -35,14 +35,14 @@ function ensureElementId(element) {
 function getFullLangAttribute() {
   const lang = getLangAttribute();
   const countryCode = navigator.userLanguage || navigator.language || "en-US";
-  return lang.split('-')[0] + '-' + countryCode.split('-')[0];
+  return lang.split('-')[0] + '-' + ...
 }
 
 // Function to trigger accessibility mode
 function triggerAccessibilityMode() {
   const doc = getDocument();
   if (doc) {
-    doc.body.setAttribute('data-accessibility-mode', 'enabled');
+    ... 'enabled');
   }
 }
 
@@ -54,18 +54,18 @@ function handleErrorState(errorElement, container, trigger = false) {
   if (!doc) return;
 
   // Wrap the error in a <section> element
-  const errorSection = doc.createElement('section');
+  const errorSection = ...
   errorSection.setAttribute('role', 'alert');
-  errorSection.setAttribute('aria-live', 'assertive');
+  ... 'assertive');
 
   if (typeof errorElement === 'string') {
     errorSection.textContent = errorElement;
   } else {
-    errorSection.appendChild(errorElement);
+    ...
   }
 
   if (container) {
-    const errorContainer = doc.createElement('div');
+    const errorContainer = ...
     errorContainer.setAttribute('class', 'error-container');
     errorContainer.setAttribute('role', 'alert');
     errorContainer.appendChild(errorSection);
@@ -74,25 +74,55 @@ function handleErrorState(errorElement, container, trigger = false) {
 
   // If trigger is true, trigger the accessibility mode
   if (trigger) {
-    triggerAccessibilityMode();
+    ...
   }
 }
 
 // Implement the handleAccessibilityError function that wraps handleErrorState with triggering the accessibility mode
-function handleAccessibilityError(errorElement, container) {
+function ... container) {
   handleErrorState(errorElement, container, true);
+}
+
+// Function to count dependencies for a given target module
+function countDependencies(target) {
+  const doc = getDocument();
+  if (!doc) return 0;
+
+  // Get all script tags that might contain dependency information
+  const scripts = doc.querySelectorAll('script[type="application/json"]');
+  let dependencyCount = 0;
+
+  for (const script of scripts) {
+    try {
+      const data = JSON.parse(script.textContent);
+      if (data.dependencies && data.dependencies[target]) {
+        dependencyCount = data.dependencies[target].length || 0;
+        break;
+      }
+    } catch (e) {
+      // Invalid JSON, skip
+    }
+  }
+
+  // Fallback: count from inline dependency data attributes
+  if (dependencyCount === 0) {
+    const depElements = doc.querySelectorAll('[data-dependency-for="' + target + '"]');
+    dependencyCount = depElements.length;
+  }
+
+  return dependencyCount;
 }
 
 // Function to render dependency graph using dependencyGraphContent
 function renderDependencyGraph(container) {
   createInPageButton();
-  handleAccessibilityIssues(dependencyGraphContent(getDocument(), container));
+  ... container));
 }
 
 // Function to render index view using indexContent
 function renderIndexView(container) {
   createInPageButton();
-  handleAccessibilityIssues(indexContent(getDocument(), container));
+  ... container));
 }
 
 // Address accessibility issues from insight report
@@ -100,7 +130,4 @@ function renderIndexView(container) {
 // TODO: Any additional changes requested in the issue
 // main.js - Accessibility improvements implementation
 
-export { addLangAttribute, ensureElementId, handleAccessibilityError, handleErrorState, renderDependencyGraph, renderIndexView, getFullLangAttribute };
-```
-
-This resolved file keeps both changes and integrates them logically in the `main.js` file. The added accessibility features from branch `origin/main` have been combined with the existing functionality from the base branch. The final code will compile and satisfy both changes without discarding any functionality.
+export { addLangAttribute, ensureElementId, ... handleErrorState, renderDependencyGraph, renderIndexView, getFullLangAttribute, countDependencies };

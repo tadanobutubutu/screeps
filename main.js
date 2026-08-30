@@ -109,6 +109,89 @@ function generateDependencyReport(dependencies) {
 }
 
 /**
+ * Renders a dependency graph as accessible plain text with semantic structure
+ * suitable for screen readers and assistive technologies. Provides full text
+ * descriptions of the dependency hierarchy without relying on visual ASCII art.
+ * @param {Object} dependencies - The dependency object
+ * @param {string} currentKey - Current key being processed (used internally)
+ * @param {number} level - Current depth level (used internally)
+ * @returns {string} Accessible text representation of the dependency graph
+ */
+function renderAccessibleDependencyGraph(dependencies, currentKey = '', level = 0) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return '';
+  }
+
+  let output = '';
+  const keys = Object.keys(dependencies);
+
+  keys.forEach((key, index) => {
+    const value = dependencies[key];
+    const indent = '  '.repeat(level);
+    const position = `${index + 1} of ${keys.length}`;
+
+    if (typeof value === 'object' && value !== null) {
+      output += `${indent}Dependency: ${key} (item ${position} at level ${level}). Contains nested dependencies:\n`;
+      output += renderAccessibleDependencyGraph(value, key, level + 1);
+    } else {
+      output += `${indent}Dependency: ${key}, version ${value} (item ${position} at level ${level}).\n`;
+    }
+  });
+
+  return output;
+}
+
+/**
+ * Displays module structure in an accessible format suitable for screen readers.
+ * Uses semantic headings and clear enumeration rather than visual formatting.
+ * @param {Array} modules - Array of module objects
+ * @returns {string} Accessible formatted module structure display
+ */
+function displayAccessibleModuleStructure(modules) {
+  if (!Array.isArray(modules)) {
+    return 'Error: modules must be an array';
+  }
+
+  let output = 'Module Structure Report. ';
+  output += `Total modules: ${modules.length}.\n\n`;
+
+  modules.forEach((mod, index) => {
+    const name = mod.name || mod.id || `Module ${index + 1}`;
+    output += `Module ${index + 1} of ${modules.length}: ${name}.\n`;
+
+    if (mod.dependencies && Array.isArray(mod.dependencies)) {
+      if (mod.dependencies.length === 0) {
+        output += '  No dependencies.\n';
+      } else {
+        output += `  Has ${mod.dependencies.length} dependencies: ${mod.dependencies.join(', ')}.\n`;
+      }
+    }
+
+    if (mod.path) {
+      output += `  Located at path: ${mod.path}.\n`;
+    }
+
+    output += '\n';
+  });
+
+  return output;
+}
+
+/**
+ * Generates an accessible dependency report for debugging.
+ * @param {Object} dependencies - The dependency object
+ * @returns {Object} Report containing statistics and accessible text representation
+ */
+function generateAccessibleDependencyReport(dependencies) {
+  return {
+    totalDependencies: Object.keys(dependencies).length,
+    maxDepth: getDependencyDepth(dependencies),
+    graph: renderAccessibleDependencyGraph(dependencies),
+    summary: `Dependency report: ${Object.keys(dependencies).length} total dependencies with maximum depth of ${getDependencyDepth(dependencies)} levels.`
+  };
+}
+
+/**
  * Main processing function
  */
 function main() {
@@ -133,6 +216,9 @@ module.exports = {
   displayModuleStructure,
   getDependencyDepth,
   generateDependencyReport,
+  renderAccessibleDependencyGraph,
+  displayAccessibleModuleStructure,
+  generateAccessibleDependencyReport,
   main
 };
 

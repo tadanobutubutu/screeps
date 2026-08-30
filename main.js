@@ -118,5 +118,7 @@ module.exports = {
   processLandmarks,
   addLangAttribute,
   checkLandmarkElement,
-  calculateSum
+  calculateSum,
+  createInPageButton,
+  icons
 };

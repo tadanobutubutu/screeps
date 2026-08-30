@@ -497,6 +497,20 @@ function addLandmarkRegions() {
   };
 }
 
+// New function to handle adding proper landmark regions
+function addProperLandmarkRegions() {
+  const landmarks = {
+    main: true,
+    nav: false,
+    aside: false
+  };
+
+  return {
+    landmarks,
+    regions: Object.keys(landmarks).filter(key => landmarks[key])
+  };
+}
+
 // Standalone function to address accessibility issues from insight report
 function addressAccessibilityIssues(report) {
   if (!report) return;
@@ -563,6 +577,7 @@ module.exports = {
   countDependencies,
   a11yStore,
   addLandmarkRegions,
+  addProperLandmarkRegions,
   addressAccessibilityIssues,
   LANDMARK_ELEMENTS,
   getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),

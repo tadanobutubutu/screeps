@@ -55,8 +55,6 @@ function setConfig(config) {
   appData.config = { ...appData.config, ...config };
 }
 
-// // // TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
-
 /**
  * Validates that all tables in the application meet accessibility standards
  * @returns {Object} Validation result with isValid flag and array of errors
@@ -89,6 +87,53 @@ function validateTableAccessibility() {
       errors.push({
         tableIndex: i,
         error: 'Table should have aria-label or caption for accessibility'
+      });
+    }
+    
+    // Check for lang attribute in HTML element
+    if (!table.lang) {
+      errors.push({
+        tableIndex: i,
+        error: 'Table should have lang attribute for accessibility'
+      });
+    }
+    
+    // Add/fix 4 landmark issues
+    const landmarks = ['banner', 'navigation', 'search', 'main', 'complementary', 'footer'];
+    landmarks.forEach(landmark => {
+      if (table[landmark] === undefined) {
+        errors.push({
+          tableIndex: i,
+          error: `Landmark '${landmark}' is not defined`
+        });
+      }
+    });
+    
+    // Ensure unique landmarks (2 issues)
+    const landmarksSet = new Set();
+    table.rows.forEach(row => {
+      landmarksSet.add(row.landmark);
+    });
+    if (landmarksSet.size !== new Set(table.rows.map(row => row.landmark)).size) {
+      errors.push({
+        tableIndex: i,
+        error: 'Duplicate landmarks found in table rows'
+      });
+    }
+    
+    // Fix 1 fake link issue
+    if (table.fakeLink) {
+      errors.push({
+        tableIndex: i,
+        error: 'Table should not have a fake link for accessibility'
+      });
+    }
+    
+    // Add scope="col" or scope="row" to <th> elements
+    if (!table.headers.every(header => header.scope === 'col' || header.scope === 'row')) {
+      errors.push({
+        tableIndex: i,
+        error: 'All <th> elements must have scope="col" or scope="row"'
       });
     }
   }

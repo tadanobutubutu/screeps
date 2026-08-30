@@ -1,5 +1,6 @@
 // REACT_015: Add lang attribute
 const { ERR_NOT_IN_RANGE, STRUCTURE_TOWER, RESOURCE_ENERGY } = require('game/constants');
+const _ = require('lodash');
 
 const main = {
   loop: function() {
@@ -519,5 +520,8 @@ module.exports = {
   handleFakeLinks,
   personName,
   main,
-  mainExecution
+  mainExecution,
+  ERR_NOT_IN_RANGE,
+  STRUCTURE_TOWER,
+  RESOURCE_ENERGY
 };

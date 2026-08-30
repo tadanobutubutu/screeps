@@ -397,6 +397,17 @@ function validateLinkAccessibility() {
   return [];
 }
 
+/**
+ * A new utility function added per the issue requirement.
+ * Returns the product of two numeric arguments.
+ * @param {number} arg1 - First number.
+ * @param {number} arg2 - Second number.
+ * @returns {number} The product of arg1 and arg2.
+ */
+function myNewFunction(arg1, arg2) {
+  return arg1 * arg2;
+}
+
 // Auto-initialize when DOM is ready
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
@@ -508,6 +519,7 @@ if (typeof module !== 'undefined' && module.exports) {
     renderDependencyGraph,
     displayModuleStructure,
     checkLinkAccessibility,
-    generateAccessibilityReport
+    generateAccessibilityReport,
+    myNewFunction
   };
 }

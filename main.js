@@ -42,3 +42,16 @@ function MyComponent() {
 ReactDOM.render(<MyComponent />, document.getElementById('root'));
 
 // ... other imports and code ...
+
+// TODO: Implement divide function that handles division with proper error handling
+function divide(dividend, divisor) {
+  if (typeof dividend !== 'number' || typeof divisor !== 'number') {
+    throw new Error('Both dividend and divisor must be numbers');
+  }
+  if (divisor === 0) {
+    throw new Error('Division by zero is not allowed');
+  }
+  return dividend / divisor;
+}
+
+export { divide };

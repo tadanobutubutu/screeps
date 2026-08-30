@@ -8,16 +8,21 @@ let isInitialized = false;
 const appData = {};
 let uniqueLandmarks = {};
 
-function addressAccessibilityIssues() {
+function addressAccessibilityIssues(insightReport) {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') ||
-    document.querySelector('.dependencyGraph') ||
-    document.querySelector('[data-testid="dependency-graph"]') ||
-    document.querySelector('div[data-testid=dependency-graph]');
+  const dependencyGraph = document.querySelector('[data-dependency-graph]') ||
+    document.querySelector('.dependency-graph') ||
+    document.querySelector('#dependency-graph') ||
+    document.querySelector('div.dependency-graph');
+  
   if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'tree');
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    if (!dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'tree');
+    }
+    if (!dependencyGraph.getAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    }
   }
 
   // New accessibility functions
@@ -29,37 +34,40 @@ function addressAccessibilityIssues() {
       }
     });
 
-    const focusable = document.querySelectorAll('[role="link"]');
+    const focusable = document.querySelectorAll('a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable="true"]');
     focusable.forEach(el => {
       if (el.tabIndex < 0) el.tabIndex = 0;
     });
   }
 
-  function ensureUniqueLandmarks(insightReport) {
-    const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
+  function processLandmarks(insightReport) {
+    const landmarks = [...new Set(insightReport
+      .filter(issue => issue.ariaRole)
+      .map(issue => issue.ariaRole))];
 
     // Check if all landmarks exist, re-add if necessary
-    landmarks.forEach(landmark => {
-      const elements = document.querySelectorAll(`[role="${landmark}"]`);
-      if (elements.length < landmarks.length) {
-        const uniqueLandmarkMap = {};
-
-        landmarks.forEach(uniqueLandmark => {
-          let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
-          if (!element[0]) {
-            element = document.createElement(`div`);
-            element.setAttribute('role', uniqueLandmark);
-            if (!document.querySelector(`#${uniqueLandmark}`)) {
-              const id = uniqueLandmark;
-              element.setAttribute('id', id);
-            }
-            document.body.appendChild(element);
-          }
-          uniqueLandmarkMap[uniqueLandmark] = element[0];
-        });
-        uniqueLandmarks = uniqueLandmarkMap;
+    landmarks.forEach(uniqueLandmark => {
+      let elements = document.querySelectorAll(`[role="${uniqueLandmark}"]`);
+      
+      if (elements.length === 0) {
+        const element = document.createElement('div');
+        element.setAttribute('role', uniqueLandmark);
+        
+        const id = uniqueLandmark.toLowerCase().replace(/\s+/g, '-');
+        element.setAttribute('id', id);
+        
+        document.body.appendChild(element);
       }
+      
+      uniqueLandmarks[uniqueLandmark] = elements[0];
     });
+  }
+
+  // Execute accessibility improvements
+  improveAccessibility();
+  
+  if (insightReport && insightReport.length > 0) {
+    processLandmarks(insightReport);
   }
 }
 
@@ -70,3 +78,10 @@ function newFunction() {
 }
 
 // Continue with existing exports, functions, or any other code that follows
+module.exports = {
+  addressAccessibilityIssues,
+  newFunction,
+  isInitialized,
+  appData,
+  uniqueLandmarks
+};

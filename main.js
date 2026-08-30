@@ -2,9 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import reportWebVitals from ...
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />
@@ -39,34 +39,34 @@ function getVersion() {
 // (This comment remains as-is)
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
-  const rootContainer = document.getElementById('root').parentElement;
+  const rootContainer = ...
   if (rootContainer) {
     rootContainer.setAttribute('role', 'main');
   }
 
   // Create a hidden live region for dynamic announcements
   const announcementId = 'accessibility-announcement';
-  const announcement = document.createElement('div');
+  const announcement = ...
   announcement.id = announcementId;
-  announcement.setAttribute('aria-live', 'polite');
-  announcement.setAttribute('aria-atomic', 'true');
+  ... 'polite');
+  ... 'true');
   // Hide off-screen
   announcement.style.position = 'absolute';
   announcement.style.left = '-9999px';
   announcement.style.top = '-9999px';
-  document.body.appendChild(announcement);
+  ...
 }
 
 // Validate that tables in the document are accessible
 function validateTableAccessibility() {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   const results = [];
   
   tables.forEach((table, index) => {
-    const hasCaption = table.querySelector('caption') !== null;
+    const hasCaption = ... !== null;
     const hasHeaders = table.querySelector('th') !== null;
-    const hasScope = Array.from(table.querySelectorAll('th')).every(
-      th => th.hasAttribute('scope')
+    const hasScope = ...
+      th => ...
     );
     
     results.push({
@@ -83,11 +83,11 @@ function validateTableAccessibility() {
 
 // Validate the structure of tables in the document
 function validateTableStructure() {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   const results = [];
   
   tables.forEach((table, index) => {
-    const rows = table.querySelectorAll('tr');
+    const rows = ...
     let isValid = true;
     let error = null;
     
@@ -95,7 +95,7 @@ function validateTableStructure() {
       isValid = false;
       error = 'Table has no rows';
     } else {
-      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td, th').length);
+      const cellCounts = Array.from(rows).map(row => ... th').length);
       const allSame = cellCounts.every(count => count === cellCounts[0]);
       
       if (!allSame) {
@@ -115,6 +115,49 @@ function validateTableStructure() {
   return results;
 }
 
+// Ensure unique landmarks in the document
+function ensureUniqueLandmarks() {
+  const landmarkSelectors = {
+    main: 'main, [role="main"]',
+    header: 'header, [role="banner"]',
+    footer: 'footer, [role="contentinfo"]',
+    nav: 'nav, [role="navigation"]',
+    aside: 'aside, [role="complementary"]',
+    search: '[role="search"]',
+    form: 'form[role="search"]'
+  };
+
+  const results = {
+    hasDuplicates: false,
+    landmarks: {},
+    recommendations: []
+  };
+
+  for (const [type, selector] of Object.entries(landmarkSelectors)) {
+    const elements = document.querySelectorAll(selector);
+    const count = elements.length;
+
+    results.landmarks[type] = {
+      count,
+      elements: Array.from(elements).map(el => ({
+        tagName: el.tagName.toLowerCase(),
+        id: el.id || null,
+        ariaLabel: el.getAttribute('aria-label') || null,
+        role: el.getAttribute('role') || null
+      }))
+    };
+
+    if (count > 1) {
+      results.hasDuplicates = true;
+      results.recommendations.push(
+        `Multiple ${type} landmarks detected (${count}). Use aria-label to distinguish each landmark.`
+      );
+    }
+  }
+
+  return results;
+}
+
 // Export the new function
 export {
   VERSION,
@@ -125,7 +168,8 @@ export {
   addressAccessibilityIssues,
   root,
   validateTableAccessibility,
-  validateTableStructure
+  validateTableStructure,
+  ensureUniqueLandmarks
 };
 
 // Add the new function to the default export
@@ -138,5 +182,6 @@ export default {
   addressAccessibilityIssues,
   root,
   validateTableAccessibility,
-  validateTableStructure
+  validateTableStructure,
+  ensureUniqueLandmarks
 };

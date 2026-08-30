@@ -259,4 +259,7 @@ function displayModuleStructure(module) {
 // Export the new function
 export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
 
+// Export additional required functions
+export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute };
+
 // ... other exports ...

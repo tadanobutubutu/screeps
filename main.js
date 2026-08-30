@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+
 const affectedFunctions = {};
 
 // Define functionA and functionB as objects with properties X, Y, and Z
@@ -35,18 +37,21 @@ function initAccessibility() {
   setLangAttribute();
   
   // REACT_025: Add skip link functionality for keyboard users
-  const skipLink = document.getElementById('main-content') || document.querySelector('main');
+  const skipLink = document.getElementById('skip-link') || document.querySelector('.skip-link');
   if (skipLink) {
     skipLink.setAttribute('tabindex', '-1');
-    skipLink.addEventListener('focus', function() {
-      this.removeAttribute('tabindex');
+    skipLink.addEventListener('click', function() {
+      const target = document.getElementById(skipLink.getAttribute('href').slice(1));
+      if (target) {
+        target.focus();
+      }
     });
   }
   
   // Ensure all interactive elements are keyboard accessible
-  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
+  const interactiveElements = document.querySelectorAll('a, input, select, textarea, button');
   interactiveElements.forEach(function(element) {
-    if (!element.getAttribute('tabindex') && !element.hasAttribute('href')) {
+    if (!element.getAttribute('tabindex') && !element.hasAttribute('disabled')) {
       element.setAttribute('tabindex', '0');
     }
   });

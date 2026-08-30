@@ -3,73 +3,252 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
 
-// Get the list of books from the Redux store
-export const getBooksList = useSelector(state => state.books.list);
-
 // Function to handle sorting books by title (ascending)
-export function sortByTitle(a, b) {
+function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
 }
 
 // Function to handle sorting books by author (descending)
-export function sortByAuthor(a, b) {
+function sortByAuthor(a, b) {
   return b.author.localeCompare(a.author);
 }
 
 // Function to generate a key for each book item
-export function generateKey(book) {
-  return ...
+function generateKey(book) {
+  return book.id || `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
-export function BookItem(book) {
+function BookItem(book) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        ...
+        description={book.author}
       />
     </List.Item>
   );
 }
 
-// Function to create a new book entry in the Redux store
-export function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
+// Accessibility functions for addressing insight report issues
 
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
+// REACT_015: Get lang attribute for HTML element
+function getLangAttribute() {
+  return { lang: 'en' };
 }
 
-// Function to ensure the addBook function is accessible
-function ensureAccessibleAddBook() {
-  // Implement accessibility checks and improvements for the addBook function
-  // Example: Check if inputs are properly labeled, if form controls have appropriate roles, etc.
+// REACT_015 & REACT_036: Create accessible in-page button
+function createInPageButton(label, onClick, buttonType = 'button') {
+  return (
+    <button
+      type={buttonType}
+      onClick={onClick}
+      aria-label={label}
+    >
+      {label}
+    </button>
+  );
+}
+
+// REACT_036: Validate link accessibility
+function validateLinkAccessibility(element) {
+  const issues = [];
+  
+  if (element.tagName === 'A') {
+    if (!element.textContent.trim() && !element.getAttribute('aria-label')) {
+      issues.push('Link must have text content or aria-label');
+    }
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues
+  };
+}
+
+// REACT_036: Handle fake links (elements that look like links but aren't)
+function handleFakeLinks(container) {
+  const fakeLinks = container.querySelectorAll('[role="button"], [onclick]');
+  fakeLinks.forEach(link => {
+    if (link.tagName !== 'BUTTON' && link.tagName !== 'A') {
+      link.setAttribute('role', 'button');
+      link.setAttribute('tabindex', '0');
+      
+      link.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          link.click();
+        }
+      });
+    }
+  });
+}
+
+// REACT_027: Validate table accessibility
+function validateTableAccessibility(table) {
+  const issues = [];
+  
+  if (table) {
+    if (!table.caption && !table.getAttribute('aria-label')) {
+      issues.push('Table must have a caption or aria-label');
+    }
+    
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      issues.push('Table should have header cells (th)');
+    }
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues
+  };
+}
+
+// REACT_027: Validate table structure
+function validateTableStructure(table) {
+  const issues = [];
+  
+  if (table) {
+    const rows = table.querySelectorAll('tr');
+    const columnCounts = Array.from(rows).map(row => row.cells.length);
+    const uniqueCounts = [...new Set(columnCounts)];
+    
+    if (uniqueCounts.length > 1) {
+      issues.push('Table rows have inconsistent column counts');
+    }
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues
+  };
+}
+
+// REACT_017 & REACT_025: Validate landmark
+function validateLandmark(element) {
+  const issues = [];
+  const tagName = element.tagName;
+  
+  const validLandmarks = ['HEADER', 'NAV', 'MAIN', 'ASIDE', 'FOOTER', 'SECTION', 'ARTICLE'];
+  
+  if (!validLandmarks.includes(tagName) && !element.getAttribute('role')) {
+    issues.push(`Element ${tagName} is not a valid landmark`);
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues
+  };
+}
+
+// REACT_017: Validate landmark structure
+function validateLandmarkStructure(container) {
+  const issues = [];
+  const landmarks = {
+    header: container.querySelectorAll('header'),
+    nav: container.querySelectorAll('nav'),
+    main: container.querySelectorAll('main'),
+    footer: container.querySelectorAll('footer')
+  };
+  
+  if (landmarks.main.length === 0) {
+    issues.push('Page should have a main landmark');
+  }
+  
+  if (landmarks.nav.length === 0) {
+    issues.push('Consider adding navigation landmarks');
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues
+  };
+}
+
+// REACT_037: Add proper landmark regions
+function addProperLandmarkRegions(container) {
+  const main = container.querySelector('main') || document.createElement('main');
+  const nav = container.querySelector('nav') || document.createElement('nav');
+  const header = container.querySelector('header') || document.createElement('header');
+  const footer = container.querySelector('footer') || document.createElement('footer');
+  
+  if (!container.querySelector('main')) {
+    container.appendChild(main);
+  }
+  
+  if (!container.querySelector('nav')) {
+    container.insertBefore(nav, container.firstChild);
+  }
+  
+  return { main, nav, header, footer };
+}
+
+// REACT_041: Get SVG accessible name
+function getSvgAccessibleName(svg, context = '') {
+  const title = svg.querySelector('title');
+  if (title) {
+    return title.textContent;
+  }
+  
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  return `${context} icon`;
+}
+
+// REACT_041: Set SVG attributes for accessibility
+function setSvgAttributes(svg, name, description = '') {
+  svg.setAttribute('role', 'img');
+  
+  if (!svg.querySelector('title')) {
+    const title = document.createElement('title');
+    title.textContent = name;
+    svg.insertBefore(title, svg.firstChild);
+  }
+  
+  if (description) {
+    svg.setAttribute('aria-description', description);
+  }
+  
+  svg.setAttribute('aria-label', name);
 }
 
 // Default sorting function for the book list
-export const defaultSorting = sortByTitle;
+const defaultSorting = sortByTitle;
 
-// Function to handle sorting the book list by title (ascending)
-export function onTitleSort() {
-  const sortedList = ...
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
-}
-
-// Function to handle sorting the book list by author (descending)
-export function onAuthorSort() {
-  const sortedList = ...
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-}
-
-// Render the main component containing the book list and sorting controls
+// Main component
 function Main() {
+  const dispatch = useDispatch();
+  const bookList = useSelector(state => state.books.list);
   const [sorting, setSorting] = useState(defaultSorting);
   const sortIconUpRef = useRef(null);
   const sortIconDownRef = useRef(null);
+
+  // Function to create a new book entry in the Redux store
+  function addBook(book) {
+    // Perform any necessary validation or processing before adding the book
+    // ...
+    
+    // Dispatch an action to add the book to the books list in the Redux store
+    dispatch({ type: 'ADD_BOOK', payload: book });
+  }
+
+  // Function to handle sorting the book list by title (ascending)
+  function onTitleSort() {
+    const sortedList = [...bookList].sort(sortByTitle);
+    // Dispatch an action to update the sorted book list in the Redux store
+    dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+  }
+
+  // Function to handle sorting the book list by author (descending)
+  function onAuthorSort() {
+    const sortedList = [...bookList].sort(sortByAuthor);
+    // Dispatch an action to update the sorted book list in the Redux store
+    dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+  }
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -78,7 +257,7 @@ function Main() {
     } else if (sorting === sortByAuthor) {
       onAuthorSort();
     }
-  }, [sorting]);
+  }, [sorting, bookList]);
 
   // UseEffect to add accessible names to SVG icons after render
   useEffect(() => {
@@ -102,14 +281,13 @@ function Main() {
   }, []);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = ...
+  const bookItems = bookList.map(book => BookItem(book));
 
-  // Render the list of book items and sorting controls
+  // Render the main component containing the book list and sorting controls
   return (
-    <main>
+    <main {...getLangAttribute()}>
       {/* REACT_017: Add landmark role - nav element for sorting controls */}
       <nav aria-label="Book list sorting controls">
-        {/* REACT_036: Fix fake link issue - use <a> for navigation links, <button> for actions */}
         <button onClick={() => setSorting(sortByTitle)} aria-label="Sort books by title ascending">
           Sort by Title
         </button>
@@ -117,10 +295,37 @@ function Main() {
           Sort by Author
         </button>
       </nav>
-      <List ... />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      <button onClick={ensureAccessibleAddBook}>Add Book</button>
-    </div>
+      <List
+        dataSource={bookList}
+        renderItem={(book) => (
+          <List.Item key={generateKey(book)}>
+            <List.Item.Meta
+              title={book.title}
+              description={book.author}
+            />
+          </List.Item>
+        )}
+      />
+      {/* Accessibility improvements for adding a new book */}
+      <div>
+        <h3>Add New Book</h3>
+        <form onSubmit={e => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const newBook = {
+            title: formData.get('title'),
+            author: formData.get('author'),
+            id: Date.now() // Simple ID generation
+          };
+          addBook(newBook);
+          e.target.reset();
+        }}>
+          <input type="text" name="title" placeholder="Book Title" aria-label="Book Title" required />
+          <input type="text" name="author" placeholder="Author" aria-label="Author" required />
+          <button type="submit" aria-label="Add Book">Add Book</button>
+        </form>
+      </div>
+    </main>
   );
 }
 

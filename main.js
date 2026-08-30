@@ -1,3 +1,251 @@
+// TODO: Implement tower defense
+// Tower Defense Implementation
+class Tower {
+  constructor(x, y, type = 'basic') {
+    this.x = x;
+    this.y = y;
+    this.type = type;
+    this.damage = type === 'basic' ? 10 : type === 'sniper' ? 30 : 5;
+    this.range = type === 'basic' ? 100 : type === 'sniper' ? 200 : 80;
+    this.fireRate = type === 'basic' ? 1000 : type === 'sniper' ? 2000 : 500;
+    this.lastFired = 0;
+  }
+
+  canFire(enemies) {
+    const now = Date.now();
+    if (now - this.lastFired >= this.fireRate) {
+      const target = this.findTarget(enemies);
+      if (target) {
+        this.lastFired = now;
+        return target;
+      }
+    }
+    return null;
+  }
+
+  findTarget(enemies) {
+    for (const enemy of enemies) {
+      const dx = enemy.x - this.x;
+      const dy = enemy.y - this.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance <= this.range) {
+        return enemy;
+      }
+    }
+    return null;
+  }
+
+  fire(enemy) {
+    enemy.health -= this.damage;
+    return enemy.health <= 0;
+  }
+}
+
+class Enemy {
+  constructor(health, x, y, speed = 1, reward = 10) {
+    this.health = health;
+    this.x = x;
+    this.y = y;
+    this.speed = speed;
+    this.reward = reward;
+    this.waypointIndex = 0;
+  }
+
+  isAlive() {
+    return this.health > 0;
+  }
+
+  move(waypoints) {
+    if (this.waypointIndex < waypoints.length) {
+      const target = waypoints[this.waypointIndex];
+      const dx = target.x - this.x;
+      const dy = target.y - this.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < this.speed) {
+        this.x = target.x;
+        this.y = target.y;
+        this.waypointIndex++;
+      } else {
+        this.x += (dx / distance) * this.speed;
+        this.y += (dy / distance) * this.speed;
+      }
+    }
+  }
+
+  hasReachedEnd() {
+    return this.waypointIndex >= 7;
+  }
+}
+
+class Game {
+  constructor(gridSize = 10) {
+    this.gridSize = gridSize;
+    this.grid = [];
+    this.towers = [];
+    this.enemies = [];
+    this.score = 0;
+    this.lives = 20;
+    this.money = 100;
+    this.isRunning = false;
+    this.gameLoop = null;
+    this.waypoints = [];
+  }
+
+  setup() {
+    this.grid = Array(this.gridSize).fill(null).map(() => Array(this.gridSize).fill('empty'));
+    this.towers = [];
+    this.enemies = [];
+    this.waypoints = [
+      { x: 0, y: 4 }, { x: 3, y: 4 }, { x: 3, y: 1 }, { x: 6, y: 1 },
+      { x: 6, y: 7 }, { x: 2, y: 7 }, { x: 2, y: 9 }, { x: 9, y: 9 }
+    ];
+    this.waypoints.forEach(wp => {
+      if (wp.x < this.gridSize && wp.y < this.gridSize) {
+        this.grid[wp.y][wp.x] = 'path';
+      }
+    });
+  }
+
+  isValidPlacement(x, y) {
+    return x >= 0 && x < this.gridSize && y >= 0 && y < this.gridSize && this.grid[y][x] !== 'path';
+  }
+
+  addTower(x, y, type = 'basic') {
+    if (!this.isValidPlacement(x, y)) {
+      return false;
+    }
+    const cost = type === 'basic' ? 50 : type === 'sniper' ? 100 : 30;
+    if (this.money < cost) {
+      return false;
+    }
+    this.money -= cost;
+    const tower = new Tower(x, y, type);
+    this.towers.push(tower);
+    return true;
+  }
+
+  removeTower(x, y) {
+    const index = this.towers.findIndex(t => t.x === x && t.y === y);
+    if (index !== -1) {
+      this.towers.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
+
+  addEnemy(health, x, y, speed = 1, reward = 10) {
+    const enemy = new Enemy(health, x, y, speed, reward);
+    this.enemies.push(enemy);
+    return enemy;
+  }
+
+  update() {
+    this.enemies.forEach(enemy => {
+      if (enemy.isAlive() && !enemy.hasReachedEnd()) {
+        enemy.move(this.waypoints);
+      }
+      if (!enemy.isAlive()) {
+        this.score += enemy.reward;
+        this.money += enemy.reward;
+      }
+      if (enemy.hasReachedEnd() && enemy.isAlive()) {
+        this.lives--;
+      }
+    });
+    this.enemies = this.enemies.filter(enemy => enemy.isAlive() && !enemy.hasReachedEnd());
+    this.towers.forEach(tower => {
+      const target = tower.canFire(this.enemies);
+      if (target) {
+        tower.fire(target);
+      }
+    });
+  }
+
+  start() {
+    this.setup();
+    this.isRunning = true;
+    this.gameLoop = setInterval(() => this.update(), 100);
+  }
+
+  stop() {
+    if (this.gameLoop) {
+      clearInterval(this.gameLoop);
+      this.gameLoop = null;
+    }
+    this.isRunning = false;
+  }
+
+  getState() {
+    return {
+      isRunning: this.isRunning,
+      score: this.score,
+      lives: this.lives,
+      money: this.money,
+      towers: this.towers,
+      enemies: this.enemies,
+      grid: this.grid
+    };
+  }
+
+  render(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const state = this.getState();
+    let html = `<div class="tower-defense">
+      <div class="game-stats">
+        <span>Score: ${state.score}</span>
+        <span>Lives: ${state.lives}</span>
+        <span>Money: ${state.money}</span>
+      </div>
+      <div class="game-grid" style="display: grid; grid-template-columns: repeat(${this.gridSize}, 40px);">`;
+    for (let y = 0; y < this.gridSize; y++) {
+      for (let x = 0; x < this.gridSize; x++) {
+        const cellType = this.grid[y][x];
+        const tower = state.towers.find(t => t.x === x && t.y === y);
+        const enemy = state.enemies.find(e => Math.floor(e.x) === x && Math.floor(e.y) === y);
+        let cellClass = 'cell';
+        if (cellType === 'path') cellClass += ' path';
+        let cellContent = '';
+        if (tower) cellContent += `<div class="tower tower-${tower.type}"></div>`;
+        if (enemy) cellContent += `<div class="enemy" data-health="${enemy.health}"></div>`;
+        html += `<div class="${cellClass}" data-x="${x}" data-y="${y}">${cellContent}</div>`;
+      }
+    }
+    html += `</div></div>`;
+    container.innerHTML = html;
+  }
+
+  placeTower(x, y, type = 'basic') {
+    return this.addTower(x, y, type);
+  }
+
+  spawnWave(enemyCount = 5) {
+    for (let i = 0; i < enemyCount; i++) {
+      setTimeout(() => {
+        this.addEnemy(100 + i * 20, this.waypoints[0].x, this.waypoints[0].y, 1 + i * 0.2, 10 + i * 5);
+      }, i * 1000);
+    }
+  }
+}
+
+// Create global game instance
+const towerDefenseGame = new Game(10);
+
+// Export tower defense functions
+export {
+  Tower,
+  Enemy,
+  Game,
+  towerDefenseGame,
+  addTower: (x, y, type) => towerDefenseGame.addTower(x, y, type),
+  startGame: () => towerDefenseGame.start(),
+  stopGame: () => towerDefenseGame.stop(),
+  getGameState: () => towerDefenseGame.getState(),
+  renderGame: (containerId) => towerDefenseGame.render(containerId),
+  spawnWave: (count) => towerDefenseGame.spawnWave(count)
+};
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())

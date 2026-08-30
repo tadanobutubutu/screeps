@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -36,11 +33,11 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function ensureUniqueLandmarkId(baseName) {
+export function createLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
+        const suffix = Math.floor(Math.random() * 9000) + 1000;
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -52,7 +49,7 @@ function ensureUniqueLandmarkId(baseName) {
  * @param {Array} landmarks - List of landmark objects.
  * @returns {Array} Unique landmarks.
  */
-function uniqueLandmarks(landmarks) {
+export function uniqueLandmarks(landmarks) {
     const seen = new Set();
     const result = [];
     for (const lm of landmarks) {
@@ -65,11 +62,11 @@ function uniqueLandmarks(landmarks) {
 }
 
 // Add lang attribute as per the issue requirement
-function addLangAttribute() {
+export function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('some-selector');
+  const elementToModify = document.documentElement;
   if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en'); // Example: English
+    elementToModify.lang = 'en'; // Example: English
   }
 }
 
@@ -78,8 +75,8 @@ function addLangAttribute() {
  * @param {HTMLElement} element - The element to add the aria-label to.
  * @param {string} label - The label text to be added.
  */
-function addAriaLabel(element, label) {
-    if (!element.hasAttribute('aria-label')) {
+export function addAriaLabel(element, label) {
+    if (element && !element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
@@ -88,7 +85,7 @@ function addAriaLabel(element, label) {
  * Gets the language attribute from the HTML element.
  * @returns {string} - the language attribute value
  */
-function getLangAttribute() {
+export function getLangAttribute() {
     return document.documentElement.lang || '';
 }
 
@@ -96,17 +93,17 @@ function getLangAttribute() {
  * This function gets the full language attribute with region (if provided)
  * @returns {string} - the full language attribute with region (if provided)
  */
-function getFullLangAttribute() {
+export function getFullLangAttribute() {
     return document.documentElement.lang || '';
 }
 
 // ... existing functions from both branches
 
 // Accessibility helper functions
-function setupKeyboardNavigation(element, options = {}) {
+export function handleKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
 
-  element.addEventListener('keydown', (event) => {
+  return function(event) {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -127,10 +124,10 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-  });
+  };
 }
 
-function trapFocus(container) {
+export function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
@@ -138,7 +135,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  container.addEventListener('keydown', (event) => {
+  return function(event) {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -148,8 +145,7 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  });
+  };
 }
 
 // ... other existing functions remained unchanged
-```

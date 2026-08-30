@@ -345,3 +345,27 @@ function validateLandmarkStructure() {
     }
   });
 }
+
+module.exports = {
+  class1,
+  function1,
+  Object1,
+  DEFAULT_CONFIG,
+  analyzeAccessibilityIssues,
+  fixReactSvgAccessibleName,
+  getSvgAccessibleName,
+  addressAccessibilityIssues,
+  ensureUniqueLandmarks,
+  wrapPrimaryContentInMain,
+  checkLandmarkElement,
+  validateLandmark,
+  validateLandmarkStructure,
+  a11yStore,
+  version,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  createInPageButton,
+  createAccessibleLink,
+};

@@ -24,7 +24,7 @@ export function BookItem(book) {
     <List.Item key={generateKey(book)} role="listitem">
       <List.Item.Meta
         title={book.title}
-        description={book.author}
+        ...
       />
     </List.Item>
   );

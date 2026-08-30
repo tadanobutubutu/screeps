@@ -1,7 +1,8 @@
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
+import { List, Form, Input, Button, UUID } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { List, Button } from 'antd';
+import { useId } from '@react-aria/utils';
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 
@@ -31,6 +32,19 @@ function BookItem(book) {
       />
     </List.Item>
   );
+}
+
+// Function to validate the landmark property of a book
+function validateLandmark(book) {
+  if (!book || typeof book !== 'object') {
+    return false;
+  }
+  
+  if (!book.landmark || typeof book.landmark !== 'string' || book.landmark.trim() === '') {
+    return false;
+  }
+  
+  return true;
 }
 
 // Function to create a new book entry in the Redux store
@@ -73,6 +87,10 @@ function addBookAccessibly() {
   });
 }
 
+// TODO: This is the existing code that needs to be preserved
+// TODO: Implement the required changes to improve accessibility for the addBook function or form
+// ...
+
 // Container for the dependency graph with proper ARIA role for accessibility
 function DependencyGraph({ nodes, edges }) {
   return (
@@ -90,7 +108,8 @@ function DependencyGraph({ nodes, edges }) {
 
 // Function to render a form for adding a new book and to handle form submission
 function AddBookForm() {
-  const [book, setBook] = useState({ title: '', author: '' });
+  const formId = useId();
+  const [book, setBook] = useState({ title: '', author: '', id: UUID.generate() });
   const dispatch = useDispatch();
 
   const handleSubmit = (event) => {
@@ -103,7 +122,7 @@ function AddBookForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} id={formId}>
       <label>
         Title:
         <input
@@ -126,9 +145,6 @@ function AddBookForm() {
     </form>
   );
 }
-
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort(dispatch) {
@@ -258,7 +274,6 @@ function handleFakeLinks(fakeLinkElements) {
   }
 }
 
-// Render the main component containing the book list, sorting controls, and the AddBookForm
 function Main() {
   const dispatch = useDispatch();
   const bookList = useSelector(state => state.books.list);
@@ -282,8 +297,11 @@ function Main() {
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <AddBookForm />
-      <List dataSource={bookItems} />
-      {/* Accessibility improvements for the dependency graph */}
+      <section role="region" aria-label="Book dependency graph" aria-roledescription="dependencyGraph">
+        <List dataSource={bookItems} />
+      </section>
+      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
+      {/* ... */}
       <DependencyGraph 
         nodes={[]} 
         edges={[]} 

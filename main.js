@@ -53,7 +53,7 @@ const config = {
 /**
  * Checks if an element is a landmark element
  * @param {HTMLElement} element - The element to check
- * @returns {boolean} - True if the element is a landmark
+ * @returns {boolean} - True if the element is a landmark.
  */
 function isLandmark(element) {
   if (!element || !element.tagName) return false;
@@ -253,6 +253,42 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+// Line 99: TODO: Implement function for generating a report based on accessibility issues
+/**
+ * Generates a report based on accessibility issues
+ * @param {Object[]} issues - Array of accessibility issue objects
+ * @returns {Object} - Report object containing summary and details
+ */
+function generateAccessibilityReport(issues) {
+  const validIssues = Array.isArray(issues) ? issues : [];
+  const report = {
+    totalIssues: validIssues.length,
+    criticalIssues: 0,
+    warningIssues: 0,
+    issues: []
+  };
+
+  validIssues.forEach(issue => {
+    const severity = issue && issue.severity ? String(issue.severity).toLowerCase() : 'unknown';
+    const issueDetail = {
+      code: issue && issue.code ? issue.code : 'UNKNOWN_CODE',
+      severity: severity,
+      message: issue && issue.message ? issue.message : 'No description available',
+      element: issue && issue.element ? issue.element : null
+    };
+
+    report.issues.push(issueDetail);
+
+    if (severity === 'critical') {
+      report.criticalIssues++;
+    } else if (severity === 'warning') {
+      report.warningIssues++;
+    }
+  });
+
+  return report;
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +307,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  generateAccessibilityReport
 };

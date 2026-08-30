@@ -1,5 +1,3 @@
-const main = require('./utilities');
-
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)

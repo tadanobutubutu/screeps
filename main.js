@@ -23,6 +23,26 @@ export function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// TODO: Implement validateLandmark functionality
+export function validateLandmark(landmark) {
+  const validLandmarks = [
+    'banner',
+    'main',
+    'navigation',
+    'search',
+    'contentinfo',
+    'form',
+    'region',
+    'complementary'
+  ];
+  
+  if (!landmark || typeof landmark !== 'string') {
+    return false;
+  }
+  
+  return validLandmarks.includes(landmark.toLowerCase());
+}
+
 // 47: // TODO: Implement function for addressing accessibility issues from insight report
 export const addressAccessibilityIssues = (insightReport) => {
   const recommendations = [];

@@ -1,6 +1,7 @@
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // TODO: Import required module(s) and export the new necessary function( s) here in main.js (preserving the original code)
+const fs = require('fs');
 
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
@@ -107,8 +108,26 @@ const renderDependencyGraph = (data) => {
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
-function newFocusTrap() {
-  // New function implementation
+function newFocusTrap(element) {
+  if (!element) return;
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  if (focusableElements.length === 0) return;
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
 }
 
 // Add back any required exports that might have been removed.
@@ -191,7 +210,6 @@ function sanitizeFilename(filename) {
 
 function readFileSafe(filePath) {
   try {
-    const fs = require('fs');
     return fs.readFileSync(filePath, 'utf8');
   } catch (error) {
     log(`Error reading file ${filePath}: ${error.message}`, 'error');
@@ -269,25 +287,29 @@ function transformInputData(inputData, options = {}) {
     return null;
   }
 
-  let result = inputData;
-
-  if (typeof result === 'string' && trimWhitespace) {
-    result = result.trim();
-    if (uppercase) {
-      result = result.toUpperCase();
+  if (typeof inputData === 'string') {
+    let transformed = inputData;
+    if (trimWhitespace) transformed = transformed.trim();
+    if (uppercase) transformed = transformed.toUpperCase();
+    if (maxLength !== null && typeof maxLength === 'number' && transformed.length > maxLength) {
+      transformed = transformed.substring(0, maxLength);
     }
-    if (maxLength && result.length > maxLength) {
-      result = result.substring(0, maxLength);
-    }
-  } else if (Array.isArray(result)) {
-    result = result.map(item => transformInputData(item, options));
-  } else if (typeof result === 'object' && result !== null) {
-    Object.keys(result).forEach(key => {
-      result[key] = transformInputData(result[key], options);
-    });
+    return transformed;
   }
 
-  return result;
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => transformInputData(item, options));
+  }
+
+  if (typeof inputData === 'object' && inputData !== null) {
+    const result = {};
+    for (const [key, value] of Object.entries(inputData)) {
+      result[preserveKeys ? key : String(key).toLowerCase()] = transformInputData(value, options);
+    }
+    return result;
+  }
+
+  return inputData;
 }
 
 // Initialize on DOM ready
@@ -308,5 +330,13 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  newFocusTrap,
+  transformInputData,
+  sanitizeFilename,
+  readFileSafe,
+  processData,
+  filterValidItems,
+  groupByCategory,
+  log
 };

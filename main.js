@@ -1,10 +1,7 @@
 // Import necessary dependencies
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
-
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
+import { List, Button } from 'antd';
 
 // Function to handle sorting books by title (ascending)
 function sortByTitle(a, b) {
@@ -18,274 +15,423 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return ...
+  return book.id || `${book.title}-${book.author}`;
 }
 
 // Accessibility helper function to get language attribute
-function getLangAttribute(lang) {
-  return lang ? { lang } : { lang: 'en' };
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
 }
 
-// Accessibility helper function to create in-page button with proper accessibility
-function createInPageButton(label, onClick, icon) {
+// Accessibility helper function to create in-page button
+function createInPageButton(buttonText, onClickHandler) {
   return (
-    <button
-      onClick={onClick}
-      aria-label={label}
-      type="button"
+    <button 
+      onClick={onClickHandler}
+      lang={getLangAttribute()}
     >
-      {icon && (
-        <span aria-hidden="true">{icon}</span>
-      )}
-      <span>{label}</span>
+      {buttonText}
     </button>
   );
 }
 
-// Accessibility helper function to validate link accessibility
-function validateLinkAccessibility(element) {
-  const issues = [];
-  
-  // Check if link has accessible text
-  if (!element.textContent && !element.getAttribute('aria-label')) {
-    issues.push('Link missing accessible text');
-  }
-  
-  // Check for fake links (links without href or with href="#")
-  const href = element.getAttribute('href');
-  if (!href || href === '#') {
-    issues.push('Fake link detected - needs proper href or should be a button');
-  }
-  
-  return issues;
-}
-
-// Accessibility helper function to handle fake links
-function handleFakeLinks(element) {
-  const issues = validateLinkAccessibility(element);
-  
-  if (issues.length > 0) {
-    // Convert fake link to button if it doesn't navigate
-    if (!element.getAttribute('href') || element.getAttribute('href') === '#') {
-      element.setAttribute('role', 'button');
-      element.removeAttribute('href');
-    }
-  }
-  
-  return issues;
-}
-
 // Accessibility helper function to validate table accessibility
-function validateTableAccessibility(table) {
+function validateTableAccessibility(tableElement) {
   const issues = [];
+  const hasCaption = tableElement.querySelector('caption');
+  const hasHeaders = tableElement.querySelector('th');
   
-  // Check for caption
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    issues.push('Table missing caption');
+  if (!hasCaption) {
+    issues.push('REACT_027: Table is missing a caption');
   }
-  
-  // Check for th elements with scope or headers
-  const headers = table.querySelectorAll('th');
-  headers.forEach(th => {
-    if (!th.getAttribute('scope') && !th.getAttribute('headers')) {
-      issues.push('TH element missing scope or headers attribute');
-    }
-  });
+  if (!hasHeaders) {
+    issues.push('REACT_027: Table is missing header cells (th)');
+  }
   
   return issues;
 }
 
 // Accessibility helper function to validate table structure
-function validateTableStructure(table) {
+function validateTableStructure(tableElement) {
   const issues = [];
+  const rows = tableElement.querySelectorAll('tr');
   
-  // Check for proper table structure (thead, tbody, tfoot)
-  if (!table.querySelector('thead')) {
-    issues.push('Table missing thead');
-  }
-  if (!table.querySelector('tbody')) {
-    issues.push('Table missing tbody');
-  }
-  
-  // Check for proper row structure
-  const rows = table.querySelectorAll('tr');
-  rows.forEach((row, index) => {
+  rows.forEach((row, rowIndex) => {
     const cells = row.querySelectorAll('td, th');
     if (cells.length === 0) {
-      issues.push(`Row ${index} has no cells`);
+      issues.push(`REACT_027: Row ${rowIndex} has no cells`);
     }
   });
+  
+  return issues;
+}
+
+// Accessibility helper function to validate landmarks
+function validateLandmark() {
+  const issues = [];
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+  
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(landmark);
+    if (elements.length > 1 && landmark !== 'nav' && landmark !== 'aside') {
+      issues.push(`REACT_017: Multiple ${landmark} landmarks found`);
+    }
+  });
+  
+  return issues;
+}
+
+// Accessibility helper function to validate landmark structure
+function validateLandmarkStructure() {
+  const issues = [];
+  const mainElement = document.querySelector('main');
+  const headerElement = document.querySelector('header');
+  const footerElement = document.querySelector('footer');
+  
+  if (!mainElement) {
+    issues.push('REACT_017: Missing main landmark');
+  }
+  if (!headerElement) {
+    issues.push('REACT_017: Missing header landmark');
+  }
+  if (!footerElement) {
+    issues.push('REACT_017: Missing footer landmark');
+  }
   
   return issues;
 }
 
 // Accessibility helper function to get SVG accessible name
 function getSvgAccessibleName(svgElement) {
-  // Check for aria-label
-  let label = svgElement.getAttribute('aria-label');
-  
-  // Check for aria-labelledby
-  const labelledBy = svgElement.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const labelElement = document.getElementById(labelledBy);
-    if (labelElement) {
-      label = labelElement.textContent;
-    }
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
   }
   
-  // Check for title element inside SVG
-  if (!label) {
-    const title = svgElement.querySelector('title');
-    if (title) {
-      label = title.textContent;
-    }
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    return labelElement ? labelElement.textContent : '';
   }
   
-  return label || '';
+  const titleElement = svgElement.querySelector('title');
+  return titleElement ? titleElement.textContent : '';
 }
 
 // Accessibility helper function to set SVG attributes for accessibility
 function setSvgAttributes(svgElement, accessibleName) {
-  // Ensure SVG has role="img"
-  svgElement.setAttribute('role', 'img');
-  
-  // Set aria-label if not already set
   if (!svgElement.getAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
     svgElement.setAttribute('aria-label', accessibleName);
   }
-  
-  // Add title element if missing
-  const existingTitle = svgElement.querySelector('title');
-  if (!existingTitle && accessibleName) {
-    const title = document.createElement('title');
-    title.textContent = accessibleName;
-    svgElement.insertBefore(title, svgElement.firstChild);
+  if (!svgElement.getAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
   }
 }
 
 // Accessibility helper function to ensure unique landmarks
-function ensureUniqueLandmarks(container) {
-  const landmarks = {};
+function ensureUniqueLandmarks() {
   const issues = [];
+  const landmarkTypes = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
   
-  // Find all landmark elements
-  const banner = container.querySelector('[role="banner"]');
-  const navigation = container.querySelector('[role="navigation"]');
-  const main = container.querySelector('[role="main"]');
-  const contentinfo = container.querySelector('[role="contentinfo"]');
-  const complementary = container.querySelectorAll('[role="complementary"]');
-  const search = container.querySelectorAll('[role="search"]');
-  
-  // Check for duplicate landmarks
-  if (banner) landmarks.banner = banner;
-  if (main) landmarks.main = main;
-  if (contentinfo) landmarks.contentinfo = contentinfo;
-  
-  if (complementary.length > 1) {
-    issues.push(`Found ${complementary.length} complementary landmarks, should have at most 1`);
-  }
-  
-  if (search.length > 1) {
-    issues.push(`Found ${search.length} search landmarks, should have at most 1`);
-  }
-  
-  return { landmarks, issues };
-}
-
-// Accessibility helper function to add proper landmark regions
-function addProperLandmarkRegions(container) {
-  // Check for main landmark
-  let main = container.querySelector('main');
-  if (!main) {
-    main = container.querySelector('[role="main"]');
-  }
-  if (!main) {
-    // If no main found, wrap content appropriately
-    main = document.createElement('main');
-    main.setAttribute('id', 'main-content');
-    // Content would need to be moved into main here
-  }
-  
-  // Ensure unique IDs for landmarks
-  const landmarks = container.querySelectorAll('header, nav, main, footer, [role]');
-  const usedIds = new Set();
-  
-  landmarks.forEach(landmark => {
-    const existingId = landmark.id;
-    if (existingId) {
-      usedIds.add(existingId);
+  landmarkTypes.forEach(type => {
+    const landmarks = document.querySelectorAll(`[role="${type}"]`);
+    if (landmarks.length > 1) {
+      issues.push(`REACT_025: Multiple ${type} landmarks found - should be unique`);
     }
   });
   
-  return { main, usedIds };
+  return issues;
+}
+
+// Accessibility helper function to add proper landmark regions
+function addProperLandmarkRegions() {
+  const issues = [];
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
+  
+  if (!mainContent) {
+    issues.push('REACT_025: Missing main landmark region');
+  }
+  
+  return issues;
+}
+
+// Accessibility helper function to validate link accessibility
+function validateLinkAccessibility(linkElement) {
+  const issues = [];
+  const href = linkElement.getAttribute('href');
+  const text = linkElement.textContent.trim();
+  const ariaLabel = linkElement.getAttribute('aria-label');
+  
+  if (!href || href === '#' || href === '') {
+    issues.push('REACT_036: Link has no valid href attribute');
+  }
+  
+  if (!text && !ariaLabel) {
+    issues.push('REACT_036: Link has no accessible name');
+  }
+  
+  if (linkElement.getAttribute('role') === 'link' && !href) {
+    issues.push('REACT_036: Fake link detected without href');
+  }
+  
+  return issues;
+}
+
+// Accessibility helper function to handle fake links
+function handleFakeLinks() {
+  const issues = [];
+  const fakeLinks = document.querySelectorAll('[role="link"]:not(a[role="link"])');
+  
+  fakeLinks.forEach((link, index) => {
+    const href = link.getAttribute('href');
+    if (!href) {
+      issues.push(`REACT_036: Fake link ${index} has no href attribute`);
+    }
+    
+    if (link.tagName !== 'A' && link.getAttribute('onclick')) {
+      issues.push(`REACT_036: Consider using <button> instead of fake link ${index}`);
+    }
+  });
+  
+  return issues;
 }
 
 // Function to render a single book item
-function BookItem(book) {
+function BookItem({ book }) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        ...
+        description={`by ${book.author}`}
       />
     </List.Item>
   );
 }
 
-// Function to create a new book entry in the Redux store
-function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
+// Function to render the form for adding a new book entry
+function BookForm() {
+  const dispatch = useDispatch();
 
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
+  // Define state for the form inputs
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+
+  // Handle input changes
+  const handleTitleChange = (e) => setTitle(e.target.value);
+  const handleAuthorChange = (e) => setAuthor(e.target.value);
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Perform any necessary validation or processing before adding the book
+    // ...
+
+    // Dispatch an action to add the book to the books list in the Redux store
+    dispatch({ type: 'ADD_BOOK', payload: { title, author } });
+  };
+
+  // Render the form
+  return (
+    <form onSubmit={handleSubmit}>
+      <label htmlFor="title">Title:</label>
+      <input
+        type="text"
+        id="title"
+        value={title}
+        onChange={handleTitleChange}
+        aria-label="Book title"
+      />
+      <label htmlFor="author">Author:</label>
+      <input
+        type="text"
+        id="author"
+        value={author}
+        onChange={handleAuthorChange}
+        aria-label="Book author"
+      />
+      <button type="submit">Add Book</button>
+    </form>
+  );
 }
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
-  const sortedList = ...
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+function onTitleSort(dispatch, list) {
+  const sortedList = [...list].sort(sortByTitle);
+  dispatch({ type: 'SET_SORTED_LIST', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
-  const sortedList = ...
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+function onAuthorSort(dispatch, list) {
+  const sortedList = [...list].sort(sortByAuthor);
+  dispatch({ type: 'SET_SORTED_LIST', payload: sortedList });
+}
+
+// Accessible Add Book Form component
+function AddBookForm({ onAddBook }) {
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const [error, setError] = useState('');
+  const titleInputRef = useRef(null);
+  const formRef = useRef(null);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setError('');
+
+    if (!title.trim()) {
+      setError('Title is required');
+      if (titleInputRef.current) {
+        titleInputRef.current.focus();
+      }
+      return;
+    }
+
+    if (!author.trim()) {
+      setError('Author is required');
+      return;
+    }
+
+    onAddBook({ title: title.trim(), author: author.trim() });
+    setTitle('');
+    setAuthor('');
+    
+    if (titleInputRef.current) {
+      titleInputRef.current.focus();
+    }
+  };
+
+  const handleTitleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const form = formRef.current;
+      if (form) {
+        const authorInput = form.querySelector('#add-book-author');
+        if (authorInput) {
+          authorInput.focus();
+        }
+      }
+    }
+  };
+
+  return (
+    <form 
+      ref={formRef}
+      onSubmit={handleSubmit} 
+      aria-label="Add new book form"
+      style={{ marginBottom: '16px' }}
+    >
+      <div style={{ marginBottom: '8px' }}>
+        <label htmlFor="add-book-title" id="add-book-title-label">
+          Book Title
+        </label>
+        <input
+          id="add-book-title"
+          ref={titleInputRef}
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onKeyDown={handleTitleKeyDown}
+          aria-required="true"
+          aria-labelledby="add-book-title-label"
+          placeholder="Enter book title"
+          style={{ marginLeft: '8px' }}
+        />
+      </div>
+      
+      <div style={{ marginBottom: '8px' }}>
+        <label htmlFor="add-book-author" id="add-book-author-label">
+          Author
+        </label>
+        <input
+          id="add-book-author"
+          type="text"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          aria-required="true"
+          aria-labelledby="add-book-author-label"
+          placeholder="Enter author name"
+          style={{ marginLeft: '8px' }}
+        />
+      </div>
+
+      {error && (
+        <div 
+          role="alert" 
+          aria-live="polite"
+          style={{ color: 'red', marginBottom: '8px' }}
+        >
+          {error}
+        </div>
+      )}
+
+      <button 
+        type="submit"
+        aria-describedby={error ? 'add-book-error' : undefined}
+      >
+        Add Book
+      </button>
+    </form>
+  );
 }
 
 // Render the main component containing the book list and sorting controls
 function Main() {
+  const dispatch = useDispatch();
+  const booksList = useSelector(state => state.books?.list || []);
   const [sorting, setSorting] = useState(defaultSorting);
+
+  // Function to add a new book to the Redux store
+  const handleAddBook = (book) => {
+    dispatch({ type: 'ADD_BOOK', payload: book });
+  };
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
     if (sorting === sortByTitle) {
-      onTitleSort();
+      onTitleSort(dispatch, booksList);
     } else if (sorting === sortByAuthor) {
-      onAuthorSort();
+      onAuthorSort(dispatch, booksList);
     }
-  }, [sorting]);
+  }, [sorting, dispatch, booksList]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = ...
+  const bookItems = booksList.map((book) => (
+    <BookItem key={generateKey(book)} book={book} />
+  ));
 
-  // Render the list of book items and sorting controls
+  // Render the list of book items, sorting controls, and the book form
   return (
     <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List ... />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      <h2 id="add-book-heading">Add a New Book</h2>
+      <AddBookForm onAddBook={handleAddBook} />
+      
+      <h2 id="books-list-heading">Books List</h2>
+      <div role="group" aria-labelledby="books-list-heading">
+        <button 
+          onClick={() => setSorting(sortByTitle)}
+          aria-pressed={sorting === sortByTitle}
+        >
+          Sort by Title
+        </button>
+        <button 
+          onClick={() => setSorting(sortByAuthor)}
+          aria-pressed={sorting === sortByAuthor}
+        >
+          Sort by Author
+        </button>
+      </div>
+      
+      <List 
+        aria-label="Books collection"
+        dataSource={bookItems}
+      />
     </div>
   );
 }
 
-// Export the Main component
+// Export the Main component and the BookForm component
 export default Main;
+export { BookForm };

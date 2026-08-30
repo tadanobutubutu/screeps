@@ -394,13 +394,13 @@ function addressAccessibilityIssues(report) {
 // New functions to address specific accessibility issues
 
 // Get person name for accessible labeling
-personName() {
+function personName() {
   const nameElement = document.querySelector('[data-person-name]');
   return nameElement ? nameElement.textContent.trim() : 'User';
-},
+}
 
 // Validate and fix table accessibility
-validateTableAccessibility() {
+function validateTableAccessibility() {
   if (!window) return;
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
@@ -414,10 +414,10 @@ validateTableAccessibility() {
       table.setAttribute('aria-label', 'Table');
     }
   });
-},
+}
 
 // Validate and fix table structure
-validateTableStructure() {
+function validateTableStructure() {
   if (!window) return;
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
@@ -440,10 +440,10 @@ validateTableStructure() {
       table.appendChild(tbody);
     }
   });
-},
+}
 
 // Validate landmark elements
-validateLandmark() {
+function validateLandmark() {
   if (!window) return;
   const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
   landmarks.forEach(el => {
@@ -451,10 +451,10 @@ validateLandmark() {
       // Optionally add a role, but leave as is for now
     }
   });
-},
+}
 
 // Validate landmark structure
-validateLandmarkStructure() {
+function validateLandmarkStructure() {
   if (!window) return;
   const main = document.querySelector('main');
   if (main) {
@@ -463,15 +463,15 @@ validateLandmarkStructure() {
       console.warn('Landmarks nested within main may be incorrect.');
     }
   }
-},
+}
 
 // Get accessible name for SVG
-getSvgAccessibleName(svg) {
+function getSvgAccessibleName(svg) {
   return svg.getAttribute('aria-label') || svg.getAttribute('title') || 'Image';
-},
+}
 
 // Ensure unique landmark IDs
-ensureUniqueLandmarks() {
+function ensureUniqueLandmarks() {
   if (!window) return;
   const landmarks = document.querySelectorAll('[role="landmark"], main, nav, header, footer, aside');
   const idSet = new Set();
@@ -487,45 +487,70 @@ ensureUniqueLandmarks() {
   });
 }
 
-// New function to handle dynamic content updates
-updateLiveRegion(message, priority = 'polite') {
-  if (!this.liveRegion) return;
-  this.announce(message, priority);
-}
+/**
+ * Creates a web resource button suitable for accessibility (e.g., GitHub, Stack Overflow, etc.)
+ * @param {Object} options - Button configuration options
+ * @param {string} options.url - The URL for the web resource
+ * @param {string} options.text - The text to display on the button
+ * @param {string} [options.icon] - Optional icon (SVG string or icon class)
+ * @param {string} [options.platform] - Platform identifier (e.g., 'github', 'stackoverflow', 'twitter')
+ * @param {string} [options.id] - Optional unique identifier for the button
+ * @param {string} [options.className] - Optional CSS class name for styling
+ * @param {boolean} [options.openInNewTab=true] - Whether to open link in new tab
+ * @returns {HTMLButtonElement} - The created button element
+ */
+function createWebResourceButton(options) {
+  const { url, text, icon, platform, id, className, openInNewTab = true } = options;
 
-// New function to check landmark elements
-checkLandmarkElements() {
-  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-  landmarkElements.forEach(tag => {
-    const landmark = document.querySelector(tag);
-    if (landmark && landmark.id === '') {
-      landmark.id = `${tag}-${Math.floor(Math.random() * 1000)}`;
+  // Validate required options
+  if (!url) {
+    throw new Error('URL is required for web resource button');
+  }
+  if (!text) {
+    throw new Error('Button text is required');
+  }
+
+  // Create button element
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = `web-resource-button ${className || ''}`.trim();
+  button.setAttribute('data-platform', platform || 'external');
+  
+  if (id) {
+    button.id = id;
+  } else {
+    button.id = `web-btn-${platform || 'external'}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  // Set accessible name
+  button.setAttribute('aria-label', text);
+
+  // Add icon if provided
+  let buttonContent = '';
+  if (icon) {
+    buttonContent += `<span class="web-resource-icon" aria-hidden="true">${icon}</span>`;
+  }
+  buttonContent += `<span class="web-resource-text">${text}</span>`;
+  button.innerHTML = buttonContent;
+
+  // Handle click - open URL
+  button.addEventListener('click', () => {
+    if (openInNewTab) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+      window.location.href = url;
     }
   });
-}
 
-// New function to add SVG accessibility props
-addSVGAccessibilityProps() {
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    svg.setAttribute('role', 'img');
-    if (!svg.getAttribute('aria-labelledby')) {
-      const titleText = svg.getAttribute('title') || 'Image description';
-      const descriptionId = `svg-desc-${Math.floor(Math.random() * 1000)}`;
-      svg.setAttribute('aria-labelledby', descriptionId);
-
-      const descriptionElement = document.createElement('desc');
-      descriptionElement.id = descriptionId;
-      descriptionElement.textContent = titleText;
-      svg.appendChild(descriptionElement);
+  // Keyboard support for button (Enter/Space)
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      button.click();
     }
   });
-}
 
-// Address accessibility issues from insight report
-addressAccessibilityIssues(report) {
-  if (!report) return;
-  a11yStore.addressAccessibilityIssues(report);
+  return button;
 }
 
 module.exports = {
@@ -535,7 +560,6 @@ module.exports = {
   a11yStore,
   addLandmarkRegions,
   addressAccessibilityIssues,
-  newFunction,
   LANDMARK_ELEMENTS,
   getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
   updateLiveRegion: a11yStore.updateLiveRegion.bind(a11yStore),
@@ -547,5 +571,6 @@ module.exports = {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  createWebResourceButton
 };

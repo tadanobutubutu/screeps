@@ -1,7 +1,19 @@
+// TODO: Implement this function for adding SVG accessibility props
+
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
+
+// Function to add SVG accessibility props
+function addSvgAccessibilityProps(props = {}) {
+  return {
+    ...props,
+    role: 'img',
+    'aria-hidden': props['aria-hidden'] !== undefined ? props['aria-hidden'] : false,
+    focusable: 'false',
+  };
+}
 
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);

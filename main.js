@@ -35,16 +35,28 @@ function renderDependencyGraph(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html><head><title>Dependencies</title></head><body>';
-    html += '<h1>Dependency Index</h1>';
-    html += '<ul>';
+    let html = '<!DOCTYPE html><html lang="en"><head><title>Dependencies</title></head><body>';
+    html += '<header><h1>Dependency Index</h1></header>';
+    html += '<main><ul>';
     
     for (const pkg of packages) {
         html += `<li>${pkg.name} - ${pkg.version}</li>`;
     }
     
-    html += '</ul></body></html>';
+    html += '</ul></main>';
+    html += '<footer><p>Generated on: ' + new Date().toLocaleString() + '</p></footer>';
+    html += '</body></html>';
     return html;
+}
+
+/**
+ * Adds landmark roles to the main content area of the index view
+ * @returns {string} - HTML string for the index view with landmark roles
+ */
+function addLandmarkRolesToIndexView() {
+    const html = renderIndexView([{ name: 'example', version: '1.0.0' }]);
+    const modifiedHtml = html.replace('<main>', '<main role="main">');
+    return modifiedHtml;
 }
 
 /**
@@ -55,7 +67,7 @@ function main() {
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     
     const graphData = renderDependencyGraph(packageJson.dependencies || {});
-    const indexHtml = renderIndexView([{ name: 'example', version: '1.0.0' }]);
+    const indexHtml = addLandmarkRolesToIndexView();
     
     return { graphData, indexHtml };
 }
@@ -63,5 +75,6 @@ function main() {
 module.exports = {
     renderDependencyGraph,
     renderIndexView,
+    addLandmarkRolesToIndexView, // Added this function to handle the new requirement
     main
 };

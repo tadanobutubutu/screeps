@@ -145,7 +145,7 @@ function getLangAttribute(document) {
     return appState.lang || config.defaultLang;
   }
   
-  const htmlElement = document.documentElement || document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     return htmlElement.getAttribute('lang') || appState.lang || config.defaultLang;
   }
@@ -257,9 +257,8 @@ function fixTableStructure(table) {
     if (firstRow) {
       const headerCells = firstRow.querySelectorAll('th');
       if (headerCells.length > 0) {
-        thead.appendChild(firstRow.cloneNode(true));
+        thead.appendChild(firstRow);
         table.insertBefore(thead, table.firstChild);
-        firstRow.remove();
         fixed = true;
       }
     }
@@ -271,7 +270,7 @@ function fixTableStructure(table) {
     if (!th.getAttribute('scope')) {
       const row = th.closest('tr');
       const isHeaderRow = row.querySelector('th') === th && 
-                          Array.from(row.children).indexOf(th) === 0;
+                          Array.from(row.cells).indexOf(th) === 0;
       th.setAttribute('scope', isHeaderRow ? 'row' : 'col');
       fixed = true;
     }
@@ -315,7 +314,7 @@ function addMainLandmark(mainElement) {
   return true;
 }
 
-function validateLandmark(document) {
+function validateLandmarks(document) {
   // Validate that landmarks are properly defined
   if (!document) {
     return { valid: false, issues: ['Document is required'] };
@@ -388,15 +387,4 @@ function validateLandmarkStructure(document) {
 function validateLandmarkAttributes(element) {
   // Validate that element has proper landmark attributes
   if (!element) {
-    return { valid: false, issues: ['Element is required'] };
-  }
-  
-  const issues = [];
-  const tagName = element.tagName.toLowerCase();
-  
-  // Semantic landmarks
-  const semanticLandmarks = ['header', 'main', 'nav', 'aside', 'footer'];
-  
-  if (semanticLandmarks.includes(tagName)) {
-    // Check if element has proper labeling
-    const ariaLabel = element.getAttribute('aria
+    return { valid: false, issues: ['Element is

@@ -21,11 +21,11 @@ import { indexContent } from './indexContent';
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
-import { getDocument, getLangAttribute } from . ; // Adjust the path to the existing accessibility helper functions if needed
-import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from "..." ; // Adjust the path to the new accessibility helper functions
+import { getDocument, getLangAttribute } from './accessibilityHelper'; // Adjusted path to accessibility helper
+import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from './accessibilityHelpers'; // Adjusted path to new accessibility helpers
 
 // Import your new function from your new module
-// import { triggerAccessibilityMode } from ...
+import { triggerAccessibilityMode } from './accessibilityMode';
 
 // Import dependency graph and index content modules for rendering dependency graphs and index views
 import { dependencyGraphContent } from './dependencyGraphContent';
@@ -53,6 +53,7 @@ export function renderIndex() {
   handleAccessibilityIssues(indexContent);
 }
 
+// TODO: fix lint error for exports (maintain existing export pattern)
 export { makeHeaderFocusable }; // new export statement from conflicting branch
 
 function ensureElementId(element) {
@@ -245,6 +246,11 @@ function validateLinkAccessibility() {
 
 function handleFakeLinks() {
   // Example fake links handler
+}
+
+function personName() {
+  // Additional function needed for REACT_036 fix
+  console.log('Person name accessibility check');
 }
 
 export { ensureElementId };

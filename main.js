@@ -257,6 +257,44 @@ export function generateAccessibilityReport() {
 var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
 
+// Define missing functions for REACT_015
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+function createInPageButton(text, targetId) {
+  const button = document.createElement('a');
+  button.href = `#${targetId}`;
+  button.textContent = text;
+  button.setAttribute('role', 'button');
+  button.setAttribute('aria-label', text);
+  return button;
+}
+
+function wrapPrimaryContentInMain() {
+  const content = document.querySelector('main') || document.querySelector('.content') || document.querySelector('#content');
+  if (content && content.tagName !== 'MAIN') {
+    const main = document.createElement('main');
+    main.appendChild(content);
+    return main;
+  }
+  return content;
+}
+
+// Define missing function for landmark handling
+export function addLandmarkRegions() {
+  const landmarks = document.querySelectorAll('[role="landmark"]');
+  landmarks.forEach((landmark, index) => {
+    if (!landmark.id) {
+      landmark.id = `landmark-${index}`;
+    }
+    if (!landmark.getAttribute('aria-label')) {
+      const role = landmark.getAttribute('role');
+      landmark.setAttribute('aria-label', `${role}-${index + 1}`);
+    }
+  });
+}
+
 // Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
 function addressAccessibilityIssues() {
   // Internationalization support

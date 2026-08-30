@@ -687,7 +687,7 @@ function handleFakeLinksDocument() {
   // Code for handling fake links
 
 // Main module for the Screeps bot and accessibility handling
-async function main() {
+async function runMain() {
   // Main execution logic
   for (const name in Game.rooms) {
     const room = Game.rooms[name];
@@ -771,5 +771,15 @@ module.exports = {
   createInPageButtonEnhanced,
   validateLinkAccessibilityEnhanced,
   personName,
-  mainExecution
+  mainExecution,
+
+  // Missing required exports
+  improveAccessibility,
+  getSvgAccessibleNameDocument,
+  setSvgAttributesDocument,
+  ensureUniqueLandmarksDocument,
+  createInPageButtonDocument,
+  validateLinkAccessibilityDocument,
+  handleFakeLinksDocument,
+  runMain
 };

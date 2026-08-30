@@ -90,7 +90,7 @@ function trapFocus(container) {
       firstElement.focus();
     }
   };
-  
+
   container.addEventListener('keydown', handleTab);
   
   return () => {
@@ -132,7 +132,41 @@ function initializeAccessibility() {
     handleKeyboard,
     trapFocus,
     createAnnouncer,
-    prefersReducedMotion
+    prefersReducedMotion,
+    ensureDependencyGraphARIA,
+    getLangAttribute
+  };
+}
+
+// Get the lang attribute from the HTML element
+function getLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  return htmlElement ? htmlElement.getAttribute('lang') : null;
+}
+
+// Ensure the HTML element has proper ARIA attributes including lang
+function ensureDependencyGraphARIA() {
+  let htmlElement = document.querySelector('html');
+  
+  if (!htmlElement) {
+    htmlElement = document.createElement('html');
+    document.insertBefore(htmlElement, document.firstChild);
+  }
+  
+  // Ensure lang attribute is set (accessibility requirement REACT_015)
+  if (!htmlElement.hasAttribute('lang') || !htmlElement.getAttribute('lang')) {
+    // Default to 'en' if no language is specified
+    htmlElement.setAttribute('lang', 'en');
+  }
+  
+  // Ensure dir attribute is set for proper text direction
+  if (!htmlElement.hasAttribute('dir')) {
+    htmlElement.setAttribute('dir', 'ltr');
+  }
+  
+  return {
+    lang: htmlElement.getAttribute('lang'),
+    dir: htmlElement.getAttribute('dir')
   };
 }
 
@@ -290,6 +324,8 @@ if (typeof module !== 'undefined' && module.exports) {
     trapFocus,
     createAnnouncer,
     prefersReducedMotion,
+    ensureDependencyGraphARIA,
+    getLangAttribute,
     isEmpty,
     capitalize,
     getRandomInt,
@@ -316,7 +352,9 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Auto-initialize when DOM is ready
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', function() {
     window.accessibilityFeatures = initializeAccessibility();
+    // Ensure ARIA attributes are properly set on the HTML element
+    ensureDependencyGraphARIA();
   });
 }

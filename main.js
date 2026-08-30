@@ -524,10 +524,12 @@ function main() {
     }
   };
   
-  console.log('Dependency Graph:');
-  console.log(renderDependencyGraph(sampleDependencies));
+  // Use the generateDependencyReport function to get graph and depth
+  const report = generateDependencyReport(sampleDependencies);
   
-  console.log('Depth:', getDependencyDepth(sampleDependencies));
+  console.log('Dependency Graph:');
+  console.log(report.graph);
+  console.log('Depth:', report.maxDepth);
 }
 
 // Run if executed directly

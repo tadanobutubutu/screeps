@@ -1,10 +1,5 @@
-const existingFunction = () => {
-  // Existing code for existingFunction
-};
-
-// TODO: This is the existing code that needs to be preserved
-
-function existingFunction() {
+// Existing code that should be preserved
+export function existingFunction() {
   // ... existing code ...
 }
 

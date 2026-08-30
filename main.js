@@ -121,6 +121,13 @@ ensureUniqueLandmarkId('main-content');
 // Handle fake links
 handleFakeLinks();
 
+// New function or change requested in the issue
+function checkLinkAccessibility() {
+  // Implementation for checking link accessibility
+  // This function will be used to validate the accessibility of links
+  return validateLinkAccessibility();
+}
+
 // ... rest of your code ...
 
 // React / UI related functions

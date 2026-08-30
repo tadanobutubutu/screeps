@@ -85,7 +85,11 @@ function implementNewFunction(input) {
   // This is a placeholder implementation that should be replaced
   // with the actual logic once requirements are clarified
   // New function as per the issue requirements
-  return input;
+  // For the sake of the example, let's assume we're transforming the input string to uppercase
+  if (typeof input === 'string') {
+    return input.toUpperCase();
+  }
+  return input; // Return the input unchanged if it's not a string
 }
 
 module.exports = {

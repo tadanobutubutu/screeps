@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -37,7 +34,13 @@ function ensureDependencyGraphARIA() {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return book.id;
+  return book.id || `${book.title}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = ['react', 'react-redux', 'antd'];
+  return dependencies.length;
 }
 
 // Function to render a single book item
@@ -53,7 +56,7 @@ function BookItem(book) {
 }
 
 // Function to create a new book entry in the Redux store
-function addBook(book) {
+export function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
@@ -81,9 +84,14 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// Export utility functions
+export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies };
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const dispatch = useDispatch();
+  const getBooksList = useSelector(state => state.books); // Assuming books are in state.books
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -93,9 +101,6 @@ function Main() {
       onAuthorSort();
     }
   }, [sorting]);
-
-  // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(book => BookItem(book));
 
   // Render the list of book items and sorting controls
   return (
@@ -107,12 +112,24 @@ function Main() {
         dataSource={getBooksList}
         renderItem={book => BookItem(book)}
       />
+      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
+      {/* ... */}
+      {/* Example of adding a new book form with accessibility considerations */}
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        // Assuming there's a function to get the form data
+        const newBook = getFormData();
+        addBook(newBook);
+      }}>
+        <label htmlFor="title">Title:</label>
+        <input type="text" id="title" name="title" required />
+        <label htmlFor="author">Author:</label>
+        <input type="text" id="author" name="author" required />
+        <button type="submit">Add Book</button>
+      </form>
     </div>
   );
 }
 
 // Export the Main component
 export default Main;
-```
-
-This resolved file integrates both changes from the branches, with added functionality to ensure accessibility attributes are set for the dependency graph and when adding a new book. The key generation function was also updated to match the changes in the `origin/main` branch. The form component for adding new books is left as a TODO, allowing you to implement the necessary changes for accessibility improvements. The default sorting function and sorting functions for Title and Author were preserved, as well as the use of the `ensuresDependencyGraphAria` function. The file structure was not changed as it was unclear from the conflict markers.

@@ -1,5 +1,3 @@
-// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
-
 const config = require('./config');
 const logger = require('./utils/logger');
 
@@ -11,13 +9,16 @@ let uniqueLandmarks = {};
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') ||
-    document.querySelector('.dependencyGraph') ||
-    document.querySelector('[data-testid="dependency-graph"]') ||
-    document.querySelector('div[data-testid=dependency-graph]');
+  const dependencyGraph = document.querySelector('[data-dependency-graph]') ||
+    document.querySelector('.dependency-graph') ||
+    document.querySelector('#dependency-graph') ||
+    document.querySelector('main');
+
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    if (!dependencyGraph.getAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    }
   }
 
   // New accessibility functions
@@ -29,30 +30,92 @@ function addressAccessibilityIssues() {
       }
     });
 
-    const focusable = document.querySelectorAll('[role="link"]');
+    const focusable = document.querySelectorAll('a, button, input, select, textarea, [tabindex]');
     focusable.forEach(el => {
       if (el.tabIndex < 0) el.tabIndex = 0;
     });
   }
 
-  function ensureUniqueLandmarks(insightReport) {
-    const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
+  function maintainLandmarks() {
+    const landmarks = [...new Set(['navigation', 'main', 'complementary', 'banner', 'contentinfo'].filter(Boolean))];
 
     // Check if all landmarks exist, re-add if necessary
-    landmarks.forEach(landmark => {
-      const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    landmarks.forEach(uniqueLandmark => {
+      const elements = document.querySelectorAll(`[role="${uniqueLandmark}"]`);
       if (elements.length < landmarks.length) {
         const uniqueLandmarkMap = {};
 
         landmarks.forEach(uniqueLandmark => {
           let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
           if (!element[0]) {
-            element = document.createElement(`div`);
+            element = document.createElement('div');
             element.setAttribute('role', uniqueLandmark);
-            if (!document.querySelector(`#${uniqueLandmark}`)) {
+            if (!element.id) {
               const id = uniqueLandmark;
               element.setAttribute('id', id);
             }
             document.body.appendChild(element);
           }
-          uniqueLandmarkMap
+          uniqueLandmarkMap[uniqueLandmark] = element[0];
+        });
+      }
+    });
+  }
+}
+
+// TODO: Implement renderIndexView functionality
+function renderIndexView() {
+  const container = document.querySelector('[data-dependency-graph]') ||
+    document.querySelector('.dependency-graph') ||
+    document.querySelector('#dependency-graph') ||
+    document.querySelector('main') ||
+    document.body;
+
+  container.innerHTML = '';
+
+  const indexView = document.createElement('div');
+  indexView.className = 'index-view';
+  indexView.setAttribute('role', 'main');
+  indexView.setAttribute('aria-label', 'Index View');
+
+  const header = document.createElement('header');
+  header.setAttribute('role', 'banner');
+  header.innerHTML = '<h1>Dependency Graph Index</h1>';
+
+  const mainContent = document.createElement('div');
+  mainContent.className = 'index-content';
+  mainContent.setAttribute('role', 'region');
+  mainContent.setAttribute('aria-label', 'Main Content');
+
+  const description = document.createElement('p');
+  description.textContent = 'Welcome to the dependency graph visualization.';
+  description.setAttribute('aria-label', 'Welcome message');
+
+  mainContent.appendChild(description);
+
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'graph-container';
+  graphContainer.setAttribute('role', 'tree');
+  graphContainer.setAttribute('aria-label', 'Dependency Graph');
+
+  mainContent.appendChild(graphContainer);
+
+  indexView.appendChild(header);
+  indexView.appendChild(mainContent);
+  container.appendChild(indexView);
+
+  // Apply accessibility improvements
+  addressAccessibilityIssues();
+
+  logger.info('Index view rendered successfully');
+  return indexView;
+}
+
+module.exports = {
+  renderIndexView,
+  addressAccessibilityIssues,
+  config,
+  appData,
+  uniqueLandmarks,
+  isInitialized
+};

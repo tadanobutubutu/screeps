@@ -1,20 +1,21 @@
-// TODO: Existing code remains here
-// TODO: Add back any required exports that might have been?
-function main() {
+const http = require('http');
+
+const main = require('./utilities');
+
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
+
+function greetingFunction() {
   return "Hello, World!";
 }
-
-const version = "1.0.0";
 
 const config = {
   port: 3000,
   debug: false
 };
 
-// TODO: Add any new functions or changes requested in the issue here
 function getWelcomeMessage() {
-  return main() + " This is a new function that returns a welcome message.";
+  return greetingFunction() + " This is a new function that returns a welcome message.";
 }
 
-export default main;
-export { version, config, getWelcomeMessage };
+export default greetingFunction;
+export { config, getWelcomeMessage };

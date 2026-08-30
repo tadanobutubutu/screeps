@@ -235,12 +235,6 @@ function validateLandmarkStructure() {
     return validation;
 }
 
-// Application data placeholder
-const appData = {
-    title: 'Application',
-    version: '1.0.0'
-};
-
 // Initialization function
 const initApp = () => {
   // Initialize the main application
@@ -254,11 +248,6 @@ const initApp = () => {
   // Add accessible names to SVGs (example selectors and names)
   addSVGAccessibleName('.icon-home', 'Home icon');
   addSVGAccessibleName('.icon-settings', 'Settings icon');
-
-  // Define icons object
-  icons = {
-    icon: '<svg viewBox="0 0 100 100" aria-label="Screps icon"></svg>'
-  };
 
   // Fix fake links
   fixFakeLinks();
@@ -278,4 +267,23 @@ if (isSecureContext()) {
 registerSW();
 
 // Export functions for testing
-// ... (only include exported functions if needed and remove unrelated code)
+module.exports = {
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  landmarkStructureCheck,
+  isSecureContext,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  ensureUniqueLandmarkElements,
+  addSVGAccessibleName,
+  fixFakeLinks,
+  helloWorld,
+  initDependencyGraph,
+  renderDependencyGraph,
+  getElementById,
+  queryElements,
+  checkLandmarkElements,
+  validateLandmarkStructure,
+  appData,
+  landmarks
+};

@@ -316,4 +316,39 @@ function validateLandmark(root = document) {
   // Check for footer landmark
   const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
   if (footerElements.length > 1) {
-    issues.push('Page
+    issues.push('Page should have only one footer landmark');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+// Export functions that need to be accessible
+export {
+  ensureElementHasId,
+  addAriaLabel,
+  setLanguageAttribute,
+  getLangAttribute,
+  initApp,
+  displayModuleStructure,
+  resetRotation,
+  add,
+  functionX,
+  functionY,
+  functionZ,
+  functionA,
+  renderDependencyGraph,
+  loop,
+  functionXb,
+  functionYb,
+  functionZb,
+  functionB,
+  function1,
+  function2,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark
+};

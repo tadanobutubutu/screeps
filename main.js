@@ -36,8 +36,61 @@ const renderDependencyGraph = (data) => {
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.getAttribute('lang') || 'en';
+  }
+  return 'en';
+}
+
+function personName(firstName, lastName) {
+  return [firstName, lastName].filter(Boolean).join(' ').trim();
+}
+
+function validateTableAccessibility(table) {
+  if (!table || table.tagName !== 'TABLE') return false;
+  return table.querySelector('caption') !== null || table.querySelectorAll('th[scope]').length > 0;
+}
+
+function validateTableStructure(table) {
+  if (!table) return false;
+  const rows = table.querySelectorAll('tr');
+  return rows.length > 0 && (table.querySelector('thead') !== null || table.querySelector('tbody') !== null || table.querySelector('th') !== null);
+}
+
+function validateLandmark(element) {
+  if (!element) return false;
+  const role = element.getAttribute ? element.getAttribute('role') : null;
+  const ariaLabel = element.getAttribute ? element.getAttribute('aria-label') : null;
+  const landmarkRoles = ['main', 'navigation', 'contentinfo', 'complementary', 'search', 'form', 'region', 'banner'];
+  return (role && landmarkRoles.includes(role)) || !!ariaLabel;
+}
+
+function validateLandmarkStructure(container) {
+  if (!container || !container.querySelectorAll) return false;
+  const landmarks = container.querySelectorAll('main, nav, [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="search"], header, aside, footer, [role="region"]');
+  return landmarks.length > 0;
+}
+
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const title = svg.querySelector ? svg.querySelector('title') : null;
+  return title ? (title.textContent || '') : (svg.getAttribute ? (svg.getAttribute('aria-label') || '') : '');
+}
+
+function createInPageButton(text, onClick) {
+  if (typeof document === 'undefined') return null;
+  const button = document.createElement('button');
+  button.textContent = text || 'Button';
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  button.setAttribute('type', 'button');
+  return button;
+}
+
 function newFocusTrap() {
-  // New function implementation - Enhanced focus trap for keyboard navigation
+  // Enhanced focus trap for keyboard navigation
   const createTrap = (element) => {
     if (!element) {
       throw new Error('Focus trap element is required');
@@ -437,10 +490,16 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraph,
   calculateSum,
-  function3,
   newFocusTrap,
+  getLangAttribute,
+  personName,
   validateTableAccessibility,
   validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  function3,
   transformInputData,
   addressAccessibilityIssuesFromInsightReport
 };

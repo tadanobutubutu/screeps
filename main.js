@@ -33,15 +33,6 @@ function BookItem(book) {
   );
 }
 
-// Function to create a new book entry in the Redux store
-function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
-
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
-}
-
 // Function to render the form for adding a new book entry
 function BookForm() {
   const dispatch = useDispatch();
@@ -61,7 +52,7 @@ function BookForm() {
     // ...
 
     // Dispatch an action to add the book to the books list in the Redux store
-    dispatch(addBook({ title, author }));
+    dispatch({ type: 'ADD_BOOK', payload: { title, author } });
   };
 
   // Render the form

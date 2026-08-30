@@ -47,6 +47,25 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = [
+    'React',
+    'react-redux',
+    'antd',
+    'useState',
+    'useEffect',
+    'useSelector',
+    'useDispatch',
+    'List',
+  ];
+  const importLines = mainContent.split('\n').filter(line => line.startsWith('import'));
+  const importedModules = importLines.map(line => line.split(' ')[1].split(' from ')[1].split(',')[0].trim());
+
+  const missingDependencies = dependencies.filter(dep => !importedModules.includes(dep));
+  return missingDependencies.length;
+}
+
 // Implement the required changes to improve accessibility for the addBook function or form
 function AddBookForm() {
   const dispatch = useDispatch();
@@ -108,7 +127,6 @@ function onAuthorSort() {
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
   const books = useSelector(state => state.books?.list || []);
-  const dispatch = useDispatch();
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {

@@ -8,7 +8,7 @@ export function calculateSum(a, b) {
 // ...
 import react from 'react';
 
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+export const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
 const main = {
   loop: function() {
@@ -92,3 +92,5 @@ const main = {
     // your new function logic goes here
   }
 };
+
+export default main;

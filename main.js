@@ -627,6 +627,34 @@ function addressAccessibilityIssues(insightReport) {
   };
 }
 
+// Function to generate a report based on accessibility issues
+function generateAccessibilityReport(insightReport) {
+  if (!insightReport) {
+    return {
+      timestamp: new Date().toISOString(),
+      success: false,
+      message: 'No insight report provided',
+      issues: []
+    };
+  }
+
+  const result = addressAccessibilityIssues(insightReport);
+  
+  return {
+    timestamp: new Date().toISOString(),
+    success: result.success,
+    totalIssues: result.summary.totalIssues,
+    fixedIssues: result.summary.fixedIssues,
+    remainingIssues: result.summary.remainingIssues,
+    issues: result.issues.map(issue => ({
+      type: issue.type,
+      message: issue.message,
+      fixed: issue.fixed,
+      fixApplied: issue.fixApplied || issue.fixes
+    }))
+  };
+}
+
 function addLandmarkRoles() {
   // Code for adding landmark roles
 }
@@ -717,6 +745,7 @@ module.exports = {
   validateInput,
   addressAccessibilityIssues,
   addressAccessibilityIssuesMerged,
+  generateAccessibilityReport,
   getLangAttribute,
   getLangAttributeEnhanced,
   addLangAttribute,

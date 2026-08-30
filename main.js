@@ -5,6 +5,54 @@ const fs = require('fs');
 const path = require('path');
 
 /**
+ * Checks the landmark structure of the document
+ * @returns {Object} An object containing landmark structure information
+ */
+function checkLandmarkStructure() {
+  if (typeof document === 'undefined') {
+    return {
+      hasMain: false,
+      hasNav: false,
+      hasHeader: false,
+      hasFooter: false,
+      hasAside: false,
+      landmarkCount: 0,
+      landmarks: [],
+      isValid: false
+    };
+  }
+
+  const main = document.querySelector('main');
+  const nav = document.querySelector('nav');
+  const header = document.querySelector('header');
+  const footer = document.querySelector('footer');
+  const aside = document.querySelector('aside');
+  const sections = document.querySelectorAll('section');
+  const articles = document.querySelectorAll('article');
+
+  const landmarks = [];
+
+  if (main) landmarks.push('main');
+  if (nav) landmarks.push('nav');
+  if (header) landmarks.push('header');
+  if (footer) landmarks.push('footer');
+  if (aside) landmarks.push('aside');
+  sections.forEach(() => landmarks.push('section'));
+  articles.forEach(() => landmarks.push('article'));
+
+  return {
+    hasMain: !!main,
+    hasNav: !!nav,
+    hasHeader: !!header,
+    hasFooter: !!footer,
+    hasAside: !!aside,
+    landmarkCount: landmarks.length,
+    landmarks: landmarks,
+    isValid: landmarks.length > 0
+  };
+}
+
+/**
  * Counts the total number of dependencies in package.json
  * @returns {Object} An object containing counts for dependencies, devDependencies, and total
  */
@@ -58,4 +106,4 @@ function convertAnchorsToButtons() {
 }
 
 // Export for use in other modules
-module.exports = { countDependencies, dependencyGraphContent, convertAnchorsToButtons };
+module.exports = { countDependencies, dependencyGraphContent, convertAnchorsToButtons, checkLandmarkStructure };

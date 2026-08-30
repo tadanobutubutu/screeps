@@ -13,15 +13,6 @@ const appData = {
 
 let icons = {};
 
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-
-// Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
 
@@ -70,85 +61,235 @@ function validateLandmark(landmark) {
     });
   }
 
+  function validateLandmarkUniqueness(landmarks) {
+    const errors = [];
+
+    if (!landmarks || !Array.isArray(landmarks) || landmarks.length === 0) {
+      errors.push('No landmarks provided for validation');
+      return { valid: false, errors };
+    }
+
+    const seenTags = new Set();
+    landmarks.forEach((landmark, index) => {
+      if (!landmark || !landmark.tagName) {
+        errors.push(`Landmark at index ${index} is missing tagName`);
+        return;
+      }
+
+      const tag = landmark.tagName.toLowerCase();
+      const role = landmark.getAttribute('role');
+
+      if (seenTags.has(tag) && !['section', 'article', 'div'].includes(tag)) {
+        errors.push(`Duplicate landmark tag ${tag} found at index ${index}. Only section, article, and div can be repeated.`);
+      } else if (!seenTags.has(tag)) {
+        seenTags.add(tag);
+      }
+
+      if (role && seenTags.has(role) && !['region', 'main', 'banner', 'navigation', 'aside', 'search', 'contentinfo'].includes(role)) {
+        errors.push(`Duplicate landmark role ${role} found at index ${index}`);
+      } else if (role) {
+        seenTags.add(role);
+      }
+    });
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+
+  function ensureLandmarkUniqueness(elements) {
+    const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+
+    const elementsById = {};
+
+    if (Array.isArray(elements)) {
+      for (const landmark of elements) {
+        if (landmark.id) {
+          if (!elementsById[landmark.id]) {
+            elementsById[landmark.id] = true;
+          } else {
+            landmark.id += '_duplicate';
+          }
+        }
+      }
+    }
+
+    return elements;
+  }
+
   return {
     valid: errors.length === 0,
-    errors
+    errors,
+    validateLandmarkUniqueness,
+    ensureLandmarkUniqueness
   };
 }
 
 /**
- * Function to check if the specified landmark element is in the document.
- * @param {string} id - The ID of the landmark element.
- * @returns {boolean} Returns true if the element exists; otherwise, false.
+ * Main JavaScript module for landmark element validation
+ * @module main
  */
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  return element !== null;
+
+/**
+ * Configuration for landmark checks */
+const config = {
+  requiredLandmarks: ['main', 'header', 'footer'],
+  optionalLandmarks: ['nav', 'aside', 'section'],
+  skipElements: ['script', 'style', 'meta', 'link']
+};
+
+/**
+ * Checks if an element is a landmark element
+ * @param {HTMLElement} element - The element to check
+ * @returns {boolean} - True if the element is a landmark
+ */
+function isLandmark(element) {
+  if (!element || !element.tagName) return false;
+  const landmarkTags = ['HEADER', 'MAIN', 'NAV', 'ASIDE', 'SECTION', 'ARTICLE', 'FOOTER'];
+  return landmarkTags.includes(element.tagName);
 }
 
-// Ensure unique landmarks by filtering duplicates
-function ensureUniqueLandmarks(landmarksArray) {
-  if (!landmarksArray || landmarksArray.length === 0) {
-      return {};
+/**
+ * Validates landmark elements in a document
+ * @param {Document} doc - The document to validate
+ * @returns {Object} - Validation results
+ */
+function validateLandmarks(doc) {
+  const results = {
+    valid: true,
+    landmarks: [],
+    errors: []
+  };
+
+  if (!doc || !doc.body) {
+    results.valid = false;
+    results.errors.push('Document body not found');
+    return results;
   }
-  const seen = new Set();
-  return landmarksArray.filter(landmark => {
-    const key = landmark.name + '_' + (landmark.role || 'default');
-    // Merge both approaches for checking uniqueness
-    if (seen.has(key)) {
-        return false;
+
+  const landmarkTags = ['header', 'main', 'nav', 'aside', 'section', 'article', 'footer'];
+  const selector = landmarkTags.join(', ');
+  const landmarks = doc.querySelectorAll(selector);
+
+  landmarks.forEach(landmark => {
+    results.landmarks.push({
+      tag: landmark.tagName.toLowerCase(),
+      id: landmark.id || null,
+      className: landmark.className || null
+    });
+  });
+
+  const hasMain = results.landmarks.some(l => l.tag === 'main');
+  if (!hasMain) {
+    results.valid = false;
+    results.errors.push('Document must contain at least one <main> landmark');
+  }
+
+  return results;
+}
+
+/**
+ * Gets all landmark elements from a container
+ * @param {HTMLElement} container - The container element
+ * @returns {HTMLElement[]} - Array of landmark elements
+ */
+function getLandmarkElements(container) {
+  if (!container) return [];
+
+  const landmarkElements = [];
+  const selector = 'header, main, nav, aside, section, article, footer';
+  const elements = container.querySelectorAll(selector);
+
+  elements.forEach(el => {
+    if (isLandmark(el)) {
+      landmarkElements.push(el);
     }
-    seen.add(key);
-    return true;
+  });
+
+  return landmarkElements;
+}
+
+// Example module pattern (common in Screeps)
+const SomeModule = {
+  // Some functionality
+};
+
+// Export the module
+module.exports.SomeModule = SomeModule;
+
+// Generalized accessibility functions
+
+function setSvgAccessibleName(svg, name) {
+  if (!svg) {
+    throw new Error('SVG element is required');
+    return;
+  }
+  svg.setAttribute('aria-label', name);
+}
+
+function improveAccessibility(container) {
+  if (!container) {
+    container = document.body;
+  }
+  if (container) {
+    renderDependencyGraphContent(container);
+  }
+
+  // Ensure all clickable elements are focusable
+  const focusable = container.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+  focusable.forEach(el => {
+    if (el.tabIndex < 0) el.tabIndex = 0;
   });
 }
 
-// ... (previous and updated code remains as it is)
-
-// Updated function: ensures landmarks uniqueness when there's an array structure
-function ensureLandmarkUniqueness(elements) {
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-
-  const elementsById = {};
-
-  if (Array.isArray(elements)) {
-    for (const landmark of elements) {
-      if (landmark.id) {
-        if (!elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
-        } else {
-          landmark.id += '_duplicate';
-        }
-      }
+function renderDependencyGraphContent(container) {
+  if (!container) return;
+  // Process the container for dependency graph content
+  const elements = container.querySelectorAll('[data-dependency]');
+  elements.forEach(el => {
+    if (el.dataset) {
+      // Process dependency data
     }
-  }
-
-  return elements;
+  });
 }
 
-// Export functions for testing
-export {
-  checkLandmarkElement,
-  ensureUniqueLandmarks,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  initApp,
-  landmarks,
-  appData,
-  icons,
+function renderDependencyGraph(dependencyData) {
+  console.log('Rendering dependency graph with data:', dependencyData);
+}
+
+function renderIndexView(indexData) {
+  console.log('Rendering index view with data:', indexData);
+}
+
+function calculateSum(a, b) {
+  return a + b;
+}
+
+function addProperLandmarkRegions(affectedElements) {
+  if (!affectedElements || !Array.isArray(affectedElements)) return;
+
+  affectedElements.forEach(el => {
+    if (el && el.tagName && !el.hasAttribute('role')) {
+      el.setAttribute('role', 'region');
+    }
+  });
+}
+
+module.exports = {
   validateLandmark,
-  ensureFocusableElements,
+  config,
+  isLandmark,
+  validateLandmarks,
+  getLandmarkElements,
+  SomeModule,
+  setSvgAccessibleName,
+  improveAccessibility,
   renderDependencyGraphContent,
-  ensureLandmarkUniqueness,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  validateLandmarkUniqueness,
+  ensureLandmarkUniqueness
 };

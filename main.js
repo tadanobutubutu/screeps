@@ -38,8 +38,21 @@ function renderApp(context) {
   return `<div id="app">${renderIndex(context)}</div>`;
 }
 
+// New function to render a statistics view
+/**
+ * Renders a statistics view
+ * @param {Object} stats - Statistics data
+ * @returns {string} The rendered HTML/content for the statistics view
+ */
+function renderStatistics(stats = {}) {
+  const content = indexContent.generateStatistics(stats);
+  // Render the statistics with the generated content
+  return `<div class="statistics-view">${content}</div>`;
+}
+
 module.exports = {
   renderDependencyGraph,
   renderIndex,
-  renderApp
+  renderApp,
+  renderStatistics // Exporting the new function
 };

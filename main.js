@@ -287,3 +287,8 @@ module.exports = {
   renderDependencyGraph,
   calculateSum
 };
+
+// Added missing calculateSum function export
+function calculateSum(a, b) {
+  return a + b;
+}

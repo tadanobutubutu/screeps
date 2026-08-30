@@ -56,6 +56,64 @@ function createInPageButton() {
   // Existing code...
 }
 
+// Implement this function for ensuring unique landmarks
+function ensureUniqueLandmarks() {
+  // Get all landmark elements
+  const landmarks = document.querySelectorAll('main, nav, header, footer, aside, section[aria-labelledby], section[aria-label], [role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="region"], [role="search"]');
+  
+  const landmarkCounts = new Map();
+  const landmarkElements = new Map();
+  
+  // First pass: count landmarks by type
+  landmarks.forEach((landmark, index) => {
+    // Determine landmark type
+    let type = landmark.tagName.toLowerCase();
+    if (landmark.hasAttribute('role')) {
+      type = landmark.getAttribute('role');
+    }
+    
+    // For section elements, use aria-label or aria-labelledby as part of the type
+    if (type === 'section' && (landmark.hasAttribute('aria-label') || landmark.hasAttribute('aria-labelledby'))) {
+      const label = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby');
+      type = `section-${label}`;
+    }
+    
+    if (!landmarkCounts.has(type)) {
+      landmarkCounts.set(type, 0);
+      landmarkElements.set(type, []);
+    }
+    
+    landmarkCounts.set(type, landmarkCounts.get(type) + 1);
+    landmarkElements.get(type).push(landmark);
+  });
+  
+  // Second pass: ensure uniqueness by adding unique identifiers where needed
+  landmarkCounts.forEach((count, type) => {
+    if (count > 1) {
+      const elements = landmarkElements.get(type);
+      elements.forEach((element, index) => {
+        // Add unique ID if not present
+        if (!element.id) {
+          element.id = `${type}-${index + 1}`;
+        }
+        // Add aria-label if not present and it's a generic landmark
+        if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+          element.setAttribute('aria-label', `${type} ${index + 1}`);
+        }
+      });
+    } else if (count === 1) {
+      const element = landmarkElements.get(type)[0];
+      // Ensure single landmarks also have proper identification
+      if (!element.id) {
+        element.id = type;
+      }
+      if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+        element.setAttribute('aria-label', type);
+      }
+    }
+  });
+}
+
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
   // 1. REACT_015: Ensure lang attribute is set on the HTML element
@@ -74,6 +132,7 @@ function fixAccessibilityIssues() {
   validateLandmarkStructure();
 
   // 4. REACT_025: Ensure unique landmarks
+  ensureUniqueLandmarks();
   validateLinkAccessibility();
   handleFakeLinks();
 
@@ -144,6 +203,7 @@ svgElements.forEach(svg => {
 });
 
 // Ensure unique landmarks
+ensureUniqueLandmarks();
 validateLinkAccessibility();
 handleFakeLinks();
 
@@ -275,3 +335,4 @@ export { specificFunctionThatRendersGraphOrIndex };
 export { fixAccessibilityIssues };
 export { wrapPrimaryContentInMain };
 export { calculateSum };
+export { ensureUniqueLandmarks };

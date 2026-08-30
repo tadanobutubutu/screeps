@@ -1,10 +1,10 @@
 const fs = require('fs');
 const path = require('path');
-const config = require('./config');
+const config = {};
 const logger = require('./utils/logger');
 
 // Initial setup
-const app = ...;
+const app = {};
 let isInitialized = false;
 const appData = {};
 
@@ -57,11 +57,11 @@ function handleAccessibilityIssues() {
 // Returns an array of accessibility violations found.
 // @param {Document} document - The DOM document to check
 // @returns {Array} Array of accessibility issues found
-function checkLinkAndButtonAccessibility(document) {
+function checkAccessibility(document) {
   // ... Existing implementation ...
 
   module.exports = {
-    checkLinkAndButtonAccessibility,
+    checkAccessibility,
     processLandmarks,
     addLandmarks,
     addProperLandmarkRegions,
@@ -85,7 +85,7 @@ function addLandmarks(landmarks) {
   landmarks.forEach(landmark => {
     // Perform any necessary operations on the landmark
     // For example, you might want to add it to a map or a database, or calculate the distance to another landmark
-    console.log(`Adding landmark: ${landmark.name} at coordinates: ${landmark.coordinates}`);
+    console.log(`Adding landmark: ${landmark.name} at coordinates: ...`);
   });
 }
 
@@ -138,7 +138,7 @@ function App() {
   );
 }
 
-export function getUniqueLandmarkName(baseName, existingNames) {
+export function getUniqueLandmarkName(existingNames, baseName) {
   if (!existingNames.includes(baseName)) {
     return baseName;
   }
@@ -152,7 +152,7 @@ export function getUniqueLandmarkName(baseName, existingNames) {
 }
 
 export function validateLandmarks() {
-  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+  const landmarks = document.querySelectorAll('[role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
 
@@ -182,7 +182,7 @@ export function addLandmarks(landmarks) {
   processLandaments(landmarks);
 }
 
-export function getSvgAccessibleName(svgElement, accessibleName) {
+export function addSvgAccessibleName(svgElement, accessibleName) {
   if (!svgElement) return;
 
   // Add title element as first child
@@ -208,14 +208,14 @@ export function addScopeToHeaders(table) {
   const headers = table.querySelectorAll('th');
   headers.forEach(th => {
     const row = th.parentElement;
-    const rowIndex = Array.from(row.children).indexOf(th);
-    const cellsAbove = Array.from(table.querySelectorAll('tr')).slice(0, rowIndex);
+    const rowIndex = row.rowIndex;
+    const cellsAbove = Array.from(row.parentElement.rows).slice(0, rowIndex);
 
     // Check if this header has cells below it in the same column
     const hasCellsBelow = cellsAbove.length > 0;
 
     // Check if this header has cells to the right in the same row
-    const cellsInRow = Array.from(row.children);
+    const cellsInRow = Array.from(row.cells);
     const hasCellsRight = cellsInRow.indexOf(th) < cellsInRow.length - 1;
 
     if (hasCellsBelow) {
@@ -279,4 +279,6 @@ export function prefersReducedMotion() {
 
 export function setAriaExpanded(element, isExpanded) {
   if (element) {
-    element.setAttribute('aria-expanded', isExp
+    element.setAttribute('aria-expanded', isExpanded);
+  }
+}

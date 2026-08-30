@@ -4,10 +4,10 @@
 // - REACT_025: Ensure unique landmarks
 
 // Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(element, options = {}) {
+function manageKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
-  element.addEventListener('keydown', (event) => {
+  return (event) => {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -28,7 +28,7 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-  });
+  };
 }
 
 // Helper to manage focus within a container
@@ -40,7 +40,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  container.addEventListener('keydown', (event) => {
+  return (event) => {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -50,12 +50,12 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  });
+  };
 }
 
 // Function to ensure landmarks have unique identifiers
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="region"]');
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article');
   let uniqueIds = [];
 
   function generateUniqueId() {
@@ -66,8 +66,8 @@ function ensureUniqueLandmarks() {
     const existingIds = uniqueIds.map((id) => id.split('-')[1]);
     let id;
 
-    while (existingIds.includes(landmark.id.split('-')[1])) {
-      id = generateUniqueId();
+    while (existingIds.includes(id)) {
+      id = generateUniqueId().split('-')[1];
     }
 
     uniqueIds.push(id);
@@ -108,8 +108,8 @@ function initializeAccessibility() {
   // Return the announcer for use in the app
   return {
     announce: announcer.announce,
-    setupKeyboardNavigation,
     trapFocus,
+    ensureUniqueLandmarks,
     prefersReducedMotion
   };
 }
@@ -181,8 +181,9 @@ function deepClone(obj) {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     initializeAccessibility,
-    setupKeyboardNavigation,
+    manageKeyboardNavigation,
     trapFocus,
+    ensureUniqueLandmarks,
     createAnnouncer,
     prefersReducedMotion,
     isEmpty,

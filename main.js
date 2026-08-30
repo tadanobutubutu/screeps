@@ -34,7 +34,7 @@ function BookItem(book) {
 }
 
 // Function to create a new book entry in the Redux store
-function addBook(book) {
+export function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 

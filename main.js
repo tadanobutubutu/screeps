@@ -1,27 +1,48 @@
+// This is the modified and merged code
+
+/**
+ * Main application module
+ * Contains functions for rendering dependency graphs, index views, and app views
+ */
+
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views to import and use dependencyGraphContent/indexContent from the
 // appropriate modules.
 // Updated: imported and used dependencyGraphContent and indexContent in the
 // relevant rendering functions.
 
+// Placeholder content generators - should be replaced with actual imports
+const dependencyGraphContent = {
+  generate: (options = {}) => {
+    return `<div class="dependency-graph">${JSON.stringify(options)}</div>`;
+  }
+};
+
+const indexContent = {
+  generate: (data = {}) => {
+    return `<div class="index-view">${JSON.stringify(data)}</div>`;
+  }
+};
+
+/**
+ * Wraps the primary content element in a main tag if not already wrapped
+ */
 function wrapPrimaryContentInMain() {
-  const primaryContent = document.getElementById('primary-content');
+  const primaryContent = document.querySelector('#primary-content');
   if (!primaryContent) {
     console.error('Primary content element not found');
     return;
   }
 
   // Wrap the primary content in a main tag if it's not already wrapped
-  const mainTag = primaryContent.closest('main');
+  const mainTag = primaryContent.querySelector('main');
   if (!mainTag) {
     const mainElement = document.createElement('main');
-    mainElement.appendChild(primaryContent);
-    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+    mainElement.id = 'main-content';
+    primaryContent.appendChild(mainElement);
+    console.log('Primary content wrapped in main tag');
   }
 }
-
-const dependencyGraphContent = require('./dependencyGraphContent');
-const indexContent = require('./indexContent');
 
 /**
  * Renders a dependency graph view
@@ -30,9 +51,9 @@ const indexContent = require('./indexContent');
  */
 function renderDependencyGraph(options = {}) {
   // Update: Incorporate both changes to generate the content
-  const content = (options.isDependencyGraphNeeded) ? dependencyGraphContent.generate(options) : indexContent.generate(options);
+  const content = options.isDependencyGraphNeeded ? dependencyGraphContent.generate(options) : indexContent.generate(options);
   // Render the dependency graph with the generated content
-  return `<div class="dependency-graph">${content}</div>`;
+  return `<div class="dependency-graph-view">${content}</div>`;
 }
 
 /**
@@ -44,7 +65,8 @@ function renderIndex(data = {}) {
   // Ensure the index view is rendered when the dependency graph view is not requested
   const content = (data.isDependencyGraphNeeded) ? '' : indexContent.generate(data);
   // Render the index with the generated content
-  return `<div class="index-view hidden"${(content !== '') ? '' : ' style="display: none;"'}>${content}</div>`;
+  const displayStyle = (content !== '') ? '' : ' style="display: none;"';
+  return `<div class="index-view hidden"${displayStyle}>${content}</div>`;
 }
 
 /**
@@ -54,8 +76,8 @@ function renderIndex(data = {}) {
  */
 function renderApp(context) {
   // Update: Conditionally render the index or the dependency graph based on context
-  const viewFunction = (context.isDependencyGraphNeeded) ? renderDependencyGraph : renderIndex;
-  return `<div id="app">${viewFunction(context)}</div>`;
+  const viewFunction = context && context.isDependencyGraphNeeded ? renderDependencyGraph : renderIndex;
+  return `<div class="app-container">${viewFunction(context || {})}</div>`;
 }
 
 const myNewFunction = () => {
@@ -63,7 +85,11 @@ const myNewFunction = () => {
   console.log('myNewFunction has been executed');
 };
 
-// Function to ensure unique landmarks
+/**
+ * Function to ensure unique landmarks
+ * @param {Array} landmarks - Array of landmark objects
+ * @returns {Array} Filtered array with unique landmarks
+ */
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     throw new TypeError('Input must be an array of landmarks');

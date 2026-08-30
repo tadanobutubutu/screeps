@@ -370,7 +370,9 @@ module.exports = {
   renderGraphContentWithOptions,
   renderIndexContentWithOptions,
   fixUniqueLandmarks,
-  capitalizeFirstLetter
+  capitalizeFirstLetter,
+  addLandmarkRoles,
+  fixLandmarkIssues
 };
 
 main();

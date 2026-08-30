@@ -119,10 +119,11 @@ function displayModuleStructure(moduleName) {
   // Assume some logic here to actually display the structure
 }
 
-// TODO: This is the new function request
-function newFunction() {
-  // Implement the new function here
-  console.log("New Function has been called!");
+// New function to render index view
+function renderIndexView() {
+  // Placeholder for actual implementation
+  console.log('Rendering index view');
+  // Assume some logic here to actually render the index view
 }
 
 // Export functions for testing
@@ -132,5 +133,5 @@ module.exports = {
   checkLandmarkElements,
   renderDependencyGraph,
   displayModuleStructure,
-  newFunction
+  renderIndexView
 };

@@ -1,5 +1,3 @@
-// TODO: Implement the new function as per the issue requirements
-
 // main.js - Combined utility and accessibility features
 
 // Existing functionality preserved
@@ -16,10 +14,10 @@ function processData(input) {
 }
 
 // Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(element, options = {}) {
+function setupKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
-  element.addEventListener('keydown', (event) => {
+  return (event) => {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -40,7 +38,7 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-  });
+  };
 }
 
 // Helper to manage focus within a container
@@ -52,7 +50,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  container.addEventListener('keydown', (event) => {
+  return (event) => {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -62,7 +60,7 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  });
+  };
 }
 
 // ARIA live region announcer
@@ -99,8 +97,6 @@ function initializeAccessibility() {
     prefersReducedMotion
   };
 }
-
-// TODO: add the new functions or changes requested in the issue
 
 /**
  * Checks if a value is an empty string, null, or undefined
@@ -166,8 +162,8 @@ function deepClone(obj) {
 }
 
 // Add accessible names to SVG elements
-function addAccessibleNamesToSvg() {
-  const svgs = document.querySelectorAll('svg');
+function addAccessibleNamesToSvg(container) {
+  const svgs = container.querySelectorAll('svg');
   if (svgs.length >= 2) {
     svgs[0].setAttribute('aria-label', 'First SVG');
     svgs[1].setAttribute('aria-label', 'Second SVG');
@@ -197,6 +193,7 @@ if (typeof module !== 'undefined' && module.exports) {
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     window.accessibilityFeatures = initializeAccessibility();
-    addAccessibleNamesToSvg();
+    // Export accessibility features globally
+    window.addAccessibleNamesToSvg = addAccessibleNamesToSvg;
   });
 }

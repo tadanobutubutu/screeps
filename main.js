@@ -13,6 +13,14 @@ functionB = {
   Z: 'valueZ2'
 };
 
+// ** NEW FUNCTION **
+function countDependencies() {
+  const functionATotalDependencies = Object.keys(functionA).length;
+  const functionBTotalDependencies = Object.keys(functionB).length;
+
+  return functionATotalDependencies + functionBTotalDependencies;
+}
+
 // ----- END ORIGINAL CODE -------
 
 // Accessibility fixes as per insight report
@@ -33,7 +41,7 @@ function setLangAttribute(lang = 'en') {
 function initAccessibility() {
   // REACT_015: Add lang attribute
   setLangAttribute();
-  
+
   // REACT_025: Add skip link functionality for keyboard users
   const skipLink = document.getElementById('main-content') || document.querySelector('main');
   if (skipLink) {
@@ -42,7 +50,7 @@ function initAccessibility() {
       this.removeAttribute('tabindex');
     });
   }
-  
+
   // Ensure all interactive elements are keyboard accessible
   const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
   interactiveElements.forEach(function(element) {
@@ -58,5 +66,7 @@ module.exports = {
   functionA,
   functionB,
   setLangAttribute,
-  initAccessibility
+  initAccessibility,
+  // Add the new function to exports
+  countDependencies
 };

@@ -353,4 +353,3 @@ module.exports.loop = function() {
     if(harvesters.length < 2) {
         var newName = 'Harvester' + Game.time;
         Game.sp
-```

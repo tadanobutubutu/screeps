@@ -188,7 +188,7 @@ function ensureUniqueLandmarks() {
   landmarks.forEach((landmark) => {
     const id = landmark.id;
     if (landmarkIds.has(id)) {
-      console.error('Duplicate landmark ID encountered:', id);
+      console.error('Duplicate landmar ID encountered:', id);
     } else {
       landmarkIds.add(id);
     }

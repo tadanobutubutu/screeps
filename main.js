@@ -137,12 +137,54 @@ function displayModuleStructure(modules) {
   return result;
 }
 
+/**
+ * Renders an index view, typically for a collection or list of items,
+ * consolidating existing rendering logic with module structure display.
+ * @param {Object} data - Data object containing items to render in the index view
+ * @returns {string} Formatted index view
+ */
+function renderIndexView(data) {
+  if (!data || typeof data !== 'object') {
+    return 'Invalid data object';
+  }
+
+  const items = Array.isArray(data.items) ? data.items : [];
+  let result = 'Index View:\n';
+  result += `Title: ${data.title || 'Untitled'}\n`;
+  result += `Total items: ${items.length}\n\n`;
+
+  items.forEach((item, index) => {
+    result += `${index + 1}. ${item.name || `Item ${index + 1}`}\n`;
+
+    if (item.description) {
+      result += `   Description: ${item.description}\n`;
+    }
+
+    if (item.version) {
+      result += `   Version: ${item.version}\n`;
+    }
+
+    if (item.dependencies && Array.isArray(item.dependencies)) {
+      result += `   Dependencies: ${item.dependencies.join(', ')}\n`;
+    }
+
+    if (item.exports) {
+      result += `   Exports: ${JSON.stringify(item.exports)}\n`;
+    }
+
+    result += '\n';
+  });
+
+  return result;
+}
+
 // Export the new functions if needed
 module.exports = {
   // ... existing exports would go here
   renderDependencyGraph,
   renderDependencyTree,
   renderDependencyList,
-  displayModuleStructure
+  displayModuleStructure,
+  renderIndexView
   // ... other existing exports
 };

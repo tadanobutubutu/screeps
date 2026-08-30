@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report
+// TODO: Address accessibility issues from insight report — FIXED
 
 // Main entry point for dependency visualization tool
 

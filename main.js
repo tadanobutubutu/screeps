@@ -14,7 +14,7 @@ const parseJSON = require('./main').parseJSON;
 const debounce = require('./main').debounce;
 const throttle = require('./main').throttle;
 
-// Additional utility functions for accessibility
+// New functions for accessibility
 function getLangAttribute() {
   // Implementation for REACT_015: Add lang attribute to HTML element
   // ...

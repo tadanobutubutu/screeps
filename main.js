@@ -52,7 +52,22 @@ function wrapPrimaryContentInMain() {
 }
 
 function validateTableAccessibility() {
-    // Validate table accessibility issues
+    const doc = getDocument();
+    if (!doc) return false;
+    const tables = doc.querySelectorAll('table');
+    let issues = [];
+    tables.forEach(table => {
+        if (!table.querySelector('caption')) {
+            issues.push('Missing caption');
+        }
+        const thElements = table.querySelectorAll('th');
+        thElements.forEach(th => {
+            if (!th.getAttribute('scope')) {
+                issues.push('Missing scope attribute on th');
+            }
+        });
+    });
+    return issues.length === 0;
 }
 
 // REACT_015: Add lang attribute to HTML element

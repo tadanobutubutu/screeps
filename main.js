@@ -1,10 +1,8 @@
-Here is the resolved file content:
-
-```javascript
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
+import { List, Form, Input, Button, UUID } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { List, Button } from 'antd';
+import { useId } from '@react-aria/utils';
 
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
@@ -18,6 +16,9 @@ function sortByTitle(a, b) {
 function sortByAuthor(a, b) {
   return b.author.localeCompare(a.author);
 }
+
+// Default sorting configuration
+const defaultSorting = { type: 'title', direction: 'asc' };
 
 // Function to generate a key for each book item
 function generateKey(book) {
@@ -36,6 +37,19 @@ function BookItem(book) {
   );
 }
 
+// Function to validate the landmark property of a book
+function validateLandmark(book) {
+  if (!book || typeof book !== 'object') {
+    return false;
+  }
+
+  if (!book.landmark || typeof book.landmark !== 'string' || book.landmark.trim() === '') {
+    return false;
+  }
+
+  return true;
+}
+
 // Function to create a new book entry in the Redux store
 function addBook(book) {
   // Perform any necessary validation or processing before adding the book
@@ -45,9 +59,70 @@ function addBook(book) {
   return { type: 'ADD_BOOK', payload: book };
 }
 
+// Container for the dependency graph with proper ARIA role for accessibility
+function DependencyGraph({ nodes, edges }) {
+  return (
+    <div
+      className="dependency-graph"
+      role="img"
+      aria-label="Dependency graph showing relationships between books and authors"
+      tabIndex={0}
+    >
+      {/* Render graph nodes and edges */}
+      {/* ... */}
+    </div>
+  );
+}
+
+// REACT_041: Function to get the accessible name from an SVG element
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return '';
+  return (
+    svgElement.getAttribute('aria-label') ||
+    svgElement.getAttribute('aria-labelledby') ||
+    svgElement.querySelector('title')?.textContent ||
+    ''
+  );
+}
+
+// REACT_041: Function to set accessible attributes on SVG elements
+function setSvgAttributes(svgElement, accessibleName) {
+  if (!svgElement) return;
+  svgElement.setAttribute('role', 'img');
+  svgElement.setAttribute('aria-label', accessibleName);
+  if (!svgElement.querySelector('title')) {
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = accessibleName;
+    svgElement.insertBefore(title, svgElement.firstChild);
+  }
+}
+
+// REACT_036: Function to validate link accessibility (href, accessible name, not fake link)
+function validateLinkAccessibility(linkElement) {
+  if (!linkElement) return false;
+  const href = linkElement.getAttribute('href');
+  const accessibleName = linkElement.getAttribute('aria-label') || linkElement.textContent.trim();
+  // A real link should have a non-empty href and an accessible name
+  return href !== null && href !== '' && href !== '#' && accessibleName.length > 0;
+}
+
+// REACT_036: Function to handle fake links (divs/buttons styled as links) and convert to accessible elements
+function handleFakeLinks(fakeLinkElements) {
+  if (!Array.isArray(fakeLinkElements)) return;
+  for (const el of fakeLinkElements) {
+    // Replace fake link with a proper accessible element
+    el.setAttribute('role', 'button');
+    el.setAttribute('tabindex', '0');
+    if (!el.getAttribute('aria-label') && !el.textContent.trim()) {
+      el.setAttribute('aria-label', 'Button');
+    }
+  }
+}
+
 // Function to render a form for adding a new book and to handle form submission
 function AddBookForm() {
-  const [book, setBook] = useState({ title: '', author: '' });
+  const formId = useId();
+  const [book, setBook] = useState({ title: '', author: '', id: UUID.generate() });
   const dispatch = useDispatch();
 
   const handleSubmit = (event) => {
@@ -60,7 +135,7 @@ function AddBookForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} id={formId}>
       <label>
         Title:
         <input
@@ -84,9 +159,6 @@ function AddBookForm() {
   );
 }
 
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
-
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
   const sortedList = getBooksList().sort(sortByTitle);
@@ -101,16 +173,25 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
-// Container for the dependency graph with proper ARIA role for accessibility
-function DependencyGraph({ nodes, edges }) {
+function Main() {
+  const dispatch = useDispatch();
+  const [sorting, setSorting] = useState(defaultSorting);
+
+  // ... (Existing useEffect hook)
+
+  // Map the book list to the BookItem function to create book items
+  const bookItems = ...
+
+  // Render the list of book items, sorting controls, and the AddBookForm
   return (
-    <div
-      className="dependency-graph"
-      role="img"
-      aria-label="Dependency graph showing relationships between books and authors"
-      tabIndex={0}
-    >
-      {/* Render graph nodes and edges */}
+    <div>
+      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      <AddBookForm />
+      <section role="region" aria-label="Book dependency graph" aria-roledescription="dependencyGraph">
+        <List dataSource={bookItems} />
+      </section>
+      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
     </div>
   );
@@ -132,6 +213,3 @@ export {
   AddBookForm,
   DependencyGraph
 };
-```
-
-This resolved file combines elements from both versions of the `main.js` file. It includes the list component, sorting functions, book item rendering, and add book form from the original version, as well as the `DependencyGraph` component from the other version. To resolve potential conflicts, I prioritized keeping functionalities such as the add book form and list rendering, and adapted the component imports accordingly.

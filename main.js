@@ -174,6 +174,32 @@ function validateAllTables() {
   };
 }
 
+/**
+ * Renders the index view by generating HTML representation of all tables
+ * @returns {string} HTML string representing the index view of tables
+ */
+function renderIndexView() {
+  const tables = getTables();
+  let html = '<div class="index-view">';
+  
+  tables.forEach((table, index) => {
+    html += `<section class="table-summary" aria-labelledby="table-${index}-title">`;
+    html += `<h2 id="table-${index}-title">Table ${index + 1}</h2>`;
+    
+    if (table.ariaLabel || table.caption) {
+      html += `<h3 aria-hidden="true">${table.ariaLabel || table.caption}</h3>`;
+    }
+    
+    html += `<p><strong>Headers:</strong> ${table.headers ? table.headers.join(', ') : 'None'}</p>`;
+    html += `<p><strong>Rows:</strong> ${table.rows ? table.rows.length : 0}</p>`;
+    html += `<p><strong>Columns:</strong> ${table.headers ? table.headers.length : 0}</p>`;
+    html += `</section>`;
+  });
+  
+  html += '</div>';
+  return html;
+}
+
 // Module exports
 module.exports = {
   initialize,
@@ -183,5 +209,6 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  renderIndexView
 };

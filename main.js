@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// Main application file
+
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];

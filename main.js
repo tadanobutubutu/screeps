@@ -232,7 +232,32 @@ function addressInsightIssues(insightReport) {
 }
 
 function renderDependencyGraph(dependencyData) {
-  console.log('Rendering dependency graph with data:', dependencyData);
+  if (!dependencyData) {
+    console.log('No dependency data provided');
+    return;
+  }
+  
+  console.log('%cDependency Graph', 'color: blue; font-weight: bold');
+  console.log('==================');
+  
+  // Process and display dependency data
+  if (typeof dependencyData === 'object') {
+    Object.keys(dependencyData).forEach(module => {
+      const deps = dependencyData[module];
+      console.log(`%c${module}`, 'color: green');
+      if (Array.isArray(deps)) {
+        deps.forEach(dep => {
+          console.log(`  └─ ${dep}`);
+        });
+      } else if (typeof deps === 'object' && deps !== null) {
+        Object.keys(deps).forEach(dep => {
+          console.log(`  └─ ${dep}: ${deps[dep]}`);
+        });
+      }
+    });
+  } else {
+    console.log(dependencyData);
+  }
 }
 
 function renderIndexView(indexData) {
@@ -253,6 +278,100 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+/**
+ * Displays module structure for debugging purposes
+ * @param {Object|Array} modules - Module data to display
+ * @param {Object} options - Display options
+ */
+function displayModuleStructure(modules, options = {}) {
+  if (!modules) {
+    console.log('No modules data provided');
+    return;
+  }
+  
+  const {
+    showDependencies = true,
+    showExports = true,
+    showPath = false
+  } = options;
+  
+  console.log('%cModule Structure', 'color: purple; font-weight: bold');
+  console.log('==================');
+  
+  // Handle array of modules
+  if (Array.isArray(modules)) {
+    modules.forEach((module, index) => {
+      const isLast = index === modules.length - 1;
+      const prefix = isLast ? '└─' : '├─';
+      const moduleName = module.name || module.id || `Module ${index + 1}`;
+      console.log(`${prefix} ${moduleName}`);
+      
+      if (showPath && module.path) {
+        console.log(`    Path: ${module.path}`);
+      }
+      
+      if (showDependencies && module.dependencies && Array.isArray(module.dependencies)) {
+        module.dependencies.forEach((dep, depIndex) => {
+          const isLastDep = depIndex === module.dependencies.length - 1;
+          const depPrefix = isLast ? '   ' : '│  ';
+          const depConnector = isLastDep ? '└─' : '├─';
+          console.log(`${depPrefix}${depConnector} depends on: ${dep}`);
+        });
+      }
+      
+      if (showExports && module.exports) {
+        const exports = Array.isArray(module.exports) ? module.exports : Object.keys(module.exports);
+        exports.forEach((exp, expIndex) => {
+          const isLastExp = expIndex === exports.length - 1;
+          const expPrefix = isLast ? '   ' : '│  ';
+          const expConnector = isLastExp ? '└─' : '├─';
+          const expName = typeof exp === 'string' ? exp : JSON.stringify(exp);
+          console.log(`${expPrefix}${expConnector} exports: ${expName}`);
+        });
+      }
+    });
+  } 
+  // Handle object with module names as keys
+  else if (typeof modules === 'object') {
+    Object.keys(modules).forEach(moduleName => {
+      const module = modules[moduleName];
+      console.log(`%c${moduleName}`, 'color: green');
+      
+      if (showDependencies) {
+        if (module.dependencies) {
+          console.log('  Dependencies:');
+          if (Array.isArray(module.dependencies)) {
+            module.dependencies.forEach(dep => {
+              console.log(`    - ${dep}`);
+            });
+          } else if (typeof module.dependencies === 'object') {
+            Object.keys(module.dependencies).forEach(dep => {
+              console.log(`    - ${dep}: ${module.dependencies[dep]}`);
+            });
+          }
+        }
+      }
+      
+      if (showExports && module.exports) {
+        console.log('  Exports:');
+        if (Array.isArray(module.exports)) {
+          module.exports.forEach(exp => {
+            console.log(`    - ${exp}`);
+          });
+        } else if (typeof module.exports === 'object') {
+          Object.keys(module.exports).forEach(key => {
+            console.log(`    - ${key}: ${module.exports[key]}`);
+          });
+        }
+      }
+      
+      if (showPath && module.path) {
+        console.log(`  Path: ${module.path}`);
+      }
+    });
+  }
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +390,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  displayModuleStructure
 };

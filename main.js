@@ -253,6 +253,22 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+/**
+ * Counts the number of elements with a data-dependency attribute in the given container.
+ * @param {HTMLElement|Document} [container] - The container to search in. Defaults to document.body.
+ * @returns {number} - The count of elements with data-dependency attribute.
+ */
+function countDependencies(container) {
+  if (!container) {
+    container = document.body;
+  }
+  if (!container) {
+    return 0;
+  }
+  const elements = container.querySelectorAll('[data-dependency]');
+  return elements.length;
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +287,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  countDependencies
 };

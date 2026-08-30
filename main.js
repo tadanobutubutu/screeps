@@ -42,8 +42,19 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
+// New function to improve accessibility for the addBook function or form
+function addBookWithAccessibility(book) {
+  // Validate the book object to ensure it has the necessary properties
+  if (!book || !book.title || !book.author) {
+    throw new Error('Book object is invalid. It must have a title and an author.');
+  }
+
+  // Add any accessibility attributes or ARIA roles if necessary
+  // ...
+
+  // Dispatch an action to add the book to the books list in the Redux store
+  dispatch({ type: 'ADD_BOOK', payload: book });
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;

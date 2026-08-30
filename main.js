@@ -604,6 +604,7 @@ module.exports.renderIndexView = renderIndexView;
 module.exports.newFunction = newFunction;
 module.exports.preserveExistingCode = preserveExistingCode;
 module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
+module.exports.renderGraphIndex = renderGraphIndex;
 
 // Function to render graph/index using new functions
 function renderGraphIndex() {

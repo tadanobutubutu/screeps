@@ -3,7 +3,6 @@
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
 // Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
 
 // Utility functions for accessibility
 const accessibilityUtils = {
@@ -91,19 +90,6 @@ const renderDependencyGraph = (data) => {
 };
 
 // Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
-
-function newFocusTrap() {
-  // New function implementation
-}
 
 // Add back any required exports that might have been removed.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:

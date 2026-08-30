@@ -17,6 +17,7 @@ function addressAccessibilityIssues() {
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
   }
   // ... any new code or functions requested in the issue ...
+  addProperLandmarkRegions();
 
   // TODO: This is the existing code that needs to be preserved
   // _Commit: 07177d2c69c06fd1dfe3543ad6d3c81baa3c821f_
@@ -317,6 +318,89 @@ function implementNewFunction() {
   fixUniqueLandmarks();
 }
 
+function addProperLandmarkRegions() {
+  // Ensure proper landmark regions are added to the page
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
+  
+  landmarkRoles.forEach(role => {
+    const existingElements = document.querySelectorAll(`[role="${role}"]`);
+    
+    if (existingElements.length === 0) {
+      // If no element with this role exists, create one
+      let landmarkElement;
+      
+      if (role === 'banner') {
+        // Look for header elements that could serve as banner
+        const header = document.querySelector('header');
+        if (header) {
+          header.setAttribute('role', 'banner');
+        } else {
+          landmarkElement = document.createElement('div');
+          landmarkElement.setAttribute('role', 'banner');
+          landmarkElement.setAttribute('aria-label', 'Site Header');
+          document.body.insertBefore(landmarkElement, document.body.firstChild);
+        }
+      } else if (role === 'main') {
+        // Main landmark is handled by addMainLandmark(), but ensure it's properly set
+        const mainElements = document.querySelectorAll('main');
+        if (mainElements.length === 0) {
+          landmarkElement = document.createElement('main');
+          landmarkElement.setAttribute('role', 'main');
+          landmarkElement.setAttribute('aria-label', 'Main Content');
+          document.body.appendChild(landmarkElement);
+        }
+      } else if (role === 'navigation') {
+        // Look for nav elements that could serve as navigation
+        const nav = document.querySelector('nav');
+        if (nav) {
+          nav.setAttribute('role', 'navigation');
+        } else {
+          landmarkElement = document.createElement('nav');
+          landmarkElement.setAttribute('role', 'navigation');
+          landmarkElement.setAttribute('aria-label', 'Navigation');
+          document.body.appendChild(landmarkElement);
+        }
+      } else if (role === 'contentinfo') {
+        // Look for footer elements that could serve as contentinfo
+        const footer = document.querySelector('footer');
+        if (footer) {
+          footer.setAttribute('role', 'contentinfo');
+        } else {
+          landmarkElement = document.createElement('footer');
+          landmarkElement.setAttribute('role', 'contentinfo');
+          landmarkElement.setAttribute('aria-label', 'Footer Content');
+          document.body.appendChild(landmarkElement);
+        }
+      } else if (role === 'search') {
+        // Look for search elements
+        const search = document.querySelector('[role="search"], .search, #search');
+        if (search) {
+          search.setAttribute('role', 'search');
+        } else {
+          landmarkElement = document.createElement('div');
+          landmarkElement.setAttribute('role', 'search');
+          landmarkElement.setAttribute('aria-label', 'Search');
+          document.body.appendChild(landmarkElement);
+        }
+      } else if (role === 'form') {
+        // Look for form elements
+        const formElements = document.querySelectorAll('form');
+        if (formElements.length > 0 && !formElements[0].hasAttribute('role')) {
+          formElements[0].setAttribute('role', 'form');
+        }
+      } else if (role === 'complementary') {
+        // Look for aside elements
+        const aside = document.querySelector('aside');
+        if (aside) {
+          aside.setAttribute('role', 'complementary');
+        }
+      }
+    }
+  });
+  
+  return null;
+}
+
 function main() {
   console.log('Running main application');
   implementNewFunction(); // Address accessibility issues from insight report
@@ -349,7 +433,8 @@ module.exports = {
   renderGraphContentWithOptions,
   renderIndexContentWithOptions,
   fixUniqueLandmarks,
-  capitalizeFirstLetter
+  capitalizeFirstLetter,
+  addProperLandmarkRegions
 };
 
 main();

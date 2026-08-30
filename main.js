@@ -7,22 +7,22 @@ import { List } from 'antd';
 const getBooksList = useSelector(state => state.books.list);
 
 // Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
+export function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
 }
 
 // Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
+export function sortByAuthor(a, b) {
   return b.author.localeCompare(a.author);
 }
 
 // Function to generate a key for each book item
-function generateKey(book) {
+export function generateKey(book) {
   return `${book.id}-${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
-function BookItem(book) {
+export function BookItem(book) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
@@ -34,7 +34,7 @@ function BookItem(book) {
 }
 
 // Function to create a new book entry in the Redux store
-function addBook(book) {
+export function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
@@ -46,17 +46,17 @@ function addBook(book) {
 // ...
 
 // Default sorting function for the book list
-const defaultSorting = sortByTitle;
+export const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
+export function onTitleSort() {
   const sortedList = [...getBooksList].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
+export function onAuthorSort() {
   const sortedList = [...getBooksList].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });

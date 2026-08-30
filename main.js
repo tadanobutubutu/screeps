@@ -9,7 +9,7 @@
 
 // TODO: This is the existing code that needs to be preserved
 // (This should be preserved)
-// Addressed accessibility issues from insight report
+// Accessibility issues from insight report have been addressed
 
 // ... (other code in main.js)
 

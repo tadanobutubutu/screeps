@@ -1,50 +1,46 @@
-// Import necessary dependencies
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
 
-// Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
+const dispatch = useDispatch();
 
-// Function to handle sorting books by title (ascending)
+function createButton(label, onClick, className = '', disabled = false) {
+  return (
+    <button onClick={onClick} className={className} disabled={disabled}>
+      {label}
+    </button>
+  );
+}
+
 export function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
 }
 
-// Function to handle sorting books by author (descending)
 export function sortByAuthor(a, b) {
   return b.author.localeCompare(a.author);
 }
 
-// Function to generate a key for each book item
 function generateKey(book) {
-  return book.id ? `book-${book.id}` : `book-${book.title}-${book.author}`;
+  return `book-${book.id || Math.random().toString(36).slice(2)}`;
 }
 
-// Function to render a single book item
 export function BookItem(book) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        ...
+        description={book.author}
       />
     </List.Item>
   );
 }
 
-// Function to create a new book entry in the Redux store
 function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
-
-  // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-// Function to address accessibility issues from insight report
 function addressAccessibilityIssues() {
-  // Create and inject ARIA live region for screen reader announcements
   const liveRegion = document.createElement('div');
   liveRegion.setAttribute('role', 'status');
   liveRegion.setAttribute('aria-live', 'polite');
@@ -53,7 +49,6 @@ function addressAccessibilityIssues() {
   liveRegion.id = 'a11y-live-region';
   document.body.appendChild(liveRegion);
 
-  // Function to announce dynamic content changes to screen readers
   function announceToScreenReader(message) {
     if (liveRegion) {
       liveRegion.textContent = '';
@@ -63,7 +58,6 @@ function addressAccessibilityIssues() {
     }
   }
 
-  // Function to manage focus for keyboard accessibility
   function manageFocus(elementId) {
     const element = document.getElementById(elementId);
     if (element && typeof element.focus === 'function') {
@@ -71,7 +65,6 @@ function addressAccessibilityIssues() {
     }
   }
 
-  // Function to trap focus within a modal/dialog for accessibility
   function trapFocus(containerElement) {
     const focusableElements = containerElement.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -95,14 +88,9 @@ function addressAccessibilityIssues() {
     return () => containerElement.removeEventListener('keydown', handleTabKey);
   }
 
-  return {
-    announceToScreenReader,
-    manageFocus,
-    trapFocus
-  };
+  return { announceToScreenReader, manageFocus, trapFocus };
 }
 
-// Accessibility: AddBookForm component with proper labels and ARIA attributes
 function AddBookForm({ onAdd }) {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
@@ -165,28 +153,139 @@ function AddBookForm({ onAdd }) {
   );
 }
 
-// Default sorting function for the book list
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+function addLangAttribute(lang = 'en') {
+  document.documentElement.setAttribute('lang', lang);
+}
+
+function validateTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!table.querySelector('caption') && !table.getAttribute('aria-label')) {
+      table.setAttribute('aria-label', 'Data table');
+    }
+  });
+}
+
+function fixTableStructure() {
+  document.querySelectorAll('table tr').forEach((row, index) => {
+    if (row.querySelector('td') && !row.querySelector('th')) {
+      const isHeader = confirm('Convert row to header row?');
+      if (isHeader) {
+        row.setAttribute('role', 'rowheader');
+      }
+    }
+  });
+}
+
+function validateLandmarkStructure() {
+  const requiredLandmarks = ['main', 'navigation', 'footer'];
+  requiredLandmarks.forEach(id => {
+    if (!document.getElementById(id)) {
+      console.warn(`Missing landmark: ${id}`);
+    }
+  });
+}
+
+function validateLandmarkAttributes() {
+  document.querySelectorAll('[role]').forEach(el => {
+    const role = el.getAttribute('role');
+    if (!role.trim()) {
+      el.removeAttribute('role');
+    }
+  });
+}
+
+function addMainLandmark() {
+  const main = document.createElement('main');
+  main.id = 'main-content';
+  main.setAttribute('role', 'main');
+  document.body.insertBefore(main, document.body.firstChild);
+}
+
+function getSvgAccessibleName(svg) {
+  return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
+}
+
+function setSvgAttributes() {
+  document.querySelectorAll('svg').forEach(svg => {
+    const name = getSvgAccessibleName(svg);
+    if (name) {
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-label', name);
+    }
+  });
+}
+
+function ensureUniqueLandmarks() {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      console.warn(`Multiple ${role} landmarks found`);
+    }
+  });
+}
+
+function handleFakeLinks() {
+  document.querySelectorAll('div[onclick], span[onclick]').forEach(el => {
+    el.setAttribute('role', 'link');
+    el.setAttribute('tabindex', '0');
+  });
+}
+
+function addProperLandmarkRegions() {
+  if (!document.querySelector('header')) {
+    const header = document.createElement('header');
+    header.setAttribute('role', 'banner');
+    document.body.insertBefore(header, document.body.firstChild);
+  }
+  if (!document.querySelector('nav')) {
+    const nav = document.createElement('nav');
+    nav.setAttribute('role', 'navigation');
+    document.body.insertBefore(nav, document.body.firstChild);
+  }
+}
+
+function createInPageButton() {
+  return createButton('Jump to Top', () => window.scrollTo(0, 0), 'skip-link');
+}
+
+function validateLinkAccessibility() {
+  document.querySelectorAll('a').forEach(link => {
+    if (!link.getAttribute('href') && !link.hasAttribute('role')) {
+      link.setAttribute('role', 'button');
+    }
+  });
+}
+
 const defaultSorting = sortByTitle;
 
-// Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = ...
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+  const sortedList = [...getBooksList].sort(sortByTitle);
+  dispatch({ type: 'SORT_BOOKS', payload: sortedList });
 }
 
-// Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = ...
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+  const sortedList = [...getBooksList].sort(sortByAuthor);
+  dispatch({ type: 'SORT_BOOKS', payload: sortedList });
 }
 
-// Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const [a11y, setA11y] = useState({ announce: () => {}, manage: () => {} });
 
-  // UseEffect hook to handle sorting book list updates
+  useEffect(() => {
+    const a11yUtils = addressAccessibilityIssues();
+    setA11y({
+      announce: a11yUtils.announceToScreenReader,
+      manage: a11yUtils.manageFocus
+    });
+  }, []);
+
   useEffect(() => {
     if (sorting === sortByTitle) {
       onTitleSort();
@@ -195,37 +294,33 @@ function Main() {
     }
   }, [sorting]);
 
-  // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map((book) => BookItem(book));
+  const bookItems = getBooksList.map(book => <BookItem key={generateKey(book)} {...book} />);
 
-  // Initialize accessibility utilities
-  const { announceToScreenReader, manageFocus } = addressAccessibilityIssues();
-
-  const handleAddBook = () => {
-    // Implement the accessibility improvements
-    enhanceAccessibilityForAddBook();
-    // Add the new book as before
-    addBook();
+  const handleAddBook = (book) => {
+    addBook(book);
+    a11y.announce('New book added successfully');
   };
 
   const handleSort = (sortFunction) => () => {
-    const sortedList = [...booksList].sort(sortFunction);
-    // Dispatch an action to update the sorted book list in the Redux store
-    dispatch({ type: 'SORT_BOOKS', payload: sortedList });
     setSorting(sortFunction);
   };
 
-  // Render the list of book items and sorting controls
   return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={getBooksList} renderItem={(book) => BookItem(book)} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
-    </div>
+    <main id="main-content" role="main">
+      <header role="banner">
+        <h1>Book Library</h1>
+        <div>
+          <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
+          <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
+        </div>
+      </header>
+      <AddBookForm onAdd={handleAddBook} />
+      <List
+        dataSource={getBooksList}
+        renderItem={book => <BookItem {...book} />}
+      />
+    </main>
   );
 }
 
-// Export the Main component
 export default Main;

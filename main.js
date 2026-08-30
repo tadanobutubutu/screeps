@@ -1,8 +1,4 @@
-// TODO: Create or update the affected functions to be accessible
-// TODO: Add any updates related to new functions
-// TODO: This is the existing code that needs to be preserved
-
-// Address REACT_025 by adding ARIA roles and keyboard interaction
+// Address accessibility issues from insight report: add aria attributes
 
 // TODO: Add the necessary new functions (without strict mode)
 import React from 'react';
@@ -29,8 +25,8 @@ function fixTableStructure(table) {
   }
   
   // Move direct tr elements into tbody if they're not already inside thead/tbody
-  const rows = Array.from(table.children).filter(child => 
-    child.tagName === 'TR' && 
+  const rows = Array.from(table.children).filter(
+    child => child.tagName === 'TR' && 
     child.parentElement === table
   );
   
@@ -49,8 +45,8 @@ function addMainLandmark(reactRoot) {
   // Move the first child of reactRoot into the main landmark
   if (reactRoot.firstChild) {
     const firstChild = reactRoot.firstChild;
-    reactRoot.insertBefore(mainLandmark, firstChild);
     mainLandmark.appendChild(firstChild);
+    reactRoot.appendChild(mainLandmark);
   } else {
     reactRoot.appendChild(mainLandmark);
   }
@@ -68,7 +64,7 @@ function announceToScreenReader(message, politeness = 'polite') {
   announcement.setAttribute('aria-live', politeness);
   announcement.setAttribute('aria-atomic', 'true');
   announcement.className = 'sr-only';
-  announcement.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+  announcement.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';
   announcement.textContent = message;
   document.body.appendChild(announcement);
   setTimeout(() => announcement.remove(), 1000);
@@ -213,8 +209,10 @@ function createInPageButton(text, id, className) {
 function YouHaveComponent() {
   return (
     <div
-      tabIndex={0} // Add tabIndex to make the component interactable via keyboard
-      role="button" // Add a role to help screen readers identify this as a button
+      tabIndex={0}
+      role="button"
+      aria-label="You Have A Component"
+      aria-pressed="false"
       onClick={() => alert('Clicked!')}
       onKeyDown={(e) => handleKeyboardInteraction(e, () => alert('Clicked!'))}
     >

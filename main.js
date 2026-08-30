@@ -121,6 +121,13 @@ ensureUniqueLandmarkId('main-content');
 // Handle fake links
 handleFakeLinks();
 
+// New function to check link accessibility
+function checkLinkAccessibility() {
+  // Implementation for checking link accessibility
+  // This function will be used to validate the accessibility of links
+  return validateLinkAccessibility();
+}
+
 // ... rest of your code ...
 
 // React / UI related functions
@@ -168,12 +175,7 @@ function renderPage(data) {
   return `${header}${content}${footer}`;
 }
 
-// New function or change requested in the issue
-function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility();
-}
+// ... other functions ...
 
 // Export accessibility utility functions
 export {
@@ -186,7 +188,8 @@ export {
   getSvgAccessibleName,
   setSvgAttributes,
   validateLinkAccessibility,
-  handleFakeLinks
+  handleFakeLinks,
+  checkLinkAccessibility // Exporting the new function
 };
 
 // Export utility functions
@@ -219,8 +222,5 @@ export {
   validateAndRender,
   renderPage
 };
-
-// Export the new function
-export { checkLinkAccessibility };
 
 // ... other exports ...

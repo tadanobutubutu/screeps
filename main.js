@@ -18,6 +18,16 @@ const config = {
 };
 
 /**
+ * Sets the HTML lang attribute on the document's <html> element
+ * @param {string} lang - The language code to set
+ */
+function setHtmlLangAttribute(lang) {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.lang = lang;
+    }
+}
+
+/**
  * Detects the language of the given content and sets the HTML lang attribute
  * @param {string} [content] - The text content to analyze (optional)
  * @returns {string} The detected language code
@@ -35,9 +45,10 @@ function detectAndSetLang(content) {
     }
   } else {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
+    const hasChineseChars = /[\u4e00-\u9fff]/.test(content);
+    if (hasChineseChars) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
+    } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
     } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
@@ -50,11 +61,7 @@ function detectAndSetLang(content) {
     }
   }
 
-  // Apply to the document if available
-  if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.lang = lang;
-  }
-
+  setHtmlLangAttribute(lang);
   return lang;
 }
 
@@ -75,11 +82,11 @@ function setHtmlLangAttribute(lang) {
  * Addresses accessibility issues from an insight report
  * @param {Object|Array} insightReport - The insight report containing accessibility issues
  * @param {Object} [options] - Options for handling the issues
- * @param {boolean} [options.autoFix=false] - Whether to attempt automatic fixes
- * @param {boolean} [options.verbose=false] - Whether to log detailed information
+ * @param {boolean} autoFix - Whether to attempt automatic fixes
+ * @param {boolean} verbose - Whether to log detailed information
  * @returns {Object} A report of addressed issues
  */
-function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
+function addressAccessibilityIssues(insightReport, options = {}) {
     const { autoFix = false, verbose = false } = options;
 
     const result = {
@@ -101,7 +108,7 @@ function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
     // Normalize input to an array of issues
     const issues = Array.isArray(insightReport)
         ? insightReport
-        : (Array.isArray(insightReport.issues) ? insightReport.issues : []);
+        : (insightReport.issues ? insightReport.issues : []);
 
     result.totalIssues = issues.length;
 
@@ -433,18 +440,20 @@ function getDate() {
 
 // Get table headers
 function getTableHeaders(table) {
-    return table.querySelectorAll('th');
+    if (!table) return [];
+    return table.querySelectorAll ? Array.from(table.querySelectorAll('th')) : [];
 }
 
 // Get table rows
 function getTableRows(table) {
-    return table.querySelectorAll('tr');
+    if (!table) return [];
+    return table.querySelectorAll ? Array.from(table.querySelectorAll('tr')) : [];
 }
 
 // Validate table accessibility
 function validateTableAccessibility(tableOrUrl) {
-    const tables = typeof tableOrUrl === 'string'
-        ? document.querySelectorAll('table')
+    const tables = typeof tableOrUrl === 'string' 
+        ? (typeof document !== 'undefined' ? Array.from(document.querySelectorAll('table')) : []) 
         : [tableOrUrl];
 
     const accessibilityResults = {
@@ -457,8 +466,8 @@ function validateTableAccessibility(tableOrUrl) {
     };
 
     tables.forEach((table, index) => {
-        const headers = table.querySelectorAll('th');
-
+        const headers = table.querySelectorAll ? Array.from(table.querySelectorAll('th')) : [];
+        
         // Check if table has headers
         if (headers.length === 0) {
             accessibilityResults.issues.push({
@@ -472,7 +481,8 @@ function validateTableAccessibility(tableOrUrl) {
 
         // Check for scope attributes
         headers.forEach((header, hIndex) => {
-            if (!header.hasAttribute('scope')) {
+            const scope = header.getAttribute ? header.getAttribute('scope') : null;
+            if (!scope) {
                 accessibilityResults.issues.push({
                     table: index,
                     header: hIndex,
@@ -485,10 +495,9 @@ function validateTableAccessibility(tableOrUrl) {
         });
 
         // Check for proper associations (id/headers)
-        const cells = table.querySelectorAll('td');
+        const cells = table.querySelectorAll ? Array.from(table.querySelectorAll('td')) : [];
         if (cells.length > 0 && headers.length > 0) {
-            const hasProperAssociation = headers[0].hasAttribute('id') ||
-                cells[0].hasAttribute('headers');
+            const hasProperAssociation = cells.some(cell => cell.getAttribute && cell.getAttribute('headers'));
             if (!hasProperAssociation) {
                 accessibilityResults.issues.push({
                     table: index,
@@ -506,8 +515,8 @@ function validateTableAccessibility(tableOrUrl) {
 
 // Validate table structure
 function validateTableStructure(tableOrUrl) {
-    const tables = typeof tableOrUrl === 'string'
-        ? document.querySelectorAll('table')
+    const tables = typeof tableOrUrl === 'string' 
+        ? (typeof document !== 'undefined' ? Array.from(document.querySelectorAll('table')) : []) 
         : [tableOrUrl];
 
     const structureResults = {
@@ -522,7 +531,7 @@ function validateTableStructure(tableOrUrl) {
 
     tables.forEach((table, index) => {
         // Check for caption
-        const caption = table.querySelector('caption');
+        const caption = table.querySelector ? table.querySelector('caption') : null;
         if (!caption) {
             structureResults.issues.push({
                 table: index,
@@ -534,8 +543,8 @@ function validateTableStructure(tableOrUrl) {
         }
 
         // Check for summary (via aria-describedby or summary attribute)
-        const hasSummaryAttr = table.hasAttribute('summary');
-        const hasAriaDescription = table.hasAttribute('aria-describedby');
+        const hasSummaryAttr = table.getAttribute ? !!table.getAttribute('summary') : false;
+        const hasAriaDescription = table.getAttribute ? !!table.getAttribute('aria-describedby') : false;
         if (!hasSummaryAttr && !hasAriaDescription) {
             structureResults.issues.push({
                 table: index,
@@ -547,7 +556,7 @@ function validateTableStructure(tableOrUrl) {
         }
 
         // Check for thead
-        const thead = table.querySelector('thead');
+        const thead = table.querySelector ? table.querySelector('thead') : null;
         if (!thead) {
             structureResults.issues.push({
                 table: index,

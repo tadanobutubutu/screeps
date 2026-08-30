@@ -59,11 +59,6 @@ function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
 }
 
-// New function to address REACT_015 and REACT_036: accessible person name
-function personName() {
-  // This function should provide accessible person name handling
-}
-
 // New function to address REACT_027: Fix 26 table structure issues
 function validateTableAccessibility(tableElement) {
   if (typeof document === 'undefined' || !tableElement) {

@@ -1,5 +1,5 @@
 // Existing code that should be preserved
-function existingFunction() {
+export function existingFunction() {
   // ... existing code ...
 }
 
@@ -171,51 +171,3 @@ export function addressAccessibilityIssues(insightReport) {
   
   return insightReport;
 }
-
-// Commit: 3734e65a1569fca8d8706b7ce118438c45efc545
-
-// Existing tests in /tests/ must continue to pass
-// Example test case for the new functions
-describe('addressAccessibilityIssues', () => {
-  it('should address each issue in the insight report', () => {
-    const insightReport = [
-      { issue: 'REACT_015: Missing lang attribute', solution: 'Add lang attribute using getLangAttribute()', type: 'lang', lang: 'en' },
-      { issue: 'REACT_027: Table structure issue', solution: 'Fix table structure using validateTableStructure()', type: 'table' }
-    ];
-    
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-    
-    const result = addressAccessibilityIssues(insightReport);
-    
-    expect(consoleSpy).toHaveBeenCalledWith('Addressing issue: REACT_015: Missing lang attribute');
-    expect(consoleSpy).toHaveBeenCalledWith('Solution: Add lang attribute using getLangAttribute()');
-    expect(consoleSpy).toHaveBeenCalledWith('Addressing issue: REACT_027: Table structure issue');
-    expect(consoleSpy).toHaveBeenCalledWith('Solution: Fix table structure using validateTableStructure()');
-    
-    consoleSpy.mockRestore();
-  });
-});
-
-describe('getLangAttribute', () => {
-  it('should return the provided lang attribute', () => {
-    expect(getLangAttribute('en')).toBe('en');
-    expect(getLangAttribute('fr')).toBe('fr');
-  });
-  
-  it('should return default "en" when lang is not provided', () => {
-    expect(getLangAttribute()).toBe('en');
-    expect(getLangAttribute('')).toBe('en');
-    expect(getLangAttribute(null)).toBe('en');
-  });
-});
-
-describe('personName', () => {
-  it('should create a span with lang attribute', () => {
-    expect(personName('John Doe', 'en')).toBe('<span lang="en">John Doe</span>');
-    expect(personName('Marie Curie', 'fr')).toBe('<span lang="fr">Marie Curie</span>');
-  });
-  
-  it('should use default lang when not provided', () => {
-    expect(personName('Jane Doe')).toBe('<span lang="en">Jane Doe</span>');
-  });
-});

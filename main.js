@@ -1,12 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List, Button } from 'antd';
-
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
-
-// Get the dispatch function
-const dispatch = useDispatch();
 
 // Function to handle sorting books by title (ascending)
 function sortByTitle(a, b) {
@@ -20,72 +14,132 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `book-${book.id || book.title.toLowerCase().replace(/\s+/g, '-')}`;
+  if (book.id) {
+    return book.id;
+  }
+  const titleSlug = book.title.toLowerCase().replace(/\s+/g, '-');
+  const authorSlug = book.author.toLowerCase().replace(/\s+/g, '-');
+  return `${titleSlug}-${authorSlug}`;
 }
 
 // Function to render a single book item
-function BookItem(book) {
+function BookItem({ book }) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        description={book.author}
+        description={`by ${book.author}`}
       />
     </List.Item>
   );
 }
 
-// Function to create a new book entry in the Redux store
-function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
-
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
-}
-
-// Function to render the form for adding a new book entry
-function BookForm() {
-  const dispatch = useDispatch();
-
-  // Define state for the form inputs
+// Accessible Add Book Form component
+function AddBookForm({ onAddBook }) {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
+  const [error, setError] = useState('');
+  const titleInputRef = useRef(null);
+  const formRef = useRef(null);
 
-  // Handle input changes
-  const handleTitleChange = (e) => setTitle(e.target.value);
-  const handleAuthorChange = (e) => setAuthor(e.target.value);
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setError('');
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Perform any necessary validation or processing before adding the book
-    // ...
+    if (!title.trim()) {
+      setError('Title is required');
+      if (titleInputRef.current) {
+        titleInputRef.current.focus();
+      }
+      return;
+    }
 
-    // Dispatch an action to add the book to the books list in the Redux store
-    dispatch(addBook({ title, author }));
+    if (!author.trim()) {
+      setError('Author is required');
+      return;
+    }
+
+    onAddBook({ title: title.trim(), author: author.trim() });
+    setTitle('');
+    setAuthor('');
+    
+    // Move focus to title input after successful submission for accessibility
+    if (titleInputRef.current) {
+      titleInputRef.current.focus();
+    }
   };
 
-  // Render the form
+  const handleTitleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      // Move to author input on Enter key
+      const form = formRef.current;
+      if (form) {
+        const authorInput = form.querySelector('#add-book-author');
+        if (authorInput) {
+          authorInput.focus();
+        }
+      }
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit}>
-      <label htmlFor="title">Title:</label>
-      <input
-        type="text"
-        id="title"
-        value={title}
-        onChange={handleTitleChange}
-        aria-label="Book title"
-      />
-      <label htmlFor="author">Author:</label>
-      <input
-        type="text"
-        id="author"
-        value={author}
-        onChange={handleAuthorChange}
-        aria-label="Book author"
-      />
-      <button type="submit">Add Book</button>
+    <form 
+      ref={formRef}
+      onSubmit={handleSubmit} 
+      aria-label="Add new book form"
+      style={{ marginBottom: '16px' }}
+    >
+      <div style={{ marginBottom: '8px' }}>
+        <label htmlFor="add-book-title" id="add-book-title-label">
+          Book Title
+        </label>
+        <input
+          id="add-book-title"
+          ref={titleInputRef}
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onKeyDown={handleTitleKeyDown}
+          aria-required="true"
+          aria-labelledby="add-book-title-label"
+          placeholder="Enter book title"
+          style={{ marginLeft: '8px' }}
+        />
+      </div>
+      
+      <div style={{ marginBottom: '8px' }}>
+        <label htmlFor="add-book-author" id="add-book-author-label">
+          Author
+        </label>
+        <input
+          id="add-book-author"
+          type="text"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          aria-required="true"
+          aria-labelledby="add-book-author-label"
+          placeholder="Enter author name"
+          style={{ marginLeft: '8px' }}
+        />
+      </div>
+
+      {error && (
+        <div 
+          role="alert" 
+          aria-live="polite"
+          style={{ color: 'red', marginBottom: '8px' }}
+        >
+          {error}
+        </div>
+      )}
+
+      <button 
+        type="submit"
+        aria-describedby={error ? 'add-book-error' : undefined}
+      >
+        Add Book
+      </button>
     </form>
   );
 }
@@ -94,49 +148,34 @@ function BookForm() {
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+function onTitleSort(dispatch, list) {
+  const sortedList = [...list].sort(sortByTitle);
+  dispatch({ type: 'SET_SORTED_LIST', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-}
-
-// Placeholder for AddBookForm component (should be imported or defined elsewhere)
-const AddBookForm = ({ onSubmit }) => (
-  <form onSubmit={onSubmit}>
-    <div>
-      <label htmlFor="book-title">Title:</label>
-      <input type="text" id="book-title" name="title" required />
-    </div>
-    <div>
-      <label htmlFor="book-author">Author:</label>
-      <input type="text" id="book-author" name="author" required />
-    </div>
-    <Button type="primary" htmlType="submit">Add Book</Button>
-  </form>
-);
-
-// Handle add book form submission
-function handleAddBook(bookData) {
-  addBook(bookData);
+function onAuthorSort(dispatch, list) {
+  const sortedList = [...list].sort(sortByAuthor);
+  dispatch({ type: 'SET_SORTED_LIST', payload: sortedList });
 }
 
 // Render the main component containing the book list and sorting controls
 function Main() {
+  const dispatch = useDispatch();
+  const booksList = useSelector(state => state.books?.list || []);
   const [sorting, setSorting] = useState(defaultSorting);
+
+  // Function to add a new book to the Redux store
+  const handleAddBook = (book) => {
+    dispatch({ type: 'ADD_BOOK', payload: book });
+  };
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
     if (sorting === sortByTitle) {
-      onTitleSort();
+      onTitleSort(dispatch, booksList);
     } else if (sorting === sortByAuthor) {
-      onAuthorSort();
+      onAuthorSort(dispatch, booksList);
     }
 
     // Apply accessibility improvements on component mount
@@ -149,34 +188,43 @@ function Main() {
       // addAccessibleNamesToSVGs(container, 'Graphical element');
       // ensureDependencyGraphAriaRole(container);
     }
-  }, [sorting]);
+  }, [sorting, dispatch, booksList]);
 
-  // Render the list of book items and sorting controls
+  // Map the book list to the BookItem function to create book items
+  const bookItems = booksList.map((book) => (
+    <BookItem key={generateKey(book)} book={book} />
+  ));
+
+  // Render the list of book items, sorting controls, and the book form
   return (
     <div id="main-content" role="main" aria-label="Main content">
-      <nav aria-label="Sorting controls">
-        <button
+      <h2 id="add-book-heading">Add a New Book</h2>
+      <AddBookForm onAddBook={handleAddBook} />
+      
+      <h2 id="books-list-heading">Books List</h2>
+      <div role="group" aria-labelledby="books-list-heading">
+        <button 
           onClick={() => setSorting(sortByTitle)}
-          aria-label="Sort books by title"
+          aria-pressed={sorting === sortByTitle}
           id="sort-by-title-btn"
+          aria-label="Sort books by title"
         >
           Sort by Title
         </button>
-        <button
+        <button 
           onClick={() => setSorting(sortByAuthor)}
-          aria-label="Sort books by author"
+          aria-pressed={sorting === sortByAuthor}
           id="sort-by-author-btn"
+          aria-label="Sort books by author"
         >
           Sort by Author
         </button>
-      </nav>
-      <List
-        dataSource={getBooksList}
-        renderItem={book => BookItem({ book })}
-        aria-label="Book list"
+      </div>
+      
+      <List 
+        aria-label="Books collection"
+        dataSource={bookItems}
       />
-      {/* Implement the required changes to improve accessibility for adding a new book */}
-      <AddBookForm onSubmit={handleAddBook} />
     </div>
   );
 }
@@ -187,9 +235,6 @@ export {
   sortByAuthor, 
   generateKey, 
   BookItem, 
-  addBook, 
-  handleAddBook,
-  BookForm,
   AddBookForm, 
   onTitleSort, 
   onAuthorSort

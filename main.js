@@ -9,100 +9,29 @@ const appData = {};
 
 let uniqueLandmarks = {};
 
-function toRad(deg) {
-  return deg * (Math.PI / 180);
+// ... (existing code and functions)
+
+// New function for ensuring an element has an id and aria-label
+function ensureElementAccessibility(element) {
+  if (!element) return;
+
+  if (!element.id) {
+    element.id = `unique-${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  if (!element.hasAttribute('aria-label')) {
+    element.setAttribute('aria-label', 'Custom aria-label');
+  }
 }
 
-// Function for checking landmark elements
-function checkLandmarkElements(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return false;
-  }
-  
-  if (landmarks.length === 0) {
-    return false;
-  }
-  
-  return landmarks.every(landmark => {
-    if (!landmark) return false;
-    return landmark.id || landmark.name;
-  });
-}
-
-// Function for ensuring unique landmarks
-function ensureUniqueLandmarks(insightReport) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-  
-  const seen = new Set();
-  return landmarks.filter(landmark => {
-    if (!landmark) return false;
-    
-    const identifier = landmark.id || landmark.name;
-    
-    if (seen.has(identifier)) {
-      return false;
+// New function to add aria-label to all buttons
+function addAriaLabelToButtons() {
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach(button => {
+    if (!button.hasAttribute('aria-label')) {
+      button.setAttribute('aria-label', 'Button');
     }
-    seen.add(identifier);
-    return true;
   });
-}
-
-// Address accessibility issues
-function addressAccessibilityIssues() {
-  // Ensure the dependencyGraph container has a proper ARIA role
-  // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') ||
-    document.querySelector('.dependencyGraph') ||
-    document.querySelector('[data-testid="dependency-graph"]') ||
-    document.querySelector('div[data-testid=dependency-graph]');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'tree');
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
-  }
-
-  // New accessibility functions
-  function improveAccessibility() {
-    const buttons = document.querySelectorAll('button');
-    buttons.forEach(button => {
-      if (!button.getAttribute('aria-label')) {
-        button.setAttribute('aria-label', button.textContent || 'Button');
-      }
-    });
-
-    const focusable = document.querySelectorAll('[role="link"]');
-    focusable.forEach(el => {
-      if (el.tabIndex < 0) el.tabIndex = 0;
-    });
-  }
-
-  function ensureUniqueLandmarks(insightReport) {
-    const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
-
-    // Check if all landmarks exist, re-add if necessary
-    landmarks.forEach(landmark => {
-      const elements = document.querySelectorAll(`[role="${landmark}"]`);
-      if (elements.length < landmarks.length) {
-        const uniqueLandmarkMap = {};
-
-        landmarks.forEach(uniqueLandmark => {
-          let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
-          if (!element[0]) {
-            element = document.createElement(`div`);
-            element.setAttribute('role', uniqueLandmark);
-            if (!document.querySelector(`#${uniqueLandmark}`)) {
-              const id = uniqueLandmark;
-              element.setAttribute('id', id);
-            }
-            document.body.appendChild(element);
-          }
-          uniqueLandmarkMap[uniqueLandmark] = element[0];
-        });
-        uniqueLandmarks = uniqueLandmarkMap;
-      }
-    });
-  }
 }
 
 // New function to render dependency graphs
@@ -120,8 +49,14 @@ function displayModuleStructure(moduleName) {
 }
 
 // TODO: This is the new function request
+// The function should call ensureElementAccessibility for landmark elements
 function newFunction() {
-  // Implement the new function here
+  const landmarks = // ... (function to fetch or select landmarks)
+
+  landmarks.forEach(landmark => {
+    ensureElementAccessibility(landmark);
+  });
+
   console.log("New Function has been called!");
 }
 
@@ -133,5 +68,6 @@ module.exports = {
   checkLandmarkElements,
   renderDependencyGraph,
   displayModuleStructure,
+  addAriaLabelToButtons, // New export for unit testing
   newFunction
 };

@@ -1,6 +1,6 @@
 // _Commit: <problematicCommitHash>_
-// <!-- todo-hash: <todo-hash> -->
-// TODO: This is the existing code that needs to be preserved
+// <!-- todo-hash: 67dade65c11eaa928754d8fd37a4e9af2da664fc -->
+// TODO: Implement this function for adding SVG accessibility props
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -209,6 +209,33 @@ function setSvgAttributes(svg, accessibleName) {
 }
 
 /**
+ * Add SVG accessibility props to all SVGs in the document
+ * @param {Document} doc - The document to process
+ * @returns {Object} Processing result
+ */
+function addSvgAccessibilityProps(doc) {
+  const results = { found: 0, processed: 0, updated: 0 };
+  const svgs = doc.querySelectorAll('svg');
+  
+  svgs.forEach(svg => {
+    results.found++;
+    const accessibleName = getSvgAccessibleName(svg);
+    const originalName = accessibleName || `SVG icon ${results.found}`;
+    const updatedSvg = setSvgAttributes(svg, originalName);
+    
+    if (updatedSvg) {
+      results.processed++;
+      // Check if we added aria-label
+      if (updatedSvg.hasAttribute('aria-label') && !svg.hasAttribute('aria-label')) {
+        results.updated++;
+      }
+    }
+  });
+  
+  return results;
+}
+
+/**
  * Validate link accessibility
  * @param {HTMLAnchorElement} link - The link to validate
  * @returns {Object} Validation result
@@ -272,6 +299,7 @@ module.exports = {
   ensureUniqueLandmarks,
   getSvgAccessibleName,
   setSvgAttributes,
+  addSvgAccessibilityProps,
   validateLinkAccessibility,
   handleFakeLinks
 };

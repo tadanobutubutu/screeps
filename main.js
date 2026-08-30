@@ -55,7 +55,57 @@ function setConfig(config) {
   appData.config = { ...appData.config, ...config };
 }
 
-// // // TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
+/**
+ * Creates an in-page button element
+ * @param {string} label - The text content of the button
+ * @param {Function} onClick - The click handler function
+ * @param {Object} options - Additional button options
+ * @returns {Object} The created button element
+ */
+function createButton(label, onClick, options = {}) {
+  const button = document.createElement('button');
+  button.textContent = label;
+  button.addEventListener('click', onClick);
+  
+  // Apply additional options if provided
+  if (options.className) {
+    button.className = options.className;
+  }
+  
+  if (options.id) {
+    button.id = options.id;
+  }
+  
+  // Apply any additional attributes
+  if (options.attributes) {
+    for (const [attr, value] of Object.entries(options.attributes)) {
+      button.setAttribute(attr, value);
+    }
+  }
+  
+  return button;
+}
+
+/**
+ * Adds a button to the page body
+ * @param {Object} button - The button element to add to the page
+ */
+function addButtonToPage(button) {
+  document.body.appendChild(button);
+}
+
+/**
+ * Combines createButton and addButtonToPage functionality
+ * @param {string} label - The text content of the button
+ * @param {Function} onClick - The click handler function
+ * @param {Object} options - Additional button options
+ * @returns {Object} The created and added button element
+ */
+function createInPageButton(label, onClick, options = {}) {
+  const button = createButton(label, onClick, options);
+  addButtonToPage(button);
+  return button;
+}
 
 /**
  * Validates that all tables in the application meet accessibility standards
@@ -181,6 +231,9 @@ module.exports = {
   getTables,
   getConfig,
   setConfig,
+  createButton,
+  addButtonToPage,
+  createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
   validateAllTables

@@ -24,10 +24,10 @@ function processData(input) {
 }
 
 // Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(element, options = {}) {
+function handleKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
-  element.addEventListener('keydown', (event) => {
+  return (event) => {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -48,7 +48,7 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-  });
+  };
 }
 
 // Helper to manage focus within a container
@@ -60,7 +60,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  container.addEventListener('keydown', (event) => {
+  const handleTab = (event) => {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -70,7 +70,13 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  });
+  };
+  
+  return {
+    handleTab,
+    firstElement,
+    lastElement
+  };
 }
 
 // ARIA live region announcer
@@ -96,13 +102,62 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+// Add accessible names to SVG elements
+function addAccessibleNamesToSvg() {
+  const svgElements = document.querySelectorAll('svg[aria-hidden="true"]');
+  svgElements.forEach((svg) => {
+    const title = svg.querySelector('title');
+    if (title && !svg.getAttribute('aria-label')) {
+      const id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+      title.id = id;
+      svg.setAttribute('aria-labelledby', id);
+    }
+  });
+}
+
+// Add ARIA attributes to interactive elements
+function addARIAAttributes() {
+  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
+  interactiveElements.forEach((el) => {
+    if (!el.getAttribute('role') && !el.getAttribute('aria-label')) {
+      const text = el.textContent || el.placeholder || el.value;
+      if (text && text.trim()) {
+        el.setAttribute('aria-label', text.trim());
+      }
+    }
+  });
+}
+
 // Initialize accessibility features
 function initializeAccessibility() {
-  replaceMyButtonId();
-  addProperLandmarkRegions();
-  addProperAccountManagement();
-  addARIAAttributes();
+  const announcer = createAnnouncer();
+  
+  // Apply accessible names to SVGs
   addAccessibleNamesToSvg();
+  
+  // Add ARIA attributes to interactive elements
+  addARIAAttributes();
+  
+  // Add keyboard navigation to focusable elements
+  const focusableElements = document.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  
+  focusableElements.forEach((el) => {
+    const keyboardHandler = handleKeyboardNavigation({
+      onEnter: () => el.click()
+    });
+    el.addEventListener('keydown', keyboardHandler);
+  });
+  
+  return {
+    announcer,
+    trapFocus,
+    handleKeyboardNavigation,
+    prefersReducedMotion,
+    addAccessibleNamesToSvg,
+    addARIAAttributes
+  };
 }
 
 // TODO: add the new functions or changes requested in the issue
@@ -177,7 +232,7 @@ if (typeof module !== 'undefined' && module.exports) {
     exampleFunction,
     processData,
     initializeAccessibility,
-    setupKeyboardNavigation,
+    handleKeyboardNavigation,
     trapFocus,
     createAnnouncer,
     prefersReducedMotion,
@@ -194,6 +249,5 @@ if (typeof module !== 'undefined' && module.exports) {
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     window.accessibilityFeatures = initializeAccessibility();
-    addAccessibleNamesToSvg();
   });
 }

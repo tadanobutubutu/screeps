@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 function myNewFunction(someArg) {
     // implementation goes here
 }

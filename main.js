@@ -44,6 +44,11 @@ function processData(data) {
 }
 
 // User fetching with caching
+const appState = {
+ cache: new Map(),
+ users: []
+};
+
 function fetchUser(userId) {
  // Fetch user implementation
  const cachedUser = appState.cache.get(userId);
@@ -129,7 +134,10 @@ function validateLandmarkAttributes(element) {
  return false;
  }
 
- // TODO: Implement function for ensuring unique landmarks
+ return true;
+}
+
+// Ensure unique landmarks
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks) || landmarks.length === 0) {
     return landmarks;
@@ -148,10 +156,7 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
- return true;
-}
-
-function addProperLandmarkRegions() {
+function addLandmarkRegions() {
  // Code for adding proper landmark regions
 }
 
@@ -169,7 +174,9 @@ function setSvgAttributes(svg, accessibleName) {
  if (!svg) return;
 
  svg.setAttribute('role', 'img');
- svg.setAttribute('aria-label', accessibleName);
+ if (accessibleName) {
+   svg.setAttribute('aria-label', accessibleName);
+ }
 }
 
 function addSvgAccessibleNames(svgElements) {
@@ -200,8 +207,7 @@ function fixFakeLinkIssue(element) {
  if (!element) return;
 
  // Convert fake links (buttons styled as links) to proper buttons or links
- if (element.tagName === 'BUTTON' && element.classList.contains('fake-link')) {
- element.classList.remove('fake-link');
+ if (element.tagName === 'BUTTON' && element.getAttribute('role') !== 'button') {
  element.setAttribute('role', 'button');
 
  // Add accessible name if missing
@@ -212,7 +218,7 @@ function fixFakeLinkIssue(element) {
 }
 
 // Main accessibility issue handler
-function addressAccessibilityIssues(insightReport) {
+function handleAccessibilityIssues(insightReport) {
  // Implementation of the function to address accessibility issues
  // This addresses issues from the insight report structure
 
@@ -232,17 +238,17 @@ function addressAccessibilityIssues(insightReport) {
  case 'REACT_027':
  if (issue.element) {
  validateTableStructure();
- fixTableStructure(issue.element);
+ fixTableStructure();
  }
  break;
  case 'REACT_017':
  if (issue.element) {
- addMainLandmark(issue.element);
+ addMainLandmark();
  }
  break;
  case 'REACT_025':
  if (issue.element) {
- ensureUniqueLandmarks(issue.element);
+ ensureUniqueLandmarks([issue.element]);
  }
  break;
  case 'REACT_041':
@@ -278,11 +284,11 @@ function processAccessibilityReport(report) {
 
  if (report) {
  if (report.REACT_015) findings.langAttribute = true;
- if (report.REACT_027) findings.tableissues = report.REACT_027.count || 0;
- if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
- if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
- if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
- if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
+ if (report.REACT_027) findings.tableissues = report.REACT_027 || 0;
+ if (report.REACT_017) findings.landmarkIssues = report.REACT_017 || 0;
+ if (report.REACT_041) findings.svgIssues = report.REACT_041 || 0;
+ if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025 || 0;
+ if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036 || 0;
  }
 
  return findings;

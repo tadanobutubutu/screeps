@@ -1,9 +1,10 @@
-// main.js - Accessibility-focused implementation
-// TODO: Address accessibility issues from insight report:
+// TODO: Add back any required exports that might have been removed.
 
 /**
- * Main application entry point with accessibility features
+ * Utility functions and exports
  */
+
+const VERSION = '1.0.0';
 
 // Browser environment - wait for DOM (only runs in browser)
 if (typeof module === 'undefined' || !module.exports) {
@@ -15,7 +16,19 @@ if (typeof module === 'undefined' || !module.exports) {
 }
 
 /**
- * Initialize the application with accessibility enhancements
+ * Helper function to greet
+ * @param {string} name - The name to greet
+ * @returns {string} The greeting message
+ */
+function greet(name) {
+  if (!name || typeof name !== 'string') {
+    return 'Hello, World!';
+  }
+  return `Hello, ${name}!`;
+}
+
+/**
+ * Initialize accessibility features
  */
 function init() {
   setupKeyboardNavigation();
@@ -214,10 +227,6 @@ const hello = () => {
   return 'Hello from main.js';
 };
 
-const getVersion = () => {
-  return '1.0.0';
-};
-
 const getConfig = () => {
   return {
     name: 'main',
@@ -288,7 +297,7 @@ function generateAccessibilityReport(accessibilityReport) {
 
 // Score calculation
 function calculateAccessibilityScore(fixedIssues) {
-  if (!Array.isArray(fixedIsses)) {
+  if (!Array.isArray(fixedIssues)) {
     return 0;
   }
 
@@ -306,80 +315,33 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
-// Unique landmarks handling
-function ensureUniqueLandmarksFromString(source) {
-  const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
-
-  const matches = Array.from(source.matchAll(mainBlockRegex));
-  if (matches.length <= 1) {
-    return source;
+/**
+ * Calculate the sum of an array of numbers
+ * @param {number[]} numbers - Array of numbers
+ * @returns {number} The sum
+ */
+function sum(numbers) {
+  if (!Array.isArray(numbers)) {
+    return 0;
   }
-
-  let result = source;
-  for (let i = 1; i < matches.length; i++) {
-    const block = matches[i][0];
-    const fixedBlock = block
-      .replace(/<main([^>]*)>/, '<section$1>')
-      .replace(/<\/main>/, '</section>');
-    result = result.replace(block, fixedBlock);
-  }
-
-  return result;
+  return numbers.reduce((acc, num) => acc + (typeof num === 'number' ? num : 0), 0);
 }
 
-// Landmark validation
-function validateLandmark(element) {
-  if (!element) {
-    return { valid: false, error: 'Element is required' };
-  }
+/**
+ * Get the current version
+ * @returns {string} The version string
+ */
+function getVersion() {
+  return VERSION;
+}
 
-  const landmarkRoles = [
-    'banner',
-    'main',
-    'navigation',
-    'search',
-    'contentinfo',
-    'complementary',
-    'region',
-    'form'
-  ];
-
-  const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
-
-  const implicitLandmarks = {
-    'header': 'banner',
-    'main': 'main',
-    'nav': 'navigation',
-    'aside': 'complementary',
-    'footer': 'contentinfo',
-    'section': 'region',
-    'form': 'form'
-  };
-
-  let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
-
-  if (!landmarkRole && implicitLandmarks[tagName]) {
-    landmarkRole = implicitLandmarks[tagName];
-  }
-
-  if (!landmarkRole) {
-    return { 
-      valid: false, 
-      error: 'Element does not have a valid landmark role',
-      element: tagName
-    };
-  }
-
-  if (!landmarkRoles.includes(landmarkRole)) {
-    return { 
-      valid: false, 
-      error: `Invalid landmark role: ${landmarkRole}`,
-      element: tagName,
-      role: landmarkRole
-    };
-  }
-
-  return { valid: true, element: tagName, role: landmarkRole };
+/**
+ * Check if a value is defined
+ * @param {*} value - Any value to check
+ * @returns {boolean} True if defined, false otherwise
+ */
+function isDefined(value) {
+  return value !== undefined && value !== null;
 }
 
 // Node.js spawn functionality
@@ -399,6 +361,11 @@ function spawnSomeCommand(callback) {
 // Node.js environment - setup basic exports
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
+    VERSION,
+    greet,
+    sum,
+    getVersion,
+    isDefined,
     init,
     setupKeyboardNavigation,
     setupAriaLiveRegions,
@@ -413,13 +380,10 @@ if (typeof module !== 'undefined' && module.exports) {
     isNumber,
     clamp,
     hello,
-    getVersion,
     getConfig,
     addressAccessibilityIssues,
     generateAccessibilityReport,
     calculateAccessibilityScore,
-    ensureUniqueLandmarksFromString,
-    validateLandmark,
     spawnSomeCommand
   };
 }

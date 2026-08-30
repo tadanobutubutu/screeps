@@ -106,77 +106,10 @@ function generateDependencyReport(dependencies) {
   };
 }
 
-/**
- * Main processing function
- */
-function main() {
-  const sampleDependencies = {
-    'express': '4.18.2',
-    'lodash': {
-      'isArray': '4.0.0',
-      'merge': {
-        'isObject': '4.0.0'
-      }
-    }
-  };
-  
-  console.log('Dependency Graph:');
-  console.log(renderDependencyGraph(sampleDependencies));
-  
-  console.log('Depth:', getDependencyDepth(sampleDependencies));
-}
-
-// New function to handle accessibility issues
-function getLangAttribute() {
-  // Implementation for adding lang attribute to HTML element
-}
-
-function createInPageButton() {
-  // Implementation for creating in-page buttons
-}
-
-function validateTableAccessibility() {
-  // Implementation for fixing table structure issues
-}
-
-function validateTableStructure() {
-  // Implementation for fixing table structure issues
-}
-
-function validateLandmark() {
-  // Implementation for adding/fixing landmark issues
-}
-
-function validateLandmarkStructure() {
-  // Implementation for adding/fixing landmark structure issues
-}
-
-function getSvgAccessibleName() {
-  // Implementation for adding accessible names to SVGs
-}
-
-function setSvgAttributes() {
-  // Implementation for setting SVG attributes
-}
-
-function ensureUniqueLandmarks() {
-  // Implementation for ensuring unique landmarks
-}
-
-function createInPageButton() {
-  // Implementation for creating in-page buttons
-}
-
-function validateLinkAccessibility() {
-  // Implementation for validating link accessibility
-}
-
-function handleFakeLinks() {
-  // Implementation for handling fake links
-}
-
-function addProperLandmarkRegions() {
-  // Implementation for adding proper landmark regions
+// New function to visualize the dependency tree
+function visualizeDependencyTree(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
 }
 
 module.exports = {
@@ -185,19 +118,7 @@ module.exports = {
   getDependencyDepth,
   generateDependencyReport,
   main,
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions
+  visualizeDependencyTree
 };
 
 // Run if executed directly

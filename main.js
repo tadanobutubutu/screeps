@@ -11,6 +11,8 @@ function checkTableStructure(tableName, expectedColumns) {
 // Implement function for addressing accessibility issues from insight report
 // TODO: Implement a function to count dependencies
 function countDependencies() {
+    const path = require('path');
+    const fs = require('fs');
     const packageJsonPath = path.join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
@@ -50,7 +52,8 @@ if (typeof module !== 'undefined' && module.exports) {
     ensureUniqueLandmarksFromString,
     validateLandmark,
     spawnSomeCommand,
-    addLangAttribute
+    addLangAttribute,
+    countDependencies
   };
 } else {
   // Browser environment - wait for DOM

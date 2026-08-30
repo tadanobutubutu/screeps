@@ -182,15 +182,75 @@ function addSvgAccessibleNames() {
 
 // Function to ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[aria-landmark]');
-  const landmarkIds = new Set();
+  // Define landmark roles - some should be unique per page
+  const uniqueLandmarkRoles = ['main', 'banner', 'contentinfo'];
+  const multipleAllowedRoles = ['navigation', 'complementary', 'region', 'search', 'form'];
+  const allLandmarkRoles = [...uniqueLandmarkRoles, ...multipleAllowedRoles];
 
-  landmarks.forEach((landmark) => {
-    const id = landmark.getAttribute('aria-labelledby');
-    if (landmarkIds.has(id)) {
-      console.error('Duplicate landmark ID encountered:', id);
-    } else {
-      landmarkIds.add(id);
+  // Find all elements with landmark roles
+  const landmarks = document.querySelectorAll(allLandmarkRoles.map(role => `[role="${role}"]`).join(', '));
+
+  // Group landmarks by role
+  const landmarksByRole = {};
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (!landmarksByRole[role]) {
+      landmarksByRole[role] = [];
+    }
+    landmarksByRole[role].push(landmark);
+  });
+
+  // Check unique landmark roles - should only have one per page
+  uniqueLandmarkRoles.forEach(role => {
+    const elements = landmarksByRole[role] || [];
+    if (elements.length > 1) {
+      console.warn(`Multiple ${role} landmarks found. Only one is allowed per page.`);
+      // Keep the first one, remove role from others
+      elements.slice(1).forEach(el => {
+        el.removeAttribute('role');
+        console.warn(`Removed duplicate ${role} landmark role from element:`, el);
+      });
+    }
+  });
+
+  // For roles that allow multiples, ensure each has a unique accessible name
+  multipleAllowedRoles.forEach(role => {
+    const elements = landmarksByRole[role] || [];
+    if (elements.length > 1) {
+      const usedNames = new Set();
+      elements.forEach((el, index) => {
+        // Check for existing accessible name
+        const ariaLabel = el.getAttribute('aria-label');
+        const ariaLabelledBy = el.getAttribute('aria-labelledby');
+        let accessibleName = ariaLabel || (ariaLabelledBy ? document.getElementById(ariaLabelledBy)?.textContent : null);
+
+        if (!accessibleName) {
+          // Generate a unique name
+          accessibleName = `${role} ${index + 1}`;
+          el.setAttribute('aria-label', accessibleName);
+        }
+
+        // Ensure uniqueness
+        let uniqueName = accessibleName;
+        let counter = 1;
+        while (usedNames.has(uniqueName)) {
+          uniqueName = `${accessibleName} ${counter}`;
+          counter++;
+        }
+        usedNames.add(uniqueName);
+
+        if (uniqueName !== accessibleName) {
+          el.setAttribute('aria-label', uniqueName);
+        }
+      });
+    } else if (elements.length === 1) {
+      // Single landmark of this type - ensure it has an accessible name if needed
+      const el = elements[0];
+      const ariaLabel = el.getAttribute('aria-label');
+      const ariaLabelledBy = el.getAttribute('aria-labelledby');
+      if (!ariaLabel && !ariaLabelledBy) {
+        el.setAttribute('aria-label', role);
+      }
     }
   });
 }
@@ -298,7 +358,11 @@ export {
   greet,
   add,
   calculateDiscount,
-  newFunction
+  newFunction,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  landmarkStructureCheck,
+  initApp
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)

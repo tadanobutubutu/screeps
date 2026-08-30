@@ -44,6 +44,40 @@ function addLangAttribute(document, lang = 'en') {
   return document;
 }
 
+// Function to wrap primary content in main landmark
+function wrapPrimaryContentInMain(document) {
+  const body = document.body;
+  if (!body) {
+    return document;
+  }
+
+  let mainElement = document.querySelector('main');
+  
+  if (!mainElement) {
+    mainElement = document.createElement('main');
+    mainElement.setAttribute('id', 'main-content');
+  }
+
+  const primaryContentSelectors = [
+    '#primary',
+    '#content',
+    '[role="main"]',
+    '.main-content',
+    '.primary-content'
+  ];
+
+  const primaryContent = document.querySelector(primaryContentSelectors.join(', '));
+  
+  if (primaryContent && !mainElement.contains(primaryContent)) {
+    mainElement.appendChild(primaryContent);
+    body.insertBefore(mainElement, body.firstChild);
+  } else if (mainElement.parentNode !== body) {
+    body.insertBefore(mainElement, body.firstChild);
+  }
+
+  return document;
+}
+
 // Game loop function
 function run() {
   const viewsDir = path.join(__dirname, 'views');
@@ -75,6 +109,7 @@ export default function RootLayout({
   fixFakeLinkIssue(document);
   fixFakeLinkIssues(document);
   fixTableStructure(document);
+  wrapPrimaryContentInMain(document);
 
   return (
     <html lang="en">

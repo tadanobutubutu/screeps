@@ -649,12 +649,12 @@ export default function App() {
   };
 
   return (
-    <HTML lang="en">
+    <html lang="en">
       <React.Fragment>
         <MyApp />
         {/* Render your HTML structure */}
       </React.Fragment>
-    </HTML>
+    </html>
   );
 }
 

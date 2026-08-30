@@ -1,3 +1,5 @@
+// Implemented new functions: ensureElementHasId, addAriaLabel, renderDependencyGraph
+
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
@@ -148,7 +150,7 @@ function improveAccessibility(container) {
   }
 
   // Ensure all clickable elements are focusable
-  const focusable = container.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+  const focusable = container.querySelectorAll('button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -196,7 +198,7 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (svg && !svg.getAttribute('aria-label') && !svg.querySelector('title')) {
       const title = svg.querySelector('title');
       if (title) {
         const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
@@ -233,6 +235,38 @@ function addressInsightIssues(insightReport) {
 
 function renderDependencyGraph(dependencyData) {
   console.log('Rendering dependency graph with data:', dependencyData);
+  
+  if (!dependencyData) {
+    return null;
+  }
+  
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'dependency-graph';
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+  
+  // Ensure container has an id for accessibility
+  const graphId = ensureElementHasId(graphContainer, 'dep-graph');
+  
+  // Render nodes
+  const nodes = dependencyData.nodes || [];
+  const edges = dependencyData.edges || [];
+  
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  svg.setAttribute('aria-labelledby', graphId);
+  
+  // Create a title for the SVG
+  const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+  title.textContent = 'Dependency Graph';
+  title.id = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+  svg.appendChild(title);
+  svg.setAttribute('aria-labelledby', title.id);
+  
+  graphContainer.appendChild(svg);
+  
+  return graphContainer;
 }
 
 function renderIndexView(indexData) {
@@ -247,10 +281,48 @@ function addProperLandmarkRegions(affectedElements) {
   if (!affectedElements || !Array.isArray(affectedElements)) return;
 
   affectedElements.forEach(el => {
-    if (el && el.tagName && !el.hasAttribute('role')) {
+    if (el && el.tagName && !el.getAttribute('role')) {
       el.setAttribute('role', 'region');
     }
   });
+}
+
+/**
+ * Ensures an element has an id, generating one if needed
+ * @param {HTMLElement} element - The element to ensure has an id
+ * @param {string} [prefix='element'] - Optional prefix for generated id
+ * @returns {string} - The element's id
+ */
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+  
+  if (element.id) {
+    return element.id;
+  }
+  
+  // Generate a unique id
+  const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  element.id = generatedId;
+  return generatedId;
+}
+
+/**
+ * Adds an aria-label to an element
+ * @param {HTMLElement} element - The element to add aria-label to
+ * @param {string} label - The label text to set
+ */
+function addAriaLabel(element, label) {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+  
+  if (typeof label !== 'string' || label.trim() === '') {
+    throw new Error('A valid label string is required');
+  }
+  
+  element.setAttribute('aria-label', label);
 }
 
 module.exports = {
@@ -271,5 +343,7 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  ensureElementHasId,
+  addAriaLabel
 };

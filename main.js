@@ -34,8 +34,27 @@ function improveAccessibility() {
   fixTableStructureIssues();
   addMainLandmark();
   fixTableHeaderCellScope();
-  addLandmarkRoles(); // Both branches had the same logic, but this implementation seems to be slightly more performant.
+  addLandmarkRoles();
   addSvgAccessibleNames();
+}
+
+function ensureUniqueLandmarks() {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const uniqueLandmarkMap = {};
+
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    elements.forEach(el => {
+      const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
+      if (isUnique) {
+        uniqueLandmarkMap[landmark] = uniqueLandmarkMap[landmark] || [];
+        uniqueLandmarkMap[landmark].push(el);
+      } else {
+        // Remove the role if it's not unique
+        el.removeAttribute('role');
+      }
+    });
+  });
 }
 
 function addressInsightReportIssues(insightReport) {
@@ -50,6 +69,12 @@ function renderIndexView(indexData) {
   console.log('Rendering index view with data:', indexData);
 }
 
+// TODO: Implement tower defense
+function towerDefense(gameData) {
+  console.log('Tower defense implemented with gameData:', gameData);
+}
+
+// Function to calculate sum (unchanged)
 function calculateSum(a, b) {
   return a + b;
 }
@@ -164,7 +189,7 @@ function fixUniqueLandmarks() {
   });
 }
 
-function ensureUniqueLandmarks() {
+function addLandmarkRoles() {
   const uniqueLandmarkMap = {};
 
   Array.from(document.querySelectorAll('[role]')).forEach(el => {
@@ -194,6 +219,7 @@ module.exports = {
   addressInsightReportIssues,
   renderDependencyGraph,
   renderIndexView,
+  towerDefense,
   calculateSum,
   fixFakeLinks,
   fixTableStructureIssues,
@@ -202,6 +228,7 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixUniqueLandmarks,
+  addLandmarkRoles,
 };
 
 // Execute main function

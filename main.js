@@ -370,4 +370,5 @@ if (typeof module !== 'undefined' && module.exports) {
     addProperLandmarkRegions,
     addProperAccountManagement,
     addAriaToFormControls
+  };
 }

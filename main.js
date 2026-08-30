@@ -125,6 +125,24 @@ function newFunction() {
   console.log("New Function has been called!");
 }
 
+// Function for accessibility checks on tables
+function checkTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure table has an accessible name via caption or aria-label
+    if (!table.querySelector('caption') && !table.getAttribute('aria-label')) {
+      table.setAttribute('aria-label', 'Table');
+    }
+    // Ensure header cells have a scope attribute
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.getAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+  });
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
@@ -133,5 +151,6 @@ module.exports = {
   checkLandmarkElements,
   renderDependencyGraph,
   displayModuleStructure,
-  newFunction
+  newFunction,
+  checkTableAccessibility
 };

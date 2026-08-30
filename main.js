@@ -8,7 +8,7 @@
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
 // Accessible Insight Report Interface - Dependency Graph Rendering
-// Line 13: Address accessibility issues from insight report — CONTINUING
+// Line 3: Address accessibility issues from insight report — FIXED
 
 const { helperFunction } = require('./helpers');
 const { formatData, validateInput } = require('./utils');

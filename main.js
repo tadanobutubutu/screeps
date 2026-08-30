@@ -1,4 +1,22 @@
 // Add exports for new functions if needed
+// TODO: Implement validateLandmark functionality
+function validateLandmark(landmark) {
+  // Validate a landmark object
+  if (!landmark || typeof landmark !== 'object' || Array.isArray(landmark)) {
+    return false;
+  }
+  if (typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    return false;
+  }
+  if (typeof landmark.lat !== 'number' || typeof landmark.lng !== 'number') {
+    return false;
+  }
+  // Optional range checks (commented out)
+  // if (landmark.lat < -90 || landmark.lat > 90) return false;
+  // if (landmark.lng < -180 || landmark.lng > 180) return false;
+  return true;
+}
+
 function addressAccessibilityIssues(insightReport) {
     // Placeholder function to address accessibility issues from an insight report.
     // Implement specific accessibility fixes here based on the report's structure.
@@ -124,6 +142,7 @@ module.exports = {
   wrapPrimaryContentInMain,
   myNewFunction,
   ensureUniqueLandmarks,
+  validateLandmark,
   addressAccessibilityIssues,
   utilityFunction,
   formatData

@@ -72,7 +72,7 @@ function uniqueLandmarks(landmarks) {
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (!element.hasAttribute('aria-label')) {
+    if (!element.getAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
@@ -166,6 +166,54 @@ function renderPage(data) {
   return `${header}${content}${footer}`;
 }
 
+/**
+ * Checks landmark elements in the DOM for accessibility issues.
+ * Validates landmarks for proper roles, labels, and uniqueness.
+ * @returns {Object} Object containing validation results for landmarks.
+ */
+function checkLandmarkElements() {
+    // Query all landmark elements in the document
+    const landmarkSelectors = 'nav, main, header, footer, aside, section, article, form[role="form"], search[role="search"]';
+    const landmarkElements = document.querySelectorAll(landmarkSelectors);
+    
+    // Convert NodeList to array and extract landmark information
+    const landmarks = Array.from(landmarkElements).map((element, index) => {
+        const tagName = element.tagName.toLowerCase();
+        const role = element.getAttribute('role') || (['nav', 'main', 'header', 'footer', 'aside', 'section', 'article'].includes(tagName) ? tagName : null);
+        
+        return {
+            id: element.id || `landmark-${index}`,
+            element: element,
+            role: role,
+            label: element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || '',
+            tagName: tagName
+        };
+    });
+    
+    // Get unique landmarks to avoid duplicate validation
+    const uniqueLandmarkList = uniqueLandmarks(landmarks);
+    
+    // Validate landmark accessibility using the imported utility
+    const validationResult = validateLandmark(uniqueLandmarkList);
+    
+    // Validate landmark structure (hierarchical relationships)
+    const structureValidation = validateLandmarkStructure(uniqueLandmarkList);
+    
+    // Combine validation results
+    const allErrors = [
+        ...(validationResult.errors || []),
+        ...(structureValidation.errors || [])
+    ];
+    
+    return {
+        landmarks: uniqueLandmarkList,
+        totalCount: landmarks.length,
+        uniqueCount: uniqueLandmarkList.length,
+        isValid: validationResult.isValid && structureValidation.isValid,
+        validationErrors: allErrors
+    };
+}
+
 // New function or change requested in the issue
 function checkLinkAccessibility() {
   // Implementation for checking link accessibility
@@ -235,6 +283,6 @@ function displayModuleStructure(module) {
 }
 
 // Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
+export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, checkLandmarkElements };
 
 // ... other exports ...

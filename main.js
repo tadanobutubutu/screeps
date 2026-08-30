@@ -51,9 +51,35 @@ const addressAccessibilityIssues = (insightReport) => {
   return fixes;
 };
 
+// Function to validate a landmark element in the DOM
+const validateLandmark = (landmarkElement) => {
+  if (landmarkElement == null) {
+    return { valid: false, message: 'Landmark element is missing or not provided' };
+  }
+
+  const tagName = landmarkElement.tagName;
+  const validLandmarks = ['HEADER', 'NAV', 'MAIN', 'FOOTER', 'ARTICLE', 'SECTION', 'ASIDE'];
+  const isValidLandmark = validLandmarks.includes(tagName);
+
+  if (!isValidLandmark) {
+    return { valid: false, message: `Invalid landmark element: ${tagName}` };
+  }
+
+  const hasAccessibleName = landmarkElement.hasAttribute('aria-label') ||
+                            landmarkElement.hasAttribute('aria-labelledby') ||
+                            landmarkElement.hasAttribute('title');
+
+  if (!hasAccessibleName) {
+    return { valid: false, message: 'Landmark element is missing an accessible name' };
+  }
+
+  return { valid: true, message: 'Landmark element is valid' };
+};
+
 module.exports = {
   renderHeader,
   renderFooter,
   main,
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  validateLandmark
 };

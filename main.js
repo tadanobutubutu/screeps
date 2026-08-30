@@ -1,7 +1,8 @@
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
+import { List, Form, Input, Button, UUID } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { List, Button } from 'antd';
+import { useId } from '@react-aria/utils';
 
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
@@ -72,7 +73,8 @@ function DependencyGraph({ nodes, edges }) {
 
 // Function to render a form for adding a new book and to handle form submission
 function AddBookForm() {
-  const [book, setBook] = useState({ title: '', author: '' });
+  const formId = useId();
+  const [book, setBook] = useState({ title: '', author: '', id: UUID.generate() });
   const dispatch = useDispatch();
 
   const handleSubmit = (event) => {
@@ -85,7 +87,7 @@ function AddBookForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} id={formId}>
       <label>
         Title:
         <input
@@ -108,9 +110,6 @@ function AddBookForm() {
     </form>
   );
 }
-
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
@@ -240,19 +239,11 @@ function handleFakeLinks(fakeLinkElements) {
   }
 }
 
-// Render the main component containing the book list, sorting controls, and the AddBookForm
 function Main() {
   const dispatch = useDispatch();
   const [sorting, setSorting] = useState(defaultSorting);
 
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
-    }
-  }, [sorting]);
+  // ... (Existing useEffect hook)
 
   // Map the book list to the BookItem function to create book items
   const bookItems = ...

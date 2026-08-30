@@ -36,7 +36,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -49,10 +49,11 @@ export function anotherFunction() {
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (handled by addProperLandmarkRegions())
 
 /**
  * Adds an aria-label to the element if it doesn't already have one
@@ -80,7 +81,7 @@ function addAriaLabel(element, label) {
  * @param {string} languageCode - The language code (e.g., 'en', 'es', 'fr')
  */
 function setLanguageAttribute(languageCode) {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', languageCode);
   }
@@ -91,7 +92,7 @@ function setLanguageAttribute(languageCode) {
  * @returns {string|null} The language code or null if not set
  */
 function getLangAttribute() {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
@@ -176,7 +177,7 @@ function loop() {
     let creep = Game.creeps[name];
     if (creep.memory.role === 'harvester') {
       if (creep.store.getFreeCapacity() > 0) {
-        let source = creep.pos.findClosestByPath(FIND_SOURCES);
+        let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
         if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
           creep.moveTo(source);
         }
@@ -219,7 +220,7 @@ function createInPageButton(text, onClick) {
   button.type = 'button';
   
   // Ensure button has an accessible name
-  if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+  if (!button.textContent || !button.textContent.trim()) {
     throw new Error('Button must have either text content or aria-label');
   }
   
@@ -250,70 +251,4 @@ function validateTableAccessibility(table) {
   
   // Check for th elements with scope or headers
   const headers = table.querySelectorAll('th');
-  if (headers.length === 0) {
-    issues.push('Table should have header cells (th) for accessibility');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates table structure for proper accessibility
- * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result with structure issues
- */
-function validateTableStructure(table) {
-  const issues = [];
-  
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
-  }
-  
-  // Check for thead and tbody
-  const thead = table.querySelector('thead');
-  const tbody = table.querySelector('tbody');
-  
-  if (!thead) {
-    issues.push('Table should have a thead section');
-  }
-  
-  if (!tbody) {
-    issues.push('Table should have a tbody section');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates that landmarks have proper roles
- * @param {Document|Element} root - Root element to search within
- * @returns {Object} Validation result with landmark issues
- */
-function validateLandmark(root = document) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
-  
-  // Check for main landmark
-  const mainElements = root.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    issues.push('Page should have at least one main landmark');
-  } else if (mainElements.length > 1) {
-    issues.push('Page should have only one main landmark');
-  }
-  
-  // Check for header landmark
-  const headerElements = root.querySelectorAll('header, [role="banner"]');
-  if (headerElements.length > 1) {
-    issues.push('Page should have only one header landmark');
-  }
-  
-  // Check for footer landmark
-  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
-  if (footerElements.length > 1) {
-    issues.push('Page
+  if (

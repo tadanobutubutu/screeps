@@ -1,7 +1,7 @@
 // Import necessary dependencies
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import { List, Button } from 'antd';
 
 // Function to handle sorting books by title (ascending)
 function sortByTitle(a, b) {
@@ -27,6 +27,61 @@ function BookItem({ book }) {
         description={`by ${book.author}`}
       />
     </List.Item>
+  );
+}
+
+// Function to create a new book entry in the Redux store
+function addBook(book) {
+  // Perform any necessary validation or processing before adding the book
+  // ...
+
+  // Dispatch an action to add the book to the books list in the Redux store
+  dispatch({ type: 'ADD_BOOK', payload: book });
+}
+
+// Function to render the form for adding a new book entry
+function BookForm() {
+  const dispatch = useDispatch();
+
+  // Define state for the form inputs
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+
+  // Handle input changes
+  const handleTitleChange = (e) => setTitle(e.target.value);
+  const handleAuthorChange = (e) => setAuthor(e.target.value);
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Perform any necessary validation or processing before adding the book
+    // ...
+
+    // Dispatch an action to add the book to the books list in the Redux store
+    dispatch(addBook({ title, author }));
+  };
+
+  // Render the form
+  return (
+    <form onSubmit={handleSubmit}>
+      <label htmlFor="title">Title:</label>
+      <input
+        type="text"
+        id="title"
+        value={title}
+        onChange={handleTitleChange}
+        aria-label="Book title"
+      />
+      <label htmlFor="author">Author:</label>
+      <input
+        type="text"
+        id="author"
+        value={author}
+        onChange={handleAuthorChange}
+        aria-label="Book author"
+      />
+      <button type="submit">Add Book</button>
+    </form>
   );
 }
 
@@ -180,7 +235,7 @@ function Main() {
     <BookItem key={generateKey(book)} book={book} />
   ));
 
-  // Render the list of book items and sorting controls
+  // Render the list of book items, sorting controls, and the book form
   return (
     <div>
       <h2 id="add-book-heading">Add a New Book</h2>
@@ -204,4 +259,12 @@ function Main() {
       
       <List 
         aria-label="Books collection"
-        dataSource={books
+        dataSource={bookItems}
+      />
+    </div>
+  );
+}
+
+// Export the Main component and the BookForm component
+export default Main;
+export { BookForm };

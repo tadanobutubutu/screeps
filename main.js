@@ -7,11 +7,14 @@
 
 // Existing code ends here
 
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
-// Addressed accessibility issues from insight report
-
-// ... (other code in main.js)
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
 
 /**
  * Checks if a specified landmark element is present in the document.
@@ -19,26 +22,16 @@
  * @returns {boolean} True if the landmark element exists, false otherwise.
  */
 function checkLandmarkElement(id) {
-  return !!document.getElementById(id);
-}
-
-/**
- * Creates an in-page button element with an optional click handler.
- * @param {string} buttonText - The label text for the button.
- * @param {Function} onClickHandler - Callback function triggered when the button is clicked.
- * @returns {HTMLElement} The created button element.
- */
-function checkLandmarkElement(id) {
   const element = document.getElementById(id);
   if (!element) {
     return false;
   }
-  
+
   // Validate that the landmark has required properties
   if (element.getAttribute('name') && element.getAttribute('coordinates')) {
     return true;
   }
-  
+
   return false;
 }
 
@@ -60,14 +53,16 @@ export function rotateBack() {
 
 // New function to add lang attribute to HTML element
 function getLangAttribute() {
+  if (typeof document === 'undefined') return;
   const htmlElement = document.querySelector('html');
-  if (!htmlElement.lang) {
+  if (htmlElement && !htmlElement.lang) {
     htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
   }
 }
 
 // New function to wrap primary content in main element
 function wrapPrimaryContentInMain() {
+  if (typeof document === 'undefined') return;
   const primaryContent = document.querySelector('#primary-content');
   if (primaryContent) {
     const mainElement = document.createElement('main');
@@ -79,6 +74,7 @@ function wrapPrimaryContentInMain() {
 
 // New function to validate table structure
 function validateTableStructure() {
+  if (typeof document === 'undefined') return;
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     // Implement table structure validation logic here
@@ -91,6 +87,7 @@ function validateTableStructure() {
 
 // New function to validate table accessibility
 function validateTableAccessibility() {
+  if (typeof document === 'undefined') return;
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     // Implement table accessibility validation logic here
@@ -108,7 +105,7 @@ function validateTableAccessibility() {
 function validateLandmarkStructure(landmark) {
   // Implement your logic for checking the landmark structure
   // For example, let's check if the landmark has required properties: name and coordinates
-  if (!landmark.name || !landmark.coordinates) {
+  if (!landmark || !landmark.name || !landmark.coordinates) {
     console.error('Invalid landmark structure:', landmark);
     return false;
   }
@@ -117,10 +114,11 @@ function validateLandmarkStructure(landmark) {
 
 // New function to add/fix landmark issues
 function addFixLandmarkIssues(landmarks) {
+  if (!landmarks || typeof landmarks[Symbol.iterator] !== 'function') return;
   landmarks.forEach(landmark => {
     // Implement logic to add or fix landmark issues here
     // For example, add a `role` attribute to landmarks without one
-    if (!landmark.hasAttribute('role')) {
+    if (landmark && typeof landmark.hasAttribute === 'function' && !landmark.hasAttribute('role')) {
       landmark.setAttribute('role', 'landmark');
     }
   });
@@ -128,6 +126,7 @@ function addFixLandmarkIssues(landmarks) {
 
 // Function to ensure unique landmarks
 function ensureUniqueLandmarks(landmarks) {
+  if (!landmarks || typeof landmarks[Symbol.iterator] !== 'function') return [];
   const uniqueLandmarks = [];
   const seen = new Set();
 
@@ -153,6 +152,7 @@ function getSvgAccessibleName(svg) {
 
 // New function to add ARIA attributes to form controls
 function addAriaToFormControls() {
+  if (typeof document === 'undefined') return;
   const formControls = document.querySelectorAll('input, select, textarea');
   formControls.forEach(control => {
     // Implement logic to add ARIA attributes to form controls
@@ -166,6 +166,7 @@ function addAriaToFormControls() {
 
 // New function to fix fake link issues
 function fixFakeLinkIssues() {
+  if (typeof document === 'undefined') return;
   const fakeLinks = document.querySelectorAll('.fake-link');
   fakeLinks.forEach(link => {
     // Implement logic to fix fake link issues
@@ -185,52 +186,15 @@ function createAccessibleLink(link) {
   }
 }
 
-// Testing the checkLandmarkElement function:
-//
-// To test this function, we could create a test file with the following content:
-const test = require('jest');
-// const ReactDOM = require('react-dom'); // already defined above
-// const { checkLandmarkElement } = require('./main'); // not needed, function is in scope
-const landmark = document.createElement('div');
-landmark.id = 'test-landmark';
-document.body.appendChild(landmark);
-test.test('Check landmark element', () => {
-  expect(checkLandmarkElement('test-landmark')).toBeTruthy();
-});
-test.run();
-
-// Additional accessibility-related code changes:
-// Ensure that all interactive elements have appropriate keyboard support
-// Check that ARIA attributes are correctly paired and have appropriate values
-
-// REACT_015: lang attribute should be added to the HTML element (typically in index.html)
-// <html lang="en">
-
-// REACT_017: Add landmark roles and fix landmark issues
-// Add main landmark role to main content area
-// Example: <main role="main">...</main>
-
-// REACT_025: Ensure unique landmarks
-// Ensure only one main landmark per page
-// Use unique aria-label or aria-labelledby for landmark regions
-
 // REACT_036: Fix fake link issue - convert <a href="#"> to <button> with proper ARIA
 function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
-  button.ariaLabel = 'rotate back';
+  button.setAttribute('aria-label', 'rotate back');
   button.textContent = 'rotate back';
   button.addEventListener('click', rotateBack);
   return button;
-}
-
-// Replace fake links with proper buttons
-const fakeLink = document.getElementById('unrotate');
-if (fakeLink && fakeLink.tagName === 'A') {
-  const parent = fakeLink.parentElement;
-  const newButton = createUnrotateButton();
-  parent.replaceChild(newButton, fakeLink);
 }
 
 // Add lang attribute to HTML element
@@ -249,15 +213,10 @@ function getConfig() {
   };
 }
 
-// Example usage for SVGs:
-// const svg1 = document.querySelector('.icon-svg-1');
-// const svg2 = document.querySelector('.icon-svg-2');
-// addSvgAccessibility(svg1, 'Description of first icon');
-// addSvgAccessibility(svg2, 'Description of second icon');
-
 // REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // Ensure all <th> elements have scope attribute
 function ensureThScope() {
+  if (typeof document === 'undefined') return;
   const thElements = document.querySelectorAll('th');
   thElements.forEach(th => {
     if (!th.hasAttribute('scope')) {
@@ -279,6 +238,7 @@ function ensureThScope() {
  * Setup skip link functionality for keyboard navigation
  */
 function setupSkipLinks() {
+  if (typeof document === 'undefined') return;
   const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
@@ -296,6 +256,7 @@ function setupSkipLinks() {
  * Ensure buttons have proper accessibility attributes
  */
 function setupButtonAccessibility() {
+  if (typeof document === 'undefined') return;
   const buttons = document.querySelectorAll('button');
   buttons.forEach((button) => {
     if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
@@ -323,6 +284,7 @@ function handleEvent(event) {
 }
 
 function addLandmarkRoles() {
+  if (typeof document === 'undefined') return;
   const header = document.querySelector('header');
   if (header) header.setAttribute('role', 'banner');
 
@@ -335,6 +297,7 @@ function addLandmarkRoles() {
 
 // Function to add accessible names to 2 SVGs
 function addSvgAccessibleNames() {
+  if (typeof document === 'undefined') return;
   const svg1 = document.getElementById('svg1');
   if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
 
@@ -344,22 +307,26 @@ function addSvgAccessibleNames() {
 
 // Function to ensure unique landmarks
 function ensurePageUniqueLandmarks() {
+  if (typeof document === 'undefined') return;
   const landmarks = document.querySelectorAll('[aria-landmark]');
   const landmarkIds = new Set();
 
   landmarks.forEach((landmark) => {
     const id = landmark.getAttribute('aria-labelledby');
-    if (landmarkIds.has(id)) {
-      console.error('Duplicate landmark ID encountered:', id);
-    } else {
-      landmarkIds.add(id);
+    if (id) {
+      if (landmarkIds.has(id)) {
+        console.error('Duplicate landmark ID encountered:', id);
+      } else {
+        landmarkIds.add(id);
+      }
     }
   });
 }
 
 // Function to fix 1 fake link issue
 function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('[href="#"]:not([ aria-hidden ])');
+  if (typeof document === 'undefined') return;
+  const fakeLinks = document.querySelectorAll('[href="#"]:not([aria-hidden])');
   fakeLinks.forEach((link) => {
     link.removeAttribute('href');
   });
@@ -367,6 +334,8 @@ function fixFakeLink() {
 
 // Initialize accessibility improvements
 function initializeAccessibility() {
+  if (typeof document === 'undefined') return;
+
   // Replace fake links with proper buttons
   const fakeLink = document.getElementById('unrotate');
   if (fakeLink && fakeLink.tagName === 'A') {
@@ -442,6 +411,11 @@ function greet(name) {
 
 function add(a, b) {
   return a + b;
+}
+
+// Alias for landmark structure check (referenced in module.exports below)
+function landmarkStructureCheck(landmark) {
+  return validateLandmarkStructure(landmark);
 }
 
 // Export existing functionality and new functions

@@ -213,6 +213,25 @@ function processUniqueElements() {
   return uniqueElements;
 }
 
+// New accessibility functions for additional insight issues
+function setLangAttribute(lang = 'en') {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.setAttribute('lang', lang);
+  }
+}
+
+function fixFakeLinks() {
+  if (typeof document === 'undefined') return;
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    const text = link.textContent.trim();
+    const ariaLabel = link.getAttribute('aria-label');
+    if (!text && !ariaLabel) {
+      link.setAttribute('aria-label', 'Link');
+    }
+  });
+}
+
 function addressInsightIssues(insightReport) {
   const issues = insightReport && insightReport.issues ? insightReport.issues : [];
   issues.forEach(issue => {
@@ -227,6 +246,12 @@ function addressInsightIssues(insightReport) {
         }
       });
       const react017Elements = issue.elements || [];
+    }
+    if (issue.code === 'REACT_015') {
+      setLangAttribute();
+    }
+    if (issue.code === 'REACT_036') {
+      fixFakeLinks();
     }
   });
 }
@@ -271,5 +296,7 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  setLangAttribute,
+  fixFakeLinks
 };

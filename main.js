@@ -159,7 +159,6 @@ function addProperLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
   // This processes the insight report and takes appropriate actions to fix issues
@@ -193,7 +192,11 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_027':
         // Fix table structure issues
         try {
-          fixTableStructure();
+          // Fix all tables in the document
+          const tables = document.querySelectorAll('table');
+          tables.forEach(table => {
+            fixTableStructure(table);
+          });
           actionTaken = true;
           console.log('Fixed table structure issues');
         } catch (error) {
@@ -205,7 +208,11 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_025':
         // Add/fix landmark issues
         try {
-          addMainLandmark();
+          // Add main landmark to body if not present
+          const body = document.querySelector('body');
+          if (body && !body.hasAttribute('role')) {
+            addMainLandmark(body);
+          }
           ensureUniqueLandmarks();
           actionTaken = true;
           console.log('Added and ensured unique landmarks');

@@ -81,11 +81,15 @@ function Main() {
   // Render the list of book items and sorting controls
   return (
     <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      <nav aria-label="Book sorting controls">
+        <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+        <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      </nav>
+      <main role="main">
+        <List dataSource={bookItems} />
+        {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
+        {/* ... */}
+      </main>
     </div>
   );
 }

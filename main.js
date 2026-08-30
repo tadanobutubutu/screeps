@@ -18,6 +18,66 @@ const CONFIG = {
   timeout: 5000
 };
 
+// Accessibility utilities and functions
+const accessibilityUtils = {
+  // Initialize skip link functionality for keyboard navigation
+  initSkipLink: () => {
+    const skipLink = document.querySelector('.skip-link');
+    if (skipLink) {
+      skipLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(skipLink.getAttribute('href'));
+        if (target) {
+          target.setAttribute('tabindex', '-1');
+          target.focus();
+        }
+      });
+    }
+  },
+
+  // Trap focus within an element (for modals, dialogs)
+  trapFocus: (element) => {
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    });
+  },
+
+  // Announce message to screen readers
+  announceToScreenReader: (message, priority = 'polite') => {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 1000);
+  },
+
+  // Handle keyboard navigation
+  handleKeyboardNav: (e, handlers) => {
+    const key = e.key;
+    if (handlers[key]) {
+      handlers[key](e);
+    }
+  }
+};
+
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
@@ -377,6 +437,275 @@ const addressAccessibilityIssues = (container) => {
   return fixes;
 };
 
+// Functions for data transformation
+function getLangAttribute(element, lang) {
+  if (element) {
+    element.setAttribute('lang', lang || 'en');
+  }
+  return element;
+}
+
+function personName(name) {
+  const span = document.createElement('span');
+  span.setAttribute('aria-label', `Person name: ${name}`);
+  span.textContent = name;
+  return span;
+}
+
+function validateTableAccessibility(table) {
+  if (!table) return false;
+  
+  const hasCaption = table.querySelector('caption') !== null;
+  const hasHeaders = table.querySelector('thead') !== null;
+  const rows = table.querySelectorAll('tr');
+  
+  let isValid = hasCaption && hasHeaders;
+  
+  if (rows.length > 0) {
+    const firstRowCells = rows[0].querySelectorAll('th, td');
+    const hasScope = Array.from(firstRowCells).some(cell => 
+      cell.hasAttribute('scope')
+    );
+    isValid = isValid && hasScope;
+  }
+  
+  return isValid;
+}
+
+function validateTableStructure(table) {
+  if (!table) return false;
+  
+  const rows = table.querySelectorAll('tr');
+  let isValid = true;
+  
+  rows.forEach((row, index) => {
+    const cells = row.querySelectorAll('td, th');
+    if (index === 0) {
+      const hasHeaderCells = Array.from(cells).some(cell => 
+        cell.tagName.toLowerCase() === 'th'
+      );
+      isValid = isValid && hasHeaderCells;
+    } else {
+      if (cells.length !== rows[0].querySelectorAll('td, th').length) {
+        isValid = false;
+      }
+    }
+  });
+  
+  return isValid;
+}
+
+function validateLandmark(element) {
+  if (!element) return false;
+  
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
+  const role = element.getAttribute('role');
+  const tagName = element.tagName.toLowerCase();
+  
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'form', 'section'];
+  if (landmarks.includes(tagName)) {
+    return true;
+  }
+  
+  if (role && landmarkRoles.includes(role)) {
+    return true;
+  }
+  
+  return false;
+}
+
+function validateLandmarkStructure(element) {
+  if (!element) return false;
+  
+  const landmarks = element.querySelectorAll(
+    'header, nav, main, aside, footer, form[role="search"], section[aria-label], div[role="banner"], div[role="navigation"], div[role="main"], div[role="complementary"], div[role="contentinfo"]'
+  );
+  
+  return landmarks.length > 0;
+}
+
+function getSvgAccessibleName(svg, name) {
+  if (svg && name) {
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', name);
+  }
+  return svg;
+}
+
+function createInPageButton(text, onClick) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.setAttribute('aria-label', text);
+  button.addEventListener('click', onClick);
+  return button;
+}
+
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll(
+    'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]'
+  );
+  
+  const landmarkTypes = {};
+  
+  landmarks.forEach((landmark, index) => {
+    const tagName = landmark.tagName.toLowerCase();
+    const role = landmark.getAttribute('role');
+    const identifier = role || tagName;
+    
+    if (!landmarkTypes[identifier]) {
+      landmarkTypes[identifier] = 0;
+    } else {
+      landmarkTypes[identifier]++;
+      if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+        landmark.setAttribute('aria-label', `${identifier} ${landmarkTypes[identifier] + 1}`);
+      }
+    }
+  });
+}
+
+function newFocusTrap(element) {
+  if (!element) return;
+  
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  
+  if (focusableElements.length === 0) return;
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+  
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+  
+  firstElement.focus();
+}
+
+function transformInputData(inputData, options = {}) {
+  const {
+    preserveKeys = true,
+    uppercase = false,
+    trimWhitespace = true,
+    maxLength = null
+  } = options;
+
+  if (!inputData) {
+    return null;
+  }
+  
+  if (typeof inputData === 'string') {
+    let result = inputData;
+    
+    if (trimWhitespace) {
+      result = result.trim();
+    }
+    
+    if (uppercase) {
+      result = result.toUpperCase();
+    }
+    
+    if (maxLength && result.length > maxLength) {
+      result = result.substring(0, maxLength);
+    }
+    
+    return result;
+  }
+  
+  if (typeof inputData === 'object' && !Array.isArray(inputData)) {
+    const result = {};
+    
+    for (const key in inputData) {
+      if (inputData.hasOwnProperty(key)) {
+        if (preserveKeys || !key.startsWith('_')) {
+          result[key] = transformInputData(inputData[key], options);
+        }
+      }
+    }
+    
+    return result;
+  }
+  
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => transformInputData(item, options));
+  }
+  
+  return inputData;
+}
+
+// Export functionality with accessibility support
+const exportUtils = {
+  exportData: (data, filename, mimeType) => {
+    const blob = new Blob([data], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.setAttribute('aria-label', `Download ${filename}`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
+  },
+
+  exportToJSON: (data, filename) => {
+    const jsonString = JSON.stringify(data, null, 2);
+    exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
+  },
+
+  exportToCSV: (data, filename) => {
+    if (!data || data.length === 0) return;
+    
+    const headers = Object.keys(data[0]);
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+    
+    for (const row of data) {
+      const values = headers.map(header => {
+        const escaped = ('' + row[header]).replace(/"/g, '\\"');
+        return `"${escaped}"`;
+      });
+      csvRows.push(values.join(','));
+    }
+    
+    const csvString = csvRows.join('\n');
+    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
+  }
+};
+
+// Initialize accessibility features
+const initAccessibility = () => {
+  accessibilityUtils.initSkipLink();
+  
+  document.querySelectorAll('[data-accessible]').forEach(element => {
+    element.addEventListener('keydown', (e) => {
+      accessibilityUtils.handleKeyboardNav(e, {
+        Enter: () => element.click(),
+        ' ': () => element.click()
+      });
+    });
+  });
+};
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAccessibility);
+  } else {
+    initAccessibility();
+  }
+}
+
 // Export all functions
 module.exports = {
   ...main,
@@ -403,11 +732,6 @@ module.exports = {
   addressAccessibilityIssues,
   createInPageButton,
   createWebResourceButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
   addMainLandmark,
@@ -419,6 +743,15 @@ module.exports = {
   addSvgAccessibleName,
   fixFakeLinkIssue,
   addAriaAttribute,
-
-  renderDependencyGraph: renderDependencyGraphs
+  accessibilityUtils,
+  exportUtils,
+  initAccessibility,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  newFocusTrap,
+  transformInputData
 };

@@ -215,29 +215,29 @@ function checkLandmarkElement(id) {
 
 /**
  * Add proper landmark regions to the document.
- * 
+ *
  * This function identifies all landmark elements and ensures they have
  * proper semantic HTML5 landmark roles and ARIA attributes where necessary.
  * It addresses the issue of ensuring proper landmark accessibility.
- * 
+ *
  * @returns {Array<Object>} Array of results containing landmark information and status.
  */
 function addProperLandmarkRegions() {
   const results = [];
   const landmarks = document.querySelectorAll('main, nav, header, footer, aside, section');
-  
+
   landmarks.forEach(landmark => {
     const result = {
       element: landmark,
       tagName: landmark.tagName.toLowerCase(),
       hasRole: landmark.hasAttribute('role'),
       role: landmark.getAttribute('role'),
-      hasAccessibleName: !!landmark.getAttribute('aria-label') || 
+      hasAccessibleName: !!landmark.getAttribute('aria-label') ||
                         !!landmark.getAttribute('aria-labelledby'),
       isValid: false,
       issues: []
     };
-    
+
     // Check if landmark has appropriate role
     const appropriateRoles = {
       'main': 'main',
@@ -247,7 +247,7 @@ function addProperLandmarkRegions() {
       'aside': 'complementary',
       'section': 'region'
     };
-    
+
     const expectedRole = appropriateRoles[result.tagName];
     if (expectedRole && result.hasRole && result.role === expectedRole) {
       result.isValid = true;
@@ -259,7 +259,7 @@ function addProperLandmarkRegions() {
     } else if (expectedRole && result.hasRole && result.role !== expectedRole) {
       result.issues.push(`Incorrect role: "${result.role}" (expected "${expectedRole}")`);
     }
-    
+
     // Add accessible name if missing
     if (!result.hasAccessibleName) {
       if (landmark.id) {
@@ -273,10 +273,10 @@ function addProperLandmarkRegions() {
         result.hasAccessibleName = true;
       }
     }
-    
+
     results.push(result);
   });
-  
+
   return results;
 }
 
@@ -450,6 +450,7 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   personName,
+  main,
   mainExecution,
   versionOneImplementation,
   checkLandmarkElement,

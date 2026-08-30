@@ -253,6 +253,38 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+/**
+ * Counts the number of dependencies in a given module object or dependency tree
+ * @param {Object} module - The module or dependency tree to analyze
+ * @returns {number} - The total number of dependencies
+ */
+function countDependencies(module) {
+  let count = 0;
+
+  if (!module || typeof module !== 'object') {
+    return count;
+  }
+
+  if (Array.isArray(module)) {
+    module.forEach(item => {
+      count += countDependencies(item);
+    });
+  } else {
+    Object.keys(module).forEach(key => {
+      if (key === 'dependencies' && Array.isArray(module[key])) {
+        count += module[key].length;
+        module[key].forEach(dep => {
+          count += countDependencies(dep);
+        });
+      } else if (typeof module[key] === 'object' && module[key] !== null) {
+        count += countDependencies(module[key]);
+      }
+    });
+  }
+
+  return count;
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +303,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  countDependencies
 };

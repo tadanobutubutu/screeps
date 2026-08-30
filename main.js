@@ -1,4 +1,5 @@
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+const React = require('react');
+const HTML = ({ lang }) => React.createElement('html', { lang }, '/* other children */');
 
 // Sample data and state
 const config = {
@@ -401,12 +402,12 @@ export default function App() {
   };
 
   return (
-    <HTML lang="en">
-      <React.Fragment>
-        <MyApp />
-        {/* Render your HTML structure */}
-      </React.Fragment>
-    </HTML>
+    React.createElement(HTML, { lang: "en" },
+      React.createElement(React.Fragment, null,
+        React.createElement(MyApp, null),
+        // Render your HTML structure
+      )
+    )
   );
 }
 
@@ -437,5 +438,7 @@ module.exports = {
   createInPageButton,
   validateLinkAccessibility,
   handleFakeLinks,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  calculateSum,
+  missingExportPlaceholder
 };

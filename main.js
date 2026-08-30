@@ -38,6 +38,79 @@ function validateLandmark(landmark) {
 }
 
 /**
+ * Validates the structure of landmark elements in a document
+ * Checks for proper nesting, duplicate landmarks, and ARIA landmark roles
+ * @param {Document|HTMLElement} docOrContainer - The document or container to validate
+ * @returns {Object} - Validation results with structure issues
+ */
+function validateLandmarkStructure(docOrContainer) {
+  const results = {
+    valid: true,
+    issues: []
+  };
+  
+  if (!docOrContainer) {
+    results.valid = false;
+    results.issues.push('Document or container is required');
+    return results;
+  }
+  
+  const container = docOrContainer.body || docOrContainer;
+  const landmarkTags = ['header', 'main', 'nav', 'aside', 'section', 'article', 'footer'];
+  const selector = landmarkTags.join(', ');
+  const landmarks = container.querySelectorAll(selector);
+  
+  // Check for multiple <main> elements
+  const mainElements = container.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    results.valid = false;
+    results.issues.push(`Found ${mainElements.length} <main> elements. Documents should only have one <main> landmark.`);
+  }
+  
+  // Check for <header> and <footer> outside of landmark contexts
+  landmarks.forEach(landmark => {
+    const tag = landmark.tagName.toLowerCase();
+    
+    // Check for nested landmarks of the same type (except nav, aside, section)
+    if (tag === 'header' || tag === 'footer' || tag === 'article') {
+      const parentOfSameType = landmark.parentElement?.closest(tag);
+      if (parentOfSameType) {
+        results.valid = false;
+        results.issues.push(`Nested <${tag}> element found. <${tag}> should not be nested within another <${tag}>.`);
+      }
+    }
+    
+    // Check for section/article without accessible name
+    if (tag === 'section' || tag === 'article') {
+      const hasLabel = landmark.id || landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby');
+      const firstHeading = landmark.querySelector('h1, h2, h3, h4, h5, h6');
+      
+      if (!hasLabel && !firstHeading) {
+        results.valid = false;
+        results.issues.push(`<${tag}> element should have an accessible name via id, aria-label, aria-labelledby, or contain a heading.`);
+      }
+    }
+    
+    // Check for proper landmark role attributes
+    const validLandmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'];
+    const explicitRole = landmark.getAttribute('role');
+    if (explicitRole && !validLandmarkRoles.includes(explicitRole)) {
+      results.issues.push(`Element has non-standard landmark role: ${explicitRole}`);
+    }
+  });
+  
+  // Check for landmark elements with tabindex that might indicate interactive misuse
+  landmarks.forEach(landmark => {
+    const tabindex = landmark.getAttribute('tabindex');
+    if (tabindex !== null && landmark.tagName.toLowerCase() !== 'nav') {
+      results.issues.push(`Landmark element <${landmark.tagName.toLowerCase()}> should not have tabindex. Use tabindex on interactive elements within landmarks instead.`);
+    }
+  });
+  
+  return results;
+}
+
+/**
  * Main JavaScript module for landmark element validation
  * @module main
  */
@@ -148,7 +221,7 @@ function improveAccessibility(container) {
   }
 
   // Ensure all clickable elements are focusable
-  const focusable = container.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+  const focusable = container.querySelectorAll('button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -196,10 +269,10 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (svg && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       const title = svg.querySelector('title');
       if (title) {
-        const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+        const titleId = 'svg-title-' + Math.random().toString(36).substring(2, 9);
         title.id = titleId;
         svg.setAttribute('aria-labelledby', titleId);
       }
@@ -247,7 +320,7 @@ function addProperLandmarkRegions(affectedElements) {
   if (!affectedElements || !Array.isArray(affectedElements)) return;
 
   affectedElements.forEach(el => {
-    if (el && el.tagName && !el.hasAttribute('role')) {
+    if (el && el.tagName) {
       el.setAttribute('role', 'region');
     }
   });
@@ -255,6 +328,7 @@ function addProperLandmarkRegions(affectedElements) {
 
 module.exports = {
   validateLandmark,
+  validateLandmarkStructure,
   config,
   isLandmark,
   validateLandmarks,

@@ -1,4 +1,7 @@
-// Implemented validateLandmark functionality
+/**
+ * Main JavaScript module for landmark element validation
+ * @module main
+ */
 function validateLandmark(landmark) {
   const errors = [];
   
@@ -36,11 +39,6 @@ function validateLandmark(landmark) {
     errors
   };
 }
-
-/**
- * Main JavaScript module for landmark element validation
- * @module main
- */
 
 /**
  * Configuration for landmark checks */
@@ -148,7 +146,7 @@ function improveAccessibility(container) {
   }
 
   // Ensure all clickable elements are focusable
-  const focusable = container.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+  const focusable = container.querySelectorAll('button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -196,7 +194,7 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
       const title = svg.querySelector('title');
       if (title) {
         const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);

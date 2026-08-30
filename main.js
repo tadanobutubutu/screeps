@@ -18,7 +18,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `${book.id}-${book.title}-${book.author}`;
+  return book.id || `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
@@ -40,6 +40,66 @@ function addBook(book) {
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
+}
+
+// Function to address accessibility issues from insight report
+function addressAccessibilityIssues() {
+  // Create and inject ARIA live region for screen reader announcements
+  const liveRegion = document.createElement('div');
+  liveRegion.setAttribute('role', 'status');
+  liveRegion.setAttribute('aria-live', 'polite');
+  liveRegion.setAttribute('aria-atomic', 'true');
+  liveRegion.className = 'sr-only';
+  liveRegion.id = 'a11y-live-region';
+  document.body.appendChild(liveRegion);
+
+  // Function to announce dynamic content changes to screen readers
+  function announceToScreenReader(message) {
+    if (liveRegion) {
+      liveRegion.textContent = '';
+      setTimeout(() => {
+        liveRegion.textContent = message;
+      }, 50);
+    }
+  }
+
+  // Function to manage focus for keyboard accessibility
+  function manageFocus(elementId) {
+    const element = document.getElementById(elementId);
+    if (element && typeof element.focus === 'function') {
+      element.focus();
+    }
+  }
+
+  // Function to trap focus within a modal/dialog for accessibility
+  function trapFocus(containerElement) {
+    const focusableElements = containerElement.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    function handleTabKey(e) {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+
+    containerElement.addEventListener('keydown', handleTabKey);
+    return () => containerElement.removeEventListener('keydown', handleTabKey);
+  }
+
+  return {
+    announceToScreenReader,
+    manageFocus,
+    trapFocus
+  };
 }
 
 // Function to count dependencies
@@ -95,14 +155,21 @@ function Main() {
   }, [sorting]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(BookItem);
+  const bookItems = getBooksList.map((book) => BookItem(book));
+
+  // Initialize accessibility utilities
+  const { announceToScreenReader, manageFocus } = addressAccessibilityIssues();
 
   // Render the list of book items and sorting controls
   return (
     <div>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
+      <List
+        dataSource={getBooksList}
+        renderItem={(book) => BookItem(book)}
+        aria-label="Book list"
+      />
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
     </div>

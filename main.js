@@ -7,11 +7,11 @@
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = document.querySelector('.skip-link, [href="#main-content"], .skip-to-content');
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const target = document.querySelector(skipLink.getAttribute('href') || '#main-content');
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -31,11 +31,11 @@ const accessibilityUtils = {
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
           e.preventDefault();
+          firstElement.focus();
         }
       }
     });
@@ -69,7 +69,7 @@ const accessibilityUtils = {
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element;
 };
@@ -101,7 +101,138 @@ const renderDependencyGraph = (data) => {
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
 function newFocusTrap() {
-  // New function implementation
+  // New function implementation - Enhanced focus trap for keyboard navigation
+  // This function creates a focus trap mechanism that prevents focus from leaving a specified element
+  // It handles both forward (Tab) and backward (Shift+Tab) navigation
+
+  let activeTrap = null;
+  let trapElement = null;
+  let previousActiveElement = null;
+  let mutationObserver = null;
+
+  const FOCUSABLE_SELECTORS = [
+    'a[href]',
+    'button:not([disabled])',
+    'textarea:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(', ');
+
+  const getFocusableElements = (container) => {
+    return Array.from(container.querySelectorAll(FOCUSABLE_SELECTORS)).filter(
+      (el) => el.offsetParent !== null
+    );
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key !== 'Tab') return;
+
+    const focusableElements = getFocusableElements(trapElement);
+    if (focusableElements.length === 0) return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (event.shiftKey) {
+      // Shift + Tab: moving backward
+      if (document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      // Tab: moving forward
+      if (document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+  };
+
+  const activate = (element, options = {}) => {
+    const {
+      returnFocusOnDeactivate = true,
+      initialFocus = null,
+      setInitialFocus = true
+    } = options;
+
+    if (activeTrap) {
+      deactivate();
+    }
+
+    trapElement = element;
+    previousActiveElement = document.activeElement;
+
+    // Set up event listeners
+    element.addEventListener('keydown', handleKeyDown);
+
+    // Set up mutation observer to track dynamically added focusable elements
+    mutationObserver = new MutationObserver(() => {
+      const focusableElements = getFocusableElements(trapElement);
+      if (focusableElements.length > 0) {
+        mutationObserver.disconnect();
+      }
+    });
+
+    mutationObserver.observe(element, {
+      childList: true,
+      subtree: true
+    });
+
+    // Handle initial focus
+    if (setInitialFocus) {
+      const focusTarget = initialFocus
+        ? typeof initialFocus === 'string'
+          ? element.querySelector(initialFocus)
+          : initialFocus
+        : getFocusableElements(element)[0];
+
+      if (focusTarget) {
+        setTimeout(() => focusTarget.focus(), 0);
+      }
+    }
+
+    activeTrap = {
+      element,
+      returnFocusOnDeactivate
+    };
+
+    return activeTrap;
+  };
+
+  const deactivate = () => {
+    if (!activeTrap) return;
+
+    const { element, returnFocusOnDeactivate } = activeTrap;
+
+    // Remove event listeners
+    element.removeEventListener('keydown', handleKeyDown);
+
+    // Disconnect mutation observer
+    if (mutationObserver) {
+      mutationObserver.disconnect();
+      mutationObserver = null;
+    }
+
+    // Return focus to the previously active element
+    if (returnFocusOnDeactivate && previousActiveElement) {
+      setTimeout(() => previousActiveElement.focus(), 0);
+    }
+
+    activeTrap = null;
+    trapElement = null;
+    previousActiveElement = null;
+  };
+
+  const getActiveTrap = () => {
+    return activeTrap;
+  };
+
+  return {
+    activate,
+    deactivate,
+    getActiveTrap
+  };
 }
 
 // Add back any required exports that might have been removed.
@@ -112,11 +243,11 @@ export function calculateSum(a, b) { return a + b; }
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = document.querySelector('.skip-link, [href="#main-content"], .skip-to-content');
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const target = document.querySelector(skipLink.getAttribute('href') || '#main-content');
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -136,11 +267,11 @@ const accessibilityUtils = {
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
           e.preventDefault();
+          firstElement.focus();
         }
       }
     });
@@ -216,28 +347,5 @@ const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
   
   // Add keyboard support for all interactive elements
-  document.querySelectorAll('[data-accessible]').forEach(element => {
-    element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, {
-        Enter: () => element.click(),
-        ' ': () => element.click()
-      });
-    });
-  });
-};
-
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAccessibility);
-  } else {
-    initAccessibility();
-  }
-}
-
-// Export all utilities
-module.exports = {
-  accessibilityUtils,
-  exportUtils,
-  initAccessibility
-};
+  document.querySelectorAll('button, [role="button"], a[href]').forEach(element => {
+    element.addEventListener('keydown

@@ -6,6 +6,15 @@ import { List } from 'antd';
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
 
+// Function for creating in-page buttons
+function createButton(label, onClick, className = '', disabled = false) {
+  return (
+    <button onClick={onClick} className={className} disabled={disabled}>
+      {label}
+    </button>
+  );
+}
+
 // Function to handle sorting books by title (ascending)
 export function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
@@ -94,3 +103,4 @@ function Main() {
 
 // Export the Main component
 export default Main;
+```

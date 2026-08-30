@@ -386,6 +386,7 @@ export {
   App,
   getUniqueLandmarkName,
   validateLandmarks,
+  addSvgAccessibleNames,
   addSvgAccessibleName,
   isValidLink,
   addScopeToHeaders,

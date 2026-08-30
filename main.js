@@ -379,6 +379,40 @@ function handleFakeLinks() {
   return issues;
 }
 
+// REACT_046: Check link accessibility
+function isLinkAccessible(link) {
+  // Check if a link is accessible
+  if (!link) {
+    return { accessible: false, reason: 'Link is null or undefined' };
+  }
+  
+  // Check if href exists and is valid
+  const href = link.href || link.attributes?.href;
+  if (!href) {
+    return { accessible: false, reason: 'Link missing href attribute' };
+  }
+  
+  // Check for empty href
+  if (href === '' || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;') {
+    return { accessible: false, reason: 'Link has empty or JavaScript-only href' };
+  }
+  
+  // Check for valid URL schemes
+  const validSchemes = ['http:', 'https:', '/', '#'];
+  const hasValidScheme = validSchemes.some(scheme => href.startsWith(scheme));
+  if (!hasValidScheme) {
+    return { accessible: false, reason: 'Link has invalid URL scheme' };
+  }
+  
+  // Check for accessible text
+  const text = link.textContent || link.innerText || link.attributes?.['aria-label'];
+  if (!text || text.trim() === '') {
+    return { accessible: false, reason: 'Link has no accessible text' };
+  }
+  
+  return { accessible: true, href: href, text: text };
+}
+
 // Main function to address all accessibility issues from the insight report
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport) {
@@ -524,6 +558,7 @@ module.exports = {
   createInPageButton,
   validateLinkAccessibility,
   handleFakeLinks,
+  isLinkAccessible,
   personName,
   main,
   mainExecution

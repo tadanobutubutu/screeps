@@ -82,7 +82,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
   button.className = buttonClass;
 
   // Append the button to the body or a specific container
-  ...
+  document.body.appendChild(button);
 
   // Return the created button for further manipulation if needed
   return button;
@@ -96,12 +96,8 @@ const a11yStore = {
   countDependencies,
 
   init() {
-    ...
-    ...
-    ...
+    this.createLiveRegion();
     this.setupSkipLinks();
-    ...
-    ...
     this.fixFakeLinks(); // Added for REACT_036
   },
 
@@ -110,18 +106,22 @@ const a11yStore = {
     if (this.liveRegion) return;
 
     // Update scope attributes in all .html files in the views directory
-    const viewsDir = ... 'views');
-    ...
-      .filter(file => file.endsWith('.html'))
-      .forEach(file => {
-        const filePath = path.join(viewsDir, file);
-        ...
-      });
+    const viewsDir = path.join(__dirname, 'views');
+    if (fs.existsSync(viewsDir)) {
+      fs.readdirSync(viewsDir)
+        .filter(file => file.endsWith('.html'))
+        .forEach(file => {
+          const filePath = path.join(viewsDir, file);
+          let content = fs.readFileSync(filePath, 'utf8');
+          content = updateThScopeAttribute(content);
+          fs.writeFileSync(filePath, content);
+        });
+    }
 
     // Fix Safari focus trapping in dropdowns
-    const dropdownContainers = ...
-    ... => {
-      ... (e) => {
+    const dropdownContainers = document.querySelectorAll('.dropdown');
+    dropdownContainers.forEach(container => {
+      container.addEventListener('keydown', (e) => {
         if (e.key !== 'Tab') return;
 
         const currentFocusedElement = document.activeElement;
@@ -136,14 +136,24 @@ const a11yStore = {
         }
 
         // Ensure focus trapping only within the dropdown container
-        if ... {
+        if (focusIsInsideContainer) {
           // Find the first focusable element within the container
           const firstFocusableElement = container.querySelector(
-            'button, [href], input, select, textarea, ...'
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
           );
 
-          if ... {
-            ...
+          if (firstFocusableElement) {
+            if (e.shiftKey && document.activeElement === firstFocusableElement) {
+              e.preventDefault();
+              const lastFocusableElement = container.querySelector(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+              );
+              lastFocusableElement.focus();
+            } else if (!e.shiftKey && document.activeElement === container.querySelector(
+              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            )) {
+              // This condition might need adjustment based on actual last element logic
+            }
           }
         }
       });
@@ -153,47 +163,49 @@ const a11yStore = {
   // Manage focus for accessibility
   setupFocusManagement() {
     // Trap focus within modals
-    ... (e) => {
+    document.addEventListener('keydown', (e) => {
       if (e.key !== 'Tab') return;
 
-      const modal = ...
+      const modal = document.querySelector('.modal[style*="display: block"]');
       if (!modal) return;
 
       const focusableElements = modal.querySelectorAll(
-        'button, [href], input, select, textarea, ...'
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
 
-      const firstElement = ...
+      const firstElement = focusableElements[0];
       const lastElement = focusableElements[focusableElements.length - 1];
 
       if (e.shiftKey && document.activeElement === firstElement) {
         e.preventDefault();
-        ...
+        lastElement.focus();
       } else if (!e.shiftKey && document.activeElement === lastElement) {
         e.preventDefault();
-        ...
+        firstElement.focus();
       }
     });
   },
 
   // Setup skip links
   setupSkipLinks() {
-    const skipLink = ...
+    const skipLink = document.querySelector('.skip-link');
     if (!skipLink) return;
 
-    const targetId = ...
-    const target = targetId ? ... : null;
+    const targetId = skipLink.getAttribute('href').replace('#', '');
+    const target = document.getElementById(targetId);
 
     if (target) {
-      ... (e) => {
+      skipLink.addEventListener('click', (e) => {
         e.preventDefault();
         target.setAttribute('tabindex', '-1');
         target.focus();
-        ... to main content');
+        target.blur();
+        // Announce to screen readers that focus has moved to main content'
+        this.announce('Focus moved to main content');
       });
 
       // Focus the skip link when the document is loaded in Safari
-      if ... !== -1) {
+      if (navigator.userAgent.indexOf('Safari') !== -1) {
         skipLink.focus();
       }
     }
@@ -201,35 +213,37 @@ const a11yStore = {
 
   // Utility: Check if user prefers reduced motion
   prefersReducedMotion() {
-    return ... reduce)').matches;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
 
   // Utility: Check if user prefers high contrast
   prefersHighContrast() {
-    return ... more)').matches;
+    return window.matchMedia('(prefers-contrast: high)').matches;
   },
 
   // New function to handle dynamic content updates
   updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) ...
+    if (!this.liveRegion) {
+      this.createLiveRegion();
+    }
     this.announce(message, priority);
   },
 
   // Check landmark elements
   checkLandmarkElements() {
     const landmarkElements = LANDMARK_ELEMENTS;
-    ... => {
-      const landmarks = ...
+    landmarkElements.forEach(element => {
+      const landmarks = document.querySelectorAll(element);
       landmarks.forEach((landmark, index) => {
         // Ensure landmark has a unique ID
         if (landmark.id === '') {
-          ... `${element}-${index}`);
+          landmark.id = `${element}-${index}`;
         }
 
         // Ensure unique accessible names for duplicate landmarks
         if (landmarks.length > 1) {
-          if ... && ... {
-            ... `${element} ${index + 1}`);
+          if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
           }
         }
       });
@@ -237,11 +251,11 @@ const a11yStore = {
   },
 
   // Add SVG accessibility props
-  ... {
-    const svgElements = ...
-    ... => {
+  addSVGAccessibility() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
       // Ensure SVG has a title for accessible name
-      let titleElement = ...
+      let titleElement = svg.querySelector('title');
       if (!titleElement) {
         titleElement = document.createElement('title');
         titleElement.textContent = 'Image'; // Default accessible name
@@ -250,14 +264,14 @@ const a11yStore = {
 
       // Ensure title has an ID for aria-labelledby
       if (!titleElement.id) {
-        titleElement.id = ... * 10000)}`;
+        titleElement.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
       }
 
       // Set aria-labelledby to point to the title
-      ... titleElement.id);
+      svg.setAttribute('aria-labelledby', titleElement.id);
 
       // Add role img if not present (redundant but safe)
-      if ... {
+      if (!svg.hasAttribute('role')) {
         svg.setAttribute('role', 'img');
       }
     });
@@ -265,11 +279,11 @@ const a11yStore = {
 
   // Fix fake links (REACT_036)
   fixFakeLinks() {
-    const fakeLinks = ...
-    ... => {
+    const fakeLinks = document.querySelectorAll('a[href="#"], a[role="link"]:not([href])');
+    fakeLinks.forEach(link => {
       link.setAttribute('role', 'link');
-      ... '0');
-      ... 'true');
+      link.setAttribute('tabindex', '0');
+      link.setAttribute('aria-label', link.textContent || 'Link');
     });
   },
 
@@ -297,23 +311,23 @@ const a11yStore = {
           }
           break;
         case 'missing-skip-link':
-          if ... {
+          if (!document.querySelector('.skip-link')) {
             const skipLink = document.createElement('a');
             skipLink.className = 'skip-link';
             skipLink.href = '#main-content';
             skipLink.textContent = 'Skip to main content';
-            ...
+            document.body.insertBefore(skipLink, document.body.firstChild);
           }
           break;
         case 'missing-alt':
-          ... => {
+          document.querySelectorAll('img').forEach(img => {
             if (!img.getAttribute('alt')) {
               img.setAttribute('alt', 'Image description');
             }
           });
           break;
         case 'missing-label':
-          ... select, textarea').forEach(el => {
+          document.querySelectorAll('input, select, textarea').forEach(el => {
             if (!el.getAttribute('aria-label') && !el.getAttribute('id')) {
               el.setAttribute('aria-label', 'Form field');
             }
@@ -333,47 +347,53 @@ const a11yStore = {
 // ... rest of your main.js code ...
 
   // New implementation to count dependencies using Document and regex
-  const importCommentRegExp = ...
-  const importCount = (document.body.textContent || ... || 0;
+  const importCommentRegExp = /(?:^|\s)import\s+.*?from\s+['"]([^'"]+)['"]/g;
+  const importCount = (document.body.textContent || '').match(importCommentRegExp)?.length || 0;
   return importCount;
 }
 
 // New function to handle adding landmark regions
 function addLandmarkRegions() {
   // Implementation would iterate through LANDMARK_ELEMENTS and ensure they have proper IDs
-  ... => {
-    const element = ...
+  LANDMARK_ELEMENTS.forEach(elementType => {
+    const element = document.querySelector(elementType);
     if (element) {
       if (!element.id) {
-        element.id = ...
+        element.id = `${elementType}-region`;
       }
     }
   });
 }
 
 // New function to check landmark elements
-function ... {
+function checkLandmarkElements() {
   // Existing function implementation
 }
 
 // Run game logic here...
 
 // Update scope attributes in all .html files in the views directory
-const viewsDir = ... 'views');
-...
-  .filter(file => file.endsWith('.html'))
-  .forEach(file => {
-    const filePath = path.join(viewsDir, file);
-    ...
-  });
+const viewsDir = path.join(__dirname, 'views');
+if (fs.existsSync(viewsDir)) {
+  fs.readdirSync(viewsDir)
+    .filter(file => file.endsWith('.html'))
+    .forEach(file => {
+      const filePath = path.join(viewsDir, file);
+      let content = fs.readFileSync(filePath, 'utf8');
+      content = updateThScopeAttribute(content);
+      fs.writeFileSync(filePath, content);
+    });
+}
 
 // Wrap the entire document content inside a <main> element and set its lang attribute
-const mainElement = ...
-... document.documentElement.lang);
+const mainElement = document.querySelector('main');
+if (mainElement) {
+  mainElement.setAttribute('lang', document.documentElement.lang);
+}
 
 // REACT_015: Ensure the <html> element has a lang attribute for accessibility
-if ... {
-  ... 'en');
+if (!document.documentElement.lang) {
+  document.documentElement.lang = 'en';
 }
 
 // Start the game loop
@@ -396,7 +416,7 @@ functionB = {
 // ----- END ORIGINAL CODE -------
 
 // Initialize accessibility features
-... () => {
+document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
 });
 

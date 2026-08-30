@@ -14,6 +14,21 @@ function checkTableStructure(tableName, expectedColumns) {
   // ... (existing code)
 }
 
+// Sample data for insight report
+const sampleInsightReport = {
+  title: 'Quarterly Performance Report',
+  sections: [
+    {
+      heading: 'Sales Overview',
+      content: 'Total sales increased by 15% compared to last quarter.'
+    },
+    {
+      heading: 'Customer Satisfaction',
+      content: 'Average satisfaction score: 4.2 out of 5.'
+    }
+  ]
+};
+
 /**
  * Initialize the application with accessibility enhancements
  */

@@ -1,6 +1,7 @@
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+const fs = require('fs');
 
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
@@ -101,8 +102,108 @@ const renderDependencyGraph = (data) => {
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
-function newFocusTrap() {
-  // New function implementation
+function newFocusTrap(element) {
+  if (!element && typeof document !== 'undefined' && document.activeElement) {
+    element = document.activeElement.closest ? document.activeElement.closest('[data-focus-trap]') : null;
+  }
+  if (!element || typeof element.querySelectorAll !== 'function') return;
+  const focusable = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  if (focusable.length === 0) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  const onKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  };
+  element.addEventListener('keydown', onKeyDown);
+}
+
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    if (!document.documentElement.hasAttribute('lang')) {
+      document.documentElement.setAttribute('lang', 'en');
+    }
+    return document.documentElement.getAttribute('lang');
+  }
+  return 'en';
+}
+
+function personName(name, lang = 'en') {
+  const text = name != null ? String(name) : '';
+  if (typeof document !== 'undefined') {
+    const span = document.createElement('span');
+    span.textContent = text;
+    span.setAttribute('lang', lang);
+    return span;
+  }
+  return text;
+}
+
+function validateTableAccessibility(table) {
+  if (!table || typeof table.querySelector !== 'function') return false;
+  return (
+    !!table.querySelector('caption') ||
+    !!table.querySelector('th') ||
+    !!table.getAttribute('aria-label') ||
+    !!table.getAttribute('aria-labelledby')
+  );
+}
+
+function validateTableStructure(table) {
+  if (!table || typeof table.querySelectorAll !== 'function') return false;
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) return false;
+  const cellCount = rows[0].querySelectorAll('th, td').length;
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i].querySelectorAll('th, td').length !== cellCount) return false;
+  }
+  return true;
+}
+
+function validateLandmark(element) {
+  if (!element || typeof element.getAttribute !== 'function') return false;
+  const validRoles = ['banner', 'navigation', 'main', 'region', 'search', 'contentinfo', 'complementary', 'form', 'application'];
+  return validRoles.includes(element.getAttribute('role'));
+}
+
+function validateLandmarkStructure(element) {
+  if (!element || typeof element.getAttribute !== 'function') return false;
+  return (
+    !!element.getAttribute('aria-label') ||
+    !!element.getAttribute('aria-labelledby') ||
+    !!element.querySelector('title')
+  );
+}
+
+function getSvgAccessibleName(svg) {
+  if (!svg || typeof svg.getAttribute !== 'function') return '';
+  return (
+    svg.getAttribute('aria-label') ||
+    svg.getAttribute('aria-labelledby') ||
+    (svg.querySelector('title') ? svg.querySelector('title').textContent : '') ||
+    (svg.querySelector('desc') ? svg.querySelector('desc').textContent : '')
+  );
+}
+
+function createInPageButton(text, onClick) {
+  if (typeof document === 'undefined') return null;
+  const btn = document.createElement('button');
+  btn.textContent = text || '';
+  btn.setAttribute('type', 'button');
+  btn.setAttribute('aria-label', text || 'In page button');
+  if (typeof onClick === 'function') {
+    btn.addEventListener('click', onClick);
+  }
+  return btn;
 }
 
 // Add back any required exports that might have been removed.
@@ -265,6 +366,54 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
+
+  const processValue = (value) => {
+    if (typeof value !== 'string') return value;
+    let result = value;
+    if (trimWhitespace) result = result.trim();
+    if (uppercase) result = result.toUpperCase();
+    if (maxLength !== null && typeof maxLength === 'number' && maxLength >= 0) {
+      result = result.substring(0, maxLength);
+    }
+    return result;
+  };
+
+  if (typeof inputData === 'string') {
+    return processValue(inputData);
+  }
+
+  if (Array.isArray(inputData)) {
+    return inputData.map((item) => {
+      if (item !== null && typeof item === 'object' && !Array.isArray(item)) {
+        if (preserveKeys) {
+          const newObj = {};
+          for (const key in item) {
+            if (Object.prototype.hasOwnProperty.call(item, key)) {
+              newObj[key] = processValue(item[key]);
+            }
+          }
+          return newObj;
+        }
+        return Object.values(item).map(processValue);
+      }
+      return processValue(item);
+    });
+  }
+
+  if (inputData !== null && typeof inputData === 'object') {
+    if (preserveKeys) {
+      const newObj = {};
+      for (const key in inputData) {
+        if (Object.prototype.hasOwnProperty.call(inputData, key)) {
+          newObj[key] = processValue(inputData[key]);
+        }
+      }
+      return newObj;
+    }
+    return Object.values(inputData).map(processValue);
+  }
+
+  return inputData;
 }
 
 // Initialize on DOM ready
@@ -285,5 +434,15 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  newFocusTrap,
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  transformInputData
 };

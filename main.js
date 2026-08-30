@@ -32,6 +32,7 @@ function newFunction() {
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     // a11yStore.init(); // Ensure a11yStore is imported
+    addressAccessibilityIssuesDOM();
   });
 }
 
@@ -245,10 +246,10 @@ function addressAccessibilityIssuesDOM() {
 
     const mainElements = document.querySelectorAll('main');
     if (mainElements.length > 1) {
-      console.warn('Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.');
-      // The static fix should be applied in the source files
-      // - Replace one <main> with <section role="region" ...
-      // - Same fix
+      // Keep the first main as a landmark, and change the rest to non-landmarks
+      for (let i = 1; i < mainElements.length; i++) {
+        mainElements[i].setAttribute('role', 'presentation');
+      }
     }
 
     const fakeLinks = document.querySelectorAll('.fake-link');

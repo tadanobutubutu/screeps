@@ -89,9 +89,12 @@ function setupKeyboardNavigation(element, options = {}) {
  * @returns {Object} The report with accessibility issues addressed.
  */
 function addressAccessibilityIssues(insightReport) {
-  // Implementation to address accessibility issues from an insight report.
-  // Apply specific accessibility fixes here based on the report's structure.
-  // For now, we simply return the report unchanged.
+  // Handle REACT_025: Ensure unique landmarks
+  if (insightReport.landmarks && Array.isArray(insightReport.landmarks)) {
+    insightReport.landmarks = uniqueLandmarks(insightReport.landmarks);
+  }
+  
+  // Return the modified report with accessibility issues addressed
   return insightReport;
 }
 
@@ -412,4 +415,3 @@ if (typeof module !== 'undefined' && module.exports) {
     someFunction
   };
 }
-```

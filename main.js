@@ -236,7 +236,65 @@ function renderDependencyGraph(dependencyData) {
 }
 
 function renderIndexView(indexData) {
-  console.log('Rendering index view with data:', indexData);
+  if (!indexData) {
+    console.log('No index data provided');
+    return;
+  }
+
+  const container = indexData.container || document.getElementById('index-view');
+  if (!container) {
+    console.warn('No container found for index view rendering');
+    return;
+  }
+
+  const items = Array.isArray(indexData.items) ? indexData.items : [];
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Create the index view wrapper
+  const indexWrapper = document.createElement('div');
+  indexWrapper.className = 'index-view';
+  indexWrapper.setAttribute('role', 'navigation');
+  indexWrapper.setAttribute('aria-label', indexData.label || 'Index');
+
+  // Create heading if provided
+  if (indexData.title) {
+    const heading = document.createElement('h2');
+    heading.className = 'index-view-title';
+    heading.textContent = indexData.title;
+    indexWrapper.appendChild(heading);
+  }
+
+  // Create list of items
+  if (items.length > 0) {
+    const list = document.createElement('ul');
+    list.className = 'index-view-list';
+
+    items.forEach(item => {
+      const listItem = document.createElement('li');
+      listItem.className = 'index-view-item';
+
+      if (item && item.label) {
+        if (item.url || item.href) {
+          const link = document.createElement('a');
+          link.href = item.url || item.href;
+          link.textContent = item.label;
+          if (item.target) link.target = item.target;
+          listItem.appendChild(link);
+        } else {
+          listItem.textContent = item.label;
+        }
+      }
+
+      list.appendChild(listItem);
+    });
+
+    indexWrapper.appendChild(list);
+  }
+
+  container.appendChild(indexWrapper);
+  console.log('Index view rendered successfully');
 }
 
 function calculateSum(a, b) {

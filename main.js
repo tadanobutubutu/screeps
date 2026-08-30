@@ -13,7 +13,8 @@ const accessibilityUtils = {
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const targetId = skipLink.getAttribute('href');
+        const target = document.querySelector(targetId);
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -33,11 +34,11 @@ const accessibilityUtils = {
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
           e.preventDefault();
+          firstElement.focus();
         }
       }
     });
@@ -70,7 +71,7 @@ const accessibilityUtils = {
 
 const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = 'element-' + Math.random().toString(36).substring(2, 9);
   }
   return element;
 };
@@ -133,7 +134,8 @@ async function handleCredentialResponse(response) {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`${timestamp} [${level.toUpperCase()}] ${message}`);
+  const formattedMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+  console.log(formattedMessage);
 }
 
 // Export functionality with accessibility support
@@ -145,6 +147,7 @@ const exportUtils = {
     link.href = url;
     link.download = filename;
     link.setAttribute('aria-label', `Download ${filename}`);
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -180,11 +183,12 @@ const exportUtils = {
 };
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9_.-]/g, '_');
+  return filename.replace(/[^a-z0-9.-]/gi, '_');
 }
 
 function readFileSafe(filePath) {
   try {
+    const fs = require('fs');
     return fs.readFileSync(filePath, 'utf8');
   } catch (error) {
     log(`Error reading file ${filePath}: ${error.message}`, 'error');
@@ -219,7 +223,8 @@ const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
   
   // Add keyboard support for all interactive elements
-  document.querySelectorAll('[data-accessible]').forEach(element => {
+  const interactiveElements = document.querySelectorAll('button, a, input[type="button"], [role="button"]');
+  interactiveElements.forEach(element => {
     element.addEventListener('keydown', (e) => {
       accessibilityUtils.handleKeyboardNav(e, {
         Enter: () => element.click(),

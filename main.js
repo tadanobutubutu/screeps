@@ -155,6 +155,7 @@ function renderSvg(svgElement) {
   // New code that uses the imported modules
   const { someModule } = require('some-module');
   const someValue = someModule.someFunction(svgElement);
+}
 
 // New rendering functions for graph/index (to be used by existing functions)
 function renderGraphContentWithOptions(data, options = {}) {
@@ -392,7 +393,6 @@ function main() {
   implementNewFunction(); // Address accessibility issues from insight report
 }
 
-<<<<<<< HEAD
 // --- NEW FUNCTIONS ---
 
 /**
@@ -426,31 +426,11 @@ function addAriaLabelToElement(selector, ariaLabel) {
   }
 }
 
-/**
- * Renders dependency graph content into the specified container selector.
- * Supports both class and data attribute selectors for compatibility.
- *
- * @param {string} containerSelector - Selector for the container element.
- * @param {string} data - HTML or text content to inject into the container.
- */
-function renderDependencyGraph(containerSelector, data) {
-  const container = document.querySelector(containerSelector);
-  if (container) {
-    container.innerHTML = data;
-  }
-}
-
 // --- End of new functions ---
 
 // Export all functions for use elsewhere in the repository
-=======
-function someFunction() {
-  // Some implementation
-}
-
 const someFunction = () => 'someFunction result';
 
->>>>>>> origin/main
 module.exports = {
   config,
   logger,
@@ -479,9 +459,7 @@ module.exports = {
   addLangAttribute,
   main,
   ensureElementHasId,
-  addAriaLabelToElement,
-  renderDependencyGraph
+  addAriaLabelToElement
 };
-```
 
 addressAccessibilityIssues(); // Call the combined function to address accessibility issues.

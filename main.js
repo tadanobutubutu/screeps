@@ -253,6 +253,45 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+function checkTableAccessibility(table) {
+  if (!table || !table.tagName || table.tagName.toLowerCase() !== 'table') {
+    return;
+  }
+
+  const errors = [];
+  const isLandmarkTable = table.getAttribute('role') === 'region' || table.getAttribute('role') === 'document';
+
+  // Check for appropriate use of `<th>` tags
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    errors.push('Table without headers is not accessible');
+  } else {
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope') || (header.hasAttribute('scope') && header.getAttribute('scope') !== 'row')) {
+        errors.push('Table header does not have the correct scope attribute');
+      }
+    });
+  }
+
+  // Check for `<thead>` and `<tbody>` tags
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  if (!thead || !tbody) {
+    errors.push('Table must contain both <thead> and <tbody>');
+  }
+
+  // Check for `aria-label` attribute for table
+  if (!table.hasAttribute('aria-label') && !table.hasAttribute('aria-labelledby')) {
+    errors.push('Table does not have an accessible name');
+  }
+
+  if (errors.length === 0 && isLandmarkTable) {
+    return { valid: true, errors };
+  } else {
+    return { valid: false, errors };
+  }
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +310,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  checkTableAccessibility
 };

@@ -19,7 +19,7 @@ function addLandmarks(landmarks) {
   landmarks.forEach(landmark => {
     // Perform any necessary operations on the landmark
     // For example, you might want to add it to a map or a database, or calculate the distance to another landmark
-    console.log(`Adding landmark: ${landmark.name} at coordinates ${landmark.coordinates}`);
+    console.log(`Adding landmark: ${landmark.name} at coordinates: ${landmark.coordinates}`);
     // Add your logic here
   });
 }
@@ -98,8 +98,8 @@ export function getUniqueLandmarkName(baseName, existingNames) {
   return newName;
 }
 
-export function validateUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+export function checkLandmarks() {
+  const landmarks = document.querySelectorAll('[role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
 
@@ -130,7 +130,7 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
 
   // Add title element as first child
   const title = document.createElement('title');
-  title.id = `svg-title-${Date.now()}`;
+  title.id = accessibleName.replace(/\s+/g, '-').toLowerCase();
   title.textContent = accessibleName;
 
   // Insert title as first child
@@ -183,7 +183,7 @@ export {
   functionB,
   App,
   getUniqueLandmarkName,
-  validateUniqueLandmarks,
+  checkLandmarks,
   addSvgAccessibleName,
   isValidLink,
   addScopeToHeaders,
@@ -215,7 +215,7 @@ function modifiedFunction() {
 
 // REACT_015: Get lang attribute from HTML element
 export function getLangAttribute() {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
@@ -281,7 +281,7 @@ export function validateLandmarkStructure() {
   const issues = [];
   
   // Check for proper landmark roles
-  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"]');
   
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role');
@@ -323,7 +323,7 @@ export function validateLandmarkStructure() {
     // Check for proper naming
     const hasLabel = landmark.getAttribute('aria-label') || 
                      landmark.getAttribute('aria-labelledby') ||
-                     landmark.querySelector('h1, h2, h3, h4, h5, h6');
+                     landmark.querySelector('h2, h3, h4, h5, h6');
     
     if (!hasLabel && landmarks.length > 1) {
       issues.push({
@@ -340,7 +340,7 @@ export function validateLandmarkStructure() {
 // REACT_017: Validate landmarks (additional check for landmark roles)
 export function validateLandmark() {
   const issues = [];
-  const landmarks = document.querySelectorAll('header, nav, main, footer, aside, section');
+  const landmarks = document.querySelectorAll('nav, main, footer, aside, section');
   
   landmarks.forEach(landmark => {
     const tagName = landmark.tagName.toLowerCase();
@@ -361,15 +361,8 @@ export function validateLandmark() {
     }
     
     // Report issues for missing labels on multiple landmarks
-    const sameTypeLandmarks = document.querySelectorAll(`${tagName}:not([aria-label]):not([aria-labelledby])`);
-    if (sameTypeLandmarks.length > 1) {
+    const sameTypeLandmarks = document.querySelectorAll(tagName);
+    if (sameTypeLandmarks.length > 1 && !hasLabel) {
       issues.push({
         element: landmark,
-        message: `Multiple ${tagName} landmarks should have unique accessible names.`,
-        severity: 'warning'
-      });
-    }
-  });
-  
-  return issues;
-}
+        message

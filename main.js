@@ -47,7 +47,7 @@ function uniqueLandmarks(landmarks) {
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (!element.hasAttribute('aria-label')) {
+    if (element && !element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
@@ -77,14 +77,6 @@ function ensureElementsHaveIds(elements) {
     }
     return element;
   });
-}
-
-// Add ARIA labels for better screen reader support
-function addAriaLabelById(elementId, label) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
 }
 
 // DOM-based accessibility code
@@ -149,6 +141,18 @@ document.addEventListener('DOMContentLoaded', function() {
       button.id = `accessible-button-${index}`;
     }
   });
+
+  // Use the new function to add aria-labels to the appropriate elements
+  const myButton = document.querySelector('.my-button');
+  const myIcon = document.querySelector('.my-icon');
+
+  if (myButton) {
+    addAriaLabel(myButton, 'My Button');
+  }
+
+  if (myIcon) {
+    addAriaLabel(myIcon, 'My Icon');
+  }
 
   // Google sign-in accessibility
   const googleButton = document.querySelector('.google-sign-in, [data-provider="google"]');

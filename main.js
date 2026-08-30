@@ -9,5 +9,4 @@ function calculateProduct(a, b) {
 }
 
 // Added exports for new functions
-export function calculateSum;
-export function calculateProduct;
+export { calculateSum, calculateProduct };

@@ -1,5 +1,4 @@
-const dependencyGraphContent = require('./dependencyGraphContent');
-
+// main.js
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
 
@@ -7,34 +6,12 @@ function main() {
   return "Hello, World!";
 }
 
-const version = "1.0.0";
+function calculateSum(a, b) {
+  return a + b;
+}
 
-const config = {
-  port: 3000,
-  debug: false
-};
-
-const app = {
-  // Main application entry point
-  start() {
-    console.log('Application started');
-  }
-};
-
-const logger = {
-  info(message) {
-    console.log(`[INFO] ${message}`);
-  },
-  error(message) {
-    console.error(`[ERROR] ${message}`);
-  }
-};
-
-// Function to handle REACT_015: Add lang attribute to HTML element
-function getLangAttribute() {
-  // Code to get the language and return it
-  // Placeholder example:
-  return 'en';
+function calculateProduct(a, b) {
+  return a * b;
 }
 
 function getFullLangAttribute() {
@@ -671,6 +648,8 @@ module.exports = {
   main,
   config,
   version,
+  calculateSum,
+  calculateProduct,
   // New functions for rendering dependency graphs and index views
   renderDependencyGraph,
   renderIndexView,

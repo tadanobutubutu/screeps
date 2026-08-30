@@ -1,4 +1,3 @@
-// Existing code from main.js
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Header from './components/Header';
@@ -7,7 +6,7 @@ import Footer from './components/Footer';
 import './styles.css';
 
 // Initial setup
-const app = ...
+const app = createRoot(document.getElementById('root'));
 document.documentElement.lang = 'en';
 
 // Improve accessibility
@@ -15,37 +14,36 @@ app.setAttribute('role', 'main');
 app.setAttribute('aria-label', 'Main application');
 
 // New function as per the issue
-function ... {
-  // Assuming landmarks is an array of objects with 'name' and 'coordinates' properties
-  landmarks.forEach(landmark => {
-    // Perform any necessary operations on the landmark
-    // For example, you might want to add it to a map or a database, or calculate the distance to another landmark
-    console.log(`Adding landmark: ${landmark.name} at coordinates ...
-    // Add your logic here
-  });
+function getUniqueLandmarkName(landmarkName) {
+  // This function generates a unique name for landmarks based on the input name
+  return `landmark-${landmarkName.replace(/\s+/g, '-').toLowerCase()}`;
 }
 
 // Assuming there's a way to retrieve landmarks, you would call the function like this:
 // const allLandmarks = getLandmarks(); // Placeholder function
 // ...
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
-
-function function3() {
-  // TODO: Implement new function3 logic here
-}
-
-// NEW ACCESSIBILITY FUNCTIONS
+/**
+ * REACT_015: Add lang attribute to HTML element
+ * This is already done by setting document.documentElement.lang = 'en'; at the beginning
+ */
 
 /**
- * REACT_036: Fix fake link issues
+ * REACT_017: Add landmark roles and fix landmark issues
+ * Assuming landmarks is an array of objects with 'name' and 'coordinates' properties
+ */
+function addLandmarkRoles(landmarks) {
+  landmarks.forEach(landmark => {
+    const element = document.getElementById(getUniqueLandmarkName(landmark.name));
+    if (element) {
+      element.setAttribute('role', 'landmark');
+      element.setAttribute('aria-label', landmark.name);
+    }
+  });
+}
+
+/**
+ * REACT_036: Fix 1 fake link issue
  * Detects elements that appear to be links but don't have valid href attributes
  */
 function detectFakeLinks(container = document) {
@@ -99,7 +97,7 @@ function fixFakeLink(element, fixType = 'button') {
 }
 
 /**
- * REACT_041: Add accessible names to SVG elements
+ * REACT_041: Add accessible names to 2 SVGs
  */
 function addSvgAccessibleNames(container = document) {
   const svgs = container.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
@@ -144,6 +142,7 @@ export {
   function3,
   App,
   getUniqueLandmarkName,
+  addLandmarkRoles,
   ...
   addSvgAccessibleName,
   isValidLink,

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -27,7 +24,7 @@ export function BookItem(book) {
     <List.Item key={generateKey(book)} role="listitem">
       <List.Item.Meta
         title={book.title}
-        description={book.author}
+        ...
       />
     </List.Item>
   );
@@ -173,6 +170,3 @@ function Main() {
 
 // Export the Main component
 export default Main;
-```
-
-This resolved file successfully integrates both changes by keeping the `generateKey` and `BookItem` function definitions, along with the rest of the code for the `Main` component. The changes in the `onTitleSort` and `onAuthorSort` functions, as well as the introduction of a multi-sorting capability through the `sorting` state variable and the corresponding useEffect, have also been preserved. The style and format have been preserved as much as possible.

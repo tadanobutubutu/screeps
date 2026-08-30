@@ -38,8 +38,14 @@ function renderApp(context) {
   return `<div id="app">${viewFunction(context)}</div>`;
 }
 
+// New function3 logic to be implemented here
+function function3() {
+  // TODO: Implement new function3 logic here
+}
+
 module.exports = {
   renderDependencyGraph,
   renderIndex,
-  renderApp
+  renderApp,
+  function3 // Exporting the new function3
 };

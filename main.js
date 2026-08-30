@@ -715,6 +715,48 @@ async function main() {
   main.myNewFunction();
 }
 
+// Re-add any exports that were previously available
+function exportAllAccessibilityHelpers() {
+  return {
+    config,
+    appState,
+    initializeApp,
+    processData,
+    processDataExtended,
+    fetchUser,
+    clearCache,
+    initialize,
+    validateInput,
+    getLangAttribute,
+    getLangAttributeEnhanced,
+    addLangAttribute,
+    addLangAttributeEnhanced,
+    validateTableAccessibility,
+    validateTableStructure,
+    fixTableStructure,
+    addMainLandmark,
+    validateLandmark,
+    validateLandmarkStructure,
+    validateLandmarkAttributes,
+    getSvgAccessibleName,
+    getSvgAccessibleNameEnhanced,
+    setSvgAttributes,
+    setSvgAttributesEnhanced,
+    ensureUniqueLandmarks,
+    ensureUniqueLandmarksExtended,
+    addLandmarkRegions,
+    addProperLandmarkRegions,
+    validateLinkAccessibility,
+    validateLinkAccessibilityEnhanced,
+    handleFakeLinks,
+    createInPageButtonEnhanced,
+    personName,
+    mainExecution,
+    addressAccessibilityIssues,
+    addressAccessibilityIssuesMerged
+  };
+}
+
 module.exports = {
   // Screeps bot exports
   main,
@@ -771,5 +813,6 @@ module.exports = {
   createInPageButtonEnhanced,
   validateLinkAccessibilityEnhanced,
   personName,
-  mainExecution
+  mainExecution,
+  exportAllAccessibilityHelpers
 };

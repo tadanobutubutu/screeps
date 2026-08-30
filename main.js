@@ -4,10 +4,10 @@
 // main.js - Accessibility improvements implementation
 
 // Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(element, options = {}) {
+function handleKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
-  element.addEventListener('keydown', (event) => {
+  return (event) => {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -28,7 +28,7 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-  });
+  };
 }
 
 // Helper to manage focus within a container
@@ -40,7 +40,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  container.addEventListener('keydown', (event) => {
+  const handleTab = (event) => {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -50,7 +50,13 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  });
+  };
+  
+  container.addEventListener('keydown', handleTab);
+  
+  return () => {
+    container.removeEventListener('keydown', handleTab);
+  };
 }
 
 // ARIA live region announcer
@@ -83,13 +89,16 @@ function initializeAccessibility() {
   // Return the announcer for use in the app
   return {
     announce: announcer.announce,
-    setupKeyboardNavigation,
+    handleKeyboardNavigation,
     trapFocus,
+    createAnnouncer,
     prefersReducedMotion
   };
 }
 
 // TODO: add the new functions or changes requested in the issue
+
+// New utility functions
 
 /**
  * Checks if a value is an empty string, null, or undefined
@@ -154,20 +163,98 @@ function deepClone(obj) {
   return obj;
 }
 
+/**
+ * Debounces a function
+ * @param {Function} func - Function to debounce
+ * @param {number} wait - Wait time in milliseconds
+ * @returns {Function} - Debounced function
+ */
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+/**
+ * Throttles a function
+ * @param {Function} func - Function to throttle
+ * @param {number} limit - Time limit in milliseconds
+ * @returns {Function} - Throttled function
+ */
+function throttle(func, limit) {
+  let inThrottle;
+  return function executedFunction(...args) {
+    if (!inThrottle) {
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+}
+
+/**
+ * Generates a unique ID
+ * @returns {string} - Unique identifier
+ */
+function generateId() {
+  return 'id_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+}
+
+/**
+ * Safely parses JSON
+ * @param {string} str - JSON string to parse
+ * @param {*} defaultValue - Default value if parsing fails
+ * @returns {*} - Parsed object or default value
+ */
+function safeJsonParse(str, defaultValue = null) {
+  try {
+    return JSON.parse(str);
+  } catch (e) {
+    return defaultValue;
+  }
+}
+
 // Add accessible names to SVG elements
-function addAccessibleNamesToSvg() {
-  const svgs = document.querySelectorAll('svg');
+function addAccessibleNamesToSvg(container) {
+  const svgs = container.querySelectorAll('svg');
   if (svgs.length >= 2) {
     svgs[0].setAttribute('aria-label', 'First SVG');
     svgs[1].setAttribute('aria-label', 'Second SVG');
   }
+  
+  svgs.forEach((svg, index) => {
+    if (!svg.hasAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
+      svg.setAttribute('aria-label', `SVG element ${index + 1}`);
+    }
+  });
+}
+
+/**
+ * Checks if an element is in the viewport
+ * @param {HTMLElement} element - Element to check
+ * @returns {boolean} - True if element is in viewport
+ */
+function isInViewport(element) {
+  const rect = element.getBoundingClientRect();
+  return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+  );
 }
 
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     initializeAccessibility,
-    setupKeyboardNavigation,
+    handleKeyboardNavigation,
     trapFocus,
     createAnnouncer,
     prefersReducedMotion,
@@ -176,7 +263,12 @@ if (typeof module !== 'undefined' && module.exports) {
     getRandomInt,
     clamp,
     deepClone,
-    addAccessibleNamesToSvg
+    debounce,
+    throttle,
+    generateId,
+    safeJsonParse,
+    addAccessibleNamesToSvg,
+    isInViewport
   };
 }
 
@@ -184,6 +276,5 @@ if (typeof module !== 'undefined' && module.exports) {
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     window.accessibilityFeatures = initializeAccessibility();
-    addAccessibleNamesToSvg();
   });
 }

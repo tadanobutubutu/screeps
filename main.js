@@ -1,1 +1,7 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+function getLangAttribute() {
+  // Logic for getting the language attribute
+}
+
+function createInPageButton(id, href, text, className) {
+  // Logic for creating an in-page button with given properties
+}

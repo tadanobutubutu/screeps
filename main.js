@@ -150,6 +150,12 @@ function renderAccessibleDependencyGraph(dependencies, depth = 0) {
   return output;
 }
 
+// New function to visualize the dependency tree
+function visualizeDependencyTree(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
+}
+
 /**
  * Main processing function
  */
@@ -176,7 +182,8 @@ module.exports = {
   getDependencyDepth,
   generateDependencyReport,
   renderAccessibleDependencyGraph,
-  main
+  main,
+  visualizeDependencyTree
 };
 
 // Run if executed directly

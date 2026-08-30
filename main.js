@@ -256,9 +256,13 @@ function initialize() {
   fixFakeLink();
 }
 
-// New function or change requested in the issue
+// New function requested in the issue
 function newFunction() {
   // Implementation of the new function
+  const button = createInPageButton('New Button', function() {
+    console.log('New Function clicked!');
+  });
+  document.body.appendChild(button);
 }
 
 export function calculateDiscount(price, discount) {
@@ -283,18 +287,18 @@ function add(a, b) {
 }
 
 // Export existing functionality and new functions
-export { 
-  initialize, 
-  getConfig, 
-  setupSkipLinks, 
-  setupButtonAccessibility, 
-  createInPageButton, 
-  performTask, 
-  handleEvent, 
-  greet, 
-  add, 
-  calculateDiscount, 
-  newFunction 
+export {
+  initialize,
+  getConfig,
+  setupSkipLinks,
+  setupButtonAccessibility,
+  createInPageButton,
+  performTask,
+  handleEvent,
+  greet,
+  add,
+  calculateDiscount,
+  newFunction
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)

@@ -1,4 +1,7 @@
-// TODO: Existing main.js content before the merge conflict...
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
+
 /**
  * Main entry point for the Frontend application.
  *
@@ -86,7 +89,7 @@ const landmarkStructureCheck = (landmark) => {
 /**
  * Checks if the application is being loaded in a secure context.
  *
- * @returns {boolean} True if the application is in a secure context, false otherwise.
+ * @returns {boolean} Returns true if the application is in a secure context, false otherwise.
  */
 const isSecureContext = () => {
   return window.isSecureContext;

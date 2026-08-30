@@ -203,6 +203,59 @@ function fixFakeLink() {
   });
 }
 
+/**
+ * Validates landmark elements on the page for accessibility compliance
+ * @returns {Object} Validation result with isValid boolean and array of issues
+ */
+export function validateLandmark() {
+  const issues = [];
+  
+  // Check for header with banner role
+  const header = document.querySelector('header');
+  if (!header) {
+    issues.push('Missing header landmark');
+  } else if (!header.hasAttribute('role') || header.getAttribute('role') !== 'banner') {
+    issues.push('Header should have role="banner"');
+  }
+  
+  // Check for main landmark
+  const main = document.querySelector('main') || document.querySelector('[role="main"]') || document.getElementById('main-content');
+  if (!main) {
+    issues.push('Missing main landmark');
+  } else if (!main.hasAttribute('role') || main.getAttribute('role') !== 'main') {
+    issues.push('Main should have role="main"');
+  }
+  
+  // Check for footer with contentinfo role
+  const footer = document.querySelector('footer');
+  if (!footer) {
+    issues.push('Missing footer landmark');
+  } else if (!footer.hasAttribute('role') || footer.getAttribute('role') !== 'contentinfo') {
+    issues.push('Footer should have role="contentinfo"');
+  }
+  
+  // Check for nav with navigation role
+  const navElements = document.querySelectorAll('nav');
+  navElements.forEach((nav, index) => {
+    if (!nav.hasAttribute('role') || nav.getAttribute('role') !== 'navigation') {
+      issues.push(`Nav element ${index + 1} should have role="navigation"`);
+    }
+  });
+  
+  // Check for aside with complementary role if present
+  const asideElements = document.querySelectorAll('aside');
+  asideElements.forEach((aside, index) => {
+    if (!aside.hasAttribute('role') || aside.getAttribute('role') !== 'complementary') {
+      issues.push(`Aside element ${index + 1} should have role="complementary"`);
+    }
+  });
+  
+  return {
+    isValid: issues.length === 0,
+    issues
+  };
+}
+
 // Initialize accessibility improvements
 function initializeAccessibility() {
   // Replace fake links with proper buttons

@@ -6,6 +6,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useId } from '@react-aria/utils';
 import { ADD_BOOK, SORT_BY_TITLE, SORT_BY_AUTHOR } from './store/types';
 
+// Action creator for addBook
+function addBookAction(book) {
+  return { type: ADD_BOOK, payload: book };
+}
+
 // Helper functions
 function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
@@ -16,10 +21,10 @@ function sortByAuthor(a, b) {
 }
 
 function generateKey(book) {
-  return book.id || `${book.title}-${book.author}`;
+  return `book-${book.id || Math.random().toString(36).slice(2)}`;
 }
 
-// Functions from HEAD for dependency management
+// Functions for dependency management
 async function fetchBookDependencies(bookId, dispatch) {
   // Fetch dependencies for the specified book
   // ... (Assuming you have an API endpoint to fetch book dependencies or implementing this logic)
@@ -41,15 +46,124 @@ function setDependencyGraph({ bookId, dependencies }) {
   return { type: 'SET_DEPENDENCY_GRAPH', payload: { bookId, dependencies } };
 }
 
-// Components from origin/main
+// BookItem component
 function BookItem({ book }) {
   return (
     <List.Item key={generateKey(book)} role="listitem">
       <List.Item.Meta
         title={book.title}
-        ...
+        description={book.author}
       />
     </List.Item>
+  );
+}
+
+// Function to handle sorting the book list by title (ascending)
+function onTitleSort(dispatch, books) {
+  const sortedList = [...books].sort(sortByTitle);
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: SORT_BY_TITLE, payload: sortedList });
+}
+
+// Function to handle sorting the book list by author (descending)
+function onAuthorSort(dispatch, books) {
+  const sortedList = [...books].sort(sortByAuthor);
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: SORT_BY_AUTHOR, payload: sortedList });
+}
+
+// AddBookForm component
+function AddBookForm({ onAdd }) {
+  const formId = useId();
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!title.trim()) {
+      setError('Title is required');
+      return;
+    }
+    if (!author.trim()) {
+      setError('Author is required');
+      return;
+    }
+
+    const newBook = {
+      title: title.trim(),
+      author: author.trim(),
+      id: UUID.generate()
+    };
+    onAdd(newBook);
+    setTitle('');
+    setAuthor('');
+  };
+
+  const titleId = useId();
+  const authorId = useId();
+
+  return (
+    <form 
+      onSubmit={handleSubmit}
+      aria-label="Add new book form"
+      id={formId}
+    >
+      <div role="group" aria-labelledby="add-book-heading">
+        <h3 id="add-book-heading">Add a New Book</h3>
+        <div>
+          <label 
+            htmlFor={titleId}
+            id={`${titleId}-label`}
+          >
+            Book Title:
+          </label>
+          <input
+            type="text"
+            id={titleId}
+            aria-labelledby={`${titleId}-label`}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            placeholder="Enter book title"
+            aria-required="true"
+            aria-invalid={!!error}
+          />
+        </div>
+        <div>
+          <label 
+            htmlFor={authorId}
+            id={`${authorId}-label`}
+          >
+            Author:
+          </label>
+          <input
+            type="text"
+            id={authorId}
+            aria-labelledby={`${authorId}-label`}
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+            required
+            placeholder="Enter author name"
+            aria-required="true"
+            aria-invalid={!!error}
+          />
+        </div>
+        {error && (
+          <div role="alert" aria-live="polite">
+            {error}
+          </div>
+        )}
+        <button 
+          type="submit"
+          aria-label="Add book to collection"
+        >
+          Add Book
+        </button>
+      </div>
+    </form>
   );
 }
 
@@ -80,103 +194,6 @@ function DependencyGraph({ nodes, edges }) {
       {/* Render graph nodes and edges */}
       {/* ... */}
     </div>
-  );
-}
-
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
-
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort(dispatch, books) {
-  const sortedList = [...books].sort(sortByTitle);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: SORT_BY_TITLE, payload: sortedList });
-}
-
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort(dispatch, books) {
-  const sortedList = [...books].sort(sortByAuthor);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: SORT_BY_AUTHOR, payload: sortedList });
-}
-
-// Action creator for addBook
-function addBook(book) {
-  return { type: ADD_BOOK, payload: book };
-}
-
-// AddBookForm component
-function AddBookForm({ onAdd }) {
-  const formId = useId();
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (title.trim() && author.trim()) {
-      const newBook = {
-        title: title.trim(),
-        author: author.trim(),
-        id: UUID.generate()
-      };
-      onAdd(newBook);
-      setTitle('');
-      setAuthor('');
-    }
-  };
-
-  const titleId = useId();
-  const authorId = useId();
-
-  return (
-    <form 
-      onSubmit={handleSubmit}
-      aria-label="Add new book form"
-      id={formId}
-    >
-      <div>
-        <label 
-          htmlFor={titleId}
-          id={`${titleId}-label`}
-        >
-          Book Title:
-        </label>
-        <input
-          type="text"
-          id={titleId}
-          aria-labelledby={`${titleId}-label`}
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          placeholder="Enter book title"
-          aria-required="true"
-        />
-      </div>
-      <div>
-        <label 
-          htmlFor={authorId}
-          id={`${authorId}-label`}
-        >
-          Author:
-        </label>
-        <input
-          type="text"
-          id={authorId}
-          aria-labelledby={`${authorId}-label`}
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          required
-          placeholder="Enter author name"
-          aria-required="true"
-        />
-      </div>
-      <button 
-        type="submit"
-        aria-label="Add book to collection"
-      >
-        Add Book
-      </button>
-    </form>
   );
 }
 
@@ -279,11 +296,132 @@ function handleFakeLinks(fakeLinkElements) {
   }
 }
 
+// Accessibility utility functions
+function addressAccessibilityIssues() {
+  const liveRegion = document.createElement('div');
+  liveRegion.setAttribute('role', 'status');
+  liveRegion.setAttribute('aria-live', 'polite');
+  liveRegion.setAttribute('aria-atomic', 'true');
+  liveRegion.className = 'sr-only';
+  liveRegion.id = 'a11y-live-region';
+  document.body.appendChild(liveRegion);
+
+  function announceToScreenReader(message) {
+    if (liveRegion) {
+      liveRegion.textContent = '';
+      setTimeout(() => {
+        liveRegion.textContent = message;
+      }, 50);
+    }
+  }
+
+  function manageFocus(elementId) {
+    const element = document.getElementById(elementId);
+    if (element && typeof element.focus === 'function') {
+      element.focus();
+    }
+  }
+
+  function trapFocus(containerElement) {
+    const focusableElements = containerElement.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    function handleTabKey(e) {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+
+    containerElement.addEventListener('keydown', handleTabKey);
+    return () => containerElement.removeEventListener('keydown', handleTabKey);
+  }
+
+  return { announceToScreenReader, manageFocus, trapFocus };
+}
+
+function fixTableStructure() {
+  document.querySelectorAll('table tr').forEach((row, index) => {
+    if (row.querySelector('td') && !row.querySelector('th')) {
+      const isHeader = confirm('Convert row to header row?');
+      if (isHeader) {
+        row.setAttribute('role', 'rowheader');
+      }
+    }
+  });
+}
+
+function validateLandmarkAttributes() {
+  document.querySelectorAll('[role]').forEach(el => {
+    const role = el.getAttribute('role');
+    if (!role.trim()) {
+      el.removeAttribute('role');
+    }
+  });
+}
+
+function addMainLandmark() {
+  const main = document.createElement('main');
+  main.id = 'main-content';
+  main.setAttribute('role', 'main');
+  document.body.insertBefore(main, document.body.firstChild);
+}
+
+function ensureUniqueLandmarks() {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      console.warn(`Multiple ${role} landmarks found`);
+    }
+  });
+}
+
+function addProperLandmarkRegions() {
+  if (!document.querySelector('header')) {
+    const header = document.createElement('header');
+    header.setAttribute('role', 'banner');
+    document.body.insertBefore(header, document.body.firstChild);
+  }
+  if (!document.querySelector('nav')) {
+    const nav = document.createElement('nav');
+    nav.setAttribute('role', 'navigation');
+    document.body.insertBefore(nav, document.body.firstChild);
+  }
+}
+
+function createButton(label, onClick, className = '', disabled = false) {
+  return (
+    <button onClick={onClick} className={className} disabled={disabled}>
+      {label}
+    </button>
+  );
+}
+
+const defaultSorting = sortByTitle;
+
 // Main component
 function Main() {
   const dispatch = useDispatch();
   const books = useSelector(state => state.books.list);
   const [sorting, setSorting] = useState(defaultSorting);
+  const [a11y, setA11y] = useState({ announce: () => {}, manage: () => {} });
+
+  useEffect(() => {
+    const a11yUtils = addressAccessibilityIssues();
+    setA11y({
+      announce: a11yUtils.announceToScreenReader,
+      manage: a11yUtils.manageFocus
+    });
+  }, []);
 
   const handleTitleSort = useCallback(() => {
     onTitleSort(dispatch, books);
@@ -306,33 +444,41 @@ function Main() {
   ));
 
   const handleAddBook = (book) => {
-    dispatch(addBook(book));
+    dispatch(addBookAction(book));
+    a11y.announce('New book added successfully');
+  };
+
+  const handleSort = (sortFunction) => () => {
+    setSorting(sortFunction);
   };
 
   return (
-    <main role="main" aria-label="Book list main content">
-      <div role="region" aria-label="Sorting controls">
-        <button 
-          id="sort-by-title-button" 
-          onClick={() => setSorting(sortByTitle)}
-          aria-label="Sort books by title in ascending order"
-          type="button"
-        >
-          Sort by Title
-        </button>
-        <button 
-          id="sort-by-author-button" 
-          onClick={() => setSorting(sortByAuthor)}
-          aria-label="Sort books by author in descending order"
-          type="button"
-        >
-          Sort by Author
-        </button>
-      </div>
-      <List dataSource={bookItems} />
+    <main id="main-content" role="main" aria-label="Book list main content">
+      <header role="banner">
+        <h1>Book Library</h1>
+        <div role="region" aria-label="Sorting controls">
+          <button 
+            id="sort-by-title-button" 
+            onClick={handleSort(sortByTitle)}
+            aria-label="Sort books by title in ascending order"
+            type="button"
+          >
+            Sort by Title
+          </button>
+          <button 
+            id="sort-by-author-button" 
+            onClick={handleSort(sortByAuthor)}
+            aria-label="Sort books by author in descending order"
+            type="button"
+          >
+            Sort by Author
+          </button>
+        </div>
+      </header>
       <section role="region" aria-label="Add new book form">
         <AddBookForm onAdd={handleAddBook} />
       </section>
+      <List dataSource={bookItems} />
       <section role="region" aria-label="Book dependency graph" aria-roledescription="dependencyGraph">
         <DependencyGraph 
           nodes={[]} 
@@ -350,7 +496,7 @@ export {
   sortByAuthor,
   generateKey,
   BookItem,
-  addBook,
+  addBookAction,
   onTitleSort,
   onAuthorSort,
   defaultSorting,

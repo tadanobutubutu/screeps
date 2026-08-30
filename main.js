@@ -2,6 +2,22 @@
 
 // Your existing code...
 
+// Handler for the new function
+let newFunctionHandler = (data) => {
+    console.log('This is a new function that was requested in the issue.');
+    return data;
+};
+
+function setNewFunctionHandler(handler) {
+    if (typeof handler === 'function') {
+        newFunctionHandler = handler;
+    }
+}
+
+function handleNewFunction(data) {
+    return newFunctionHandler(data);
+}
+
 // TODO: Any additional changes requested in the issue should be added after this function
 function newFunction() {
     // New function implementation here
@@ -212,5 +228,7 @@ module.exports = {
     addressAccessibilityIssues,
     addressReactAccessibilityIssues,
     utilityFunction,
-    formatData
+    formatData,
+    handleNewFunction,
+    setNewFunctionHandler
 };

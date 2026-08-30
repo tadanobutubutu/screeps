@@ -1,10 +1,6 @@
-// Import required modules
-import { v4 as uuidv4 } from 'uuid';
-import { createElement } from 'react';
-import { getDocument, getLangAttribute } from '.';
-import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from "yourNewModule";
-import { dependencyGraphContent } from './dependencyGraphContent';
-import { indexContent } from './indexContent';
+// TODO: add the new functions or changes requested in the issue
+// Here is the implementation for checking link accessibility
+// The existing isLinkAccessible function implementation
 
 // Helper function to get document object (cross-environment support)
 function getDocument() {
@@ -100,4 +96,16 @@ function renderIndexView(container) {
 // TODO: Any additional changes requested in the issue
 // main.js - Accessibility improvements implementation
 
-export { addLangAttribute, ensureElementId, handleAccessibilityError, handleErrorState, renderDependencyGraph, renderIndexView, getFullLangAttribute };
+async function isLinkAccessible(url) {
+    try {
+        const response = await fetch(url, {
+            method: 'HEAD',
+            mode: 'no-cors'
+        });
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+export { addLangAttribute, ensureElementId, handleAccessibilityError, handleErrorState, renderDependencyGraph, renderIndexView, getFullLangAttribute, isLinkAccessible };

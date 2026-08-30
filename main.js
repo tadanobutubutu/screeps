@@ -58,6 +58,72 @@ function setConfig(config) {
 // // // TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
 
 /**
+ * Ensures a table has proper accessibility attributes
+ * @param {Object} table - Table object to enhance
+ * @returns {Object} Table with accessibility attributes added
+ */
+function ensureTableAccessibility(table) {
+  if (!table || typeof table !== 'object') {
+    throw new Error('Table must be a valid object');
+  }
+  
+  // Ensure table has a caption or aria-label for screen readers
+  if (!table.caption && !table.ariaLabel) {
+    table.caption = table.caption || 'Data table';
+  }
+  
+  // Ensure headers array exists and has content
+  if (!table.headers || !Array.isArray(table.headers)) {
+    table.headers = [];
+  }
+  
+  // Ensure rows array exists
+  if (!table.rows || !Array.isArray(table.rows)) {
+    table.rows = [];
+  }
+  
+  // Ensure each header cell has proper scope information
+  table.headers = table.headers.map((header, index) => {
+    if (typeof header === 'string') {
+      return {
+        content: header,
+        scope: 'col',
+        id: `header-${index}`
+      };
+    }
+    if (typeof header === 'object' && header !== null) {
+      header.scope = header.scope || 'col';
+      header.id = header.id || `header-${index}`;
+      return header;
+    }
+    return { content: String(header), scope: 'col', id: `header-${index}` };
+  });
+  
+  // Mark table as accessibility-enhanced
+  table._accessibilityEnhanced = true;
+  
+  return table;
+}
+
+/**
+ * Creates an accessible table structure with proper semantics
+ * @param {Object} tableConfig - Configuration for the table
+ * @returns {Object} Accessible table object
+ */
+function createAccessibleTable(tableConfig) {
+  const { headers, rows, caption, ariaLabel } = tableConfig;
+  
+  const table = {
+    headers: headers || [],
+    rows: rows || [],
+    caption: caption,
+    ariaLabel: ariaLabel
+  };
+  
+  return ensureTableAccessibility(table);
+}
+
+/**
  * Validates that all tables in the application meet accessibility standards
  * @returns {Object} Validation result with isValid flag and array of errors
  */
@@ -183,5 +249,7 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  ensureTableAccessibility,
+  createAccessibleTable
 };

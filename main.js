@@ -7,6 +7,15 @@ import { initializeApp, appData } from './app.js';
 import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
 
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
+
 // Function to create in-page buttons
 const createInPageButton = (options: {
   onClick: () => void;

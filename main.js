@@ -37,7 +37,7 @@ function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
     };
 
     if (!insightReport) {
-        result.details.push({
+        console.error({
             type: 'error',
             message: 'No insight report provided'
         });
@@ -118,10 +118,10 @@ function personName(name, isLink) {
   
   if (isLink) {
     // Properly implement as a link with href attribute to avoid fake link issues
-    return `<a href="#" aria-label="Person: ${name}">${name}</a>`;
+    return `<a href="#" class="person-name">${name}</a>`;
   } else {
     // Render as a span for non-link content
-    return `<span aria-label="Person: ${name}">${name}</span>`;
+    return `<span class="person-name">${name}</span>`;
   }
 }
 
@@ -348,7 +348,7 @@ function countDependencies() {
     
     return {
       dependencies: dependencyCount,
-      devDependencies: devDependencyCount,
+      devDependencies: Object.keys(devDependencies).map(name => ({ name, version: devDependencies[name] })),
       total: dependencyCount + devDependencyCount
     };
   } catch (error) {
@@ -411,6 +411,18 @@ function getAllTables() {
 function getFullLangAttribute(el) {
     const element = typeof el === 'string' ? document.querySelector(el) : (el || (typeof document !== 'undefined' ? document.documentElement : null));
     return element ? (element.lang || element.getAttribute('lang') || '') : '';
+}
+
+function setHtmlLangAttribute(lang) {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.lang = lang;
+    }
+}
+
+function detectAndSetLang() {
+    const detectedLang = typeof navigator !== 'undefined' ? (navigator.language || navigator.userLanguage || 'en') : 'en';
+    setHtmlLangAttribute(detectedLang);
+    return detectedLang;
 }
 
 module.exports = {

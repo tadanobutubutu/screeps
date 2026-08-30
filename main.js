@@ -43,6 +43,9 @@ function createInPageButton(text, onClick, options = {}) {
     button.addEventListener('click', onClick);
   }
 
+  // Accessibility improvements
+  button.setAttribute('aria-label', text); // Add aria-label for screen readers
+
   return button;
 }
 

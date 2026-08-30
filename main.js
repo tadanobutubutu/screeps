@@ -101,8 +101,180 @@ const renderDependencyGraph = (data) => {
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
+// REACT_015: Get lang attribute from HTML element
+function getLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  return htmlElement ? htmlElement.getAttribute('lang') : null;
+}
+
+// REACT_015 & REACT_036: Get or create a person's accessible name
+function personName(personData) {
+  if (!personData) return null;
+  if (typeof personData === 'string') return personData.trim();
+  return [personData.firstName, personData.lastName]
+    .filter(Boolean)
+    .join(' ')
+    .trim() || null;
+}
+
+// REACT_027: Validate table accessibility
+function validateTableAccessibility(tableElement) {
+  if (!tableElement || tableElement.tagName !== 'TABLE') {
+    return { valid: false, errors: ['Invalid table element'] };
+  }
+  const errors = [];
+  
+  // Check for caption
+  const caption = tableElement.querySelector('caption');
+  if (!caption) {
+    errors.push('Table should have a caption for accessibility');
+  }
+  
+  // Check for th elements with scope or headers
+  const headers = tableElement.querySelectorAll('th');
+  headers.forEach((th, index) => {
+    if (!th.getAttribute('scope') && !th.getAttribute('id')) {
+      errors.push(`Header at index ${index} missing scope or id attribute`);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// REACT_027: Validate table structure
+function validateTableStructure(tableElement) {
+  if (!tableElement || tableElement.tagName !== 'TABLE') {
+    return { valid: false, errors: ['Invalid table element'] };
+  }
+  const errors = [];
+  
+  // Check for thead and tbody
+  const thead = tableElement.querySelector('thead');
+  const tbody = tableElement.querySelector('tbody');
+  
+  if (!thead) {
+    errors.push('Table should have a thead element');
+  }
+  if (!tbody) {
+    errors.push('Table should have a tbody element');
+  }
+  
+  // Check for proper row structure
+  const rows = tableElement.querySelectorAll('tr');
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('td, th');
+    if (cells.length === 0) {
+      errors.push(`Row ${rowIndex} has no cells`);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// REACT_017 & REACT_025: Validate landmark
+function validateLandmark(element) {
+  if (!element) {
+    return { valid: false, errors: ['Element is required'] };
+  }
+  const errors = [];
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'];
+  const role = element.getAttribute('role');
+  const tagName = element.tagName.toLowerCase();
+  
+  // Check if element has landmark role or is a landmark element
+  const isLandmark = role && landmarkRoles.includes(role);
+  const isLandmarkTag = ['header', 'nav', 'main', 'aside', 'footer'].includes(tagName);
+  
+  if (!isLandmark && !isLandmarkTag) {
+    errors.push('Element is not a valid landmark');
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// REACT_017 & REACT_025: Validate landmark structure
+function validateLandmarkStructure(document) {
+  const doc = document || document;
+  const errors = [];
+  const landmarks = {};
+  
+  // Check for required landmarks
+  const mainElement = doc.querySelector('main, [role="main"]');
+  if (!mainElement) {
+    errors.push('Document should have a main landmark');
+  }
+  
+  const navElement = doc.querySelector('nav, [role="navigation"]');
+  if (!navElement) {
+    errors.push('Document should have a navigation landmark');
+  }
+  
+  // Check for duplicate landmarks
+  ['banner', 'navigation', 'main', 'complementary', 'contentinfo'].forEach(role => {
+    const elements = doc.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      errors.push(`Multiple ${role} landmarks found (${elements.length})`);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// REACT_041: Get SVG accessible name
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement || svgElement.tagName !== 'svg') {
+    return null;
+  }
+  
+  // Check aria-label
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  
+  // Check aria-labelledby
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    return labelElement ? labelElement.textContent : null;
+  }
+  
+  // Check title element
+  const title = svgElement.querySelector('title');
+  return title ? title.textContent : null;
+}
+
+// REACT_036: Create accessible in-page button
+function createInPageButton(options = {}) {
+  const { text, onClick, ariaLabel, id } = options;
+  
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = text || '';
+  
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+  
+  if (id) {
+    button.id = id;
+  }
+  
+  if (onClick && typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  
+  return button;
+}
+
 function newFocusTrap() {
-  // New function implementation
+  // New function implementation for enhanced focus trap
+  return {
+    activate: (element) => {
+      accessibilityUtils.trapFocus(element);
+    },
+    deactivate: (element) => {
+      element.removeEventListener('keydown', accessibilityUtils.trapFocus);
+    }
+  };
 }
 
 // Add back any required exports that might have been removed.
@@ -265,6 +437,40 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
+
+  let result = inputData;
+
+  if (typeof result === 'string') {
+    if (trimWhitespace) {
+      result = result.trim();
+    }
+    if (uppercase) {
+      result = result.toUpperCase();
+    }
+    if (maxLength !== null && result.length > maxLength) {
+      result = result.substring(0, maxLength);
+    }
+  } else if (Array.isArray(result)) {
+    result = result.map(item => transformInputData(item, { preserveKeys, uppercase, trimWhitespace, maxLength }));
+  } else if (typeof result === 'object' && result !== null) {
+    const transformed = {};
+    Object.keys(result).forEach(key => {
+      let value = result[key];
+      if (trimWhitespace && typeof value === 'string') {
+        value = value.trim();
+      }
+      if (uppercase && typeof value === 'string') {
+        value = value.toUpperCase();
+      }
+      if (maxLength !== null && typeof value === 'string' && value.length > maxLength) {
+        value = value.substring(0, maxLength);
+      }
+      transformed[key] = value;
+    });
+    result = transformed;
+  }
+
+  return result;
 }
 
 // Initialize on DOM ready
@@ -285,5 +491,23 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  // Accessibility functions referenced in the insight report
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  newFocusTrap,
+  // Utility functions
+  sanitizeFilename,
+  readFileSafe,
+  processData,
+  filterValidItems,
+  groupByCategory,
+  transformInputData,
+  log
 };

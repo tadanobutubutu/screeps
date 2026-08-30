@@ -18,7 +18,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `${book.id}-${book.title}-${book.author}`;
+  return book.id || `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
@@ -27,7 +27,7 @@ function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        description={book.author}
+        ...
       />
     </List.Item>
   );
@@ -50,16 +50,36 @@ const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
+  const sortedList = getBooksList.slice().sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+  const sortedList = getBooksList.slice().sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+}
+
+// Function to render the index view displaying the book list with sorting controls
+function renderIndexView(books, currentSorting) {
+  // Sort the books based on the current sorting function
+  const sortedBooks = books.slice().sort(currentSorting);
+  
+  // Map the sorted books to BookItem components
+  const bookItems = sortedBooks.map(book => BookItem(book));
+  
+  // Render the index view with sorting buttons and the book list
+  return (
+    <div>
+      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      <List>
+        {bookItems}
+      </List>
+    </div>
+  );
 }
 
 // Render the main component containing the book list and sorting controls
@@ -76,14 +96,14 @@ function Main() {
   }, [sorting]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(BookItem);
+  const bookItems = getBooksList.map(book => BookItem(book));
 
   // Render the list of book items and sorting controls
   return (
     <div>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
+      <List ... />
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
     </div>

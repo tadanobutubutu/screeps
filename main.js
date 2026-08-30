@@ -395,15 +395,6 @@ function groupByCategory(items, getCategory) {
 
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-
-_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
-// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
 
 // TODO: Implement the new function as per the issue requirements
 function transformInputData(inputData, options = {}) {
@@ -418,43 +409,68 @@ function transformInputData(inputData, options = {}) {
     return null;
   }
 
-  // Implement the harvest and upgrade logic here
-  let result = inputData.map(item => {
-    let newItem = {};
-    for (const key in item) {
-      if (preserveKeys) {
-        newItem[key] = item[key];
+  // Helper to apply string transformations to a value
+  const applyStringTransforms = (value) => {
+    if (typeof value !== 'string') {
+      // If preserveKeys is false, convert to string
+      if (!preserveKeys) {
+        value = String(value);
       } else {
-        newItem[key] = item[key].toString();
+        return value; // return as-is if not a string and preserveKeys is true
       }
+    }
+    let result = value;
+    if (trimWhitespace) {
+      result = result.trim();
     }
     if (uppercase) {
-      newItem = Object.fromEntries(Object.entries(newItem).map(([key, value]) => [key, value.toUpperCase()]));
+      result = result.toUpperCase();
     }
-    if (trimWhitespace) {
-      newItem = Object.fromEntries(Object.entries(newItem).map(([key, value]) => [key, value.trim()]));
+    if (maxLength !== null && result.length > maxLength) {
+      result = result.substring(0, maxLength);
     }
-    if (maxLength) {
-      for (const key in newItem) {
-        if (newItem[key].length > maxLength) {
-          newItem[key] = newItem[key].substring(0, maxLength);
-        }
-      }
-    }
-    return newItem;
-  });
+    return result;
+  };
 
-  if (maxLength) {
-    result = result.map(item => {
-      const newItem = {};
-      for (const key in item) {
-        newItem[key] = item[key].substring(0, maxLength);
+  // If input is an array, process each element
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => {
+      if (typeof item === 'object' && item !== null) {
+        // For objects, transform each property
+        const newItem = {};
+        for (const key in item) {
+          if (Object.prototype.hasOwnProperty.call(item, key)) {
+            newItem[key] = applyStringTransforms(item[key]);
+          }
+        }
+        return newItem;
+      } else {
+        // For primitives, apply string transforms directly
+        return applyStringTransforms(item);
       }
-      return newItem;
     });
   }
 
-  return result;
+  // If input is an object (not array, not null)
+  if (typeof inputData === 'object' && inputData !== null) {
+    if (preserveKeys) {
+      // If preserveKeys is true, transform each property to be consistent with array handling
+      const newItem = {};
+      for (const key in inputData) {
+        if (Object.prototype.hasOwnProperty.call(inputData, key)) {
+          newItem[key] = applyStringTransforms(inputData[key]);
+        }
+      }
+      return newItem;
+    } else {
+      // If preserveKeys is false, return an array of transformed values (like HEAD)
+      const values = Object.values(inputData).map(value => transformInputData(value, options));
+      return values;
+    }
+  }
+
+  // For strings and other primitives
+  return applyStringTransforms(inputData);
 }
 
 // TODO: Implement new function3 logic here

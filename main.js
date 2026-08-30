@@ -32,6 +32,21 @@ function BookItem({ book }) {
   );
 }
 
+// Container for the dependency graph with proper ARIA role for accessibility
+function DependencyGraph({ nodes, edges }) {
+  return (
+    <div 
+      className="dependency-graph"
+      role="img"
+      aria-label="Dependency graph showing relationships between books and authors"
+      tabIndex={0}
+    >
+      {/* Render graph nodes and edges */}
+      {/* ... */}
+    </div>
+  );
+}
+
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
@@ -58,18 +73,37 @@ function addBook(book) {
   return { type: ADD_BOOK, payload: book };
 }
 
-// Container for the dependency graph with proper ARIA role for accessibility
-function DependencyGraph({ nodes, edges }) {
+  // Map the book list to the BookItem function to create book items
+  const bookItems = ...
+
+  // Render the list of book items and sorting controls
   return (
-    <div 
-      className="dependency-graph"
-      role="img"
-      aria-label="Dependency graph showing relationships between books and authors"
-      tabIndex={0}
-    >
-      {/* Render graph nodes and edges */}
-      {/* ... */}
-    </div>
+    <main role="main" aria-label="Book list main content">
+      <div role="region" aria-label="Sorting controls">
+        <button 
+          id="sort-by-title-button" 
+          onClick={() => setSorting(sortByTitle)}
+          aria-label="Sort books by title in ascending order"
+          type="button"
+        >
+          Sort by Title
+        </button>
+        <button 
+          id="sort-by-author-button" 
+          onClick={() => setSorting(sortByAuthor)}
+          aria-label="Sort books by author in descending order"
+          type="button"
+        >
+          Sort by Author
+        </button>
+      </div>
+      <List ... />
+      {/* Accessibility: Add landmark region for add book form */}
+      <section role="region" aria-label="Add new book form">
+        {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
+        {/* ... */}
+      </section>
+    </main>
   );
 }
 

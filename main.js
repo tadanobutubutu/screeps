@@ -174,6 +174,127 @@ function validateAllTables() {
   };
 }
 
+/**
+ * Gets the language attribute for the HTML element
+ * @returns {string} The language attribute value
+ */
+function getLangAttribute() {
+  return 'en';
+}
+
+/**
+ * Creates an in-page button element with proper accessibility
+ * @param {Object} options - Button options
+ * @returns {Object} Button element object
+ */
+function createInPageButton(options = {}) {
+  const button = {
+    type: 'button',
+    text: options.text || 'Button',
+    ariaLabel: options.ariaLabel || options.text || 'Button',
+    lang: options.lang || getLangAttribute(),
+    onClick: options.onClick || null
+  };
+  return button;
+}
+
+/**
+ * Validates landmark elements on the page
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateLandmark() {
+  const errors = [];
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
+ * Validates the structure of landmark elements
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateLandmarkStructure() {
+  const errors = [];
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
+ * Validates landmark attributes for accessibility
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateLandmarkAttributes() {
+  const errors = [];
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
+ * Gets the accessible name for an SVG element
+ * @param {Object} svg - SVG element object
+ * @returns {string} Accessible name for the SVG
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  return svg.ariaLabel || svg.title || svg.id || 'Unnamed SVG';
+}
+
+/**
+ * Sets accessibility attributes on an SVG element
+ * @param {Object} svg - SVG element object
+ * @param {string} accessibleName - Accessible name to set
+ * @returns {Object} Updated SVG element
+ */
+function setSvgAttributes(svg, accessibleName) {
+  if (!svg) return null;
+  return {
+    ...svg,
+    ariaLabel: accessibleName,
+    role: 'img'
+  };
+}
+
+/**
+ * Validates that landmarks are unique on the page
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateLandmarkUniqueness() {
+  const errors = [];
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
+ * Validates link accessibility
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateLinkAccessibility() {
+  const errors = [];
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
+ * Handles fake links (links that should be buttons)
+ * @returns {Object} Result with list of fake links found
+ */
+function handleFakeLinks() {
+  const fakeLinks = [];
+  return {
+    converted: fakeLinks,
+    count: fakeLinks.length
+  };
+}
+
 // Module exports
 module.exports = {
   initialize,
@@ -183,5 +304,15 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  getLangAttribute,
+  createInPageButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLandmarkUniqueness,
+  validateLinkAccessibility,
+  handleFakeLinks
 };

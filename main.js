@@ -1,4 +1,34 @@
 // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+//
+// Please provide the full main.js file content so I can:
+// 1. Preserve all existing code, exports, and functions
+// 2. Add the new implementation at the TODO location
+// 3. Ensure existing tests continue to pass
+
+// Added functions as per TODO
+function ensureElementHasId(selector, fallbackId) {
+  const element = document.querySelector(selector);
+  if (!element) return null;
+
+  if (!element.id) {
+    element.id = fallbackId;
+  }
+  return element.id;
+}
+
+function addAriaLabelToElement(selector, ariaLabel) {
+  const element = document.querySelector(selector);
+  if (element) {
+    element.setAttribute('aria-label', ariaLabel);
+  }
+}
+
+function renderDependencyGraph(containerSelector, data) {
+  const container = document.querySelector(containerSelector);
+  if (container) {
+    container.innerHTML = data;
+  }
+}
 
 const config = require('./config');
 const logger = require('./utils/logger');
@@ -392,7 +422,6 @@ function main() {
   implementNewFunction(); // Address accessibility issues from insight report
 }
 
-<<<<<<< HEAD
 // --- NEW FUNCTIONS ---
 
 /**
@@ -443,14 +472,6 @@ function renderDependencyGraph(containerSelector, data) {
 // --- End of new functions ---
 
 // Export all functions for use elsewhere in the repository
-=======
-function someFunction() {
-  // Some implementation
-}
-
-const someFunction = () => 'someFunction result';
-
->>>>>>> origin/main
 module.exports = {
   config,
   logger,
@@ -482,6 +503,5 @@ module.exports = {
   addAriaLabelToElement,
   renderDependencyGraph
 };
-```
 
 addressAccessibilityIssues(); // Call the combined function to address accessibility issues.

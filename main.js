@@ -27,7 +27,7 @@ const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
 
 function getLangAttribute(document) {
   // Get the language attribute from the HTML element
-  const htmlElement = document.querySelector('html');
+  const htmlElement = ...
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
@@ -103,7 +103,7 @@ function addressAccessibilityIssues(insightReport) {
 
   // For example, we might log the issues or take some action to fix them
   if (insightReport && insightReport.issues) {
-    insightReport.issues.forEach(function(issue) {
+    insightReport.issues.forEach(issue => {
       console.log('Accessibility issue detected: ' + issue.message);
       // Add your logic here to address the issue, such as updating the DOM or calling other functions
     });
@@ -111,14 +111,14 @@ function addressAccessibilityIssues(insightReport) {
 }
 
 // New function to add landmark roles and fix issues (Screeps-oriented)
-function addLandmarkRolesAndFixIssues() {
+function addLandmarkRoles() {
   // This function adds appropriate landmark roles to Screeps structures
   const landmarkTypes = ['spawn', 'extension', 'tower', 'storage', 'terminal'];
 
   landmarkTypes.forEach(type => {
     const structures = _.filter(Game.structures, s => s.structureType === type);
     structures.forEach(structure => {
-      if (!structure.landmarkType) {
+      if (structure) {
         structure.landmarkType = 'region';
       }
     });
@@ -128,15 +128,15 @@ function addLandmarkRolesAndFixIssues() {
 // New functions for table validation
 function validateTableAccessibility(table) {
   if (!table) return false;
-  const hasCaption = !!table.querySelector('caption');
-  const hasTh = table.querySelectorAll('th').length > 0;
+  const hasCaption = ...
+  const hasTh = ... > 0;
   return hasCaption && hasTh;
 }
 
 function validateTableStructure(table) {
   if (!table) return false;
-  const thead = table.querySelector('thead');
-  const tbody = table.querySelector('tbody');
+  const thead = ...
+  const tbody = ...
   return !!(thead && tbody);
 }
 
@@ -189,10 +189,22 @@ module.exports = {
   renderDependencyGraph: renderDependencyGraph,
   renderIndexView: renderIndexView,
   calculateSum: calculateSum,
-  ensureUniqueLandmarkRoles: ensureUniqueLandmarkRoles,
+  getLangAttribute: getLangAttribute,
+  addLangAttribute: addLangAttribute,
+  validateTableAccessibility: validateTableAccessibility,
+  validateTableStructure: validateTableStructure,
+  fixTableStructure: fixTableStructure,
+  addMainLandmark: addMainLandmark,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
+  validateLandmarkAttributes: validateLandmarkAttributes,
+  getSvgAccessibleName: getSvgAccessibleName,
+  setSvgAttributes: setSvgAttributes,
   ensureUniqueLandmarks: ensureUniqueLandmarks,
+  createInPageButton: createInPageButton,
+  validateLinkAccessibility: validateLinkAccessibility,
+  handleFakeLinks: handleFakeLinks,
+  addLandmarkRegions: addLandmarkRegions,
   addLandmarkRoles: addLandmarkRoles,
-  addLandmarkRolesAndFixIssues: addLandmarkRolesAndFixIssues,
-  addAriaLabelToSVGsWithoutAccessibleName: addAriaLabelToSVGsWithoutAccessibleName,
   ensureLandmarkUniqueness: ensureLandmarkUniqueness
 };

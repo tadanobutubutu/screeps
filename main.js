@@ -139,6 +139,50 @@ function addressAccessibilityIssues(insightReport) {
   return results;
 }
 
+// Generate accessibility report
+function generateAccessibilityReport(insightReport) {
+  if (!insightReport) {
+    console.log('No insight report provided');
+    return {
+      valid: false,
+      issues: ['No insight report provided'],
+      summary: {}
+    };
+  }
+
+  const issues = insightReport.issues || [];
+  const summary = {
+    total: issues.length,
+    byType: {},
+    addressed: 0,
+    pending: 0
+  };
+
+  issues.forEach(issue => {
+    const type = issue.ruleId || 'unknown';
+    if (!summary.byType[type]) {
+      summary.byType[type] = {
+        count: 0,
+        addressed: false
+      };
+    }
+    summary.byType[type].count += issue.count || 1;
+    
+    if (issue.addressed) {
+      summary.addressed += issue.count || 1;
+      summary.byType[type].addressed = true;
+    } else {
+      summary.pending += issue.count || 1;
+    }
+  });
+
+  return {
+    valid: summary.pending === 0,
+    issues: issues,
+    summary: summary
+  };
+}
+
 // Get language attribute
 function getLangAttribute(doc = document) {
   // Get the language attribute from the document or HTML element
@@ -605,3 +649,27 @@ function setSvgAttributes(svg, accessibleName) {
   }
   return null;
 }
+
+// Export functions
+export {
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  initialize,
+  validateInput,
+  addressAccessibilityIssues,
+  generateAccessibilityReport,
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  setSvgAttributes
+};

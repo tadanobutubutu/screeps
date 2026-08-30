@@ -101,6 +101,3 @@ function renderIndexView(container) {
 // main.js - Accessibility improvements implementation
 
 export { addLangAttribute, ensureElementId, handleAccessibilityError, handleErrorState, renderDependencyGraph, renderIndexView, getFullLangAttribute };
-```
-
-This resolved file keeps both changes and integrates them logically in the `main.js` file. The added accessibility features from branch `origin/main` have been combined with the existing functionality from the base branch. The final code will compile and satisfy both changes without discarding any functionality.

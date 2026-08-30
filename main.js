@@ -30,7 +30,10 @@ if (typeof module !== 'undefined' && module.exports) {
     calculateAccessibilityScore,
     ensureUniqueLandmarksFromString,
     validateLandmark,
-    spawnSomeCommand
+    spawnSomeCommand,
+    ensureElementHasId,
+    addAriaLabel,
+    renderDependencyGraph
   };
 } else {
   // Browser environment - wait for DOM
@@ -421,4 +424,79 @@ function spawnSomeCommand(callback) {
       callback(new Error(`someCommand failed with code ${code}`));
     }
   });
+}
+
+/**
+ * Ensure an element has an ID attribute
+ * @param {HTMLElement} element - The DOM element to check
+ * @returns {string} The element's ID (generated if necessary)
+ */
+function ensureElementHasId(element) {
+  if (!element) {
+    return '';
+  }
+
+  if (!element.id) {
+    const generatedId = `element-${Math.random().toString(36).slice(2, 9)}`;
+    element.id = generatedId;
+    return generatedId;
+  }
+
+  return element.id;
+}
+
+/**
+ * Add an aria-label to an element if it doesn't have one
+ * @param {HTMLElement} element - The DOM element to enhance
+ * @param {string} label - The aria-label value to add
+ * @returns {string} The aria-label value
+ */
+function addAriaLabel(element, label) {
+  if (!element) {
+    return '';
+  }
+
+  if (!element.hasAttribute('aria-label')) {
+    element.setAttribute('aria-label', label || element.textContent || element.innerText || 'Interactive element');
+  }
+
+  return element.getAttribute('aria-label');
+}
+
+/**
+ * Render a dependency graph visualization
+ * @param {Object} dependencies - Dependency object representing module relationships
+ * @param {string} containerId - ID of the container element to render the graph
+ * @returns {string} HTML representation of the dependency graph
+ */
+function renderDependencyGraph(dependencies, containerId) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return '';
+  }
+
+  const container = document.getElementById(containerId);
+  if (!container) {
+    return '';
+  }
+
+  let html = '<div class="dependency-graph">';
+  html += '<ul>';
+  
+  for (const [moduleName, deps] of Object.entries(dependencies)) {
+    html += `<li>${moduleName}`;
+    if (deps && typeof deps === 'object') {
+      html += '<ul>';
+      for (const dep of Object.keys(deps)) {
+        html += `<li>${dep}</li>`;
+      }
+      html += '</ul>';
+    }
+    html += '</li>';
+  }
+  
+  html += '</ul>';
+  html += '</div>';
+
+  container.innerHTML = html;
+  return html;
 }

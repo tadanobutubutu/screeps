@@ -174,6 +174,16 @@ function validateAllTables() {
   };
 }
 
+// // // TODO: Implement new function3 logic here
+
+/**
+ * Counts the total number of tables loaded in the application
+ * @returns {number} The count of loaded tables
+ */
+function function3() {
+  return appData.tables.length;
+}
+
 // Module exports
 module.exports = {
   initialize,
@@ -183,5 +193,6 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  function3
 };

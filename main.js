@@ -128,7 +128,7 @@ function displayModuleStructure(modules) {
     }
     
     if (module.exports) {
-      result += `   Exports: ${JSON.stringify(module.exports)}\n`;
+      result += `   Exports: ${Array.isArray(module.exports) ? module.exports.join(', ') : module.exports}\n`;
     }
     
     result += '\n';
@@ -137,12 +137,10 @@ function displayModuleStructure(modules) {
   return result;
 }
 
-renderDependencyGraph(dependencyGraphContent);
-displayModuleStructure(indexContent);
-
-export {
-  renderDependencyGraph,
-  renderDependencyTree,
-  renderDependencyList,
-  displayModuleStructure
-};
+/**
+ * Counts the total number of dependencies in a dependency object
+ * @param {Object} dependencies - Object containing module dependencies
+ * @returns {number} Total count of dependencies
+ */
+function countDependencies(dependencies) {
+  if (!dependencies || typeof dependencies !== '

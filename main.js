@@ -45,7 +45,8 @@ function addBook(book) {
     coverSvgAccessibleName: svgAccessibleName,
   };
 
-  dispatch({ type: 'ADD_BOOK', payload: accessibleBook });
+  // Return an action object to add the book to the books list in the Redux store
+  return { type: 'ADD_BOOK', payload: accessibleBook };
 }
 
 // Container for the dependency graph with proper ARIA role for accessibility
@@ -122,25 +123,25 @@ const defaultSorting = sortByTitle;
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
   const sortedList = getBooksList.slice().sort(sortByTitle);
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+  return { type: 'SORT_BY_TITLE', payload: sortedList };
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
   const sortedList = getBooksList.slice().sort(sortByAuthor);
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+  return { type: 'SORT_BY_AUTHOR', payload: sortedList };
 }
 
 // Render the main component containing the book list, sorting controls, and the AddBookForm
 function Main() {
-  const [sorting, setSorting] = useState(defaultSorting);
   const dispatch = useDispatch();
+  const [sorting, setSorting] = useState(defaultSorting);
 
   useEffect(() => {
     if (sorting === sortByTitle) {
-      onTitleSort();
+      dispatch(onTitleSort());
     } else if (sorting === sortByAuthor) {
-      onAuthorSort();
+      dispatch(onAuthorSort());
     }
   }, [sorting]);
 

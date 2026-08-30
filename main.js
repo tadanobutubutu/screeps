@@ -27,8 +27,8 @@ function ensureUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
-        candidate = `${baseName}-${suffix}`;
+        const suffix = Math.floor(Math.random() * 9) + 1;
+        candidate = baseName + '-' + suffix;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -54,7 +54,7 @@ function uniqueLandmarks(landmarks) {
 // Add lang attribute as per the issue requirement
 function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('some-selector');
+  const elementToModify = document.documentElement;
   if (elementToModify) {
     elementToModify.setAttribute('lang', 'en'); // Example: English
   }
@@ -66,7 +66,7 @@ function addLangAttribute() {
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (!element.hasAttribute('aria-label')) {
+    if (element && !element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
@@ -105,7 +105,7 @@ function addProperLandmarkRegions() {
   main.id = 'main-content';
 
   // Create navigation landmark
-  const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
+  const nav = document.querySelector('nav') || document.createElement('nav');
   nav.setAttribute('role', 'navigation');
   nav.id = nav.id || 'primary-navigation';
 
@@ -120,10 +120,10 @@ function addProperLandmarkRegions() {
   footer.id = footer.id || 'site-footer';
 
   // Create aside landmark for complementary content
-  const asides = document.querySelectorAll('aside') || document.querySelectorAll('[role="complementary"]');
+  const asides = document.querySelectorAll('aside') || [];
   asides.forEach((aside, index) => {
     aside.setAttribute('role', 'complementary');
-    if (!aside.id) aside.id = `sidebar-${index + 1}`;
+    if (!aside.id) aside.id = 'sidebar-' + (index + 1);
   });
 }
 
@@ -136,7 +136,7 @@ function addProperLandmarkRegions() {
  */
 function addProperAccountManagement() {
   // Add aria-expanded to collapsible menus/buttons
-  const collapsibles = document.querySelectorAll('[aria-expanded], .collapsible');
+  const collapsibles = document.querySelectorAll('.collapsible');
   collapsibles.forEach(item => {
     if (!item.hasAttribute('aria-expanded')) {
       item.setAttribute('aria-expanded', 'false');
@@ -146,10 +146,10 @@ function addProperAccountManagement() {
   // Add aria-labels to form inputs
   const inputs = document.querySelectorAll('input');
   inputs.forEach((input, index) => {
-    const id = input.id || `input-${index}`;
+    const id = input.id || 'input-' + (index + 1);
     input.id = id;
     if (!input.hasAttribute('aria-label')) {
-      input.setAttribute('aria-label', `Input field ${index + 1}`);
+      input.setAttribute('aria-label', 'Input field ' + (index + 1));
     }
   });
 }
@@ -166,16 +166,16 @@ function addAriaToFormControls() {
 
   formControls.forEach(control => {
     // Ensure all form controls have accessible names
-    if (!control.id && !control.getAttribute('aria-label')) {
-      const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
+    if (!control.id) {
+      const label = control.id ? document.querySelector('label[for="' + control.id + '"]') : null;
       if (label) {
-        label.id = label.id || `label-${control.id}`;
+        label.id = label.id || 'label-' + Math.random().toString(36).substr(2, 9);
         control.setAttribute('aria-labelledby', label.id);
       }
     }
 
     // Mark required fields appropriately
-    if (control.hasAttribute('required') && !control.hasAttribute('aria-required')) {
+    if (control.required && !control.hasAttribute('aria-required')) {
       control.setAttribute('aria-required', 'true');
     }
   });
@@ -188,7 +188,7 @@ function addAriaToFormControls() {
  */
 function addAccessibleNamesToSVGs(svgs) {
   svgs.forEach(svg => {
-    const id = `svg-${Date.now()}`;
+    const id = 'svg-' + Math.random().toString(36).substr(2, 9);
     svg.setAttribute('id', id);
     const label = document.createElement('label');
     label.setAttribute('for', id);
@@ -227,172 +227,4 @@ function validateTableAccessibility() {
         const scope = header.getAttribute('scope');
         if (!scope) {
           console.error('Table header without scope attribute:', header);
-        } else if (scope !== 'col' && scope !== 'row' && scope !== 'colgroup' && scope !== 'rowgroup') {
-          console.error('Table header with invalid scope value:', header);
-        }
-        
-        // Check for proper role attribute
-        if (!header.hasAttribute('role') || (header.getAttribute('role') !== 'columnheader' && header.getAttribute('role') !== 'rowheader')) {
-          console.error('Table header without proper role attribute:', header);
-        }
-      });
-    }
-  });
-}
-
-/**
- * Implement validateTableStructure() function to check for proper table structure.
- * This function should check for tables with proper nesting and other structural issues.
- *
- * @returns {void}
- */
-function validateTableStructure() {
-  // Check for tables with incorrect nesting or other structural issues
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    const rows = table.querySelectorAll('tr');
-    rows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
-      if (cells.length === 0) {
-        console.error('Table row without cells found:', row);
-      }
-    });
-    
-    // Check for tables without proper structure (missing thead, tbody, tfoot)
-    const thead = table.querySelector('thead');
-    const tbody = table.querySelector('tbody');
-    
-    // If table has rows directly under table (not in tbody), that's a structural issue
-    const directRows = table.querySelectorAll(':scope > tr');
-    if (directRows.length > 0) {
-      console.error('Table with rows directly under table element (should be in tbody):', table);
-    }
-  });
-}
-
-// ARIA live region announcer
-function createAnnouncer() {
-  const announcer = document.createElement('div');
-  announcer.setAttribute('aria-live', 'polite');
-  announcer.setAttribute('aria-atomic', 'true');
-  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
-  document.body.appendChild(announcer);
-  
-  return {
-    announce: (message) => {
-      announcer.textContent = '';
-      setTimeout(() => {
-        announcer.textContent = message;
-      }, 100);
-    }
-  };
-}
-
-// Check if user prefers reduced motion
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-// Function to improve keyboard navigation for interactive elements
-function improveKeyboardNavigation() {
-  const interactiveElements = document.querySelectorAll('[tabindex="-1"]');
-  interactiveElements.forEach(element => {
-    element.setAttribute('tabindex', '0');
-  });
-}
-
-// Function to add ARIA live regions for dynamic content updates
-function addLiveRegionForDynamicContent() {
-  const liveRegion = document.createElement('div');
-  liveRegion.setAttribute('aria-live', 'polite');
-  liveRegion.setAttribute('role', 'alert');
-  document.body.appendChild(liveRegion);
-}
-
-// Initialize accessibility features
-function initializeAccessibility() {
-  const announcer = createAnnouncer();
-  
-  // Ensure all landmarks have unique IDs
-  uniqueLandmarks();
-  
-  // Improve keyboard navigation
-  improveKeyboardNavigation();
-  
-  // Add live region for dynamic content
-  addLiveRegionForDynamicContent();
-  
-  // Return the announcer for use in the app
-  return {
-    announce: announcer.announce,
-    prefersReducedMotion
-  };
-}
-
-/**
- * Checks whether a link is accessible.
- * A link is considered accessible if it has a non-empty text content
- * or an accessible name (via aria-label, aria-labelledby, or title attribute).
- * @param {HTMLAnchorElement} link - The link element to check.
- * @returns {boolean} True if the link is accessible, false otherwise.
- */
-function isLinkAccessible(link) {
-  if (!(link instanceof HTMLAnchorElement)) {
-    return false;
-  }
-
-  // Check for non-empty text content
-  const textContent = link.textContent.trim();
-  if (textContent.length > 0) {
-    return true;
-  }
-
-  // Check for aria-label with non-empty value
-  const ariaLabel = link.getAttribute('aria-label');
-  if (ariaLabel && ariaLabel.trim().length > 0) {
-    return true;
-  }
-
-  // Check for aria-labelledby referencing existing element with text
-  const ariaLabelledby = link.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labelledByElement = document.getElementById(ariaLabelledby);
-    if (labelledByElement && labelledByElement.textContent.trim().length > 0) {
-      return true;
-    }
-  }
-
-  // Check for title attribute with non-empty value
-  const title = link.getAttribute('title');
-  if (title && title.trim().length > 0) {
-    return true;
-  }
-
-  return false;
-}
-
-addProperLandmarkRegions();
-addProperAccountManagement();
-addAriaToFormControls();
-
-module.exports = {
-  addProperLandmarkRegions,
-  addProperAccountManagement,
-  addAriaToFormControls,
-  replaceMyButtonId,
-  getFullLangAttribute,
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  validateTableAccessibility,
-  validateTableStructure,
-  addAccessibleNamesToSVGs,
-  removeFakeLinks,
-  initializeAccessibility,
-  createAnnouncer,
-  prefersReducedMotion,
-  improveKeyboardNavigation,
-  addLiveRegionForDynamicContent,
-  isLinkAccessible,
-  addAriaLabel,
-  addLangAttribute
-};
+        } else if (scope !== 'col' && scope !== '

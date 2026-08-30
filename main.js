@@ -71,6 +71,14 @@ function getFullLangAttribute() {
 }
 
 /**
+ * Gets the language attribute of the document.
+ * @returns {string} The language code.
+ */
+function getLangAttribute() {
+    return document.documentElement.lang || 'en';
+}
+
+/**
  * Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
  * Assumes you have already set the id on the button element in your code.
  */
@@ -372,6 +380,7 @@ module.exports = {
   addAriaToFormControls,
   replaceMyButtonId,
   getFullLangAttribute,
+  getLangAttribute,
   ensureUniqueLandmarkId,
   uniqueLandmarks,
   validateTableAccessibility,

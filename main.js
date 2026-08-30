@@ -1,3 +1,5 @@
+import React from 'react';
+
 // TODO: This is the existing code that needs to be preserved
 import react from 'react';
 
@@ -114,7 +116,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_041':
         // Add accessible names to SVGs
         if (issue.svg) {
-          const accessibleName = getSvgAccessibleName(issue.svg);
+          const accessibleName = getSvgAccessibleName();
           setSvgAttributes(issue.svg, accessibleName);
         }
         break;
@@ -205,11 +207,11 @@ function processAccessibilityReport(report) {
 
   if (report) {
     if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027.count || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
+    if (report.REACT_027) findings.tableIssues = report.REACT_027 || 0;
+    if (report.REACT_017) findings.landmarkIssues = report.REACT_017 || 0;
+    if (report.REACT_041) findings.svgIssues = report.REACT_041 || 0;
+    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025 || 0;
+    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036 || 0;
   }
 
   return findings;

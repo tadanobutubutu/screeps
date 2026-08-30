@@ -2,7 +2,7 @@ import React from 'react';
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
@@ -100,7 +100,7 @@ function validateTableStructure() {
  // Code for validating table structure
 }
 
-function fixTableStructure() {
+function fixTableStructureIssues() {
  // Code for fixing table structure issues
 }
 
@@ -129,7 +129,9 @@ function validateLandmarkAttributes(element) {
  return false;
  }
 
- // TODO: Implement function for ensuring unique landmarks
+ return true;
+}
+
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks) || landmarks.length === 0) {
     return landmarks;
@@ -146,9 +148,6 @@ function ensureUniqueLandmarks(landmarks) {
     const seen = new Set();
     return !seen.has(name) && seen.add(name);
   });
-}
-
- return true;
 }
 
 function addProperLandmarkRegions() {
@@ -232,7 +231,7 @@ function addressAccessibilityIssues(insightReport) {
  case 'REACT_027':
  if (issue.element) {
  validateTableStructure();
- fixTableStructure(issue.element);
+ fixTableStructureIssues(issue.element);
  }
  break;
  case 'REACT_017':

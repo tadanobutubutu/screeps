@@ -2,9 +2,6 @@
  * Main application module for Screeps bot
  */
 
-// TODO: Add back any required exports that might have been removed
-// Here is an example of how to export a required function from another file:
-
 // Sample data store
 const appData = {
   tables: [],
@@ -104,6 +101,10 @@ function validateAllTables() {
     isValid: accessibilityResult.isValid && structureResult.isValid
   };
 }
+
+// TODO: Add back any required exports that might have been removed
+// If there were any additional functions or variables that were previously exported
+// but have since been removed, they should be re-added here.
 
 module.exports = {
   initialize,

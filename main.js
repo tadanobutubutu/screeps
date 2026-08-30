@@ -37,6 +37,30 @@ function addSvgAccessibilityProps(props) {
   };
 }
 
+/**
+ * Check if an element is a landmark element for accessibility
+ * Landmark elements include: main, nav, aside, header, footer, section, article, form, search
+ * @param {HTMLElement|string} element - The element or element tag name to check
+ * @returns {boolean} True if the element is a landmark element
+ */
+function isLandmarkElement(element) {
+  const landmarkTags = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form', 'search'];
+  
+  if (!element) {
+    return false;
+  }
+  
+  if (typeof element === 'string') {
+    return landmarkTags.includes(element.toLowerCase());
+  }
+  
+  if (element.tagName) {
+    return landmarkTags.includes(element.tagName.toLowerCase());
+  }
+  
+  return false;
+}
+
 // TODO: Address accessibility issues from insight report — FIXED
 
 // Preserving existing code, exports, and functions
@@ -81,7 +105,7 @@ function decodeJwtToken(token) {
         }
         
         const payload = parts[1];
-        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf-8');
+        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
         return JSON.parse(decoded);
     } catch (error) {
         return null;
@@ -94,7 +118,7 @@ function decodeJwtToken(token) {
  * @returns {string} - Sanitized filename
  */
 function sanitizeFilename(filename) {
-    return filename.replace(/[^a-z0-9._-]/gi, '_');
+    return filename.replace(/[^a-z0-9_.-]/g, '_');
 }
 
 /**
@@ -243,9 +267,6 @@ function getActiveSessionsCount() {
 }
 
 // HTTP Server setup
-const http = require('http');
-const url = require('url');
-
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     
@@ -350,6 +371,7 @@ if (require.main === module) {
 // Export modules for testing
 module.exports = {
     addSvgAccessibilityProps,
+    isLandmarkElement,
     handleCredentialResponse,
     parseCredentialResponse,
     decodeJwtToken,

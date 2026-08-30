@@ -22,7 +22,7 @@ function generateKey(book) {
 }
 
 // Function to render a single book item
-function BookItem(book) {
+function BookItem({ book }) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
@@ -65,6 +65,9 @@ function onAuthorSort() {
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const [newBookTitle, setNewBookTitle] = useState('');
+  const [newBookAuthor, setNewBookAuthor] = useState('');
+  const [formError, setFormError] = useState('');
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -75,15 +78,88 @@ function Main() {
     }
   }, [sorting]);
 
+  // Handle form submission for adding a new book
+  const handleAddBook = (event) => {
+    event.preventDefault();
+    setFormError('');
+
+    if (!newBookTitle.trim()) {
+      setFormError('Book title is required');
+      return;
+    }
+
+    if (!newBookAuthor.trim()) {
+      setFormError('Book author is required');
+      return;
+    }
+
+    addBook({ title: newBookTitle.trim(), author: newBookAuthor.trim() });
+    setNewBookTitle('');
+    setNewBookAuthor('');
+  };
+
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(BookItem);
+  const bookItems = getBooksList.map((book) => <BookItem key={generateKey(book)} book={book} />);
 
   // Render the list of book items and sorting controls
   return (
     <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
+      <section aria-labelledby="sorting-heading">
+        <h2 id="sorting-heading" className="sr-only">Sort Options</h2>
+        <button 
+          onClick={() => setSorting(sortByTitle)} 
+          aria-pressed={sorting === sortByTitle}
+          aria-label="Sort books by title in ascending order"
+        >
+          Sort by Title
+        </button>
+        <button 
+          onClick={() => setSorting(sortByAuthor)} 
+          aria-pressed={sorting === sortByAuthor}
+          aria-label="Sort books by author in descending order"
+        >
+          Sort by Author
+        </button>
+      </section>
+      
+      <section aria-labelledby="add-book-heading">
+        <h2 id="add-book-heading">Add a New Book</h2>
+        <form onSubmit={handleAddBook} aria-describedby={formError ? 'add-book-error' : undefined}>
+          <div>
+            <label htmlFor="book-title">Book Title:</label>
+            <input
+              id="book-title"
+              type="text"
+              value={newBookTitle}
+              onChange={(e) => setNewBookTitle(e.target.value)}
+              aria-required="true"
+              aria-invalid={formError && !newBookTitle.trim() ? 'true' : 'false'}
+            />
+          </div>
+          <div>
+            <label htmlFor="book-author">Book Author:</label>
+            <input
+              id="book-author"
+              type="text"
+              value={newBookAuthor}
+              onChange={(e) => setNewBookAuthor(e.target.value)}
+              aria-required="true"
+              aria-invalid={formError && !newBookAuthor.trim() ? 'true' : 'false'}
+            />
+          </div>
+          {formError && (
+            <div id="add-book-error" role="alert" aria-live="polite">
+              {formError}
+            </div>
+          )}
+          <button type="submit">Add Book</button>
+        </form>
+      </section>
+      
+      <section aria-labelledby="book-list-heading">
+        <h2 id="book-list-heading">Book List</h2>
+        <List dataSource={bookItems} />
+      </section>
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
     </div>

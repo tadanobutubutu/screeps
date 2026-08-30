@@ -5,12 +5,6 @@
 
 // More existing code that should be preserved
 
-// Existing code ends here
-
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
-// Addressed accessibility issues from insight report
-
 // ... (other code in main.js)
 
 /**
@@ -160,73 +154,37 @@ function handleEvent(event) {
   // Event handling logic would go here
 }
 
-function addLandmarkRoles() {
-  const header = document.querySelector('header');
-  if (header) header.setAttribute('role', 'banner');
-
-  const mainContent = document.getElementById('main-content');
-  if (mainContent) mainContent.setAttribute('role', 'main');
-
-  const footer = document.querySelector('footer');
-  if (footer) footer.setAttribute('role', 'contentinfo');
+// Function added due to the issue
+function newFunction() {
+  // Implementation of the new function
 }
 
-// Function to add accessible names to 2 SVGs
-function addSvgAccessibleNames() {
-  const svg1 = document.getElementById('svg1');
-  if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
-
-  const svg2 = document.getElementById('svg2');
-  if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
+export function add(a, b) {
+  return a + b;
 }
 
-// Function to ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[aria-landmark]');
-  const landmarkIds = new Set();
-
-  landmarks.forEach((landmark) => {
-    const id = landmark.getAttribute('aria-labelledby');
-    if (landmarkIds.has(id)) {
-      console.error('Duplicate landmark ID encountered:', id);
-    } else {
-      landmarkIds.add(id);
-    }
-  });
-}
-
-// Function to fix 1 fake link issue
-function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('[href="#"]:not([ aria-hidden ])');
-  fakeLinks.forEach((link) => {
-    link.removeAttribute('href');
-  });
-}
-
-// Initialize accessibility improvements
-function initializeAccessibility() {
-  // Replace fake links with proper buttons
-  const fakeLink = document.getElementById('unrotate');
-  if (fakeLink && fakeLink.tagName === 'A') {
-    const parent = fakeLink.parentElement;
-    const newButton = createUnrotateButton();
-    parent.replaceChild(newButton, fakeLink);
+// New export to address the issue
+export function calculateDiscount(price, discount) {
+  if (typeof price !== 'number' || price < 0) {
+    throw new Error('Price must be a non-negative number');
+  }
+  if (typeof discount !== 'number' || discount < 0) {
+    throw new Error('Discount must be a non-negative number');
   }
 
-  // Ensure table headers have proper scope
-  ensureThScope();
-
-  // Add accessible names to SVGs
-  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
-  svgs.forEach((svg, index) => {
-    if (!svg.hasAttribute('aria-hidden') || svg.getAttribute('aria-hidden') !== 'true') {
-      svg.setAttribute('aria-label', `Icon ${index + 1}`);
-    }
-  });
+  // Calculate discounted price
+  const discountedPrice = price * (1 - discount / 100);
+  return Math.max(0, discountedPrice);
 }
 
-// Initialize the application with accessibility improvements
-function initialize() {
+export function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+/**
+ * Export the initialize function with newFunction as a sub-function
+ */
+export function initialize() {
   // Existing initialization logic preserved
   console.log('Application initialized');
 
@@ -254,48 +212,10 @@ function initialize() {
 
   // Accessibility: Fix 1 fake link issue
   fixFakeLink();
+
+  // Execute the new function
+  newFunction();
 }
-
-// New function or change requested in the issue
-function newFunction() {
-  // Implementation of the new function
-}
-
-export function calculateDiscount(price, discount) {
-  if (typeof price !== 'number' || price < 0) {
-    throw new Error('Price must be a non-negative number');
-  }
-  if (typeof discount !== 'number' || discount < 0) {
-    throw new Error('Discount must be a non-negative number');
-  }
-
-  // Calculate discounted price
-  const discountedPrice = price * (1 - discount / 100);
-  return Math.max(0, discountedPrice);
-}
-
-function greet(name) {
-  return `Hello, ${name}!`;
-}
-
-function add(a, b) {
-  return a + b;
-}
-
-// Export existing functionality and new functions
-export { 
-  initialize, 
-  getConfig, 
-  setupSkipLinks, 
-  setupButtonAccessibility, 
-  createInPageButton, 
-  performTask, 
-  handleEvent, 
-  greet, 
-  add, 
-  calculateDiscount, 
-  newFunction 
-};
 
 // Compatibility for CommonJS if needed (as per HEAD)
 module.exports.newFunction = newFunction;

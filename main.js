@@ -1,5 +1,7 @@
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
   const errors = [];
   
   // Check if landmark exists

@@ -4,24 +4,21 @@ import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
 // TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f80b51b788bad4952d8f93f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a97a2237d968a50cc419 -->
-//_Commit: 30b5f08a59d5ec914a59aa66e32dc3a3eb059e_
-//<!-- todo-hash: 1f8a6325b07b9b809ac49f5e1c81cf4f89f9c1 -->
-//_Commit: 669117b4c3d1a635653f730f0a059efacbb752_
-//<!-- todo-hash: 312aa8ea4c5e1c9430e4b7c36c210eb9a72dea -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//_Commit: b2121df01283af5803b4e39b5a2143ecea635c8d_
 
-//_Commit: 33bd865abb006c86b8f7c2a22f441136e44f37f_
-
-<!-- todo-hash: 88c1c6cc67ee5e0dd4df31d91becf96d321836d1 -->
+<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
-import { getDocument, getLangAttribute } from . ; // Adjust the path to the existing accessibility helper functions if needed
+import { getDocument, getLangAttribute } from './'; // Adjust the path to the existing accessibility helper functions if needed
 import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from "..." ; // Adjust the path to the new accessibility helper functions
 
 // Import your new function from your new module

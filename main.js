@@ -399,4 +399,279 @@ function validateLandmarkAttributes(element) {
   
   if (semanticLandmarks.includes(tagName)) {
     // Check if element has proper labeling
-    const ariaLabel = element.getAttribute('aria
+    const ariaLabel = element.getAttribute('aria-label');
+    const ariaLabelledBy = element.getAttribute('aria-labelledby');
+    
+    // Main landmark should have id
+    if (tagName === 'main' && !element.id) {
+      issues.push('Main landmark should have an id attribute');
+    }
+    
+    // Multiple nav elements need labels
+    if (tagName === 'nav') {
+      const allNavs = document.querySelectorAll('nav');
+      if (allNavs.length > 1 && !ariaLabel && !ariaLabelledBy) {
+        issues.push('Navigation should have aria-label or aria-labelledby when multiple navs exist');
+      }
+    }
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues
+  };
+}
+
+function ensureUniqueLandmarks(document) {
+  // Ensure landmarks are unique in the document
+  if (!document) {
+    return { valid: false, issues: ['Document is required'] };
+  }
+  
+  const issues = [];
+  const landmarks = ['header', 'main', 'footer'];
+  
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(landmark);
+    if (elements.length > 1) {
+      issues.push(`Multiple ${landmark} elements found - should have only one`);
+    }
+  });
+  
+  return {
+    valid: issues.length === 0,
+    issues
+  };
+}
+
+function addSvgAccessibleName(svgElement, accessibleName) {
+  // Add accessible name to SVG element
+  if (!svgElement) {
+    return false;
+  }
+  
+  const tagName = svgElement.tagName ? svgElement.tagName.toLowerCase() : '';
+  if (tagName !== 'svg') {
+    console.warn('Element is not an SVG');
+    return false;
+  }
+  
+  // Add title element as first child
+  let title = svgElement.querySelector('title');
+  if (!title) {
+    title = document.createElement('title');
+    svgElement.insertBefore(title, svgElement.firstChild);
+  }
+  
+  title.textContent = accessibleName;
+  title.id = accessibleName.replace(/\s+/g, '-').toLowerCase() + '-title';
+  
+  // Add aria-labelledby to SVG
+  svgElement.setAttribute('aria-labelledby', title.id);
+  
+  return true;
+}
+
+function validateSvgAccessibility(svgElement) {
+  // Validate SVG accessibility
+  if (!svgElement) {
+    return { valid: false, issues: ['SVG element is required'] };
+  }
+  
+  const tagName = svgElement.tagName ? svgElement.tagName.toLowerCase() : '';
+  if (tagName !== 'svg') {
+    return { valid: false, issues: ['Element is not an SVG'] };
+  }
+  
+  const issues = [];
+  
+  // Check for title element
+  const title = svgElement.querySelector('title');
+  if (!title) {
+    issues.push('SVG should have a title element for accessibility');
+  }
+  
+  // Check for aria-labelledby or aria-label
+  const ariaLabelledBy = svgElement.getAttribute('aria-labelledby');
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (!ariaLabelledBy && !ariaLabel) {
+    issues.push('SVG should have aria-labelledby or aria-label attribute');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues
+  };
+}
+
+function fixFakeLink(linkElement) {
+  // Fix fake link - convert to proper button or add href
+  if (!linkElement) {
+    return false;
+  }
+  
+  const tagName = linkElement.tagName ? linkElement.tagName.toLowerCase() : '';
+  
+  // If it's an anchor without href, convert to button or add href
+  if (tagName === 'a') {
+    const href = linkElement.getAttribute('href');
+    if (!href || href === '#') {
+      // Check if it should be a button
+      const role = linkElement.getAttribute('role');
+      if (role === 'button' || linkElement.classList.contains('button')) {
+        linkElement.setAttribute('role', 'button');
+        return true;
+      }
+      return false;
+    }
+    return true;
+  }
+  
+  return false;
+}
+
+function validateFakeLink(linkElement) {
+  // Validate that link is not a fake link
+  if (!linkElement) {
+    return { valid: false, issues: ['Link element is required'] };
+  }
+  
+  const tagName = linkElement.tagName ? linkElement.tagName.toLowerCase() : '';
+  
+  if (tagName !== 'a') {
+    return { valid: true, issues: [] };
+  }
+  
+  const issues = [];
+  const href = linkElement.getAttribute('href');
+  
+  // Check if it's a fake link (no href or href is just #)
+  if (!href || href === '#') {
+    issues.push('Link has no href or href is "#" - should be a button if not navigable');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues
+  };
+}
+
+function replaceButtonId(buttonElement, newId) {
+  // Replace the id of a button element for accessibility
+  if (!buttonElement) {
+    return false;
+  }
+  
+  const tagName = buttonElement.tagName ? buttonElement.tagName.toLowerCase() : '';
+  if (tagName !== 'button') {
+    console.warn('Element is not a button');
+    return false;
+  }
+  
+  if (!newId || typeof newId !== 'string') {
+    console.warn('Invalid button id provided');
+    return false;
+  }
+  
+  buttonElement.id = newId;
+  return true;
+}
+
+function validateGoogleSignIn(buttonElement) {
+  // Validate Google sign-in button accessibility
+  if (!buttonElement) {
+    return { valid: false, issues: ['Button element is required'] };
+  }
+  
+  const tagName = buttonElement.tagName ? buttonElement.tagName.toLowerCase() : '';
+  if (tagName !== 'button') {
+    return { valid: false, issues: ['Element is not a button'] };
+  }
+  
+  const issues = [];
+  
+  // Check for accessible name
+  const ariaLabel = buttonElement.getAttribute('aria-label');
+  const textContent = buttonElement.textContent;
+  const title = buttonElement.getAttribute('title');
+  
+  if (!ariaLabel && !textContent && !title) {
+    issues.push('Google sign-in button should have accessible name via aria-label, text content, or title');
+  }
+  
+  // Check for proper button type
+  const buttonType = buttonElement.getAttribute('type');
+  if (!buttonType) {
+    issues.push('Button should have explicit type attribute');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues
+  };
+}
+
+function fixGoogleSignInButton(buttonElement) {
+  // Fix Google sign-in button for accessibility
+  if (!buttonElement) {
+    return false;
+  }
+  
+  const tagName = buttonElement.tagName ? buttonElement.tagName.toLowerCase() : '';
+  if (tagName !== 'button') {
+    console.warn('Element is not a button');
+    return false;
+  }
+  
+  let fixed = false;
+  
+  // Ensure button has type
+  if (!buttonElement.getAttribute('type')) {
+    buttonElement.setAttribute('type', 'button');
+    fixed = true;
+  }
+  
+  // Add aria-label if no accessible name
+  const ariaLabel = buttonElement.getAttribute('aria-label');
+  const textContent = buttonElement.textContent;
+  const title = buttonElement.getAttribute('title');
+  
+  if (!ariaLabel && !textContent && !title) {
+    buttonElement.setAttribute('aria-label', 'Sign in with Google');
+    fixed = true;
+  }
+  
+  return fixed;
+}
+
+// Export functions for testing
+export {
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  initialize,
+  validateInput,
+  addressAccessibilityIssues,
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  ensureUniqueLandmarks,
+  addSvgAccessibleName,
+  validateSvgAccessibility,
+  fixFakeLink,
+  validateFakeLink,
+  replaceButtonId,
+  validateGoogleSignIn,
+  fixGoogleSignInButton,
+  HTML,
+  appState,
+  config,
+  MAIN_LANDMARK_ID
+};

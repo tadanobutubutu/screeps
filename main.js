@@ -83,7 +83,7 @@ function addressAccessibilityIssues(insightReport) {
   }
 
   // Address accessibility issues from insight report
-  insightReport.issues.forEach((issue) => {
+  insightReport.issues.forEach(issue => {
     switch (issue.type) {
       case 'REACT_015':
         // Add lang attribute to HTML element
@@ -103,6 +103,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_017':
         // Add/fix landmark issues
         if (issue.structure) {
+          validateLandmarkStructure();
           addMainLandmark();
         } else {
           validateLandmark();
@@ -132,6 +133,46 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
+// Configuration
+const config = {
+  // Configuration options
+};
+
+// App state
+const appState = {
+  // Application state
+};
+
+// Initialize function
+function initialize() {
+  // Initialization code
+}
+
+// Initialize app
+function initializeApp() {
+  // Initialize the app
+}
+
+// Process data
+function processData(data) {
+  // Process data
+}
+
+// Fetch user
+function fetchUser(userId) {
+  // Fetch user data
+}
+
+// Clear cache
+function clearCache() {
+  // Clear cache
+}
+
+// Validate input
+function validateInput(input) {
+  // Validate input
+}
+
 // Main execution
 function main() {
   initialize();
@@ -141,6 +182,158 @@ function main() {
 // Run if executed directly
 if (require.main === module) {
   main();
+}
+
+function getInsightReport() {
+  const issues = [];
+  
+  // Check for lang attribute on HTML element
+  const langAttribute = getLangAttribute();
+  if (!langAttribute) {
+    issues.push({
+      type: 'REACT_015',
+      description: 'HTML element is missing lang attribute',
+      severity: 'critical',
+      element: 'html'
+    });
+  }
+  
+  // Check table accessibility
+  const tableAccessibilityIssues = validateTableAccessibility();
+  if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
+    tableAccessibilityIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_027',
+        subtype: 'accessibility',
+        description: issue.description || 'Table accessibility issue',
+        severity: issue.severity || 'high',
+        element: issue.element,
+        table: issue.table
+      });
+    });
+  }
+  
+  // Check table structure
+  const tableStructureIssues = validateTableStructure();
+  if (tableStructureIssues && tableStructureIssues.length > 0) {
+    tableStructureIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_027',
+        subtype: 'structure',
+        description: issue.description || 'Table structure issue',
+        severity: issue.severity || 'high',
+        element: issue.element,
+        table: issue.table
+      });
+    });
+  }
+  
+  // Check landmark issues
+  const landmarkIssues = validateLandmark();
+  if (landmarkIssues && landmarkIssues.length > 0) {
+    landmarkIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_017',
+        description: issue.description || 'Landmark issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+  
+  // Check landmark structure
+  const landmarkStructureIssues = validateLandmarkStructure();
+  if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
+    landmarkStructureIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_017',
+        structure: true,
+        description: issue.description || 'Landmark structure issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+  
+  // Check landmark attributes
+  const landmarkAttributeIssues = validateLandmarkAttributes();
+  if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
+    landmarkAttributeIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_017',
+        description: issue.description || 'Landmark attribute issue',
+        severity: issue.severity || 'low',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+  
+  // Check SVG accessibility
+  const svgAccessibleNames = getSvgAccessibleName();
+  if (svgAccessibleNames && svgAccessibleNames.length > 0) {
+    svgAccessibleNames.forEach(svg => {
+      issues.push({
+        type: 'REACT_041',
+        description: 'SVG is missing accessible name',
+        severity: 'medium',
+        svg: svg.element,
+        svgId: svg.id
+      });
+    });
+  }
+  
+  // Check for unique landmarks
+  const uniqueLandmarkIssues = ensureUniqueLandmarks();
+  if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
+    uniqueLandmarkIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_025',
+        description: issue.description || 'Duplicate or missing landmark',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+  
+  // Check link accessibility
+  const linkIssues = validateLinkAccessibility();
+  if (linkIssues && linkIssues.length > 0) {
+    linkIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_036',
+        description: issue.description || 'Link accessibility issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        link: issue.link
+      });
+    });
+  }
+  
+  // Generate the report
+  const report = {
+    issues: issues,
+    summary: {
+      totalIssues: issues.length,
+      langAttribute: issues.filter(i => i.type === 'REACT_015').length,
+      tableIssues: issues.filter(i => i.type === 'REACT_027').length,
+      landmarkIssues: issues.filter(i => i.type === 'REACT_017').length,
+      svgIssues: issues.filter(i => i.type === 'REACT_041').length,
+      uniqueLandmarkIssues: issues.filter(i => i.type === 'REACT_025').length,
+      linkIssues: issues.filter(i => i.type === 'REACT_036').length,
+      critical: issues.filter(i => i.severity === 'critical').length,
+      high: issues.filter(i => i.severity === 'high').length,
+      medium: issues.filter(i => i.severity === 'medium').length,
+      low: issues.filter(i => i.severity === 'low').length
+    },
+    timestamp: new Date().toISOString(),
+    generatedAt: new Date().toLocaleString()
+  };
+  
+  return report;
 }
 
 function processAccessibilityReport(report) {
@@ -156,11 +349,11 @@ function processAccessibilityReport(report) {
 
   if (report) {
     if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027 || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017 || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041 || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025 || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036 || 0;
+    if (report.REACT_027) findings.tableIssues = report.REACT_027.count || 0;
+    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
+    if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
+    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
+    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
   }
 
   return findings;
@@ -198,6 +391,7 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   addLandmarkRegions,
+  getInsightReport,
   // Added from origin/main
   someFunction: function() {
     return 'some value';
@@ -216,3 +410,4 @@ module.exports = {
     return date.toISOString().split('T')[0];
   }
 };
+// ----- END ORIGINAL CODE (unchanged) -----

@@ -1,7 +1,5 @@
 // main.js
 
-// ... (existing code, exports, and functions)
-
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_027: Fix 26 table structure issues
@@ -399,4 +397,38 @@ function validateLandmarkAttributes(element) {
   
   if (semanticLandmarks.includes(tagName)) {
     // Check if element has proper labeling
-    const ariaLabel = element.getAttribute('aria
+    const ariaLabel = element.getAttribute('aria-label');
+    const ariaLabelledBy = element.getAttribute('aria-labelledby');
+    
+    if (!ariaLabel && !ariaLabelledBy && tagName !== 'main') {
+      issues.push(`${tagName} landmark should have aria-label or aria-labelledby`);
+    }
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues
+  };
+}
+
+module.exports = {
+  appState,
+  config,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  initialize,
+  validateInput,
+  MAIN_LANDMARK_ID,
+  addressAccessibilityIssues,
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes
+};

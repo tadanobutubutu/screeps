@@ -1,6 +1,15 @@
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
+// Add the new function
+function myNewFunction(someParam) {
+    // Your new code here
+}
+
+// Export your new function (if needed)
+// For example, assuming that MyModule is an existing module:
+exports.myNewFunction = myNewFunction;
+
 // Placeholder content for main.js
 // main.js - Application entry point
 
@@ -85,5 +94,6 @@ module.exports = {
     newFunction,
     someFunction,
     existingFunction,
-    ExistingClass
+    ExistingClass,
+    myNewFunction
 };

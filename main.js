@@ -5,7 +5,7 @@
 const fs = require('fs');
 
 // Accessibility utilities and functions
-// TODO:Address accessibility issues from insight report:
+// TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and newFocusTrap())
@@ -103,6 +103,10 @@ const renderDependencyGraph = (data) => {
     edges: data.edges || []
   };
 };
+
+// Add back any required exports that might have been removed.
+// For example, if the issue requires adding back an export like `calculateSum`, you would add:
+function calculateSum(a, b) { return a + b; }
 
 // Credential response handling
 async function handleCredentialResponse(response) {
@@ -296,13 +300,15 @@ const newFocusTrap = accessibilityUtils.newFocusTrap;
 // Export all utilities
 module.exports = {
   accessibilityUtils,
-  newFocusTrap,
+  exportUtils,
+  initAccessibility,
+  handleCredentialResponse,
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  handleCredentialResponse,
+  calculateSum,
+  newFocusTrap,
   log,
-  exportUtils,
   sanitizeFilename,
   readFileSafe,
   processData,
@@ -311,4 +317,3 @@ module.exports = {
   groupByCategory,
   transformInputData
 };
-```

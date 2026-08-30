@@ -84,6 +84,11 @@ function newFunction() {
   console.log("New Function has been called!");
 }
 
+// New function to implement the request
+function requestFunction() {
+  // Implement the logic for the request here
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
@@ -91,5 +96,6 @@ module.exports = {
   ensureUniqueLandmarks,
   renderDependencyGraph,
   displayModuleStructure,
-  newFunction
+  newFunction,
+  requestFunction // Export the new function request here
 };

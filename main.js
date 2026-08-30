@@ -18,14 +18,14 @@ function checkLandmarkElements(landmarks) {
   if (!Array.isArray(landmarks)) {
     return false;
   }
-  
+
   if (landmarks.length === 0) {
     return false;
   }
-  
+
   return landmarks.every(landmark => {
     if (!landmark) return false;
-    return landmark.id || landmark.name;
+    return landmark.id || landmark.name || landmark.ariaLabel;
   });
 }
 
@@ -34,19 +34,27 @@ function ensureUniqueLandmarks(insightReport) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
-  
+
   const seen = new Set();
   return landmarks.filter(landmark => {
     if (!landmark) return false;
-    
-    const identifier = landmark.id || landmark.name;
-    
+
+    const identifier = landmark.id || landmark.name || landmark.ariaLabel;
+
     if (seen.has(identifier)) {
       return false;
     }
     seen.add(identifier);
     return true;
   });
+}
+
+// Function for adding an id and aria-label to an element
+function addIdAndAriaLabel(element, id, ariaLabel) {
+  if (!element) return;
+
+  element.id = id;
+  element.setAttribute('aria-label', ariaLabel);
 }
 
 // Address accessibility issues
@@ -78,7 +86,12 @@ function addressAccessibilityIssues() {
   }
 
   function ensureUniqueLandmarks(insightReport) {
-    const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
+    const landmarks = [];
+
+    insightReport.issues.forEach(issue => {
+      if (!issue.ariaRole) return;
+      landmarks.push(issue.ariaRole);
+    });
 
     // Check if all landmarks exist, re-add if necessary
     landmarks.forEach(landmark => {
@@ -89,27 +102,30 @@ function addressAccessibilityIssues() {
         landmarks.forEach(uniqueLandmark => {
           let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
           if (!element[0]) {
-            element = document.createElement(`div`);
-            element.setAttribute('role', uniqueLandmark);
+            element = document.createElement('div');
+            addIdAndAriaLabel(element, uniqueLandmark, uniqueLandmark);
             if (!document.querySelector(`#${uniqueLandmark}`)) {
-              const id = uniqueLandmark;
-              element.setAttribute('id', id);
+              document.body.appendChild(element);
             }
-            document.body.appendChild(element);
+            uniqueLandmarkMap[uniqueLandmark] = element;
           }
-          uniqueLandmarkMap[uniqueLandmark] = element[0];
         });
         uniqueLandmarks = uniqueLandmarkMap;
       }
+
+      // Refresh landmarks for existing elements
+      elements.forEach(el => {
+        addIdAndAriaLabel(el, el.getAttribute('role'), el.getAttribute('role'));
+      });
     });
   }
 }
 
 // New function to render dependency graphs
-function renderDependencyGraph(moduleName) {
+function renderDependencyGraph(moduleName, data) {
   // Placeholder for actual implementation
   console.log(`Rendering dependency graph for module: ${moduleName}`);
-  // Assume some logic here to actually render the graph
+  // Assume some logic here to actually render the graph based on the data received
 }
 
 // New function to display module structure
@@ -133,5 +149,6 @@ module.exports = {
   checkLandmarkElements,
   renderDependencyGraph,
   displayModuleStructure,
-  newFunction
+  newFunction,
+  addIdAndAriaLabel
 };

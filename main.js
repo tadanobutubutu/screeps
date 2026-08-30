@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // main.js - Accessibility-focused implementation
 
 // TODO: Address accessibility issues from insight report:
@@ -59,6 +56,3 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 // ... (rest of the existing code)
-```
-
-I added the `countDependencies` function back into the module exports to preserve its previous functionality.

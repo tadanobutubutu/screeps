@@ -1,3 +1,5 @@
+// TODO: Create or update the affected functions to be accessible
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Header from './components/Header';
@@ -9,8 +11,6 @@ import './styles.css';
 // TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
-
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
 
 /**
  * Ensures the element has an id, generating one if necessary
@@ -58,8 +58,6 @@ function renderDependencyGraphs(dependencies, container) {
 
   container.appendChild(graphElement);
 }
-
-// ----- END ORIGINAL CODE (unchanged) -----
 
 function checkTableStructure(table) {
   if (!(table instanceof HTMLTableElement)) {

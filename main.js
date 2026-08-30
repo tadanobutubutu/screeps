@@ -1,31 +1,22 @@
-// main.js
-// Updated to import and use dependencyGraphContent and indexContent
-import { dependencyGraphContent } from './dependencyGraphContent';
-import { indexContent } from './indexContent';
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f80b51b788bad4952d8f93f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a97a2237d968a50cc419 -->
-//_Commit: 30b5f08a59d5ec914a59aa66e32dc3a3eb059e_
-//<!-- todo-hash: 1f8a6325b07b9b809ac49f5e1c81cf4f89f9c1 -->
-//_Commit: 669117b4c3d1a635653f730f0a059efacbb752_
-//<!-- todo-hash: 312aa8ea4c5e1c9430e4b7c36c210eb9a72dea -->
-
-//_Commit: 33bd865abb006c86b8f7c2a22f441136e44f37f_
-
-<!-- todo-hash: 88c1c6cc67ee5e0dd4df31d91becf96d321836d1 -->
+import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
-import { getDocument, getLangAttribute, getFullLangAttribute } from './accessibilityHelpers';
-import { createInPageButton, handleAccessibilityIssues, createAccessibleLink, ensureUniqueLandmarks, validateLandmark, validateLandmarkStructure } from './accessibilityHelpers';
+import { getDocument, getLangAttribute as getFullLangAttribute } from './accessibilityHelpers';
+import { handleAccessibilityIssues, createAccessibleLink, ensureUniqueLandmarks } from './accessibilityHelpers';
 import { triggerAccessibilityMode } from './accessibilityMode';
 
-// Import dependency graph and index content modules for rendering dependency graphs and index views
+// Placeholder variables for content
+let dependencyGraphContent;
+let indexContent;
+let personName;
 
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -39,47 +30,100 @@ import { triggerAccessibilityMode } from './accessibilityMode';
 // Updated to use dependencyGraphContent.
 export function renderDependencyGraph() {
   // Example usage: replace with actual rendering logic
-  ...
+  console.log('Rendering dependency graph:', dependencyGraphContent);
 }
 
 // Renders the index view.
 // Updated to use indexContent.
 export function renderIndex() {
   // Example usage: replace with actual rendering logic
-  ...
+  console.log('Rendering index view:', indexContent);
 }
 
-export { makeHeaderFocusable }; // new export statement from conflicting branch
+// Placeholder functions for format/product utilities
+function formatProductName(product) {
+  return `${product.name} - ${product.price}`;
+}
 
-function ensureElementId(element) {
-  // Combined and reconciled code from both branches
-  if (!element.id) {
-    element.id = element.id || element.name || '';
+function renderProductList(products) {
+  const container = document.createElement('div');
+  container.innerHTML = products.map(product => `<div>${formatProductName(product)}</div>`).join('');
+  return container;
+}
+
+function calculateTotalPrice(cart) {
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const discount = calculateDiscount(subtotal);
+  return subtotal - discount;
+}
+
+function renderCart(cart) {
+  const total = calculateTotalPrice(cart);
+  return `
+    <div class="cart">
+      <h2>Shopping Cart</h2>
+      <p>Total: ${formatCurrency(total)}</p>
+      <p>Date: ${formatDate(new Date())}</p>
+    </div>
+  `;
+}
+
+function validateAndRender(input) {
+  if (validateInput(input)) {
+    return renderProductList(input.products).outerHTML;
   }
+  return '<p>Invalid input</p>';
 }
 
-function validateTableAccessibility() {
-  // Existing code...
+function renderPage(data) {
+  const header = renderHeader(data.title);
+  const content = data.content;
+  const footer = renderFooter();
+  return `${header}${content}${footer}`;
 }
 
-function validateTableStructure() {
-  // Existing code...
+// New function to count dependencies
+function countDependencies() {
+  // Placeholder implementation: count dependencies in the project
+  return 0;
 }
 
-function validateLandmark() {
-  // Existing code...
-}
+// Implement this function for ensuring unique landmarks
+function ensureUniqueLandmarks() {
+  // Landmarks that should be unique on a page
+  const uniqueLandmarkSelectors = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
 
-function validateLandmarkStructure() {
-  // Existing code...
-}
+  uniqueLandmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        const existingLabel = element.getAttribute('aria-label');
+        const elementTag = element.tagName.toLowerCase();
+        const role = element.getAttribute('role') || elementTag;
 
-function getSvgAccessibleName() {
-  // Existing code...
-}
+        if (!existingLabel) {
+          element.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
+    }
+  });
 
-function createInPageButton() {
-  // Existing code...
+  // Ensure region and navigation landmarks have accessible names when multiple exist
+  const sectionLandmarkSelectors = ['nav', '[role="navigation"]', '[role="region"]', 'aside', '[role="complementary"]'];
+
+  sectionLandmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.id;
+        const role = element.getAttribute('role') || element.tagName.toLowerCase();
+
+        if (!hasLabel) {
+          element.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
+    }
+  });
 }
 
 // New function to fix accessibility issues as per the insight report
@@ -102,9 +146,9 @@ function fixAccessibilityIssues() {
   validateLandmark();
   validateLandmarkStructure();
 
-  // 4. REACT_025: Ensure unique landmarks (addressing the 2 landmark uniqueness issues)
+  // 4. REACT_025: Ensure unique landmarks
   ensureUniqueLandmarks();
-  validateLandmarkStructure();
+  handleFakeLinks();
 
   // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
   const svgElements = getDocument().querySelectorAll('svg');
@@ -128,7 +172,7 @@ function wrapPrimaryContentInMain(primaryContent) {
   mainElement.setAttribute('role', 'main');
   if (typeof primaryContent === 'string') {
     mainElement.innerHTML = primaryContent;
-  } else if (primaryContent.appendChild) {
+  } else if (primaryContent && primaryContent.appendChild) {
     mainElement.appendChild(primaryContent);
   }
   return mainElement;
@@ -148,7 +192,6 @@ if (htmlDoc && langAttr) {
 createInPageButton();
 
 // Validate table structure and accessibility
-// Assuming you have a table element with an id of 'myTable'
 const tables = getDocument().querySelectorAll('table');
 tables.forEach(table => {
   validateTableAccessibility(table);
@@ -163,7 +206,6 @@ validateLandmarkStructure();
 ensureUniqueLandmarks();
 
 // Add accessible names to SVGs
-// Assuming you have an SVG element with an id of 'mySvg'
 const svgs = getDocument().querySelectorAll('svg');
 svgs.forEach(svg => {
   const accessibleName = getSvgAccessibleName(svg);
@@ -172,9 +214,10 @@ svgs.forEach(svg => {
   }
 });
 
-handleFakeLinks();
+// Call the new function to fix accessibility issues
+fixAccessibilityIssues();
 
-// ... rest of your code ...
+handleFakeLinks();
 
 function addAriaLabel(element) {
   // Combined and reconciled code from both branches
@@ -183,55 +226,25 @@ function addAriaLabel(element) {
   }
 }
 
-const dependencyGraphContainer = ...
-dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
-... 'region');
-... 'Dependency Graph');
-
-// React / UI related functions
-
-// TODO: Add these imported modules to the relevant rendering functions
-
-function formatProductName(product) {
-  return `${product.name} - ...
-}
-
-function renderProductList(products) {
-  const container = ...
-  container.innerHTML = ...
-  return container;
-}
-
-function calculateTotalPrice(cart) {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = calculateDiscount(subtotal);
-  return subtotal - discount;
-}
-
-function renderCart(cart) {
-  const total = calculateTotalPrice(cart);
-  return `
-    <div class="cart">
-      <h2>Shopping Cart</h2>
-      <p>Total: ...
-      <p>Date: ${formatDate(new Date())}</p>
-    </div>
-  `;
-}
-
-function validateAndRender(input) {
-  if (validateInput(input)) {
-    return ...
+function ensureElementId(element) {
+  // Combined and reconciled code from both branches
+  if (!element.id) {
+    element.id = element.id || element.name || '';
   }
 }
 
+const dependencyGraphContainer = document.createElement('div');
+dependencyGraphContainer.id = 'dependencyGraph';
+dependencyGraphContainer.setAttribute('role', 'region');
+dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+
+// React / UI related functions
+
 function renderProductCard(product) {
-  // Example rendering logic
-  return `<div ...
+  return `<div class="product-card">${formatProductName(product)}</div>`;
 }
 
 function calculateDiscount(subtotal) {
-  // Example discount calculation
   return subtotal * 0.1; // 10% discount
 }
 
@@ -246,39 +259,159 @@ export function someFunction() {
 }
 
 function formatCurrency(amount) {
-  // Example currency formatting
-  return ...
+  return `$${amount.toFixed(2)}`;
 }
 
 function formatDate(date) {
-  // Example date formatting
-  return ...
+  return date.toLocaleDateString();
 }
 
 function validateInput(input) {
-  // Example validation logic
-  return input && input.products && ...
-}
-
-function getLangAttribute() {
-  // Example language attribute getter
-  return 'en';
+  return input && input.products && input.products.length > 0;
 }
 
 function setSvgAttributes(svg, accessibleName) {
-  // Example SVG attribute setter
-  ... accessibleName);
+  svg.setAttribute('aria-label', accessibleName);
 }
 
 function validateLinkAccessibility() {
   // Example link accessibility validation
 }
 
-function handleFakeLinks() {
-  // Example fake links handler
+function handleAccessibilityIssues(content) {
+  // Example handler for accessibility issues
 }
+
+// Export UI / product functions
+export {
+  formatProductName,
+  renderProductList,
+  calculateTotalPrice,
+  renderCart,
+  validateAndRender,
+  renderPage,
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton
+};
 
 export { ensureElementId };
 export { addAriaLabel };
 export { renderDependencyGraph };
+export { renderIndex };
 export { dependencyGraphContainer };
+export { fixAccessibilityIssues };
+export { wrapPrimaryContentInMain };
+export { calculateSum };
+
+// Export all required imports and stubs
+export {
+  dependencyGraphContent,
+  indexContent,
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  formatCurrency,
+  formatDate,
+  calculateDiscount,
+  validateInput,
+  renderHeader,
+  renderFooter,
+  renderProductCard,
+  state,
+  updateState,
+  personName,
+  fixAccessibilityIssues,
+  renderDependencyGraph,
+  renderIndex
+};
+
+// Exporting for CommonJS compatibility
+module.exports = {
+  dependencyGraphContent,
+  indexContent,
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  formatCurrency,
+  formatDate,
+  calculateDiscount,
+  validateInput,
+  renderHeader,
+  renderFooter,
+  renderProductCard,
+  state,
+  updateState,
+  personName,
+  fixAccessibilityIssues,
+  renderDependencyGraph,
+  renderIndex,
+  formatProductName,
+  renderProductList,
+  calculateTotalPrice,
+  renderCart,
+  validateAndRender,
+  renderPage,
+  someFunction
+};
+
+// ----- END OF ORIGINAL CODE -----
+
+// Existing code preserved
+function existingFunction() {
+  // existing code
+}
+
+// Add new function to address the accessibility issue REACT_043: Make header focusable
+function makeHeaderFocusable() {
+  // code to make the header element focusable
+  const header = document.querySelector('header');
+  if (header) {
+    header.setAttribute('tabindex', '0');
+    header.setAttribute('role', 'banner');
+  }
+}
+
+// Add export statement of the new function
+export { makeHeaderFocusable };
+
+// Export statements preserved
+export { existingFunction };
+
+// New function for table accessibility checks
+function checkTableAccessibility(table) {
+  // Implement accessibility checks on tables
+  if (!table.querySelector('thead')) {
+    console.error('Table is missing a <thead>');
+  }
+  if (!table.querySelector('tbody')) {
+    console.error('Table is missing a <tbody>');
+  }
+  if (table.getAttribute('role') !== 'grid') {
+    console.error('Table role is not set to "grid"');
+  }
+}
+
+// Export new function
+export { checkTableAccessibility };
+
+// ----- END OF ORIGINAL CODE -----

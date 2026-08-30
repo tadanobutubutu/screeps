@@ -302,7 +302,8 @@ export {
   ensureUniqueLandmarks,
   fixFakeLinkIssues,
   createInPageButton,
-  personName
+  personName,
+  reportWebVitals
 };
 
 export default {
@@ -320,5 +321,6 @@ export default {
   ensureUniqueLandmarks,
   fixFakeLinkIssues,
   createInPageButton,
-  personName
+  personName,
+  reportWebVitals
 };

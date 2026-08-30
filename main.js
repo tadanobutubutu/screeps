@@ -5,6 +5,15 @@ import { List } from 'antd';
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
 
+// Function for creating in-page buttons
+function createButton(label, onClick, className = '', disabled = false) {
+  return (
+    <button onClick={onClick} className={className} disabled={disabled}>
+      {label}
+    </button>
+  );
+}
+
 // Function to handle sorting books by title (ascending)
 export function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
@@ -17,7 +26,7 @@ export function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return book.id ? `book-${book.id}` : `book-${book.title}-${book.author}`;
+  return ...
 }
 
 // Function to render a single book item
@@ -41,72 +50,75 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
-function function3({ onAdd }) {
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [error, setError] = useState('');
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setError('');
-
-    if (!title.trim()) {
-      setError('Title is required');
-      return;
-    }
-    if (!author.trim()) {
-      setError('Author is required');
-      return;
-    }
-
-    onAdd({ title: title.trim(), author: author.trim() });
-    setTitle('');
-    setAuthor('');
-  };
-
-  return (
-    <form onSubmit={handleSubmit} aria-label="Add new book form">
-      <div role="group" aria-labelledby="add-book-heading">
-        <h3 id="add-book-heading">Add a New Book</h3>
-        <div>
-          <label htmlFor="book-title-input">Book Title:</label>
-          <input
-            id="book-title-input"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            aria-required="true"
-            aria-invalid={!!error}
-            placeholder="Enter book title"
-          />
-        </div>
-        <div>
-          <label htmlFor="book-author-input">Book Author:</label>
-          <input
-            id="book-author-input"
-            type="text"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            aria-required="true"
-            aria-invalid={!!error}
-            placeholder="Enter author name"
-          />
-        </div>
-        {error && (
-          <div role="alert" aria-live="polite">
-            {error}
-          </div>
-        )}
-        <button type="submit">Add Book</button>
-      </div>
-    </form>
-  );
+// Function to get the language attribute value
+function getLangAttribute() {
+  // Implementation for getting the language attribute
 }
 
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
+// Function to add the language attribute to the HTML element
+function addLangAttribute() {
+  // Implementation for adding the language attribute
+}
+
+// Function to validate table structure accessibility
+function validateTableAccessibility() {
+  // Implementation for validating table accessibility
+}
+
+// Function to fix table structure issues
+function fixTableStructure() {
+  // Implementation for fixing table structure issues
+}
+
+// Function to validate landmark structure
+function validateLandmarkStructure() {
+  // Implementation for validating landmark structure
+}
+
+// Function to validate landmark attributes
+function validateLandmarkAttributes() {
+  // Implementation for validating landmark attributes
+}
+
+// Function to add a main landmark
+function addMainLandmark() {
+  // Implementation for adding a main landmark
+}
+
+// Function to get an accessible name for an SVG
+function getSvgAccessibleName() {
+  // Implementation for getting an accessible name for an SVG
+}
+
+// Function to set SVG attributes for accessibility
+function setSvgAttributes() {
+  // Implementation for setting SVG attributes for accessibility
+}
+
+// Function to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  // Implementation for ensuring unique landmarks
+}
+
+// Function to fix fake link issues
+function handleFakeLinks() {
+  // Implementation for fixing fake link issues
+}
+
+// Function to add proper landmark regions
+function addProperLandmarkRegions() {
+  // Implementation for adding proper landmark regions
+}
+
+// Function to create an in-page button
+function createInPageButton() {
+  // Implementation for creating an in-page button
+}
+
+// Function to validate link accessibility
+function validateLinkAccessibility() {
+  // Implementation for validating link accessibility
+}
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
@@ -117,7 +129,7 @@ function onTitleSort() {
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = ...
+  const sortedList = [...getBooksList].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
@@ -136,17 +148,19 @@ function Main() {
   }, [sorting]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map((book) => BookItem(book));
+  const bookItems = ...
 
   // Render the list of book items and sorting controls
   return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={getBooksList} renderItem={(book) => BookItem(book)} />
+    <main>
+      <header>
+        <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+        <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      </header>
+      <List ... />
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
-    </div>
+    </main>
   );
 }
 

@@ -265,6 +265,56 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
+
+  let result = inputData;
+  
+  // Handle different types of input data
+  if (typeof result === 'string') {
+    // Apply whitespace trimming if requested
+    if (trimWhitespace) {
+      result = result.trim();
+    }
+    
+    // Apply uppercase conversion if requested
+    if (uppercase) {
+      result = result.toUpperCase();
+    }
+    
+    // Apply maximum length constraint if specified
+    if (maxLength !== null && result.length > maxLength) {
+      result = result.substring(0, maxLength);
+    }
+    
+    return result;
+  }
+  
+  else if (Array.isArray(result)) {
+    // Process array elements
+    const processedArray = result.map(item => transformInputData(item, options));
+    
+    // Apply maximum length constraint for arrays if specified
+    if (maxLength !== null && processedArray.length > maxLength) {
+      return processedArray.slice(0, maxLength);
+    }
+    
+    return processedArray;
+  }
+  
+  else if (typeof result === 'object') {
+    // Process object properties
+    const processedObject = {};
+    
+    for (const key in result) {
+      if (result.hasOwnProperty(key)) {
+        const newKey = preserveKeys ? key : String.fromCharCode(key.charCodeAt(0) + 1);
+        processedObject[newKey] = transformInputData(result[key], options);
+      }
+    }
+    
+    return processedObject;
+  }
+  
+  return result;
 }
 
 // Initialize on DOM ready
@@ -285,5 +335,7 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  transformInputData,
+  newFocusTrap
 };

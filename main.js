@@ -4,7 +4,7 @@
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark via addLandmarkRoles)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue via fixFakeLink)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLink via fixFakeLink)
 
 // This is the existing code that needs to be preserved
 // (This comment remains as-is)
@@ -203,7 +203,7 @@ function ensureUniqueLandmarks() {
 
 // Function to fix 1 fake link issue
 function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('[href="#"]:not([ aria-hidden ])');
+  const fakeLinks = document.querySelectorAll('[href="#"]:not([aria-hidden])');
   fakeLinks.forEach((link) => {
     link.removeAttribute('href');
   });

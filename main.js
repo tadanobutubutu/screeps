@@ -2,6 +2,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+function divide(numerator, denominator) {
+  if (denominator === 0) {
+    throw new Error('Division by zero is not allowed');
+  }
+  return numerator / denominator;
+}
+
 function MyComponent() {
   return (
     <html lang="en">
@@ -39,6 +46,6 @@ function MyComponent() {
   );
 }
 
-ReactDOM.render(<MyComponent />, document.getElementById('root'));
+export default MyComponent;
 
 // ... other imports and code ...

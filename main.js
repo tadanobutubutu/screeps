@@ -70,6 +70,34 @@ export function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
+// Function to generate a report based on accessibility issues
+function generateAccessibilityReport() {
+  const issues = [];
+
+  getBooksList.forEach(book => {
+    if (!book.title || book.title.trim() === '') {
+      issues.push({
+        id: book.id,
+        issue: 'Missing title',
+        severity: 'high'
+      });
+    }
+    if (!book.author || book.author.trim() === '') {
+      issues.push({
+        id: book.id,
+        issue: 'Missing author',
+        severity: 'high'
+      });
+    }
+  });
+
+  return {
+    totalBooks: getBooksList.length,
+    issuesCount: issues.length,
+    details: issues
+  };
+}
+
 // TODO: Implement the required changes to improve accessibility for the addBook function or form
 function improveAccessibilityForAddBook() {
   // Assuming the addBookForm is the component where the form is located

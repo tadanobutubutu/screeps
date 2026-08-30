@@ -4,10 +4,10 @@
 // main.js - Accessibility improvements implementation
 
 // Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(element, options = {}) {
+function setupKeyboardNavigation(container, options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
-  element.addEventListener('keydown', (event) => {
+  const handleKeydown = (event) => {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -28,19 +28,30 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-  });
+  };
+
+  if (container) {
+    container.addEventListener('keydown', handleKeydown);
+  }
+
+  return {
+    remove: () => {
+      if (container) {
+        container.removeEventListener('keydown', handleKeydown);
+      }
+    }
+  };
 }
 
 // Helper to manage focus within a container
 function trapFocus(container) {
-  const focusableElements = container.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
+  const focusableElementsString = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  const focusableElements = container.querySelectorAll(focusableElementsString);
   
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  container.addEventListener('keydown', (event) => {
+  const handleTabKey = (event) => {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -50,7 +61,15 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  });
+  };
+
+  container.addEventListener('keydown', handleTabKey);
+
+  return {
+    remove: () => {
+      container.removeEventListener('keydown', handleTabKey);
+    }
+  };
 }
 
 // ARIA live region announcer
@@ -67,6 +86,11 @@ function createAnnouncer() {
       setTimeout(() => {
         announcer.textContent = message;
       }, 100);
+    },
+    destroy: () => {
+      if (announcer.parentNode) {
+        announcer.parentNode.removeChild(announcer);
+      }
     }
   };
 }
@@ -85,7 +109,8 @@ function initializeAccessibility() {
     announce: announcer.announce,
     setupKeyboardNavigation,
     trapFocus,
-    prefersReducedMotion
+    prefersReducedMotion,
+    createAnnouncer
   };
 }
 
@@ -172,7 +197,11 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Auto-initialize when DOM is ready
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      window.accessibilityFeatures = initializeAccessibility();
+    });
+  } else {
     window.accessibilityFeatures = initializeAccessibility();
-  });
+  }
 }

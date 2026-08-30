@@ -1,15 +1,9 @@
-Here's the resolved version of the `main.js` file:
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 
-```javascript
-// Import required module(s) and export the new necessary function(s)
 const fs = require('fs');
 const path = require('path');
 const config = require('./config');
 const logger = require('./utils/logger');
-
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
 
 // Initial setup
 let isInitialized = false;
@@ -64,36 +58,56 @@ function handleAccessibilityIssues() {
 // Returns an array of accessibility violations found.
 // @param {Document} document - The DOM document to check
 // @returns {Array} Array of accessibility issues found
-function checkLinkAndButtonAccessibility(document) {
-  // ... Existing implementation ...
-
-  // Add back the missing functions
-  function validateTableAccessibility() {
-    // Your implementation here
-  }
-
-  function validateTableStructure() {
-    // Your implementation here
-  }
-
-  function validateLandmark() {
-    // Your implementation here
-  }
-
-  function validateLandmarkStructure() {
-    // Your implementation here
-  }
-
-  function ensureUniqueLandmarks() {
-    // Your implementation here
-  }
-
-  // ... Other exports if needed ...
-
-  module.exports = {
-    // Add any additional exports here if needed
-    checkLinkAndButtonAccessibility,
-  };
+function checkDocumentAccessibility(document) {
+  const issues = [];
+  const links = document.querySelectorAll('a');
+  const buttons = document.querySelectorAll('button');
+  
+  // Check links
+  links.forEach(link => {
+    const role = link.getAttribute('role');
+    const tabindex = link.getAttribute('tabindex');
+    const href = link.getAttribute('href');
+    
+    // A valid link should either:
+    // 1. Be an anchor with href
+    // 2. Have role="link" with proper keyboard navigation
+    if (link.tagName !== 'A' || !href) {
+      if (role !== 'link') {
+        issues.push({
+          type: 'invalid-link',
+          element: link,
+          message: 'Link does not have proper href or role="link"'
+        });
+      }
+    }
+    
+    if (role === 'link' && !href) {
+      // Must be keyboard accessible
+      if (tabindex === null && link.tabIndex < 0) {
+        issues.push({
+          type: 'inaccessible-link',
+          element: link,
+          message: 'Link with role="link" must be keyboard accessible'
+        });
+      }
+    }
+  });
+  
+  // Check buttons
+  buttons.forEach(button => {
+    const role = button.getAttribute('role');
+    if (role === 'link') {
+      // Button with role="link" should be an anchor
+      issues.push({
+        type: 'invalid-button',
+        element: button,
+        message: 'Element with role="link" should be an anchor'
+      });
+    }
+  });
+  
+  return issues;
 }
 
 // New function as per the issue
@@ -107,14 +121,11 @@ function processLandmarks(landmarks) {
   });
 }
 
-// Assuming there's a way to retrieve landmarks, you would call the function like this:
-// const allLandmarks = getLandmarks(); // Placeholder function
-
-export function addLandmarks(landmarks) {
+function addLandmarks(landmarks) {
   processLandmarks(landmarks);
 }
 
-export function addSvgAccessibleName(svgElement, accessibleName) {
+function getSvgAccessibleName(svgElement, accessibleName) {
   if (!svgElement) return;
 
   // Add title element as first child
@@ -123,13 +134,13 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
   title.textContent = accessibleName;
 
   // Insert title as first child
-  svgElement.insertBefore(title, ...
+  svgElement.insertBefore(title, svgElement.firstChild);
 
   // Add aria-labelledby attribute
-  ... title.id);
+  svgElement.setAttribute('aria-labelledby', title.id);
 }
 
-export function isValidLink(element) {
+function isValidLink(element) {
   // Check if element has proper link semantics
   const role = element.getAttribute('role');
   const tabindex = element.getAttribute('tabindex');
@@ -150,21 +161,17 @@ export function isValidLink(element) {
   return false;
 }
 
-export function addScopeToHeaders(table) {
+function addScopeToHeaders(table) {
   if (!table) return;
 
   const headers = table.querySelectorAll('th');
   headers.forEach(th => {
     const row = th.parentElement;
-    const rowIndex = Array.from(row.children).indexOf(th);
-    const cellsAbove = Array.from(table.querySelectorAll('tr')).slice(0, rowIndex);
-
-    // Check if this header has cells below it in the same column
-    const hasCellsBelow = cellsAbove.length > 0;
-
-    // Check if this header has cells to the right in the same row
-    const cellsInRow = Array.from(row.children);
-    const hasCellsRight = cellsInRow.indexOf(th) < cellsInRow.length - 1;
+    const rowIndex = Array.from(row.parentElement.children).indexOf(row);
+    const colIndex = Array.from(row.cells).indexOf(th);
+    const cellsAbove = getCellsAbove(th, rowIndex);
+    const cellsInRow = Array.from(row.cells);
+    const hasCellsRight = colIndex < cellsInRow.length - 1;
 
     if (hasCellsBelow) {
       th.setAttribute('scope', 'col');
@@ -174,7 +181,16 @@ export function addScopeToHeaders(table) {
   });
 }
 
-export function addressAccessibilityIssues(issues) {
+function getCellsAbove(th, rowIndex) {
+  const rows = th.table ? Array.from(th.table.rows) : [];
+  return rows.slice(0, rowIndex);
+}
+
+function getCellsInRow(row) {
+  return Array.from(row.cells);
+}
+
+function addressAccessibilityIssues(issues) {
   issues.forEach(issue => {
     console.log(`Addressing issue: ${issue.issue}`);
     // TODO: Implement solution to the issue
@@ -183,7 +199,7 @@ export function addressAccessibilityIssues(issues) {
   });
 }
 
-export function getUniqueLandmarkName(baseName, existingNames) {
+function ensureUniqueNames(existingNames, baseName) {
   if (!existingNames.includes(baseName)) {
     return baseName;
   }
@@ -195,6 +211,27 @@ export function getUniqueLandmarkName(baseName, existingNames) {
   }
   return newName;
 }
-```
 
-This version of the file resolves the merge conflict by integrating both changes. The `app` initialization and the `addLandmarks` function are kept, and the functions that were removed in one branch but added in another are reintroduced. The styles and comments are preserved as much as possible.
+module.exports = {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  checkDocumentAccessibility,
+  addLandmarks,
+  isValidLink,
+  addScopeToHeaders,
+  addressAccessibilityIssues,
+  ensureUniqueNames,
+  getCellsAbove,
+  getCellsInRow,
+  isInitialized,
+  appData
+};

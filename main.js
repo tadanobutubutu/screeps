@@ -189,6 +189,44 @@ function ensureLandmarkUniqueness(elements) {
   return uniqueElements;
 }
 
+// TODO: Add your code here
+function validateLandmarkUniqueness(landmarks) {
+  const errors = [];
+  
+  if (!landmarks || !Array.isArray(landmarks) || landmarks.length === 0) {
+    errors.push('No landmarks provided for validation');
+    return { valid: false, errors };
+  }
+  
+  const seenTags = new Set();
+  landmarks.forEach((landmark, index) => {
+    if (!landmark || !landmark.tagName) {
+      errors.push(`Landmark at index ${index} is missing tagName`);
+      return;
+    }
+    
+    const tag = landmark.tagName.toLowerCase();
+    const role = landmark.getAttribute('role');
+    
+    if (seenTags.has(tag) && !['section', 'article', 'div'].includes(tag)) {
+      errors.push(`Duplicate landmark tag ${tag} found at index ${index}. Only section, article, and div can be repeated.`);
+    } else if (!seenTags.has(tag)) {
+      seenTags.add(tag);
+    }
+    
+    if (role && seenTags.has(role) && !['region', 'main', 'banner', 'navigation', 'aside', 'search', 'contentinfo'].includes(role)) {
+      errors.push(`Duplicate landmark role ${role} found at index ${index}`);
+    } else if (role) {
+      seenTags.add(role);
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
 function ensureUniqueLandmarks() {
   return {};
 }
@@ -264,6 +302,7 @@ module.exports = {
   improveAccessibility,
   renderDependencyGraphContent,
   ensureLandmarkUniqueness,
+  validateLandmarkUniqueness,
   ensureUniqueLandmarks,
   validateSvgAccessibility,
   processUniqueElements,

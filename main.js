@@ -1,4 +1,4 @@
-// TODO: Add the necessary new functions (without strict mode)
+// TODO: Add back any required exports that might have been removed
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -14,20 +14,20 @@ function addLangAttribute(element) {
 function fixTableStructure(table) {
   // Implement the function to fix table structure issues
   if (!table) return;
-  
+
   // Ensure table has proper structure
   let tbody = table.querySelector('tbody');
   if (!tbody) {
     tbody = document.createElement('tbody');
     table.appendChild(tbody);
   }
-  
+
   // Move direct tr elements into tbody if they're not already inside thead/tbody
-  const rows = Array.from(table.children).filter(child => 
-    child.tagName === 'TR' && 
+  const rows = Array.from(table.children).filter(child =>
+    child.tagName === 'TR' &&
     child.parentElement === table
   );
-  
+
   rows.forEach(row => {
     tbody.appendChild(row);
   });
@@ -36,10 +36,10 @@ function fixTableStructure(table) {
 function addMainLandmark(reactRoot) {
   // Implement the function to add main landmark
   if (!reactRoot) return;
-  
+
   const mainLandmark = document.createElement('main');
   mainLandmark.id = "main-landmark";
-  
+
   // Move the first child of reactRoot into the main landmark
   if (reactRoot.firstChild) {
     const firstChild = reactRoot.firstChild;
@@ -53,11 +53,25 @@ function addMainLandmark(reactRoot) {
 // Assume YouHaveComponent is the component that needs ARIA roles and keyboard interaction
 
 function YouHaveComponent() {
+  const [isClicked, setIsClicked] = React.useState(false);
+
+  function handleKeyPress(event) {
+    if (event.key === ' ') {
+      setIsClicked(!isClicked);
+    }
+  }
+
   return (
     <div
       tabIndex={0} // Add tabIndex to make the component interactable via keyboard
       role="button" // Add a role to help screen readers identify this as a button
-      onClick={() => alert('Clicked!')}
+      onKeyPress={handleKeyPress} // Add onKeyPress to handle keyboard events
+      onClick={() => {
+        if (!isClicked) {
+          alert('Clicked!');
+        }
+        setIsClicked(true);
+      }}
     >
       You Have A Component
     </div>

@@ -106,6 +106,42 @@ function getLangAttribute() {
 }
 
 /**
+ * Sets the lang attribute on the document's <html> tag
+ * @param {string} langCode - The language code to set (e.g., 'en', 'es', 'fr')
+ * @returns {boolean} Whether the operation was successful
+ */
+function setHtmlLangAttribute(langCode) {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.lang = langCode;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Detects the user's preferred language and sets the document's lang attribute accordingly
+ * @param {Object} [options] - Options for language detection
+ * @param {string} [options.defaultLang='en'] - Default language code if detection fails
+ * @param {string[]} [options.supportedLangs=['en']] - Array of supported language codes
+ * @returns {string} The detected/set language code
+ */
+function detectAndSetLang(options = {}) {
+    const { defaultLang = 'en', supportedLangs = ['en'] } = options;
+    let detectedLang = defaultLang;
+    
+    // Try to detect language from browser
+    if (typeof navigator !== 'undefined' && navigator.language) {
+        const browserLang = navigator.language.split('-')[0];
+        if (supportedLangs.includes(browserLang)) {
+            detectedLang = browserLang;
+        }
+    }
+    
+    setHtmlLangAttribute(detectedLang);
+    return detectedLang;
+}
+
+/**
  * Creates a properly accessible person name element, ensuring it's not implemented as a fake link
  * @param {string} name - The person's name
  * @param {boolean} isLink - Whether the name should be rendered as a link

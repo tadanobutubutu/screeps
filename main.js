@@ -78,6 +78,12 @@ function calculateProduct(a, b) {
   return a * b;
 }
 
+// New function requested in the issue
+function checkLinkAndButtonAccessibility() {
+  // Placeholder implementation, to be replaced with actual logic
+  console.log('Checking links and buttons for accessibility issues...');
+}
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct };

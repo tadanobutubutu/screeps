@@ -71,6 +71,11 @@ if (fakeLink && fakeLink.tagName === 'A') {
   parent.replaceChild(newButton, fakeLink);
 }
 
+// TODO: Add a language attribute to the HTML element
+if (typeof document !== 'undefined') {
+  document.documentElement.lang = 'en';
+}
+
 // Add lang attribute to HTML element
 if (typeof document !== 'undefined') {
   document.documentElement.lang = 'en-US';
@@ -89,7 +94,6 @@ function getConfig() {
 
 // Example usage for SVGs:
 // const svg1 = document.querySelector('.icon-svg-1');
-// const svg2 = document.querySelector('.icon-svg-2');
 // addSvgAccessibility(svg1, 'Description of first icon');
 // addSvgAccessibility(svg2, 'Description of second icon');
 

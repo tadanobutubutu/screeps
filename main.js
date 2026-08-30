@@ -7,6 +7,36 @@
 
 // Existing code ends here
 
+// TODO: Implement spawning logic
+
+/**
+ * Spawns and initializes accessibility-related elements on the page.
+ * This function ensures all required accessibility features are in place.
+ */
+function spawnAccessibilityElements() {
+  // Spawn the unrotate button if it doesn't exist
+  const unrotateElement = document.getElementById('unrotate');
+  if (unrotateElement) {
+    const newButton = createUnrotateButton();
+    unrotateElement.parentNode.replaceChild(newButton, unrotateElement);
+  }
+
+  // Spawn language attribute on HTML element
+  setLanguageAttribute();
+
+  // Spawn landmark roles on relevant elements
+  addLandmarkRoles();
+}
+
+// Initialize spawning logic when DOM is ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', spawnAccessibilityElements);
+  } else {
+    spawnAccessibilityElements();
+  }
+}
+
 // TODO: This is the existing code that needs to be preserved
 // (This should be preserved)
 // Addressed accessibility issues from insight report
@@ -636,7 +666,8 @@ export {
   addSvgAccessibleNames,
   ensurePageUniqueLandmarks,
   fixFakeLink,
-  initializeAccessibility
+  initializeAccessibility,
+  spawnAccessibilityElements
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
@@ -658,6 +689,7 @@ module.exports.addSvgAccessibleNames = addSvgAccessibleNames;
 module.exports.ensurePageUniqueLandmarks = ensurePageUniqueLandmarks;
 module.exports.fixFakeLink = fixFakeLink;
 module.exports.initializeAccessibility = initializeAccessibility;
+module.exports.spawnAccessibilityElements = spawnAccessibilityElements;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
@@ -667,83 +699,3 @@ if (typeof document !== 'undefined') {
     initialize();
   }
 }
-
-// More existing code that should be preserved
-
-/**
- * Get the application configuration
- * @returns {Object} The configuration object with apiUrl and timeout properties
- */
-function getConfig() {
-  return {
-    apiUrl: process.env.API_URL || '',
-    timeout: 5000
-  };
-}
-=======
-import React from 'react';
-import PropTypes from 'prop-types';
-
-// TODO: Address any missing required exports
-// REACT_015: Add lang attribute
-
-const Main = ({ children, title, lang = 'en' }) => {
-  return (
-    <main role="main" lang={lang}>
-      {title && <h1>{title}</h1>}
-      {children}
-    </main>
-  );
-};
-
-Main.propTypes = {
-  children: PropTypes.node,
-  title: PropTypes.string,
-  lang: PropTypes.string,
-};
-
-export default Main;
-export { Main };
->>>>>>> origin/main
-
-// Resolved file content (HEAD version - vanilla JS accessibility utilities):
-// This is the complete main.js file with all accessibility functions preserved
-// and the React component removed as it's incompatible with the vanilla JS code.
-
-// Existing code starts here
-
-// This is the existing code that needs to be preserved
-// (This comment remains as-is)
-
-// More existing code that should be preserved
-
-// Existing code ends here
-
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
-// Addressed accessibility issues from insight report
-
-// ... (other code in main.js)
-
-/**
- * Checks if a specified landmark element is present in the document.
- * @param {string} id - The ID of the landmark element to check for.
- * @returns {boolean} True if the landmark element exists, false otherwise.
- */
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  if (!element) {
-    return false;
-  }
-  
-  // Validate that the landmark has required properties
-  if (element.getAttribute('name') && element.getAttribute('coordinates')) {
-    return true;
-  }
-  
-  return false;
-}
-
-/**
- * Checks accessibility of tables in the document.
- * Ensures that <th> elements

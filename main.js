@@ -15,66 +15,26 @@ import { List } from 'antd';
 
 // ... (existing code)
 
-// TODO: Implement addProperLandmarkRegions();
+// REACT_037: Add proper landmark regions (DONE)
 function addProperLandmarkRegions() {
-  // Your implementation for adding proper landmark regions goes here.
-  // For example:
-  // - Check if the book belongs to any major categories, then add corresponding accessibility landmarks.
-  // - Use ARIA attributes appropriately for accessibility.
-}
-
-// Function to create a new book entry in the Redux store
-function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
-  // Add the new landmark regions once the book is added successfully
-  addProperLandmarkRegions(book);
-
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
-}
-
-// ... (existing code)
-
-// REACT_015: Add lang attribute to HTML element
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-function addLangAttribute(lang) {
-  document.documentElement.lang = lang || getLangAttribute();
-}
-
-// REACT_027: Fix table structure issues
-function validateTableAccessibility(table) {
-  if (!table) return false;
-  const hasCaption = table.querySelector('caption') !== null;
-  const hasHeaders = table.querySelectorAll('th').length > 0;
-  return hasCaption && hasHeaders;
-}
-
-function validateTableStructure(table) {
-  if (!table) return { valid: false, issues: [] };
-  const issues = [];
-  const rows = table.querySelectorAll('tr');
-  if (rows.length === 0) issues.push('No rows found');
-  const headerCells = table.querySelectorAll('th');
-  if (headerCells.length === 0) issues.push('Missing header cells');
-  return { valid: issues.length === 0, issues };
-}
-
-function fixTableStructure(table) {
-  if (!table) return;
-  const issues = validateTableStructure(table);
-  if (!issues.valid) {
-    const firstRow = table.querySelector('tr');
-    if (firstRow) {
-      firstRow.querySelectorAll('td').forEach(td => {
-        const th = document.createElement('th');
-        th.textContent = td.textContent;
-        td.parentNode.replaceChild(th, td);
-      });
-    }
+  const content = document.querySelector('#root, #app, .app');
+  if (content && !document.querySelector('main')) {
+    addMainLandmark();
+  }
+  if (!document.querySelector('header')) {
+    const header = document.createElement('header');
+    header.setAttribute('role', 'banner');
+    document.body.prepend(header);
+  }
+  if (!document.querySelector('footer')) {
+    const footer = document.createElement('footer');
+    footer.setAttribute('role', 'contentinfo');
+    document.body.append(footer);
+  }
+  if (!document.querySelector('nav')) {
+    const nav = document.createElement('nav');
+    nav.setAttribute('role', 'navigation');
+    document.body.prepend(nav);
   }
 }
 
@@ -158,27 +118,85 @@ function handleFakeLinks() {
   });
 }
 
-// REACT_037: Add proper landmark regions (DONE)
-function addProperLandmarkRegions() {
-  const content = document.querySelector('#root, #app, .app');
-  if (content && !document.querySelector('main')) {
-    addMainLandmark();
+// REACT_015: Add lang attribute to HTML element
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+function addLangAttribute(lang) {
+  document.documentElement.lang = lang || getLangAttribute();
+}
+
+// REACT_027: Fix table structure issues
+function validateTableAccessibility(table) {
+  if (!table) return false;
+  const hasCaption = table.querySelector('caption') !== null;
+  const hasHeaders = table.querySelectorAll('th').length > 0;
+  return hasCaption && hasHeaders;
+}
+
+function validateTableStructure(table) {
+  if (!table) return { valid: false, issues: [] };
+  const issues = [];
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) issues.push('No rows found');
+  const headerCells = table.querySelectorAll('th');
+  if (headerCells.length === 0) issues.push('Missing header cells');
+  return { valid: issues.length === 0, issues };
+}
+
+function fixTableStructure(table) {
+  if (!table) return;
+  const issues = validateTableStructure(table);
+  if (!issues.valid) {
+    const firstRow = table.querySelector('tr');
+    if (firstRow) {
+      firstRow.querySelectorAll('td').forEach(td => {
+        const th = document.createElement('th');
+        th.textContent = td.textContent;
+        td.parentNode.replaceChild(th, td);
+      });
+    }
   }
-  if (!document.querySelector('header')) {
-    const header = document.createElement('header');
-    header.setAttribute('role', 'banner');
-    document.body.prepend(header);
+}
+
+// Main Component
+function Main() {
+  const dispatch = useDispatch();
+  const [sorting, setSorting] = useState(null);
+  const bookItems = useSelector(state => state.books);
+
+  // Function to create a new book entry in the Redux store
+  function addBook(book) {
+    // Perform any necessary validation or processing before adding the book
+    // ...
+    // Add the new landmark regions once the book is added successfully
+    addProperLandmarkRegions();
+
+    // Dispatch an action to add the book to the books list in the Redux store
+    dispatch({ type: 'ADD_BOOK', payload: book });
   }
-  if (!document.querySelector('footer')) {
-    const footer = document.createElement('footer');
-    footer.setAttribute('role', 'contentinfo');
-    document.body.append(footer);
+
+  // Function to improve accessibility for the addBook function or form
+  function enhanceAccessibilityForAddBook() {
+    // Implement accessibility improvements such as labels, roles, and ARIA attributes
+    // ...
+    return null;
   }
-  if (!document.querySelector('nav')) {
-    const nav = document.createElement('nav');
-    nav.setAttribute('role', 'navigation');
-    document.body.prepend(nav);
-  }
+
+  const sortByTitle = () => setSorting('title');
+  const sortByAuthor = () => setSorting('author');
+
+  // Render the list of book items and sorting controls
+  return (
+    <div>
+      <button onClick={sortByTitle}>Sort by Title</button>
+      <button onClick={sortByAuthor}>Sort by Author</button>
+      <List dataSource={bookItems} />
+      {/* Call the function to enhance accessibility for adding a new book */}
+      {enhanceAccessibilityForAddBook()}
+    </div>
+  );
 }
 
 // Export the Main component

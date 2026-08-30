@@ -26,10 +26,10 @@ function trapFocus(container) {
 // (This comment remains as-is)
 
 // Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(element, options = {}) {
+function manageKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
-  element.addEventListener('keydown', (event) => {
+  return (event) => {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -50,7 +50,7 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-  });
+  };
 }
 
 /**
@@ -259,7 +259,7 @@ function addressAccessibilityIssues(insightReport) {
 
 // Function to ensure landmarks have unique identifiers
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="region"]');
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article');
   let uniqueIds = [];
 
   function generateUniqueId() {
@@ -270,8 +270,8 @@ function ensureUniqueLandmarks() {
     const existingIds = uniqueIds.map((id) => id.split('-')[1]);
     let id;
 
-    while (existingIds.includes(landmark.id.split('-')[1])) {
-      id = generateUniqueId();
+    while (existingIds.includes(id)) {
+      id = generateUniqueId().split('-')[1];
     }
 
     uniqueIds.push(id);
@@ -396,7 +396,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ensureUniqueLandmarkId,
     uniqueLandmarks,
     ensureUniqueLandmarks,
-    setupKeyboardNavigation,
+    manageKeyboardNavigation,
     trapFocus,
     generateAccessibilityReport,
     addressAccessibilityIssues,

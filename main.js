@@ -1,1 +1,13 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js
+
+// TODO: Add implementation details
+// Implementation: do something useful
+
+const myImplementation = () => {
+  // Add your code here
+  return 'done';
+};
+
+module.exports = {
+  myImplementation
+};

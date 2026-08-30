@@ -2,6 +2,8 @@
 // (This comment remains as-is)
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
+const fs = require('fs');
+
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
 
@@ -101,8 +103,116 @@ const renderDependencyGraph = (data) => {
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
-function newFocusTrap() {
-  // New function implementation
+function newFocusTrap(element) {
+  if (!element || typeof element.querySelectorAll !== 'function') {
+    return;
+  }
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  if (focusableElements.length === 0) return;
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+}
+
+function getLangAttribute() {
+  if (typeof document === 'undefined') return 'en';
+  const html = document.documentElement;
+  if (!html.hasAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+  }
+  return html.getAttribute('lang');
+}
+
+function personName(element, name) {
+  if (!element) return null;
+  const value = name || element.getAttribute('data-person-name') || (element.textContent ? element.textContent.trim() : '') || 'Person';
+  const trimmed = typeof value === 'string' ? value.trim() : value;
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', trimmed);
+  }
+  return trimmed;
+}
+
+function validateTableAccessibility(table) {
+  if (!table || !table.tagName || table.tagName.toLowerCase() !== 'table') return false;
+  const hasCaption = table.querySelector('caption') !== null;
+  const hasHeaders = table.querySelectorAll('th').length > 0;
+  return hasCaption && hasHeaders;
+}
+
+function validateTableStructure(table) {
+  if (!table || !table.tagName || table.tagName.toLowerCase() !== 'table') return false;
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) return false;
+  for (let i = 0; i < rows.length; i++) {
+    if (rows[i].querySelectorAll('td, th').length === 0) return false;
+  }
+  return true;
+}
+
+function validateLandmark(element) {
+  if (!element || !element.getAttribute) return false;
+  const role = element.getAttribute('role');
+  const roles = ['banner', 'main', 'navigation', 'contentinfo', 'region', 'search', 'form', 'complementary'];
+  return roles.includes(role);
+}
+
+function validateLandmarkStructure() {
+  if (typeof document === 'undefined') return true;
+  const regions = document.querySelectorAll('[role="region"]');
+  const labels = [];
+  for (let i = 0; i < regions.length; i++) {
+    const label = regions[i].getAttribute('aria-label') || regions[i].getAttribute('aria-labelledby');
+    if (label && labels.indexOf(label) > -1) return false;
+    if (label) labels.push(label);
+  }
+  return true;
+}
+
+function getSvgAccessibleName(svg) {
+  if (!svg || svg.tagName !== 'svg') return null;
+  let name = svg.getAttribute('aria-label') || null;
+  if (!name) {
+    const title = svg.querySelector('title');
+    if (title) name = title.textContent;
+  }
+  if (!name) {
+    name = 'SVG Image';
+  }
+  if (!svg.getAttribute('aria-label')) {
+    svg.setAttribute('aria-label', name);
+  }
+  return name.trim ? name.trim() : name;
+}
+
+function createInPageButton(text, targetSelector) {
+  if (typeof document === 'undefined') return null;
+  const button = document.createElement('button');
+  button.textContent = text || 'Go to section';
+  button.setAttribute('aria-label', text || 'Go to section');
+  button.className = 'in-page-link-button';
+  button.addEventListener('click', () => {
+    const target = document.querySelector(targetSelector);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      target.setAttribute('tabindex', '-1');
+      target.focus();
+    }
+  });
+  return button;
 }
 
 // Add back any required exports that might have been removed.
@@ -265,6 +375,40 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
+
+  const transformValue = (value) => {
+    if (typeof value === 'string') {
+      let result = value;
+      if (trimWhitespace) {
+        result = result.trim();
+      }
+      if (uppercase) {
+        result = result.toUpperCase();
+      }
+      if (maxLength !== null && maxLength > 0 && result.length > maxLength) {
+        result = result.substring(0, maxLength);
+      }
+      return result;
+    }
+
+    if (Array.isArray(value)) {
+      return value.map(transformValue);
+    }
+
+    if (value !== null && typeof value === 'object') {
+      const result = {};
+      for (const key in value) {
+        if (Object.prototype.hasOwnProperty.call(value, key)) {
+          result[preserveKeys ? key : key] = transformValue(value[key]);
+        }
+      }
+      return result;
+    }
+
+    return value;
+  };
+
+  return transformValue(inputData);
 }
 
 // Initialize on DOM ready
@@ -285,5 +429,15 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  newFocusTrap,
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  transformInputData
 };

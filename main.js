@@ -105,6 +105,24 @@ function validateAllTables() {
   };
 }
 
+/**
+ * Renders the index view for the application
+ * @returns {Object} The rendered index view result
+ */
+function renderIndexView() {
+  const tables = getTables();
+  const config = getConfig();
+
+  const validation = validateAllTables();
+
+  return {
+    tables,
+    config,
+    validation,
+    rendered: true
+  };
+}
+
 module.exports = {
   initialize,
   loadTables,
@@ -113,5 +131,6 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  renderIndexView
 };

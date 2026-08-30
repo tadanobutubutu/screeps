@@ -300,6 +300,12 @@ function fixUniqueLandmarks(insightReport) {
   ensureUniqueLandmarks();
 }
 
+function addLangAttribute() {
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = 'en';
+  }
+}
+
 function implementNewFunction() {
   addressAccessibilityIssues();
   fixFakeLinks();

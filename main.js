@@ -1,13 +1,15 @@
 /**
  * Ensures the element has an id. If the element doesn't have an id,
- * generates one and assigns it to the element.
+ * generates one and assigns it to the element. Updates existing function to return the generated id if no id exists.
  * @param {HTMLElement} element - The element to check and modify
  * @param {string} [prefix='element'] - Prefix for the generated id
  * @returns {string} The element's id (existing or newly generated)
  */
 function ensureElementHasId(element, prefix = 'element') {
-  if (!element) {
-    throw new Error('Element is required');
+  if (!element.id) {
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 9);
+    element.id = `${prefix}-${timestamp}-${random}`;
   }
 
   if (element.id) {
@@ -20,30 +22,51 @@ function ensureElementHasId(element, prefix = 'element') {
 }
 
 /**
- * Adds an aria-label attribute to the element if it doesn't already have one.
+ * Adds an aria-label attribute to the element if it doesn't already have one. Modifies and adds error handling.
  * @param {HTMLElement} element - The element to modify
  * @param {string} label - The aria-label value to set
  * @returns {boolean} True if label was added, false if element already had one
  */
 function addAriaLabel(element, label) {
-  if (!element) {
+  if (element) {
+    if (!element.hasAttribute('aria-label')) {
+      element.setAttribute('aria-label', label);
+      return true;
+    } else if (!label) {
+      throw new Error('Label is required');
+    }
+  } else {
     throw new Error('Element is required');
   }
+  return false;
+}
 
-  if (!label) {
-    throw new Error('Label is required');
+// Accessible Insight Report Interface - Dependency Graph Rendering
+// Updateária-labelledby for the container and initialize accessibility features on DOM ready
+function initAccessibilityFeatures() {
+  const container = document.getElementById('dependency-graph-container');
+  if (container) {
+    container.setAttribute('aria-labelledby', 'dependency-graph-label');
   }
 
-  if (element.getAttribute('aria-label')) {
-    return false;
-  }
+  if (typeof document !== 'undefined' && document.addEventListener) {
+    document.addEventListener('DOMContentLoaded', () => {
+      // ... Existing functions and exports ...
 
-  element.setAttribute('aria-label', label);
-  return true;
+      // New accessibility improvements
+      fixTableStructureIssues();
+      addMainLandmark();
+      addSvgAccessibleNames();
+      ensureUniqueLandmarks();
+      fixFakeLinkIssue();
+
+      announceToScreenReader('Page loaded and additional accessibility features initialized', 'assertive');
+    });
+  }
 }
 
 /**
- * Renders dependency graphs for the given configuration.
+ * Renders dependency graphs for the given configuration. Modifies to support processing dependencies into graphData format and applying any options.
  * @param {HTMLElement} container - The container element to render into
  * @param {Object} dependencies - The dependencies data to render
  * @param {Object} [options={}] - Optional rendering configuration
@@ -58,109 +81,26 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
     throw new Error('Dependencies data is required');
   }
 
-  // Ensure container has an id for graph references
-  const containerId = ensureElementHasId(container, 'graph-container');
+  // Process dependencies into graphData format expected by renderDependencyGraph
+  const graphData = Array.isArray(dependencies) ? dependencies :
+    (dependencies && dependencies.nodes ? dependencies.nodes : []);
 
-  // Add accessibility label if not present
-  const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
+  // Apply any options (e.g., theme, layout)
+  const processedData = graphData.map(node => ({
+    name: node.name || node.id || 'Unknown',
+    dependencies: node.dependencies || node.deps || []
+  }));
 
-  // Placeholder for graph rendering logic
-  // Actual implementation would use a library like D3.js or similar
-  const graphData = {
-    id: containerId,
-    dependencies: dependencies,
-    options: options,
-    rendered: true,
-    timestamp: new Date().toISOString()
-  };
-
-  console.log('Rendering dependency graphs:', graphData);
-
-  return graphData;
+  return renderDependencyGraph(container, processedData);
 }
 
-/**
- * Checks if the element is a landmark element.
- * Landmark elements are sections of a page that are important for
- * accessibility and navigation (e.g., main, nav, header, footer, aside, section).
- * @param {HTMLElement} element - The element to check
- * @returns {boolean} True if the element is a landmark element, false otherwise
- */
-function isLandmarkElement(element) {
-  if (!element || !element.tagName) {
-    return false;
-  }
+// Initialize accessibility features on DOM ready
+if (typeof document !== 'undefined' && document.addEventListener) {
+  document.addEventListener('DOMContentLoaded', () => {
+    initAccessibilityFeatures();
 
-  const landmarkTags = [
-    'MAIN',
-    'NAV',
-    'HEADER',
-    'FOOTER',
-    'ASIDE',
-    'SECTION',
-    'ARTICLE',
-    'ADDRESS',
-    'FORM',
-    'DIALOG',
-    'DETAILS'
-  ];
-
-  const tagName = element.tagName.toUpperCase();
-
-  // Check if the element is a native landmark element
-  if (landmarkTags.includes(tagName)) {
-    return true;
-  }
-
-  // Check if the element has a landmark role
-  const role = element.getAttribute && element.getAttribute('role');
-  if (role) {
-    const landmarkRoles = [
-      'main',
-      'navigation',
-      'banner',
-      'contentinfo',
-      'complementary',
-      'region',
-      'article',
-      'form',
-      'dialog',
-      'search'
-    ];
-    if (landmarkRoles.includes(role.toLowerCase())) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-/**
- * Checks if the element has accessible naming (via id, aria-label, or aria-labelledby).
- * @param {HTMLElement} element - The element to check
- * @returns {Object} Object with hasAccessibleName boolean and namingMethods array
- */
-function checkElementAccessibility(element) {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-
-  const namingMethods = [];
-
-  if (element.id) {
-    namingMethods.push('id');
-  }
-  if (element.getAttribute('aria-label')) {
-    namingMethods.push('aria-label');
-  }
-  if (element.getAttribute('aria-labelledby')) {
-    namingMethods.push('aria-labelledby');
-  }
-
-  return {
-    hasAccessibleName: namingMethods.length > 0,
-    namingMethods: namingMethods
-  };
+    // ... Existing functions and exports ...
+  });
 }
 
 // Export functions for testing and external use
@@ -168,6 +108,9 @@ module.exports = {
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,
+  renderDependencyGraph,
+  updateDependencyGraph,
   isLandmarkElement,
-  checkElementAccessibility
+  checkElementAccessibility,
+  initAccessibilityFeatures
 };

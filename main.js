@@ -50,7 +50,7 @@ function createUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.floor(Math.random() * 10) + 1;
+        const suffix = Math.floor(Math.random() * 900) + 100;
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -90,7 +90,7 @@ function addAriaLabel(element, label) {
  */
 function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('html');
+  const elementToModify = document.documentElement;
   if (elementToModify) {
     elementToModify.setAttribute('lang', 'en'); // Example: English
   }
@@ -138,8 +138,8 @@ function formatProductName(product) {
 }
 
 function renderProductList(products) {
-  const container = document.getElementById('product-list');
-  container.innerHTML = products.map(p => `<div>${p.name}</div>`).join('');
+  const container = document.getElementById('product-container');
+  container.innerHTML = products.map(p => `<div class="product">${formatProductName(p)}</div>`).join('');
   return container;
 }
 
@@ -169,7 +169,7 @@ function validateAndRender(input) {
 
 function renderPage(data) {
   const header = renderHeader(data.title);
-  const content = data.content;
+  const content = `<main>${data.content}</main>`;
   const footer = renderFooter();
   return `${header}${content}${footer}`;
 }
@@ -226,7 +226,47 @@ function checkLandmarkElements() {
 function checkLinkAccessibility() {
   // Implementation for checking link accessibility
   // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility();
+  const links = document.querySelectorAll('a[href], area[href]');
+  const results = [];
+  
+  links.forEach((link, index) => {
+    const href = link.getAttribute('href');
+    const isAccessible = validateLinkAccessibility(link);
+    const hasText = link.textContent.trim().length > 0 || link.getAttribute('aria-label');
+    const hasUniqueText = checkUniqueLinkText(link);
+    
+    results.push({
+      index,
+      url: href,
+      isAccessible,
+      hasText,
+      hasUniqueText,
+      element: link
+    });
+  });
+  
+  handleFakeLinks(results);
+  
+  return results;
+}
+
+/**
+ * Checks if link text is unique among sibling links
+ * @param {HTMLAnchorElement} link - The link element to check
+ * @returns {boolean} True if link text is unique
+ */
+function checkUniqueLinkText(link) {
+  const siblings = link.parentElement ? link.parentElement.querySelectorAll('a') : [];
+  const linkText = link.textContent.trim().toLowerCase();
+  
+  let count = 0;
+  siblings.forEach(sibling => {
+    if (sibling.textContent.trim().toLowerCase() === linkText) {
+      count++;
+    }
+  });
+  
+  return count === 1;
 }
 
 // Export accessibility utility functions

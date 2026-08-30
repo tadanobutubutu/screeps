@@ -29,11 +29,58 @@ function BookItem({ book }) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        ...
       />
     </List.Item>
   );
 }
+
+// Function to create a new book entry in the Redux store
+function addBook(book) {
+  // Perform any necessary validation or processing before adding the book
+  // ...
+
+  // Dispatch an action to add the book to the books list in the Redux store
+  dispatch({ type: 'ADD_BOOK', payload: book });
+}
+
+// TODO: Implement the required changes to improve accessibility for the addBook function or form
+// ...
+
+// Function for generating a report based on accessibility issues
+function generateAccessibilityReport(issues) {
+  if (!issues || issues.length === 0) {
+    return 'No accessibility issues found.';
+  }
+
+  const totalIssues = issues.length;
+  const criticalIssues = issues.filter(issue => issue.severity === 'critical').length;
+  const majorIssues = issues.filter(issue => issue.severity === 'major').length;
+  const minorIssues = issues.filter(issue => issue.severity === 'minor').length;
+
+  let report = `Accessibility Report\n`;
+  report += `===================\n`;
+  report += `Total Issues: ${totalIssues}\n`;
+  report += `Critical: ${criticalIssues}\n`;
+  report += `Major: ${majorIssues}\n`;
+  report += `Minor: ${minorIssues}\n\n`;
+
+  report += `Issue Details:\n`;
+  issues.forEach((issue, index) => {
+    report += `${index + 1}. [${issue.severity.toUpperCase()}] ${issue.description}`;
+    if (issue.element) {
+      report += ` - Element: ${issue.element}`;
+    }
+    if (issue.suggestion) {
+      report += ` - Suggestion: ${issue.suggestion}`;
+    }
+    report += `\n`;
+  });
+
+  return report;
+}
+
+// Default sorting function for the book list
+const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {

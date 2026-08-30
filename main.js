@@ -171,3 +171,6 @@ const addSVGAccessibleName = (svgSelector, accessibleName) => {
 registerSW();
 initializeApp();
 appStarted();
+
+// Export functions for testing or other modules if needed
+export { checkLandmarkElement, ensureUniqueLandmarks, landmarkStructureCheck, isSecureContext, setLanguageAttribute, addLandmarkRoles, ensureUniqueLandmarkElements, addSVGAccessibleName };

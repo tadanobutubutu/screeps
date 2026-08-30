@@ -1,6 +1,6 @@
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
-// TODO: Address accessibility issues from insight report:
+// Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by setHtmlLangAttribute() and detectAndSetLang())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
@@ -146,6 +146,19 @@ function getLangAttribute() {
     return document.documentElement.lang || 'en';
   }
   return 'en';
+}
+
+/**
+ * Sets the lang attribute on the HTML element
+ * @param {string} lang - The language code to set (e.g., 'en', 'fr', 'es')
+ * @returns {boolean} True if successful, false otherwise
+ */
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement && lang) {
+    document.documentElement.lang = lang;
+    return true;
+  }
+  return false;
 }
 
 /**

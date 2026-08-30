@@ -177,6 +177,118 @@ function deepClone(obj) {
   return obj;
 }
 
+/**
+ * Harvests resources from a given source
+ * @param {Object} source - The resource source object
+ * @param {number} amount - Amount to harvest
+ * @param {Object} gameState - The current game state
+ * @returns {Object} - Updated game state with harvested resources
+ */
+function harvest(source, amount, gameState) {
+  const updatedGameState = deepClone(gameState);
+  
+  if (!source || !source.resources || !updatedGameState.resources) {
+    return updatedGameState;
+  }
+  
+  const resourcesToAdd = {};
+  for (const resourceType in source.resources) {
+    if (source.resources.hasOwnProperty(resourceType)) {
+      resourcesToAdd[resourceType] = source.resources[resourceType] * amount;
+    }
+  }
+  
+  for (const resourceType in resourcesToAdd) {
+    if (resourcesToAdd.hasOwnProperty(resourceType)) {
+      if (!updatedGameState.resources[resourceType]) {
+        updatedGameState.resources[resourceType] = 0;
+      }
+      updatedGameState.resources[resourceType] += resourcesToAdd[resourceType];
+    }
+  }
+  
+  if (source.harvestTime && updatedGameState.lastHarvestTime !== undefined) {
+    updatedGameState.lastHarvestTime = Date.now();
+  }
+  
+  return updatedGameState;
+}
+
+/**
+ * Upgrades a building or feature
+ * @param {string} upgradeType - Type of upgrade to perform
+ * @param {Object} gameState - The current game state
+ * @param {Object} upgradesConfig - Configuration for available upgrades
+ * @returns {Object} - Updated game state with applied upgrades
+ */
+function upgrade(upgradeType, gameState, upgradesConfig) {
+  const updatedGameState = deepClone(gameState);
+  
+  if (!upgradesConfig || !upgradesConfig[upgradeType]) {
+    return updatedGameState;
+  }
+  
+  const upgrade = upgradesConfig[upgradeType];
+  
+  if (!updatedGameState.resources || !upgrade.cost) {
+    return updatedGameState;
+  }
+  
+  let canAfford = true;
+  for (const resourceType in upgrade.cost) {
+    if (upgrade.cost.hasOwnProperty(resourceType)) {
+      if (!updatedGameState.resources[resourceType] || 
+          updatedGameState.resources[resourceType] < upgrade.cost[resourceType]) {
+        canAfford = false;
+        break;
+      }
+    }
+  }
+  
+  if (!canAfford) {
+    return updatedGameState;
+  }
+  
+  for (const resourceType in upgrade.cost) {
+    if (upgrade.cost.hasOwnProperty(resourceType)) {
+      updatedGameState.resources[resourceType] -= upgrade.cost[resourceType];
+    }
+  }
+  
+  if (upgrade.effect) {
+    for (const effectType in upgrade.effect) {
+      if (upgrade.effect.hasOwnProperty(effectType)) {
+        if (effectType === 'levels') {
+          if (!updatedGameState.levels) {
+            updatedGameState.levels = {};
+          }
+          if (!updatedGameState.levels[upgradeType]) {
+            updatedGameState.levels[upgradeType] = 0;
+          }
+          updatedGameState.levels[upgradeType] += 1;
+        } else if (effectType === 'production') {
+          if (!updatedGameState.production) {
+            updatedGameState.production = {};
+          }
+          if (!updatedGameState.production[upgradeType]) {
+            updatedGameState.production[upgradeType] = {};
+          }
+          for (const stat in upgrade.effect[effectType]) {
+            if (upgrade.effect[effectType].hasOwnProperty(stat)) {
+              if (!updatedGameState.production[upgradeType][stat]) {
+                updatedGameState.production[upgradeType][stat] = 0;
+              }
+              updatedGameState.production[upgradeType][stat] += upgrade.effect[effectType][stat];
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  return updatedGameState;
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -189,7 +301,9 @@ if (typeof module !== 'undefined' && module.exports) {
     capitalize,
     getRandomInt,
     clamp,
-    deepClone
+    deepClone,
+    harvest,
+    upgrade
   };
 }
 

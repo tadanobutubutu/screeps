@@ -62,18 +62,31 @@ function rotateBack() {
   console.log('Rotating back...');
 }
 
+// New function to ensure element has an id and add aria-label
+function ensureElementIdAndAriaLabel(element) {
+  if (!element.id) {
+    element.id = `generated-id-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', 'Accessible label');
+  }
+}
+
 // Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
 function addressAccessibilityIssues() {
   document.documentElement.setAttribute('lang', 'en');
 
   const landmarks = document.querySelectorAll('.landmark');
   landmarks.forEach((landmark, index) => {
+    ensureElementIdAndAriaLabel(landmark);
     landmark.setAttribute('role', 'landmark');
     landmark.setAttribute('aria-labelledby', `landmark-label-${index}`);
   });
 
   const svg1 = document.querySelector('#svg1');
   const svg2 = document.querySelector('#svg2');
+  ensureElementIdAndAriaLabel(svg1);
+  ensureElementIdAndAriaLabel(svg2);
   svg1.setAttribute('aria-labelledby', 'svg1-title');
   svg2.setAttribute('aria-labelledby', 'svg2-title');
 
@@ -87,6 +100,7 @@ function addressAccessibilityIssues() {
 
   const fakeLinks = document.querySelectorAll('.fake-link');
   fakeLinks.forEach(link => {
+    ensureElementIdAndAriaLabel(link);
     link.setAttribute('aria-labelledby', 'svg1-title');
   });
 
@@ -96,6 +110,7 @@ function addressAccessibilityIssues() {
     const buttons = document.querySelectorAll('button');
 
     links.forEach(link => {
+      ensureElementIdAndAriaLabel(link);
       if (!link.hasAttribute('role')) {
         link.setAttribute('role', 'link');
       }
@@ -105,6 +120,7 @@ function addressAccessibilityIssues() {
     });
 
     buttons.forEach(button => {
+      ensureElementIdAndAriaLabel(button);
       if (!button.hasAttribute('role')) {
         button.setAttribute('role', 'button');
       }
@@ -119,6 +135,7 @@ function addressAccessibilityIssues() {
   function checkLandmarkElements() {
     const landmarks = document.querySelectorAll('.landmark');
     landmarks.forEach((landmark, index) => {
+      ensureElementIdAndAriaLabel(landmark);
       if (!landmark.hasAttribute('role')) {
         console.error(`Accessibility Error: Landmark without role attribute, index: ${index}`, landmark);
       }

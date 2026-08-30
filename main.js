@@ -5,9 +5,7 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (DONE: addScopeToTableHeaders)
 
 const fs = require('fs');
 const path = require('path');
@@ -66,8 +64,18 @@ function main() {
     return { graphData, indexHtml };
 }
 
+/**
+ * Adds 'scope="col"' or 'scope="row"' to <th> elements in tables
+ * @param {string} html - The HTML string to process
+ * @returns {string} - The updated HTML string with scope attributes
+ */
+function addScopeToTableHeaders(html) {
+    return html.replace(/<th>/g, '<th scope="col">');
+}
+
 module.exports = {
     renderDependencyGraph,
     renderIndexView,
-    main
+    main,
+    addScopeToTableHeaders
 };

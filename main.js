@@ -63,7 +63,21 @@ function checkLinkAccessibility() {
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
+// Add the language attribute to the HTML element for proper accessibility
+const htmlElement = document.documentElement;
+const langAttr = getLangAttribute();
+if (langAttr && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', langAttr);
+}
+
 // - REACT_027: Fix 26 table structure issues
+// Review and fix table structure for accessibility compliance
+const tables = getDocument() ? getDocument().querySelectorAll('table') : [];
+tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+});
+
 // - REACT_017: Add landmark roles and fix landmark issues
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
@@ -585,14 +599,70 @@ function upgradeController(creep, controller) {
     }
 }
 
-// Added functions for REACT_017 and REACT_025 support
+// New function to check link accessibility
+function checkLinkAccessibility() {
+    // Implementation for checking link accessibility
+    // This function will be used to validate the accessibility of links
+    return validateLinkAccessibility();
+}
+
+/**
+ * Addresses accessibility issues from insight report.
+ * This function orchestrates all accessibility fixes for the application.
+ * 
+ * Addresses the following issues from the insight report:
+ * - REACT_015: Add lang attribute to HTML element
+ * - REACT_027: Fix table structure issues
+ * - REACT_017: Add/fix landmark issues
+ * - REACT_025: Ensure unique landmarks
+ * - REACT_036: Fix fake link issues
+ * - REACT_041: Add accessible names to SVGs
+ */
 function handleAccessibilityIssues() {
-    // Handle accessibility issues dynamically
+    // REACT_015: Add lang attribute to HTML element
+    const htmlElement = document.documentElement;
+    const langAttr = getLangAttribute();
+    if (langAttr && !htmlElement.hasAttribute('lang')) {
+        htmlElement.setAttribute('lang', langAttr);
+    }
+
+    // REACT_027: Fix table structure issues
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        validateTableAccessibility(table);
+        validateTableStructure(table);
+    });
+
+    // REACT_017 & REACT_025: Fix landmark issues and ensure unique landmarks
     validateLandmark();
     validateLandmarkStructure();
-    ensureUniqueLandmarks();
-    fixFakeLinkIssues();
-    addFixLandmarkIssues();
+
+    // Ensure unique landmarks
+    const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"], [role="search"]');
+    const landmarkIds = new Set();
+    landmarks.forEach(landmark => {
+        if (landmark.id) {
+            if (landmarkIds.has(landmark.id)) {
+                const baseName = landmark.id.replace(/-\d+$/, '');
+                landmark.id = createUniqueLandmarkId(baseName);
+            } else {
+                landmarkIds.add(landmark.id);
+            }
+        }
+    });
+
+    // REACT_041: Add accessible names to SVGs
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+        const accessibleName = getSvgAccessibleName(svg);
+        setSvgAttributes(svg, accessibleName);
+    });
+
+    // REACT_036: Fix fake link issues
+    handleFakeLinks();
+
+    // Validate link accessibility
+    validateLinkAccessibility();
 }
 
 // Export accessibility utility functions

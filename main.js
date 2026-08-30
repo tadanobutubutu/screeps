@@ -4,15 +4,8 @@ import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
 // Importing the necessary functions
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-
-// Importing utilities for formatting and validation
-import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
-import { renderHeader, renderFooter, renderProductCard } from './components.js';
+import { getLangAttribute } from './utils/accessibilityUtils';
+import { renderHeader, renderFooter } from './components.js';
 import { state, updateState } from './state.js';
 
 // Addressed accessibility issues from insight report:
@@ -106,6 +99,10 @@ export function renderDependencyGraph() {
 export function renderIndex() {
   // Example usage: replace with actual rendering logic
   handleAccessibilityIssues(indexContent);
+}
+
+function makeHeaderFocusable() {
+  // Implementation for making header focusable
 }
 
 export { makeHeaderFocusable }; // new export statement from conflicting branch
@@ -268,8 +265,6 @@ export {
 
 export { ensureElementId };
 export { addAriaLabel };
-export { renderDependencyGraph };
-export { renderIndex };
 export { dependencyGraphContainer };
 export { specificFunctionThatRendersGraphOrIndex };
 export { fixAccessibilityIssues };

@@ -75,7 +75,7 @@ function uniqueLandmarks(landmarks) {
 
 /**
  * Adds an aria-label attribute to an element if it doesn't already have one.
- * @param {HTMLElement} element - The element to add the aria-label to.
+ * @param {HTMLElement|String} elementId - The element to add the aria-label to.
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(elementId, label) {
@@ -188,14 +188,18 @@ function ensureUniqueLandmarks() {
   // This is a simplified implementation
 }
 
-function getSvgAccessibleName() {
+function getSvgAccessibleName(svg) {
   // Existing code...
+  return svg ? svg.getAttribute('aria-label') || svg.getAttribute('title') : null;
 }
 
 function setSvgAttributes(svg, accessibleName) {
   // Implementation for setting SVG attributes
   if (!svg) return;
   // Add accessible name to SVG
+  if (accessibleName) {
+    svg.setAttribute('aria-label', accessibleName);
+  }
 }
 
 function createInPageButton() {
@@ -234,15 +238,7 @@ function calculateSum(a, b) {
   return a + b;
 }
 
-// Ensure elements have the required IDs
-...
-...
-...
-
 // Add ARIA labels for better screen reader support
-addAriaLabel('myTable', 'Product data table');
-addAriaLabel('myLogo', 'Company logo');
-addAriaLabel('myMenu', 'Accessibility menu');
 
 // DOM-based accessibility code
 
@@ -511,13 +507,6 @@ export {
   renderPage
 };
 
-// New function or change requested in the issue
-function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility();
-}
-
 // Export state
 export {
   state,
@@ -547,5 +536,3 @@ const moduleExports = {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = moduleExports;
 }
-
-// ... (excluding the conflict markers) existing code from main.js

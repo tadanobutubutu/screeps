@@ -14,7 +14,7 @@ function announceToScreenReader(message, priority = 'polite') {
   const announcer = document.getElementById('sr-announcer') || createAnnouncer();
   announcer.setAttribute('aria-live', priority);
   announcer.textContent = message;
-  
+
   // Clear after announcement to allow re-announcement of same message
   setTimeout(() => {
     announcer.textContent = '';
@@ -70,7 +70,7 @@ function trapFocus(element) {
 function toggleAriaExpanded(element) {
   const isExpanded = element.getAttribute('aria-expanded') === 'true';
   element.setAttribute('aria-expanded', !isExpanded);
-  
+
   const controlsId = element.getAttribute('aria-controls');
   if (controlsId) {
     const controlledElement = document.getElementById(controlsId);
@@ -87,7 +87,7 @@ function handleMissingAltText(container) {
     img.setAttribute('alt', `Image ${index + 1} - description unavailable`);
     img.setAttribute('role', 'presentation');
   });
-  
+
   // Add warning for accessibility audit
   if (images.length > 0) {
     console.warn(`Accessibility: ${images.length} image(s) had missing alt text and were assigned default descriptions.`);
@@ -213,30 +213,30 @@ function renderDependencyGraph(container, graphData) {
     console.warn('renderDependencyGraph: Invalid container element');
     return null;
   }
-  
+
   const graphWrapper = document.createElement('div');
   graphWrapper.className = 'dependency-graph';
   graphWrapper.setAttribute('role', 'figure');
   graphWrapper.setAttribute('aria-label', 'Dependency graph');
-  
+
   const title = document.createElement('h3');
   title.textContent = 'Dependency Graph';
   graphWrapper.appendChild(title);
-  
+
   const description = document.createElement('p');
   description.className = 'sr-only';
   description.textContent = 'This visualization shows the dependencies and their relationships.';
   graphWrapper.appendChild(description);
-  
+
   const list = document.createElement('ul');
   list.setAttribute('aria-label', 'Dependency list');
-  
+
   if (graphData && Array.isArray(graphData)) {
     graphData.forEach((item, index) => {
       const listItem = document.createElement('li');
       const itemName = item && item.name ? item.name : `Node ${index + 1}`;
       listItem.textContent = itemName;
-      
+
       if (item && item.dependencies && Array.isArray(item.dependencies) && item.dependencies.length > 0) {
         const subList = document.createElement('ul');
         subList.setAttribute('aria-label', `Dependencies for ${itemName}`);
@@ -247,14 +247,14 @@ function renderDependencyGraph(container, graphData) {
         });
         listItem.appendChild(subList);
       }
-      
+
       list.appendChild(listItem);
     });
   }
-  
+
   graphWrapper.appendChild(list);
   container.appendChild(graphWrapper);
-  
+
   return graphWrapper;
 }
 
@@ -264,10 +264,10 @@ function updateDependencyGraph(graphElement, newData) {
     console.warn('updateDependencyGraph: Invalid graph element');
     return false;
   }
-  
+
   const newGraph = renderDependencyGraph(document.createElement('div'), newData);
   if (!newGraph) return false;
-  
+
   graphElement.parentNode.replaceChild(newGraph, graphElement);
   return true;
 }
@@ -283,7 +283,7 @@ function initAccessibility() {
       ensureUniqueLandmarks();
       fixFakeLinkIssue();
       createInPageButton({ id: 'example', label: 'Example Link' });
-      
+
       // Additional accessibility features from origin/main
       announceToScreenReader('Page loaded and accessibility features initialized', 'assertive');
     });
@@ -308,7 +308,7 @@ if (typeof document !== 'undefined' && document.addEventListener) {
     inputs.forEach((input, index) => {
       const id = input.id || `auto-input-${index}`;
       input.id = id;
-      
+
       if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
         const label = document.createElement('label');
         label.htmlFor = id;
@@ -337,38 +337,9 @@ if (typeof document !== 'undefined' && document.addEventListener) {
     ensureUniqueLandmarks();
     fixFakeLinkIssue();
     createInPageButton({ id: 'example', label: 'Example Link' });
-    
+
     announceToScreenReader('Page loaded and accessibility features initialized', 'assertive');
   });
-}
-
-// Export functions that might be required by other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    main,
-    helperFunction,
-    formatData,
-    validateInput,
-    announceToScreenReader,
-    trapFocus,
-    toggleAriaExpanded,
-    handleMissingAltText,
-    addLangAttribute,
-    fixTableStructureIssues,
-    addMainLandmark,
-    addSvgAccessibleNames,
-    ensureUniqueLandmarks,
-    fixFakeLinkIssue,
-    renderDependencyGraph,
-    updateDependencyGraph,
-    initAccessibility,
-    createInPageButton,
-    getBrowserName,
-    getLangAttribute,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    addressAccessibilityIssues
-  };
 }
 
 // New function to address accessibility issues from insight report
@@ -424,4 +395,33 @@ function addressAccessibilityIssues(report) {
 // Initialize accessibility if not already done by the event listener
 if (typeof document !== 'undefined') {
   initAccessibility();
+}
+
+// Export functions that might be required by other modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    main,
+    helperFunction,
+    formatData,
+    validateInput,
+    announceToScreenReader,
+    trapFocus,
+    toggleAriaExpanded,
+    handleMissingAltText,
+    addLangAttribute,
+    fixTableStructureIssues,
+    addMainLandmark,
+    addSvgAccessibleNames,
+    ensureUniqueLandmarks,
+    fixFakeLinkIssue,
+    renderDependencyGraph,
+    updateDependencyGraph,
+    initAccessibility,
+    createInPageButton,
+    getBrowserName,
+    getLangAttribute,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    addressAccessibilityIssues
+  };
 }

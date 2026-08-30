@@ -36,5 +36,15 @@ function countDependencies() {
   }
 }
 
+/**
+ * Ensures that the landmarks array contains unique elements
+ * @param {Array} landmarks - The array of landmarks to check for uniqueness
+ * @returns {Array} The filtered array with unique landmarks
+ */
+function ensureUniqueLandmarks(landmarks) {
+  const uniqueLandmarks = new Set(landmarks);
+  return Array.from(uniqueLandmarks);
+}
+
 // Export for use in other modules
-module.exports = { countDependencies, dependencyGraphContent };
+module.exports = { countDependencies, ensureUniqueLandmarks, dependencyGraphContent };

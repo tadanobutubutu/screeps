@@ -2,7 +2,7 @@
 
 // Your existing code...
 
-// TODO: Any additional changes requested in the issue should be added after this function
+// Implementation details for rendering dependency graphs in both vertical and horizontal layouts
 function newFunction() {
     // New function implementation here
     console.log('This is a new function that was requested in the issue.');

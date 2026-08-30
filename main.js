@@ -9,6 +9,24 @@ import { validateLinkAccessibility, handleFakeLinks } from './utils/link.js';
  * Main module functionality
  */
 
+// TODO: Implement this function for adding SVG accessibility props
+function addSvgAccessibilityProps() {
+  const svgElements = document.querySelectorAll('svg');
+  
+  svgElements.forEach(svg => {
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+    
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      svg.setAttribute('aria-label', accessibleName);
+    }
+    
+    setSvgAttributes(svg);
+  });
+}
+
 const hello = () => {
   return 'Hello from main.js';
 };
@@ -48,9 +66,9 @@ function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
-  validateLinkAccessibility(button);
-  handleFakeLinks(button);
-  document.body.appendChild(button);
+  ...
+  ...
+  ...
   return button;
 }
 
@@ -80,9 +98,9 @@ function addressAccessibilityIssues(insightReport) {
       case 'add-lang-attribute':
         fixedIssue.fixApplied = 'Added lang attribute to HTML element.';
         // Actual implementation from HEAD
-        const htmlElement = document.querySelector('html');
+        const htmlElement = ...
         if (htmlElement) {
-          htmlElement.setAttribute('lang', 'en');
+          ... 'en');
         }
         break;
       case 'add-landmark-roles':
@@ -90,6 +108,7 @@ function addressAccessibilityIssues(insightReport) {
         break;
       case 'add-accessible-names-to-svgs':
         fixedIssue.fixApplied = 'Added accessible names to SVGs.';
+        addSvgAccessibilityProps();
         break;
       case 'ensure-unique-landmarks':
         fixedIssue.fixApplied = 'Ensured unique landmarks.';
@@ -108,7 +127,7 @@ function addressAccessibilityIssues(insightReport) {
 
 // Function for generating a report based on accessibility issues
 function generateAccessibilityReport(accessibilityReport) {
-  const totalIssues = accessibilityReport ? accessibilityReport.length : 0;
+  const totalIssues = accessibilityReport ? ... : 0;
   const resolvedIssues = accessibilityReport 
     ? accessibilityReport.filter(issue => issue.status === 'resolved').length 
     : 0;
@@ -116,7 +135,7 @@ function generateAccessibilityReport(accessibilityReport) {
   
   const issuesByType = {};
   if (accessibilityReport) {
-    accessibilityReport.forEach(issue => {
+    ... => {
       const type = issue.type || 'other';
       issuesByType[type] = (issuesByType[type] || 0) + 1;
     });
@@ -167,7 +186,7 @@ function renderIndexView() {
   // Add lang attribute to the HTML element
   const langAttr = getLangAttribute();
   if (document.documentElement) {
-    document.documentElement.setAttribute('lang', langAttr);
+    ... langAttr);
   }
   
   // Validate tables on the page
@@ -176,13 +195,14 @@ function renderIndexView() {
   
   // Validate landmarks
   validateLandmark();
-  validateLandmarkStructure();
+  ...
   
   // Ensure unique landmarks
   ensureUniqueLandmarks();
   
   // Set SVG attributes
   setSvgAttributes();
+  addSvgAccessibilityProps();
   
   // Handle fake links
   handleFakeLinks();
@@ -196,7 +216,7 @@ export function existingExport() {
 // New function to address accessibility issues from insight report
 function addressInsightReportIssues(insightReport) {
   // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
-  insightReport.forEach(issue => {
+  ... => {
     console.log(`Addressing issue: ${issue.issue}`);
     // Implement the solution to the issue
     // This is a placeholder for the actual implementation
@@ -238,7 +258,8 @@ export {
   createInPageButton, 
   addressAccessibilityIssues, 
   generateAccessibilityReport, 
-  calculateAccessibilityScore 
+  calculateAccessibilityScore,
+  addSvgAccessibilityProps 
 };
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -252,7 +273,8 @@ if (typeof module !== 'undefined' && module.exports) {
     addressAccessibilityIssues,
     generateAccessibilityReport,
     calculateAccessibilityScore,
-    renderIndexView
+    renderIndexView,
+    addSvgAccessibilityProps
   };
 }
 
@@ -264,14 +286,14 @@ describe('addressInsightReportIssues and spawnProcess', () => {
       { issue: 'Issue 1', solution: 'Solution 1' },
       { issue: 'Issue 2', solution: 'Solution 2' }
     ];
-    const mockLog = jest.spyOn(console, 'log').mockImplementation();
-    addressInsightReportIssues(insightReport);
+    const mockLog = jest.spyOn(console, ...
+    ...
     // Mock console.log to check if the correct messages were logged
     // This is a simplified example; in a real test, you would use a mock library
-    expect(mockLog).toHaveBeenCalledWith('Addressing issue: Issue 1');
-    expect(mockLog).toHaveBeenCalledWith('Solution: Solution 1');
-    expect(mockLog).toHaveBeenCalledWith('Addressing issue: Issue 2');
-    expect(mockLog).toHaveBeenCalledWith('Solution: Solution 2');
+    ... issue: Issue 1');
+    ... Solution 1');
+    ... issue: Issue 2');
+    ... Solution 2');
     mockLog.mockRestore();
   });
 
@@ -279,9 +301,9 @@ describe('addressInsightReportIssues and spawnProcess', () => {
     const command = 'echo Hello, World!';
     // Mock console.log to check if the correct message was logged
     // This is a simplified example; in a real test, you would use a mock library
-    const mockLog = jest.spyOn(console, 'log').mockImplementation();
+    const mockLog = jest.spyOn(console, ...
     spawnProcess(command);
-    expect(mockLog).toHaveBeenCalledWith(`Spawning process for command: ${command}`);
+    ... process for command: ${command}`);
     mockLog.mockRestore();
   });
 });

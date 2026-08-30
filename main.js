@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-// Import test helper function
+// TODO: This is the existing code that needs to be preserved
 const { updateThScopeAttribute } = require('./testHelper');
 
 // Landmark elements that should be checked for proper usage

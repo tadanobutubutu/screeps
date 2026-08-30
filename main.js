@@ -103,20 +103,6 @@ function createInPageButton(buttonText, onClickHandler) {
   return button;
 }
 
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  if (!element) {
-    return false;
-  }
-  
-  // Validate that the landmark has required properties
-  if (element.getAttribute('name') && element.getAttribute('coordinates')) {
-    return true;
-  }
-  
-  return false;
-}
-
 // If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
 // If not, define it here:
 export function rotateBack() {
@@ -523,7 +509,7 @@ const fixFakeLinks = () => {
 
 // Placeholder for the affected SVGs
 const icons = {
-  icon: '<svg ... viewBox="0 0 100 100" aria-label="Screeps ... Dashboard</title><text y=".9em" ...>'
+  icon: '<svg viewBox="0 0 100 100" aria-label="Screeps Dashboard"><title>Screeps Dashboard</title><text y=".9em" ...>'
 };
 
 // Initialize accessibility improvements
@@ -584,6 +570,43 @@ function initialize() {
   initializeAccessibility();
 }
 
+/**
+ * Counts dependencies in the application.
+ * 
+ * This function counts various types of dependencies such as:
+ * - Configuration dependencies (from getConfig())
+ * - Imported modules
+ * - Required files
+ * 
+ * @returns {Object} An object containing dependency counts and details
+ */
+function countDependencies() {
+  const dependencies = {
+    configuration: {
+      apiUrl: getConfig().apiUrl ? 1 : 0,
+      timeout: getConfig().timeout ? 1 : 0
+    },
+    functions: {
+      landmark: checkLandmarkElement ? 1 : 0,
+      table: checkTableAccessibility ? 1 : 0,
+      button: createInPageButton ? 1 : 0
+    },
+    events: {
+      click: setupSkipLinks ? 1 : 0,
+      accessibility: setupButtonAccessibility ? 1 : 0
+    },
+    totalDependencies: 0
+  };
+  
+  // Calculate total dependencies
+  dependencies.totalDependencies = 
+    Object.keys(dependencies.configuration).length +
+    Object.keys(dependencies.functions).length +
+    Object.keys(dependencies.events).length;
+  
+  return dependencies;
+}
+
 // New function or change requested in the issue
 function newFunction() {
   // Implementation of the new function
@@ -636,7 +659,8 @@ export {
   addSvgAccessibleNames,
   ensurePageUniqueLandmarks,
   fixFakeLink,
-  initializeAccessibility
+  initializeAccessibility,
+  countDependencies
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
@@ -680,70 +704,3 @@ function getConfig() {
     timeout: 5000
   };
 }
-=======
-import React from 'react';
-import PropTypes from 'prop-types';
-
-// TODO: Address any missing required exports
-// REACT_015: Add lang attribute
-
-const Main = ({ children, title, lang = 'en' }) => {
-  return (
-    <main role="main" lang={lang}>
-      {title && <h1>{title}</h1>}
-      {children}
-    </main>
-  );
-};
-
-Main.propTypes = {
-  children: PropTypes.node,
-  title: PropTypes.string,
-  lang: PropTypes.string,
-};
-
-export default Main;
-export { Main };
->>>>>>> origin/main
-
-// Resolved file content (HEAD version - vanilla JS accessibility utilities):
-// This is the complete main.js file with all accessibility functions preserved
-// and the React component removed as it's incompatible with the vanilla JS code.
-
-// Existing code starts here
-
-// This is the existing code that needs to be preserved
-// (This comment remains as-is)
-
-// More existing code that should be preserved
-
-// Existing code ends here
-
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
-// Addressed accessibility issues from insight report
-
-// ... (other code in main.js)
-
-/**
- * Checks if a specified landmark element is present in the document.
- * @param {string} id - The ID of the landmark element to check for.
- * @returns {boolean} True if the landmark element exists, false otherwise.
- */
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  if (!element) {
-    return false;
-  }
-  
-  // Validate that the landmark has required properties
-  if (element.getAttribute('name') && element.getAttribute('coordinates')) {
-    return true;
-  }
-  
-  return false;
-}
-
-/**
- * Checks accessibility of tables in the document.
- * Ensures that <th> elements

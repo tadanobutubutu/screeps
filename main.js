@@ -69,7 +69,7 @@ function renderDependencyGraph(graph) {
 
     for (const node of nodes) {
         if (node && node.id) {
-            const label = (node.label || node.id).replace(/"/g, '\\"');
+            const label = (node.label || node.id);
             lines.push(`  "${node.id}" [label="${label}"];`);
         }
     }
@@ -97,7 +97,7 @@ function renderIndexView(items) {
         }
         const title = item.title || item.name || `Item ${index + 1}`;
         const id = item.id !== undefined ? item.id : index;
-        lines.push(`- [${title}](#item-${id})`);
+        lines.push(`- ${title} (ID: ${id})`);
     });
 
     lines.push('');

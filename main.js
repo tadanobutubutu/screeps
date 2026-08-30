@@ -7,6 +7,8 @@ import { initializeApp, appData } from './app.js';
 import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
 
+// Import required modules and export the new necessary function(s) here in main.js ( preserving the original code )
+
 // Function to create in-page buttons
 const createInPageButton = (options: {
   onClick: () => void;

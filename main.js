@@ -454,6 +454,190 @@ function validateLandmarkStructure() {
 }
 
 /**
+ * Function for addressing accessibility issues from insight report
+ * 
+ * This function processes the insight report data and applies all necessary
+ * accessibility fixes to the document based on the identified issues.
+ * 
+ * @param {Object} insightReport - The insight report containing accessibility issues
+ * @param {Array} insightReport.issues - Array of accessibility issues from the report
+ * @param {Object} insightReport.config - Configuration options for fixing issues
+ * @returns {Object} Result object containing fixes applied and any remaining issues
+ */
+function addressAccessibilityIssues(insightReport) {
+    const result = {
+        applied: [],
+        failed: [],
+        summary: {
+            total: 0,
+            successful: 0,
+            failed: 0
+        }
+    };
+
+    // Default configuration for accessibility fixes
+    const config = insightReport.config || {
+        fixLangAttribute: true,
+        fixLandmarkRoles: true,
+        fixSvgAccessibleNames: true,
+        fixDuplicateLandmarks: true,
+        fixFakeLinks: true,
+        fixTableScopes: true
+    };
+
+    // Process the insight report issues
+    const issues = insightReport.issues || [];
+    result.summary.total = issues.length;
+
+    // REACT_015: Fix lang attribute on HTML element
+    if (config.fixLangAttribute) {
+        const langIssue = issues.find(issue => issue.code === 'REACT_015');
+        if (langIssue) {
+            try {
+                const lang = langIssue.language || 'en';
+                setLanguageAttribute(lang);
+                result.applied.push({
+                    code: 'REACT_015',
+                    action: 'setLanguageAttribute',
+                    value: lang
+                });
+            } catch (error) {
+                result.failed.push({
+                    code: 'REACT_015',
+                    error: error.message
+                });
+            }
+        }
+    }
+
+    // REACT_017: Add landmark roles
+    if (config.fixLandmarkRoles) {
+        const landmarkIssue = issues.find(issue => issue.code === 'REACT_017');
+        if (landmarkIssue) {
+            try {
+                addLandmarkRoles();
+                result.applied.push({
+                    code: 'REACT_017',
+                    action: 'addLandmarkRoles'
+                });
+            } catch (error) {
+                result.failed.push({
+                    code: 'REACT_017',
+                    error: error.message
+                });
+            }
+        }
+    }
+
+    // REACT_041: Add accessible names to SVGs
+    if (config.fixSvgAccessibleNames) {
+        const svgIssues = issues.filter(issue => issue.code === 'REACT_041');
+        if (svgIssues.length > 0) {
+            try {
+                svgIssues.forEach(svgIssue => {
+                    if (svgIssue.selector && svgIssue.accessibleName) {
+                        addSVGAccessibleName(svgIssue.selector, svgIssue.accessibleName);
+                        result.applied.push({
+                            code: 'REACT_041',
+                            action: 'addSVGAccessibleName',
+                            selector: svgIssue.selector,
+                            accessibleName: svgIssue.accessibleName
+                        });
+                    }
+                });
+            } catch (error) {
+                result.failed.push({
+                    code: 'REACT_041',
+                    error: error.message
+                });
+            }
+        }
+    }
+
+    // REACT_025: Fix duplicate landmarks
+    if (config.fixDuplicateLandmarks) {
+        const duplicateLandmarkIssues = issues.filter(issue => issue.code === 'REACT_025');
+        if (duplicateLandmarkIssues.length > 0) {
+            try {
+                ensureUniqueLandmarkElements();
+                result.applied.push({
+                    code: 'REACT_025',
+                    action: 'ensureUniqueLandmarkElements',
+                    count: duplicateLandmarkIssues.length
+                });
+            } catch (error) {
+                result.failed.push({
+                    code: 'REACT_025',
+                    error: error.message
+                });
+            }
+        }
+    }
+
+    // REACT_036: Fix fake links
+    if (config.fixFakeLinks) {
+        const fakeLinkIssues = issues.filter(issue => issue.code === 'REACT_036');
+        if (fakeLinkIssues.length > 0) {
+            try {
+                fixFakeLinks();
+                result.applied.push({
+                    code: 'REACT_036',
+                    action: 'fixFakeLinks',
+                    count: fakeLinkIssues.length
+                });
+            } catch (error) {
+                result.failed.push({
+                    code: 'REACT_036',
+                    error: error.message
+                });
+            }
+        }
+    }
+
+    // REACT_025: Add scope to table headers
+    if (config.fixTableScopes) {
+        const tableScopeIssues = issues.filter(issue => issue.code === 'REACT_025' && issue.type === 'scope');
+        if (tableScopeIssues.length > 0) {
+            try {
+                // Find all tables and add scope attributes to th elements
+                const tables = document.querySelectorAll('table');
+                tables.forEach(table => {
+                    const ths = table.querySelectorAll('th');
+                    ths.forEach((th, index) => {
+                        if (!th.getAttribute('scope')) {
+                            const isFirstRow = index < ths.length / 2;
+                            th.setAttribute('scope', isFirstRow ? 'col' : 'row');
+                        }
+                    });
+                });
+                result.applied.push({
+                    code: 'REACT_025',
+                    action: 'addTableScopes',
+                    count: tableScopeIssues.length
+                });
+            } catch (error) {
+                result.failed.push({
+                    code: 'REACT_025',
+                    error: error.message
+                });
+            }
+        }
+    }
+
+    // Update summary counts
+    result.summary.successful = result.applied.length;
+    result.summary.failed = result.failed.length;
+
+    // Log the accessibility fixes applied
+    console.log('Accessibility fixes applied:', result.applied);
+    if (result.failed.length > 0) {
+        console.warn('Accessibility fixes failed:', result.failed);
+    }
+
+    return result;
+}
+
+/**
  * Initializes the application and applies accessibility fixes.
  */
 const initApp = () => {
@@ -518,5 +702,6 @@ export {
     validateTableStructure,
     getSvgAccessibleName,
     createInPageButton,
-    ensureLandmarkUniqueness
+    ensureLandmarkUniqueness,
+    addressAccessibilityIssues
 };

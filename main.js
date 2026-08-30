@@ -2,17 +2,17 @@
 import { union } from 'lodash'; // You'll need to install lodash if it's not already installed
 
 // Import graph rendering functions
-import { renderGraph } from './newGraphRenderingFunctions'; // Assuming you have a separate file for the new functions
+import { renderGraph } from ... // Assuming you have a separate file for the new functions
 
 /**
  * Check and ensure accessibility attributes for links and buttons
  */
-export function checkLinkAndButtonAccessibility() {
+export function checkLinksAndButtons() {
   const links = document.querySelectorAll('a');
   const buttons = document.querySelectorAll('button');
 
   links.forEach(link => {
-    if (!link.hasAttribute('role')) {
+    if (!link.hasAttribute('role') || link.getAttribute('role') !== 'link') {
       link.setAttribute('role', 'link');
     }
     if (!link.hasAttribute('href')) {
@@ -21,11 +21,15 @@ export function checkLinkAndButtonAccessibility() {
   });
 
   buttons.forEach(button => {
-    if (!button.hasAttribute('role')) {
+    if (!button.hasAttribute('role') || button.getAttribute('role') !== 'button') {
       button.setAttribute('role', 'button');
     }
     // Check for accessible name for buttons
-    if (!button.hasAttribute('aria-label') && !button.hasAttribute('aria-labelledby')) {
+    const hasText = button.textContent.trim().length > 0;
+    const hasAriaLabel = button.hasAttribute('aria-label');
+    const hasAriaLabelledby = button.hasAttribute('aria-labelledby');
+
+    if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
       console.error('Accessibility Error: Button without accessible name', button);
     }
   });
@@ -125,11 +129,83 @@ export function validateFocusableElement(element) {
     return false;
   }
   const focusableTags = ['a', 'button', 'input', 'select', 'textarea'];
-  const tagName = element.tagName?.toLowerCase();
+  const tagName = element.tagName.toLowerCase();
   const isFocusable = focusableTags.includes(tagName) ||
                       element.tabIndex >= 0 ||
                       checkAccessibilityAttribute(element, 'tabindex');
-  return isFocusable && !element.hasAttribute('disabled');
+  return isFocusable && ensureAccessibleLabel(element);
+}
+
+/**
+ * Validate table accessibility structure
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Validation result with issues array
+ */
+export function validateTableAccessibility(table) {
+  const issues = [];
+  
+  if (!table) {
+    return { valid: false, issues: ['Table element not provided'] };
+  }
+
+  const headers = table.querySelectorAll('th');
+  const cells = table.querySelectorAll('td, th');
+
+  // Check for proper table structure
+  if (!table.querySelector('thead')) {
+    issues.push('Table missing thead element');
+  }
+  if (!table.querySelector('tbody')) {
+    issues.push('Table missing tbody element');
+  }
+
+  // Check if tables have headers
+  if (headers.length === 0) {
+    issues.push('Table has no header cells (th elements)');
+  }
+
+  // Check for proper scope attributes on headers
+  headers.forEach((th, index) => {
+    if (!th.hasAttribute('scope')) {
+      issues.push(`Header cell ${index} missing scope attribute`);
+    }
+  });
+
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Validate table structure for proper semantic markup
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Structure validation result
+ */
+export function validateTableStructure(table) {
+  const issues = [];
+  
+  if (!table) {
+    return { valid: false, issues: ['Table not provided'] };
+  }
+
+  const rows = table.querySelectorAll('tr');
+  
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('th, td');
+    
+    // Check for empty cells
+    cells.forEach((cell, cellIndex) => {
+      if (!cell.textContent.trim()) {
+        issues.push(`Empty cell at row ${rowIndex}, cell ${cellIndex}`);
+      }
+    });
+  });
+
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
 }
 
 // Default export for backwards compatibility
@@ -166,27 +242,27 @@ const a11yStore = {
     // Your game logic here...
 
     // Update scope attributes in all .html files in the views directory
-    const viewsDir = path.join(__dirname, 'views');
-    fs.readdirSync(viewsDir)
+    const viewsDir = ... 'views');
+    ...
       .filter(file => file.endsWith('.html'))
       .forEach(file => {
         const filePath = path.join(viewsDir, file);
-        updateThScopeAttribute(filePath);
+        ...
       });
   },
 
   // New function to check landmark elements
   checkLandmarkElements() {
-    const landmarkElements = [...document.querySelectorAll('[role="landmark"]')];
-    landmarkElements.forEach((landmark, index) => {
+    const landmarkElements = ...
+    ... index) => {
       // Ensure landmark has a unique ID
       if (landmark.id === '') {
-        landmark.id = `landmark-${index}`;
+        landmark.id = ...
       }
 
       // Ensure unique accessible names for duplicate landmarks
-      if (landmark.hasAttribute('aria-label')) {
-        landmark.setAttribute('aria-label', `${landmarkElements[index].nodeName.toLowerCase()}-${index + 1}`);
+      if ... {
+        ... ... + 1}`;
       }
     });
   },
@@ -217,139 +293,4 @@ const a11yStore = {
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: 8c3a9295a6bf382e113f3e8184d40223b3f3f8d5_
-//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
-
-export { addLandmarkRegions };
-
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
-// export function calculateSum(a, b) { return a + b; }
-
-// Existing exports and functions...
-
-export function initializeApp() {
-  console.log('Initializing application...');
-  return Promise.resolve();
-}
-
-// TODO: Implement function for generating a report based on accessibility issues
-export function generateAccessibilityReport() {
-  // Placeholder for the actual implementation
-  // This function should return a report object based on the accessibility issues found
-  return {
-    issues: [
-      // Example issue object
-      {
-        description: "Example issue description",
-        severity: "warning",
-        // ... other properties like 'elementId', 'fixRecommendation', etc.
-      }
-    ]
-  };
-}
-
-// TODO: Add any other missing exports that might have been?
-// Added missing exports as per the issue
-
-var roleHarvester = require('role.harvester');
-var roleUpgrader = require('role.upgrader');
-
-// Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
-function addressAccessibilityIssues() {
-  // Internationalization support
-  const translations = {
-    'en': {
-      landmark: 'landmark',
-      'svg1-title': 'SVG Content',
-      'svg2-title': 'Additional SVG'
-    }
-  };
-
-  const landmarks = document.querySelectorAll('[role="landmark"]');
-  landmarks.forEach((landmark, index) => {
-    landmark.setAttribute('aria-label', `${translations['en'].landmark}-${index + 1}`);
-    // Additional landmark processing...
-  });
-
-  const svg1 = document.querySelector('.svg1');
-  const svg2 = document.querySelector('.svg2');
-  if (svg1) svg1.setAttribute('aria-labelledby', 'svg1-title');
-  if (svg2) svg2.setAttribute('aria-labelledby', 'svg2-title');
-
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    console.warn('Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.');
-    // The static fix should be applied in the source files
-    // - Replace one <main> with <section role="region" ...
-    // - Same fix
-  }
-
-  const fakeLinks = document.querySelectorAll('.fake-link');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'presentation');
-  });
-
-  // Implement this function for checking link and button accessibility
-  function checkLinksAndButtons() {
-    const links = document.querySelectorAll('a');
-    const buttons = document.querySelectorAll('button');
-
-    links.forEach(link => {
-      // Check if link needs explicit role="link"
-      if (!link.hasAttribute('href') && link.getAttribute('role') !== 'link') {
-        link.setAttribute('role', 'link');
-      }
-      // Check for link without href attribute
-      if (!link.hasAttribute('href')) {
-        console.error('Accessibility Error: Link without href attribute', link);
-      }
-    });
-
-    buttons.forEach(button => {
-      // Check if button needs explicit role="button"
-      if (button.getAttribute('role') !== 'button') {
-        button.setAttribute('role', 'button');
-      }
-      // Check for accessible name for buttons
-      const hasText = button.textContent.trim().length > 0;
-      const hasAriaLabel = button.hasAttribute('aria-label');
-      const hasAriaLabelledby = button.hasAttribute('aria-labelledby');
-
-      if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
-        console.error('Accessibility Error: Button without accessible name', button);
-      }
-    });
-  }
-
-  // Call the function to check accessibility
-  checkLinksAndButtons();
-}
-
-export { addressAccessibilityIssues };
-
-// Screeps module exports for game loop integration
-module.exports.getLangAttribute = getLangAttribute;
-module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
-module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
-
-// ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
-
-module.exports.loop = function() {
-    // Clear the memory of dead creeps
-    for(var name in Memory.creeps) {
-        if(!Game.creeps[name]) {
-            delete Memory.creeps[name];
-        }
-    }
-
-    // TODO: Add implementation details
-
-    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-
-    if(harvesters.length < 2) {
-        var newName = 'Harvester' + Game.time;
-        Game.sp
+//

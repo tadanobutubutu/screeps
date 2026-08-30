@@ -395,6 +395,9 @@ function someFunction() {
   // Some implementation
 }
 
+// Export the capitalizeFirstLetter function as requested in the issue
+export function capitalizeFirstLetter(text) { return text.charAt(0).toUpperCase() + text.slice(1); }
+
 const someFunction = () => 'someFunction result';
 
 module.exports = {

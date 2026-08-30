@@ -253,6 +253,96 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+/**
+ * Creates a focus trap for keyboard navigation within a container
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @param {Object} options - Configuration options
+ * @param {boolean} options.escapeDeactivates - Whether Escape key deactivates the trap (default: true)
+ * @param {boolean} options.clickOutsideDeactivates - Whether clicking outside deactivates the trap (default: false)
+ * @returns {Function} A function to deactivate the focus trap
+ */
+function createFocusTrap(container, options = {}) {
+  if (!container || !container.nodeType) {
+    throw new Error('Container must be a valid DOM element');
+  }
+
+  const {
+    escapeDeactivates = true,
+    clickOutsideDeactivates = false
+  } = options;
+
+  let isActive = true;
+
+  // Get all focusable elements within the container
+  const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  const focusableElements = Array.from(container.querySelectorAll(focusableSelector));
+
+  // If no focusable elements, make container focusable
+  if (focusableElements.length === 0) {
+    container.setAttribute('tabindex', '-1');
+  }
+
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  // Handle keyboard events
+  function handleKeyDown(event) {
+    if (!isActive) return;
+
+    if (event.key === 'Tab') {
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      if (event.shiftKey) {
+        // If Shift+Tab and currently on first focusable, go to last
+        if (document.activeElement === firstFocusable) {
+          event.preventDefault();
+          lastFocusable?.focus();
+        }
+      } else {
+        // If Tab and currently on last focusable, go to first
+        if (document.activeElement === lastFocusable) {
+          event.preventDefault();
+          firstFocusable?.focus();
+        }
+      }
+    }
+
+    if (escapeDeactivates && event.key === 'Escape') {
+      deactivate();
+    }
+  }
+
+  // Handle click outside
+  function handleClick(event) {
+    if (clickOutsideDeactivates && isActive && !container.contains(event.target)) {
+      deactivate();
+    }
+  }
+
+  // Activate the trap
+  function activate() {
+    isActive = true;
+    container.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('click', handleClick);
+  }
+
+  // Deactivate the trap
+  function deactivate() {
+    isActive = false;
+    container.removeEventListener('keydown', handleKeyDown);
+    document.removeEventListener('click', handleClick);
+  }
+
+  // Initial activation
+  activate();
+
+  // Return deactivation function
+  return deactivate;
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +361,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  createFocusTrap
 };

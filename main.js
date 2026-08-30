@@ -51,6 +51,75 @@ const config = {
 };
 
 /**
+ * Validates table accessibility for screen readers
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} - Validation results with valid flag and errors array
+ */
+function validateTableAccessibility(table) {
+  const errors = [];
+  
+  if (!table) {
+    errors.push('Table element is required');
+    return { valid: false, errors };
+  }
+  
+  if (table.tagName !== 'TABLE') {
+    errors.push('Element must be a table');
+    return { valid: false, errors };
+  }
+  
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    errors.push('Table should have a caption element for accessibility');
+  }
+  
+  // Check for th elements
+  const thElements = table.querySelectorAll('th');
+  if (thElements.length === 0) {
+    errors.push('Table should have th elements for headers');
+  }
+  
+  // Check scope attribute on th elements
+  thElements.forEach((th, index) => {
+    const scope = th.getAttribute('scope');
+    if (!scope) {
+      errors.push(`th element at index ${index} should have a scope attribute (col or row)`);
+    }
+  });
+  
+  // Check for thead
+  const thead = table.querySelector('thead');
+  if (!thead) {
+    errors.push('Table should have a thead element');
+  }
+  
+  // Check for tbody
+  const tbody = table.querySelector('tbody');
+  if (!tbody) {
+    errors.push('Table should have a tbody element');
+  }
+  
+  // Check for proper headers attribute for data cells
+  const cells = table.querySelectorAll('td');
+  cells.forEach((cell, index) => {
+    const headers = cell.getAttribute('headers');
+    if (!headers && table.querySelectorAll('th').length > 0) {
+      // Only suggest if there's more than just a simple 2-column table
+      const row = cell.parentElement;
+      if (row && row.children.length > 2) {
+        errors.push(`td element at index ${index} should have a headers attribute for complex tables`);
+      }
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+/**
  * Checks if an element is a landmark element
  * @param {HTMLElement} element - The element to check
  * @returns {boolean} - True if the element is a landmark
@@ -85,7 +154,7 @@ function validateLandmarks(doc) {
 
   landmarks.forEach(landmark => {
     results.landmarks.push({
-      tag: landmark.tagName.toLowerCase(),
+      tag: landmark.tagName ? landmark.tagName.toLowerCase() : null,
       id: landmark.id || null,
       className: landmark.className || null
     });
@@ -148,7 +217,7 @@ function improveAccessibility(container) {
   }
 
   // Ensure all clickable elements are focusable
-  const focusable = container.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+  const focusable = container.querySelectorAll('button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -196,7 +265,7 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (svg && svg.querySelector) {
       const title = svg.querySelector('title');
       if (title) {
         const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
@@ -247,7 +316,7 @@ function addProperLandmarkRegions(affectedElements) {
   if (!affectedElements || !Array.isArray(affectedElements)) return;
 
   affectedElements.forEach(el => {
-    if (el && el.tagName && !el.hasAttribute('role')) {
+    if (el && el.tagName) {
       el.setAttribute('role', 'region');
     }
   });
@@ -256,6 +325,7 @@ function addProperLandmarkRegions(affectedElements) {
 module.exports = {
   validateLandmark,
   config,
+  validateTableAccessibility,
   isLandmark,
   validateLandmarks,
   getLandmarkElements,

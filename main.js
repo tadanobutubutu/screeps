@@ -145,17 +145,12 @@ function calculateSum(numbers) {
  * @returns {string} The element's id (existing or newly generated)
  */
 function ensureElementHasId(element, prefix = 'element') {
-  if (!element) {
-    throw new Error('Element is required');
+  if (!element.id) {
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 9);
+    element.id = `${prefix}-${timestamp}-${random}`;
   }
-  
-  if (element.id) {
-    return element.id;
-  }
-  
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
+  return element.id;
 }
 
 /**
@@ -165,28 +160,15 @@ function ensureElementHasId(element, prefix = 'element') {
  * @returns {boolean} True if label was added, false if element already had one
  */
 function addAriaLabel(element, label) {
-  if (!element) {
-    throw new Error('Element is required');
+  if (!element.hasAttribute('aria-label')) {
+    element.setAttribute('aria-label', label);
+    return true;
   }
-  
-  if (!label) {
-    throw new Error('Label is required');
-  }
-  
-  if (element.getAttribute('aria-label')) {
-    return false;
-  }
-  
-  element.setAttribute('aria-label', label);
-  return true;
+  return false;
 }
 
 /**
- * Renders dependency graphs for the given configuration.
- * @param {HTMLElement} container - The container element to render into
- * @param {Object} dependencies - The dependencies data to render
- * @param {Object} [options={}] - Optional rendering configuration
- * @returns {Object} The rendered graph instance
+ * Utility functions for accessibility
  */
 function renderDependencyGraphs(container, dependencies, options = {}) {
   if (!container) {
@@ -287,100 +269,138 @@ const focusTrap = (element) => {
         }
         e.preventDefault();
         break;
-      case 'ArrowLeft':
-        prevFocusableElement();
-        e.preventDefault();
-        break;
-      case 'ArrowRight':
-        nextFocusableElement();
-        e.preventDefault();
-        break;
-      case 'Home':
-        moveFocusToFirst();
-        e.preventDefault();
-        break;
-      case 'End':
-        moveFocusToLast();
-        e.preventDefault();
-        break;
     }
   });
+
+  return {
+    next: nextFocusableElement,
+    prev: prevFocusableElement,
+    first: moveFocusToFirst,
+    last: moveFocusToLast
+  };
 };
 
-// TODO: Address accessibility issues from insight report
-const addressAccessibilityIssues = (container) => {
-  const fixes = implementAccessibilityFixesFromReport(container, validateAccessibilityReport(container));
+const accessibilityUtils = {
+  // Initialize skip link functionality for keyboard navigation
+  initSkipLink: () => {
+    const skipLink = document.getElementById('skip-link') || document.querySelector('.skip-link');
+    if (skipLink) {
+      skipLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = skipLink.getAttribute('href');
+        const target = document.querySelector(targetId);
+        if (target) {
+          target.setAttribute('tabindex', '-1');
+          target.focus();
+        }
+      });
+    }
+  },
 
-  if (fixes.langAdded) {
-    log('Lang attribute added to HTML element', 'info');
+  // Update ARIA expanded state for collapsible sections
+  toggleAriaExpanded: (element) => {
+    const isExpanded = element.getAttribute('aria-expanded') === 'true';
+    element.setAttribute('aria-expanded', !isExpanded);
+
+    const controlsId = element.getAttribute('aria-controls');
+    if (controlsId) {
+      const controlledElement = document.getElementById(controlsId);
+      if (controlledElement) {
+        controlledElement.setAttribute('aria-hidden', isExpanded);
+      }
+    }
+  },
+
+  // Initialize tab trap within modal dialogs for accessibility
+  trapFocus: (element) => {
+    const focusableElements = element.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+
+    function handleTabKey(e) {
+      if (e.key === 'Tab') {
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusable) {
+            lastFocusable.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastFocusable) {
+            firstFocusable.focus();
+          }
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleTabKey);
+    firstFocusable && firstFocusable.focus();
+    return () => document.removeEventListener('keydown', handleTabKey);
+  },
+
+  // Close on Escape key within modal dialogs for accessibility
+  onModalEscapeKeyDown: (element) => {
+    function handleTabKey(e) {
+      if (e.key === 'Escape') {
+        element.setAttribute('aria-hidden', 'true');
+        element.style.display = 'none';
+        document.removeEventListener('keydown', handleTabKey);
+      }
+    }
+
+    document.addEventListener('keydown', handleTabKey);
+
+    return () => document.removeEventListener('keydown', handleTabKey);
   }
-
-  if (fixes.mainLandmarkAdded) {
-    log('Main landmark added', 'info');
-  }
-
-  const landmarkFixes = fixes.landmarksFixed || 0;
-  if (landmarkFixes > 0) {
-    log(`Fixed ${landmarkFixes} unique landmarks`, 'info');
-  }
-
-  const svgFixes = fixes.svgNamesAdded || 0;
-  if (svgFixes > 0) {
-    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
-  }
-
-  const fakeLinkFixes = fixes.fakeLinksFixed || 0;
-  if (fakeLinkFixes > 0) {
-    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
-  }
-
-  return fixes;
 };
 
-// Export all functions
-module.exports = {
-  ...main,
+// Accessible Insight Report Interface - Dependency Graph Rendering
+// Address accessibility issues from insight report — FIXED
 
-  CONFIG,
-  log,
-  validateInput,
-  parseJSONsafe,
-  formatResponse,
-  delay,
-  retryOperation,
-  sanitizeFilename,
-  readFileSafe,
-  processData,
-  filterValidItems,
-  groupByCategory,
-  myNewFunction,
-  getLangAttribute,
-  calculateSum,
-  getSvgAccessibleName,
-  validateTableAccessibility,
-  validateTableStructure,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  handleCredentialResponse,
-  focusTrap,
-  addressAccessibilityIssues,
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addAltAttribute,
-  replaceButtonId,
-  addLangAttribute,
-  fixTableStructure,
-  addSvgAccessibleName,
-  fixFakeLinkIssue,
-  addAriaAttribute,
+// New functions (merged)
 
-  renderDependencyGraph: renderDependencyGraphs
-};
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!table.querySelector('thead')) {
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        if (!table.querySelector('tbody')) {
+          const thead = document.createElement('thead');
+          const tbody = document.createElement('tbody');
+
+          // Move first row to thead
+          thead.appendChild(firstRow);
+
+          // Move remaining rows to tbody
+          while (table.firstChild) {
+            tbody.appendChild(table.firstChild);
+          }
+
+          table.appendChild(thead);
+          table.appendChild(tbody);
+        }
+      }
+    }
+
+    table.querySelectorAll('td').forEach(td => {
+      if (!td.hasAttribute('headers') && !td.hasAttribute('scope')) {
+        td.setAttribute('scope', 'col');
+      }
+    });
+  });
+}
+
+function addMainLandmark() {
+  const mains = document.querySelectorAll('main, [role="main"]');
+  if (mains.length === 0) {
+    const mainElement = document.createElement('main');
+    const body = document.body;
+    if (body.firstChild) {
+      body.insertBefore(mainElement, body.firstChild);
+    } else {
+      body.appendChild(mainElement);
+    }
+  }
+}

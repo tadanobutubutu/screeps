@@ -17,6 +17,20 @@ function wrapPrimaryContentInMain() {
 
 // Add the new function here
 
+// Implement a function to count dependencies
+function countDependencies(dependencies) {
+  if (dependencies == null) {
+    return 0;
+  }
+  if (Array.isArray(dependencies)) {
+    return dependencies.length;
+  }
+  if (typeof dependencies === 'object') {
+    return Object.keys(dependencies).length;
+  }
+  return 0;
+}
+
 // Main file - main.js
 
 // Your existing code...
@@ -219,5 +233,6 @@ module.exports = {
     addressAccessibilityIssues,
     addressReactAccessibilityIssues,
     utilityFunction,
-    formatData
+    formatData,
+    countDependencies
 };

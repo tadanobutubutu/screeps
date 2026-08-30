@@ -605,3 +605,31 @@ function setSvgAttributes(svg, accessibleName) {
   }
   return null;
 }
+
+// TODO: Add any other missing exports that might have been?
+// Added missing exports as per the issue
+export {
+  HTML,
+  appState,
+  config,
+  MAIN_LANDMARK_ID,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  initialize,
+  validateInput,
+  addressAccessibilityIssues,
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  setSvgAttributes
+};

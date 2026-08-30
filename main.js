@@ -1,5 +1,13 @@
 // TODO: This is the existing code that needs to be preserved
 
+// Add lang attribute to HTML element
+function addLangAttribute(lang) {
+    const htmlElement = document.querySelector('html');
+    if (htmlElement) {
+        htmlElement.setAttribute('lang', lang);
+    }
+}
+
 /**
  * Ensures an element has an id attribute
  * @param {HTMLElement} element - The element to check
@@ -108,5 +116,6 @@ module.exports = {
   renderDependencyGraph,
   myFunction: function () {
     // Existing implementation
-  }
+  },
+  addLangAttribute: addLangAttribute
 };

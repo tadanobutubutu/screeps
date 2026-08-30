@@ -439,3 +439,4 @@ function addressAccessibilityIssues(document) {
   document = renderDependencyGraphs(document);
   return document;
 }
+```

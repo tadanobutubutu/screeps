@@ -1,4 +1,6 @@
-// content of main.js
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+
 import { createTheme } from './theme.js';
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';

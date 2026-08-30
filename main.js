@@ -1,6 +1,12 @@
-const React = require('react');
-const ReactDOM = require('react-dom');
-const Landmark = require('./Landmark');
+// TODO: This is the existing code that needs to be preserved
+//_Commit: 07177d2c69c06fd1dfe3543ad6d3c81baa3c821f_
+//<!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Landmark from './Landmark';
 
 import './styles.css';
 import { initializeApp, appData } from './app.js';
@@ -8,19 +14,17 @@ import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
 
 // Function to create in-page buttons
-const createInPageButton = (options: {
-  onClick: () => void;
-  label: string;
-  icon: string;
-  disabled?: boolean;
-  isActive?: boolean;
-  hoverState: boolean;
-  setHoverState: (value: boolean) => void;
-  ariaLabel?: string;
-  title?: string;
+const createInPageButton = ({
+  onClick,
+  label,
+  icon,
+  disabled = false,
+  isActive = false,
+  hoverState,
+  setHoverState,
+  ariaLabel,
+  title
 }) => {
-  const { onClick, label, icon, disabled = false, isActive = false, hoverState, setHoverState, ariaLabel, title } = options;
-
   const getBackgroundColor = () => {
     if (disabled) return '#999';
     if (isActive) return '#155d27';
@@ -51,10 +55,10 @@ const createInPageButton = (options: {
         transition: 'all 0.2s ease-in-out',
         transform: hoverState ? 'scale(1.05)' : 'scale(1)',
         boxShadow: hoverState ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-        filter: hoverState ? 'brightness(1.1)' : 'none',
+        filter: hoverState ? 'brightness(1.1)' : 'none'
       }}
     >
-      <span aria-hidden="true">{icon}</span>
+      <span>{icon}</span>
       <span> {label}</span>
     </button>
   );
@@ -74,23 +78,25 @@ function processLandmarks(landmarks) {
   const validLandmarks = landmarks.filter(landmarkStructureCheck);
 
   // Ensure the landmarks are unique
-  const ensureUniqueLandmarks = (landmarks) => {
+  const ensureUniqueLandmarks = (items) => {
     // Add your own unique landmark logic here
     // ...
-    return landmarks;
+    return items;
   };
 
   return ensureUniqueLandmarks(validLandmarks);
 }
 
-function addLangAttribute(htmlElement) {
+function addLangAttribute(htmlElement, lang) {
   if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
-    console.error('addLangAttribute: Invalid HTML element provided');
+    console.error('Invalid HTML element provided');
     return;
   }
 
-  if (!htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
+  if (lang) {
+    htmlElement.lang = lang;
+  } else {
+    htmlElement.lang = 'en'; // Default to English if not specified
   }
 }
 

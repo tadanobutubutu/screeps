@@ -296,7 +296,6 @@ function initAccessibility() {
     ensureUniqueLandmarks();
     fixFakeLinkIssue();
     createInPageButton({ id: 'example', label: 'Example Link' });
-    
     announceToScreenReader('Page loaded and accessibility features initialized', 'assertive');
   }
 }
@@ -367,8 +366,59 @@ if (typeof module !== 'undefined' && module.exports) {
     getBrowserName,
     getLangAttribute,
     getSvgAccessibleName,
-    setSvgAttributes
+    setSvgAttributes,
+    addressAccessibilityIssues
   };
+}
+
+// New function to address accessibility issues from insight report
+function addressAccessibilityIssues(report) {
+  if (!report || typeof report !== 'object') {
+    console.warn('addressAccessibilityIssues: Invalid insight report provided');
+    return false;
+  }
+
+  if (Array.isArray(report.issues)) {
+    report.issues.forEach(issue => {
+      switch (issue.type) {
+        case 'missing-alt-text':
+          handleMissingAltText(document.body);
+          break;
+        case 'missing-lang':
+          addLangAttribute();
+          break;
+        case 'missing-main':
+          addMainLandmark();
+          break;
+        case 'unlabeled-form-elements':
+          // Handled in DOMContentLoaded handler
+          console.log('Form elements should be labeled');
+          break;
+        case 'svg-accessibility':
+          addSvgAccessibleNames();
+          break;
+        case 'landmark-accessibility':
+          ensureUniqueLandmarks();
+          break;
+        case 'fake-link':
+          fixFakeLinkIssue();
+          break;
+        default:
+          console.warn(`Unknown accessibility issue type: ${issue.type}`);
+      }
+    });
+  }
+
+  if (report.summary && typeof report.summary === 'object') {
+    console.log('Accessibility Issues Summary:', report.summary);
+  }
+
+  // Announce the addressing process
+  if (typeof document !== 'undefined' && document.body) {
+    announceToScreenReader('Accessibility issues from insight report have been addressed', 'polite');
+  }
+
+  return true;
 }
 
 // Initialize accessibility if not already done by the event listener

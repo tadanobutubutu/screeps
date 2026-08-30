@@ -1,4 +1,7 @@
-// TODO: Address accessibility issues from insight report — FIXED
+// TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)
+
+const http = require('http');
+const url = require('url');
 
 // Preserving existing code, exports, and functions
 
@@ -42,7 +45,7 @@ function decodeJwtToken(token) {
         }
         
         const payload = parts[1];
-        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf-8');
+        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
         return JSON.parse(decoded);
     } catch (error) {
         return null;
@@ -117,7 +120,7 @@ function handleCredentialResponse(credentialResponse) {
 function generateSessionId() {
     const timestamp = Date.now().toString(36);
     const randomPart = Math.random().toString(36).substring(2, 15);
-    return `${timestamp}-${randomPart}`;
+    return `session_${timestamp}_${randomPart}`;
 }
 
 /**

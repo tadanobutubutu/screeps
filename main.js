@@ -10,6 +10,11 @@ function existingFunction() {
 // Add new function to address the accessibility issue REACT_043: Make header focusable
 function makeHeaderFocusable() {
   // code to make the header element focusable
+  // Example: Adding tabindex to the header
+  const header = document.querySelector('header');
+  if (header) {
+    header.setAttribute('tabindex', '0');
+  }
 }
 
 // Add export statement of the new function

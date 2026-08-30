@@ -1,247 +1,115 @@
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report
+We need to resolve the merge conflict in main.js. The conflict markers show two versions: HEAD (existing) and origin/main (new). Need to integrate both changes logically.
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)
+Key differences:
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport } = require('./utilities');
-const main = require('./utilities');
+- In accessibilityUtils.initSkipLink: HEAD uses document.getElementById('skip-link'), origin uses document.querySelector('.skip-link'). Also the click handler differences: HEAD uses getAttribute('href').replace('#', ''), origin uses getAttribute('href') directly.
 
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+We need to decide which to keep. Probably combine: use querySelector and handle href appropriately. Also maybe keep both? Let's think: The original code (HEAD) had id based skip link; the new version uses class selector and direct href. To satisfy both, we could modify to use querySelector and handle href similarly, maybe use getAttribute('href').replace('#','') still works.
 
-// Configuration
-const CONFIG = {
-  port: process.env.PORT || 3000,
-  host: process.env.HOST || 'localhost',
-  maxRetries: 3,
-  timeout: 5000
-};
+Also there are other conflicts:
 
-// Accessibility utilities and functions
-const accessibilityUtils = {
-  // Initialize skip link functionality for keyboard navigation
-  initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link');
-    if (skipLink) {
-      skipLink.addEventListener('click', (e) => {
+- trapFocus: HEAD uses 'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])' vs origin uses 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'. Need to choose one. Probably use origin version as more specific (disable button). Also HEAD includes button (maybe disabled). We'll adopt origin version.
+
+- newFocusTrap: HEAD defines function newFocusTrap() (no param) but later there's TODO for new function. Origin defines focusTrap(element) function. There's also another newFocusTrap defined later (maybe duplicate). Need to resolve.
+
+We see after conflict markers:
+
+In HEAD: after newFocusTrap definition (the function with no param) there is:
+
+```
+function newFocusTrap() {
+  // New function implementation
+}
+```
+
+But later after origin conflict, there is:
+
+```
+function newFocusTrap(element) {
+  if (!element) return;
+  
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])
+  );
+  
+  if (focusableElements.length === 0) return;
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+  
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
-        if (target) {
-          target.setAttribute('tabindex', '-1');
-          target.focus();
-        }
-      });
-    }
-  },
-
-  // Trap focus within an element (for modals, dialogs)
-  trapFocus: (element) => {
-    const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          lastElement.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
-          e.preventDefault();
-        }
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
       }
-    });
-  },
-
-  // Announce message to screen readers
-  announceToScreenReader: (message, priority = 'polite') => {
-    const announcer = document.createElement('div');
-    announcer.setAttribute('aria-live', priority);
-    announcer.setAttribute('aria-atomic', 'true');
-    announcer.className = 'sr-only';
-    announcer.style.position = 'absolute';
-    announcer.style.left = '-9999px';
-    announcer.textContent = message;
-    document.body.appendChild(announcer);
-    setTimeout(() => announcer.remove(), 1000);
-  },
-
-  // Handle keyboard navigation
-  handleKeyboardNav: (e, handlers) => {
-    const key = e.key;
-    if (handlers[key]) {
-      handlers[key](e);
-    }
-  }
-};
-
-// Existing utility functions
-function log(message, level = 'info') {
-  const timestamp = new Date().toISOString();
-  console.log(`${timestamp} [${level.toUpperCase()}]: ${message}`);
-}
-
-function validateInput(input) {
-  if (typeof input !== 'string') {
-    return false;
-  }
-  return input.length > 0 && input.length <= 1000;
-}
-
-function parseJSONsafe(jsonString) {
-  try {
-    return JSON.parse(jsonString);
-  } catch (error) {
-    return null;
-  }
-}
-
-function formatResponse(data, statusCode = 200) {
-  return {
-    statusCode,
-    data,
-    timestamp: new Date().toISOString()
-  };
-}
-
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
-  let lastError;
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      return await operation();
-    } catch (error) {
-      lastError = error;
-      log(`Attempt ${i + 1} failed: ${error.message}`, 'warn');
-      if (i < maxRetries - 1) {
-        await delay(1000 * (i + 1));
-      }
-    }
-  }
-  throw lastError;
-}
-
-function sanitizeFilename(filename) {
-  return filename.replace(/[^a-z0-9_.-]/gi, '_');
-}
-
-function readFileSafe(filePath) {
-  try {
-    return fs.readFileSync(filePath, 'utf8');
-  } catch (error) {
-    log(`Error reading file ${filePath}: ${error.message}`, 'error');
-    return null;
-  }
-}
-
-// Existing data processing functions
-function processData(items) {
-  if (!Array.isArray(items)) {
-    return [];
-  }
-  return items.map(item => ({
-    ...item,
-    processed: true,
-    timestamp: Date.now()
-  }));
-}
-
-function filterValidItems(items, validator) {
-  return items.filter(item => {
-    try {
-      return validator(item);
-    } catch {
-      return false;
     }
   });
+  
+  firstElement.focus();
 }
+```
 
-function groupByCategory(items, getCategory) {
-  return items.reduce((groups, item) => {
-    const category = getCategory(item);
-    if (!groups[category]) {
-      groups[category] = [];
-    }
-    groups[category].push(item);
-    return groups;
-  }, {});
+So HEAD version is missing param and maybe missing other keys. We need to merge: probably keep the param version (origin) and incorporate the logic. Also ensure that the function name maybe newFocusTrap (consistent). Also ensure that the earlier HEAD version's comment about "new function" is satisfied.
+
+Also there are other conflicts:
+
+- In initAccessibility: HEAD adds keyboard support for all interactive elements (button, a, [role="button"]). Origin adds document.querySelectorAll('[data-accessible]').forEach. Which to keep? Possibly combine: we can keep both, but better to keep origin's selector as it's more generic. However we need to preserve existing functionality. Maybe we can keep both but ensure not duplicate. Let's think: The requirement is to resolve conflict meaning keep both changes if they add features. The HEAD change adds keyboard support for button, a, [role="button"]; origin adds data-accessible attribute handling. They are different; we could incorporate both: first add keyboard support for all interactive elements (as before) and also add listeners for elements with data-accessible attribute. But that may cause duplicate listeners. Maybe we choose to keep the more inclusive approach: add keyboard support for all interactive elements (button, a, [role="button"]), and also for elements with data-accessible. However that may cause double handling for same element if it matches both selectors. To avoid that, maybe we keep the origin selector (data-accessible) and also add generic handling for button/a/role. But the HEAD version uses querySelectorAll('button, a, [role="button"]') which includes many elements; origin uses '[data-accessible]' which may be a subset. Which is more appropriate? The HEAD comment says "Add keyboard support for all interactive elements". That seems broader. So we should keep that, but maybe adjust to include data-accessible as well. Let's combine: we can select both: document.querySelectorAll('button, a, [role="button"], [data-accessible]').forEach... This merges both.
+
+- In exportData: HEAD includes announcement after click: accessibilityUtils.announceToScreenReader(`Download of ${filename} started`); origin also includes same. So keep both.
+
+- In addressAccessibilityIssues: HEAD defines function with fixes object but not actual implementation; origin defines same but with log statements. Need to integrate. Probably keep origin's implementation (the logs). Also HEAD had comment about TODO but not actual code. We'll adopt origin's code.
+
+- In focusTrap: HEAD defines focusTrap(element) with a different selector (similar to origin but missing disabled checks). Origin includes disabled checks. We should adopt origin's version (with disabled). Also need to ensure function name maybe newFocusTrap? In origin they named focusTrap, but earlier HEAD had newFocusTrap. Let's examine:
+
+In HEAD after conflict, there is:
+
+```
+function newFocusTrap() {
+  // New function implementation
 }
+```
 
-// New function added as per issue
-function myNewFunction(input) {
-  if (typeof input !== 'string') {
-    return input;
+But later after origin, they define:
+
+```
+function newFocusTrap(element) {
+  // implementation
+}
+```
+
+Thus we need to unify: rename to newFocusTrap (maybe keep name newFocusTrap) and accept element param. Also ensure the selector includes disabled checks as origin.
+
+- In ensureElementHasId: HEAD defines ensureElementHasId(element, prefix='element') vs origin defines ensureElementId (different name). There's also ensureElementId earlier (HEAD) which sets id if missing. We need to keep both? Let's see: HEAD defines ensureElementHasId (different name). Origin defines ensureElementId earlier (maybe earlier part). The conflict appears earlier near the top where ensureElementId defined. Let's examine:
+
+In HEAD segment:
+
+```
+const ensureElementId = (element) => {
+  if (element && !element.id) {
+    element.id = 'element-' + Math.random().toString(36).substr(2, 9);
   }
-  return input.toUpperCase();
-}
+  return element;
+};
 
-// Calculate sum of numbers array
-function calculateSum(numbers) {
-    return numbers.reduce((sum, num) => sum + num, 0);
-}
+const addAriaLabel = (element, label) => {
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+};
 
-// Additional utility functions for accessibility
-function addMainLandmark() {
-  // Implementation for REACT_017: Add landmark issues
-  // ...
-}
+const renderDependencyGraph = (data) => {
+...
+```
 
-function ensureUniqueLandmarks() {
-  // Implementation for REACT_025: Ensure unique landmarks
-  // ...
-}
+In origin segment:
 
-function addAltAttribute() {
-  // Implementation for adding alt attributes
-  // ...
-}
-
-function replaceButtonId() {
-  // Implementation for replacing button id
-  // ...
-}
-
-function addLangAttribute() {
-  // Implementation for adding lang attribute
-  // ...
-}
-
-function fixTableStructure() {
-  // Implementation for fixing table structure
-  // ...
-}
-
-function addSvgAccessibleName() {
-  // Implementation for adding SVG accessible name
-  // ...
-}
-
-function fixFakeLinkIssue() {
-  // Implementation for fixing fake link issues
-  // ...
-}
-
-function addAriaAttribute() {
-  // Implementation for adding aria attributes
-  // ...
-}
-
-/**
- * Ensures the element has an id. If the element doesn't have an id,
- * generates one and assigns it to the element.
- * @param {HTMLElement} element - The element to check and modify
- * @param {string} [prefix='element'] - Prefix for the generated id
- * @returns {string} The element's id (existing or newly generated)
- */
-function ensureElementHasId(element, prefix = 'element') {
+```
+function ensureElementHasId(element, prefix='element') {
   if (!element) {
     throw new Error('Element is required');
   }
@@ -254,37 +122,17 @@ function ensureElementHasId(element, prefix = 'element') {
   element.id = id;
   return id;
 }
+```
 
-/**
- * Adds an aria-label attribute to the element if it doesn't already have one.
- * @param {HTMLElement} element - The element to modify
- * @param {string} label - The aria-label value to set
- * @returns {boolean} True if label was added, false if element already had one
- */
-function addAriaLabel(element, label) {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-  
-  if (!label) {
-    throw new Error('Label is required');
-  }
-  
-  if (element.getAttribute('aria-label')) {
-    return false;
-  }
-  
-  element.setAttribute('aria-label', label);
-  return true;
-}
+So we have two different functions: ensureElementId vs ensureElementHasId. They are similar but different signatures. We need to resolve: maybe keep ensureElementHasId (more robust) and rename or adjust usage. The HEAD usage of ensureElementId may be used elsewhere. Let's see where ensureElementId is used: In renderDependencyGraphs (HEAD) they call ensureElementHasId (origin) maybe? Actually in HEAD version of renderDependencyGraphs they have:
 
-/**
- * Renders dependency graphs for the given configuration.
- * @param {HTMLElement} container - The container element to render into
- * @param {Object} dependencies - The dependencies data to render
- * @param {Object} [options={}] - Optional rendering configuration
- * @returns {Object} The rendered graph instance
- */
+```
+const containerId = ensureElementHasId(container, 'graph-container');
+```
+
+In origin version they also call ensureElementHasId. So ensureElementHasId is used there. The HEAD version of ensureElementId may be unused; maybe we can drop ensureElementId and keep ensureElementHasId. But we need to preserve existing code that may call ensureElementId. Let's search: In HEAD after the conflict, there is usage of ensureElementId? In the code after the conflict, there is:
+
+```
 function renderDependencyGraphs(container, dependencies, options = {}) {
   if (!container) {
     throw new Error('Container element is required');
@@ -299,46 +147,145 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
   
   // Add accessibility label if not present
   const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
+```
+
+Thus ensureElementHasId is used. So we should keep ensureElementHasId and maybe remove ensureElementId (the older function) to avoid duplication. However the HEAD includes ensureElementId definition earlier; maybe that was used elsewhere. Let's scan: In HEAD after earlier part (before the conflict) there is:
+
+```
+function ensureElementId = (element) => { ... }
+```
+
+But I don't see later usage. However there is also function ensureElementHasId defined later in origin. The HEAD also includes a function ensureElementHasId? Let's see earlier: In HEAD after the conflict there is:
+
+```
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) {
+    throw new Error('Element is required');
+  }
   
-  // Placeholder for graph rendering logic
-  // Actual implementation would use a library like D3.js or similar
-  const graphData = {
-    id: containerId,
-    dependencies: dependencies,
-    options: options,
-    rendered: true,
-    timestamp: new Date().toISOString()
-  };
+  if (element.id) {
+    return element.id;
+  }
   
-  console.log('Rendering dependency graphs:', graphData);
-  
-  return graphData;
+  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  element.id = id;
+  return id;
 }
+```
 
-async function handleCredentialResponse(response) {
-  if (!response) {
-    throw new Error('No response received');
+Thus HEAD already includes ensureElementHasId (the same as origin). Wait there is confusion: The HEAD segment includes ensureElementHasId (the same as origin). Let's re-express:
+
+At top of HEAD (the first part) after the initial comment, there is:
+
+```
+const ensureElementId = (element) => {
+  if (element && !element.id) {
+    element.id = 'element-' + Math.random().toString(36).substr(2, 9);
   }
+  return element;
+};
 
-  if (response.error) {
-    throw new Error(response.error);
+...
+function renderDependencyGraphs(container, dependencies, options = {}) {
+  if (!container) {
+    throw new Error('Container element is required');
   }
-
-  if (response.token) {
-    return {
-      success: true,
-      token: response.token,
-      expiresIn: response.expiresIn || 3600
-    };
+  
+  if (!dependencies) {
+    throw new Error('Dependencies data is required');
   }
+  
+  // Ensure container has an id for graph references
+  const containerId = ensureElementHasId(container, 'graph-container');
+```
 
-  throw new Error('Invalid credential response');
+So HEAD includes both ensureElementId (different) and ensureElementHasId (different). Actually ensureElementHasId is defined later in the same HEAD segment (maybe after conflict). Let's examine the HEAD segment more carefully:
+
+The HEAD segment includes:
+
+```
+const ensureElementId = (element) => {
+  if (element && !element.id) {
+    element.id = 'element-' + Math.random().toString(36).substr(2, 9);
+  }
+  return element;
+};
+
+...
+
+function renderDependencyGraphs(container, dependencies, options = {}) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+  
+  if (!dependencies) {
+    throw new Error('Dependencies data is required');
+  }
+  
+  // Ensure container has an id for graph references
+  const containerId = ensureElementHasId(container, 'graph-container');
+```
+
+Thus ensureElementHasId is defined later in HEAD (maybe after conflict). Let's locate ensureElementHasId in HEAD: I see after the conflict markers, there is:
+
+```
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+  
+  if (element.id) {
+    return element.id;
+  }
+  
+  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  element.id = id;
+  return id;
 }
+```
 
-// TODO: Implement a new function to handle focus trap for keyboard navigation
-const focusTrap = (element) => {
+Thus HEAD includes both ensureElementId and ensureElementHasId (different functions). So we need to decide which to keep. ensureElementHasId is more robust (throws error if element missing). ensureElementId returns element (mutates) and doesn't throw. The usage in renderDependencyGraphs expects a function that returns the id (string). So ensureElementHasId is appropriate. ensureElementId returns the element itself, not id. So we should keep ensureElementHasId and perhaps remove ensureElementId to avoid confusion.
+
+But we need to preserve existing code that may rely on ensureElementId. Let's see if any other usage of ensureElementId exists: In the earlier part of HEAD, after the accessibility utils, there is:
+
+```
+function ensureElementId = (element) => {
+  if (element && !element.id) {
+    element.id = 'element-' + Math.random().toString(36).substr(2, 9);
+  }
+  return element;
+};
+
+const addAriaLabel = (element, label) => {
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+};
+
+...
+```
+
+Thus ensureElementId is used only there (maybe not elsewhere). It returns the element, not id. Might be used for ensuring element has id for later use (like ensureElementId(element) then element.id). But ensureElementHasId returns id directly. Since renderDependencyGraphs uses ensureElementHasId, we should keep that and maybe keep ensureElementId as alias? Or we could rename ensureElementId to ensureElementHasId and drop the other. But to preserve code, perhaps we keep both but rename ensureElementId to something else? The conflict may be due to duplication; we need to integrate logically.
+
+Maybe we can keep ensureElementHasId (the more robust) and keep ensureElementId as a thin wrapper that calls ensureElementHasId and returns element. But that may be unnecessary.
+
+Simplify: Keep ensureElementHasId (origin) and remove ensureElementId (HEAD). But we must ensure no breaking changes: any code that uses ensureElementId may break. Let's see if any usage: I see only usage in renderDependencyGraphs (uses ensureElementHasId). Also maybe elsewhere? Not obvious. So we can drop ensureElementId safely.
+
+Now other functions:
+
+- addAriaLabel: HEAD version expects element and label, returns element. Origin version same but with more validation (throws errors). The HEAD version is simpler; origin version adds validation and throws errors. Which to keep? Probably keep origin version (more robust) but ensure compatibility. However HEAD version may be called with missing label; origin version throws error. To preserve existing behavior, maybe keep HEAD version (no throws). But we can adapt: keep origin's validation but maybe adjust to not throw? The requirement: preserve comments and style as much as possible. The origin version includes JSDoc and validation; that's good. Let's adopt origin's version (the more robust). However we need to ensure that existing code that expects no exception still works. The origin version throws if element or label missing, which may break existing code. But maybe existing code already checks. Hard to know. I think we should keep origin's version because it's more robust and includes JSDoc.
+
+- renderDependencyGraphs: HEAD version includes ensureElementHasId and addAriaLabel; origin version also includes same. So keep both.
+
+- newFocusTrap: need to merge. Let's combine: define function newFocusTrap(element) that uses origin's selector (including disabled) and the logic from HEAD (the if/else). Also ensure firstElement.focus() after setting up.
+
+- focusTrap (the earlier function defined after newFocusTrap) maybe duplicate. In HEAD there is also function focusTrap(element) defined later (maybe leftover). Let's examine: In HEAD after the newFocusTrap definition, there is also:
+
+```
+function focusTrap(element) {
   const focusableElements = element.querySelectorAll(
-    'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])
   );
   let activeElementIndex = focusableElements.length - 1;
 
@@ -401,175 +348,19 @@ const focusTrap = (element) => {
         break;
     }
   });
-};
-
-// TODO: Address accessibility issues from insight report
-const addressAccessibilityIssues = (container) => {
-  const fixes = {
-    langAdded: false,
-    mainLandmarkAdded: false,
-    landmarksFixed: 0,
-    svgNamesAdded: 0,
-    fakeLinksFixed: 0
-  };
-
-  if (fixes.langAdded) {
-    log('Lang attribute added to HTML element', 'info');
-  }
-
-  if (fixes.mainLandmarkAdded) {
-    log('Main landmark added', 'info');
-  }
-
-  const landmarkFixes = fixes.landmarksFixed || 0;
-  if (landmarkFixes > 0) {
-    log(`Fixed ${landmarkFixes} unique landmarks`, 'info');
-  }
-
-  const svgFixes = fixes.svgNamesAdded || 0;
-  if (svgFixes > 0) {
-    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
-  }
-
-  const fakeLinkFixes = fixes.fakeLinksFixed || 0;
-  if (fakeLinkFixes > 0) {
-    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
-  }
-
-  return fixes;
-};
-
-// Functions for data transformation
-function getLangAttribute(element, lang) {
-  if (element) {
-    element.setAttribute('lang', lang || 'en');
-  }
-  return element;
+  
+  firstElement.focus();
 }
+```
 
-function personName(name) {
-  const span = document.createElement('span');
-  span.setAttribute('aria-label', `Person name: ${name}`);
-  span.textContent = name;
-  return span;
-}
+But note that this function uses focusableElements defined earlier (firstElement, lastElement) but also uses a different selector (no disabled checks). Also firstElement is defined earlier as focusableElements[focusableElements.length - 1] (so reversed). This seems messy. Probably we should keep the newer focusTrap (origin) which is cleaner, and maybe remove the older focusTrap (the one with reversed indices). However there is also a newFocusTrap defined later (the same as origin). Actually after the conflict, there is:
 
-function validateTableAccessibility(table) {
-  if (!table) return false;
-  
-  const hasCaption = table.querySelector('caption') !== null;
-  const hasHeaders = table.querySelector('thead') !== null;
-  const rows = table.querySelectorAll('tr');
-  
-  let isValid = hasCaption && hasHeaders;
-  
-  if (rows.length > 0) {
-    const firstRowCells = rows[0].querySelectorAll('th, td');
-    const hasScope = Array.from(firstRowCells).some(cell => 
-      cell.hasAttribute('scope')
-    );
-    isValid = isValid && hasScope;
-  }
-  
-  return isValid;
-}
-
-function validateTableStructure(table) {
-  if (!table) return false;
-  
-  const rows = table.querySelectorAll('tr');
-  let isValid = true;
-  
-  rows.forEach((row, index) => {
-    const cells = row.querySelectorAll('td, th');
-    if (index === 0) {
-      const hasHeaderCells = Array.from(cells).some(cell => 
-        cell.tagName.toLowerCase() === 'th'
-      );
-      isValid = isValid && hasHeaderCells;
-    } else {
-      if (cells.length !== rows[0].querySelectorAll('td, th').length) {
-        isValid = false;
-      }
-    }
-  });
-  
-  return isValid;
-}
-
-function validateLandmark(element) {
-  if (!element) return false;
-  
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
-  const role = element.getAttribute('role');
-  const tagName = element.tagName.toLowerCase();
-  
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'form', 'section'];
-  if (landmarks.includes(tagName)) {
-    return true;
-  }
-  
-  if (role && landmarkRoles.includes(role)) {
-    return true;
-  }
-  
-  return false;
-}
-
-function validateLandmarkStructure(element) {
-  if (!element) return false;
-  
-  const landmarks = element.querySelectorAll(
-    'header, nav, main, aside, footer, form[role="search"], section[aria-label], div[role="banner"], div[role="navigation"], div[role="main"], div[role="complementary"], div[role="contentinfo"]'
-  );
-  
-  return landmarks.length > 0;
-}
-
-function getSvgAccessibleName(svg, name) {
-  if (svg && name) {
-    svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', name);
-  }
-  return svg;
-}
-
-function createInPageButton(text, onClick) {
-  const button = document.createElement('button');
-  button.textContent = text;
-  button.setAttribute('aria-label', text);
-  button.addEventListener('click', onClick);
-  return button;
-}
-
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll(
-    'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]'
-  );
-  
-  const landmarkTypes = {};
-  
-  landmarks.forEach((landmark, index) => {
-    const tagName = landmark.tagName.toLowerCase();
-    const role = landmark.getAttribute('role');
-    const identifier = role || tagName;
-    
-    if (!landmarkTypes[identifier]) {
-      landmarkTypes[identifier] = 0;
-    } else {
-      landmarkTypes[identifier]++;
-      if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-        landmark.setAttribute('aria-label', `${identifier} ${landmarkTypes[identifier] + 1}`);
-      }
-    }
-  });
-}
-
+```
 function newFocusTrap(element) {
   if (!element) return;
   
   const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])
   );
   
   if (focusableElements.length === 0) return;
@@ -591,304 +382,28 @@ function newFocusTrap(element) {
   
   firstElement.focus();
 }
+```
 
-function transformInputData(inputData, options = {}) {
-  const {
-    preserveKeys = true,
-    uppercase = false,
-    trimWhitespace = true,
-    maxLength = null
-  } = options;
+Thus we have two similar functions: focusTrap (older) and newFocusTrap (newer). The newFocusTrap seems to be the improved version. We can keep newFocusTrap and maybe rename it to focusTrap (if that is the intended name). The original HEAD had newFocusTrap (no param) but later they defined focusTrap(element). The origin defines focusTrap(element). So we need to unify: maybe rename newFocusTrap to focusTrap (or keep newFocusTrap). Let's examine the final export list: at the bottom they export `focusTrap`. So the function name is focusTrap. So we should keep focusTrap (the newer version). Thus we should drop the older focusTrap (the one with reversed indices). Also we need to keep newFocusTrap? Not exported, maybe internal. But we can keep it as helper.
 
-  if (!inputData) {
-    return null;
-  }
-  
-  if (typeof inputData === 'string') {
-    let result = inputData;
-    
-    if (trimWhitespace) {
-      result = result.trim();
-    }
-    
-    if (uppercase) {
-      result = result.toUpperCase();
-    }
-    
-    if (maxLength && result.length > maxLength) {
-      result = result.substring(0, maxLength);
-    }
-    
-    return result;
-  }
-  
-  if (typeof inputData === 'object' && !Array.isArray(inputData)) {
-    const result = {};
-    
-    for (const key in inputData) {
-      if (inputData.hasOwnProperty(key)) {
-        if (preserveKeys || !key.startsWith('_')) {
-          result[key] = transformInputData(inputData[key], options);
-        }
-      }
-    }
-    
-    return result;
-  }
-  
-  if (Array.isArray(inputData)) {
-    return inputData.map(item => transformInputData(item, options));
-  }
-  
-  return inputData;
+Thus we need to decide final functions:
+
+- focusTrap: implement as origin's version (with disabled checks and proper handling). Also ensure it's exported (module.exports includes focusTrap). So we will keep focusTrap(element) as defined in origin.
+
+- newFocusTrap: maybe not needed; but we can keep it as internal helper if needed. However the export list includes focusTrap, not newFocusTrap. So we can drop newFocusTrap (or keep as internal). But there is also a function newFocusTrap defined earlier (maybe not exported). To avoid duplication, we can keep only focusTrap (the improved version) and remove the older focusTrap and the earlier newFocusTrap (the one without param). But we need to ensure that any code referencing newFocusTrap still works. The export list includes focusTrap, not newFocusTrap. So we can keep focusTrap and maybe rename newFocusTrap to focusTrap (i.e., replace newFocusTrap with focusTrap). But we need to keep the function name as focusTrap for export. So we will keep focusTrap (origin) and maybe also keep newFocusTrap as alias? Simpler: keep focusTrap (origin) and remove newFocusTrap (the one without param) and the older focusTrap (the one with reversed indices). However there is also a function named focusTrap defined earlier in HEAD (the older one). That may conflict with the newer focusTrap. Let's examine: In HEAD after the conflict, there is:
+
+```
+function focusTrap(element) {
+  const focusableElements = element.querySelectorAll(
+    'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])
+  );
+  ...
 }
+```
 
-// Export functionality with accessibility support
-const exportUtils = {
-  exportData: (data, filename, mimeType) => {
-    const blob = new Blob([data], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.setAttribute('aria-label', `Download ${filename}`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
-  },
+But after origin conflict, there is also:
 
-  exportToJSON: (data, filename) => {
-    const jsonString = JSON.stringify(data, null, 2);
-    exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
-  },
-
-  exportToCSV: (data, filename) => {
-    if (!data || data.length === 0) return;
-    
-    const headers = Object.keys(data[0]);
-    const csvRows = [];
-    csvRows.push(headers.join(','));
-    
-    for (const row of data) {
-      const values = headers.map(header => {
-        const escaped = ('' + row[header]).replace(/"/g, '\\"');
-        return `"${escaped}"`;
-      });
-      csvRows.push(values.join(','));
-    }
-    
-    const csvString = csvRows.join('\n');
-    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
-  }
-};
-
-// Initialize accessibility features
-const initAccessibility = () => {
-  accessibilityUtils.initSkipLink();
-  
-  document.querySelectorAll('[data-accessible]').forEach(element => {
-    element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, {
-        Enter: () => element.click(),
-        ' ': () => element.click()
-      });
-    });
-  });
-};
-
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAccessibility);
-  } else {
-    initAccessibility();
-  }
-}
-
-// Sample data store
-const appData = {
-  tables: [],
-  config: {
-    validateAccessibility: true,
-    validateStructure: true
-  }
-};
-
-/**
- * Initialize the application
- */
-function initialize() {
-  console.log('Application initialized');
-  return true;
-}
-
-/**
- * Load table data into the application
- * @param {Array} tables - Array of table objects to load
- */
-function loadTables(tables) {
-  if (!Array.isArray(tables)) {
-    throw new Error('Tables must be an array');
-  }
-  appData.tables = tables;
-  return true;
-}
-
-/**
- * Get all loaded tables
- * @returns {Array} Array of table objects
- */
-function getTables() {
-  return appData.tables;
-}
-
-/**
- * Get application configuration
- * @returns {Object} Configuration object
- */
-function getConfig() {
-  return { ...appData.config };
-}
-
-/**
- * Set application configuration
- * @param {Object} config - Configuration object
- */
-function setConfig(config) {
-  appData.config = { ...appData.config, ...config };
-}
-
-/**
- * Validates that all tables in the application meet accessibility standards
- * @returns {Object} Validation result with isValid flag and array of errors
- */
-function validateAppTablesAccessibility() {
-  const errors = [];
-  const tables = getTables();
-
-  tables.forEach((table, index) => {
-    if (!table) {
-      errors.push(`Table at index ${index} is null or undefined`);
-      return;
-    }
-    if (typeof table.role !== 'string' || table.role.length === 0) {
-      errors.push(`Table at index ${index} is missing required ARIA role attribute`);
-    }
-    if (table.role === 'button' && !table.tabIndex && table.tabIndex !== 0) {
-      errors.push(`Table at index ${index} with role='button' must be keyboard focusable (tabIndex required)`);
-    }
-  });
-
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
-}
-
-/**
- * Validates the structure of all tables in the application
- * @returns {Object} Validation result with isValid flag and array of errors
- */
-function validateAppTablesStructure() {
-  const errors = [];
-  const tables = getTables();
-
-  tables.forEach((table, index) => {
-    if (!table) {
-      errors.push(`Table at index ${index} is null or undefined`);
-      return;
-    }
-    if (!Array.isArray(table.rows)) {
-      errors.push(`Table at index ${index} is missing required 'rows' array`);
-    }
-    if (!Array.isArray(table.columns)) {
-      errors.push(`Table at index ${index} is missing required 'columns' array`);
-    }
-    if (Array.isArray(table.rows) && Array.isArray(table.columns)) {
-      table.rows.forEach((row, rowIndex) => {
-        if (!Array.isArray(row.cells)) {
-          errors.push(`Table at index ${index}, row ${rowIndex} is missing required 'cells' array`);
-        }
-      });
-    }
-  });
-
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
-}
-
-/**
- * Validate all tables (convenience function)
- * @returns {Object} Combined validation results
- */
-function validateAllTables() {
-  const accessibilityResult = validateAppTablesAccessibility();
-  const structureResult = validateAppTablesStructure();
-
-  return {
-    accessibility: accessibilityResult,
-    structure: structureResult,
-    isValid: accessibilityResult.isValid && structureResult.isValid
-  };
-}
-
-// Module exports
-module.exports = {
-  initialize,
-  loadTables,
-  getTables,
-  getConfig,
-  setConfig,
-  validateAllTables,
-  ...main,
-
-  CONFIG,
-  log,
-  validateInput,
-  parseJSONsafe,
-  formatResponse,
-  delay,
-  retryOperation,
-  sanitizeFilename,
-  readFileSafe,
-  processData,
-  filterValidItems,
-  groupByCategory,
-  myNewFunction,
-  calculateSum,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  handleCredentialResponse,
-  focusTrap,
-  addressAccessibilityIssues,
-  createInPageButton,
-  createWebResourceButton,
-  getLangAttribute,
-  validateAccessibilityReport,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addAltAttribute,
-  replaceButtonId,
-  addLangAttribute,
-  fixTableStructure,
-  addSvgAccessibleName,
-  fixFakeLinkIssue,
-  addAriaAttribute,
-  accessibilityUtils,
-  exportUtils,
-  initAccessibility,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  newFocusTrap,
-  transformInputData
-};
+```
+function focusTrap(element) {
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not a

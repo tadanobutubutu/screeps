@@ -9,6 +9,7 @@ jest.mock('fs');
 describe('auto-pr-generator', () => {
     let originalEnv;
     let githubRequest,
+        getSanitizedRepo,
         getIssueDetails,
         analyzeIssueWithClaude,
         createFixBranch,
@@ -26,6 +27,7 @@ describe('auto-pr-generator', () => {
         jest.isolateModules(() => {
             const module = require('../scripts/auto-pr-generator.js');
             githubRequest = module.githubRequest;
+            getSanitizedRepo = module.getSanitizedRepo;
             getIssueDetails = module.getIssueDetails;
             analyzeIssueWithClaude = module.analyzeIssueWithClaude;
             createFixBranch = module.createFixBranch;
@@ -45,6 +47,18 @@ describe('auto-pr-generator', () => {
         process.env = originalEnv;
         jest.restoreAllMocks();
         delete global.fetch;
+    });
+
+    describe('getSanitizedRepo', () => {
+        it('should return valid repo string', () => {
+            process.env.GITHUB_REPOSITORY = 'valid-org/valid-repo';
+            expect(getSanitizedRepo()).toBe('valid-org/valid-repo');
+        });
+
+        it('should throw error on invalid/malicious GITHUB_REPOSITORY', () => {
+            process.env.GITHUB_REPOSITORY = '../malicious/repo';
+            expect(() => getSanitizedRepo()).toThrow('Invalid GITHUB_REPOSITORY format');
+        });
     });
 
     describe('githubRequest', () => {

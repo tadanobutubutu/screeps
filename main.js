@@ -18,7 +18,7 @@ export function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 export function generateKey(book) {
-  return ...
+  return book.id;
 }
 
 // Function to render a single book item
@@ -27,7 +27,7 @@ export function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        ...
+        description={book.author}
       />
     </List.Item>
   );
@@ -38,8 +38,8 @@ export function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
+  // Return an action to add the book to the books list in the Redux store
+  return { type: 'ADD_BOOK', payload: book };
 }
 
 // TODO: Implement the required changes to improve accessibility for the addBook function or form
@@ -50,14 +50,14 @@ const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 export function onTitleSort() {
-  const sortedList = ...
+  const sortedList = getBooksList.slice().sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 export function onAuthorSort() {
-  const sortedList = ...
+  const sortedList = getBooksList.slice().sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
@@ -296,11 +296,11 @@ function setSvgAttributes(svg, options = {}) {
 
 // Function to handle adding a new book with accessibility improvements
 function handleAddBook(values) {
-  addBook({
+  dispatch(addBook({
     id: Date.now(), // Generate a unique id using current timestamp
     title: values.title,
     author: values.author,
-  });
+  }));
 }
 
 // Render the main component containing the book list and sorting controls
@@ -319,14 +319,34 @@ function Main() {
   }, [sorting]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = ...
+  const bookItems = getBooksList.map(book => BookItem(book));
 
   // Render the list of book items and sorting controls
   return (
     <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List ... />
+      <header role="banner">
+        <nav role="navigation" aria-label="Book list sorting controls">
+          <button 
+            onClick={() => setSorting(sortByTitle)} 
+            id="sort-by-title-button"
+            aria-label="Sort books by title"
+          >
+            Sort by Title
+          </button>
+          <button 
+            onClick={() => setSorting(sortByAuthor)} 
+            id="sort-by-author-button"
+            aria-label="Sort books by author"
+          >
+            Sort by Author
+          </button>
+        </nav>
+      </header>
+      <main role="main" aria-label="Book list">
+        <section role="region" aria-label="Books list">
+          <List dataSource={bookItems} />
+        </section>
+      </main>
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
       <Form
@@ -360,15 +380,15 @@ function Main() {
 
 // Export the required functionA and functionB as objects with properties X, Y, and Z
 export const functionA = {
-  X: null,
-  Y: null,
-  Z: null
+  X: sortByTitle,
+  Y: sortByAuthor,
+  Z: onTitleSort
 };
 
 export const functionB = {
-  X: null,
-  Y: null,
-  Z: null
+  X: getLangAttribute,
+  Y: validateLandmark,
+  Z: createInPageButton
 };
 
 // Export the Main component

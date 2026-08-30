@@ -3,7 +3,6 @@
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
->>>>>>> origin/main
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
@@ -70,10 +69,11 @@ const path = require('path');
 // Import dependencyGraphRenderer, addressAccessibilityIssue038, personName, addressAccessibilityIssueForSpecificElement, totalDependencies, addressOldAccessibilityIssues, and dependencyGraphContent
 const DependencyGraphRenderer = require('./dependencyGraphRenderer');
 const addressAccessibilityIssue038 = require('./accessibilityFunctions').addressAccessibilityIssue038;
-const newFunction = require('./accessibilityFunctions').newFunction;
-const addressAccessibilityIssueForSpecificElement = require('./accessibilityFunctions').addressAccessibilityIssueForSpecificElement;
-const totalDependencies = require('./accessibilityFunctions').totalDependencies;
-const addressOldAccessibilityIssues = require('./accessibilityFunctions').addressOldAccessibilityIssues;
+// Renamed to avoid redeclaration conflicts with local placeholder functions
+const accessibilityFunctionsNewFunction = require('./accessibilityFunctions').newFunction;
+const accessibilityFunctionsAddressIssueForSpecificElement = require('./accessibilityFunctions').addressAccessibilityIssueForSpecificElement;
+const accessibilityFunctionsTotalDependencies = require('./accessibilityFunctions').totalDependencies;
+const accessibilityFunctionsAddressOldAccessibilityIssues = require('./accessibilityFunctions').addressOldAccessibilityIssues;
 
 // Import a11yStore from both branches
 const a11yStore = require('./a11yStore');
@@ -640,7 +640,6 @@ module.exports = {
   handleNewAccessibilityIssue,
   validateTableAccessibility,
   createInPageButton,
-  personName
+  personName,
+  a11yStore
 };
-
-export { a11yStore, addressAccessibilityIssues, handleNewAccessibilityIssue, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, createInPageButton, personName, getLangAttribute, getFullLangAttribute, newFunction, totalDependencies, addressAccessibilityIssuesFromInsightReport, formatDate, generateId, countDependencies, dependencyGraphContent, setHtmlLangAttribute, detectAndSetLang, convertAnchorsToButtons, ensureElementHasId, addAriaLabel, renderDependencyGraph, DependencyGraphRenderer, addressAccessibilityIssue038, addressAccessibilityIssueForSpecificElement, newAccessibilityFunction, addressOldAccessibilityIssues, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, checkAccessibility, checkLandmarkElement, wrapPrimaryContentInMain, checkLandmarks, renderIndexView, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, setFormElementAccessibleNames, addA11yAttributesToInteractiveElements };

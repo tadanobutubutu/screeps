@@ -280,6 +280,88 @@ function fixUniqueLandmarks(insightReport) {
   ensureUniqueLandmarks();
 }
 
+// Function for accessibility checks on tables
+function checkTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  const results = {
+    tablesChecked: 0,
+    issuesFound: [],
+    issuesFixed: 0
+  };
+
+  tables.forEach((table, tableIndex) => {
+    results.tablesChecked++;
+
+    // Check for proper table structure
+    if (!table.querySelector('thead')) {
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const thead = document.createElement('thead');
+        const tbody = table.querySelector('tbody');
+        thead.appendChild(firstRow);
+        table.insertBefore(thead, tbody || firstRow);
+        results.issuesFixed++;
+        results.issuesFound.push({
+          tableIndex,
+          issue: 'Missing thead element - added automatically'
+        });
+      }
+    }
+
+    // Check header cells for scope attributes
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach((cell, cellIndex) => {
+      if (!cell.hasAttribute('scope')) {
+        const rows = table.querySelectorAll('tr');
+        const cellPosition = Array.from(cell.parentNode.children).indexOf(cell);
+        let isHeaderRow = true;
+
+        rows.forEach(row => {
+          const rowCells = row.querySelectorAll('th, td');
+          if (rowCells[cellPosition] !== cell) {
+            isHeaderRow = false;
+          }
+        });
+
+        cell.setAttribute('scope', isHeaderRow ? 'col' : 'row');
+        results.issuesFixed++;
+        results.issuesFound.push({
+          tableIndex,
+          cellIndex,
+          issue: `Missing scope attribute on th - set to "${isHeaderRow ? 'col' : 'row'}"`
+        });
+      }
+    });
+
+    // Check for table captions
+    if (!table.querySelector('caption')) {
+      results.issuesFound.push({
+        tableIndex,
+        issue: 'Missing caption element - consider adding for better accessibility'
+      });
+    }
+
+    // Check for proper association between headers and data cells
+    if (headerCells.length > 0 && !table.hasAttribute('headers')) {
+      const dataCells = table.querySelectorAll('td');
+      if (dataCells.length > 0) {
+        results.issuesFound.push({
+          tableIndex,
+          issue: 'Complex table may benefit from headers attribute for proper associations'
+        });
+      }
+    }
+  });
+
+  return results;
+}
+
+function addLangAttribute() {
+  if (!document.documentElement.hasAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+}
+
 function implementNewFunction() {
   addressAccessibilityIssues();
   fixFakeLinks();
@@ -290,6 +372,10 @@ function implementNewFunction() {
   addSvgAccessibleNames();
   fixTableHeaderCellScope();
   fixUniqueLandmarks();
+}
+
+function someFunction() {
+  return true;
 }
 
 function main() {
@@ -322,7 +408,8 @@ module.exports = {
   renderGraphContentWithOptions,
   renderIndexContentWithOptions,
   fixUniqueLandmarks,
-  capitalizeFirstLetter
+  capitalizeFirstLetter,
+  checkTableAccessibility
 };
 
 main();

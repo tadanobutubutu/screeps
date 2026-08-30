@@ -12,6 +12,8 @@ import { validateTableAccessibility, validateTableStructure } from './utils/tabl
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+import { createAccessibleLink } from './utils/linkAccessibilityUtils'; // Import createAccessibleLink for REACT_036
+import { ensureUniqueLandmarks } from './utils/landmarkUtils'; // Import ensureUniqueLandmarks for REACT_017 and REACT_025
 
 // TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -107,6 +109,7 @@ validateTableStructure(table);
 // Add/fix landmark issues
 validateLandmark();
 validateLandmarkStructure();
+ensureUniqueLandmarks(); // Handle unique landmarks for REACT_025
 
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
@@ -115,11 +118,13 @@ const accessibleName = getSvgAccessibleName(svg);
 setSvgAttributes(svg, accessibleName);
 
 // Ensure unique landmarks
-// This would be handled by the appropriate function call
 ensureUniqueLandmarkId('main-content');
 
 // Handle fake links
 handleFakeLinks();
+
+// Create accessible links for fake link issues (REACT_036)
+createAccessibleLink();
 
 // ... rest of your code ...
 
@@ -183,10 +188,12 @@ export {
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
+  ensureUniqueLandmarks, // Export ensureUniqueLandmarks for REACT_025
   getSvgAccessibleName,
   setSvgAttributes,
   validateLinkAccessibility,
-  handleFakeLinks
+  handleFakeLinks,
+  createAccessibleLink // Export createAccessibleLink for REACT_036
 };
 
 // Export utility functions

@@ -39,22 +39,26 @@ function getVersion() {
 // (This comment remains as-is)
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
-  const rootContainer = document.getElementById('root').parentElement;
+  const rootContainer = document.getElementById('root');
   if (rootContainer) {
     rootContainer.setAttribute('role', 'main');
   }
 
   // Create a hidden live region for dynamic announcements
   const announcementId = 'accessibility-announcement';
-  const announcement = document.createElement('div');
-  announcement.id = announcementId;
-  announcement.setAttribute('aria-live', 'polite');
-  announcement.setAttribute('aria-atomic', 'true');
-  // Hide off-screen
-  announcement.style.position = 'absolute';
-  announcement.style.left = '-9999px';
-  announcement.style.top = '-9999px';
-  document.body.appendChild(announcement);
+  let announcement = document.getElementById(announcementId);
+  if (!announcement) {
+    announcement = document.createElement('div');
+    announcement.id = announcementId;
+    announcement.setAttribute('role', 'status');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.setAttribute('aria-atomic', 'true');
+    // Hide off-screen
+    announcement.style.position = 'absolute';
+    announcement.style.left = '-9999px';
+    announcement.style.top = '-9999px';
+    document.body.appendChild(announcement);
+  }
 }
 
 // Validate that tables in the document are accessible
@@ -115,6 +119,49 @@ function validateTableStructure() {
   return results;
 }
 
+// Generate accessibility report
+function generateAccessibilityReport() {
+  const timestamp = new Date().toISOString();
+  const tableAccessibilityResults = validateTableAccessibility();
+  const tableStructureResults = validateTableStructure();
+  
+  const totalTables = tableAccessibilityResults.length;
+  const accessibleTables = tableAccessibilityResults.filter(r => r.isAccessible).length;
+  const validStructures = tableStructureResults.filter(r => r.isValid).length;
+  
+  const issues = [];
+  
+  tableAccessibilityResults.forEach((result, index) => {
+    if (!result.isAccessible) {
+      const issue = { tableIndex: index, type: 'accessibility' };
+      if (!result.hasCaption) issue.reason = 'Missing caption';
+      else if (!result.hasHeaders) issue.reason = 'Missing header cells';
+      else if (!result.hasScope) issue.reason = 'Headers missing scope attribute';
+      issues.push(issue);
+    }
+  });
+  
+  tableStructureResults.forEach((result, index) => {
+    if (!result.isValid && result.error) {
+      issues.push({ tableIndex: index, type: 'structure', reason: result.error });
+    }
+  });
+  
+  return {
+    timestamp,
+    summary: {
+      totalTables,
+      accessibleTables,
+      validStructures,
+      accessibilityScore: totalTables > 0 ? Math.round((accessibleTables / totalTables) * 100) : 100,
+      structureScore: totalTables > 0 ? Math.round((validStructures / totalTables) * 100) : 100
+    },
+    issues,
+    tableAccessibility: tableAccessibilityResults,
+    tableStructure: tableStructureResults
+  };
+}
+
 // Export the new function
 export {
   VERSION,
@@ -125,7 +172,8 @@ export {
   addressAccessibilityIssues,
   root,
   validateTableAccessibility,
-  validateTableStructure
+  validateTableStructure,
+  generateAccessibilityReport
 };
 
 // Add the new function to the default export
@@ -138,5 +186,6 @@ export default {
   addressAccessibilityIssues,
   root,
   validateTableAccessibility,
-  validateTableStructure
+  validateTableStructure,
+  generateAccessibilityReport
 };

@@ -18,11 +18,11 @@ function checkLandmarkElements(landmarks) {
   if (!Array.isArray(landmarks)) {
     return false;
   }
-  
+
   if (landmarks.length === 0) {
     return false;
   }
-  
+
   return landmarks.every(landmark => {
     if (!landmark) return false;
     return landmark.id || landmark.name;
@@ -34,13 +34,13 @@ function ensureUniqueLandmarks(insightReport) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
-  
+
   const seen = new Set();
   return landmarks.filter(landmark => {
     if (!landmark) return false;
-    
+
     const identifier = landmark.id || landmark.name;
-    
+
     if (seen.has(identifier)) {
       return false;
     }
@@ -103,26 +103,43 @@ function addressAccessibilityIssues() {
       }
     });
   }
-}
 
-// New function to render dependency graphs
-function renderDependencyGraph(moduleName) {
-  // Placeholder for actual implementation
-  console.log(`Rendering dependency graph for module: ${moduleName}`);
-  // Assume some logic here to actually render the graph
-}
+  // New function to add id and aria-label property
+  function addIdAndAriaLabel(element) {
+    if (!element.id) {
+      element.id = `landmark-${Date.now()}`;
+    }
 
-// New function to display module structure
-function displayModuleStructure(moduleName) {
-  // Placeholder for actual implementation
-  console.log(`Displaying module structure for module: ${moduleName}`);
-  // Assume some logic here to actually display the structure
-}
+    if (!element.getAttribute('aria-label')) {
+      element.setAttribute('aria-label', 'Landmark');
+    }
+  }
 
-// TODO: This is the new function request
-function newFunction() {
-  // Implement the new function here
-  console.log("New Function has been called!");
+  // New function to render dependency graphs
+  function renderDependencyGraph(moduleName) {
+    // Placeholder for actual implementation
+    console.log(`Rendering dependency graph for module: ${moduleName}`);
+    // Assume some logic here to actually render the graph
+  }
+
+  // New function to display module structure
+  function displayModuleStructure(moduleName) {
+    // Placeholder for actual implementation
+    console.log(`Displaying module structure for module: ${moduleName}`);
+    // Assume some logic here to actually display the structure
+  }
+
+  // TODO: This is the new function request
+  function newFunction() {
+    // Implement the new function here
+    console.log("New Function has been called!");
+  }
+
+  // Execute the functions for accessibility and new functions
+  addressAccessibilityIssues();
+  newFunction();
+  renderDependencyGraph('Module-1');
+  displayModuleStructure('Module-2');
 }
 
 // Export functions for testing
@@ -133,5 +150,6 @@ module.exports = {
   checkLandmarkElements,
   renderDependencyGraph,
   displayModuleStructure,
-  newFunction
+  newFunction,
+  addIdAndAriaLabel // New exported function
 };

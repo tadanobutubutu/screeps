@@ -39,7 +39,7 @@ function getVersion() {
 // (This comment remains as-is)
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
-  const rootContainer = document.getElementById('root').parentElement;
+  const rootContainer = document.getElementById('root');
   if (rootContainer) {
     rootContainer.setAttribute('role', 'main');
   }
@@ -54,7 +54,7 @@ function addressAccessibilityIssues() {
   announcement.style.position = 'absolute';
   announcement.style.left = '-9999px';
   announcement.style.top = '-9999px';
-  document.body.appendChild(announcement);
+  rootContainer.appendChild(announcement);
 }
 
 // Validate that tables in the document are accessible
@@ -95,7 +95,7 @@ function validateTableStructure() {
       isValid = false;
       error = 'Table has no rows';
     } else {
-      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td, th').length);
+      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td').length + row.querySelectorAll('th').length);
       const allSame = cellCounts.every(count => count === cellCounts[0]);
       
       if (!allSame) {

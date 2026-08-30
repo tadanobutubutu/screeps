@@ -344,6 +344,21 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
   svgElement.setAttribute('aria-labelledby', title.id);
 }
 
+/**
+ * Extracts the accessible name for an SVG from its content.
+ * Looks for a <title> element first; otherwise falls back to the text content.
+ * @param {SVGElement} svgElement - The SVG element to extract the name from.
+ * @returns {string} The accessible name.
+ */
+export function extractAccessibleNameFromSVG(svgElement) {
+  if (!svgElement) return '';
+  const titleEl = svgElement.querySelector('title');
+  if (titleEl && titleEl.textContent) {
+    return titleEl.textContent.trim();
+  }
+  return (svgElement.textContent || '').trim();
+}
+
 export function isValidLink(element) {
   // ... existing code ...
 }
@@ -387,6 +402,7 @@ export {
   getUniqueLandmarkName,
   validateLandmarks,
   addSvgAccessibleName,
+  extractAccessibleNameFromSVG,
   isValidLink,
   addScopeToHeaders,
   addressAccessibilityIssues,

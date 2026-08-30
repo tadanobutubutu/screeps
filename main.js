@@ -1,14 +1,9 @@
-// TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
-import { List } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
+import { List, Button } from 'antd';
 
-// TODO: Implement function for addressing accessibility issues from insight report
-// Add a helper function to parse input and validate
+// Input validation helper
 function isValidBookInput(input) {
   // Perform input validation based on your accessibility insights
   // Example check for empty input
@@ -21,45 +16,47 @@ function isValidBookInput(input) {
   return true;
 }
 
-// Function to create a new book entry in the Redux store (improved accessibility)
-function addBook(dispatch, book) {
+// Action creator to add a book to the store
+function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
+  // Return an action object to add the book to the books list in the Redux store
+  return { type: 'ADD_BOOK', payload: book };
 }
 
-// Add a function to handle form submission
-function handleFormSubmit(event, dispatch, setFormValues) {
-  event.preventDefault();
-
-  // Get user input from form fields
-  const form = event.target;
-  const title = form.title.value;
-  const author = form.author.value;
-
-  // Validate user input
-  if (!isValidBookInput({ title, author })) {
-    // Show an error message or alert for invalid input
-    alert('Invalid input. Please check your entry and try again.');
-    return;
-  }
-
-  // Create a new book object with user input
-  const newBook = { id: Date.now(), title, author };
-
-  // Add the new book to the Redux store
-  addBook(dispatch, newBook);
-
-  // Clear the form fields
-  setFormValues({ title: '', author: '' });
+// Sorting comparators
+function sortByTitle(a, b) {
+  return a.title.localeCompare(b.title);
 }
 
-// Function to improve accessibility for the addBook function or form
+function sortByAuthor(a, b) {
+  return b.author.localeCompare(a.author);
+}
+
+const defaultSorting = sortByTitle;
+
+// Generate a unique key for a book item
+function generateKey(book) {
+  return book.id ? `book-${book.id}` : `book-${book.title}-${book.author}`;
+}
+
+// Render a single book item
+function BookItem(book) {
+  return (
+    <List.Item key={generateKey(book)}>
+      <List.Item.Meta
+        title={book.title}
+        description={book.author}
+      />
+    </List.Item>
+  );
+}
+
+// Accessibility helper for the add book form
 function addBookAccessibly() {
-  const bookTitle = document.querySelector('#bookTitle');
-  const bookAuthor = document.querySelector('#bookAuthor');
+  const bookTitle = document.querySelector('#title');
+  const bookAuthor = document.querySelector('#author');
 
   // Set focus to the book title input field
   if (bookTitle) {
@@ -67,49 +64,113 @@ function addBookAccessibly() {
   }
 
   // Add a keyboard event listener to handle entering a new book
-  document.addEventListener('keypress', event => {
+  document.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      // This handler is for legacy keyboard-only accessibility
-      // The preferred method is using the form with onSubmit
+      // Legacy keyboard-only accessibility handler
     }
   });
 }
 
-// Modify the Main component to include a new form for adding books
-function Main() {
-  // ... (Preserve existing Main component code)
+// Action creators for sorting
+const onTitleSort = () => ({ type: 'SORT_BY_TITLE' });
+const onAuthorSort = () => ({ type: 'SORT_BY_AUTHOR' });
 
-  // Add a new state variable for form initial values
-  const [formValues, setFormValues] = useState({ title: '', author: '' });
-
-  // Add dispatch for Redux actions
-  const dispatch = useDispatch();
-
-  // Render the form for adding new books
+// Container for the dependency graph with proper ARIA role for accessibility
+function DependencyGraph({ nodes, edges }) {
   return (
-    <div>
-      {/* ... (Preserve existing sorting buttons code) */}
-
-      {/* Add a new form for adding books */}
-      <form onSubmit={(e) => handleFormSubmit(e, dispatch, setFormValues)}>
-        <label htmlFor="title">Title:</label>
-        <input type="text" id="title" name="title" value={formValues.title} onChange={event => setFormValues({ ...formValues, title: event.target.value })} />
-
-        <label htmlFor="author">Author:</label>
-        <input type="text" id="author" name="author" value={formValues.author} onChange={event => setFormValues({ ...formValues, author: event.target.value })} />
-
-        <button type="submit">Add Book</button>
-      </form>
-
-      {/* ... (Preserve any additional existing code) */}
+    <div
+      className="dependency-graph"
+      role="img"
+      aria-label="Dependency graph showing relationships between books and authors"
+      tabIndex={0}
+    >
+      {/* Render graph nodes and edges */}
+      {/* Placeholder content */}
+      {nodes && edges ? (
+        <span>Graph with {nodes.length} nodes and {edges.length} edges</span>
+      ) : (
+        <span>No graph data</span>
+      )}
     </div>
   );
+}
 
-  // Add event listener for adding a new book accessible
+// Form component for adding a new book
+function AddBookForm() {
+  const [book, setBook] = useState({ title: '', author: '' });
+  const dispatch = useDispatch();
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (!isValidBookInput(book)) {
+      alert('Invalid input. Please check your entry and try again.');
+      return;
+    }
+
+    dispatch(addBook(book));
+    setBook({ title: '', author: '' });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label htmlFor="title">Title:</label>
+      <input
+        type="text"
+        id="title"
+        value={book.title}
+        onChange={(e) => setBook({ ...book, title: e.target.value })}
+        required
+      />
+      <label htmlFor="author">Author:</label>
+      <input
+        type="text"
+        id="author"
+        value={book.author}
+        onChange={(e) => setBook({ ...book, author: e.target.value })}
+        required
+      />
+      <button type="submit">Add Book</button>
+    </form>
+  );
+}
+
+// Main application component
+function Main() {
+  const dispatch = useDispatch();
+  const books = useSelector((state) => state.books.list);
+  const [sorting, setSorting] = useState(defaultSorting);
+
+  // Set up accessibility features on mount
   useEffect(() => {
     addBookAccessibly();
   }, []);
+
+  // Dispatch sorting action when sorting option changes
+  useEffect(() => {
+    if (sorting === sortByTitle) {
+      dispatch(onTitleSort());
+    } else if (sorting === sortByAuthor) {
+      dispatch(onAuthorSort());
+    }
+  }, [sorting, dispatch]);
+
+  // Derive sorted list based on current sorting function
+  const sortedBooks = [...books].sort(sorting);
+
+  // Map books to BookItem components
+  const bookItems = sortedBooks.map((book) => BookItem(book));
+
+  return (
+    <div>
+      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      <AddBookForm />
+      <List dataSource={bookItems} renderItem={(item) => item} />
+      <DependencyGraph nodes={[]} edges={[]} />
+    </div>
+  );
 }
 
 // Export the Main component

@@ -55,6 +55,31 @@ function validateEmailFormat(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// CLI logic implementation
+function cli(args) {
+  args = args || process.argv.slice(2);
+  if (args.length === 0) {
+    return 'No command provided';
+  }
+  const command = args[0];
+  switch (command) {
+    case 'value':
+      return getValue();
+    case 'process':
+      return processItem(parseInt(args[1], 10) || 0);
+    case 'format':
+      return formatString(args[1] || '');
+    case 'email':
+      return validateEmailFormat(args[1] || '') ? 'valid' : 'invalid';
+    default:
+      return `Unknown command: ${command}`;
+  }
+}
+
+if (require.main === module) {
+  console.log(cli());
+}
+
 // TODO: Implement function for addressing accessibility issues from insight report
 const addressAccessibilityIssues = (insightReport) => {
   const recommendations = [];
@@ -136,6 +161,9 @@ module.exports = {
   calculateTotal: calculateTotalItems,
   formatString,
   validateEmail: validateEmailFormat,
+  
+  // CLI logic
+  cli,
   
   // Insight functions
   addressAccessibilityIssues,

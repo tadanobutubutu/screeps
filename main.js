@@ -5,6 +5,20 @@ import { union } from 'lodash'; // You'll need to install lodash if it's not alr
 import { renderGraph } from './newGraphRenderingFunctions'; // Assuming you have a separate file for the new functions
 
 /**
+ * Count the number of dependencies in main.js
+ * @returns {number} The number of dependencies
+ */
+export function countDependencies() {
+  const dependencies = [
+    'lodash',
+    './newGraphRenderingFunctions',
+    'role.harvester',
+    'role.upgrader'
+  ];
+  return dependencies.length;
+}
+
+/**
  * Check and ensure accessibility attributes for links and buttons
  */
 export function checkLinkAndButtonAccessibility() {
@@ -368,10 +382,10 @@ module.exports.loop = function() {
 
     for(var name in Game.creeps) {
         var creep = Game.creeps[name];
-        if(creep.memory.role == 'harvester') {
+        if (creep.memory.role == 'harvester') {
             roleHarvester.run(creep);
         }
-        if(creep.memory.role == 'upgrader') {
+        if (creep.memory.role == 'upgrader') {
             roleUpgrader.run(creep);
         }
     }

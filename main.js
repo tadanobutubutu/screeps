@@ -170,6 +170,21 @@ const a11yStore = {
     });
   },
 
+  // Set accessibility attributes for SVG elements
+  setSvgAttributes(svg) {
+    svg.setAttribute('role', 'img');
+    const title = svg.getAttribute('title') || 'Image description';
+    if (!svg.getAttribute('aria-labelledby')) {
+      const descId = `svg-desc-${Math.floor(Math.random() * 10000)}`;
+      svg.setAttribute('aria-labelledby', descId);
+
+      const descElement = document.createElement('desc');
+      descElement.id = descId;
+      descElement.textContent = title;
+      svg.appendChild(descElement);
+    }
+  },
+
   // Apply ARIA attributes to dynamically added elements
   enhanceSVG() {
     const svgElements = document.querySelectorAll('svg');
@@ -183,7 +198,7 @@ const a11yStore = {
         const descriptionElement = document.createElement('desc');
         descriptionElement.id = descriptionId;
         descriptionElement.textContent = titleText;
-        svg.appendChild(descriptionElement);
+        svg.appendChild(descElement);
       }
     });
   },
@@ -376,7 +391,7 @@ const a11yStore = {
         const descriptionElement = document.createElement('desc');
         descriptionElement.id = descriptionId;
         descriptionElement.textContent = titleText;
-        svg.appendChild(descriptionElement);
+        svg.appendChild(descElement);
       }
     });
   },

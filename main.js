@@ -213,6 +213,13 @@ function processUniqueElements() {
   return uniqueElements;
 }
 
+function addLangAttribute() {
+  const html = document.documentElement;
+  if (html && !html.getAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+  }
+}
+
 function addressInsightIssues(insightReport) {
   const issues = insightReport && insightReport.issues ? insightReport.issues : [];
   issues.forEach(issue => {
@@ -227,6 +234,9 @@ function addressInsightIssues(insightReport) {
         }
       });
       const react017Elements = issue.elements || [];
+    }
+    if (issue.code === 'REACT_015') {
+      addLangAttribute();
     }
   });
 }
@@ -267,6 +277,7 @@ module.exports = {
   ensureUniqueLandmarks,
   validateSvgAccessibility,
   processUniqueElements,
+  addLangAttribute,
   addressInsightIssues,
   renderDependencyGraph,
   renderIndexView,

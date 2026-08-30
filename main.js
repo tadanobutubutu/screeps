@@ -55,4 +55,35 @@ function addressAccessibilityIssues() {
             }
             document.body.appendChild(element);
           }
-          uniqueLandmarkMap
+          uniqueLandmarkMap[uniqueLandmark] = element[0];
+        });
+
+        landmarks.forEach(landmark => {
+          if (!uniqueLandmarkMap[landmark]) {
+            uniqueLandmarkMap[landmark] = document.querySelector(`#${landmark}`);
+          }
+        });
+
+        // Set aria-describedby for unique landmarks with a description
+        landmarks.forEach(landmark => {
+          const describedByList = Array.from(uniqueLandmarkMap[landmark].attributes.ariaDescribedby.value.split(" "));
+          insightReport.issues.forEach(issue => {
+            if (issue.ariaRole === landmark && issue.ariaDescribedby) {
+              const describedBy = [...describedByList, issue.id];
+              uniqueLandmarkMap[landmark].setAttribute('aria-describedby', describedBy.join(" "));
+            }
+          });
+        });
+      }
+    });
+  }
+
+  // Call the functions to improve accessibility
+  improveAccessibility();
+  ensureUniqueLandmarks(insightReport);
+}
+
+// Export the function for other modules to use
+module.exports = {
+  addressAccessibilityIssues
+};

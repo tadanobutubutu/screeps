@@ -155,6 +155,19 @@ function renderSvg(svgElement) {
   // New code that uses the imported modules
   const { someModule } = require('some-module');
   const someValue = someModule.someFunction(svgElement);
+  
+  // Additional SVG rendering logic
+  if (svgElement) {
+    const title = svgElement.querySelector('title');
+    if (title) {
+      const titleId = `svg-title-${Date.now()}`;
+      title.setAttribute('id', titleId);
+      svgElement.setAttribute('aria-labelledby', titleId);
+    }
+  }
+  
+  return svgElement;
+}
 
 // New rendering functions for graph/index (to be used by existing functions)
 function renderGraphContentWithOptions(data, options = {}) {
@@ -392,7 +405,6 @@ function main() {
   implementNewFunction(); // Address accessibility issues from insight report
 }
 
-<<<<<<< HEAD
 // --- NEW FUNCTIONS ---
 
 /**
@@ -442,15 +454,11 @@ function renderDependencyGraph(containerSelector, data) {
 
 // --- End of new functions ---
 
-// Export all functions for use elsewhere in the repository
-=======
 function someFunction() {
   // Some implementation
 }
 
-const someFunction = () => 'someFunction result';
-
->>>>>>> origin/main
+// Export all functions for use elsewhere in the repository
 module.exports = {
   config,
   logger,
@@ -482,6 +490,3 @@ module.exports = {
   addAriaLabelToElement,
   renderDependencyGraph
 };
-```
-
-addressAccessibilityIssues(); // Call the combined function to address accessibility issues.

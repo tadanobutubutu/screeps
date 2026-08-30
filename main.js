@@ -45,6 +45,80 @@ const landmarkStructureCheck = (landmark) => {
 };
 
 /**
+ * Renders the index view with landmarks and accessibility features.
+ */
+function renderIndexView() {
+    const mainContent = document.getElementById('main-content') || document.body;
+    
+    // Create the index view container
+    const indexContainer = document.createElement('div');
+    indexContainer.id = 'index-view';
+    indexContainer.setAttribute('role', 'main');
+    indexContainer.setAttribute('aria-label', 'Main content');
+    
+    // Create header with app title
+    const header = document.createElement('header');
+    header.setAttribute('role', 'banner');
+    header.id = 'app-header';
+    
+    const title = document.createElement('h1');
+    title.textContent = appData.title;
+    title.id = 'main-title';
+    header.appendChild(title);
+    
+    const version = document.createElement('p');
+    version.setAttribute('aria-labelledby', 'main-title');
+    version.textContent = `Version ${appData.version}`;
+    header.appendChild(version);
+    
+    indexContainer.appendChild(header);
+    
+    // Create landmarks section
+    const landmarksSection = document.createElement('section');
+    landmarksSection.id = 'landmarks-section';
+    landmarksSection.setAttribute('aria-labelledby', 'landmarks-heading');
+    
+    const landmarksHeading = document.createElement('h2');
+    landmarksHeading.id = 'landmarks-heading';
+    landmarksHeading.textContent = 'Landmarks';
+    landmarksSection.appendChild(landmarksHeading);
+    
+    // Render landmarks list
+    const landmarksList = document.createElement('ul');
+    landmarksList.setAttribute('role', 'list');
+    landmarksList.id = 'landmarks-list';
+    
+    if (landmarks.length === 0) {
+        const emptyMessage = document.createElement('li');
+        emptyMessage.textContent = 'No landmarks available';
+        landmarksList.appendChild(emptyMessage);
+    } else {
+        landmarks.forEach((landmark, index) => {
+            const listItem = document.createElement('li');
+            listItem.setAttribute('role', 'listitem');
+            
+            const landmarkElement = document.createElement('div');
+            landmarkElement.id = `landmark-${index}`;
+            landmarkElement.setAttribute('role', landmark.role || 'region');
+            landmarkElement.setAttribute('aria-label', landmark.name);
+            
+            const landmarkName = document.createElement('span');
+            landmarkName.textContent = landmark.name;
+            landmarkElement.appendChild(landmarkName);
+            
+            listItem.appendChild(landmarkElement);
+            landmarksList.appendChild(listItem);
+        });
+    }
+    
+    landmarksSection.appendChild(landmarksList);
+    indexContainer.appendChild(landmarksSection);
+    
+    // Append to main content
+    mainContent.appendChild(indexContainer);
+}
+
+/**
  * Initializes the application and applies accessibility fixes.
  */
 const initApp = () => {
@@ -64,6 +138,9 @@ const initApp = () => {
   // Fix fake links
   fixFakeLinks();
 
+  // Render the index view
+  renderIndexView();
+
   // Initialize the application data
   console.log('Initializing ' + appData.title + ' v' + appData.version);
   // ... (assuming other initialization logic is present)
@@ -81,5 +158,3 @@ registerSW();
 
 // Export functions for testing
 // ... (only include exported functions if needed and remove unrelated code)
-```
-This resolved file preserves both changes, integrates the accessibility fixes from both versions, and replaces the placeholder SVG content with a single SVG example. It also updates the checkLandmarkElement function to utilize document.getElementById for selecting elements and keeps the rest of the structure as it was in both versions.

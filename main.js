@@ -124,6 +124,20 @@ function getLandmarkElements(container) {
 // Example module pattern (common in Screeps)
 const SomeModule = {
   // Some functionality
+  processLandmarkValidation: function(landmark) {
+    const validationResult = validateLandmark(landmark);
+    if (validationResult.valid) {
+      return {
+        success: true,
+        landmark: landmark,
+        message: 'Landmark is valid'
+      };
+    }
+    return {
+      success: false,
+      errors: validationResult.errors
+    };
+  }
 };
 
 // Export the module

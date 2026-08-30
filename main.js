@@ -1,3 +1,6 @@
+// TODO: Address any missing required exports
+// REACT_015: Add lang attribute
+
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
@@ -253,6 +256,26 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+/**
+ * REACT_015: Adds lang attribute to the document HTML element
+ * @param {Document} doc - The document to add lang attribute to
+ * @param {string} langCode - The language code (e.g., 'en', 'es', 'fr')
+ * @returns {boolean} - True if lang attribute was set successfully
+ */
+function addLangAttribute(doc, langCode) {
+  if (!doc || !doc.documentElement) {
+    return false;
+  }
+  
+  if (!langCode || typeof langCode !== 'string' || langCode.trim() === '') {
+    return false;
+  }
+  
+  const normalizedLang = langCode.trim().toLowerCase();
+  doc.documentElement.setAttribute('lang', normalizedLang);
+  return true;
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +294,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  addLangAttribute
 };

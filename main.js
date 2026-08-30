@@ -298,6 +298,14 @@ function main() {
   return someFunction();
 }
 
+function addLangAttribute() {
+  document.documentElement.lang = 'en';
+}
+
+function someFunction() {
+  return null;
+}
+
 module.exports = {
   config,
   logger,

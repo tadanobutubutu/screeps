@@ -265,6 +265,25 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
+
+  // Preserve keys flag: return shallow copy of input as-is
+  // (preserves original keys/structure when preserveKeys is true)
+  if (preserveKeys) {
+    const result = { ...inputData };
+    if (uppercase && typeof result.name === 'string') {
+      result.name = result.name.toUpperCase();
+    }
+    if (trimWhitespace && typeof result.name === 'string') {
+      result.name = result.name.trim();
+    }
+    if (maxLength !== null && typeof result.name === 'string') {
+      result.name = result.name.slice(0, maxLength);
+    }
+    return result;
+  }
+
+  // Default behavior: return input as-is (placeholder for required return)
+  return inputData;
 }
 
 // Initialize on DOM ready
@@ -285,5 +304,6 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  transformInputData
 };

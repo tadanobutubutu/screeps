@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// main.js - Main application entry point
 const fs = require('fs');
 
 // Accessibility issues addressed per insight report
@@ -108,6 +111,16 @@ function newFocusTrap() {
   };
 }
 
+/**
+ * Generate a unique session ID
+ * @returns {string} - Generated session ID
+ */
+function generateSessionId() {
+    const timestamp = Date.now().toString(36);
+    const randomPart = Math.random().toString(36).substring(2, 15);
+    return timestamp + '-' + randomPart;
+}
+
 // Validate table accessibility (REACT_027)
 const validateTableAccessibility = (tableElement) => {
   if (!tableElement || tableElement.tagName !== 'TABLE') {
@@ -196,11 +209,91 @@ const validateTableStructure = (tableElement) => {
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 function calculateSum(a, b) { return a + b; }
 
-// Credential response handling
-async function handleCredentialResponse(response) {
-  // ... (existing code)
+// Credential response handling helpers
+function decodeJwtToken(token) {
+  if (!token) return null;
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+    const payload = parts[1];
+    const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+    return JSON.parse(decoded);
+  } catch (error) {
+    return null;
+  }
 }
 
+function parseCredentialResponse(credentialResponse) {
+  try {
+    if (!credentialResponse || !credentialResponse.credential) {
+      return { success: false, error: 'No credential provided' };
+    }
+    const credential = credentialResponse.credential;
+    const parts = credential.split('.');
+    if (parts.length !== 3) {
+      return { success: false, error: 'Invalid credential format' };
+    }
+    return { success: true, credential: credential };
+  } catch (error) {
+    return { success: false, error: error.message || 'Failed to parse credential' };
+  }
+}
+
+/**
+ * Handle credential response from OAuth/identity provider
+ * @param {Object} credentialResponse - The credential response
+ * @returns {Object} - Result of handling the credential
+ */
+function handleCredentialResponse(credentialResponse) {
+    const parsedResponse = parseCredentialResponse(credentialResponse);
+    
+    if (!parsedResponse.success) {
+        return {
+            status: 'error',
+            message: parsedResponse.error
+        };
+    }
+
+    const credential = parsedResponse.credential;
+    
+    if (!credential) {
+        return {
+            status: 'error',
+            message: 'No credential provided'
+        };
+    }
+
+    // Decode the JWT token to extract user information
+    const decodedToken = decodeJwtToken(credential);
+    
+    if (!decodedToken) {
+        return {
+            status: 'error',
+            message: 'Failed to decode credential token'
+        };
+    }
+
+    // Create session for the authenticated user
+    const sessionId = generateSessionId();
+    const sessionData = {
+        user: {
+            email: decodedToken.email,
+            name: decodedToken.name,
+            picture: decodedToken.picture,
+            sub: decodedToken.sub
+        },
+        authenticatedAt: Date.now(),
+        credential: credential
+    };
+
+    return {
+        status: 'success',
+        sessionId: sessionId,
+        sessionData: sessionData
+    };
+}
+
+// Credential response handling (stub preserved for compatibility)
 // Existing utility functions
 function log(message, level = 'info') {
   // ... (existing code)
@@ -245,7 +338,7 @@ const initAccessibility = () => {
 
 function groupByCategory(items, getCategory) {
   // ... (existing code)
-}
+};
 
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
@@ -327,6 +420,11 @@ if (typeof document !== 'undefined') {
   } else {
     initAccessibility();
   }
+}
+
+function addressAccessibilityIssuesFromInsightReport() {
+  // Handles accessibility issues from the insight report
+  initAccessibility();
 }
 
 // Export all utilities

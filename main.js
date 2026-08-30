@@ -1,4 +1,4 @@
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+const HTML = ({ lang }) => ({ lang });
 
 // Sample data and state
 const config = {
@@ -400,14 +400,10 @@ export default function App() {
     // Your app functionality here
   };
 
-  return (
-    <HTML lang="en">
-      <React.Fragment>
-        <MyApp />
-        {/* Render your HTML structure */}
-      </React.Fragment>
-    </HTML>
-  );
+  return {
+    element: HTML({ lang: 'en' }),
+    children: [MyApp()]
+  };
 }
 
 module.exports = {

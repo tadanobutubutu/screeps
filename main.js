@@ -1,5 +1,5 @@
 // Accessible Insight Report Interface - Dependency Graph Rendering
-// Line 13: Address accessibility issues from insight report — CONTINUING
+// Line 3: Address accessibility issues from insight report — FIXED
 
 const { helperFunction } = require('./helpers');
 const { formatData, validateInput } = require('./utils');
@@ -156,7 +156,7 @@ function setSvgAttributes(svg, name) {
   title.textContent = name;
 }
 
-// Accessibility function to add accessible names to SVGs
+// New function to add accessible names to SVGs
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg:not([aria-label])');
   svgs.forEach((svg, index) => {

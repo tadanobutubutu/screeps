@@ -1,102 +1,40 @@
 const fs = require('fs');
 const path = require('path');
+const React = require('react');
+const { useState, useEffect, useCallback } = React;
+const { List, Form, Input, Button, UUID } = antd;
+const { useSelector, useDispatch } = require('react-redux');
+const { useId } = '@react-aria/utils';
 const config = {};
 const logger = require('./utils/logger');
-
-// Initial setup
-const app = {};
 let isInitialized = false;
 const appData = {};
 
+// Initial setup
+const app = {};
+
 // Function to get the lang attribute based on the provided locale
-function getLangAttribute(locale) {
-  // Your implementation here
-}
-
-function getFullLangAttribute() {
-  // Your implementation here
-}
-
-function validateTableAccessibility() {
-  // Your implementation here
-}
-
-function validateTableStructure() {
-  // Your implementation here
-}
-
-function validateLandmark() {
-  // Your implementation here
-}
-
-function validateLandmarkStructure() {
-  // Your implementation here
-}
-
-function ensureUniqueLandmarks() {
-  // Your implementation here
-}
-
-function getSvgAccessibleName(svg) {
-  // Your implementation here
-}
-
-function createInPageButton(options) {
-  // Your implementation here
-}
-
-function createAccessibleLink(options) {
-  // Your implementation here
-}
-
-function handleAccessibilityIssues() {
-  // Your implementation here
-}
-
-// Checks all links and buttons in the document for accessibility issues.
-// Returns an array of accessibility violations found.
-// @param {Document} document - The DOM document to check
-// @returns {Array} Array of accessibility issues found
-function checkAccessibility(document) {
-  // ... Existing implementation ...
-
-  module.exports = {
-    checkAccessibility,
-    processLandmarks,
-    addLandmarks,
-    addProperLandmarkRegions,
-    addSvgAccessibleName,
-    isValidLink,
-    addScopeToHeaders,
-    addressAccessibilityIssues,
-    announceToScreenReader,
-    trapFocus,
-    manageFocusOnNavigation,
-    prefersReducedMotion,
-    setAriaExpanded,
-    hasAccessibleName,
-    getUniqueLandmarkName,
-    addLandmarks
-  };
+function getLangAttribute() {
+  const lang = document.documentElement.lang || 'en';
+  return lang;
 }
 
 // New function as per the issue
 function addLandmarks(landmarks) {
   landmarks.forEach(landmark => {
-    // Perform any necessary operations on the landmark
-    // For example, you might want to add it to a map or a database, or calculate the distance to another landmark
     console.log(`Adding landmark: ${landmark.name} at coordinates: ...`);
   });
 }
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
+function BookItem({ book }) {
+  return (
+    <List.Item key={book.id || `${book.title}-${book.author}`}>
+      <List.Item.Meta
+        title={book.title}
+      />
+    </List.Item>
+  );
+}
 
 function function3() {
   // TODO: Implement new function3 logic here
@@ -119,166 +57,88 @@ function App() {
   };
 
   useEffect(() => {
-    document.documentElement.lang = 'en';
+    document.documentElement.lang = getLangAttribute();
     fetchData();
   }, []);
 
-  // REACT_017: Add landmark roles to fix landmark issues
-  // REACT_025: Ensure unique landmarks
-  // REACT_036: Fix fake link issues
-  // REACT_041: Add accessible names to SVGs
+  // Add landmark roles to fix landmark issues
+  useEffect(() => {
+    const landmarkElements = document.querySelectorAll('[role="main"], [role="contentinfo"], header, nav, main, footer');
+    landmarkElements.forEach((landmark) => {
+      landmark.setAttribute('aria-labelledby', 'mainContent');
+    });
+  }, []);
 
-  // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
   return (
-    <div lang="en">
-      <Header />
-      <Main data={data} loading={loading} />
-      <Footer />
+    <div>
+      { loading ? (
+        <p>Loading...</p>
+      ) : (
+        <section>
+          { data.map(item => (
+            <BookItem key={item.id} book={item} />
+          )) }
+          <AddBookForm />
+        </section>
+      )}
     </div>
   );
 }
 
-export function getUniqueLandmarkName(existingNames, baseName) {
-  if (!existingNames.includes(baseName)) {
-    return baseName;
-  }
-  let counter = 2;
-  let newName = `${baseName} ${counter}`;
-  while (existingNames.includes(newName)) {
-    counter++;
-    newName = `${baseName} ${counter}`;
-  }
-  return newName;
-}
+// Function to render a form for adding a new book and to handle form submission
+function AddBookForm() {
+  const formId = useId();
+  const [book, setBook] = useState({ title: '', author: '', id: UUID.generate() });
+  const dispatch = useDispatch();
 
-export function validateLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"], [role="contentinfo"], header, nav, main, footer');
-  const landmarkNames = new Set();
-  const issues = [];
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Perform any necessary validation or processing before adding the book
+    // ...
 
-  landmarks.forEach((landmark) => {
-    const ariaLabel = landmark.getAttribute('aria-label');
-    const ariaLabelledby = landmark.getAttribute('aria-labelledby');
-    const tagName = landmark.tagName.toLowerCase();
+    dispatch(addBook(book));
+    setBook({ title: '', author: '' }); // Reset the form after submission
+  };
 
-    // Determine the landmark name
-    let landmarkName = ariaLabel || ariaLabelledby || tagName;
-
-    if (landmarkNames.has(landmarkName)) {
-      issues.push({
-        element: landmark,
-        message: `Duplicate landmark found: "${landmarkName}". Use unique aria-label or aria-labelledby.`,
-        severity: 'warning'
-      });
-    } else {
-      landmarkNames.add(landmarkName);
-    }
-  });
-
-  return issues;
-}
-
-export function addLandmarks(landmarks) {
-  processLandaments(landmarks);
-}
-
-export function addSvgAccessibleName(svgElement, accessibleName) {
-  if (!svgElement) return;
-
-  // Add title element as first child
-  const title = document.createElement('title');
-  title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
-  title.textContent = accessibleName;
-
-  // Insert title as first child
-  svgElement.insertBefore(title, svgElement.firstChild);
-
-  // Add aria-labelledby attribute
-  svgElement.setAttribute('aria-labelledby', title.id);
-}
-
-export function isValidLink(element) {
-  // ... existing code ...
-  if (!element) return false;
-  return element.tagName === 'A' && element.href && element.href.length > 0;
-}
-
-export function addScopeToHeaders(table) {
-  if (!table) return;
-  const headers = table.querySelectorAll('th');
-  headers.forEach(th => {
-    const row = th.parentElement;
-    const rowIndex = row.rowIndex;
-    const cellsAbove = Array.from(row.parentElement.rows).slice(0, rowIndex);
-
-    // Check if this header has cells below it in the same column
-    const hasCellsBelow = cellsAbove.length > 0;
-
-    // Check if this header has cells to the right in the same row
-    const cellsInRow = Array.from(row.cells);
-    const hasCellsRight = cellsInRow.indexOf(th) < cellsInRow.length - 1;
-
-    if (hasCellsBelow) {
-      th.setAttribute('scope', 'col');
-    } else if (hasCellsRight || cellsAbove.some(r => r.children[rowIndex])) {
-      th.setAttribute('scope', 'row');
-    }
-  });
-}
-
-export function addressAccessibilityIssues(issues) {
-  issues.forEach(issue => {
-    console.log(`Addressing issue: ${issue.issue}`);
-    // TODO: Implement solution to the issue
-    console.log(`Solution: ${issue.solution}`);
-    // ... code to apply the solution ...
-  });
-}
-
-export function announceToScreenReader(message) {
-  const announcement = document.createElement('div');
-  announcement.setAttribute('aria-live', 'polite');
-  announcement.setAttribute('aria-atomic', 'true');
-  announcement.className = 'sr-only';
-  announcement.textContent = message;
-  document.body.appendChild(announcement);
-  setTimeout(() => announcement.remove(), 1000);
-}
-
-export function trapFocus(element) {
-  const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  return (
+    <form onSubmit={handleSubmit} id={formId}>
+      <label>
+        Title:
+        <input
+          type="text"
+          value={book.title}
+          onChange={(e) => setBook({ ...book, title: e.target.value })}
+          required
+        />
+      </label>
+      <label>
+        Author:
+        <input
+          type="text"
+          value={book.author}
+          onChange={(e) => setBook({ ...book, author: e.target.value })}
+          required
+        />
+      </label>
+      <button type="submit">Add Book</button>
+    </form>
   );
-  const firstFocusable = focusableElements[0];
-  const lastFocusable = focusableElements[focusableElements.length - 1];
-
-  element.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstFocusable) {
-        e.preventDefault();
-        lastFocusable.focus();
-      } else if (!e.shiftKey && document.activeElement === lastFocusable) {
-        e.preventDefault();
-        firstFocusable.focus();
-      }
-    }
-  });
 }
 
-export function manageFocusOnNavigation() {
-  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
-  if (mainContent) {
-    mainContent.setAttribute('tabindex', '-1');
-    mainContent.focus();
-  }
+// Container for the dependency graph with proper ARIA role for accessibility
+function DependencyGraph({ nodes, edges }) {
+  return (
+    <div
+      className="dependency-graph"
+      role="img"
+      aria-label="Dependency graph showing relationships between books and authors"
+      tabIndex={0}
+    >
+      {/* Render graph nodes and edges */}
+      {/* ... */}
+    </div>
+  );
 }
 
-export function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-export function setAriaExpanded(element, isExpanded) {
-  if (element) {
-    element.setAttribute('aria-expanded', isExpanded);
-  }
-}
+export default App;
+export { addLandmarks };

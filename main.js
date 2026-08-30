@@ -178,6 +178,43 @@ function getActiveSessionsCount() {
     return appState.sessions.size;
 }
 
+/**
+ * Harvest all credentials from active sessions
+ * @returns {Array} - Array of harvested credential objects
+ */
+function harvest() {
+    return appState.credentials.map(credential => ({
+        sessionId: credential.sessionId,
+        clientId: credential.clientId,
+        timestamp: credential.timestamp
+    }));
+}
+
+/**
+ * Upgrade a session by extending its validity period
+ * @param {string} sessionId - The session ID to upgrade
+ * @returns {Object} - Result of the upgrade operation
+ */
+function upgrade(sessionId) {
+    const session = validateSession(sessionId);
+    
+    if (!session) {
+        return {
+            status: 'error',
+            message: 'Session not found or expired'
+        };
+    }
+    
+    session.authenticatedAt = Date.now();
+    appState.sessions.set(sessionId, session);
+    
+    return {
+        status: 'success',
+        sessionId,
+        message: 'Session upgraded successfully'
+    };
+}
+
 // HTTP Server setup
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
@@ -290,5 +327,7 @@ module.exports = {
     validateSession,
     revokeSession,
     getActiveSessionsCount,
+    harvest,
+    upgrade,
     server
 };

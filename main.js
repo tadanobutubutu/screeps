@@ -456,6 +456,128 @@ function getFullLangAttribute(el) {
     return element ? (element.lang || element.getAttribute('lang') || '') : '';
 }
 
+function setHtmlLangAttribute(content) {
+    const lang = detectAndSetLang(content || '');
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.setAttribute('lang', lang);
+    }
+    return lang;
+}
+
+function validateLandmark(landmarkOrUrl) {
+    const landmarks = typeof landmarkOrUrl === 'string' 
+        ? (typeof document !== 'undefined' ? document.querySelectorAll('main, header, nav, footer, aside, [role="main"], [role="banner"], [role="navigation"], [role="contentinfo"], [role="complementary"]') : [])
+        : [landmarkOrUrl];
+    
+    const landmarkResults = {
+        hasLandmark: true,
+        hasRole: true,
+        issues: [],
+        score: 100
+    };
+    
+    if (landmarks.length === 0) {
+        landmarkResults.hasLandmark = false;
+        landmarkResults.hasRole = false;
+        landmarkResults.issues.push({
+            type: 'missing_landmark',
+            message: 'No landmark elements found'
+        });
+        landmarkResults.score -= 25;
+    }
+    
+    landmarks.forEach((landmark, index) => {
+        if (!landmark || typeof landmark.tagName === 'undefined') return;
+        const tag = landmark.tagName.toLowerCase();
+        const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
+        const validTags = ['main', 'header', 'nav', 'footer', 'aside'];
+        if (!role && !validTags.includes(tag)) {
+            landmarkResults.hasRole = false;
+            landmarkResults.issues.push({
+                type: 'missing_role',
+                message: `Landmark ${index + 1}: Missing valid semantic role or tag`
+            });
+            landmarkResults.score -= 10;
+        }
+    });
+    
+    return landmarkResults;
+}
+
+function validateLandmarkStructure(landmarkOrUrl) {
+    const landmarks = typeof landmarkOrUrl === 'string' 
+        ? (typeof document !== 'undefined' ? document.querySelectorAll('main, header, nav, footer, aside, [role="main"], [role="banner"], [role="navigation"], [role="contentinfo"], [role="complementary"]') : [])
+        : [landmarkOrUrl];
+    
+    const structureResults = {
+        hasStructure: true,
+        hasUniqueLandmarks: true,
+        issues: [],
+        score: 100
+    };
+    
+    const seen = {};
+    let validCount = 0;
+    
+    landmarks.forEach((landmark, index) => {
+        if (!landmark || typeof landmark.tagName === 'undefined') return;
+        validCount++;
+        const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
+        const tag = landmark.tagName.toLowerCase();
+        const label = landmark.getAttribute ? (landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || '') : '';
+        const key = (role || tag) + ':' + label;
+        
+        if (seen[key]) {
+            structureResults.hasUniqueLandmarks = false;
+            structureResults.issues.push({
+                type: 'duplicate_landmark',
+                message: `Landmark ${index + 1}: Duplicate landmark (${key})`
+            });
+            structureResults.score -= 15;
+        } else {
+            seen[key] = true;
+        }
+    });
+    
+    if (validCount === 0) {
+        structureResults.hasStructure = false;
+        structureResults.issues.push({
+            type: 'missing_structure',
+            message: 'Landmark structure is missing or invalid'
+        });
+        structureResults.score -= 20;
+    }
+    
+    return structureResults;
+}
+
+function getSvgAccessibleName(svgOrSelector) {
+    let svg = null;
+    if (typeof svgOrSelector === 'string') {
+        svg = typeof document !== 'undefined' ? document.querySelector(svgOrSelector) : null;
+    } else {
+        svg = svgOrSelector || null;
+    }
+    if (!svg) return '';
+    if (typeof svg.getAttribute === 'function') {
+        const ariaLabel = svg.getAttribute('aria-label');
+        if (ariaLabel) return ariaLabel;
+        const titleAttr = svg.getAttribute('title');
+        if (titleAttr) return titleAttr;
+    }
+    if (typeof svg.querySelector === 'function') {
+        const titleEl = svg.querySelector('title');
+        if (titleEl && titleEl.textContent) return titleEl.textContent.trim();
+    }
+    return '';
+}
+
+function createInPageButton(text, clickAction) {
+    const safeText = (text !== undefined && text !== null) ? text : 'Button';
+    const actionAttr = clickAction ? `onclick="${clickAction}"` : '';
+    return `<button type="button" ${actionAttr}>${safeText}</button>`;
+}
+
 module.exports = {
     validateWebAccessibility,
     validateTableAccessibility,
@@ -477,5 +599,9 @@ module.exports = {
     getDate,
     personName,
     setHtmlLangAttribute,
-    detectAndSetLang
+    detectAndSetLang,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    createInPageButton
 };

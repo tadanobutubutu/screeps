@@ -202,6 +202,42 @@ function isLinkAccessible(link) {
   return false;
 }
 
+/**
+ * Spawns a Creep in the room with the specified name, body parts, and memory.
+ * @param {string} name - The name of the creep to spawn.
+ * @param {string[]} body - Array of body part strings (e.g., 'work', 'carry', 'move').
+ * @param {Object} [memory={}] - Initial memory object for the creep.
+ * @returns {string|null} The spawned creep's name on success, or null if spawning failed.
+ */
+function spawnCreep(name, body, memory = {}) {
+  // Validate inputs
+  if (typeof name !== 'string' || name.trim().length === 0) {
+    return null;
+  }
+
+  if (!Array.isArray(body) || body.length === 0) {
+    return null;
+  }
+
+  if (typeof memory !== 'object' || memory === null) {
+    return null;
+  }
+
+  try {
+    // Attempt to spawn the creep
+    const result = Game.spawns['Spawn1'].spawnCreep(body, name, { memory });
+
+    // Check if the spawn was successful
+    if (result === OK && Game.creeps[name]) {
+      return name;
+    }
+
+    return null;
+  } catch (error) {
+    return null;
+  }
+}
+
 // Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
 // Assumes you have already set the id on the button element in your code.
 replaceMyButtonId();
@@ -219,5 +255,6 @@ module.exports = {
   getFullLangAttribute,
   ensureUniqueLandmarkId,
   uniqueLandmarks,
-  isLinkAccessible
+  isLinkAccessible,
+  spawnCreep
 };

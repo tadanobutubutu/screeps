@@ -275,5 +275,6 @@ module.exports = {
   renderIndexView,
   newRequiredFunction,
   additionalFunction,
-  createAccessibleWebResourceButton
+  createAccessibleWebResourceButton,
+  newFunction
 };

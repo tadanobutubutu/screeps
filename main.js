@@ -6,7 +6,7 @@ const path = require('path');
 /**
  * Calculates the depth of dependency tree
  * @param {Object} dependencies - The dependency object
- * @param {string} currentKey - Current key being processed
+ * * @param {string} currentKey - Current key being processed
  * @returns {number} Maximum depth of the dependency tree
  */
 function getDependencyDepth(dependencies, currentKey = '') {
@@ -27,8 +27,6 @@ function getDependencyDepth(dependencies, currentKey = '') {
   
   return maxDepth;
 }
-
-// TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
 
 /**
  * Renders a dependency graph as ASCII art for debugging purposes.
@@ -109,6 +107,53 @@ function generateDependencyReport(dependencies) {
 }
 
 /**
+ * Validates a module object for display purposes.
+ * @param {Object} module - Module object to validate
+ * @returns {boolean} True if valid, false otherwise
+ */
+function isValidModule(module) {
+  return module && typeof module === 'object' && (
+    module.name !== undefined || module.id !== undefined
+  );
+}
+
+/**
+ * Filters modules based on a given predicate.
+ * @param {Array} modules - Array of module objects
+ * @param {Function} predicate - Function returning true for modules to include
+ * @returns {Array} Filtered modules
+ */
+function filterModules(modules, predicate) {
+  if (!Array.isArray(modules)) {
+    return [];
+  }
+  
+  return modules.filter(module => predicate(module));
+}
+
+/**
+ * Sorts modules by a specified key.
+ * @param {Array} modules - Array of module objects
+ * @param {string} key - Key to sort by
+ * @param {boolean} ascending - Sort order
+ * @returns {Array} Sorted modules
+ */
+function sortModules(modules, key, ascending = true) {
+  if (!Array.isArray(modules) || !key) {
+    return modules;
+  }
+  
+  return modules.slice().sort((a, b) => {
+    const valA = a[key];
+    const valB = b[key];
+    
+    if (valA < valB) return ascending ? -1 : 1;
+    if (valA > valB) return ascending ? 1 : -1;
+    return 0;
+  });
+}
+
+/**
  * Main processing function
  */
 function main() {
@@ -133,7 +178,10 @@ module.exports = {
   displayModuleStructure,
   getDependencyDepth,
   generateDependencyReport,
-  main
+  main,
+  isValidModule,
+  filterModules,
+  sortModules
 };
 
 // Run if executed directly

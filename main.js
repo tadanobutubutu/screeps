@@ -45,7 +45,7 @@ function decodeJwtToken(token) {
         }
         
         const payload = parts[1];
-        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf-8');
+        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
         return JSON.parse(decoded);
     } catch (error) {
         return null;
@@ -100,7 +100,10 @@ function handleCredentialResponse(credentialResponse) {
     };
 
     appState.sessions.set(sessionId, sessionData);
-    appState.credentials.push({
+    
+    // Log session creation
+    console.log({
+        type: 'session_created',
         sessionId,
         clientId: parsedResponse.clientId,
         timestamp: Date.now()
@@ -125,6 +128,7 @@ function generateSessionId() {
 
 /**
  * Validates the structure of the table to ensure accessibility.
+ * Checks for proper semantic structure including headers, captions, and row grouping.
  * @param {HTMLElement} table - The table to validate
  * @returns {boolean} True if the table is accessible, false otherwise
  */
@@ -133,10 +137,42 @@ function validateTableStructure(table) {
     throw new Error('Table is required');
   }
   
-  // Placeholder for table structure validation logic
-  // This should include checks for headers, caption, and row grouping
+  // Check for caption or aria-labelledby for table context
+  const hasCaption = table.querySelector('caption') !== null;
+  const hasAriaLabelledby = table.getAttribute('aria-labelledby') !== null;
+  const hasAriaLabel = table.getAttribute('aria-label') !== null;
   
-  // For now, we assume the table is valid
+  if (!hasCaption && !hasAriaLabelledby && !hasAriaLabel) {
+    return false;
+  }
+  
+  // Check for proper header structure (th elements)
+  const headerCells = table.querySelectorAll('th');
+  if (headerCells.length === 0) {
+    return false;
+  }
+  
+  // Validate that header cells have proper scope attributes
+  let hasProperScope = true;
+  headerCells.forEach(th => {
+    const scope = th.getAttribute('scope');
+    if (!scope || (scope !== 'col' && scope !== 'row')) {
+      hasProperScope = false;
+    }
+  });
+  
+  if (!hasProperScope) {
+    return false;
+  }
+  
+  // Check for proper row grouping (thead and tbody)
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  
+  if (!thead || !tbody) {
+    return false;
+  }
+  
   return true;
 }
 

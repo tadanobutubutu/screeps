@@ -740,6 +740,213 @@ async function makeAPICall() {
   // Your implementation goes here
 }
 
+/**
+ * Detects fake links (elements that look like links but aren't <a> tags)
+ * @returns {Array<HTMLElement>} - Array of elements identified as fake links
+ */
+function getFakeLinks() {
+  const fakeLinks = [];
+  
+  // Find elements with role="link" that aren't anchor elements
+  const roleLinkElements = document.querySelectorAll('[role="link"]');
+  roleLinkElements.forEach(el => {
+    if (el.tagName.toLowerCase() !== 'a') {
+      fakeLinks.push(el);
+    }
+  });
+  
+  // Find divs and spans that might be used as fake links
+  const divLinks = document.querySelectorAll('div[onclick], span[onclick]');
+  divLinks.forEach(el => {
+    const style = window.getComputedStyle(el);
+    if (style.cursor === 'pointer' && !fakeLinks.includes(el)) {
+      fakeLinks.push(el);
+    }
+  });
+  
+  return fakeLinks;
+}
+
+/**
+ * Handles fake links by validating and optionally transforming them
+ * Addresses REACT_036: Fix 1 fake link issue
+ * @param {Object} options - Options for handling fake links
+ * @param {boolean} options.transform - Whether to transform fake links to anchor tags
+ * @param {boolean} options.validate - Whether to validate and log warnings
+ * @returns {Array<HTMLElement>} - Array of fake links that were found
+ */
+function handleFakeLinks(options = {}) {
+  const { transform = false, validate = true } = options;
+  
+  if (typeof document === 'undefined') {
+    return [];
+  }
+  
+  const fakeLinks = getFakeLinks();
+  
+  if (validate) {
+    validateLinkAccessibility(fakeLinks);
+  }
+  
+  if (transform && fakeLinks.length > 0) {
+    fakeLinks.forEach(fakeLink => {
+      transformFakeLinkToAnchor(fakeLink);
+    });
+  }
+  
+  return fakeLinks;
+}
+
+/**
+ * Validates accessibility of fake links and logs warnings
+ * Addresses REACT_036: Fix 1 fake link issue
+ * @param {Array<HTMLElement>} fakeLinks - Array of fake link elements to validate
+ */
+function validateLinkAccessibility(fakeLinks) {
+  if (!fakeLinks || fakeLinks.length === 0) {
+    return;
+  }
+  
+  fakeLinks.forEach((element, index) => {
+    const hasOnClick = !!element.getAttribute('onclick');
+    const hasTabIndex = element.hasAttribute('tabindex');
+    const isDisabled = element.hasAttribute('disabled');
+    const tagName = element.tagName.toLowerCase();
+    const role = element.getAttribute('role');
+    const hasHref = element.hasAttribute('href');
+    
+    // Check if this is a fake link (non-anchor element with link-like behavior)
+    const isFakeLink = (tagName !== 'a' && (hasOnClick || (role === 'link')));
+    
+    if (isFakeLink) {
+      console.warn(
+        `Accessibility Warning [REACT_036]: Fake link detected at index ${index}. ` +
+        `Element <${tagName}> should be an <a> element. ` +
+        `Has onclick: ${hasOnClick}, has tabindex: ${hasTabIndex}, ` +
+        `is disabled: ${isDisabled}, has href: ${hasHref}`
+      );
+      
+      // Additional validation checks
+      if (!hasTabIndex && !isDisabled) {
+        console.warn(`  - Consider adding tabindex="0" for keyboard accessibility`);
+      }
+      
+      if (!element.textContent.trim()) {
+        console.warn(`  - Warning: Link has no accessible text content`);
+      }
+    }
+  });
+}
+
+/**
+ * Transforms a fake link element into a proper anchor tag
+ * Addresses REACT_036: Fix 1 fake link issue
+ * @param {HTMLElement} fakeLink - The fake link element to transform
+ * @param {string} href - The href value for the anchor tag (optional)
+ */
+function transformFakeLinkToAnchor(fakeLink, href = '#') {
+  if (!fakeLink || typeof document === 'undefined') {
+    return null;
+  }
+  
+  const tagName = fakeLink.tagName.toLowerCase();
+  
+  // Only transform non-anchor elements
+  if (tagName === 'a') {
+    return fakeLink;
+  }
+  
+  // Create new anchor element
+  const anchor = document.createElement('a');
+  
+  // Set href (use provided href or default to '#')
+  anchor.href = href;
+  
+  // Copy class name
+  if (fakeLink.className) {
+    anchor.className = fakeLink.className;
+  }
+  
+  // Copy inline styles
+  if (fakeLink.style) {
+    anchor.style.cssText = fakeLink.style.cssText;
+  }
+  
+  // Copy text content
+  anchor.textContent = fakeLink.textContent || '';
+  
+  // Copy data attributes
+  Array.from(fakeLink.attributes).forEach(attr => {
+    if (attr.name.startsWith('data-')) {
+      anchor.setAttribute(attr.name, attr.value);
+    }
+  });
+  
+  // Copy id if present
+  if (fakeLink.id) {
+    anchor.id = fakeLink.id;
+  }
+  
+  // Copy role attribute if it's a link role
+  const role = fakeLink.getAttribute('role');
+  if (role === 'link') {
+    // Anchor doesn't need explicit role="link" since it's the default
+  }
+  
+  // Preserve onclick handler as click event listener
+  const onclickAttr = fakeLink.getAttribute('onclick');
+  if (onclickAttr) {
+    // Convert inline onclick to event listener for cleaner code
+    // The href will be used as fallback navigation
+    anchor.addEventListener('click', (e) => {
+      // Execute the original onclick code in the context of the original element
+      try {
+        // Create a function from the onclick attribute
+        const onclickFunc = new Function('event', onclickAttr);
+        const result = onclickFunc.call(fakeLink, e);
+        
+        // If the onclick returns false, prevent default behavior
+        if (result === false) {
+          e.preventDefault();
+        }
+      } catch (err) {
+        console.error('Error executing onclick handler:', err);
+      }
+    });
+  }
+  
+  // Copy aria attributes for accessibility
+  const ariaLabel = fakeLink.getAttribute('aria-label');
+  if (ariaLabel) {
+    anchor.setAttribute('aria-label', ariaLabel);
+  }
+  
+  const ariaLabelledby = fakeLink.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    anchor.setAttribute('aria-labelledby', ariaLabelledby);
+  }
+  
+  const ariaDescribedby = fakeLink.getAttribute('aria-describedby');
+  if (ariaDescribedby) {
+    anchor.setAttribute('aria-describedby', ariaDescribedby);
+  }
+  
+  // Copy title attribute
+  const title = fakeLink.getAttribute('title');
+  if (title) {
+    anchor.title = title;
+  }
+  
+  // Replace the fake link with the anchor
+  if (fakeLink.parentNode) {
+    fakeLink.parentNode.replaceChild(anchor, fakeLink);
+    
+    console.log(`Transformed fake <${tagName}> element to <a> element`);
+  }
+  
+  return anchor;
+}
+
 module.exports = {
     main,
     SomeClass,
@@ -784,4 +991,9 @@ module.exports = {
     validateTableStructureFn,
     validateLandmarkStructureFn,
     getSvgAccessibleNameFn,
+    // Accessibility functions for REACT_036
+    handleFakeLinks,
+    validateLinkAccessibility,
+    transformFakeLinkToAnchor,
+    getFakeLinks,
 };

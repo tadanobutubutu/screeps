@@ -1,5 +1,7 @@
 // Import required modules
 import { union } from 'lodash'; // You'll need to install lodash if it's not already installed
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Import graph rendering functions
 import { renderGraph } from './newGraphRenderingFunctions'; // Assuming you have a separate file for the new functions
@@ -153,6 +155,19 @@ export const logger = {
 };
 
 const a11yStore = {
+  liveRegion: null,
+
+  announce(message, priority = 'polite') {
+    if (!this.liveRegion) {
+      this.liveRegion = document.createElement('div');
+      this.liveRegion.setAttribute('aria-live', priority);
+      this.liveRegion.setAttribute('aria-atomic', 'true');
+      this.liveRegion.className = 'sr-only';
+      document.body.appendChild(this.liveRegion);
+    }
+    this.liveRegion.textContent = message;
+  },
+
   // ... existing code (from both conflicting branches)
 
   // New function to handle dynamic content updates
@@ -330,6 +345,50 @@ function addressAccessibilityIssues() {
 
 export { addressAccessibilityIssues };
 
+// Function definitions for accessibility utilities
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+function wrapPrimaryContentInMain() {
+  const main = document.querySelector('main');
+  if (main) {
+    main.setAttribute('role', 'main');
+  }
+}
+
+function addLandmarkRegions() {
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+  landmarks.forEach(tag => {
+    const elements = document.querySelectorAll(tag);
+    elements.forEach((el, index) => {
+      if (!el.hasAttribute('role')) {
+        if (tag === 'header') el.setAttribute('role', 'banner');
+        else if (tag === 'nav') el.setAttribute('role', 'navigation');
+        else if (tag === 'aside') el.setAttribute('role', 'complementary');
+        else if (tag === 'footer') el.setAttribute('role', 'contentinfo');
+      }
+    });
+  });
+}
+
+function updateThScopeAttribute(filePath) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const updatedContent = content.replace(/<th>/g, '<th scope="col">');
+    fs.writeFileSync(filePath, updatedContent);
+  } catch (error) {
+    console.error(`Error updating file ${filePath}:`, error);
+  }
+}
+
+function prepareDataForGraph() {
+  return {
+    nodes: [],
+    edges: []
+  };
+}
+
 // Screeps module exports for game loop integration
 module.exports.getLangAttribute = getLangAttribute;
 module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
@@ -352,4 +411,43 @@ module.exports.loop = function() {
 
     if(harvesters.length < 2) {
         var newName = 'Harvester' + Game.time;
-        Game.sp
+        Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, { role: 'harvester' });
+    }
+
+    if(upgraders.length < 2) {
+        var newName = 'Upgrader' + Game.time;
+        Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, { role: 'upgrader' });
+    }
+
+    for(var name in Game.creeps) {
+        var creep = Game.creeps[name];
+        if(creep.memory.role == 'harvester') {
+            if(creep.carry.energy < creep.carryCapacity) {
+                var sources = creep.room.find(FIND_SOURCES);
+                if(sources.length > 0) {
+                    if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(sources[0]);
+                    }
+                }
+            } else {
+                if(creep.transfer(Game.spawns['Spawn1'], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(Game.spawns['Spawn1']);
+                }
+            }
+        }
+        if(creep.memory.role == 'upgrader') {
+            if(creep.carry.energy > 0) {
+                if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(creep.room.controller);
+                }
+            } else {
+                var sources = creep.room.find(FIND_SOURCES);
+                if(sources.length > 0) {
+                    if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(sources[0]);
+                    }
+                }
+            }
+        }
+    }
+};

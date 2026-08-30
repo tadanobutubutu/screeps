@@ -130,8 +130,78 @@ function setSvgAttributes(svg, accessibleName) {
   }
 }
 
+/**
+ * Ensures that ARIA landmarks on the page are unique where required by accessibility standards.
+ * This includes ensuring that elements with landmark roles have unique accessible names
+ * when there are multiple instances of the same landmark role.
+ */
 function ensureUniqueLandmarks() {
-  // Code for ensuring unique landmarks
+  // Find all elements with landmark roles
+  const landmarkRoles = ['main', 'navigation', 'complementary', 'contentinfo', 'banner', 'search', 'form', 'region'];
+  const landmarks = [];
+  
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    elements.forEach(element => {
+      landmarks.push({
+        element: element,
+        role: role,
+        name: getAccessibleName(element)
+      });
+    });
+  });
+  
+  // Group landmarks by role
+  const roleGroups = {};
+  landmarks.forEach(landmark => {
+    if (!roleGroups[landmark.role]) {
+      roleGroups[landmark.role] = [];
+    }
+    roleGroups[landmark.role].push(landmark);
+  });
+  
+  // For each role group with multiple elements, ensure unique accessible names
+  Object.keys(roleGroups).forEach(role => {
+    const group = roleGroups[role];
+    if (group.length > 1) {
+      const names = new Set();
+      group.forEach(landmark => {
+        let name = landmark.name;
+        let counter = 1;
+        
+        // If name already exists or is empty, generate a unique one
+        while (names.has(name) || !name) {
+          name = landmark.element.getAttribute('aria-label') || 
+                 landmark.element.getAttribute('aria-labelledby') ||
+                 `${role} ${counter}`;
+          counter++;
+        }
+        
+        names.add(name);
+        
+        // Set the unique name if it's different from current
+        if (name !== landmark.name) {
+          if (landmark.element.setAttribute) {
+            landmark.element.setAttribute('aria-label', name);
+          }
+        }
+      });
+    }
+  });
+}
+
+/**
+ * Helper function to get the accessible name of an element.
+ * @param {Element} element - The DOM element
+ * @returns {string} The accessible name
+ */
+function getAccessibleName(element) {
+  if (!element) return '';
+  
+  return element.getAttribute('aria-label') || 
+         element.getAttribute('aria-labelledby') || 
+         element.textContent || 
+         '';
 }
 
 function createInPageButton() {

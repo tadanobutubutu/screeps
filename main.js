@@ -1,15 +1,10 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report
-// ----- END ORIGINAL CODE -----
-=======
-// TODO: Any additional changes requested in the issue
 // main.js - Accessibility improvements implementation
 
 const main = {
   init: function() {
     console.log('Application initialized');
   },
-  
+
   greet: function(name) {
     return `Hello, ${name}!`;
   }
@@ -31,10 +26,10 @@ function getDependencyDepth(dependencies, currentKey = '') {
   if (!dependencies || typeof dependencies !== 'object') {
     return 0;
   }
-  
+
   let maxDepth = 0;
   const keys = Object.keys(dependencies);
-  
+
   keys.forEach(key => {
     const value = dependencies[key];
     if (typeof value === 'object' && value !== null) {
@@ -42,7 +37,7 @@ function getDependencyDepth(dependencies, currentKey = '') {
       maxDepth = Math.max(maxDepth, nestedDepth + 1);
     }
   });
-  
+
   return maxDepth;
 }
 
@@ -60,17 +55,17 @@ function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
   if (!dependencies || typeof dependencies !== 'object') {
     return '';
   }
-  
+
   let output = '';
   const keys = Object.keys(dependencies);
-  
+
   keys.forEach((key, index) => {
     const isLastItem = index === keys.length - 1;
     const connector = isLast ? '└── ' : '├── ';
     const value = dependencies[key];
-    
+
     output += `${prefix}${connector}${key}`;
-    
+
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
       output += '/\\n';
       const extension = isLast ? '    ' : '│   ';
@@ -79,7 +74,7 @@ function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
       output += ` -> ${value}\\n`;
     }
   });
-  
+
   return output;
 }
 
@@ -113,9 +108,9 @@ const landmarks = [];
 function addLandmark(landmark) {
   if (validateLandmark(landmark)) {
     landmarks.push(landmark);
-    return true;
+    return uniqueLandmarks(landmarks); // Return updated unique landmarks array
   }
-  return false;
+  return landmarks;
 }
 
 // Function to get all landmarks
@@ -159,10 +154,10 @@ function validateTableAccessibility(table) {
   if (!table || table.nodeType !== Node.ELEMENT_NODE || table.tagName !== 'TABLE') {
     return false;
   }
-  
+
   const hasCaption = table.querySelector('caption') !== null;
   const hasSummary = table.getAttribute('summary') !== null || table.getAttribute('aria-describedby') !== null;
-  
+
   return hasCaption || hasSummary;
 }
 
@@ -170,41 +165,41 @@ function validateTableStructure(table) {
   if (!validateTableAccessibility(table)) {
     return false;
   }
-  
+
   const hasTbody = table.querySelector('tbody') !== null;
   const rows = table.querySelectorAll('tr');
-  
+
   for (let row of rows) {
     const cells = row.querySelectorAll('th');
     if (cells.length === 0) {
       return false;
     }
   }
-  
+
   return hasTbody || rows.length > 0;
 }
 
 // REACT_041: Add accessible names to SVGs
 function getSvgAccessibleName(svg, context) {
   if (!svg) return '';
-  
+
   const title = svg.querySelector('title');
   const desc = svg.querySelector('desc');
-  
+
   if (title && title.textContent.trim()) {
     return title.textContent.trim();
   }
-  
+
   if (desc && desc.textContent.trim() && context) {
     return context;
   }
-  
+
   return svg.getAttribute('aria-label') || '';
 }
 
 function setSvgAttributes(svg, accessibleName) {
   if (!svg) return;
-  
+
   svg.setAttribute('role', 'img');
   svg.setAttribute('aria-label', accessibleName);
   svg.setAttribute('aria-hidden', 'false');
@@ -214,19 +209,19 @@ function setSvgAttributes(svg, accessibleName) {
 function ensureUniqueLandmarks(landmarksList) {
   const landmarkNames = new Map();
   const uniqueLandmarks = [];
-  
+
   for (let landmark of landmarksList) {
     if (!validateLandmark(landmark)) {
       continue;
     }
-    
+
     const name = landmark.name;
     if (!landmarkNames.has(name)) {
       landmarkNames.set(name, []);
       uniqueLandmarks.push(landmark);
     }
   }
-  
+
   return uniqueLandmarks;
 }
 
@@ -235,22 +230,22 @@ function validateLinkAccessibility(linkElement) {
   if (!linkElement || linkElement.nodeType !== Node.ELEMENT_NODE || linkElement.tagName !== 'A') {
     return false;
   }
-  
+
   const href = linkElement.getAttribute('href');
   if (!href || href === '#' || href === '' || href.trim() === '') {
     return false;
   }
-  
+
   if (href.startsWith('javascript:')) {
     return false;
   }
-  
+
   return true;
 }
 
 function handleFakeLinks(links) {
   const fixedLinks = [];
-  
+
   for (let link of links) {
     if (!validateLinkAccessibility(link)) {
       link.setAttribute('href', '#');
@@ -261,7 +256,7 @@ function handleFakeLinks(links) {
       fixedLinks.push(link);
     }
   }
-  
+
   return fixedLinks;
 }
 
@@ -270,10 +265,10 @@ function addProperLandmarkRegions(element) {
   if (!element || element.nodeType !== Node.ELEMENT_NODE) {
     return;
   }
-  
+
   const validLandmarkRegions = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
   const currentRole = element.getAttribute('role');
-  
+
   if (!currentRole && validLandmarkRegions.includes(element.tagName.toLowerCase())) {
     element.setAttribute('role', element.tagName.toLowerCase());
   }
@@ -288,29 +283,24 @@ function displayModuleStructure(modules) {
   if (!Array.isArray(modules)) {
     return 'Error: modules must be an array';
   }
-  
+
   let output = 'Module Structure:\n';
   output += '==================\n\n';
-  
+
   modules.forEach((mod, index) => {
     const name = mod.name || mod.id || `Module ${index + 1}`;
     output += `${index + 1}. ${name}\n`;
-    
+
     if (mod.dependencies && Array.isArray(mod.dependencies)) {
       output += `   Dependencies: ${mod.dependencies.join(', ')}\n`;
     }
-    
+
     if (mod.path) {
       output += `   Path: ${mod.path}\n`;
     }
-    
+
     output += '\n';
   });
-  
+
   return output;
 }
-
-/**
- * Generates a dependency report for debugging
-=========================================
-```

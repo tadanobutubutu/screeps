@@ -88,7 +88,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -117,7 +117,7 @@ function addAriaLabel(element, label) {
  * @param {string} languageCode - The language code (e.g., 'en', 'es', 'fr')
  */
 function setLanguageAttribute(languageCode) {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', languageCode);
   }
@@ -129,26 +129,28 @@ function setLanguageAttribute(languageCode) {
 // Adds an aria-label to the dependencyGraph container if it doesn't already have one
 function addDepGraphAriaLabel() {
   const container = document.getElementById('dependencyGraph');
-  addAriaLabel(container, 'Dependency Graph');
+  if (container) {
+    addAriaLabel(container, 'Dependency Graph');
+  }
 }
 
 // Fixes 26 table structure issues for accessibility
 // Ensures tables have proper headers, captions, and scope attributes
-function fixTableStructureIssues() {
+function fixTableStructureAccessibility() {
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     // Add caption if missing
     if (!table.querySelector('caption')) {
       const caption = document.createElement('caption');
       caption.textContent = table.getAttribute('aria-label') || 'Data table';
-      caption.classList.add('sr-only');
+      caption.style.caption-side = 'top';
       table.prepend(caption);
     }
 
     // Ensure proper header structure with scope attributes
     const headerCells = table.querySelectorAll('th');
     headerCells.forEach((th) => {
-      if (!th.hasAttribute('scope')) {
+      if (!th.getAttribute('scope')) {
         // Determine scope based on position
         const parent = th.parentElement;
         const isInThead = parent && parent.tagName === 'THEAD';
@@ -186,15 +188,15 @@ function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg) => {
     const hasAccessibleName =
-      svg.hasAttribute('aria-label') ||
-      svg.hasAttribute('aria-labelledby') ||
-      svg.hasAttribute('role') ||
+      svg.getAttribute('aria-label') ||
+      svg.getAttribute('aria-labelledby') ||
+      svg.getAttribute('title') ||
       svg.querySelector('title');
 
     if (!hasAccessibleName) {
       // Try to use nearby text or generate one
       const parent = svg.parentElement;
-      const nearbyText = parent ? parent.textContent.trim().substring(0, 50) : '';
+      const nearbyText = parent ? parent.textContent.substring(0, 50) : '';
       const label = nearbyText || 'Decorative icon';
       svg.setAttribute('aria-label', label);
       svg.setAttribute('role', 'img');
@@ -207,39 +209,4 @@ function ensureUniqueLandmarks() {
   const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     // Keep the first <main> and convert others to <section> or <div>
-    for (let i = 1; i < mainElements.length; i++) {
-      const extraMain = mainElements[i];
-      const section = document.createElement('section');
-      section.setAttribute('role', 'region');
-      while (extraMain.firstChild) {
-        section.appendChild(extraMain.firstChild);
-      }
-      extraMain.parentNode.replaceChild(section, extraMain);
-    }
-  }
-}
-
-// Fixes fake link issues (e.g., divs/buttons styled as links but not using <a>)
-// Replaces fake links with proper anchor elements
-function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('[role="link"], .fake-link, [data-fake-link]');
-  fakeLinks.forEach((fakeLink) => {
-    const href = fakeLink.getAttribute('data-href') || fakeLink.getAttribute('href') || '#';
-    const text = fakeLink.textContent;
-    const anchor = document.createElement('a');
-    anchor.setAttribute('href', href);
-    anchor.textContent = text;
-    // Copy relevant attributes
-    const classes = fakeLink.getAttribute('class');
-    if (classes) {
-      anchor.setAttribute('class', classes);
-    }
-    const id = fakeLink.getAttribute('id');
-    if (id) {
-      anchor.setAttribute('id', id);
-    }
-    fakeLink.parentNode.replaceChild(anchor, fakeLink);
-  });
-}
-
-// ... (Preserve the existing code that needs to be preserved)
+    for (let

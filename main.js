@@ -32,6 +32,16 @@ const config = {
 };
 
 /**
+ * Sets the HTML lang attribute on the document's <html> element
+ * @param {string} lang - The language code to set
+ */
+function setHtmlLangAttribute(lang) {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.lang = lang;
+    }
+}
+
+/**
  * Detects the language of the given content and sets the HTML lang attribute
  * @param {string} content - The text content to analyze
  * @returns {string} The detected language code
@@ -42,9 +52,10 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
+    const hasChineseChars = /[\u4e00-\u9fff]/.test(content);
+    if (hasChineseChars) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
+    } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
     } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
@@ -57,6 +68,7 @@ function detectAndSetLang(content) {
     }
   }
   
+  setHtmlLangAttribute(lang);
   return lang;
 }
 
@@ -64,11 +76,11 @@ function detectAndSetLang(content) {
  * Addresses accessibility issues from an insight report
  * @param {Object|Array} insightReport - The insight report containing accessibility issues
  * @param {Object} [options] - Options for handling the issues
- * @param {boolean} [options.autoFix=false] - Whether to attempt automatic fixes
- * @param {boolean} [options.verbose=false] - Whether to log detailed information
+ * @param {boolean} autoFix - Whether to attempt automatic fixes
+ * @param {boolean} verbose - Whether to log detailed information
  * @returns {Object} A report of addressed issues
  */
-function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
+function addressAccessibilityIssues(insightReport, options = {}) {
     const { autoFix = false, verbose = false } = options;
 
     const result = {
@@ -90,7 +102,7 @@ function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
     // Normalize input to an array of issues
     const issues = Array.isArray(insightReport)
         ? insightReport
-        : (Array.isArray(insightReport.issues) ? insightReport.issues : []);
+        : (insightReport.issues ? insightReport.issues : []);
 
     result.totalIssues = issues.length;
 
@@ -207,18 +219,20 @@ function getDate() {
 
 // Get table headers
 function getTableHeaders(table) {
-    return table.querySelectorAll('th');
+    if (!table) return [];
+    return table.querySelectorAll ? Array.from(table.querySelectorAll('th')) : [];
 }
 
 // Get table rows
 function getTableRows(table) {
-    return table.querySelectorAll('tr');
+    if (!table) return [];
+    return table.querySelectorAll ? Array.from(table.querySelectorAll('tr')) : [];
 }
 
 // Validate table accessibility
 function validateTableAccessibility(tableOrUrl) {
     const tables = typeof tableOrUrl === 'string' 
-        ? document.querySelectorAll('table') 
+        ? (typeof document !== 'undefined' ? Array.from(document.querySelectorAll('table')) : []) 
         : [tableOrUrl];
     
     const accessibilityResults = {
@@ -231,7 +245,7 @@ function validateTableAccessibility(tableOrUrl) {
     };
     
     tables.forEach((table, index) => {
-        const headers = table.querySelectorAll('th');
+        const headers = table.querySelectorAll ? Array.from(table.querySelectorAll('th')) : [];
         
         // Check if table has headers
         if (headers.length === 0) {
@@ -246,7 +260,8 @@ function validateTableAccessibility(tableOrUrl) {
         
         // Check for scope attributes
         headers.forEach((header, hIndex) => {
-            if (!header.hasAttribute('scope')) {
+            const scope = header.getAttribute ? header.getAttribute('scope') : null;
+            if (!scope) {
                 accessibilityResults.issues.push({
                     table: index,
                     header: hIndex,
@@ -259,10 +274,9 @@ function validateTableAccessibility(tableOrUrl) {
         });
         
         // Check for proper associations (id/headers)
-        const cells = table.querySelectorAll('td');
+        const cells = table.querySelectorAll ? Array.from(table.querySelectorAll('td')) : [];
         if (cells.length > 0 && headers.length > 0) {
-            const hasProperAssociation = headers[0].hasAttribute('id') || 
-                cells[0].hasAttribute('headers');
+            const hasProperAssociation = cells.some(cell => cell.getAttribute && cell.getAttribute('headers'));
             if (!hasProperAssociation) {
                 accessibilityResults.issues.push({
                     table: index,
@@ -281,7 +295,7 @@ function validateTableAccessibility(tableOrUrl) {
 // Validate table structure
 function validateTableStructure(tableOrUrl) {
     const tables = typeof tableOrUrl === 'string' 
-        ? document.querySelectorAll('table') 
+        ? (typeof document !== 'undefined' ? Array.from(document.querySelectorAll('table')) : []) 
         : [tableOrUrl];
     
     const structureResults = {
@@ -296,7 +310,7 @@ function validateTableStructure(tableOrUrl) {
     
     tables.forEach((table, index) => {
         // Check for caption
-        const caption = table.querySelector('caption');
+        const caption = table.querySelector ? table.querySelector('caption') : null;
         if (!caption) {
             structureResults.issues.push({
                 table: index,
@@ -308,8 +322,8 @@ function validateTableStructure(tableOrUrl) {
         }
         
         // Check for summary (via aria-describedby or summary attribute)
-        const hasSummaryAttr = table.hasAttribute('summary');
-        const hasAriaDescription = table.hasAttribute('aria-describedby');
+        const hasSummaryAttr = table.getAttribute ? !!table.getAttribute('summary') : false;
+        const hasAriaDescription = table.getAttribute ? !!table.getAttribute('aria-describedby') : false;
         if (!hasSummaryAttr && !hasAriaDescription) {
             structureResults.issues.push({
                 table: index,
@@ -321,7 +335,7 @@ function validateTableStructure(tableOrUrl) {
         }
         
         // Check for thead
-        const thead = table.querySelector('thead');
+        const thead = table.querySelector ? table.querySelector('thead') : null;
         if (!thead) {
             structureResults.issues.push({
                 table: index,
@@ -333,149 +347,3 @@ function validateTableStructure(tableOrUrl) {
         }
         
         // Check for tbody
-        const tbody = table.querySelector('tbody');
-        if (!tbody) {
-            structureResults.issues.push({
-                table: index,
-                type: 'missing_tbody',
-                message: `Table ${index + 1}: Missing tbody element`
-            });
-            structureResults.hasTbody = false;
-            structureResults.score -= 10;
-        }
-        
-        // Check column consistency
-        const rows = table.querySelectorAll('tr');
-        if (rows.length > 1) {
-            const firstRowCells = rows[0].querySelectorAll('th, td').length;
-            let inconsistent = false;
-            
-            rows.forEach((row, rIndex) => {
-                const cellCount = row.querySelectorAll('th, td').length;
-                if (cellCount !== firstRowCells) {
-                    inconsistent = true;
-                }
-            });
-            
-            if (inconsistent) {
-                structureResults.issues.push({
-                    table: index,
-                    type: 'inconsistent_columns',
-                    message: `Table ${index + 1}: Inconsistent number of columns across rows`
-                });
-                structureResults.consistentColumns = false;
-                structureResults.score -= 20;
-            }
-        }
-    });
-    
-    return structureResults;
-}
-
-/**
- * Counts the total number of dependencies in package.json
- * @returns {Object} An object containing counts for dependencies, devDependencies, and total
- */
-function countDependencies() {
-  const packagePath = path.join(process.cwd(), 'package.json');
-  
-  try {
-    const packageContent = fs.readFileSync(packagePath, 'utf8');
-    const packageJson = JSON.parse(packageContent);
-    
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-    
-    const dependencyCount = Object.keys(dependencies).length;
-    const devDependencyCount = Object.keys(devDependencies).length;
-    
-    return {
-      dependencies: dependencyCount,
-      devDependencies: devDependencyCount,
-      total: dependencyCount + devDependencyCount
-    };
-  } catch (error) {
-    console.error('Error reading package.json:', error.message);
-    return {
-      dependencies: 0,
-      devDependencies: 0,
-      total: 0
-    };
-  }
-}
-
-/**
- * Renders a dependency graph summary based on dependency counts
- * @param {Object} deps - Dependency information object from countDependencies()
- * @returns {string} Formatted dependency graph string
- */
-function renderDependencyGraph(deps) {
-    const lines = [
-        "Dependency Graph Report",
-        "=".repeat(20),
-        "",
-        "- Total Dependencies: " + deps.total,
-        "- Core Dependencies: " + deps.dependencies,
-        "- Development Dependencies: " + deps.devDependencies,
-        ""
-    ];
-    
-    if (deps.dependencies > 0) {
-        lines.push("Core Dependencies:");
-        deps.dependencies.forEach(dep => {
-            lines.push(`  • ${dep.name} (${dep.version})`);
-        });
-    }
-    
-    if (deps.devDependencies > 0) {
-        lines.push("Development Dependencies:");
-        deps.devDependencies.forEach(dep => {
-            lines.push(`  • ${dep.name} (${dep.version})`);
-        });
-    }
-    
-    return lines.join("\n");
-}
-
-function elementExists(selector) {
-    return typeof document !== 'undefined' && !!document.querySelector(selector);
-}
-
-function getElementText(selector) {
-    if (typeof document === 'undefined') return '';
-    const el = document.querySelector(selector);
-    return el ? (el.textContent || '') : '';
-}
-
-function getAllTables() {
-    return typeof document !== 'undefined' ? document.querySelectorAll('table') : [];
-}
-
-function getFullLangAttribute(el) {
-    const element = typeof el === 'string' ? document.querySelector(el) : (el || (typeof document !== 'undefined' ? document.documentElement : null));
-    return element ? (element.lang || element.getAttribute('lang') || '') : '';
-}
-
-module.exports = {
-    validateWebAccessibility,
-    validateTableAccessibility,
-    validateTableStructure,
-    elementExists,
-    getElementText,
-    getAllTables,
-    getTableHeaders,
-    getTableRows,
-    config,
-    countDependencies,
-    someFunction,
-    renderDependencyGraph,
-    getLangAttribute,
-    getFullLangAttribute,
-    addressAccessibilityIssuesFromInsight,
-    sayHello,
-    sayGoodbye,
-    getDate,
-    personName,
-    setHtmlLangAttribute,
-    detectAndSetLang
-};

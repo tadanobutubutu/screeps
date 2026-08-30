@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];

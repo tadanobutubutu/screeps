@@ -188,3 +188,6 @@ function Main() {
 
 // Export the Main component
 export default Main;
+
+// Export utility functions for testing and external use
+export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, onTitleSort, onAuthorSort, defaultSorting, getBooksList };

@@ -121,6 +121,94 @@ function getLandmarkElements(container) {
   return landmarkElements;
 }
 
+/**
+ * Validates the table structure for accessibility issues
+ * @param {Document|HTMLElement} doc - The document or container to validate
+ * @returns {Object} - Validation results with errors
+ */
+function validateTableStructure(doc) {
+  const results = {
+    valid: true,
+    tables: [],
+    errors: []
+  };
+
+  if (!doc) {
+    results.valid = false;
+    results.errors.push('Document is required');
+    return results;
+  }
+
+  // Support both Document and HTMLElement
+  const queryMethod = typeof doc.querySelectorAll === 'function' ? doc.querySelectorAll.bind(doc) : null;
+  if (!queryMethod) {
+    results.valid = false;
+    results.errors.push('Provided input is not a valid document or element');
+    return results;
+  }
+
+  const tables = doc.querySelectorAll('table');
+
+  tables.forEach((table, tableIndex) => {
+    const tableInfo = {
+      index: tableIndex,
+      issues: []
+    };
+
+    // Check for caption
+    const caption = table.querySelector('caption');
+    if (!caption || !caption.textContent.trim()) {
+      tableInfo.issues.push('Table must have a <caption> element describing its purpose');
+    }
+
+    // Check for proper structure: at least one thead/tbody
+    const hasRows = table.querySelector('tr');
+    if (!hasRows) {
+      tableInfo.issues.push('Table must contain at least one <tr> row');
+    }
+
+    // Check for th elements
+    const ths = table.querySelectorAll('th');
+    if (ths.length === 0) {
+      tableInfo.issues.push('Table must have at least one <th> element to identify column or row headers');
+    } else {
+      // Validate th scope attributes
+      ths.forEach((th, thIndex) => {
+        const scope = th.getAttribute('scope');
+        if (scope && !['row', 'col', 'rowgroup', 'colgroup'].includes(scope)) {
+          tableInfo.issues.push(`<th> at index ${thIndex} has an invalid scope attribute: "${scope}"`);
+        }
+      });
+    }
+
+    // Check for proper thead/tbody/tfoot structure if applicable
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    const tfoot = table.querySelector('tfoot');
+    const directRows = table.querySelectorAll(':scope > tr');
+
+    if (thead && tbody && directRows.length > 0) {
+      tableInfo.issues.push('Table should not contain direct <tr> children when <thead> or <tbody> is used');
+    }
+
+    // Check for accessible name on table (via caption, aria-label, or aria-labelledby)
+    const ariaLabel = table.getAttribute('aria-label');
+    const ariaLabelledBy = table.getAttribute('aria-labelledby');
+    if (!caption && !ariaLabel && !ariaLabelledBy) {
+      tableInfo.issues.push('Table must have an accessible name (use <caption>, aria-label, or aria-labelledby)');
+    }
+
+    if (tableInfo.issues.length > 0) {
+      results.valid = false;
+      results.errors.push(...tableInfo.issues.map(issue => `Table ${tableIndex}: ${issue}`));
+    }
+
+    results.tables.push(tableInfo);
+  });
+
+  return results;
+}
+
 // Example module pattern (common in Screeps)
 const SomeModule = {
   // Some functionality
@@ -259,6 +347,7 @@ module.exports = {
   isLandmark,
   validateLandmarks,
   getLandmarkElements,
+  validateTableStructure,
   SomeModule,
   setSvgAccessibleName,
   improveAccessibility,

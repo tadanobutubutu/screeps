@@ -57,7 +57,7 @@ function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
-  button.ariaLabel = 'rotate back';
+  button.setAttribute('aria-label', 'rotate back');
   button.textContent = 'rotate back';
   button.addEventListener('click', rotateBack);
   return button;
@@ -254,6 +254,9 @@ function initialize() {
 
   // Accessibility: Fix 1 fake link issue
   fixFakeLink();
+
+  // Initialize all accessibility improvements from insight report
+  initializeAccessibility();
 }
 
 // New function or change requested in the issue

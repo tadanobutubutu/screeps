@@ -58,7 +58,7 @@ function checkLandmarkElement(id) {
 function ensureUniqueLandmarks(landmarks) {
   const seen = new Set();
   return landmarks.filter(landmark => {
-    const key = JSON.stringify(landmark);
+    const key = landmark.role + '-' + (landmark.id || landmark.label || '');
     if (seen.has(key)) {
       return false;
     }
@@ -188,7 +188,7 @@ const addSVGAccessibleName = (svgSelector, accessibleName) => {
  * and attributes to make them accessible.
  */
 const fixFakeLinks = () => {
-  const fakeLinks = document.querySelectorAll('[onclick], [onClick]');
+  const fakeLinks = document.querySelectorAll('[onClick]');
   fakeLinks.forEach((element) => {
     if (element.tagName.toLowerCase() !== 'a') {
       // Add role="button" and appropriate ARIA attributes
@@ -209,7 +209,7 @@ function helloWorld() {
  * @returns {string} The language attribute value, defaults to 'en'
  */
 function getLangAttribute() {
-    const htmlElement = document.querySelector('html');
+    const htmlElement = document.documentElement;
     return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
 }
 
@@ -252,7 +252,7 @@ function validateTableAccessibility(table) {
     // Check for th elements with scope or headers attribute
     const headers = table.querySelectorAll('th');
     headers.forEach((th, index) => {
-        if (!th.getAttribute('scope') && !th.id) {
+        if (!th.getAttribute('scope') && !th.getAttribute('id')) {
             result.isValid = false;
             result.errors.push(`TH element at index ${index} missing scope or id`);
         }
@@ -356,167 +356,4 @@ function createInPageButton({ text, onClick, id, className }) {
 
 /**
  * REACT_025: Ensure unique landmarks (enhancement for accessibility)
- * Addresses the requirement to ensure unique landmarks in the document
- * @param {Array} landmarks - Array of landmark elements or objects
- * @returns {Array} Array of unique landmarks
- */
-function ensureLandmarkUniqueness(landmarks) {
-    const seen = new Map();
-    const unique = [];
-
-    for (const landmark of landmarks) {
-        const key = landmark.id || landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-        
-        if (!seen.has(key)) {
-            seen.set(key, true);
-            unique.push(landmark);
-        } else {
-            // Mark duplicate for accessibility report
-            console.warn(`Duplicate landmark detected: ${key}`);
-        }
-    }
-
-    return unique;
-}
-
-// New function implementation as per the issue requirements
-function processLandmarks(landmarks) {
-  // Ensure all landmarks have valid structure
-  const validLandmarks = landmarks.filter(landmarkStructureCheck);
-  
-  // Ensure the landmarks are unique
-  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-  
-  return uniqueLandmarks;
-}
-
-// Function to initialize the dependency graph with accessibility support
-function initDependencyGraph(containerId) {
-  const container = document.getElementById(containerId);
-  if (container) {
-    container.setAttribute('role', 'img');
-    container.setAttribute('aria-label', 'Dependency graph visualization');
-  }
-  return container;
-}
-
-// Function to render the dependency graph
-function renderDependencyGraph(containerId) {
-  const container = document.getElementById(containerId);
-  if (container) {
-    // Add the logic to render the dependency graph inside the container
-    // This is a placeholder for the actual rendering logic
-    container.innerHTML = 'Dependency Graph Data';
-  }
-}
-
-// Helper function to get element by ID
-function getElementById(id) {
-    return document.getElementById(id);
-}
-
-// Helper function to query elements
-function queryElements(selector) {
-    return document.querySelectorAll(selector);
-}
-
-// Function to check landmark elements in the DOM
-function checkLandmarkElements() {
-    const landmarkSelectors = ['header', 'nav', 'main', 'aside', 'footer', 'article', 'section'];
-    const results = {};
-
-    landmarkSelectors.forEach((landmark) => {
-        const elements = document.querySelectorAll(landmark);
-        results[landmark] = {
-            count: elements.length,
-            exists: elements.length > 0
-        };
-    });
-
-    return results;
-}
-
-// Function to validate landmark structure
-function validateLandmarkStructure() {
-    const results = checkLandmarkElements();
-    const validation = {
-        isValid: true,
-        errors: [],
-        warnings: []
-    };
-
-    if (!results.main.exists) {
-        validation.isValid = false;
-        validation.errors.push('Required <main> landmark element');
-    }
-
-    return validation;
-}
-
-/**
- * Initializes the application and applies accessibility fixes.
- */
-const initApp = () => {
-  // Initialize the main application
-  initializeApp();
-
-  // Apply accessibility fixes
-  setLanguageAttribute(); // Default to 'en'
-  addLandmarkRoles();
-  
-  // Add accessible names to SVGs (example selectors and names)
-  addSVGAccessibleName('#home-icon', 'Home icon');
-  addSVGAccessibleName('#settings-icon', 'Settings icon');
-
-  // Fix fake links
-  fixFakeLinks();
-
-  // Initialize the application data
-  console.log('Initializing ' + appData.title + ' v' + appData.version);
-
-  // Signal that the app has started
-  appStarted();
-};
-
-// Check if the environment is secure before initializing
-if (isSecureContext()) {
-  initApp();
-} else {
-  console.warn('Application is not running in a secure context. Some features may not be available.');
-}
-
-// Register the service worker
-registerSW();
-
-// Export functions for testing
-export {
-    ensureUniqueLandmarks,
-    landmarkStructureCheck,
-    helloWorld,
-    initDependencyGraph,
-    renderDependencyGraph,
-    getElementById,
-    queryElements,
-    checkLandmarkElement,
-    checkLandmarkElements,
-    validateLandmarkStructure,
-    initApp,
-    icons,
-    isSecureContext,
-    setLanguageAttribute,
-    addLandmarkRoles,
-    ensureUniqueLandmarkElements,
-    addSVGAccessibleName,
-    fixFakeLinks,
-    landmarks,
-    functionA,
-    functionB,
-    processLandmarks,
-    getLangAttribute,
-    personName,
-    validateTableAccessibility,
-    validateTableStructure,
-    getSvgAccessibleName,
-    createInPageButton,
-    ensureLandmarkUniqueness
-};
+ * Addresses the requirement to

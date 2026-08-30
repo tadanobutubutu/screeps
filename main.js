@@ -3,22 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
-
-// Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
-}
-
-// Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
-}
-
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `${book.id}-${book.title}-${book.author}`;
+  return book.id || `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
@@ -46,47 +33,89 @@ function addBook(book) {
 // ...
 
 // Default sorting function for the book list
-const defaultSorting = sortByTitle;
+const defaultSorting = 'title';
+
+// Function to handle sorting books by title (ascending)
+function sortByTitle(a, b) {
+  return a.title.localeCompare(b.title);
+}
+
+// Function to handle sorting books by author (descending)
+function sortByAuthor(a, b) {
+  return b.author.localeCompare(a.author);
+}
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
 // Render the main component containing the book list and sorting controls
 function Main() {
+  // Get the list of books from the Redux store
+  const booksList = useSelector(state => state.books.list);
+  const dispatch = useDispatch();
+  
   const [sorting, setSorting] = useState(defaultSorting);
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
-    if (sorting === sortByTitle) {
+    if (sorting === 'title') {
       onTitleSort();
-    } else if (sorting === sortByAuthor) {
+    } else if (sorting === 'author') {
       onAuthorSort();
     }
   }, [sorting]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(BookItem);
+  const bookItems = booksList.map((book, index) => (
+    <BookItem key={generateKey(book)} {...book} />
+  ));
 
   // Render the list of book items and sorting controls
   return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
+    <main role="main" aria-label="Book list management">
+      <nav role="navigation" aria-label="Sorting controls">
+        <button 
+          onClick={() => setSorting('title')} 
+          aria-pressed={sorting === 'title'}
+          aria-label="Sort books by title in ascending order"
+        >
+          Sort by Title
+        </button>
+        <button 
+          onClick={() => setSorting('author')} 
+          aria-pressed={sorting === 'author'}
+          aria-label="Sort books by author in descending order"
+        >
+          Sort by Author
+        </button>
+      </nav>
+      <List 
+        aria-label="Book collection"
+        role="list"
+        dataSource={booksList}
+        renderItem={(book, index) => (
+          <List.Item key={generateKey(book)} role="listitem">
+            <List.Item.Meta
+              title={book.title}
+              description={book.author}
+            />
+          </List.Item>
+        )}
+      />
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
-    </div>
+    </main>
   );
 }
 

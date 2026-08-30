@@ -223,7 +223,7 @@ function addressInsightIssues(insightReport) {
       const affectedElements = issue.elements || [];
       affectedElements.forEach(el => {
         if (!el['aria-label'] && !el.label) {
-          el['aria-label'] = el.id || 'unnamed-element';
+          el.setAttribute('aria-label', el.id || 'unnamed-element');
         }
       });
       const react017Elements = issue.elements || [];

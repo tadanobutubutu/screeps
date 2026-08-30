@@ -175,6 +175,21 @@ function addAccessibleNamesToSvg() {
   }
 }
 
+/**
+ * Ensures the dependencyGraph container has a proper ARIA role.
+ * Sets role="tree" and aria-label if not already present.
+ */
+function ensureDependencyGraphAria() {
+  const container = document.getElementById('dependencyGraph');
+  if (!container) return;
+  if (!container.hasAttribute('role')) {
+    container.setAttribute('role', 'tree');
+  }
+  if (!container.hasAttribute('aria-label')) {
+    container.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -190,7 +205,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getRandomInt,
     clamp,
     deepClone,
-    addAccessibleNamesToSvg
+    addAccessibleNamesToSvg,
+    ensureDependencyGraphAria
   };
 }
 
@@ -199,5 +215,6 @@ if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     window.accessibilityFeatures = initializeAccessibility();
     addAccessibleNamesToSvg();
+    ensureDependencyGraphAria();
   });
 }

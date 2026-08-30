@@ -62,6 +62,16 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// Function to add SVG accessibility props
+function addSvgAccessibilityProps(svgProps = {}) {
+  return {
+    role: 'img',
+    focusable: 'false',
+    'aria-hidden': 'true',
+    ...svgProps
+  };
+}
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);

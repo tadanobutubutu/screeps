@@ -65,6 +65,120 @@ const accessibilityUtils = {
   }
 };
 
+// TODO: Implement functions to ensure unique landmarks here
+
+// Functions to ensure landmarks are unique (REACT_025)
+function ensureUniqueLandmarks(elements) {
+  if (!Array.isArray(elements)) {
+    return [];
+  }
+
+  const seen = new Map();
+  const uniqueElements = [];
+
+  for (const element of elements) {
+    if (!element || !element.tagName) {
+      continue;
+    }
+
+    const tagName = element.tagName.toLowerCase();
+    if (!isLandmark(tagName)) {
+      continue;
+    }
+
+    const key = getLandmarkKey(element, tagName);
+    if (!seen.has(key)) {
+      seen.set(key, 1);
+      uniqueElements.push(element);
+    } else {
+      const count = seen.get(key) + 1;
+      seen.set(key, count);
+      element.setAttribute('data-duplicate-landmark', 'true');
+      element.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  return uniqueElements;
+}
+
+// Helper function to check if a tag is a landmark element
+function isLandmark(tagName) {
+  const landmarks = ['main', 'nav', 'header', 'footer', 'aside', 'section'];
+  return landmarks.includes(tagName);
+}
+
+// Helper function to generate a unique key for a landmark
+function getLandmarkKey(element, tagName) {
+  const role = element.getAttribute('role');
+  const ariaLabel = element.getAttribute('aria-label');
+  const ariaLabelledBy = element.getAttribute('aria-labelledby');
+  const id = element.id;
+
+  if (ariaLabel) {
+    return `${tagName}:label:${ariaLabel}`;
+  }
+  if (ariaLabelledBy) {
+    return `${tagName}:labelledby:${ariaLabelledBy}`;
+  }
+  if (role) {
+    return `${tagName}:role:${role}`;
+  }
+  if (id) {
+    return `${tagName}:id:${id}`;
+  }
+  return `${tagName}:unlabeled`;
+}
+
+// Validate landmark structure
+function validateLandmark(element) {
+  if (!element || !element.tagName) {
+    return { valid: false, reason: 'Invalid element' };
+  }
+
+  const tagName = element.tagName.toLowerCase();
+  if (!isLandmark(tagName)) {
+    return { valid: false, reason: 'Not a landmark element' };
+  }
+
+  const hasAccessibleName = element.hasAttribute('aria-label') ||
+    element.hasAttribute('aria-labelledby') ||
+    element.id;
+
+  return {
+    valid: hasAccessibleName,
+    reason: hasAccessibleName ? 'Valid landmark' : 'Landmark missing accessible name',
+    tagName: tagName
+  };
+}
+
+// Validate landmark structure across a document
+function validateLandmarkStructure(parent = document) {
+  if (!parent || typeof parent.querySelectorAll !== 'function') {
+    return { duplicates: [], issues: [] };
+  }
+
+  const landmarks = parent.querySelectorAll('main, nav, header, footer, aside, section');
+  const seen = new Map();
+  const duplicates = [];
+  const issues = [];
+
+  for (const landmark of landmarks) {
+    const validation = validateLandmark(landmark);
+    if (!validation.valid) {
+      issues.push(validation);
+    }
+
+    const key = getLandmarkKey(landmark, landmark.tagName.toLowerCase());
+    if (seen.has(key)) {
+      duplicates.push(landmark);
+    } else {
+      seen.set(key, 1);
+    }
+  }
+
+  return { duplicates, issues };
+}
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
@@ -96,7 +210,7 @@ const renderDependencyGraph = (data) => {
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks(), ...)
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
@@ -285,5 +399,10 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  ensureUniqueLandmarks,
+  validateLandmark,
+  validateLandmarkStructure,
+  isLandmark,
+  getLandmarkKey
 };

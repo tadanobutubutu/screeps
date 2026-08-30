@@ -42,7 +42,7 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
+// Address accessibility issues from insight report: Ensure interactive elements have accessible labels and roles
 // ...
 
 // Default sorting function for the book list
@@ -81,9 +81,19 @@ function Main() {
   // Render the list of book items and sorting controls
   return (
     <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
+      <button 
+        onClick={() => setSorting(sortByTitle)} 
+        aria-label="Sort books by title in ascending order"
+      >
+        Sort by Title
+      </button>
+      <button 
+        onClick={() => setSorting(sortByAuthor)} 
+        aria-label="Sort books by author in descending order"
+      >
+        Sort by Author
+      </button>
+      <List dataSource={bookItems} aria-label="Book List" />
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
     </div>

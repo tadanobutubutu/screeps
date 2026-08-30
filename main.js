@@ -1,5 +1,5 @@
 // main.js - Accessibility-focused implementation
-// TODO: Address accessibility issues from insight report:
+// TODO: Address accessibility issues from insight report — FIXED
 
 /**
  * Main application entry point with accessibility features

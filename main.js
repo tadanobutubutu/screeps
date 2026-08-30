@@ -1,11 +1,14 @@
 // main.js - Accessibility Checker Module
 
+const { createElement, setAttributes, escapeHtml } = require('./utils');
+const { CLASS_NAMES, CONFIG } = require('./constants');
+
 /**
  * Checks accessibility of links and buttons within a given container
  * @param {HTMLElement} container - The container element to check for accessibility issues
  * @returns {Array} - Array of accessibility issues found
  */
-function checkLinkAndButtonAccessibility(container) {
+function checkAccessibility(container) {
   const issues = [];
   
   // Check links for accessibility
@@ -26,7 +29,7 @@ function checkLinkAndButtonAccessibility(container) {
   });
   
   // Check buttons for accessibility
-  const buttons = container.querySelectorAll('button, [role="button"]');
+  const buttons = container.querySelectorAll('[role="button"], button, input[type="button"], input[type="submit"], input[type="reset"]');
   buttons.forEach((button, index) => {
     const text = button.textContent.trim();
     const ariaLabel = button.getAttribute('aria-label');
@@ -56,15 +59,15 @@ function renderAccessibilityGraph(issues, container) {
     return;
   }
 
-  const graphContainer = document.createElement('div');
-  graphContainer.className = 'accessibility-graph';
+  const graphContainer = createElement('div');
+  graphContainer.className = CLASS_NAMES.GRAPH;
   graphContainer.innerHTML = `
     <h3>Accessibility Issues Graph</h3>
-    <div class="graph-content">
+    <div class="graph-nodes">
       ${issues.map((issue, index) => `
         <div class="graph-node" data-index="${index}">
-          <span class="node-type">${issue.type}</span>
-          <span class="node-message">${issue.message}</span>
+          <span class="node-type">${escapeHtml(issue.type)}</span>
+          <span class="node-message">${escapeHtml(issue.message)}</span>
         </div>
       `).join('')}
     </div>
@@ -83,8 +86,8 @@ function renderAccessibilityIndex(issues, container) {
     return;
   }
 
-  const indexContainer = document.createElement('div');
-  indexContainer.className = 'accessibility-index';
+  const indexContainer = createElement('div');
+  indexContainer.className = CLASS_NAMES.INDEX;
   
   const groupedIssues = {};
   issues.forEach((issue, index) => {
@@ -97,10 +100,10 @@ function renderAccessibilityIndex(issues, container) {
   let indexHTML = '<h3>Accessibility Issues Index</h3><ul class="index-list">';
   
   Object.keys(groupedIssues).forEach(type => {
-    indexHTML += `<li class="index-type"><strong>${type}s</strong> (${groupedIssues[type].length})`;
-    indexHTML += '<ul class="index-sublist">';
-    groupedIssues[type].forEach(item => {
-      indexHTML += `<li data-original-index="${item.originalIndex}">${item.message}</li>`;
+    indexHTML += `<li class="index-type"><span class="type-label">${escapeHtml(type)}</span>`;
+    indexHTML += '<ul class="issue-list">';
+    groupedIssues[type].forEach(issue => {
+      indexHTML += `<li class="issue-item" data-original-index="${issue.originalIndex}">${escapeHtml(issue.message)}</li>`;
     });
     indexHTML += '</ul></li>';
   });
@@ -117,7 +120,7 @@ function renderAccessibilityIndex(issues, container) {
  * @param {HTMLElement} outputContainer - The container element to render results into
  */
 function renderAccessibilityResults(container, outputContainer) {
-  const issues = checkLinkAndButtonAccessibility(container);
+  const issues = checkAccessibility(container);
   
   if (outputContainer) {
     renderAccessibilityGraph(issues, outputContainer);
@@ -140,7 +143,7 @@ function renderIndexView() {
 // Example usage and export
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { 
-    checkLinkAndButtonAccessibility,
+    checkAccessibility,
     renderAccessibilityGraph,
     renderAccessibilityIndex,
     renderAccessibilityResults,
@@ -150,7 +153,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // If running in browser context
 if (typeof window !== 'undefined') {
-  window.checkLinkAndButtonAccessibility = checkLinkAndButtonAccessibility;
+  window.checkAccessibility = checkAccessibility;
   window.renderAccessibilityGraph = renderAccessibilityGraph;
   window.renderAccessibilityIndex = renderAccessibilityIndex;
   window.renderAccessibilityResults = renderAccessibilityResults;

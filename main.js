@@ -10,7 +10,6 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.documentElement.setAttribute('lang', 'en');
     fetchData();
   }, []);
 
@@ -27,7 +26,7 @@ function App() {
   };
 
   return (
-    <div className="app-container">
+    <div>
       <Header />
       <Main data={data} loading={loading} />
       <Footer />
@@ -50,8 +49,8 @@ export function getUniqueLandmarkName(baseName, existingNames) {
 }
 
 // REACT_025: Ensure unique landmarks function
-export function validateUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+export function ensureUniqueLandmarks(container = document) {
+  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
 
@@ -76,6 +75,47 @@ export function validateUniqueLandmarks(container) {
   return issues;
 }
 
+// REACT_028: Validate landmark accessibility
+export function validateLandmark(landmark) {
+  const issues = [];
+  
+  if (!landmark) {
+    return issues;
+  }
+  
+  const tagName = landmark.tagName?.toLowerCase();
+  const role = landmark.getAttribute('role');
+  const ariaLabel = landmark.getAttribute('aria-label');
+  const ariaLabelledby = landmark.getAttribute('aria-labelledby');
+  const title = landmark.getAttribute('title');
+  
+  // Check for valid landmark role or semantic element
+  const validLandmarkRoles = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search', 'form', 'region'];
+  const validLandmarkTags = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'form', 'search'];
+  
+  const isLandmarkRole = role && validLandmarkRoles.includes(role);
+  const isLandmarkTag = validLandmarkTags.includes(tagName);
+  
+  if (!isLandmarkRole && !isLandmarkTag) {
+    issues.push({
+      element: landmark,
+      message: 'Element is not a recognized landmark',
+      severity: 'error'
+    });
+  }
+  
+  // Check for accessible name
+  if (!ariaLabel && !ariaLabelledby && !title) {
+    issues.push({
+      element: landmark,
+      message: 'Landmark missing accessible name (aria-label, aria-labelledby, or title)',
+      severity: 'warning'
+    });
+  }
+  
+  return issues;
+}
+
 // REACT_041: Add accessible names to SVGs
 export function addSvgAccessibleName(svgElement, accessibleName) {
   if (!svgElement) return;
@@ -88,7 +128,7 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
 
   // Add title element as first child
   const title = document.createElement('title');
-  title.id = `svg-title-${Date.now()}`;
+  title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
   title.textContent = accessibleName;
 
   // Insert title as first child
@@ -128,8 +168,8 @@ export function addScopeToHeaders(tableElement) {
   
   headers.forEach((th) => {
     const row = th.closest('tr');
-    const rowIndex = Array.from(row.parentNode.children).indexOf(row);
-    const cellIndex = Array.from(row.cells).indexOf(th);
+    const rowIndex = row ? Array.from(row.parentNode.children).indexOf(row) : 0;
+    const cellIndex = row ? Array.from(row.children).indexOf(th) : 0;
     
     let scope = 'col';
     
@@ -168,7 +208,7 @@ function trapFocus(element) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  element.addEventListener('keydown', (e) => {
+  const handleTabKey = (e) => {
     if (e.key === 'Tab') {
       if (e.shiftKey && document.activeElement === firstElement) {
         e.preventDefault();
@@ -178,11 +218,13 @@ function trapFocus(element) {
         firstElement.focus();
       }
     }
-  });
+  };
+
+  element.addEventListener('keydown', handleTabKey);
 }
 
 function manageFocusOnNavigation() {
-  const mainContent = document.querySelector('main');
+  const mainContent = document.querySelector('[role="main"]');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
     mainContent.focus();
@@ -204,8 +246,8 @@ function hasAccessibleName(element) {
 }
 
 // Accessibility issue addressing functions
-function addressAccessibilityIssues(insightReport) {
-  insightReport.forEach((issue) => {
+function addressIssues(issues) {
+  issues.forEach((issue) => {
     console.log(`Addressing issue: ${issue.issue}`);
     console.log(`Solution: ${issue.solution}`);
   });
@@ -217,7 +259,7 @@ function newFunction() {
 
 export function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `generated-id-${Date.now()}`;
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
   }
 }
 
@@ -276,213 +318,9 @@ export function addressAccessibilityIssues(container = document) {
   }
   
   // REACT_017: Add landmark roles and verify proper landmark structure
-  const landmarks = container.querySelectorAll('header, nav, main, footer, [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]');
+  const landmarks = container.querySelectorAll('nav, main, footer, [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]');
   landmarks.forEach((landmark) => {
     const role = landmark.getAttribute('role');
     const tagName = landmark.tagName.toLowerCase();
     
-    if (!role && ['header', 'nav', 'main', 'footer'].includes(tagName)) {
-      const roleMapping = {
-        header: 'banner',
-        nav: 'navigation',
-        main: 'main',
-        footer: 'contentinfo'
-      };
-      
-      issues.push({
-        issue: 'REACT_017',
-        element: landmark,
-        message: `Landmark missing explicit role attribute`,
-        solution: `Add role="${roleMapping[tagName]}" to ${tagName} element`
-      });
-    }
-  });
-  
-  // REACT_025: Ensure unique landmark names
-  const landmarkValidation = validateUniqueLandmarks(container);
-  landmarkValidation.forEach((issue) => {
-    issues.push({
-      issue: 'REACT_025',
-      element: issue.element,
-      message: issue.message,
-      solution: 'Ensure each landmark has a unique name via aria-label'
-    });
-  });
-  
-  // REACT_036: Fix fake link issues
-  const fakeLinks = container.querySelectorAll('[role="link"]:not(a)');
-  fakeLinks.forEach((link) => {
-    const tabIndex = link.getAttribute('tabindex');
-    if (tabIndex === null || tabIndex === undefined) {
-      issues.push({
-        issue: 'REACT_036',
-        element: link,
-        message: 'Fake link missing keyboard support',
-        solution: 'Add tabindex="0" to make the element focusable via keyboard'
-      });
-    }
-  });
-  
-  // REACT_041: Add accessible names to SVGs
-  const svgs = container.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
-  svgs.forEach((svg) => {
-    const hasTitle = svg.querySelector('title');
-    if (!hasTitle) {
-      issues.push({
-        issue: 'REACT_041',
-        element: svg,
-        message: 'SVG missing accessible name',
-        solution: 'Add a title element or aria-label to the SVG'
-      });
-    }
-  });
-  
-  // Add ARIA labels to form controls
-  const formControls = container.querySelectorAll('input:not([aria-label]):not([aria-labelledby]), select:not([aria-label]):not([aria-labelledby]), textarea:not([aria-label]):not([aria-labelledby])');
-  formControls.forEach((control) => {
-    const label = control.id ? container.querySelector(`label[for="${control.id}"]`) : null;
-    if (!label) {
-      issues.push({
-        issue: 'ARIA_FORM_LABEL',
-        element: control,
-        message: 'Form control missing accessible name',
-        solution: 'Add aria-label, aria-labelledby, or associate a label element'
-      });
-    }
-  });
-  
-  // Apply solutions for the issues
-  issues.forEach((issue) => {
-    console.log(`Addressing issue: ${issue.issue}`);
-    console.log(`Solution: ${issue.solution}`);
-    
-    // Apply the solution based on the issue type
-    switch (issue.issue) {
-      case 'REACT_015':
-        if (!htmlElement.hasAttribute('lang')) {
-          htmlElement.setAttribute('lang', 'en');
-        }
-        break;
-      case 'REACT_017':
-        const roleMap = {
-          header: 'banner',
-          nav: 'navigation',
-          main: 'main',
-          footer: 'contentinfo'
-        };
-        const tagName = issue.element.tagName.toLowerCase();
-        if (!issue.element.hasAttribute('role') && roleMap[tagName]) {
-          issue.element.setAttribute('role', roleMap[tagName]);
-        }
-        break;
-      case 'REACT_036':
-        if (!issue.element.hasAttribute('tabindex')) {
-          issue.element.setAttribute('tabindex', '0');
-        }
-        break;
-      case 'REACT_041':
-        const svgTitle = document.createElement('title');
-        svgTitle.id = `svg-title-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        svgTitle.textContent = 'SVG Image';
-        issue.element.insertBefore(svgTitle, issue.element.firstChild);
-        issue.element.setAttribute('aria-labelledby', svgTitle.id);
-        break;
-      default:
-        break;
-    }
-  });
-  
-  return issues;
-}
-
-// Announce message to screen readers
-export function announceToScreenReader(message, priority = 'polite') {
-  const announcer = document.createElement('div');
-  announcer.setAttribute('role', 'status');
-  announcer.setAttribute('aria-live', priority);
-  announcer.setAttribute('aria-atomic', 'true');
-  announcer.className = 'sr-only';
-  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';
-  announcer.textContent = message;
-  document.body.appendChild(announcer);
-  
-  setTimeout(() => {
-    announcer.remove();
-  }, 1000);
-}
-
-// Trap focus within an element (for modals, dialogs, etc.)
-export function trapFocus(element) {
-  if (!element) return;
-  
-  const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  );
-  
-  const firstFocusable = focusableElements[0];
-  const lastFocusable = focusableElements[focusableElements.length - 1];
-  
-  const handleKeyDown = (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey) {
-        if (document.activeElement === firstFocusable) {
-          e.preventDefault();
-          lastFocusable.focus();
-        }
-      } else {
-        if (document.activeElement === lastFocusable) {
-          e.preventDefault();
-          firstFocusable.focus();
-        }
-      }
-    }
-    
-    if (e.key === 'Escape') {
-      element.dispatchEvent(new CustomEvent('escape-pressed'));
-    }
-  };
-  
-  element.addEventListener('keydown', handleKeyDown);
-  
-  if (firstFocusable) {
-    firstFocusable.focus();
-  }
-  
-  return () => {
-    element.removeEventListener('keydown', handleKeyDown);
-  };
-}
-
-// Manage focus on navigation
-export function manageFocusOnNavigation() {
-  const mainContent = document.querySelector('main, [role="main"]');
-  
-  if (mainContent) {
-    mainContent.setAttribute('tabindex', '-1');
-    mainContent.focus();
-  }
-}
-
-export {
-  AppWithAccessibility,
-  getUniqueLandmarkName,
-  validateUniqueLandmarks,
-  addSvgAccessibleName,
-  isValidLink,
-  addScopeToHeaders,
-  addressAccessibilityIssues,
-  announceToScreenReader,
-  trapFocus,
-  manageFocusOnNavigation,
-  prefersReducedMotion,
-  setAriaExpanded,
-  hasAccessibleName,
-  newFunction,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs
-};
-
-const container = document.querySelector('#root');
-const root = createRoot(container);
-root.render(<App />);
+    if (!role && ['header', 'nav',

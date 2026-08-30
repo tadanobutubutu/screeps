@@ -1,3 +1,7 @@
+// TODO: Address accessibility issues from insight report:
+
+// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -336,10 +340,12 @@ export {
   calculateDiscount, 
   newFunction,
   rotateBack,
-  updateTitle
+  updateTitle,
+  Main
 };
 
 export default Main;
-export { Main, updateTitle };
+export { Main, updateTitle, PropTypes };
 
 initializeAccessibility();
+initialize();

@@ -155,6 +155,96 @@ export const logger = {
 //_Commit: 8c3a9295a6bf382e113f3e8184d40223b3f3f8d5_
 //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
+// Added missing exports as per the issue
+export function addLandmarkRegions() {
+  /**
+   * Add landmark regions to the document for accessibility
+   * Landmark regions help screen reader users navigate the page structure
+   */
+  const existingLandmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+  
+  if (existingLandmarks.length > 0) {
+    console.log(`Found ${existingLandmarks.length} existing landmark regions`);
+    return existingLandmarks;
+  }
+
+  // Create header landmark if not present
+  let header = document.querySelector('header');
+  if (header && !header.hasAttribute('role')) {
+    header.setAttribute('role', 'banner');
+  }
+
+  // Create navigation landmark if not present
+  let nav = document.querySelector('nav');
+  if (nav && !nav.hasAttribute('role')) {
+    nav.setAttribute('role', 'navigation');
+    nav.setAttribute('aria-label', 'Main navigation');
+  }
+
+  // Create main landmark if not present
+  let main = document.querySelector('main');
+  if (main && !main.hasAttribute('role')) {
+    main.setAttribute('role', 'main');
+  }
+
+  // Create footer landmark if not present
+  let footer = document.querySelector('footer');
+  if (footer && !footer.hasAttribute('role')) {
+    footer.setAttribute('role', 'contentinfo');
+  }
+
+  console.log('Landmark regions have been added or verified');
+  return document.querySelectorAll('[role]');
+}
+
+export function getLangAttribute() {
+  /**
+   * Get the language attribute from the HTML element
+   * @returns {string} The language code (e.g., 'en', 'es', 'fr') or empty string if not set
+   */
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    return htmlElement.getAttribute('lang') || '';
+  }
+  return '';
+}
+
+export function wrapPrimaryContentInMain() {
+  /**
+   * Wrap primary content in a <main> element for accessibility
+   * Ensures there's exactly one main landmark for screen reader users
+   */
+  const existingMain = document.querySelector('main');
+  
+  if (existingMain) {
+    console.log('Main element already exists');
+    return existingMain;
+  }
+
+  // Find the primary content container
+  const primaryContent = document.querySelector('#primary-content, .primary-content, #content, .content, [role="main"]');
+  
+  if (primaryContent && primaryContent.tagName !== 'MAIN') {
+    // Create a main element
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+    
+    // Move all children from primaryContent to mainElement
+    while (primaryContent.firstChild) {
+      mainElement.appendChild(primaryContent.firstChild);
+    }
+    
+    // Replace primaryContent with mainElement
+    primaryContent.parentNode.replaceChild(mainElement, primaryContent);
+    
+    console.log('Primary content wrapped in <main> element');
+    return mainElement;
+  }
+
+  console.log('No primary content found to wrap');
+  return null;
+}
+
 export { addLandmarkRegions };
 
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:

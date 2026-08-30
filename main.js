@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Import required module(s) - for fixing table structure issues and SVG accessibility issues
 import './table-styles.css';
 
@@ -14,6 +11,15 @@ import './table-styles.css';
 // Ensure all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
 // Update or create the affected functions to be accessible
 // Address additional accessibility issues by fixing table structure issues
+
+function generateUniqueId(prefix = 'id', length = 9) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let result = `${prefix}-`;
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
 
 function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
   if (!landmarks || !Array.isArray(landmarks)) {
@@ -39,9 +45,9 @@ function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
         ids.push(landmark.id);
       }
     } else {
-      let generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
+      let generatedId = generateUniqueId(prefix);
       while (usedIds.has(generatedId)) {
-        generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+        generatedId = generateUniqueId(prefix);
       }
       landmark.id = generatedId;
       usedIds.add(generatedId);
@@ -52,10 +58,10 @@ function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
   return ids;
 }
 
-function setLanguageAttribute(languageCode) {
-  const htmlElement = document.querySelector('html');
+function setLanguageAttribute(languageCode = 'en') {
+  const htmlElement = document.documentElement;
   if (htmlElement) {
-    htmlElement.setAttribute('lang', languageCode);
+    htmlElement.lang = languageCode;
   }
 }
 
@@ -63,12 +69,12 @@ export function anotherFunction() {
   // More existing functionality
 }
 
-function addDependencyGraphAriaLabel() {
-  const container = document.getElementById('dependencyGraph');
+function addDependencyGraphAccessibility(container) {
+  const container = document.querySelector('.dependencyGraph');
   addAriaLabel(container, 'Dependency Graph');
 }
 
-function fixTableStructureIssues() {
+function fixTableStructure() {
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     // ... (Preserve existing functionality)
@@ -82,7 +88,7 @@ function addMainLandmark() {
     const body = document.body;
     if (body) {
       // Wrap content in main element
-      // ... (Preserve existing functionality)
+      body.insertBefore(mainElement, body.firstChild);
     }
   }
   return mainElement;
@@ -95,22 +101,28 @@ function addSvgAccessibleNames() {
   });
 }
 
-function ensureUniqueLandmarks() {
+function ensureUniqueMainLandmarks() {
   const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     // Keep the first <main> and convert others to <section> or <div>
-    // ... (Preserve existing functionality)
+    for (let i = 1; i < mainElements.length; i++) {
+      const section = document.createElement('section');
+      while (mainElements[i].firstChild) {
+        section.appendChild(mainElements[i].firstChild);
+      }
+      mainElements[i].parentNode.replaceChild(section, mainElements[i]);
+    }
   }
 }
 
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('[role="link"], .fake-link, [data-fake-link]');
+  const fakeLinks = document.querySelectorAll('.fake-link, [data-fake-link]');
   fakeLinks.forEach((fakeLink) => {
     // ... (Preserve existing functionality)
   });
 }
 
-function addSVGAccessibilityProps(svgElement, options = {}) {
+function addSvgAccessibilityProps(svgElement, options = {}) {
   if (!svgElement) {
     return;
   }
@@ -128,7 +140,7 @@ function addSVGAccessibilityProps(svgElement, options = {}) {
   }
 
   // Make SVG focusable for keyboard navigation
-  svgElement.setAttribute('focusable', 'false');
+  svgElement.setAttribute('tabindex', '0');
 
   return svgElement;
 }
@@ -136,15 +148,15 @@ function addSVGAccessibilityProps(svgElement, options = {}) {
 function enhanceSVGsAccessibility() {
   const svgElements = document.querySelectorAll('svg');
 
-  svgElements.forEach(svg => {
+  svgElements.forEach((svg) => {
     // Skip if already has accessibility attributes
     const hasRole = svg.hasAttribute('role');
-    const hasAriaLabel = svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby') || svg.hasAttribute('role') || svg.querySelector('title');
+    const hasAriaLabel = svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby') || svg.hasAttribute('aria-describedby');
     const hasDescriptiveChild = svg.querySelector('title, desc');
 
     if (!hasRole && !hasAriaLabel && !hasDescriptiveChild) {
       // Add default accessibility props to bare SVGs
-      addSVGAccessibilityProps(svg, { label });
+      addSvgAccessibilityProps(svg, { label: 'Decorative SVG' });
     }
   });
 }
@@ -154,10 +166,10 @@ function setupAccessibility() {
   setLanguageAttribute();
 
   // Ensure skip links work properly
-  const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
+  const skipLink = document.querySelector('.skip-link, [href="#main"]');
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
-      const targetId = skipLink.getAttribute('href')?.substring(1);
+      const targetId = skipLink.getAttribute('href').substring(1);
       const target = document.getElementById(targetId);
       if (target) {
         target.tabIndex = -1;
@@ -187,18 +199,15 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = generateUniqueId(prefix);
   element.id = generatedId;
   return generatedId;
 }
 
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-function setLanguageAttribute(languageCode) {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', languageCode);
-  }
+function addAriaLabel(element, label) {
+  if (!element) return;
+  element.setAttribute('aria-label', label);
 }
-```
 
-This resolved file keeps both changes, integrates them where possible, and ensures all functions are functional. The merge considers the new functions for addressing table structure issues, ensuring main landmarks, adding accessible names to SVG elements, and fixing fake link issues. The existing functions for ensuring unique landmarks and adding SVG accessibility props have been adjusted to accommodate the new requirements. The new approach to handling multiple `main` elements and naked SVGs merges the changes from both branches.
+// Export for use in other modules if needed
+export { ensureUniqueLandmarks, setupAccessibility, addMainLandmark, ensureUniqueMainLandmarks };

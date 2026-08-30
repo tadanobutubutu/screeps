@@ -197,11 +197,11 @@ export function existingExport() {
 // New function to address accessibility issues from insight report
 function addressInsightReportIssues(insightReport) {
   // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
-  insightReport.forEach(issue => {
-    console.log(`Addressing issue: ${issue.issue}`);
+  insightReport.forEach(item => {
+    console.log(`Addressing issue: ${item.issue}`);
     // Implement the solution to the issue
     // This is a placeholder for the actual implementation
-    console.log(`Solution: ${issue.solution}`);
+    console.log(`Solution: ${item.solution}`);
     // ... code to apply the solution ...
   });
 }
@@ -216,7 +216,7 @@ describe('addressInsightReportIssues', () => {
       { issue: 'Issue 1', solution: 'Solution 1' },
       { issue: 'Issue 2', solution: 'Solution 2' }
     ];
-    const mockLog = jest.spyOn(console, 'log').mockImplementation();
+    const mockLog = jest.spyOn(console, 'log').mockImplementation(() => {});
     addressInsightReportIssues(insightReport);
     // Mock console.log to check if the correct messages were logged
     // This is a simplified example; in a real test, you would use a mock library

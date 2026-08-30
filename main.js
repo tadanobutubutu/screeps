@@ -1,48 +1,60 @@
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import { List, Button } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { setDependencyGraph } from './actions/dependencyGraph'; // Assuming you have a dependencyGraph action creator
 
-// Import dependency graph and index content from appropriate modules
-import { dependencyGraphContent } from './dependencyGraphContent';
-import { indexContent } from './indexContent';
-
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
-
-// Function to handle sorting books by title (ascending)
-export function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
-}
-
-// Function to handle sorting books by author (descending)
-export function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
-}
+// ... (Existing code)
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return book.id || `${book.title}-${Math.random().toString(36).substr(2, 9)}`;
+  if (book.id) {
+    return book.id;
+  }
+  return `${book.title}-${book.author}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
 // Function to render a single book item
-export function BookItem(book) {
+function BookItem(book) {
+  const [dependencies, setDependencies] = useState(book.dependencies || []);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    fetchBookDependencies(book.id);
+  }, [book.id]);
+
+  const handleUpdateDependencies = () => {
+    updateBookDependencies(book.id, [...dependencies]);
+  };
+
   return (
     <List.Item key={generateKey(book)}>
+      <Button onClick={handleUpdateDependencies}>Update Dependencies</Button>
       <List.Item.Meta
         title={book.title}
+        description={book.author}
       />
+      {dependencies.length > 0 && <p>Dependencies: {dependencies.join(', ')}</p>}
     </List.Item>
   );
 }
 
-// Function to create a new book entry in the Redux store
-export function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
+// Function to fetch book dependencies and update the Redux store
+async function fetchBookDependencies(bookId) {
+  // Fetch dependencies for the specified book
+  // ... (Assuming you have an API endpoint to fetch book dependencies or implementing this logic)
+
+  // Dispatch an action to update the book's dependencies in the Redux store
+  dispatch(setDependencyGraph({ bookId, dependencies: /* The fetched dependencies */ }));
+}
+
+// Function to handle updating book dependencies
+function updateBookDependencies(bookId, newDependencies) {
+  // Perform any necessary validation or processing before updating the book's dependencies
   // ...
 
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
+  // Dispatch an action to update the book's dependencies in the Redux store
+  dispatch(setDependencyGraph({ bookId, dependencies: newDependencies }));
 }
 
 // Implement the required changes to improve accessibility for the addBook function or form
@@ -73,15 +85,6 @@ function Main() {
   const [sorting, setSorting] = useState(sortByTitle);
   const dispatch = useDispatch();
 
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
-    }
-  }, [sorting]);
-
   // Map the book list to the BookItem function to create book items
   const bookItems = getBooksList.map(book => BookItem(book));
 
@@ -100,5 +103,4 @@ function Main() {
   );
 }
 
-// Export the Main component
-export default Main;
+// ... (Existing code)

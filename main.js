@@ -114,9 +114,54 @@ function calculateSum(numbers) {
   return numbers.reduce((acc, curr) => acc + curr, 0);
 }
 
+/**
+ * Counts the number of dependencies imported in the current module.
+ * It scans the module's source code for `require(...)` and `import ...` statements.
+ * @param {string} [source] - Optional source code string. Defaults to the current module's source.
+ * @returns {number} The total count of dependencies.
+ */
+function countDependencies(source) {
+  const code = typeof source === 'string' ? source : require('fs').readFileSync(__filename, 'utf8');
+
+  // Match CommonJS require() calls (single-line)
+  const requireMatches = code.match(/require\(['"][^'"]+['"]\)/g) || [];
+
+  // Match ES module import statements (single-line and multi-line)
+  const importMatches = code.match(/^\s*import\s.+?from\s+['"][^'"]+['"];?/gm) || [];
+
+  // Also match side-effect imports like import './styles.css';
+  const sideEffectImports = code.match(/^\s*import\s+['"][^'"]+['"];?/gm) || [];
+
+  // Combine and deduplicate based on the module specifier
+  const seen = new Set();
+
+  requireMatches.forEach((match) => {
+    const specifier = match.match(/require\(['"]([^'"]+)['"]\)/);
+    if (specifier) seen.add(specifier[1]);
+  });
+
+  importMatches.forEach((match) => {
+    const specifier = match.match(/from\s+['"]([^'"]+)['"]/);
+    if (specifier) {
+      seen.add(specifier[1]);
+    } else {
+      const sideEffect = match.match(/import\s+['"]([^'"]+)['"]/);
+      if (sideEffect) seen.add(sideEffect[1]);
+    }
+  });
+
+  sideEffectImports.forEach((match) => {
+    const specifier = match.match(/import\s+['"]([^'"]+)['"]/);
+    if (specifier) seen.add(specifier[1]);
+  });
+
+  return seen.size;
+}
+
 module.exports = {
   processLandmarks,
   addLangAttribute,
   checkLandmarkElement,
-  calculateSum
+  calculateSum,
+  countDependencies
 };

@@ -354,7 +354,11 @@ export {
   greet, 
   add, 
   calculateDiscount, 
-  newFunction 
+  newFunction,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  landmarkStructureCheck,
+  initApp
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)

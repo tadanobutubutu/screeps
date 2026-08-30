@@ -126,27 +126,6 @@ function calculateSum(numbers) {
     return numbers.reduce((sum, num) => sum + num, 0);
 }
 
-// Additional utility functions for accessibility
-function getLangAttribute() {
-  // Implementation for REACT_015: Add lang attribute to HTML element
-  // ...
-}
-
-function getSvgAccessibleName() {
-  // Implementation for REACT_041: Add accessible names to 2 SVGs
-  // ...
-}
-
-function validateTableAccessibility() {
-  // Implementation for REACT_027: Fix 26 table structure issues
-  // ...
-}
-
-function validateTableStructure() {
-  // Implementation for REACT_027: Fix 26 table structure issues
-  // ...
-}
-
 /**
  * Ensures the element has an id. If the element doesn't have an id,
  * generates one and assigns it to the element.
@@ -379,18 +358,7 @@ module.exports = {
   createWebResourceButton,
   validateLandmark,
   validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
   validateAccessibilityReport,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addAltAttribute,
-  replaceButtonId,
-  addLangAttribute,
-  fixTableStructure,
-  addSvgAccessibleName,
-  fixFakeLinkIssue,
-  addAriaAttribute,
 
   renderDependencyGraph: renderDependencyGraphs
 };

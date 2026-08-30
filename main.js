@@ -41,6 +41,17 @@ const addressAccessibilityIssues = (insightReport) => {
     }
   });
 
+  // New code to check for tables and push recommendations if issues found
+  if (insightReport.accessibility.tableIssues) {
+    const tableIssues = insightReport.accessibility.tableIssues;
+    tableIssues.forEach((tableIssue) => {
+      recommendations.push(`[TABLE] ${tableIssue.id}: ${tableIssue.description}`);
+      if (tableIssue.suggestedFix) {
+        recommendations.push(`  Fix: ${tableIssue.suggestedFix}`);
+      }
+    });
+  }
+
   return recommendations;
 };
 

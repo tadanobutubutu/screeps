@@ -512,6 +512,83 @@ const icons = {
   icon: '<svg ... viewBox="0 0 100 100" aria-label="Screeps ... Dashboard</title><text y=".9em" ...>'
 };
 
+/**
+ * Adds proper landmark regions to the document.
+ *
+ * This function ensures that key landmark regions (banner, main, contentinfo,
+ * navigation, complementary) exist in the document. If a landmark element
+ * is missing, it is created and appended to the appropriate location.
+ *
+ * If a document is not available (e.g., in a Node.js test environment),
+ * the function safely returns without making any changes.
+ */
+function addProperLandmarkRegions() {
+  // Skip if document is not available (e.g., in Node.js test environment)
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  // Helper to create a landmark element with an appropriate role
+  const createLandmark = (tagName, role, ariaLabel) => {
+    const el = document.createElement(tagName);
+    el.setAttribute('role', role);
+    if (ariaLabel) {
+      el.setAttribute('aria-label', ariaLabel);
+    }
+    return el;
+  };
+
+  // Banner landmark (header)
+  if (!document.querySelector('header[role="banner"], [role="banner"]')) {
+    const header = document.querySelector('header') || createLandmark('header', 'banner', 'Site header');
+    if (!header.hasAttribute('role')) {
+      header.setAttribute('role', 'banner');
+    }
+    if (!document.querySelector('header')) {
+      document.body.insertBefore(header, document.body.firstChild);
+    }
+  }
+
+  // Main landmark
+  if (!document.querySelector('main[role="main"], [role="main"], main')) {
+    const main = createLandmark('main', 'main', 'Main content');
+    document.body.appendChild(main);
+  }
+
+  // Contentinfo landmark (footer)
+  if (!document.querySelector('footer[role="contentinfo"], [role="contentinfo"]')) {
+    const footer = document.querySelector('footer') || createLandmark('footer', 'contentinfo', 'Site footer');
+    if (!footer.hasAttribute('role')) {
+      footer.setAttribute('role', 'contentinfo');
+    }
+    if (!document.querySelector('footer')) {
+      document.body.appendChild(footer);
+    }
+  }
+
+  // Navigation landmark
+  if (!document.querySelector('nav[role="navigation"], [role="navigation"]')) {
+    const nav = document.querySelector('nav') || createLandmark('nav', 'navigation', 'Main navigation');
+    if (!nav.hasAttribute('role')) {
+      nav.setAttribute('role', 'navigation');
+    }
+    if (!document.querySelector('nav')) {
+      document.body.appendChild(nav);
+    }
+  }
+
+  // Complementary landmark (aside)
+  if (!document.querySelector('aside[role="complementary"], [role="complementary"]')) {
+    const aside = document.querySelector('aside') || createLandmark('aside', 'complementary', 'Sidebar');
+    if (!aside.hasAttribute('role')) {
+      aside.setAttribute('role', 'complementary');
+    }
+    if (!document.querySelector('aside')) {
+      document.body.appendChild(aside);
+    }
+  }
+}
+
 // Initialize accessibility improvements
 function initializeAccessibility() {
   // Replace fake links with proper buttons
@@ -555,6 +632,7 @@ function initialize() {
   // Accessibility: Add landmark roles and fix landmark issues
   addLandmarkRoles();
   addLandmarkRolesDetailed();
+  addProperLandmarkRegions();
 
   // Accessibility: Add accessible names to 2 SVGs
   addSvgAccessibleNames();
@@ -622,7 +700,8 @@ export {
   addSvgAccessibleNames,
   ensurePageUniqueLandmarks,
   fixFakeLink,
-  initializeAccessibility
+  initializeAccessibility,
+  addProperLandmarkRegions
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
@@ -644,6 +723,7 @@ module.exports.addSvgAccessibleNames = addSvgAccessibleNames;
 module.exports.ensurePageUniqueLandmarks = ensurePageUniqueLandmarks;
 module.exports.fixFakeLink = fixFakeLink;
 module.exports.initializeAccessibility = initializeAccessibility;
+module.exports.addProperLandmarkRegions = addProperLandmarkRegions;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {

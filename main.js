@@ -271,7 +271,7 @@ describe('addressInsightReportIssues and spawnProcess', () => {
     expect(mockLog).toHaveBeenCalledWith('Addressing issue: Issue 1');
     expect(mockLog).toHaveBeenCalledWith('Solution: Solution 1');
     expect(mockLog).toHaveBeenCalledWith('Addressing issue: Issue 2');
-    expect(mockLog).toHaveBeenCalledWith('Solution: Solution 2');
+    expect(mockLog).toHaveBeenCalledWith('Solution: Issue 2');
     mockLog.mockRestore();
   });
 

@@ -154,6 +154,8 @@ function renderSvg(svgElement) {
   // New code that uses the imported modules
   const { someModule } = require('some-module');
   const someValue = someModule.someFunction(svgElement);
+  return someValue;
+}
 
 // New rendering functions for graph/index (to be used by existing functions)
 function renderGraphContentWithOptions(data, options = {}) {
@@ -411,6 +413,7 @@ module.exports = {
   renderGraphContentWithOptions,
   renderIndexContentWithOptions,
   renderDependencyGraph,
+  renderIndexView,
   calculateSum,
   someFunction,
   implementAccessibilityFixes,

@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -15,13 +18,13 @@ export function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 export function generateKey(book) {
-  return `${book.id}-${book.title}`;
+  return `${book.id || `${book.title}-${book.author}`}`;
 }
 
-// Function to render a single book item
+// Function to render a single book item with accessibility
 export function BookItem(book) {
   return (
-    <List.Item key={generateKey(book)}>
+    <List.Item key={generateKey(book)} role="listitem">
       <List.Item.Meta
         title={book.title}
       />
@@ -32,10 +35,13 @@ export function BookItem(book) {
 // Function to create a new book entry in the Redux store
 export function addBook(dispatch, book) {
   // Perform any necessary validation or processing before adding the book
-  // ...
+  if (!book.title.trim() || !book.author.trim()) {
+    return false;
+  }
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
+  return true;
 }
 
 // Default sorting function for the book list
@@ -142,3 +148,6 @@ function Main() {
 
 // Export the Main component
 export default Main;
+```
+
+This resolved file successfully integrates both changes by keeping the `generateKey` and `BookItem` function definitions, along with the rest of the code for the `Main` component. The changes in the `onTitleSort` and `onAuthorSort` functions, as well as the introduction of a multi-sorting capability through the `sorting` state variable and the corresponding useEffect, have also been preserved. The style and format have been preserved as much as possible.

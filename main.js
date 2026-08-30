@@ -46,9 +46,12 @@ function renderDependencyGraph() {
 }
 
 const dependencyGraphContainer = document.createElement('div');
+ensureElementId(dependencyGraphContainer);
 dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
 dependencyGraphContainer.setAttribute('role', 'region');
+addAriaLabel(dependencyGraphContainer);
 dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+
 export { ensureElementId };
 export { addAriaLabel };
 export { renderDependencyGraph };

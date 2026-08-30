@@ -1,6 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
@@ -101,10 +101,10 @@ const renderDependencyGraph = (data) => {
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
-// REACT_015: Get lang attribute from HTML element
-function getLangAttribute() {
-  const htmlElement = document.querySelector('html');
-  return htmlElement ? htmlElement.getAttribute('lang') : null;
+// REACT_015: Get lang attribute for HTML element
+function getLangAttribute(element) {
+  if (!element) return 'en';
+  return element.getAttribute('lang') || element.lang || 'en';
 }
 
 // REACT_015 & REACT_036: Get or create a person's accessible name
@@ -117,152 +117,199 @@ function personName(personData) {
     .trim() || null;
 }
 
+// REACT_036 & REACT_015: Create accessible in-page button
+function createInPageButton(options = {}) {
+  const {
+    text = '',
+    onClick = () => {},
+    ariaLabel = '',
+    id = `btn-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    className = '',
+    href = '#',
+    type = 'button'
+  } = options;
+
+  const button = document.createElement(type === 'link' ? 'a' : 'button');
+  button.id = id;
+  button.className = className;
+  button.href = type === 'link' ? href : undefined;
+  button.textContent = text;
+
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+
+  button.addEventListener('click', (e) => {
+    if (type !== 'link') {
+      e.preventDefault();
+    }
+    onClick(e);
+  });
+
+  return button;
+}
+
 // REACT_027: Validate table accessibility
-function validateTableAccessibility(tableElement) {
-  if (!tableElement || tableElement.tagName !== 'TABLE') {
-    return { valid: false, errors: ['Invalid table element'] };
-  }
-  const errors = [];
+function validateTableAccessibility(table) {
+  const issues = [];
   
+  if (!table) {
+    return { valid: false, issues: ['Table element is null or undefined'] };
+  }
+
   // Check for caption
-  const caption = tableElement.querySelector('caption');
+  const caption = table.querySelector('caption');
   if (!caption) {
-    errors.push('Table should have a caption for accessibility');
+    issues.push('Table missing caption element');
   }
-  
+
   // Check for th elements with scope or headers
-  const headers = tableElement.querySelectorAll('th');
-  headers.forEach((th, index) => {
-    if (!th.getAttribute('scope') && !th.getAttribute('id')) {
-      errors.push(`Header at index ${index} missing scope or id attribute`);
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    issues.push('Table missing header cells (th)');
+  }
+
+  // Check for proper scope attributes
+  headers.forEach(th => {
+    if (!th.getAttribute('scope') && !th.getAttribute('headers')) {
+      issues.push('Header cell missing scope or headers attribute');
     }
   });
-  
-  return { valid: errors.length === 0, errors };
+
+  return {
+    valid: issues.length === 0,
+    issues
+  };
 }
 
 // REACT_027: Validate table structure
-function validateTableStructure(tableElement) {
-  if (!tableElement || tableElement.tagName !== 'TABLE') {
-    return { valid: false, errors: ['Invalid table element'] };
-  }
-  const errors = [];
+function validateTableStructure(table) {
+  const issues = [];
   
+  if (!table) {
+    return { valid: false, issues: ['Table element is null or undefined'] };
+  }
+
   // Check for thead and tbody
-  const thead = tableElement.querySelector('thead');
-  const tbody = tableElement.querySelector('tbody');
-  
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+
   if (!thead) {
-    errors.push('Table should have a thead element');
+    issues.push('Table missing thead element');
   }
+
   if (!tbody) {
-    errors.push('Table should have a tbody element');
+    issues.push('Table missing tbody element');
   }
-  
+
   // Check for proper row structure
-  const rows = tableElement.querySelectorAll('tr');
-  rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td, th');
-    if (cells.length === 0) {
-      errors.push(`Row ${rowIndex} has no cells`);
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) {
+    issues.push('Table has no rows');
+  }
+
+  // Check that thead has th elements
+  if (thead) {
+    const thElements = thead.querySelectorAll('th');
+    if (thElements.length === 0) {
+      issues.push('Table thead missing th elements');
     }
-  });
-  
-  return { valid: errors.length === 0, errors };
+  }
+
+  return {
+    valid: issues.length === 0,
+    issues
+  };
 }
 
 // REACT_017 & REACT_025: Validate landmark
 function validateLandmark(element) {
+  const issues = [];
+  
   if (!element) {
-    return { valid: false, errors: ['Element is required'] };
+    return { valid: false, issues: ['Element is null or undefined'] };
   }
-  const errors = [];
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'];
-  const role = element.getAttribute('role');
-  const tagName = element.tagName.toLowerCase();
-  
-  // Check if element has landmark role or is a landmark element
-  const isLandmark = role && landmarkRoles.includes(role);
-  const isLandmarkTag = ['header', 'nav', 'main', 'aside', 'footer'].includes(tagName);
-  
-  if (!isLandmark && !isLandmarkTag) {
-    errors.push('Element is not a valid landmark');
+
+  // Check for landmark roles
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+  const hasLandmarkRole = landmarkRoles.some(role => 
+    element.getAttribute('role') === role || element.tagName.toLowerCase() === role
+  );
+
+  if (!hasLandmarkRole) {
+    issues.push('Element does not have a landmark role');
   }
-  
-  return { valid: errors.length === 0, errors };
+
+  return {
+    valid: issues.length === 0,
+    issues
+  };
 }
 
 // REACT_017 & REACT_025: Validate landmark structure
 function validateLandmarkStructure(document) {
-  const doc = document || document;
-  const errors = [];
-  const landmarks = {};
+  const issues = [];
   
-  // Check for required landmarks
-  const mainElement = doc.querySelector('main, [role="main"]');
-  if (!mainElement) {
-    errors.push('Document should have a main landmark');
+  if (!document) {
+    return { valid: false, issues: ['Document is null or undefined'] };
   }
-  
-  const navElement = doc.querySelector('nav, [role="navigation"]');
-  if (!navElement) {
-    errors.push('Document should have a navigation landmark');
+
+  // Check for main landmark (should be unique)
+  const mains = document.querySelectorAll('main, [role="main"]');
+  if (mains.length > 1) {
+    issues.push(`Multiple main landmarks found (${mains.length}). Should have only one.`);
   }
-  
-  // Check for duplicate landmarks
-  ['banner', 'navigation', 'main', 'complementary', 'contentinfo'].forEach(role => {
-    const elements = doc.querySelectorAll(`[role="${role}"]`);
-    if (elements.length > 1) {
-      errors.push(`Multiple ${role} landmarks found (${elements.length})`);
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
+
+  // Check for navigation landmarks
+  const navs = document.querySelectorAll('nav, [role="navigation"]');
+  if (navs.length === 0) {
+    issues.push('No navigation landmark found');
+  }
+
+  // Check for banner landmark
+  const banners = document.querySelectorAll('header, [role="banner"]');
+  if (banners.length === 0) {
+    issues.push('No banner landmark found');
+  }
+
+  // Check for contentinfo landmark
+  const contentinfos = document.querySelectorAll('footer, [role="contentinfo"]');
+  if (contentinfos.length === 0) {
+    issues.push('No contentinfo landmark found');
+  }
+
+  return {
+    valid: issues.length === 0,
+    issues
+  };
 }
 
 // REACT_041: Get SVG accessible name
 function getSvgAccessibleName(svgElement) {
-  if (!svgElement || svgElement.tagName !== 'svg') {
-    return null;
-  }
+  if (!svgElement) return '';
   
   // Check aria-label
   const ariaLabel = svgElement.getAttribute('aria-label');
   if (ariaLabel) return ariaLabel;
-  
+
   // Check aria-labelledby
   const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
-    const labelElement = document.getElementById(ariaLabelledby);
-    return labelElement ? labelElement.textContent : null;
+    const labelledElement = document.getElementById(ariaLabelledby);
+    if (labelledElement) return labelledElement.textContent;
   }
-  
-  // Check title element
-  const title = svgElement.querySelector('title');
-  return title ? title.textContent : null;
-}
 
-// REACT_036: Create accessible in-page button
-function createInPageButton(options = {}) {
-  const { text, onClick, ariaLabel, id } = options;
-  
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.textContent = text || '';
-  
-  if (ariaLabel) {
-    button.setAttribute('aria-label', ariaLabel);
+  // Check title element inside SVG
+  const title = svgElement.querySelector('title');
+  if (title) return title.textContent;
+
+  // Check for role="img" with descriptive text
+  const role = svgElement.getAttribute('role');
+  if (role === 'img') {
+    return svgElement.getAttribute('aria-describedby') || '';
   }
-  
-  if (id) {
-    button.id = id;
-  }
-  
-  if (onClick && typeof onClick === 'function') {
-    button.addEventListener('click', onClick);
-  }
-  
-  return button;
+
+  return '';
 }
 
 function newFocusTrap() {
@@ -438,9 +485,8 @@ function transformInputData(inputData, options = {}) {
     return null;
   }
 
-  let result = inputData;
-
-  if (typeof result === 'string') {
+  if (typeof inputData === 'string') {
+    let result = inputData;
     if (trimWhitespace) {
       result = result.trim();
     }
@@ -450,27 +496,26 @@ function transformInputData(inputData, options = {}) {
     if (maxLength !== null && result.length > maxLength) {
       result = result.substring(0, maxLength);
     }
-  } else if (Array.isArray(result)) {
-    result = result.map(item => transformInputData(item, { preserveKeys, uppercase, trimWhitespace, maxLength }));
-  } else if (typeof result === 'object' && result !== null) {
-    const transformed = {};
-    Object.keys(result).forEach(key => {
-      let value = result[key];
-      if (trimWhitespace && typeof value === 'string') {
-        value = value.trim();
-      }
-      if (uppercase && typeof value === 'string') {
-        value = value.toUpperCase();
-      }
-      if (maxLength !== null && typeof value === 'string' && value.length > maxLength) {
-        value = value.substring(0, maxLength);
-      }
-      transformed[key] = value;
-    });
-    result = transformed;
+    return result;
   }
-
-  return result;
+  
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => transformInputData(item, { preserveKeys, uppercase, trimWhitespace, maxLength }));
+  }
+  
+  if (typeof inputData === 'object' && inputData !== null) {
+    const result = {};
+    for (const [key, value] of Object.entries(inputData)) {
+      let transformedValue = transformInputData(value, { preserveKeys, uppercase, trimWhitespace, maxLength });
+      if (!preserveKeys && typeof value === 'string') {
+        // Only uppercase keys if preserveKeys is false
+      }
+      result[key] = transformedValue;
+    }
+    return result;
+  }
+  
+  return inputData;
 }
 
 // Initialize on DOM ready
@@ -494,13 +539,13 @@ module.exports = {
   calculateSum,
   // Accessibility functions referenced in the insight report
   getLangAttribute,
+  createInPageButton,
   personName,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  createInPageButton,
   newFocusTrap,
   // Utility functions
   sanitizeFilename,

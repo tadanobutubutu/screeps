@@ -55,6 +55,15 @@ function getFullLangAttribute() {
 }
 
 /**
+ * Gets the primary language subtag from the document's lang attribute.
+ * @returns {string} The primary language subtag (e.g., 'en' from 'en-US').
+ */
+function getLangAttribute() {
+  const fullLang = document.documentElement.lang || '';
+  return fullLang.split('-')[0];
+}
+
+/**
  * Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
  * Assumes you have already set the id on the button element in your code.
  */

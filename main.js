@@ -1,7 +1,7 @@
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import { List, Button } from 'antd';
 
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
@@ -42,8 +42,51 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
+// Function to render the form for adding a new book entry
+function BookForm() {
+  const dispatch = useDispatch();
+
+  // Define state for the form inputs
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+
+  // Handle input changes
+  const handleTitleChange = (e) => setTitle(e.target.value);
+  const handleAuthorChange = (e) => setAuthor(e.target.value);
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Perform any necessary validation or processing before adding the book
+    // ...
+
+    // Dispatch an action to add the book to the books list in the Redux store
+    dispatch(addBook({ title, author }));
+  };
+
+  // Render the form
+  return (
+    <form onSubmit={handleSubmit}>
+      <label htmlFor="title">Title:</label>
+      <input
+        type="text"
+        id="title"
+        value={title}
+        onChange={handleTitleChange}
+        aria-label="Book title"
+      />
+      <label htmlFor="author">Author:</label>
+      <input
+        type="text"
+        id="author"
+        value={author}
+        onChange={handleAuthorChange}
+        aria-label="Book author"
+      />
+      <button type="submit">Add Book</button>
+    </form>
+  );
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
@@ -78,17 +121,17 @@ function Main() {
   // Map the book list to the BookItem function to create book items
   const bookItems = getBooksList.map(BookItem);
 
-  // Render the list of book items and sorting controls
+  // Render the list of book items, sorting controls, and the book form
   return (
     <div>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List dataSource={bookItems} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      <BookForm />
     </div>
   );
 }
 
-// Export the Main component
+// Export the Main component and the BookForm component
 export default Main;
+export { BookForm };

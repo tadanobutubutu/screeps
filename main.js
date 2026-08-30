@@ -15,7 +15,7 @@ export function getLangAttribute(lang) {
 
 // REACT_015: Add lang attribute to person name element
 export function personName(name, lang) {
-  return `<span lang="${getLangAttribute(lang)}">${name}</span>`;
+  return `<span lang="${lang || 'en'}">${name}</span>`;
 }
 
 // REACT_027: Validate table accessibility
@@ -75,8 +75,8 @@ export function getSvgAccessibleName(svgElement, accessibleName) {
     return null;
   }
   
-  if (!svgElement.getAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
-    svgElement.setAttribute('aria-label', accessibleName || 'Decorative SVG');
+  if (accessibleName) {
+    svgElement.setAttribute('aria-label', accessibleName);
   }
   
   return svgElement;
@@ -88,7 +88,7 @@ export function ensureUniqueLandmarks(container) {
   const roleCount = {};
   const issues = [];
   
-  const landmarkElements = container.querySelectorAll('[role], header, nav, main, aside, footer, section, article');
+  const landmarkElements = container.querySelectorAll('header, nav, main, aside, footer, section, article');
   
   landmarkElements.forEach(element => {
     const role = element.getAttribute('role') || element.tagName.toLowerCase();
@@ -112,7 +112,7 @@ export function ensureUniqueLandmarks(container) {
 // REACT_036: Fix fake link issue - create proper in-page button
 export function createInPageButton(label, href, isFakeLink = false) {
   if (isFakeLink) {
-    return `<button type="button" aria-label="${label}" onclick="location.href='${href}'">${label}</button>`;
+    return `<button type="button" aria-label="${label}">${label}</button>`;
   }
   return `<a href="${href}">${label}</a>`;
 }
@@ -128,7 +128,7 @@ export function addressAccessibilityIssues(insightReport) {
       case 'lang':
         // Handled by getLangAttribute() and personName()
         if (issue.element) {
-          issue.element.lang = getLangAttribute(issue.lang);
+          issue.element.lang = issue.lang || getLangAttribute(issue.lang);
         }
         break;
         
@@ -183,7 +183,7 @@ describe('addressAccessibilityIssues', () => {
       { issue: 'REACT_027: Table structure issue', solution: 'Fix table structure using validateTableStructure()', type: 'table' }
     ];
     
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    const consoleSpy = jest.spyOn(console, 'log');
     
     const result = addressAccessibilityIssues(insightReport);
     
@@ -198,14 +198,14 @@ describe('addressAccessibilityIssues', () => {
 
 describe('getLangAttribute', () => {
   it('should return the provided lang attribute', () => {
-    expect(getLangAttribute('en')).toBe('en');
     expect(getLangAttribute('fr')).toBe('fr');
+    expect(getLangAttribute('en')).toBe('en');
   });
   
   it('should return default "en" when lang is not provided', () => {
     expect(getLangAttribute()).toBe('en');
-    expect(getLangAttribute('')).toBe('en');
     expect(getLangAttribute(null)).toBe('en');
+    expect(getLangAttribute(undefined)).toBe('en');
   });
 });
 

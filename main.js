@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // Main entry point for dependency visualization tool
 
 const fs = require('fs');

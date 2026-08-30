@@ -1,16 +1,15 @@
 // Import necessary dependencies
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { List, Form, Input, Button, UUID } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { useId } from '@react-aria/utils';
-
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
 
 // Function to handle sorting books by title (ascending)
 function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
 }
+
+// TODO: This is the existing code that needs to be preserved
 
 // Function to handle sorting books by author (descending)
 function sortByAuthor(a, b) {
@@ -22,11 +21,11 @@ const defaultSorting = { type: 'title', direction: 'asc' };
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return Math.random().toString(36).substring(7);
+  return book.id || `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
-function BookItem(book) {
+function BookItem({ book }) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
@@ -72,6 +71,127 @@ function DependencyGraph({ nodes, edges }) {
       {/* ... */}
     </div>
   );
+}
+
+// Function to render a form for adding a new book and to handle form submission
+function AddBookForm() {
+  const formId = useId();
+  const [book, setBook] = useState({ title: '', author: '', id: UUID.generate() });
+  const dispatch = useDispatch();
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Perform any necessary validation or processing before adding the book
+    // ...
+
+    dispatch(addBook(book));
+    setBook({ title: '', author: '' }); // Reset the form after submission
+  };
+
+  return (
+    <form onSubmit={handleSubmit} id={formId}>
+      <label>
+        Title:
+        <input
+          type="text"
+          value={book.title}
+          onChange={(e) => setBook({ ...book, title: e.target.value })}
+          required
+        />
+      </label>
+      <label>
+        Author:
+        <input
+          type="text"
+          value={book.author}
+          onChange={(e) => setBook({ ...book, author: e.target.value })}
+          required
+        />
+      </label>
+      <button type="submit">Add Book</button>
+    </form>
+  );
+}
+
+// Function to handle sorting the book list by title (ascending)
+function onTitleSort(dispatch, books) {
+  const sortedList = [...books].sort(sortByTitle);
+  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+}
+
+// Function to handle sorting the book list by author (descending)
+function onAuthorSort(dispatch, books) {
+  const sortedList = [...books].sort(sortByAuthor);
+  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+}
+
+// REACT_015: Function to get the lang attribute for the HTML element
+function getLangAttribute() {
+  // Determine the appropriate lang attribute based on document settings or default to 'en'
+  const lang = document.documentElement.lang || 'en';
+  return lang;
+}
+
+// REACT_015: Function to create an in-page button with proper accessibility attributes
+function createInPageButton(label, onClickHandler) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = label;
+  button.setAttribute('aria-label', label);
+  if (typeof onClickHandler === 'function') {
+    button.addEventListener('click', onClickHandler);
+  }
+  return button;
+}
+
+// REACT_027: Function to validate table accessibility (checks for caption, summary, headers, etc.)
+function validateTableAccessibility(tableElement) {
+  if (!tableElement) return false;
+  const hasCaption = tableElement.querySelector('caption') !== null;
+  const hasHeaders = tableElement.querySelectorAll('th').length > 0;
+  return hasCaption && hasHeaders;
+}
+
+// REACT_027: Function to validate table structure (checks for proper thead, tbody, tr, td/th nesting)
+function validateTableStructure(tableElement) {
+  if (!tableElement) return false;
+  const hasThead = tableElement.querySelector('thead') !== null;
+  const hasTbody = tableElement.querySelector('tbody') !== null;
+  const rows = tableElement.querySelectorAll('tr');
+  return hasThead && hasTbody && rows.length > 0;
+}
+
+// REACT_017: Function to validate a landmark element exists and has a role
+function validateLandmark(element, expectedRole) {
+  if (!element) return false;
+  const role = element.getAttribute('role') || element.tagName.toLowerCase();
+  return role === expectedRole;
+}
+
+// REACT_017: Function to validate landmark structure (proper nesting and child elements)
+function validateLandmarkStructure(landmarkElement) {
+  if (!landmarkElement) return false;
+  // A landmark should contain accessible content (text or children)
+  return landmarkElement.children.length > 0 || landmarkElement.textContent.trim().length > 0;
+}
+
+// REACT_017 & REACT_025: Function to validate landmark accessibility (unique landmarks, proper labels)
+function validateLandmarkAccessibility(landmarkElements) {
+  if (!Array.isArray(landmarkElements) || landmarkElements.length === 0) return false;
+  const seenRoles = new Set();
+  const seenLabels = new Set();
+  for (const el of landmarkElements) {
+    const role = el.getAttribute('role') || el.tagName.toLowerCase();
+    const label = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || '';
+    // REACT_025: Ensure unique landmarks (track uniqueness by label for same-role landmarks)
+    const key = `${role}::${label}`;
+    if (seenRoles.has(role) && seenLabels.has(label)) {
+      return false;
+    }
+    seenRoles.add(role);
+    if (label) seenLabels.add(label);
+  }
+  return true;
 }
 
 // REACT_041: Function to get the accessible name from an SVG element
@@ -175,12 +295,31 @@ function onAuthorSort() {
 
 function Main() {
   const dispatch = useDispatch();
+  const books = useSelector(state => state.books.list);
   const [sorting, setSorting] = useState(defaultSorting);
 
-  // ... (Existing useEffect hook)
+  // Create memoized sort handlers
+  const handleTitleSort = useCallback(() => {
+    onTitleSort(dispatch, books);
+  }, [dispatch, books]);
+
+  const handleAuthorSort = useCallback(() => {
+    onAuthorSort(dispatch, books);
+  }, [dispatch, books]);
+
+  // UseEffect hook to handle sorting book list updates
+  useEffect(() => {
+    if (sorting.type === 'title') {
+      handleTitleSort();
+    } else if (sorting.type === 'author') {
+      handleAuthorSort();
+    }
+  }, [sorting, handleTitleSort, handleAuthorSort]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = ...
+  const bookItems = books.map((book) => (
+    <BookItem key={generateKey(book)} book={book} />
+  ));
 
   // Render the list of book items, sorting controls, and the AddBookForm
   return (
@@ -193,6 +332,10 @@ function Main() {
       </section>
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
+      <DependencyGraph 
+        nodes={[]} 
+        edges={[]} 
+      />
     </div>
   );
 }

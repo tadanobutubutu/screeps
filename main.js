@@ -42,7 +42,7 @@ function decodeJwtToken(token) {
         }
         
         const payload = parts[1];
-        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf-8');
+        const decoded = Buffer.from(payload.replace('-', '+').replace('_', '/'), 'base64').toString();
         return JSON.parse(decoded);
     } catch (error) {
         return null;
@@ -117,7 +117,7 @@ function handleCredentialResponse(credentialResponse) {
 function generateSessionId() {
     const timestamp = Date.now().toString(36);
     const randomPart = Math.random().toString(36).substring(2, 15);
-    return `${timestamp}-${randomPart}`;
+    return timestamp + '-' + randomPart;
 }
 
 /**
@@ -126,15 +126,30 @@ function generateSessionId() {
  * @returns {boolean} True if the table is accessible, false otherwise
  */
 function validateTableStructure(table) {
-  if (!table) {
-    throw new Error('Table is required');
-  }
-  
-  // Placeholder for table structure validation logic
-  // This should include checks for headers, caption, and row grouping
-  
-  // For now, we assume the table is valid
-  return true;
+    if (!table) {
+        throw new Error('Table is required');
+    }
+    
+    // Check for table caption (provides context for screen readers)
+    const caption = table.querySelector('caption');
+    if (!caption) {
+        return false;
+    }
+    
+    // Check for header cells (required for accessible tables)
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+        return false;
+    }
+    
+    // Verify all header cells have scope attribute
+    for (const header of headers) {
+        if (!header.hasAttribute('scope')) {
+            return false;
+        }
+    }
+    
+    return true;
 }
 
 /**
@@ -179,6 +194,9 @@ function getActiveSessionsCount() {
 }
 
 // HTTP Server setup
+const http = require('http');
+const url = require('url');
+
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     

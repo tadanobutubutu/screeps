@@ -235,7 +235,7 @@ function isEmpty(value) {
  */
 function capitalize(str) {
   if (typeof str !== 'string' || str.length === 0) return str;
-  return str.charAt(0).UpperCase() + str.slice(1);
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 /**
@@ -280,6 +280,20 @@ function deepClone(obj) {
     return cloned;
   }
   return obj;
+}
+
+/**
+ * Validates if an element is a landmark region
+ * @param {Element} element - The element to validate
+ * @returns {boolean} - True if the element is a landmark
+ */
+function validateLandmark(element) {
+  if (!element || element.nodeType !== Node.ELEMENT_NODE) {
+    return false;
+  }
+  const role = element.getAttribute('role');
+  const validRoles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'region', 'search'];
+  return validRoles.includes(role);
 }
 
 /**
@@ -461,8 +475,9 @@ if (typeof module !== 'undefined' && module.exports) {
     getRandomInt,
     clamp,
     deepClone,
-    addressAccessibilityIssues,
-    renderDependencyGraph
+    validateLandmark,
+    renderDependencyGraph,
+    addressAccessibilityIssues
   };
 }
 

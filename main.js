@@ -86,6 +86,9 @@ function ensureUniqueLandmarks() {
 
   landmarks.forEach(landmark => {
     const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    if (!uniqueLandmarkMap[landmark]) {
+      uniqueLandmarkMap[landmark] = [];
+    }
     elements.forEach(el => {
       const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
       if (isUnique) {
@@ -230,6 +233,12 @@ function addSvgAccessibleNames() {
       svg.insertBefore(title, svg.firstChild);
     }
   });
+}
+
+function addLangAttribute() {
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = 'en';
+  }
 }
 
 let uniqueLandmarks = {};

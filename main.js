@@ -1,4 +1,4 @@
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+const HTML = ({ lang }) => React.createElement('html', { lang }, '/* other children */');
 
 // Sample data and state
 const config = {
@@ -345,6 +345,55 @@ function handleFakeLinks() {
 
 function addProperLandmarkRegions() {
   // Code for adding proper landmark regions
+  if (typeof document === 'undefined') return false;
+  
+  const body = document.body;
+  if (!body) return false;
+  
+  let modified = false;
+  
+  // Check and add header landmark if missing
+  if (!body.querySelector('header')) {
+    const header = document.createElement('header');
+    header.setAttribute('role', 'banner');
+    if (body.firstChild) {
+      body.insertBefore(header, body.firstChild);
+    } else {
+      body.appendChild(header);
+    }
+    modified = true;
+  }
+  
+  // Check and add main landmark if missing
+  if (!body.querySelector('main')) {
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    main.setAttribute('id', 'main-content');
+    
+    // Find a good position for main (after header/nav, before aside/footer)
+    const header = body.querySelector('header');
+    const nav = body.querySelector('nav');
+    let insertBeforeElement = body.querySelector('aside, footer');
+    
+    if (insertBeforeElement) {
+      insertBeforeElement.parentNode.insertBefore(main, insertBeforeElement);
+    } else if (header && header.nextSibling) {
+      header.parentNode.insertBefore(main, header.nextSibling);
+    } else {
+      body.appendChild(main);
+    }
+    modified = true;
+  }
+  
+  // Check and add footer landmark if missing
+  if (!body.querySelector('footer')) {
+    const footer = document.createElement('footer');
+    footer.setAttribute('role', 'contentinfo');
+    body.appendChild(footer);
+    modified = true;
+  }
+  
+  return modified;
 }
 
 // TODO: Implement function for addressing accessibility issues from insight report
@@ -395,18 +444,15 @@ export function calculateSum(a, b) {
   return a + b;
 }
 
-export default function App() {
-  const MyApp = () => {
-    // Your app functionality here
-  };
+function MyApp() {
+  // Your app functionality here
+}
 
-  return (
-    <HTML lang="en">
-      <React.Fragment>
-        <MyApp />
-        {/* Render your HTML structure */}
-      </React.Fragment>
-    </HTML>
+function App() {
+  return React.createElement(HTML, { lang: 'en' },
+    React.createElement(React.Fragment, null,
+      React.createElement(MyApp, null)
+    )
   );
 }
 

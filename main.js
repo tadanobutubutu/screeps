@@ -33,7 +33,7 @@ function setHtmlLangAttribute(lang) {
 function detectAndSetLang(content) {
   // Simple language detection based on common patterns
   let lang = 'en'; // Default to English
-  
+
   if (content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
@@ -50,7 +50,7 @@ function detectAndSetLang(content) {
       lang = 'de'; // German
     }
   }
-  
+
   return setHtmlLangAttribute(lang);
 }
 

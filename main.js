@@ -49,6 +49,12 @@ function generateKey(book) {
   return book.id || `${book.title}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = ['react', 'react-redux', 'antd'];
+  return dependencies.length;
+}
+
 // Function to render a single book item
 function BookItem(book) {
   return (
@@ -91,7 +97,7 @@ function onAuthorSort() {
 }
 
 // Export utility functions
-export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort };
+export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies };
 
 // Render the main component containing the book list and sorting controls
 function Main() {

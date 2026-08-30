@@ -13,6 +13,79 @@ const fs = require('fs');
 const path = require('path');
 
 /**
+ * Addresses accessibility issues for rendered HTML content
+ * @param {string} html - The HTML content to improve
+ * @param {Object} options - Accessibility options
+ * @param {boolean} options.addLangAttribute - Add lang attribute to HTML element
+ * @param {boolean} options.ensureUniqueLandmarks - Ensure unique landmarks
+ * @param {boolean} options.addSvgAccessibleNames - Add accessible names to SVGs
+ * @returns {string} - HTML string with accessibility improvements
+ */
+function addressAccessibilityIssues(html, options = {}) {
+    const defaultOptions = {
+        addLangAttribute: true,
+        ensureUniqueLandmarks: true,
+        addSvgAccessibleNames: true,
+        ...options
+    };
+    
+    let improvedHtml = html;
+    
+    // REACT_015: Add lang attribute to HTML element
+    if (defaultOptions.addLangAttribute) {
+        improvedHtml = improvedHtml.replace(/<html([^>]*)>/i, (match, attrs) => {
+            if (attrs.includes('lang=')) {
+                return match;
+            }
+            return `<html${attrs} lang="en">`;
+        });
+    }
+    
+    // REACT_025: Ensure unique landmarks
+    if (defaultOptions.ensureUniqueLandmarks) {
+        // Ensure only one main landmark
+        const mainMatches = improvedHtml.match(/<main[^>]*>/gi) || [];
+        if (mainMatches.length > 1) {
+            // Keep only the first main, convert others to divs with role="none"
+            improvedHtml = improvedHtml.replace(/<main([^>]*)>/gi, (match, attrs, offset) => {
+                const firstIndex = improvedHtml.indexOf('<main');
+                if (improvedHtml.indexOf(match) === firstIndex) {
+                    return match;
+                }
+                return `<div role="none"${attrs}>`;
+            });
+        }
+    }
+    
+    // REACT_041: Add accessible names to SVGs
+    if (defaultOptions.addSvgAccessibleNames) {
+        improvedHtml = improvedHtml.replace(/<svg([^>]*)>/gi, (match, attrs) => {
+            if (attrs.includes('aria-label') || attrs.includes('aria-labelledby')) {
+                return match;
+            }
+            // Add title element as first child if not present
+            if (!improvedHtml.includes('<title') && !attrs.includes('role="img"')) {
+                const titleMatch = improvedHtml.match(/<svg[^>]*>[\s\S]*?<\/svg>/gi);
+                if (titleMatch) {
+                    const svgIndex = improvedHtml.indexOf(match);
+                    const afterSvgOpen = improvedHtml.substring(svgIndex + match.length);
+                    const closeTagIndex = afterSvgOpen.indexOf('</svg>');
+                    if (closeTagIndex !== -1) {
+                        const svgContent = afterSvgOpen.substring(0, closeTagIndex);
+                        if (!svgContent.includes('<title')) {
+                            return match.replace(/>$/, '><title>SVG Graphic</title>');
+                        }
+                    }
+                }
+            }
+            return match;
+        });
+    }
+    
+    return improvedHtml;
+}
+
+/**
  * Renders a dependency graph visualization
  * @param {Object} dependencies - The dependencies object
  * @returns {string} - HTML string for the dependency graph
@@ -41,27 +114,34 @@ function renderDependencyGraph(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html><head><title>Dependencies</title></head><body>';
+    let html = '<!DOCTYPE html><html>';
+    html += '<head><meta charset="UTF-8"><title>Dependency Index</title></head>';
+    html += '<body><main>';
     html += '<h1>Dependency Index</h1>';
     html += '<ul>';
     
     for (const pkg of packages) {
-        html += `<li>${pkg.name} - ${pkg.version}</li>`;
+        html += `<li>${pkg.name} - ${pkg.version || 'N/A'}</li>`;
     }
     
-    html += '</ul></body></html>';
-    return html;
+    html += '</ul></main></body></html>';
+    
+    // Apply accessibility improvements
+    return addressAccessibilityIssues(html);
 }
 
 /**
  * Main entry point for the application
  */
 function main() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     
     const graphData = renderDependencyGraph(packageJson.dependencies || {});
-    const indexHtml = renderIndexView([{ name: 'example', version: '1.0.0' }]);
+    const indexHtml = renderIndexView(Object.keys(packageJson.dependencies || {}).map(name => ({
+        name,
+        version: packageJson.dependencies[name]
+    })));
     
     return { graphData, indexHtml };
 }
@@ -69,5 +149,6 @@ function main() {
 module.exports = {
     renderDependencyGraph,
     renderIndexView,
-    main
+    main,
+    addressAccessibilityIssues
 };

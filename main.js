@@ -1,5 +1,3 @@
-// TODO: Existing main.js content before the merge conflict...
-
 // Import render functions
 const renderHeader = require('./renderHeader');
 const renderFooter = require('./renderFooter');

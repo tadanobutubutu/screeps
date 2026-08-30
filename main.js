@@ -1,5 +1,3 @@
-// TODO: Address accessibility issues from insight report — FIXED
-
 // Preserving existing code, exports, and functions
 
 // Application state
@@ -135,6 +133,16 @@ function validateTableStructure(table) {
   
   // For now, we assume the table is valid
   return true;
+}
+
+/**
+ * Get user information by session ID
+ * @param {string} sessionId - The session ID to look up
+ * @returns {Object|null} - User object if session is valid, null otherwise
+ */
+function getUserBySession(sessionId) {
+    const session = validateSession(sessionId);
+    return session ? session.user : null;
 }
 
 /**
@@ -290,5 +298,6 @@ module.exports = {
     validateSession,
     revokeSession,
     getActiveSessionsCount,
+    getUserBySession,
     server
 };

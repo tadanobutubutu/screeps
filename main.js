@@ -178,6 +178,50 @@ function fixFakeLinkIssue(document) {
   return count;
 }
 
+// TODO: Implement this function for checking link and button accessibility
+function checkLinkAndButtonAccessibility(document) {
+  const links = document.querySelectorAll('a, button, [role="button"]');
+  const issues = {
+    linksWithoutText: [],
+    buttonsWithoutText: [],
+    linksWithoutAriaLabel: [],
+    buttonsWithoutAriaLabel: []
+  };
+  
+  links.forEach(element => {
+    const tagName = element.tagName.toLowerCase();
+    const isLink = tagName === 'a';
+    const isButton = tagName === 'button' || element.getAttribute('role') === 'button';
+    
+    if (isLink || isButton) {
+      // Check for accessible text (text content or aria-label or title)
+      const hasTextContent = element.textContent.trim().length > 0;
+      const hasAriaLabel = element.hasAttribute('aria-label');
+      const hasTitle = element.hasAttribute('title');
+      
+      const accessibleName = hasTextContent || hasAriaLabel || hasTitle;
+      
+      if (!accessibleName) {
+        if (isLink) {
+          issues.linksWithoutText.push(element);
+        } else {
+          issues.buttonsWithoutText.push(element);
+        }
+      }
+      
+      if (!hasAriaLabel && !(hasTextContent || hasTitle)) {
+        if (isLink) {
+          issues.linksWithoutAriaLabel.push(element);
+        } else {
+          issues.buttonsWithoutAriaLabel.push(element);
+        }
+      }
+    }
+  });
+  
+  return issues;
+}
+
 // Main accessibility fix function
 function applyAccessibilityFixes(document, options = {}) {
   const lang = options.lang || 'en';
@@ -200,5 +244,6 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
+  checkLinkAndButtonAccessibility,
   applyAccessibilityFixes
 };

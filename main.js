@@ -187,6 +187,9 @@ function Main() {
   );
 }
 
+// Export the Main component
+export default Main;
+
 // Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 
 // REACT_015: Get lang attribute for HTML element
@@ -483,8 +486,13 @@ function handleAddBook(values) {
   });
 }
 
-function function3() {
-  // TODO: Implement new function3 logic here
+function processLandmarks(landmarks) {
+  // Process landmarks for accessibility
+  const errors = validateLandmarkStructure(landmarks);
+  if (errors.length > 0) {
+    console.warn('Landmark structure issues found:', errors);
+  }
+  return landmarks;
 }
 
 // Line 129 preserved content from issue
@@ -613,7 +621,6 @@ module.exports = {
   getSvgAccessibleName,
   setSvgAttributes,
   handleAddBook,
-  function3,
   addLandmarks,
   getUniqueLandmarkName,
   isValidLink,

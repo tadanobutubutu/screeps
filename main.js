@@ -1,4 +1,15 @@
-// TODO: add the new functions or changes requested in the issue
+/**
+ * Utility module providing common helper functions for value checking,
+ * string manipulation, random number generation, number clamping, and
+ * deep object cloning.
+ * 
+ * Exports:
+ *  - isEmpty: Checks if a value is null, undefined, or an empty string.
+ *  - capitalize: Capitalizes the first letter of a string.
+ *  - getRandomInt: Generates a random integer between min and max (inclusive).
+ *  - clamp: Clamps a number between min and max values.
+ *  - deepClone: Recursively deep clones an object, array, or Date.
+ */
 
 /**
  * Checks if a value is an empty string, null, or undefined

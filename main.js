@@ -20,6 +20,28 @@ const dependencyGraphContent = require('./dependencyGraphContent');
 const indexContent = require('./indexContent');
 
 /**
+ * Validates the accessibility of a table
+ * @param {Element} table - The table to validate
+ * @returns {boolean} True if the table is accessible, false otherwise
+ */
+function validateTableAccessibility(table) {
+  // Placeholder for actual validation logic
+  // This should check for things like table headers, scope attributes, etc.
+  return true; // Assuming the table is accessible for this example
+}
+
+/**
+ * Validates the structure of a table
+ * @param {Element} table - The table to validate
+ * @returns {boolean} True if the table structure is valid, false otherwise
+ */
+function validateTableStructure(table) {
+  // Placeholder for actual validation logic
+  // This could check for things like the number of rows, columns, etc.
+  return true; // Assuming the table structure is valid for this example
+}
+
+/**
  * Renders a dependency graph view
  * @param {Object} options - Options for rendering
  * @returns {string} The rendered HTML/content for the dependency graph
@@ -64,5 +86,7 @@ module.exports = {
   renderIndex,
   renderApp,
   wrapPrimaryContentInMain,
-  myNewFunction
+  myNewFunction,
+  validateTableAccessibility,
+  validateTableStructure
 };

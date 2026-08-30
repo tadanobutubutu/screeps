@@ -436,6 +436,7 @@ module.exports = {
   addMainLandmark,
   addSvgAccessibleNames,
   implementNewFunction,
+  processUniqueLandmarks,
   addLangAttribute,
   main,
   someFunction,

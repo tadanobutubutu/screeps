@@ -1,18 +1,18 @@
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
-  
+
   // Check if landmark exists
   if (!landmark) {
     errors.push('Landmark is required');
     return { valid: false, errors };
   }
-  
+
   // Validate name
   if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
     errors.push('Landmark must have a valid name');
   }
-  
+
   // Validate latitude
   if (landmark.latitude === undefined || landmark.latitude === null) {
     errors.push('Landmark must have a latitude');
@@ -21,7 +21,7 @@ function validateLandmark(landmark) {
   } else if (landmark.latitude < -90 || landmark.latitude > 90) {
     errors.push('Landmark latitude must be between -90 and 90');
   }
-  
+
   // Validate longitude
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
@@ -30,7 +30,7 @@ function validateLandmark(landmark) {
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
   }
-  
+
   return {
     valid: errors.length === 0,
     errors
@@ -253,6 +253,89 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+/**
+ * Performs accessibility checks on tables
+ * @param {Document|HTMLElement} [doc] - The document or container to validate tables within
+ * @returns {Object} - Validation results containing validity status and list of errors
+ */
+function validateTableAccessibility(doc) {
+  const results = {
+    valid: true,
+    tables: [],
+    errors: []
+  };
+
+  if (!doc) return results;
+
+  let tables = [];
+  if (typeof doc.querySelectorAll === 'function') {
+    tables = doc.querySelectorAll('table');
+  } else if (doc.body && typeof doc.body.querySelectorAll === 'function') {
+    tables = doc.body.querySelectorAll('table');
+  } else {
+    return results;
+  }
+
+  tables.forEach(table => {
+    const errors = [];
+
+    // Check for caption
+    const caption = table.querySelector('caption');
+    if (!caption || !caption.textContent.trim()) {
+      errors.push('Table must have a caption describing its purpose');
+    }
+
+    // Check for proper structure with thead, tbody, tfoot
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
+
+    if (rows.length === 0) {
+      errors.push('Table must contain at least one row');
+    }
+
+    if (rows.length > 0 && !thead && !tbody) {
+      errors.push('Table with multiple rows should use <thead> and <tbody> for proper structure');
+    }
+
+    // Check for accessible column headers
+    const firstRow = rows[0];
+    if (firstRow) {
+      const ths = firstRow.querySelectorAll('th');
+      const tds = firstRow.querySelectorAll('td');
+      if (ths.length === 0 && tds.length > 0) {
+        errors.push('Table header row should use <th> elements instead of <td>');
+      }
+
+      // Check that <th> elements have scope attribute when present
+      ths.forEach(th => {
+        if (!th.hasAttribute('scope')) {
+          errors.push('Table header cells (<th>) should have a scope attribute');
+        }
+      });
+    }
+
+    // Check that tables don't use layout purposes (basic heuristic: no <th> at all)
+    if (rows.length > 0 && table.querySelectorAll('th').length === 0) {
+      errors.push('Data tables should use <th> elements to identify header cells');
+    }
+
+    results.tables.push({
+      hasCaption: !!caption,
+      hasHeader: !!thead || table.querySelectorAll('th').length > 0,
+      errorCount: errors.length,
+      errors
+    });
+
+    if (errors.length > 0) {
+      results.valid = false;
+      results.errors.push(...errors.map(err => `Table: ${err}`));
+    }
+  });
+
+  return results;
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +354,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  validateTableAccessibility
 };

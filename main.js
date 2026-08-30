@@ -240,6 +240,56 @@ function groupByCategory(items, getCategory) {
   }, {});
 }
 
+// Function to generate a report based on accessibility issues
+function generateAccessibilityReport(issues) {
+  if (!Array.isArray(issues)) {
+    return 'Error: Invalid input. Expected an array of issues.';
+  }
+
+  if (issues.length === 0) {
+    return 'No accessibility issues found.';
+  }
+
+  // Group issues by severity
+  const grouped = issues.reduce((acc, issue) => {
+    const severity = issue.severity || 'unknown';
+    if (!acc[severity]) {
+      acc[severity] = [];
+    }
+    acc[severity].push(issue);
+    return acc;
+  }, {});
+
+  const severityOrder = ['critical', 'high', 'medium', 'low', 'unknown'];
+  const reportLines = [];
+
+  // Summary
+  reportLines.push('Accessibility Issue Report');
+  reportLines.push('=========================');
+  reportLines.push(`Total issues: ${issues.length}`);
+  reportLines.push('');
+
+  // Details by severity
+  severityOrder.forEach(severity => {
+    if (grouped[severity]) {
+      reportLines.push(`Severity: ${severity.toUpperCase()}`);
+      reportLines.push('-------------------------');
+      grouped[severity].forEach((issue, index) => {
+        reportLines.push(`${index + 1}. ${issue.description}`);
+        if (issue.element) {
+          reportLines.push(`   Element: ${issue.element}`);
+        }
+        if (issue.recommendation) {
+          reportLines.push(`   Recommendation: ${issue.recommendation}`);
+        }
+        reportLines.push('');
+      });
+    }
+  });
+
+  return reportLines.join('\n');
+}
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -292,5 +342,7 @@ module.exports = {
   filterValidItems,
   groupByCategory,
   transformInputData,
+  newFocusTrap,
+  generateAccessibilityReport,
   log
 };

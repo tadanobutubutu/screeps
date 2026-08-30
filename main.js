@@ -236,7 +236,55 @@ function renderDependencyGraph(dependencyData) {
 }
 
 function renderIndexView(indexData) {
-  console.log('Rendering index view with data:', indexData);
+  if (!indexData) {
+    console.warn('renderIndexView: No index data provided');
+    return null;
+  }
+
+  // Create a container element
+  const container = document.createElement('div');
+  container.className = 'index-view';
+
+  // Add a heading
+  const heading = document.createElement('h2');
+  heading.textContent = 'Index View';
+  container.appendChild(heading);
+
+  // Create a content area
+  const content = document.createElement('div');
+  content.className = 'index-content';
+
+  // Process the index data
+  if (Array.isArray(indexData)) {
+    // If it's an array, create a list
+    const list = document.createElement('ul');
+    indexData.forEach((item, index) => {
+      const listItem = document.createElement('li');
+      listItem.textContent = typeof item === 'object' ? JSON.stringify(item) : item;
+      list.appendChild(listItem);
+    });
+    content.appendChild(list);
+  } else if (typeof indexData === 'object') {
+    // If it's an object, display as definition list
+    const dl = document.createElement('dl');
+    Object.keys(indexData).forEach(key => {
+      const dt = document.createElement('dt');
+      dt.textContent = key;
+      const dd = document.createElement('dd');
+      dd.textContent = String(indexData[key]);
+      dl.appendChild(dt);
+      dl.appendChild(dd);
+    });
+    content.appendChild(dl);
+  } else {
+    // For primitives, just display the value
+    const p = document.createElement('p');
+    p.textContent = String(indexData);
+    content.appendChild(p);
+  }
+
+  container.appendChild(content);
+  return container;
 }
 
 function calculateSum(a, b) {

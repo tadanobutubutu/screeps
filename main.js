@@ -1,236 +1,37 @@
-// Import necessary dependencies
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { List, Button, Input, Form } from 'antd';
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+
+const fs = require('fs');
+const path = require('path');
+const config = require('./config');
+const logger = require('./utils/logger');
 
 // Initial setup
 const app = {}; // Placeholder for app configuration or initialization
 let isInitialized = false;
 const appData = {};
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
-
-// Function to add lang attribute to HTML element
-function addLangAttribute(htmlElement, lang = 'en') {
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', lang);
-  }
-}
-
-// Function to fix table structure issues
-function fixTableStructure(tableElement) {
-  if (!tableElement) return;
-
-  // Ensure table has proper structure
-  const thead = tableElement.querySelector('thead') || document.createElement('thead');
-  const tbody = tableElement.querySelector('tbody') || document.createElement('tbody');
-
-  if (!tableElement.querySelector('thead')) {
-    tableElement.prepend(thead);
-  }
-  if (!tableElement.querySelector('tbody')) {
-    tableElement.appendChild(tbody);
-  }
-
-  // Add scope attributes to header cells
-  const headerCells = thead.querySelectorAll('th');
-  headerCells.forEach(cell => {
-    if (!cell.hasAttribute('scope')) {
-      cell.setAttribute('scope', 'col');
-    }
-  });
-}
-
-// Function to fix landmark issues
-function fixLandmarkIssues(container) {
-  if (!container) return;
-
-  // Add landmark regions for common sections
-  const existingNav = container.querySelector('nav');
-  if (!existingNav) {
-    const nav = document.createElement('nav');
-    nav.setAttribute('aria-label', 'Main navigation');
-    container.prepend(nav);
-  }
-}
-
-// Function to add main landmark
-function addMainLandmark(container) {
-  if (!container) return;
-
-  const existingMain = container.querySelector('main');
-  if (!existingMain) {
-    const main = document.createElement('main');
-    main.setAttribute('role', 'main');
-    container.appendChild(main);
-  }
-}
-
-// Function to add landmark regions
-function addLandmarkRegions(container) {
-  if (!container) return;
-
-  // Add banner landmark
-  if (!container.querySelector('header')) {
-    const header = document.createElement('header');
-    header.setAttribute('role', 'banner');
-    container.prepend(header);
-  }
-
-  // Add contentinfo landmark
-  if (!container.querySelector('footer')) {
-    const footer = document.createElement('footer');
-    footer.setAttribute('role', 'contentinfo');
-    container.appendChild(footer);
-  }
-}
-
-// Function to ensure unique landmarks
-function ensureUniqueLandmarks(container) {
-  if (!container) return;
-
-  const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-  landmarks.forEach(role => {
-    const elements = container.querySelectorAll(`[role="${role}"]`);
-    if (elements.length > 1) {
-      elements.forEach((el, index) => {
-        if (index > 0) {
-          el.removeAttribute(`role`);
-        }
-      });
-    }
-  });
-}
-
-// Function to ensure landmark uniqueness (alias)
-function uniqueLandmarks(container) {
-  return ensureUniqueLandmarks(container);
-}
-
-// Function to add accessible names to SVGs
-function addSvgAccessibleNames(svgElement, name) {
-  if (!svgElement) return;
-
-  // Add title element inside SVG
-  const existingTitle = svgElement.querySelector('title');
-  if (!existingTitle) {
-    const title = document.createElement('title');
-    title.textContent = name;
-    svgElement.prepend(title);
-  }
-
-  // Add aria-label to SVG element
-  if (!svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
-    svgElement.setAttribute('aria-label', name);
-  }
-}
-
-// Function to add accessible names to all SVGs in a container
-function addAccessibleNamesToSVGs(container) {
-  if (!container) return;
-
-  const svgs = container.querySelectorAll('svg');
-  svgs.forEach((svg, index) => {
-    const name = svg.getAttribute('aria-label') || `SVG icon ${index + 1}`;
-    addSvgAccessibleNames(svg, name);
-  });
-}
-
-// Function to fix fake link issues (buttons styled as links)
-function fixFakeLinkIssue(element) {
-  if (!element) return;
-
-  const fakeLinks = element.querySelectorAll('[role="link"], a:not([href])');
-  fakeLinks.forEach(link => {
-    const text = link.textContent;
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.setAttribute('aria-label', link.getAttribute('aria-label') || text);
-    if (link.id) {
-      button.id = link.id;
-    }
-    link.parentNode.replaceChild(button, link);
-  });
-}
-
-// Function to fix all fake link issues in container
-function fixFakeLinkIssues(container) {
-  if (!container) return;
-  fixFakeLinkIssue(container);
-}
-
-// Function to handle Google sign-in logic
-function googleSignIn() {
-  // This function would typically trigger Google OAuth
-  console.log('Google sign-in initiated');
-
-  // For accessibility, ensure sign-in button has proper labeling
-  return {
-    buttonText: 'Sign in with Google',
-    ariaLabel: 'Sign in with Google account'
-  };
-}
-
-// Function to fix button identifiers for accessibility
-function fixButtonIdentifiers(container) {
-  if (!container) return;
-
-  const buttons = container.querySelectorAll('button');
-  buttons.forEach((button, index) => {
-    if (!button.id && !button.getAttribute('aria-label')) {
-      const existingText = button.textContent.trim();
-      if (!existingText) {
-        button.setAttribute('aria-label', `Button ${index + 1}`);
-      }
-    }
-  });
-}
-
-// Function to ensure dependencyGraph container has proper ARIA role
-function ensureDependencyGraphARIA(containerElement) {
-  if (!containerElement) return;
-
-  if (!containerElement.hasAttribute('role')) {
-    containerElement.setAttribute('role', 'region');
-  }
-  if (!containerElement.hasAttribute('aria-label')) {
-    containerElement.setAttribute('aria-label', 'Dependency graph');
-  }
-  if (!containerElement.hasAttribute('aria-labelledby')) {
-    containerElement.setAttribute('aria-labelledby', 'dependency-graph-title');
-  }
-}
-
 // Function to handle sorting books by title (ascending)
-export function sortByTitle(a, b) {
+function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
 }
 
 // Function to handle sorting books by author (descending)
-export function sortByAuthor(a, b) {
+function sortByAuthor(a, b) {
   return b.author.localeCompare(a.author);
 }
 
 // Function to generate a key for each book item
-export function generateKey(book) {
+function generateKey(book) {
   return book.id;
 }
 
 // Function to render a single book item
-export function BookItem(book) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        description={book.author}
-      />
-    </List.Item>
-  );
+function BookItem(book) {
+  return { key: generateKey(book), title: book.title, author: book.author };
 }
 
 // Function to create a new book entry in the Redux store
-export function addBook(book) {
+function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
@@ -245,17 +46,15 @@ export function addBook(book) {
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
-export function onTitleSort() {
-  const sortedList = getBooksList.slice().sort(sortByTitle);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+function onTitleSort(booksList) {
+  const sortedList = booksList.slice().sort(sortByTitle);
+  return sortedList;
 }
 
 // Function to handle sorting the book list by author (descending)
-export function onAuthorSort() {
-  const sortedList = getBooksList.slice().sort(sortByAuthor);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+function onAuthorSort(booksList) {
+  const sortedList = booksList.slice().sort(sortByAuthor);
+  return sortedList;
 }
 
 // Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
@@ -264,16 +63,18 @@ export function onAuthorSort() {
 function getLangAttribute() {
   // Return the language attribute for the document
   // This helps screen readers determine the language of the content
-  return document.documentElement.lang || 'en';
+  return process.env.LANG || 'en';
 }
 
 // REACT_017 & REACT_025: Validate landmark elements for accessibility
 function validateLandmark(element) {
   // Check if element is a valid landmark
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  const isValidLandmark = validLandmarks.includes(element.tagName.toLowerCase());
+  if (!element) return { isValid: false, issues: ['Element is null or undefined'] };
+
+  const isValidLandmark = validLandmarks.includes(element.tagName && element.tagName.toLowerCase());
   const hasValidRole = element.getAttribute('role') !== null;
-  
+
   const issues = [];
   const tagName = element.tagName;
 
@@ -296,8 +97,8 @@ function validateLandmarkStructure(landmarks) {
   
   landmarks.forEach((landmark, index) => {
     // Check for duplicate main landmarks
-    if (landmark.tagName.toLowerCase() === 'main') {
-      const mainCount = landmarks.filter(l => l.tagName.toLowerCase() === 'main').length;
+    if (landmark.tagName && landmark.tagName.toLowerCase() === 'main') {
+      const mainCount = landmarks.filter(l => l.tagName && l.tagName.toLowerCase() === 'main').length;
       if (mainCount > 1) {
         errors.push('REACT_025: Multiple main landmarks found - only one main landmark should exist');
         issues.push('Multiple main landmarks found - only one main landmark should exist');
@@ -305,19 +106,22 @@ function validateLandmarkStructure(landmarks) {
     }
     
     // Check for landmark nesting issues
-    if (!validateLandmark(landmark).isValid) {
+    const validationResult = validateLandmark(landmark);
+    if (!validationResult.isValid) {
       errors.push('REACT_017: Invalid landmark element found');
       issues.push('Invalid landmark element found');
     }
   });
   
   // Also check for main/nav presence
-  const container = landmarks[0]?.parentElement || document;
-  if (!container.querySelector('main')) {
-    issues.push('Page should have a main landmark');
-  }
-  if (!container.querySelector('nav')) {
-    issues.push('Consider adding navigation landmarks');
+  const container = (landmarks[0] && landmarks[0].parentElement) || (typeof document !== 'undefined' ? document : null);
+  if (container && container.querySelector) {
+    if (!container.querySelector('main')) {
+      issues.push('Page should have a main landmark');
+    }
+    if (!container.querySelector('nav')) {
+      issues.push('Consider adding navigation landmarks');
+    }
   }
   
   return {
@@ -327,39 +131,93 @@ function validateLandmarkStructure(landmarks) {
   };
 }
 
+function handleAccessibilityIssues() {
+  // Your implementation here
+}
+
+// Checks all links and buttons in the document for accessibility issues.
+// Returns an array of accessibility violations found.
+// @param {Document} document - The DOM document to check
+// @returns {Array} Array of accessibility issues found
+function checkDocumentAccessibility(document) {
+  const issues = [];
+  const links = document.querySelectorAll('a');
+  const buttons = document.querySelectorAll('button');
+  
+  // Check links
+  links.forEach(link => {
+    const role = link.getAttribute('role');
+    const tabindex = link.getAttribute('tabindex');
+    const href = link.getAttribute('href');
+    
+    // A valid link should either:
+    // 1. Be an anchor with href
+    // 2. Have role="link" with proper keyboard navigation
+    if (link.tagName !== 'A' || !href) {
+      if (role !== 'link') {
+        issues.push({
+          type: 'invalid-link',
+          element: link,
+          message: 'Link does not have proper href or role="link"'
+        });
+      }
+    }
+    
+    if (role === 'link' && !href) {
+      // Must be keyboard accessible
+      if (tabindex === null && link.tabIndex < 0) {
+        issues.push({
+          type: 'inaccessible-link',
+          element: link,
+          message: 'Link with role="link" must be keyboard accessible'
+        });
+      }
+    }
+  });
+  
+  // Check buttons
+  buttons.forEach(button => {
+    const role = button.getAttribute('role');
+    if (role === 'link') {
+      // Button with role="link" should be an anchor
+      issues.push({
+        type: 'invalid-button',
+        element: button,
+        message: 'Element with role="link" should be an anchor'
+      });
+    }
+  });
+  
+  return issues;
+}
+
 // REACT_015 & REACT_036: Create accessible in-page button
 function createInPageButton(buttonProps) {
-  const { onClick, label, icon, className, ariaLabel, role = 'button' } = buttonProps;
+  const { onClick, label, icon, className, ariaLabel, role = 'button', href } = buttonProps;
   
   // If it's a link pretending to be a button, ensure proper button semantics
-  const isFakeLink = buttonProps.href !== undefined;
+  const isFakeLink = href !== undefined;
   
   if (isFakeLink) {
     // REACT_036: Fix fake link issue by converting to proper button
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        aria-label={ariaLabel || label}
-        className={className}
-      >
-        {label}
-        {icon}
-      </button>
-    );
+    return {
+      tag: 'button',
+      type: 'button',
+      onClick: onClick,
+      ariaLabel: ariaLabel || label,
+      className: className,
+      content: label + (icon ? icon : '')
+    };
   }
   
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={ariaLabel || label}
-      className={className}
-    >
-      {label}
-      {icon}
-    </button>
-  );
+  return {
+    tag: 'button',
+    type: 'button',
+    onClick: onClick,
+    ariaLabel: ariaLabel || label,
+    className: className,
+    content: label + (icon ? icon : '')
+  };
 }
 
 // REACT_036: Validate link accessibility
@@ -506,6 +364,23 @@ function validateTableStructure(table) {
 }
 
 // REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks(container) {
+  if (!container) return;
+
+  const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  landmarks.forEach(role => {
+    const elements = container.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0) {
+          el.removeAttribute(`role`);
+        }
+      });
+    }
+  });
+}
+
+// REACT_025: Ensure unique landmarks (alternative implementation)
 function ensureUniqueLandmarksAlt(container) {
   const landmarks = ['header', 'main', 'footer', 'nav', 'aside'];
   const seen = {};
@@ -604,11 +479,11 @@ function setSvgAttributes(svg, options = {}) {
 
 // Function to handle adding a new book with accessibility improvements
 function handleAddBook(values) {
-  dispatch(addBook({
+  return addBook({
     id: Date.now(), // Generate a unique id using current timestamp
     title: values.title,
     author: values.author,
-  }));
+  });
 }
 
 function function3() {
@@ -621,104 +496,19 @@ function function3() {
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
-function App() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+// Line 129 preserved content from issue
+// TODO: This is the existing code that needs to be preserved
 
-  const fetchData = async () => {
-    try {
-      const response = await fetch('/api/data');
-      const result = await response.json();
-      setData(result);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setLoading(false);
-    }
-  };
+function addLandmarks(landmarks) {
+  processLandmarks(landmarks);
 }
 
-// Render the main component containing the book list and sorting controls
-function Main() {
-  const [sorting, setSorting] = useState(defaultSorting);
-  const [form] = Form.useForm();
-  const dispatch = useDispatch();
-
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
-    }
-  }, [sorting]);
-
-  // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(book => BookItem(book));
-
-  // Render the list of book items and sorting controls
-  return (
-    <div>
-      <header role="banner">
-        <nav role="navigation" aria-label="Book list sorting controls">
-          <button 
-            onClick={() => setSorting(sortByTitle)} 
-            id="sort-by-title-button"
-            aria-label="Sort books by title"
-          >
-            Sort by Title
-          </button>
-          <button 
-            onClick={() => setSorting(sortByAuthor)} 
-            id="sort-by-author-button"
-            aria-label="Sort books by author"
-          >
-            Sort by Author
-          </button>
-        </nav>
-      </header>
-      <main role="main" aria-label="Book list">
-        <section role="region" aria-label="Books list">
-          <List dataSource={bookItems} />
-        </section>
-      </main>
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
-      <Form
-        form={form}
-        layout="inline"
-        onFinish={(values) => handleAddBook(values)}
-      >
-        <Form.Item
-          label="Title"
-          name="title"
-          rules={[{ required: true, message: 'Please enter the book title' }]}
-        >
-          <Input aria-label="Book title" />
-        </Form.Item>
-        <Form.Item
-          label="Author"
-          name="author"
-          rules={[{ required: true, message: 'Please enter the book author' }]}
-        >
-          <Input aria-label="Book author" />
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" aria-label="Add book">
-            Add Book
-          </Button>
-        </Form.Item>
-      </Form>
-    </div>
-  );
-}
-
-export function getUniqueLandmarkName(baseName, existingNames) {
+function getUniqueLandmarkName(baseName, existingNames) {
   if (!existingNames.includes(baseName)) {
     return baseName;
   }
@@ -731,26 +521,7 @@ export function getUniqueLandmarkName(baseName, existingNames) {
   return newName;
 }
 
-export function addLandmarks(landmarks) {
-  processLandmarks(landmarks);
-}
-
-export function getSvgAccessibleName(svgElement, accessibleName) {
-  if (!svgElement) return;
-
-  // Add title element as first child
-  const title = document.createElement('title');
-  title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
-  title.textContent = accessibleName;
-
-  // Insert title as first child
-  svgElement.insertBefore(title, svgElement.firstChild);
-
-  // Add aria-labelledby attribute
-  svgElement.setAttribute('aria-labelledby', title.id);
-}
-
-export function isValidLink(element) {
+function isValidLink(element) {
   // Check if element has proper link semantics
   const role = element.getAttribute('role');
   const tabindex = element.getAttribute('tabindex');
@@ -771,21 +542,18 @@ export function isValidLink(element) {
   return false;
 }
 
-export function addScopeToHeaders(table) {
+function addScopeToHeaders(table) {
   if (!table) return;
 
   const headers = table.querySelectorAll('th');
   headers.forEach(th => {
     const row = th.parentElement;
-    const rowIndex = Array.from(row.children).indexOf(th);
-    const cellsAbove = Array.from(table.querySelectorAll('tr')).slice(0, rowIndex);
-
-    // Check if this header has cells below it in the same column
-    const hasCellsBelow = cellsAbove.length > 0;
-
-    // Check if this header has cells to the right in the same row
-    const cellsInRow = Array.from(row.children);
-    const hasCellsRight = cellsInRow.indexOf(th) < cellsInRow.length - 1;
+    const rowIndex = Array.from(row.parentElement.children).indexOf(row);
+    const colIndex = Array.from(row.cells).indexOf(th);
+    const cellsAbove = getCellsAbove(th, rowIndex);
+    const cellsInRow = Array.from(row.cells);
+    const hasCellsRight = colIndex < cellsInRow.length - 1;
+    const hasCellsBelow = th.nextElementSibling && th.nextElementSibling.tagName === 'TR';
 
     if (hasCellsBelow) {
       th.setAttribute('scope', 'col');
@@ -795,7 +563,16 @@ export function addScopeToHeaders(table) {
   });
 }
 
-export function addressAccessibilityIssues(issues) {
+function getCellsAbove(th, rowIndex) {
+  const rows = th.table ? Array.from(th.table.rows) : [];
+  return rows.slice(0, rowIndex);
+}
+
+function getCellsInRow(row) {
+  return Array.from(row.cells);
+}
+
+function addressAccessibilityIssues(issues) {
   issues.forEach(issue => {
     console.log(`Addressing issue: ${issue.issue}`);
     // TODO: Implement solution to the issue
@@ -804,77 +581,37 @@ export function addressAccessibilityIssues(issues) {
   });
 }
 
-export function addProperLandmarkRegions() {
-  // REACT_017: Add proper landmark regions
-}
-
-export function announceToScreenReader() {
-  // Screen reader announcement functionality
-}
-
-export function trapFocus() {
-  // Focus trap functionality
-}
-
-export function manageFocusOnNavigation() {
-  // Manage focus on navigation
-}
-
-export function prefersReducedMotion() {
-  // Check for reduced motion preference
-}
-
-export function setAriaExpanded() {
-  // Set aria-expanded attribute
-}
-
-export function hasAccessibleName() {
-  // Check if element has accessible name
-}
-
-// Export the required functionA and functionB as objects with properties X, Y, and Z
-export const functionA = {
-  X: sortByTitle,
-  Y: sortByAuthor,
-  Z: onTitleSort
-};
-
-export const functionB = {
-  X: getLangAttribute,
-  Y: validateLandmark,
-  Z: createInPageButton
-};
-
-export {
-  function3,
-  App,
+module.exports = {
+  sortByTitle,
+  sortByAuthor,
+  generateKey,
+  BookItem,
+  addBook,
+  onTitleSort,
+  onAuthorSort,
   getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-  ensureUniqueLandmarks,
+  checkDocumentAccessibility,
   createInPageButton,
-  createAccessibleLink,
-  handleAccessibilityIssues,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  validateTableAccessibility,
+  validateTableStructure,
+  ensureUniqueLandmarks,
+  ensureUniqueLandmarksAlt,
+  addProperLandmarkRegions,
   getSvgAccessibleName,
-  checkLinkAndButtonAccessibility,
-  processLandmarks,
+  setSvgAttributes,
+  handleAddBook,
+  function3,
   addLandmarks,
   getUniqueLandmarkName,
-  addProperLandmarkRegions,
-  addSvgAccessibleName,
   isValidLink,
   addScopeToHeaders,
   addressAccessibilityIssues,
-  announceToScreenReader,
-  trapFocus,
-  manageFocusOnNavigation,
-  prefersReducedMotion,
-  setAriaExpanded,
-  hasAccessibleName,
+  getCellsAbove,
+  getCellsInRow,
+  isInitialized,
+  appData
 };
-
-// Export the Main component
-export default Main;

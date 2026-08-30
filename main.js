@@ -22,3 +22,5 @@ export function existingFunction() {
 
 // Preserve any additional exports
 export const constant = 'Preserved constant';
+
+export { newFunction };

@@ -10,7 +10,7 @@
 function ensureElementHasId(element) {
   if (!element.id) {
     const idPrefix = 'element';
-    const randomPart = Math.random().toString(36).substring(2, 11);
+    const randomPart = Math.random().toString(36).substring(2, 9);
     element.id = `${idPrefix}-${randomPart}`;
   }
   return element.id;
@@ -221,7 +221,7 @@ export function fixTableStructureIssues(html) {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes(' scope=')) {
       return match;
     }
@@ -229,8 +229,8 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
+  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes(' summary=') || attrs && attrs.includes('<caption')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -254,14 +254,14 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (html.includes('<main') || html.includes('<main>')) {
+  if (html.includes('<main') || html.includes('</main>')) {
     return html;
   }
 
   // If no main landmark, try to add one after the opening body tag
   return html.replace(/<body([^>]*)>/gi, (match, attrs) => {
     return `<body${attrs || ''}><main>`;
-  }).replace(/<\/body>/i, '</main></body>');
+  }).replace('</body>', '</main></body>');
 }
 
 /**
@@ -274,7 +274,7 @@ export function addSvgAccessibleNames(html) {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
     // Handle case where attrs might be undefined (for <svg> without attributes)
     const attributes = attrs || '';
     const existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
@@ -284,13 +284,13 @@ export function addSvgAccessibleNames(html) {
     }
     
     // Extract title if present
-    const titleMatch = attributes.match(/<title>([^<]+)<\/title>/i);
+    const titleMatch = match.match(/<title>([^<]*)<\/title>/i);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attributes.match(/id="([^"]+)"/);
+    const idMatch = attributes.match(/id="([^"]*)"/);
     if (idMatch) {
-      return `<svg${attributes} role="img" aria-labelledby="title-${idMatch[1]}">`;
+      return `<svg${attributes} role="img" aria-labelledby="${idMatch[1]}-title">`;
     }
     
     // Add inline title for accessibility
@@ -301,6 +301,3 @@ export function addSvgAccessibleNames(html) {
 
 /**
  * Ensures unique landmark identifiers for screen readers
- * Converts additional <main> landmarks to <section> so only one <main> exists per page.
- * Also assigns unique IDs to other landmark types.
- * @param {string} html - The HTML string

@@ -1,1 +1,8 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// calculate.js
+export function calculateSum(numbers) {
+  let total = 0;
+  numbers.forEach(number => {
+    total += number;
+  });
+  return total;
+}

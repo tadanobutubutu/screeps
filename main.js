@@ -456,6 +456,120 @@ function getFullLangAttribute(el) {
     return element ? (element.lang || element.getAttribute('lang') || '') : '';
 }
 
+/**
+ * Sets the lang attribute on the HTML element
+ * @param {string} lang - The language code to set
+ */
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang;
+  }
+}
+
+/**
+ * Validates landmark accessibility issues
+ * @param {string} [url] - Optional URL (not used)
+ * @returns {Array} Array of issue objects
+ */
+function validateLandmark(url) {
+  const issues = [];
+  if (typeof document === 'undefined') return issues;
+  const landmarkRoles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'];
+  const counts = {};
+  const selectors = landmarkRoles.map(role => `[role="${role}"]`).join(',');
+  const landmarks = document.querySelectorAll(selectors);
+  landmarks.forEach(el => {
+    const role = el.getAttribute('role');
+    counts[role] = (counts[role] || 0) + 1;
+    const hasLabel = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || el.textContent.trim();
+    if (!hasLabel) {
+      issues.push({ type: 'missing_name', message: `Landmark missing accessible name: ${role}` });
+    }
+  });
+  landmarkRoles.forEach(role => {
+    if (counts[role] > 1) {
+      issues.push({ type: 'duplicate_landmark', message: `Duplicate landmark role: ${role} (${counts[role]} occurrences)` });
+    }
+  });
+  return issues;
+}
+
+/**
+ * Validates landmark structure (e.g., nesting)
+ * @returns {Array} Array of issue objects
+ */
+function validateLandmarkStructure() {
+  const issues = [];
+  if (typeof document === 'undefined') return issues;
+  const main = document.querySelectorAll('[role="main"], main');
+  if (main.length === 0) {
+    issues.push({ type: 'missing_main', message: 'Missing main landmark' });
+  } else if (main.length > 1) {
+    issues.push({ type: 'duplicate_main', message: 'Multiple main landmarks' });
+  }
+  return issues;
+}
+
+/**
+ * Gets an accessible name for an SVG element
+ * @param {SVGElement} svg - The SVG element
+ * @returns {string} Accessible name
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const title = svg.querySelector('title');
+  if (title && title.textContent) return title.textContent.trim();
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  const labelledBy = svg.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const labelEl = document.getElementById(labelledBy);
+    if (labelEl) return labelEl.textContent.trim();
+  }
+  const id = svg.getAttribute('id');
+  if (id) return id;
+  return '';
+}
+
+/**
+ * Creates an accessible in-page button (anchor with role button)
+ * @param {string} label - The button label
+ * @param {string} href - The URL to navigate to
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(label, href) {
+  if (typeof document === 'undefined') return null;
+  const button = document.createElement('a');
+  button.href = href || '#';
+  button.setAttribute('role', 'button');
+  button.setAttribute('tabindex', '0');
+  button.textContent = label;
+  button.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      button.click();
+    }
+  });
+  return button;
+}
+
+/**
+ * Ensures landmark roles are unique
+ * @returns {Array} Array of duplicate landmark issues
+ */
+function ensureUniqueLandmarks() {
+  const issues = [];
+  if (typeof document === 'undefined') return issues;
+  const roles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'];
+  roles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      issues.push({ type: 'duplicate_landmark', message: `Duplicate landmark role: ${role} (${elements.length} occurrences)` });
+    }
+  });
+  return issues;
+}
+
 module.exports = {
     validateWebAccessibility,
     validateTableAccessibility,

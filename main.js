@@ -8,6 +8,16 @@ let isInitialized = false;
 const appData = {};
 let uniqueLandmarks = {};
 
+// Placeholder implementations for math utilities used in accessibility calculations
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  // Dummy implementation until real one is added
+  return Math.sqrt((lat2 - lat1) ** 2 + (lon2 - lon1) ** 2);
+}
+
+function toRad(value) {
+  return value * Math.PI / 180;
+}
+
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
@@ -47,7 +57,7 @@ function addressAccessibilityIssues() {
         landmarks.forEach(uniqueLandmark => {
           let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
           if (!element[0]) {
-            element = document.createElement(`div`);
+            element = document.createElement('div');
             element.setAttribute('role', uniqueLandmark);
             if (!document.querySelector(`#${uniqueLandmark}`)) {
               const id = uniqueLandmark;
@@ -61,7 +71,16 @@ function addressAccessibilityIssues() {
       }
     });
   }
+
+  // Return internal functions so they can be invoked/tested outside
+  return {
+    improveAccessibility,
+    ensureUniqueLandmarks
+  };
 }
+
+// Expose nested functions at module level
+const { improveAccessibility, ensureUniqueLandmarks: internalEnsureUniqueLandmarks } = addressAccessibilityIssues();
 
 // New function to render dependency graphs
 function renderDependencyGraph(moduleName) {
@@ -87,8 +106,10 @@ function newFunction() {
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks,
+  ensureUniqueLandmarks: internalEnsureUniqueLandmarks,
   renderDependencyGraph,
   displayModuleStructure,
-  newFunction
+  newFunction,
+  addressAccessibilityIssues,
+  improveAccessibility
 };

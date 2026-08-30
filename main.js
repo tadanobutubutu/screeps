@@ -322,12 +322,26 @@ function checkLandmarks(container = document) {
  * Renders the index view of the application.
  */
 function renderIndexView() {
-  // Implement your code here.
-  // Example of creating a button in-page:
+  // Use the new DependencyGraphRenderer for rendering the graph/index
+  const lang = getLangAttribute();
+  const accessibleName = personName();
+  const graphContainer = DependencyGraphRenderer ? DependencyGraphRenderer(dependencyGraphContent) : null;
+  
+  // Create accessible button with proper attributes
   const button = document.createElement('button');
   button.textContent = 'Click Me';
+  button.lang = lang;
+  button.setAttribute('aria-label', accessibleName + ' - Index View Button');
+  button.setAttribute('tabindex', '0');
+  
+  // Ensure the button element has proper accessibility
+  ensureElementHasId(button);
+  addAriaLabel(button, accessibleName);
+  
   // Append the button to the body or another element as needed
   document.body.appendChild(button);
+  
+  return button;
 }
 
 /**

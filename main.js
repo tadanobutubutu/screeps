@@ -1,3 +1,5 @@
+// TODO: Add back any required exports that might have been removed
+
 const React = require('react');
 const ReactDOM = require('react-dom');
 const Landmark = require('./Landmark');
@@ -118,5 +120,13 @@ module.exports = {
   processLandmarks,
   addLangAttribute,
   checkLandmarkElement,
-  calculateSum
+  calculateSum,
+  createInPageButton,
+  Landmark,
+  React,
+  ReactDOM,
+  initializeApp,
+  appData,
+  registerSW,
+  appStarted
 };

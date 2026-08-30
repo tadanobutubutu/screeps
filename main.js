@@ -7,6 +7,16 @@ import { initializeApp, appData } from './app.js';
 import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
 
+// TODO: This is the existing code that needs to be preserved
+// (This should be preserved)
+// Addressed accessibility issues from insight report
+
+// Initialize accessibility features (addressing insight report)
+// Set language attribute for screen readers
+if (typeof document !== 'undefined') {
+  addLangAttribute(document.documentElement);
+}
+
 // Function to create in-page buttons
 const createInPageButton = (options: {
   onClick: () => void;

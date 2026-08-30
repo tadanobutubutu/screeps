@@ -44,7 +44,7 @@ function decodeJwtToken(token) {
         }
         
         const payload = parts[1];
-        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf-8');
+        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString();
         return JSON.parse(decoded);
     } catch (error) {
         return null;

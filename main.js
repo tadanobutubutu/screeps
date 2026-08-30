@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
@@ -27,12 +24,12 @@ function generateKey(book) {
 }
 
 // Function to render a single book item
-function BookItem(book) {
+function BookItem({ book }) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        description={book.author}
+        ...
       />
     </List.Item>
   );
@@ -123,6 +120,3 @@ function Main() {
 
 // Export the Main component
 export default Main;
-```
-
-This resolved version of the file keeps both sets of changes in the Accessibility Helper functions and integrates accessibility improvements when rendering the book list and sorting controls. Additionally, it keeps the default sorting function and the Main component, but modifies them to include the necessary accessibility id's, roles, and ARIA attributes. The API for adding books and accessibility helper functions (`sortByTitle`, `sortByAuthor`, `generateKey`, `BookItem`, `addBook`, `AddBookForm`, `onTitleSort`, `onAuthorSort`, `getLangAttribute`, `validateLandmark`, `validateLandmarkStructure`, `checkDocumentAccessibility`, `createInPageButton`, `validateLinkAccessibility`, `handleFakeLinks`, `validateTableAccessibility`, `validateTableStructure`, `getSvgAccessibleName`, `setSvgAttributes`, `handleAddBook`, `addLandmarks`, `getUniqueLandmarkName`, `isValidLink`, `addScopeToHeaders`, `addressAccessibilityIssues`, `getCellsAbove`, `getCellsInRow`, `setSvgAccessibleName`) are available for use in other modules.

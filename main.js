@@ -5,11 +5,12 @@
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = document.querySelector('.skip-link, [href^="#"]');
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const targetId = skipLink.getAttribute('href').slice(1);
+        const target = document.getElementById(targetId) || document.querySelector(targetId);
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -26,27 +27,34 @@ const accessibilityUtils = {
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
 
-    element.addEventListener('keydown', (e) => {
+    const handleTab = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
           e.preventDefault();
+          firstElement.focus();
         }
       }
-    });
+    };
+
+    element.addEventListener('keydown', handleTab);
+    return handleTab;
   },
 
   // Announce message to screen readers
   announceToScreenReader: (message, priority = 'polite') => {
     const announcer = document.createElement('div');
     announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('role', 'status');
     announcer.setAttribute('aria-atomic', 'true');
     announcer.className = 'sr-only';
     announcer.style.position = 'absolute';
     announcer.style.left = '-9999px';
+    announcer.style.width = '1px';
+    announcer.style.height = '1px';
+    announcer.style.overflow = 'hidden';
     announcer.textContent = message;
     document.body.appendChild(announcer);
     setTimeout(() => announcer.remove(), 1000);
@@ -70,13 +78,14 @@ const exportUtils = {
     link.href = url;
     link.download = filename;
     link.setAttribute('aria-label', `Download ${filename}`);
+    link.setAttribute('role', 'button');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     
     // Announce download completion to screen readers
-    accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
+    accessibilityUtils.announceToScreenReader(`Download of ${filename} started`, 'polite');
   },
 
   exportToJSON: (data, filename) => {
@@ -85,7 +94,10 @@ const exportUtils = {
   },
 
   exportToCSV: (data, filename) => {
-    if (!data || data.length === 0) return;
+    if (!data || data.length === 0) {
+      accessibilityUtils.announceToScreenReader('No data available to export', 'assertive');
+      return;
+    }
     
     const headers = Object.keys(data[0]);
     const csvRows = [];
@@ -109,11 +121,14 @@ const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
   
   // Add keyboard support for all interactive elements
-  document.querySelectorAll('[data-accessible]').forEach(element => {
+  document.querySelectorAll('[role="button"], .btn, button, a[href]').forEach(element => {
     element.addEventListener('keydown', (e) => {
       accessibilityUtils.handleKeyboardNav(e, {
         Enter: () => element.click(),
-        ' ': () => element.click()
+        ' ': () => {
+          e.preventDefault();
+          element.click();
+        }
       });
     });
   });

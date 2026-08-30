@@ -1,3 +1,5 @@
+// Main JavaScript module for landmark element validation and dependency graph rendering
+
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
@@ -154,6 +156,11 @@ function improveAccessibility(container) {
   });
 }
 
+/**
+ * Renders dependency graph content within a container element.
+ * Processes elements with the data-dependency attribute and renders graph visualizations.
+ * @param {HTMLElement} container - The container element to process
+ */
 function renderDependencyGraphContent(container) {
   if (!container) return;
   // Process the container for dependency graph content
@@ -161,6 +168,17 @@ function renderDependencyGraphContent(container) {
   elements.forEach(el => {
     if (el.dataset) {
       // Process dependency data
+      const dependencyData = el.dataset.dependency;
+      if (dependencyData) {
+        try {
+          const parsedData = JSON.parse(dependencyData);
+          el.setAttribute('data-dependency-processed', 'true');
+          el.dataset.processed = 'true';
+        } catch (e) {
+          // If not JSON, treat as raw identifier
+          el.setAttribute('data-dependency-id', dependencyData);
+        }
+      }
     }
   });
 }
@@ -231,12 +249,66 @@ function addressInsightIssues(insightReport) {
   });
 }
 
+/**
+ * Renders a dependency graph visualization based on the provided dependency data.
+ * Processes nodes and edges to create a graph structure.
+ * @param {Object|Array} dependencyData - The dependency data containing nodes and relationships
+ * @returns {Object|null} The rendered graph structure or null if data is invalid
+ */
 function renderDependencyGraph(dependencyData) {
-  console.log('Rendering dependency graph with data:', dependencyData);
+  if (!dependencyData) {
+    console.warn('No dependency data provided for rendering');
+    return null;
+  }
+
+  const nodes = Array.isArray(dependencyData) ? dependencyData : (dependencyData.nodes || []);
+  const edges = dependencyData.edges || [];
+
+  const graph = {
+    nodes: nodes.map((node, index) => ({
+      id: node.id || `node-${index}`,
+      label: node.label || node.name || `Node ${index}`,
+      dependencies: node.dependencies || []
+    })),
+    edges: edges.map(edge => ({
+      source: edge.source || edge.from,
+      target: edge.target || edge.to,
+      type: edge.type || 'dependency'
+    })),
+    renderedAt: new Date().toISOString()
+  };
+
+  console.log('Rendering dependency graph with data:', graph);
+  return graph;
 }
 
+/**
+ * Renders an index view based on the provided index data.
+ * Processes index entries and creates a navigable view structure.
+ * @param {Object|Array} indexData - The index data containing entries to display
+ * @returns {Object|null} The rendered index view or null if data is invalid
+ */
 function renderIndexView(indexData) {
-  console.log('Rendering index view with data:', indexData);
+  if (!indexData) {
+    console.warn('No index data provided for rendering');
+    return null;
+  }
+
+  const entries = Array.isArray(indexData) ? indexData : (indexData.entries || []);
+
+  const view = {
+    entries: entries.map((entry, index) => ({
+      id: entry.id || `entry-${index}`,
+      title: entry.title || entry.name || `Entry ${index}`,
+      path: entry.path || entry.url || '#',
+      category: entry.category || 'default'
+    })),
+    totalCount: entries.length,
+    renderedAt: new Date().toISOString()
+  };
+
+  console.log('Rendering index view with data:', view);
+  return view;
 }
 
 function calculateSum(a, b) {

@@ -437,5 +437,7 @@ module.exports = {
   createInPageButton,
   validateLinkAccessibility,
   handleFakeLinks,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  missingExportPlaceholder,
+  calculateSum
 };

@@ -1,1 +1,166 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js - Landmark Structure Validator for Accessibility
+
+/**
+ * Validates landmark structure for accessibility issues
+ * Checks for proper use of HTML5 landmark elements and ARIA landmarks
+ */
+
+// Common landmark selectors
+const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form'];
+const LANDMARK_SELECTORS = LANDMARK_ELEMENTS.map(el => el).join(',');
+
+/**
+ * Finds all landmark elements in a document or container
+ * @param {Document|Element} context - The context to search within
+ * @returns {Element[]} Array of landmark elements
+ */
+function findLandmarks(context = document) {
+    const landmarks = [];
+    LANDMARK_ELEMENTS.forEach(tag => {
+        const elements = context.querySelectorAll(tag);
+        elements.forEach(el => landmarks.push(el));
+    });
+    return landmarks;
+}
+
+/**
+ * Validates the landmark structure for accessibility issues
+ * @param {Document|Element} context - The document or container to validate
+ * @returns {Object} Validation result with issues array
+ */
+function validateLandmarkStructure(context = document) {
+    const issues = [];
+    
+    // Check for multiple <main> elements (should be exactly one)
+    const mainElements = context.querySelectorAll('main');
+    if (mainElements.length === 0) {
+        issues.push({
+            type: 'error',
+            code: 'MISSING_MAIN',
+            message: 'Document should contain exactly one <main> landmark for main content'
+        });
+    } else if (mainElements.length > 1) {
+        issues.push({
+            type: 'error',
+            code: 'MULTIPLE_MAIN',
+            message: `Document contains ${mainElements.length} <main> elements. Only one is allowed per page.`
+        });
+    }
+    
+    // Validate sections have accessible names
+    const sections = context.querySelectorAll('section');
+    sections.forEach((section, index) => {
+        const hasLabel = section.getAttribute('aria-label') || 
+                         section.getAttribute('aria-labelledby') ||
+                         section.querySelector('h1, h2, h3, h4, h5, h6');
+        if (!hasLabel) {
+            issues.push({
+                type: 'warning',
+                code: 'SECTION_WITHOUT_NAME',
+                message: `Section element at index ${index} should have an accessible name (aria-label, aria-labelledby, or heading)`
+            });
+        }
+    });
+    
+    // Validate forms have accessible names
+    const forms = context.querySelectorAll('form');
+    forms.forEach((form, index) => {
+        const hasLabel = form.getAttribute('aria-label') || 
+                         form.getAttribute('aria-labelledby') ||
+                         form.getAttribute('name');
+        if (!hasLabel && form.querySelectorAll('input, select, textarea').length > 0) {
+            issues.push({
+                type: 'warning',
+                code: 'FORM_WITHOUT_NAME',
+                message: `Form at index ${index} should have an accessible name if it contains form controls`
+            });
+        }
+    });
+    
+    // Validate navigation elements
+    const navElements = context.querySelectorAll('nav');
+    navElements.forEach((nav, index) => {
+        const hasLabel = nav.getAttribute('aria-label') || 
+                         nav.getAttribute('aria-labelledby');
+        const isMultipleNav = navElements.length > 1 && !hasLabel;
+        if (isMultipleNav) {
+            issues.push({
+                type: 'warning',
+                code: 'NAV_WITHOUT_LABEL',
+                message: `Navigation at index ${index} should have an aria-label when multiple nav elements exist`
+            });
+        }
+    });
+    
+    // Check for proper header/footer usage
+    const headers = context.querySelectorAll('header');
+    headers.forEach((header, index) => {
+        // Header inside main should be a banner, not a sectioning element
+        if (header.closest('main') && !header.closest('section') && !header.closest('article')) {
+            issues.push({
+                type: 'info',
+                code: 'HEADER_NESTING',
+                message: `Header at index ${index} is inside main content - consider if this is the intended use`
+            });
+        }
+    });
+    
+    return {
+        isValid: issues.filter(i => i.type === 'error').length === 0,
+        issueCount: issues.length,
+        issues: issues
+    };
+}
+
+/**
+ * Gets a summary report of landmark structure validation
+ * @param {Document|Element} context - The document or container to analyze
+ * @returns {string} Human-readable summary
+ */
+function getLandmarkSummary(context = document) {
+    const result = validateLandmarkStructure(context);
+    const summary = [];
+    
+    summary.push('Landmark Structure Validation Summary:');
+    summary.push(`- Total issues found: ${result.issueCount}`);
+    
+    const errors = result.issues.filter(i => i.type === 'error');
+    const warnings = result.issues.filter(i => i.type === 'warning');
+    const infos = result.issues.filter(i => i.type === 'info');
+    
+    if (errors.length > 0) {
+        summary.push(`- Errors: ${errors.length}`);
+        errors.forEach(e => summary.push(`  • ${e.message}`));
+    }
+    if (warnings.length > 0) {
+        summary.push(`- Warnings: ${warnings.length}`);
+        warnings.forEach(w => summary.push(`  • ${w.message}`));
+    }
+    if (infos.length > 0) {
+        summary.push(`- Info: ${infos.length}`);
+        infos.forEach(i => summary.push(`  • ${i.message}`));
+    }
+    
+    summary.push(`\nValidation ${result.isValid ? 'PASSED' : 'FAILED'}`);
+    
+    return summary.join('\n');
+}
+
+// Export for module usage
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        validateLandmarkStructure,
+        getLandmarkSummary,
+        findLandmarks,
+        LANDMARK_ELEMENTS,
+        LANDMARK_SELECTORS
+    };
+}
+
+// Auto-validate on load if this is a browser context
+if (typeof window !== 'undefined') {
+    // Store validation result globally for debugging
+    window.landmarkValidation = validateLandmarkStructure(document);
+}
+
+// Original TODO now implemented - Validate the landmark structure for accessibility issues

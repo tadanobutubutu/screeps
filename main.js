@@ -174,6 +174,68 @@ function validateAllTables() {
   };
 }
 
+/**
+ * Addresses accessibility issues from validation results and provides fixes
+ * @param {Object} validationResults - Results from validateTableAccessibility() or validateAllTables()
+ * @returns {Object} Object containing suggested fixes and recommendations for addressing issues
+ */
+function addressAccessibilityIssues(validationResults) {
+  const fixes = [];
+  const recommendations = [];
+  
+  // Handle case where validationResults is from validateAllTables()
+  const errors = validationResults.accessibility 
+    ? validationResults.accessibility.errors 
+    : validationResults.errors;
+  
+  if (!errors || errors.length === 0) {
+    return {
+      hasIssues: false,
+      fixes: [],
+      recommendations: ['No accessibility issues found']
+    };
+  }
+  
+  for (const error of errors) {
+    const tableIndex = error.tableIndex;
+    
+    switch (error.error) {
+      case 'Table must have headers defined':
+        fixes.push({
+          tableIndex,
+          error: error.error,
+          fix: 'Add a headers array to the table object with column names'
+        });
+        recommendations.push('Ensure table headers are descriptive and accurately describe the content of each column');
+        break;
+        
+      case 'Table must have rows array defined':
+        fixes.push({
+          tableIndex,
+          error: error.error,
+          fix: 'Add a rows array to the table object containing cell data'
+        });
+        recommendations.push('Populate table rows with data that corresponds to the headers');
+        break;
+        
+      case 'Table should have aria-label or caption for accessibility':
+        fixes.push({
+          tableIndex,
+          error: error.error,
+          fix: 'Add an aria-label property to provide screen reader context'
+        });
+        recommendations.push('Use aria-label for complex tables or caption for simpler descriptive tables');
+        break;
+    }
+  }
+  
+  return {
+    hasIssues: true,
+    fixes,
+    recommendations: [...new Set(recommendations)]
+  };
+}
+
 // Module exports
 module.exports = {
   initialize,
@@ -183,5 +245,6 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  addressAccessibilityIssues
 };

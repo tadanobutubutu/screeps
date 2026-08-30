@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
 // main.js
 // Import the content for dependency graphs and index views
 import { dependencyGraphContent } from './dependencyGraphContent';

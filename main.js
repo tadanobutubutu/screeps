@@ -131,7 +131,7 @@ function displayModuleStructure(moduleName) {
   // Assume some logic here to actually display the structure
 }
 
-// TODO: This is the new function request
+// New function to implement as requested in the issue
 function newFunction() {
   // Implement the new function here
   console.log("New Function has been called!");

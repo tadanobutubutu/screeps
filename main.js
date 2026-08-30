@@ -124,6 +124,130 @@ function handleAccessibilityError(errorElement, container) {
   handleErrorState(errorElement, container, true);
 }
 
+// New functions to address accessibility issues (as per TODO)
+
+// Function to ensure lang attribute is present
+function addLangAttributeElement() {
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = 'en';
+  }
+}
+
+// Function to fix table structure issues
+function fixTableStructure() {
+  const tables = document.querySelectorAll('table');
+  const fixesApplied = [];
+
+  tables.forEach((table, index) => {
+    // Ensure thead
+    let thead = table.querySelector('thead');
+    if (!thead) {
+      thead = document.createElement('thead');
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        firstRow.remove();
+        thead.appendChild(firstRow);
+      }
+      table.insertBefore(thead, table.firstChild);
+      fixesApplied.push({
+        type: 'REACT_027',
+        tableIndex: index,
+        issue: 'Added missing thead element',
+      });
+    }
+
+    // Ensure tbody
+    let tbody = table.querySelector('tbody');
+    if (!tbody) {
+      tbody = document.createElement('tbody');
+      Array.from(table.querySelectorAll('tr')).forEach(tr => {
+        if (!thead.contains(tr)) {
+          tbody.appendChild(tr);
+        }
+      });
+      table.appendChild(tbody);
+      fixesApplied.push({
+        type: 'REACT_027',
+        tableIndex: index,
+        issue: 'Added missing tbody element',
+      });
+    }
+
+    // Ensure header cells are th
+    const headerRows = thead ? thead.querySelectorAll('tr') : [];
+    headerRows.forEach(row => {
+      const cells = row.querySelectorAll('td, th');
+      cells.forEach(cell => {
+        if (cell.tagName.toLowerCase() === 'td') {
+          const th = document.createElement('th');
+          th.textContent = cell.textContent;
+          cell.replaceWith(th);
+          fixesApplied.push({
+            type: 'REACT_027',
+            tableIndex: index,
+            issue: 'Replaced td with th in header row',
+          });
+        }
+      });
+    });
+  });
+
+  return fixesApplied;
+}
+
+// Function to add a main landmark
+function addMainLandmark() {
+  const container = document.getElementById('root');
+  if (!container) return;
+
+  const existingMain = container.closest('main');
+  if (existingMain) return;
+
+  const parent = container.parentNode;
+  const main = document.createElement('main');
+  parent.insertBefore(main, container);
+  main.appendChild(container);
+}
+
+// Function to add accessible names to SVGs
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  let count = 0;
+  svgs.forEach(svg => {
+    if (!getSvgAccessibleName(svg)) {
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = 'SVG image';
+      svg.insertBefore(title, svg.firstChild);
+      count++;
+    }
+  });
+  return count;
+}
+
+// Function to fix a fake link issue (singular)
+function fixFakeLinkIssue() {
+  const clickableElements = document.querySelectorAll('[onclick]');
+  for (const element of clickableElements) {
+    const tagName = element.tagName.toLowerCase();
+    const hasHref = element.getAttribute('href');
+    const hasOnClick = element.hasAttribute('onclick');
+    const computedStyle = window.getComputedStyle(element);
+    const isClickable = computedStyle.cursor === 'pointer' ||
+                        element.classList.contains('link') ||
+                        element.classList.contains('btn-link');
+
+    if (isClickable && !hasHref && hasOnClick) {
+      const parentNav = element.closest('nav');
+      const parentList = element.closest('ul, ol');
+      if (parentNav || parentList) {
+        element.setAttribute('href', '#');
+        return element;
+      }
+    }
+  }
+  return null;
+}
+
 // Function to render dependency graph using dependencyGraphContent
 function renderDependencyGraph(container) {
   createInPageButton();
@@ -140,7 +264,7 @@ function renderIndexView(container) {
 // ----- END ORIGINAL CODE -----
 // TODO: Any additional changes requested in the issue
 
-export { addLangAttribute, ensureElementId, getFullLangAttribute, triggerAccessibilityMode, handleErrorState, handleAccessibilityError, renderDependencyGraph, renderIndexView, getFullLangAttribute, render, createTheme, uuidv4, createElement, getDocument, createInPageButton, handleAccessibilityIssues, createAccessibleLink, dependencyGraphContent, indexContent };
+export { addLangAttribute, ensureElementId, getFullLangAttribute, triggerAccessibilityMode, handleErrorState, handleAccessibilityError, renderDependencyGraph, renderIndexView, render, createTheme, uuidv4, createElement, getDocument, createInPageButton, handleAccessibilityIssues, createAccessibleLink, dependencyGraphContent, indexContent, addLangAttributeElement, fixTableStructure, addMainLandmark, addSvgAccessibleNames, fixFakeLinkIssue };
 
 // Don't forget to test your new additions in the test file
 
@@ -541,6 +665,11 @@ export {
   ensureUniqueLandmarks,
   fixFakeLinkIssues,
   personName,
+  addLangAttributeElement,
+  fixTableStructure,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
   reportWebVitals,
   validateLinkAccessibility,
   handleFakeLinks,
@@ -563,6 +692,11 @@ export default {
   fixFakeLinkIssues,
   createInPageButton,
   personName,
+  addLangAttributeElement,
+  fixTableStructure,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
   reportWebVitals,
   validateLinkAccessibility,
   handleFakeLinks,
@@ -613,4 +747,3 @@ export {
   someFunction,
   exportedFunction,
 };
-```

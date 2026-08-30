@@ -561,6 +561,12 @@ function countDependencies() {
   }
 }
 
+// Function to render dependency graph
+function renderDependencyGraph(containerId, options) {
+  const renderer = new DependencyGraphRenderer(containerId, options);
+  return renderer.render(dependencyGraphContent);
+}
+
 // Export all functions including those from both branches
 module.exports = {
   ensureElementHasId,
@@ -603,9 +609,6 @@ module.exports = {
   dependencyGraphContent,
   setHtmlLangAttribute,
   detectAndSetLang,
-  convertAnchorsToButtons
+  convertAnchorsToButtons,
+  a11yStore
 };
-
-export { a11yStore };
-export { addressAccessibilityIssues };
-export default a11yStore;

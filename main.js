@@ -139,6 +139,23 @@ function setSvgAccessibleName(svg, name) {
   svg.setAttribute('aria-label', name);
 }
 
+/**
+ * Sets the lang attribute on an element or document
+ * @param {HTMLElement|Document} element - The element or document to set the lang attribute on
+ * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr')
+ */
+function setLangAttribute(element, lang) {
+  if (!element) {
+    throw new Error('Element or document is required');
+  }
+  
+  if (!lang || typeof lang !== 'string' || lang.trim() === '') {
+    throw new Error('Valid language code is required');
+  }
+  
+  element.setAttribute('lang', lang);
+}
+
 function improveAccessibility(container) {
   if (!container) {
     container = document.body;
@@ -261,6 +278,7 @@ module.exports = {
   getLandmarkElements,
   SomeModule,
   setSvgAccessibleName,
+  setLangAttribute,
   improveAccessibility,
   renderDependencyGraphContent,
   ensureLandmarkUniqueness,

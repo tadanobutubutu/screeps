@@ -1,16 +1,10 @@
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// ... (existing code)
 
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
-
-const fs = require('fs');
-const path = require('path');
+// TODO: Implement a function to count dependencies
+function countDependencies(dependencies) {
+    return Object.keys(dependencies).length;
+}
 
 /**
  * Renders a dependency graph visualization
@@ -18,21 +12,7 @@ const path = require('path');
  * @returns {string} - HTML string for the dependency graph
  */
 function renderDependencyGraph(dependencies) {
-    const nodes = [];
-    const edges = [];
-    
-    for (const [name, version] of Object.entries(dependencies)) {
-        nodes.push({ id: name, label: `${name}@${version}` });
-        
-        // For nested dependencies, create edges
-        if (typeof version === 'object' && version.dependencies) {
-            for (const dep of Object.keys(version.dependencies)) {
-                edges.push({ from: name, to: dep });
-            }
-        }
-    }
-    
-    return JSON.stringify({ nodes, edges });
+    // ... (existing code)
 }
 
 /**
@@ -41,16 +21,7 @@ function renderDependencyGraph(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html><head><title>Dependencies</title></head><body>';
-    html += '<h1>Dependency Index</h1>';
-    html += '<ul>';
-    
-    for (const pkg of packages) {
-        html += `<li>${pkg.name} - ${pkg.version}</li>`;
-    }
-    
-    html += '</ul></body></html>';
-    return html;
+    // ... (existing code)
 }
 
 /**
@@ -59,15 +30,33 @@ function renderIndexView(packages) {
 function main() {
     const packageJsonPath = path.join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    
+
     const graphData = renderDependencyGraph(packageJson.dependencies || {});
     const indexHtml = renderIndexView([{ name: 'example', version: '1.0.0' }]);
-    
-    return { graphData, indexHtml };
+
+    // Add the new function to count dependencies
+    const numDependencies = countDependencies(packageJson.dependencies || {}); // Count local dependencies or empty object if undefined
+    const countDependencyMessage = numDependencies === 1 ? 'dependency' : 'dependencies';
+    const finalHtml = `
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <title>Dependencies</title>
+            </head>
+            <body>
+                <h1>Dependency Index</h1>
+                <p>There are ${numDependencies} ${countDependencyMessage} found.</p>
+                ${indexHtml}
+            </body>
+        </html>
+    `;
+
+    return { graphData, finalHtml };
 }
 
 module.exports = {
     renderDependencyGraph,
     renderIndexView,
-    main
+    main,
+    countDependencies // Export the new function
 };

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Add any other missing exports that might have been?
 const config = {};
 
@@ -272,4 +269,3 @@ module.exports = {
 
 // Execute main function
 main();
-```

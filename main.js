@@ -3,6 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
 
+// Import dependency graph and index content from appropriate modules
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
+
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
 
@@ -242,6 +246,16 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
+// Function to render the dependency graph view
+function renderDependencyGraph() {
+  return dependencyGraphContent;
+}
+
+// Function to render the index view
+function renderIndexView() {
+  return indexContent;
+}
+
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
@@ -262,6 +276,7 @@ function onAuthorSort() {
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const [view, setView] = useState('books');
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -278,9 +293,14 @@ function Main() {
   // Render the list of book items and sorting controls
   return (
     <div>
+      <button onClick={() => setView('books')}>Books</button>
+      <button onClick={() => setView('index')}>Index View</button>
+      <button onClick={() => setView('dependencyGraph')}>Dependency Graph</button>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List ... />
+      {view === 'books' && <List ... />}
+      {view === 'index' && renderIndexView()}
+      {view === 'dependencyGraph' && renderDependencyGraph()}
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
     </div>

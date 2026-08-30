@@ -389,6 +389,31 @@ function calculateSum(numbers) {
     return numbers.reduce((sum, num) => sum + num, 0);
 }
 
+// New functions for accessibility (REACT_015)
+/**
+ * Gets the language attribute for the HTML element.
+ * @returns {string} - The language code (e.g., 'en-US')
+ */
+function getLangAttribute() {
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    return navigator.language;
+  }
+  return 'en';
+}
+
+/**
+ * Creates an in-page button element with accessibility attributes.
+ * @returns {HTMLElement|null} - The created button element or null if not in browser
+ */
+function createInPageButton() {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  const button = document.createElement('button');
+  button.setAttribute('aria-label', 'In-page button');
+  return button;
+}
+
 // Export all functions
 module.exports = {
     addSvgAccessibilityProps,
@@ -402,5 +427,7 @@ module.exports = {
     getActiveSessionsCount,
     server,
     sanitizeFilename,
-    processData
+    processData,
+    getLangAttribute,
+    createInPageButton
 };

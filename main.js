@@ -103,6 +103,40 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+/**
+ * Fixes SVG accessibility issues by adding aria-hidden="true" to decorative SVGs
+ * Addresses REACT_041: React SVG Accessible Name warning
+ * @param {string} svgContent - The SVG content string to fix
+ * @returns {string} The SVG content with accessibility attributes added
+ */
+function fixSVGAccessibility(svgContent) {
+  // Check if SVG already has aria-hidden or has title/aria-label for accessible name
+  if (svgContent.includes('aria-hidden=') || 
+      svgContent.includes('<title>') || 
+      svgContent.includes('aria-label=')) {
+    return svgContent;
+  }
+  
+  // Add aria-hidden="true" to make decorative SVGs accessible
+  // This prevents screen readers from announcing "image" or ignoring the SVG
+  return svgContent.replace('<svg', '<svg aria-hidden="true"');
+}
+
+/**
+ * Generates an accessible SVG favicon string
+ * @param {Object} options - Favicon options
+ * @param {string} options.content - The content inside the SVG (e.g., emoji or text)
+ * @param {string} options.title - The title for screen readers
+ * @param {number} options.viewBoxSize - The viewBox size (default: 100)
+ * @returns {string} The complete SVG favicon string with accessibility
+ */
+function generateAccessibleFavicon(options = {}) {
+  const { content = '', title = '', viewBoxSize = 100 } = options;
+  const accessibleTitle = title || 'Application icon';
+  
+  return `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 ${viewBoxSize} ${viewBoxSize}%22 aria-hidden=%22true%22><title>${accessibleTitle}</title><text y=%22.9em%22 font-size=%2290%22>${content}</text></svg>`;
+}
+
 // Additional functions or exports that might be needed
 // TODO: Add any other missing exports that might have been? (All exports verified and present)
 
@@ -124,6 +158,8 @@ module.exports = {
   myNewFunction,
   ensureUniqueLandmarks,
   addressAccessibilityIssues,
+  fixSVGAccessibility,
+  generateAccessibleFavicon,
   utilityFunction,
   formatData
 };

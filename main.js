@@ -68,8 +68,8 @@ function addLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
+// Implementation of the function to address accessibility issues
 function addressAccessibilityIssues(insightReport) {
-  // Implementation of the function to address accessibility issues
   // This addresses issues from the insight report:
   // - REACT_015: Add lang attribute to HTML element
   // - REACT_027: Fix 26 table structure issues
@@ -93,7 +93,7 @@ function addressAccessibilityIssues(insightReport) {
         break;
       case 'REACT_027':
         // Fix table structure issues
-        if (issue.type === 'structure') {
+        if (issue.subtype === 'structure') {
           validateTableStructure();
           fixTableStructure();
         } else {
@@ -103,7 +103,6 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_017':
         // Add/fix landmark issues
         if (issue.structure) {
-          validateLandmarkStructure();
           addMainLandmark();
         } else {
           validateLandmark();
@@ -158,11 +157,11 @@ function processAccessibilityReport(report) {
 
   if (report) {
     if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027.count || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
+    if (report.REACT_027) findings.tableIssues = report.REACT_027 || 0;
+    if (report.REACT_017) findings.landmarkIssues = report.REACT_017 || 0;
+    if (report.REACT_041) findings.svgIssues = report.REACT_041 || 0;
+    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025 || 0;
+    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036 || 0;
   }
 
   return findings;
@@ -215,6 +214,6 @@ module.exports = {
     if (!(date instanceof Date)) {
       date = new Date(date);
     }
-    return date.toISOString().split('T')[0];
+    return date.toISOString();
   }
 };

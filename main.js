@@ -65,6 +65,10 @@ function sanitizeFilename(filename) {
   return filename.replace(/[^a-z0-9.-]/gi, '_');
 }
 
+// TODO: Add back any required exports that might have been removed
+// Example of how to export a required function from another file
+const { generateId, isValidEmail } = require('./otherFile');
+
 function readFileSafe(filePath) {
   try {
     return fs.readFileSync(filePath, 'utf8');
@@ -290,5 +294,7 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
-  calculateSum
+  calculateSum,
+  generateId,
+  isValidEmail
 };

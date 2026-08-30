@@ -1,7 +1,9 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserve
+// (This comment remains as-is)
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
 const fs = require('fs');
 
@@ -44,11 +46,11 @@ const accessibilityUtils = {
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
           lastElement.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
           e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
           firstElement.focus();
+          e.preventDefault();
         }
       }
     });
@@ -242,6 +244,9 @@ const accessibilityUtils = {
     return trapInstance;
   }
 };
+
+// Export the newFocusTrap function as a standalone utility
+const newFocusTrap = accessibilityUtils.newFocusTrap;
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)

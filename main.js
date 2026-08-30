@@ -1,5 +1,9 @@
 // Main file - main.js
 
+// Import content generators for dependency graphs and index views
+const dependencyGraphContent = require('./contentGenerators/dependencyGraph');
+const indexContent = require('./contentGenerators/index');
+
 // Your existing code...
 
 // TODO: Any additional changes requested in the issue should be added after this function
@@ -10,14 +14,14 @@ function newFunction() {
 
 // Rest of the code up to the point of conflict
 // ...
-const dependencyGraphContent = require('./dependencyGraphContent');
-const indexContent = require('./indexContent');
+// const dependencyGraphContent = ...
+// const indexContent = ...
 
 function renderDependencyGraph(data) {
   // Existing function to render dependency graphs
   // Update: Incorporate both changes to generate the content
   const options = typeof data === 'object' ? data : {};
-  const content = (options.isDependencyGraphNeeded) ? dependencyGraphContent.generate(options) : indexContent.generate(options);
+  const content = (options.type === 'dependencyGraph') ? dependencyGraphContent.generate(options) : indexContent.generate(options);
   // Render the dependency graph with the generated content
   return `<div class="dependency-graph">${content}</div>`;
 }
@@ -30,12 +34,16 @@ function updateDependencyGraph(element, data) {
 function renderVerticalDependencyGraph(dependencies) {
     // Implement the logic for rendering a vertical dependency graph
     console.log("Vertical Dependency Graph:");
+    const options = { ...dependencies, orientation: 'vertical' };
+    return dependencyGraphContent.generate(options);
     // ...
 }
 
 function renderHorizontalDependencyGraph(dependencies) {
     // Implement the logic for rendering a horizontal dependency graph
     console.log("Horizontal Dependency Graph:");
+    const options = { ...dependencies, orientation: 'horizontal' };
+    return dependencyGraphContent.generate(options);
     // ...
 }
 
@@ -83,18 +91,18 @@ function addressReactAccessibilityIssues(insightReport) {
 // relevant rendering functions.
 
 function wrapPrimaryContentInMain() {
-  const primaryContent = document.getElementById('primary-content');
+  const primaryContent = document.querySelector('primary-content');
   if (!primaryContent) {
     console.error('Primary content element not found');
     return;
   }
 
   // Wrap the primary content in a main tag if it's not already wrapped
-  const mainTag = primaryContent.closest('main');
+  const mainTag = primaryContent.querySelector('main');
   if (!mainTag) {
     const mainElement = document.createElement('main');
     mainElement.appendChild(primaryContent);
-    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+    document.body.insertBefore(mainElement, document.body.firstChild);
   }
 }
 
@@ -105,9 +113,9 @@ function wrapPrimaryContentInMain() {
  */
 function renderDependencyGraphView(options = {}) {
   // Update: Incorporate both changes to generate the content
-  const content = (options.isDependencyGraphNeeded) ? dependencyGraphContent.generate(options) : indexContent.generate(options);
+  const content = (options.type === 'dependencyGraph') ? dependencyGraphContent.generate(options) : indexContent.generate(options);
   // Render the dependency graph with the generated content
-  return `<div class="dependency-graph">${content}</div>`;
+  return `<div class="dependency-graph-view">${content}</div>`;
 }
 
 /**
@@ -130,7 +138,7 @@ function renderIndex(data = {}) {
 function renderApp(context) {
   // Update: Conditionally render the index or the dependency graph based on context
   const viewFunction = (context.isDependencyGraphNeeded) ? renderDependencyGraphView : renderIndex;
-  return `<div id="app">${viewFunction(context)}</div>`;
+  return `<div class="app-container">${viewFunction(context)}</div>`;
 }
 
 const myNewFunction = () => {
@@ -151,11 +159,11 @@ function validateTableStructure(table) {
     // Return true if the table structure is valid, false otherwise
 }
 
-const myNewTableAccessibilityFunction = (table, i) => {
+const validateTableAccessibilityArrow = (table, i) => {
   // The implementation of the new function to validate table accessibility goes here
 };
 
-const myNewTableStructureFunction = table => {
+const validateTableStructureArrow = table => {
   // The implementation of the new function to validate table structure goes here
 };
 
@@ -172,7 +180,7 @@ function ensureUniqueLandmarks(landmarks) {
     }
 
     // Create a unique identifier based on landmark name and coordinates (if available)
-    const identifier = landmark.id || `${landmark.name || ''}-${landmark.latitude || landmark.lat || ''}-${landmark.longitude || landmark.lng || ''}`;
+    const identifier = landmark.id || `${landmark.name || 'unknown'}-${landmark.lat || 0}-${landmark.lng || 0}`;
     
     if (seen.has(identifier)) {
       return false;
@@ -206,8 +214,8 @@ module.exports = {
     wrapPrimaryContentInMain,
     newFunction,
     myNewFunction,
-    validateTableAccessibility: myNewTableAccessibilityFunction,
-    validateTableStructure: myNewTableStructureFunction,
+    validateTableAccessibility: validateTableAccessibilityArrow,
+    validateTableStructure: validateTableStructureArrow,
     ensureUniqueLandmarks,
     addressAccessibilityIssues,
     addressReactAccessibilityIssues,

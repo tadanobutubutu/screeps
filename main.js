@@ -1,6 +1,3 @@
-Here is the resolved file content. I've integrated both sets of changes and made adjustments as needed to ensure proper syntax, style, and functionality.
-
-```javascript
 /**
  * Main application module
  */
@@ -136,5 +133,4 @@ const MyComponent = () => {
         validateAllTables,
         MyComponent
       };
-```
-This resolved file content integrates both sets of changes and combines the Gatsby configuration with the React component.
+}

@@ -35,7 +35,6 @@ function App() {
   );
 }
 
-// REACT_017: Add landmark roles to fix landmark issues
 export function getUniqueLandmarkName(baseName, existingNames) {
   if (existingNames.indexOf(baseName) === -1) {
     return baseName;
@@ -49,7 +48,6 @@ export function getUniqueLandmarkName(baseName, existingNames) {
   return newName;
 }
 
-// REACT_025: Ensure unique landmarks function
 export function validateUniqueLandmarks(container) {
   const landmarks = container.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
@@ -76,7 +74,6 @@ export function validateUniqueLandmarks(container) {
   return issues;
 }
 
-// REACT_041: Add accessible names to SVGs
 export function addSvgAccessibleName(svgElement, accessibleName) {
   if (!svgElement) return;
   
@@ -89,7 +86,6 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
   svgElement.setAttribute('aria-labelledby', title.id);
 }
 
-// REACT_036: Fix fake link issues - convert to proper semantic elements
 export function isValidLink(element) {
   if (!element) return true;
   
@@ -109,7 +105,6 @@ export function isValidLink(element) {
   return { valid: true };
 }
 
-// REACT_027: Add scope to table headers
 export function addScopeToHeaders(tableElement) {
   if (!tableElement) return [];
   

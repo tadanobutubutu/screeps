@@ -1,46 +1,63 @@
 // Import necessary dependencies
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useState, useEffect, useRef } from 'react';
 import { List } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
+// ... (the rest of the existing code)
 
-// Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
-}
+// Implement the required changes to improve accessibility for the addBook function or form
+function AddBookForm() {
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
 
-// Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
-}
+  const dispatch = useDispatch();
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    // Perform any necessary validation or processing before adding the book
+    // ...
+
+    // Create a new book object
+    const newBook = { id: Date.now(), title, author };
+
+    // Dispatch an action to add the book to the books list in the Redux store
+    dispatch({ type: 'ADD_BOOK', payload: newBook });
+
+    // Clear form fields after submission
+    setTitle('');
+    setAuthor('');
+  }
 
 // Function to generate a key for each book item
 function generateKey(book) {
   return ...
 }
 
-// Function to render a single book item
-function BookItem(book) {
   return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        ...
+    <form onSubmit={handleSubmit}>
+      <label htmlFor="title">Title:</label>
+      <input
+        id="title"
+        type="text"
+        value={title}
+        onChange={e => setTitle(e.target.value)}
+        required
       />
-    </List.Item>
+      <label htmlFor="author">Author:</label>
+      <input
+        id="author"
+        type="text"
+        value={author}
+        onChange={e => setAuthor(e.target.value)}
+        required
+      />
+      <button type="submit">Add Book</button>
+    </form>
   );
 }
 
-// Function to create a new book entry in the Redux store
-function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
-
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
-}
+// ... (remaining existing code)
 
 // TODO: Implement the required changes to improve accessibility for the addBook function or form
 // ...
@@ -235,6 +252,18 @@ function ensureUniqueLandmarks(container) {
   });
 }
 
+// REACT_025: Unique landmarks validator
+function uniqueLandmarks(landmarks) {
+  const seen = new Set();
+  return landmarks.every(landmark => {
+    if (seen.has(landmark.role)) {
+      return false;
+    }
+    seen.add(landmark.role);
+    return true;
+  });
+}
+
 // REACT_041: Get SVG accessible name
 function getSvgAccessibleName(svg) {
   // Check aria-label
@@ -279,31 +308,77 @@ function setSvgAttributes(svg, accessibleName) {
   }
 }
 
+// REACT_040: Replace my-button with actual button id for accessibility
+function fixButtonIdentifiers() {
+  // Replace generic button identifiers with semantic, accessible IDs
+  return {
+    sortTitleId: 'sort-by-title-button',
+    sortAuthorId: 'sort-by-author-button',
+    addBookId: 'add-book-button',
+    bookListId: 'book-list',
+    mainContentId: 'main-content'
+  };
+}
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const sortIconUpRef = useRef(null);
+  const sortIconDownRef = useRef(null);
 
-  // UseEffect hook to handle sorting book list updates
+  // UseEffect to add accessible names to SVG icons after render
   useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
+    // Find all SVG elements in the List component that need accessible names
+    const listContainer = document.querySelector('.ant-list');
+    if (listContainer) {
+      // Find sort-related SVG icons and add accessible names
+      const svgElements = listContainer.querySelectorAll('svg');
+      svgElements.forEach((svg, index) => {
+        // Check if this is a sort-related icon based on class or parent context
+        const parent = svg.closest('[class*="sort"]');
+        if (parent && !svg.getAttribute('aria-label')) {
+          // Add accessible name based on sort direction
+          const isAscending = parent.closest('[class*="ascend"]') !== null;
+          const sortLabel = isAscending ? 'Sort ascending' : 'Sort descending';
+          svg.setAttribute('aria-label', sortLabel);
+          svg.setAttribute('role', 'img');
+        }
+      });
     }
-  }, [sorting]);
+  }, []);
 
   // Map the book list to the BookItem function to create book items
   const bookItems = ...
 
   // Render the list of book items and sorting controls
   return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List ... />
+    <main id="main-content" role="main" aria-label="Book list and sorting controls">
+      <nav role="navigation" aria-label="Sorting controls">
+        <button 
+          id={sortTitleId} 
+          onClick={() => setSorting(sortByTitle)}
+          aria-label="Sort books by title ascending"
+        >
+          Sort by Title
+        </button>
+        <button 
+          id={sortAuthorId} 
+          onClick={() => setSorting(sortByAuthor)}
+          aria-label="Sort books by author descending"
+        >
+          Sort by Author
+        </button>
+      </nav>
+      <List 
+        id={bookListId}
+        aria-label="Book list"
+        itemLayout="horizontal"
+        dataSource={bookItems}
+        renderItem={(item) => item}
+      />
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
-    </div>
+      <AddBookForm />
+    </main>
   );
 }
 

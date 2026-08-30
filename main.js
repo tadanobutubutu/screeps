@@ -1,4 +1,7 @@
 // TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report
+
+// TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
@@ -265,6 +268,47 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
+
+  // Create a deep copy to avoid mutating the original data
+  const result = preserveKeys ? { ...inputData } : [];
+
+  // Process based on data type
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => {
+      if (typeof item === 'string') {
+        let processed = item;
+        if (trimWhitespace) processed = processed.trim();
+        if (uppercase) processed = processed.toUpperCase();
+        if (maxLength && processed.length > maxLength) processed = processed.substring(0, maxLength);
+        return processed;
+      }
+      return item;
+    });
+  } else if (typeof inputData === 'object') {
+    const processed = {};
+    for (const key in inputData) {
+      if (inputData.hasOwnProperty(key)) {
+        let value = inputData[key];
+        if (typeof value === 'string') {
+          let processedValue = value;
+          if (trimWhitespace) processedValue = processedValue.trim();
+          if (uppercase) processedValue = processedValue.toUpperCase();
+          if (maxLength && processedValue.length > maxLength) processedValue = processedValue.substring(0, maxLength);
+          value = processedValue;
+        }
+        processed[key] = value;
+      }
+    }
+    return preserveKeys ? processed : Object.values(processed);
+  } else if (typeof inputData === 'string') {
+    let processed = inputData;
+    if (trimWhitespace) processed = processed.trim();
+    if (uppercase) processed = processed.toUpperCase();
+    if (maxLength && processed.length > maxLength) processed = processed.substring(0, maxLength);
+    return processed;
+  }
+  
+  return inputData;
 }
 
 // Initialize on DOM ready
@@ -285,5 +329,6 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  transformInputData
 };

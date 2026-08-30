@@ -10,6 +10,14 @@
 /**
  * Main application entry point with accessibility features
  */
+
+// Imported modules to add to relevant rendering functions
+import { renderAccessibilityAnnouncement } from './renderers/accessibility-announcements.js';
+import { renderSkipLink } from './renderers/skip-link.js';
+import { renderSemanticEnhancements } from './renderers/semantic-enhancements.js';
+import { renderAriaLiveRegion } from './renderers/aria-live-region.js';
+import { renderFocusableElements } from './renderers/focusable-elements.js';
+
 function checkTableStructure(tableName, expectedColumns) {
   // ... (existing code)
 }
@@ -79,6 +87,8 @@ function setupAriaLiveRegions() {
     region.className = 'sr-only';
     document.body.appendChild(region);
   }
+  // Add imported rendering module to relevant rendering function
+  renderAriaLiveRegion();
 }
 
 /**
@@ -100,6 +110,9 @@ function setupFocusManagement() {
       element.setAttribute('tabindex', '0');
     }
   });
+
+  // Add imported rendering module to relevant rendering function
+  renderFocusableElements(interactiveElements);
 }
 
 /**
@@ -157,6 +170,10 @@ function enhanceSemanticMarkup() {
       input.setAttribute('aria-label', input.name || 'Input field');
     }
   });
+
+  // Add imported rendering modules to relevant rendering functions
+  renderSkipLink();
+  renderSemanticEnhancements();
 }
 
 /**
@@ -180,6 +197,8 @@ function announceToScreenReader(message) {
     // Slight delay to ensure screen readers pick up the change
     setTimeout(() => {
       liveRegion.textContent = message;
+      // Add imported rendering module to relevant rendering function
+      renderAccessibilityAnnouncement(message);
     }, 100);
   }
 }

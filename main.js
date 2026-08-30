@@ -156,6 +156,127 @@ function addAriaToFormControls() {
   });
 }
 
+/**
+ * Creates a new tower object for the tower defense game.
+ * @param {number} x - X coordinate of the tower.
+ * @param {number} y - Y coordinate of the tower.
+ * @param {number} range - Attack range of the tower.
+ * @param {number} damage - Damage dealt by the tower.
+ * @param {number} cooldown - Time between attacks in milliseconds.
+ * @returns {Object} Tower object.
+ */
+function createTower(x, y, range, damage, cooldown) {
+  return {
+    x,
+    y,
+    range,
+    damage,
+    cooldown,
+    timeSinceLastAttack: 0
+  };
+}
+
+/**
+ * Creates a new enemy object for the tower defense game.
+ * @param {number} x - X coordinate of the enemy.
+ * @param {number} y - Y coordinate of the enemy.
+ * @param {number} health - Health points of the enemy.
+ * @param {number} speed - Movement speed of the enemy.
+ * @param {number} pathIndex - Current position index on the path.
+ * @returns {Object} Enemy object.
+ */
+function createEnemy(x, y, health, speed, pathIndex) {
+  return {
+    x,
+    y,
+    health,
+    maxHealth: health,
+    speed,
+    pathIndex: pathIndex || 0
+  };
+}
+
+/**
+ * Calculates the distance between two points.
+ * @param {number} x1 - X coordinate of first point.
+ * @param {number} y1 - Y coordinate of first point.
+ * @param {number} x2 - X coordinate of second point.
+ * @param {number} y2 - Y coordinate of second point.
+ * @returns {number} Distance between the two points.
+ */
+function calculateDistance(x1, y1, x2, y2) {
+  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+}
+
+/**
+ * Finds an enemy within a tower's range.
+ * @param {Object} tower - Tower object.
+ * @param {Array} enemies - Array of enemy objects.
+ * @returns {Object|undefined} First enemy within range or undefined.
+ */
+function findEnemyInRange(tower, enemies) {
+  for (const enemy of enemies) {
+    const distance = calculateDistance(tower.x, tower.y, enemy.x, enemy.y);
+    if (distance <= tower.range) {
+      return enemy;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Applies damage from a tower to an enemy.
+ * @param {Object} tower - Tower object.
+ * @param {Object} enemy - Enemy object.
+ * @returns {void}
+ */
+function attackEnemy(tower, enemy) {
+  enemy.health -= tower.damage;
+}
+
+/**
+ * Updates the game state by processing tower attacks and enemy movement.
+ * @param {Array} towers - Array of tower objects.
+ * @param {Array} enemies - Array of enemy objects.
+ * @param {number} deltaTime - Time elapsed since last update in milliseconds.
+ * @returns {void}
+ */
+function updateGameState(towers, enemies, deltaTime) {
+  // Update towers
+  for (const tower of towers) {
+    tower.timeSinceLastAttack += deltaTime;
+    
+    if (tower.timeSinceLastAttack >= tower.cooldown) {
+      const target = findEnemyInRange(tower, enemies);
+      if (target) {
+        attackEnemy(tower, target);
+        tower.timeSinceLastAttack = 0;
+      }
+    }
+  }
+  
+  // Remove dead enemies
+  for (let i = enemies.length - 1; i >= 0; i--) {
+    if (enemies[i].health <= 0) {
+      enemies.splice(i, 1);
+    }
+  }
+}
+
+/**
+ * Initializes the tower defense game with default configuration.
+ * @param {Object} config - Configuration object for the game.
+ * @returns {Object} Game state object.
+ */
+function initializeTowerDefense(config) {
+  return {
+    towers: config.towers || [],
+    enemies: config.enemies || [],
+    path: config.path || [],
+    gameState: 'playing'
+  };
+}
+
 // Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
 // Assumes you have already set the id on the button element in your code.
 replaceMyButtonId();
@@ -172,5 +293,12 @@ module.exports = {
   getLangAttribute,
   getFullLangAttribute,
   ensureUniqueLandmarkId,
-  uniqueLandmarks
+  uniqueLandmarks,
+  createTower,
+  createEnemy,
+  calculateDistance,
+  findEnemyInRange,
+  attackEnemy,
+  updateGameState,
+  initializeTowerDefense
 };

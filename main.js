@@ -74,6 +74,25 @@ function addressAccessibilityIssues() {
 
   // Call the function to check landmark elements
   checkLandmarkElements();
+
+  // TODO: Implement this function for adding SVG accessibility props
+  function addSVGAccessibilityProps() {
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+      // Add title and description for accessibility
+      if (!svg.hasAttribute('title')) {
+        svg.setAttribute('title', 'SVG image');
+      }
+      if (!svg.hasAttribute('description')) {
+        svg.setAttribute('description', 'Description of the SVG image');
+      }
+      // Add lang to svg for accessibility
+      svg.setAttribute('lang', 'en');
+    });
+  }
+
+  // Call the function to add SVG accessibility props
+  addSVGAccessibilityProps();
 }
 
 // Export functions if needed

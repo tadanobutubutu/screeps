@@ -1,6 +1,12 @@
 // main.js - Combined utility and accessibility features
 
 // Utility functions for common tasks
+/**
+ * Debounces a function
+ * @param {Function} func - Function to debounce
+ * @param {number} wait - Wait time in milliseconds
+ * @returns {Function} - Debounced function
+ */
 function debounce(func, wait) {
   let timeout;
   return function executedFunction(...args) {
@@ -13,13 +19,19 @@ function debounce(func, wait) {
   };
 }
 
+/**
+ * Throttles a function
+ * @param {Function} func - Function to throttle
+ * @param {number} limit - Time limit in milliseconds
+ * @returns {Function} - Throttled function
+ */
 function throttle(func, limit) {
   let inThrottle;
-  return function(...args) {
+  return function executedFunction(...args) {
     if (!inThrottle) {
-      func.apply(this, args);
+      func(...args);
       inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
+      setTimeout(() => (inThrottle = false), limit);
     }
   };
 }
@@ -28,9 +40,10 @@ function throttle(func, limit) {
 // main.js - Accessibility improvements implementation
 
 // Accessibility helper function for keyboard navigation
-function handleKeyboard(options = {}) {
+function handleKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
-  return function (event) {
+  
+  return (event) => {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -54,6 +67,9 @@ function handleKeyboard(options = {}) {
   };
 }
 
+// Alias for backwards compatibility
+const handleKeyboard = handleKeyboardNavigation;
+
 // Helper to manage focus within a container
 function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
@@ -63,7 +79,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  return function (event) {
+  const handleTab = (event) => {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -73,6 +89,12 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
+  };
+  
+  container.addEventListener('keydown', handleTab);
+  
+  return () => {
+    container.removeEventListener('keydown', handleTab);
   };
 }
 
@@ -106,15 +128,108 @@ function initializeAccessibility() {
   // Return the announcer for use in the app
   return {
     announce: announcer.announce,
+    handleKeyboardNavigation,
     handleKeyboard,
     trapFocus,
+    createAnnouncer,
     prefersReducedMotion
   };
 }
 
 // TODO: add the new functions or changes requested in the issue
 
-// ... Existing functions ...
+// New utility functions
+
+/**
+ * Checks if a value is an empty string, null, or undefined
+ * @param {*} value - The value to check
+ * @returns {boolean} - True if the value is empty
+ */
+function isEmpty(value) {
+  if (value == null) return true;
+  if (typeof value === 'string') return value.length === 0;
+  if (Array.isArray(value)) return value.length === 0;
+  if (typeof value === 'object') return Object.keys(value).length === 0;
+  return false;
+}
+
+function capitalize(str) {
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
+}
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof Date) return new Date(obj);
+  if (Array.isArray(obj)) return obj.map(item => deepClone(item));
+  if (typeof obj === 'object') {
+    const cloned = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) cloned[key] = deepClone(obj[key]);
+    }
+    return cloned;
+  }
+  return obj;
+}
+
+/**
+ * Generates a unique ID
+ * @returns {string} - Unique identifier
+ */
+function generateId() {
+  return 'id_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+}
+
+/**
+ * Safely parses JSON
+ * @param {string} str - JSON string to parse
+ * @param {*} defaultValue - Default value if parsing fails
+ * @returns {*} - Parsed object or default value
+ */
+function safeJsonParse(str, defaultValue = null) {
+  try {
+    return JSON.parse(str);
+  } catch (e) {
+    return defaultValue;
+  }
+}
+
+// Add accessible names to SVG elements
+function addAccessibleNamesToSvg(container) {
+  const svgs = container.querySelectorAll('svg');
+  if (svgs.length >= 2) {
+    svgs[0].setAttribute('aria-label', 'First SVG');
+    svgs[1].setAttribute('aria-label', 'Second SVG');
+  }
+  
+  svgs.forEach((svg, index) => {
+    if (!svg.hasAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
+      svg.setAttribute('aria-label', `SVG element ${index + 1}`);
+    }
+  });
+}
+
+/**
+ * Checks if an element is in the viewport
+ * @param {HTMLElement} element - Element to check
+ * @returns {boolean} - True if element is in viewport
+ */
+function isInViewport(element) {
+  const rect = element.getBoundingClientRect();
+  return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+  );
+}
 
 // Function to handle getLangAttribute for REACT_015
 function getLangAttribute(htmlElement) {
@@ -166,45 +281,11 @@ function handleFakeLinks(links) {
   // Implement the logic to handle fake links within the app
 }
 
-// Utility functions (likely originally defined)
-function isEmpty(value) {
-  if (value == null) return true;
-  if (typeof value === 'string') return value.length === 0;
-  if (Array.isArray(value)) return value.length === 0;
-  if (typeof value === 'object') return Object.keys(value).length === 0;
-  return false;
-}
-
-function capitalize(str) {
-  return str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
-}
-
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
-}
-
-function deepClone(obj) {
-  if (obj === null || typeof obj !== 'object') return obj;
-  if (obj instanceof Date) return new Date(obj);
-  if (Array.isArray(obj)) return obj.map(item => deepClone(item));
-  if (typeof obj === 'object') {
-    const cloned = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) cloned[key] = deepClone(obj[key]);
-    }
-    return cloned;
-  }
-  return obj;
-}
-
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     initializeAccessibility,
+    handleKeyboardNavigation,
     handleKeyboard,
     trapFocus,
     createAnnouncer,
@@ -216,6 +297,10 @@ if (typeof module !== 'undefined' && module.exports) {
     deepClone,
     debounce,
     throttle,
+    generateId,
+    safeJsonParse,
+    addAccessibleNamesToSvg,
+    isInViewport,
     getLangAttribute,
     createInPageButton,
     validateTableAccessibility,

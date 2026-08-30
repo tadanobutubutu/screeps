@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -36,11 +33,11 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function ensureUniqueLandmarkId(baseName) {
+function createLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
+        const suffix = Math.random().toString(36).substring(2, 6);
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -67,7 +64,7 @@ function uniqueLandmarks(landmarks) {
 // Add lang attribute as per the issue requirement
 function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('some-selector');
+  const elementToModify = document.documentElement;
   if (elementToModify) {
     elementToModify.setAttribute('lang', 'en'); // Example: English
   }
@@ -79,7 +76,7 @@ function addLangAttribute() {
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (!element.hasAttribute('aria-label')) {
+    if (element && !element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
@@ -103,10 +100,10 @@ function getFullLangAttribute() {
 // ... existing functions from both branches
 
 // Accessibility helper functions
-function setupKeyboardNavigation(element, options = {}) {
+function handleKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
 
-  element.addEventListener('keydown', (event) => {
+  return function(event) {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -127,7 +124,7 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-  });
+  };
 }
 
 function trapFocus(container) {
@@ -138,7 +135,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  container.addEventListener('keydown', (event) => {
+  container.addEventListener('keydown', function(event) {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -151,5 +148,130 @@ function trapFocus(container) {
   });
 }
 
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+
+_Commit: b8ad7986d07c9a084d54347d2b890045530741c8_
+
+<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
+
+/**
+ * Extracts TODO comments with their associated commit hashes and todo-hashes from the source code.
+ * This function scans the main.js content for TODO comments that have commit and todo-hash markers.
+ * @param {string} sourceCode - The source code content to scan.
+ * @returns {Array<Object>} Array of objects containing todo comment details with commits and hashes.
+ */
+function extractTodoWithHashes(sourceCode) {
+    const results = [];
+    
+    // Match TODO comments followed by commit hashes and todo-hashes
+    const todoPattern = /\/\/\s*TODO[^\n]*|<!--\s*todo-hash:\s*([a-f0-9]+)\s*-->|_Commit:\s*([a-f0-9]+)_/gi;
+    
+    let match;
+    let currentTodo = null;
+    let pendingCommits = [];
+    let pendingHashes = [];
+    
+    // Split by lines to maintain order
+    const lines = sourceCode.split('\n');
+    
+    for (const line of lines) {
+        const todoMatch = line.match(/\/\/\s*TODO[^\n]*/i);
+        const commitMatch = line.match(/_Commit:\s*([a-f0-9]+)_/i);
+        const hashMatch = line.match(/<!--\s*todo-hash:\s*([a-f0-9]+)\s*-->/i);
+        
+        if (todoMatch) {
+            // Save previous todo if exists
+            if (currentTodo) {
+                results.push({
+                    comment: currentTodo,
+                    commits: [...pendingCommits],
+                    hashes: [...pendingHashes]
+                });
+            }
+            currentTodo = todoMatch[0];
+            pendingCommits = [];
+            pendingHashes = [];
+        }
+        
+        if (commitMatch) {
+            pendingCommits.push(commitMatch[1]);
+        }
+        
+        if (hashMatch) {
+            pendingHashes.push(hashMatch[1]);
+        }
+    }
+    
+    // Don't forget the last one
+    if (currentTodo) {
+        results.push({
+            comment: currentTodo,
+            commits: [...pendingCommits],
+            hashes: [...pendingHashes]
+        });
+    }
+    
+    return results;
+}
+
+/**
+ * Gets the most recent commit hash associated with a TODO comment.
+ * @param {string} sourceCode - The source code content.
+ * @param {string} todoComment - The TODO comment to search for.
+ * @returns {string|null} The most recent commit hash or null if not found.
+ */
+function getMostRecentCommitForTodo(sourceCode, todoComment) {
+    const todos = extractTodoWithHashes(sourceCode);
+    const found = todos.find(t => t.comment.includes(todoComment));
+    return found && found.commits.length > 0 ? found.commits[found.commits.length - 1] : null;
+}
+
+/**
+ * Gets all todo-hash values from the source code.
+ * @param {string} sourceCode - The source code content.
+ * @returns {Array<string>} Array of todo-hash values found.
+ */
+function getAllTodoHashes(sourceCode) {
+    const hashPattern = /<!--\s*todo-hash:\s*([a-f0-9]+)\s*-->/gi;
+    const hashes = [];
+    let match;
+    
+    while ((match = hashPattern.exec(sourceCode)) !== null) {
+        hashes.push(match[1]);
+    }
+    
+    return hashes;
+}
+
+/**
+ * Validates that all TODO entries have corresponding commit and hash markers.
+ * @param {string} sourceCode - The source code content.
+ * @returns {Object} Validation result with isValid flag and any issues found.
+ */
+function validateTodoStructure(sourceCode) {
+    const todos = extractTodoWithHashes(sourceCode);
+    const issues = [];
+    
+    for (const todo of todos) {
+        if (todo.commits.length === 0) {
+            issues.push(`TODO comment "${todo.comment}" has no associated commit hash`);
+        }
+        if (todo.hashes.length === 0) {
+            issues.push(`TODO comment "${todo.comment}" has no associated todo-hash`);
+        }
+    }
+    
+    return {
+        isValid: issues.length === 0,
+        issues: issues
+    };
+}
+
 // ... other existing functions remained unchanged
-```

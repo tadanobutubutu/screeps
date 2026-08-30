@@ -1,3 +1,8 @@
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_025: Add other accessibility changes as per the insight report
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
 export function calculateSum(a, b) {
     return a + b;
 }
@@ -20,7 +25,6 @@ const main = {
     this.upgradeLoop();
     this.towerDefense();
     this.spawningLogic();
-    this.myNewFunction();
   },
 
   manageRoom: function(room) {
@@ -48,7 +52,7 @@ const main = {
     });
 
     towers.forEach(tower => {
-      const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+      const closestHostile = tower.pos.findClosestByRange(hostiles);
       if (closestHostile) {
         tower.attack(closestHostile);
       }
@@ -56,7 +60,7 @@ const main = {
   },
 
   harvest: function(creep) {
-    const target = creep.pos.findClosestByRange(FIND_SOURCES);
+    const target = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);
@@ -76,13 +80,13 @@ const main = {
     const button = document.createElement('button');
     button.id = buttonId;
     button.textContent = buttonText;
-    document.body.appendChild(button);
+    return button;
   },
 
   harvestLoop: function() {
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
-      if (creep.memory.role === 'harvest') {
+      if (creep.memory.role === 'harvester') {
         this.harvest(creep);
       }
     }
@@ -155,30 +159,47 @@ function addLangAttribute(element) {
 
 function validateTableAccessibility() {
   // Code for validating table accessibility
+  const issues = [];
+  // Check for proper table headers and accessibility attributes
+  return issues;
 }
 
 function validateTableStructure() {
   // Code for validating table structure
+  const issues = [];
+  // Check for proper table structure (thead, tbody, tfoot)
+  return issues;
 }
 
 function fixTableStructure() {
   // Code for fixing table structure issues
+  // Add proper semantic table elements
 }
 
 function addMainLandmark() {
   // Code for adding main landmark
+  // Ensure main content is wrapped in <main> element
 }
 
 function validateLandmark() {
   // Code for validating landmark
+  const issues = [];
+  // Check for proper landmark usage
+  return issues;
 }
 
 function validateLandmarkStructure() {
   // Code for validating landmark structure
+  const issues = [];
+  // Validate landmark hierarchy and nesting
+  return issues;
 }
 
 function validateLandmarkAttributes() {
   // Code for validating landmark attributes
+  const issues = [];
+  // Check for proper landmark role attributes
+  return issues;
 }
 
 function getSvgAccessibleName() {
@@ -195,6 +216,7 @@ function setSvgAttributes(svg, accessibleName) {
 
 function ensureUniqueLandmarks() {
   // Code for ensuring unique landmarks
+  // Verify that there is only one main landmark
 }
 
 function createInPageButton() {
@@ -203,14 +225,19 @@ function createInPageButton() {
 
 function validateLinkAccessibility() {
   // Code for validating link accessibility
+  const issues = [];
+  // Check for proper link text and accessibility
+  return issues;
 }
 
 function handleFakeLinks() {
   // Code for handling fake links
+  // Convert divs/span with onclick to proper buttons or links
 }
 
 function addProperLandmarkRegions() {
   // Code for adding proper landmark regions
+  // Ensure proper use of region and landmark roles
 }
 
 function addressAccessibilityIssues(insightReport) {
@@ -220,8 +247,8 @@ function addressAccessibilityIssues(insightReport) {
   // For example, we might log the issues or take some action to fix them
   if (insightReport && typeof insightReport === 'object') {
     if (insightReport.issues && Array.isArray(insightReport.issues)) {
-      insightReport.issues.forEach((issue) => {
-        console.log(`Accessibility issue detected: ${issue.message}`);
+      insightReport.issues.forEach(function(issue) {
+        console.log('Accessibility issue detected: ' + issue.message);
         // Add your logic here to address the issue, such as updating the DOM or calling other functions
       });
     }

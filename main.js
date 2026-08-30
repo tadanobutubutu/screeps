@@ -38,6 +38,80 @@ function addProperLandmarkRegions() {
   }
 }
 
+// Function to handle sorting books by author (descending)
+function sortByAuthor(a, b) {
+  return b.author.localeCompare(a.author);
+}
+
+// Function to generate a key for each book item
+function generateKey(book) {
+  return book.id;
+}
+
+// Function to render a single book item
+function BookItem(book) {
+  return (
+    <List.Item key={generateKey(book)}>
+      <List.Item.Meta
+        title={book.title}
+        description={book.author}
+      />
+    </List.Item>
+  );
+}
+
+// Accessible form component for adding new books
+function AddBookForm() {
+  const dispatch = useDispatch();
+  const [newBook, setNewBook] = useState({ title: '', author: '' });
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (newBook.title.trim() && newBook.author.trim()) {
+      dispatch({ type: 'ADD_BOOK', payload: { ...newBook } });
+      setNewBook({ title: '', author: '' });
+    }
+  };
+
+  const handleTitleChange = (event) => {
+    setNewBook({ ...newBook, title: event.target.value });
+  };
+
+  const handleAuthorChange = (event) => {
+    setNewBook({ ...newBook, author: event.target.value });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} aria-label="Add new book">
+      <div>
+        <label htmlFor="book-title">Book Title:</label>
+        <input
+          id="book-title"
+          type="text"
+          value={newBook.title}
+          onChange={handleTitleChange}
+          placeholder="Enter book title"
+          aria-required="true"
+        />
+      </div>
+      <div>
+        <label htmlFor="book-author">Author:</label>
+        <input
+          id="book-author"
+          type="text"
+          value={newBook.author}
+          onChange={handleAuthorChange}
+          placeholder="Enter author name"
+          aria-required="true"
+        />
+      </div>
+      <button type="submit" aria-label="Add book to list">
+        Add Book
+      </button>
+    </form>
+  );
+}
+
 // REACT_017: Add/fix landmark issues
 function addMainLandmark() {
   if (!document.querySelector('main')) {
@@ -160,16 +234,22 @@ function fixTableStructure(table) {
   }
 }
 
+// Default sorting function for the book list
+const defaultSorting = (a, b) => a.title.localeCompare(b.title);
+
+// Function to handle sorting the book list by title (ascending)
+function sortByTitle(a, b) {
+  return a.title.localeCompare(b.title);
+}
+
 // Main Component
 function Main() {
   const dispatch = useDispatch();
-  const [sorting, setSorting] = useState(null);
   const bookItems = useSelector(state => state.books);
 
   // Function to create a new book entry in the Redux store
   function addBook(book) {
     // Perform any necessary validation or processing before adding the book
-    // ...
     // Add the new landmark regions once the book is added successfully
     addProperLandmarkRegions();
 
@@ -184,17 +264,31 @@ function Main() {
     return null;
   }
 
-  const sortByTitle = () => setSorting('title');
-  const sortByAuthor = () => setSorting('author');
+  const sortByTitleClick = () => {
+    const sortedList = [...bookItems].sort(defaultSorting);
+    dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+  };
+
+  const sortByAuthorClick = () => {
+    const sortedList = [...bookItems].sort(sortByAuthor);
+    dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+  };
+
+  // UseEffect hook to handle sorting book list updates
+  useEffect(() => {
+    // Initial sort
+  }, []);
 
   // Render the list of book items and sorting controls
   return (
     <div>
-      <button onClick={sortByTitle}>Sort by Title</button>
-      <button onClick={sortByAuthor}>Sort by Author</button>
-      <List dataSource={bookItems} />
+      <button onClick={sortByTitleClick}>Sort by Title</button>
+      <button onClick={sortByAuthorClick}>Sort by Author</button>
+      <List dataSource={bookItems} renderItem={BookItem} />
       {/* Call the function to enhance accessibility for adding a new book */}
       {enhanceAccessibilityForAddBook()}
+      {/* Accessible form for adding new books */}
+      <AddBookForm />
     </div>
   );
 }

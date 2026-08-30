@@ -35,7 +35,6 @@ function App() {
   );
 }
 
-// REACT_017: Add landmark roles to fix landmark issues
 export function getUniqueLandmarkName(baseName, existingNames) {
   if (existingNames.indexOf(baseName) === -1) {
     return baseName;
@@ -49,7 +48,6 @@ export function getUniqueLandmarkName(baseName, existingNames) {
   return newName;
 }
 
-// REACT_025: Ensure unique landmarks function
 export function validateUniqueLandmarks(container) {
   const landmarks = container.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
@@ -76,7 +74,6 @@ export function validateUniqueLandmarks(container) {
   return issues;
 }
 
-// REACT_041: Add accessible names to SVGs
 export function addSvgAccessibleName(svgElement, accessibleName) {
   if (!svgElement) return;
   
@@ -89,7 +86,6 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
   svgElement.setAttribute('aria-labelledby', title.id);
 }
 
-// REACT_036: Fix fake link issues - convert to proper semantic elements
 export function isValidLink(element) {
   if (!element) return true;
   
@@ -109,7 +105,6 @@ export function isValidLink(element) {
   return { valid: true };
 }
 
-// REACT_027: Add scope to table headers
 export function addScopeToHeaders(tableElement) {
   if (!tableElement) return [];
   
@@ -138,71 +133,6 @@ export function addScopeToHeaders(tableElement) {
   });
   
   return updates;
-}
-
-function announceToScreenReader(message, priority = 'polite') {
-  const announcement = document.createElement('div');
-  announcement.setAttribute('role', 'status');
-  announcement.setAttribute('aria-live', priority);
-  announcement.setAttribute('aria-atomic', 'true');
-  announcement.className = 'sr-only';
-  announcement.textContent = message;
-  document.body.appendChild(announcement);
-  setTimeout(() => announcement.remove(), 1000);
-}
-
-function trapFocus(element) {
-  const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  );
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  element.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstElement) {
-        e.preventDefault();
-        lastElement.focus();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        e.preventDefault();
-        firstElement.focus();
-      }
-    }
-  });
-}
-
-function manageFocusOnNavigation() {
-  const mainContent = document.querySelector('main');
-  if (mainContent) {
-    mainContent.setAttribute('tabindex', '-1');
-    mainContent.focus();
-  }
-}
-
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-function setAriaExpanded(element, expanded) {
-  if (element) {
-    element.setAttribute('aria-expanded', expanded);
-  }
-}
-
-function hasAccessibleName(element) {
-  return !!(element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.textContent.trim());
-}
-
-// Accessibility issue addressing functions
-function addressAccessibilityIssues(insightReport) {
-  insightReport.forEach((issue) => {
-    console.log(`Addressing issue: ${issue.issue}`);
-    console.log(`Solution: ${issue.solution}`);
-  });
-}
-
-function newFunction() {
-  // implementation of new function
 }
 
 export function ensureElementHasId(element) {

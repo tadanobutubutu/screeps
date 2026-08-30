@@ -1,5 +1,7 @@
-// main.js - Accessibility-focused implementation
-// TODO: Address accessibility issues from insight report:
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
 
 /**
  * Main application entry point with accessibility features
@@ -327,7 +329,7 @@ function calculateAccessibilityScore(fixedIssues) {
     'other': 1
   };
 
-  return fixedIssue.reduce((score, issue) => {
+  return fixedIssues.reduce((score, issue) => {
     const points = scorePoints[issue.type] || scorePoints['other'];
     return score + points;
   }, 0);

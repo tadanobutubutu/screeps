@@ -343,6 +343,50 @@ function isLinkAccessible(link) {
   return false;
 }
 
+/**
+ * Validates landmark elements for accessibility.
+ * Checks that each landmark has a unique ID and an accessible name.
+ * @returns {void}
+ */
+function validateLandmark() {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
+  const elements = document.querySelectorAll('[role]');
+  elements.forEach(el => {
+    const role = el.getAttribute('role');
+    if (landmarkRoles.includes(role)) {
+      // Ensure unique ID
+      if (!el.id) {
+        console.warn(`Landmark with role "${role}" missing ID`);
+      } else if (_usedLandmarkIds.has(el.id)) {
+        console.warn(`Duplicate landmark ID: ${el.id}`);
+      } else {
+        _usedLandmarkIds.add(el.id);
+      }
+      // Check for accessible name
+      const hasAccessibleName = el.hasAttribute('aria-label') || el.hasAttribute('aria-labelledby') || el.textContent.trim().length > 0;
+      if (!hasAccessibleName) {
+        console.warn(`Landmark with role "${role}" has no accessible name`);
+      }
+    }
+  });
+}
+
+/**
+ * Validates the structure of landmark elements.
+ * Checks for inappropriate nesting of landmarks.
+ * @returns {void}
+ */
+function validateLandmarkStructure() {
+  const landmarkSelectors = '[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"]';
+  const landmarks = document.querySelectorAll(landmarkSelectors);
+  landmarks.forEach(lm => {
+    const nested = lm.querySelectorAll(landmarkSelectors);
+    if (nested.length > 0) {
+      console.warn(`Landmark with role "${lm.getAttribute('role')}" contains nested landmarks`);
+    }
+  });
+}
+
 addProperLandmarkRegions();
 addProperAccountManagement();
 addAriaToFormControls();
@@ -365,5 +409,7 @@ module.exports = {
   improveKeyboardNavigation,
   addLiveRegionForDynamicContent,
   isLinkAccessible,
-  addAriaLabel
+  addAriaLabel,
+  validateLandmark,
+  validateLandmarkStructure
 };

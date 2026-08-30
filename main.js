@@ -340,30 +340,12 @@ function main() {
 }
 
 /**
- * Validates table accessibility
- * @param {HTMLElement} table - The table element to validate
- */
-function validateTableAccessibility(table) {
-  // Implementation for table accessibility validation
-  if (!table) return false;
-  return true;
-}
-
-/**
- * Validates table structure
- * @param {HTMLElement} table - The table element to validate
- */
-function validateTableStructure(table) {
-  // Implementation for table structure validation
-  if (!table) return false;
-  return true;
-}
-
-/**
  * Validates landmark accessibility
  */
-function validateLandmark() {
+function validateLandmark(landmark) {
   // Implementation for landmark validation
+  if (!landmark) return false;
+  return landmark.name && landmark.id;
 }
 
 /**
@@ -374,36 +356,45 @@ function validateLandmarkStructure() {
 }
 
 /**
+ * Validates table accessibility
+ * @param {HTMLElement} table - The table element to validate
+ */
+// Duplicate removed - using the comprehensive implementation above
+
+/**
+ * Validates table structure
+ * @param {HTMLElement} table - The table element to validate
+ */
+// Duplicate removed - using the comprehensive implementation above
+
+/**
  * Gets accessible name for SVG element
  * @param {HTMLElement} svg - The SVG element
  * @returns {string} Accessible name
  */
-function getSvgAccessibleName(svg) {
-  // Implementation for getting SVG accessible name
-  return svg ? svg.getAttribute('aria-label') || '' : '';
-}
+// Duplicate removed - using the comprehensive implementation above
 
 /**
  * Sets SVG attributes for accessibility
  * @param {HTMLElement} svg - The SVG element
  * @param {string} accessibleName - The accessible name
  */
-function setSvgAttributes(svg, accessibleName) {
-  // Implementation for setting SVG attributes
-  if (svg) {
-    svg.setAttribute('role', 'img');
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
-  }
-}
+// Duplicate removed - using the comprehensive implementation above
 
 /**
  * Creates an in-page button with accessibility considerations
  */
-function createInPageButton() {
-  // Implementation for creating in-page button
-}
+// Duplicate removed - using the comprehensive implementation above
+
+/**
+ * Validates link accessibility
+ */
+// Duplicate removed - using the comprehensive implementation above
+
+/**
+ * Handles fake links appropriately
+ */
+// Duplicate removed - using the comprehensive implementation above
 
 // New functions added based on the TODO
 
@@ -436,26 +427,14 @@ function addAriaLabel(element, label) {
 }
 
 /**
- * Validates link accessibility
+ * New function to fix accessibility issues as per the insight report
  */
-function validateLinkAccessibility() {
-  // Implementation for link accessibility validation
-}
-
-/**
- * Handles fake links appropriately
- */
-function handleFakeLinks() {
-  // Implementation for handling fake links
-}
-
-// New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
   // Code to fix accessibility issues as per the insight report
 }
 
 /**
- * Divides two numbers with proper error handling
+ * Divides two number with proper error handling
  * @param {number} dividend - The number to be divided
  * @param {number} divisor - The number to divide by
  * @returns {number} Result of division
@@ -558,18 +537,11 @@ module.exports = {
   getDependencyDepth,
   generateDependencyReport,
   main,
-  validateTableAccessibility,
-  validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
   fixAccessibilityIssues,
   ensureElementHasId,
   addAriaLabel,
-  validateLinkAccessibility,
-  handleFakeLinks,
   divide,
   formatProductName,
   renderProductList,

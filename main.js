@@ -59,7 +59,7 @@ function ensureUniqueLandmarks() {
   let uniqueIds = [];
 
   function generateUniqueId() {
-    return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    return `landmark-${Date.now()}-Math.floor(Math.random() * 1000)}`;
   }
 
   landmarks.forEach((landmark) => {

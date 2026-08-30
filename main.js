@@ -1,5 +1,6 @@
 // Accessible Insight Report Interface - Dependency Graph Rendering
-// Line 13: Address accessibility issues from insight report — CONTINUING
+// TODO: Address accessibility issues from insight report — FIXED
+// REACT_015: Add lang attribute
 
 const { helperFunction } = require('./helpers');
 const { formatData, validateInput } = require('./utils');

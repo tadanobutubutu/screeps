@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom/root';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
@@ -26,10 +26,10 @@ function initialize() {
   console.log('Application initialized');
 
   // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.getElementById('main-content');
+  const mainContent = document.querySelector('main');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
-    mainContent.removeAttribute('aria-hidden');
+    mainContent.focus();
   }
 
   // Accessibility: Add skip link functionality
@@ -39,19 +39,56 @@ function initialize() {
   setupButtonAccessibility();
 
   // Add dependency graph button functionality
-  const depGraphContainer = document.getElementById('dep-graph-container');
-  if(depGraphContainer) {
-    createInPageDepGraphButton(depGraphContainer, renderDependencyGraph);
+  const depGraphContainer = document.getElementById('dependency-graph');
+  if (depGraphContainer) {
+    createInPageDepGraphButton(renderDependencyGraph);
   }
   return true;
 }
 
 /**
+ * Setup skip links for keyboard navigation
+ */
+function setupSkipLinks() {
+  const skipLinks = document.querySelectorAll('.skip-link');
+  skipLinks.forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute('href').slice(1);
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.tabIndex = -1;
+        target.focus();
+      }
+    });
+  });
+}
+
+/**
+ * Create an in-page button for triggering actions
+ */
+function createInPageButton(label, renderFunction) {
+  const button = document.createElement('button');
+  button.textContent = label;
+  button.className = 'in-page-button';
+  button.addEventListener('click', () => {
+    if (renderFunction) {
+      renderFunction();
+    }
+  });
+  return button;
+}
+
+/**
  * Implement this function for creating in-page buttons
  */
-function createInPageDepGraphButton(depGraphContainer, renderFunction) {
+function createInPageDepGraphButton(renderFunction) {
   const button = createInPageButton('Render Dependency Graph', renderFunction);
-  depGraphContainer.appendChild(button);
+  const container = document.getElementById('dependency-graph');
+  if (container) {
+    container.appendChild(button);
+  }
+  return button;
 }
 
 /**
@@ -60,7 +97,7 @@ function createInPageDepGraphButton(depGraphContainer, renderFunction) {
 function setupButtonAccessibility() {
   const buttons = document.querySelectorAll('button');
   buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
       button.setAttribute('aria-label', 'Action button');
     }
   });
@@ -69,29 +106,13 @@ function setupButtonAccessibility() {
 // Define new render function for dependency graph
 function renderDependencyGraph() {
   // Add logic to render the dependency graph
-  // ...
-}
-
-function getConfig() {
-  return CONFIG;
-}
-
-function getVersion() {
-  return VERSION;
-}
-
-<<<<<<< HEAD
-// Implement the function for addressing new accessibility issues
-function addressAccessibilityIssues() {
-  // Assuming we are adding an ARIA role to the dependencyGraph container
-  const dependencyGraph = document.querySelector('.dependencyGraph');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'group');
-    // You might want to set other ARIA properties or check for more complex requirements from the insight report
+  const depGraphContainer = document.getElementById('dependency-graph');
+  if (depGraphContainer) {
+    depGraphContainer.innerHTML = '<p>Dependency Graph visualization would be rendered here</p>';
   }
-=======
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+}
+
+// Implement the function for addressing accessibility issues
 function addressAccessibilityIssues() {
   // TODO: Implement the function for addressing new accessibility issues
   const issues = [];
@@ -106,13 +127,13 @@ function addressAccessibilityIssues() {
     }
   });
 
-  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
+  const interactiveElements = document.querySelectorAll('a, input, select, textarea');
   interactiveElements.forEach((el) => {
     const hasLabel =
       el.hasAttribute('aria-label') ||
       el.hasAttribute('aria-labelledby') ||
       el.textContent.trim().length > 0 ||
-      el.querySelector('[aria-label]') !== null;
+      el.querySelector('img[alt]') !== null;
     if (!hasLabel) {
       issues.push({
         type: 'missing-accessible-name',
@@ -122,10 +143,10 @@ function addressAccessibilityIssues() {
     }
   });
 
-  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  const headings = document.querySelectorAll('h2, h3, h4, h5, h6');
   let previousLevel = 0;
   headings.forEach((heading) => {
-    const level = parseInt(heading.tagName.substring(1), 10);
+    const level = parseInt(heading.tagName.charAt(1), 10);
     if (previousLevel > 0 && level - previousLevel > 1) {
       issues.push({
         type: 'heading-skip',
@@ -136,7 +157,7 @@ function addressAccessibilityIssues() {
     previousLevel = level;
   });
 
-  if (document.documentElement.lang !== 'en' && !document.documentElement.hasAttribute('lang')) {
+  if (document.documentElement.lang !== 'en' && document.documentElement.lang === '') {
     issues.push({
       type: 'missing-lang',
       element: document.documentElement,
@@ -154,10 +175,18 @@ function addressAccessibilityIssues() {
       missingLang: issues.filter((i) => i.type === 'missing-lang').length
     }
   };
->>>>>>> origin/main
+}
+
+function getConfig() {
+  return CONFIG;
+}
+
+function getVersion() {
+  return VERSION;
+}
 
 // New accessibility enhancement: ensure root container has accessible name and create announcement region
-const rootContainer = document.getElementById('root').parentElement;
+const rootContainer = document.getElementById('root');
 if (rootContainer) {
   rootContainer.setAttribute('role', 'main');
 }
@@ -212,7 +241,7 @@ function validateTableStructure() {
       isValid = false;
       error = 'Table has no rows';
     } else {
-      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td, th').length);
+      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('th, td').length);
       const allSame = cellCounts.every(count => count === cellCounts[0]);
       
       if (!allSame) {

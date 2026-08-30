@@ -16,15 +16,73 @@ function sortByAuthor(a, b) {
   return b.author.localeCompare(a.author);
 }
 
-// Function to generate a key for each book item
-function generateKey(book) {
-  return `${book.id || book.title}-${Date.now()}`;
+// Function to address accessibility issues from insight report
+function addressAccessibilityIssues() {
+  // Create and inject ARIA live region for screen reader announcements
+  let liveRegion = document.getElementById('a11y-live-region');
+  if (!liveRegion) {
+    liveRegion = document.createElement('div');
+    liveRegion.setAttribute('role', 'status');
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.className = 'sr-only';
+    liveRegion.id = 'a11y-live-region';
+    document.body.appendChild(liveRegion);
+  }
+
+  // Function to announce dynamic content changes to screen readers
+  function announceToScreenReader(message) {
+    if (liveRegion) {
+      liveRegion.textContent = '';
+      setTimeout(() => {
+        liveRegion.textContent = message;
+      }, 50);
+    }
+  }
+
+  // Function to manage focus for keyboard accessibility
+  function manageFocus(elementId) {
+    const element = document.getElementById(elementId);
+    if (element && typeof element.focus === 'function') {
+      element.focus();
+    }
+  }
+
+  // Function to trap focus within a modal/dialog for accessibility
+  function trapFocus(containerElement) {
+    const focusableElements = containerElement.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    function handleTabKey(e) {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+
+    containerElement.addEventListener('keydown', handleTabKey);
+    return () => containerElement.removeEventListener('keydown', handleTabKey);
+  }
+
+  return {
+    announceToScreenReader,
+    manageFocus,
+    trapFocus
+  };
 }
 
 // Function to render a single book item
 function BookItem(book) {
   return (
-    <List.Item key={generateKey(book)}>
+    <List.Item>
       <List.Item.Meta
         title={book.title}
         description={book.author}
@@ -34,7 +92,7 @@ function BookItem(book) {
 }
 
 // Function to create a new book entry in the Redux store
-function addBook(book) {
+function addBook(book, dispatch) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
@@ -43,7 +101,7 @@ function addBook(book) {
 }
 
 // Function to handle form submission with accessibility improvements
-function handleAddBookSubmit(event, book, setError, setSubmitting) {
+function handleAddBookSubmit(event, book, setError, setSubmitting, dispatch, announceToScreenReader, manageFocus) {
   event.preventDefault();
   
   // Validate book data
@@ -54,6 +112,7 @@ function handleAddBookSubmit(event, book, setError, setSubmitting) {
     if (errorElement) {
       errorElement.focus();
     }
+    announceToScreenReader('Error: Please fill in all required fields');
     return;
   }
   
@@ -61,7 +120,7 @@ function handleAddBookSubmit(event, book, setError, setSubmitting) {
   setSubmitting(true);
   
   // Add the book
-  addBook(book);
+  addBook(book, dispatch);
   
   // Reset form after successful submission
   // Use setTimeout to ensure state updates are processed
@@ -69,14 +128,15 @@ function handleAddBookSubmit(event, book, setError, setSubmitting) {
     setSubmitting(false);
     // Move focus back to submit button for keyboard accessibility
     const submitButton = document.getElementById('add-book-submit');
-    if (submitButton) {
+    if ( submittingButton) {
       submitButton.focus();
     }
+    announceToScreenReader('Book added successfully');
   }, 100);
 }
 
 // Accessible Add Book Form Component
-function AddBookForm() {
+function AddBookForm({ dispatch, announceToScreenReader, manageFocus }) {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [error, setError] = useState('');
@@ -108,7 +168,7 @@ function AddBookForm() {
   };
   
   // Handle form submission
-  const onSubmit = (e) => handleAddBookSubmit(e, book, setError, setSubmitting);
+  const onSubmit = (e) => handleAddBookSubmit(e, book, setError, setSubmitting, dispatch, announceToScreenReader, manageFocus);
   
   return (
     <form onSubmit={onSubmit} aria-labelledby="add-book-heading" role="form">
@@ -181,14 +241,14 @@ function AddBookForm() {
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
+function onTitleSort(getBooksList, dispatch) {
   const sortedList = getBooksList.slice().sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
+function onAuthorSort(getBooksList, dispatch) {
   const sortedList = getBooksList.slice().sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
@@ -196,21 +256,20 @@ function onAuthorSort() {
 
 // Render the main component containing the book list and sorting controls
 function Main() {
+  const dispatch = useDispatch();
   const [sorting, setSorting] = useState(defaultSorting);
+  
+  // Initialize accessibility utilities
+  const { announceToScreenReader, manageFocus } = addressAccessibilityIssues();
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
     if (sorting === sortByTitle) {
-      onTitleSort();
+      onTitleSort(getBooksList, dispatch);
     } else if (sorting === sortByAuthor) {
-      onAuthorSort();
+      onAuthorSort(getBooksList, dispatch);
     }
-  }, [sorting]);
-
-  // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map((book, index) => (
-    <BookItem key={generateKey(book)} {...book} />
-  ));
+  }, [sorting, getBooksList, dispatch]);
 
   // Render the list of book items and sorting controls
   return (
@@ -219,9 +278,19 @@ function Main() {
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List
         dataSource={getBooksList}
-        renderItem={(item) => <BookItem {...item} />}
+        renderItem={(book, index) => (
+          <BookItem
+            key={book.id || `${book.title}-${book.author}-${index}`}
+            {...book}
+          />
+        )}
+        aria-label="Book list"
       />
-      <AddBookForm />
+      <AddBookForm 
+        dispatch={dispatch}
+        announceToScreenReader={announceToScreenReader}
+        manageFocus={manageFocus}
+      />
     </div>
   );
 }

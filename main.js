@@ -3,7 +3,7 @@
 // Function to render graph/index using new functions
 import { renderGraph } from './newGraphRenderingFunctions'; // Assuming you have a separate file for the new functions
 
-function renderGraphIndex() {
+export function renderGraphIndex() {
   // JavaScript code to prepare data for the graph
   const data = prepareDataForGraph();
 

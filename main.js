@@ -3,6 +3,20 @@ const missingModule = require('./missingModule');
 
 // Existing code...
 
+function rotateBack() {
+  // Logic to rotate back
+  // JavaScript code to rotate back
+  console.log('Rotating back...');
+  // For example, if you're manipulating the DOM or a state:
+  // ...
+  // ...
+}
+
+const metadata = {
+  title: "Screeps Dashboard",
+  description: "Dashboard for Screeps",
+};
+
 const accessibilityUtils = {
   // Trap focus within an element (for modals, dialogs)
   trapFocus: (element) => {
@@ -441,6 +455,10 @@ module.exports = {
   validateLinkAccessibility: accessibilityUtils.validateLinkAccessibility,
   handleFakeLinks: accessibilityUtils.handleFakeLinks,
   addProperLandmarkRegions: accessibilityUtils.addProperLandmarkRegions,
+
+  // Additional exports from HEAD
+  rotateBack: rotateBack,
+  metadata: metadata,
 
   // Export accessibility utils for direct access
   accessibilityUtils: accessibilityUtils,

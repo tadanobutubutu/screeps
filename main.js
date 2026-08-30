@@ -347,6 +347,32 @@ const addressAccessibilityIssues = (container) => {
   return fixes;
 };
 
+function harvest(input) {
+  if (Array.isArray(input)) {
+    return input.reduce((sum, item) => {
+      if (typeof item === 'number') {
+        return sum + item;
+      }
+      return sum + (item && typeof item.value === 'number' ? item.value : 0);
+    }, 0);
+  }
+  return typeof input === 'number' ? input : 0;
+}
+
+function upgrade(item) {
+  if (item && typeof item === 'object') {
+    return {
+      ...item,
+      level: (item.level || 0) + 1,
+      upgraded: true
+    };
+  }
+  if (typeof item === 'number') {
+    return item + 1;
+  }
+  return item;
+}
+
 // Export all functions
 module.exports = {
   ...main,
@@ -391,6 +417,8 @@ module.exports = {
   addSvgAccessibleName,
   fixFakeLinkIssue,
   addAriaAttribute,
+  harvest,
+  upgrade,
 
   renderDependencyGraph: renderDependencyGraphs
 };

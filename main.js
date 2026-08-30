@@ -24,33 +24,37 @@ function countDependencies() {
     };
 }
 
+var path = require('path');
+var fs = require('fs');
+
 // Ensure DOM is fully loaded before executing scripts
 if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports
   module.exports = {
-    init,
-    setupKeyboardNavigation,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    ensureUniqueLandmarksFromString,
-    validateLandmark,
-    spawnSomeCommand,
-    addLangAttribute
+    init: init,
+    setupKeyboardNavigation: setupKeyboardNavigation,
+    setupAriaLiveRegions: setupAriaLiveRegions,
+    setupFocusManagement: setupFocusManagement,
+    enhanceSemanticMarkup: enhanceSemanticMarkup,
+    trapFocus: trapFocus,
+    handleKeyNavigation: handleKeyNavigation,
+    closeOpenDialogs: closeOpenDialogs,
+    announceToScreenReader: announceToScreenReader,
+    calculateDifference: calculateDifference,
+    calculateProduct: calculateProduct,
+    isNumber: isNumber,
+    clamp: clamp,
+    hello: hello,
+    getVersion: getVersion,
+    getConfig: getConfig,
+    addressAccessibilityIssues: addressAccessibilityIssues,
+    generateAccessibilityReport: generateAccessibilityReport,
+    calculateAccessibilityScore: calculateAccessibilityScore,
+    ensureUniqueLandmarksFromString: ensureUniqueLandmarksFromString,
+    validateLandmark: validateLandmark,
+    spawnSomeCommand: spawnSomeCommand,
+    addLangAttribute: addLangAttribute,
+    countDependencies: countDependencies
   };
 } else {
   // Browser environment - wait for DOM
@@ -421,7 +425,7 @@ function validateLandmark(element) {
   if (!landmarkRoles.includes(landmarkRole)) {
     return { 
       valid: false, 
-      error: `Invalid landmark role: ${landmarkRole}`,
+      error: 'Invalid landmark role: ' + landmarkRole,
       element: tagName,
       role: landmarkRole
     };
@@ -439,7 +443,7 @@ function spawnSomeCommand(callback) {
     if (code === 0) {
       callback(null, 'Successfully executed someCommand');
     } else {
-      callback(new Error(`someCommand failed with code ${code}`));
+      callback(new Error('someCommand failed with code ' + code));
     }
   });
 }

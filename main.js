@@ -256,7 +256,7 @@ function renderAccessibilityIndex(issues, container) {
  * @param {HTMLElement} outputContainer - The container element to render results into
  */
 function renderAccessibilityResults(container, outputContainer) {
-  const issues = checkLinkAndButtonAccessibility(container);
+  const issues = checkAccessibility(container);
   
   if (outputContainer) {
     renderAccessibilityGraph(issues, outputContainer);
@@ -422,7 +422,7 @@ const a11yStore = {
         if (e.shiftKey && document.activeElement === firstElement) {
           e.preventDefault();
           lastElement.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
+        } else if (!e.shiftTab && document.activeElement === lastElement) {
           e.preventDefault();
           firstElement.focus();
         }

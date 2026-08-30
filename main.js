@@ -8,4 +8,6 @@
 // Assuming that there are no exports removed, this section should be kept as is.
 module.exports = {
   // Existing exports
+  createInPageButton,
+  getLangAttribute
 };

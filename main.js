@@ -624,7 +624,7 @@ function rotateBack() {
 }
 
 // Export for module usage
-export { a11yStore };
-export { addressAccessibilityIssues };
-export default a11yStore;
-export { wrapPrimaryContentInMain };
+module.exports.a11yStore = a11yStore;
+module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
+module.exports.default = a11yStore;
+module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;

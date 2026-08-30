@@ -77,27 +77,31 @@ function addLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
+/**
+ * Address accessibility issues from the insight report
+ * This addresses issues from the insight report:
+ * - REACT_015: Add lang attribute to HTML element
+ * - REACT_027: Fix 26 table structure issues
+ * - REACT_017: Add/fix 4 landmark issues
+ * - REACT_041: Add accessible names to 2 SVGs
+ * - REACT_025: Ensure unique landmarks (2 issues)
+ * - REACT_036: Fix 1 fake link issue
+ * @param {Object} insightReport - The insight report containing accessibility issues
+ */
 function addressAccessibilityIssues(insightReport) {
-  // Implementation of the function to address accessibility issues
-  // This addresses issues from the insight report:
-  // - REACT_015: Add lang attribute to HTML element
-  // - REACT_027: Fix 26 table structure issues
-  // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs
-  // - REACT_025: Ensure unique landmarks (2 issues)
-  // - REACT_036: Fix 1 fake link issue
-
   if (!insightReport || !insightReport.issues) {
     return;
   }
 
-  // Address accessibility issues from insight report
-  insightReport.issues.forEach(issue => {
+  // Process each issue from the insight report
+  insightReport.issues.forEach(function(issue) {
     switch (issue.type) {
       case 'REACT_015':
         // Add lang attribute to HTML element
         if (issue.element) {
           addLangAttribute(issue.element);
+        } else {
+          addLangAttribute(document.documentElement);
         }
         break;
       case 'REACT_027':
@@ -112,7 +116,6 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_017':
         // Add/fix landmark issues
         if (issue.structure) {
-          validateLandmarkStructure();
           addMainLandmark();
         } else {
           validateLandmark();
@@ -122,7 +125,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_041':
         // Add accessible names to SVGs
         if (issue.svg) {
-          const accessibleName = getSvgAccessibleName(issue.svg);
+          var accessibleName = getSvgAccessibleName();
           setSvgAttributes(issue.svg, accessibleName);
         }
         break;
@@ -144,62 +147,58 @@ function addressAccessibilityIssues(insightReport) {
 
 // REACT_015: Add lang attribute to HTML element
 function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (!htmlElement.getAttribute('lang')) {
+  var htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
 }
 
 // REACT_027: Fix table structure issues
 function fixTableStructure() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    if (!table.querySelector('thead')) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
-        const cells = firstRow.querySelectorAll('th, td');
-        cells.forEach(cell => {
-          const newTh = document.createElement('th');
-          newTh.textContent = cell.textContent;
-          if (cell.hasAttribute('scope')) {
-            newTh.setAttribute('scope', cell.getAttribute('scope'));
-          } else {
-            newTh.setAttribute('scope', 'col');
-          }
-          headerRow.appendChild(newTh);
-        });
-        thead.appendChild(headerRow);
-        table.insertBefore(thead, table.firstChild);
-      }
+  var tables = document.querySelectorAll('table');
+  tables.forEach(function(table) {
+    var firstRow = table.querySelector('tr');
+    if (firstRow) {
+      var thead = document.createElement('thead');
+      var headerRow = document.createElement('tr');
+      var cells = firstRow.querySelectorAll('td');
+      cells.forEach(function(cell) {
+        var newTh = document.createElement('th');
+        newTh.textContent = cell.textContent;
+        if (cell.hasAttribute('colspan')) {
+          newTh.setAttribute('colspan', cell.getAttribute('colspan'));
+        } else {
+          newTh.setAttribute('scope', 'col');
+        }
+        headerRow.appendChild(newTh);
+      });
+      thead.appendChild(headerRow);
+      table.insertBefore(thead, table.firstChild);
     }
-    if (!table.querySelector('tbody')) {
-      const rows = Array.from(table.querySelectorAll('tr'));
-      const thead = table.querySelector('thead');
-      const rowsAfterHeader = thead ? rows.slice(1) : rows;
-      if (rowsAfterHeader.length > 0) {
-        const tbody = document.createElement('tbody');
-        rowsAfterHeader.forEach(row => {
-          tbody.appendChild(row);
-        });
-        table.appendChild(tbody);
-      }
+    var rows = table.querySelectorAll('tr');
+    var theadEl = table.querySelector('thead');
+    var rowsAfterHeader = theadEl ? Array.prototype.slice.call(rows, 1) : rows;
+    if (rowsAfterHeader.length > 0) {
+      var tbody = document.createElement('tbody');
+      rowsAfterHeader.forEach(function(row) {
+        tbody.appendChild(row);
+      });
+      table.appendChild(tbody);
     }
   });
 }
 
 // REACT_017: Add/fix 2 landmark issues
 function addMainLandmark() {
-  let mainElement = document.querySelector('main');
+  var mainElement = document.querySelector('main');
   if (!mainElement) {
     mainElement = document.createElement('main');
     mainElement.id = 'main-content';
-    const existingContent = document.body.querySelector(':not(script):not(style)');
+    var existingContent = document.querySelector('[role="main"]');
     if (existingContent) {
-      document.body.insertBefore(mainElement, existingContent);
+      mainElement.appendChild(existingContent);
     } else {
-      document.body.appendChild(mainElement);
+      document.body.insertBefore(mainElement, document.body.firstChild);
     }
   } else {
     if (!mainElement.id) {
@@ -213,12 +212,12 @@ function addMainLandmark() {
 
 // REACT_025: Ensure unique landmarks
 function ensureUniqueLandmarks() {
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-  landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+  var landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  landmarkRoles.forEach(function(role) {
+    var elements = document.querySelectorAll('[role="' + role + '"]');
     if (elements.length > 1) {
-      let isFirst = true;
-      elements.forEach(element => {
+      var isFirst = true;
+      elements.forEach(function(element) {
         if (isFirst) {
           isFirst = false;
         } else {
@@ -231,18 +230,18 @@ function ensureUniqueLandmarks() {
 
 // REACT_041: Add accessible names to 2 SVGs
 function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
-  svgs.forEach((svg, index) => {
-    const title = svg.querySelector('title');
+  var svgs = document.querySelectorAll('svg');
+  svgs.forEach(function(svg, index) {
+    var title = svg.querySelector('title');
     if (title) {
-      const titleId = `svg-title-${index}-${Date.now()}`;
+      var titleId = 'svg-title-' + index;
       title.id = titleId;
       svg.setAttribute('aria-labelledby', titleId);
     } else {
-      const fallbackId = `svg-fallback-${index}-${Date.now()}`;
-      const newTitle = document.createElement('title');
+      var fallbackId = 'svg-title-' + index;
+      var newTitle = document.createElement('title');
       newTitle.id = fallbackId;
-      newTitle.textContent = `SVG image ${index + 1}`;
+      newTitle.textContent = 'SVG image ' + (index + 1);
       svg.insertBefore(newTitle, svg.firstChild);
       svg.setAttribute('aria-labelledby', fallbackId);
     }
@@ -251,14 +250,15 @@ function addSvgAccessibleNames() {
 
 // REACT_036: Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const anchors = document.querySelectorAll('a');
-  anchors.forEach(anchor => {
-    if (!anchor.href || anchor.href === '#' || anchor.href === 'javascript:void(0)' || anchor.href === 'javascript:;') {
-      if (!anchor.hasAttribute('onclick')) {
-        const text = anchor.textContent.trim();
-        const button = document.createElement('button');
+  var anchors = document.querySelectorAll('a');
+  anchors.forEach(function(anchor) {
+    var href = anchor.getAttribute('href');
+    if (!href || href === '#' || href === '' || href === 'javascript:;') {
+      if (anchor.onclick || anchor.getAttribute('role') === 'button') {
+        var text = anchor.textContent.trim();
+        var button = document.createElement('button');
         button.textContent = text;
-        Array.from(anchor.attributes).forEach(attr => {
+        Array.prototype.forEach.call(anchor.attributes, function(attr) {
           if (attr.name !== 'href' && attr.name !== 'onclick') {
             button.setAttribute(attr.name, attr.value);
           }
@@ -270,12 +270,12 @@ function fixFakeLinkIssue() {
 }
 
 // Configuration
-const config = {
+var config = {
   // Configuration options
 };
 
 // App state
-const appState = {
+var appState = {
   // Application state
 };
 
@@ -329,7 +329,7 @@ function getInsightReport() {
 
 function processAccessibilityReport(report) {
   // Process accessibility report and return findings
-  const findings = {
+  var findings = {
     langAttribute: false,
     tableIssues: 0,
     landmarkIssues: 0,
@@ -340,70 +340,41 @@ function processAccessibilityReport(report) {
 
   if (report) {
     if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027.count || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
+    if (report.REACT_027) findings.tableIssues = report.REACT_027 || 0;
+    if (report.REACT_017) findings.landmarkIssues = report.REACT_017 || 0;
+    if (report.REACT_041) findings.svgIssues = report.REACT_041 || 0;
+    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025 || 0;
+    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036 || 0;
   }
 
   return findings;
 }
 
 // Example usage of the new function (if applicable)
-// const report = getInsightReport(); // Hypothetical function to get the insight report
+// var report = getInsightReport(); // Hypothetical function to get the insight report
 // addressAccessibilityIssues(report);
 
 // Add back removed exports
 module.exports = {
-  config,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  processAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  getInsightReport,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  // Added from origin/main
-  someFunction: function() {
-    return 'some value';
-  },
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
-  helper: function(input) {
-    return input ? input.toUpperCase() : '';
-  },
-  formatDate: function(date) {
-    if (!(date instanceof Date)) {
-      date = new Date(date);
-    }
-    return date.toISOString().split('T')[0];
-  }
-};
+  config: config,
+  appState: appState,
+  initializeApp: initializeApp,
+  processData: processData,
+  fetchUser: fetchUser,
+  clearCache: clearCache,
+  initialize: initialize,
+  validateInput: validateInput,
+  addressAccessibilityIssues: addressAccessibilityIssues,
+  processAccessibilityReport: processAccessibilityReport,
+  getLangAttribute: getLangAttribute,
+  addLangAttribute: addLangAttribute,
+  validateTableAccessibility: validateTableAccessibility,
+  validateTableStructure: validateTableStructure,
+  fixTableStructure: fixTableStructure,
+  addMainLandmark: addMainLandmark,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
+  validateLandmarkAttributes: validateLandmarkAttributes,
+  getSvgAccessibleName: getSvgAccessibleName,
+  setSvgAttributes: setSvgAttributes,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,

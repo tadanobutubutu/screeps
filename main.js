@@ -105,5 +105,8 @@ function renderDependencyGraph(data, container) {
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraph
+  renderDependencyGraph,
+  myFunction: function () {
+    // Existing implementation
+  }
 };

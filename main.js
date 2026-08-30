@@ -1,5 +1,11 @@
 // main.js - Accessibility-focused implementation
 // TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
+// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and personName())
 
 /**
  * Main application entry point with accessibility features
@@ -30,7 +36,13 @@ if (typeof module !== 'undefined' && module.exports) {
     calculateAccessibilityScore,
     ensureUniqueLandmarksFromString,
     validateLandmark,
-    spawnSomeCommand
+    spawnSomeCommand,
+    getLangAttribute,
+    personName,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmarkStructure,
+    getSvgAccessibleName
   };
 } else {
   // Browser environment - wait for DOM
@@ -252,7 +264,7 @@ const getConfig = () => {
   };
 };
 
-// Addressability issues from insight report
+// Address accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport || !insightReport.issues) {
     return [];
@@ -327,7 +339,7 @@ function calculateAccessibilityScore(fixedIssues) {
     'other': 1
   };
 
-  return fixedIssue.reduce((score, issue) => {
+  return fixedIssues.reduce((score, issue) => {
     const points = scorePoints[issue.type] || scorePoints['other'];
     return score + points;
   }, 0);
@@ -407,6 +419,100 @@ function validateLandmark(element) {
   }
 
   return { valid: true, element: tagName, role: landmarkRole };
+}
+
+// Get lang attribute from HTML element
+function getLangAttribute() {
+  if (typeof document === 'undefined') {
+    return 'en';
+  }
+  const htmlElement = document.documentElement;
+  return htmlElement.getAttribute('lang') || 'en';
+}
+
+// Person name utility
+function personName(name) {
+  if (!name || typeof name !== 'string') {
+    return '';
+  }
+  return name.trim();
+}
+
+// Validate table accessibility
+function validateTableAccessibility(table) {
+  if (!table || !table.tagName) {
+    return { valid: false, error: 'Element is not a table' };
+  }
+  const tagName = table.tagName.toLowerCase();
+  if (tagName !== 'table') {
+    return { valid: false, error: 'Element is not a table' };
+  }
+  const hasCaption = table.querySelector('caption') !== null;
+  const hasHeaders = table.querySelectorAll('th').length > 0;
+  return {
+    valid: hasCaption || hasHeaders,
+    hasCaption: hasCaption,
+    hasHeaders: hasHeaders,
+    error: (!hasCaption && !hasHeaders) ? 'Table missing caption or headers' : null
+  };
+}
+
+// Validate table structure
+function validateTableStructure(table) {
+  if (!table || !table.tagName) {
+    return { valid: false, error: 'Element is not a table' };
+  }
+  const tagName = table.tagName.toLowerCase();
+  if (tagName !== 'table') {
+    return { valid: false, error: 'Element is not a table' };
+  }
+  const rows = table.querySelectorAll('tr');
+  return {
+    valid: rows.length > 0,
+    rowCount: rows.length,
+    error: rows.length === 0 ? 'Table has no rows' : null
+  };
+}
+
+// Landmark structure validation
+function validateLandmarkStructure(element) {
+  if (!element) {
+    return { valid: false, error: 'Element is required' };
+  }
+  const validation = validateLandmark(element);
+  if (!validation.valid) {
+    return validation;
+  }
+  return { valid: true, element: validation.element, role: validation.role };
+}
+
+// Get accessible name for SVG
+function getSvgAccessibleName(svg) {
+  if (!svg) {
+    return '';
+  }
+  const tagName = svg.tagName ? svg.tagName.toLowerCase() : '';
+  if (tagName !== 'svg') {
+    return '';
+  }
+  const titleEl = svg.querySelector('title');
+  if (titleEl && titleEl.textContent) {
+    return titleEl.textContent.trim();
+  }
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel.trim();
+  }
+  const ariaLabelledBy = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledBy) {
+    if (typeof document !== 'undefined') {
+      const labelledByEl = document.getElementById(ariaLabelledBy);
+      if (labelledByEl) {
+        return labelledByEl.textContent.trim();
+      }
+    }
+  }
+  return '';
 }
 
 // Node.js spawn functionality

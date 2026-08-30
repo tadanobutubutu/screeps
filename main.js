@@ -605,3 +605,21 @@ function setSvgAttributes(svg, accessibleName) {
   }
   return null;
 }
+
+// New functions added to address accessibility issues
+
+// Returns an accessible name for a person
+function personName(name) {
+  // Provide a fallback if name is missing
+  return name || 'Unknown person';
+}
+
+// Creates an in-page button with proper id and accessible label
+function createInPageButton(id, label) {
+  // Create a button element
+  const button = document.createElement('button');
+  button.id = id;
+  button.setAttribute('aria-label', label);
+  button.textContent = label;
+  return button;
+}

@@ -1,7 +1,13 @@
+// TODO: Address accessibility issues from insight report:
+
+// Commit: 5746b7c9e222c69f976e3a12089eab2c8aac209c
+
+// <!-- todo-hash: f4aef230bb25bd341c307d16638c123de05bbec8 -->
+
 import { requiredModule } from './required-module.js';
 
 function addLandmarkRegions() {
-  const container = document.getElementById('landmark-regions-container');
+  const container = ...
   if (container) {
     container.innerHTML = `
       <div class="landmark-region" role="region" aria-label="Building" aria-labelledby="buildingLabel">
@@ -93,11 +99,12 @@ export function validateFocusableElement(element) {
     return false;
   }
   const focusableTags = ['a', 'button', 'input', 'select', 'textarea'];
-  const tagName = element.tagName?.toLowerCase();
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
   const isFocusable = focusableTags.includes(tagName) ||
                       element.tabIndex >= 0 ||
                       checkAccessibilityAttribute(element, 'tabindex');
-  return isFocusable && !element.hasAttribute('disabled');
+  const hasValidTabIndex = element.tabIndex >= 0 || !focusableTags.includes(tagName);
+  return isFocusable && hasValidTabIndex;
 }
 
 // Default export for backwards compatibility
@@ -152,106 +159,175 @@ export const logger = {
 //_Commit: 8c3a9295a6bf382e113f3e8184d40223b3f3f8d5_
 //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
-export { addLandmarkRegions };
-
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
-// export function calculateSum(a, b) { return a + b; }
-
-// Existing exports and functions...
-
-export function initializeApp() {
-  console.log('Initializing application...');
-  return Promise.resolve();
+/**
+ * Get the language attribute from an HTML element
+ * @param {HTMLElement} element - The HTML element to get the lang attribute from
+ * @returns {string} The language code or 'en' as default
+ */
+export function getLangAttribute(element = document.documentElement) {
+  if (!element || typeof element.getAttribute !== 'function') {
+    return 'en';
+  }
+  const lang = element.getAttribute('lang');
+  return lang && lang.trim() !== '' ? lang.trim() : 'en';
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
-export function generateAccessibilityReport() {
-  // Placeholder for the actual implementation
-  // This function should return a report object based on the accessibility issues found
+/**
+ * Create an accessible in-page button element
+ * @param {string} text - The button text content
+ * @param {Function} onClick - The click handler function
+ * @param {Object} options - Additional options for the button
+ * @returns {HTMLButtonElement} The created button element
+ */
+export function createInPageButton(text, onClick, options = {}) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.type = 'button';
+  
+  // Add accessible name if provided
+  if (options['aria-label']) {
+    button.setAttribute('aria-label', options['aria-label']);
+  }
+  if (options.id) {
+    button.id = options.id;
+  }
+  
+  // Ensure the button has proper focusability
+  if (options.tabIndex !== undefined) {
+    button.tabIndex = options.tabIndex;
+  } else {
+    button.tabIndex = 0;
+  }
+  
+  // Add role attribute if specified
+  if (options.role) {
+    button.setAttribute('role', options.role);
+  }
+  
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  
+  return button;
+}
+
+/**
+ * Validate table accessibility
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Validation result with issues array
+ */
+export function validateTableAccessibility(table) {
+  const issues = [];
+  
+  if (!table) {
+    return { valid: false, issues: [{ description: 'Table element is null or undefined', severity: 'error' }] };
+  }
+  
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    issues.push({
+      description: 'Table is missing a caption element',
+      severity: 'warning',
+      elementId: table.id || null,
+      fixRecommendation: 'Add a <caption> element to describe the table purpose'
+    });
+  }
+  
+  // Check for th elements with scope or headers
+  const headers = table.querySelectorAll('th');
+  headers.forEach((th, index) => {
+    if (!th.getAttribute('scope') && !th.getAttribute('headers')) {
+      issues.push({
+        description: 'Table header missing scope or headers attribute',
+        severity: 'warning',
+        elementId: th.id || `th-${index}`,
+        fixRecommendation: 'Add scope="col" or scope="row" to the header cell'
+      });
+    }
+  });
+  
+  // Check for thead/tbody structure
+  if (!table.querySelector('thead')) {
+    issues.push({
+      description: 'Table is missing thead element for proper structure',
+      severity: 'warning',
+      elementId: table.id || null,
+      fixRecommendation: 'Wrap header cells in a <thead> element'
+    });
+  }
+  
+  if (!table.querySelector('tbody')) {
+    issues.push({
+      description: 'Table is missing tbody element for proper structure',
+      severity: 'info',
+      elementId: table.id || null,
+      fixRecommendation: 'Wrap data rows in a <tbody> element'
+    });
+  }
+  
   return {
-    issues: [
-      // Example issue object
-      {
-        description: "Example issue description",
-        severity: "warning",
-        // ... other properties like 'elementId', 'fixRecommendation', etc.
-      }
-    ]
+    valid: issues.length === 0,
+    issues
   };
 }
 
-// TODO: Add any other missing exports that might have been?
-// Added missing exports as per the issue
-
-var roleHarvester = require('role.harvester');
-var roleUpgrader = require('role.upgrader');
-
-// Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
-function addressAccessibilityIssues() {
-  document.documentElement.setAttribute('lang', 'en');
-
-  const landmarks = document.querySelectorAll('.landmark');
-  landmarks.forEach((landmark, index) => {
-    landmark.setAttribute('role', 'landmark');
-    landmark.setAttribute('aria-labelledby', `landmark-label-${index}`);
-  });
-
-  const svg1 = document.querySelector('#svg1');
-  const svg2 = document.querySelector('#svg2');
-  svg1.setAttribute('aria-labelledby', 'svg1-title');
-  svg2.setAttribute('aria-labelledby', 'svg2-title');
-
-  // ... existing code preserved for accessibility ...
-
-  module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
+/**
+ * Validate table structure for accessibility
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Structure validation result
+ */
+export function validateTableStructure(table) {
+  const result = {
+    valid: true,
+    issues: [],
+    structure: {
+      hasCaption: false,
+      hasThead: false,
+      hasTbody: false,
+      hasTfoot: false,
+      headerCount: 0,
+      rowCount: 0
+    }
+  };
+  
+  if (!table) {
+    result.valid = false;
+    result.issues.push({ description: 'Table element is required', severity: 'error' });
+    return result;
+  }
+  
+  const caption = table.querySelector('caption');
+  result.structure.hasCaption = !!caption;
+  
+  const thead = table.querySelector('thead');
+  result.structure.hasThead = !!thead;
+  
+  const tbody = table.querySelector('tbody');
+  result.structure.hasTbody = !!tbody;
+  
+  const tfoot = table.querySelector('tfoot');
+  result.structure.hasTfoot = !!tfoot;
+  
+  result.structure.headerCount = table.querySelectorAll('th').length;
+  result.structure.rowCount = table.querySelectorAll('tr').length;
+  
+  // Validate proper structure
+  if (!result.structure.hasThead && result.structure.headerCount > 0) {
+    result.valid = false;
+    result.issues.push({
+      description: 'Table has headers but no thead element',
+      severity: 'warning',
+      fixRecommendation: 'Move header cells into a thead element'
+    });
+  }
+  
+  return result;
 }
 
-// Export functions if needed
-export { rotateBack, addressAccessibilityIssues };
-
-module.exports.getLangAttribute = getLangAttribute;
-module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
-
-// ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
-
-module.exports.loop = function() {
-    // Clear the memory of dead creeps
-    for(var name in Memory.creeps) {
-        if(!Game.creeps[name]) {
-            delete Memory.creeps[name];
-        }
-    }
-
-    // TODO: Add implementation details
-
-    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-
-    if(harvesters.length < 2) {
-        var newName = 'Harvester' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
-            {memory: {role: 'harvester'}});
-    }
-
-    if(upgraders.length < 2) {
-        var newName = 'Upgrader' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
-            {memory: {role: 'upgrader'}});
-    }
-
-    for(var name in Game.rooms) {
-        console.log('Room "'+name+'" has ' + Game.rooms[name].energyAvailable + ' energy');
-    }
-
-    for(var name in Game.creeps) {
-        var creep = Game.creeps[name];
-        if(creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
-        }
-        if(creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-        }
-    }
-}
-
-addressAccessibilityIssues(); // Call the accessibility function
+/**
+ * Validate landmark accessibility
+ * @param {HTMLElement} element - The landmark element to validate
+ * @returns {Object} Validation result
+ */
+export function validateLandmark

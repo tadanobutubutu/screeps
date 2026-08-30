@@ -54,14 +54,7 @@ function validateLandmark(landmark) {
     errors.push('Landmark longitude must be between -180 and 180');
   }
 
-  // Additional validation changes from the other branch
-  if (Array.isArray(landmark) && landmark.length > 0) {
-    if (!landmark[0].name || typeof landmark[0].name !== 'string' || landmark[0].name.trim() === '') {
-      errors.push('Landmark array must have a name');
-    }
-  }
-
-  // Check for updated validation changes from another branch that also checks for array composition
+  // Additional validation: check for array composition
   if (Array.isArray(landmark)) {
     landmark.forEach(innerLandmark => {
       if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {

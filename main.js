@@ -20,7 +20,8 @@ export function formatString(text) {
   return text.toUpperCase();
 }
 export function validateEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 }
 
 // 47: // TODO: Implement function for addressing accessibility issues from insight report

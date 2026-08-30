@@ -124,6 +124,58 @@ function implementNewFunction(input) {
   return input; // Return the input unchanged if it's not a string
 }
 
+/**
+ * Sets up a focus trap to confine keyboard navigation within a specified container.
+ * @param {HTMLElement} container - The container element to trap focus within.
+ * @returns {Function} A cleanup function to remove the event listener.
+ */
+function handleFocusTrap(container) {
+  if (!container) {
+    return () => {};
+  }
+
+  const focusableSelectors = 'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [contenteditable], [tabindex]:not([tabindex="-1"])';
+  
+  function getFocusableElements() {
+    return Array.from(container.querySelectorAll(focusableSelectors)).filter(
+      el => el.offsetParent !== null || el.getAttribute('tabindex') !== '-1'
+    );
+  }
+
+  function trapFocus(event) {
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length === 0) {
+      return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    const activeElement = document.activeElement;
+
+    if (event.shiftKey) {
+      if (activeElement === firstElement || !container.contains(activeElement)) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      if (activeElement === lastElement || !container.contains(activeElement)) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+  }
+
+  container.addEventListener('keydown', trapFocus);
+  
+  return () => {
+    container.removeEventListener('keydown', trapFocus);
+  };
+}
+
 module.exports = {
   handleCredentialResponse,
   parseCredentialResponse,
@@ -139,11 +191,13 @@ module.exports = {
   getLangAttribute,
   ensureUniqueLandmarks,
   getSvgAccessibleName,
-  implementNewFunction,
   validateLandmarkStructure,
   validateLandmarkAttributes,
   createInPageButton,
   getSvgAccessibleNameById,
   validateTableAccessibility,
-  validateTableStructureById
+  validateTableStructureById,
+  personName,
+  implementNewFunction,
+  handleFocusTrap
 };

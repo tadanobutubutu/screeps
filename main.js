@@ -165,6 +165,15 @@ function renderDependencyGraphContent(container) {
   });
 }
 
+// TODO: Implement a function to count dependencies
+// This is a placeholder for the actual implementation
+function countDependencies(dependencyData) {
+  if (!Array.isArray(dependencyData)) {
+    throw new Error('dependencyData must be an array');
+  }
+  return dependencyData.length;
+}
+
 function ensureLandmarkUniqueness(elements) {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   const elementsById = {};
@@ -263,6 +272,7 @@ module.exports = {
   setSvgAccessibleName,
   improveAccessibility,
   renderDependencyGraphContent,
+  countDependencies,
   ensureLandmarkUniqueness,
   ensureUniqueLandmarks,
   validateSvgAccessibility,

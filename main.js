@@ -1,4 +1,5 @@
 // Core module for accessibility features and component rendering
+// TODO: Create or update the affected functions to be accessible
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Header from './components/Header';
@@ -8,6 +9,94 @@ import './styles.css';
 
 function function3() {
   // TODO: Implement new function3 logic here
+}
+
+export function announceToScreenReader(message, politeness = 'polite') {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', politeness);
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.className = 'sr-only';
+  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';
+  announcer.textContent = message;
+  document.body.appendChild(announcer);
+  
+  setTimeout(() => {
+    document.body.removeChild(announcer);
+  }, 1000);
+}
+
+export function trapFocus(element) {
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          lastFocusable.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          firstFocusable.focus();
+          e.preventDefault();
+        }
+      }
+    }
+  };
+
+  element.addEventListener('keydown', handleKeyDown);
+  
+  if (firstFocusable) {
+    firstFocusable.focus();
+  }
+
+  return () => {
+    element.removeEventListener('keydown', handleKeyDown);
+  };
+}
+
+export function manageFocusOnNavigation(container) {
+  const mainContent = container || document.querySelector('main');
+  if (mainContent) {
+    mainContent.setAttribute('tabindex', '-1');
+    mainContent.focus();
+  }
+}
+
+export function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+export function setAriaExpanded(element, isExpanded) {
+  if (element) {
+    element.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+  }
+}
+
+export function hasAccessibleName(element) {
+  if (!element) return false;
+  
+  // Check aria-label
+  if (element.getAttribute('aria-label')) return true;
+  
+  // Check aria-labelledby
+  if (element.getAttribute('aria-labelledby')) {
+    const labelledById = element.getAttribute('aria-labelledby');
+    const labelledElement = document.getElementById(labelledById);
+    if (labelledElement && labelledElement.textContent.trim()) return true;
+  }
+  
+  // Check for text content
+  if (element.textContent.trim()) return true;
+  
+  // Check for img with alt text
+  if (element.tagName === 'IMG' && element.alt) return true;
+  
+  return false;
 }
 
 function App() {

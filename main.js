@@ -88,6 +88,28 @@ function addLangAttribute() {
   }
 }
 
+/**
+ * Ensures the dependencyGraph container has a proper ARIA role.
+ * Per the issue: ensure the dependencyGraph container has a proper ARIA role.
+ * Adds role="img" and an accessible aria-label if missing so that the
+ * dependency graph container is perceivable by assistive technologies.
+ * @param {HTMLElement} [container] - Optional container element. If omitted, the function will look up the element with id "dependencyGraph".
+ * @returns {HTMLElement|null} The container element that was processed, or null if not found.
+ */
+function ensureDependencyGraphRole(container) {
+    const target = container || (typeof document !== 'undefined' ? document.getElementById('dependencyGraph') : null);
+    if (!target) {
+        return null;
+    }
+    if (!target.hasAttribute('role')) {
+        target.setAttribute('role', 'img');
+    }
+    if (!target.hasAttribute('aria-label')) {
+        target.setAttribute('aria-label', 'Dependency graph');
+    }
+    return target;
+}
+
 // ... other fixes ...
 
 // DOM-based accessibility code
@@ -118,6 +140,9 @@ setSvgAttributes(svg, accessibleName);
 // This would be handled by the appropriate function call
 ...
 handleFakeLinks();
+
+// Ensure the dependencyGraph container has a proper ARIA role (per issue requirement)
+ensureDependencyGraphRole();
 
 // ... rest of your code ...
 
@@ -214,6 +239,15 @@ export {
 export {
   state,
   updateState
+};
+
+// Export the new dependency-graph role helper
+export {
+  ensureDependencyGraphRole,
+  addAriaLabel,
+  addLangAttribute,
+  ensureUniqueLandmarkId,
+  uniqueLandmarks
 };
 
 // ... other exports ...

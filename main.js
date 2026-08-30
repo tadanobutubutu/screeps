@@ -107,7 +107,30 @@ function addLangAttribute() {
   document.documentElement.lang = 'en';
 }
 
-// ... Existing functions and exports ...
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table data';
+      table.insertBefore(caption, table.firstChild);
+    }
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+  });
+}
+
+function addMainLandmark() {
+  if (!document.querySelector('main') && !document.querySelector('[role="main"]')) {
+    const main = document.createElement('main');
+    main.id = 'main';
+    document.body.appendChild(main);
+  }
+}
 
 // New function to get and set the lang attribute on an element
 function getLangAttribute(element) {

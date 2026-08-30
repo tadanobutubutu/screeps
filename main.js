@@ -1,6 +1,6 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
-const Landmark = require('./Landmark');
+import Landmark from './components/Landmark.js';
 
 import './styles.css';
 import { initializeApp, appData } from './app.js';
@@ -41,7 +41,7 @@ const createInPageButton = (options: {
       onFocus={() => setHoverState(true)}
       onBlur={() => setHoverState(false)}
       style={{
-        backgroundColor: getBackgroundColor(),
+        backgroundColor: ...
         color: 'white',
         padding: '0.5rem 1rem',
         border: 'none',
@@ -54,7 +54,7 @@ const createInPageButton = (options: {
         filter: hoverState ? 'brightness(1.1)' : 'none',
       }}
     >
-      <span aria-hidden="true">{icon}</span>
+      <span ...
       <span> {label}</span>
     </button>
   );
@@ -71,7 +71,7 @@ function processLandmarks(landmarks) {
     return true; // Add your own check logic
   };
 
-  const validLandmarks = landmarks.filter(landmarkStructureCheck);
+  const validLandmarks = ...
 
   // Ensure the landmarks are unique
   const ensureUniqueLandmarks = (landmarks) => {
@@ -80,17 +80,17 @@ function processLandmarks(landmarks) {
     return landmarks;
   };
 
-  return ensureUniqueLandmarks(validLandmarks);
+  return ...
 }
 
-function addLangAttribute(htmlElement) {
+function ... {
   if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
-    console.error('addLangAttribute: Invalid HTML element provided');
+    ... Invalid HTML element provided');
     return;
   }
 
-  if (!htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
+  if ... {
+    ... 'en'); // Default to English if not specified
   }
 }
 
@@ -98,7 +98,7 @@ function addLangAttribute(htmlElement) {
 // @param {string} id - The ID of the landmark element.
 // @returns {boolean} Returns true if the element exists; otherwise, false.
 function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
+  const element = ...
   return element !== null;
 }
 

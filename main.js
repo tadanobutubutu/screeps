@@ -253,6 +253,60 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+/**
+ * Validates accessibility of a table element
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} - Validation result with valid flag and errors array
+ */
+function validateTableAccessibility(table) {
+  const errors = [];
+  if (!table || table.tagName !== 'TABLE') {
+    errors.push('A valid table element is required');
+    return { valid: false, errors };
+  }
+
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    errors.push('Table should have a caption element');
+  }
+
+  // Check for header cells
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    errors.push('Table should have header cells (th)');
+  } else {
+    // Check scope attribute on th elements
+    headers.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        errors.push('Header cells should have a scope attribute');
+      }
+    });
+  }
+
+  // Check for proper use of thead and tbody
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  if (!thead && headers.length > 0) {
+    errors.push('Table with header cells should include a thead element');
+  }
+  if (headers.length > 0 && !tbody) {
+    errors.push('Table should include a tbody element');
+  }
+
+  // Check for aria-label or aria-labelledby if no caption
+  if (!caption) {
+    if (!table.getAttribute('aria-label') && !table.getAttribute('aria-labelledby')) {
+      errors.push('Table without caption should have aria-label or aria-labelledby');
+    }
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +325,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  validateTableAccessibility
 };

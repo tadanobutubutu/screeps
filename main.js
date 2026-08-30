@@ -42,15 +42,19 @@ import { indexContent } from './indexContent';
 // Renders the dependency graph view.
 // Updated to use dependencyGraphContent.
 export function renderDependencyGraph() {
-  // Example usage: replace with actual rendering logic
-  handleAccessibilityIssues(dependencyGraphContent);
+  // Render the dependency graph using the new function
+  const graphElement = dependencyGraphContent();
+  handleAccessibilityIssues(graphElement);
+  return graphElement;
 }
 
 // Renders the index view.
 // Updated to use indexContent.
 export function renderIndex() {
-  // Example usage: replace with actual rendering logic
-  handleAccessibilityIssues(indexContent);
+  // Render the index using the new function
+  const indexElement = indexContent();
+  handleAccessibilityIssues(indexElement);
+  return indexElement;
 }
 
 export { makeHeaderFocusable }; // new export statement from conflicting branch
@@ -69,15 +73,11 @@ function addAriaLabel(element) {
   }
 }
 
-function renderDependencyGraph() {
-  // Combined and reconciled code from both branches
-  // Example usage: replace with actual rendering logic
-}
-
 const dependencyGraphContainer = document.createElement('div');
 dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
 dependencyGraphContainer.setAttribute('role', 'region');
 dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+
 export { ensureElementId };
 export { addAriaLabel };
 export { renderDependencyGraph };

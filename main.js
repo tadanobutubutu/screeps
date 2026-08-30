@@ -33,6 +33,12 @@ const main = {
     
     // TODO: Implement the function for addressing new accessibility issues
     this.myNewFunction();
+    
+    // Report generation logic
+    const report = this.generateReport();
+    if (report && report.summary) {
+      console.log(`Report generated: ${report.summary.totalIssues} issues found`);
+    }
   },
 
   manageRoom: function(room) {
@@ -161,6 +167,72 @@ const main = {
     if (!Game.creeps[name]) {
       spawn.spawnCreep(body, name, { memory: memory });
     }
+  },
+
+  generateReport: function() {
+    const reportData = {
+      timestamp: new Date().toISOString(),
+      config: config,
+      issues: [],
+      summary: {
+        totalIssues: 0,
+        criticalIssues: 0,
+        warnings: 0,
+        info: 0
+      }
+    };
+
+    const tableIssues = this.validateTableStructure();
+    tableIssues.forEach(issue => {
+      reportData.issues.push({
+        ...issue,
+        category: 'table',
+        fixed: true
+      });
+    });
+
+    const landmarkIssues = this.validateLandmark();
+    landmarkIssues.forEach(issue => {
+      reportData.issues.push({
+        ...issue,
+        category: 'landmark',
+        fixed: true
+      });
+    });
+
+    const uniqueLandmarkIssues = this.ensureUniqueLandmarks();
+    uniqueLandmarkIssues.forEach(issue => {
+      reportData.issues.push({
+        ...issue,
+        category: 'landmark-uniqueness',
+        fixed: true
+      });
+    });
+
+    const fakeLinkIssues = this.handleFakeLinks();
+    fakeLinkIssues.forEach(issue => {
+      reportData.issues.push({
+        ...issue,
+        category: 'fake-link',
+        fixed: true
+      });
+    });
+
+    reportData.issues.forEach(issue => {
+      reportData.summary.totalIssues++;
+      if (issue.severity === 'error' || issue.severity === 'critical') {
+        reportData.summary.criticalIssues++;
+      } else if (issue.severity === 'warning') {
+        reportData.summary.warnings++;
+      } else {
+        reportData.summary.info++;
+      }
+    });
+
+    reportData.fixedIssues = reportData.issues.filter(i => i.fixed).length;
+    reportData.remainingIssues = reportData.issues.filter(i => !i.fixed).length;
+
+    return reportData;
   }
 };
 

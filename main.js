@@ -38,8 +38,32 @@ function renderApp(context) {
   return `<div id="app">${renderIndex(context)}</div>`;
 }
 
+/**
+ * Validates a landmark object
+ * @param {Object} landmark - The landmark object to validate
+ * @returns {boolean} True if the landmark is valid, false otherwise
+ */
+function validateLandmark(landmark) {
+  // Validate that landmark is a non-null object
+  if (!landmark || typeof landmark !== 'object') {
+    return false;
+  }
+
+  // Check for required properties (id and name are typical for landmarks)
+  if (landmark.id === undefined || landmark.id === null) {
+    return false;
+  }
+
+  if (landmark.name === undefined || landmark.name === null) {
+    return false;
+  }
+
+  return true;
+}
+
 module.exports = {
   renderDependencyGraph,
   renderIndex,
-  renderApp
+  renderApp,
+  validateLandmark
 };

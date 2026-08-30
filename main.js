@@ -589,17 +589,36 @@ function checkLinkAccessibility() {
 // Function to render dependency graphs or display module structure
 function renderDependencyGraph(module) {
   // Implementation to render the dependency graph for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Rendering dependency graph for:', module);
-  // Example output: 'Rendering dependency graph for: ModuleName'
+  // Builds a graph representation of the module's dependencies
+  const nodes = [];
+  const edges = [];
+  if (module && module.dependencies) {
+    nodes.push({ id: module.name || 'root', label: module.name || 'root' });
+    for (const dep of module.dependencies) {
+      const depName = typeof dep === 'string' ? dep : dep.name;
+      nodes.push({ id: depName, label: depName });
+      edges.push({ from: module.name || 'root', to: depName });
+    }
+  }
+  console.log('Rendering dependency graph for:', module, { nodes, edges });
+  return { nodes, edges };
 }
 
 // Function to display module structure
 function displayModuleStructure(module) {
   // Implementation to display the module structure for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Displaying module structure for:', module);
-  // Example output: 'Displaying module structure for: ModuleName'
+  // Returns a structured representation of the module
+  if (!module) {
+    return null;
+  }
+  const structure = {
+    name: module.name || 'unnamed',
+    exports: module.exports || [],
+    imports: module.imports || [],
+    dependencies: module.dependencies || []
+  };
+  console.log('Displaying module structure for:', module, structure);
+  return structure;
 }
 
 // Export state

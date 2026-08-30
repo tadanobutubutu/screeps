@@ -174,6 +174,167 @@ function addAccessibleNamesToSvg() {
   }
 }
 
+/**
+ * Renders an index view with accessibility support
+ * @param {Object} options - Configuration options
+ * @param {Array} options.data - Array of items to render
+ * @param {HTMLElement|string} options.container - Container element or selector
+ * @param {Function} options.itemRenderer - Function to render each item (receives item and index)
+ * @param {Function} [options.onItemSelect] - Callback when item is selected
+ * @param {string} [options.role='list'] - ARIA role for the list
+ * @param {string} [options.itemRole='listitem'] - ARIA role for each item
+ * @returns {Object|null} - Methods to interact with the view or null on error
+ */
+function renderIndexView(options = {}) {
+  const {
+    data = [],
+    container,
+    itemRenderer,
+    onItemSelect,
+    role = 'list',
+    itemRole = 'listitem'
+  } = options;
+
+  // Get container element
+  let containerEl;
+  if (typeof container === 'string') {
+    containerEl = document.querySelector(container);
+  } else {
+    containerEl = container;
+  }
+
+  if (!containerEl) {
+    console.error('renderIndexView: Container element not found');
+    return null;
+  }
+
+  if (typeof itemRenderer !== 'function') {
+    console.error('renderIndexView: itemRenderer function is required');
+    return null;
+  }
+
+  // Create the list element
+  const list = document.createElement('ul');
+  list.setAttribute('role', role);
+  list.setAttribute('class', 'index-view-list');
+  list.id = `index-view-${Date.now()}`;
+
+  // Create document fragment for performance
+  const fragment = document.createDocumentFragment();
+  const itemElements = [];
+
+  data.forEach((item, index) => {
+    const listItem = document.createElement('li');
+    listItem.setAttribute('role', itemRole);
+    listItem.setAttribute('tabindex', '0');
+    listItem.dataset.index = index;
+
+    const renderedContent = itemRenderer(item, index);
+    if (renderedContent instanceof HTMLElement) {
+      listItem.appendChild(renderedContent);
+    } else {
+      listItem.innerHTML = renderedContent;
+    }
+
+    itemElements.push(listItem);
+    fragment.appendChild(listItem);
+  });
+
+  list.appendChild(fragment);
+  containerEl.appendChild(list);
+
+  // Set up keyboard navigation
+  const handleKeyDown = (event) => {
+    const currentIndex = parseInt(event.target.dataset.index, 10);
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        if (currentIndex < itemElements.length - 1) {
+          itemElements[currentIndex + 1].focus();
+        }
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        if (currentIndex > 0) {
+          itemElements[currentIndex - 1].focus();
+        }
+        break;
+      case 'Home':
+        event.preventDefault();
+        itemElements[0].focus();
+        break;
+      case 'End':
+        event.preventDefault();
+        itemElements[itemElements.length - 1].focus();
+        break;
+      case 'Enter':
+      case ' ':
+        if (onItemSelect) {
+          event.preventDefault();
+          onItemSelect(itemElements[currentIndex], item);
+        }
+        break;
+    }
+  };
+
+  list.addEventListener('keydown', handleKeyDown);
+
+  // Handle item selection on click
+  list.addEventListener('click', (event) => {
+    const clickedItem = event.target.closest('li');
+    if (clickedItem && onItemSelect) {
+      const index = parseInt(clickedItem.dataset.index, 10);
+      onItemSelect(clickedItem, data[index]);
+    }
+  });
+
+  // Set initial focus to first item if any
+  if (itemElements.length > 0) {
+    itemElements[0].focus();
+  }
+
+  return {
+    getList: () => list,
+    getItems: () => itemElements,
+    getItem: (index) => itemElements[index],
+    updateData: (newData) => {
+      itemElements.forEach((el) => el.remove());
+      itemElements.length = 0;
+
+      const newFragment = document.createDocumentFragment();
+      newData.forEach((item, index) => {
+        const listItem = document.createElement('li');
+        listItem.setAttribute('role', itemRole);
+        listItem.setAttribute('tabindex', '0');
+        listItem.dataset.index = index;
+
+        const renderedContent = itemRenderer(item, index);
+        if (renderedContent instanceof HTMLElement) {
+          listItem.appendChild(renderedContent);
+        } else {
+          listItem.innerHTML = renderedContent;
+        }
+
+        itemElements.push(listItem);
+        newFragment.appendChild(listItem);
+      });
+
+      list.appendChild(newFragment);
+
+      if (itemElements.length > 0) {
+        itemElements[0].focus();
+      }
+    },
+    destroy: () => {
+      list.removeEventListener('keydown', handleKeyDown);
+      list.removeEventListener('click', handleKeyDown);
+      list.remove();
+      itemElements.length = 0;
+    }
+  };
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -189,7 +350,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getRandomInt,
     clamp,
     deepClone,
-    addAccessibleNamesToSvg
+    addAccessibleNamesToSvg,
+    renderIndexView
   };
 }
 

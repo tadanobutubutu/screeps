@@ -57,6 +57,18 @@ function renderDependencyGraphs(dependencies, container) {
   });
 }
 
+/**
+ * Counts the number of dependencies in a given dependencies object
+ * @param {Object} dependencies - The dependencies object to count
+ * @returns {number} The number of dependencies
+ */
+function countDependencies(dependencies) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0;
+  }
+  return Object.keys(dependencies).length;
+}
+
 // New function as per the issue
 function processLandmarks(landmarks) {
   // Assuming landmarks is an array of objects with 'name' and 'coordinates' properties
@@ -391,5 +403,6 @@ export {
   addScopeToHeaders,
   addressAccessibilityIssues,
   myFunction,
-  newFunction
+  newFunction,
+  countDependencies
 };

@@ -44,6 +44,16 @@ export function rotateBack() {
 // REACT_015: lang attribute should be added to the HTML element (typically in index.html)
 // <html lang="en">
 
+/**
+ * Get the appropriate lang attribute value for the HTML element.
+ * Returns the language code that should be applied to the <html> element
+ * to satisfy REACT_015 accessibility requirement.
+ * @returns {string} The language code (e.g., 'en', 'en-US')
+ */
+function getLangAttribute() {
+  return 'en-US';
+}
+
 // REACT_017: Add landmark roles and fix landmark issues
 // Add main landmark role to main content area
 // Example: <main role="main">...</main>
@@ -73,7 +83,7 @@ if (fakeLink && fakeLink.tagName === 'A') {
 
 // Add lang attribute to HTML element
 if (typeof document !== 'undefined') {
-  document.documentElement.lang = 'en-US';
+  document.documentElement.lang = getLangAttribute();
 }
 
 /**
@@ -294,7 +304,8 @@ export {
   greet, 
   add, 
   calculateDiscount, 
-  newFunction 
+  newFunction,
+  getLangAttribute
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)

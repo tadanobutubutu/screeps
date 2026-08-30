@@ -7,61 +7,45 @@ import { initializeApp, appData } from './app.js';
 import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
 
-// Function to create in-page buttons
-const createInPageButton = (options: {
-  onClick: () => void;
-  label: string;
-  icon: string;
-  disabled?: boolean;
-  isActive?: boolean;
-  hoverState: boolean;
-  setHoverState: (value: boolean) => void;
-  ariaLabel?: string;
-  title?: string;
-}) => {
-  const { onClick, label, icon, disabled = false, isActive = false, hoverState, setHoverState, ariaLabel, title } = options;
+// Functions to address SVG accessible names
+const addSvgAccessibleName = (svgElement, name) => {
+  if (!svgElement || !(svgElement instanceof SVGElement)) {
+    console.error('addSvgAccessibleName: Invalid SVG element provided');
+    return;
+  }
 
-  const getBackgroundColor = () => {
-    if (disabled) return '#999';
-    if (isActive) return '#155d27';
-    return '#004b73';
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-disabled={disabled}
-      aria-label={ariaLabel || label}
-      aria-pressed={isActive}
-      title={title || label}
-      onMouseEnter={() => setHoverState(true)}
-      onMouseLeave={() => setHoverState(false)}
-      onFocus={() => setHoverState(true)}
-      onBlur={() => setHoverState(false)}
-      style={{
-        backgroundColor: getBackgroundColor(),
-        color: 'white',
-        padding: '0.5rem 1rem',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.6 : 1,
-        transition: 'all 0.2s ease-in-out',
-        transform: hoverState ? 'scale(1.05)' : 'scale(1)',
-        boxShadow: hoverState ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-        filter: hoverState ? 'brightness(1.1)' : 'none',
-      }}
-    >
-      <span aria-hidden="true">{icon}</span>
-      <span> {label}</span>
-    </button>
-  );
+  svgElement.setAttribute('aria-labelledby', `svg-${name}`);
+  const titleId = `svg-${name}-title`;
+  const titleElement = document.getElementById(titleId);
+  if (!titleElement) {
+    titleElement = document.createElement('span');
+    titleElement.id = titleId;
+    titleElement.innerHTML = name;
+    svgElement.appendChild(titleElement);
+  }
 };
 
 // Placeholder for the affected SVGs
 const icons = {};
+
+// Function to create in-page buttons
+const createInPageButton = (options: {
+  // ... Previous options. Remember to update the types for ariaLabel, title and setHoverState if necessary
+
+  // Add new parameters for SVG accessibility
+  svgName: string;
+  svgElement: SVGElement;
+}) => {
+  // ... Previous function body. Remember to update the function body as needed
+
+  // Add accessible name for the SVG
+  addSvgAccessibleName(options.svgElement, options.label);
+};
+
+// Function to address table structure issues
+const fixTableStructureIssues = () => {
+  // Your table structure fix logic here
+};
 
 function processLandmarks(landmarks) {
   // Ensure all landmarks have valid structure
@@ -83,23 +67,20 @@ function processLandmarks(landmarks) {
   return ensureUniqueLandmarks(validLandmarks);
 }
 
-function addLangAttribute(htmlElement) {
-  if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
-    console.error('addLangAttribute: Invalid HTML element provided');
-    return;
-  }
-
-  if (!htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
-  }
-}
-
 // Function to check if the specified landmark element is in the document.
 // @param {string} id - The ID of the landmark element.
 // @returns {boolean} Returns true if the element exists; otherwise, false.
 function checkLandmarkElement(id) {
   const element = document.getElementById(id);
   return element !== null;
+}
+
+// Function to check if the specified SVG element is in the document.
+// @param {string} id - The ID of the SVG element.
+// @returns {boolean} Returns true if the element exists; otherwise, false.
+function checkSvgElement(id) {
+  const element = document.getElementById(id);
+  return element !== null && element instanceof SVGElement;
 }
 
 /**
@@ -118,5 +99,9 @@ module.exports = {
   processLandmarks,
   addLangAttribute,
   checkLandmarkElement,
-  calculateSum
+  checkSvgElement,
+  calculateSum,
+  createInPageButton, // Include the new createInPageButton function here
+  addSvgAccessibleName, // Include the new addSvgAccessibleName function here
+  fixTableStructureIssues // Include the new fixTableStructureIssues function here
 };

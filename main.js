@@ -2,6 +2,8 @@
  * Main entry point for the application
  */
 
+// Import required modules and export the new necessary function(s) here in main.js ( preserving the original code )
+
 // Function to create in-page buttons
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');

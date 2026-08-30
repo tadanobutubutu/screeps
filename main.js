@@ -89,8 +89,6 @@ function initializeAccessibility() {
   };
 }
 
-// TODO: add the new functions or changes requested in the issue
-
 /**
  * Checks if a value is an empty string, null, or undefined
  * @param {*} value - The value to check

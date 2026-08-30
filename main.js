@@ -1,10 +1,7 @@
 // Import necessary dependencies
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
-
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
 
 // Function to handle sorting books by title (ascending)
 function sortByTitle(a, b) {
@@ -18,11 +15,11 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `${book.id}-${book.title}-${book.author}`;
+  return book.id || `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
-function BookItem(book) {
+function BookItem({ book }) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
@@ -33,59 +30,66 @@ function BookItem(book) {
   );
 }
 
-// Function to create a new book entry in the Redux store
-function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
-
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
-}
-
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
-
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
-  // Dispatch an action to update the sorted book list in the Redux store
+function onTitleSort(dispatch, books) {
+  const sortedList = [...books].sort(sortByTitle);
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
-  // Dispatch an action to update the sorted book list in the Redux store
+function onAuthorSort(dispatch, books) {
+  const sortedList = [...books].sort(sortByAuthor);
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
 // Render the main component containing the book list and sorting controls
 function Main() {
+  const dispatch = useDispatch();
+  const books = useSelector(state => state.books.list);
   const [sorting, setSorting] = useState(defaultSorting);
+
+  // Create memoized sort handlers
+  const handleTitleSort = useCallback(() => {
+    onTitleSort(dispatch, books);
+  }, [dispatch, books]);
+
+  const handleAuthorSort = useCallback(() => {
+    onAuthorSort(dispatch, books);
+  }, [dispatch, books]);
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
     if (sorting === sortByTitle) {
-      onTitleSort();
+      handleTitleSort();
     } else if (sorting === sortByAuthor) {
-      onAuthorSort();
+      handleAuthorSort();
     }
-  }, [sorting]);
+  }, [sorting, handleTitleSort, handleAuthorSort]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(BookItem);
+  const bookItems = books.map((book) => (
+    <BookItem key={generateKey(book)} book={book} />
+  ));
 
   // Render the list of book items and sorting controls
   return (
     <div>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      <List
+        dataSource={books}
+        renderItem={(book) => (
+          <List.Item key={generateKey(book)}>
+            <List.Item.Meta
+              title={book.title}
+              description={book.author}
+            />
+          </List.Item>
+        )}
+      />
     </div>
   );
 }

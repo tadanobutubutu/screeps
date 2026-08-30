@@ -32,6 +32,8 @@ function countDependencies() {
 if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports
   module.exports = {
+    checkTableStructure,
+    countDependencies,
     init,
     setupKeyboardNavigation,
     setupAriaLiveRegions,

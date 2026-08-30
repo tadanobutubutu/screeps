@@ -253,10 +253,16 @@ function getActiveSessionsCount() {
     return appState.sessions.size;
 }
 
-// HTTP Server setup
-const http = require('http');
-const url = require('url');
+/**
+ * Count the number of dependencies used in this module
+ * @returns {number} - Number of dependencies
+ */
+function countDependencies() {
+  // Currently we require 'http' and 'url'
+  return 2;
+}
 
+// HTTP Server setup
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     
@@ -381,5 +387,6 @@ module.exports = {
     getActiveSessionsCount,
     server,
     sanitizeFilename,
-    processData
+    processData,
+    countDependencies
 };

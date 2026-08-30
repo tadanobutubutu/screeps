@@ -280,6 +280,226 @@ function updateDependencyGraph(graphElement, newData) {
   return true;
 }
 
+// Generate a report based on accessibility issues found in the page
+function generateAccessibilityReport() {
+  const report = {
+    timestamp: new Date().toISOString(),
+    issues: [],
+    summary: {
+      total: 0,
+      critical: 0,
+      serious: 0,
+      moderate: 0,
+      minor: 0
+    }
+  };
+
+  // Check for missing alt text on images
+  const imagesWithoutAlt = document.querySelectorAll('img:not([alt])');
+  if (imagesWithoutAlt.length > 0) {
+    const issue = {
+      type: 'missing-alt-text',
+      severity: 'critical',
+      count: imagesWithoutAlt.length,
+      description: 'Images without alt text were found',
+      elements: Array.from(imagesWithoutAlt).map((img, index) => ({
+        tag: img.tagName.toLowerCase(),
+        src: img.getAttribute('src') || '',
+        index
+      })),
+      recommendation: 'Add descriptive alt attributes to all images.'
+    };
+    report.issues.push(issue);
+    report.summary.critical += imagesWithoutAlt.length;
+  }
+
+  // Check for missing form labels
+  const unlabeledInputs = document.querySelectorAll(
+    'input:not([aria-label]):not([aria-labelledby]):not([id]), input[id]:not([aria-label]):not([aria-labelledby])'
+  );
+  let missingLabelCount = 0;
+  unlabeledInputs.forEach(input => {
+    const id = input.id;
+    if (id) {
+      const label = document.querySelector(`label[for="${id}"]`);
+      if (!label) missingLabelCount++;
+    } else {
+      missingLabelCount++;
+    }
+  });
+  if (missingLabelCount > 0) {
+    const issue = {
+      type: 'missing-form-labels',
+      severity: 'critical',
+      count: missingLabelCount,
+      description: 'Form inputs without associated labels were found',
+      recommendation: 'Associate every form input with a label element or provide aria-label/aria-labelledby.'
+    };
+    report.issues.push(issue);
+    report.summary.critical += missingLabelCount;
+  }
+
+  // Check for missing lang attribute
+  if (!document.documentElement.hasAttribute('lang')) {
+    const issue = {
+      type: 'missing-lang-attribute',
+      severity: 'serious',
+      count: 1,
+      description: 'The HTML element is missing the lang attribute',
+      recommendation: 'Add a lang attribute to the html element to identify the page language.'
+    };
+    report.issues.push(issue);
+    report.summary.serious += 1;
+  }
+
+  // Check for duplicate IDs
+  const allElements = document.querySelectorAll('[id]');
+  const idMap = {};
+  allElements.forEach(el => {
+    const id = el.id;
+    if (id) {
+      if (!idMap[id]) idMap[id] = 0;
+      idMap[id]++;
+    }
+  });
+  const duplicateIds = Object.keys(idMap).filter(id => idMap[id] > 1);
+  if (duplicateIds.length > 0) {
+    const issue = {
+      type: 'duplicate-ids',
+      severity: 'serious',
+      count: duplicateIds.length,
+      description: `Duplicate IDs found: ${duplicateIds.join(', ')}`,
+      elements: duplicateIds,
+      recommendation: 'Ensure all IDs are unique within the document.'
+    };
+    report.issues.push(issue);
+    report.summary.serious += duplicateIds.length;
+  }
+
+  // Check for missing main landmark
+  const mainLandmarks = document.querySelectorAll('main');
+  if (mainLandmarks.length === 0) {
+    const issue = {
+      type: 'missing-main-landmark',
+      severity: 'moderate',
+      count: 1,
+      description: 'No main landmark was found on the page',
+      recommendation: 'Add a main element to identify the primary content of the page.'
+    };
+    report.issues.push(issue);
+    report.summary.moderate += 1;
+  }
+
+  // Check for empty links
+  const links = document.querySelectorAll('a');
+  let emptyLinkCount = 0;
+  links.forEach(link => {
+    const text = (link.textContent || '').trim();
+    const ariaLabel = link.getAttribute('aria-label');
+    const title = link.getAttribute('title');
+    if (!text && !ariaLabel && !title) emptyLinkCount++;
+  });
+  if (emptyLinkCount > 0) {
+    const issue = {
+      type: 'empty-links',
+      severity: 'serious',
+      count: emptyLinkCount,
+      description: 'Links without accessible text were found',
+      recommendation: 'Provide descriptive text, aria-label, or title for all links.'
+    };
+    report.issues.push(issue);
+    report.summary.serious += emptyLinkCount;
+  }
+
+  // Check for empty buttons
+  const buttons = document.querySelectorAll('button');
+  let emptyButtonCount = 0;
+  buttons.forEach(button => {
+    const text = (button.textContent || '').trim();
+    const ariaLabel = button.getAttribute('aria-label');
+    const title = button.getAttribute('title');
+    if (!text && !ariaLabel && !title) emptyButtonCount++;
+  });
+  if (emptyButtonCount > 0) {
+    const issue = {
+      type: 'empty-buttons',
+      severity: 'critical',
+      count: emptyButtonCount,
+      description: 'Buttons without accessible names were found',
+      recommendation: 'Provide visible text, aria-label, or title for all buttons.'
+    };
+    report.issues.push(issue);
+    report.summary.critical += emptyButtonCount;
+  }
+
+  // Check for headings hierarchy issues
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+  let headingSkipCount = 0;
+  headings.forEach(heading => {
+    const level = parseInt(heading.tagName.substring(1), 10);
+    if (previousLevel > 0 && level > previousLevel + 1) {
+      headingSkipCount++;
+    }
+    previousLevel = level;
+  });
+  if (headingSkipCount > 0) {
+    const issue = {
+      type: 'heading-hierarchy',
+      severity: 'moderate',
+      count: headingSkipCount,
+      description: 'Heading levels skip one or more levels',
+      recommendation: 'Use heading levels in sequential order without skipping levels.'
+    };
+    report.issues.push(issue);
+    report.summary.moderate += headingSkipCount;
+  }
+
+  // Check for missing document title
+  if (!document.title || document.title.trim() === '') {
+    const issue = {
+      type: 'missing-title',
+      severity: 'serious',
+      count: 1,
+      description: 'The document is missing a title',
+      recommendation: 'Provide a descriptive title element for the page.'
+    };
+    report.issues.push(issue);
+    report.summary.serious += 1;
+  }
+
+  // Check for SVGs without accessible names
+  const svgsWithoutName = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby]):not([title])');
+  if (svgsWithoutName.length > 0) {
+    const issue = {
+      type: 'svg-accessible-name',
+      severity: 'serious',
+      count: svgsWithoutName.length,
+      description: 'SVGs without accessible names were found',
+      recommendation: 'Add aria-label, aria-labelledby, or a title element to all meaningful SVGs.'
+    };
+    report.issues.push(issue);
+    report.summary.serious += svgsWithoutName.length;
+  }
+
+  // Calculate total issues
+  report.summary.total = report.summary.critical + report.summary.serious +
+                         report.summary.moderate + report.summary.minor;
+
+  // Announce the report results to screen readers
+  announceToScreenReader(
+    `Accessibility report generated. Found ${report.summary.total} issues: ` +
+    `${report.summary.critical} critical, ${report.summary.serious} serious, ` +
+    `${report.summary.moderate} moderate, ${report.summary.minor} minor.`,
+    'assertive'
+  );
+
+  // Log the report to the console for developers
+  console.log('Accessibility Report:', report);
+
+  return report;
+}
+
 // Update document.readyState check to call new functions as well
 function initAccessibility() {
   if (document.readyState === 'loading') {
@@ -376,7 +596,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getBrowserName,
     getLangAttribute,
     getSvgAccessibleName,
-    setSvgAttributes
+    setSvgAttributes,
+    generateAccessibilityReport
   };
 }
 

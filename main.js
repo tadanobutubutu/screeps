@@ -105,6 +105,30 @@ function validateAllTables() {
   };
 }
 
+/**
+ * Clear all loaded tables from the application
+ */
+function clearTables() {
+  appData.tables = [];
+  return true;
+}
+
+/**
+ * Get the current application data store
+ * @returns {Object} The appData object
+ */
+function getAppData() {
+  return appData;
+}
+
+/**
+ * Check if the application is initialized
+ * @returns {boolean} True if tables are loaded, false otherwise
+ */
+function isInitialized() {
+  return appData.tables.length > 0;
+}
+
 module.exports = {
   initialize,
   loadTables,
@@ -113,5 +137,8 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  clearTables,
+  getAppData,
+  isInitialized
 };

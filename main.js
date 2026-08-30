@@ -28,8 +28,6 @@ function getDependencyDepth(dependencies, currentKey = '') {
   return maxDepth;
 }
 
-// TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
-
 /**
  * Renders a dependency graph as ASCII art for debugging purposes.
  * @param {Object} dependencies - The dependency object

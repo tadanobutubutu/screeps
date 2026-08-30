@@ -1,1 +1,8 @@
-// TODO: This is the existing code that needs to be preserved
+on
+[
+  "src",
+  "tests",
+  "README.md",
+  "package.json",
+  "main.js"
+]

@@ -1,7 +1,7 @@
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import { List, Button, Form, Input, message } from 'antd';
 
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
@@ -42,8 +42,23 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
+// Function to handle form submission for adding a new book
+function handleAddBookFormSubmit(values) {
+  // Validate the form data and add the book if valid
+  // ...
+
+  // Dispatch an action to add the book
+  addBook(values);
+  // Show a success message
+  message.success('Book added successfully!');
+}
+
+// Function to generate a unique key for the new book
+function generateNewBookKey() {
+  // Implementation for generating a unique key for a new book
+  // ...
+  return Date.now(); // Example implementation
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
@@ -65,6 +80,8 @@ function onAuthorSort() {
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const [addBookFormVisible, setAddBookFormVisible] = useState(false);
+  const [addBookForm] = Form.useForm();
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -78,14 +95,54 @@ function Main() {
   // Map the book list to the BookItem function to create book items
   const bookItems = getBooksList.map(BookItem);
 
+  // Function to handle opening the add book form
+  const showAddBookForm = () => {
+    setAddBookFormVisible(true);
+  };
+
+  // Function to handle closing the add book form
+  const handleAddBookFormCancel = () => {
+    setAddBookFormVisible(false);
+    addBookForm.resetFields();
+  };
+
   // Render the list of book items and sorting controls
   return (
     <div>
+      <button onClick={showAddBookForm}>Add Book</button>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List dataSource={bookItems} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      {addBookFormVisible && (
+        <Form
+          form={addBookForm}
+          onFinish={handleAddBookFormSubmit}
+          onReset={handleAddBookFormCancel}
+        >
+          <Form.Item
+            name="title"
+            label="Title"
+            rules={[{ required: true, message: 'Please input the book title!' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="author"
+            label="Author"
+            rules={[{ required: true, message: 'Please input the book author!' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Add Book
+            </Button>
+            <Button onClick={handleAddBookFormCancel} style={{ marginLeft: 8 }}>
+              Cancel
+            </Button>
+          </Form.Item>
+        </Form>
+      )}
     </div>
   );
 }

@@ -183,12 +183,12 @@ function checkLandmarkElements() {
     // Query all landmark elements in the document
     const landmarkSelectors = 'nav, main, header, footer, aside, section, article, form[role="form"], search[role="search"]';
     const landmarkElements = document.querySelectorAll(landmarkSelectors);
-    
+
     // Convert NodeList to array and extract landmark information
     const landmarks = Array.from(landmarkElements).map((element, index) => {
         const tagName = element.tagName.toLowerCase();
         const role = element.getAttribute('role') || (['nav', 'main', 'header', 'footer', 'aside', 'section', 'article'].includes(tagName) ? tagName : null);
-        
+
         return {
             id: element.id || `landmark-${index}`,
             element: element,
@@ -197,22 +197,22 @@ function checkLandmarkElements() {
             tagName: tagName
         };
     });
-    
+
     // Get unique landmarks to avoid duplicate validation
     const uniqueLandmarkList = uniqueLandmarks(landmarks);
-    
+
     // Validate landmark accessibility using the imported utility
     const validationResult = validateLandmark(uniqueLandmarkList);
-    
+
     // Validate landmark structure (hierarchical relationships)
     const structureValidation = validateLandmarkStructure(uniqueLandmarkList);
-    
+
     // Combine validation results
     const allErrors = [
         ...(validationResult.errors || []),
         ...(structureValidation.errors || [])
     ];
-    
+
     return {
         landmarks: uniqueLandmarkList,
         totalCount: landmarks.length,

@@ -36,5 +36,31 @@ function countDependencies() {
   }
 }
 
+/**
+ * Generates an SVG badge string representing the total dependency count.
+ * @returns {string} An SVG badge string showing the total dependency count.
+ */
+function generateDependencyBadge() {
+  const counts = countDependencies();
+  const total = counts.total;
+
+  // Simple SVG badge
+  const badgeWidth = 70;
+  const badgeHeight = 20;
+  const backgroundColor = '#4c1';
+  const textColor = '#fff';
+
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="${badgeWidth}" height="${badgeHeight}">
+  <rect width="${badgeWidth}" height="${badgeHeight}" fill="${backgroundColor}" rx="3"/>
+  <text x="${badgeWidth / 2}" y="${badgeHeight / 2 + 5}" fill="${textColor}" text-anchor="middle" font-family="Verdana, Geneva, DejaVu Sans, sans-serif" font-size="11">
+    dependencies: ${total}
+  </text>
+</svg>
+  `.trim();
+
+  return svg;
+}
+
 // Export for use in other modules
-module.exports = { countDependencies, dependencyGraphContent };
+module.exports = { countDependencies, dependencyGraphContent, generateDependencyBadge };

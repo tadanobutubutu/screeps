@@ -1,40 +1,42 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views to import and use dependencyGraphContent/indexContent from the
-// appropriate modules.
-// Updated: imported and used dependencyGraphContent and indexContent in the
-// relevant rendering functions.
+// Adds lang attribute to the root HTML element and makes the dependency graph and index view focusable by screen readers
+const dependencyGraphAriaLabel = 'Dependencies graph';
+const indexAriaLabel = 'Index';
 
-const dependencyGraphContent = require('./dependencyGraphContent');
-const indexContent = require('./indexContent');
+function addLangAttribute() {
+  // Add your implementation here to set the lang attribute dynamically based on the expected locale
+  document.documentElement.lang = 'en';
+}
 
-/**
- * Renders a dependency graph view
- * @param {Object} options - Options for rendering
- * @returns {string} The rendered HTML/content for the dependency graph
- */
 function renderDependencyGraph(options = {}) {
   const content = dependencyGraphContent.generate(options);
   // Render the dependency graph with the generated content
-  return `<div class="dependency-graph">${content}</div>`;
+  return `<div class="dependency-graph" aria-labelledby="dependency-graph-label">${content}</div>`;
 }
 
-/**
- * Renders the index view
- * @param {Object} data - Data for the index view
- * @returns {string} The rendered HTML/content for the index
- */
 function renderIndex(data = {}) {
   const content = indexContent.generate(data);
   // Render the index with the generated content
-  return `<div class="index-view">${content}</div>`;
+  return `<div class="index-view" aria-labelledby="index-view-label">${content}</div>`;
 }
 
-/**
- * Renders the main application view
- * @param {Object} context - Application context
- * @returns {string} The rendered application view
- */
+function addDepGraphAriaLabel() {
+  const dependencyGraphLabel = document.createElement('span');
+  dependencyGraphLabel.id = 'dependency-graph-label';
+  dependencyGraphLabel.innerText = dependencyGraphAriaLabel;
+  document.body.appendChild(dependencyGraphLabel);
+}
+
+function addIndexAriaLabel() {
+  const indexLabel = document.createElement('span');
+  indexLabel.id = 'index-view-label';
+  indexLabel.innerText = indexAriaLabel;
+  document.body.appendChild(indexLabel);
+}
+
 function renderApp(context) {
+  addLangAttribute();
+  addDepGraphAriaLabel();
+  addIndexAriaLabel();
   return `<div id="app">${renderIndex(context)}</div>`;
 }
 

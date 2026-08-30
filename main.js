@@ -31,6 +31,30 @@ function getDependencyDepth(dependencies, currentKey = '') {
 // TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
 
 /**
+ * Counts total number of dependencies
+ * @param {Object} dependencies - The dependency object
+ * @returns {number} Total count of dependencies
+ */
+function countDependencies(dependencies) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0;
+  }
+  
+  let count = 0;
+  const keys = Object.keys(dependencies);
+  
+  keys.forEach(key => {
+    const value = dependencies[key];
+    count += 1;
+    if (typeof value === 'object' && value !== null) {
+      count += countDependencies(value);
+    }
+  });
+  
+  return count;
+}
+
+/**
  * Renders a dependency graph as ASCII art for debugging purposes.
  * @param {Object} dependencies - The dependency object
  * @param {string} prefix - Current prefix for indentation
@@ -102,7 +126,7 @@ function displayModuleStructure(modules) {
  */
 function generateDependencyReport(dependencies) {
   return {
-    totalDependencies: Object.keys(dependencies).length,
+    totalDependencies: countDependencies(dependencies),
     maxDepth: getDependencyDepth(dependencies),
     graph: renderDependencyGraph(dependencies)
   };
@@ -133,6 +157,7 @@ module.exports = {
   displayModuleStructure,
   getDependencyDepth,
   generateDependencyReport,
+  countDependencies,
   main
 };
 

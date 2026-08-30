@@ -15,7 +15,7 @@ const CONFIG = {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+  console.log(`${timestamp} [${level.toUpperCase()}]: ${message}`);
 }
 
 function validateInput(input) {
@@ -62,7 +62,7 @@ async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
 }
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-z0-9.-]/gi, '_');
+  return filename.replace(/[^a-zA-Z0-9._-]/g, '_');
 }
 
 function readFileSafe(filePath) {
@@ -234,7 +234,7 @@ function validateTableStructure(tableElement) {
   
   // Check for caption if table has headers
   const caption = tableElement.querySelector('caption');
-  const hasHeaders = tableElement.querySelector('th');
+  const hasHeaders = tableElement.querySelectorAll('th').length > 0;
   if (hasHeaders && !caption) {
     errors.push('Table with header cells should have a caption');
   }
@@ -249,7 +249,7 @@ function validateTableStructure(tableElement) {
   // Check for proper row structure
   const rows = tableElement.querySelectorAll('tr');
   rows.forEach((row, index) => {
-    const cells = row.querySelectorAll('th, td');
+    const cells = row.querySelectorAll('td, th');
     if (cells.length === 0) {
       errors.push(`Row at index ${index} has no cells`);
     }

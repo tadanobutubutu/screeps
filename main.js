@@ -1,23 +1,17 @@
-// Main module for calculator operations
+// TODO: add the new functions or changes requested in the issue
+// Here is the implementation for checking link accessibility
+// The existing isLinkAccessible function implementation
 
-// TODO: Implement divide function that handles division with proper error handling
-function divide(dividend, divisor) {
-    // Check if inputs are valid numbers
-    if (typeof dividend !== 'number' || typeof divisor !== 'number') {
-        throw new Error('Both dividend and divisor must be numbers');
+async function isLinkAccessible(url) {
+    try {
+        const response = await fetch(url, {
+            method: 'HEAD',
+            mode: 'no-cors'
+        });
+        return true;
+    } catch (error) {
+        return false;
     }
-    
-    // Check for NaN
-    if (isNaN(dividend) || isNaN(divisor)) {
-        throw new Error('Both dividend and divisor must be valid numbers');
-    }
-    
-    // Check for division by zero
-    if (divisor === 0) {
-        throw new Error('Cannot divide by zero');
-    }
-    
-    return dividend / divisor;
 }
 
 // Function for accessibility checks on tables
@@ -59,4 +53,7 @@ function checkTableAccessibility(table) {
     };
 }
 
-module.exports = { divide, checkTableAccessibility };
+module.exports = {
+    isLinkAccessible,
+    checkTableAccessibility
+};

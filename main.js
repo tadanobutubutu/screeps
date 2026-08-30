@@ -141,6 +141,20 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// Function to render dependency graphs
+function renderDependencyGraph() {
+  // Placeholder function to represent the rendering of a dependency graph
+  // This function would need to be implemented to actually render a graph
+  console.log('Rendering dependency graph...');
+}
+
+// Function to display module structure
+function displayModuleStructure() {
+  // Placeholder function to represent the display of module structure
+  // This function would need to be implemented to actually display the structure
+  console.log('Displaying module structure...');
+}
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
@@ -166,6 +180,8 @@ function Main() {
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       <AddBookForm />
       {/* ... */}
+      <button onClick={renderDependencyGraph}>Render Dependency Graph</button>
+      <button onClick={displayModuleStructure}>Display Module Structure</button>
     </div>
   );
 }

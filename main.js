@@ -39,7 +39,7 @@ function getVersion() {
 // (This comment remains as-is)
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
-  const rootContainer = document.getElementById('root').parentElement;
+  const rootContainer = document.getElementById('root');
   if (rootContainer) {
     rootContainer.setAttribute('role', 'main');
   }

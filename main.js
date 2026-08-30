@@ -1,1 +1,10 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Line 1
+// Line 2
+// Line 3
+// Line 4
+// Line 5
+// TODO: This is the existing code that needs to be preserved
+// Line 7
+// Line 8
+// Line 9
+// Line 10

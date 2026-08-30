@@ -65,6 +65,7 @@ function onAuthorSort() {
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const dispatch = useDispatch();
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -73,7 +74,7 @@ function Main() {
     } else if (sorting === sortByAuthor) {
       onAuthorSort();
     }
-  }, [sorting]);
+  }, [sorting, dispatch]);
 
   // Map the book list to the BookItem function to create book items
   const bookItems = getBooksList.map(BookItem);

@@ -1,3 +1,5 @@
+// TODO: Implement this function for adding SVG accessibility props
+
 // main.js - Combined utility and accessibility features
 
 // TODO: Identify and update specific functions that render dependency graphs or
@@ -111,6 +113,72 @@ function initializeAccessibility() {
     trapFocus,
     prefersReducedMotion
   };
+}
+
+/**
+ * Adds accessibility properties to an SVG element
+ * @param {SVGElement} svgElement - The SVG element to add accessibility props to
+ * @param {Object} options - Accessibility options for the SVG
+ * @param {string} [options.role='img'] - The ARIA role for the SVG
+ * @param {string} [options.label] - The aria-label text
+ * @param {string} [options.labelledBy] - The ID of an element that labels this SVG
+ * @param {string} [options.description] - The aria-describedby text
+ * @param {boolean} [options.focusable=true] - Whether the SVG is focusable
+ * @param {boolean} [options.keyboardFocusable] - Whether the SVG can be focused via keyboard
+ * @returns {SVGElement} - The SVG element with accessibility props applied
+ */
+function addSvgAccessibilityProps(svgElement, options = {}) {
+  // Return null/undefined as-is if not a valid SVG element
+  if (!svgElement) {
+    return svgElement;
+  }
+
+  // Validate that we have an SVG element (check for tagName property)
+  const tagName = svgElement.tagName;
+  if (!tagName || tagName.toLowerCase() !== 'svg') {
+    return svgElement;
+  }
+
+  const {
+    role = 'img',
+    label,
+    labelledBy,
+    description,
+    focusable = true,
+    keyboardFocusable = false
+  } = options;
+
+  // Set the role attribute
+  if (role) {
+    svgElement.setAttribute('role', role);
+  }
+
+  // Set aria-label if provided
+  if (label && typeof label === 'string') {
+    svgElement.setAttribute('aria-label', label);
+  }
+
+  // Set aria-labelledby if provided
+  if (labelledBy && typeof labelledBy === 'string') {
+    svgElement.setAttribute('aria-labelledby', labelledBy);
+  }
+
+  // Set aria-describedby if provided
+  if (description && typeof description === 'string') {
+    svgElement.setAttribute('aria-describedby', description);
+  }
+
+  // Set focusable attribute (important for IE/older browsers)
+  if (typeof svgElement.setAttribute === 'function') {
+    svgElement.setAttribute('focusable', focusable ? 'true' : 'false');
+  }
+
+  // Add tabindex for keyboard focus if requested
+  if (keyboardFocusable && typeof svgElement.setAttribute === 'function') {
+    svgElement.setAttribute('tabindex', '0');
+  }
+
+  return svgElement;
 }
 
 /**
@@ -349,6 +417,7 @@ if (typeof module !== 'undefined' && module.exports) {
     trapFocus,
     createAnnouncer,
     prefersReducedMotion,
+    addSvgAccessibilityProps,
     isEmpty,
     capitalize,
     getRandomInt,

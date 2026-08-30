@@ -511,4 +511,6 @@ function checkLinkAccessibility() {
 
 function renderPage(data) {
   // Code to render the page
+  renderDependencyGraph(dependencyGraphContent);
+  renderIndex(indexContent);
 }

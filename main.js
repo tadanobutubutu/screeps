@@ -253,6 +253,55 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+// NEW: Implement a new function to handle focus trap for keyboard navigation
+/**
+ * Sets up a focus trap within the given container element.
+ * @param {HTMLElement} container - The container element to trap focus within.
+ */
+function newFocusTrap(container) {
+  if (!container) {
+    console.error('Container element is required for focus trap');
+    return;
+  }
+
+  // Get all focusable elements inside the container
+  const focusableElements = container.querySelectorAll(
+    'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex]:not([tabindex="-1"]), [contenteditable]'
+  );
+
+  // Convert NodeList to array for easier handling
+  const focusableElsArray = Array.from(focusableElements);
+
+  if (focusableElsArray.length === 0) {
+    // If there are no focusable elements, we cannot trap focus
+    return;
+  }
+
+  const firstFocusable = focusableElsArray[0];
+  const lastFocusable = focusableElsArray[focusableElsArray.length - 1];
+
+  // Function to handle keydown events
+  function handleKeyDown(e) {
+    // Check if we are trapping focus (this function is only called when the trap is active)
+    if (e.key === 'Tab') {
+      if (e.shiftKey) { // Shift + Tab
+        if (document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable.focus();
+        }
+      } else { // Tab
+        if (document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    }
+  }
+
+  // Add the event listener
+  container.addEventListener('keydown', handleKeyDown);
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +320,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  newFocusTrap
 };

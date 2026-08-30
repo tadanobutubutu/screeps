@@ -299,6 +299,16 @@ export {
 
 // Compatibility for CommonJS if needed (as per HEAD)
 module.exports.newFunction = newFunction;
+module.exports.initialize = initialize;
+module.exports.getConfig = getConfig;
+module.exports.setupSkipLinks = setupSkipLinks;
+module.exports.setupButtonAccessibility = setupButtonAccessibility;
+module.exports.createInPageButton = createInPageButton;
+module.exports.performTask = performTask;
+module.exports.handleEvent = handleEvent;
+module.exports.greet = greet;
+module.exports.add = add;
+module.exports.calculateDiscount = calculateDiscount;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {

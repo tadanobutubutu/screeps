@@ -1,14 +1,11 @@
-Here's the resolved `main.js` file with both changes integrated:
-
-```javascript
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
 
-import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook } from './bookFunctions'; // Assuming you have the bookFunctions module
-
+// Accessibility helper functions
 const getRootHtmlAccessibilityProps = (lang = 'en') => {
   return { lang };
 };
@@ -48,44 +45,23 @@ const getAccessibleLinkProps = (href, label) => {
   };
 };
 
-function Main() {
-  const [sorting, setSorting] = useState(() => {
-    const sortFunction = addBook.length > 0 ? sortByTitle : sortByTitle; // Use sortByTitle if the 'addBook' function is present, otherwise use default
-    return sortFunction;
-  });
-  const dispatch = useDispatch();
-  const booksList = useSelector(state => state.books.list);
-
-  const bookItems = booksList.map(book => BookItem(book));
-
-  const handleAddBook = () => {
-    // Implement the accessibility improvements
-    enhanceAccessibilityForAddBook();
-    // Add the new book as before (assuming you have the implemented 'addBook' function)
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = {
+    'react': true,
+    'react-redux': true,
+    'antd': true
   };
-
-  const handleSort = (sortFunction) => () => {
-    const sortedList = [...booksList].sort(sortFunction);
-    // Dispatch an action to update the sorted book list in the Redux store
-    dispatch({ type: 'SORT_BOOKS', payload: sortedList });
-    setSorting(sortFunction);
-  };
-
-  return (
-    <main>
-      <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
-      <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
-      <List itemLayout="vertical" dataSource={booksList} renderItem={book => BookItem(book)} />
-      {booksList.length > 0 && (
-        <Button onClick={handleAddBook}>
-          {addBook.length > 0 ? 'Add Book' : 'Add Book (Experimental Accessibility Improvements)}
-        </Button>
-      )}
-    </main>
-  );
+  return Object.keys(dependencies).length;
 }
 
-export default Main;
+// Function to generate a key for each book item
+function generateKey(book) {
+  if (book.id) {
+    return book.id;
+  }
+  return `${book.title}-${book.author}-${Math.random().toString(36).substr(2, 9)}`;
+}
 
 // Function to fetch book dependencies and update the Redux store
 async function fetchBookDependencies(bookId) {
@@ -105,9 +81,54 @@ function updateBookDependencies(bookId, newDependencies) {
   dispatch(setDependencyGraph({ bookId, dependencies: newDependencies }));
 }
 
-// ... (Existing code)
-```
+// Function to render the main component containing the book list and sorting controls
+function Main() {
+  const [sorting, setSorting] = useState(() => {
+    const sortFunction = addBook.length > 0 ? sortByTitle : sortByTitle; // Use sortByTitle if the 'addBook' function is present, otherwise use default
+    return sortFunction;
+  });
+  const dispatch = useDispatch();
+  const booksList = useSelector(state => state.books.list);
 
-In this solution, I kept and integrated both changes. I added a conditional check to use `sortByTitle` by default if the `addBook` function is present, to maintain backward compatibility. Also, I merged the existing and new rendering of the `Main` component.
+  // Map the book list to the BookItem function to create book items
+  const bookItems = booksList.map(book => BookItem(book));
 
-The new book addition functionality is now available with experimental accessibility improvements, as indicated by the button label. Users can choose to add a book without accessibility improvements by leaving out the experimental accessibility button or by clicking the standard "Add Book" button. The existing Actions (`fetchBookDependencies` and `updateBookDependencies`) remain available.
+  const handleAddBook = () => {
+    // Implement the accessibility improvements
+    enhanceAccessibilityForAddBook();
+    // Add the new book as before
+    addBook();
+  };
+
+  const handleSort = (sortFunction) => () => {
+    const sortedList = [...booksList].sort(sortFunction);
+    // Dispatch an action to update the sorted book list in the Redux store
+    dispatch({ type: 'SORT_BOOKS', payload: sortedList });
+    setSorting(sortFunction);
+  };
+
+  // Render the list of book items and sorting controls
+  return (
+    <main {...getLandmarkProps('main', 'Main content')}>
+      <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
+      <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
+      <List
+        itemLayout="vertical"
+        dataSource={booksList}
+        renderItem={book => (
+          <List.Item key={generateKey(book)}>
+            <BookItem book={book} />
+          </List.Item>
+        )}
+      />
+      {booksList.length > 0 && (
+        <Button onClick={handleAddBook}>
+          {typeof enhanceAccessibilityForAddBook === 'function' ? 'Add Book (Experimental Accessibility Improvements)' : 'Add Book'}
+        </Button>
+      )}
+      <button onClick={enhanceAccessibilityForAddBook} aria-label="Enhance accessibility for adding a new book">Enhance Accessibility</button>
+    </main>
+  );
+}
+
+export default Main;

@@ -1,7 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report
 // ----- END ORIGINAL CODE -----
-=======
 // TODO: Any additional changes requested in the issue
 // main.js - Accessibility improvements implementation
 
@@ -69,14 +68,14 @@ function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
     const connector = isLast ? '└── ' : '├── ';
     const value = dependencies[key];
     
-    output += `${prefix}${connector}${key}`;
+    output += prefix + connector + key;
     
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      output += '/\\n';
+      output += '/\n';
       const extension = isLast ? '    ' : '│   ';
       output += renderDependencyGraph(value, prefix + extension, isLastItem);
     } else {
-      output += ` -> ${value}\\n`;
+      output += ` -> ${value}\n`;
     }
   });
   
@@ -175,7 +174,7 @@ function validateTableStructure(table) {
   const rows = table.querySelectorAll('tr');
   
   for (let row of rows) {
-    const cells = row.querySelectorAll('th');
+    const cells = row.querySelectorAll('td, th');
     if (cells.length === 0) {
       return false;
     }
@@ -211,7 +210,7 @@ function setSvgAttributes(svg, accessibleName) {
 }
 
 // REACT_025: Ensure unique landmarks
-function ensureUniqueLandmarks(landmarksList) {
+function getUniqueLandmarks(landmarksList) {
   const landmarkNames = new Map();
   const uniqueLandmarks = [];
   
@@ -223,6 +222,7 @@ function ensureUniqueLandmarks(landmarksList) {
     const name = landmark.name;
     if (!landmarkNames.has(name)) {
       landmarkNames.set(name, []);
+      landmarkNames.get(name).push(landmark);
       uniqueLandmarks.push(landmark);
     }
   }
@@ -231,7 +231,7 @@ function ensureUniqueLandmarks(landmarksList) {
 }
 
 // REACT_036: Fix fake link issues
-function validateLinkAccessibility(linkElement) {
+function isValidLink(linkElement) {
   if (!linkElement || linkElement.nodeType !== Node.ELEMENT_NODE || linkElement.tagName !== 'A') {
     return false;
   }
@@ -252,7 +252,7 @@ function handleFakeLinks(links) {
   const fixedLinks = [];
   
   for (let link of links) {
-    if (!validateLinkAccessibility(link)) {
+    if (!isValidLink(link)) {
       link.setAttribute('href', '#');
       link.setAttribute('role', 'button');
       link.style.pointerEvents = 'none';
@@ -312,5 +312,73 @@ function displayModuleStructure(modules) {
 
 /**
  * Generates a dependency report for debugging
-=========================================
-```
+ * @param {Object} dependencies - The dependency object
+ * @returns {Object} Report object with statistics
+ */
+function generateDependencyReport(dependencies) {
+  const report = {
+    totalDependencies: 0,
+    maxDepth: 0,
+    types: {}
+  };
+  
+  function traverse(obj, depth = 0) {
+    if (!obj || typeof obj !== 'object') return;
+    
+    const keys = Object.keys(obj);
+    report.totalDependencies += keys.length;
+    report.maxDepth = Math.max(report.maxDepth, depth);
+    
+    keys.forEach(key => {
+      const value = obj[key];
+      const type = typeof value;
+      report.types[type] = (report.types[type] || 0) + 1;
+      
+      if (typeof value === 'object' && value !== null) {
+        traverse(value, depth + 1);
+      }
+    });
+  }
+  
+  traverse(dependencies);
+  return report;
+}
+
+// Utility function to validate landmark
+function validateLandmark(landmark) {
+  if (!landmark || typeof landmark !== 'object') {
+    return false;
+  }
+  return typeof landmark.id === 'string' && landmark.id.length > 0;
+}
+
+// Export all public functions and objects
+module.exports = {
+  main,
+  getDependencyDepth,
+  renderDependencyGraph,
+  newFunction,
+  greet,
+  newAccessibleFunction,
+  addLandmarkRegionToElement,
+  addLandmark,
+  getLandmarks,
+  removeLandmark,
+  validateLandmark,
+  isLatitudeValid,
+  isLongitudeValid,
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  getUniqueLandmarks,
+  isValidLink,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  displayModuleStructure,
+  generateDependencyReport,
+  fs,
+  path
+};

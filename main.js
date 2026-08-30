@@ -2,6 +2,8 @@
 // (This comment remains as-is)
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
+const { spawn } = require('child_process');
+
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
 
@@ -108,6 +110,10 @@ function newFocusTrap() {
 // Add back any required exports that might have been removed.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 function calculateSum(a, b) { return a + b; }
+
+function spawnProcess(command, args = [], options = {}) {
+  return spawn(command, args, options);
+}
 
 // Credential response handling
 async function handleCredentialResponse(response) {
@@ -285,5 +291,6 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  spawnProcess
 };

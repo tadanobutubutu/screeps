@@ -297,12 +297,15 @@ export function BookItem(book) {
 }
 
 // Function to create a new book entry in the Redux store
-export function addBook(book) {
+export function addBook(book, dispatch) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
+
+  // Set the focus on the newly added book item
+  document.querySelector(`[data-key="${generateKey(book)}"]`).focus();
 }
 
 // Function to improve accessibility for the addBook function or form
@@ -340,14 +343,14 @@ function countDependencies(dependencies) {
 export const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
-export function onTitleSort() {
+export function onTitleSort(dispatch) {
   const sortedList = [...getBooksList].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
-export function onAuthorSort() {
+export function onAuthorSort(dispatch) {
   const sortedList = [...getBooksList].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
@@ -421,18 +424,18 @@ function Main() {
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
     if (sorting === sortByTitle) {
-      onTitleSort();
+      onTitleSort(dispatch);
     } else if (sorting === sortByAuthor) {
-      onAuthorSort();
+      onAuthorSort(dispatch);
     }
-  }, [sorting]);
+  }, [sorting, dispatch]);
 
   // Map the book list to the BookItem function to create book items
   const bookItems = getBooksList.map(book => BookItem(book));
 
   // Handle adding a new book
   const handleAddBook = (book) => {
-    addBook(book);
+    addBook(book, dispatch);
   };
 
   // Render the list of book items and sorting controls
@@ -489,5 +492,11 @@ function Main() {
   );
 }
 
-// Export the Main component
-export default Main;
+// Extract the SVG links and apply accessible names
+function handleFakeLinks() {
+  const svgLinks = document.querySelectorAll('svg a');
+  svgLinks.forEach(setSvgAttributes);
+}
+
+// Export the Main component and handleFakeLinks function
+export { Main, handleFakeLinks };

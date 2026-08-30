@@ -6,6 +6,30 @@
 
 import React from 'react';
 
+// Configuration object
+const config = {
+  appName: 'MyApp',
+  version: '1.0.0',
+  cacheSize: 100,
+  defaultLanguage: 'en'
+};
+
+// Application state
+const appState = {
+  users: [],
+  cache: new Map(),
+  isInitialized: false,
+  config: config
+};
+
+// Initialize the application
+function initializeApp() {
+  console.log(`Initializing ${config.appName} v${config.version}`);
+  appState.isInitialized = true;
+  initialize();
+  return appState;
+}
+
 export function calculateSum(a, b) {
     return a + b;
 }

@@ -193,7 +193,7 @@ function initializeApp() {
 // Process data
 function processData(data) {
   if (!data) return null;
-  return { ...data, processed: true };
+  return Object.assign({}, data, { processed: true });
 }
 
 // Fetch user data
@@ -234,7 +234,9 @@ function getLangAttribute() {
 function addLangAttribute(element) {
   if (!element) return null;
   const lang = getLangAttribute();
-  return { ...element, attributes: { ...element.attributes, lang } };
+  return Object.assign({}, element, { 
+    attributes: Object.assign({}, element.attributes, { lang: lang })
+  });
 }
 
 // REACT_027: Fix 26 table structure issues
@@ -263,8 +265,7 @@ function fixTableStructure() {
   // Fix table structure issues by ensuring proper th elements and headers
   const issues = validateTableStructure();
   // Apply fixes to tables
-  const fixes = issues.map(issue => ({
-    ...issue,
+  const fixes = issues.map(issue => Object.assign({}, issue, {
     fixed: true,
     fixApplied: 'Added proper table headers and structure'
   }));
@@ -343,15 +344,13 @@ function getSvgAccessibleName(svgElement) {
 function setSvgAttributes(svg, accessibleName) {
   // Set SVG attributes with accessible name
   if (!svg) return null;
-  return {
-    ...svg,
-    attributes: {
-      ...svg.attributes,
+  return Object.assign({}, svg, {
+    attributes: Object.assign({}, svg.attributes, {
       role: 'img',
       'aria-label': accessibleName,
       'aria-labelledby': accessibleName ? `svg-title-${svg.id}` : null
-    }
-  };
+    })
+  });
 }
 
 // REACT_036: Fix 1 fake link issue
@@ -406,8 +405,7 @@ function addressAccessibilityIssues(insightReport) {
   const tableIssues = validateTableStructure();
   if (tableIssues.length > 0) {
     const fixes = fixTableStructure();
-    allIssues.push(...fixes.map(fix => ({
-      ...fix,
+    allIssues.push(...fixes.map(fix => Object.assign({}, fix, {
       type: 'REACT_027'
     })));
   }
@@ -416,8 +414,7 @@ function addressAccessibilityIssues(insightReport) {
   const landmarkIssues = validateLandmark();
   if (landmarkIssues.length > 0) {
     const landmarkFixes = addLandmarkRegions();
-    allIssues.push(...landmarkIssues.map(issue => ({
-      ...issue,
+    allIssues.push(...landmarkIssues.map(issue => Object.assign({}, issue, {
       fixed: true,
       fixApplied: landmarkFixes
     })));
@@ -426,8 +423,7 @@ function addressAccessibilityIssues(insightReport) {
   // REACT_025: Ensure unique landmarks
   const uniqueLandmarkIssues = ensureUniqueLandmarks();
   if (uniqueLandmarkIssues.length > 0) {
-    allIssues.push(...uniqueLandmarkIssues.map(issue => ({
-      ...issue,
+    allIssues.push(...uniqueLandmarkIssues.map(issue => Object.assign({}, issue, {
       fixed: true
     })));
   }
@@ -450,8 +446,7 @@ function addressAccessibilityIssues(insightReport) {
   const fakeLinkIssues = handleFakeLinks();
   if (fakeLinkIssues.length > 0) {
     const buttonFixes = fakeLinkIssues.map(() => createInPageButton());
-    allIssues.push(...fakeLinkIssues.map(issue => ({
-      ...issue,
+    allIssues.push(...fakeLinkIssues.map(issue => Object.assign({}, issue, {
       fixed: true,
       fixApplied: buttonFixes
     })));

@@ -105,6 +105,71 @@ function validateAllTables() {
   };
 }
 
+/**
+ * Validates that all landmarks are unique across all tables
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateLandmarkUniqueness() {
+  const errors = [];
+  const tables = getTables();
+  const seenLandmarks = new Set();
+  const duplicateLandmarks = [];
+
+  tables.forEach((table, tableIndex) => {
+    if (table.landmarks && Array.isArray(table.landmarks)) {
+      table.landmarks.forEach((landmark, landmarkIndex) => {
+        const landmarkId = landmark.id || landmark.name || JSON.stringify(landmark);
+        
+        if (seenLandmarks.has(landmarkId)) {
+          const error = {
+            type: 'duplicate_landmark',
+            message: `Duplicate landmark found: ${landmarkId}`,
+            tableIndex,
+            landmarkIndex,
+            landmark
+          };
+          errors.push(error);
+          duplicateLandmarks.push(landmarkId);
+        } else {
+          seenLandmarks.add(landmarkId);
+        }
+      });
+    }
+  });
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    uniqueCount: seenLandmarks.size,
+    duplicateCount: duplicateLandmarks.length
+  };
+}
+
+/**
+ * Ensures unique landmarks by removing duplicates, keeping the first occurrence
+ * @param {Array} landmarks - Array of landmark objects to deduplicate
+ * @returns {Array} Array of unique landmarks
+ */
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    throw new Error('Landmarks must be an array');
+  }
+
+  const seen = new Set();
+  const uniqueLandmarks = [];
+
+  landmarks.forEach(landmark => {
+    const landmarkId = landmark.id || landmark.name || JSON.stringify(landmark);
+    
+    if (!seen.has(landmarkId)) {
+      seen.add(landmarkId);
+      uniqueLandmarks.push(landmark);
+    }
+  });
+
+  return uniqueLandmarks;
+}
+
 module.exports = {
   initialize,
   loadTables,
@@ -113,5 +178,7 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  validateLandmarkUniqueness,
+  ensureUniqueLandmarks
 };

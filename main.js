@@ -13,6 +13,93 @@ export function calculateSum(a, b) {
 // Below is the existing code (preserving syntax and existing exports)
 // ...
 
+// CLI Logic Implementation
+function parseCLIArgs(args) {
+  const command = args[2]; // Skip 'node' and script name
+  const options = {};
+  
+  for (let i = 3; i < args.length; i++) {
+    const arg = args[i];
+    if (arg.startsWith('--')) {
+      const [key, value] = arg.slice(2).split('=');
+      options[key] = value || true;
+    } else if (arg.startsWith('-')) {
+      options[arg.slice(1)] = true;
+    }
+  }
+  
+  return { command, options };
+}
+
+function displayHelp() {
+  console.log(`
+Usage: node main.js <command> [options]
+
+Commands:
+  init                    Initialize the application
+  process <data>          Process the provided data
+  cache:clear            Clear the application cache
+  help                    Display this help message
+
+Options:
+  --verbose               Enable verbose output
+  --format=<format>       Output format (json, text)
+
+Examples:
+  node main.js init
+  node main.js process --data='[{"id":1}]'
+  node main.js cache:clear --verbose
+  `);
+}
+
+async function executeCLI() {
+  const { command, options } = parseCLIArgs(process.argv);
+  const verbose = options.verbose || false;
+  
+  if (verbose) {
+    console.log('CLI: Starting execution with command:', command);
+  }
+  
+  switch (command) {
+    case 'init':
+      if (verbose) console.log('CLI: Initializing application...');
+      const result = initialize();
+      console.log('Initialization complete:', result);
+      break;
+      
+    case 'process':
+      if (verbose) console.log('CLI: Processing data...');
+      let dataToProcess;
+      if (options.data) {
+        try {
+          dataToProcess = JSON.parse(options.data);
+        } catch (e) {
+          dataToProcess = options.data;
+        }
+      } else {
+        dataToProcess = { sample: true };
+      }
+      const processed = processData(dataToProcess);
+      console.log('Processed data:', JSON.stringify(processed, null, 2));
+      break;
+      
+    case 'cache:clear':
+      if (verbose) console.log('CLI: Clearing cache...');
+      clearCache();
+      break;
+      
+    case 'help':
+    case undefined:
+      displayHelp();
+      break;
+      
+    default:
+      console.error(`Unknown command: ${command}`);
+      console.log('Run 'node main.js help' for usage information.');
+      process.exit(1);
+  }
+}
+
 const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
 // ... (existing code, exports, and functions)
@@ -92,13 +179,15 @@ function fixTableStructure(table) {
   // Code for fixing table structure issues
   if (table && table.querySelector) {
     // Ensure table has proper structure with thead, tbody, etc.
-    if (!table.querySelector('thead')) {
-      const thead = document.createElement('thead');
-      table.insertBefore(thead, table.firstChild);
+    const thead = table.querySelector('thead');
+    if (!thead) {
+      const theadElement = document.createElement('thead');
+      table.insertBefore(theadElement, table.firstChild);
     }
-    if (!table.querySelector('tbody')) {
-      const tbody = document.createElement('tbody');
-      table.appendChild(tbody);
+    const tbody = table.querySelector('tbody');
+    if (!tbody) {
+      const tbodyElement = document.createElement('tbody');
+      table.appendChild(tbodyElement);
     }
   }
 }
@@ -159,24 +248,27 @@ function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
   // This processes the insight report and takes appropriate actions to fix issues
   
-  if (!insightReport || !Array.isArray(insightReport.accessibilityIssues)) {
+  if (!insightReport || !insightReport.issues) {
     console.log('No valid accessibility issues found in the insight report');
     return [];
   }
   
   const addressedIssues = [];
   
-  insightReport.accessibilityIssues.forEach((issue, index) => {
+  insightReport.issues.forEach((issue, index) => {
     console.log(`Addressing accessibility issue ${issue.code}: ${issue.message}`);
     
     let actionTaken = false;
     
     // Address specific issues based on their codes
-    switch(issue.code) {
+    switch (issue.code) {
       case 'REACT_015':
         // Add lang attribute to HTML element
         try {
-          addLangAttribute(document.documentElement);
+          const htmlElement = document.querySelector('html');
+          if (htmlElement) {
+            addLangAttribute(htmlElement);
+          }
           actionTaken = true;
           console.log('Added language attribute to HTML element');
         } catch (error) {
@@ -187,7 +279,8 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_027':
         // Fix table structure issues
         try {
-          fixTableStructure();
+          const tables = document.querySelectorAll('table');
+          tables.forEach(table => fixTableStructure(table));
           actionTaken = true;
           console.log('Fixed table structure issues');
         } catch (error) {
@@ -213,8 +306,8 @@ function addressAccessibilityIssues(insightReport) {
         try {
           const svgElements = document.querySelectorAll('svg');
           svgElements.forEach(svg => {
-            if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('role')) {
-              const accessibleName = getSvgAccessibleName();
+            if (svg && svg.setAttribute) {
+              const accessibleName = getSvgAccessibleName(svg);
               if (accessibleName) {
                 setSvgAttributes(svg, accessibleName);
               }
@@ -275,7 +368,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
   
-  const uniqueId = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const uniqueId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = uniqueId;
   return uniqueId;
 }
@@ -347,96 +440,4 @@ function renderDependencyGraph(dependencies, containerId) {
     }
   }
   
-  // Create a simple text representation of the graph
-  const graphElement = document.createElement('div');
-  graphElement.className = 'dependency-graph-content';
-  
-  // Add nodes section
-  const nodesSection = document.createElement('div');
-  nodesSection.className = 'graph-nodes';
-  nodesSection.innerHTML = '<h4>Nodes:</h4><ul>' + 
-    nodes.map(node => `<li>${node.name}</li>`).join('') + 
-    '</ul>';
-  
-  // Add edges section
-  const edgesSection = document.createElement('div');
-  edgesSection.className = 'graph-edges';
-  edgesSection.innerHTML = '<h4>Dependencies:</h4><ul>' + 
-    edges.map(edge => `<li>${edge.source} → ${edge.target}</li>`).join('') + 
-    '</ul>';
-  
-  graphElement.appendChild(nodesSection);
-  graphElement.appendChild(edgesSection);
-  graphContainer.appendChild(graphElement);
-  
-  // Clear container and append the graph
-  container.innerHTML = '';
-  container.appendChild(graphContainer);
-  
-  return graphContainer;
-}
-
-// Main execution
-function main() {
-  initialize();
-  console.log('Main function executed');
-}
-
-// Run if executed directly
-if (require.main === module) {
-  main();
-}
-
-// Example usage of the new function (if applicable)
-// This would depend on how the insight report is obtained and when you want to address the issues
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
-
-export default function App() {
-  const MyApp = () => {
-    // Your app functionality here
-  };
-
-  return (
-    <HTML lang="en">
-      <React.Fragment>
-        <MyApp />
-        {/* Render your HTML structure */}
-      </React.Fragment>
-    </HTML>
-  );
-}
-
-module.exports = {
-  config,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  main,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph,
-  calculateSum,
-  myNewFunction
-};
+  // Create a

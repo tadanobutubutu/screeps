@@ -1,6 +1,6 @@
 // Main module for calculator operations
 
-// TODO: Implement divide function that handles division with proper error handling
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js ( preserving the original code )
 function divide(dividend, divisor) {
     // Check if inputs are valid numbers
     if (typeof dividend !== 'number' || typeof divisor !== 'number') {

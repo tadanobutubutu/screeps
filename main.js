@@ -163,6 +163,20 @@ function deepClone(obj) {
   return obj;
 }
 
+/**
+ * Validates if an element is a landmark region
+ * @param {Element} element - The element to validate
+ * @returns {boolean} - True if the element is a landmark
+ */
+function validateLandmark(element) {
+  if (!element || element.nodeType !== Node.ELEMENT_NODE) {
+    return false;
+  }
+  const role = element.getAttribute('role');
+  const validRoles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'region', 'search'];
+  return validRoles.includes(role);
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -178,7 +192,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getRandomInt,
     clamp,
     deepClone,
-    addAccessibleNamesToSvg
+    addAccessibleNamesToSvg,
+    validateLandmark
   };
 }
 

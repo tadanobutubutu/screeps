@@ -80,18 +80,7 @@ function getVersion() {
   return VERSION;
 }
 
-<<<<<<< HEAD
 // Implement the function for addressing new accessibility issues
-function addressAccessibilityIssues() {
-  // Assuming we are adding an ARIA role to the dependencyGraph container
-  const dependencyGraph = document.querySelector('.dependencyGraph');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'group');
-    // You might want to set other ARIA properties or check for more complex requirements from the insight report
-  }
-=======
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
 function addressAccessibilityIssues() {
   // TODO: Implement the function for addressing new accessibility issues
   const issues = [];
@@ -154,7 +143,7 @@ function addressAccessibilityIssues() {
       missingLang: issues.filter((i) => i.type === 'missing-lang').length
     }
   };
->>>>>>> origin/main
+}
 
 // New accessibility enhancement: ensure root container has accessible name and create announcement region
 const rootContainer = document.getElementById('root').parentElement;
@@ -172,7 +161,6 @@ announcement.style.position = 'absolute';
 announcement.style.left = '-9999px';
 announcement.style.top = '-9999px';
 document.body.appendChild(announcement);
-
 
 // Validate that tables in the document are accessible
 function validateTableAccessibility() {

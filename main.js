@@ -1,5 +1,5 @@
 // Import necessary dependencies
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { List } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -170,14 +170,14 @@ const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
@@ -532,10 +532,30 @@ const { sortTitleId, sortAuthorId, bookListId } = fixButtonIdentifiers();
 
 // Render the main component containing the book list and sorting controls
 function Main() {
-  // ... (the rest of the existing code)
+  const [sorting, setSorting] = useState(defaultSorting);
+  const sortIconUpRef = useRef(null);
+  const sortIconDownRef = useRef(null);
 
-  // Render the add book form
-  const addBookForm = <AddBookForm />;
+  // UseEffect to add accessible names to SVG icons after render
+  useEffect(() => {
+    // Find all SVG elements in the List component that need accessible names
+    const listContainer = document.querySelector('.ant-list');
+    if (listContainer) {
+      // Find sort-related SVG icons and add accessible names
+      const svgElements = listContainer.querySelectorAll('svg');
+      svgElements.forEach((svg, index) => {
+        // Check if this is a sort-related icon based on class or parent context
+        const parent = svg.closest('[class*="sort"]');
+        if (parent && !svg.getAttribute('aria-label')) {
+          // Add accessible name based on sort direction
+          const isAscending = parent.closest('[class*="ascend"]') !== null;
+          const sortLabel = isAscending ? 'Sort ascending' : 'Sort descending';
+          svg.setAttribute('aria-label', sortLabel);
+          svg.setAttribute('role', 'img');
+        }
+      });
+    }
+  }, []);
 
   // Map the book list to the BookItem function to create book items
   const bookItems = getBooksList.map(book => BookItem(book));
@@ -547,14 +567,14 @@ function Main() {
         <button 
           id={sortTitleId} 
           onClick={() => setSorting(sortByTitle)}
-          aria-label="Sort books by title"
+          aria-label="Sort books by title ascending"
         >
           Sort by Title
         </button>
         <button 
           id={sortAuthorId} 
           onClick={() => setSorting(sortByAuthor)}
-          aria-label="Sort books by author"
+          aria-label="Sort books by author descending"
         >
           Sort by Author
         </button>

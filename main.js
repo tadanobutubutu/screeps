@@ -1,7 +1,7 @@
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import { List, Button } from 'antd';
 
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
@@ -56,7 +56,14 @@ function addBook(book) {
 // <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
 
 // TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
+function handleAddBookClick() {
+  // Open a modal or dialog with a form to add a new book
+  // Ensure that the form controls have proper labels and roles for accessibility
+  // ...
+
+  // For the purpose of this example, we'll just call the addBook function with a sample book object
+  addBook({ id: 4, title: 'Sample Book', author: 'Sample Author' });
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
@@ -98,6 +105,7 @@ function Main() {
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List dataSource={bookItems} />
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
+      <Button onClick={handleAddBookClick}>Add Book</Button>
       {/* ... */}
     </div>
   );

@@ -35,26 +35,32 @@ function getVersion() {
   return VERSION;
 }
 
-// TODO: This is the existing code that needs to be preserved
+// This is the existing code that needs to be preserved
 // (This comment remains as-is)
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
-  const rootContainer = document.getElementById('root').parentElement;
+  const rootContainer = document.getElementById('root');
   if (rootContainer) {
     rootContainer.setAttribute('role', 'main');
   }
 
   // Create a hidden live region for dynamic announcements
   const announcementId = 'accessibility-announcement';
-  const announcement = document.createElement('div');
-  announcement.id = announcementId;
+  let announcement = document.getElementById(announcementId);
+  if (!announcement) {
+    announcement = document.createElement('div');
+    announcement.id = announcementId;
+    document.body.appendChild(announcement);
+  }
   announcement.setAttribute('aria-live', 'polite');
   announcement.setAttribute('aria-atomic', 'true');
   // Hide off-screen
   announcement.style.position = 'absolute';
   announcement.style.left = '-9999px';
   announcement.style.top = '-9999px';
-  document.body.appendChild(announcement);
+  announcement.style.width = '1px';
+  announcement.style.height = '1px';
+  announcement.style.overflow = 'hidden';
 }
 
 // Validate that tables in the document are accessible

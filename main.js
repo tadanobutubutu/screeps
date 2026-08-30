@@ -133,10 +133,31 @@ function displayModuleStructure(modules) {
   return result;
 }
 
+/**
+ * Ensures all landmark identifiers are unique by deduplicating the provided array.
+ * @param {Array} landmarks - Array of landmark identifiers or objects
+ * @returns {Array} Array of unique landmark identifiers
+ */
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  const seen = new Set();
+  return landmarks.filter(item => {
+    const key = typeof item === 'object' ? JSON.stringify(item) : item;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
 // Export the new functions if needed
 module.exports = {
   // ... existing exports would go here
   renderDependencyGraph,
-  displayModuleStructure
+  displayModuleStructure,
+  ensureUniqueLandmarks
   // ... other existing exports
 };

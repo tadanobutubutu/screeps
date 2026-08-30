@@ -1,15 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-
-// Sample main.js with dependencyGraph container
-function renderDependencyGraph() {
-  const container = document.getElementById('dependencyGraph');
+const container = document.getElementById('dependencyGraph');
 
   if (container) {
     container.setAttribute('role', 'region');
@@ -20,7 +9,19 @@ function renderDependencyGraph() {
 }
 
 /**
- * Adds the lang attribute to the HTML element.
+ * Get user information by session ID
+ * @param {string} sessionId - The session ID to look up
+ * @returns {Object|null} - User object if session is valid, null otherwise
+ */
+function getUserBySession(sessionId) {
+    const session = validateSession(sessionId);
+    return session ? session.user : null;
+}
+
+/**
+ * Validate an existing session
+ * @param {string} sessionId - The session ID to validate
+ * @returns {Object|null} - Session data if valid, null otherwise
  */
 function getLangAttribute() {
   const htmlElement = document.querySelector('html');
@@ -118,13 +119,20 @@ function implementNewFunction(input) {
 }
 
 module.exports = {
+  handleCredentialResponse,
+  parseCredentialResponse,
+  decodeJwtToken,
+  generateSessionId,
+  validateTableStructure,
+  validateSession,
+  revokeSession,
+  getActiveSessionsCount,
+  getUserBySession,
+  server,
   renderDependencyGraph,
   getLangAttribute,
-  addMainLandmark,
   ensureUniqueLandmarks,
   getSvgAccessibleName,
-  personName,
-  validateTableStructure,
   implementNewFunction,
   validateLandmarkStructure,
   validateLandmarkAttributes,

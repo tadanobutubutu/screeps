@@ -213,6 +213,16 @@ function processUniqueElements() {
   return uniqueElements;
 }
 
+/**
+ * Adds a lang attribute to the HTML element (REACT_015)
+ * @param {string} lang - Language code (default 'en')
+ */
+function addLangAttribute(lang = 'en') {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.setAttribute('lang', lang);
+  }
+}
+
 function addressInsightIssues(insightReport) {
   const issues = insightReport && insightReport.issues ? insightReport.issues : [];
   issues.forEach(issue => {
@@ -227,6 +237,10 @@ function addressInsightIssues(insightReport) {
         }
       });
       const react017Elements = issue.elements || [];
+    }
+    // REACT_015: Add lang attribute to HTML element
+    if (issue.code === 'REACT_015') {
+      addLangAttribute();
     }
   });
 }
@@ -268,6 +282,7 @@ module.exports = {
   validateSvgAccessibility,
   processUniqueElements,
   addressInsightIssues,
+  addLangAttribute,
   renderDependencyGraph,
   renderIndexView,
   calculateSum,

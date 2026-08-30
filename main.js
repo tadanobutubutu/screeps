@@ -19,16 +19,6 @@
  * @returns {boolean} True if the landmark element exists, false otherwise.
  */
 function checkLandmarkElement(id) {
-  return !!document.getElementById(id);
-}
-
-/**
- * Creates an in-page button element with an optional click handler.
- * @param {string} buttonText - The label text for the button.
- * @param {Function} onClickHandler - Callback function triggered when the button is clicked.
- * @returns {HTMLElement} The created button element.
- */
-function checkLandmarkElement(id) {
   const element = document.getElementById(id);
   if (!element) {
     return false;
@@ -42,6 +32,12 @@ function checkLandmarkElement(id) {
   return false;
 }
 
+/**
+ * Creates an in-page button element with an optional click handler.
+ * @param {string} buttonText - The label text for the button.
+ * @param {Function} onClickHandler - Callback function triggered when the button is clicked.
+ * @returns {HTMLElement} The created button element.
+ */
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;

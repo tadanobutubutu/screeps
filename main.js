@@ -71,6 +71,22 @@ function addAriaLabel(element, label) {
 }
 
 // TODO: Implement functions to render dependency graphs and display module structure for debugging purposes.
+function countDependencies(modules) {
+  if (!modules) return 0;
+  if (Array.isArray(modules)) return modules.length;
+  let total = 0;
+  for (const key in modules) {
+    if (Object.prototype.hasOwnProperty.call(modules, key)) {
+      const val = modules[key];
+      if (Array.isArray(val)) {
+        total += val.length;
+      } else if (val && typeof val === 'object' && Array.isArray(val.dependencies)) {
+        total += val.dependencies.length;
+      }
+    }
+  }
+  return total;
+}
 
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
@@ -386,5 +402,6 @@ module.exports = {
   displayModuleStructure,
   functionA,
   functionB,
-  loop
+  loop,
+  countDependencies
 };

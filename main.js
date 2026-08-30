@@ -1,33 +1,41 @@
-Here is the resolved file content:
-
-```javascript
 var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
 
 // Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
 function addressAccessibilityIssues() {
-  document.documentElement.setAttribute('lang', 'en');
+  // Add lang attribute to HTML element
+  const html = document.documentElement;
+  if (html) {
+    html.setAttribute('lang', 'en');
+  }
 
-  const landmarks = document.querySelectorAll('.landmark');
+  // Add proper labels to landmarks
+  const landmarks = document.querySelectorAll('[role="landmark"]');
   landmarks.forEach((landmark, index) => {
-    landmark.setAttribute('role', 'landmark');
-    landmark.setAttribute('aria-labelledby', `landmark-label-${index}`);
+    landmark.setAttribute('aria-label', 'landmark');
   });
 
-  const svg1 = document.querySelector('#svg1');
-  const svg2 = document.querySelector('#svg2');
-  svg1.setAttribute('aria-labelledby', 'svg1-title');
-  svg2.setAttribute('aria-labelledby', 'svg2-title');
-
-  // ... existing code preserved for accessibility ...
-
-  module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
+  // Ensure SVGs have accessible titles
+  const svg1 = document.getElementById('svg1');
+  const svg2 = document.getElementById('svg2');
+  if (svg1) {
+    svg1.setAttribute('aria-labelledby', 'svg1-title');
+  }
+  if (svg2) {
+    svg2.setAttribute('aria-labelledby', 'svg2-title');
+  }
 }
 
-module.exports.getLangAttribute = getLangAttribute;
-module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
+function getLangAttribute() {
+  return document.documentElement.getAttribute('lang');
+}
 
-// ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
+function wrapPrimaryContentInMain() {
+  const main = document.querySelector('main');
+  if (main && !main.id) {
+    main.id = 'main-content';
+  }
+}
 
 module.exports.loop = function() {
     // Clear the memory of dead creeps
@@ -70,6 +78,3 @@ module.exports.loop = function() {
 }
 
 addressAccessibilityIssues(); // Call the accessibility function
-```
-
-This resolved file combines both changes: it keeps theLoop function for managing the Creep roles from the original code and introduces the accessibility issues' solutions from the conflicting code. The accessibility function is called at the end of the file too.

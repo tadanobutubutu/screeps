@@ -69,16 +69,72 @@ function addProperLandmarkRegions() {
 }
 
 function addressAccessibilityIssues(insightReport) {
-  // Mock implementation of the function to address accessibility issues
-  // This should be replaced with actual logic based on the insight report structure
+  // Implementation of the function to address accessibility issues
+  // based on the insight report structure
 
-  // For example, we might log the issues or take some action to fix them
-  if (insightReport && Array.isArray(insightReport.accessibilityIssues)) {
+  if (!insightReport) {
+    return;
+  }
+
+  // Process accessibility issues from the insight report
+  if (Array.isArray(insightReport.accessibilityIssues)) {
     insightReport.accessibilityIssues.forEach(issue => {
-      console.log(`Accessibility issue detected: ${issue.message}`);
-      // Add your logic here to address the issue, such as updating the DOM or calling other functions
+      switch (issue.type) {
+        case 'table-accessibility':
+          validateTableAccessibility();
+          fixTableStructure();
+          break;
+        case 'table-structure':
+          validateTableStructure();
+          fixTableStructure();
+          break;
+        case 'landmark-missing':
+          addMainLandmark();
+          addProperLandmarkRegions();
+          break;
+        case 'landmark-structure':
+          validateLandmarkStructure();
+          break;
+        case 'landmark-attributes':
+          validateLandmarkAttributes();
+          break;
+        case 'landmark-unique':
+          ensureUniqueLandmarks();
+          break;
+        case 'svg-accessibility':
+          if (issue.element) {
+            const accessibleName = getSvgAccessibleName();
+            setSvgAttributes(issue.element, accessibleName);
+          }
+          break;
+        case 'link-accessibility':
+          validateLinkAccessibility();
+          break;
+        case 'fake-link':
+          handleFakeLinks();
+          break;
+        case 'lang-attribute':
+          if (issue.element) {
+            addLangAttribute(issue.element);
+          }
+          break;
+        case 'in-page-button':
+          createInPageButton();
+          break;
+        default:
+          console.log(`Unknown accessibility issue type: ${issue.type}`);
+      }
     });
   }
+
+  // Also run general validation checks
+  validateLandmark();
+  validateLandmarkStructure();
+  validateLandmarkAttributes();
+  ensureUniqueLandmarks();
+  validateTableAccessibility();
+  validateTableStructure();
+  validateLinkAccessibility();
 }
 
 // Main execution

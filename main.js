@@ -58,7 +58,7 @@ function App() {
   };
 
   useEffect(() => {
-    ... 'en');
+    document.documentElement.setAttribute('lang', getLangAttribute() || 'en');
     fetchData();
   }, []);
 

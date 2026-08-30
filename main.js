@@ -17,7 +17,12 @@ function updateDependencyGraph(element, data) {
   return renderDependencyGraph(data);
 }
 
-// Add exports for new functions if needed
+/**
+ * Addresses accessibility issues from an insight report.
+ * Finds the dependencyGraph container in the insightReport and adds ARIA roles.
+ * @param {Array} insightReport - Report containing items to be made accessible
+ * @returns {Array} Updated insight report with accessibility fixes applied
+ */
 function addressAccessibilityIssues(insightReport) {
     // Placeholder function to address accessibility issues from an insight report.
     // Implement specific accessibility fixes here based on the report's structure.

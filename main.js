@@ -128,7 +128,7 @@ function displayModuleStructure(modules) {
     }
     
     if (module.exports) {
-      result += `   Exports: ${JSON.stringify(module.exports)}\n`;
+      result += `   Exports: ${module.exports}\n`;
     }
     
     result += '\n';

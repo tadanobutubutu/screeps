@@ -107,39 +107,8 @@ function handleAccessibilityErrors(element) {
     // Handle accessibility errors
 }
 
-// Add new function to address the accessibility issue REACT_043: Make header focusable
-function makeHeaderFocusable() {
-  // code to make the header element focusable
-  // Example: Adding tabindex to the header
-  const header = document.querySelector('header');
-  if (header) {
-    header.setAttribute('tabindex', '0');
-  }
-}
-
 // New function to fix accessibility issues as per the insight report
-function fixAccessibilityIssues() {
-  document.documentElement.setAttribute('lang', getLangAttribute());
-  createInPageButton();
-  const table = document.getElementById('myTable');
-  if (table) {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  }
-  validateLandmark();
-  validateLandmarkStructure();
-  const svg = document.getElementById('mySvg');
-  if (svg) {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
-  }
-  validateLinkAccessibility();
-  handleFakeLinks();
-  addressAccessibilityIssues(insightReport);
-}
-
-// New function to address accessibility issues from insight report
-function addressAccessibilityIssues(insightReport) {
+function fixAccessibilityIssues(insightReport) {
   // Handle case where insightReport is null, undefined, or not an object
   if (!insightReport || typeof insightReport !== 'object') {
     console.warn('Invalid insight report provided to addressAccessibilityIssues');
@@ -193,38 +162,102 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// Validate landmark structure and uniqueness
-validateLandmark();
-validateLandmarkStructure();
-const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
-const landmarkIds = new Set();
-landmarks.forEach(landmark => {
-  if (landmark.id) {
-    if (landmarkIds.has(landmark.id)) {
-      landmark.removeAttribute('id');
-    } else {
-      landmarkIds.add(landmark.id);
+// Add new function to address the accessibility issue REACT_043: Make header focusable
+export const makeHeaderFocusable = () => {
+  // code to make the header element focusable
+  // Example: Adding tabindex to the header
+  const header = document.querySelector('header');
+  if (header) {
+    header.setAttribute('tabindex', '0');
+  }
+};
+
+// Merge the code from both branches
+export const fixFakeLinkIssues = () => {
+  // Fix fake link issues
+};
+
+export const createAccessibleLink = () => {
+  // Create accessible link
+};
+
+export const validateLinkAccessibility = () => {
+  // Existing code...
+};
+
+export const handleFakeLinks = () => {
+  // Existing code...
+};
+
+// New function to fix accessibility issues as per the insight report
+export const fixAccessibilityIssues = () => {
+  document.documentElement.setAttribute('lang', getLangAttribute());
+  createInPageButton();
+  const table = document.getElementById('myTable');
+  if (table) {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  }
+
+  // Validate landmark structure and uniqueness
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+  const landmarkIds = new Set();
+  landmarks.forEach(landmark => {
+    if (landmark.id) {
+      if (landmarkIds.has(landmark.id)) {
+        landmark.removeAttribute('id');
+      } else {
+        landmarkIds.add(landmark.id);
+      }
     }
-  }
-});
+  });
 
-// Add accessible names to all SVG elements
-const svgs = document.querySelectorAll('svg');
-svgs.forEach(svg => {
-  const accessibleName = getSvgAccessibleName(svg);
-  setSvgAttributes(svg, accessibleName);
-});
+  // Add accessible names to all SVG elements
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  });
 
-validateLinkAccessibility();
-handleFakeLinks();
+  validateLinkAccessibility();
+  handleFakeLinks();
 
-// Fix button identifiers
-const buttons = document.querySelectorAll('button, [role="button"]');
-buttons.forEach((button, index) => {
-  if (!button.id) {
-    button.id = `accessible-button-${index}`;
-  }
-});
+  // Fix button identifiers
+  const buttons = document.querySelectorAll('button, [role="button"]');
+  buttons.forEach((button, index) => {
+    if (!button.id) {
+      button.id = `accessible-button-${index}`;
+    }
+  });
+
+  validateLinkAccessibility();
+  handleFakeLinks();
+  // Note: addressAccessibilityIssues requires an insightReport parameter, so it's called separately when needed
+};
+
+// New function to check link accessibility
+function checkLinkAccessibility() {
+  return validateLinkAccessibility();
+}
+
+// New function to display module structure
+function displayModuleStructure(module) {
+  console.log('Displaying module structure for:', module);
+}
+
+// DOM-based accessibility code
+
+// REACT_015: lang attribute added to HTML element
+// The React component rendering the HTML element provides the `lang` prop
+// The language attribute is set according to the application's settings
+function getFullLangAttribute() {
+  // Implementation for getting full lang attribute
+  return 'en-US'; // Example implementation
+}
+
+function createInPageButton() {
+  // Existing code...
+}
 
 // Google sign-in accessibility
 function googleSignIn() {
@@ -257,30 +290,6 @@ handleFakeLinks();
 
 // Handle fake link issues
 handleAccessibilityErrors();
-
-// New function to check link accessibility
-function checkLinkAccessibility() {
-  return validateLinkAccessibility();
-}
-
-// New function to display module structure
-function displayModuleStructure(module) {
-  console.log('Displaying module structure for:', module);
-}
-
-// DOM-based accessibility code
-
-// REACT_015: lang attribute added to HTML element
-// The React component rendering the HTML element provides the `lang` prop
-// The language attribute is set according to the application's settings
-function getFullLangAttribute() {
-  // Implementation for getting full lang attribute
-  return 'en-US'; // Example implementation
-}
-
-function createInPageButton() {
-  // Existing code...
-}
 
 // Render functions
 function renderPage(data) {

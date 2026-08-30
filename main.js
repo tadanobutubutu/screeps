@@ -1,5 +1,29 @@
 // TODO: This is the existing code that needs to be preserved
 
+// Existing code that needs to be preserved
+// ...
+
+const createResourceButton = (url, title, icon) => {
+  const btn = document.createElement('a');
+  btn.href = url;
+  btn.target = '_blank';
+  btn.rel = 'noopener noreferrer';
+
+  const iconContainer = document.createElement('span');
+  iconContainer.className = 'resource-icon';
+  iconContainer.innerHTML = icon;
+
+  const titleContainer = document.createElement('span');
+  titleContainer.className = 'resource-title';
+  titleContainer.textContent = title;
+
+  btn.appendChild(iconContainer);
+  btn.appendChild(titleContainer);
+  btn.setAttribute('aria-label', `Open ${title} in a new tab`);
+
+  return btn;
+};
+
 // New function to render dependency graphs
 function renderDependencyGraph() {
   // Implementation to render dependency graphs
@@ -18,9 +42,12 @@ function newFunction() {
   // Implementation of the new function
 }
 
-// Export the new functions if necessary, depending on the existing exports
 module.exports = {
   // ... existing exports ...
+  // Existing exports that need to be preserved
+  // ...
+
+  createResourceButton, // NEW export for the utility function
   renderDependencyGraph,
   displayModuleStructure,
   newFunction

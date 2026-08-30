@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -64,7 +61,146 @@ function uniqueLandmarks(landmarks) {
     return result;
 }
 
-// Add lang attribute as per the issue requirement
+/**
+ * Ensures that all landmarks in the array have unique IDs.
+ * @param {Array} landmarks - List of landmark objects.
+ * @returns {Array} Landmarks with unique IDs.
+ */
+function ensureUniqueLandmarks(landmarks) {
+    const result = [];
+    for (const lm of landmarks) {
+        if (!lm.id) {
+            lm.id = ensureUniqueLandmarkId(lm.getAttribute('role') || 'region');
+        } else if (_usedLandmarkIds.has(lm.id)) {
+            lm.id = ensureUniqueLandmarkId(lm.id);
+        }
+        _usedLandmarkIds.add(lm.id);
+        result.push(lm);
+    }
+    return result;
+}
+
+/**
+ * Validates a single landmark element for required accessibility attributes.
+ * @param {HTMLElement} element - The landmark element to validate.
+ * @returns {boolean} True if valid, false otherwise.
+ */
+function validateLandmark(element) {
+    const requiredRoles = ['banner', 'navigation', 'main', 'article', 'aside', 'footer', 'region'];
+    const role = element.getAttribute('role');
+    if (!role || !requiredRoles.includes(role)) {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Validates and fixes the structure of landmark elements.
+ * @param {Array} landmarks - List of landmark elements.
+ * @returns {Array} Validated landmarks.
+ */
+function validateLandmarkStructure(landmarks) {
+    return landmarks.filter(lm => validateLandmark(lm));
+}
+
+/**
+ * Gets an accessible name for an SVG element.
+ * @param {HTMLElement} svgElement - The SVG element.
+ * @returns {string} Accessible name.
+ */
+function getSvgAccessibleName(svgElement) {
+    const title = svgElement.querySelector('title');
+    if (title) {
+        return title.textContent || '';
+    }
+    return svgElement.getAttribute('aria-label') || svgElement.getAttribute('alt') || '';
+}
+
+/**
+ * Creates an in-page navigation button with accessibility features.
+ * @param {string} targetSelector - CSS selector for the target element.
+ * @param {string} [label='Skip to content'] - Button label.
+ * @returns {HTMLButtonElement} The created button.
+ */
+function createInPageButton(targetSelector, label = 'Skip to content') {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = label;
+    button.setAttribute('aria-label', label);
+    button.addEventListener('click', () => {
+        const target = document.querySelector(targetSelector);
+        if (target) {
+            target.focus();
+        }
+    });
+    return button;
+}
+
+/**
+ * Creates an accessible link element.
+ * @param {string} href - The link URL.
+ * @param {string} text - Link text.
+ * @param {Object} [options] - Additional options.
+ * @param {string} [options.title] - Title attribute.
+ * @param {string} [options['aria-describedby']] - Description ID.
+ * @returns {HTMLAnchorElement} The created link.
+ */
+function createAccessibleLink(href, text, options = {}) {
+    const link = document.createElement('a');
+    link.href = href;
+    link.textContent = text;
+    link.setAttribute('aria-label', text);
+    if (options.title) {
+        link.title = options.title;
+    }
+    if (options['aria-describedby']) {
+        link.setAttribute('aria-describedby', options['aria-describedby']);
+    }
+    return link;
+}
+
+/**
+ * Validates and fixes table accessibility issues.
+ * @param {HTMLTableElement} table - The table element.
+ * @returns {void}
+ */
+function validateTableAccessibility(table) {
+    const headers = table.querySelectorAll('th');
+    headers.forEach((th, index) => {
+        if (!th.hasAttribute('scope')) {
+            th.setAttribute('scope', 'col');
+        }
+    });
+}
+
+/**
+ * Validates table structure for proper accessibility.
+ * @param {HTMLTableElement} table - The table element.
+ * @returns {boolean} True if valid structure.
+ */
+function validateTableStructure(table) {
+    const hasCaption = !!table.querySelector('caption');
+    const hasHeader = !!table.querySelector('thead');
+    return hasCaption || hasHeader;
+}
+
+/**
+ * Handles accessibility issues by applying fixes.
+ * @param {Object} issues - Accessibility issues to resolve.
+ * @returns {void}
+ */
+function handleAccessibilityIssues(issues = {}) {
+    if (issues.tables) {
+        issues.tables.forEach(validateTableAccessibility);
+    }
+    if (issues.landmarks) {
+        ensureUniqueLandmarks(issues.landmarks);
+    }
+}
+
+/**
+ * Add lang attribute as per the issue requirement
+ */
 function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
   const elementToModify = document.querySelector('some-selector');
@@ -152,4 +288,3 @@ function trapFocus(container) {
 }
 
 // ... other existing functions remained unchanged
-```

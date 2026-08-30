@@ -11,7 +11,72 @@ module.exports = {
 
   // TODO: Address accessibility issues from insight report
   addressAccessibilityIssues: (container) => {
-    const fixes = implementAccessibilityFixesFromReport(container, validateAccessibilityReport(container));
+    const fixes = {
+      langAdded: false,
+      mainLandmarkAdded: false,
+      landmarksFixed: 0,
+      svgNamesAdded: 0,
+      fakeLinksFixed: 0
+    };
+
+    // Add lang attribute to HTML element if missing
+    const htmlElement = container.querySelector('html') || document.documentElement;
+    const langAttr = getLangAttribute(htmlElement);
+    if (!langAttr) {
+      htmlElement.setAttribute('lang', 'en');
+      fixes.langAdded = true;
+    }
+
+    // Add main landmark if missing
+    const mainElement = container.querySelector('main');
+    if (!mainElement) {
+      const body = container.querySelector('body');
+      if (body) {
+        const newMain = document.createElement('main');
+        while (body.firstChild) {
+          newMain.appendChild(body.firstChild);
+        }
+        body.appendChild(newMain);
+        fixes.mainLandmarkAdded = true;
+      }
+    }
+
+    // Fix landmark issues
+    const landmarkFixes = validateLandmark(container);
+    if (landmarkFixes && landmarkFixes.length > 0) {
+      fixes.landmarksFixed = landmarkFixes.length;
+    }
+    const landmarkStructureFixes = validateLandmarkStructure(container);
+    if (landmarkStructureFixes && landmarkStructureFixes.length > 0) {
+      fixes.landmarksFixed += landmarkStructureFixes.length;
+    }
+
+    // Fix SVG accessible names
+    const svgElements = container.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      const accessibleName = getSvgAccessibleName(svg);
+      if (accessibleName && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+        svg.setAttribute('aria-label', accessibleName);
+        fixes.svgNamesAdded++;
+      }
+    });
+
+    // Fix fake link issues (elements that look like links but are missing href)
+    const fakeLinks = container.querySelectorAll('a:not([href])');
+    fakeLinks.forEach(link => {
+      const style = window.getComputedStyle(link);
+      if (style.cursor === 'pointer' || link.hasAttribute('onclick')) {
+        link.setAttribute('role', 'link');
+        link.setAttribute('tabindex', '0');
+        fixes.fakeLinksFixed++;
+      }
+    });
+
+    // Validate accessibility report
+    const report = validateAccessibilityReport(container);
+    if (report && report.length > 0) {
+      log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
+    }
 
     if (fixes.langAdded) {
       log('Lang attribute added to HTML element', 'info');
@@ -21,9 +86,9 @@ module.exports = {
       log('Main landmark added', 'info');
     }
 
-    const landmarkFixes = fixes.landmarksFixed || 0;
-    if (landmarkFixes > 0) {
-      log(`Fixed ${landmarkFixes} unique landmarks`, 'info');
+    const landmarkFixesCount = fixes.landmarksFixed || 0;
+    if (landmarkFixesCount > 0) {
+      log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
     }
 
     const svgFixes = fixes.svgNamesAdded || 0;
@@ -53,11 +118,10 @@ module.exports = {
         index = 0;
       }
 
-      if (focusableElements[index].focus) {
+      if (focusableElements[index]) {
         focusableElements[index].focus();
       } else {
-        main.ensureElementHasId(focusableElements[index]);
-        focusableElements[index].focus();
+        focusableElements[0].focus();
       }
       activeElementIndex = index;
     }
@@ -66,7 +130,7 @@ module.exports = {
       setActiveElement(activeElementIndex + 1);
     }
 
-    function prevFocusableElement() {
+    function previousFocusableElement() {
       setActiveElement(activeElementIndex - 1);
     }
 
@@ -82,14 +146,14 @@ module.exports = {
       switch (e.key) {
         case 'Tab':
           if (e.shiftKey) {
-            prevFocusableElement();
+            previousFocusableElement();
           } else {
             nextFocusableElement();
           }
           e.preventDefault();
           break;
         case 'ArrowLeft':
-          prevFocusableElement();
+          previousFocusableElement();
           e.preventDefault();
           break;
         case 'ArrowRight':
@@ -157,7 +221,7 @@ module.exports = {
   // Existing utility functions
   log: (message, level = 'info') => {
     const timestamp = new Date().toISOString();
-    console.log(`${timestamp} [${level.toUpperCase()}] ${message}`);
+    console.log(`${timestamp} [${level}] ${message}`);
   },
 
   // Export functionality with accessibility support

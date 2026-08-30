@@ -11,6 +11,7 @@
  * @param {string} [options.id] - Element ID
  * @param {Object} [options.styles] - Inline styles to apply
  * @param {string} [options.type] - Button type (default: 'button')
+ * @param {boolean} [options.accessible] - Flag to indicate if the button should have accessibility features
  * @returns {HTMLButtonElement} The created button element
  */
 function createInPageButton(text, onClick, options = {}) {
@@ -20,6 +21,7 @@ function createInPageButton(text, onClick, options = {}) {
     styles = {},
     type = 'button',
     disabled = false,
+    accessible = false,
   } = options;
 
   const button = document.createElement('button');
@@ -37,6 +39,13 @@ function createInPageButton(text, onClick, options = {}) {
 
   if (styles && typeof styles === 'object') {
     Object.assign(button.style, styles);
+  }
+
+  // Add accessibility features if requested
+  if (accessible) {
+    button.setAttribute('role', 'button');
+    button.setAttribute('tabindex', '0');
+    button.setAttribute('aria-pressed', 'false');
   }
 
   if (typeof onClick === 'function') {

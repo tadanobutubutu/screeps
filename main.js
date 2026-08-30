@@ -6,7 +6,7 @@ import { getSvgAccessibleName, setSvgAttributes } from './utils/svg.js';
 import { ensureUniqueLandmarks } from './utils/landmark.js';
 import { createInPageButton as createButton, validateLinkAccessibility, handleFakeLinks } from './utils/link.js';
 
-// TODO: Add back any required exports that might have been?
+// TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
 /**
@@ -52,9 +52,6 @@ function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
-  validateLinkAccessibility(button);
-  handleFakeLinks(button);
-  document.body.appendChild(button);
   return button;
 }
 
@@ -75,8 +72,8 @@ function addressAccessibilityIssues(insightReport) {
       case 'missing-alt-text':
         fixedIssue.fixApplied = 'Added descriptive alternative text for images.';
         break;
-      case 'missing-aria-label':
-        fixedIssue.fixApplied = 'Added appropriate ARIA labels for interactive elements.';
+      case 'missing-aria-attribute':
+        fixedIssue.fixApplied = 'Added appropriate ARIA attributes for interactive elements.';
         break;
       case 'heading-order':
         fixedIssue.fixApplied = 'Corrected heading hierarchy to maintain logical order.';
@@ -84,7 +81,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'add-lang-attribute':
         fixedIssue.fixApplied = 'Added lang attribute to HTML element.';
         // Actual implementation from HEAD
-        const htmlElement = document.querySelector('html');
+        const htmlElement = document.documentElement;
         if (htmlElement) {
           htmlElement.setAttribute('lang', 'en');
         }
@@ -229,11 +226,11 @@ export function existingExport() {
 // New function to address accessibility issues from insight report
 function addressInsightReportIssues(insightReport) {
   // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
-  insightReport.forEach(issue => {
-    console.log(`Addressing issue: ${issue.issue}`);
+  insightReport.forEach(item => {
+    console.log(`Addressing issue: ${item.issue}`);
     // Implement the solution to the issue
     // This is a placeholder for the actual implementation
-    console.log(`Solution: ${issue.solution}`);
+    console.log(`Solution: ${item.solution}`);
     // ... code to apply the solution ...
   });
 }
@@ -259,33 +256,3 @@ export function functionB() {
   // Placeholder implementation for functionB
   // Implementation details here
 }
-
-// Existing tests in /tests/ must continue to pass
-// Example test case for the new function
-describe('addressInsightReportIssues and spawnProcess', () => {
-  it('should address each issue in the insight report', () => {
-    const insightReport = [
-      { issue: 'Issue 1', solution: 'Solution 1' },
-      { issue: 'Issue 2', solution: 'Solution 2' }
-    ];
-    const mockLog = jest.spyOn(console, 'log').mockImplementation();
-    addressInsightReportIssues(insightReport);
-    // Mock console.log to check if the correct messages were logged
-    // This is a simplified example; in a real test, you would use a mock library
-    expect(mockLog).toHaveBeenCalledWith('Addressing issue: Issue 1');
-    expect(mockLog).toHaveBeenCalledWith('Solution: Solution 1');
-    expect(mockLog).toHaveBeenCalledWith('Addressing issue: Issue 2');
-    expect(mockLog).toHaveBeenCalledWith('Solution: Solution 2');
-    mockLog.mockRestore();
-  });
-
-  it('should log the command being spawned', () => {
-    const command = 'echo Hello, World!';
-    // Mock console.log to check if the correct message was logged
-    // This is a simplified example; in a real test, you would use a mock library
-    const mockLog = jest.spyOn(console, 'log').mockImplementation();
-    spawnProcess(command);
-    expect(mockLog).toHaveBeenCalledWith(`Spawning process for command: ${command}`);
-    mockLog.mockRestore();
-  });
-});

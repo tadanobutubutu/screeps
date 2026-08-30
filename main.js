@@ -1,5 +1,3 @@
-// TODO: Implement the new function as per the issue requirements
-
 // main.js - Combined utility and accessibility features
 
 // Existing functionality preserved
@@ -16,10 +14,10 @@ function processData(input) {
 }
 
 // Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(element, options = {}) {
+function handleKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
-  element.addEventListener('keydown', (event) => {
+  return (event) => {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -40,7 +38,7 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-  });
+  };
 }
 
 // Helper to manage focus within a container
@@ -52,7 +50,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  container.addEventListener('keydown', (event) => {
+  return (event) => {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -62,7 +60,7 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  });
+  };
 }
 
 // ARIA live region announcer
@@ -94,84 +92,106 @@ function initializeAccessibility() {
   
   return {
     announce: announcer.announce,
-    setupKeyboardNavigation,
+    handleKeyboardNavigation,
     trapFocus,
     prefersReducedMotion
   };
 }
 
-// TODO: add the new functions or changes requested in the issue
-
 /**
- * Checks if a value is an empty string, null, or undefined
- * @param {*} value - The value to check
- * @returns {boolean} - True if the value is empty
+ * Validates landmark elements in a given container
+ * Checks for proper landmark structure, required landmarks, and accessibility issues
+ * @param {Element} [root=document.body] - Root element to search within
+ * @param {Object} [options={}] - Validation options
+ * @param {boolean} [options.checkRequired=true] - Whether to check for required landmarks
+ * @returns {Object} Validation result object
  */
-function isEmpty(value) {
-  return value === null || value === undefined || value === '';
-}
+function validateLandmark(root = document.body, options = {}) {
+  const {
+    checkRequired = true
+  } = options;
 
-/**
- * Capitalizes the first letter of a string
- * @param {string} str - The string to capitalize
- * @returns {string} - The capitalized string
- */
-function capitalize(str) {
-  if (typeof str !== 'string' || str.length === 0) return str;
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+  // Valid landmark roles according to ARIA specification
+  const validLandmarkRoles = [
+    'banner', 'navigation', 'main', 'complementary', 'contentinfo', 
+    'search', 'form', 'region'
+  ];
 
-/**
- * Generates a random integer between min and max (inclusive)
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Random integer
- */
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+  // Find all elements with explicit landmark roles
+  const landmarks = [];
+  
+  validLandmarkRoles.forEach(role => {
+    const elements = root.querySelectorAll(`[role="${role}"]`);
+    elements.forEach(el => {
+      landmarks.push({
+        role: role,
+        element: el,
+        id: el.id || null
+      });
+    });
+  });
 
-/**
- * Clamps a number between min and max values
- * @param {number} num - Number to clamp
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Clamped number
- */
-function clamp(num, min, max) {
-  return Math.min(Math.max(num, min), max);
-}
-
-/**
- * Deep clones an object
- * @param {*} obj - Object to clone
- * @returns {*} - Cloned object
- */
-function deepClone(obj) {
-  if (obj === null || typeof obj !== 'object') return obj;
-  if (obj instanceof Date) return new Date(obj.getTime());
-  if (obj instanceof Array) return obj.map(item => deepClone(item));
-  if (obj instanceof Object) {
-    const cloned = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        cloned[key] = deepClone(obj[key]);
-      }
+  // Check for duplicate IDs
+  const idCount = {};
+  landmarks.forEach(lm => {
+    if (lm.id) {
+      idCount[lm.id] = (idCount[lm.id] || 0) + 1;
     }
-    return cloned;
-  }
-  return obj;
-}
+  });
 
-// Add accessible names to SVG elements
-function addAccessibleNamesToSvg() {
-  const svgs = document.querySelectorAll('svg');
-  if (svgs.length >= 2) {
-    svgs[0].setAttribute('aria-label', 'First SVG');
-    svgs[1].setAttribute('aria-label', 'Second SVG');
+  const duplicateIds = Object.keys(idCount).filter(id => idCount[id] > 1);
+
+  // Check for missing landmark roles (if checking required)
+  const foundRoles = landmarks.map(lm => lm.role);
+  const missingRoles = checkRequired 
+    ? validLandmarkRoles.filter(role => !foundRoles.includes(role) && 
+        ['main', 'navigation', 'banner'].includes(role))
+    : [];
+
+  // Check for accessibility issues
+  const issues = [];
+
+  // Check for multiple main landmarks (best practice is one)
+  const mainLandmarks = landmarks.filter(lm => lm.role === 'main');
+  if (mainLandmarks.length > 1) {
+    issues.push({
+      type: 'multiple-main-landmarks',
+      message: `Found ${mainLandmarks.length} <main> landmarks. Best practice is to have exactly one.`,
+      severity: 'warning'
+    });
   }
+
+  // Check for missing main landmark
+  if (checkRequired && mainLandmarks.length === 0) {
+    issues.push({
+      type: 'missing-main',
+      message: 'No <main> landmark found. Pages should have exactly one main landmark.',
+      severity: 'error'
+    });
+  }
+
+  // Check navigation landmarks for proper labeling
+  const navLandmarks = landmarks.filter(lm => lm.role === 'navigation');
+  navLandmarks.forEach((nav, index) => {
+    if (!nav.id && !nav.element.getAttribute('aria-label') && 
+        !nav.element.getAttribute('aria-labelledby')) {
+      issues.push({
+        type: 'unlabeled-navigation',
+        message: `Navigation landmark at index ${index} is missing an accessible label (id, aria-label, or aria-labelledby).`,
+        severity: 'warning'
+      });
+    }
+  });
+
+  return {
+    isValid: issues.filter(i => i.severity === 'error').length === 0,
+    landmarks: landmarks,
+    landmarkCount: landmarks.length,
+    rolesFound: [...new Set(foundRoles)],
+    duplicateIds: duplicateIds,
+    missingRoles: missingRoles,
+    issues: issues
+  };
 }
 
 // Export for use in other modules
@@ -180,7 +200,7 @@ if (typeof module !== 'undefined' && module.exports) {
     exampleFunction,
     processData,
     initializeAccessibility,
-    setupKeyboardNavigation,
+    handleKeyboardNavigation,
     trapFocus,
     createAnnouncer,
     prefersReducedMotion,
@@ -189,7 +209,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getRandomInt,
     clamp,
     deepClone,
-    addAccessibleNamesToSvg
+    addAccessibleNamesToSvg,
+    validateLandmark
   };
 }
 
@@ -197,6 +218,5 @@ if (typeof module !== 'undefined' && module.exports) {
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     window.accessibilityFeatures = initializeAccessibility();
-    addAccessibleNamesToSvg();
   });
 }

@@ -1,6 +1,6 @@
 import react from 'react';
 
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+const HTML = ({ lang }) => react.createElement('html', { lang: lang }, '/* other children */');
 
 // ... (existing code, exports, and functions)
 

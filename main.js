@@ -1,8 +1,8 @@
-// Import required modules
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 import { union } from 'lodash'; // You'll need to install lodash if it's not already installed
 
 // Import graph rendering functions
-import { renderGraph } from './newGraphRenderingFunctions'; // Assuming you have a separate file for the new functions
+import { renderGraph, prepareDataForGraph } from './newGraphRenderingFunctions'; // Assuming you have a separate file for the new functions
 
 /**
  * Check and ensure accessibility attributes for links and buttons

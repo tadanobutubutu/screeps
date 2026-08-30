@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// TODO: Address any missing required exports
+// TODO: Add back any required exports that might have been removed
 // REACT_015: Add lang attribute
 
 const Main = ({ children, title, lang = 'en' }) => {

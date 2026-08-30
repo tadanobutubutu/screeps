@@ -184,6 +184,14 @@ function fixUniqueLandmarks() {
   }
 }
 
+function addLangAttribute() {
+  document.documentElement.lang = 'en';
+}
+
+function someFunction() {
+  return null;
+}
+
 module.exports = {
   improveAccessibility,
   addressInsightReportIssues,

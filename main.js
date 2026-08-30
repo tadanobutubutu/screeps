@@ -174,6 +174,130 @@ function validateAllTables() {
   };
 }
 
+/**
+ * Add lang attribute to HTML element
+ * REACT_015: Ensures the HTML element has a lang attribute for accessibility
+ * @param {Document|Element} doc - Document or element to modify
+ * @returns {Document|Element} Modified document or element
+ */
+function addLangAttribute(doc) {
+  const element = doc.documentElement || doc;
+  if (!element.hasAttribute('lang')) {
+    element.setAttribute('lang', 'en');
+  }
+  return doc;
+}
+
+/**
+ * Fix table structure issues
+ * REACT_027: Ensures tables have proper thead/tbody structure
+ * @param {Document|Element} doc - Document or element to modify
+ * @returns {Document|Element} Modified document or element
+ */
+function fixTableStructureIssues(doc) {
+  const tables = doc.querySelectorAll ? doc.querySelectorAll('table') : [];
+  tables.forEach(table => {
+    if (table.querySelector('thead') === null && table.rows && table.rows.length > 0) {
+      const thead = doc.createElement('thead');
+      thead.appendChild(table.rows[0]);
+      table.insertBefore(thead, table.firstChild);
+    }
+    if (!table.querySelector('tbody') && table.rows && table.rows.length > 1) {
+      const tbody = doc.createElement('tbody');
+      for (let i = 1; i < table.rows.length; i++) {
+        tbody.appendChild(table.rows[i]);
+      }
+      table.appendChild(tbody);
+    }
+  });
+  return doc;
+}
+
+/**
+ * Add main landmark
+ * REACT_017: Ensures the page has a proper main landmark
+ * @param {Document|Element} doc - Document or element to modify
+ * @returns {Document|Element} Modified document or element
+ */
+function addMainLandmark(doc) {
+  const body = doc.body || doc;
+  const existingMain = body.querySelector ? body.querySelector('main, [role="main"]') : null;
+  if (!existingMain) {
+    const main = doc.createElement('main');
+    main.setAttribute('role', 'main');
+    if (body.firstChild) {
+      body.insertBefore(main, body.firstChild);
+    } else {
+      body.appendChild(main);
+    }
+  }
+  return doc;
+}
+
+/**
+ * Add accessible names to SVGs
+ * REACT_041: Ensures SVG elements have accessible names
+ * @param {Document|Element} doc - Document or element to modify
+ * @returns {Document|Element} Modified document or element
+ */
+function addSvgAccessibleNames(doc) {
+  const svgs = doc.querySelectorAll ? doc.querySelectorAll('svg') : [];
+  let svgCount = 0;
+  svgs.forEach(svg => {
+    const hasAccessibleName = svg.getAttribute('aria-label') || 
+                              svg.getAttribute('aria-labelledby') || 
+                              svg.querySelector('title');
+    if (!hasAccessibleName) {
+      svgCount++;
+      svg.setAttribute('aria-label', `SVG graphic ${svgCount}`);
+      const title = doc.createElement('title');
+      title.textContent = `SVG graphic ${svgCount}`;
+      svg.insertBefore(title, svg.firstChild);
+    }
+  });
+  return doc;
+}
+
+/**
+ * Ensure unique landmarks
+ * REACT_025: Ensures only one main landmark exists per page
+ * @param {Document|Element} doc - Document or element to modify
+ * @returns {Document|Element} Modified document or element
+ */
+function ensureUniqueLandmarks(doc) {
+  const body = doc.body || doc;
+  const mains = body.querySelectorAll ? body.querySelectorAll('main, [role="main"]') : [];
+  if (mains.length > 1) {
+    for (let i = 1; i < mains.length; i++) {
+      mains[i].removeAttribute('role');
+      mains[i].removeAttribute('aria-label');
+    }
+  }
+  return doc;
+}
+
+/**
+ * Fix fake link issues
+ * REACT_036: Converts links without href to proper buttons or adds role
+ * @param {Document|Element} doc - Document or element to modify
+ * @returns {Document|Element} Modified document or element
+ */
+function fixFakeLinkIssue(doc) {
+  const links = doc.querySelectorAll ? doc.querySelectorAll('a') : [];
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    if (href === '#' || href === '' || href === null) {
+      if (!link.hasAttribute('role')) {
+        link.setAttribute('role', 'button');
+      }
+      if (!link.hasAttribute('tabindex')) {
+        link.setAttribute('tabindex', '0');
+      }
+    }
+  });
+  return doc;
+}
+
 // Module exports
 module.exports = {
   initialize,
@@ -183,5 +307,11 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue
 };

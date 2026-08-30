@@ -4,8 +4,9 @@ Here is the resolved file content:
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// TODO: Address any missing required exports
-// REACT_015: Add lang attribute
+// TODO: Add back any required exports that might have been removed.
+// For example, if the issue requires adding back an export like `calculateSum`, you would add:
+// export function calculateSum(a, b) { return a + b; }
 
 const Main = ({ children, title, lang = 'en' }) => {
   return (

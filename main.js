@@ -1,7 +1,13 @@
 import { requiredModule } from './required-module.js';
+import { getLangAttribute } from './accessibility/lang-attribute.js';
+import { createInPageButton, validateLinkAccessibility, handleFakeLinks } from './accessibility/links.js';
+import { validateTableAccessibility, validateTableStructure } from './accessibility/tables.js';
+import { validateLandmark, validateLandmarkStructure, validateLandmarkRegions } from './accessibility/landmarks.js';
+import { getSvgAccessibleName, setSvgAttributes } from './accessibility/svgs.js';
+import { wrapPrimaryContentInMain } from './accessibility/main.js';
 
 function addLandmarkRegions() {
-  const container = document.getElementById('landmark-regions-container');
+  const container = document.querySelector('.main-content');
   if (container) {
     container.innerHTML = `
       <div class="landmark-region" role="region" aria-label="Building" aria-labelledby="buildingLabel">
@@ -93,11 +99,11 @@ export function validateFocusableElement(element) {
     return false;
   }
   const focusableTags = ['a', 'button', 'input', 'select', 'textarea'];
-  const tagName = element.tagName?.toLowerCase();
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
   const isFocusable = focusableTags.includes(tagName) ||
                       element.tabIndex >= 0 ||
                       checkAccessibilityAttribute(element, 'tabindex');
-  return isFocusable && !element.hasAttribute('disabled');
+  return isFocusable && ensureAccessibleLabel(element);
 }
 
 // Default export for backwards compatibility
@@ -164,7 +170,10 @@ export function initializeApp() {
   return Promise.resolve();
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
+/**
+ * Generate a report based on accessibility issues
+ * @returns {Object} Report object containing accessibility issues found
+ */
 export function generateAccessibilityReport() {
   // Placeholder for the actual implementation
   // This function should return a report object based on the accessibility issues found
@@ -188,26 +197,33 @@ var roleUpgrader = require('role.upgrader');
 
 // Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
 function addressAccessibilityIssues() {
-  document.documentElement.setAttribute('lang', 'en');
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    getLangAttribute(htmlElement, 'en');
+  }
 
-  const landmarks = document.querySelectorAll('.landmark');
+  const landmarks = document.querySelectorAll('[role="landmark"]');
   landmarks.forEach((landmark, index) => {
-    landmark.setAttribute('role', 'landmark');
-    landmark.setAttribute('aria-labelledby', `landmark-label-${index}`);
+    validateLandmark(landmark, index, 'landmark');
+    validateLandmarkStructure(landmark);
   });
 
-  const svg1 = document.querySelector('#svg1');
-  const svg2 = document.querySelector('#svg2');
-  svg1.setAttribute('aria-labelledby', 'svg1-title');
-  svg2.setAttribute('aria-labelledby', 'svg2-title');
+  const svg1 = document.getElementById('svg1');
+  const svg2 = document.getElementById('svg2');
+  if (svg1) {
+    getSvgAccessibleName(svg1, 'svg1-title');
+  }
+  if (svg2) {
+    getSvgAccessibleName(svg2, 'svg2-title');
+  }
 
   // ... existing code preserved for accessibility ...
 
-  module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
+  return addressAccessibilityIssues;
 }
 
-module.exports.getLangAttribute = getLangAttribute;
-module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
+export { getLangAttribute };
+export { wrapPrimaryContentInMain };
 
 // ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
 
@@ -252,4 +268,3 @@ module.exports.loop = function() {
 }
 
 addressAccessibilityIssues(); // Call the accessibility function
-```

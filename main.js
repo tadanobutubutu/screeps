@@ -2,12 +2,42 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
+import { Button } from 'antd';
 
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
 
 // Get the dispatch function
 const dispatch = useDispatch();
+
+// Function to get the language attribute value for accessibility
+function getLangAttribute() {
+  // Return the language code from the document's HTML element
+  // This helps screen readers pronounce content correctly
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.lang || 'en';
+  }
+  return 'en';
+}
+
+// Function to ensure ARIA attributes are properly set for the dependency graph
+function ensureDependencyGraphARIA() {
+  const lang = getLangAttribute();
+
+  // Set lang attribute on document root if not already set
+  if (typeof document !== 'undefined' && document.documentElement) {
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = lang;
+    }
+  }
+
+  // Ensure accessible property on document root for added books form
+  const accessible = document.documentElement.accessible || false;
+  return {
+    lang: lang,
+    accessible: !accessible
+  };
+}
 
 // Function to handle sorting books by title (ascending)
 function sortByTitle(a, b) {
@@ -28,10 +58,7 @@ function generateKey(book) {
 function BookItem(book) {
   return (
     <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        ...
-      />
+      <List.Item.Meta title={book.title} description={book.author} />
     </List.Item>
   );
 }
@@ -40,6 +67,9 @@ function BookItem(book) {
 export function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
+
+  // Ensure accessibility attributes are set before adding the book
+  ensureDependencyGraphARIA();
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
@@ -248,8 +278,43 @@ function ensureDependencyGraphAriaRole(container, role = 'img', label = 'Depende
   return dependencyGraph;
 }
 
-// Export necessary functions for use in other modules
-export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, AddBookForm, onTitleSort, onAuthorSort };
+// Handle form submission for adding a new book
+function handleAddBook(newBook) {
+  addBook(newBook);
+}
+
+// Function for generating a report based on accessibility issues
+function generateAccessibilityReport(issues) {
+  if (!issues || issues.length === 0) {
+    return 'No accessibility issues found.';
+  }
+
+  const totalIssues = issues.length;
+  const criticalIssues = issues.filter(issue => issue.severity === 'critical').length;
+  const majorIssues = issues.filter(issue => issue.severity === 'major').length;
+  const minorIssues = issues.filter(issue => issue.severity === 'minor').length;
+
+  let report = `Accessibility Report\n`;
+  report += `===================\n`;
+  report += `Total Issues: ${totalIssues}\n`;
+  report += `Critical: ${criticalIssues}\n`;
+  report += `Major: ${majorIssues}\n`;
+  report += `Minor: ${minorIssues}\n\n`;
+
+  report += `Issue Details:\n`;
+  issues.forEach((issue, index) => {
+    report += `${index + 1}. [${issue.severity.toUpperCase()}] ${issue.description}`;
+    if (issue.element) {
+      report += ` - Element: ${issue.element}`;
+    }
+    if (issue.suggestion) {
+      report += ` - Suggestion: ${issue.suggestion}`;
+    }
+    report += `\n`;
+  });
+
+  return report;
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
@@ -318,24 +383,25 @@ function Main() {
           Sort by Author
         </button>
       </nav>
-      <List 
-        dataSource={getBooksList} 
+      <List
+        itemLayout="vertical"
+        dataSource={getBooksList}
         renderItem={book => BookItem(book)}
         aria-label="Book list"
       />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      <AddBookForm onSubmit={handleAddBook} />
     </div>
   );
 }
 
+// Export the necessary functions for use in other modules
+export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport };
+
 // Export the Main component
 export default Main;
 
-// Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
-
 // REACT_015: Get lang attribute for HTML element
-function getLangAttribute() {
+function getLangAttributeForDocument() {
   // Return the language attribute for the document
   // This helps screen readers determine the language of the content
   return process.env.LANG || 'en';
@@ -620,7 +686,7 @@ function setSvgAttributes(svg, options = {}) {
 }
 
 // Function to handle adding a new book with accessibility improvements
-function handleAddBook(values) {
+function handleAddBookWithValues(values) {
   return addBook({
     id: Date.now(), // Generate a unique id using current timestamp
     title: values.title,
@@ -647,9 +713,6 @@ function processLandmarks(landmarks) {
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
-// Line 129 preserved content from issue
-// TODO: This is the existing code that needs to be preserved
 
 function addLandmarks(landmarks) {
   processLandmarks(landmarks);
@@ -743,37 +806,3 @@ function addressAccessibilityIssues(issues) {
     // ... code to apply the solution ...
   });
 }
-
-module.exports = {
-  sortByTitle,
-  sortByAuthor,
-  generateKey,
-  BookItem,
-  addBook,
-  AddBookForm,
-  onTitleSort,
-  onAuthorSort,
-  getLangAttribute,
-  validateLandmark,
-  validateLandmarkStructure,
-  checkDocumentAccessibility,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  validateTableAccessibility,
-  validateTableStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  handleAddBook,
-  addLandmarks,
-  getUniqueLandmarkName,
-  isValidLink,
-  addScopeToHeaders,
-  addressAccessibilityIssues,
-  getCellsAbove,
-  getCellsInRow,
-  isInitialized,
-  appData,
-  processLandmarks,
-  setSvgAccessibleName
-};

@@ -4,6 +4,10 @@ const path = require('path');
 // Import test helper function
 const { updateThScopeAttribute } = require('./testHelper');
 
+// Import dependency graph and index content modules
+const dependencyGraphContent = require('./dependencyGraphContent');
+const indexContent = require('./indexContent');
+
 // Landmark elements that should be checked for proper usage
 const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
 
@@ -96,11 +100,15 @@ function createInPageButton(options) {
 function countDependencies() {
   // Existing function implementation
 
-  // New implementation to count dependencies using Document and regex
+  // New implementation to count dependencies using dependencyGraphContent and regex
   const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/g;
-  const document = { body: { textContent: '' } };
-  const importCount = (document.body.textContent || '').match(importCommentRegExp) || [];
+  const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
+}
+
+// Render index view content using indexContent
+function renderIndexView() {
+  return indexContent;
 }
 
 // Store for accessibility announcements (screen reader support)
@@ -591,5 +599,6 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   ensureUniqueLandmarks,
-  checkLandmarkElementsInDom
+  checkLandmarkElementsInDom,
+  renderIndexView
 };

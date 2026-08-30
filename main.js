@@ -101,12 +101,92 @@ const renderDependencyGraph = (data) => {
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
-function newFocusTrap() {
-  // New function implementation
+function getLangAttribute() {
+  const html = document.documentElement;
+  if (html && !html.getAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+  }
+  return html ? html.getAttribute('lang') : null;
 }
 
-// Add back any required exports that might have been removed.
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
+function personName(element, name) {
+  if (element && name) {
+    element.setAttribute('aria-label', name);
+    if (element.tagName === 'A' && !element.getAttribute('href')) {
+      element.setAttribute('role', 'button');
+    }
+  }
+  return name || '';
+}
+
+function validateTableAccessibility(table) {
+  if (!table || !(table.tagName === 'TABLE' || table.querySelector('table'))) return false;
+  const headers = table.querySelectorAll ? table.querySelectorAll('th') : [];
+  headers.forEach((th) => {
+    if (!th.getAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+    }
+  });
+  return true;
+}
+
+function validateTableStructure(table) {
+  if (!table || !(table.tagName === 'TABLE' || table.querySelector('table'))) return false;
+  return true;
+}
+
+function validateLandmark(element) {
+  if (!element) return false;
+  const role = element.getAttribute('role') || element.tagName.toLowerCase();
+  const validRoles = [
+    'banner', 'main', 'search', 'form', 'navigation', 'region', 'contentinfo',
+    'complementary', 'aside', 'article', 'section', 'header', 'footer', 'nav'
+  ];
+  return validRoles.includes(role);
+}
+
+function validateLandmarkStructure() {
+  if (typeof document === 'undefined') return true;
+  const mains = document.querySelectorAll('main, [role="main"]');
+  return mains.length <= 1;
+}
+
+function getSvgAccessibleName(svg, name) {
+  if (!svg) return name || '';
+  const label = name || 'icon';
+  if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+    svg.setAttribute('aria-label', label);
+    const title = document.createElement('title');
+    title.textContent = label;
+    svg.appendChild(title);
+  }
+  return label;
+}
+
+function createInPageButton(text, targetId) {
+  const btn = document.createElement('button');
+  btn.textContent = text || 'Go to content';
+  btn.setAttribute('aria-label', text || 'Go to content');
+  btn.addEventListener('click', () => {
+    if (targetId) {
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.setAttribute('tabindex', '-1');
+        target.focus();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  });
+  return btn;
+}
+
+function newFocusTrap(element) {
+  // New function implementation
+  if (element) {
+    accessibilityUtils.trapFocus(element);
+  }
+}
+
 function calculateSum(a, b) { return a + b; }
 
 // Credential response handling
@@ -285,5 +365,14 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  newFocusTrap
 };

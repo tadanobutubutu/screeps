@@ -36,7 +36,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}_${Date.now().toString(36)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -80,7 +80,7 @@ function addAriaLabel(element, label) {
  * @param {string} languageCode - The language code (e.g., 'en', 'es', 'fr')
  */
 function setLanguageAttribute(languageCode) {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', languageCode);
   }
@@ -91,7 +91,7 @@ function setLanguageAttribute(languageCode) {
  * @returns {string|null} The language code or null if not set
  */
 function getLangAttribute() {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
@@ -219,7 +219,7 @@ function createInPageButton(text, onClick) {
   button.type = 'button';
   
   // Ensure button has an accessible name
-  if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+  if (!button.textContent || !button.textContent.trim()) {
     throw new Error('Button must have either text content or aria-label');
   }
   
@@ -303,17 +303,4 @@ function validateLandmark(root = document) {
   const mainElements = root.querySelectorAll('main, [role="main"]');
   if (mainElements.length === 0) {
     issues.push('Page should have at least one main landmark');
-  } else if (mainElements.length > 1) {
-    issues.push('Page should have only one main landmark');
-  }
-  
-  // Check for header landmark
-  const headerElements = root.querySelectorAll('header, [role="banner"]');
-  if (headerElements.length > 1) {
-    issues.push('Page should have only one header landmark');
-  }
-  
-  // Check for footer landmark
-  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
-  if (footerElements.length > 1) {
-    issues.push('Page
+  } else if (

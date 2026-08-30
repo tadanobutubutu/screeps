@@ -161,6 +161,32 @@ function initializeAccessibility() {
 }
 
 /**
+ * Renders a dependency graph in the specified container.
+ * @param {HTMLElement} container - The container element.
+ * @param {Object} data - The dependency data.
+ */
+function renderDependencyGraph(container, data) {
+  // Simple implementation: clear container and display JSON.
+  container.innerHTML = '';
+  const pre = document.createElement('pre');
+  pre.textContent = JSON.stringify(data, null, 2);
+  container.appendChild(pre);
+}
+
+/**
+ * Renders an index view in the specified container.
+ * @param {HTMLElement} container - The container element.
+ * @param {Object} indexData - The index data.
+ */
+function renderIndexView(container, indexData) {
+  // Simple implementation: clear container and display JSON.
+  container.innerHTML = '';
+  const pre = document.createElement('pre');
+  pre.textContent = JSON.stringify(indexData, null, 2);
+  container.appendChild(pre);
+}
+
+/**
  * Checks if a value is an empty string, null, or undefined
  * @param {*} value - The value to check
  * @returns {boolean} - True if the value is empty
@@ -239,7 +265,9 @@ if (typeof module !== 'undefined' && module.exports) {
     getRandomInt,
     clamp,
     deepClone,
-    addAccessibleNamesToSvg
+    addAccessibleNamesToSvg,
+    renderDependencyGraph,
+    renderIndexView
   };
 }
 

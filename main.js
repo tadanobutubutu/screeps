@@ -1,3 +1,4 @@
+// TODO: Implement this function for creating in-page buttons
 // main.js - Accessibility-focused implementation
 // TODO: Address accessibility issues from insight report:
 
@@ -31,7 +32,8 @@ if (typeof module !== 'undefined' && module.exports) {
     ensureUniqueLandmarksFromString,
     validateLandmark,
     spawnSomeCommand,
-    addLangAttribute
+    addLangAttribute,
+    createInPageButtons
   };
 } else {
   // Browser environment - wait for DOM
@@ -427,4 +429,31 @@ function spawnSomeCommand(callback) {
 // REACT_015: Add lang attribute
 function addLangAttribute(element, lang) {
   element.setAttribute('lang', lang);
+}
+
+/**
+ * Creates in-page navigation buttons for smooth scrolling to sections
+ * @param {string} containerId - The ID of the container element to append buttons
+ * @param {Array<{id: string, label: string}>} sections - Array of section identifiers and labels
+ */
+function createInPageButtons(containerId, sections) {
+  const container = document.getElementById(containerId);
+  if (!container || !Array.isArray(sections)) return;
+
+  const buttonGroup = document.createElement('div');
+  buttonGroup.className = 'in-page-buttons';
+
+  sections.forEach(section => {
+    const button = document.createElement('button');
+    button.textContent = section.label;
+    button.addEventListener('click', () => {
+      const target = document.getElementById(section.id);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+    buttonGroup.appendChild(button);
+  });
+
+  container.appendChild(buttonGroup);
 }

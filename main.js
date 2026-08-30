@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// ...
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
 

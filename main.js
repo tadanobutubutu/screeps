@@ -234,6 +234,9 @@ function handleCredentialResponse(response) {
   // Placeholder for actual implementation
 }
 
+// Add lang attribute to HTML element
+document.documentElement.setAttribute('lang', 'en');
+
 // Module exports
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {

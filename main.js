@@ -23,7 +23,7 @@ const _usedLandmarkIds = new Set();
  * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
-    const candidate = baseName;
+    let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
         const suffix = Math.random().toString(36).substring(2, 7);
@@ -202,6 +202,75 @@ function isLinkAccessible(link) {
   return false;
 }
 
+/**
+ * Renders the index view of the application.
+ * This function is responsible for displaying the main index page,
+ * including the list of items, navigation, and any relevant metadata.
+ *
+ * @returns {void}
+ */
+function renderIndexView() {
+  // Get the root container where the index view will be rendered
+  const rootContainer = document.getElementById('app') || document.body;
+
+  // Clear existing content
+  rootContainer.innerHTML = '';
+
+  // Create the index header
+  const header = document.createElement('header');
+  header.setAttribute('role', 'banner');
+  header.id = ensureUniqueLandmarkId('index-header');
+  const headerTitle = document.createElement('h1');
+  headerTitle.textContent = 'Index';
+  header.appendChild(headerTitle);
+  rootContainer.appendChild(header);
+
+  // Create the navigation landmark
+  const nav = document.createElement('nav');
+  nav.setAttribute('role', 'navigation');
+  nav.id = ensureUniqueLandmarkId('index-nav');
+  const navList = document.createElement('ul');
+  const navItems = ['Home', 'About', 'Contact'];
+  navItems.forEach(itemText => {
+    const listItem = document.createElement('li');
+    const link = document.createElement('a');
+    link.href = `#${itemText.toLowerCase()}`;
+    link.textContent = itemText;
+    listItem.appendChild(link);
+    navList.appendChild(listItem);
+  });
+  nav.appendChild(navList);
+  rootContainer.appendChild(nav);
+
+  // Create the main content area
+  const main = document.createElement('main');
+  main.setAttribute('role', 'main');
+  main.id = ensureUniqueLandmarkId('index-main');
+
+  const section = document.createElement('section');
+  section.setAttribute('aria-labelledby', 'index-section-title');
+  const sectionTitle = document.createElement('h2');
+  sectionTitle.id = 'index-section-title';
+  sectionTitle.textContent = 'Welcome';
+  section.appendChild(sectionTitle);
+
+  const description = document.createElement('p');
+  description.textContent = 'This is the index view of the application.';
+  section.appendChild(description);
+
+  main.appendChild(section);
+  rootContainer.appendChild(main);
+
+  // Create the footer landmark
+  const footer = document.createElement('footer');
+  footer.setAttribute('role', 'contentinfo');
+  footer.id = ensureUniqueLandmarkId('index-footer');
+  const footerText = document.createElement('p');
+  footerText.textContent = '© 2024 Application';
+  footer.appendChild(footerText);
+  rootContainer.appendChild(footer);
+}
+
 // Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
 // Assumes you have already set the id on the button element in your code.
 replaceMyButtonId();
@@ -219,5 +288,6 @@ module.exports = {
   getFullLangAttribute,
   ensureUniqueLandmarkId,
   uniqueLandmarks,
-  isLinkAccessible
+  isLinkAccessible,
+  renderIndexView
 };

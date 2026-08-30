@@ -21,7 +21,7 @@ const { someFunction } = { someFunction: () => 'someFunction result' };
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
+  const dependencyGraph = document.querySelector('.dependency-graph') || document.querySelector('[data-dependency-graph]');
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
@@ -32,7 +32,7 @@ function addressAccessibilityIssues() {
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
+  const container = document.querySelector('.dependency-graph') || document.querySelector('[data-dependency-graph]');
   if (container) {
     container.innerHTML = data;
   }
@@ -53,7 +53,7 @@ function addLandmarkRoles(insightReport) {
 }
 
 // Address other insight report issues
-function fixLandmarkIssues(insightReport) {
+function addressInsightReportIssues(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_017') {
@@ -84,13 +84,13 @@ function calculateSum(a, b) {
 function fixFakeLinks() {
   // Implementation for fixing fake link issues goes here.
   // Handle both anchor tags with href="#" and div elements with role="link"
-  const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
-  const fakeLinkDivs = document.querySelectorAll('[role="link"]');
+  const fakeLinkAnchors = document.querySelectorAll('a[href="#"]') || [];
+  const fakeLinkDivs = document.querySelectorAll('[role="link"]') || [];
 
   [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
     link.setAttribute('role', 'button');
     link.tabIndex = 0;
-    if (!link.getAttribute('aria-label')) {
+    if (link.tagName === 'A' && !link.getAttribute('aria-label')) {
       link.setAttribute('aria-label', 'Button');
     }
   });
@@ -106,14 +106,14 @@ function addLangAttribute() {
 
 // Fix table structure issues
 function fixTableStructureIssues() {
-  const tables = document.querySelectorAll('table');
+  const tables = document.querySelectorAll('table') || [];
   tables.forEach(table => {
     // Ensure tables have proper structure
     if (!table.querySelector('thead')) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const thead = document.createElement('thead');
-        const tbody = table.querySelector('tbody');
+        const tbody = table.querySelector('tbody') || null;
         thead.appendChild(firstRow);
         table.insertBefore(thead, tbody || firstRow);
       }
@@ -123,17 +123,17 @@ function fixTableStructureIssues() {
 
 // Fix table header cell scope (REACT_027)
 function fixTableHeaderCellScope() {
-  const tables = document.querySelectorAll('table');
+  const tables = document.querySelectorAll('table') || [];
   tables.forEach(table => {
-    const headerCells = table.querySelectorAll('th');
+    const headerCells = table.querySelectorAll('th') || [];
     headerCells.forEach(cell => {
       if (!cell.hasAttribute('scope')) {
-        const rows = table.querySelectorAll('tr');
+        const rows = Array.from(table.querySelectorAll('tr'));
         const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
         let isHeaderRow = true;
 
         rows.forEach(row => {
-          const rowCells = row.querySelectorAll('th, td');
+          const rowCells = Array.from(row.querySelectorAll('td')) || [];
           if (rowCells[cellIndex] !== cell) {
             isHeaderRow = false;
           }
@@ -147,7 +147,7 @@ function fixTableHeaderCellScope() {
 
 // Add main landmark (REACT_017)
 function addMainLandmark() {
-  const mainElements = document.querySelectorAll('main');
+  const mainElements = document.querySelectorAll('main') || [];
   mainElements.forEach(main => {
     if (!main.hasAttribute('role')) {
       main.setAttribute('role', 'main');
@@ -169,11 +169,11 @@ function addMainLandmark() {
 
 // Add accessible names to SVGs (REACT_041)
 function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = document.querySelectorAll('svg') || [];
   svgs.forEach((svg, index) => {
     const title = svg.querySelector('title');
     if (title) {
-      const titleId = `svg-title-${index}`;
+      const titleId = `svg-title-${index + 1}`;
       title.setAttribute('id', titleId);
       svg.setAttribute('aria-labelledby', titleId);
     } else {
@@ -229,15 +229,15 @@ function fixUniqueLandmarks(insightReport) {
 }
 
 // New function to implement accessibility fixes
-function implementNewFunction() {
+function improveAccessibility() {
   addressAccessibilityIssues();
   fixFakeLinks();
   ensureUniqueLandmarks();
   addLangAttribute();
   fixTableStructureIssues();
+  fixTableHeaderCellScope();
   addMainLandmark();
   addSvgAccessibleNames();
-  fixTableHeaderCellScope();
   // Note: fixUniqueLandmarks requires an insightReport parameter, so we call it with an empty object
   fixUniqueLandmarks({ issues: [] });
 }

@@ -67,17 +67,21 @@ function processLandmarks(landmarks) {
   // Ensure all landmarks have valid structure
   const landmarkStructureCheck = (landmark) => {
     // Check landmark properties here
-    // ...
-    return true; // Add your own check logic
+    return landmark && typeof landmark === 'object' && landmark.id !== undefined && landmark.type !== undefined;
   };
 
   const validLandmarks = landmarks.filter(landmarkStructureCheck);
 
   // Ensure the landmarks are unique
   const ensureUniqueLandmarks = (landmarks) => {
-    // Add your own unique landmark logic here
-    // ...
-    return landmarks;
+    const seenIds = new Set();
+    return landmarks.filter(landmark => {
+      if (seenIds.has(landmark.id)) {
+        return false;
+      }
+      seenIds.add(landmark.id);
+      return true;
+    });
   };
 
   return ensureUniqueLandmarks(validLandmarks);

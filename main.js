@@ -101,29 +101,213 @@ const renderDependencyGraph = (data) => {
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
-function newFocusTrap() {
-  // New function implementation: traps focus within a given element
-  return (element) => {
-    if (!element) return;
-    const focusable = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    if (focusable.length === 0) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
+// New accessibility functions implementation
+function getLangAttribute(element, lang) {
+  if (element) {
+    element.setAttribute('lang', lang || 'en');
+  }
+  return element;
+}
 
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === first) {
-          last.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          first.focus();
-          e.preventDefault();
+function personName(name) {
+  const span = document.createElement('span');
+  span.setAttribute('aria-label', `Person name: ${name}`);
+  span.textContent = name;
+  return span;
+}
+
+function validateTableAccessibility(table) {
+  if (!table) return false;
+  
+  const hasCaption = table.querySelector('caption') !== null;
+  const hasHeaders = table.querySelector('thead') !== null;
+  const rows = table.querySelectorAll('tr');
+  
+  let isValid = hasCaption && hasHeaders;
+  
+  if (rows.length > 0) {
+    const firstRowCells = rows[0].querySelectorAll('th, td');
+    const hasScope = Array.from(firstRowCells).some(cell => 
+      cell.hasAttribute('scope')
+    );
+    isValid = isValid && hasScope;
+  }
+  
+  return isValid;
+}
+
+function validateTableStructure(table) {
+  if (!table) return false;
+  
+  const rows = table.querySelectorAll('tr');
+  let isValid = true;
+  
+  rows.forEach((row, index) => {
+    const cells = row.querySelectorAll('td, th');
+    if (index === 0) {
+      // Header row should have th elements
+      const hasHeaderCells = Array.from(cells).some(cell => 
+        cell.tagName.toLowerCase() === 'th'
+      );
+      isValid = isValid && hasHeaderCells;
+    } else {
+      // Data rows should have consistent number of cells
+      if (cells.length !== rows[0].querySelectorAll('td, th').length) {
+        isValid = false;
+      }
+    }
+  });
+  
+  return isValid;
+}
+
+function validateLandmark(element) {
+  if (!element) return false;
+  
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
+  const role = element.getAttribute('role');
+  const tagName = element.tagName.toLowerCase();
+  
+  // Check for semantic HTML5 elements
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'form', 'section'];
+  if (landmarks.includes(tagName)) {
+    return true;
+  }
+  
+  // Check for explicit ARIA landmark roles
+  if (role && landmarkRoles.includes(role)) {
+    return true;
+  }
+  
+  return false;
+}
+
+function validateLandmarkStructure(element) {
+  if (!element) return false;
+  
+  const landmarks = element.querySelectorAll(
+    'header, nav, main, aside, footer, form[role="search"], section[aria-label], div[role="banner"], div[role="navigation"], div[role="main"], div[role="complementary"], div[role="contentinfo"]'
+  );
+  
+  return landmarks.length > 0;
+}
+
+function getSvgAccessibleName(svg, name) {
+  if (svg && name) {
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', name);
+  }
+  return svg;
+}
+
+function createInPageButton(text, onClick) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.setAttribute('aria-label', text);
+  button.addEventListener('click', onClick);
+  return button;
+}
+
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll(
+    'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]'
+  );
+  
+  const landmarkTypes = {};
+  
+  landmarks.forEach((landmark, index) => {
+    const tagName = landmark.tagName.toLowerCase();
+    const role = landmark.getAttribute('role');
+    const identifier = role || tagName;
+    
+    if (!landmarkTypes[identifier]) {
+      landmarkTypes[identifier] = 0;
+    } else {
+      landmarkTypes[identifier]++;
+      if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+        landmark.setAttribute('aria-label', `${identifier} ${landmarkTypes[identifier] + 1}`);
+      }
+    }
+  });
+}
+
+function newFocusTrap(element) {
+  if (!element) return;
+  
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  
+  if (focusableElements.length === 0) return;
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+  
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+  
+  // Focus first element when trap starts
+  firstElement.focus();
+}
+
+function transformInputData(inputData, options = {}) {
+  const {
+    preserveKeys = true,
+    uppercase = false,
+    trimWhitespace = true,
+    maxLength = null
+  } = options;
+
+  if (!inputData) {
+    return null;
+  }
+  
+  if (typeof inputData === 'string') {
+    let result = inputData;
+    
+    if (trimWhitespace) {
+      result = result.trim();
+    }
+    
+    if (uppercase) {
+      result = result.toUpperCase();
+    }
+    
+    if (maxLength && result.length > maxLength) {
+      result = result.substring(0, maxLength);
+    }
+    
+    return result;
+  }
+  
+  if (typeof inputData === 'object' && !Array.isArray(inputData)) {
+    const result = {};
+    
+    for (const key in inputData) {
+      if (inputData.hasOwnProperty(key)) {
+        if (preserveKeys || !key.startsWith('_')) {
+          result[key] = transformInputData(inputData[key], options);
         }
       }
-    });
-  };
+    }
+    
+    return result;
+  }
+  
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => transformInputData(item, options));
+  }
+  
+  return inputData;
 }
 
 // Add back any required exports that might have been removed.
@@ -286,44 +470,43 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
-
-  function processValue(value) {
-    if (typeof value === 'string') {
-      let newValue = value;
-      if (trimWhitespace) {
-        newValue = newValue.trim();
-      }
-      if (uppercase) {
-        newValue = newValue.toUpperCase();
-      }
-      if (maxLength !== null && newValue.length > maxLength) {
-        newValue = newValue.slice(0, maxLength);
-      }
-      return newValue;
-    } else if (Array.isArray(value)) {
-      return value.map(processValue);
-    } else if (typeof value === 'object' && value !== null) {
-      return processObject(value);
+  
+  if (typeof inputData === 'string') {
+    let result = inputData;
+    
+    if (trimWhitespace) {
+      result = result.trim();
     }
-    return value;
-  }
-
-  function processObject(obj) {
-    const result = {};
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        const newKey = preserveKeys ? key : key.toLowerCase();
-        result[newKey] = processValue(obj[key]);
-      }
+    
+    if (uppercase) {
+      result = result.toUpperCase();
     }
+    
+    if (maxLength && result.length > maxLength) {
+      result = result.substring(0, maxLength);
+    }
+    
     return result;
   }
-
-  if (Array.isArray(inputData)) {
-    return inputData.map(processValue);
-  } else if (typeof inputData === 'object' && inputData !== null) {
-    return processObject(inputData);
+  
+  if (typeof inputData === 'object' && !Array.isArray(inputData)) {
+    const result = {};
+    
+    for (const key in inputData) {
+      if (inputData.hasOwnProperty(key)) {
+        if (preserveKeys || !key.startsWith('_')) {
+          result[key] = transformInputData(inputData[key], options);
+        }
+      }
+    }
+    
+    return result;
   }
+  
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => transformInputData(item, options));
+  }
+  
   return inputData;
 }
 
@@ -346,6 +529,15 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraph,
   calculateSum,
-  transformInputData,
-  newFocusTrap
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  ensureUniqueLandmarks,
+  newFocusTrap,
+  transformInputData
 };

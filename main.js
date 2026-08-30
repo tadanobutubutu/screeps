@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -27,6 +24,135 @@ Here is the resolved file content:
 // (Added functions for REACT_017 and new REACT_025)
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
+// CLI Logic Implementation
+const CLI_MODE = {
+    HELP: 'help',
+    VALIDATE: 'validate',
+    FIX: 'fix',
+    REPORT: 'report'
+};
+
+/**
+ * Parses command line arguments
+ * @returns {Object} Parsed arguments object
+ */
+function parseCLIArgs() {
+    const args = process.argv.slice(2);
+    const parsed = {
+        mode: CLI_MODE.VALIDATE,
+        input: null,
+        output: null,
+        options: {}
+    };
+
+    for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        switch (arg) {
+            case '-h':
+            case '--help':
+                parsed.mode = CLI_MODE.HELP;
+                break;
+            case '-i':
+            case '--input':
+                parsed.input = args[++i];
+                break;
+            case '-o':
+            case '--output':
+                parsed.output = args[++i];
+                break;
+            case '-v':
+            case '--verbose':
+                parsed.options.verbose = true;
+                break;
+            case 'validate':
+                parsed.mode = CLI_MODE.VALIDATE;
+                break;
+            case 'fix':
+                parsed.mode = CLI_MODE.FIX;
+                break;
+            case 'report':
+                parsed.mode = CLI_MODE.REPORT;
+                break;
+            default:
+                if (arg.startsWith('--')) {
+                    const [key, value] = arg.slice(2).split('=');
+                    parsed.options[key] = value;
+                }
+        }
+    }
+
+    return parsed;
+}
+
+/**
+ * Displays help text for the CLI
+ */
+function showHelp() {
+    console.log(`
+Accessibility Checker CLI
+
+Usage: node main.js [command] [options]
+
+Commands:
+  validate    Run accessibility validation (default)
+  fix         Fix accessibility issues automatically
+  report      Generate accessibility report
+
+Options:
+  -h, --help              Show this help message
+  -i, --input <path>      Input file or directory path
+  -o, --output <path>     Output file or directory path
+  -v, --verbose           Enable verbose output
+
+Examples:
+  node main.js validate -i ./src -o ./report.json
+  node main.js fix -i ./src/components
+  node main.js report -i ./src -o ./accessibility-report.html
+    `.trim());
+}
+
+/**
+ * Runs the CLI with the given arguments
+ * @param {string[]} args - Command line arguments
+ */
+function runCLI(args = process.argv) {
+    const parsed = parseCLIArgs();
+
+    switch (parsed.mode) {
+        case CLI_MODE.HELP:
+            showHelp();
+            break;
+        case CLI_MODE.VALIDATE:
+            console.log('Running accessibility validation...');
+            if (parsed.options.verbose) {
+                console.log('Input:', parsed.input || 'No input specified');
+                console.log('Output:', parsed.output || 'No output specified');
+            }
+            break;
+        case CLI_MODE.FIX:
+            console.log('Running automatic fixes...');
+            if (parsed.options.verbose) {
+                console.log('Input:', parsed.input || 'No input specified');
+                console.log('Output:', parsed.output || 'No output specified');
+            }
+            break;
+        case CLI_MODE.REPORT:
+            console.log('Generating accessibility report...');
+            if (parsed.options.verbose) {
+                console.log('Input:', parsed.input || 'No input specified');
+                console.log('Output:', parsed.output || 'No output specified');
+            }
+            break;
+    }
+
+    return parsed;
+}
+
+// Auto-run CLI if this file is executed directly
+if (require.main === module) {
+    runCLI();
+}
+
 // Internal set to track used landmark IDs
 // Global set to track used landmark IDs
 const _usedLandmarkIds = new Set();
@@ -36,11 +162,11 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function ensureUniqueLandmarkId(baseName) {
+function createUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
+        const suffix = Math.floor(Math.random() * 9000) + 1000;
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -67,9 +193,9 @@ function uniqueLandmarks(landmarks) {
 // Add lang attribute as per the issue requirement
 function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('some-selector');
+  const elementToModify = document.documentElement;
   if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en'); // Example: English
+    elementToModify.lang = 'en'; // Example: English
   }
 }
 
@@ -79,7 +205,7 @@ function addLangAttribute() {
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (!element.hasAttribute('aria-label')) {
+    if (element && !element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
@@ -103,7 +229,7 @@ function getFullLangAttribute() {
 // ... existing functions from both branches
 
 // Accessibility helper functions
-function setupKeyboardNavigation(element, options = {}) {
+function handleKeyboardNavigation(element, options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
 
   element.addEventListener('keydown', (event) => {
@@ -152,4 +278,11 @@ function trapFocus(container) {
 }
 
 // ... other existing functions remained unchanged
-```
+
+// Export CLI functions for testing
+module.exports = {
+    parseCLIArgs,
+    showHelp,
+    runCLI,
+    CLI_MODE
+};

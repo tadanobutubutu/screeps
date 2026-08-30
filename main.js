@@ -1,3 +1,5 @@
+// TODO: Address accessibility issues from insight report — FIXED
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
@@ -9,11 +11,12 @@
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = document.querySelector('.skip-link, [href="#main-content"], .skip-nav');
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const targetId = skipLink.getAttribute('href')?.substring(1);
+        const target = targetId ? document.getElementById(targetId) : null;
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -30,17 +33,24 @@ const accessibilityUtils = {
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
 
-    element.addEventListener('keydown', (e) => {
+    const handleTabKey = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
           e.preventDefault();
+          firstElement.focus();
         }
       }
-    });
+    };
+
+    element.addEventListener('keydown', handleTabKey);
+
+    // Return cleanup function
+    return () => {
+      element.removeEventListener('keydown', handleTabKey);
+    };
   },
 
   // Announce message to screen readers
@@ -70,7 +80,7 @@ const accessibilityUtils = {
 
 const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element;
 };
@@ -103,6 +113,11 @@ const renderDependencyGraph = (data) => {
 
 function newFocusTrap() {
   // New function implementation
+  const trapContainer = document.querySelector('[data-focus-trap]');
+  if (trapContainer) {
+    return accessibilityUtils.trapFocus(trapContainer);
+  }
+  return null;
 }
 
 // Add back any required exports that might have been removed.
@@ -133,7 +148,10 @@ async function handleCredentialResponse(response) {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`${timestamp} [${level.toUpperCase()}] ${message}`);
+  const formattedMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+  if (typeof console !== 'undefined') {
+    console.log(formattedMessage);
+  }
 }
 
 // Export functionality with accessibility support
@@ -145,6 +163,7 @@ const exportUtils = {
     link.href = url;
     link.download = filename;
     link.setAttribute('aria-label', `Download ${filename}`);
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -180,12 +199,12 @@ const exportUtils = {
 };
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9_.-]/g, '_');
+  return filename.replace(/[^a-z0-9_\-\.]/gi, '_');
 }
 
 function readFileSafe(filePath) {
   try {
-    return fs.readFileSync(filePath, 'utf8');
+    return require('fs').readFileSync(filePath, 'utf8');
   } catch (error) {
     log(`Error reading file ${filePath}: ${error.message}`, 'error');
     return null;
@@ -219,7 +238,7 @@ const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
   
   // Add keyboard support for all interactive elements
-  document.querySelectorAll('[data-accessible]').forEach(element => {
+  document.querySelectorAll('button, a, [role="button"]').forEach(element => {
     element.addEventListener('keydown', (e) => {
       accessibilityUtils.handleKeyboardNav(e, {
         Enter: () => element.click(),
@@ -265,6 +284,35 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
+
+  if (typeof inputData === 'string') {
+    let result = inputData;
+    if (trimWhitespace) {
+      result = result.trim();
+    }
+    if (uppercase) {
+      result = result.toUpperCase();
+    }
+    if (maxLength && result.length > maxLength) {
+      result = result.substring(0, maxLength);
+    }
+    return result;
+  }
+
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => transformInputData(item, options));
+  }
+
+  if (typeof inputData === 'object' && inputData !== null) {
+    const result = {};
+    for (const key in inputData) {
+      const newKey = preserveKeys ? key : key.toLowerCase().replace(/\s+/g, '_');
+      result[newKey] = transformInputData(inputData[key], options);
+    }
+    return result;
+  }
+
+  return inputData;
 }
 
 // Initialize on DOM ready

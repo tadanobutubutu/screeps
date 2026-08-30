@@ -252,4 +252,3 @@ module.exports.loop = function() {
 }
 
 addressAccessibilityIssues(); // Call the accessibility function
-```

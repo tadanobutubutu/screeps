@@ -24,6 +24,7 @@ export function BookItem(book) {
     <List.Item key={generateKey(book)} role="listitem">
       <List.Item.Meta
         title={book.title}
+        ...
       />
     </List.Item>
   );
@@ -40,6 +41,9 @@ function addBook(dispatch, book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
   return true;
 }
+
+// Export the addBook function
+export { addBook };
 
 // Default sorting function for the book list
 export const defaultSorting = sortByTitle;

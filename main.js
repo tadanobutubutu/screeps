@@ -123,12 +123,12 @@ function displayModuleStructure(modules) {
       result += `   Version: ${module.version}\n`;
     }
     
-    if (module.dependencies && Array.isArray(module.dependencies)) {
-      result += `   Dependencies: ${module.dependencies.join(', ')}\n`;
+    if (module.dependencies && Object.keys(module.dependencies).length > 0) {
+      result += `   Dependencies: ${Object.keys(module.dependencies).join(', ')}\n`;
     }
     
     if (module.exports) {
-      result += `   Exports: ${JSON.stringify(module.exports)}\n`;
+      result += `   Exports: ${module.exports}\n`;
     }
     
     result += '\n';

@@ -33,16 +33,34 @@ function BookItem(book) {
   );
 }
 
-// Function to create a new book entry in the Redux store
+// Function to create a new book entry in the Redux store (ADD ACCESSIBILITY)
 function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
+
+  // Set the focus on the newly added book item
+  document.querySelector(`[data-key="${generateKey(book)}"]`).focus();
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
+// Function to get the accessible name for an SVG (ADD ACCESSIBILITY)
+function getSvgAccessibleName(svgElement) {
+  const titleElement = svgElement.getElementsByTagName('title')[0];
+  return titleElement ? titleElement.textContent : svgElement.outerHTML;
+}
+
+// Function to set the accessible name for an SVG link (ADD ACCESSIBILITY)
+function setSvgAttributes(svgLinkElement, accessibleName) {
+  svgLinkElement.setAttribute('aria-labelledby', 'svg-accessible-name');
+  const svgAccessibleNameElement = document.createElement('span');
+  svgAccessibleNameElement.id = 'svg-accessible-name';
+  svgAccessibleNameElement.innerHTML = accessibleName;
+  svgLinkElement.appendChild(svgAccessibleNameElement);
+}
+
+// TODO: Implement the required changes to ensure unique landmarks (REFER: ensureUniqueLandmarks)
 // ...
 
 // Default sorting function for the book list
@@ -85,10 +103,26 @@ function Main() {
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List dataSource={bookItems} />
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      <form onSubmit={e => {
+        e.preventDefault();
+        const title = e.target.elements.title.value;
+        const author = e.target.elements.author.value;
+        addBook({ id: Date.now(), title, author });
+        e.target.reset();
+      }}>
+        <input type="text" placeholder="Title" name="title" required /><br />
+        <input type="text" placeholder="Author" name="author" required /><br />
+        <button type="submit">Add Book</button>
+      </form>
     </div>
   );
 }
 
-// Export the Main component
-export default Main;
+// Extract the SVG links and apply accessible names (ADD ACCESSIBILITY)
+function handleFakeLinks() {
+  const svgLinks = document.querySelectorAll('svg a');
+  svgLinks.forEach(setSvgAttributes);
+}
+
+// Export the Main component and handleFakeLinks function
+export { Main, handleFakeLinks };

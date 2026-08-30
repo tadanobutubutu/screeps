@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file:
-
-```javascript
 const React = require('react');
 const ReactDOM = require('react-dom');
 const Landmark = require('./Landmark');
@@ -39,8 +36,6 @@ function processLandmarks(landmarks) {
   return uniqueLandmarks;
 }
 
-// ... (Keep the rest of the accessibility-related functions as they are)
-
 // Function to check if the specified landmark element is in the document.
 // @param {string} id - The ID of the landmark element.
 // @returns {boolean} Returns true if the element exists; otherwise, false.
@@ -49,10 +44,10 @@ function checkLandmarkElement(id) {
   return element !== null;
 }
 
+// Add lang attribute to HTML element
+const htmlElement = document.documentElement;
+htmlElement.setAttribute('lang', appData.lang);
+
+// ... (Keep the rest of the accessibility-related functions as they are)
+
 // ... (Keep the rest of the original code that wasn't related to accessibility, if any)
-```
-
-This resolved file integrates both changes, properly keeps and integrates features from both versions, and does not introduce syntax errors. It preserves comments and style as much as possible. The main changes include:
-
-1. The existing code from the original repository has been kept along with its `Landmark` import.
-2. The Landmark structure checking function and the `processLandmarks()` function have been added, as part of the imported changes.

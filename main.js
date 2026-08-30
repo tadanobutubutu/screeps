@@ -1,3 +1,11 @@
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
@@ -101,8 +109,24 @@ const renderDependencyGraph = (data) => {
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
-function newFocusTrap() {
-  // New function implementation
+function newFocusTrap(element) {
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
 }
 
 // Add back any required exports that might have been removed.

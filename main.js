@@ -228,6 +228,32 @@ function createInPageButton(options = {}) {
   return button;
 }
 
+// Function to create an accessible button with full ARIA support
+function createAccessibleButton(options = {}) {
+  const { id, text, onClick, className = '', ariaLabel, ariaDescribedby, disabled = false, type = 'button' } = options;
+  
+  const button = document.createElement('button');
+  if (id) button.id = id;
+  button.textContent = text || 'Button';
+  button.className = className;
+  button.type = type;
+  button.disabled = disabled;
+  
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+  
+  if (ariaDescribedby) {
+    button.setAttribute('aria-describedby', ariaDescribedby);
+  }
+  
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+  
+  return button;
+}
+
 // Function to add accessible name to person name element
 function personName(element) {
   if (!element) return null;
@@ -302,6 +328,7 @@ export {
   ensureUniqueLandmarks,
   fixFakeLinkIssues,
   createInPageButton,
+  createAccessibleButton,
   personName
 };
 
@@ -320,5 +347,6 @@ export default {
   ensureUniqueLandmarks,
   fixFakeLinkIssues,
   createInPageButton,
+  createAccessibleButton,
   personName
 };

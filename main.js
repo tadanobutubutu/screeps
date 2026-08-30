@@ -1,4 +1,5 @@
 // main.js - Accessibility Checker Module
+// TODO: Implement the feature
 
 /**
  * Checks accessibility of links and buttons within a given container
@@ -597,7 +598,9 @@ if (typeof module !== 'undefined' && module.exports) {
     addressAccessibilityIssues,
     ensureUniqueLandmarks,
     wrapPrimaryContentInMain,
-    a11yStore
+    a11yStore,
+    DEFAULT_CONFIG,
+    version
   };
 }
 
@@ -620,4 +623,6 @@ if (typeof window !== 'undefined') {
   window.ensureUniqueLandmarks = ensureUniqueLandmarks;
   window.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
   window.a11yStore = a11yStore;
+  window.DEFAULT_CONFIG = DEFAULT_CONFIG;
+  window.version = version;
 }

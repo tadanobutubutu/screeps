@@ -253,6 +253,168 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+// REACT_015: Add lang attribute to HTML element
+function addLangToHtmlElement(doc, lang) {
+  if (!doc) {
+    doc = document;
+  }
+  const html = doc.documentElement;
+  if (html) {
+    html.setAttribute('lang', lang || 'en');
+  }
+}
+
+// REACT_017: Add landmark roles and fix landmark issues
+function addLandmarkRoles(container) {
+  if (!container) {
+    container = document.body;
+  }
+  
+  const landmarks = container.querySelectorAll('header:not([role]), main:not([role]), nav:not([role]), aside:not([role]), section:not([role]), article:not([role]), footer:not([role])');
+  
+  landmarks.forEach(el => {
+    const tagName = el.tagName.toLowerCase();
+    if (tagName === 'header' && !el.closest('main') && !el.closest('article')) {
+      el.setAttribute('role', 'banner');
+    } else if (tagName === 'main') {
+      el.setAttribute('role', 'main');
+    } else if (tagName === 'nav') {
+      el.setAttribute('role', 'navigation');
+    } else if (tagName === 'aside') {
+      el.setAttribute('role', 'complementary');
+    } else if (tagName === 'section') {
+      el.setAttribute('role', 'region');
+    } else if (tagName === 'article') {
+      el.setAttribute('role', 'article');
+    } else if (tagName === 'footer' && !el.closest('main') && !el.closest('article')) {
+      el.setAttribute('role', 'contentinfo');
+    }
+  });
+}
+
+// REACT_041: Add accessible names to 2 SVGs
+function addAccessibleNameToSvg(svg, name) {
+  if (!svg || svg.tagName.toLowerCase() !== 'svg') {
+    return false;
+  }
+  
+  if (name) {
+    svg.setAttribute('aria-label', name);
+    return true;
+  }
+  
+  // If no name provided, try to use title element
+  const title = svg.querySelector('title');
+  if (title && title.textContent) {
+    let titleId = title.id;
+    if (!titleId) {
+      titleId = 'svg-title-' + Math.random().toString(36).substring(2, 11);
+      title.id = titleId;
+    }
+    svg.setAttribute('aria-labelledby', titleId);
+    return true;
+  }
+  
+  return false;
+}
+
+// REACT_025: Ensure unique landmarks
+function fixDuplicateLandmarks(container) {
+  if (!container) {
+    container = document.body;
+  }
+  
+  const idCount = {};
+  const landmarks = container.querySelectorAll('[id]');
+  
+  landmarks.forEach(el => {
+    const id = el.id;
+    if (idCount[id]) {
+      idCount[id]++;
+    } else {
+      idCount[id] = 1;
+    }
+  });
+  
+  Object.keys(idCount).forEach(id => {
+    if (idCount[id] > 1) {
+      const elements = container.querySelectorAll('#' + CSS.escape(id));
+      let counter = 1;
+      elements.forEach(el => {
+        if (counter > 1) {
+          el.id = id + '-' + counter;
+        }
+        counter++;
+      });
+    }
+  });
+}
+
+// REACT_036: Fix fake link issues
+function fixFakeLinks(container) {
+  if (!container) {
+    container = document.body;
+  }
+  
+  const links = container.querySelectorAll('a');
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href || href === '#' || href === '') {
+      // Add role="button" and handle as button
+      link.setAttribute('role', 'button');
+    }
+  });
+  
+  // Also check elements with onclick that should be buttons
+  const elementsWithOnclick = container.querySelectorAll('[onclick]');
+  elementsWithOnclick.forEach(el => {
+    const tagName = el.tagName.toLowerCase();
+    if (tagName === 'a') {
+      el.setAttribute('role', 'button');
+    }
+  });
+}
+
+// REACT_027: Add scope to th elements
+function addScopeToThElements(container) {
+  if (!container) {
+    container = document.body;
+  }
+  
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    const thElements = table.querySelectorAll('th');
+    const firstRow = table.querySelector('thead tr') || table.querySelector('tr');
+    const firstRowCells = firstRow ? firstRow.querySelectorAll('th, td') : [];
+    
+    thElements.forEach((th, index) => {
+      if (!th.hasAttribute('scope')) {
+        // Check if this th is in the first row
+        const parentRow = th.closest('tr');
+        if (parentRow && parentRow === firstRow) {
+          th.setAttribute('scope', 'col');
+        } else if (th.textContent && firstRowCells.length > 0 && index < firstRowCells.length) {
+          // Check if this th corresponds to a row header
+          th.setAttribute('scope', 'row');
+        }
+      }
+    });
+  });
+}
+
+// Comprehensive accessibility improvement function
+function applyAccessibilityFixes(doc) {
+  if (!doc) {
+    doc = document;
+  }
+  
+  addLangToHtmlElement(doc, 'en');
+  addLandmarkRoles(doc.body);
+  addScopeToThElements(doc.body);
+  fixDuplicateLandmarks(doc.body);
+  fixFakeLinks(doc.body);
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +433,12 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  addLangToHtmlElement,
+  addLandmarkRoles,
+  addAccessibleNameToSvg,
+  fixDuplicateLandmarks,
+  fixFakeLinks,
+  addScopeToThElements,
+  applyAccessibilityFixes
 };

@@ -1,8 +1,5 @@
 import insightApi from './insightApi';
 
-// TODO: Add any other missing exports that might have been?
-// Added missing exports as per the issue
-
 // Existing exports (preserved)
 export function getValue() {
   return 42;
@@ -20,10 +17,11 @@ export function formatString(text) {
   return text.toUpperCase();
 }
 export function validateEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 }
 
-// 47: // TODO: Implement function for addressing accessibility issues from insight report
+// 47: Implement function for addressing accessibility issues from insight report
 export const addressAccessibilityIssues = (insightReport) => {
   const recommendations = [];
   
@@ -36,31 +34,31 @@ export const addressAccessibilityIssues = (insightReport) => {
   issues.forEach((issue) => {
     switch (issue.severity) {
       case 'critical':
-        recommendations.push(`[CRITICAL] ${issue.id}: ${issue.description}`);
+        recommendations.push(`${issue.id}: [CRITICAL] ${issue.description || 'No description'}`);
         if (issue.suggestedFix) {
           recommendations.push(`  Fix: ${issue.suggestedFix}`);
         }
         break;
       case 'high':
-        recommendations.push(`[HIGH] ${issue.id}: ${issue.description}`);
+        recommendations.push(`${issue.id}: [HIGH] ${issue.description || 'No description'}`);
         if (issue.suggestedFix) {
           recommendations.push(`  Fix: ${issue.suggestedFix}`);
         }
         break;
       case 'medium':
-        recommendations.push(`[MEDIUM] ${issue.id}: ${issue.description}`);
+        recommendations.push(`${issue.id}: [MEDIUM] ${issue.description || 'No description'}`);
         if (issue.suggestedFix) {
           recommendations.push(`  Fix: ${issue.suggestedFix}`);
         }
         break;
       case 'low':
-        recommendations.push(`[LOW] ${issue.id}: ${issue.description}`);
+        recommendations.push(`${issue.id}: [LOW] ${issue.description || 'No description'}`);
         if (issue.suggestedFix) {
           recommendations.push(`  Fix: ${issue.suggestedFix}`);
         }
         break;
       default:
-        recommendations.push(`[UNKNOWN] ${issue.id}: ${issue.description}`);
+        recommendations.push(`${issue.id}: [UNKNOWN] ${issue.description || 'No description'}`);
     }
   });
 

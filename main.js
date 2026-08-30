@@ -80,7 +80,7 @@ export function validateTableStructure(tableElement) {
   return issues;
 }
 
-// REACT_041: Add accessible names to SVGs
+// REACT_027: Add accessible names to SVGs
 export function getSvgAccessibleName(svgElement, accessibleName) {
   if (!svgElement) {
     return null;

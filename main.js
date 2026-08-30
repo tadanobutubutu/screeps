@@ -371,6 +371,15 @@ function isLinkAccessible(link) {
   return false;
 }
 
+/**
+ * Counts the number of dependencies (external scripts) in the document.
+ * @returns {number} The count of external script elements with a src attribute.
+ */
+function countDependencies() {
+  const scripts = document.querySelectorAll('script[src]');
+  return scripts.length;
+}
+
 addProperLandmarkRegions();
 addProperAccountManagement();
 addAriaToFormControls();
@@ -394,5 +403,6 @@ module.exports = {
   addLiveRegionForDynamicContent,
   isLinkAccessible,
   addAriaLabel,
-  addLangAttribute
+  addLangAttribute,
+  countDependencies
 };

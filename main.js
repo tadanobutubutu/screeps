@@ -309,6 +309,10 @@ export function newFunction() {
   // implementation of new function
 }
 
+export function function3() {
+  // implementation of function3
+}
+
 export function announceToScreenReader(message, priority = 'polite') {
   const announcement = document.createElement('div');
   announcement.setAttribute('aria-live', priority);
@@ -391,8 +395,8 @@ export function applyAccessibilityFixes(document, options = {}) {
  */
 export function getAccessibilityFunctions() {
   return {
-    getUniqueLandmarkName,
-    validateUniqueLandmarks,
+    getUniqueLandmarkName: getUniqueName,
+    validateUniqueLandmarks: ensureUniqueLandmarks,
     addSvgAccessibleName,
     isValidLink,
     addScopeToHeaders,

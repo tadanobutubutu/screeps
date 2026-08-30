@@ -86,6 +86,19 @@ function Main() {
       <List dataSource={bookItems} />
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
+      {/* Example of adding a new book form with accessibility considerations */}
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        // Assuming there's a function to get the form data
+        const newBook = getFormData();
+        addBook(newBook);
+      }}>
+        <label htmlFor="title">Title:</label>
+        <input type="text" id="title" name="title" required />
+        <label htmlFor="author">Author:</label>
+        <input type="text" id="author" name="author" required />
+        <button type="submit">Add Book</button>
+      </form>
     </div>
   );
 }

@@ -75,7 +75,41 @@ function validateLandmark() {
 }
 
 function validateLandmarkStructure() {
-  // Existing code...
+  // Validate landmark structure according to WCAG best practices.
+  // 1. Ensure there is at most one main landmark.
+  const mainLandmarks = document.querySelectorAll('[role="main"]');
+  if (mainLandmarks.length > 1) {
+    console.warn('Multiple main landmarks found');
+  }
+
+  // 2. Ensure each region landmark has an accessible name.
+  const regionLandmarks = document.querySelectorAll('[role="region"]');
+  regionLandmarks.forEach(region => {
+    const accessibleName = region.getAttribute('aria-label') ||
+                           region.getAttribute('aria-labelledby') ||
+                           region.textContent.trim();
+    if (!accessibleName) {
+      console.warn('Region landmark missing accessible name:', region);
+    }
+  });
+
+  // 3. Ensure that landmarks are not nested (basic check).
+  const landmarkRoles = ['main', 'nav', 'banner', 'contentinfo', 'search', 'complementary', 'region'];
+  landmarkRoles.forEach(role => {
+    const landmarks = document.querySelectorAll(`[role="${role}"]`);
+    landmarks.forEach(landmark => {
+      landmarkRoles.forEach(innerRole => {
+        if (role === innerRole) return;
+        const inner = landmark.querySelector(`[role="${innerRole}"]`);
+        if (inner) {
+          console.warn(`Landmark ${role} contains nested landmark ${innerRole}`);
+        }
+      });
+    });
+  });
+
+  // Return true to indicate validation completed.
+  return true;
 }
 
 function getSvgAccessibleName() {

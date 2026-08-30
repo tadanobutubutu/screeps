@@ -160,17 +160,50 @@ function validateTableStructure() {
 }
 
 /**
+ * Validates that all tables have proper landmark elements defined
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateLandmarkElements() {
+  const errors = [];
+  const tables = getTables();
+  
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+    
+    // Check if table has landmarks array defined
+    if (!table.landmarks || !Array.isArray(table.landmarks)) {
+      errors.push({
+        tableIndex: i,
+        error: 'Table must have landmarks array defined'
+      });
+    } else if (table.landmarks.length === 0) {
+      errors.push({
+        tableIndex: i,
+        error: 'Table must have at least one landmark defined'
+      });
+    }
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
  * Validate all tables (convenience function)
  * @returns {Object} Combined validation results
  */
 function validateAllTables() {
   const accessibilityResult = validateTableAccessibility();
   const structureResult = validateTableStructure();
+  const landmarkResult = validateLandmarkElements();
   
   return {
     accessibility: accessibilityResult,
     structure: structureResult,
-    isValid: accessibilityResult.isValid && structureResult.isValid
+    landmarks: landmarkResult,
+    isValid: accessibilityResult.isValid && structureResult.isValid && landmarkResult.isValid
   };
 }
 
@@ -183,5 +216,6 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
+  validateLandmarkElements,
   validateAllTables
 };

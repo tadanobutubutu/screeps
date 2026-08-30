@@ -42,6 +42,7 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
+// TODO: This is the existing code that needs to be preserved
 // TODO: Implement the required changes to improve accessibility for the addBook function or form
 // ...
 

@@ -171,13 +171,34 @@ function addLandmarkRoles() {
   if (footer) footer.setAttribute('role', 'contentinfo');
 }
 
+/**
+ * Extracts the accessible name from an SVG element's content.
+ * It looks for <title> or <desc> elements, falling back to the text content.
+ * @param {SVGElement} svg - The SVG element.
+ * @returns {string} The accessible name.
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const title = svg.querySelector('title');
+  if (title && title.textContent.trim()) {
+    return title.textContent.trim();
+  }
+  const desc = svg.querySelector('desc');
+  if (desc && desc.textContent.trim()) {
+    return desc.textContent.trim();
+  }
+  // Fallback to textual content
+  const text = svg.textContent.trim();
+  return text || 'SVG';
+}
+
 // Function to add accessible names to 2 SVGs
 function addSvgAccessibleNames() {
   const svg1 = document.getElementById('svg1');
-  if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
+  if (svg1) svg1.setAttribute('aria-label', getSvgAccessibleName(svg1));
 
   const svg2 = document.getElementById('svg2');
-  if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
+  if (svg2) svg2.setAttribute('aria-label', getSvgAccessibleName(svg2));
 }
 
 // Function to ensure unique landmarks (2 issues)
@@ -220,7 +241,7 @@ function initializeAccessibility() {
   const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
   svgs.forEach((svg, index) => {
     if (!svg.hasAttribute('aria-hidden') || svg.getAttribute('aria-hidden') !== 'true') {
-      svg.setAttribute('aria-label', `Icon ${index + 1}`);
+      svg.setAttribute('aria-label', getSvgAccessibleName(svg));
     }
   });
 }

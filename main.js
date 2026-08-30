@@ -1,6 +1,14 @@
 import { dependencyGraphContent, indexContent } from './content';
 
 // TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+
 // Address accessibility issues from insight report
 // ----- END ORIGINAL CODE -----
 
@@ -109,7 +117,7 @@ function displayModuleStructure(modules) {
   }
 
   let result = 'Module Structure:\n';
-  result += `Total modules: ${Object.keys(modules).length}\n\n`;
+  result += `Total modules: ${Object.keys(modules).length}\n`;
   
   Object.keys(modules).forEach((moduleName, index) => {
     const module = modules[moduleName];
@@ -123,12 +131,12 @@ function displayModuleStructure(modules) {
       result += `   Version: ${module.version}\n`;
     }
     
-    if (module.dependencies && Array.isArray(module.dependencies)) {
-      result += `   Dependencies: ${module.dependencies.join(', ')}\n`;
+    if (module.dependencies && Object.keys(module.dependencies).length > 0) {
+      result += `   Dependencies: ${Object.keys(module.dependencies).join(', ')}\n`;
     }
     
     if (module.exports) {
-      result += `   Exports: ${JSON.stringify(module.exports)}\n`;
+      result += `   Exports: ${Array.isArray(module.exports) ? module.exports.join(', ') : module.exports}\n`;
     }
     
     result += '\n';
@@ -138,7 +146,6 @@ function displayModuleStructure(modules) {
 }
 
 renderDependencyGraph(dependencyGraphContent);
-displayModuleStructure(indexContent);
 
 export {
   renderDependencyGraph,

@@ -391,9 +391,174 @@ function isLinkAccessible(link) {
   return false;
 }
 
+/**
+ * Gets the SVG element's accessible name.
+ * If the SVG doesn't have an accessible name, this function adds one.
+ * @param {SVGElement} svg - The SVG element.
+ * @returns {string} - The accessible name of the SVG.
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby') && !svg.hasAttribute('title')) {
+    svg.setAttribute('aria-label', 'SVG graphic');
+  }
+  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.getAttribute('title') || '';
+}
+
+/**
+ * Creates a link element that is accessible.
+ * Replaces fake links (like <a href="#"> or buttons styled as links).
+ * @param {string} text - The link text.
+ * @param {string} href - The link URL.
+ * @returns {HTMLAnchorElement} - The created accessible link element.
+ */
+function createAccessibleLink(text, href) {
+  const link = document.createElement('a');
+  link.href = href || '#';
+  link.textContent = text;
+
+  // Ensure the link has an accessible name
+  if (!link.getAttribute('aria-label') && text.trim() === '') {
+    link.setAttribute('aria-label', 'Link');
+  }
+
+  return link;
+}
+
+/**
+ * Creates an in-page navigation button/link that is accessible.
+ * This fixes fake link issues by ensuring proper semantic HTML.
+ * @param {string} label - The accessible label for the button.
+ * @param {string} targetId - The ID of the target section to navigate to.
+ * @returns {HTMLAnchorElement} - An accessible in-page link element.
+ */
+function createInPageButton(label, targetId) {
+  const inPageLink = document.createElement('a');
+  inPageLink.href = `#${targetId}`;
+  inPageLink.setAttribute('aria-label', label);
+  inPageLink.textContent = label;
+
+  // If the link text is not provided, ensure it still has an accessible name
+  if (!inPageLink.getAttribute('aria-label')) {
+    inPageLink.setAttribute('aria-label', 'In-page navigation link');
+  }
+
+  return inPageLink;
+}
+
+/**
+ * Validates landmark elements for accessibility issues.
+ * Ensures each landmark has proper roles and unique IDs.
+ * @returns {void}
+ */
+function validateLandmark() {
+  const landmarks = document.querySelectorAll('[role], main, nav, header, footer, aside');
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    const tagName = landmark.tagName.toLowerCase();
+
+    // Assign proper roles if missing
+    switch (tagName) {
+      case 'main':
+        landmark.setAttribute('role', 'main');
+        break;
+      case 'nav':
+        landmark.setAttribute('role', 'navigation');
+        break;
+      case 'header':
+        landmark.setAttribute('role', 'banner');
+        break;
+      case 'footer':
+        landmark.setAttribute('role', 'contentinfo');
+        break;
+      case 'aside':
+        landmark.setAttribute('role', 'complementary');
+        break;
+    }
+
+    // Ensure unique ID
+    if (!landmark.id) {
+      landmark.id = ensureUniqueLandmarkId(`${tagName}-landmark`);
+    }
+  });
+}
+
+/**
+ * Validates landmark structure and ensures uniqueness.
+ * Handles duplicate landmark IDs and missing IDs.
+ * @returns {void}
+ */
+function validateLandmarkStructure() {
+  const landmarks = Array.from(document.querySelectorAll('[role], main, nav, header, footer, aside'));
+
+  // Track seen IDs to detect duplicates
+  const seenIds = new Set();
+
+  landmarks.forEach(landmark => {
+    const tagName = landmark.tagName.toLowerCase();
+
+    // Assign proper roles if missing
+    switch (tagName) {
+      case 'main':
+        landmark.setAttribute('role', 'main');
+        break;
+      case 'nav':
+        landmark.setAttribute('role', 'navigation');
+        break;
+      case 'header':
+        landmark.setAttribute('role', 'banner');
+        break;
+      case 'footer':
+        landmark.setAttribute('role', 'contentinfo');
+        break;
+      case 'aside':
+        landmark.setAttribute('role', 'complementary');
+        break;
+    }
+
+    // Ensure unique ID
+    if (landmark.id) {
+      if (seenIds.has(landmark.id)) {
+        // Duplicate ID found - generate new unique ID
+        landmark.id = ensureUniqueLandmarkId(`${tagName}-landmark`);
+      } else {
+        seenIds.add(landmark.id);
+      }
+    } else {
+      landmark.id = ensureUniqueLandmarkId(`${tagName}-landmark`);
+      seenIds.add(landmark.id);
+    }
+  });
+}
+
+/**
+ * Handles general accessibility issues including fake links.
+ * @returns {void}
+ */
+function handleAccessibilityIssues() {
+  // Fix fake link issues
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (!isLinkAccessible(link)) {
+      // Replace fake link with accessible version
+      const newLink = createAccessibleLink('Learn more', link.href);
+      if (link.parentNode) {
+        link.parentNode.replaceChild(newLink, link);
+      }
+    }
+  });
+
+  // Add lang attribute to HTML element
+  addLangAttribute();
+
+  // Validate and fix landmarks
+  validateLandmark();
+  validateLandmarkStructure();
+}
+
 addProperLandmarkRegions();
 addProperAccountManagement();
 addAriaToFormControls();
+handleAccessibilityIssues();
 
 module.exports = {
   addProperLandmarkRegions,
@@ -414,5 +579,11 @@ module.exports = {
   addLiveRegionForDynamicContent,
   isLinkAccessible,
   addAriaLabel,
-  addLangAttribute
+  addLangAttribute,
+  getSvgAccessibleName,
+  createAccessibleLink,
+  createInPageButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  handleAccessibilityIssues
 };

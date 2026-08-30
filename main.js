@@ -1,4 +1,4 @@
-// TODO: Identify and update specific functions that render dependency graphs or
+// TODO: This is the existing code that needs to be preserved
 
 const dependencyGraphContent = require('./dependencyGraphContent');
 const indexContent = require('./indexContent');

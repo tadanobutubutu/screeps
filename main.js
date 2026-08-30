@@ -7,7 +7,7 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 // Preserve existing functionality
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
+import { getLangAttribute, createInPageButton, createAccessibleLink, handleAccessibilityIssues } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
@@ -171,6 +171,42 @@ export function someFunction() {
   // ... implementation ...
 }
 
+/**
+ * Checks link and button accessibility across the document.
+ * Validates all anchor elements and button elements to ensure they meet
+ * accessibility standards (e.g., fake links converted, accessible names present).
+ * @returns {Object} A report describing the link/button accessibility issues found.
+ */
+function checkLinkAndButtonAccessibility() {
+  const issues = [];
+
+  // Validate anchor (<a>) elements
+  const links = document.querySelectorAll('a');
+  links.forEach((link) => {
+    const linkIssues = validateLinkAccessibility(link);
+    if (linkIssues && linkIssues.length > 0) {
+      issues.push(...linkIssues);
+    }
+  });
+
+  // Validate button (<button>) elements
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button) => {
+    const buttonIssues = validateLinkAccessibility(button);
+    if (buttonIssues && buttonIssues.length > 0) {
+      issues.push(...buttonIssues);
+    }
+  });
+
+  // Handle fake links by converting them to proper accessible elements
+  handleFakeLinks();
+
+  return {
+    issueCount: issues.length,
+    issues
+  };
+}
+
 // Export UI / product functions
 export {
   formatProductName,
@@ -214,6 +250,11 @@ export {
 export {
   state,
   updateState
+};
+
+// Export the new link/button accessibility checker
+export {
+  checkLinkAndButtonAccessibility
 };
 
 // ... other exports ...

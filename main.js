@@ -231,6 +231,38 @@ function addressInsightIssues(insightReport) {
   });
 }
 
+function getLangAttribute() {
+  // Returns the language of the document.
+  // If html element has lang attribute, return it; otherwise try meta; else default to 'en'.
+  const htmlLang = document.documentElement.getAttribute('lang');
+  if (htmlLang) return htmlLang;
+  const metaLang = document.querySelector('meta[http-equiv="Content-Language"]')?.getAttribute('content');
+  if (metaLang) {
+    return metaLang.split(',')[0].trim();
+  }
+  return 'en';
+}
+
+function ensureDependencyGraphARIA(container) {
+  const target = container || document.body;
+  const elements = target.querySelectorAll('[data-dependency]');
+  elements.forEach(el => {
+    if (!el.hasAttribute('role')) {
+      const role = el.getAttribute('data-role') || 'treeitem';
+      el.setAttribute('role', role);
+    }
+    if (!el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby')) {
+      const label = el.getAttribute('data-label') || el.textContent.trim() || 'Dependency element';
+      el.setAttribute('aria-label', label);
+    }
+  });
+}
+
+// Ensure HTML element has lang attribute (REACT_015)
+if (!document.documentElement.hasAttribute('lang')) {
+  document.documentElement.setAttribute('lang', getLangAttribute());
+}
+
 function renderDependencyGraph(dependencyData) {
   console.log('Rendering dependency graph with data:', dependencyData);
 }
@@ -268,6 +300,8 @@ module.exports = {
   validateSvgAccessibility,
   processUniqueElements,
   addressInsightIssues,
+  getLangAttribute,
+  ensureDependencyGraphARIA,
   renderDependencyGraph,
   renderIndexView,
   calculateSum,

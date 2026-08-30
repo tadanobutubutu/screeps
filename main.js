@@ -1,11 +1,14 @@
 // main.js - Accessibility Checker Module
 
+// Import required module(s) for DOM manipulation
+const { JSDOM } = require('jsdom') || {};
+
 /**
  * Checks accessibility of links and buttons within a given container
  * @param {HTMLElement} container - The container element to check for accessibility issues
  * @returns {Array} - Array of accessibility issues found
  */
-function checkLinkAndButtonAccessibility(container) {
+function checkAccessibility(container) {
   const issues = [];
   
   // Check links for accessibility
@@ -60,7 +63,7 @@ function renderAccessibilityGraph(issues, container) {
   graphContainer.className = 'accessibility-graph';
   graphContainer.innerHTML = `
     <h3>Accessibility Issues Graph</h3>
-    <div class="graph-content">
+    <div class="graph-nodes">
       ${issues.map((issue, index) => `
         <div class="graph-node" data-index="${index}">
           <span class="node-type">${issue.type}</span>
@@ -96,11 +99,11 @@ function renderAccessibilityIndex(issues, container) {
 
   let indexHTML = '<h3>Accessibility Issues Index</h3><ul class="index-list">';
   
-  Object.keys(groupedIssues).forEach(type => {
-    indexHTML += `<li class="index-type"><strong>${type}s</strong> (${groupedIssues[type].length})`;
-    indexHTML += '<ul class="index-sublist">';
-    groupedIssues[type].forEach(item => {
-      indexHTML += `<li data-original-index="${item.originalIndex}">${item.message}</li>`;
+  Object.entries(groupedIssues).forEach(([type, typeIssues]) => {
+    indexHTML += `<li class="issue-group"><strong>${type}</strong>`;
+    indexHTML += '<ul class="issue-sublist">';
+    typeIssues.forEach((issue) => {
+      indexHTML += `<li class="issue-item" data-original-index="${issue.originalIndex}">${issue.message}</li>`;
     });
     indexHTML += '</ul></li>';
   });
@@ -117,7 +120,7 @@ function renderAccessibilityIndex(issues, container) {
  * @param {HTMLElement} outputContainer - The container element to render results into
  */
 function renderAccessibilityResults(container, outputContainer) {
-  const issues = checkLinkAndButtonAccessibility(container);
+  const issues = checkAccessibility(container);
   
   if (outputContainer) {
     renderAccessibilityGraph(issues, outputContainer);
@@ -140,7 +143,7 @@ function renderIndexView() {
 // Example usage and export
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { 
-    checkLinkAndButtonAccessibility,
+    checkAccessibility,
     renderAccessibilityGraph,
     renderAccessibilityIndex,
     renderAccessibilityResults,
@@ -150,7 +153,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // If running in browser context
 if (typeof window !== 'undefined') {
-  window.checkLinkAndButtonAccessibility = checkLinkAndButtonAccessibility;
+  window.checkAccessibility = checkAccessibility;
   window.renderAccessibilityGraph = renderAccessibilityGraph;
   window.renderAccessibilityIndex = renderAccessibilityIndex;
   window.renderAccessibilityResults = renderAccessibilityResults;

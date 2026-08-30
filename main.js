@@ -254,9 +254,6 @@ function getActiveSessionsCount() {
 }
 
 // HTTP Server setup
-const http = require('http');
-const url = require('url');
-
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     
@@ -381,5 +378,8 @@ module.exports = {
     getActiveSessionsCount,
     server,
     sanitizeFilename,
-    processData
+    processData,
+    personName,
+    validateTableAccessibility,
+    calculateSum
 };

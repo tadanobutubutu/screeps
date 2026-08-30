@@ -57,7 +57,7 @@ const config = {
  */
 function isLandmark(element) {
   if (!element || !element.tagName) return false;
-  const landmarkTags = ['HEADER', 'MAIN', 'NAV', 'ASIDE', 'SECTION', 'ARTICLE', 'FOOTER'];
+  const landmarkTags = ['HEADER', 'NAV', 'ASIDE', 'SECTION', 'ARTICLE', 'FOOTER'];
   return landmarkTags.includes(element.tagName);
 }
 
@@ -131,10 +131,16 @@ module.exports.SomeModule = SomeModule;
 
 // Generalized accessibility functions
 
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
 function setSvgAccessibleName(svg, name) {
   if (!svg) {
     throw new Error('SVG element is required');
-    return;
   }
   svg.setAttribute('aria-label', name);
 }
@@ -144,6 +150,7 @@ function improveAccessibility(container) {
     container = document.body;
   }
   if (container) {
+    addLangAttribute();
     renderDependencyGraphContent(container);
   }
 
@@ -190,7 +197,17 @@ function ensureLandmarkUniqueness(elements) {
 }
 
 function ensureUniqueLandmarks() {
-  return {};
+  const landmarks = document.querySelectorAll('main, nav, aside, header, footer, section, article');
+  const uniqueLandmarks = [];
+  
+  landmarks.forEach(landmark => {
+    const tag = landmark.tagName.toLowerCase();
+    const id = landmark.id || `landmark-${uniqueLandmarks.length}`;
+    landmark.id = id;
+    uniqueLandmarks.push(landmark);
+  });
+  
+  return uniqueLandmarks;
 }
 
 function validateSvgAccessibility() {
@@ -209,7 +226,15 @@ function validateSvgAccessibility() {
 
 function processUniqueElements() {
   const uniqueElements = [];
-  // Process unique elements for landmark roles
+  const elements = document.querySelectorAll('[role], [aria-label], [aria-labelledby], [tabindex]');
+  
+  elements.forEach(el => {
+    const hasAccessibleName = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby');
+    if (hasAccessibleName || el.getAttribute('role')) {
+      uniqueElements.push(el);
+    }
+  });
+  
   return uniqueElements;
 }
 
@@ -226,7 +251,9 @@ function addressInsightIssues(insightReport) {
           el['aria-label'] = el.id || 'unnamed-element';
         }
       });
-      const react017Elements = issue.elements || [];
+    }
+    if (issue.code === 'REACT_015') {
+      addLangAttribute();
     }
   });
 }
@@ -271,5 +298,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  addLangAttribute
 };

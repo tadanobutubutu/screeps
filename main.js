@@ -19,12 +19,12 @@ function addSvgAccessibilityProps(props = {}) {
 const getBooksList = useSelector(state => state.books.list);
 
 // Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
+export function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
 }
 
 // Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
+export function sortByAuthor(a, b) {
   return b.author.localeCompare(a.author);
 }
 
@@ -34,7 +34,7 @@ function generateKey(book) {
 }
 
 // Function to render a single book item
-function BookItem(book) {
+export function BookItem(book) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
@@ -92,13 +92,15 @@ function Main() {
 
   // Render the list of book items and sorting controls
   return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+    <main>
+      <header>
+        <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+        <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      </header>
       <List ... />
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
-    </div>
+    </main>
   );
 }
 

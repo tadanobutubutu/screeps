@@ -290,5 +290,6 @@ module.exports = {
     validateSession,
     revokeSession,
     getActiveSessionsCount,
-    server
+    server,
+    appState
 };

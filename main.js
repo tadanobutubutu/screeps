@@ -21,11 +21,13 @@ import { indexContent } from './indexContent';
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
-import { getDocument, getLangAttribute } from . ; // Adjust the path to the existing accessibility helper functions if needed
-import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from "..." ; // Adjust the path to the new accessibility helper functions
+
+// Import accessibility helper functions (adjust paths as needed)
+// import { getDocument, getLangAttribute } from './accessibilityHelpers';
+// import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from './accessibilityHelpers';
 
 // Import your new function from your new module
-// import { triggerAccessibilityMode } from ...
+// import { triggerAccessibilityMode } from './accessibilityMode';
 
 // Import dependency graph and index content modules for rendering dependency graphs and index views
 
@@ -88,13 +90,17 @@ function createInPageButton() {
 function fixAccessibilityIssues() {
   // 1. REACT_015: Ensure lang attribute is set on the HTML element
   const lang = getLangAttribute();
-  document.documentElement.setAttribute('lang', lang);
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.setAttribute('lang', lang);
+  }
 
   // 2. REACT_027: Validate table accessibility and structure
-  const table = document.getElementById('myTable');
-  if (table) {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
+  if (typeof document !== 'undefined') {
+    const table = document.getElementById('myTable');
+    if (table) {
+      validateTableAccessibility(table);
+      validateTableStructure(table);
+    }
   }
 
   // 3. REACT_017: Validate landmark and landmark structure issues
@@ -106,11 +112,13 @@ function fixAccessibilityIssues() {
   handleFakeLinks();
 
   // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
-  const svgElements = document.querySelectorAll('#mySvg, #myOtherSvg');
-  svgElements.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
-  });
+  if (typeof document !== 'undefined') {
+    const svgElements = document.querySelectorAll('#mySvg, #myOtherSvg');
+    svgElements.forEach(svg => {
+      const accessibleName = getSvgAccessibleName(svg);
+      setSvgAttributes(svg, accessibleName);
+    });
+  }
 
   // 6. REACT_036: Fix fake link issue (personName is part of the fix)
   personName();
@@ -122,34 +130,39 @@ function wrapPrimaryContentInMain(primaryContent) {
   return `<main>${primaryContent}</main>`;
 }
 
-// DOM-based accessibility code
+// DOM-based accessibility code (only runs in browser environment)
+if (typeof document !== 'undefined') {
+  // Add lang attribute to HTML element
+  document.documentElement.setAttribute('lang', getLangAttribute());
 
-// Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', getLangAttribute());
+  // Create in-page button with accessibility considerations
+  createInPageButton();
 
-// Create in-page button with accessibility considerations
-createInPageButton();
+  // Validate table structure and accessibility
+  // Assuming you have a table element with an id of 'myTable'
+  const table = document.getElementById('myTable');
+  if (table) {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  }
 
-// Validate table structure and accessibility
-// Assuming you have a table element with an id of 'myTable'
-const table = document.getElementById('myTable');
-validateTableAccessibility(table);
-validateTableStructure(table);
+  // Add/fix landmark issues
+  validateLandmark();
+  validateLandmarkStructure();
 
-// Add/fix landmark issues
-validateLandmark();
-validateLandmarkStructure();
+  // Add accessible names to SVGs
+  // Assuming you have an SVG element with an id of 'mySvg'
+  const svg = document.getElementById('mySvg');
+  if (svg) {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  }
 
-// Add accessible names to SVGs
-// Assuming you have an SVG element with an id of 'mySvg'
-const svg = document.getElementById('mySvg');
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
-
-// Ensure unique landmarks
-// This would be handled by the appropriate function call
-validateLinkAccessibility();
-handleFakeLinks();
+  // Ensure unique landmarks
+  // This would be handled by the appropriate function call
+  validateLinkAccessibility();
+  handleFakeLinks();
+}
 
 // ... rest of your code ...
 
@@ -160,10 +173,15 @@ function addAriaLabel(element) {
   }
 }
 
-const dependencyGraphContainer = document.createElement('div');
-dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
-dependencyGraphContainer.setAttribute('role', 'region');
-dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+let dependencyGraphContainer;
+if (typeof document !== 'undefined') {
+  dependencyGraphContainer = document.createElement('div');
+  dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
+  dependencyGraphContainer.setAttribute('role', 'region');
+  dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+} else {
+  dependencyGraphContainer = { id: 'dependencyGraph', setAttribute: () => {} };
+}
 
 // React / UI related functions
 
@@ -174,7 +192,9 @@ function formatProductName(product) {
 }
 
 function renderProductList(products) {
+  if (typeof document === 'undefined') return null;
   const container = document.getElementById('product-list');
+  if (!container) return null;
   container.innerHTML = products.map(renderProductCard).join('');
   return container;
 }
@@ -253,6 +273,23 @@ function validateLinkAccessibility() {
 
 function handleFakeLinks() {
   // Example fake links handler
+}
+
+function handleAccessibilityIssues(content) {
+  // Placeholder for handleAccessibilityIssues
+  return content;
+}
+
+function personName() {
+  // Placeholder for personName function
+}
+
+function makeHeaderFocusable() {
+  // Placeholder for makeHeaderFocusable function
+}
+
+function ensureUniqueLandmarks() {
+  // Placeholder for ensureUniqueLandmarks function
 }
 
 export { ensureElementId };

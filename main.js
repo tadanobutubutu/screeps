@@ -150,16 +150,201 @@ function validateTableStructure(table) {
 
 /**
  * Validates landmark accessibility
+ * @param {HTMLElement} container - The container element to check for landmarks (defaults to document)
+ * @returns {Object} Validation result with landmarks found and any issues
  */
-function validateLandmark() {
-  // Implementation for landmark validation
+function validateLandmark(container = document) {
+  const landmarks = [];
+  const issues = [];
+  
+  // HTML5 landmark elements and their implicit ARIA roles
+  const landmarkSelectors = [
+    { selector: 'main', role: 'main', name: 'Main content' },
+    { selector: 'nav', role: 'navigation', name: 'Navigation' },
+    { selector: 'header:not([role])', role: 'banner', name: 'Header' },
+    { selector: 'footer:not([role])', role: 'contentinfo', name: 'Footer' },
+    { selector: 'aside', role: 'complementary', name: 'Complementary' },
+    { selector: 'section[aria-label], section[aria-labelledby]', role: 'region', name: 'Section' },
+    { selector: 'article', role: 'article', name: 'Article' },
+    { selector: 'form[aria-label], form[aria-labelledby], form[title]', role: 'form', name: 'Form' },
+    { selector: 'search', role: 'search', name: 'Search' },
+    { selector: '[role="main"]', role: 'main', name: 'Main (ARIA)' },
+    { selector: '[role="navigation"]', role: 'navigation', name: 'Navigation (ARIA)' },
+    { selector: '[role="banner"]', role: 'banner', name: 'Banner (ARIA)' },
+    { selector: '[role="contentinfo"]', role: 'contentinfo', name: 'Contentinfo (ARIA)' },
+    { selector: '[role="complementary"]', role: 'complementary', name: 'Complementary (ARIA)' },
+    { selector: '[role="region"]', role: 'region', name: 'Region (ARIA)' },
+    { selector: '[role="article"]', role: 'article', name: 'Article (ARIA)' },
+    { selector: '[role="form"]', role: 'form', name: 'Form (ARIA)' },
+    { selector: '[role="search"]', role: 'search', name: 'Search (ARIA)' }
+  ];
+  
+  landmarkSelectors.forEach(({ selector, role, name }) => {
+    const elements = container.querySelectorAll(selector);
+    elements.forEach((el, index) => {
+      const landmark = {
+        element: el,
+        role: role,
+        name: name,
+        selector: selector
+      };
+      
+      // Check for accessible name on region, form, and search landmarks
+      if (['region', 'form', 'search', 'complementary'].includes(role)) {
+        const hasAccessibleName = el.hasAttribute('aria-label') || 
+                                  el.hasAttribute('aria-labelledby') || 
+                                  el.hasAttribute('title');
+        if (!hasAccessibleName) {
+          issues.push({
+            type: 'missing-accessible-name',
+            message: `${name} landmark is missing an accessible name (aria-label, aria-labelledby, or title)`,
+            element: el,
+            role: role
+          });
+        }
+        landmark.hasAccessibleName = hasAccessibleName;
+      }
+      
+      // Check for multiple main landmarks
+      if (role === 'main') {
+        landmark.isMain = true;
+      }
+      
+      landmarks.push(landmark);
+    });
+  });
+  
+  // Check for multiple main landmarks
+  const mainLandmarks = landmarks.filter(l => l.isMain);
+  if (mainLandmarks.length > 1) {
+    issues.push({
+      type: 'multiple-main-landmarks',
+      message: `Found ${mainLandmarks.length} main landmarks. There should be only one main landmark per page.`,
+      elements: mainLandmarks.map(l => l.element)
+    });
+  } else if (mainLandmarks.length === 0) {
+    issues.push({
+      type: 'missing-main-landmark',
+      message: 'No main landmark found. Every page should have exactly one main landmark.',
+      elements: []
+    });
+  }
+  
+  // Check for landmarks outside of main content flow
+  landmarks.forEach(landmark => {
+    const mainEl = container.querySelector('main, [role="main"]');
+    if (mainEl && !mainEl.contains(landmark.element) && landmark.role !== 'banner' && landmark.role !== 'contentinfo') {
+      // Check if landmark is a direct child of body or in appropriate position
+      const parent = landmark.element.parentElement;
+      if (parent && parent.tagName === 'BODY' && landmark.role !== 'navigation') {
+        // This might be okay for nav, but other landmarks at body level could be problematic
+      }
+    }
+  });
+  
+  return {
+    valid: issues.length === 0,
+    landmarks: landmarks.map(l => ({
+      role: l.role,
+      name: l.name,
+      tagName: l.element.tagName.toLowerCase(),
+      hasAccessibleName: l.hasAccessibleName
+    })),
+    issues: issues
+  };
 }
 
 /**
  * Validates landmark structure
+ * @param {HTMLElement} container - The container element to check (defaults to document)
+ * @returns {Object} Validation result with structure analysis
  */
-function validateLandmarkStructure() {
-  // Implementation for landmark structure validation
+function validateLandmarkStructure(container = document) {
+  const result = validateLandmark(container);
+  const structureIssues = [];
+  const recommendations = [];
+  
+  // Check landmark hierarchy
+  const landmarks = result.landmarks;
+  
+  // Check if header and footer are properly positioned
+  const header = container.querySelector('header, [role="banner"]');
+  const footer = container.querySelector('footer, [role="contentinfo"]');
+  const main = container.querySelector('main, [role="main"]');
+  
+  if (header && main) {
+    // Header should typically come before main
+    const headerIndex = Array.from(container.querySelectorAll('*')).indexOf(header);
+    const mainIndex = Array.from(container.querySelectorAll('*')).indexOf(main);
+    if (headerIndex > mainIndex) {
+      structureIssues.push({
+        type: 'header-after-main',
+        message: 'Header landmark appears after main landmark in DOM order',
+        elements: [header, main]
+      });
+    }
+  }
+  
+  if (footer && main) {
+    // Footer should typically come after main
+    const footerIndex = Array.from(container.querySelectorAll('*')).indexOf(footer);
+    const mainIndex = Array.from(container.querySelectorAll('*')).indexOf(main);
+    if (footerIndex < mainIndex) {
+      structureIssues.push({
+        type: 'footer-before-main',
+        message: 'Footer landmark appears before main landmark in DOM order',
+        elements: [footer, main]
+      });
+    }
+  }
+  
+  // Check for nested landmarks (some combinations are problematic)
+  landmarks.forEach(outer => {
+    landmarks.forEach(inner => {
+      if (outer !== inner && outer.element.contains(inner.element)) {
+        // Some nesting is okay, but main should not contain another main
+        if (outer.role === 'main' && inner.role === 'main') {
+          structureIssues.push({
+            type: 'nested-main',
+            message: 'Main landmark contains another main landmark',
+            elements: [outer.element, inner.element]
+          });
+        }
+        // Banner and contentinfo should not be nested in main
+        if (outer.role === 'main' && (inner.role === 'banner' || inner.role === 'contentinfo')) {
+          structureIssues.push({
+            type: 'landmark-in-main',
+            message: `${inner.role} landmark should not be nested inside main landmark`,
+            elements: [outer.element, inner.element]
+          });
+        }
+      }
+    });
+  });
+  
+  // Recommendations
+  if (!landmarks.some(l => l.role === 'navigation')) {
+    recommendations.push('Consider adding a navigation landmark for site navigation');
+  }
+  
+  if (!landmarks.some(l => l.role === 'main')) {
+    recommendations.push('Add a main landmark to identify the primary content area');
+  }
+  
+  const regionsWithoutNames = landmarks.filter(l => 
+    ['region', 'form', 'search', 'complementary'].includes(l.role) && !l.hasAccessibleName
+  );
+  
+  if (regionsWithoutNames.length > 0) {
+    recommendations.push(`${regionsWithoutNames.length} landmark(s) missing accessible names`);
+  }
+  
+  return {
+    valid: result.valid && structureIssues.length === 0,
+    landmarks: result.landmarks,
+    issues: [...result.issues, ...structureIssues],
+    recommendations: recommendations
+  };
 }
 
 /**

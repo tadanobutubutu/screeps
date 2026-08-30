@@ -95,6 +95,36 @@ function addressAccessibilityIssues(insightReport) {
   return insightReport;
 }
 
+/**
+ * Gets the language code for the HTML lang attribute.
+ * Addresses REACT_015: Add lang attribute to HTML element.
+ * @param {string} [locale] - Optional locale string (e.g., 'en-US', 'fr-FR')
+ * @returns {string} The language code to use for the lang attribute.
+ */
+function getLang(locale) {
+  if (locale) {
+    return locale.split('-')[0].toLowerCase();
+  }
+  // Try to get from navigator or default to 'en'
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    return navigator.language.split('-')[0].toLowerCase();
+  }
+  return 'en';
+}
+
+/**
+ * Sets the lang attribute on the HTML element.
+ * Addresses REACT_015: Add lang attribute to HTML element.
+ * @param {string} [locale] - Optional locale string (e.g., 'en-US', 'fr-FR')
+ * @returns {void}
+ */
+function setHtmlLang(locale) {
+  const lang = getLang(locale);
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.setAttribute('lang', lang);
+  }
+}
+
 /*
  * Helper to manage focus within a container
  * @param {HTMLElement} container - Container element
@@ -297,6 +327,9 @@ function initializeAccessibility() {
   // Add live region for dynamic content
   addLiveRegionForDynamicContent();
   
+  // Set HTML lang attribute (REACT_015)
+  setHtmlLang();
+  
   // Return the announcer for use in the app
   return {
     announce: announcer.announce,
@@ -409,7 +442,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getRandomInt,
     clamp,
     deepClone,
-    someFunction
+    someFunction,
+    getLang,
+    setHtmlLang
   };
 }
-```

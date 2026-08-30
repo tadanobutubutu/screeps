@@ -561,6 +561,37 @@ function countDependencies() {
   }
 }
 
+/**
+ * Renders the dependency graph into the given container.
+ * @param {HTMLElement} container - The container element to render the graph into
+ * @param {Object} [options] - Optional rendering options
+ * @returns {void}
+ */
+function renderDependencyGraph(container, options) {
+  if (!container) {
+    console.error('Container element is required to render the dependency graph');
+    return;
+  }
+
+  // Ensure the container has an id for accessibility
+  ensureElementHasId(container);
+
+  // Add an aria-label for accessibility if not already present
+  if (!container.hasAttribute('aria-label')) {
+    addAriaLabel(container, 'Dependency Graph');
+  }
+
+  // Use the DependencyGraphRenderer if available to render the graph content
+  if (typeof DependencyGraphRenderer === 'function') {
+    DependencyGraphRenderer(container, dependencyGraphContent, options);
+  } else if (dependencyGraphContent) {
+    // Fallback: render the dependency graph content directly into the container
+    container.innerHTML = dependencyGraphContent;
+  } else {
+    container.innerHTML = '';
+  }
+}
+
 // Export all functions including those from both branches
 module.exports = {
   ensureElementHasId,

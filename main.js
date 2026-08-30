@@ -4,9 +4,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from ...
+import reportWebVitals from './reportWebVitals';
 
-const root = ...
+const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <App />
@@ -38,7 +38,7 @@ function getVersion() {
 }
 
 // Uncomment the implementation of the function for addressing new accessibility issues from the insight report
-function addressAccessibilityIssues {
+function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
   const rootContainer = document.getElementById('root').parentElement;
   if (rootContainer) {
@@ -64,7 +64,7 @@ export {
   initialize,
   getConfig,
   getVersion,
-  addressAccessibilityIssues // Add the new function to the exports
+  addressAccessibilityIssues
 };
 
 export default {
@@ -73,5 +73,5 @@ export default {
   initialize,
   getConfig,
   getVersion,
-  addressAccessibilityIssues // Add the new function to the default export
+  addressAccessibilityIssues
 };

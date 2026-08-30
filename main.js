@@ -253,6 +253,42 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+/**
+ * Calculates the great-circle distance between two landmarks using the Haversine formula
+ * @param {Object} landmark1 - The first landmark with latitude and longitude properties
+ * @param {Object} landmark2 - The second landmark with latitude and longitude properties
+ * @returns {number} - The distance between the two landmarks in kilometers
+ */
+function calculateDistance(landmark1, landmark2) {
+  const R = 6371; // Earth's radius in kilometers
+
+  // Validate inputs
+  const validation1 = validateLandmark(landmark1);
+  const validation2 = validateLandmark(landmark2);
+
+  if (!validation1.valid) {
+    throw new Error('Invalid first landmark: ' + validation1.errors.join(', '));
+  }
+  if (!validation2.valid) {
+    throw new Error('Invalid second landmark: ' + validation2.errors.join(', '));
+  }
+
+  // Convert degrees to radians
+  const lat1Rad = landmark1.latitude * Math.PI / 180;
+  const lat2Rad = landmark2.latitude * Math.PI / 180;
+  const dLat = (landmark2.latitude - landmark1.latitude) * Math.PI / 180;
+  const dLon = (landmark2.longitude - landmark1.longitude) * Math.PI / 180;
+
+  // Haversine formula
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1Rad) * Math.cos(lat2Rad) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c;
+
+  return distance;
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +307,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  calculateDistance
 };

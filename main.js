@@ -2,7 +2,6 @@
  * Main application entry point
  * @module main
  */
-
 /**
  * Application configuration
  * @type {Object}

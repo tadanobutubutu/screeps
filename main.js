@@ -1,4 +1,4 @@
-// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+// TODO: Address accessibility issues from insight report
 
 const config = require('./config');
 const logger = require('./utils/logger');
@@ -11,10 +11,11 @@ let uniqueLandmarks = {};
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') ||
-    document.querySelector('.dependencyGraph') ||
-    document.querySelector('[data-testid="dependency-graph"]') ||
-    document.querySelector('div[data-testid=dependency-graph]');
+  const dependencyGraph = document.querySelector('[data-dependency-graph]') ||
+    document.querySelector('.dependency-graph') ||
+    document.querySelector('#dependency-graph') ||
+    document.querySelector('main');
+
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
@@ -29,31 +30,37 @@ function addressAccessibilityIssues() {
       }
     });
 
-    const focusable = document.querySelectorAll('[role="link"]');
+    const focusable = document.querySelectorAll('a, button, input, select, textarea, [tabindex]');
     focusable.forEach(el => {
       if (el.tabIndex < 0) el.tabIndex = 0;
     });
   }
 
-  function ensureUniqueLandmarks(insightReport) {
-    const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
+  function ensureLandmarkAttributes() {
+    const landmarks = [...new Set([
+      { ariaRole: 'navigation', selector: 'nav' },
+      { ariaRole: 'main', selector: 'main' },
+      { ariaRole: 'complementary', selector: 'aside' },
+      { ariaRole: 'banner', selector: 'header' },
+      { ariaRole: 'contentinfo', selector: 'footer' }
+    ].map(issue => issue.ariaRole))];
 
     // Check if all landmarks exist, re-add if necessary
-    landmarks.forEach(landmark => {
-      const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    landmarks.forEach(uniqueLandmark => {
+      const elements = document.querySelectorAll(`[role="${uniqueLandmark}"]`);
       if (elements.length < landmarks.length) {
         const uniqueLandmarkMap = {};
 
         landmarks.forEach(uniqueLandmark => {
           let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
           if (!element[0]) {
-            element = document.createElement(`div`);
+            element = document.querySelector(uniqueLandmark);
             element.setAttribute('role', uniqueLandmark);
-            if (!document.querySelector(`#${uniqueLandmark}`)) {
+            if (!element.id) {
               const id = uniqueLandmark;
               element.setAttribute('id', id);
             }
-            document.body.appendChild(element);
+            element = element[0] || element;
           }
           uniqueLandmarkMap[uniqueLandmark] = element[0];
         });
@@ -61,6 +68,10 @@ function addressAccessibilityIssues() {
       }
     });
   }
+
+  // Run accessibility improvements
+  improveAccessibility();
+  ensureLandmarkAttributes();
 }
 
 // TODO: This is the new function request
@@ -69,4 +80,23 @@ function newFunction() {
   console.log("New Function has been called!");
 }
 
-// Continue with existing exports, functions, or any other code that follows
+// Initialize the application
+function initialize() {
+  if (isInitialized) {
+    logger.warn('Application already initialized');
+    return;
+  }
+  
+  addressAccessibilityIssues();
+  isInitialized = true;
+  logger.info('Application initialized successfully');
+}
+
+// Export functions and state
+module.exports = {
+  initialize,
+  addressAccessibilityIssues,
+  newFunction,
+  getAppData: () => appData,
+  isInitialized: () => isInitialized
+};

@@ -27,7 +27,7 @@ function BookItem({ book }) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        ...
+        description={book.author}
       />
     </List.Item>
   );
@@ -36,17 +36,18 @@ function BookItem({ book }) {
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
-// Function to validate the landmark property of a book
-function validateLandmark(book) {
-  if (!book || typeof book !== 'object') {
-    return false;
-  }
-  
-  if (!book.landmark || typeof book.landmark !== 'string' || book.landmark.trim() === '') {
-    return false;
-  }
-  
-  return true;
+// Function to handle sorting the book list by title (ascending)
+function onTitleSort(dispatch, books) {
+  const sortedList = [...books].sort(sortByTitle);
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+}
+
+// Function to handle sorting the book list by author (descending)
+function onAuthorSort(dispatch, books) {
+  const sortedList = [...books].sort(sortByAuthor);
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
 // Function to create a new book entry in the Redux store
@@ -57,10 +58,6 @@ function addBook(book) {
   // Return an action object to add the book to the books list in the Redux store
   return { type: 'ADD_BOOK', payload: book };
 }
-
-// TODO: This is the existing code that needs to be preserved
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
 
 // Container for the dependency graph with proper ARIA role for accessibility
 function DependencyGraph({ nodes, edges }) {

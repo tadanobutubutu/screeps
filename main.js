@@ -231,7 +231,29 @@ function generateAccessibilityReport() {
 function addressAccessibilityIssues(insightReport) {
   // Implementation to address accessibility issues from an insight report.
   // Apply specific accessibility fixes here based on the report's structure.
-  // For now, we simply return the report unchanged.
+  
+  if (!insightReport) {
+    return insightReport;
+  }
+  
+  // Address REACT_025: Ensure unique landmarks
+  // Check for duplicate landmark IDs in the report
+  if (insightReport.landmarks && Array.isArray(insightReport.landmarks)) {
+    // Get unique landmarks to remove duplicates
+    insightReport.landmarks = uniqueLandmarks(insightReport.landmarks);
+    
+    // Ensure each landmark has a unique ID
+    const usedIds = new Set();
+    insightReport.landmarks = insightReport.landmarks.map(landmark => {
+      if (!landmark.id || usedIds.has(landmark.id)) {
+        // Generate a unique ID for this landmark
+        landmark.id = ensureUniqueLandmarkId(landmark.id || 'landmark');
+      }
+      usedIds.add(landmark.id);
+      return landmark;
+    });
+  }
+  
   return insightReport;
 }
 
@@ -241,7 +263,7 @@ function ensureUniqueLandmarks() {
   let uniqueIds = [];
 
   function generateUniqueId() {
-    return `landmark-${Date.now()}-Math.floor(Math.random() * 1000)}`;
+    return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
   }
 
   landmarks.forEach((landmark) => {

@@ -116,6 +116,22 @@ const formatData = (data) => {
   // Formatting logic
 };
 
+// REACT_015: Add lang attribute to HTML element
+// Sets the 'lang' attribute on the HTML element for accessibility
+function setLanguageAttribute(lang) {
+  if (typeof lang !== 'string' || lang.trim() === '') {
+    console.error('Invalid language code provided');
+    return false;
+  }
+  
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.lang = lang.trim();
+    return true;
+  }
+  return false;
+}
+
 // Ensure all desired exports are included
 module.exports = {
   renderDependencyGraph,
@@ -126,5 +142,6 @@ module.exports = {
   ensureUniqueLandmarks,
   addressAccessibilityIssues,
   utilityFunction,
-  formatData
+  formatData,
+  setLanguageAttribute
 };

@@ -141,6 +141,60 @@ function validateTableStructure(table) {
 }
 
 /**
+ * Add landmark roles to elements to improve navigation support.
+ * Addresses REACT_017: Add landmark roles and fix landmark issues.
+ * @param {HTMLElement} container - The container element to process
+ */
+function addLandmarkRoles(container) {
+  if (!container) return;
+  const roleMap = {
+    'header': 'banner',
+    'footer': 'contentinfo',
+    'main': 'main',
+    'nav': 'navigation',
+    'aside': 'complementary'
+  };
+  Object.keys(roleMap).forEach(key => {
+    const elements = container.querySelectorAll(`[id="${key}"], .${key}`);
+    elements.forEach(el => {
+      if (!el.getAttribute('role')) {
+        el.setAttribute('role', roleMap[key]);
+      }
+    });
+  });
+}
+
+/**
+ * Ensure all landmark elements have unique accessible names to avoid ambiguity.
+ * Addresses REACT_025: Ensure unique landmarks (2 issues).
+ * @param {HTMLElement} container - The container element to process
+ */
+function ensureUniqueLandmarks(container) {
+  if (!container) return;
+  const landmarkSelectors = '[role="banner"], [role="contentinfo"], [role="main"], [role="navigation"], [role="complementary"], [role="region"], [role="search"]';
+  const landmarks = container.querySelectorAll(landmarkSelectors);
+  const seenNames = {};
+  landmarks.forEach(landmark => {
+    let name = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || landmark.textContent.trim();
+    if (!name) {
+      name = 'Landmark';
+    }
+    if (seenNames[name]) {
+      let uniqueName = name;
+      let counter = 1;
+      while (seenNames[uniqueName]) {
+        counter++;
+        uniqueName = `${name} (${counter})`;
+      }
+      landmark.setAttribute('aria-label', uniqueName);
+      seenNames[uniqueName] = true;
+    } else {
+      seenNames[name] = true;
+    }
+  });
+}
+
+/**
  * Validate an existing session
  * @param {string} sessionId - The session ID to validate
  * @returns {Object|null} - Session data if valid, null otherwise
@@ -290,6 +344,8 @@ module.exports = {
     decodeJwtToken,
     generateSessionId,
     validateTableStructure,
+    addLandmarkRoles,
+    ensureUniqueLandmarks,
     validateSession,
     revokeSession,
     getActiveSessionsCount,

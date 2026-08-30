@@ -190,7 +190,27 @@ function ensureLandmarkUniqueness(elements) {
 }
 
 function ensureUniqueLandmarks() {
-  return {};
+  const result = {
+    valid: true,
+    duplicates: []
+  };
+  
+  // Define which landmarks should be unique
+  const uniqueLandmarks = ['main', 'header', 'footer', 'nav', 'aside', 'section', 'article'];
+  
+  uniqueLandmarks.forEach(tag => {
+    const elements = document.querySelectorAll(tag);
+    if (elements.length > 1) {
+      result.valid = false;
+      result.duplicates.push({
+        tag: tag,
+        count: elements.length,
+        elements: Array.from(elements)
+      });
+    }
+  });
+  
+  return result;
 }
 
 function validateSvgAccessibility() {

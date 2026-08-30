@@ -19,5 +19,7 @@ Main.propTypes = {
   lang: PropTypes.string,
 };
 
+// Adding the missing required exports
+export { Main, PropTypes };
+
 export default Main;
-export { Main };

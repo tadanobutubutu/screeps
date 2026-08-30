@@ -294,7 +294,15 @@ export {
   greet, 
   add, 
   calculateDiscount, 
-  newFunction 
+  newFunction,
+  // Add back required exports that might have been removed
+  createUnrotateButton,
+  ensureThScope,
+  addLandmarkRoles,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLink,
+  initializeAccessibility
 };
 
 // Initialize on DOM ready

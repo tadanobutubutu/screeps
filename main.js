@@ -42,7 +42,7 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
+// TODO: Implement the required changes to improve accessibility for adding a new book
 // ...
 
 // Default sorting function for the book list
@@ -92,3 +92,12 @@ function Main() {
 
 // Export the Main component
 export default Main;
+
+// Export the addBook function
+export function addBook(book) {
+  // Perform any necessary validation or processing before adding the book
+  // ...
+
+  // Dispatch an action to add the book to the books list in the Redux store
+  dispatch({ type: 'ADD_BOOK', payload: book });
+}

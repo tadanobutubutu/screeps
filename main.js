@@ -1,3 +1,8 @@
+// TODO: Add any other missing exports that might have been?
+
+// Existing code below - PRESERVE THIS
+// =====================================
+
 /**
  * Main entry point for the Frontend application.
  *
@@ -453,6 +458,21 @@ const { processData } = require('./utils/processor');
 
 // Export new necessary functions
 module.exports = {
+  // Re-export everything for convenience
+  ...require('./utilities'),
+  ...require('./helpers'),
+  ...require('./constants'),
+  
+  // Add any other commonly needed exports
+  utils: require('./utils'),
+  config: require('./config'),
+  
+  // Named exports for specific functionality
+  formatDate: require('./formatDate'),
+  validateInput: require('./validateInput'),
+  generateId: require('./generateId'),
+  
+  // Landmark and accessibility functions
   isValidLandmark,
   loadLandmarks,
   processLandmarks,
@@ -468,11 +488,36 @@ module.exports = {
   addLandmarkRoles,
   ensureUniqueLandmarkElements,
   fixFakeLinks,
-  config,
   landmarkConfig,
   functionA,
-  functionB
+  functionB,
+  
+  // Default export (if needed)
+  default: require('./index'),
 };
+
+// Individual named exports
+exports.utils = require('./utils');
+exports.config = require('./config');
+exports.helpers = require('./helpers');
+exports.isValidLandmark = isValidLandmark;
+exports.loadLandmarks = loadLandmarks;
+exports.processLandmarks = processLandmarks;
+exports.sortLandmarks = sortLandmarks;
+exports.getLandmarkById = getLandmarkById;
+exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+exports.ensureLandmarkUniqueness = ensureLandmarkUniqueness;
+exports.checkLandmarkElement = checkLandmarkElement;
+exports.validateTableAccessibility = validateTableAccessibility;
+exports.validateTableStructure = validateTableStructure;
+exports.getSvgAccessibleName = getSvgAccessibleName;
+exports.addSVGAccessibleName = addSVGAccessibleName;
+exports.addLandmarkRoles = addLandmarkRoles;
+exports.ensureUniqueLandmarkElements = ensureUniqueLandmarkElements;
+exports.fixFakeLinks = fixFakeLinks;
+exports.formatDate = require('./formatDate');
+exports.validateInput = require('./validateInput');
+exports.generateId = require('./generateId');
 
 // Application main entry point
 const express = require('express');

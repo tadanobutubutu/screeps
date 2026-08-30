@@ -3,17 +3,157 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
+// Function to add lang attribute to HTML element
+function addLangAttribute(htmlElement, lang = 'en') {
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
+// Function to fix table structure issues
+function fixTableStructure(tableElement) {
+  if (!tableElement) return;
+
+  // Ensure table has proper structure
+  const thead = tableElement.querySelector('thead') || document.createElement('thead');
+  const tbody = tableElement.querySelector('tbody') || document.createElement('tbody');
+
+  if (!tableElement.querySelector('thead')) {
+    tableElement.prepend(thead);
+  }
+  if (!tableElement.querySelector('tbody')) {
+    tableElement.appendChild(tbody);
+  }
+
+  // Add scope attributes to header cells
+  const headerCells = thead.querySelectorAll('th');
+  headerCells.forEach(cell => {
+    if (!cell.hasAttribute('scope')) {
+      cell.setAttribute('scope', 'col');
+    }
+  });
+}
+
+// Re-organized accessibility functions related to SVGs and landmarks
+
+// Function to ensure unique landmarks
+function uniqueLandmarks(container) {
+  return ensureUniqueLandmarks(container);
+}
+
+// Function to add accessible names to SVGs
+function addSvgAccessibleNames(svgElement, name) {
+  if (!svgElement) return;
+
+  // Add title element inside SVG
+  const existingTitle = svgElement.querySelector('title');
+  if (!existingTitle) {
+    const title = document.createElement('title');
+    title.textContent = name;
+    svgElement.prepend(title);
+  }
+
+  // Add aria-label to SVG element
+  if (!svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
+    svgElement.setAttribute('aria-label', name);
+  }
+}
+
+// Function to add accessible names to all SVGs in a container
+function addAccessibleNamesToSVGs(container) {
+  if (!container) return;
+
+  const svgs = container.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    const name = svg.getAttribute('aria-label') || `SVG icon ${index + 1}`;
+    addSvgAccessibleNames(svg, name);
+  });
+}
+
+// Function to fix fake link issues (buttons styled as links)
+function fixFakeLinkIssue(element) {
+  if (!element) return;
+
+  const fakeLinks = element.querySelectorAll('[role="link"], a:not([href])');
+  fakeLinks.forEach(link => {
+    const text = link.textContent;
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.setAttribute('aria-label', link.getAttribute('aria-label') || text);
+    if (link.id) {
+      button.id = link.id;
+    }
+    link.parentNode.replaceChild(button, link);
+  });
+}
+
+// Function to fix all fake link issues in container
+function fixFakeLinkIssues(container) {
+  if (!container) return;
+  fixFakeLinkIssue(container);
+}
+
+// Function to handle Google sign-in logic
+function googleSignIn() {
+  // This function would typically trigger Google OAuth
+  console.log('Google sign-in initiated');
+
+  // For accessibility, ensure sign-in button has proper labeling
+  return {
+    buttonText: 'Sign in with Google',
+    ariaLabel: 'Sign in with Google account'
+  };
+}
+
+// Function to fix button identifiers for accessibility
+function fixButtonIdentifiers(container) {
+  if (!container) return;
+
+  const buttons = container.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    if (!button.id && !button.getAttribute('aria-label')) {
+      const existingText = button.textContent.trim();
+      if (!existingText) {
+        button.setAttribute('aria-label', `Button ${index + 1}`);
+      }
+    }
+  });
+}
+
+// Function to ensure dependencyGraph container has proper ARIA role
+function ensureDependencyGraphARIA(containerElement) {
+  if (!containerElement) return;
+
+  if (!containerElement.hasAttribute('role')) {
+    containerElement.setAttribute('role', 'region');
+  }
+  if (!containerElement.hasAttribute('aria-label')) {
+    containerElement.setAttribute('aria-label', 'Dependency graph');
+  }
+  if (!containerElement.hasAttribute('aria-labelledby')) {
+    containerElement.setAttribute('aria-labelledby', 'dependency-graph-title');
+  }
+}
+
+// Similar function names have been renamed to eliminate confusion
+function getBooksList() {
+  return useSelector(state => state.books.list);
+}
 
 // Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
+function onTitleSort(bookList, dispatch) {
+  const sortedList = [...bookList].sort(sortByTitle);
+  // Dispatch an action to update the sorted book list in the Redux store
+  const action = { type: 'SORT_BY_TITLE', payload: sortedList };
+  dispatch(action);
 }
 
 // Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
+function onAuthorSort(bookList, dispatch) {
+  const sortedList = [...bookList].sort(sortByAuthor);
+  // Dispatch an action to update the sorted book list in the Redux store
+  const action = { type: 'SORT_BY_AUTHOR', payload: sortedList };
+  dispatch(action);
 }
 
 // Function to generate a key for each book item
@@ -27,7 +167,7 @@ function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        description={book.author}
+        ...
       />
     </List.Item>
   );
@@ -286,40 +426,27 @@ function AddBookForm() {
 // Main component
 function Main() {
   const dispatch = useDispatch();
-  const bookList = useSelector(state => state.books.list);
+  const bookList = getBooksList();
   const [sorting, setSorting] = useState(defaultSorting);
 
   // Function to create a new book entry in the Redux store
   function addBook(book) {
     // Perform any necessary validation or processing before adding the book
     // ...
-    
+
     // Dispatch an action to add the book to the books list in the Redux store
-    dispatch({ type: 'ADD_BOOK', payload: book });
-  }
-
-  // Function to handle sorting the book list by title (ascending)
-  function onTitleSort() {
-    const sortedList = [...bookList].sort(sortByTitle);
-    // Dispatch an action to update the sorted book list in the Redux store
-    dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
-  }
-
-  // Function to handle sorting the book list by author (descending)
-  function onAuthorSort() {
-    const sortedList = [...bookList].sort(sortByAuthor);
-    // Dispatch an action to update the sorted book list in the Redux store
-    dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+    const action = { type: 'ADD_BOOK', payload: book };
+    dispatch(action);
   }
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
     if (sorting === sortByTitle) {
-      onTitleSort();
+      onTitleSort(bookList, dispatch);
     } else if (sorting === sortByAuthor) {
-      onAuthorSort();
+      onAuthorSort(bookList, dispatch);
     }
-  }, [sorting, bookList]);
+  }, [sorting, bookList, dispatch]);
 
   // Map the book list to the BookItem function to create book items
   const bookItems = bookList.map(book => BookItem(book));

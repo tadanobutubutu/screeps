@@ -5,13 +5,13 @@
 const affectedFunctions = {};
 
 // Define functionA and functionB as objects with properties X, Y, and Z
-functionA = {
+const functionA = {
   X: 'valueX',
   Y: 'valueY',
   Z: 'valueZ'
 };
 
-functionB = {
+const functionB = {
   X: 'valueX2',
   Y: 'valueY2',
   Z: 'valueZ2'

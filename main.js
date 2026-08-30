@@ -36,7 +36,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -155,7 +155,7 @@ function functionZ() { return 'functionZ'; }
 
 // TODO: Re-add the required exports for functionA and functionB
 // Assuming that they are objects with properties X, Y, and Z
-const functionA = {
+export const functionA = {
   // ... (Preserve the existing code for functionA)
 
   X: functionX, // Do not remove or rename this export
@@ -176,7 +176,7 @@ function loop() {
     let creep = Game.creeps[name];
     if (creep.memory.role === 'harvester') {
       if (creep.store.getFreeCapacity() > 0) {
-        let source = creep.pos.findClosestByPath(FIND_SOURCES);
+        let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
         if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
           creep.moveTo(source);
         }
@@ -190,7 +190,7 @@ function functionXb() { return 'functionXb'; }
 function functionYb() { return 'functionYb'; }
 function functionZb() { return 'functionZb'; }
 
-const functionB = {
+export const functionB = {
   // ... (Preserve the existing code for functionB)
 
   X: functionXb, // Do not remove or rename this export
@@ -300,7 +300,7 @@ function validateLandmark(root = document) {
   const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
   
   // Check for main landmark
-  const mainElements = root.querySelectorAll('main, [role="main"]');
+  const mainElements = root.querySelectorAll('[role="main"]');
   if (mainElements.length === 0) {
     issues.push('Page should have at least one main landmark');
   } else if (mainElements.length > 1) {
@@ -316,4 +316,11 @@ function validateLandmark(root = document) {
   // Check for footer landmark
   const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
   if (footerElements.length > 1) {
-    issues.push('Page
+    issues.push('Page should have only one footer landmark');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}

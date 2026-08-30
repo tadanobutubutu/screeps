@@ -42,8 +42,14 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
+// Implement the required changes to improve accessibility for the addBook function or form
+function handleAddBook(book) {
+  // Ensure that the book object includes a proper label for accessibility
+  if (!book.label) {
+    book.label = `Add book titled ${book.title}`;
+  }
+  addBook(book);
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
@@ -84,8 +90,8 @@ function Main() {
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List dataSource={bookItems} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      {/* Implement the required changes to improve accessibility for adding a new book */}
+      <button onClick={() => handleAddBook({ title: 'New Book', author: 'Author', label: 'Add new book' })}>Add Book</button>
     </div>
   );
 }

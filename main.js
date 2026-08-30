@@ -350,6 +350,286 @@ function countDependencies(dependencies) {
   return totalCount;
 }
 
+// REACT_015: Set lang attribute on HTML element (already done at top of file)
+// REACT_025: Additional accessibility enhancements
+
+/**
+ * Validate that all interactive elements have accessible names
+ */
+function validateAccessibleNames() {
+  const issues = [];
+  const interactiveSelectors = 'a[href], button, input, select, textarea, [tabindex], [role="button"], [role="link"], [role="menuitem"]';
+  const elements = document.querySelectorAll(interactiveSelectors);
+  
+  elements.forEach((element, index) => {
+    const accessibleName = element.getAttribute('aria-label') ||
+                           element.getAttribute('aria-labelledby') ||
+                           element.textContent?.trim() ||
+                           element.getAttribute('title') ||
+                           element.getAttribute('placeholder');
+    
+    if (!accessibleName) {
+      issues.push({
+        type: 'REACT_010',
+        message: `Interactive element ${index + 1} (${element.tagName.toLowerCase()}) lacks accessible name`,
+        severity: 'warning'
+      });
+    }
+  });
+  
+  return issues;
+}
+
+/**
+ * Validate form input accessibility (labels, required attributes, error handling)
+ */
+function validateFormAccessibility() {
+  const issues = [];
+  const inputs = document.querySelectorAll('input, select, textarea');
+  
+  inputs.forEach((input, index) => {
+    const id = input.getAttribute('id');
+    const type = input.getAttribute('type');
+    const ariaLabel = input.getAttribute('aria-label');
+    const ariaLabelledby = input.getAttribute('aria-labelledby');
+    
+    // Skip hidden inputs and submit/button types
+    if (type === 'hidden' || type === 'submit' || type === 'button') return;
+    
+    let hasLabel = false;
+    if (id) {
+      hasLabel = document.querySelector(`label[for="${id}"]`) !== null;
+    }
+    if (!hasLabel && !ariaLabel && !ariaLabelledby) {
+      const wrappingLabel = input.closest('label');
+      if (!wrappingLabel) {
+        issues.push({
+          type: 'REACT_012',
+          message: `Form input ${index + 1} (${input.tagName.toLowerCase()}) lacks associated label`,
+          severity: 'warning'
+        });
+      }
+    }
+    
+    // Check required fields have aria-required
+    if (input.hasAttribute('required') && !input.hasAttribute('aria-required')) {
+      issues.push({
+        type: 'REACT_013',
+        message: `Required form input ${index + 1} missing aria-required attribute`,
+        severity: 'warning'
+      });
+    }
+  });
+  
+  return issues;
+}
+
+/**
+ * Validate heading hierarchy
+ */
+function validateHeadingHierarchy() {
+  const issues = [];
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+  
+  headings.forEach((heading, index) => {
+    const level = parseInt(heading.tagName.substring(1), 10);
+    
+    if (index === 0 && level !== 1) {
+      issues.push({
+        type: 'REACT_021',
+        message: `First heading should be h1, found h${level}`,
+        severity: 'warning'
+      });
+    }
+    
+    if (previousLevel > 0 && level > previousLevel + 1) {
+      issues.push({
+        type: 'REACT_021',
+        message: `Heading level skipped: h${previousLevel} to h${level}`,
+        severity: 'warning'
+      });
+    }
+    
+    previousLevel = level;
+  });
+  
+  return issues;
+}
+
+/**
+ * Validate image alt attributes
+ */
+function validateImageAccessibility() {
+  const issues = [];
+  const images = document.querySelectorAll('img');
+  
+  images.forEach((img, index) => {
+    const alt = img.getAttribute('alt');
+    const role = img.getAttribute('role');
+    const ariaLabel = img.getAttribute('aria-label');
+    
+    if (alt === null && role !== 'presentation' && role !== 'none' && !ariaLabel) {
+      issues.push({
+        type: 'REACT_031',
+        message: `Image ${index + 1} missing alt attribute`,
+        severity: 'warning'
+      });
+    }
+  });
+  
+  return issues;
+}
+
+/**
+ * Ensure all focusable elements have visible focus indicators
+ */
+function setupFocusIndicators() {
+  const styleId = 'a11y-focus-indicators';
+  if (document.getElementById(styleId)) return;
+  
+  const style = document.createElement('style');
+  style.id = styleId;
+  style.textContent = `
+    *:focus-visible {
+      outline: 2px solid #4A90E2;
+      outline-offset: 2px;
+    }
+    a:focus-visible, button:focus-visible, input:focus-visible, 
+    select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+      outline: 2px solid #4A90E2;
+      outline-offset: 2px;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+/**
+ * Manage focus trap for modal dialogs
+ */
+function trapFocus(container) {
+  if (!container) return () => {};
+  
+  const focusableSelectors = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  const focusableElements = container.querySelectorAll(focusableSelectors);
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+  
+  function handleKeyDown(event) {
+    if (event.key !== 'Tab') return;
+    
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement?.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement?.focus();
+    }
+  }
+  
+  container.addEventListener('keydown', handleKeyDown);
+  
+  return () => {
+    container.removeEventListener('keydown', handleKeyDown);
+  };
+}
+
+/**
+ * Announce messages to screen readers using a live region
+ */
+function announceToScreenReader(message, priority = 'polite') {
+  let liveRegion = document.getElementById('a11y-live-region');
+  if (!liveRegion) {
+    liveRegion = document.createElement('div');
+    liveRegion.id = 'a11y-live-region';
+    liveRegion.setAttribute('aria-live', priority);
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.style.position = 'absolute';
+    liveRegion.style.left = '-10000px';
+    liveRegion.style.width = '1px';
+    liveRegion.style.height = '1px';
+    liveRegion.style.overflow = 'hidden';
+    document.body.appendChild(liveRegion);
+  } else {
+    liveRegion.setAttribute('aria-live', priority);
+  }
+  liveRegion.textContent = message;
+}
+
+/**
+ * Setup ARIA landmarks automatically when missing
+ */
+function setupAriaLandmarks() {
+  const landmarkMap = {
+    'header': 'banner',
+    'nav': 'navigation',
+    'main': 'main',
+    'aside': 'complementary',
+    'footer': 'contentinfo'
+  };
+  
+  Object.entries(landmarkMap).forEach(([tag, role]) => {
+    const elements = document.querySelectorAll(tag);
+    elements.forEach((element) => {
+      if (!element.getAttribute('role') && !element.getAttribute('aria-label')) {
+        element.setAttribute('role', role);
+      }
+    });
+  });
+}
+
+/**
+ * Run all accessibility checks comprehensively
+ */
+function runFullAccessibilityAudit() {
+  const results = {
+    langAttribute: getLangAttribute(),
+    accessibleNames: validateAccessibleNames(),
+    formAccessibility: validateFormAccessibility(),
+    headingHierarchy: validateHeadingHierarchy(),
+    imageAccessibility: validateImageAccessibility(),
+    tableAccessibility: validateTableAccessibility(),
+    tableStructure: validateTableStructure(),
+    svgAccessibility: validateSvgAccessibility(),
+    landmarks: ensureUniqueLandmarks(),
+    fakeLinks: fixFakeLinkIssues()
+  };
+  
+  const allIssues = [
+    ...results.accessibleNames,
+    ...results.formAccessibility,
+    ...results.headingHierarchy,
+    ...results.imageAccessibility,
+    ...results.tableAccessibility,
+    ...results.tableStructure,
+    ...results.svgAccessibility,
+    ...results.landmarks,
+    ...results.fakeLinks
+  ];
+  
+  return {
+    totalIssues: allIssues.length,
+    issues: allIssues,
+    results
+  };
+}
+
+/**
+ * Initialize all accessibility enhancements
+ */
+function initAccessibilityEnhancements() {
+  setupFocusIndicators();
+  setupAriaLandmarks();
+  setupMainContentAccessibility();
+  
+  // Defer audit until DOM is fully ready
+  if (document.readyState === 'complete') {
+    runFullAccessibilityAudit();
+  } else {
+    window.addEventListener('load', runFullAccessibilityAudit);
+  }
+}
+
 export {
   VERSION,
   CONFIG,
@@ -370,7 +650,17 @@ export {
   setupButtonAccessibility,
   setupMainContentAccessibility,
   handleMainKeydown,
-  countDependencies
+  countDependencies,
+  validateAccessibleNames,
+  validateFormAccessibility,
+  validateHeadingHierarchy,
+  validateImageAccessibility,
+  setupFocusIndicators,
+  trapFocus,
+  announceToScreenReader,
+  setupAriaLandmarks,
+  runFullAccessibilityAudit,
+  initAccessibilityEnhancements
 };
 
 export default {
@@ -393,5 +683,15 @@ export default {
   setupButtonAccessibility,
   setupMainContentAccessibility,
   handleMainKeydown,
-  countDependencies
+  countDependencies,
+  validateAccessibleNames,
+  validateFormAccessibility,
+  validateHeadingHierarchy,
+  validateImageAccessibility,
+  setupFocusIndicators,
+  trapFocus,
+  announceToScreenReader,
+  setupAriaLandmarks,
+  runFullAccessibilityAudit,
+  initAccessibilityEnhancements
 };

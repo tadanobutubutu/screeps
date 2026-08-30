@@ -350,18 +350,11 @@ function upgradeController(creep, controller) {
 }
 
 // Export statements preserved
-export { existingFunction };
 export { makeHeaderFocusable };
 
 // Export UI / product functions
 export {
-  renderHeader,
-  renderFooter,
-  renderProductCard,
-  state,
-  updateState,
   checkLinkAccessibility,
-  renderDependencyGraph,
   displayModuleStructure
 };
 
@@ -386,14 +379,8 @@ export {
   formatDate,
   calculateDiscount,
   validateInput,
-  renderHeader,
-  renderFooter,
-  renderProductCard,
-  state,
-  updateState,
   calculateTotalPrice,
   renderCart,
   validateAndRender,
-  renderPage,
-  specificFunctionThatRendersGraphOrIndex
+  renderPage
 };

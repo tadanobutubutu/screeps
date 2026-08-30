@@ -155,6 +155,74 @@ function addProperLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
+// TODO: Implement function for generating a report based on accessibility issues
+/**
+ * Generates a comprehensive report based on accessibility issues.
+ * @param {Object} insightReport - The insight report containing accessibility issues
+ * @param {Array} [addressedIssues=[]] - Optional array of addressed issues from addressAccessibilityIssues
+ * @returns {Object} A formatted accessibility report
+ */
+function generateAccessibilityReport(insightReport, addressedIssues = []) {
+  // Validate input
+  if (!insightReport || !Array.isArray(insightReport.accessibilityIssues)) {
+    console.log('No valid accessibility issues found in the insight report');
+    return {
+      summary: {
+        totalIssues: 0,
+        addressed: 0,
+        pending: 0,
+        generatedAt: new Date().toISOString()
+      },
+      issues: [],
+      details: []
+    };
+  }
+
+  const issues = insightReport.accessibilityIssues;
+  const totalIssues = issues.length;
+
+  // Determine which issues have been addressed
+  const addressedCodes = new Set(
+    addressedIssues
+      .filter(item => item && item.actionTaken && item.issue && item.issue.code)
+      .map(item => item.issue.code)
+  );
+
+  const addressedCount = addressedCodes.size;
+  const pendingCount = totalIssues - addressedCount;
+
+  // Build the report details
+  const details = issues.map(issue => {
+    const isAddressed = addressedCodes.has(issue.code);
+    return {
+      code: issue.code,
+      message: issue.message,
+      severity: issue.severity || 'unknown',
+      status: isAddressed ? 'addressed' : 'pending',
+      addressedAt: isAddressed
+        ? (addressedIssues.find(item => item.issue && item.issue.code === issue.code) || {}).timestamp
+        : null
+    };
+  });
+
+  const report = {
+    summary: {
+      totalIssues,
+      addressed: addressedCount,
+      pending: pendingCount,
+      generatedAt: new Date().toISOString()
+    },
+    issues: issues.map(issue => ({
+      code: issue.code,
+      message: issue.message
+    })),
+    details
+  };
+
+  console.log(`Accessibility report generated: ${addressedCount}/${totalIssues} issues addressed`);
+  return report;
+}
+
 // TODO: Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
@@ -418,6 +486,7 @@ module.exports = {
   initialize,
   validateInput,
   addressAccessibilityIssues,
+  generateAccessibilityReport,
   main,
   getLangAttribute,
   addLangAttribute,

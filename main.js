@@ -145,6 +145,12 @@ function fixLandmarkIssues() {
   // This is a placeholder that would need to be implemented based on specific requirements
 }
 
+// New function to combine adding landmark roles and fixing landmark issues
+function addLandmarkRolesAndFixIssues(insightReport) {
+  addLandmarkRoles(insightReport);
+  fixLandmarkIssues(insightReport);
+}
+
 // Placeholder implementation for rendering a dependency graph
 function renderDependencyGraph(dependencyData) {
   console.log('Rendering dependency graph with data:', dependencyData);

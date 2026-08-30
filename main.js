@@ -1,29 +1,11 @@
-Here is the resolved file content:
-
-```javascript
 // Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
 const { spawn } = require('child_process');
 
-const {
-  add,
-  subtract,
-  multiply,
-  divide,
-  power,
-  squareRoot,
-  factorial,
-  fibonacci,
-  sum,
-  average,
-  max,
-  min,
-  mode,
-  median,
-} = require('./mathHelpers');
-
-const { class1, function1, Object1 } = require('./path/to/module');
+// Accessibility utilities and functions
+// TODO: Address accessibility issues from insight report:
+// ... (Removed hashes for ease of reading)
 
 const accessibilityUtils = {
   // ... existing methods from both branches ...
@@ -82,12 +64,81 @@ const renderDependencyGraph = (data) => {
   };
 };
 
-// Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// ... (Removed hashes for ease of reading)
+/**
+ * Ensure an element has an id, generating one if necessary.
+ * @param {HTMLElement} element - The element to check/generate id for
+ * @param {string} [prefix='element'] - Prefix for generated id
+ * @returns {string} The element's id
+ */
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+
+  if (element.id) {
+    return element.id;
+  }
+
+  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  element.id = id;
+  return id;
+}
+
+function renderDependencyGraphs(container, dependencies, options = {}) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+
+  if (!dependencies) {
+    throw new Error('Dependencies data is required');
+  }
+
+  // Ensure container has an id for graph references
+  const containerId = ensureElementHasId(container, 'graph-container');
+
+  // Add accessibility label if not present
+  const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
+
+  return {
+    containerId,
+    accessible: hasAriaLabel,
+    ...renderDependencyGraph(dependencies)
+  };
+}
+
+/**
+ * Trap focus within an element.
+ * @param {HTMLElement} element - The element to trap focus within
+ */
+function focusTrap(element) {
+  if (!element) return;
+
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+
+  if (focusableElements.length === 0) return;
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+
+  firstElement.focus();
+}
 
 function newFocusTrap() {
-  // New function implementation from origin/main
+  // New function implementation
 }
 
 function spawnProcess(command, args = [], options = {}) {
@@ -183,9 +234,11 @@ module.exports = {
   initAccessibility,
   handleCredentialResponse,
   ensureElementId,
+  ensureElementHasId,
   addAriaLabel,
   renderDependencyGraph,
+  renderDependencyGraphs,
   spawnProcess,
+  focusTrap,
   newFocusTrap
 };
-```

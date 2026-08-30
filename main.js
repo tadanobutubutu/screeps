@@ -1,20 +1,10 @@
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import { setDependencyGraph } from './actions/dependencyGraph'; // Assuming you have a dependencyGraph action creator
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
-
-// Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
-}
-
-// Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
-}
+// ... (Existing code)
 
 // Function to generate a key for each book item
 function generateKey(book) {
@@ -29,66 +19,48 @@ function BookItem(book) {
         title={book.title}
         description={book.author}
       />
+      {/* Assuming you want to render dependency information alongside the book item */}
+      {book.dependencies && <p>Dependencies: {book.dependencies.join(', ')}</p>}
     </List.Item>
   );
 }
 
-// Function to create a new book entry in the Redux store
-function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
+// Function to fetch book dependencies and update the Redux store
+async function fetchBookDependencies(bookId) {
+  // Fetch dependencies for the specified book
+  // ... (Assuming you have an API endpoint to fetch book dependencies or implementing this logic)
+
+  // Dispatch an action to update the book's dependencies in the Redux store
+  dispatch(setDependencyGraph({ bookId, dependencies: // The fetched dependencies }));
+}
+
+// Function to handle updating book dependencies
+function updateBookDependencies(bookId, newDependencies) {
+  // Perform any necessary validation or processing before updating the book's dependencies
   // ...
 
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
+  // Dispatch an action to update the book's dependencies in the Redux store
+  dispatch(setDependencyGraph({ bookId, dependencies: newDependencies }));
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
+// Modify BookItem function to fetch and display dependencies
+function ModifiedBookItem(book) {
+  const [dependencies, setDependencies] = useState(book.dependencies || []);
 
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
-
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
-}
-
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-}
-
-// Render the main component containing the book list and sorting controls
-function Main() {
-  const [sorting, setSorting] = useState(defaultSorting);
-
-  // UseEffect hook to handle sorting book list updates
   useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
-    }
-  }, [sorting]);
+    fetchBookDependencies(book.id);
+  }, []);
 
-  // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(BookItem);
-
-  // Render the list of book items and sorting controls
   return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
-    </div>
+    <List.Item key={generateKey(book)}>
+      <Button onClick={() => updateBookDependencies(book.id, [...dependencies])}>Update Dependencies</Button>
+      <List.Item.Meta
+        title={book.title}
+        description={book.author}
+      />
+      {dependencies.length > 0 && <p>Dependencies: {dependencies.join(', ')}</p>}
+    </List.Item>
   );
 }
 
-// Export the Main component
-export default Main;
+// ... (Existing code)

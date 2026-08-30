@@ -203,7 +203,8 @@ export {
   createInPageButton, 
   addressAccessibilityIssues, 
   generateAccessibilityReport, 
-  calculateAccessibilityScore 
+  calculateAccessibilityScore,
+  addressInsightReportIssues
 };
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -217,7 +218,8 @@ if (typeof module !== 'undefined' && module.exports) {
     addressAccessibilityIssues,
     generateAccessibilityReport,
     calculateAccessibilityScore,
-    renderIndexView
+    renderIndexView,
+    addressInsightReportIssues
   };
 }
 

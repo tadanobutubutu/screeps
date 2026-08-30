@@ -265,6 +265,47 @@ function validateTableStructure(tableElement) {
   };
 }
 
+function addProperLandmarkRegions(container) {
+  // Implementation for accessibility: Add proper landmark regions to elements
+  // This function adds ARIA landmark roles to appropriate elements within the container
+  // It modifies the DOM in place and returns the container for chaining
+  if (!container) {
+    return null;
+  }
+
+  // Helper to add role if not already set
+  const addRole = (element, role) => {
+    if (element && !element.getAttribute('role')) {
+      element.setAttribute('role', role);
+    }
+  };
+
+  // Add landmark roles to semantic elements
+  const header = container.querySelector('header');
+  addRole(header, 'banner');
+
+  const nav = container.querySelector('nav');
+  addRole(nav, 'navigation');
+
+  const main = container.querySelector('main');
+  addRole(main, 'main');
+
+  const aside = container.querySelector('aside');
+  addRole(aside, 'complementary');
+
+  const footer = container.querySelector('footer');
+  addRole(footer, 'contentinfo');
+
+  // Handle other common landmarks
+  const search = container.querySelector('[role="search"], .search, #search');
+  addRole(search, 'search');
+
+  const forms = container.querySelectorAll('form');
+  forms.forEach(form => addRole(form, 'form'));
+
+  return container;
+}
+
 // Calculate sum of numbers array
 function calculateSum(numbers) {
     return numbers.reduce((sum, num) => sum + num, 0);
@@ -290,5 +331,6 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
+  addProperLandmarkRegions,
   calculateSum
 };

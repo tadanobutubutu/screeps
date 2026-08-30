@@ -351,6 +351,7 @@ export default function Dashboard() {
                                 onMouseLeave={() => setSummaryHover(false)}
                                 onFocus={() => setSummaryHover(true)}
                                 onBlur={() => setSummaryHover(false)}
+                                aria-keyshortcuts="Alt+c"
                                 aria-label={
                                     copiedSummary
                                         ? 'サマリーをコピーしました'
@@ -471,6 +472,7 @@ export default function Dashboard() {
                                     width: '0.9rem',
                                     height: '0.9rem',
                                 }}
+                                aria-keyshortcuts="Alt+a"
                                 aria-label="自動更新 (60秒ごと, Alt + A)"
                             />
                             <span
@@ -519,6 +521,7 @@ export default function Dashboard() {
                             onMouseLeave={() => setRefreshHover(false)}
                             onFocus={() => setRefreshHover(true)}
                             onBlur={() => setRefreshHover(false)}
+                            aria-keyshortcuts="Alt+r"
                             aria-label={
                                 refreshing
                                     ? 'データを更新中...'
@@ -829,6 +832,7 @@ export default function Dashboard() {
                                 }}
                                 placeholder="部屋を検索... (Escでクリア)"
                                 aria-label="部屋名で検索"
+                                aria-keyshortcuts="Alt+s Escape"
                                 style={{
                                     fontSize: '0.75rem',
                                     padding: roomQuery
@@ -855,8 +859,9 @@ export default function Dashboard() {
                             {roomQuery && (
                                 <button
                                     onClick={() => setRoomQuery('')}
-                                    aria-label="検索キーワードをクリア"
-                                    title="検索をクリア"
+                                    aria-label="検索キーワードをクリア (Escape)"
+                                    aria-keyshortcuts="Escape"
+                                    title="検索をクリア (Escape)"
                                     style={{
                                         position: 'absolute',
                                         right: '4px',
@@ -1017,6 +1022,7 @@ export default function Dashboard() {
                     <summary
                         className="interactive-hint"
                         aria-expanded={detailsOpen}
+                        aria-keyshortcuts="Alt+d"
                         title={
                             detailsOpen
                                 ? '生データを非表示にします (Alt + D)'

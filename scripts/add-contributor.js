@@ -8,7 +8,13 @@ const GITHUB_API = 'https://api.github.com';
 // Dynamic env evaluation for testing
 const getGithubToken = () => process.env.GITHUB_TOKEN;
 const getIssueAuthor = () => process.env.ISSUE_AUTHOR;
-const getRepo = () => process.env.GITHUB_REPOSITORY || 'tadanobutubutu/screeps';
+const getRepo = () => {
+    const rawRepo = process.env.GITHUB_REPOSITORY || 'tadanobutubutu/screeps';
+    if (typeof rawRepo !== 'string' || !/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(rawRepo)) {
+        throw new Error(`Invalid GITHUB_REPOSITORY format: ${rawRepo}`);
+    }
+    return rawRepo;
+};
 
 /**
  * GitHub API リクエスト実行
@@ -128,6 +134,10 @@ function updateReadme() {
  * 変更をコミット・プッシュ
  */
 function commitAndPush(username) {
+    if (!username || typeof username !== 'string' || !/^[a-zA-Z0-9-]+$/.test(username)) {
+        console.warn(`⚠️  Invalid username for commit: ${username}`);
+        return;
+    }
     try {
         console.log('📤 Committing changes...');
         execFileSync('git', ['add', '.all-contributorsrc', 'README.md'], { stdio: 'inherit' });

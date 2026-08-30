@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -100,6 +97,21 @@ function getFullLangAttribute() {
     return document.documentElement.lang || '';
 }
 
+/**
+ * Counts the number of dependencies in main.js.
+ * Dependencies are represented as import or require statements at the top of the file.
+ * @param {string} source - The source code of main.js.
+ * @returns {number} The count of dependencies found.
+ */
+function countDependencies(source) {
+    if (typeof source !== 'string') {
+        return 0;
+    }
+    const importRegex = /^\s*(?:import\s.+?from\s+['"][^'"]+['"]|import\s+['"][^'"]+['"]|const\s+.+?\s*=\s*require\s*\(\s*['"][^'"]+['"]\s*\))/gm;
+    const matches = source.match(importRegex);
+    return matches ? matches.length : 0;
+}
+
 // ... existing functions from both branches
 
 // Accessibility helper functions
@@ -152,4 +164,3 @@ function trapFocus(container) {
 }
 
 // ... other existing functions remained unchanged
-```

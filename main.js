@@ -1,6 +1,9 @@
 // main.js - Accessibility-focused implementation
 // TODO: Address accessibility issues from insight report:
 
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 /**
  * Main application entry point with accessibility features
  */

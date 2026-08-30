@@ -1,93 +1,377 @@
-Here is the resolved main.js file:
-
-```javascript
 // Importing the necessary functions
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { getLangAttribute, createInPageButton, getFullLangAttribute } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure, addScopeToTableHeaderCells } from './utils/tableAccessibilityUtils';
+import { validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks as ensureLandmarkUniqueness } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { addScopeToTableHeaderCells } from './utils/tableAccessibilityUtils';
-import { myNewFunction } from './utils/myNewFunction'; // New function
-import { getFullLangAttribute } from './utils/getFullLangAttribute'; // Added function
-import { ensureUniqueLandmarks } from './utils/ensureUniqueLandmarks'; // Added function
+import { validateLinkAccessibility, handleFakeLinks, createAccessibleLink } from './utils/linkAccessibilityUtils';
 import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
 import { renderHeader, renderFooter, renderProductCard } from './components.js';
 import { state, updateState } from './state.js';
 
-// REACT_015: lang attribute added to HTML element
-document.documentElement.lang = getFullLangAttribute();
+// Helper functions
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
-// Create in-page button with accessibility considerations
-createInPageButton();
+function throttle(func, limit) {
+  let inThrottle;
+  return function executedFunction(...args) {
+    if (!inThrottle) {
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+}
 
-// Validate table structure and accessibility for all tables
-const tables = document.querySelectorAll('table');
-tables.forEach(table => {
-  validateTableAccessibility(table);
-  validateTableStructure(table);
-});
+function isEmpty(value) {
+  if (value == null) return true;
+  if (typeof value === 'string') return value.length === 0;
+  if (Array.isArray(value)) return value.length === 0;
+  if (typeof value === 'object') return Object.keys(value).length === 0;
+  return false;
+}
 
-// Ensure unique landmark IDs
+function capitalize(str) {
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
+}
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof Date) return new Date(obj);
+  if (Array.isArray(obj)) return obj.map(item => deepClone(item));
+  if (typeof obj === 'object') {
+    const cloned = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) cloned[key] = deepClone(obj[key]);
+    }
+    return cloned;
+  }
+  return obj;
+}
+
+function generateId() {
+  return 'id_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+}
+
+function safeJsonParse(str, defaultValue = null) {
+  try {
+    return JSON.parse(str);
+  } catch (e) {
+    return defaultValue;
+  }
+}
+
+// Accessibility helper functions
+function handleKeyboardNavigation(options = {}) {
+  const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
+  
+  return (event) => {
+    switch (event.key) {
+      case 'Enter':
+        if (onEnter) onEnter(event);
+        break;
+      case 'Escape':
+        if (onEscape) onEscape(event);
+        break;
+      case 'ArrowUp':
+        if (onArrowUp) {
+          event.preventDefault();
+          onArrowUp(event);
+        }
+        break;
+      case 'ArrowDown':
+        if (onArrowDown) {
+          event.preventDefault();
+          onArrowDown(event);
+        }
+        break;
+    }
+  };
+}
+
+const handleKeyboard = handleKeyboardNavigation;
+
+function trapFocus(container) {
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  const handleTab = (event) => {
+    if (event.key !== 'Tab') return;
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  };
+
+  container.addEventListener('keydown', handleTab);
+  
+  return () => {
+    container.removeEventListener('keydown', handleTab);
+  };
+}
+
+function createAnnouncer() {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
+  document.body.appendChild(announcer);
+
+  return {
+    announce: (message) => {
+      announcer.textContent = '';
+      setTimeout(() => {
+        announcer.textContent = message;
+      }, 100);
+    }
+  };
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Internal set to track used landmark IDs
 const _usedLandmarkIds = new Set();
 
-function ensureUniqueLandmarkId(baseName) {
+function createLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
-        const suffix = Math.floor(Math.random() * 9000) + 1000;
+        const suffix = Math.random().toString(36).substring(2, 9);
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
 }
 
-function uniqueLandmarks(landmarks) {
-    const seen = new Set();
-    const result = [];
-    for (const lm of landmarks) {
-        if (!seen.has(lm.id)) {
-            seen.add(lm.id);
-            result.push(lm);
-        }
-    }
-    return result;
+function ensureUniqueLandmarkId(baseName) {
+    return createLandmarkId(baseName);
 }
 
-function addAriaLabel(elementId, label) {
-    const element = typeof elementId === 'string' ? document.getElementById(elementId) : elementId;
-    if (element) {
+function addAriaLabel(element, label) {
+    if (element && !element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
 
 function addLangAttribute() {
-  const elementToModify = document.querySelector('some-selector');
+  const elementToModify = typeof document !== 'undefined' ? document.documentElement : null;
+  const langValue = getLangAttribute() || 'en';
   if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en'); // Example: English
+    elementToModify.setAttribute('lang', langValue);
   }
 }
 
-// Ensure elements have the required IDs
+function handleReact015() {
+  const htmlElement = document.documentElement;
+  const langAttr = getLangAttribute() || getFullLangAttribute() || 'en';
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', langAttr);
+  }
+}
+
+function handleReact017AndReact025() {
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+  
+  landmarks.forEach(landmark => {
+    validateLandmark(landmark);
+    validateLandmarkStructure(landmark);
+    
+    if (landmark.id) {
+      const existingIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
+      if (existingIds.filter(id => id === landmark.id).length > 1) {
+        landmark.id = createLandmarkId(landmark.tagName.toLowerCase());
+      }
+    } else {
+      landmark.id = createLandmarkId(landmark.tagName.toLowerCase());
+    }
+  });
+  
+  ensureLandmarkUniqueness();
+}
+
+function handleReact041() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+    
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby') && !svg.getAttribute('title')) {
+      svg.setAttribute('aria-label', `SVG icon ${index + 1}`);
+    }
+  });
+}
+
+function handleReact036() {
+  const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
+  fakeLinks.forEach(link => {
+    if (link.hasAttribute('onclick') || link.classList.contains('button') || link.getAttribute('role') === 'button') {
+      createAccessibleLink(link);
+    }
+  });
+  
+  handleFakeLinks();
+  
+  const suspiciousLinks = document.querySelectorAll('span[onclick], div[onclick], button');
+  suspiciousLinks.forEach(element => {
+    const onclickAttr = element.getAttribute('onclick');
+    if (onclickAttr && (onclickAttr.includes('window.location') || onclickAttr.includes('document.location'))) {
+      const newLink = document.createElement('a');
+      newLink.href = element.getAttribute('onclick').match(/['"]([^'"]+)['"]/)?.[1] || '#';
+      newLink.textContent = element.textContent;
+      newLink.setAttribute('role', 'button');
+      element.parentNode.replaceChild(newLink, element);
+    }
+  });
+}
+
 function ensureElementHasId(elementId) {
-  const element = document.getElementById(elementId);
+  const element = typeof document !== 'undefined' ? document.getElementById(elementId) : null;
   if (element && !element.hasAttribute('id')) {
     element.setAttribute('id', elementId);
   }
 }
 
-// Add ARIA labels for better screen reader support
-ensureElementHasId('myTable');
-ensureElementHasId('mySvg');
-ensureElementHasId('inPageButton');
+function addAriaLabelById(elementId, label) {
+  const element = typeof document !== 'undefined' ? document.getElementById(elementId) : null;
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+}
 
-addAriaLabel('myTable', 'Product data table');
-addAriaLabel('myLogo', 'Company logo');
-addAriaLabel('myMenu', 'Accessibility menu');
-addAriaLabel('inPageButton', 'Skip to main content');
+function renderDependencyGraph(module) {
+  console.log('Rendering dependency graph for:', module);
+  return {
+    module: module,
+    dependencies: [],
+    rendered: true
+  };
+}
 
-// Handle fake links and buttons
+function displayModuleStructure(module) {
+  console.log('Displaying module structure for:', module);
+  return {
+    module: module,
+    structure: {},
+    displayed: true
+  };
+}
+
+function generateAccessibilityReport() {
+  const report = {
+    timestamp: new Date().toISOString(),
+    issues: []
+  };
+  return report;
+}
+
+function checkLinkAccessibility() {
+  const doc = getDocument();
+  if (doc) {
+    const links = doc.querySelectorAll('a');
+    let issues = [];
+    links.forEach(link => {
+      if (!link.textContent && !link.getAttribute('aria-label')) {
+        issues.push('Link missing accessible name');
+      }
+    });
+    return issues.length === 0;
+  }
+  return true;
+}
+
+function getDocument() {
+    if (typeof document !== 'undefined') {
+        return document;
+    }
+    return null;
+}
+
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll([
+    'header[role="banner"]',
+    'nav[role="navigation"]',
+    'main[role="main"]',
+    'aside[role="complementary"]',
+    'footer[role="contentinfo"]'
+  ].join(', '));
+
+  const landmarkIds = new Set();
+  landmarks.forEach(landmark => {
+    if (landmark.id) {
+      if (landmarkIds.has(landmark.id)) {
+        landmark.removeAttribute('id');
+      } else {
+        landmarkIds.add(landmark.id);
+      }
+    }
+  });
+}
+
+function validateLinkAccessibility() {
+  return [];
+}
+
+function myNewFunction(arg1, arg2) {
+  return arg1 * arg2;
+}
+
+function multiply(arg1, arg2) {
+  return myNewFunction(arg1, arg2);
+}
+
+// DOM content loaded handler
 document.addEventListener('DOMContentLoaded', () => {
+  handleReact015();
+  handleReact017AndReact025();
+  handleReact041();
+  handleReact036();
+
+  addLangAttribute();
+  createInPageButton();
+
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
+
+  addScopeToTableHeaderCells();
+  validateLinkAccessibility();
   handleFakeLinks();
+  ensureUniqueLandmarks();
+
+  ensureElementHasId('myTable');
+  ensureElementHasId('mySvg');
+  ensureElementHasId('inPageButton');
+  addAriaLabelById('myTable', 'Product data table');
+  addAriaLabelById('mySvg', 'Company logo');
+  addAriaLabelById('inPageButton', 'Skip to main content');
 
   const buttons = document.querySelectorAll('[role="button"]');
   buttons.forEach((button, index) => {
@@ -114,112 +398,97 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Google sign-in accessibility
-function googleSignIn() {
-  const googleButton = document.querySelector('[data-google-signin]');
-  if (googleButton) {
-    googleButton.setAttribute('aria-label', 'Sign in with Google');
-    googleButton.setAttribute('role', 'button');
+function initializeAccessibility() {
+  const announcer = createAnnouncer();
+
+  return {
+    announce: announcer.announce,
+    handleKeyboardNavigation,
+    handleKeyboard,
+    trapFocus,
+    createAnnouncer,
+    prefersReducedMotion,
+    ensureDependencyGraphARIA: () => ensureDependencyGraphARIA(),
+    getLangAttribute,
+    handleKeyboardNavigation,
+    handleKeyboard,
+    trapFocus,
+    createAnnouncer,
+    prefersReducedMotion,
+    ensureDependencyGraphARIA,
+    getLangAttribute
+  };
+}
+
+function ensureDependencyGraphARIA() {
+  const doc = getDocument();
+  let htmlElement = doc ? doc.querySelector('html') : null;
+  
+  if (!htmlElement) {
+    return { lang: null, dir: null };
   }
+  
+  if (!htmlElement.hasAttribute('lang') || !htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+  
+  if (!htmlElement.hasAttribute('dir')) {
+    htmlElement.setAttribute('dir', 'ltr');
+  }
+  
+  return {
+    lang: htmlElement.getAttribute('lang'),
+    dir: htmlElement.getAttribute('dir')
+  };
 }
 
-// Add scope attribute to table header cells
-addScopeToTableHeaderCells();
-
-// Validate link accessibility
-validateLinkAccessibility();
-handleFakeLinks();
-
-// Ensure unique landmarks
-ensureUniqueLandmarks();
-
-// SVG accessibility
-const svg = document.getElementById('mySvg');
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
-
-// Landmark accessibility
-validateLandmark();
-validateLandmarkStructure();
-
-// New utility functions
-function myNewFunction(arg1, arg2) {
-  return arg1 * arg2;
+function isInViewport(element) {
+  if (typeof document === 'undefined') return false;
+  const rect = element.getBoundingClientRect();
+  return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+  );
 }
 
-function getLangAttribute() {
-  return getFullLangAttribute();
-}
-
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll([
-    'header[role="banner"]',
-    'nav[role="navigation"]',
-    'main[role="main"]',
-    'aside[role="complementary"]',
-    'footer[role="contentinfo"]'
-  ].join(', '));
-
-  const landmarkIds = new Set();
-  landmarks.forEach(landmark => {
-    if (landmark.id) {
-      if (landmarkIds.has(landmark.id)) {
-        landmark.removeAttribute('id');
-      } else {
-        landmarkIds.add(landmark.id);
-      }
+// Screeps game loop helper functions
+function harvest(creep, source) {
+    if (creep.store.getFreeCapacity() > 0) {
+        if (creep.pos.isNearTo(source)) {
+            creep.harvest(source);
+        } else {
+            creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+        }
+    } else {
+        const targets = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+            filter: (structure) => {
+                return (
+                    structure.structureType === STRUCTURE_EXTENSION ||
+                    structure.structureType === STRUCTURE_SPAWN ||
+                    structure.structureType === STRUCTURE_STORAGE ||
+                    structure.structureType === STRUCTURE_CONTAINER ||
+                    (structure.structureType === STRUCTURE_ROAD && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
+                );
+            }
+        });
+        if (targets.length > 0) {
+            creep.transfer(targets[0], RESOURCE_ENERGY);
+        }
     }
-  });
 }
 
-function validateLinkAccessibility() {
-  // Implementation for validating link accessibility
+function upgradeController(creep, controller) {
+    if (creep.store[RESOURCE_ENERGY] > 0) {
+        if (creep.pos.isNearTo(controller)) {
+            creep.upgradeController(controller);
+        } else {
+            creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
+        }
+    }
 }
 
-function handleFakeLinks() {
-  // Implementation for handling fake links
-}
-
-// New functions for dependency graph and module structure
-function renderDependencyGraph(module) {
-  console.log('Rendering dependency graph for:', module);
-  return {
-    module: module,
-    dependencies: [],
-    rendered: true
-  };
-}
-
-function displayModuleStructure(module) {
-  console.log('Displaying module structure for:', module);
-  return {
-    module: module,
-    structure: {},
-    displayed: true
-  };
-}
-
-// Function to check link accessibility
-function checkLinkAccessibility() {
-  const links = document.querySelectorAll('a');
-  const results = [];
-  
-  links.forEach((link, index) => {
-    const hasText = link.textContent.trim().length > 0;
-    const hasAriaLabel = link.hasAttribute('aria-label');
-    const hasTitle = link.hasAttribute('title');
-    
-    results.push({
-      index: index,
-      href: link.href,
-      accessible: hasText || hasAriaLabel || hasTitle
-    });
-  });
-  
-  return results;
-}
-
-// Function to spawn entity
 function spawn(config) {
     if (!config || typeof config !== 'object') {
         console.error('Invalid spawn configuration');
@@ -255,28 +524,6 @@ function spawn(config) {
     }
 }
 
-// React / UI related functions
-function formatProductName(product) {
-  return `${product.name} - ${formatCurrency(product.price)}`;
-}
-
-function calculateSum(a, b) {
-  return a + b;
-}
-
-function handleAccessibilityIssues() {
-  ensureUniqueLandmarks();
-}
-
-function fixAccessibilityIssues() {
-  // New code to fix accessibility issues
-}
-
-// DOM content loaded handler
-document.addEventListener('DOMContentLoaded', () => {
-  // Existing DOM-based fixes
-});
-
 // Export necessary functions and components
 export {
   getLangAttribute,
@@ -290,6 +537,7 @@ export {
   validateLinkAccessibility,
   handleFakeLinks,
   myNewFunction,
+  multiply,
   checkLinkAccessibility,
   renderDependencyGraph,
   displayModuleStructure,
@@ -304,13 +552,3 @@ export {
   state,
   updateState
 };
-```
-
-This resolved version integrates both changesets by:
-1. Consolidating imports and removing duplicates
-2. Merging accessibility functions and ensuring they're called correctly
-3. Including DOM content loaded handlers from both sides
-4. Combining utility functions like `getLangAttribute` and `ensureUniqueLandmarks`
-5. Including React/UI and module-related functions from both sides
-6. Properly exporting all necessary modules without duplication
-7. Preserving comments and addressing both original and additional accessibility requirements

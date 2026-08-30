@@ -77,7 +77,11 @@ function getSvgAccessibleName() {
 }
 
 function createInPageButton() {
-  // Existing code...
+  // Implementation for creating in-page button
+  const button = document.createElement('button');
+  button.setAttribute('aria-label', 'Skip to main content');
+  button.textContent = 'Skip to main content';
+  document.body.appendChild(button);
 }
 
 // Added function to create accessible links as mentioned in the issue

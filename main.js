@@ -132,6 +132,12 @@ function addLandmarkRoles(insightReport) {
   });
 }
 
+// Function to add landmark roles and fix issues
+function addLandmarkRolesAndFixIssues(insightReport) {
+  addLandmarkRoles(insightReport);
+  fixLandmarkIssues(insightReport);
+}
+
 function fixLandmarkIssues(insightReport) {
   // Implementation for adding landmark roles and fixing landmark issues
   // Check for landmark elements and add proper ARIA roles

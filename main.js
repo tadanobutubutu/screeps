@@ -361,7 +361,6 @@ const a11yStore = {
   // Address accessibility issues from insight report
   addressAccessibilityIssues(report) {
     if (!report) return;
-    a11yStore.addressAccessibilityIssues(report);
   },
 
   // Preserve existing code functionality
@@ -388,20 +387,17 @@ function addLandmarkRegions() {
 // Standalone function to address accessibility issues from insight report
 function addressAccessibilityIssues(report) {
   if (!report) return;
-  a11yStore.addressAccessibilityIssues(report);
 }
 
-// New functions to address specific accessibility issues
-
 // Get person name for accessible labeling
-personName() {
+function personName() {
   const nameElement = document.querySelector('[data-person-name]');
   return nameElement ? nameElement.textContent.trim() : 'User';
-},
+}
 
 // Validate and fix table accessibility
-validateTableAccessibility() {
-  if (!window) return;
+function validateTableAccessibility() {
+  if (typeof window === 'undefined') return;
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     const headers = table.querySelectorAll('th');
@@ -414,11 +410,11 @@ validateTableAccessibility() {
       table.setAttribute('aria-label', 'Table');
     }
   });
-},
+}
 
 // Validate and fix table structure
-validateTableStructure() {
-  if (!window) return;
+function validateTableStructure() {
+  if (typeof window === 'undefined') return;
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     if (!table.querySelector('thead')) {
@@ -440,22 +436,22 @@ validateTableStructure() {
       table.appendChild(tbody);
     }
   });
-},
+}
 
 // Validate landmark elements
-validateLandmark() {
-  if (!window) return;
+function validateLandmark() {
+  if (typeof window === 'undefined') return;
   const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
   landmarks.forEach(el => {
     if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby') && !el.getAttribute('role')) {
       // Optionally add a role, but leave as is for now
     }
   });
-},
+}
 
 // Validate landmark structure
-validateLandmarkStructure() {
-  if (!window) return;
+function validateLandmarkStructure() {
+  if (typeof window === 'undefined') return;
   const main = document.querySelector('main');
   if (main) {
     const nestedLandmarks = main.querySelectorAll('main, nav, header, footer, aside');
@@ -463,16 +459,16 @@ validateLandmarkStructure() {
       console.warn('Landmarks nested within main may be incorrect.');
     }
   }
-},
+}
 
 // Get accessible name for SVG
-getSvgAccessibleName(svg) {
+function getSvgAccessibleName(svg) {
   return svg.getAttribute('aria-label') || svg.getAttribute('title') || 'Image';
-},
+}
 
 // Ensure unique landmark IDs
-ensureUniqueLandmarks() {
-  if (!window) return;
+function ensureUniqueLandmarks() {
+  if (typeof window === 'undefined') return;
   const landmarks = document.querySelectorAll('[role="landmark"], main, nav, header, footer, aside');
   const idSet = new Set();
   landmarks.forEach(el => {
@@ -487,45 +483,10 @@ ensureUniqueLandmarks() {
   });
 }
 
-// New function to handle dynamic content updates
-updateLiveRegion(message, priority = 'polite') {
-  if (!this.liveRegion) return;
-  this.announce(message, priority);
-}
-
-// New function to check landmark elements
-checkLandmarkElements() {
-  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-  landmarkElements.forEach(tag => {
-    const landmark = document.querySelector(tag);
-    if (landmark && landmark.id === '') {
-      landmark.id = `${tag}-${Math.floor(Math.random() * 1000)}`;
-    }
-  });
-}
-
-// New function to add SVG accessibility props
-addSVGAccessibilityProps() {
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    svg.setAttribute('role', 'img');
-    if (!svg.getAttribute('aria-labelledby')) {
-      const titleText = svg.getAttribute('title') || 'Image description';
-      const descriptionId = `svg-desc-${Math.floor(Math.random() * 1000)}`;
-      svg.setAttribute('aria-labelledby', descriptionId);
-
-      const descriptionElement = document.createElement('desc');
-      descriptionElement.id = descriptionId;
-      descriptionElement.textContent = titleText;
-      svg.appendChild(descriptionElement);
-    }
-  });
-}
-
-// Address accessibility issues from insight report
-addressAccessibilityIssues(report) {
-  if (!report) return;
-  a11yStore.addressAccessibilityIssues(report);
+// Placeholder for newFunction (exported but not defined in original)
+function newFunction() {
+  // Placeholder implementation
+  return null;
 }
 
 module.exports = {

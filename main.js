@@ -1,4 +1,13 @@
 // TODO: This is the existing code that needs to be preserved
+// Existing exports and functions would go here...
+
+// New function to render dependency graphs
+function renderDependencyGraph(dependencyData) {
+    // Hypothetical logic to render a dependency graph
+    console.log('Rendering dependency graph for:', dependencyData);
+    // Actual implementation would go here, such as drawing a graph to the DOM or saving to a file
+}
+
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 
@@ -359,6 +368,7 @@ module.exports = {
   dependencyGraphContainer,
   ensureDependencyGraphAriaRole,
   setARIARoleForDependencyGraph,
+  renderDependencyGraph,
   
   // Validation wrappers
   validateTableAccessibility,

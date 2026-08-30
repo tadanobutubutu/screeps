@@ -222,6 +222,22 @@ function processLandmarks(landmarks) {
   return uniqueLandmarks;
 }
 
+// Function to implement accessibility fixes from insight report
+// This addresses the TODO comment on line 5
+const applyAccessibilityFixes = () => {
+  // Apply all accessibility fixes from the insight report
+  setLanguageAttribute(); // REACT_015: Add lang attribute to HTML element
+  addLandmarkRoles(); // REACT_017: Add landmark roles and fix landmark issues
+  ensureUniqueLandmarkElements(); // REACT_025: Ensure unique landmarks
+  
+  // Add accessible names to SVGs (REACT_041)
+  addSVGAccessibleName('svg.home-icon', 'Home icon');
+  addSVGAccessibleName('svg.settings-icon', 'Settings icon');
+  
+  // Fix fake links (REACT_036)
+  fixFakeLinks();
+};
+
 // Function to initialize the dependency graph with accessibility support
 function initDependencyGraph(containerId) {
   const container = ...
@@ -293,16 +309,7 @@ const initApp = () => {
   initializeApp();
 
   // Apply accessibility fixes
-  setLanguageAttribute(); // Default to 'en'
-  addLandmarkRoles();
-  ...
-
-  // Add accessible names to SVGs (example selectors and names)
-  ... 'Home icon');
-  ... 'Settings icon');
-
-  // Fix fake links
-  fixFakeLinks();
+  applyAccessibilityFixes(); // Apply all accessibility fixes from insight report
 
   // Initialize the application data
   console.log('Initializing ' + appData.title + ' v' + appData.version);
@@ -345,5 +352,6 @@ export {
     landmarks,
     functionA,
     functionB,
-    processLandmarks
+    processLandmarks,
+    applyAccessibilityFixes
 };

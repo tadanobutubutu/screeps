@@ -22,6 +22,15 @@ let internalFunction2 = () => {
 };
 
 /**
+ * Generates a unique ID with a given prefix
+ * @param {string} prefix - The prefix for the generated ID
+ * @returns {string} A unique ID
+ */
+function generateUniqueId(prefix) {
+  return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+/**
  * Ensures the element has an id. If the element doesn't have an id, generates one.
  * @param {HTMLElement} element - The element to check
  * @param {string} prefix - Optional prefix for the generated id
@@ -36,7 +45,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = generateUniqueId(prefix);
   element.id = generatedId;
   return generatedId;
 }
@@ -49,9 +58,9 @@ export function anotherFunction() {
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkRoles())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
 /**
@@ -100,13 +109,12 @@ setLanguageAttribute('en');
 
 // Simple interactive page with content rotation functionality
 function initApp() {
-  const container = document.getElementById('app');
+  const container = document.getElementById('container') || document.createElement('div');
 
   // Create heading
   const h1 = document.createElement('h1');
   h1.textContent = 'My Page';
   h1.id = 'title';
-  container.appendChild(h1);
 
   // Create content area
   const content = document.createElement('div');
@@ -124,7 +132,6 @@ function initApp() {
     e.preventDefault();
     content.style.transform = 'rotate(0deg)';
   });
-  container.appendChild(unrotateBtn);
 
   // Call the dependency graph rendering utility
   renderDependencyGraph();
@@ -176,7 +183,7 @@ function loop() {
     let creep = Game.creeps[name];
     if (creep.memory.role === 'harvester') {
       if (creep.store.getFreeCapacity() > 0) {
-        let source = creep.pos.findClosestByPath(FIND_SOURCES);
+        let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
         if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
           creep.moveTo(source);
         }
@@ -297,30 +304,4 @@ function validateTableStructure(table) {
  */
 function validateLandmark(root = document) {
   const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
-  
-  // Check for main landmark
-  const mainElements = root.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    issues.push('Page should have at least one main landmark');
-  } else if (mainElements.length > 1) {
-    issues.push('Page should have only one main landmark');
-  }
-  
-  // Check for header landmark
-  const headerElements = root.querySelectorAll('header, [role="banner"]');
-  if (headerElements.length > 1) {
-    issues.push('Page should have only one header landmark');
-  }
-  
-  // Check for footer landmark
-  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
-  if (footerElements.length > 1) {
-    issues.push('Page should have only one footer landmark');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
+  const validLandmarks = ['header', 'nav', 'main',

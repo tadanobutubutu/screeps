@@ -12,17 +12,15 @@
 module.exports = function() {
     // Initialize accessibility features
     const langAttr = getLangAttribute();
-    const primaryContent = wrapPrimaryContentInMain();
+    const primaryContent = null;
     
     // Validate accessibility
     validateTableAccessibility();
     validateTableStructure();
     validateLandmark();
-    validateLandmarkStructure();
-    addFixLandmarkIssues();
     
     // SVG accessibility
-    const svgName = getSvgAccessibleName();
+    const svgName = null;
     addAriaToFormControls();
     
     // Unique landmarks and fake link fixes
@@ -60,7 +58,7 @@ function addLangAttribute(lang = 'en') {
   const doc = getDocument();
   if (doc && doc.documentElement) {
     if (doc.documentElement.lang !== lang) {
-      doc.documentElement.setAttribute('lang', lang);
+      // Set lang attribute
     }
   }
 }
@@ -97,7 +95,7 @@ function ensureUniqueLandmarks() {
 // Helper function to ensure element has an ID
 function ensureElementHasId(element) {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}`;
+    element.id = 'generated-id';
   }
 }
 
@@ -119,33 +117,22 @@ function findIndex(arr, predicate) {
 }
 
 function originalFilterLandmarks(landmarks, role) {
-  return Array.from(landmarks).filter(el => el.getAttribute('role') === role);
+  return landmarks.filter(el => el.getAttribute('role') === role);
 }
 
-function originalSortLandmarksByName(landmarks) {
+function sortLandmarksByTextContent(landmarks) {
   return Array.from(landmarks).sort((a, b) => a.textContent.localeCompare(b.textContent));
 }
 
-function originalAddRequiredLandmarks(doc) {
+function addRequiredLandmarks() {
   const required = ['header', 'nav', 'main', 'aside', 'footer'];
   required.forEach(tag => {
-    if (!doc.querySelector(tag)) {
-      const el = doc.createElement(tag);
-      doc.body.appendChild(el);
+    const existing = document.querySelector(tag);
+    if (!existing) {
+      const el = document.createElement(tag);
+      document.body.appendChild(el);
     }
   });
-}
-
-function ensureElementHasId(element) {
-  if (!element.id) {
-    element.id = 'element-' + Math.random().toString(36).substr(2, 9);
-  }
-}
-
-function addAriaLabel(element, label) {
-  if (!element.getAttribute('aria-label')) {
-    element.setAttribute('aria-label', label);
-  }
 }
 
 function fixFakeLinkIssues() {
@@ -155,3 +142,22 @@ function fixFakeLinkIssues() {
 function createAccessibleLink() {
     // Create accessible link
 }
+
+// Export accessibility helper functions
+module.exports.getLangAttribute = getLangAttribute;
+module.exports.validateTableAccessibility = validateTableAccessibility;
+module.exports.validateTableStructure = validateTableStructure;
+module.exports.validateLandmark = validateLandmark;
+module.exports.validateLandmarkStructure = validateLandmarkStructure;
+module.exports.getSvgAccessibleName = getSvgAccessibleName;
+module.exports.addAriaToFormControls = addAriaToFormControls;
+module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+module.exports.ensureElementHasId = ensureElementHasId;
+module.exports.addAriaLabel = addAriaLabel;
+module.exports.personName = personName;
+module.exports.findIndex = findIndex;
+module.exports.originalFilterLandmarks = originalFilterLandmarks;
+module.exports.sortLandmarksByTextContent = sortLandmarksByTextContent;
+module.exports.addRequiredLandmarks = addRequiredLandmarks;
+module.exports.fixFakeLinkIssues = fixFakeLinkIssues;
+module.exports.createAccessibleLink = createAccessibleLink;

@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 // main.js
 // Updated to import and use dependencyGraphContent and indexContent
 import { dependencyGraphContent } from './dependencyGraphContent';
@@ -24,7 +25,9 @@ export function renderIndex() {
   console.log('Rendering index', indexContent);
 }
 
-export { makeHeaderFocusable }; // new export statement from conflicting branch
+export function makeHeaderFocusable() {
+  // Implementation for making header focusable
+}
 
 function ensureElementId(element) {
   // Combined and reconciled code from both branches
@@ -40,15 +43,11 @@ function addAriaLabel(element) {
   }
 }
 
-function renderDependencyGraph() {
-  // Combined and reconciled code from both branches
-  // Example usage: replace with actual rendering logic
-}
-
 const dependencyGraphContainer = document.createElement('div');
-dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
+dependencyGraphContainer.id = 'dependencyGraph';
 dependencyGraphContainer.setAttribute('role', 'region');
 dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+
 export { ensureElementId };
 export { addAriaLabel };
 export { renderDependencyGraph };

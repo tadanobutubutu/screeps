@@ -40,10 +40,16 @@ function addBook(book) {
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
-}
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
+  // Implement the required changes to improve accessibility for the addBook function or form
+  // Example: Adding ARIA attributes to the form elements
+  const form = document.querySelector('form');
+  if (form) {
+    form.setAttribute('role', 'form');
+    form.querySelector('input[name="title"]').setAttribute('aria-label', 'Book Title');
+    form.querySelector('input[name="author"]').setAttribute('aria-label', 'Book Author');
+  }
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
@@ -84,8 +90,10 @@ function Main() {
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List dataSource={bookItems} />
+
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      {/* Example: Adding a label to the Add Book button */}
+      <button aria-label="Add Book">Add Book</button>
     </div>
   );
 }

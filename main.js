@@ -24,10 +24,10 @@ function processData(input) {
 }
 
 // Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(element, options = {}) {
+function handleKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
-  element.addEventListener('keydown', (event) => {
+  return (event) => {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -48,7 +48,7 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-  });
+  };
 }
 
 // Helper to manage focus within a container
@@ -98,11 +98,29 @@ function prefersReducedMotion() {
 
 // Initialize accessibility features
 function initializeAccessibility() {
-  replaceMyButtonId();
-  addProperLandmarkRegions();
-  addProperAccountManagement();
+  const announcer = createAnnouncer();
+  const handleKeyboard = handleKeyboardNavigation({
+    onEscape: () => {
+      document.body.classList.remove('modal-open');
+    }
+  });
   addARIAAttributes();
-  addAccessibleNamesToSvg();
+  trapFocus(document.body);
+  
+  return {
+    announcer,
+    handleKeyboard
+  };
+}
+
+// Function to add ARIA attributes to SVG elements for accessibility
+function addARIAAttributes() {
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach((svg, index) => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      svg.setAttribute('aria-hidden', 'true');
+    }
+  });
 }
 
 // TODO: add the new functions or changes requested in the issue
@@ -176,7 +194,7 @@ if (typeof module !== 'undefined' && module.exports) {
     exampleFunction,
     processData,
     initializeAccessibility,
-    setupKeyboardNavigation,
+    handleKeyboardNavigation,
     trapFocus,
     createAnnouncer,
     prefersReducedMotion,
@@ -193,6 +211,6 @@ if (typeof module !== 'undefined' && module.exports) {
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     window.accessibilityFeatures = initializeAccessibility();
-    addAccessibleNamesToSvg();
+    addARIAAttributes();
   });
 }

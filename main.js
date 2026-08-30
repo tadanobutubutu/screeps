@@ -261,6 +261,73 @@ function handleFakeLinks(doc) {
   return results;
 }
 
+/**
+ * Address all accessibility issues from the insight report
+ * @param {Document} doc - The document to process
+ * @returns {Object} Result summary
+ */
+function addressAccessibilityIssues(doc) {
+  const results = {};
+
+  // Add lang attribute
+  const lang = getLangAttribute();
+  if (doc && doc.documentElement) {
+    doc.documentElement.setAttribute('lang', lang);
+  }
+
+  // Fix table structure and accessibility
+  const tables = doc.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+
+    // Ensure caption or aria-label
+    if (!table.querySelector('caption') && !table.getAttribute('aria-label')) {
+      const caption = doc.createElement('caption');
+      caption.textContent = 'Table';
+      table.insertBefore(caption, table.firstChild);
+    }
+
+    // Ensure header row with th elements
+    const rows = table.querySelectorAll('tr');
+    let hasHeader = false;
+    rows.forEach(row => {
+      if (row.querySelector('th')) {
+        hasHeader = true;
+      }
+    });
+
+    if (!hasHeader && rows.length > 0) {
+      const firstRow = rows[0];
+      const cells = firstRow.querySelectorAll('td');
+      cells.forEach(cell => {
+        const th = doc.createElement('th');
+        th.textContent = cell.textContent;
+        cell.parentNode.replaceChild(th, cell);
+      });
+    }
+  });
+
+  // Fix landmark issues
+  ensureUniqueLandmarks(doc);
+  validateLandmarkStructure(doc);
+
+  // Add accessible names to SVGs
+  const svgs = doc.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const name = getSvgAccessibleName(svg);
+    if (name) {
+      setSvgAttributes(svg, name);
+    }
+  });
+
+  // Handle fake links
+  handleFakeLinks(doc);
+
+  results.status = 'completed';
+  return results;
+}
+
 // Export functions for testing
 module.exports = {
   getLangAttribute,
@@ -273,5 +340,6 @@ module.exports = {
   getSvgAccessibleName,
   setSvgAttributes,
   validateLinkAccessibility,
-  handleFakeLinks
+  handleFakeLinks,
+  addressAccessibilityIssues
 };

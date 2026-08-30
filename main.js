@@ -7,58 +7,39 @@ import { initializeApp, appData } from './app.js';
 import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
 
-// Function to create in-page buttons
-const createInPageButton = (options: {
-  onClick: () => void;
-  label: string;
-  icon: string;
-  disabled?: boolean;
-  isActive?: boolean;
-  hoverState: boolean;
-  setHoverState: (value: boolean) => void;
-  ariaLabel?: string;
-  title?: string;
-}) => {
-  const { onClick, label, icon, disabled = false, isActive = false, hoverState, setHoverState, ariaLabel, title } = options;
+// TODO: This is the existing code that needs to be preserved
+// _Commit: 07177d2c69c06fd1dfe3543ad6d3c81baa3c821f_
+// <!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+// <!--- START ADDITIONAL FUNCTION --->
 
-  const getBackgroundColor = () => {
-    if (disabled) return '#999';
-    if (isActive) return '#155d27';
-    return '#004b73';
-  };
+// New Function to create additional SVG icons
+const createAdditionalIcon = (options) => {
+  const { id, src, alt, className } = options;
 
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-disabled={disabled}
-      aria-label={ariaLabel || label}
-      aria-pressed={isActive}
-      title={title || label}
-      onMouseEnter={() => setHoverState(true)}
-      onMouseLeave={() => setHoverState(false)}
-      onFocus={() => setHoverState(true)}
-      onBlur={() => setHoverState(false)}
-      style={{
-        backgroundColor: getBackgroundColor(),
-        color: 'white',
-        padding: '0.5rem 1rem',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.6 : 1,
-        transition: 'all 0.2s ease-in-out',
-        transform: hoverState ? 'scale(1.05)' : 'scale(1)',
-        boxShadow: hoverState ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-        filter: hoverState ? 'brightness(1.1)' : 'none',
-      }}
+  if (!id || !src || !alt || !className) {
+    throw new Error('Missing required props for createAdditionalIcon: id, src, alt, className');
+  }
+
+  icons[id] = (
+    <svg
+      id={id}
+      className={className}
+      src={src}
+      width="24"
+      height="24"
+      role="img"
+      aria-labelledby={`svg-icon-${id} ${id}-description`}
     >
-      <span aria-hidden="true">{icon}</span>
-      <span> {label}</span>
-    </button>
+      <title id={`${id}-title`}>{alt}</title>
+      <desc id={`${id}-description`}>{alt}</desc>
+    </svg>
   );
 };
+
+// New Function to clear the local storage
+function clearLocalStorage() {
+  localStorage.clear();
+}
 
 // Placeholder for the affected SVGs
 const icons = {};
@@ -113,6 +94,10 @@ function calculateSum(numbers) {
   }
   return numbers.reduce((acc, curr) => acc + curr, 0);
 }
+
+// New export for createAdditionalIcon function
+exports.createAdditionalIcon = createAdditionalIcon;
+exports.clearLocalStorage = clearLocalStorage; // New export for clearLocalStorage function
 
 module.exports = {
   processLandmarks,

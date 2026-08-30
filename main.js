@@ -18,11 +18,11 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `${book.id}-${book.title}-${book.author}`;
+  return book.id || `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
-function BookItem(book) {
+function BookItem({ book }) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
@@ -42,22 +42,19 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
-
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
+  const sortedList = getBooksList.slice().sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+  const sortedList = getBooksList.slice().sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
@@ -65,6 +62,7 @@ function onAuthorSort() {
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const [newBookTitle, setNewBookTitle] = useState('');
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -75,17 +73,46 @@ function Main() {
     }
   }, [sorting]);
 
+  // Handle form submission for adding a new book with accessibility improvements
+  const handleAddBookSubmit = (event) => {
+    event.preventDefault();
+    if (newBookTitle.trim()) {
+      addBook({ title: newBookTitle.trim() });
+      setNewBookTitle('');
+    }
+  };
+
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(BookItem);
+  const bookItems = getBooksList.map((book) => (
+    <BookItem key={generateKey(book)} book={book} />
+  ));
 
   // Render the list of book items and sorting controls
   return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
+    <div lang="en">
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      <form onSubmit={handleAddBookSubmit} aria-label="Add new book form">
+        <label htmlFor="new-book-input">New Book Title:</label>
+        <input
+          id="new-book-input"
+          type="text"
+          value={newBookTitle}
+          onChange={(e) => setNewBookTitle(e.target.value)}
+          placeholder="Enter book title"
+          aria-required="true"
+        />
+        <button type="submit" aria-label="Add book">Add Book</button>
+      </form>
+
+      <div role="group" aria-label="Sort book list controls">
+        <button onClick={() => setSorting(sortByTitle)} aria-pressed={sorting === sortByTitle}>
+          Sort by Title
+        </button>
+        <button onClick={() => setSorting(sortByAuthor)} aria-pressed={sorting === sortByAuthor}>
+          Sort by Author
+        </button>
+      </div>
+      <List aria-label="Book list">{bookItems}</List>
     </div>
   );
 }

@@ -56,22 +56,60 @@ function trapFocus(container) {
 // Function to ensure landmarks have unique identifiers
 function ensureUniqueLandmarks() {
   const landmarks = document.querySelectorAll('[role="region"]');
-  let uniqueIds = [];
+  
+  // Set to track used ID suffixes for quick lookup
+  const usedSuffixes = new Set();
+  const landmarkIds = [];
 
-  function generateUniqueId() {
-    return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-  }
-
-  landmarks.forEach((landmark) => {
-    const existingIds = uniqueIds.map((id) => id.split('-')[1]);
-    let id;
-
-    while (existingIds.includes(landmark.id.split('-')[1])) {
-      id = generateUniqueId();
+  // Collect existing ID suffixes from landmarks that have IDs
+  landmarks.forEach(landmark => {
+    if (landmark.id) {
+      const suffix = landmark.id.split('-')[1];
+      if (suffix) {
+        usedSuffixes.add(suffix);
+        landmarkIds.push(landmark.id);
+      }
     }
+  });
 
-    uniqueIds.push(id);
-    landmark.id = id;
+  // Generate unique IDs for landmarks that don't have proper IDs
+  landmarks.forEach((landmark, index) => {
+    if (!landmark.id || !landmark.id.startsWith('landmark-')) {
+      let uniqueId;
+      let attempts = 0;
+      
+      do {
+        uniqueId = `landmark-${Date.now()}-${index}-${Math.floor(Math.random() * 1000)}`;
+        attempts++;
+        if (attempts > 100) {
+          uniqueId = `landmark-${Date.now()}-${Math.random()}`;
+          break;
+        }
+      } while (usedSuffixes.has(uniqueId.split('-')[1]));
+      
+      usedSuffixes.add(uniqueId.split('-')[1]);
+      landmark.id = uniqueId;
+    } else {
+      const suffix = landmark.id.split('-')[1];
+      if (suffix && usedSuffixes.has(suffix)) {
+        let uniqueId;
+        let attempts = 0;
+        
+        do {
+          uniqueId = `landmark-${Date.now()}-${index}-${Math.floor(Math.random() * 1000)}`;
+          attempts++;
+          if (attempts > 100) {
+            uniqueId = `landmark-${Date.now()}-${Math.random()}`;
+            break;
+          }
+        } while (usedSuffixes.has(uniqueId.split('-')[1]));
+        
+        usedSuffixes.add(uniqueId.split('-')[1]);
+        landmark.id = uniqueId;
+      } else if (suffix) {
+        usedSuffixes.add(suffix);
+      }
+    }
   });
 }
 

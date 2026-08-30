@@ -1,6 +1,6 @@
 import './styles.css';
 import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
+import { registerSW } from 'effector-swift';
 
 // Landmark data structure
 const landmarks = [];

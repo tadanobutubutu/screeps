@@ -510,7 +510,7 @@ function validateLandmark(element) {
     'form'
   ];
 
-  const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
+  const tagName = element.getAttribute ? element.getAttribute('tagName') : element.tagName;
 
   const implicitLandmarks = {
     'header': 'banner',
@@ -536,16 +536,9 @@ function validateLandmark(element) {
     };
   }
 
-  if (!landmarkRoles.includes(landmarkRole)) {
-    return { 
-      valid: false, 
-      error: `Invalid landmark role: ${landmarkRole}`,
-      element: tagName,
-      role: landmarkRole
-    };
-  }
-
-  return { valid: true, element: tagName, role: landmarkRole };
+  return landmarkRoles.includes(landmarkRole)
+    ? { valid: true, element: tagName, role: landmarkRole }
+    : { valid: false, error: `Invalid landmark role: ${landmarkRole}`, element: tagName, role: landmarkRole };
 }
 
 // Node.js spawn functionality

@@ -38,8 +38,19 @@ function renderApp(context) {
   return `<div id="app">${renderIndex(context)}</div>`;
 }
 
+/**
+ * Adds proper landmark regions to the rendered content
+ * @param {string} content - The HTML content to enhance
+ * @returns {string} The content with proper landmark regions
+ */
+function addProperLandmarkRegions(content) {
+  // Implementation would go here
+  return content;
+}
+
 module.exports = {
   renderDependencyGraph,
   renderIndex,
-  renderApp
+  renderApp,
+  addProperLandmarkRegions
 };

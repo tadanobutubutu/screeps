@@ -16,10 +16,10 @@ function processData(input) {
 }
 
 // Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(element, options = {}) {
+function handleKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
-  element.addEventListener('keydown', (event) => {
+  return (event) => {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -40,7 +40,7 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-  });
+  };
 }
 
 // Helper to manage focus within a container
@@ -52,7 +52,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  container.addEventListener('keydown', (event) => {
+  return (event) => {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -62,7 +62,7 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  });
+  };
 }
 
 // ARIA live region announcer
@@ -94,7 +94,7 @@ function initializeAccessibility() {
   
   return {
     announce: announcer.announce,
-    setupKeyboardNavigation,
+    handleKeyboardNavigation,
     trapFocus,
     prefersReducedMotion
   };
@@ -166,12 +166,44 @@ function deepClone(obj) {
 }
 
 // Add accessible names to SVG elements
-function addAccessibleNamesToSvg() {
-  const svgs = document.querySelectorAll('svg');
+function addAccessibleNamesToSvg(container) {
+  const svgs = container.querySelectorAll('svg');
   if (svgs.length >= 2) {
     svgs[0].setAttribute('aria-label', 'First SVG');
     svgs[1].setAttribute('aria-label', 'Second SVG');
   }
+}
+
+/**
+ * Counts dependencies in a package.json-like object
+ * @param {Object} packageJson - A package.json object containing dependencies
+ * @param {Object} options - Options for counting dependencies
+ * @param {boolean} options.includeDevDependencies - Whether to include devDependencies (default: false)
+ * @param {boolean} options.includePeerDependencies - Whether to include peerDependencies (default: false)
+ * @param {boolean} options.includeOptionalDependencies - Whether to include optionalDependencies (default: false)
+ * @returns {number} - The total count of dependencies
+ */
+function countDependencies(packageJson, options = {}) {
+  const { includeDevDependencies = false, includePeerDependencies = false, includeOptionalDependencies = false } = options;
+  
+  let count = 0;
+  
+  if (packageJson && typeof packageJson === 'object') {
+    if (packageJson.dependencies) {
+      count += Object.keys(packageJson.dependencies).length;
+    }
+    if (includeDevDependencies && packageJson.devDependencies) {
+      count += Object.keys(packageJson.devDependencies).length;
+    }
+    if (includePeerDependencies && packageJson.peerDependencies) {
+      count += Object.keys(packageJson.peerDependencies).length;
+    }
+    if (includeOptionalDependencies && packageJson.optionalDependencies) {
+      count += Object.keys(packageJson.optionalDependencies).length;
+    }
+  }
+  
+  return count;
 }
 
 // Export for use in other modules
@@ -180,7 +212,7 @@ if (typeof module !== 'undefined' && module.exports) {
     exampleFunction,
     processData,
     initializeAccessibility,
-    setupKeyboardNavigation,
+    handleKeyboardNavigation,
     trapFocus,
     createAnnouncer,
     prefersReducedMotion,
@@ -189,7 +221,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getRandomInt,
     clamp,
     deepClone,
-    addAccessibleNamesToSvg
+    addAccessibleNamesToSvg,
+    countDependencies
   };
 }
 
@@ -197,6 +230,5 @@ if (typeof module !== 'undefined' && module.exports) {
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     window.accessibilityFeatures = initializeAccessibility();
-    addAccessibleNamesToSvg();
   });
 }

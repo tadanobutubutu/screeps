@@ -1,4 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 import react from 'react';
 
 const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
@@ -266,3 +267,4 @@ module.exports = {
     return date.toISOString().split('T')[0];
   }
 };
+// ----- END ORIGINAL CODE (unchanged) -----

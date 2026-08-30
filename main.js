@@ -18,6 +18,212 @@
  * @module main
  */
 
+// TODO: Implement tower defense
+/**
+ * Tower defense game implementation.
+ * 
+ * This module provides basic tower defense game functionality including
+ * towers, enemies, projectiles, and game state management.
+ */
+
+/**
+ * Creates a new tower defense game instance.
+ * @returns {Object} A new game instance.
+ */
+function createTowerDefenseGame() {
+  const gameState = {
+    towers: [],
+    enemies: [],
+    projectiles: [],
+    score: 0,
+    lives: 10,
+    gameRunning: false,
+    wave: 0
+  };
+
+  /**
+   * Adds a tower to the game.
+   * @param {number} x - X coordinate.
+   * @param {number} y - Y coordinate.
+   * @returns {Object} The created tower.
+   */
+  function addTower(x, y) {
+    const tower = {
+      id: Date.now() + Math.random(),
+      x,
+      y,
+      damage: 10,
+      range: 100,
+      fireRate: 1000, // ms between shots
+      lastShot: 0
+    };
+    gameState.towers.push(tower);
+    return tower;
+  }
+
+  /**
+   * Adds an enemy to the game.
+   * @param {number} x - X coordinate.
+   * @param {number} y - Y coordinate.
+   * @param {number} health - Enemy health.
+   * @returns {Object} The created enemy.
+   */
+  function addEnemy(x, y, health = 100) {
+    const enemy = {
+      id: Date.now() + Math.random(),
+      x,
+      y,
+      health,
+      maxHealth: health,
+      speed: 2,
+      pathIndex: 0
+    };
+    gameState.enemies.push(enemy);
+    return enemy;
+  }
+
+  /**
+   * Adds a projectile to the game.
+   * @param {number} x - X coordinate.
+   * @param {number} y - Y coordinate.
+   * @param {Object} target - Target enemy.
+   * @param {number} damage - Projectile damage.
+   * @returns {Object} The created projectile.
+   */
+  function addProjectile(x, y, target, damage) {
+    const projectile = {
+      id: Date.now() + Math.random(),
+      x,
+      y,
+      targetX: target.x,
+      targetY: target.y,
+      damage,
+      speed: 5
+    };
+    gameState.projectiles.push(projectile);
+    return projectile;
+  }
+
+  /**
+   * Updates the game state.
+   * @param {number} deltaTime - Time since last update in ms.
+   * @returns {Object} Updated game state.
+   */
+  function update(deltaTime) {
+    if (!gameState.gameRunning) return gameState;
+
+    // Update projectiles
+    gameState.projectiles = gameState.projectiles.filter(projectile => {
+      const dx = projectile.targetX - projectile.x;
+      const dy = projectile.targetY - projectile.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (distance < projectile.speed) {
+        // Hit target
+        const target = gameState.enemies.find(e => 
+          Math.abs(e.x - projectile.targetX) < 10 && 
+          Math.abs(e.y - projectile.targetY) < 10
+        );
+        
+        if (target) {
+          target.health -= projectile.damage;
+          if (target.health <= 0) {
+            gameState.enemies = gameState.enemies.filter(e => e.id !== target.id);
+            gameState.score += 10;
+          }
+        }
+        return false; // Remove projectile
+      }
+      
+      // Move towards target
+      projectile.x += (dx / distance) * projectile.speed;
+      projectile.y += (dy / distance) * projectile.speed;
+      return true;
+    });
+
+    // Update towers
+    gameState.towers.forEach(tower => {
+      tower.lastShot += deltaTime;
+      if (tower.lastShot >= tower.fireRate) {
+        // Find nearest enemy in range
+        let nearestEnemy = null;
+        let minDistance = Infinity;
+        
+        gameState.enemies.forEach(enemy => {
+          const dx = enemy.x - tower.x;
+          const dy = enemy.y - tower.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance <= tower.range && distance < minDistance) {
+            minDistance = distance;
+            nearestEnemy = enemy;
+          }
+        });
+        
+        if (nearestEnemy) {
+          addProjectile(tower.x, tower.y, nearestEnemy, tower.damage);
+          tower.lastShot = 0;
+        }
+      }
+    });
+
+    return gameState;
+  }
+
+  /**
+   * Starts the game.
+   */
+  function start() {
+    gameState.gameRunning = true;
+    gameState.wave++;
+  }
+
+  /**
+   * Stops the game.
+   */
+  function stop() {
+    gameState.gameRunning = false;
+  }
+
+  /**
+   * Gets the current game state.
+   * @returns {Object} Game state.
+   */
+  function getState() {
+    return { ...gameState };
+  }
+
+  /**
+   * Takes damage (loses a life).
+   */
+  function takeDamage() {
+    gameState.lives--;
+    if (gameState.lives <= 0) {
+      gameState.gameRunning = false;
+    }
+  }
+
+  return {
+    addTower,
+    addEnemy,
+    addProjectile,
+    update,
+    start,
+    stop,
+    getState,
+    takeDamage,
+    gameState
+  };
+}
+
+/**
+ * Creates a simple tower defense game for quick setup.
+ * @returns {Object} A configured tower defense game instance.
+ */
+function setupTowerDefense() {
+  return createTowerDefenseGame();
+}
+
 import './styles.css';
 
 import { initializeApp } from './app.js';
@@ -344,5 +550,7 @@ export {
     landmarks,
     functionA,
     functionB,
-    processLandmarks
+    processLandmarks,
+    createTowerDefenseGame,
+    setupTowerDefense
 };

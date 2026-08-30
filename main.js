@@ -105,6 +105,90 @@ function newFocusTrap() {
   // New function implementation
 }
 
+// Validate table accessibility (REACT_027)
+const validateTableAccessibility = (tableElement) => {
+  if (!tableElement || tableElement.tagName !== 'TABLE') {
+    return { valid: false, errors: ['Invalid table element'] };
+  }
+
+  const errors = [];
+  
+  // Check for caption
+  const caption = tableElement.querySelector('caption');
+  if (!caption) {
+    errors.push('Table missing caption');
+  }
+  
+  // Check for summary or aria-label
+  const summary = tableElement.getAttribute('summary') || tableElement.getAttribute('aria-label');
+  if (!summary) {
+    errors.push('Table missing summary or aria-label');
+  }
+  
+  // Check headers
+  const headers = tableElement.querySelectorAll('th');
+  if (headers.length === 0) {
+    errors.push('Table missing header cells');
+  }
+  
+  // Check scope attributes on header cells
+  headers.forEach((th) => {
+    if (!th.hasAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors,
+    tableElement
+  };
+};
+
+// Validate table structure (REACT_027)
+const validateTableStructure = (tableElement) => {
+  if (!tableElement || tableElement.tagName !== 'TABLE') {
+    return { valid: false, errors: ['Invalid table element'] };
+  }
+
+  const errors = [];
+  
+  // Check for thead and tbody
+  const hasThead = !!tableElement.querySelector('thead');
+  const hasTbody = !!tableElement.querySelector('tbody');
+  
+  if (!hasThead) {
+    errors.push('Table missing thead');
+  }
+  
+  if (!hasTbody) {
+    errors.push('Table missing tbody');
+  }
+  
+  // Check row structure
+  const rows = tableElement.querySelectorAll('tr');
+  if (rows.length === 0) {
+    errors.push('Table has no rows');
+  }
+  
+  // Check for consistent column count
+  let columnCount = null;
+  rows.forEach((row, index) => {
+    const cells = row.querySelectorAll('td, th');
+    if (columnCount === null) {
+      columnCount = cells.length;
+    } else if (cells.length !== columnCount) {
+      errors.push(`Row ${index} has inconsistent column count`);
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors,
+    tableElement
+  };
+};
+
 // Add back any required exports that might have been removed.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 function calculateSum(a, b) { return a + b; }
@@ -285,5 +369,7 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  validateTableAccessibility,
+  validateTableStructure
 };

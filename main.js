@@ -11,4 +11,5 @@ function myFunction(arg1, arg2) {
 // Exports preserved
 module.exports = {
   // ... existing exports
+  myFunction
 };

@@ -225,7 +225,7 @@ function addSvgAccessibleNames() {
 let uniqueLandmarks = {};
 
 // Updated function for REACT_025 (ensuring unique landmarks)
-function fixUniqueLandmarks(insightReport) {
+function fixUniqueLandmarks(insightReport = {}) {
   const issues = insightReport.issues || [];
 
   issues.forEach(issue => {

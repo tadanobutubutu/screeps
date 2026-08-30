@@ -22,7 +22,8 @@ function renderDependencyGraph(dependencies) {
     const edges = [];
     
     for (const [name, version] of Object.entries(dependencies)) {
-        nodes.push({ id: name, label: `${name}@${version}` });
+        const versionStr = typeof version === 'string' ? version : version.version || '*';
+        nodes.push({ id: name, label: `${name}@${versionStr}` });
         
         // For nested dependencies, create edges
         if (typeof version === 'object' && version.dependencies) {
@@ -41,12 +42,14 @@ function renderDependencyGraph(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html><head><title>Dependencies</title></head><body>';
+    let html = '<!DOCTYPE html><html lang="en">';
+    html += '<head><meta charset="UTF-8"><title>Dependency Index</title></head>';
+    html += '<body>';
     html += '<h1>Dependency Index</h1>';
     html += '<ul>';
     
     for (const pkg of packages) {
-        html += `<li>${pkg.name} - ${pkg.version}</li>`;
+        html += `<li>${pkg.name} - ${pkg.version || 'unknown'}</li>`;
     }
     
     html += '</ul></body></html>';
@@ -57,11 +60,14 @@ function renderIndexView(packages) {
  * Main entry point for the application
  */
 function main() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     
     const graphData = renderDependencyGraph(packageJson.dependencies || {});
-    const indexHtml = renderIndexView([{ name: 'example', version: '1.0.0' }]);
+    const indexHtml = renderIndexView(Object.entries(packageJson.dependencies || {}).map(([name, version]) => ({
+        name,
+        version: typeof version === 'string' ? version : version.version || '*'
+    })));
     
     return { graphData, indexHtml };
 }

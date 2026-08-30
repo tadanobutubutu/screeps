@@ -1,7 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report
-// ----- END ORIGINAL CODE -----
-=======
+// ----- END ORIGINAL CODE =======
 // TODO: Any additional changes requested in the issue
 // main.js - Accessibility improvements implementation
 
@@ -313,4 +312,36 @@ function displayModuleStructure(modules) {
 /**
  * Generates a dependency report for debugging
 =========================================
-```
+*/
+
+// Additional exports requested
+function calculateSum(a, b) {
+  return a + b;
+}
+
+module.exports = {
+  main,
+  getDependencyDepth,
+  renderDependencyGraph,
+  newFunction,
+  greet,
+  newAccessibleFunction,
+  addLandmarkRegionToElement,
+  addLandmark,
+  getLandmarks,
+  removeLandmark,
+  isLatitudeValid,
+  isLongitudeValid,
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  displayModuleStructure,
+  calculateSum
+};

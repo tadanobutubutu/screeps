@@ -37,7 +37,7 @@ function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
     };
 
     if (!insightReport) {
-        result.details.push({
+        console.error({
             type: 'error',
             message: 'No insight report provided'
         });
@@ -118,10 +118,10 @@ function personName(name, isLink) {
   
   if (isLink) {
     // Properly implement as a link with href attribute to avoid fake link issues
-    return `<a href="#" aria-label="Person: ${name}">${name}</a>`;
+    return `<a href="#" aria-label="${name}">${name}</a>`;
   } else {
     // Render as a span for non-link content
-    return `<span aria-label="Person: ${name}">${name}</span>`;
+    return `<span aria-label="${name}">${name}</span>`;
   }
 }
 
@@ -411,6 +411,20 @@ function getAllTables() {
 function getFullLangAttribute(el) {
     const element = typeof el === 'string' ? document.querySelector(el) : (el || (typeof document !== 'undefined' ? document.documentElement : null));
     return element ? (element.lang || element.getAttribute('lang') || '') : '';
+}
+
+function setHtmlLangAttribute(lang) {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.lang = lang;
+    }
+}
+
+function detectAndSetLang() {
+    const navigatorLang = typeof navigator !== 'undefined' ? (navigator.language || navigator.userLanguage || 'en') : 'en';
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.lang = navigatorLang;
+    }
+    return navigatorLang;
 }
 
 module.exports = {

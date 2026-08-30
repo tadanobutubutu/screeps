@@ -27,7 +27,7 @@ let internalFunction2 = () => {
  * @param {string} prefix - Optional prefix for the generated id
  * @returns {string} The id of the element
  */
-function ensureElementHasId(element, prefix = 'element') {
+export function ensureElementHasId(element, prefix = 'element') {
   if (!element) {
     throw new Error('Element is required');
   }
@@ -36,7 +36,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}_${Date.now().toString(36)}_${Math.random().toString(9)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -60,7 +60,7 @@ export function anotherFunction() {
  * @param {string} label - The label text
  * @returns {void}
  */
-function addAriaLabel(element, label) {
+export function addAriaLabel(element, label) {
   if (!element) {
     throw new Error('Element is required');
   }
@@ -79,8 +79,8 @@ function addAriaLabel(element, label) {
  * Sets the lang attribute on the HTML element based on the page content
  * @param {string} languageCode - The language code (e.g., 'en', 'es', 'fr')
  */
-function setLanguageAttribute(languageCode) {
-  const htmlElement = document.querySelector('html');
+export function setLanguageAttribute(languageCode) {
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', languageCode);
   }
@@ -90,8 +90,8 @@ function setLanguageAttribute(languageCode) {
  * Gets the lang attribute from the HTML element
  * @returns {string|null} The language code or null if not set
  */
-function getLangAttribute() {
-  const htmlElement = document.querySelector('html');
+export function getLangAttribute() {
+  const htmlElement = document.documentElement;
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
@@ -99,7 +99,7 @@ function getLangAttribute() {
 setLanguageAttribute('en');
 
 // Simple interactive page with content rotation functionality
-function initApp() {
+export function initApp() {
   const container = document.getElementById('app');
 
   // Create heading
@@ -132,19 +132,19 @@ function initApp() {
 
 // Placeholder for module structure display utility.
 // Helps developers understand the current structure of loaded modules.
-function displayModuleStructure(modules) {
+export function displayModuleStructure(modules) {
   // Future implementation could format and print module hierarchy
   console.log('Displaying module structure for modules:', modules);
   return {};
 }
 
 // Function to reset body rotation
-function resetRotation() {
+export function resetRotation() {
   document.body.style.transform = 'rotate(0deg)';
   document.body.style.transition = 'transform 0.3s ease';
 }
 
-function add(a, b) {
+export function add(a, b) {
   return a + b;
 }
 
@@ -155,7 +155,7 @@ function functionZ() { return 'functionZ'; }
 
 // TODO: Re-add the required exports for functionA and functionB
 // Assuming that they are objects with properties X, Y, and Z
-const functionA = {
+export const functionA = {
   // ... (Preserve the existing code for functionA)
 
   X: functionX, // Do not remove or rename this export
@@ -164,19 +164,19 @@ const functionA = {
 };
 
 // TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
-function renderDependencyGraph(modules) {
+export function renderDependencyGraph(modules) {
   // Future implementation could traverse and log module dependencies
   console.log('Rendering dependency graph for modules:', modules);
   return {};
 }
 
 // Placeholder for bot logic for Screeps
-function loop() {
+export function loop() {
   for (let name in Game.creeps) {
     let creep = Game.creeps[name];
     if (creep.memory.role === 'harvester') {
       if (creep.store.getFreeCapacity() > 0) {
-        let source = creep.pos.findClosestByPath(FIND_SOURCES);
+        let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
         if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
           creep.moveTo(source);
         }
@@ -190,7 +190,7 @@ function functionXb() { return 'functionXb'; }
 function functionYb() { return 'functionYb'; }
 function functionZb() { return 'functionZb'; }
 
-const functionB = {
+export const functionB = {
   // ... (Preserve the existing code for functionB)
 
   X: functionXb, // Do not remove or rename this export
@@ -199,11 +199,11 @@ const functionB = {
 };
 
 // Existing placeholder functions for function1 and function2 (referenced in exports)
-function function1() {
+export function function1() {
   return 'function1';
 }
 
-function function2() {
+export function function2() {
   return 'function2';
 }
 
@@ -213,7 +213,7 @@ function function2() {
  * @param {Function} onClick - Click handler
  * @returns {HTMLButtonElement} The created button element
  */
-function createInPageButton(text, onClick) {
+export function createInPageButton(text, onClick) {
   const button = document.createElement('button');
   button.textContent = text;
   button.type = 'button';
@@ -223,97 +223,4 @@ function createInPageButton(text, onClick) {
     throw new Error('Button must have either text content or aria-label');
   }
   
-  if (onClick) {
-    button.addEventListener('click', onClick);
-  }
-  
-  return button;
-}
-
-/**
- * Validates table accessibility requirements
- * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result with issues array
- */
-function validateTableAccessibility(table) {
-  const issues = [];
-  
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
-  }
-  
-  // Check for caption
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    issues.push('Table should have a caption for accessibility');
-  }
-  
-  // Check for th elements with scope or headers
-  const headers = table.querySelectorAll('th');
-  if (headers.length === 0) {
-    issues.push('Table should have header cells (th) for accessibility');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates table structure for proper accessibility
- * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result with structure issues
- */
-function validateTableStructure(table) {
-  const issues = [];
-  
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
-  }
-  
-  // Check for thead and tbody
-  const thead = table.querySelector('thead');
-  const tbody = table.querySelector('tbody');
-  
-  if (!thead) {
-    issues.push('Table should have a thead section');
-  }
-  
-  if (!tbody) {
-    issues.push('Table should have a tbody section');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates that landmarks have proper roles
- * @param {Document|Element} root - Root element to search within
- * @returns {Object} Validation result with landmark issues
- */
-function validateLandmark(root = document) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
-  
-  // Check for main landmark
-  const mainElements = root.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    issues.push('Page should have at least one main landmark');
-  } else if (mainElements.length > 1) {
-    issues.push('Page should have only one main landmark');
-  }
-  
-  // Check for header landmark
-  const headerElements = root.querySelectorAll('header, [role="banner"]');
-  if (headerElements.length > 1) {
-    issues.push('Page should have only one header landmark');
-  }
-  
-  // Check for footer landmark
-  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
-  if (footerElements.length > 1) {
-    issues.push('Page
+  if (onClick)

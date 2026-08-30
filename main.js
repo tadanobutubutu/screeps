@@ -5,8 +5,6 @@
 module.exports = {
   // Existing exports preserved
 };
-=======
-// main.js - Combined utility and accessibility features
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Ensure unique landmarks
@@ -85,9 +83,10 @@ function setupKeyboardNavigation(element, options = {}) {
  * @returns {Object} The report with accessibility issues addressed.
  */
 function addressAccessibilityIssues(insightReport) {
-  // Implementation to address accessibility issues from an insight report.
-  // Apply specific accessibility fixes here based on the report's structure.
-  // For now, we simply return the report unchanged.
+  if (insightReport && insightReport.landmarks && Array.isArray(insightReport.landmarks)) {
+    insightReport.landmarks = ensureUniqueLandmarks(insightReport.landmarks);
+  }
+  // Apply other accessibility fixes as needed
   return insightReport;
 }
 
@@ -123,24 +122,26 @@ function trapFocus(container) {
  * @returns {Array} Landmarks with unique IDs.
  */
 function ensureUniqueLandmarks(landmarks) {
-  const seen = new Set();
-  const result = [];
+    const usedIds = new Set();
+    const result = [];
 
-  function generateUniqueId() {
-    return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-  }
+    landmarks.forEach(landmark => {
+        const base = landmark.id || `landmark-${result.length}`;
+        let uniqueId = base;
 
-  landmarks.forEach((landmark) => {
-    const existingIds = uniqueIds.map((id) => id.split('-')[1]);
-    let id;
+        while (usedIds.has(uniqueId)) {
+            const suffix = Math.random().toString(36).substring(2, 9);
+            uniqueId = `${base}-${suffix}`;
+        }
+        usedIds.add(uniqueId);
 
-    while (existingIds.includes(landmark.id.split('-')[1])) {
-      id = generateUniqueId();
-    }
+        if (!landmark.id) {
+            landmark.id = uniqueId;
+        }
+        result.push(landmark);
+    });
 
-    uniqueIds.push(id);
-    landmark.id = id;
-  });
+    return result;
 }
 
 /**
@@ -386,4 +387,3 @@ if (typeof module !== 'undefined' && module.exports) {
     deepClone
   }
 }
->>>>>>> origin/main

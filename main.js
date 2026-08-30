@@ -106,6 +106,41 @@ function getLangAttribute() {
 }
 
 /**
+ * Sets the lang attribute on the document's <html> element
+ * @param {string} langCode - The language code to set (e.g., 'en', 'es', 'fr')
+ * @returns {boolean} Whether the lang attribute was successfully set
+ */
+function setHtmlLangAttribute(langCode) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = langCode;
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Detects the user's preferred language and sets the document's lang attribute
+ * @param {string[]} [supportedLanguages] - Array of supported language codes
+ * @returns {string} The detected or default language code
+ */
+function detectAndSetLang(supportedLanguages = ['en']) {
+  const browserLang = typeof navigator !== 'undefined' ? navigator.language || navigator.userLanguage : null;
+  let detectedLang = 'en';
+  
+  if (browserLang) {
+    const shortLang = browserLang.split('-')[0];
+    if (supportedLanguages.includes(shortLang)) {
+      detectedLang = shortLang;
+    } else if (supportedLanguages.includes(browserLang)) {
+      detectedLang = browserLang;
+    }
+  }
+  
+  setHtmlLangAttribute(detectedLang);
+  return detectedLang;
+}
+
+/**
  * Creates a properly accessible person name element, ensuring it's not implemented as a fake link
  * @param {string} name - The person's name
  * @param {boolean} isLink - Whether the name should be rendered as a link
@@ -371,25 +406,11 @@ function renderDependencyGraph(deps) {
         "Dependency Graph Report",
         "=".repeat(20),
         "",
-        "- Total Dependencies: " + deps.total,
-        "- Core Dependencies: " + deps.dependencies,
-        "- Development Dependencies: " + deps.devDependencies,
+        "- Total Dependencies: " + (deps.total || 0),
+        "- Core Dependencies: " + (deps.dependencies || 0),
+        "- Development Dependencies: " + (deps.devDependencies || 0),
         ""
     ];
-    
-    if (deps.dependencies > 0) {
-        lines.push("Core Dependencies:");
-        deps.dependencies.forEach(dep => {
-            lines.push(`  • ${dep.name} (${dep.version})`);
-        });
-    }
-    
-    if (deps.devDependencies > 0) {
-        lines.push("Development Dependencies:");
-        deps.devDependencies.forEach(dep => {
-            lines.push(`  • ${dep.name} (${dep.version})`);
-        });
-    }
     
     return lines.join("\n");
 }

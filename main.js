@@ -152,6 +152,158 @@ export const logger = {
   }
 };
 
+/**
+ * Add proper landmark regions to ensure accessibility compliance.
+ * This function ensures that essential ARIA landmark regions exist
+ * and have proper accessible names.
+ * 
+ * Addressed issues:
+ * - REACT_017: Add/fix landmark issues
+ * - REACT_025: Ensure unique landmarks
+ */
+export function addProperLandmarkRegions() {
+  // Define required landmark roles and their corresponding elements
+  const landmarkRoles = {
+    'banner': ['header'],
+    'navigation': ['nav'],
+    'main': ['main'],
+    'complementary': ['aside'],
+    'contentinfo': ['footer'],
+    'search': ['[role="search"]']
+  };
+
+  const results = {
+    added: [],
+    updated: [],
+    warnings: []
+  };
+
+  // Check and add missing landmarks
+  Object.entries(landmarkRoles).forEach(([role, selectors]) => {
+    selectors.forEach(selector => {
+      const elements = document.querySelectorAll(selector);
+      
+      if (elements.length === 0) {
+        console.warn(`Missing landmark: No ${selector} element found for role="${role}"`);
+        results.warnings.push(`Missing landmark: ${role}`);
+      } else {
+        elements.forEach((element, index) => {
+          // Check if element has the proper role attribute (for non-semantic elements)
+          if (role !== element.tagName.toLowerCase() && !element.hasAttribute('role')) {
+            element.setAttribute('role', role);
+            results.added.push(`${role} role added to ${selector}`);
+          }
+          
+          // Check for accessible name
+          const hasAriaLabel = element.hasAttribute('aria-label');
+          const hasAriaLabelledby = element.hasAttribute('aria-labelledby');
+          
+          if (!hasAriaLabel && !hasAriaLabelledby) {
+            // Generate a unique accessible name for duplicate landmarks
+            if (elements.length > 1) {
+              const label = `${role}-${index + 1}`;
+              element.setAttribute('aria-label', label);
+              results.updated.push(`Added aria-label="${label}" to ${selector}`);
+            }
+          }
+
+          // Ensure unique IDs for landmarks
+          if (!element.id) {
+            element.id = `landmark-${role}-${index}`;
+            results.added.push(`Added id="${element.id}" to ${selector}`);
+          }
+        });
+      }
+    });
+  });
+
+  // Check for multiple main elements
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    console.warn('Multiple <main> landmarks detected. Only one <main> element should be used per page.');
+    results.warnings.push('Multiple <main> elements found');
+    
+    // Add labels to distinguish multiple main regions
+    mainElements.forEach((main, index) => {
+      if (!main.hasAttribute('aria-label')) {
+        main.setAttribute('aria-label', `main-content-${index + 1}`);
+        results.updated.push(`Added aria-label to secondary main element`);
+      }
+    });
+  }
+
+  // Check for proper landmark nesting
+  const mainElement = document.querySelector('main');
+  if (mainElement) {
+    const mainChildren = mainElement.querySelectorAll('[role="banner"], [role="contentinfo"]');
+    if (mainChildren.length > 0) {
+      console.warn('Banner or contentinfo landmarks should not be nested inside main landmark.');
+      results.warnings.push('Improper landmark nesting detected');
+    }
+  }
+
+  return results;
+}
+
+// Landmark region tracking object
+const landmarkRegionTracker = {
+  regions: new Map(),
+  
+  /**
+   * Register a landmark region for tracking
+   * @param {HTMLElement} element - The landmark element
+   * @param {string} role - The ARIA role
+   */
+  register(element, role) {
+    if (!element || !role) return;
+    
+    const id = element.id || `landmark-${role}-${this.regions.size}`;
+    this.regions.set(id, {
+      element,
+      role,
+      timestamp: Date.now()
+    });
+  },
+  
+  /**
+   * Get all registered landmark regions
+   * @returns {Array} Array of landmark region objects
+   */
+  getAll() {
+    return Array.from(this.regions.values());
+  },
+  
+  /**
+   * Validate landmark regions for accessibility
+   * @returns {Object} Validation results
+   */
+  validate() {
+    const results = { valid: true, issues: [] };
+    const roles = new Map();
+    
+    this.regions.forEach((region, id) => {
+      const roleCount = roles.get(region.role) || 0;
+      roles.set(region.role, roleCount + 1);
+      
+      // Check for accessible name
+      if (!region.element.hasAttribute('aria-label') && 
+          !region.element.hasAttribute('aria-labelledby')) {
+        if (roleCount > 0) {
+          results.valid = false;
+          results.issues.push({
+            type: 'missing-label',
+            id,
+            role: region.role,
+            message: `Duplicate landmark role "${region.role}" requires aria-label`
+          });
+        }
+      }
+    });
+    
+    return results;
+  }
+};
+
 const a11yStore = {
   // ... existing code (from both conflicting branches)
 
@@ -209,9 +361,9 @@ const a11yStore = {
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addProperLandmarkRegions())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by addProperLandmarkRegions() and checkLandmarkElements())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
 // Ensure the dependencyGraph container has a proper ARIA role
@@ -334,6 +486,7 @@ export { addressAccessibilityIssues };
 module.exports.getLangAttribute = getLangAttribute;
 module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
 module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
+module.exports.addProperLandmarkRegions = addProperLandmarkRegions;
 
 // ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
 

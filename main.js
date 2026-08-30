@@ -1,29 +1,45 @@
-// Import necessary dependencies
 import React, { useState, useEffect, useCallback } from 'react';
 import { List, Form, Input, Button, UUID } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { useId } from '@react-aria/utils';
 import { ADD_BOOK, SORT_BY_TITLE, SORT_BY_AUTHOR } from './store/types';
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
-
-// Function to handle sorting books by title (ascending)
+// Helper functions
 function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
 }
 
-// Function to handle sorting books by author (descending)
 function sortByAuthor(a, b) {
   return b.author.localeCompare(a.author);
 }
 
-// Function to generate a key for each book item
 function generateKey(book) {
   return book.id || `${book.title}-${book.author}`;
 }
 
-// Function to render a single book item
+// Functions from HEAD for dependency management
+async function fetchBookDependencies(bookId, dispatch) {
+  // Fetch dependencies for the specified book
+  // ... (Assuming you have an API endpoint to fetch book dependencies or implementing this logic)
+
+  // Dispatch an action to update the book's dependencies in the Redux store
+  dispatch(setDependencyGraph({ bookId, dependencies: /* The fetched dependencies */ }));
+}
+
+function updateBookDependencies(bookId, newDependencies, dispatch) {
+  // Perform any necessary validation or processing before updating the book's dependencies
+  // ...
+
+  // Dispatch an action to update the book's dependencies in the Redux store
+  dispatch(setDependencyGraph({ bookId, dependencies: newDependencies }));
+}
+
+// Action creator for setDependencyGraph
+function setDependencyGraph({ bookId, dependencies }) {
+  return { type: 'SET_DEPENDENCY_GRAPH', payload: { bookId, dependencies } };
+}
+
+// Components from origin/main
 function BookItem({ book }) {
   return (
     <List.Item key={generateKey(book)} role="listitem">
@@ -35,7 +51,6 @@ function BookItem({ book }) {
   );
 }
 
-// Container for the dependency graph with proper ARIA role for accessibility
 function DependencyGraph({ nodes, edges }) {
   return (
     <div 
@@ -67,16 +82,12 @@ function onAuthorSort(dispatch, books) {
   dispatch({ type: SORT_BY_AUTHOR, payload: sortedList });
 }
 
-// Function to create a new book entry in the Redux store
+// Action creator for addBook
 function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
-
-  // Return an action object to add the book to the books list in the Redux store
   return { type: ADD_BOOK, payload: book };
 }
 
-// New accessible form component for adding books
+// AddBookForm component
 function AddBookForm({ onAdd }) {
   const formId = useId();
   const [title, setTitle] = useState('');
@@ -151,14 +162,12 @@ function AddBookForm({ onAdd }) {
   );
 }
 
-// REACT_015: Function to get the lang attribute for the HTML element
+// Accessibility functions
 function getLangAttribute() {
-  // Determine the appropriate lang attribute based on document settings or default to 'en'
   const lang = document.documentElement.lang || 'en';
   return lang;
 }
 
-// REACT_015: Function to create an in-page button with proper accessibility attributes
 function createInPageButton(label, onClickHandler) {
   const button = document.createElement('button');
   button.type = 'button';
@@ -170,7 +179,6 @@ function createInPageButton(label, onClickHandler) {
   return button;
 }
 
-// REACT_027: Function to validate table accessibility (checks for caption, summary, headers, etc.)
 function validateTableAccessibility(tableElement) {
   if (!tableElement) return false;
   const hasCaption = tableElement.querySelector('caption') !== null;
@@ -178,7 +186,6 @@ function validateTableAccessibility(tableElement) {
   return hasCaption && hasHeaders;
 }
 
-// REACT_027: Function to validate table structure (checks for proper thead, tbody, tr, td/th nesting)
 function validateTableStructure(tableElement) {
   if (!tableElement) return false;
   const hasThead = tableElement.querySelector('thead') !== null;
@@ -187,21 +194,17 @@ function validateTableStructure(tableElement) {
   return hasThead && hasTbody && rows.length > 0;
 }
 
-// REACT_017: Function to validate a landmark element exists and has a role
 function validateLandmark(element, expectedRole) {
   if (!element) return false;
   const role = element.getAttribute('role') || element.tagName.toLowerCase();
   return role === expectedRole;
 }
 
-// REACT_017: Function to validate landmark structure (proper nesting and child elements)
 function validateLandmarkStructure(landmarkElement) {
   if (!landmarkElement) return false;
-  // A landmark should contain accessible content (text or children)
   return landmarkElement.children.length > 0 || landmarkElement.textContent.trim().length > 0;
 }
 
-// REACT_017 & REACT_025: Function to validate landmark accessibility (unique landmarks, proper labels)
 function validateLandmarkAccessibility(landmarkElements) {
   if (!Array.isArray(landmarkElements) || landmarkElements.length === 0) return false;
   const seenRoles = new Set();
@@ -209,7 +212,6 @@ function validateLandmarkAccessibility(landmarkElements) {
   for (const el of landmarkElements) {
     const role = el.getAttribute('role') || el.tagName.toLowerCase();
     const label = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || '';
-    // REACT_025: Ensure unique landmarks (track uniqueness by label for same-role landmarks)
     const key = `${role}::${label}`;
     if (seenRoles.has(role) && seenLabels.has(label)) {
       return false;
@@ -220,7 +222,6 @@ function validateLandmarkAccessibility(landmarkElements) {
   return true;
 }
 
-// REACT_041: Function to get the accessible name for an SVG element
 function getSvgAccessibleName(svgElement) {
   if (!svgElement) return '';
   return (
@@ -231,7 +232,6 @@ function getSvgAccessibleName(svgElement) {
   );
 }
 
-// REACT_041: Function to set accessible attributes on SVG elements
 function setSvgAttributes(svgElement, accessibleName) {
   if (!svgElement) return;
   svgElement.setAttribute('role', 'img');
@@ -243,20 +243,16 @@ function setSvgAttributes(svgElement, accessibleName) {
   }
 }
 
-// REACT_036: Function to validate link accessibility (href, accessible name, not fake link)
 function validateLinkAccessibility(linkElement) {
   if (!linkElement) return false;
   const href = linkElement.getAttribute('href');
   const accessibleName = linkElement.getAttribute('aria-label') || linkElement.textContent.trim();
-  // A real link should have a non-empty href and an accessible name
   return href !== null && href !== '' && href !== '#' && accessibleName.length > 0;
 }
 
-// REACT_036: Function to handle fake links (divs/buttons styled as links) and convert to accessible elements
 function handleFakeLinks(fakeLinkElements) {
   if (!Array.isArray(fakeLinkElements)) return;
   for (const el of fakeLinkElements) {
-    // Replace fake link with a proper accessible element
     el.setAttribute('role', 'button');
     el.setAttribute('tabindex', '0');
     if (!el.getAttribute('aria-label') && !el.textContent.trim()) {
@@ -265,12 +261,12 @@ function handleFakeLinks(fakeLinkElements) {
   }
 }
 
+// Main component
 function Main() {
   const dispatch = useDispatch();
   const books = useSelector(state => state.books.list);
   const [sorting, setSorting] = useState(defaultSorting);
 
-  // Create memoized sort handlers
   const handleTitleSort = useCallback(() => {
     onTitleSort(dispatch, books);
   }, [dispatch, books]);
@@ -279,7 +275,6 @@ function Main() {
     onAuthorSort(dispatch, books);
   }, [dispatch, books]);
 
-  // UseEffect hook to handle sorting book list updates
   useEffect(() => {
     if (sorting === sortByTitle) {
       handleTitleSort();
@@ -288,17 +283,14 @@ function Main() {
     }
   }, [sorting, handleTitleSort, handleAuthorSort]);
 
-  // Map the book list to the BookItem function to create book items
   const bookItems = books.map((book) => (
     <BookItem key={generateKey(book)} book={book} />
   ));
 
-  // Handle adding a new book with accessibility improvements
   const handleAddBook = (book) => {
-    addBook(book);
+    dispatch(addBook(book));
   };
 
-  // Render the list of book items, sorting controls, and the AddBookForm
   return (
     <main role="main" aria-label="Book list main content">
       <div role="region" aria-label="Sorting controls">
@@ -320,7 +312,6 @@ function Main() {
         </button>
       </div>
       <List dataSource={bookItems} />
-      {/* Accessibility: Add landmark region for add book form */}
       <section role="region" aria-label="Add new book form">
         <AddBookForm onAdd={handleAddBook} />
       </section>
@@ -334,10 +325,8 @@ function Main() {
   );
 }
 
-// Export the Main component
 export default Main;
 
-// Add back required exports for testing and external use
 export {
   sortByTitle,
   sortByAuthor,
@@ -361,4 +350,7 @@ export {
   setSvgAttributes,
   validateLinkAccessibility,
   handleFakeLinks,
+  setDependencyGraph,
+  fetchBookDependencies,
+  updateBookDependencies,
 };

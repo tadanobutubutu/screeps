@@ -1,1 +1,9 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// TODO: Implement this function for checking landmark elements
+function checkLandmarkElements() {
+  const landmarks = document.querySelectorAll('header, nav, main, footer, aside, section, article');
+  return Array.from(landmarks);
+}
+
+module.exports = {
+  checkLandmarkElements
+};

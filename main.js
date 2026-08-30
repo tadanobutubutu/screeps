@@ -38,8 +38,8 @@ function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
+  // Return an action object to add the book to the books list in the Redux store
+  return { type: 'ADD_BOOK', payload: book };
 }
 
 // Container for the dependency graph with proper ARIA role for accessibility
@@ -115,6 +115,7 @@ function onAuthorSort() {
 
 // Render the main component containing the book list, sorting controls, and the AddBookForm
 function Main() {
+  const dispatch = useDispatch();
   const [sorting, setSorting] = useState(defaultSorting);
 
   // UseEffect hook to handle sorting book list updates
@@ -141,8 +142,6 @@ function Main() {
         nodes={[]} 
         edges={[]} 
       />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
     </div>
   );
 }

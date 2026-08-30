@@ -343,9 +343,21 @@ function isLinkAccessible(link) {
   return false;
 }
 
+/**
+ * Ensures the dependency graph container has a proper ARIA role.
+ * This addresses accessibility issues by adding role="region" to the container.
+ */
+function ensureDependencyGraphAriaRole() {
+  const container = document.getElementById('dependencyGraph') || document.querySelector('.dependencyGraph');
+  if (container && !container.hasAttribute('role')) {
+    container.setAttribute('role', 'region');
+  }
+}
+
 addProperLandmarkRegions();
 addProperAccountManagement();
 addAriaToFormControls();
+ensureDependencyGraphAriaRole();
 
 module.exports = {
   addProperLandmarkRegions,
@@ -365,5 +377,6 @@ module.exports = {
   improveKeyboardNavigation,
   addLiveRegionForDynamicContent,
   isLinkAccessible,
-  addAriaLabel
+  addAriaLabel,
+  ensureDependencyGraphAriaRole
 };

@@ -21,34 +21,19 @@ import { indexContent } from './indexContent';
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
-import { getDocument, getLangAttribute } from . ; // Adjust the path to the existing accessibility helper functions if needed
-import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from "..." ; // Adjust the path to the new accessibility helper functions
-
-// Import your new function from your new module
-// import { triggerAccessibilityMode } from ...
-
-// Import dependency graph and index content modules for rendering dependency graphs and index views
-
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 // Renders the dependency graph view.
 // Updated to use dependencyGraphContent.
 export function renderDependencyGraph() {
   // Example usage: replace with actual rendering logic
-  handleAccessibilityIssues(dependencyGraphContent);
+  ...
 }
 
 // Renders the index view.
 // Updated to use indexContent.
 export function renderIndex() {
   // Example usage: replace with actual rendering logic
-  handleAccessibilityIssues(indexContent);
+  ...
 }
 
 export { makeHeaderFocusable }; // new export statement from conflicting branch
@@ -88,25 +73,27 @@ function createInPageButton() {
 function fixAccessibilityIssues() {
   // 1. REACT_015: Ensure lang attribute is set on the HTML element
   const lang = getLangAttribute();
-  document.documentElement.setAttribute('lang', lang);
+  if (lang) {
+    document.documentElement.lang = lang;
+  }
 
   // 2. REACT_027: Validate table accessibility and structure
-  const table = document.getElementById('myTable');
-  if (table) {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
     validateTableAccessibility(table);
     validateTableStructure(table);
-  }
+  });
 
   // 3. REACT_017: Validate landmark and landmark structure issues
   validateLandmark();
   validateLandmarkStructure();
+  ensureUniqueLandmarks();
 
   // 4. REACT_025: Ensure unique landmarks
-  validateLinkAccessibility();
   handleFakeLinks();
 
   // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
-  const svgElements = document.querySelectorAll('#mySvg, #myOtherSvg');
+  const svgElements = document.querySelectorAll('svg');
   svgElements.forEach(svg => {
     const accessibleName = getSvgAccessibleName(svg);
     setSvgAttributes(svg, accessibleName);
@@ -119,22 +106,24 @@ function fixAccessibilityIssues() {
 // Implement wrapPrimaryContentInMain function
 function wrapPrimaryContentInMain(primaryContent) {
   // Wrap primary content in a <main> element for accessibility
-  return `<main>${primaryContent}</main>`;
+  return createElement('main', { id: 'main-content', role: 'main' }, primaryContent);
 }
 
 // DOM-based accessibility code
 
 // Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', getLangAttribute());
+document.documentElement.lang = getLangAttribute();
 
 // Create in-page button with accessibility considerations
 createInPageButton();
 
 // Validate table structure and accessibility
 // Assuming you have a table element with an id of 'myTable'
-const table = document.getElementById('myTable');
-validateTableAccessibility(table);
-validateTableStructure(table);
+const tables = document.querySelectorAll('table');
+tables.forEach(table => {
+  validateTableAccessibility(table);
+  validateTableStructure(table);
+});
 
 // Add/fix landmark issues
 validateLandmark();
@@ -142,13 +131,15 @@ validateLandmarkStructure();
 
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
-const svg = document.getElementById('mySvg');
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
+const svgs = document.querySelectorAll('svg');
+svgs.forEach(svg => {
+  const accessibleName = getSvgAccessibleName(svg);
+  setSvgAttributes(svg, accessibleName);
+});
 
 // Ensure unique landmarks
 // This would be handled by the appropriate function call
-validateLinkAccessibility();
+ensureUniqueLandmarks();
 handleFakeLinks();
 
 // ... rest of your code ...
@@ -160,22 +151,22 @@ function addAriaLabel(element) {
   }
 }
 
-const dependencyGraphContainer = document.createElement('div');
+const dependencyGraphContainer = ...
 dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
-dependencyGraphContainer.setAttribute('role', 'region');
-dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+... 'region');
+... 'Dependency Graph');
 
 // React / UI related functions
 
 // TODO: Add these imported modules to the relevant rendering functions
 
 function formatProductName(product) {
-  return `${product.name} - ${product.category}`;
+  return `${product.name} - ...
 }
 
 function renderProductList(products) {
-  const container = document.getElementById('product-list');
-  container.innerHTML = products.map(renderProductCard).join('');
+  const container = ...
+  container.innerHTML = ...
   return container;
 }
 
@@ -190,7 +181,7 @@ function renderCart(cart) {
   return `
     <div class="cart">
       <h2>Shopping Cart</h2>
-      <p>Total: ${formatCurrency(total)}</p>
+      <p>Total: ...
       <p>Date: ${formatDate(new Date())}</p>
     </div>
   `;
@@ -198,13 +189,13 @@ function renderCart(cart) {
 
 function validateAndRender(input) {
   if (validateInput(input)) {
-    return renderProductList(input.products);
+    return ...
   }
 }
 
 function renderProductCard(product) {
   // Example rendering logic
-  return `<div class="product-card">${formatProductName(product)}</div>`;
+  return `<div ...
 }
 
 function calculateDiscount(subtotal) {
@@ -224,17 +215,17 @@ export function someFunction() {
 
 function formatCurrency(amount) {
   // Example currency formatting
-  return `$${amount.toFixed(2)}`;
+  return ...
 }
 
 function formatDate(date) {
   // Example date formatting
-  return date.toLocaleDateString();
+  return ...
 }
 
 function validateInput(input) {
   // Example validation logic
-  return input && input.products && Array.isArray(input.products);
+  return input && input.products && ...
 }
 
 function getLangAttribute() {
@@ -244,7 +235,10 @@ function getLangAttribute() {
 
 function setSvgAttributes(svg, accessibleName) {
   // Example SVG attribute setter
-  svg.setAttribute('aria-label', accessibleName);
+  if (accessibleName) {
+    svg.setAttribute('aria-label', accessibleName);
+    svg.setAttribute('role', 'img');
+  }
 }
 
 function validateLinkAccessibility() {
@@ -253,6 +247,27 @@ function validateLinkAccessibility() {
 
 function handleFakeLinks() {
   // Example fake links handler
+}
+
+function ensureUniqueLandmarks() {
+  // Ensure all landmarks have unique aria-labelledby or aria-label attributes
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article');
+  const seenLabels = new Map();
+  
+  landmarks.forEach(landmark => {
+    let label = landmark.getAttribute('aria-labelledby') || 
+                landmark.getAttribute('aria-label') || 
+                '';
+    
+    if (seenLabels.has(label)) {
+      // Generate unique ID for this landmark
+      const id = `landmark-${uuidv4()}`;
+      landmark.setAttribute('aria-labelledby', id);
+      seenLabels.get(label).id = id;
+    } else {
+      seenLabels.set(label, landmark);
+    }
+  });
 }
 
 export { ensureElementId };

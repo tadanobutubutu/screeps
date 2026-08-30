@@ -38,6 +38,46 @@ function validateLandmark(landmark) {
 }
 
 /**
+ * Process landmarks in a document and return structured data
+ * @param {Document|HTMLElement} context - The document or container to process
+ * @returns {Object} - Processed landmark data
+ */
+function processLandmarks(context) {
+  const results = {
+    landmarks: [],
+    regions: [],
+    totalCount: 0
+  };
+
+  if (!context) {
+    return results;
+  }
+
+  const element = context.querySelectorAll ? context : (context.body || context);
+  const selector = 'header, main, nav, aside, section, article, footer';
+  const elements = element.querySelectorAll ? element.querySelectorAll(selector) : [];
+
+  elements.forEach(el => {
+    const landmark = {
+      tag: el.tagName ? el.tagName.toLowerCase() : 'unknown',
+      id: el.id || null,
+      className: el.className || '',
+      ariaRole: el.getAttribute('role') || null,
+      label: el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || null
+    };
+
+    results.landmarks.push(landmark);
+
+    if (landmark.tag === 'section' || (landmark.tag !== 'main' && landmark.ariaRole)) {
+      results.regions.push(landmark);
+    }
+  });
+
+  results.totalCount = results.landmarks.length;
+  return results;
+}
+
+/**
  * Main JavaScript module for landmark element validation
  * @module main
  */
@@ -85,7 +125,7 @@ function validateLandmarks(doc) {
 
   landmarks.forEach(landmark => {
     results.landmarks.push({
-      tag: landmark.tagName.toLowerCase(),
+      tag: landmark.tagName ? landmark.tagName.toLowerCase() : 'unknown',
       id: landmark.id || null,
       className: landmark.className || null
     });
@@ -136,6 +176,9 @@ function setSvgAccessibleName(svg, name) {
     throw new Error('SVG element is required');
     return;
   }
+  if (!name || typeof name !== 'string') {
+    throw new Error('Name must be a non-empty string');
+  }
   svg.setAttribute('aria-label', name);
 }
 
@@ -148,7 +191,7 @@ function improveAccessibility(container) {
   }
 
   // Ensure all clickable elements are focusable
-  const focusable = container.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+  const focusable = container.querySelectorAll('button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -161,6 +204,10 @@ function renderDependencyGraphContent(container) {
   elements.forEach(el => {
     if (el.dataset) {
       // Process dependency data
+      const depData = el.dataset.dependency;
+      if (depData) {
+        el.setAttribute('aria-describedby', 'dep-' + el.id);
+      }
     }
   });
 }
@@ -196,13 +243,11 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      const title = svg.querySelector('title');
-      if (title) {
-        const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
-        title.id = titleId;
-        svg.setAttribute('aria-labelledby', titleId);
-      }
+    const title = svg.querySelector('title');
+    if (title) {
+      const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+      title.id = titleId;
+      svg.setAttribute('aria-labelledby', titleId);
     }
   });
 }
@@ -244,10 +289,10 @@ function calculateSum(a, b) {
 }
 
 function addProperLandmarkRegions(affectedElements) {
-  if (!affectedElements || !Array.isArray(affectedElements)) return;
+  if (!affectedElements || !Array.isArray(affectedElements) || affectedElements.length === 0) return;
 
   affectedElements.forEach(el => {
-    if (el && el.tagName && !el.hasAttribute('role')) {
+    if (el && el.tagName && !el.getAttribute('role')) {
       el.setAttribute('role', 'region');
     }
   });
@@ -255,6 +300,7 @@ function addProperLandmarkRegions(affectedElements) {
 
 module.exports = {
   validateLandmark,
+  processLandmarks,
   config,
   isLandmark,
   validateLandmarks,

@@ -25,3 +25,9 @@ exports.formatDate = function(date) {
   }
   return date.toISOString().split('T')[0];
 };
+
+// TODO: Create or update the affected functions to be accessible
+// Example of a new function or an update to an existing one
+module.exports.newFunction = function() {
+  return 'This is a new function that has been added to main.js';
+};

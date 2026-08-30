@@ -6,6 +6,17 @@ const main = require('./utilities');
 
 const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport } = require('./utilities');
 
+const addMainLandmark = main.addMainLandmark;
+const ensureUniqueLandmarks = main.ensureUniqueLandmarks;
+const addAltAttribute = main.addAltAttribute;
+const replaceButtonId = main.replaceButtonId;
+const addLangAttribute = main.addLangAttribute;
+const fixTableStructure = main.fixTableStructure;
+const addSvgAccessibleName = main.addSvgAccessibleName;
+const fixFakeLinkIssue = main.fixFakeLinkIssue;
+const addAriaAttribute = main.addAriaAttribute;
+const implementAccessibilityFixesFromReport = main.implementAccessibilityFixesFromReport;
+
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -126,27 +137,6 @@ function calculateSum(numbers) {
     return numbers.reduce((sum, num) => sum + num, 0);
 }
 
-// Additional utility functions for accessibility
-function getLangAttribute() {
-  // Implementation for REACT_015: Add lang attribute to HTML element
-  // ...
-}
-
-function getSvgAccessibleName() {
-  // Implementation for REACT_041: Add accessible names to 2 SVGs
-  // ...
-}
-
-function validateTableAccessibility() {
-  // Implementation for REACT_027: Fix 26 table structure issues
-  // ...
-}
-
-function validateTableStructure() {
-  // Implementation for REACT_027: Fix 26 table structure issues
-  // ...
-}
-
 /**
  * Ensures the element has an id. If the element doesn't have an id,
  * generates one and assigns it to the element.
@@ -265,7 +255,7 @@ const focusTrap = (element) => {
     if (focusableElements[index].focus) {
       focusableElements[index].focus();
     } else {
-      main.ensureElementHasId(focusableElements[index]);
+      ensureElementHasId(focusableElements[index]);
       focusableElements[index].focus();
     }
     activeElementIndex = index;

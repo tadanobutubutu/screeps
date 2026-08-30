@@ -65,12 +65,13 @@ function renderDependencyGraph(graph) {
     const lines = [];
     lines.push('digraph dependencies {');
     lines.push('  rankdir=LR;');
-    lines.push('  node [shape=box, style=filled, fillcolor="#eef"];');
+    lines.push('  node [shape=box, style=filled, fillcolor="#eef", aria-label="Dependency Node"];');
 
     for (const node of nodes) {
         if (node && node.id) {
             const label = (node.label || node.id).replace(/"/g, '\\"');
-            lines.push(`  "${node.id}" [label="${label}"];`);
+            const accessibleName = node.accessibleName || label;
+            lines.push(`  "${node.id}" [label="${label}", aria-label="${accessibleName}"];`);
         }
     }
 
@@ -108,8 +109,7 @@ function updateDependencyGraph(view, graph) {
     if (!view) {
         return null;
     }
-    const rendered = renderDependencyGraph(graph);
-    view.graphSource = rendered;
+    view.graphSource = renderDependencyGraph(graph);
     view.lastUpdated = new Date().toISOString();
     return view;
 }

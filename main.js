@@ -55,7 +55,6 @@ function validateEmailFormat(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
 const addressAccessibilityIssues = (insightReport) => {
   const recommendations = [];
   

@@ -18,7 +18,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return ...
+  return book.id || `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
@@ -27,7 +27,7 @@ function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        ...
+        description={book.author}
       />
     </List.Item>
   );
@@ -246,19 +246,85 @@ function setSvgAttributes(svg, name, description = '') {
   svg.setAttribute('aria-label', name);
 }
 
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+
+// _Commit: 200f6fc2778b49bc0c082c4862cbe22ffd75ecd6_
+
+// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
+
+// TODO: Implement the required changes to improve accessibility for the addBook function or form
+// Integrated accessibility improvements from the addBook function enhancement:
+// - Added input validation for book properties
+// - Included accessible label attributes for form inputs
+function addBook(book) {
+  // Perform validation before adding the book
+  if (!book.title || !book.author) {
+    throw new Error('Book must have both title and author fields');
+  }
+
+  // Dispatch an action to add the book to the books list in the Redux store
+  dispatch({ type: 'ADD_BOOK', payload: book });
+}
+
+// Enhanced addBookForm component with accessibility improvements
+function AddBookForm() {
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    addBook({ title, author });
+    setTitle('');
+    setAuthor('');
+  };
+
+  return (
+    <form onSubmit={handleSubmit} aria-label="Add new book form">
+      <div>
+        <label htmlFor="book-title">Title</label>
+        <input
+          id="book-title"
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          aria-required="true"
+        />
+      </div>
+      <div>
+        <label htmlFor="book-author">Author</label>
+        <input
+          id="book-author"
+          type="text"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          aria-required="true"
+        />
+      </div>
+      <button type="submit">Add Book</button>
+    </form>
+  );
+}
+
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = ...
+  const sortedList = [...getBooksList].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = ...
+  const sortedList = [...getBooksList].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
@@ -277,16 +343,21 @@ function Main() {
   }, [sorting]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = ...
+  const bookItems = getBooksList.sort(sorting).map((book, index) => (
+    <BookItem key={index} {...book} />
+  ));
 
   // Render the list of book items and sorting controls
   return (
     <div {...getLangAttribute()}>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List ... />
+      <List
+        dataSource={bookItems}
+        renderItem={item => item}
+      />
       {/* Accessibility improvements for adding a new book */}
-      {/* ... */}
+      <AddBookForm />
     </div>
   );
 }

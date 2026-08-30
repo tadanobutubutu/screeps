@@ -590,18 +590,78 @@ export const logger = {
 //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
 export function generateAccessibilityReport() {
-  // Placeholder for the actual implementation
-  // This function should return a report object based on the accessibility issues found
-  return {
-    issues: [
-      // Example issue object
-      {
-        description: "Example issue description",
-        severity: "warning",
-        // ... other properties like 'elementId', 'fixRecommendation', etc.
-      }
-    ]
-  };
+  const issues = [];
+
+  // Check for missing lang attribute
+  if (!document.documentElement.lang) {
+    issues.push({
+      type: 'missing-lang',
+      description: 'The document is missing a lang attribute',
+      severity: 'error',
+      element: document.documentElement,
+      fixRecommendation: 'Add lang attribute to html element'
+    });
+  }
+
+  // Check for skip link
+  if (!document.querySelector('.skip-link')) {
+    issues.push({
+      type: 'missing-skip-link',
+      description: 'Missing skip link',
+      severity: 'warning',
+      fixRecommendation: 'Add a skip link'
+    });
+  }
+
+  // Images without alt
+  document.querySelectorAll('img:not([alt])').forEach(img => {
+    issues.push({
+      type: 'missing-alt',
+      description: 'Image missing alt attribute',
+      severity: 'warning',
+      element: img,
+      fixRecommendation: 'Add alt attribute'
+    });
+  });
+
+  // Form controls without labels
+  document.querySelectorAll('input:not([aria-label]):not([id]), select:not([aria-label]):not([id]), textarea:not([aria-label]):not([id])').forEach(el => {
+    issues.push({
+      type: 'missing-label',
+      description: 'Form control missing accessible label',
+      severity: 'warning',
+      element: el,
+      fixRecommendation: 'Add aria-label or associated label'
+    });
+  });
+
+  // Check for missing landmarks
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  landmarkRoles.forEach(role => {
+    if (!document.querySelector(`[role="${role}"]`) && !document.querySelector(role)) {
+      issues.push({
+        type: 'missing-landmark',
+        description: `Missing landmark with role ${role}`,
+        severity: 'info',
+        fixRecommendation: `Add element with role ${role}`
+      });
+    }
+  });
+
+  // Check for SVGs without title
+  document.querySelectorAll('svg').forEach(svg => {
+    if (!svg.querySelector('title')) {
+      issues.push({
+        type: 'missing-svg-title',
+        description: 'SVG missing title element',
+        severity: 'warning',
+        element: svg,
+        fixRecommendation: 'Add title element inside SVG'
+      });
+    }
+  });
+
+  return { issues };
 }
 
 // Helper functions for accessibility

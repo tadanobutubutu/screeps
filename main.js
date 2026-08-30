@@ -90,15 +90,15 @@ function addressInsightReportIssues(insightReport) {
       }
       // Ensure unique landmarks (2 issues)
       if (issue.code === 'REACT_025') {
-        // Implement logic to ensure unique landmarks if needed
+        ensureUniqueLandmarksFromReport(insightReport);
       }
       // Fix 1 fake link issue
       if (issue.code === 'REACT_036') {
-        // Implement logic to fix fake link issues if needed
+        fixFakeLinks();
       }
       // Add scope="col" or scope="row" to <th> elements (already implemented)
       if (issue.code === 'REACT_027') {
-        // This issue is already implemented, so no action is needed here
+        fixTableHeaderCellScope();
       }
     }
   });

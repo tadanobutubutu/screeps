@@ -34,6 +34,11 @@ function reverseString(str) {
   return str.split('').reverse().join('');
 }
 
+// Added missing calculateSum function export
+function calculateSum(a, b) {
+  return a + b;
+}
+
 module.exports = {
   VERSION,
   hello,
@@ -41,5 +46,13 @@ module.exports = {
   Greeter,
   getVersion,
   capitalize,
-  reverseString
+  reverseString,
+  accessibilityUtils,
+  exportUtils,
+  initAccessibility,
+  handleCredentialResponse,
+  ensureElementId,
+  addAriaLabel,
+  renderDependencyGraph,
+  calculateSum
 };

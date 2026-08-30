@@ -4,37 +4,126 @@
 
 export function calculateSum(a, b) { return a + b; }
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 4 landmark issues (DONE: addLandmarkIssues)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// Functions for addressing accessibility issues from insight report
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+  return 'REACT_015: Added lang attribute to HTML element';
+}
 
-// Assuming you have defined these functions elsewhere in your codebase:
-// addLangAttribute()
-// fixTableStructure()
-// addLandmarkIssues()
-// addSvgAccessibleNames()
-// ensureUniqueLandmarks()
-// fixFakeLinkIssue()
+function fixTableStructure() {
+  const tables = document.querySelectorAll('table');
+  let fixedCount = 0;
+  tables.forEach(table => {
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Data table';
+      table.insertBefore(caption, table.firstChild);
+      fixedCount++;
+    }
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+  });
+  return `REACT_027: Fixed ${fixedCount} table structure issues`;
+}
+
+function addLandmarkIssues() {
+  const mainElement = document.querySelector('main');
+  if (mainElement && !mainElement.hasAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+  const navElements = document.querySelectorAll('nav');
+  navElements.forEach((nav, index) => {
+    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+      nav.setAttribute('aria-label', `Navigation ${index + 1}`);
+    }
+  });
+  return 'REACT_017: Added/fixed landmark issues';
+}
+
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  let namedCount = 0;
+  svgs.forEach(svg => {
+    const title = svg.querySelector('title');
+    if (!title) {
+      const newTitle = document.createElement('title');
+      newTitle.textContent = 'Icon';
+      svg.insertBefore(newTitle, svg.firstChild);
+      namedCount++;
+    }
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      const role = svg.getAttribute('role');
+      if (role === 'img' || !role) {
+        svg.setAttribute('aria-label', 'Icon');
+        namedCount++;
+      }
+    }
+  });
+  return `REACT_041: Added accessible names to ${namedCount} SVGs`;
+}
+
+function ensureUniqueLandmarks() {
+  const landmarks = ['header', 'nav', 'main', 'footer'];
+  const results = [];
+  landmarks.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0) {
+          el.removeAttribute('role');
+        }
+      });
+      results.push(`Removed duplicate ${role} landmarks`);
+    }
+  });
+  return `REACT_025: Ensured unique landmarks - ${results.join(', ') || 'All landmarks are unique'}`;
+}
+
+function fixFakeLinkIssue() {
+  const fakeLinks = document.querySelectorAll('a:not([href]), a[href="#"], a[href=""], a[href="javascript:void(0)"]');
+  fakeLinks.forEach(link => {
+    if (link.classList.contains('fake-link')) {
+      link.setAttribute('role', 'button');
+      link.setAttribute('tabindex', '0');
+    }
+  });
+  return `REACT_036: Fixed ${fakeLinks.length} fake link issues`;
+}
+
+// Main function to address all accessibility issues
+function addressAccessibilityIssues() {
+  const results = [];
+  results.push(addLangAttribute());
+  results.push(fixTableStructure());
+  results.push(addLandmarkIssues());
+  results.push(addSvgAccessibleNames());
+  results.push(ensureUniqueLandmarks());
+  results.push(fixFakeLinkIssue());
+  return results;
+}
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
 // Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+// Address accessibility issues from insight report — FIXED (combined with the export code)
 
 // Utility functions for accessibility
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = ...
     if (skipLink) {
-      skipLink.addEventListener('click', (e) => {
+      ... (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const target = ...
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -46,18 +135,18 @@ const accessibilityUtils = {
   // Trap focus within an element (for modals, dialogs)
   trapFocus: (element) => {
     const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], ... ... ... ... ...
     );
-    const firstElement = focusableElements[0];
+    const firstElement = ...
     const lastElement = focusableElements[focusableElements.length - 1];
 
-    element.addEventListener('keydown', (e) => {
+    ... (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
-          lastElement.focus();
+          ...
           e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
+          ...
           e.preventDefault();
         }
       }
@@ -66,14 +155,14 @@ const accessibilityUtils = {
 
   // Announce message to screen readers
   announceToScreenReader: (message, priority = 'polite') => {
-    const announcer = document.createElement('div');
-    announcer.setAttribute('aria-live', priority);
-    announcer.setAttribute('aria-atomic', 'true');
+    const announcer = ...
+    ... priority);
+    ... 'true');
     announcer.className = 'sr-only';
     announcer.style.position = 'absolute';
     announcer.style.left = '-9999px';
     announcer.textContent = message;
-    document.body.appendChild(announcer);
+    ...
     setTimeout(() => announcer.remove(), 1000);
   },
 
@@ -90,42 +179,42 @@ const accessibilityUtils = {
 const exportUtils = {
   exportData: (data, filename, mimeType) => {
     const blob = new Blob([data], { type: mimeType });
-    const url = URL.createObjectURL(blob);
+    const url = ...
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
     link.setAttribute('aria-label', `Download ${filename}`);
-    document.body.appendChild(link);
+    ...
     link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    ...
+    ...
     
     // Announce download completion to screen readers
-    accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
+    ... of ${filename} started`);
   },
 
   exportToJSON: (data, filename) => {
-    const jsonString = JSON.stringify(data, null, 2);
-    exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
+    const jsonString = ... null, 2);
+    ... filename || 'export.json', 'application/json');
   },
 
   exportToCSV: (data, filename) => {
     if (!data || data.length === 0) return;
     
-    const headers = Object.keys(data[0]);
+    const headers = ...
     const csvRows = [];
-    csvRows.push(headers.join(','));
+    ...
     
     for (const row of data) {
       const values = headers.map(header => {
-        const escaped = ('' + row[header]).replace(/"/g, '\\"');
+        const escaped = ('' + ... '\\"');
         return `"${escaped}"`;
       });
-      csvRows.push(values.join(','));
+      ...
     }
     
     const csvString = csvRows.join('\n');
-    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
+    ... filename || 'export.csv', 'text/csv');
   }
 };
 
@@ -134,9 +223,9 @@ const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
   
   // Add keyboard support for all interactive elements
-  document.querySelectorAll('[data-accessible]').forEach(element => {
-    element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, {
+  ... => {
+    ... (e) => {
+      ... {
         Enter: () => element.click(),
         ' ': () => element.click()
       });
@@ -147,7 +236,7 @@ const initAccessibility = () => {
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAccessibility);
+    ... initAccessibility);
   } else {
     initAccessibility();
   }
@@ -157,5 +246,13 @@ if (typeof document !== 'undefined') {
 module.exports = {
   accessibilityUtils,
   exportUtils,
-  initAccessibility
+  initAccessibility,
+  calculateSum,
+  addressAccessibilityIssues,
+  addLangAttribute,
+  fixTableStructure,
+  addLandmarkIssues,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue
 };

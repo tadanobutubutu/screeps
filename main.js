@@ -166,6 +166,18 @@ function addLandmarkRegions() {
   return landmarks;
 }
 
+// NEW FUNCTION: addProperLandmarkRegions
+function addProperLandmarkRegions() {
+  // Add proper landmark regions to the page
+  const landmarks = [
+    { role: 'banner', label: 'Site header' },
+    { role: 'navigation', label: 'Main navigation' },
+    { role: 'main', label: 'Main content' },
+    { role: 'contentinfo', label: 'Site footer' }
+  ];
+  return landmarks;
+}
+
 // REACT_025: Ensure unique landmarks
 function ensureUniqueLandmarks() {
   // Ensure all landmarks have unique labels/IDs
@@ -443,6 +455,7 @@ module.exports = {
   validateLandmarkStructure,
   validateLandmarkAttributes,
   addLandmarkRegions,
+  addProperLandmarkRegions,
   ensureUniqueLandmarks,
   getSvgAccessibleName,
   setSvgAttributes,

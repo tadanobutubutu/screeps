@@ -2,9 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import reportWebVitals from ...
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />
@@ -26,10 +26,10 @@ function initialize() {
   console.log('Application initialized');
 
   // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.getElementById('main-content');
+  const mainContent = ...
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
-    mainContent.removeAttribute('aria-hidden');
+    ...
   }
 
   // Accessibility: Add skip link functionality
@@ -39,9 +39,9 @@ function initialize() {
   setupButtonAccessibility();
 
   // Add dependency graph button functionality
-  const depGraphContainer = document.getElementById('dep-graph-container');
+  const depGraphContainer = ...
   if(depGraphContainer) {
-    createInPageDepGraphButton(depGraphContainer, renderDependencyGraph);
+    ... renderDependencyGraph);
   }
   return true;
 }
@@ -49,18 +49,18 @@ function initialize() {
 /**
  * Implement this function for creating in-page buttons
  */
-function createInPageDepGraphButton(depGraphContainer, renderFunction) {
+function ... renderFunction) {
   const button = createInPageButton('Render Dependency Graph', renderFunction);
-  depGraphContainer.appendChild(button);
+  ...
 }
 
 /**
  * Ensure buttons have proper accessibility attributes
  */
 function setupButtonAccessibility() {
-  const buttons = document.querySelectorAll('button');
+  const buttons = ...
   buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+    if ... && !button.textContent.trim()) {
       button.setAttribute('aria-label', 'Action button');
     }
   });
@@ -84,9 +84,9 @@ function getVersion() {
 // Implement the function for addressing new accessibility issues
 function addressAccessibilityIssues() {
   // Assuming we are adding an ARIA role to the dependencyGraph container
-  const dependencyGraph = document.querySelector('.dependencyGraph');
+  const dependencyGraph = ...
   if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'group');
+    ... 'group');
     // You might want to set other ARIA properties or check for more complex requirements from the insight report
   }
 =======
@@ -95,9 +95,9 @@ function addressAccessibilityIssues() {
 function addressAccessibilityIssues() {
   // TODO: Implement the function for addressing new accessibility issues
   const issues = [];
-  const elements = document.querySelectorAll('img');
-  elements.forEach((img) => {
-    if (!img.hasAttribute('alt')) {
+  const elements = ...
+  ... => {
+    if ... {
       issues.push({
         type: 'missing-alt',
         element: img,
@@ -106,13 +106,13 @@ function addressAccessibilityIssues() {
     }
   });
 
-  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
-  interactiveElements.forEach((el) => {
+  const interactiveElements = ... a, input, select, textarea');
+  ... => {
     const hasLabel =
       el.hasAttribute('aria-label') ||
-      el.hasAttribute('aria-labelledby') ||
+      ... ||
       el.textContent.trim().length > 0 ||
-      el.querySelector('[aria-label]') !== null;
+      ... !== null;
     if (!hasLabel) {
       issues.push({
         type: 'missing-accessible-name',
@@ -122,10 +122,10 @@ function addressAccessibilityIssues() {
     }
   });
 
-  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  const headings = ... h2, h3, h4, h5, h6');
   let previousLevel = 0;
   headings.forEach((heading) => {
-    const level = parseInt(heading.tagName.substring(1), 10);
+    const level = ... 10);
     if (previousLevel > 0 && level - previousLevel > 1) {
       issues.push({
         type: 'heading-skip',
@@ -136,7 +136,7 @@ function addressAccessibilityIssues() {
     previousLevel = level;
   });
 
-  if (document.documentElement.lang !== 'en' && !document.documentElement.hasAttribute('lang')) {
+  if (document.documentElement.lang !== 'en' && ... {
     issues.push({
       type: 'missing-lang',
       element: document.documentElement,
@@ -149,41 +149,41 @@ function addressAccessibilityIssues() {
     issues,
     summary: {
       missingAlt: issues.filter((i) => i.type === 'missing-alt').length,
-      missingAccessibleName: issues.filter((i) => i.type === 'missing-accessible-name').length,
-      headingSkips: issues.filter((i) => i.type === 'heading-skip').length,
+      missingAccessibleName: issues.filter((i) => i.type === ...
+      headingSkips: issues.filter((i) => i.type === ...
       missingLang: issues.filter((i) => i.type === 'missing-lang').length
     }
   };
 >>>>>>> origin/main
 
 // New accessibility enhancement: ensure root container has accessible name and create announcement region
-const rootContainer = document.getElementById('root').parentElement;
+const rootContainer = ...
 if (rootContainer) {
   rootContainer.setAttribute('role', 'main');
 }
 
 const announcementId = 'accessibility-announcement';
-const announcement = document.createElement('div');
+const announcement = ...
 announcement.id = announcementId;
-announcement.setAttribute('aria-live', 'polite');
-announcement.setAttribute('aria-atomic', 'true');
+... 'polite');
+... 'true');
 // Hide off-screen
 announcement.style.position = 'absolute';
 announcement.style.left = '-9999px';
 announcement.style.top = '-9999px';
-document.body.appendChild(announcement);
+...
 
 
 // Validate that tables in the document are accessible
 function validateTableAccessibility() {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   const results = [];
   
   tables.forEach((table, index) => {
-    const hasCaption = table.querySelector('caption') !== null;
+    const hasCaption = ... !== null;
     const hasHeaders = table.querySelector('th') !== null;
-    const hasScope = Array.from(table.querySelectorAll('th')).every(
-      th => th.hasAttribute('scope')
+    const hasScope = ...
+      th => ...
     );
     
     results.push({
@@ -200,11 +200,11 @@ function validateTableAccessibility() {
 
 // Validate the structure of tables in the document
 function validateTableStructure() {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   const results = [];
   
   tables.forEach((table, index) => {
-    const rows = table.querySelectorAll('tr');
+    const rows = ...
     let isValid = true;
     let error = null;
     
@@ -212,7 +212,7 @@ function validateTableStructure() {
       isValid = false;
       error = 'Table has no rows';
     } else {
-      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td, th').length);
+      const cellCounts = Array.from(rows).map(row => ... th').length);
       const allSame = cellCounts.every(count => count === cellCounts[0]);
       
       if (!allSame) {
@@ -232,36 +232,64 @@ function validateTableStructure() {
   return results;
 }
 
-// Export existing functionality
-export {
-  VERSION,
-  CONFIG,
-  initialize,
-  getConfig,
-  getVersion,
-  addressAccessibilityIssues,
-  root,
-  validateTableAccessibility,
-  validateTableStructure,
-  setupButtonAccessibility,
-  createInPageDepGraphButton,
-  renderDependencyGraph,
-  setupSkipLinks
-};
-
-// Add the new function to the default export
-export default {
-  VERSION,
-  CONFIG,
-  initialize,
-  getConfig,
-  getVersion,
-  addressAccessibilityIssues,
-  root,
-  validateTableAccessibility,
-  validateTableStructure,
-  setupButtonAccessibility,
-  createInPageDepGraphButton,
-  renderDependencyGraph,
-  setupSkipLinks
-};
+// Validate landmarks in the document for accessibility
+function validateLandmark() {
+  const issues = [];
+  
+  // Check for main landmark
+  const hasMainLandmark = document.querySelector('main, [role="main"]') !== null;
+  
+  if (!hasMainLandmark) {
+    issues.push({
+      type: 'missing-main-landmark',
+      element: null,
+      message: 'Document is missing a main landmark'
+    });
+  }
+  
+  // Check for navigation landmark
+  const hasNavLandmark = document.querySelector('nav, [role="navigation"], [role="nav"]') !== null;
+  
+  if (!hasNavLandmark) {
+    issues.push({
+      type: 'missing-nav-landmark',
+      element: null,
+      message: 'Document is missing a navigation landmark'
+    });
+  }
+  
+  // Check for multiple main landmarks (best practice is to have one)
+  const mainElements = Array.from(document.querySelectorAll('main, [role="main"]'));
+  if (mainElements.length > 1) {
+    mainElements.forEach((el, idx) => {
+      if (idx > 0) { // Skip the first one (it's okay to have one main)
+        issues.push({
+          type: 'multiple-main-landmarks',
+          element: el,
+          message: 'Document has multiple main landmarks; consider using only one'
+        });
+      }
+    });
+  }
+  
+  // Check for unlabeled landmarks (landmarks should have labels or be properly identified)
+  const landmarkSelectors = 'nav, [role="navigation"], [role="nav"], [role="banner"], [role="contentinfo"], [role="complementary"], aside, [role="region"]';
+  const unlabeledLandmarks = Array.from(document.querySelectorAll(landmarkSelectors)).filter(el => {
+    const hasLabel = el.hasAttribute('aria-label') || el.hasAttribute('aria-labelledby');
+    const hasId = el.id;
+    return !hasLabel && !hasId;
+  });
+  
+  unlabeledLandmarks.forEach(el => {
+    issues.push({
+      type: 'unlabeled-landmark',
+      element: el,
+      message: 'Landmark is missing an accessible label (aria-label or aria-labelledby)'
+    });
+  });
+  
+  return {
+    total: issues.length,
+    issues,
+    summary: {
+      missingMainLandmark: issues.filter((i) => i.type === 'missing-main-landmark').length

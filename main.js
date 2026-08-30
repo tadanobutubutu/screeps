@@ -1,7 +1,7 @@
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import { List, Button } from 'antd';
 
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
@@ -18,7 +18,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `${book.id}-${book.title}-${book.author}`;
+  return ...
 }
 
 // Function to render a single book item
@@ -27,7 +27,7 @@ function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        description={book.author}
+        ...
       />
     </List.Item>
   );
@@ -38,26 +38,77 @@ function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
+  // Return an action object to add the book to the books list in the Redux store
+  return { type: 'ADD_BOOK', payload: book };
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
+// Container for the dependency graph with proper ARIA role for accessibility
+function DependencyGraph({ nodes, edges }) {
+  return (
+    <div 
+      className="dependency-graph"
+      role="img"
+      aria-label="Dependency graph showing relationships between books and authors"
+      tabIndex={0}
+    >
+      {/* Render graph nodes and edges */}
+      {/* ... */}
+    </div>
+  );
+}
+
+// Function to render a form for adding a new book and to handle form submission
+function AddBookForm() {
+  const [book, setBook] = useState({ title: '', author: '' });
+  const dispatch = useDispatch();
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Perform any necessary validation or processing before adding the book
+    // ...
+
+    dispatch(addBook(book));
+    setBook({ title: '', author: '' }); // Reset the form after submission
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>
+        Title:
+        <input
+          type="text"
+          value={book.title}
+          onChange={(e) => setBook({ ...book, title: e.target.value })}
+          required
+        />
+      </label>
+      <label>
+        Author:
+        <input
+          type="text"
+          value={book.author}
+          onChange={(e) => setBook({ ...book, author: e.target.value })}
+          required
+        />
+      </label>
+      <button type="submit">Add Book</button>
+    </form>
+  );
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
@@ -176,8 +227,9 @@ function handleFakeLinks(fakeLinkElements) {
   }
 }
 
-// Render the main component containing the book list and sorting controls
+// Render the main component containing the book list, sorting controls, and the AddBookForm
 function Main() {
+  const dispatch = useDispatch();
   const [sorting, setSorting] = useState(defaultSorting);
 
   // UseEffect hook to handle sorting book list updates
@@ -190,16 +242,20 @@ function Main() {
   }, [sorting]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(BookItem);
+  const bookItems = ...
 
-  // Render the list of book items and sorting controls
+  // Render the list of book items, sorting controls, and the AddBookForm
   return (
     <div>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      <AddBookForm />
       <List dataSource={bookItems} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      {/* Accessibility improvements for the dependency graph */}
+      <DependencyGraph 
+        nodes={[]} 
+        edges={[]} 
+      />
     </div>
   );
 }

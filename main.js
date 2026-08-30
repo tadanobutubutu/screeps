@@ -152,8 +152,9 @@ export const logger = {
   }
 };
 
+// Accessibility store for managing accessibility-related state
 const a11yStore = {
-  // ... existing code (from both conflicting branches)
+  liveRegion: null,
 
   // New function to handle dynamic content updates
   updateLiveRegion(message, priority = 'polite') {
@@ -161,22 +162,30 @@ const a11yStore = {
     this.announce(message, priority);
   },
 
+  announce(message, priority = 'polite') {
+    // Implementation for announcing messages
+    console.log(`[${priority}] ${message}`);
+  },
+
   // Game loop function
   run() {
     // Your game logic here...
 
     // Update scope attributes in all .html files in the views directory
-    const viewsDir = path.join(__dirname, 'views');
-    fs.readdirSync(viewsDir)
-      .filter(file => file.endsWith('.html'))
-      .forEach(file => {
-        const filePath = path.join(viewsDir, file);
-        updateThScopeAttribute(filePath);
-      });
+    if (typeof path !== 'undefined' && typeof fs !== 'undefined') {
+      const viewsDir = path.join(__dirname, 'views');
+      fs.readdirSync(viewsDir)
+        .filter(file => file.endsWith('.html'))
+        .forEach(file => {
+          const filePath = path.join(viewsDir, file);
+          updateThScopeAttribute(filePath);
+        });
+    }
   },
 
   // New function to check landmark elements
   checkLandmarkElements() {
+    if (typeof document === 'undefined') return;
     const landmarkElements = [...document.querySelectorAll('[role="landmark"]')];
     landmarkElements.forEach((landmark, index) => {
       // Ensure landmark has a unique ID
@@ -189,13 +198,9 @@ const a11yStore = {
         landmark.setAttribute('aria-label', `${landmarkElements[index].nodeName.toLowerCase()}-${index + 1}`);
       }
     });
-  },
-
-  // ... existing code (from both conflicting branches)
+  }
 };
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
@@ -215,7 +220,6 @@ const a11yStore = {
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
 // Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
@@ -258,7 +262,7 @@ var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
 
 // Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
-function addressAccessibilityIssues() {
+export function addressAccessibilityIssues() {
   // Internationalization support
   const translations = {
     'en': {
@@ -352,4 +356,15 @@ module.exports.loop = function() {
 
     if(harvesters.length < 2) {
         var newName = 'Harvester' + Game.time;
-        Game.sp
+        Game.spawns['Spawn1'].createCreep(body, newName, {
+            role: 'harvester'
+        });
+    }
+
+    if(upgraders.length < 2) {
+        var newName = 'Upgrader' + Game.time;
+        Game.spawns['Spawn1'].createCreep(body, newName, {
+            role: 'upgrader'
+        });
+    }
+};

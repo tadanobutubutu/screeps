@@ -283,6 +283,76 @@ function addressAccessibilityIssues(insightReport) {
   }
 }
 
+// New function for REACT_015 and REACT_036 - Add lang attribute and fix fake link issues
+function personName(personData) {
+  // Creates a person name element with proper accessibility attributes
+  const nameElement = document.createElement('span');
+  nameElement.setAttribute('role', 'button');
+  nameElement.setAttribute('aria-label', personData?.name || 'Unknown Person');
+  nameElement.textContent = personData?.name || 'Unknown';
+  
+  // Add lang attribute for proper language identification
+  const lang = getLangAttribute();
+  nameElement.setAttribute('lang', lang);
+  
+  return nameElement;
+}
+
+// New function for REACT_041 - Add accessible names to SVGs
+function addSvgAccessibleNames(svgElements) {
+  // Add accessible names to SVG elements
+  if (Array.isArray(svgElements)) {
+    svgElements.forEach((svg) => {
+      if (svg && typeof svg === 'object') {
+        const accessibleName = getSvgAccessibleName(svg);
+        setSvgAttributes(svg, accessibleName);
+      }
+    });
+  } else if (svgElements && typeof svgElements === 'object') {
+    const accessibleName = getSvgAccessibleName(svgElements);
+    setSvgAttributes(svgElements, accessibleName);
+  }
+}
+
+// New function for REACT_025 - Ensure all landmarks are unique
+function ensureAllLandmarksUnique(documentRoot) {
+  // Track seen landmarks to ensure uniqueness
+  const seenLandmarks = new Map();
+  const landmarkElements = documentRoot.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="region"]');
+  
+  landmarkElements.forEach((element) => {
+    const role = element.getAttribute('role');
+    const existingCount = seenLandmarks.get(role) || 0;
+    
+    if (existingCount > 0) {
+      // Add unique identifier to duplicate landmarks
+      element.setAttribute('aria-label', `${role}-${existingCount + 1}`);
+    }
+    
+    seenLandmarks.set(role, existingCount + 1);
+  });
+  
+  return seenLandmarks;
+}
+
+// New function for ADD: Address new accessibility issues from insight report
+function addProperLandmarkRegions(documentRoot) {
+  // Add proper landmark regions to the document
+  const landmarks = {
+    main: documentRoot.querySelector('main, [role="main"]'),
+    navigation: documentRoot.querySelector('nav, [role="navigation"]'),
+    banner: documentRoot.querySelector('header, [role="banner"]'),
+    contentinfo: documentRoot.querySelector('footer, [role="contentinfo"]'),
+    complementary: documentRoot.querySelector('aside, [role="complementary"]')
+  };
+  
+  // Validate and fix landmark structure
+  validateLandmarkStructure();
+  validateLandmarkAttributes();
+  
+  return landmarks;
+}
+
 // TODO: Add back any required exports that might have been removed
 // For example, if a function called 'someFunction' was required elsewhere
 // function someFunction() {
@@ -329,11 +399,14 @@ module.exports = {
   getSvgAccessibleName,
   setSvgAttributes,
   ensureUniqueLandmarks,
+  ensureAllLandmarksUnique,
   createInPageButton,
   validateLinkAccessibility,
   handleFakeLinks,
   addLandmarkRegions,
   addProperLandmarkRegions,
+  personName,
+  addSvgAccessibleNames,
   main,
   mainExecution,
 };

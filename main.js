@@ -285,5 +285,13 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  transformInputData,
+  newFocusTrap,
+  processData,
+  filterValidItems,
+  groupByCategory,
+  sanitizeFilename,
+  readFileSafe,
+  log
 };

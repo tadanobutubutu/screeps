@@ -7,6 +7,77 @@
 
 // Existing code ends here
 
+// TODO: Implement harvest and upgrade logic
+/**
+ * Harvests resources from a source and carries them back
+ * @param {Object} creep - The creep performing the harvest action
+ * @param {Object} source - The source to harvest from
+ * @returns {number} Result code from the harvest action
+ */
+function harvest(creep, source) {
+  if (!creep || !source) {
+    return -1;
+  }
+  
+  if (creep.store.getFreeCapacity() === 0) {
+    return ERR_FULL;
+  }
+  
+  const result = creep.harvest(source);
+  return result;
+}
+
+/**
+ * Upgrades the room controller using energy from the creep
+ * @param {Object} creep - The creep performing the upgrade action
+ * @returns {number} Result code from the upgrade action
+ */
+function upgradeController(creep) {
+  if (!creep || !creep.room || !creep.room.controller) {
+    return -1;
+  }
+  
+  if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
+    return ERR_NOT_ENOUGH_RESOURCES;
+  }
+  
+  const result = creep.upgradeController(creep.room.controller);
+  return result;
+}
+
+/**
+ * Main logic for harvesting and upgrading
+ * @param {Object} creep - The creep to run logic for
+ */
+function runHarvestAndUpgradeLogic(creep) {
+  if (!creep) {
+    return;
+  }
+  
+  const controller = creep.room.controller;
+  
+  // If creep is full or has no energy, try to upgrade
+  if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
+    // Go harvest
+    const sources = creep.room.find(FIND_SOURCES);
+    if (sources.length > 0) {
+      // Find the closest source with available space
+      const target = creep.pos.findClosestByPath(sources);
+      if (target) {
+        harvest(creep, target);
+      }
+    }
+  } else {
+    // Upgrade the controller if we're close enough
+    if (controller && creep.pos.inRangeTo(controller, 3)) {
+      upgradeController(creep);
+    } else if (controller) {
+      // Move towards the controller
+      creep.moveTo(controller, { reusePath: 10 });
+    }
+  }
+}
+
 // TODO: This is the existing code that needs to be preserved
 // (This should be preserved)
 // Addressed accessibility issues from insight report
@@ -636,7 +707,10 @@ export {
   addSvgAccessibleNames,
   ensurePageUniqueLandmarks,
   fixFakeLink,
-  initializeAccessibility
+  initializeAccessibility,
+  harvest,
+  upgradeController,
+  runHarvestAndUpgradeLogic
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
@@ -658,6 +732,9 @@ module.exports.addSvgAccessibleNames = addSvgAccessibleNames;
 module.exports.ensurePageUniqueLandmarks = ensurePageUniqueLandmarks;
 module.exports.fixFakeLink = fixFakeLink;
 module.exports.initializeAccessibility = initializeAccessibility;
+module.exports.harvest = harvest;
+module.exports.upgradeController = upgradeController;
+module.exports.runHarvestAndUpgradeLogic = runHarvestAndUpgradeLogic;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
@@ -680,70 +757,3 @@ function getConfig() {
     timeout: 5000
   };
 }
-=======
-import React from 'react';
-import PropTypes from 'prop-types';
-
-// TODO: Address any missing required exports
-// REACT_015: Add lang attribute
-
-const Main = ({ children, title, lang = 'en' }) => {
-  return (
-    <main role="main" lang={lang}>
-      {title && <h1>{title}</h1>}
-      {children}
-    </main>
-  );
-};
-
-Main.propTypes = {
-  children: PropTypes.node,
-  title: PropTypes.string,
-  lang: PropTypes.string,
-};
-
-export default Main;
-export { Main };
->>>>>>> origin/main
-
-// Resolved file content (HEAD version - vanilla JS accessibility utilities):
-// This is the complete main.js file with all accessibility functions preserved
-// and the React component removed as it's incompatible with the vanilla JS code.
-
-// Existing code starts here
-
-// This is the existing code that needs to be preserved
-// (This comment remains as-is)
-
-// More existing code that should be preserved
-
-// Existing code ends here
-
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
-// Addressed accessibility issues from insight report
-
-// ... (other code in main.js)
-
-/**
- * Checks if a specified landmark element is present in the document.
- * @param {string} id - The ID of the landmark element to check for.
- * @returns {boolean} True if the landmark element exists, false otherwise.
- */
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  if (!element) {
-    return false;
-  }
-  
-  // Validate that the landmark has required properties
-  if (element.getAttribute('name') && element.getAttribute('coordinates')) {
-    return true;
-  }
-  
-  return false;
-}
-
-/**
- * Checks accessibility of tables in the document.
- * Ensures that <th> elements

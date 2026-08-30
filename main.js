@@ -13,7 +13,7 @@ export function calculateSum(a, b) {
 // Below is the existing code (preserving syntax and existing exports)
 // ...
 
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+const HTML = ({ lang }) => React.createElement('html', { lang }, '/* other children */');
 
 // ... (existing code, exports, and functions)
 
@@ -393,20 +393,23 @@ if (require.main === module) {
 // const report = getInsightReport(); // Hypothetical function to get the insight report
 // addressAccessibilityIssues(report);
 
-export default function App() {
-  const MyApp = () => {
-    // Your app functionality here
-  };
+const MyApp = () => {
+  // Your app functionality here
+};
 
-  return (
-    <HTML lang="en">
-      <React.Fragment>
-        <MyApp />
-        {/* Render your HTML structure */}
-      </React.Fragment>
-    </HTML>
+function App() {
+  return React.createElement(
+    HTML,
+    { lang: 'en' },
+    React.createElement(
+      React.Fragment,
+      null,
+      React.createElement(MyApp, null)
+    )
   );
 }
+
+export default App;
 
 module.exports = {
   config,

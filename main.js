@@ -3,6 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
 
+// Import dependency graph and index content from appropriate modules
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
+
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
 
@@ -49,6 +53,24 @@ function generateKey(book) {
   return book.id || `${book.title}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
+// Function to render dependency graph content
+function renderDependencyGraph() {
+  return (
+    <div className="dependency-graph">
+      {dependencyGraphContent}
+    </div>
+  );
+}
+
+// Function to render index view content
+function renderIndexView() {
+  return (
+    <div className="index-view">
+      {indexContent}
+    </div>
+  );
+}
+
 // Function to count dependencies
 function countDependencies() {
   const dependencies = ['react', 'react-redux', 'antd'];
@@ -61,7 +83,7 @@ function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        description={book.author}
+        ...
       />
     </List.Item>
   );
@@ -84,14 +106,14 @@ const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }

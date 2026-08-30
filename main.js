@@ -1,25 +1,8 @@
-Here is the resolved version of the `main.js` file:
-
-```javascript
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List, Button, Input, Form } from 'antd';
 import { sortByTitle, sortByAuthor } from './sortingFunctions';
-
-// Function to handle sorting books by title (ascending)
-export function onTitleSort() {
-  const sortedList = yourSortingFunctionHere();
-  const dispatch = useDispatch();
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
-}
-
-// Function to handle sorting books by author (descending)
-export function onAuthorSort() {
-  const sortedList = yourSortingFunctionHere();
-  const dispatch = useDispatch();
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-}
 
 // Function to generate a key for each book item
 function generateKey(book) {
@@ -171,6 +154,3 @@ function Main() {
 }
 
 export default Main;
-```
-
-This resolved version combines the changes from both conflicting versions, keeping the ant design implementation and the accessibility improvements. Ensure the separate `sortingFunctions.js` file is exporting the sorting functions needed by this file (`sortByTitle` and `sortByAuthor`).

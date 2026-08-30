@@ -1,4 +1,3 @@
-// Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
   
@@ -189,8 +188,51 @@ function ensureLandmarkUniqueness(elements) {
   return uniqueElements;
 }
 
-function ensureUniqueLandmarks() {
-  return {};
+function ensureUniqueLandmarks(doc) {
+  const results = {
+    duplicates: [],
+    fixed: [],
+    valid: true
+  };
+
+  const docToCheck = doc || (typeof document !== 'undefined' ? document : null);
+  if (!docToCheck || !docToCheck.body) {
+    return results;
+  }
+
+  const landmarkTags = ['header', 'main', 'nav', 'aside', 'section', 'article', 'footer'];
+  const selector = landmarkTags.join(', ');
+  const landmarks = docToCheck.querySelectorAll(selector);
+
+  const landmarkCounts = {};
+  landmarks.forEach(landmark => {
+    const tag = landmark.tagName.toLowerCase();
+    landmarkCounts[tag] = (landmarkCounts[tag] || 0) + 1;
+  });
+
+  // Check for duplicates and add unique identifiers
+  const tagCounts = {};
+  landmarks.forEach(landmark => {
+    const tag = landmark.tagName.toLowerCase();
+    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+
+    if (tagCounts[tag] > 1) {
+      results.duplicates.push({
+        tag: tag,
+        element: landmark,
+        count: tagCounts[tag]
+      });
+
+      // Add a unique aria-label to differentiate
+      if (!landmark.hasAttribute('aria-label')) {
+        landmark.setAttribute('aria-label', `${tag} ${tagCounts[tag]}`);
+        results.fixed.push(landmark);
+      }
+    }
+  });
+
+  results.valid = results.duplicates.length === 0;
+  return results;
 }
 
 function validateSvgAccessibility() {
@@ -215,20 +257,42 @@ function processUniqueElements() {
 
 function addressInsightIssues(insightReport) {
   const issues = insightReport && insightReport.issues ? insightReport.issues : [];
+  const results = {
+    addressed: [],
+    failed: [],
+    totalIssues: issues.length
+  };
+
   issues.forEach(issue => {
-    if (issue.code === 'REACT_025') {
-      ensureUniqueLandmarks();
-    }
-    if (issue.code === 'REACT_017') {
-      const affectedElements = issue.elements || [];
-      affectedElements.forEach(el => {
-        if (!el['aria-label'] && !el.label) {
-          el['aria-label'] = el.id || 'unnamed-element';
-        }
+    try {
+      if (issue.code === 'REACT_025') {
+        const uniquenessResults = ensureUniqueLandmarks();
+        results.addressed.push({
+          code: issue.code,
+          result: uniquenessResults
+        });
+      }
+      if (issue.code === 'REACT_017') {
+        const affectedElements = issue.elements || [];
+        affectedElements.forEach(el => {
+          if (!el['aria-label'] && !el.label) {
+            el['aria-label'] = el.id || 'unnamed-element';
+          }
+        });
+        results.addressed.push({
+          code: issue.code,
+          elementCount: affectedElements.length
+        });
+      }
+    } catch (error) {
+      results.failed.push({
+        code: issue.code,
+        error: error.message
       });
-      const react017Elements = issue.elements || [];
     }
   });
+
+  return results;
 }
 
 function renderDependencyGraph(dependencyData) {

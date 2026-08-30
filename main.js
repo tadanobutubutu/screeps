@@ -1,21 +1,11 @@
-// main.js - Main application file
+const main = require('./utilities');
 
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-
-// Configuration
-const CONFIG = {
-  port: process.env.PORT || 3000,
-  host: process.env.HOST || 'localhost',
-  maxRetries: 3,
-  timeout: 5000
-};
+const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap } = main;
 
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+  console.log(`${timestamp} [${level.toUpperCase()}]: ${message}`);
 }
 
 function validateInput(input) {
@@ -41,28 +31,153 @@ function formatResponse(data, statusCode = 200) {
   };
 }
 
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+// Implement the function for addressing accessibility issues from insight report
+function implementAccessibilityFixesFromReport(container, report) {
+  const fixes = {
+    langAdded: false,
+    mainLandmarkAdded: false,
+    landmarksFixed: 0,
+    svgNamesAdded: 0,
+    fakeLinksFixed: 0
+  };
 
-async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
-  let lastError;
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      return await operation();
-    } catch (error) {
-      lastError = error;
-      log(`Attempt ${i + 1} failed: ${error.message}`, 'warn');
-      if (i < maxRetries - 1) {
-        await delay(1000 * (i + 1));
+  if (!report || !report.issues) {
+    return fixes;
+  }
+
+  // Fix lang attribute on HTML element
+  if (report.issues.missingLang) {
+    const htmlElement = container.querySelector('html') || container.ownerDocument?.querySelector('html');
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+      htmlElement.setAttribute('lang', 'en');
+      fixes.langAdded = true;
+    }
+  }
+
+  // Add main landmark if missing
+  if (report.issues.missingMainLandmark) {
+    const mainElements = container.querySelectorAll('main, [role="main"]');
+    if (mainElements.length === 0) {
+      // Try to convert the first section to main
+      const firstSection = container.querySelector('section');
+      if (firstSection) {
+        // Create a new main element and move content into it
+        const mainElement = container.ownerDocument.createElement('main');
+        while (firstSection.firstChild) {
+          mainElement.appendChild(firstSection.firstChild);
+        }
+        firstSection.parentNode.insertBefore(mainElement, firstSection);
+        firstSection.remove();
+        fixes.mainLandmarkAdded = true;
       }
     }
   }
-  throw lastError;
+
+  // Fix landmarks by ensuring proper roles and accessible names
+  if (report.issues.landmarkIssues && Array.isArray(report.issues.landmarkIssues)) {
+    const uniqueLandmarksFixed = new Set();
+    
+    report.issues.landmarkIssues.forEach(issue => {
+      if (issue.selector && !uniqueLandmarksFixed.has(issue.selector)) {
+        const element = container.querySelector(issue.selector);
+        if (element) {
+          // Add accessible name if missing
+          if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+            const role = element.getAttribute('role') || element.tagName.toLowerCase();
+            
+            // Try to get label from surrounding context
+            const previousSibling = element.previousElementSibling;
+            if (previousSibling && previousSibling.textContent.trim()) {
+              const labelId = `landmark-label-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+              const labelSpan = container.ownerDocument.createElement('span');
+              labelSpan.id = labelId;
+              labelSpan.textContent = previousSibling.textContent.trim();
+              labelSpan.style.display = 'none';
+              element.parentNode.insertBefore(labelSpan, element);
+              element.setAttribute('aria-labelledby', labelId);
+            } else {
+              // Use role as fallback label
+              const roleLabel = role.charAt(0).toUpperCase() + role.slice(1).replace(/[^a-zA-Z]/g, ' ');
+              element.setAttribute('aria-label', roleLabel);
+            }
+            uniqueLandmarksFixed.add(issue.selector);
+            fixes.landmarksFixed++;
+          }
+        }
+      }
+    });
+  }
+
+  // Add accessible names to SVGs
+  if (report.issues.svgIssues && Array.isArray(report.issues.svgIssues)) {
+    report.issues.svgIssues.forEach(issue => {
+      const svg = container.querySelector(issue.selector);
+      if (svg && svg.tagName.toLowerCase() === 'svg') {
+        // Check if SVG already has an accessible name
+        if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+          // Look for a title element within the SVG
+          let titleElement = svg.querySelector('title');
+          
+          if (!titleElement) {
+            // Create a title element
+            titleElement = container.ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'title');
+            const titleId = `svg-title-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            titleElement.id = titleId;
+            titleElement.textContent = issue.suggestedName || 'Decorative SVG';
+            
+            // Insert title as first child of SVG
+            if (svg.firstChild) {
+              svg.insertBefore(titleElement, svg.firstChild);
+            } else {
+              svg.appendChild(titleElement);
+            }
+            
+            svg.setAttribute('aria-labelledby', titleId);
+            fixes.svgNamesAdded++;
+          }
+        }
+      }
+    });
+  }
+
+  // Fix fake links (elements that look like links but aren't)
+  if (report.issues.fakeLinkIssues && Array.isArray(report.issues.fakeLinkIssues)) {
+    const uniqueFakeLinksFixed = new Set();
+    
+    report.issues.fakeLinkIssues.forEach(issue => {
+      if (issue.selector && !uniqueFakeLinksFixed.has(issue.selector)) {
+        const element = container.querySelector(issue.selector);
+        if (element) {
+          // Check if this element should be a link or a button
+          const isNavigation = element.closest('nav') !== null;
+          
+          if (isNavigation || element.tagName.toLowerCase() === 'a') {
+            // Convert to proper link with href
+            if (!element.hasAttribute('href')) {
+              element.setAttribute('href', '#' + (element.id || `link-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`));
+              element.setAttribute('role', 'link');
+              uniqueFakeLinksFixed.add(issue.selector);
+              fixes.fakeLinksFixed++;
+            }
+          } else {
+            // Convert to button
+            element.setAttribute('role', 'button');
+            if (!element.hasAttribute('tabindex')) {
+              element.setAttribute('tabindex', '0');
+            }
+            uniqueFakeLinksFixed.add(issue.selector);
+            fixes.fakeLinksFixed++;
+          }
+        }
+      }
+    });
+  }
+
+  return fixes;
 }
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-z0-9.-]/gi, '_');
+  return filename.replace(/[^a-zA-Z0-9._-]/g, '_');
 }
 
 function readFileSafe(filePath) {
@@ -120,30 +235,29 @@ function transformInputData(inputData, options = {}) {
     return null;
   }
 
-  if (typeof inputData === 'string') {
-    let result = trimWhitespace ? inputData.trim() : inputData;
-    result = uppercase ? result.toUpperCase() : result;
-    if (maxLength && result.length > maxLength) {
-      result = result.substring(0, maxLength);
-    }
-    return result;
+  let result = inputData;
+
+  if (trimWhitespace && typeof result === 'string') {
+    result = result.trim();
   }
 
-  if (Array.isArray(inputData)) {
-    return inputData.map(item => transformInputData(item, options));
+  if (uppercase && typeof result === 'string') {
+    result = result.toUpperCase();
   }
 
-  if (typeof inputData === 'object' && inputData !== null) {
-    const result = {};
-    for (const [key, value] of Object.entries(inputData)) {
-      let newKey = preserveKeys ? key : key.trim();
-      newKey = uppercase ? newKey.toUpperCase() : newKey;
-      result[newKey] = transformInputData(value, options);
-    }
-    return result;
+  if (maxLength !== null && typeof result === 'string' && result.length > maxLength) {
+    result = result.substring(0, maxLength);
   }
 
-  return inputData;
+  if (preserveKeys && typeof result === 'object') {
+    return {
+      ...result,
+      processed: true,
+      timestamp: Date.now()
+    };
+  }
+
+  return result;
 }
 
 // Additional utility functions for accessibility
@@ -234,7 +348,7 @@ function validateTableStructure(tableElement) {
   
   // Check for caption if table has headers
   const caption = tableElement.querySelector('caption');
-  const hasHeaders = tableElement.querySelector('th');
+  const hasHeaders = tableElement.querySelectorAll('th').length > 0;
   if (hasHeaders && !caption) {
     errors.push('Table with header cells should have a caption');
   }
@@ -249,7 +363,7 @@ function validateTableStructure(tableElement) {
   // Check for proper row structure
   const rows = tableElement.querySelectorAll('tr');
   rows.forEach((row, index) => {
-    const cells = row.querySelectorAll('th, td');
+    const cells = row.querySelectorAll('td, th');
     if (cells.length === 0) {
       errors.push(`Row at index ${index} has no cells`);
     }
@@ -281,14 +395,14 @@ function calculateSum(numbers) {
 }
 
 // Export all functions
+
 module.exports = {
-  CONFIG,
+  ...main,
+
   log,
   validateInput,
   parseJSONsafe,
   formatResponse,
-  delay,
-  retryOperation,
   sanitizeFilename,
   readFileSafe,
   processData,
@@ -301,5 +415,7 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   addressAccessibilityIssues,
-  calculateSum
+  calculateSum,
+  implementAccessibilityFixesFromReport,
+  focusTrap
 };

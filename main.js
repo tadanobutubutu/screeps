@@ -1,6 +1,6 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
-const Landmark = require('./Landmark');
+const Landmark = require('./landmark.js'); // Import Landmark module
 
 import './styles.css';
 import { initializeApp, appData } from './app.js';
@@ -8,17 +8,7 @@ import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
 
 // Function to create in-page buttons
-const createInPageButton = (options: {
-  onClick: () => void;
-  label: string;
-  icon: string;
-  disabled?: boolean;
-  isActive?: boolean;
-  hoverState: boolean;
-  setHoverState: (value: boolean) => void;
-  ariaLabel?: string;
-  title?: string;
-}) => {
+const createInPageButton = (options) => {
   const { onClick, label, icon, disabled = false, isActive = false, hoverState, setHoverState, ariaLabel, title } = options;
 
   const getBackgroundColor = () => {
@@ -54,7 +44,7 @@ const createInPageButton = (options: {
         filter: hoverState ? 'brightness(1.1)' : 'none',
       }}
     >
-      <span aria-hidden="true">{icon}</span>
+      <span>{icon}</span>
       <span> {label}</span>
     </button>
   );
@@ -83,14 +73,14 @@ function processLandmarks(landmarks) {
   return ensureUniqueLandmarks(validLandmarks);
 }
 
-function addLangAttribute(htmlElement) {
+function addLangAttribute(htmlElement, lang = 'en') {
   if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
-    console.error('addLangAttribute: Invalid HTML element provided');
+    console.error('Invalid HTML element provided');
     return;
   }
 
-  if (!htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
+  if (lang) {
+    htmlElement.lang = lang; // Default to English if not specified
   }
 }
 
@@ -98,7 +88,7 @@ function addLangAttribute(htmlElement) {
 // @param {string} id - The ID of the landmark element.
 // @returns {boolean} Returns true if the element exists; otherwise, false.
 function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
+  const element = document.querySelector(`#${id}`);
   return element !== null;
 }
 

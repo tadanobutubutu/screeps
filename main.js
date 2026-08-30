@@ -257,6 +257,54 @@ function getActiveSessionsCount() {
 const http = require('http');
 const url = require('url');
 
+/**
+ * Validate landmark accessibility and structure
+ * @param {Object} landmark - The landmark element to validate
+ * @param {Object} options - Validation options
+ * @returns {Object} Validation result with isValid and issues properties
+ */
+function validateLandmark(landmark, options = {}) {
+  if (!landmark || typeof landmark !== 'object') {
+    return {
+      isValid: false,
+      issues: ['Invalid landmark provided']
+    };
+  }
+
+  const issues = [];
+  const {
+    role,
+    label,
+    describedby,
+    hasAccessibleName = true,
+    ...restProps
+  } = landmark;
+
+  // Check if landmark has proper role
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
+  if (!role || !landmarkRoles.includes(role)) {
+    issues.push('Landmark must have a valid ARIA role');
+  }
+
+  // Check for accessible name (label or aria-label)
+  if (hasAccessibleName) {
+    if (!label && !restProps['aria-label']) {
+      issues.push('Landmark must have an accessible name (label or aria-label)');
+    }
+  }
+
+  // Check for proper landmark structure
+  if (restProps.children && !Array.isArray(restProps.children)) {
+    issues.push('Landmark children should be an array');
+  }
+
+  // Return validation result
+  return {
+    isValid: issues.length === 0,
+    issues: issues
+  };
+}
+
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     
@@ -381,5 +429,6 @@ module.exports = {
     getActiveSessionsCount,
     server,
     sanitizeFilename,
-    processData
+    processData,
+    validateLandmark
 };

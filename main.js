@@ -155,3 +155,27 @@ function fixFakeLinkIssues() {
 function createAccessibleLink() {
     // Create accessible link
 }
+
+// Added functions for REACT_017 and REACT_025 support
+function getFullLangAttribute() {
+    const lang = getLangAttribute();
+    const name = personName();
+    return `${lang}-${name.toLowerCase().replace(/\s+/g, '-')}`;
+}
+
+function createInPageButton() {
+    // Create an accessible in-page button for navigation
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Navigate to section');
+    return button;
+}
+
+function handleAccessibilityIssues() {
+    // Handle accessibility issues dynamically
+    validateLandmark();
+    validateLandmarkStructure();
+    ensureUniqueLandmarks();
+    fixFakeLinkIssues();
+    addFixLandmarkIssues();
+}

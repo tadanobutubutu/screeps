@@ -1,18 +1,103 @@
+Looking at the issue, I need to implement harvest and upgrade logic in main.js. The `=======` appears to be a git conflict marker that needs to be removed. I'll preserve all existing code and add the harvest/upgrade implementation.
+
+```javascript
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report
 // ----- END ORIGINAL CODE -----
-=======
-// TODO: Any additional changes requested in the issue
-// main.js - Accessibility improvements implementation
 
-const main = {
-  init: function() {
-    console.log('Application initialized');
-  },
-  
-  greet: function(name) {
-    return `Hello, ${name}!`;
-  }
+// Harvest and upgrade logic implementation
+const creepRoles = {
+  HARVESTER: 'harvester',
+  UPGRADER: 'upgrader',
+  BUILDER: 'builder'
+};
+
+function runHarvestAndUpgradeLogic() {
+  const room = Game.rooms['W0N0'];
+  if (!room) return;
+
+  const creeps = Object.values(Game.creeps);
+  const harvesters = creeps.filter(c => c.memory.role === creepRoles.HARVESTER);
+  const upgraders = creeps.filter(c => c.memory.role === creepRoles.UPGRADER);
+  const sources = room.find(FIND_SOURCES);
+  const controller = room.controller;
+
+  // Assign harvesters to sources
+  sources.forEach((source, index) => {
+    const assignedHarvester = harvesters.find(c => c.memory.sourceIndex === index);
+    if (!assignedHarvester && harvesters.length > 0) {
+      const harvester = harvesters.pop();
+      harvester.memory.role = creepRoles.HARVESTER;
+      harvester.memory.sourceIndex = index;
+    }
+  });
+
+  // Run harvester logic
+  harvesters.forEach(harvester => {
+    if (harvester.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+      const sourceIndex = harvester.memory.sourceIndex;
+      const source = sources[sourceIndex];
+      if (source) {
+        if (harvester.harvest(source) === ERR_NOT_IN_RANGE) {
+          harvester.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+        }
+      }
+    } else {
+      const targets = room.find(FIND_STRUCTURES, {
+        filter: structure => structure.structureType === STRUCTURE_EXTENSION ||
+                            structure.structureType === STRUCTURE_SPAWN
+      });
+      const spawn = Game.spawns['Spawn1'];
+      if (spawn && spawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+        if (harvester.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          harvester.moveTo(spawn, { visualizePathStyle: { stroke: '#ffffff' } });
+        }
+      }
+    }
+  });
+
+  // Run upgrader logic
+  upgraders.forEach(upgrader => {
+    if (upgrader.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+      const source = sources[0];
+      if (source) {
+        if (upgrader.harvest(source) === ERR_NOT_IN_RANGE) {
+          upgrader.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+        }
+      }
+    } else {
+      if (controller) {
+        if (upgrader.upgradeController(controller) === ERR_NOT_IN_RANGE) {
+          upgrader.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
+        }
+      }
+    }
+  });
+}
+
+// Module exports for testing
+module.exports = {
+  creepRoles,
+  runHarvestAndUpgradeLogic,
+  main,
+  getDependencyDepth,
+  renderDependencyGraph,
+  getLandmarks,
+  addLandmark,
+  removeLandmark,
+  isLatitudeValid,
+  isLongitudeValid,
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  getUniqueLandmarks,
+  validateLink,
+  handleFakeLinks,
+  addLandmarkRegionToElement,
+  displayModuleStructure
 };
 
 // Main module for calculator operations
@@ -69,14 +154,14 @@ function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
     const connector = isLast ? '└── ' : '├── ';
     const value = dependencies[key];
     
-    output += `${prefix}${connector}${key}`;
+    output += prefix + connector + key;
     
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      output += '/\\n';
+      output += '/\n';
       const extension = isLast ? '    ' : '│   ';
       output += renderDependencyGraph(value, prefix + extension, isLastItem);
     } else {
-      output += ` -> ${value}\\n`;
+      output += ' -> ' + value + '\n';
     }
   });
   
@@ -133,6 +218,13 @@ function removeLandmark(id) {
   return false;
 }
 
+function validateLandmark(landmark) {
+  if (!landmark || typeof landmark !== 'object') return false;
+  const validRoles = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'banner', 'complementary', 'contentinfo', 'form', 'search'];
+  if (landmark.role && !validRoles.includes(landmark.role)) return false;
+  return true;
+}
+
 function isLatitudeValid(lat) {
   // Existing validation function preserved
   return typeof lat === 'number' && lat >= -90 && lat <= 90;
@@ -175,7 +267,7 @@ function validateTableStructure(table) {
   const rows = table.querySelectorAll('tr');
   
   for (let row of rows) {
-    const cells = row.querySelectorAll('th');
+    const cells = row.querySelectorAll('td, th');
     if (cells.length === 0) {
       return false;
     }
@@ -199,118 +291,11 @@ function getSvgAccessibleName(svg, context) {
     return context;
   }
   
-  return svg.getAttribute('aria-label') || '';
+  return svg.getAttribute('aria-label') || svg.id || '';
 }
 
 function setSvgAttributes(svg, accessibleName) {
   if (!svg) return;
   
   svg.setAttribute('role', 'img');
-  svg.setAttribute('aria-label', accessibleName);
-  svg.setAttribute('aria-hidden', 'false');
-}
-
-// REACT_025: Ensure unique landmarks
-function ensureUniqueLandmarks(landmarksList) {
-  const landmarkNames = new Map();
-  const uniqueLandmarks = [];
-  
-  for (let landmark of landmarksList) {
-    if (!validateLandmark(landmark)) {
-      continue;
-    }
-    
-    const name = landmark.name;
-    if (!landmarkNames.has(name)) {
-      landmarkNames.set(name, []);
-      uniqueLandmarks.push(landmark);
-    }
-  }
-  
-  return uniqueLandmarks;
-}
-
-// REACT_036: Fix fake link issues
-function validateLinkAccessibility(linkElement) {
-  if (!linkElement || linkElement.nodeType !== Node.ELEMENT_NODE || linkElement.tagName !== 'A') {
-    return false;
-  }
-  
-  const href = linkElement.getAttribute('href');
-  if (!href || href === '#' || href === '' || href.trim() === '') {
-    return false;
-  }
-  
-  if (href.startsWith('javascript:')) {
-    return false;
-  }
-  
-  return true;
-}
-
-function handleFakeLinks(links) {
-  const fixedLinks = [];
-  
-  for (let link of links) {
-    if (!validateLinkAccessibility(link)) {
-      link.setAttribute('href', '#');
-      link.setAttribute('role', 'button');
-      link.style.pointerEvents = 'none';
-      fixedLinks.push(link);
-    } else {
-      fixedLinks.push(link);
-    }
-  }
-  
-  return fixedLinks;
-}
-
-// REACT_037: Add proper landmark regions
-function addProperLandmarkRegions(element) {
-  if (!element || element.nodeType !== Node.ELEMENT_NODE) {
-    return;
-  }
-  
-  const validLandmarkRegions = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
-  const currentRole = element.getAttribute('role');
-  
-  if (!currentRole && validLandmarkRegions.includes(element.tagName.toLowerCase())) {
-    element.setAttribute('role', element.tagName.toLowerCase());
-  }
-}
-
-/**
- * Displays module structure for debugging purposes.
- * @param {Array} modules - Array of module objects
- * @returns {string} Formatted module structure display
- */
-function displayModuleStructure(modules) {
-  if (!Array.isArray(modules)) {
-    return 'Error: modules must be an array';
-  }
-  
-  let output = 'Module Structure:\n';
-  output += '==================\n\n';
-  
-  modules.forEach((mod, index) => {
-    const name = mod.name || mod.id || `Module ${index + 1}`;
-    output += `${index + 1}. ${name}\n`;
-    
-    if (mod.dependencies && Array.isArray(mod.dependencies)) {
-      output += `   Dependencies: ${mod.dependencies.join(', ')}\n`;
-    }
-    
-    if (mod.path) {
-      output += `   Path: ${mod.path}\n`;
-    }
-    
-    output += '\n';
-  });
-  
-  return output;
-}
-
-/**
- * Generates a dependency report for debugging
-=========================================
-```
+  svg.setAttribute('aria

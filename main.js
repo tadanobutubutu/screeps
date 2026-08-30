@@ -1,5 +1,6 @@
 // TODO: Add back any required exports that might have been?
 // (This comment remains as-is)
+// TODO: This is the existing code that needs to be preserved
 
 /**
  * Main module functionality

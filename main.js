@@ -5,6 +5,8 @@ import Main from './components/Main';
 import Footer from './components/Footer';
 import './styles.css';
 
+// REACT_015: Add lang attribute
+
 function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -252,6 +254,7 @@ export function AppWithAccessibility() {
 }
 
 export {
+  App,
   AppWithAccessibility,
   getUniqueLandmarkName,
   validateUniqueLandmarks,

@@ -5,35 +5,8 @@
  * Main application entry point with accessibility features
  */
 
-// Ensure DOM is fully loaded before executing scripts
-if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment - setup basic exports
-  module.exports = {
-    init,
-    setupKeyboardNavigation,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    ensureUniqueLandmarksFromString,
-    validateLandmark,
-    spawnSomeCommand
-  };
-} else {
-  // Browser environment - wait for DOM
+// Browser environment - wait for DOM (only runs in browser)
+if (typeof module === 'undefined' || !module.exports) {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
@@ -315,7 +288,7 @@ function generateAccessibilityReport(accessibilityReport) {
 
 // Score calculation
 function calculateAccessibilityScore(fixedIssues) {
-  if (!Array.isArray(fixedIssues)) {
+  if (!Array.isArray(fixedIsses)) {
     return 0;
   }
 
@@ -327,7 +300,7 @@ function calculateAccessibilityScore(fixedIssues) {
     'other': 1
   };
 
-  return fixedIssue.reduce((score, issue) => {
+  return fixedIssues.reduce((score, issue) => {
     const points = scorePoints[issue.type] || scorePoints['other'];
     return score + points;
   }, 0);
@@ -421,4 +394,32 @@ function spawnSomeCommand(callback) {
       callback(new Error(`someCommand failed with code ${code}`));
     }
   });
+}
+
+// Node.js environment - setup basic exports
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    init,
+    setupKeyboardNavigation,
+    setupAriaLiveRegions,
+    setupFocusManagement,
+    enhanceSemanticMarkup,
+    trapFocus,
+    handleKeyNavigation,
+    closeOpenDialogs,
+    announceToScreenReader,
+    calculateDifference,
+    calculateProduct,
+    isNumber,
+    clamp,
+    hello,
+    getVersion,
+    getConfig,
+    addressAccessibilityIssues,
+    generateAccessibilityReport,
+    calculateAccessibilityScore,
+    ensureUniqueLandmarksFromString,
+    validateLandmark,
+    spawnSomeCommand
+  };
 }

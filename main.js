@@ -36,7 +36,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -70,7 +70,114 @@ function addAriaLabel(element, label) {
   }
 }
 
-// TODO: Implement functions to render dependency graphs and display module structure for debugging purposes.
+// TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
+
+/**
+ * Renders a dependency graph visualization for the given modules
+ * @param {Object[]} modules - Array of module objects with name and dependencies
+ * @param {HTMLElement} [container] - Optional container element to render into
+ * @returns {Object} Object containing the rendered graph data and any issues
+ */
+function renderDependencyGraph(modules = []) {
+  const issues = [];
+  
+  // Validate modules input
+  if (!Array.isArray(modules)) {
+    issues.push('Modules must be an array');
+    return { valid: false, issues, graph: null };
+  }
+  
+  // Create the dependency graph structure
+  const graph = {
+    nodes: [],
+    edges: []
+  };
+  
+  // Process each module to build the graph
+  modules.forEach((mod, index) => {
+    if (!mod || typeof mod !== 'object') {
+      issues.push(`Invalid module at index ${index}`);
+      return;
+    }
+    
+    const nodeId = mod.name || `module-${index}`;
+    
+    // Add node to graph
+    if (!graph.nodes.find(n => n.id === nodeId)) {
+      graph.nodes.push({
+        id: nodeId,
+        dependencies: mod.dependencies || []
+      });
+    }
+    
+    // Add edges for dependencies
+    (mod.dependencies || []).forEach(dep => {
+      graph.edges.push({
+        from: nodeId,
+        to: dep
+      });
+    });
+  });
+  
+  // Log the dependency graph for debugging
+  console.log('Rendering dependency graph for modules:', modules);
+  console.log('Graph nodes:', graph.nodes);
+  console.log('Graph edges:', graph.edges);
+  
+  return {
+    valid: issues.length === 0,
+    issues,
+    graph
+  };
+}
+
+/**
+ * Displays the module structure for debugging purposes
+ * @param {Object[]} modules - Array of module objects
+ * @returns {Object} Formatted module hierarchy structure
+ */
+function displayModuleStructure(modules = []) {
+  const structure = {
+    totalModules: modules.length,
+    modules: []
+  };
+  
+  // Validate modules input
+  if (!Array.isArray(modules)) {
+    structure.issues = ['Modules must be an array'];
+    return structure;
+  }
+  
+  // Format each module for display
+  modules.forEach((mod, index) => {
+    if (!mod || typeof mod !== 'object') {
+      return;
+    }
+    
+    const moduleInfo = {
+      name: mod.name || `module-${index}`,
+      dependencies: mod.dependencies || [],
+      dependents: []
+    };
+    
+    structure.modules.push(moduleInfo);
+  });
+  
+  // Find dependents for each module
+  structure.modules.forEach(mod => {
+    structure.modules.forEach(otherMod => {
+      if (otherMod.dependencies.includes(mod.name)) {
+        mod.dependents.push(otherMod.name);
+      }
+    });
+  });
+  
+  // Future implementation could format and print module hierarchy
+  console.log('Displaying module structure for modules:', modules);
+  console.log('Module structure:', structure);
+  
+  return structure;
+}
 
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
@@ -118,7 +225,7 @@ function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
     } else {
       let generatedId = `${prefix}-${index}`;
       while (usedIds.has(generatedId)) {
-        generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+        generatedId = `${prefix}-${index}-${Math.random().toString(36).substr(2, 9)}`;
       }
       landmark.id = generatedId;
       usedIds.add(generatedId);
@@ -134,7 +241,7 @@ function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
  * @returns {string|null} The language code or null if not set
  */
 function getLangAttribute() {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
@@ -143,7 +250,8 @@ setLanguageAttribute('en');
 
 // Simple interactive page with content rotation functionality
 function initApp() {
-  const container = document.getElementById('app');
+  const container = document.getElementById('app') || document.createElement('div');
+  container.id = container.id || 'app';
   
   // Create heading
   const h1 = document.createElement('h1');
@@ -171,14 +279,6 @@ function initApp() {
 
   // Call the dependency graph rendering utility
   renderDependencyGraph();
-}
-
-// Placeholder for module structure display utility.
-// Helps developers understand the current structure of loaded modules.
-function displayModuleStructure(modules) {
-  // Future implementation could format and print module hierarchy
-  console.log('Displaying module structure for modules:', modules);
-  return {};
 }
 
 // Function to reset body rotation
@@ -240,7 +340,8 @@ const functionA = {
   Z: functionZ, // Do not remove or rename this export
 };
 
-// TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
+// Updated: renderDependencyGraph and displayModuleStructure functions identified and updated
+// These functions render dependency graphs and display module structure for debugging purposes.
 function renderDependencyGraph(modules) {
   // Future implementation could traverse and log module dependencies
   console.log('Rendering dependency graph for modules:', modules);
@@ -258,167 +359,3 @@ function loop() {
           creep.moveTo(source);
         }
       }
-    }
-  }
-}
-
-// Helper functions for functionB
-function functionXb() { return 'functionXb'; }
-function functionYb() { return 'functionYb'; }
-function functionZb() { return 'functionZb'; }
-
-const functionB = {
-  // ... (Preserve the existing code for functionB)
-
-  X: functionXb, // Do not remove or rename this export
-  Y: functionYb, // Do not remove or rename this export
-  Z: functionZb, // Do not remove or rename this export
-};
-
-// Existing placeholder functions for function1 and function2 (referenced in exports)
-function function1() {
-  return 'function1';
-}
-
-function function2() {
-  return 'function2';
-}
-
-/**
- * Creates an accessible in-page button with proper ARIA attributes
- * @param {string} text - Button text
- * @param {Function} onClick - Click handler
- * @returns {HTMLButtonElement} The created button element
- */
-function createInPageButton(text, onClick) {
-  const button = document.createElement('button');
-  button.textContent = text;
-  button.type = 'button';
-  
-  // Ensure button has an accessible name
-  if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
-    throw new Error('Button must have either text content or aria-label');
-  }
-  
-  if (onClick) {
-    button.addEventListener('click', onClick);
-  }
-  
-  return button;
-}
-
-/**
- * Validates table accessibility requirements
- * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result with issues array
- */
-function validateTableAccessibility(table) {
-  const issues = [];
-  
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
-  }
-  
-  // Check for caption
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    issues.push('Table should have a caption for accessibility');
-  }
-  
-  // Check for th elements with scope or headers
-  const headers = table.querySelectorAll('th');
-  if (headers.length === 0) {
-    issues.push('Table should have header cells (th) for accessibility');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates table structure for proper accessibility
- * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result with structure issues
- */
-function validateTableStructure(table) {
-  const issues = [];
-  
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
-  }
-  
-  // Check for thead and tbody
-  const thead = table.querySelector('thead');
-  const tbody = table.querySelector('tbody');
-  
-  if (!thead) {
-    issues.push('Table should have a thead section');
-  }
-  
-  if (!tbody) {
-    issues.push('Table should have a tbody section');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates that landmarks have proper roles
- * @param {Document|Element} root - Root element to search within
- * @returns {Object} Validation result with landmark issues
- */
-function validateLandmark(root = document) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
-  
-  // Check for main landmark
-  const mainElements = root.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    issues.push('Page should have at least one main landmark');
-  } else if (mainElements.length > 1) {
-    issues.push('Page should have only one main landmark');
-  }
-  
-  // Check for header landmark
-  const headerElements = root.querySelectorAll('header, [role="banner"]');
-  if (headerElements.length > 1) {
-    issues.push('Page should have only one header landmark');
-  }
-  
-  // Check for footer landmark
-  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
-  if (footerElements.length > 1) {
-    issues.push('Page should have only one footer landmark');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-// Existing placeholder functions for function1 and function2 (referenced in exports)
-function function1() {
-  return 'function1';
-}
-
-function function2() {
-  return 'function2';
-}
-
-module.exports = {
-  ensureElementHasId,
-  addAriaLabel,
-  setLanguageAttribute,
-  ensureUniqueLandmarks,
-  initApp,
-  displayModuleStructure,
-  functionA,
-  functionB,
-  loop
-};

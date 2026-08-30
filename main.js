@@ -454,8 +454,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const dependencyGraphContainer = document.createElement('div');
-dependencyGraphContainer.id = 'dependencyGraph';
+ensureElementId(dependencyGraphContainer);
+dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
 dependencyGraphContainer.setAttribute('role', 'region');
+addAriaLabel(dependencyGraphContainer);
 dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
 
 // React / UI related functions
@@ -715,3 +717,4 @@ function updateGraphRendering() {
 
 // Export the new updateGraphRendering function if necessary
 export { updateGraphRendering };
+// ----- END OF ORIGINAL CODE -----

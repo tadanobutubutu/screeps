@@ -1,7 +1,6 @@
 // Main module entry point
 
-// TODO: Add any other missing exports that might have been?
-// Added missing exports as per the issue
+// TODO: Create or update the affected functions to be accessible
 
 const VERSION = '1.0.0';
 const APP_NAME = 'MyApp';
@@ -34,7 +33,10 @@ function formatDate(date) {
   if (!(date instanceof Date)) {
     date = new Date(date);
   }
-  return date.toISOString().split('T')[0];
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 // Original rendering functions from HEAD
@@ -56,7 +58,7 @@ function renderDependencyGraph(graph) {
 
     for (const node of nodes) {
         if (node && node.id) {
-            const label = (node.label || node.id).replace(/"/g, '\\"');
+            const label = node.label || node.id;
             lines.push(`  "${node.id}" [label="${label}"];`);
         }
     }
@@ -84,7 +86,7 @@ function renderIndexView(items) {
         }
         const title = item.title || item.name || `Item ${index + 1}`;
         const id = item.id !== undefined ? item.id : index;
-        lines.push(`- [${title}](#item-${id})`);
+        lines.push(`- [${title}](#${id})`);
     });
 
     lines.push('');

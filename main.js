@@ -454,8 +454,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const dependencyGraphContainer = document.createElement('div');
-dependencyGraphContainer.id = 'dependencyGraph';
+ensureElementId(dependencyGraphContainer);
+dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
 dependencyGraphContainer.setAttribute('role', 'region');
+addAriaLabel(dependencyGraphContainer);
 dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
 
 // React / UI related functions
@@ -696,6 +698,13 @@ function checkTableAccessibility(table) {
 // Export new function if necessary
 export { checkTableAccessibility };
 
+// Resolved: merged renderPage from HEAD with updateGraphRendering from origin/main
+function renderPage(data) {
+  // Code to render the page
+  renderDependencyGraph(dependencyGraphContent);
+  renderIndex(indexContent);
+}
+
 // Update the existing function using the new functions for rendering graph/index
 // Assuming newFunction is meant to be used to update the rendering of graph/index
 function updateGraphRendering() {
@@ -708,3 +717,4 @@ function updateGraphRendering() {
 
 // Export the new updateGraphRendering function if necessary
 export { updateGraphRendering };
+// ----- END OF ORIGINAL CODE -----

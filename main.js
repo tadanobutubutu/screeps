@@ -31,7 +31,7 @@ function addLangAttribute(element) {
 // Add the new function or change here:
 function myNewFunction() {
   // your new function logic goes here
-  console.log('myNewFunction called');
+  console.log('Function called');
 }
 
 function processData(data) {
@@ -118,7 +118,7 @@ function validateLandmarkStructure() {
   // Code for validating landmark structure
 }
 
-function validateLandmarkAttributes() {
+function validateLandmarkAttributes(element) {
   // Code for validating landmark attributes
 }
 
@@ -159,14 +159,14 @@ function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
   // This processes the insight report and takes appropriate actions to fix issues
   
-  if (!insightReport || !Array.isArray(insightReport.accessibilityIssues)) {
+  if (!insightReport || !insightReport.issues || insightReport.issues.length === 0) {
     console.log('No valid accessibility issues found in the insight report');
     return [];
   }
   
   const addressedIssues = [];
   
-  insightReport.accessibilityIssues.forEach((issue, index) => {
+  insightReport.issues.forEach((issue, index) => {
     console.log(`Addressing accessibility issue ${issue.code}: ${issue.message}`);
     
     let actionTaken = false;
@@ -176,7 +176,9 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_015':
         // Add lang attribute to HTML element
         try {
-          addLangAttribute(document.documentElement);
+          if (issue.element) {
+            addLangAttribute(issue.element);
+          }
           actionTaken = true;
           console.log('Added language attribute to HTML element');
         } catch (error) {
@@ -187,7 +189,9 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_027':
         // Fix table structure issues
         try {
-          fixTableStructure();
+          if (issue.element) {
+            fixTableStructure(issue.element);
+          }
           actionTaken = true;
           console.log('Fixed table structure issues');
         } catch (error) {
@@ -199,7 +203,9 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_025':
         // Add/fix landmark issues
         try {
-          addMainLandmark();
+          if (issue.element) {
+            addMainLandmark(issue.element);
+          }
           ensureUniqueLandmarks();
           actionTaken = true;
           console.log('Added and ensured unique landmarks');
@@ -211,10 +217,10 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_041':
         // Add accessible names to SVGs
         try {
-          const svgElements = document.querySelectorAll('svg');
+          const svgElements = issue.elements || [];
           svgElements.forEach(svg => {
-            if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('role')) {
-              const accessibleName = getSvgAccessibleName();
+            if (svg && svg.setAttribute) {
+              const accessibleName = getSvgAccessibleName(svg);
               if (accessibleName) {
                 setSvgAttributes(svg, accessibleName);
               }
@@ -275,7 +281,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
   
-  const uniqueId = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const uniqueId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = uniqueId;
   return uniqueId;
 }
@@ -322,8 +328,9 @@ function renderDependencyGraph(dependencies, containerId) {
   // Create the graph container
   const graphContainer = document.createElement('div');
   graphContainer.className = 'dependency-graph';
-  graphContainer.setAttribute('role', 'img');
-  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+  const graphImage = document.createElement('img');
+  graphImage.setAttribute('role', 'img');
+  graphImage.setAttribute('aria-label', 'Dependency graph visualization');
   
   // Build the graph structure from dependencies
   const nodes = [];
@@ -362,11 +369,12 @@ function renderDependencyGraph(dependencies, containerId) {
   const edgesSection = document.createElement('div');
   edgesSection.className = 'graph-edges';
   edgesSection.innerHTML = '<h4>Dependencies:</h4><ul>' + 
-    edges.map(edge => `<li>${edge.source} → ${edge.target}</li>`).join('') + 
+    edges.map(edge => `<li>${edge.source} → ${edge.target}</li>`).join('')+ 
     '</ul>';
   
   graphElement.appendChild(nodesSection);
   graphElement.appendChild(edgesSection);
+  graphContainer.appendChild(graphImage);
   graphContainer.appendChild(graphElement);
   
   // Clear container and append the graph
@@ -436,7 +444,3 @@ module.exports = {
   addProperLandmarkRegions,
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraph,
-  calculateSum,
-  myNewFunction
-};

@@ -70,3 +70,34 @@ function newFunction() {
 }
 
 // Continue with existing exports, functions, or any other code that follows
+
+// Function to ensure an element has an id
+function ensureElementHasId(element) {
+  if (!element.id) {
+    const generatedId = 'el-' + Math.random().toString(36).substr(2, 9);
+    element.setAttribute('id', generatedId);
+  }
+  return element.id;
+}
+
+// Function to add aria-label to an element
+function addAriaLabel(element, label) {
+  if (label && !element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+// Function to render a dependency graph
+function renderDependencyGraph(container, dependencies) {
+  const graphContainer = document.querySelector(container);
+  if (graphContainer) {
+    graphContainer.innerHTML = '';
+    const ul = document.createElement('ul');
+    dependencies.forEach(dep => {
+      const li = document.createElement('li');
+      li.textContent = dep.name;
+      ul.appendChild(li);
+    });
+    graphContainer.appendChild(ul);
+  }
+}

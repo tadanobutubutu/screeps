@@ -47,7 +47,7 @@ function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
   // Add the new landmark regions once the book is added successfully
-  addProperLandmarkRegions(book);
+  addProperLandmarkRegions();
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
@@ -181,29 +181,6 @@ function handleFakeLinks() {
     });
     link.parentNode.replaceChild(button, link);
   });
-}
-
-// REACT_037: Add proper landmark regions (DONE)
-function addProperLandmarkRegionsImpl() {
-  const content = document.querySelector('#root, #app, .app');
-  if (content && !document.querySelector('main')) {
-    addMainLandmark();
-  }
-  if (!document.querySelector('header')) {
-    const header = document.createElement('header');
-    header.setAttribute('role', 'banner');
-    document.body.prepend(header);
-  }
-  if (!document.querySelector('footer')) {
-    const footer = document.createElement('footer');
-    footer.setAttribute('role', 'contentinfo');
-    document.body.append(footer);
-  }
-  if (!document.querySelector('nav')) {
-    const nav = document.createElement('nav');
-    nav.setAttribute('role', 'navigation');
-    document.body.prepend(nav);
-  }
 }
 
 // Render the list of book items and sorting controls

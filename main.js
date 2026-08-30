@@ -362,3 +362,61 @@ module.exports.loop = function() {
         }
     }
 };
+
+// --- ADDITIONAL ACCESSIBILITY IMPROVEMENTS FOR REACT_025 ---
+//
+export function enhanceLandmarkAccessibility() {
+  // Ensure all elements with role="landmark" have unique, descriptive aria-label attributes
+  const landmarks = document.querySelectorAll('[role="landmark"]');
+  landmarks.forEach((landmark, index) => {
+    // Set a unique, semantic aria-label based on element type and index
+    const tagName = landmark.tagName.toLowerCase();
+    landmark.setAttribute('aria-label', `${tagName}-region-${index + 1}`);
+  });
+}
+
+//
+export function enhanceFakeLinkAccessibility() {
+  // Enhance fake links (elements with class .fake-link) to be more accessible
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  fakeLinks.forEach(link => {
+    // Add role="presentation" to hide from screen readers (if appropriate)
+    link.setAttribute('role', 'presentation');
+    // Additionally, add an aria-hidden="true" to hide from screen readers
+    link.setAttribute('aria-hidden', 'true');
+    // Optionally, add a focusable tabIndex if interactive behavior is expected
+    if (!link.hasAttribute('tabindex')) {
+      link.setAttribute('tabindex', '-1');
+    }
+  });
+}
+
+//
+export function enhanceButtonAccessibility() {
+  // Enhance buttons to ensure they have accessible names
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach(button => {
+    // If button has no text content and no aria-label/aria-labelledby, add a generic one
+    if (!button.textContent.trim() && !button.hasAttribute('aria-label') && !button.hasAttribute('aria-labelledby')) {
+      button.setAttribute('aria-label', 'Button');
+    }
+  });
+}
+
+//
+export function enhanceLinkAccessibility() {
+  // Enhance links to ensure they have accessible names and appropriate roles
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    // If link has no text content, add aria-label
+    if (!link.textContent.trim() && !link.hasAttribute('aria-label') && !link.hasAttribute('aria-labelledby')) {
+      link.setAttribute('aria-label', link.href || 'Link');
+    }
+    // Ensure role="link" is set if not already present
+    if (!link.hasAttribute('role')) {
+      link.setAttribute('role', 'link');
+    }
+  });
+}
+
+// --- END OF ADDITIONAL ACCESSIBILITY IMPROVEMENTS ---

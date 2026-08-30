@@ -93,14 +93,14 @@ function addLangAttribute() {
 // DOM-based accessibility code
 
 // Add lang attribute to HTML element
-... getLangAttribute());
+addLangAttribute();
 
 // Create in-page button with accessibility considerations
 createInPageButton();
 
 // Validate table structure and accessibility
 // Assuming you have a table element with an id of 'myTable'
-const table = ...
+const table = document.getElementById('myTable');
 validateTableAccessibility(table);
 validateTableStructure(table);
 
@@ -110,7 +110,7 @@ validateLandmark();
 
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
-const svg = ...
+const svg = document.getElementById('mySvg');
 const accessibleName = getSvgAccessibleName(svg);
 setSvgAttributes(svg, accessibleName);
 

@@ -66,18 +66,31 @@ const icons = {};
 function processLandmarks(landmarks) {
   // Ensure all landmarks have valid structure
   const landmarkStructureCheck = (landmark) => {
-    // Check landmark properties here
-    // ...
-    return true; // Add your own check logic
+    if (!landmark || typeof landmark !== 'object') {
+      return false;
+    }
+    if (!landmark.role) {
+      return false;
+    }
+    if (!landmark['aria-label'] && !landmark['aria-labelledby']) {
+      return false;
+    }
+    return true;
   };
 
   const validLandmarks = landmarks.filter(landmarkStructureCheck);
 
   // Ensure the landmarks are unique
   const ensureUniqueLandmarks = (landmarks) => {
-    // Add your own unique landmark logic here
-    // ...
-    return landmarks;
+    const seen = new Set();
+    return landmarks.filter((landmark) => {
+      const key = landmark.id || `${landmark.role}-${landmark['aria-label']}`;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
   };
 
   return ensureUniqueLandmarks(validLandmarks);

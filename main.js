@@ -3,14 +3,29 @@
 // - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks, ensureUniqueLandmarksFromString)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions, validateLandmark)
 
 // TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
+
+// Sample data for insight report
+const sampleInsightReport = {
+  title: 'Quarterly Performance Report',
+  sections: [
+    {
+      heading: 'Sales Overview',
+      content: 'Total sales increased by 15% compared to last quarter.'
+    },
+    {
+      heading: 'Customer Satisfaction',
+      content: 'Average satisfaction score: 4.2 out of 5.'
+    }
+  ]
+};
 
 /**
  * Main application entry point with accessibility features
@@ -126,7 +141,6 @@ function handleFakeLinks(issues) {
   });
 }
 
-// Implement function for addressing accessibility issues from insight report
 // TODO: Implement a function to count dependencies
 function countDependencies() {
     const path = require('path');
@@ -142,49 +156,6 @@ function countDependencies() {
         devDependencies: Object.keys(devDependencies).length,
         total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
-}
-
-// Ensure DOM is fully loaded before executing scripts
-if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment - setup basic exports
-  module.exports = {
-    checkTableStructure,
-    countDependencies,
-    init,
-    setupKeyboardNavigation,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    ensureUniqueLandmarksFromString,
-    validateLandmark,
-    spawnSomeCommand,
-    addLangAttribute,
-    countDependencies,
-    createInPageButton,
-    validateLinkAccessibility,
-    handleFakeLinks
-  };
-} else {
-  // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
 }
 
 /**
@@ -573,4 +544,46 @@ function spawnSomeCommand(callback) {
 // REACT_015: Add lang attribute
 function addLangAttribute(element, lang) {
   element.setAttribute('lang', lang);
+}
+
+// Ensure DOM is fully loaded before executing scripts
+if (typeof module !== 'undefined' && module.exports) {
+  // Node.js environment - setup basic exports
+  module.exports = {
+    checkTableStructure,
+    countDependencies,
+    init,
+    setupKeyboardNavigation,
+    setupAriaLiveRegions,
+    setupFocusManagement,
+    enhanceSemanticMarkup,
+    trapFocus,
+    handleKeyNavigation,
+    closeOpenDialogs,
+    announceToScreenReader,
+    calculateDifference,
+    calculateProduct,
+    isNumber,
+    clamp,
+    hello,
+    getVersion,
+    getConfig,
+    addressAccessibilityIssues,
+    generateAccessibilityReport,
+    calculateAccessibilityScore,
+    ensureUniqueLandmarksFromString,
+    validateLandmark,
+    spawnSomeCommand,
+    addLangAttribute,
+    createInPageButton,
+    validateLinkAccessibility,
+    handleFakeLinks
+  };
+} else {
+  // Browser environment - wait for DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 }

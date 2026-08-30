@@ -32,7 +32,7 @@ export function checkLinkAndButtonAccessibility() {
 }
 
 // Function to render graph/index using new functions
-function renderGraphIndex() {
+export function renderGraphIndex() {
   // JavaScript code to prepare data for the graph
   const data = prepareDataForGraph();
 
@@ -331,13 +331,22 @@ function addressAccessibilityIssues() {
 export { addressAccessibilityIssues };
 
 // Screeps module exports for game loop integration
-module.exports.getLangAttribute = getLangAttribute;
-module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
-module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
+// Note: In an ES module, we can't use module.exports directly with require
+// These should be handled differently in a proper ES module setup
+import roleHarvester from 'role.harvester';
+import roleUpgrader from 'role.upgrader';
 
-// ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
+// For CommonJS compatibility in Node.js, we would need to export these separately
+// But since we're in an ES module context, we'll export them as module exports
+export const getLangAttribute = function() {
+  // Implementation would go here
+};
 
-module.exports.loop = function() {
+export const wrapPrimaryContentInMain = function() {
+  // Implementation would go here
+};
+
+export function loop() {
     // Clear the memory of dead creeps
     for(var name in Memory.creeps) {
         if(!Game.creeps[name]) {

@@ -96,7 +96,7 @@ const renderDependencyGraph = (data) => {
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
@@ -104,6 +104,37 @@ const renderDependencyGraph = (data) => {
 function newFocusTrap() {
   // New function implementation
 }
+
+// Function to ensure landmarks are unique
+const ensureUniqueLandmarks = () => {
+  const landmarks = document.querySelectorAll('main, nav, aside, header, footer, [role="main"], [role="navigation"], [role="complementary"], [role="banner"], [role="contentinfo"]');
+  const landmarkTypes = {};
+
+  landmarks.forEach((landmark, index) => {
+    const type = landmark.tagName.toLowerCase();
+    
+    if (!landmarkTypes[type]) {
+      landmarkTypes[type] = 0;
+    } else {
+      landmarkTypes[type]++;
+    }
+
+    // Add a unique label if there are duplicates
+    if (landmarkTypes[type] > 0) {
+      // Check if element already has an aria-label
+      if (!landmark.hasAttribute('aria-label')) {
+        landmark.setAttribute('aria-label', `${type} ${landmarkTypes[type] + 1}`);
+      }
+      
+      // Ensure the element has an ID for skip navigation
+      if (!landmark.id) {
+        landmark.id = `${type}-${landmarkTypes[type] + 1}`;
+      }
+    }
+  });
+
+  return landmarks;
+};
 
 // Add back any required exports that might have been removed.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
@@ -218,6 +249,9 @@ function filterValidItems(items, validator) {
 const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
   
+  // Ensure unique landmarks for accessibility
+  ensureUniqueLandmarks();
+  
   // Add keyboard support for all interactive elements
   document.querySelectorAll('[data-accessible]').forEach(element => {
     element.addEventListener('keydown', (e) => {
@@ -249,7 +283,7 @@ function groupByCategory(items, getCategory) {
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 
-_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
+_Commit: b8888a21083c89f599fb68eef1dc4d5df1051eb52_
 
 <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
 
@@ -285,5 +319,6 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  ensureUniqueLandmarks
 };

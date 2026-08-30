@@ -250,8 +250,11 @@ function Main() {
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <AddBookForm />
-      <List dataSource={bookItems} />
-      {/* Accessibility improvements for the dependency graph */}
+      <section role="region" aria-label="Book dependency graph" aria-roledescription="dependencyGraph">
+        <List dataSource={bookItems} />
+      </section>
+      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
+      {/* ... */}
       <DependencyGraph 
         nodes={[]} 
         edges={[]} 

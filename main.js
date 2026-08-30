@@ -5,6 +5,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useId } from '@react-aria/utils';
 import { ADD_BOOK, SORT_BY_TITLE, SORT_BY_AUTHOR } from './store/types';
 
+// Get the list of books from the Redux store
+const getBooksList = useSelector(state => state.books.list);
+
 // Function to handle sorting books by title (ascending)
 function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
@@ -54,14 +57,14 @@ const defaultSorting = sortByTitle;
 function onTitleSort(dispatch, books) {
   const sortedList = [...books].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+  dispatch({ type: SORT_BY_TITLE, payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort(dispatch, books) {
   const sortedList = [...books].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+  dispatch({ type: SORT_BY_AUTHOR, payload: sortedList });
 }
 
 // Function to create a new book entry in the Redux store
@@ -73,90 +76,79 @@ function addBook(book) {
   return { type: ADD_BOOK, payload: book };
 }
 
-  // Map the book list to the BookItem function to create book items
-  const bookItems = ...
-
-  // Render the list of book items and sorting controls
-  return (
-    <main role="main" aria-label="Book list main content">
-      <div role="region" aria-label="Sorting controls">
-        <button 
-          id="sort-by-title-button" 
-          onClick={() => setSorting(sortByTitle)}
-          aria-label="Sort books by title in ascending order"
-          type="button"
-        >
-          Sort by Title
-        </button>
-        <button 
-          id="sort-by-author-button" 
-          onClick={() => setSorting(sortByAuthor)}
-          aria-label="Sort books by author in descending order"
-          type="button"
-        >
-          Sort by Author
-        </button>
-      </div>
-      <List ... />
-      {/* Accessibility: Add landmark region for add book form */}
-      <section role="region" aria-label="Add new book form">
-        {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-        {/* ... */}
-      </section>
-    </main>
-  );
-}
-
-// Function to render a form for adding a new book and to handle form submission
-function AddBookForm() {
+// New accessible form component for adding books
+function AddBookForm({ onAdd }) {
   const formId = useId();
-  const [book, setBook] = useState({ title: '', author: '', id: UUID.generate() });
-  const dispatch = useDispatch();
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Perform any necessary validation or processing before adding the book
-    // ...
-
-    dispatch(addBook(book));
-    setBook({ title: '', author: '', id: UUID.generate() }); // Reset the form after submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (title.trim() && author.trim()) {
+      const newBook = {
+        title: title.trim(),
+        author: author.trim(),
+        id: UUID.generate()
+      };
+      onAdd(newBook);
+      setTitle('');
+      setAuthor('');
+    }
   };
 
+  const titleId = useId();
+  const authorId = useId();
+
   return (
-    <form onSubmit={handleSubmit} id={formId}>
-      <label>
-        Title:
+    <form 
+      onSubmit={handleSubmit}
+      aria-label="Add new book form"
+      id={formId}
+    >
+      <div>
+        <label 
+          htmlFor={titleId}
+          id={`${titleId}-label`}
+        >
+          Book Title:
+        </label>
         <input
           type="text"
-          value={book.title}
-          onChange={(e) => setBook({ ...book, title: e.target.value })}
+          id={titleId}
+          aria-labelledby={`${titleId}-label`}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           required
+          placeholder="Enter book title"
+          aria-required="true"
         />
-      </label>
-      <label>
-        Author:
+      </div>
+      <div>
+        <label 
+          htmlFor={authorId}
+          id={`${authorId}-label`}
+        >
+          Author:
+        </label>
         <input
           type="text"
-          value={book.author}
-          onChange={(e) => setBook({ ...book, author: e.target.value })}
+          id={authorId}
+          aria-labelledby={`${authorId}-label`}
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
           required
+          placeholder="Enter author name"
+          aria-required="true"
         />
-      </label>
-      <button type="submit">Add Book</button>
+      </div>
+      <button 
+        type="submit"
+        aria-label="Add book to collection"
+      >
+        Add Book
+      </button>
     </form>
   );
-}
-
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort(dispatch, books) {
-  const sortedList = [...books].sort(sortByTitle);
-  dispatch({ type: SORT_BY_TITLE, payload: sortedList });
-}
-
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort(dispatch, books) {
-  const sortedList = [...books].sort(sortByAuthor);
-  dispatch({ type: SORT_BY_AUTHOR, payload: sortedList });
 }
 
 // REACT_015: Function to get the lang attribute for the HTML element
@@ -301,20 +293,44 @@ function Main() {
     <BookItem key={generateKey(book)} book={book} />
   ));
 
+  // Handle adding a new book with accessibility improvements
+  const handleAddBook = (book) => {
+    addBook(book);
+  };
+
   // Render the list of book items, sorting controls, and the AddBookForm
   return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <AddBookForm />
-      <section role="region" aria-label="Book dependency graph" aria-roledescription="dependencyGraph">
-        <List dataSource={bookItems} />
+    <main role="main" aria-label="Book list main content">
+      <div role="region" aria-label="Sorting controls">
+        <button 
+          id="sort-by-title-button" 
+          onClick={() => setSorting(sortByTitle)}
+          aria-label="Sort books by title in ascending order"
+          type="button"
+        >
+          Sort by Title
+        </button>
+        <button 
+          id="sort-by-author-button" 
+          onClick={() => setSorting(sortByAuthor)}
+          aria-label="Sort books by author in descending order"
+          type="button"
+        >
+          Sort by Author
+        </button>
+      </div>
+      <List dataSource={bookItems} />
+      {/* Accessibility: Add landmark region for add book form */}
+      <section role="region" aria-label="Add new book form">
+        <AddBookForm onAdd={handleAddBook} />
       </section>
-      <DependencyGraph 
-        nodes={[]} 
-        edges={[]} 
-      />
-    </div>
+      <section role="region" aria-label="Book dependency graph" aria-roledescription="dependencyGraph">
+        <DependencyGraph 
+          nodes={[]} 
+          edges={[]} 
+        />
+      </section>
+    </main>
   );
 }
 

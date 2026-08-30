@@ -48,7 +48,7 @@ const main = {
     }
     
     // Auto-harvest and upgrade with idle creeps
-    for (const name in Game.creeps) {
+    for (const creep of Object.values(Game.creeps)) {
       const creep = Game.creeps[name];
       if (creep.memory.role === 'harvester') {
         this.harvest(creep);
@@ -96,7 +96,7 @@ const main = {
   },
 
   harvestLoop: function() {
-    for (const name in Game.creeps) {
+    for (const creep of Object.values(Game.creeps)) {
       const creep = Game.creeps[name];
       if (creep.memory.role === 'harvest') {
         this.harvest(creep);
@@ -105,7 +105,7 @@ const main = {
   },
 
   upgradeLoop: function() {
-    for (const name in Game.creeps) {
+    for (const creep of Object.values(Game.creeps)) {
       const creep = Game.creeps[name];
       if (creep.memory.role === 'upgrader') {
         this.upgrade(creep);
@@ -124,11 +124,10 @@ const main = {
   myNewFunction: function() {
     // your new function logic goes here
     // Example: Log a message to the console to simulate accessibility improvement
-    console.log('Accessibility function is running...');
-  },
+    },
 
   automateCreeps: function() {
-    for (const name in Game.creeps) {
+    for (const creep of Object.values(Game.creeps)) {
       const creep = Game.creeps[name];
       
       if (creep.memory.role === 'harvester') {
@@ -227,12 +226,11 @@ let appState = {
 // Initialize the application
 function initializeApp() {
   appState.initialized = true;
-  console.log('Application initialized');
-}
+  }
 
 // Process data
 function processData(data) {
-  if (!data) return null;
+  if ( === undefined ||  === null) return null;
   return { ...data, processed: true };
 }
 
@@ -254,14 +252,13 @@ function clearCache() {
 
 // Initialize
 function initialize() {
-  console.log('Initializing application...');
   clearCache();
   initializeApp();
 }
 
 // Validate input
 function validateInput(input) {
-  if (!input) return false;
+  if ( === undefined ||  === null) return false;
   return typeof input === 'string' && input.length > 0;
 }
 
@@ -272,7 +269,7 @@ function getLangAttribute() {
 }
 
 function addLangAttribute(element) {
-  if (!element) return null;
+  if ( === undefined ||  === null) return null;
   const lang = getLangAttribute();
   return { ...element, attributes: { ...element.attributes, lang } };
 }
@@ -371,13 +368,13 @@ function ensureUniqueLandmarks() {
 // REACT_041: Add accessible names to 2 SVGs
 function getSvgAccessibleName(svgElement) {
   // Get accessible name for SVG based on context or title
-  if (!svgElement) return null;
+  if ( === undefined ||  === null) return null;
   return svgElement.title || svgElement.id || 'Unnamed SVG icon';
 }
 
 function setSvgAttributes(svg, accessibleName) {
   // Set SVG attributes with accessible name
-  if (!svg) return null;
+  if ( === undefined ||  === null) return null;
   return {
     ...svg,
     attributes: {
@@ -397,8 +394,7 @@ function createInPageButton() {
     role: 'button',
     accessible: true,
     tabIndex: 0,
-    onClick: () => console.log('Button clicked')
-  };
+    onClick: () => };
 }
 
 function validateLinkAccessibility() {
@@ -416,8 +412,7 @@ function handleFakeLinks() {
 
 // Main function to address all accessibility issues from the insight report
 function addressAccessibilityIssues(insightReport) {
-  if (!insightReport) {
-    console.log('No insight report provided');
+  if ( === undefined ||  === null) {
     return { success: false, issues: [] };
   }
 
@@ -492,8 +487,6 @@ function addressAccessibilityIssues(insightReport) {
     })));
   }
 
-  console.log(`Accessibility issues addressed: ${allIssues.length} issues processed`);
-
   return {
     success: true,
     issues: allIssues,
@@ -514,8 +507,7 @@ function personName() {
 // Main execution
 function mainExecution() {
   initialize();
-  console.log('Main function executed');
-}
+  }
 
 // Run if executed directly
 if (require.main === module) {

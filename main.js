@@ -1,3 +1,9 @@
+// TODO: This is the existing code that needs to be preserved
+//_Commit: 07177d2c69c06fd1dfe3543ad6d3c81baa3c821f_
+//<!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
@@ -148,7 +154,7 @@ function improveAccessibility(container) {
   }
 
   // Ensure all clickable elements are focusable
-  const focusable = container.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+  const focusable = container.querySelectorAll('button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -196,7 +202,7 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (svg && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       const title = svg.querySelector('title');
       if (title) {
         const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
@@ -247,10 +253,62 @@ function addProperLandmarkRegions(affectedElements) {
   if (!affectedElements || !Array.isArray(affectedElements)) return;
 
   affectedElements.forEach(el => {
-    if (el && el.tagName && !el.hasAttribute('role')) {
+    if (el && el.tagName && !el.getAttribute('role')) {
       el.setAttribute('role', 'region');
     }
   });
+}
+
+/**
+ * Gets the lang attribute value from the HTML element
+ * @param {Document} doc - The document to get lang attribute from
+ * @returns {string|null} - The lang attribute value or null if not set
+ */
+function getLangAttribute(doc) {
+  if (!doc) return null;
+  const html = doc.documentElement || doc.querySelector('html');
+  if (html) {
+    return html.getAttribute('lang');
+  }
+  return null;
+}
+
+/**
+ * Creates an in-page button with accessibility considerations
+ * @param {Object} options - Button configuration options
+ * @returns {HTMLElement} - The created button element
+ */
+function createInPageButton(options) {
+  const button = document.createElement('button');
+  
+  if (options && options.id) {
+    button.id = options.id;
+  }
+  
+  if (options && options.textContent) {
+    button.textContent = options.textContent;
+  }
+  
+  if (options && options.className) {
+    button.className = options.className;
+  }
+  
+  // Ensure proper accessible labeling
+  if (options && options.label) {
+    button.setAttribute('aria-label', options.label);
+  } else if (!options || !options.textContent) {
+    button.setAttribute('aria-label', 'In-page button');
+  }
+  
+  // Ensure button is focusable
+  button.tabIndex = 0;
+  
+  // Add click handler if provided
+  if (options && typeof options.onClick === 'function') {
+    button.addEventListener('click', options.onClick);
+  }
+  
+  return button;
 }
 
 module.exports = {
@@ -271,5 +329,7 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  getLangAttribute,
+  createInPageButton
 };

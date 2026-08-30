@@ -1,1 +1,15 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Original content from main.js
+function existingFunction() {
+  // existing code
+}
+
+// Existing export
+export { existingFunction };
+
+// New function or changes requested in the issue
+function newFunction() {
+  // new code
+}
+
+// Existing export with new function
+export { existingFunction, newFunction };

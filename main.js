@@ -87,7 +87,7 @@ function addressInsightReportIssues(insightReport) {
           element.setAttribute('role', issue.ariaRole);
         }
       }
-      // Add accessible names to 2 SVGs
+      // Add accessible names to SVGs
       if (issue.code === 'REACT_041') {
         if (issue.ariaLabel) {
           element.setAttribute('aria-label', issue.ariaLabel);
@@ -305,6 +305,12 @@ function implementNewFunction() {
   addMainLandmark();
   addSvgAccessibleNames();
   fixTableHeaderCellScope();
+}
+
+// Function to combine landmark roles addition and landmark issues fixing
+function addLandmarkRolesAndFixIssues(insightReport) {
+  addLandmarkRoles(insightReport);
+  fixLandmarkIssues(insightReport);
 }
 
 // Existing code preserved below

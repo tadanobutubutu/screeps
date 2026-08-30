@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -100,6 +97,101 @@ function getFullLangAttribute() {
     return document.documentElement.lang || '';
 }
 
+// TODO: Implement renderIndexView functionality
+/**
+ * Renders an accessible index view with navigation items.
+ * @param {HTMLElement} container - The container element to render the index view into.
+ * @param {Array} items - Array of items to display in the index view.
+ * @param {Object} options - Configuration options for the index view.
+ * @param {Function} options.onItemClick - Callback function when an item is clicked.
+ * @param {string} options.ariaLabel - ARIA label for the index view.
+ * @param {string} options.headingLevel - Heading level for item titles (default: '2').
+ * @returns {HTMLElement} The rendered nav element containing the index view.
+ */
+function renderIndexView(container, items = [], options = {}) {
+    const {
+        onItemClick = null,
+        ariaLabel = 'Index navigation',
+        headingLevel = '2'
+    } = options;
+
+    // Create the navigation landmark
+    const nav = document.createElement('nav');
+    const navId = ensureUniqueLandmarkId('index-nav');
+    nav.id = navId;
+    nav.setAttribute('aria-label', ariaLabel);
+
+    // Create heading for the index
+    const heading = document.createElement(`h${headingLevel}`);
+    heading.textContent = 'Index';
+    addAriaLabel(heading, 'Index section heading');
+    nav.appendChild(heading);
+
+    // Create the list of items
+    const list = document.createElement('ul');
+    list.setAttribute('role', 'list');
+
+    items.forEach((item, index) => {
+        const listItem = document.createElement('li');
+        listItem.setAttribute('role', 'listitem');
+
+        const link = document.createElement('a');
+        link.href = item.href || '#';
+        link.textContent = item.label || item.title || `Item ${index + 1}`;
+        
+        if (item.id) {
+            link.id = `${navId}-link-${index}`;
+        }
+        
+        if (item.description) {
+            link.setAttribute('aria-describedby', `${navId}-desc-${index}`);
+            
+            const description = document.createElement('span');
+            description.id = `${navId}-desc-${index}`;
+            description.className = 'index-item-description';
+            description.textContent = item.description;
+            
+            listItem.appendChild(link);
+            listItem.appendChild(description);
+        } else {
+            listItem.appendChild(link);
+        }
+
+        // Add click handler if provided
+        if (onItemClick && typeof onItemClick === 'function') {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                onItemClick(item, index, event);
+            });
+        }
+
+        // Add keyboard navigation support
+        setupKeyboardNavigation(link, {
+            onEnter: () => {
+                if (onItemClick) {
+                    onItemClick(item, index, new Event('keyboard'));
+                } else {
+                    link.click();
+                }
+            }
+        });
+
+        list.appendChild(listItem);
+    });
+
+    nav.appendChild(list);
+
+    // Validate landmark structure
+    validateLandmark(nav);
+
+    // Append to container if provided
+    if (container && container instanceof HTMLElement) {
+        container.appendChild(nav);
+    }
+
+    return nav;
+}
+
 // ... existing functions from both branches
 
 // Accessibility helper functions
@@ -152,4 +244,259 @@ function trapFocus(container) {
 }
 
 // ... other existing functions remained unchanged
-```
+
+/**
+ * Validates that a landmark element has proper landmark role.
+ * @param {HTMLElement} element - The landmark element to validate.
+ * @returns {boolean} - Whether the landmark is valid.
+ */
+function validateLandmark(element) {
+    if (!element) return false;
+    
+    const landmarkRoles = [
+        'banner', 'navigation', 'main', 'complementary', 
+        'contentinfo', 'search', 'form', 'region'
+    ];
+    
+    const hasLandmarkRole = landmarkRoles.some(role => 
+        element.getAttribute('role') === role || 
+        element.tagName.toLowerCase() === role
+    );
+    
+    const isSemanticLandmark = ['nav', 'header', 'main', 'footer', 'aside', 'section', 'article']
+        .includes(element.tagName.toLowerCase());
+    
+    return hasLandmarkRole || isSemanticLandmark;
+}
+
+/**
+ * Validates landmark structure for accessibility.
+ * @param {HTMLElement} container - Container to validate landmarks in.
+ * @returns {Array} - Array of validation issues found.
+ */
+function validateLandmarkStructure(container) {
+    const issues = [];
+    const landmarks = container.querySelectorAll('nav, header, main, footer, aside, section, article');
+    
+    landmarks.forEach(landmark => {
+        if (!validateLandmark(landmark)) {
+            issues.push({
+                element: landmark,
+                message: 'Landmark missing proper role or semantic element'
+            });
+        }
+    });
+    
+    return issues;
+}
+
+/**
+ * Gets an accessible name for an SVG element.
+ * @param {SVGElement} svg - The SVG element.
+ * @returns {string} - The accessible name.
+ */
+function getSvgAccessibleName(svg) {
+    const titleElement = svg.querySelector('title');
+    if (titleElement) {
+        return titleElement.textContent;
+    }
+    
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (ariaLabel) {
+        return ariaLabel;
+    }
+    
+    const ariaLabelledby = svg.getAttribute('aria-labelledby');
+    if (ariaLabelledby) {
+        const titleElementById = document.getElementById(ariaLabelledby);
+        if (titleElementById) {
+            return titleElementById.textContent;
+        }
+    }
+    
+    return '';
+}
+
+/**
+ * Creates an accessible in-page button.
+ * @param {Object} options - Button options.
+ * @returns {HTMLButtonElement} - The created button element.
+ */
+function createInPageButton(options = {}) {
+    const {
+        text = '',
+        ariaLabel = '',
+        onClick = null,
+        className = '',
+        id = ''
+    } = options;
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    
+    if (id) {
+        button.id = id;
+    }
+    
+    if (ariaLabel) {
+        button.setAttribute('aria-label', ariaLabel);
+    }
+    
+    if (text) {
+        button.textContent = text;
+    }
+    
+    if (className) {
+        button.className = className;
+    }
+    
+    if (onClick && typeof onClick === 'function') {
+        button.addEventListener('click', onClick);
+    }
+    
+    // Ensure the button has an accessible name
+    if (!button.textContent && !button.getAttribute('aria-label')) {
+        button.setAttribute('aria-label', 'Button');
+    }
+    
+    return button;
+}
+
+/**
+ * Creates an accessible link.
+ * @param {Object} options - Link options.
+ * @returns {HTMLAnchorElement} - The created anchor element.
+ */
+function createAccessibleLink(options = {}) {
+    const {
+        href = '#',
+        text = '',
+        ariaLabel = '',
+        onClick = null,
+        className = '',
+        id = ''
+    } = options;
+
+    const link = document.createElement('a');
+    link.href = href;
+    
+    if (id) {
+        link.id = id;
+    }
+    
+    if (ariaLabel) {
+        link.setAttribute('aria-label', ariaLabel);
+    }
+    
+    if (text) {
+        link.textContent = text;
+    }
+    
+    if (className) {
+        link.className = className;
+    }
+    
+    if (onClick && typeof onClick === 'function') {
+        link.addEventListener('click', (event) => {
+            event.preventDefault();
+            onClick(event);
+        });
+    }
+    
+    return link;
+}
+
+/**
+ * Validates table accessibility.
+ * @param {HTMLTableElement} table - Table to validate.
+ * @returns {Object} - Validation result with issues array.
+ */
+function validateTableAccessibility(table) {
+    const issues = [];
+    
+    if (!table) {
+        return { valid: false, issues: ['No table provided'] };
+    }
+    
+    const headers = table.querySelectorAll('th');
+    headers.forEach((th, index) => {
+        if (!th.hasAttribute('scope')) {
+            issues.push({
+                element: th,
+                index: index,
+                message: 'TH element missing scope attribute'
+            });
+        }
+    });
+    
+    return {
+        valid: issues.length === 0,
+        issues: issues
+    };
+}
+
+/**
+ * Validates table structure for accessibility.
+ * @param {HTMLTableElement} table - Table to validate.
+ * @returns {boolean} - Whether the table structure is valid.
+ */
+function validateTableStructure(table) {
+    if (!table) return false;
+    
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    const tfoot = table.querySelector('tfoot');
+    
+    // Basic structure validation
+    const hasHeaderCells = table.querySelectorAll('th').length > 0;
+    
+    return hasHeaderCells;
+}
+
+/**
+ * Handles accessibility issues found during validation.
+ * @param {Array} issues - Array of accessibility issues.
+ * @param {HTMLElement} container - Container to report issues in.
+ */
+function handleAccessibilityIssues(issues, container) {
+    if (!issues || issues.length === 0) return;
+    
+    const announcementRegion = document.createElement('div');
+    announcementRegion.setAttribute('role', 'alert');
+    announcementRegion.setAttribute('aria-live', 'polite');
+    announcementRegion.className = 'accessibility-announcements';
+    announcementRegion.style.position = 'absolute';
+    announcementRegion.style.left = '-10000px';
+    announcementRegion.style.width = '1px';
+    announcementRegion.style.height = '1px';
+    announcementRegion.style.overflow = 'hidden';
+    
+    announcementRegion.textContent = `${issues.length} accessibility issue(s) found`;
+    
+    if (container) {
+        container.appendChild(announcementRegion);
+    }
+}
+
+// Export for testing and external use
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        ensureUniqueLandmarkId,
+        uniqueLandmarks,
+        addLangAttribute,
+        addAriaLabel,
+        getLangAttribute,
+        getFullLangAttribute,
+        renderIndexView,
+        setupKeyboardNavigation,
+        trapFocus,
+        validateLandmark,
+        validateLandmarkStructure,
+        getSvgAccessibleName,
+        createInPageButton,
+        createAccessibleLink,
+        validateTableAccessibility,
+        validateTableStructure,
+        handleAccessibilityIssues
+    };
+}

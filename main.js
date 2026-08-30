@@ -36,9 +36,6 @@ module.exports = {
   ensureUniqueLandmarks: function() {
     // Implementation of ensureUniqueLandmarks
   },
-  createInPageButton: function() {
-    // Implementation of createInPageButton
-  },
   validateLinkAccessibility: function() {
     // Implementation of validateLinkAccessibility
   },

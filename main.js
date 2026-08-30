@@ -14,7 +14,7 @@
 
 import react from 'react';
 
-const HTML = ({ lang, children }) => <html lang={lang}>{children}</html>;
+const HTML = ({ lang, children }) => <html ...
 
 // ... (existing code, exports, and functions)
 
@@ -78,7 +78,7 @@ function validateInput(input) {
 const MAIN_LANDMARK_ID = 'main-content';
 
 // Address accessibility issues
-function addressAccessibilityIssues(insightReport) {
+function ... {
   if (!insightReport) {
     console.log('No insight report provided');
     return { addressed: false };
@@ -145,7 +145,7 @@ function getLangAttribute(document) {
     return appState.lang || config.defaultLang;
   }
   
-  const htmlElement = document.documentElement || document.querySelector('html');
+  const htmlElement = document.documentElement || ...
   if (htmlElement) {
     return htmlElement.getAttribute('lang') || appState.lang || config.defaultLang;
   }
@@ -160,7 +160,7 @@ function addLangAttribute(element, lang) {
     return false;
   }
   
-  const validLangs = config.supportedLangs;
+  const validLangs = ...
   if (!validLangs.includes(lang)) {
     console.warn(`Language "${lang}" may not be supported`);
   }
@@ -182,20 +182,20 @@ function validateTableAccessibility(table) {
   const errors = [];
   
   // Check if table has headers
-  const headers = table.querySelectorAll('th');
+  const headers = ...
   if (headers.length === 0) {
     errors.push('Table should have header cells (th)');
   }
   
   // Check for scope attribute on headers
   headers.forEach(th => {
-    if (!th.getAttribute('scope')) {
+    if ... {
       errors.push('Header cells should have scope attribute');
     }
   });
   
   // Check for caption
-  const caption = table.querySelector('caption');
+  const caption = ...
   if (!caption) {
     errors.push('Tables should have a caption for accessibility');
   }
@@ -215,8 +215,8 @@ function validateTableStructure(table) {
   const issues = [];
   
   // Check for proper table elements
-  const tbody = table.querySelector('tbody');
-  const thead = table.querySelector('thead');
+  const tbody = ...
+  const thead = ...
   
   if (!thead) {
     issues.push('Table should have a thead element');
@@ -227,9 +227,9 @@ function validateTableStructure(table) {
   }
   
   // Check for proper row structure
-  const rows = table.querySelectorAll('tr');
+  const rows = ...
   rows.forEach((row, index) => {
-    const cells = row.querySelectorAll('td, th');
+    const cells = ... th');
     if (cells.length === 0) {
       issues.push(`Row ${index} has no cells`);
     }
@@ -251,13 +251,13 @@ function fixTableStructure(table) {
   let fixed = false;
   
   // Ensure thead exists
-  if (!table.querySelector('thead')) {
+  if ... {
     const thead = document.createElement('thead');
     const firstRow = table.querySelector('tr');
     if (firstRow) {
-      const headerCells = firstRow.querySelectorAll('th');
+      const headerCells = ...
       if (headerCells.length > 0) {
-        thead.appendChild(firstRow.cloneNode(true));
+        ...
         table.insertBefore(thead, table.firstChild);
         firstRow.remove();
         fixed = true;
@@ -266,23 +266,23 @@ function fixTableStructure(table) {
   }
   
   // Add scope attributes to headers
-  const headers = table.querySelectorAll('th');
+  const headers = ...
   headers.forEach(th => {
-    if (!th.getAttribute('scope')) {
+    if ... {
       const row = th.closest('tr');
       const isHeaderRow = row.querySelector('th') === th && 
-                          Array.from(row.children).indexOf(th) === 0;
+                          ... === 0;
       th.setAttribute('scope', isHeaderRow ? 'row' : 'col');
       fixed = true;
     }
   });
   
   // Add caption if missing
-  if (!table.querySelector('caption')) {
-    const caption = document.createElement('caption');
+  if ... {
+    const caption = ...
     caption.textContent = 'Data Table';
     caption.style.cssText = 'caption-side: top; text-align: left;';
-    table.insertBefore(caption, table.firstChild);
+    ... table.firstChild);
     fixed = true;
   }
   
@@ -296,13 +296,13 @@ function addMainLandmark(mainElement) {
     return false;
   }
   
-  const existingMain = document.querySelector('main');
+  const existingMain = ...
   if (existingMain && existingMain !== mainElement) {
     console.warn('Main landmark already exists in document');
     return false;
   }
   
-  if (mainElement.tagName.toLowerCase() !== 'main') {
+  if ... !== 'main') {
     console.warn('Element should be a <main> element');
     return false;
   }
@@ -315,7 +315,7 @@ function addMainLandmark(mainElement) {
   return true;
 }
 
-function validateLandmark(document) {
+function ... {
   // Validate that landmarks are properly defined
   if (!document) {
     return { valid: false, issues: ['Document is required'] };
@@ -324,25 +324,25 @@ function validateLandmark(document) {
   const issues = [];
   
   // Check for main landmark
-  const main = document.querySelector('main');
+  const main = ...
   if (!main) {
     issues.push('Document should have a main landmark');
   }
   
   // Check for header landmark
-  const header = document.querySelector('header');
+  const header = ...
   if (!header) {
     issues.push('Document should have a header landmark');
   }
   
   // Check for footer landmark
-  const footer = document.querySelector('footer');
+  const footer = ...
   if (!footer) {
     issues.push('Document should have a footer landmark');
   }
   
   // Check for nav landmark
-  const nav = document.querySelector('nav');
+  const nav = ...
   if (!nav) {
     issues.push('Document should have a navigation landmark');
   }
@@ -353,7 +353,7 @@ function validateLandmark(document) {
   };
 }
 
-function validateLandmarkStructure(document) {
+function ... {
   // Validate landmark structure for accessibility
   if (!document) {
     return { valid: false, issues: ['Document is required'] };
@@ -363,17 +363,17 @@ function validateLandmarkStructure(document) {
   const landmarks = ['header', 'main', 'nav', 'aside', 'footer'];
   
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(landmark);
+    const elements = ...
     if (elements.length > 1 && landmark !== 'nav') {
       issues.push(`Multiple ${landmark} landmarks found - should have only one`);
     }
   });
   
   // Check for proper landmark labeling
-  const navElements = document.querySelectorAll('nav');
-  navElements.forEach((nav, index) => {
-    const ariaLabel = nav.getAttribute('aria-label');
-    const ariaLabelledBy = nav.getAttribute('aria-labelledby');
+  const navElements = ...
+  ... index) => {
+    const ariaLabel = ...
+    const ariaLabelledBy = ...
     if (!ariaLabel && !ariaLabelledBy) {
       issues.push(`Navigation ${index + 1} should have aria-label or aria-labelledby`);
     }
@@ -397,6 +397,6 @@ function validateLandmarkAttributes(element) {
   // Semantic landmarks
   const semanticLandmarks = ['header', 'main', 'nav', 'aside', 'footer'];
   
-  if (semanticLandmarks.includes(tagName)) {
+  if ... {
     // Check if element has proper labeling
     const ariaLabel = element.getAttribute('aria

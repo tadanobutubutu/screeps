@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 // main.js - Main application entry point
 
 // Import required modules
@@ -44,7 +46,7 @@ function decodeJwtToken(token) {
         }
         
         const payload = parts[1];
-        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf-8');
+        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
         return JSON.parse(decoded);
     } catch (error) {
         return null;
@@ -119,7 +121,7 @@ function handleCredentialResponse(credentialResponse) {
 function generateSessionId() {
     const timestamp = Date.now().toString(36);
     const randomPart = Math.random().toString(36).substring(2, 15);
-    return `${timestamp}-${randomPart}`;
+    return timestamp + '-' + randomPart;
 }
 
 /**

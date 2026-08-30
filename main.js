@@ -182,8 +182,10 @@ function renderDependencyGraph(dependencyData) {
 }
 
 function renderIndexView(indexData) {
+  // Implement renderIndexView functionality
   console.log('Rendering index view with data:', indexData);
-  renderIndexContentWithOptions(indexData, { container: document.querySelector('.index-content, [data-index-content]') });
+  const container = document.querySelector('.index-content, [data-index-content]') || document.querySelector('.indexView') || document.querySelector('[data-testid="index-view"]');
+  renderIndexContentWithOptions(indexData, { container });
 }
 
 function calculateSum(a, b) {

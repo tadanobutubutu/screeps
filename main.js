@@ -42,7 +42,7 @@ function decodeJwtToken(token) {
         }
         
         const payload = parts[1];
-        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf-8');
+        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
         return JSON.parse(decoded);
     } catch (error) {
         return null;
@@ -179,6 +179,9 @@ function getActiveSessionsCount() {
 }
 
 // HTTP Server setup
+const http = require('http');
+const url = require('url');
+
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     
@@ -290,5 +293,6 @@ module.exports = {
     validateSession,
     revokeSession,
     getActiveSessionsCount,
+    appState,
     server
 };

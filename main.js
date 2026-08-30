@@ -123,6 +123,28 @@ function updateIndexView(view, items) {
     return view;
 }
 
+// Original function
+function hello() {
+  return 'Hello, World!';
+}
+
+// Existing function
+function getConfig() {
+  return { version: VERSION, name: APP_NAME };
+}
+
+// New function to implement validateLandmark
+function validateLandmark(landmark) {
+  if (!landmark || typeof landmark !== 'object' || landmark.id === undefined) {
+    return false;
+  }
+  if (!landmark.name || typeof landmark.name !== 'string') {
+    return false;
+  }
+  // Additional validation rules can be added here
+  return true;
+}
+
 // Export all functions and constants
 module.exports = {
   // Constants
@@ -131,7 +153,9 @@ module.exports = {
   // Existing functions
   hello,
   getConfig,
-  // Newly added missing exports
+  // New function
+  validateLandmark,
+  // Existing helper functions
   isValid,
   capitalize,
   greet,

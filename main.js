@@ -19,9 +19,6 @@ import { indexContent } from './indexContent';
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
-
 // Function to ensure the element has an id
 function ensureElementHasId(element, fallbackId) {
   if (element && element.id) {
@@ -331,12 +328,15 @@ export function BookItem(book) {
 }
 
 // Function to create a new book entry in the Redux store
-export function addBook(dispatch, book) {
+export function addBook(book, dispatch) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
+
+  // Set the focus on the newly added book item
+  document.querySelector(`[data-key="${generateKey(book)}"]`).focus();
 }
 
 // Function to improve accessibility for the addBook function or form
@@ -451,22 +451,23 @@ function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
   const [view, setView] = useState('books');
   const dispatch = useDispatch();
+  const booksList = useSelector(state => state.books.list);
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
     if (sorting === sortByTitle) {
-      onTitleSort(dispatch, getBooksList);
+      onTitleSort(dispatch, booksList);
     } else if (sorting === sortByAuthor) {
-      onAuthorSort(dispatch, getBooksList);
+      onAuthorSort(dispatch, booksList);
     }
-  }, [sorting, dispatch]);
+  }, [sorting, dispatch, booksList]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(book => BookItem(book));
+  const bookItems = booksList.map(book => BookItem(book));
 
   // Handle adding a new book
   const handleAddBook = (book) => {
-    addBook(dispatch, book);
+    addBook(book, dispatch);
   };
 
   // Render the list of book items and sorting controls
@@ -510,7 +511,7 @@ function Main() {
               <List
                 aria-label="Books collection"
                 bordered
-                dataSource={getBooksList}
+                dataSource={booksList}
                 renderItem={(book) => BookItem(book)}
               />
             </section>
@@ -523,5 +524,11 @@ function Main() {
   );
 }
 
-// Export the Main component
-export default Main;
+// Extract the SVG links and apply accessible name
+function handleFakeLinks() {
+  const svgLinks = document.querySelectorAll('svg a');
+  svgLinks.forEach(setSvgAttributes);
+}
+
+// Export the Main component and handleFakeLinks function
+export { Main, handleFakeLinks };

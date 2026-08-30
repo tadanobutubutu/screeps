@@ -89,6 +89,115 @@ const checkTableAccessibility = () => {
 };
 
 /**
+ * Checks accessibility of links and buttons in the document.
+ * Ensures that links and buttons have proper accessibility attributes.
+ * 
+ * @returns {Object} An object containing accessibility check results for links and buttons.
+ */
+const checkLinkAndButtonAccessibility = () => {
+  const results = {
+    linksWithIssues: [],
+    totalLinks: 0,
+    linksWithoutHref: 0,
+    linksWithoutText: 0,
+    buttonsWithIssues: [],
+    totalButtons: 0,
+    buttonsWithoutAriaLabel: 0
+  };
+  
+  // Skip if document is not available (e.g., in Node.js test environment)
+  if (typeof document === 'undefined') {
+    return results;
+  }
+  
+  // Check links
+  const links = document.querySelectorAll('a[href], a:not([href])');
+  results.totalLinks = links.length;
+  
+  links.forEach((link, index) => {
+    const issues = [];
+    const href = link.getAttribute('href');
+    const textContent = link.textContent.trim();
+    const ariaLabel = link.getAttribute('aria-label');
+    const ariaHidden = link.getAttribute('aria-hidden');
+    
+    // Skip if the link is aria-hidden
+    if (ariaHidden === 'true') {
+      return;
+    }
+    
+    // Check for missing href attribute on anchor elements
+    if (!href && link.tagName.toLowerCase() === 'a') {
+      results.linksWithoutHref++;
+      issues.push({
+        linkIndex: index,
+        text: textContent.substring(0, 50),
+        message: 'Missing href attribute on <a> element'
+      });
+    }
+    
+    // Check for links without accessible text
+    if (!textContent && !ariaLabel) {
+      results.linksWithoutText++;
+      issues.push({
+        linkIndex: index,
+        text: '',
+        message: 'Link has no accessible text or aria-label'
+      });
+    } else if (textContent === '#' || textContent === '' || href === '#' || href === 'javascript:void(0)') {
+      if (!ariaLabel) {
+        issues.push({
+          linkIndex: index,
+          text: textContent.substring(0, 50),
+          message: 'Link with placeholder href has no aria-label'
+        });
+      }
+    }
+    
+    if (issues.length > 0) {
+      results.linksWithIssues.push({
+        linkIndex: index,
+        issues
+      });
+    }
+  });
+  
+  // Check buttons
+  const buttons = document.querySelectorAll('button, [role="button"]');
+  results.totalButtons = buttons.length;
+  
+  buttons.forEach((button, index) => {
+    const issues = [];
+    const tagname = button.tagName.toLowerCase();
+    const textContent = button.textContent.trim();
+    const ariaLabel = button.getAttribute('aria-label');
+    const ariaLabelledBy = button.getAttribute('aria-labelledby');
+    const hasVisibleText = textContent.length > 0;
+    const hasAriaLabel = ariaLabel !== null;
+    const hasAriaLabelledBy = ariaLabelledBy !== null;
+    
+    // Check for buttons without accessible name
+    if (!hasVisibleText && !hasAriaLabel && !hasAriaLabelledBy) {
+      results.buttonsWithoutAriaLabel++;
+      issues.push({
+        buttonIndex: index,
+        text: textContent.substring(0, 50),
+        message: 'Button has no visible text or ARIA label'
+      });
+    }
+    
+    if (issues.length > 0) {
+      results.buttonsWithIssues.push({
+        buttonIndex: index,
+        issues
+      });
+    }
+  });
+  
+  return results;
+};
+
+/**
  * Creates an in-page button element with an optional click handler.
  * @param {string} buttonText - The label text for the button.
  * @param {Function} onClickHandler - Callback function triggered when the button is clicked.
@@ -636,7 +745,8 @@ export {
   addSvgAccessibleNames,
   ensurePageUniqueLandmarks,
   fixFakeLink,
-  initializeAccessibility
+  initializeAccessibility,
+  checkLinkAndButtonAccessibility
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
@@ -680,70 +790,3 @@ function getConfig() {
     timeout: 5000
   };
 }
-=======
-import React from 'react';
-import PropTypes from 'prop-types';
-
-// TODO: Address any missing required exports
-// REACT_015: Add lang attribute
-
-const Main = ({ children, title, lang = 'en' }) => {
-  return (
-    <main role="main" lang={lang}>
-      {title && <h1>{title}</h1>}
-      {children}
-    </main>
-  );
-};
-
-Main.propTypes = {
-  children: PropTypes.node,
-  title: PropTypes.string,
-  lang: PropTypes.string,
-};
-
-export default Main;
-export { Main };
->>>>>>> origin/main
-
-// Resolved file content (HEAD version - vanilla JS accessibility utilities):
-// This is the complete main.js file with all accessibility functions preserved
-// and the React component removed as it's incompatible with the vanilla JS code.
-
-// Existing code starts here
-
-// This is the existing code that needs to be preserved
-// (This comment remains as-is)
-
-// More existing code that should be preserved
-
-// Existing code ends here
-
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
-// Addressed accessibility issues from insight report
-
-// ... (other code in main.js)
-
-/**
- * Checks if a specified landmark element is present in the document.
- * @param {string} id - The ID of the landmark element to check for.
- * @returns {boolean} True if the landmark element exists, false otherwise.
- */
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  if (!element) {
-    return false;
-  }
-  
-  // Validate that the landmark has required properties
-  if (element.getAttribute('name') && element.getAttribute('coordinates')) {
-    return true;
-  }
-  
-  return false;
-}
-
-/**
- * Checks accessibility of tables in the document.
- * Ensures that <th> elements

@@ -20,10 +20,10 @@ module.exports = function() {
     validateLandmark();
     validateLandmarkStructure();
     addFixLandmarkIssues();
+    addAriaToFormControls();
     
     // SVG accessibility
     const svgName = getSvgAccessibleName();
-    addAriaToFormControls();
     
     // Unique landmarks and fake link fixes
     ensureUniqueLandmarks();
@@ -55,17 +55,6 @@ function validateTableAccessibility() {
     // Validate table accessibility issues
 }
 
-// REACT_015: Add lang attribute to HTML element
-function addLangAttribute(lang = 'en') {
-  const doc = getDocument();
-  if (doc && doc.documentElement) {
-    if (doc.documentElement.lang !== lang) {
-      doc.documentElement.setAttribute('lang', lang);
-    }
-  }
-}
-
-// REACT_027: Fix table structure issues
 function validateTableStructure() {
     // Validate table structure
 }
@@ -94,64 +83,75 @@ function ensureUniqueLandmarks() {
     // Ensure unique landmarks
 }
 
-// Helper function to ensure element has an ID
-function ensureElementHasId(element) {
-  if (element && !element.id) {
-    element.id = `element-${Date.now()}`;
-  }
-}
-
-// Helper function to add aria-label to an element
-function addAriaLabel(element, label) {
-  if (element && label) {
-    element.setAttribute('aria-label', label);
-  }
-}
-
-// Helper function to get person name (for lang attribute handling)
-function personName() {
-  return 'Anonymous';
-}
-
-// New functions to support missing definitions
-function findIndex(arr, predicate) {
-  return arr.findIndex(predicate);
-}
-
-function originalFilterLandmarks(landmarks, role) {
-  return Array.from(landmarks).filter(el => el.getAttribute('role') === role);
-}
-
-function originalSortLandmarksByName(landmarks) {
-  return Array.from(landmarks).sort((a, b) => a.textContent.localeCompare(b.textContent));
-}
-
-function originalAddRequiredLandmarks(doc) {
-  const required = ['header', 'nav', 'main', 'aside', 'footer'];
-  required.forEach(tag => {
-    if (!doc.querySelector(tag)) {
-      const el = doc.createElement(tag);
-      doc.body.appendChild(el);
-    }
-  });
-}
-
-function ensureElementHasId(element) {
-  if (!element.id) {
-    element.id = 'element-' + Math.random().toString(36).substr(2, 9);
-  }
-}
-
-function addAriaLabel(element, label) {
-  if (!element.getAttribute('aria-label')) {
-    element.setAttribute('aria-label', label);
-  }
-}
-
 function fixFakeLinkIssues() {
     // Fix fake link issues
 }
 
 function createAccessibleLink() {
     // Create accessible link
+}
+
+// Helper function to get the document object
+function getDocument() {
+    if (typeof document !== 'undefined') {
+        return document;
+    }
+    return null;
+}
+
+// REACT_015: Add lang attribute to HTML element
+function addLangAttribute(lang) {
+    if (lang === undefined) {
+        lang = 'en';
+    }
+    const doc = getDocument();
+    if (doc && doc.documentElement) {
+        if (doc.documentElement.lang !== lang) {
+            doc.documentElement.lang = lang;
+        }
+    }
+}
+
+// Helper function to ensure element has an ID
+function ensureElementHasId(element) {
+    if (element && !element.id) {
+        element.id = 'element-' + Math.random().toString(36).substr(2, 9);
+    }
+}
+
+// Helper function to add aria-label to an element
+function addAriaLabel(element, label) {
+    if (element && label) {
+        element.setAttribute('aria-label', label);
+    }
+}
+
+// Helper function to get person name (for lang attribute handling)
+function personName() {
+    return 'Anonymous';
+}
+
+// New functions to support missing definitions
+function findIndex(arr, predicate) {
+    return arr.findIndex(predicate);
+}
+
+function originalFilterLandmarks(landmarks, role) {
+    return landmarks.filter(function(el) { return el.getAttribute('role') === role; });
+}
+
+function sortLandmarksByTextContent(landmarks) {
+    return Array.from(landmarks).sort(function(a, b) { return a.textContent.localeCompare(b.textContent); });
+}
+
+function ensureRequiredLandmarks() {
+    const doc = getDocument();
+    if (!doc) return;
+    const required = ['header', 'nav', 'main', 'aside', 'footer'];
+    required.forEach(function(tag) {
+        if (!doc.querySelector(tag)) {
+            const el = doc.createElement(tag);
+            doc.body.appendChild(el);
+        }
+    });
 }

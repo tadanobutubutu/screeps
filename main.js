@@ -36,7 +36,7 @@ function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
     } else {
       let generatedId = `${prefix}-${index}`;
       while (usedIds.has(generatedId)) {
-        generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+        generatedId = `${prefix}-${Math.floor(Math.random() * 900000) + 100000}`;
       }
       landmark.id = generatedId;
       usedIds.add(generatedId);
@@ -88,7 +88,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}-${Math.floor(Math.random() * 900000) + 100000}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -117,7 +117,7 @@ function addAriaLabel(element, label) {
  * @param {string} languageCode - The language code (e.g., 'en', 'es', 'fr')
  */
 function setLanguageAttribute(languageCode) {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', languageCode);
   }
@@ -128,20 +128,20 @@ function setLanguageAttribute(languageCode) {
 // Ensure all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
 // Adds an aria-label to the dependencyGraph container if it doesn't already have one
 function addDepGraphAriaLabel() {
-  const container = document.getElementById('dependencyGraph');
+  const container = document.querySelector('#dependencyGraph');
   addAriaLabel(container, 'Dependency Graph');
 }
 
 // Fixes 26 table structure issues for accessibility
 // Ensures tables have proper headers, captions, and scope attributes
-function fixTableStructureIssues() {
+function fixTableStructure() {
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     // Add caption if missing
     if (!table.querySelector('caption')) {
       const caption = document.createElement('caption');
       caption.textContent = table.getAttribute('aria-label') || 'Data table';
-      caption.classList.add('sr-only');
+      caption.style.caption-side = 'top';
       table.prepend(caption);
     }
 
@@ -186,15 +186,15 @@ function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg) => {
     const hasAccessibleName =
-      svg.hasAttribute('aria-label') ||
-      svg.hasAttribute('aria-labelledby') ||
-      svg.hasAttribute('role') ||
+      svg.getAttribute('aria-label') ||
+      svg.getAttribute('aria-labelledby') ||
+      svg.getAttribute('title') ||
       svg.querySelector('title');
 
     if (!hasAccessibleName) {
       // Try to use nearby text or generate one
       const parent = svg.parentElement;
-      const nearbyText = parent ? parent.textContent.trim().substring(0, 50) : '';
+      const nearbyText = parent ? parent.textContent.substring(0, 50) : '';
       const label = nearbyText || 'Decorative icon';
       svg.setAttribute('aria-label', label);
       svg.setAttribute('role', 'img');
@@ -222,7 +222,7 @@ function ensureUniqueLandmarks() {
 // Fixes fake link issues (e.g., divs/buttons styled as links but not using <a>)
 // Replaces fake links with proper anchor elements
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('[role="link"], .fake-link, [data-fake-link]');
+  const fakeLinks = document.querySelectorAll('.fake-link, [data-fake-link]');
   fakeLinks.forEach((fakeLink) => {
     const href = fakeLink.getAttribute('data-href') || fakeLink.getAttribute('href') || '#';
     const text = fakeLink.textContent;

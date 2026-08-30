@@ -1,5 +1,6 @@
 // Existing code starts here
-
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-swift';
 // This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
@@ -59,11 +60,10 @@ const isSecureContext = () => {
 
 /**
  * Sets the language attribute on the HTML element.
- *
  * This ensures that screen readers and other assistive technologies
  * can correctly interpret the language of the page.
  *
- * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr').
+ * @param {string} lang - The language code to set (default: 'en', e.g., 'en', 'es', 'fr').
  */
 const setLanguageAttribute = (lang = 'en') => {
   const htmlElement = document.documentElement;

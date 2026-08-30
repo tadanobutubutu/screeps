@@ -80,20 +80,8 @@ function getVersion() {
   return VERSION;
 }
 
-<<<<<<< HEAD
 // Implement the function for addressing new accessibility issues
 function addressAccessibilityIssues() {
-  // Assuming we are adding an ARIA role to the dependencyGraph container
-  const dependencyGraph = document.querySelector('.dependencyGraph');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'group');
-    // You might want to set other ARIA properties or check for more complex requirements from the insight report
-  }
-=======
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-function addressAccessibilityIssues() {
-  // TODO: Implement the function for addressing new accessibility issues
   const issues = [];
   const elements = document.querySelectorAll('img');
   elements.forEach((img) => {
@@ -144,6 +132,18 @@ function addressAccessibilityIssues() {
     });
   }
 
+  // Additional accessibility checks for dependencyGraph container
+  const dependencyGraph = document.querySelector('.dependencyGraph');
+  if (dependencyGraph) {
+    if (!dependencyGraph.hasAttribute('role')) {
+      issues.push({
+        type: 'missing-role',
+        element: dependencyGraph,
+        message: 'Element is missing ARIA role'
+      });
+    }
+  }
+
   return {
     total: issues.length,
     issues,
@@ -151,10 +151,11 @@ function addressAccessibilityIssues() {
       missingAlt: issues.filter((i) => i.type === 'missing-alt').length,
       missingAccessibleName: issues.filter((i) => i.type === 'missing-accessible-name').length,
       headingSkips: issues.filter((i) => i.type === 'heading-skip').length,
-      missingLang: issues.filter((i) => i.type === 'missing-lang').length
+      missingLang: issues.filter((i) => i.type === 'missing-lang').length,
+      missingRole: issues.filter((i) => i.type === 'missing-role').length
     }
   };
->>>>>>> origin/main
+}
 
 // New accessibility enhancement: ensure root container has accessible name and create announcement region
 const rootContainer = document.getElementById('root').parentElement;

@@ -1,4 +1,4 @@
-const config = require('./config');
+const config = {};
 const logger = require('./utils/logger');
 
 // Application state
@@ -11,7 +11,7 @@ let uniqueLandmarks = {};
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
+  const dependencyGraph = document.querySelector('[data-dependency-graph]') || document.querySelector('.dependency-graph') || document.getElementById('dependency-graph');
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
@@ -44,7 +44,7 @@ function improveAccessibility() {
     }
   });
 
-  const focusable = document.querySelectorAll('[role="link"]');
+  const focusable = document.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -81,25 +81,24 @@ function addressInsightReportIssues(insightReport) {
   });
 }
 
-function ensureUniqueLandmarks(insightReport) {
-  const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
+function ensureUniqueLandmarks() {
+  const landmarks = [...new Set(Array.from(document.querySelectorAll('[role]')).map(el => el.getAttribute('role')))];
 
   // Check if all landmarks exist, re-add if necessary
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+  const uniqueLandmarkMap = {};
+  landmarks.forEach(uniqueLandmark => {
+    const elements = document.querySelectorAll('[role="' + uniqueLandmark + '"]');
     if (elements.length < landmarks.length) {
-      const uniqueLandmarkMap = {};
-
-      landmarks.forEach(uniqueLandmark => {
-        let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
+      elements.forEach(el => {
+        let element = elements.filter(e => e.getAttribute('role') === uniqueLandmark);
         if (!element[0]) {
-          element = document.createElement(`div`);
-          element.setAttribute('role', uniqueLandmark);
-          if (!document.querySelector(`#${uniqueLandmark}`)) {
+          element = [document.createElement('div')];
+          element[0].setAttribute('role', uniqueLandmark);
+          if (!element[0].id) {
             const id = uniqueLandmark;
-            element.setAttribute('id', id);
+            element[0].setAttribute('id', id);
           }
-          document.body.appendChild(element);
+          document.body.appendChild(element[0]);
         }
         uniqueLandmarkMap[uniqueLandmark] = element[0];
       });
@@ -107,9 +106,9 @@ function ensureUniqueLandmarks(insightReport) {
       uniqueLandmarks = uniqueLandmarkMap;
     } else {
       elements.forEach(el => {
-        const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
+        const isUnique = !uniqueLandmarkMap[uniqueLandmark] || document.querySelectorAll('[role="' + uniqueLandmark + '"]').filter(e => e === el).length === 0;
         if (isUnique) {
-          uniqueLandmarkMap[landmark].push(el);
+          uniqueLandmarkMap[uniqueLandmark] = el;
         } else {
           el.removeAttribute('role');
         }
@@ -118,21 +117,9 @@ function ensureUniqueLandmarks(insightReport) {
   });
 }
 
-function addLandmarkRoles(insightReport) {
-  const issues = insightReport.issues || [];
+function fixUniqueLandmarks() {
+  const issues = insightReport ? insightReport.issues || [] : [];
 
-  issues.forEach(issue => {
-    if (issue.code === 'REACT_017') {
-      const element = document.querySelector(issue.selector);
-      if (element && issue.ariaRole) {
-        element.setAttribute('role', issue.ariaRole);
-      }
-    }
-  });
-}
-
-function fixLandmarkIssues(insightReport) {
-  const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_017') {
       const element = document.querySelector(issue.selector);
@@ -146,7 +133,7 @@ function fixLandmarkIssues(insightReport) {
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependency-graph, [data-dependency-graph]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
+  const container = document.querySelector('[data-dependency-graph]') || document.querySelector('.dependency-graph') || document.getElementById('dependency-graph');
   if (container) {
     container.innerHTML = data;
   }
@@ -168,7 +155,7 @@ function renderIndexContentWithOptions(data, options = {}) {
     options.container.innerHTML = data;
   } else {
     // Default rendering behavior for index
-    const container = document.querySelector('.index-content, [data-index-content]');
+    const container = document.querySelector('[data-index-content]');
     if (container) {
       container.innerHTML = data;
     }
@@ -178,12 +165,12 @@ function renderIndexContentWithOptions(data, options = {}) {
 // Updated function for rendering dependency graph using new render function
 function renderDependencyGraph(dependencyData) {
   console.log('Rendering dependency graph with data:', dependencyData);
-  renderGraphContentWithOptions(dependencyData, { container: document.querySelector('.dependency-graph-content, [data-dependency-graph-content]') });
+  renderGraphContentWithOptions(dependencyData, { container: document.querySelector('[data-dependency-graph-content]') });
 }
 
 function renderIndexView(indexData) {
   console.log('Rendering index view with data:', indexData);
-  renderIndexContentWithOptions(indexData, { container: document.querySelector('.index-content, [data-index-content]') });
+  renderIndexContentWithOptions(indexData, { container: document.querySelector('[data-index-content]') });
 }
 
 function calculateSum(a, b) {
@@ -191,8 +178,8 @@ function calculateSum(a, b) {
 }
 
 function fixFakeLinks() {
-  const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
-  const fakeLinkDivs = document.querySelectorAll('[role="link"]');
+  const fakeLinkAnchors = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
+  const fakeLinkDivs = document.querySelectorAll('div[role="link"], span[role="link"]');
 
   [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
     link.setAttribute('role', 'button');
@@ -228,15 +215,15 @@ function fixTableStructureIssues() {
 function fixTableHeaderCellScope() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
-    const headerCells = table.querySelectorAll('th, td');
+    const headerCells = table.querySelectorAll('th');
     headerCells.forEach(cell => {
       if (!cell.hasAttribute('scope')) {
-        const rows = table.querySelectorAll('tr');
+        const rows = Array.from(table.querySelectorAll('tr'));
         const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
         let isHeaderRow = true;
 
         rows.forEach(row => {
-          const rowCells = row.querySelectorAll('th, td');
+          const rowCells = row.querySelectorAll('td');
           if (rowCells[cellIndex] !== cell) {
             isHeaderRow = false;
           }
@@ -273,12 +260,12 @@ function addSvgAccessibleNames() {
   svgs.forEach((svg, index) => {
     const title = svg.querySelector('title');
     if (title) {
-      const titleId = `svg-title-${index}`;
+      const titleId = 'svg-title-' + index;
       title.setAttribute('id', titleId);
       svg.setAttribute('aria-labelledby', titleId);
     } else {
       const title = document.createElement('title');
-      title.textContent = `SVG graphic ${index + 1}`;
+      title.textContent = 'SVG graphic ' + (index + 1);
       svg.insertBefore(title, svg.firstChild);
     }
   });
@@ -305,8 +292,8 @@ function newFunction() {
 }
 
 // Updated function for REACT_025 (ensuring unique landmarks)
-function fixUniqueLandmarks(insightReport) {
-  const issues = insightReport.issues || [];
+function addressLandmarkIssues(insightReport) {
+  const issues = insightReport ? insightReport.issues || [] : [];
 
   issues.forEach(issue => {
     if (issue.code === 'REACT_025') {
@@ -318,7 +305,7 @@ function fixUniqueLandmarks(insightReport) {
     }
   });
 
-  uniqueLandmarks = Object.values(uniqueLandmarks);
+  uniqueLandmarks = uniqueLandmarks;
 
   // Check if all landmarks are unique and re-add if necessary
   ensureUniqueLandmarks();
@@ -326,15 +313,18 @@ function fixUniqueLandmarks(insightReport) {
 
 function implementNewFunction() {
   addressAccessibilityIssues();
-  implementAccessibilityFixes();
+  improveAccessibility();
   fixFakeLinks();
   ensureUniqueLandmarks();
   addLangAttribute();
   fixTableStructureIssues();
   addMainLandmark();
-  addSvgAccessibleNames();
   fixTableHeaderCellScope();
-  fixUniqueLandmarks();
+  addSvgAccessibleNames();
+}
+
+function someFunction() {
+  return 'some value';
 }
 
 function main() {
@@ -343,34 +333,4 @@ function main() {
   return someFunction();
 }
 
-module.exports = {
-  config,
-  logger,
-  improveAccessibility,
-  addressInsightReportIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  someFunction,
-  addressAccessibilityIssues,
-  renderDependencyGraphContent,
-  implementAccessibilityFixes,
-  fixFakeLinks,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  implementNewFunction,
-  newFunction,
-  addLangAttribute,
-  main,
-  addressAccessibilityIssues,
-  renderDependencyGraphContent,
-  renderGraphContentWithOptions,
-  renderIndexContentWithOptions,
-  fixUniqueLandmarks,
-  capitalizeFirstLetter
-};
-
-main();
+module.exports

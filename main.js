@@ -105,6 +105,108 @@ function newFocusTrap() {
   // New function implementation
 }
 
+// Validate landmark accessibility
+function validateLandmark(element) {
+  if (!element) {
+    return false;
+  }
+  
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+  const ariaRole = element.getAttribute('role');
+  
+  // Check if it's a semantic landmark element
+  const tagName = element.tagName.toLowerCase();
+  const semanticLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section'];
+  
+  // If it's a semantic landmark, validate it has proper structure
+  if (semanticLandmarks.includes(tagName)) {
+    // For <section> elements, ensure they have an accessible name
+    if (tagName === 'section') {
+      const hasAccessibleName = element.getAttribute('aria-label') || 
+                                element.getAttribute('aria-labelledby') || 
+                                element.hasAttribute('title');
+      if (!hasAccessibleName) {
+        console.warn('Landmark section should have an accessible name via aria-label, aria-labelledby, or title attribute');
+      }
+    }
+    
+    // Ensure sectioning elements don't have conflicting roles
+    if (ariaRole && ariaRole !== 'region' && validRoles.includes(ariaRole)) {
+      // Valid ARIA role for this semantic element
+    }
+    
+    return true;
+  }
+  
+  // If it uses role attribute, validate it's a valid landmark role
+  if (ariaRole && validRoles.includes(ariaRole)) {
+    // Elements with landmark roles should have accessible names when required
+    if (['region', 'form', 'search'].includes(ariaRole)) {
+      const hasAccessibleName = element.getAttribute('aria-label') || 
+                                element.getAttribute('aria-labelledby');
+      if (!hasAccessibleName) {
+        console.warn(`Landmark with role="${ariaRole}" should have an accessible name`);
+        return false;
+      }
+    }
+    
+    return true;
+  }
+  
+  return false;
+}
+
+// Validate landmark structure
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, [role]');
+  const landmarkCounts = {};
+  const uniqueLandmarks = [];
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    const tagName = landmark.tagName.toLowerCase();
+    
+    // Determine effective landmark type
+    let landmarkType;
+    if (role && ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'].includes(role)) {
+      landmarkType = role;
+    } else if (['header', 'nav', 'main', 'aside', 'footer'].includes(tagName)) {
+      landmarkType = tagName;
+    } else {
+      return; // Not a landmark
+    }
+    
+    // Count landmarks by type for uniqueness
+    landmarkCounts[landmarkType] = (landmarkCounts[landmarkType] || 0) + 1;
+    
+    // Validate the landmark
+    const isValid = validateLandmark(landmark);
+    
+    if (isValid) {
+      uniqueLandmarks.push({
+        type: landmarkType,
+        element: landmark,
+        count: landmarkCounts[landmarkType]
+      });
+    }
+  });
+  
+  // Check for uniqueness of banner, contentinfo, and main landmarks
+  const uniquenessIssues = [];
+  ['banner', 'contentinfo', 'main'].forEach(role => {
+    if (landmarkCounts[role] > 1) {
+      uniquenessIssues.push(`Multiple ${role} landmarks found (${landmarkCounts[role]})`);
+    }
+  });
+  
+  return {
+    totalLandmarks: Object.values(landmarkCounts).reduce((a, b) => a + b, 0),
+    landmarkCounts,
+    uniqueLandmarks,
+    uniquenessIssues
+  };
+}
+
 // Add back any required exports that might have been removed.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 function calculateSum(a, b) { return a + b; }
@@ -285,5 +387,7 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  validateLandmark,
+  validateLandmarkStructure
 };

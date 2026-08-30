@@ -88,6 +88,11 @@ function implementNewFunction(input) {
   return input;
 }
 
+// New export added back per issue requirement
+function calculateSum(a, b) {
+  return a + b;
+}
+
 module.exports = {
   renderDependencyGraph,
   addLangAttribute,
@@ -96,5 +101,6 @@ module.exports = {
   getSvgAccessibleName,
   personName,
   validateTableStructure,
-  implementNewFunction
+  implementNewFunction,
+  calculateSum
 };

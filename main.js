@@ -101,8 +101,23 @@ function displayModuleStructure(modules) {
  * @returns {Object} Report containing statistics
  */
 function generateDependencyReport(dependencies) {
+  let totalDependencies = 0;
+  
+  function countDependencies(obj) {
+    if (!obj || typeof obj !== 'object') return;
+    const keys = Object.keys(obj);
+    totalDependencies += keys.length;
+    keys.forEach(key => {
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        countDependencies(obj[key]);
+      }
+    });
+  }
+  
+  countDependencies(dependencies);
+  
   return {
-    totalDependencies: Object.keys(dependencies).length,
+    totalDependencies,
     maxDepth: getDependencyDepth(dependencies),
     graph: renderDependencyGraph(dependencies)
   };

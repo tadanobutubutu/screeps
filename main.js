@@ -71,6 +71,19 @@ function getFullLangAttribute() {
 }
 
 /**
+ * This function ensures the lang attribute is present on the HTML element.
+ * If not present, it defaults to 'en'.
+ * @returns {string} - the language attribute value
+ */
+function getLangAttribute() {
+  const html = document.documentElement;
+  if (!html.lang) {
+    html.lang = 'en';
+  }
+  return html.lang;
+}
+
+/**
  * Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
  * Assumes you have already set the id on the button element in your code.
  */

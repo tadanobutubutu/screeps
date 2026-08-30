@@ -65,12 +65,18 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function ensureUniqueLandmarkId(baseName) {
+function createUniqueLandmarkId(baseName) {
     let candidate = baseName;
-    if (_usedLandmarkIds.has(candidate)) {
-        // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
+    let counter = 1;
+    while (_usedLandmarkIds.has(candidate)) {
+        // Collision handling: add numeric suffix
+        const suffix = Math.floor(Math.random() * 900) + 100;
         candidate = `${baseName}-${suffix}`;
+        counter++;
+        if (counter > 100) {
+            candidate = `${baseName}-${Date.now()}`;
+            break;
+        }
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -99,7 +105,7 @@ function uniqueLandmarks(landmarks) {
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (!element.hasAttribute('aria-label')) {
+    if (element && !element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
@@ -109,7 +115,7 @@ function addAriaLabel(element, label) {
  */
 function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('some-selector');
+  const elementToModify = document.documentElement;
   if (elementToModify) {
     elementToModify.setAttribute('lang', 'en'); // Example: English
   }
@@ -124,14 +130,14 @@ createInPageButton();
 
 // Validate table structure and accessibility
 // Ensuring all tables in the document are accessible
-tables.forEach(table => {
+const tableElements = document.querySelectorAll('table');
+tableElements.forEach(table => {
   validateTableAccessibility(table);
   validateTableStructure(table);
 });
 
 // Add/fix landmark issues
 validateLandmark();
-validateLandmarkStructure();
 
 // Add accessible names to SVGs
 // Adding accessible names to all SVG elements in the document
@@ -143,15 +149,18 @@ svgs.forEach(svg => {
 
 // Ensure unique landmarks
 // Ensuring all landmarks have unique identifiers
-const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"], [role="search"]');
 const landmarkIds = new Set();
 landmarks.forEach(landmark => {
   if (landmark.id) {
     if (landmarkIds.has(landmark.id)) {
-      landmark.removeAttribute('id');
+      const newId = createUniqueLandmarkId(landmark.getAttribute('role') || 'landmark');
+      landmark.id = newId;
     } else {
       landmarkIds.add(landmark.id);
     }
+  } else {
+    landmark.id = createUniqueLandmarkId(landmark.getAttribute('role') || 'landmark');
   }
 });
 
@@ -176,7 +185,7 @@ buttons.forEach((button, index) => {
 function googleSignIn() {
   const googleButton = document.querySelector('[data-google-signin]');
   if (googleButton) {
-    googleButton.setAttribute('aria-label', 'Sign in with Google');
+    addAriaLabel(googleButton, 'Sign in with Google');
     googleButton.setAttribute('role', 'button');
   }
 }
@@ -214,7 +223,7 @@ function renderCart(cart) {
   return `
     <div class="cart">
       <h2>Shopping Cart</h2>
-      <p>Total: ...${total}</p>
+      <p>Total: $${total.toFixed(2)}</p>
       <p>Date: ${formatDate(new Date())}</p>
     </div>
   `;
@@ -238,7 +247,14 @@ function renderPage(data) {
 function checkLinkAccessibility() {
   // Implementation for checking link accessibility
   // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility();
+  const links = document.querySelectorAll('a');
+  const issues = [];
+  links.forEach((link, index) => {
+    if (!link.textContent.trim() && !link.getAttribute('aria-label') && !link.getAttribute('aria-labelledby')) {
+      issues.push({ index, message: 'Link missing accessible name', element: link });
+    }
+  });
+  return issues;
 }
 
 // Export accessibility utility functions

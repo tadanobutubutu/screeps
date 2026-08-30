@@ -54,6 +54,69 @@ function renderIndexView(packages) {
 }
 
 /**
+ * Checks tables for accessibility issues
+ * @param {string} htmlContent - The HTML content containing tables
+ * @returns {Object} - Object containing accessibility issues found
+ */
+function checkTableAccessibility(htmlContent) {
+    const issues = [];
+    const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
+    let tableMatch;
+    let tableIndex = 0;
+    
+    while ((tableMatch = tableRegex.exec(htmlContent)) !== null) {
+        const tableContent = tableMatch[0];
+        const tableNumber = tableIndex + 1;
+        
+        // Check for caption
+        if (!/<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent)) {
+            issues.push({
+                table: tableNumber,
+                issue: 'REACT_027',
+                message: `Table ${tableNumber} is missing a <caption> element for accessibility`
+            });
+        }
+        
+        // Check for th elements with scope attribute
+        const thRegex = /<th[^>]*>([\s\S]*?)<\/th>/gi;
+        let thMatch;
+        while ((thMatch = thRegex.exec(tableContent)) !== null) {
+            const thContent = thMatch[0];
+            if (!/scope\s*=\s*["'][a-z]+["']/i.test(thContent)) {
+                issues.push({
+                    table: tableNumber,
+                    issue: 'REACT_027',
+                    message: `Table ${tableNumber} has a <th> element without a scope attribute`
+                });
+            }
+        }
+        
+        // Check for headers attribute in td elements
+        const tdRegex = /<td[^>]*headers\s*=/gi;
+        if (tdRegex.test(tableContent)) {
+            // headers attribute found - this is valid
+        } else {
+            // Check if table has proper header structure
+            if (!/<th[^>]*>/i.test(tableContent)) {
+                issues.push({
+                    table: tableNumber,
+                    issue: 'REACT_027',
+                    message: `Table ${tableNumber} should have proper header cells (<th>) for accessibility`
+                });
+            }
+        }
+        
+        tableIndex++;
+    }
+    
+    return {
+        totalTables: tableIndex,
+        issues: issues,
+        passed: issues.length === 0
+    };
+}
+
+/**
  * Main entry point for the application
  */
 function main() {
@@ -69,5 +132,6 @@ function main() {
 module.exports = {
     renderDependencyGraph,
     renderIndexView,
+    checkTableAccessibility,
     main
 };

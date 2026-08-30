@@ -1,182 +1,113 @@
-Here is the resolved file content:
+// main.js - Application entry point
+// TODO: Address accessibility issues from insight report
 
-```javascript
-// Main JavaScript file
-// This file handles the main application logic
+const fs = require('fs');
+const path = require('path');
 
-(function() {
-    'use strict';
+// Configuration
+const CONFIG = {
+    dataPath: './data',
+    maxResults: 100
+};
 
-    // DOM Elements
-    const dependencyGraph = document.getElementById('dependencyGraph');
+// Helper function to validate landmark structure
+function isValidLandmark(landmark) {
+    return landmark && 
+           typeof landmark.id !== 'undefined' && 
+           landmark.id !== null;
+}
 
-    // Import required modules and React components
-    const axe = require('axe-core');
-    const fs = require('fs');
-    const path = require('path');
-    const a11y = require('./AccessibilityUtilities');
+// Load landmarks from file
+function loadLandmarks() {
+    try {
+        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error loading landmarks:', error.message);
+        return [];
+    }
+}
 
-    // Assuming that pages are in './pages' directory with `.js` or `.jsx` extension
-    const pagesDir = path.join(__dirname, 'pages');
+// Process and filter landmarks
+function processLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+    
+    const validLandmarks = landmarks.filter(isValidLandmark);
+    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+    
+    return uniqueLandmarks.slice(0, CONFIG.maxResults);
+}
 
-    // Function to scan pages for accessibility issues and generate a report
-    async function scanAccessibility() {
-      const filePaths = await fs.promises.readdir(pagesDir);
-      const issues = [];
-
-      for (const filePath of filePaths) {
-        const fileEmitted = path.join(pagesDir, filePath);
-        const { violations } = await axe.analyze(fileEmitted);
-
-        if (violations.length > 0) {
-          issues.push({
-            file: filePath,
-            issues: violations,
-          });
+// Sort landmarks by name
+function sortLandmarks(landmarks, ascending = true) {
+    return landmarks.slice().sort((a, b) => {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+        
+        if (ascending) {
+            return nameA.localeCompare(nameB);
         }
-      }
+        return nameB.localeCompare(nameA);
+    });
+}
 
-      return issues;
+// Get landmark by ID
+function getLandmarkById(landmarks, id) {
+    return landmarks.find(landmark => landmark.id === id) || null;
+}
+
+// Ensure unique landmarks by ID
+function ensureUniqueLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
     }
-
-    // Function to write the generated report to a file
-    function writeReport(report) {
-      const reportFile = path.join(__dirname, 'accessibility_report.json');
-      fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-    }
-
-    // Function to get the language attribute value
-    function getLangAttribute() {
-      // Implementation of getLangAttribute function
-      return document.documentElement.lang || 'en';
-    }
-
-    // Function to create an in-page button
-    function createInPageButton() {
-      // Implementation of createInPageButton function
-      const button = document.createElement('button');
-      button.textContent = 'Accessibility Info';
-      button.setAttribute('aria-label', 'Show accessibility information');
-      document.body.appendChild(button);
-    }
-
-    // Function to address accessibility issues
-    function addressAccessibilityIssues() {
-      // Ensure the root container has an accessible name
-      const rootContainer = document.getElementById('root') ? document.getElementById('root').parentElement : null;
-      if (rootContainer) {
-        rootContainer.setAttribute('role', 'main');
-      }
-
-      // Initialize skip link functionality
-      const skipLink = document.querySelector('[href^="#"]');
-      if (skipLink) {
-        skipLink.addEventListener('click', function(e) {
-          const targetId = this.getAttribute('href').slice(1);
-          const target = document.getElementById(targetId);
-          if (target) {
-            target.setAttribute('tabindex', '-1');
-            target.focus();
-          }
-        });
-      }
-
-      // Ensure all buttons with role="button" respond to Enter key
-      document.querySelectorAll('[role="button"]').forEach(function(button) {
-        button.addEventListener('keydown', function(e) {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            this.click();
-          }
-        });
-      });
-
-      // Add focusVisible polyfill behavior
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Tab') {
-          document.body.classList.add('keyboard-nav');
+    
+    const seen = new Set();
+    const uniqueLandmarks = [];
+    
+    for (const landmark of landmarks) {
+        if (!landmark || typeof landmark.id === 'undefined') {
+            continue;
         }
-      });
-
-      document.addEventListener('mousedown', function() {
-        document.body.classList.remove('keyboard-nav');
-      });
-
-      // Trap focus in modal and announce welcome message
-      const modalElement = document.getElementById('modal');
-      if (modalElement && a11y && a11y.trapFocus) {
-        a11y.trapFocus(modalElement);
-      }
-      if (a11y && a11y.announce) {
-        a11y.announce('Welcome to the bot!', 'assertive');
-      }
-
-      // Adding an alt attribute to an image
-      const imageElement = document.getElementById('example-image');
-      if (imageElement) {
-        imageElement.setAttribute('alt', 'A description of the image');
-      }
-
-      // Correcting the ARIA role for a div
-      const divElement = document.getElementById('example-div');
-      if (divElement) {
-        divElement.setAttribute('role', 'list');
-      }
-
-      // Adding the lang attribute to the HTML element
-      const htmlElement = document.documentElement;
-      if (htmlElement) {
-        htmlElement.setAttribute('lang', getLangAttribute());
-      }
+        
+        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+        
+        if (!seen.has(landmarkId)) {
+            seen.add(landmarkId);
+            uniqueLandmarks.push(landmark);
+        }
     }
+    
+    return uniqueLandmarks;
+}
 
-    // Export the report generation function
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-      generateAccessibilityReport: async function () {
-        const report = await scanAccessibility();
-        writeReport(report);
-      },
-      addressAccessibilityIssues,
-      getLangAttribute,
-      createInPageButton,
-      a11y
+        CONFIG,
+        isValidLandmark,
+        loadLandmarks,
+        processLandmarks,
+        sortLandmarks,
+        getLandmarkById,
+        ensureUniqueLandmarks
     };
+}
 
-    // Initialize the application with accessibility improvements
-    function initialize() {
-        // Ensure the dependencyGraph container has a proper ARIA role
-        if (dependencyGraph) {
-            dependencyGraph.setAttribute('role', 'region');
-            dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
-        }
-
-        // Address accessibility issues
-        addressAccessibilityIssues();
-
-        // Create the in-page button
-        createInPageButton();
-
-        // Existing initialization logic preserved
-        // Accessibility: Ensure main content is keyboard accessible
-        // Accessibility: Add skip link functionality
-        // Accessibility: Ensure buttons have proper labels
-        // Accessibility: Add landmark roles and fix landmark issues
-        // Accessibility: Add accessible names to 2 SVGs
-        // Accessibility: Ensure unique landmarks (2 issues)
-        // Accessibility: Fix 1 fake link issue
-        // Initialize accessibility features from a11y utilities
-        if (a11y && a11y.init) {
-            a11y.init();
-        }
+// Main execution when run directly
+if (require.main === module) {
+    const landmarks = loadLandmarks();
+    const processed = processLandmarks(landmarks);
+    const sorted = sortLandmarks(processed);
+    
+    console.log(`Loaded ${landmarks.length} landmarks`);
+    console.log(`Processed to ${processed.length} unique landmarks`);
+    console.log(`Sorted ${sorted.length} landmarks`);
+    
+    if (sorted.length > 0) {
+        console.log('First landmark:', sorted[0]);
     }
-
-    // Initialize on DOM ready
-    if (typeof document !== 'undefined') {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initialize);
-        } else {
-            initialize();
-        }
-    }
-})();
-```
+}

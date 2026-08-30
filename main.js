@@ -37,4 +37,4 @@ function countDependencies() {
 }
 
 // Export for use in other modules
-module.exports = { countDependencies, dependencyGraphContent };
+module.exports = { countDependencies };

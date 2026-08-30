@@ -81,9 +81,29 @@ function Main() {
   // Render the list of book items and sorting controls
   return (
     <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
+      <header role="banner">
+        <nav role="navigation" aria-label="Book list sorting controls">
+          <button 
+            onClick={() => setSorting(sortByTitle)} 
+            id="sort-by-title-button"
+            aria-label="Sort books by title"
+          >
+            Sort by Title
+          </button>
+          <button 
+            onClick={() => setSorting(sortByAuthor)} 
+            id="sort-by-author-button"
+            aria-label="Sort books by author"
+          >
+            Sort by Author
+          </button>
+        </nav>
+      </header>
+      <main role="main" aria-label="Book list">
+        <section role="region" aria-label="Books list">
+          <List dataSource={bookItems} />
+        </section>
+      </main>
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
     </div>

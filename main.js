@@ -526,7 +526,8 @@ function getUniqueLandmarkName(baseName, existingNames) {
   return newName;
 }
 
-export function getSvgAccessibleName(svgElement, accessibleName) {
+// REACT_041: Set SVG attributes for accessibility (exported as getSvgAccessibleName for compatibility)
+function setSvgAccessibleName(svgElement, accessibleName) {
   if (!svgElement) return;
 
   // Add title element as first child
@@ -629,5 +630,8 @@ module.exports = {
   getCellsAbove,
   getCellsInRow,
   isInitialized,
-  appData
+  appData,
+  processLandmarks,
+  addLandmarks,
+  setSvgAccessibleName
 };

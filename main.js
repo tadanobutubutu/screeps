@@ -41,7 +41,7 @@ function renderDependencyGraph(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html><head><title>Dependencies</title></head><body>';
+    let html = '<!DOCTYPE html><html lang="en"><head><title>Dependencies</title></head><body><main>';
     html += '<h1>Dependency Index</h1>';
     html += '<ul>';
     
@@ -49,7 +49,7 @@ function renderIndexView(packages) {
         html += `<li>${pkg.name} - ${pkg.version}</li>`;
     }
     
-    html += '</ul></body></html>';
+    html += '</ul></main></body></html>';
     return html;
 }
 

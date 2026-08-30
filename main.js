@@ -241,6 +241,19 @@ function Main() {
   );
 }
 
+// Export the required functionA and functionB as objects with properties X, Y, and Z
+export const functionA = {
+  X: null,
+  Y: null,
+  Z: null
+};
+
+export const functionB = {
+  X: null,
+  Y: null,
+  Z: null
+};
+
 // Export the Main component
 export default Main;
 ```

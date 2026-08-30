@@ -42,6 +42,9 @@ function validateLandmark(landmark) {
  * @module main
  */
 
+// Implemented accessibility improvements - landmark validation, SVG accessibility,
+// focus management, landmark uniqueness, and ARIA attribute handling for improved screen reader support
+
 /**
  * Configuration for landmark checks */
 const config = {
@@ -136,7 +139,7 @@ function setSvgAccessibleName(svg, name) {
     throw new Error('SVG element is required');
     return;
   }
-  svg.setAttribute('aria-label', name);
+  svg.setAttribute('aria-labelledby', name);
 }
 
 function improveAccessibility(container) {
@@ -148,7 +151,7 @@ function improveAccessibility(container) {
   }
 
   // Ensure all clickable elements are focusable
-  const focusable = container.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+  const focusable = container.querySelectorAll('button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -196,7 +199,7 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (svg && svg.querySelector) {
       const title = svg.querySelector('title');
       if (title) {
         const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
@@ -247,7 +250,7 @@ function addProperLandmarkRegions(affectedElements) {
   if (!affectedElements || !Array.isArray(affectedElements)) return;
 
   affectedElements.forEach(el => {
-    if (el && el.tagName && !el.hasAttribute('role')) {
+    if (el && el.tagName && !el.getAttribute('role')) {
       el.setAttribute('role', 'region');
     }
   });

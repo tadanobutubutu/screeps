@@ -44,6 +44,18 @@ function addBook(book) {
 
 // TODO: Implement the required changes to improve accessibility for the addBook function or form
 // ...
+// Example of an accessibility improvement for the addBook function:
+function addBookWithAccessibility(book) {
+  // Ensure the book object has an id and an aria-label attribute
+  if (!book.id) {
+    book.id = generateKey(book); // Assign a unique id if one doesn't exist
+  }
+  if (!book.ariaLabel) {
+    book.ariaLabel = `Book by ${book.author}: ${book.title}`; // Provide a meaningful aria-label
+  }
+
+  addBook(book);
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;

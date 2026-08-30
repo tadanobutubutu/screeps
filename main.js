@@ -1,3 +1,5 @@
+// main.js - Combined utility and accessibility features
+
 // TODO: Create or update the affected functions to be accessible
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 
@@ -5,11 +7,14 @@
 module.exports = {
   // Existing exports preserved
 };
-=======
+
 // main.js - Combined utility and accessibility features
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Ensure unique landmarks
+
+// Used landmark IDs set for uniqueness checking
+const _usedLandmarkIds = new Set();
 
 /**
  * Creates a unique identifier for a landmark given a base name.
@@ -18,10 +23,12 @@ module.exports = {
  */
 function ensureUniqueLandmarkId(baseName) {
     let candidate = baseName;
-    if (_usedLandmarkIds.has(candidate)) {
+    let counter = 1;
+    while (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
-        candidate = `${baseName}-${suffix}`;
+        const suffix = Math.floor(Math.random() * 9);
+        candidate = `${baseName}-${counter}-${suffix}`;
+        counter++;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -45,10 +52,10 @@ function uniqueLandmarks(landmarks) {
 }
 
 // Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(element, options = {}) {
+function createKeyboardHandler(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
-  element.addEventListener('keydown', (event) => {
+  return function handleKeyEvent(event) {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -69,15 +76,13 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-  });
+  };
 }
 
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-//<!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+// Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2
+// Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3
+// Commit: b498b47abee4b3f29c69a9762237d968a50cc419
+// Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e
 
 /**
  * Addresses accessibility issues from an insight report.
@@ -104,7 +109,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  container.addEventListener('keydown', (event) => {
+  function handleTabKey(event) {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -114,7 +119,9 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  });
+  }
+  
+  container.addEventListener('keydown', handleTabKey);
 }
 
 /**
@@ -125,22 +132,28 @@ function trapFocus(container) {
 function ensureUniqueLandmarks(landmarks) {
   const seen = new Set();
   const result = [];
+  const uniqueIds = [];
 
   function generateUniqueId() {
-    return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    return `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
   }
 
   landmarks.forEach((landmark) => {
     const existingIds = uniqueIds.map((id) => id.split('-')[1]);
     let id;
+    let attempts = 0;
+    const maxAttempts = 100;
 
-    while (existingIds.includes(landmark.id.split('-')[1])) {
+    while (uniqueIds.includes(id) && attempts < maxAttempts) {
       id = generateUniqueId();
+      attempts++;
     }
 
     uniqueIds.push(id);
     landmark.id = id;
   });
+  
+  return landmarks;
 }
 
 /**
@@ -151,22 +164,22 @@ function ensureUniqueLandmarks(landmarks) {
  */
 function addProperLandmarkRegions() {
   // Create main landmark
-  const main = document.querySelector('main') || document.createElement('main');
+  const main = document.getElementById('main-content') || document.querySelector('main') || document.createElement('main');
   main.setAttribute('role', 'main');
-  main.id = 'main-content';
+  main.id = main.id || 'main-content';
 
   // Create navigation landmark
-  const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
+  const nav = document.querySelector('nav') || document.createElement('nav');
   nav.setAttribute('role', 'navigation');
   nav.id = nav.id || 'primary-navigation';
 
   // Create banner/header landmark
-  const header = document.querySelector('header') || document.createElement('header');
+  const header = document.querySelector('header') || document.getElementById('header') || document.createElement('header');
   header.setAttribute('role', 'banner');
   header.id = header.id || 'site-header';
 
   // Create contentinfo/footer landmark
-  const footer = document.querySelector('footer') || document.createElement('footer');
+  const footer = document.querySelector('footer') || document.getElementById('footer') || document.createElement('footer');
   footer.setAttribute('role', 'contentinfo');
   footer.id = footer.id || 'site-footer';
 
@@ -178,10 +191,10 @@ function addProperLandmarkRegions() {
   });
 
   // Append landmarks to the body if they were created
-  if (main) document.body.appendChild(main);
-  if (nav) document.body.appendChild(nav);
-  if (header) document.body.appendChild(header);
-  if (footer) document.body.appendChild(footer);
+  if (!document.querySelector('main')) document.body.appendChild(main);
+  if (!document.querySelector('nav')) document.body.appendChild(nav);
+  if (!document.querySelector('header')) document.body.appendChild(header);
+  if (!document.querySelector('footer')) document.body.appendChild(footer);
 }
 
 /**
@@ -197,6 +210,8 @@ function addProperAccountManagement() {
   collapsibles.forEach(collapsible => {
     if (collapsible.getAttribute('aria-expanded') === 'true') {
       collapsible.setAttribute('aria-expanded', 'false');
+    } else {
+      collapsible.setAttribute('aria-expanded', 'true');
     }
   });
 
@@ -263,7 +278,7 @@ function prefersReducedMotion() {
 
 // Function to improve keyboard navigation for interactive elements
 function improveKeyboardNavigation() {
-  const interactiveElements = document.querySelectorAll('[tabindex="-1"]');
+  const interactiveElements = document.querySelectorAll('a, button, [role="button"]');
   interactiveElements.forEach(element => {
     element.setAttribute('tabindex', '0');
   });
@@ -274,6 +289,7 @@ function addLiveRegionForDynamicContent() {
   const liveRegion = document.createElement('div');
   liveRegion.setAttribute('aria-live', 'polite');
   liveRegion.setAttribute('role', 'alert');
+  liveRegion.id = 'dynamic-content-live-region';
   document.body.appendChild(liveRegion);
 }
 
@@ -282,7 +298,7 @@ function initializeAccessibility() {
   const announcer = createAnnouncer();
   
   // Ensure all landmarks have unique IDs
-  ensureUniqueLandmarks([]);
+  addProperLandmarkRegions();
   
   // Improve keyboard navigation
   improveKeyboardNavigation();
@@ -293,7 +309,7 @@ function initializeAccessibility() {
   // Return the announcer for use in the app
   return {
     announce: announcer.announce,
-    setupKeyboardNavigation,
+    addProperLandmarkRegions,
     trapFocus,
     prefersReducedMotion
   };
@@ -342,48 +358,4 @@ function clamp(num, min, max) {
 }
 
 /**
- * Deep clones an object
- * @param {*} obj - Object to clone
- * @returns {*} - Cloned object
- */
-function deepClone(obj) {
-  if (obj === null || typeof obj !== 'object') return obj;
-  if (obj instanceof Date) return new Date(obj.getTime());
-  if (obj instanceof Array) return obj.map(item => deepClone(item));
-  if (obj instanceof Object) {
-    const cloned = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        cloned[key] = deepClone(obj[key]);
-      }
-    }
-    return cloned;
-  }
-  return obj;
-}
-
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    addProperLandmarkRegions,
-    addProperAccountManagement,
-    addAriaToFormControls,
-    ensureUniqueLandmarkId,
-    uniqueLandmarks,
-    setupKeyboardNavigation,
-    addressAccessibilityIssues,
-    trapFocus,
-    ensureUniqueLandmarks,
-    createAnnouncer,
-    prefersReducedMotion,
-    improveKeyboardNavigation,
-    addLiveRegionForDynamicContent,
-    initializeAccessibility,
-    isEmpty,
-    capitalize,
-    getRandomInt,
-    clamp,
-    deepClone
-  }
-}
->>>>>>> origin/main
+ * Deep clones an

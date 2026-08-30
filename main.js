@@ -264,25 +264,51 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
-  
-  let result = inputData;
-  
-  // Trim whitespace if enabled
-  if (trimWhitespace) {
-    result = result.trim();
+
+  const processValue = (value) => {
+    if (typeof value === 'string') {
+      let processed = value;
+      if (trimWhitespace) {
+        processed = processed.trim();
+      }
+      if (uppercase) {
+        processed = processed.toUpperCase();
+      }
+      if (maxLength !== null && processed.length > maxLength) {
+        processed = processed.substring(0, maxLength);
+      }
+      return processed;
+    }
+    return value;
+  };
+
+  if (typeof inputData === 'object' && !Array.isArray(inputData) && inputData !== null) {
+    const result = {};
+    const keys = preserveKeys ? Object.keys(inputData) : Object.keys(inputData).map(() => Math.random().toString(36).substr(2, 9));
+    
+    let i = 0;
+    for (const key of Object.keys(inputData)) {
+      const value = inputData[key];
+      if (typeof value === 'object' && value !== null) {
+        result[keys[i]] = transformInputData(value, options);
+      } else {
+        result[keys[i]] = processValue(value);
+      }
+      i++;
+    }
+    return result;
   }
-  
-  // Apply uppercase if enabled
-  if (uppercase) {
-    result = result.toUpperCase();
+
+  if (Array.isArray(inputData)) {
+    return inputData.map((item) => {
+      if (typeof item === 'object' && item !== null) {
+        return transformInputData(item, options);
+      }
+      return processValue(item);
+    });
   }
-  
-  // Apply max length if specified
-  if (maxLength !== null && result.length > maxLength) {
-    result = result.substring(0, maxLength);
-  }
-  
-  return result;
+
+  return processValue(inputData);
 }
 
 // Initialize on DOM ready

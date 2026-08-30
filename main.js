@@ -50,6 +50,44 @@ function setSvgAttributes(svg, accessibleName) {
 
 function ensureUniqueLandmarks() {
   // Code for ensuring unique landmarks
+  // Find all landmarks on the page (elements with landmark roles)
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="search"], [role="region"], [role="application"]');
+  
+  if (landmarks.length === 0) {
+    console.log('No landmarks found to ensure uniqueness');
+    return;
+  }
+  
+  // Keep track of landmark types and ensure they have unique IDs if needed
+  const landmarkTypes = new Set();
+  let uniqueIdCount = 0;
+  
+  landmarks.forEach((landmark, index) => {
+    const role = landmark.getAttribute('role');
+    
+    // Add role to set for tracking duplicate types
+    landmarkTypes.add(role);
+    
+    // Check if landmark has an id
+    if (!landmark.id) {
+      // Generate a unique ID for the landmark if it doesn't have one
+      const uniqueId = `landmark-${role}-${++uniqueIdCount}`;
+      landmark.id = uniqueId;
+      console.log(`Added ID "${uniqueId}" to ${role} landmark at index ${index}`);
+    } else {
+      console.log(`Landmark ${role} at index ${index} already has ID "${landmark.id}"`);
+    }
+    
+    // Check for aria-labelledby or aria-label for better accessibility
+    if (!landmark.hasAttribute('aria-labelledby') && !landmark.hasAttribute('aria-label')) {
+      console.log(`Landmark ${role} with ID "${landmark.id}" should have aria-labelledby or aria-label for better accessibility`);
+    }
+  });
+  
+  // Log summary information
+  console.log(`Ensured uniqueness for ${landmarks.length} landmarks:`);
+  console.log(`- Unique landmark types found: ${Array.from(landmarkTypes).join(', ')}`);
+  console.log(`- Landmarks with generated IDs: ${Array.from(landmarks).filter(landmark => landmark.id && landmark.id.startsWith('landmark-')).length}`);
 }
 
 function createInPageButton() {

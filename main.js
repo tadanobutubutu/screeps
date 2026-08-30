@@ -160,3 +160,50 @@ function makeFormAccessible(form) {
     }
 
     if (!input.hasAttribute('autocomplete') && (input.type === 'email' || input.type === 'tel')) {
+      // Add autocomplete hints for email and tel inputs
+      if (input.type === 'email' && !input.hasAttribute('autocomplete')) {
+        input.setAttribute('autocomplete', 'email');
+      }
+      if (input.type === 'tel' && !input.hasAttribute('autocomplete')) {
+        input.setAttribute('autocomplete', 'tel');
+      }
+    }
+
+    // Add required attribute handling for accessibility
+    if (input.hasAttribute('required')) {
+      input.setAttribute('aria-required', 'true');
+    }
+
+    // Add invalid state handling
+    input.addEventListener('invalid', (e) => {
+      e.target.setAttribute('aria-invalid', 'true');
+      const errorMessage = e.target.getAttribute('data-error-message') || 'Please fill out this field';
+      announceToScreenReader(errorMessage, 'assertive');
+    });
+
+    input.addEventListener('input', (e) => {
+      if (e.target.getAttribute('aria-invalid') === 'true') {
+        e.target.setAttribute('aria-invalid', 'false');
+      }
+    });
+  });
+}
+
+// Initialize accessibility features when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize accessible navigation
+  initAccessibleNavigation();
+
+  // Make all forms accessible
+  const forms = document.querySelectorAll('form');
+  forms.forEach(makeFormAccessible);
+
+  // Initialize modals
+  const modals = document.querySelectorAll('[role="dialog"], [aria-modal="true"]');
+  modals.forEach(modal => new AccessibleModal(modal));
+
+  // Set language attribute if missing
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+});

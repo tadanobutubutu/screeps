@@ -209,4 +209,7 @@ module.exports = {
   specificFunctionThatRendersGraphOrIndex
 };
 
+// Export additional required functions
+export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute };
+
 // ... other exports ...

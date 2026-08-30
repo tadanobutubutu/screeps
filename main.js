@@ -1,5 +1,4 @@
 // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
-
 const config = require('./config');
 const logger = require('./utils/logger');
 
@@ -55,4 +54,18 @@ function addressAccessibilityIssues() {
             }
             document.body.appendChild(element);
           }
-          uniqueLandmarkMap
+          uniqueLandmarkMap[uniqueLandmark] = element[0];
+        });
+      }
+    });
+  }
+}
+
+// Existing code continues below...
+
+// Export any necessary functions or variables if needed
+// For example, if `improveAccessibility` needs to be accessible from other files:
+// module.exports = {
+//   improveAccessibility,
+//   // ... other exports
+// };

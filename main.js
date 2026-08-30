@@ -79,13 +79,17 @@ function createInPageButton(options) {
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-  // Existing function implementation
+  // Read the current file to count import statements (require and import)
+  const filePath = path.join(__dirname, 'main.js');
+  const content = fs.readFileSync(filePath, 'utf8');
 
-  // New implementation to count dependencies using Document and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/g;
-  const document = { body: { textContent: '' } };
-  const importCount = (document.body.textContent || '').match(importCommentRegExp) || [];
-  return importCount.length;
+  // Count require(...) statements
+  const requireCount = (content.match(/\brequire\s*\(/g) || []).length;
+
+  // Count import statements (import ... from '...')
+  const importCount = (content.match(/import\s+.+?from\s+['"]/g) || []).length;
+
+  return requireCount + importCount;
 }
 
 // Store for accessibility announcements (screen reader support)
@@ -527,6 +531,9 @@ addressAccessibilityIssues(report) {
   if (!report) return;
   a11yStore.addressAccessibilityIssues(report);
 }
+
+// Preserve existing code functionality
+preserveExistingCode: a11yStore.preserveExistingCode.bind(a11yStore),
 
 module.exports = {
   checkLandmarkElements,

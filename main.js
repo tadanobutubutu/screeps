@@ -36,5 +36,41 @@ function countDependencies() {
   }
 }
 
+/**
+ * Checks for accessibility issues in tables within the HTML content
+ * @param {string} htmlContent - The HTML content to check
+ * @returns {Array} An array of accessibility issues found
+ */
+function checkTableAccessibility(htmlContent) {
+  const issues = [];
+  const tableElements = htmlContent.match(/<table.*?>.*?<\/table>/g);
+  
+  if (tableElements) {
+    tableElements.forEach((table) => {
+      // Check for the presence of a caption
+      if (!/<caption.*?>.*?<\/caption>/i.test(table)) {
+        issues.push('Table without a caption found.');
+      }
+      
+      // Check for the presence of at least one header cell
+      if (!/<th.*?>.*?<\/th>/i.test(table)) {
+        issues.push('Table without a header cell found.');
+      }
+      
+      // Check for the presence of scope attribute in header cells
+      const headerCells = table.match(/<th.*?>/g);
+      if (headerCells) {
+        headerCells.forEach((headerCell) => {
+          if (!/<th.*?scope.*?>/i.test(headerCell)) {
+            issues.push('Header cell without a scope attribute found.');
+          }
+        });
+      }
+    });
+  }
+  
+  return issues;
+}
+
 // Export for use in other modules
-module.exports = { countDependencies, dependencyGraphContent };
+module.exports = { countDependencies, dependencyGraphContent, checkTableAccessibility };

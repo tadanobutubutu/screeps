@@ -11,6 +11,7 @@
  * @param {string} [options.id] - Element ID
  * @param {Object} [options.styles] - Inline styles to apply
  * @param {string} [options.type] - Button type (default: 'button')
+ * @param {boolean} [options.disabled] - Disable the button (default: false)
  * @returns {HTMLButtonElement} The created button element
  */
 function createInPageButton(text, onClick, options = {}) {
@@ -46,9 +47,15 @@ function createInPageButton(text, onClick, options = {}) {
   return button;
 }
 
+// TODO: Implement this function
+function getButtonId(button) {
+  return button.id;
+}
+
 // Export for module usage and testing
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     createInPageButton,
+    getButtonId,
   };
 }

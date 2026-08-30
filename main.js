@@ -552,3 +552,14 @@ module.exports = {
   main,
   mainExecution
 };
+
+// NEW FUNCTION: addProperLandmarkRegions
+function addProperLandmarkRegions() {
+  return [
+    { role: 'banner', label: 'Site header' },
+    { role: 'navigation', label: 'Main navigation' },
+    { role: 'main', label: 'Main content' },
+    { role: 'complementary', label: 'Supplementary content' },
+    { role: 'contentinfo', label: 'Site footer' }
+  ];
+}

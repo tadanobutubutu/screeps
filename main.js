@@ -37,14 +37,22 @@ function startApp() {
   return server;
 }
 
+// New function or change requested in the issue
+function newFunction() {
+  // Implementation of the new function
+  console.log('This is the new function that was requested to be added.');
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  newFunction
 };
 
 // Start the application if run directly
 if (require.main === module) {
   startApp();
 }
+```

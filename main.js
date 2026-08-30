@@ -1,4 +1,3 @@
-// Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
   

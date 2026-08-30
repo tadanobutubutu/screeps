@@ -37,7 +37,7 @@ function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
     };
 
     if (!insightReport) {
-        result.details.push({
+        [PERSON_NAME]({
             type: 'error',
             message: 'No insight report provided'
         });
@@ -118,10 +118,10 @@ function personName(name, isLink) {
   
   if (isLink) {
     // Properly implement as a link with href attribute to avoid fake link issues
-    return `<a href="#" aria-label="Person: ${name}">${name}</a>`;
+    return `<a href="#" [PERSON_NAME]: ${name}">${name}</a>`;
   } else {
     // Render as a span for non-link content
-    return `<span aria-label="Person: ${name}">${name}</span>`;
+    return `<span [PERSON_NAME]: ${name}">${name}</span>`;
   }
 }
 
@@ -348,7 +348,7 @@ function countDependencies() {
     
     return {
       dependencies: dependencyCount,
-      devDependencies: devDependencyCount,
+      devDependencies: [ADDRESS],
       total: dependencyCount + devDependencyCount
     };
   } catch (error) {
@@ -394,6 +394,43 @@ function renderDependencyGraph(deps) {
     return lines.join("\n");
 }
 
+/**
+ * Renders an index view based on provided data
+ * @param {Object} data - The data to render in the index view
+ * @returns {string} Formatted index view string
+ */
+function renderIndexView(data) {
+    if (!data || typeof data !== 'object') {
+        return '';
+    }
+
+    const lines = [
+        "Index View",
+        "=".repeat(20),
+        ""
+    ];
+
+    Object.keys(data).forEach(key => {
+        const value = data[key];
+        if (Array.isArray(value)) {
+            lines.push(`${key}:`);
+            value.forEach(item => {
+                if (typeof item === 'object' && item !== null) {
+                    lines.push(`  • ${JSON.stringify(item)}`);
+                } else {
+                    lines.push(`  • ${item}`);
+                }
+            });
+        } else if (typeof value === 'object' && value !== null) {
+            lines.push(`${key}: ${JSON.stringify(value)}`);
+        } else {
+            lines.push(`${key}: ${value}`);
+        }
+    });
+
+    return lines.join("\n");
+}
+
 function elementExists(selector) {
     return typeof document !== 'undefined' && !!document.querySelector(selector);
 }
@@ -401,7 +438,7 @@ function elementExists(selector) {
 function getElementText(selector) {
     if (typeof document === 'undefined') return '';
     const el = document.querySelector(selector);
-    return el ? (el.textContent || '') : '';
+    return [ADDRESS] ? (el.textContent || '') : '';
 }
 
 function getAllTables() {
@@ -426,6 +463,7 @@ module.exports = {
     countDependencies,
     someFunction,
     renderDependencyGraph,
+    renderIndexView,
     getLangAttribute,
     getFullLangAttribute,
     addressAccessibilityIssuesFromInsight,

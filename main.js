@@ -6,35 +6,18 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
-<<<<<<< HEAD
-=======
 // TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+// main.js - Accessibility improvements implementation
+// main.js - Combined utility and accessibility features
 
-<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
-
-// Preserve existing functionality
-
->>>>>>> origin/main
 // Importing the necessary functions (for illustration purposes)
 import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-
-// TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-// main.js - Accessibility improvements implementation
-// main.js - Combined utility and accessibility features
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
@@ -125,7 +108,7 @@ function ensureElementHasId(elementId) {
   }
 }
 
-function addAriaLabel(elementId, label) {
+function addAriaLabelById(elementId, label) {
   const element = document.getElementById(elementId);
   if (element) {
     element.setAttribute('aria-label', label);
@@ -138,9 +121,9 @@ ensureElementHasId('mySvg');
 ensureElementHasId('inPageButton');
 
 // Add ARIA labels for better screen reader support
-addAriaLabel('myTable', 'Product data table');
-addAriaLabel('mySvg', 'Company logo');
-addAriaLabel('inPageButton', 'Accessibility menu');
+addAriaLabelById('myTable', 'Product data table');
+addAriaLabelById('mySvg', 'Company logo');
+addAriaLabelById('inPageButton', 'Accessibility menu');
 
 // DOM-based accessibility code
 
@@ -152,7 +135,7 @@ createInPageButton();
 
 // Ensure button has an id and appropriate ARIA label
 ensureElementHasId('inPageButton');
-addAriaLabel('inPageButton', 'Accessibility menu');
+addAriaLabelById('inPageButton', 'Accessibility menu');
 
 // Validate table structure and accessibility
 // Ensuring all tables in the document are accessible
@@ -283,4 +266,3 @@ export {
   renderFooter,
   renderProductCard
 };
-<<

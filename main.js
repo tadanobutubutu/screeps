@@ -163,11 +163,14 @@ const config = {
 /**
  * Sets the HTML lang attribute on the document's <html> element
  * @param {string} lang - The language code to set
+ * @returns {boolean} True if successfully set
  */
 function setHtmlLangAttribute(lang) {
-    if (typeof document !== 'undefined' && document.documentElement) {
-        document.documentElement.lang = lang;
-    }
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang;
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -206,19 +209,6 @@ function detectAndSetLang(content) {
 
   setHtmlLangAttribute(lang);
   return lang;
-}
-
-/**
- * Sets the lang attribute on the HTML element
- * @param {string} lang - The language code to set
- * @returns {boolean} True if successfully set
- */
-function setHtmlLangAttribute(lang) {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.lang = lang;
-    return true;
-  }
-  return false;
 }
 
 /**
@@ -835,7 +825,7 @@ module.exports = {
     renderDependencyGraph,
     getLangAttribute,
     getFullLangAttribute,
-    addressAccessibilityIssuesFromInsight,
+    addressAccessibilityIssues,
     sayHello,
     sayGoodbye,
     getDate,

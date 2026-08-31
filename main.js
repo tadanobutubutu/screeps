@@ -22,8 +22,8 @@ function createInPageButton(buttonText, onClickHandler) {
 // (Now implemented)
 
 // Example usage (if needed):
-// const btn = createInPageButton('Click Me', () => console.log('Clicked'));
-// document.body.appendChild(btn);
+// const btn = createInPageButton('Say Hello', () => console.log('Clicked'));
+// ...
 
 export { createInPageButton };
 

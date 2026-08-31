@@ -223,6 +223,11 @@ function myFunction() {
   // Existing implementation
 }
 
+// New function to be added after the existing code
+function newFunction() {
+  console.log('New function logic here');
+}
+
 module.exports = {
   addLangAttribute,
   addLandmarkRoles,
@@ -234,5 +239,6 @@ module.exports = {
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraph,
-  myFunction
+  myFunction,
+  newFunction
 };

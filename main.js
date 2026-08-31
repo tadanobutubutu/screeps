@@ -1,6 +1,9 @@
-import './styles.css';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
+class User {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+}
 
 // Function to create in-page buttons
 function createInPageButtons(config) {
@@ -57,151 +60,139 @@ function createInPageButtons(config) {
 // Landmark data structure
 const landmarks = [];
 
-// Application data structure
-const appData = {
-    title: 'Frontend Application',
-    version: '1.0.0'
+// TODO: Implement spawning logic
+function spawnNewUser(name, age) {
+    return new User(name, age);
+}
+
+// Web server dependencies
+const express = require('express');
+const path = require('path');
+
+// Configuration
+const config = {
+    apiUrl: process.env.API_URL || 'https://api.example.com',
+    timeout: 5000
 };
 
-let icons = {};
+// App state
+const appState = {
+    initialized: false,
+    data: null,
+    cache: new Map()
+};
 
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// Initialize function
+function initialize() {
+    appState.initialized = true;
+    console.log('App initialized');
+}
 
-// Implemented validateLandmark functionality
+// Initialize app function
+function initializeApp() {
+    initialize();
+    return appState;
+}
+
+// Main function (required export)
+function main() {
+    initialize();
+    initializeApp();
+    console.log('Main function executed');
+    return { executed: true };
+}
+
+// Landmark validation function with merged logic
 function validateLandmark(landmark) {
-  const errors = [];
+    const errors = [];
 
-  // Check if landmark exists
-  if (!landmark) {
-    errors.push('Landmark is required');
-    return { valid: false, errors };
-  }
-
-  // Validate name
-  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
-    errors.push('Landmark must have a valid name');
-  }
-
-  // Validate latitude
-  if (landmark.latitude === undefined || landmark.latitude === null) {
-    errors.push('Landmark must have a latitude');
-  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
-    errors.push('Landmark latitude must be a number');
-  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
-    errors.push('Landmark latitude must be between -90 and 90');
-  }
-
-  // Validate longitude
-  if (landmark.longitude === undefined || landmark.longitude === null) {
-    errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
-    errors.push('Landmark longitude must be a number');
-  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
-    errors.push('Landmark longitude must be between -180 and 180');
-  }
-
-  // Additional validation changes from the other branch
-  if (Array.isArray(landmark) && landmark.length > 0) {
-    if (!landmark[0].name || typeof landmark[0].name !== 'string' || landmark[0].name.trim() === '') {
-      errors.push('Landmark array must have a name');
+    // Validate longitude
+    if (landmark.longitude === undefined || landmark.longitude === null) {
+        errors.push('Landmark must have a longitude');
+    } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+        errors.push('Landmark longitude must be a number');
+    } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+        errors.push('Landmark longitude must be between -180 and 180');
     }
-  }
 
-  // Check for updated validation changes from another branch that also checks for array composition
-  if (Array.isArray(landmark)) {
-    landmark.forEach(innerLandmark => {
-      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
-        errors.push('Landmark array must have valid names');
-      }
-    });
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-}
-
-/**
- * Function to check if the specified landmark element is in the document.
- * @param {string} id - The ID of the landmark element.
- * @returns {boolean} Returns true if the element exists; otherwise, false.
- */
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  return element !== null;
-}
-
-// Ensure unique landmarks by filtering duplicates
-function ensureUniqueLandmarks(landmarksArray) {
-  if (!landmarksArray || landmarksArray.length === 0) {
-      return {};
-  }
-  const seen = new Set();
-  return landmarksArray.filter(landmark => {
-    const key = landmark.name + '_' + (landmark.role || 'default');
-    // Merge both approaches for checking uniqueness
-    if (seen.has(key)) {
-        return false;
+    // Additional validation: check for array composition with name
+    if (Array.isArray(landmark) && landmark.length > 0) {
+        landmark.forEach(innerLandmark => {
+            if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+                errors.push('Landmark array must have valid names');
+            }
+        });
     }
-    seen.add(key);
-    return true;
-  });
+
+    return errors;
 }
 
-// ... (previous and updated code remains as it is)
+// Table accessibility functions
+function validateTableAccessibility(table) {
+    const issues = [];
 
-// Updated function: ensures landmarks uniqueness when there's an array structure
-function ensureLandmarkUniqueness(elements) {
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+    // Check for caption
+    const caption = table.querySelector('caption');
+    if (!caption) {
+        issues.push('Table missing caption');
+    }
 
-  const elementsById = {};
-
-  if (Array.isArray(elements)) {
-    for (const landmark of elements) {
-      if (landmark.id) {
-        if (!elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
-        } else {
-          landmark.id += '_duplicate';
+    // Check for th elements with scope or headers
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+        if (!th.getAttribute('scope') && !th.getAttribute('headers')) {
+            issues.push('TH element missing scope or headers attribute');
         }
-      }
-    }
-  }
+    });
 
-  return elements;
+    return issues;
 }
 
-// Export functions for testing
-export {
-  checkLandmarkElement,
-  ensureUniqueLandmarks,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  initApp,
-  landmarks,
-  appData,
-  icons,
-  validateLandmark,
-  ensureFocusableElements,
-  renderDependencyGraphContent,
-  ensureLandmarkUniqueness,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  countDependencies,
-  createInPageButtons
-};
+function validateTableStructure(table) {
+    const issues = [];
+
+    // Check for proper table structure (thead, tbody, tfoot)
+    if (!table.querySelector('thead')) {
+        issues.push('Table missing thead');
+    }
+    if (!table.querySelector('tbody')) {
+        issues.push('Table missing tbody');
+    }
+
+    // Check for proper row structure
+    const rows = table.querySelectorAll('tr');
+    rows.forEach((row, index) => {
+        const cells = row.querySelectorAll('td, th');
+        if (cells.length === 0) {
+            issues.push(`Row ${index} has no cells`);
+        }
+    });
+
+    return issues;
+}
+
+function fixTableStructure(table) {
+    // Implementation for merged table structure fixing
+}
+
+// Server setup
+const app = express();
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || 'localhost';
+
+app.listen(PORT, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
+});
+
+// Visualize dependency tree when running directly
+visualizeDependencyTree(require.dependencies);
+
+// Run accessibility check and fix issues if any
+const insightReport = getInsightReport();
+if (insightReport.length > 0) {
+    console.log('Accessibility issues found:');
+    insightReport.forEach((issue) => {
+        console.log(`${issue.type}: ${issue.description}`);
+    });
+    addressAccessibilityIssues(insightReport);
+}

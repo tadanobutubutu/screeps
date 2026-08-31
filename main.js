@@ -131,7 +131,7 @@ function setupSkipLinks() {
 function setupButtonAccessibility() {
   const buttons = document.querySelectorAll('button');
   buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+    if (!button.textContent.trim() && !button.getAttribute('aria-label')) {
       button.setAttribute('aria-label', 'Action button');
     }
   });
@@ -141,7 +141,7 @@ function setupButtonAccessibility() {
  * Perform a task with the given parameters
  * @param {string} task - The task to perform
  */
-function performTask(task) {
+export function performTask(task) {
   console.log(`Performing task: ${task}`);
   // Task implementation details would go here
 }
@@ -150,7 +150,7 @@ function performTask(task) {
  * Handle an event with the given parameters
  * @param {string} event - The event to handle
  */
-function handleEvent(event) {
+export function handleEvent(event) {
   console.log(`Handling event: ${event}`);
   // Event handling logic would go here
 }
@@ -203,6 +203,16 @@ function ensureUniqueLandmarks() {
       console.error('Duplicate landmark ID encountered:', id);
     } else {
       landmarkIds.add(id);
+    }
+  });
+}
+
+// Function to fix 1 fake link issue
+export function fixFakeLink() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach((link) => {
+    if (link.getAttribute('aria-hidden') === 'true') {
+      link.setAttribute('role', 'button');
     }
   });
 }
@@ -306,6 +316,9 @@ function initializeAccessibility() {
   renderGraph();
   renderIndex();
 }
+
+// Helper function to replace fake links with proper buttons
+// (Integrated into replaceFakeLinks above)
 
 // Initialize the application with accessibility improvements
 function initialize() {

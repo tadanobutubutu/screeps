@@ -11,6 +11,43 @@
 // (This should be preserved)
 // Addressed accessibility issues from insight report
 
+// Harvest and upgrade logic implementation
+function harvest(creep) {
+  if (creep.store.getFreeCapacity() > 0) {
+    const sources = creep.room.find(FIND_SOURCES);
+    if (sources.length > 0) {
+      if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+      }
+    }
+  }
+}
+
+function upgrade(creep) {
+  if (creep.store[RESOURCE_ENERGY] > 0) {
+    if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
+    }
+  }
+}
+
+function runHarvestUpgradeLogic(creep) {
+  if (creep.memory.upgrading && creep.store[RESOURCE_ENERGY] === 0) {
+    creep.memory.upgrading = false;
+    creep.say('🔄 harvest');
+  }
+  if (!creep.memory.upgrading && creep.store.getFreeCapacity() === 0) {
+    creep.memory.upgrading = true;
+    creep.say('⚡ upgrade');
+  }
+
+  if (creep.memory.upgrading) {
+    upgrade(creep);
+  } else {
+    harvest(creep);
+  }
+}
+
 // ... (other code in main.js)
 
 // Configuration and state
@@ -467,5 +504,8 @@ module.exports = {
   mainExecution,
   versionOneImplementation,
   checkLandmarkElement,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  harvest,
+  upgrade,
+  runHarvestUpgradeLogic
 };

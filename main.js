@@ -82,12 +82,22 @@ const addAriaLabel = (element, label) => {
   return element;
 };
 
-const renderDependencyGraph = (data) => {
-  // Implementation for rendering dependency graphs
+const renderGraph = (data) => {
   return {
     nodes: data.nodes || [],
     edges: data.edges || []
   };
+};
+
+const renderIndex = (data) => {
+  return {
+    index: data.index || [],
+    totalCount: (data.index || []).length
+  };
+};
+
+const renderDependencyGraph = (data) => {
+  return renderGraph(data);
 };
 
 // Accessibility utilities and functions
@@ -528,6 +538,8 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
+  renderGraph,
+  renderIndex,
   calculateSum,
   getLangAttribute,
   personName,

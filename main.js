@@ -1,3 +1,6 @@
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views.
+
 import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-swift';
@@ -114,7 +117,7 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (!elementsById[landmark.id]) {
+        if (elementsById[landmark.id]) {
           elementsById[landmark.id] = true;
         } else {
           landmark.id += '_duplicate';

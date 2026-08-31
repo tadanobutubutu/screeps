@@ -1,9 +1,7 @@
 import './styles.css';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import express from 'express';
 import path from 'path';
-import react from 'react';
-import React from 'react';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
@@ -14,21 +12,19 @@ import { validateTableAccessibility, validateTableStructure, fixTableStructure }
 import { validateLandmark, validateLandmarkStructure, validateLandmarkAttributes, addLandmarkRegions } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { CONFIG as UTILS_CONFIG } from './utils/constants';
+import { CONFIG } from './utils/constants';
+import { App } from './App';
 
 const expressApp = express();
 
 // Configuration
 const CONFIG = {
   dataPath: './data',
-  maxResults: 100,
-  apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: 5000
+  maxResults: 100
 };
 
-// Existing app state and configuration
-let config = {};
-let appState = {};
+let config = { apiUrl: process.env.API_URL || 'default', timeout: 5000 };
+let appState = { initialized: true };
 let icons = {};
 let landmarks = [];
 let appData = {
@@ -150,7 +146,7 @@ function validateLandmark(landmark, attributes) {
 }
 
 // CPU-intensive function (for demonstration on the effect of using React)
-function calculateSumFromStart(array) {
+function calculateSum(array) {
   let sum = 0;
   for (let i = 0; i < array.length; i++) {
     sum += array[i];
@@ -160,10 +156,10 @@ function calculateSumFromStart(array) {
 
 // App that uses the React library
 function App({ array }) {
-  const [sum, setSum] = useState(calculateSumFromStart(array));
+  const [sum, setSum] = useState(calculateSum(array));
 
   useEffect(() => {
-    setSum(calculateSumFromStart(array));
+    setSum(calculateSum(array));
   }, []);
 
   return (
@@ -173,8 +169,55 @@ function App({ array }) {
   );
 }
 
-expressApp.use('/', expressApp);
-const port = process.env.PORT || 3000;
-expressApp.listen(port, () => {
-  console.log(`Listening on port ${port}`);
-});
+// Main execution
+function main() {
+  initialize();
+  console.log('Main function executed');
+}
+
+// Run if executed directly
+if (typeof require !== 'undefined' && require.main === module) {
+  main();
+}
+
+// Exporting module
+module.exports = {
+  config: CONFIG,
+  App,
+  calculateSum,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  initializeApp,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  generateAccessibilityReport,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks,
+  addLangAttribute,
+  createInPageButton,
+  validateInput,
+  processData,
+  formatResponse,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  landmarkConfig: CONFIG
+};
+
+// Check if the environment is secure before initializing
+if (typeof isSecureContext === 'function' && isSecureContext()) {
+  initApp();
+} else {
+  console.warn('Application is not running in a secure context. Some features may not be available.');
+}
+
+// Exporting modified module.exports from the original branch
+// (additional exports already included above)

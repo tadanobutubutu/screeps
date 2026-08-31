@@ -62,6 +62,11 @@ function main() {
   return { executed: true };
 }
 
+// Main function - required export
+function main() {
+  mainExecution();
+}
+
 // Main execution
 function main() {
   initialize();

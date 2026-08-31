@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const main = require('./utilities');
 
 const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap } = main;
@@ -162,10 +159,15 @@ module.exports = {
       fakeLinksFixed: 0
     };
 
-    // ... Add lang attribute to HTML element if missing
+    // Add lang attribute to HTML element if missing
+    const htmlElement = container.querySelector('html') || container.ownerDocument?.querySelector('html');
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+      htmlElement.setAttribute('lang', getLangAttribute(container));
+      fixes.langAdded = true;
+    }
 
     // Add main landmark if missing
-    const mainElement = container.querySelector('main');
+    const mainElement = container.querySelector('main, [role="main"]');
     if (!mainElement) {
       const body = container.querySelector('body');
       if (body) {
@@ -178,7 +180,33 @@ module.exports = {
       }
     }
 
-    // ... Fix landmark issues
+    // Fix landmark issues by ensuring proper roles and accessible names
+    const landmarkElements = container.querySelectorAll('header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
+    const processedLandmarks = new Set();
+    
+    landmarkElements.forEach(landmark => {
+      if (processedLandmarks.has(landmark)) return;
+      processedLandmarks.add(landmark);
+      
+      if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+        const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+        const previousSibling = landmark.previousElementSibling;
+        
+        if (previousSibling && previousSibling.textContent.trim()) {
+          const labelId = `landmark-label-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          const labelSpan = container.ownerDocument.createElement('span');
+          labelSpan.id = labelId;
+          labelSpan.textContent = previousSibling.textContent.trim();
+          labelSpan.style.display = 'none';
+          landmark.parentNode.insertBefore(labelSpan, landmark);
+          landmark.setAttribute('aria-labelledby', labelId);
+        } else {
+          const roleLabel = role.charAt(0).toUpperCase() + role.slice(1).replace(/[^a-zA-Z]/g, ' ');
+          landmark.setAttribute('aria-label', roleLabel);
+        }
+        fixes.landmarksFixed++;
+      }
+    });
 
     // Fix SVG accessible names
     const svgElements = container.querySelectorAll('svg');
@@ -190,7 +218,30 @@ module.exports = {
       }
     });
 
-    // ... Fix fake link issues (elements that look like links but are missing href)
+    // Fix fake link issues (elements that look like links but are missing href)
+    const uniqueFakeLinksFixed = new Set();
+    const fakeLinks = container.querySelectorAll('a:not([href]), [role="link"]:not([href])');
+    fakeLinks.forEach(element => {
+      if (uniqueFakeLinksFixed.has(element)) return;
+      
+      const isNavigation = element.closest('nav') !== null;
+      
+      if (isNavigation || element.tagName.toLowerCase() === 'a') {
+        if (!element.hasAttribute('href')) {
+          element.setAttribute('href', '#' + (element.id || `link-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`));
+          element.setAttribute('role', 'link');
+          uniqueFakeLinksFixed.add(element);
+          fixes.fakeLinksFixed++;
+        }
+      } else {
+        element.setAttribute('role', 'button');
+        if (!element.hasAttribute('tabindex')) {
+          element.setAttribute('tabindex', '0');
+        }
+        uniqueFakeLinksFixed.add(element);
+        fixes.fakeLinksFixed++;
+      }
+    });
 
     // Validate accessibility report
     const report = validateAccessibilityReport(container);
@@ -198,9 +249,8 @@ module.exports = {
       log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
     }
 
-    // ... Add language attribute to HTML element
-
-    // ... Implement focus trap for keyboard navigation
+    // Implement focus trap for keyboard navigation
+    focusTrap(container);
 
     if (fixes.langAdded) {
       log('Lang attribute added to HTML element', 'info');
@@ -232,6 +282,3 @@ module.exports = {
 
   focusTrap: focusTrap
 };
-```
-
-This file now includes both sets of functions, addressing accessibility issues and creating a focus trap for keyboard navigation. I have added comments to show where the code from both branches has been integrated and attempted to preserve the style as much as possible.

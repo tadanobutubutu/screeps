@@ -1,7 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-
 const fs = require('fs');
 const main = require('./utilities');
 
@@ -16,16 +12,6 @@ const ensureElementId = (element) => {
 };
 
 // Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and newFocusTrap())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
-
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: () => {
@@ -61,52 +47,6 @@ const accessibilityUtils = {
         }
       }
     });
-  },
-
-  // TODO: Import the new function to create a button with correct accessibility properties for in-page linking
-  createInPageButton: createInPageButton,
-
-  // TODO: Create a utility function to create a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
-  createWebResourceButton: createWebResourceButton,
-
-  // TODO: Validate the table structure for accessibility issues
-  validateTableAccessibility,
-  validateTableStructure,
-
-  // TODO: Validate the landmark structure for accessibility issues
-  validateLandmark,
-  validateLandmarkStructure,
-
-  // TODO: Extract the accessible name for an SVG from its content
-  getSvgAccessibleName,
-
-  // TODO: Add a language attribute to the HTML element
-  getLangAttribute,
-
-  // TODO: Validate the accessibility report for issues
-  validateAccessibilityReport,
-
-  // TODO: Address new accessibility issues from insight report ( implement new functions and fixes as needed)
-
-  // Credential response handling
-  handleCredentialResponse: async function(response) {
-    if (!response) {
-      throw new Error('No response received');
-    }
-
-    if (response.error) {
-      throw new Error(response.error);
-    }
-
-    if (response.token) {
-      return {
-        success: true,
-        token: response.token,
-        expiresIn: response.expiresIn || 3600
-      };
-    }
-
-    throw new Error('Invalid credential response');
   },
 
   // Announce message to screen readers
@@ -171,6 +111,27 @@ const accessibilityUtils = {
     return () => {
       element.removeEventListener('keydown', handleKeyDown);
     };
+  },
+
+  // Credential response handling
+  handleCredentialResponse: async function(response) {
+    if (!response) {
+      throw new Error('No response received');
+    }
+
+    if (response.error) {
+      throw new Error(response.error);
+    }
+
+    if (response.token) {
+      return {
+        success: true,
+        token: response.token,
+        expiresIn: response.expiresIn || 3600
+      };
+    }
+
+    throw new Error('Invalid credential response');
   },
 
   // Export functionality with accessibility support
@@ -336,17 +297,6 @@ function groupByCategory(items, getCategory) {
     return groups;
   }, {});
 }
-
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c8cf4389f9c -->
-
-_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
 
 // New function: validateTableAccessibility
 function validateTableAccessibility(tableElement) {
@@ -909,239 +859,6 @@ if (typeof document !== 'undefined') {
     initAccessibility();
   }
 }
-
-// New function: validateTableAccessibility
-function newFocusTrap() {
-  // This is now implemented as newFocusTrap in accessibilityUtils
-}
-
-/**
- * Ensures the element has an id. If the element doesn't have an id,
- * generates one and assigns it to the element.
- * @param {HTMLElement} element - The element to check and modify
- * @param {string} [prefix='element'] - Prefix for the generated id
- * @returns {string} The element's id (existing or newly generated)
- */
-const ensureElementHasId = (element, prefix = 'element') => {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-  
-  if (element.id) {
-    return element.id;
-  }
-  
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
-};
-
-/**
- * Ensures an element has an ID with a specific origin tracking
- * @param {HTMLElement} element - The element to check and modify
- * @param {string} origin - The origin identifier for the ID
- * @returns {string} The element's id (existing or newly generated)
- */
-const ensureElementHasIdOrigin = (element, origin = 'default') => {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-  
-  if (element.id) {
-    return element.id;
-  }
-  
-  const id = `${origin}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
-};
-
-/**
- * Adds an aria-label attribute to an element
- * @param {HTMLElement} element - The element to modify
- * @param {string} label - The aria-label text
- * @returns {HTMLElement} The modified element
- */
-const addAriaLabel = (element, label) => {
-  if (element && label) {
-    element.setAttribute('aria-label', label);
-  }
-  return element;
-};
-
-/**
- * Renders dependency graphs from module data
- * @param {Object} data - The data containing nodes and edges
- * @returns {Object} The rendered dependency graph
- */
-const renderDependencyGraphs = (data) => {
-  if (!data) return { nodes: [], edges: [] };
-  
-  return {
-    nodes: data.nodes || [],
-    edges: data.edges || []
-  };
-};
-
-/**
- * Fixes button identifiers for accessibility
- * @param {Array} buttons - Array of button elements to fix
- * @returns {number} Number of buttons fixed
- */
-const fixButtonIdentifiers = (buttons) => {
-  if (!Array.isArray(buttons)) return 0;
-  
-  let fixed = 0;
-  buttons.forEach(button => {
-    if (!(button instanceof HTMLElement)) return;
-    
-    if (!button.id && button.textContent) {
-      const id = `btn-${button.textContent.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
-      button.id = id;
-      fixed++;
-    }
-  });
-  
-  return fixed;
-};
-
-/**
- * Fixes aria attributes in dependency graphs for accessibility
- * @param {Object} graph - The dependency graph to fix
- * @returns {Object} The fixed graph
- */
-const fixDependencyGraphAria = (graph) => {
-  if (!graph || typeof graph !== 'object') return graph;
-  
-  if (graph.nodes) {
-    graph.nodes.forEach(node => {
-      if (node.id && !node['aria-label']) {
-        node['aria-label'] = node.label || node.id;
-      }
-    });
-  }
-  
-  return graph;
-};
-
-/**
- * Adds main landmark to the index
- * @param {HTMLElement} mainElement - The main element to add landmark to
- * @returns {HTMLElement} The modified element
- */
-const addMainLandmarkToIndex = (mainElement) => {
-  if (mainElement && mainElement.tagName.toLowerCase() === 'main') {
-    if (!mainElement.hasAttribute('role')) {
-      mainElement.setAttribute('role', 'main');
-    }
-  }
-  return mainElement;
-};
-
-/**
- * Creates a focus trap for modal dialogs and popups
- * @param {HTMLElement} element - The element to trap focus in
- * @returns {Function} Cleanup function to remove the focus trap
- */
-const focusTrap = (element) => {
-  if (!element) return () => {};
-  
-  const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled)], input:not([disabled)], select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  );
-  
-  if (focusableElements.length === 0) {
-    console.warn('No focusable elements found in focus trap container');
-    return () => {};
-  }
-  
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-  
-  const handleKeyDown = (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstElement) {
-        lastElement.focus();
-        e.preventDefault();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        firstElement.focus();
-        e.preventDefault();
-      }
-    }
-    
-    if (e.key === 'Escape') {
-      element.dispatchEvent(new CustomEvent('focusTrapEscape'));
-    }
-  };
-  
-  element.addEventListener('keydown', handleKeyDown);
-  
-  return () => {
-    element.removeEventListener('keydown', handleKeyDown);
-  };
-};
-
-/**
- * Renders additional content with accessibility support
- * @param {HTMLElement} container - The container element to render into
- * @param {Object} content - The content to render
- * @returns {HTMLElement} The container with rendered content
- */
-const renderAdditionalContent = (container, content) => {
-  if (!container || !(container instanceof HTMLElement)) {
-    throw new Error('Container must be a valid HTMLElement');
-  }
-  
-  if (!content) return container;
-  
-  if (typeof content === 'string') {
-    container.innerHTML = content;
-  } else if (content.template) {
-    container.innerHTML = content.template;
-  }
-  
-  if (content.className) {
-    container.className = content.className;
-  }
-  
-  if (content.attributes) {
-    Object.entries(content.attributes).forEach(([key, value]) => {
-      container.setAttribute(key, value);
-    });
-  }
-  
-  return container;
-};
-
-// Toolbox original functions
-function getTables() {
-  return appData.tables;
-}
-
-function getConfig() {
-  return { ...appData.config };
-}
-
-function setConfig(config) {
-  appData.config = { ...appData.config, ...config };
-}
-
-// Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName(svgString) {
-  // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
-  // and returns the modified SVG string.
-  // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, "image/svg+xml");
-  const svgElement = svg.documentElement;
-  if (!svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
-  }
-  return new XMLSerializer().serializeToString(svg);
-}
-
-// Example usage of the function
-const originalSvgString = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>';
-const modifiedSvgString = addAccessibleName(originalSvgString);
 
 // New function: Implement the new function as per the issue requirements
 function transformInputData(inputData, options = {}) {

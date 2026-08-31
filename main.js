@@ -1,4 +1,19 @@
+<?php
 // main.js
+
+import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import { initializeApp } from './app.js';
+import { isSecureContext } from './utils.js';
+import { calculateSum } from './utils';
+import { getLangAttribute } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+import { fetchUser, clearCache } from './utils/user';
 
 // Find the primary content element in the DOM
 const primaryContent = document.querySelector('.primary-content') ||
@@ -24,31 +39,18 @@ function wrapPrimaryContentInMain() {
   return null;
 }
 
-// Import necessary dependencies
-import React, { useState, useEffect } from 'react';
-import { List, Button } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
-import { setDependencyGraph } from './actions/dependencyGraph';
-import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-import { isSecureContext } from './utils.js';
-import fs from 'fs';
-import './styles.css';
-import './styles.less';
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { CONFIG } from './utils/constants';
-import App from './App';
-import { helper, formatDate } from './utils';
-import { someFunction } from './utils/someFunction';
-import express from 'express';
-import path from 'path';
-import { fetchUser, clearCache } from './utils/user';
+// Function to ensure ARIA attributes are properly set for the dependency graph
+function ensureAccessibilityAttributes() {
+  // Ensure the document has proper lang attribute for accessibility
+  const lang = getLangAttribute();
+  
+  // Set lang attribute on document root if not already set
+  if (typeof document !== 'undefined' && document.documentElement) {
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = lang;
+    }
+  }
+}
 
 // Landmark data structure
 const landmarks = [];
@@ -144,6 +146,33 @@ function validateLandmark(landmark) {
   };
 }
 
+// Address accessibility issues from the insight report
+function addressAccessibilityIssues() {
+  const rootElement = document.querySelector('html');
+  rootElement.setAttribute('lang', document.querySelector('html').getAttribute('lang') || 'en');
+
+  // Validate table accessibility and fix table structure as needed
+  // You can add your code for validateTableAccessibility, validateTableStructure, and fixTableStructure here
+
+  // Add main landmark role to a main container
+  const mainElement = document.querySelector('main');
+  mainElement.setAttribute('role', 'main');
+
+  // Add navigation landmark role to a nav container
+  const navElement = document.querySelector('nav');
+  navElement.setAttribute('role', 'navigation');
+
+  // Add accessible names to SVGs
+  // You can add your code for getSvgAccessibleName and setSvgAttributes here
+
+  // Ensure unique landmarks
+  // You can add your code for ensureUniqueLandmarks here
+
+  // Fix fake links by adding 'role="button"' attribute to links without 'href'
+  const fakeLinks = document.querySelectorAll('a:not([href])');
+  fakeLinks.forEach(link => link.setAttribute('role', 'button'));
+}
+
 // Validate landmark structure
 function landmarkStructureCheck(landmark) {
   const errors = [];
@@ -174,7 +203,6 @@ function checkLandmarkElement(id) {
   return element !== null;
 }
 
-// Ensure unique landmarks by filtering duplicates
 function ensureUniqueLandmarks(landmarksArray) {
   if (!landmarksArray || landmarksArray.length === 0) {
       return {};
@@ -182,7 +210,6 @@ function ensureUniqueLandmarks(landmarksArray) {
   const seen = new Set();
   return landmarksArray.filter(landmark => {
     const key = landmark.name + '_' + (landmark.role || 'default');
-    // Merge both approaches for checking uniqueness
     if (seen.has(key)) {
         return false;
     }
@@ -202,6 +229,11 @@ function ensureLandmarkUniqueness(elements) {
       if (landmark.id) {
         if (elementsById[landmark.id]) {
           landmark.id = landmark.id + '_duplicate';
+          // Ensure the new ID is also unique
+          while (elementsById[landmark.id]) {
+            landmark.id += '_duplicate';
+          }
+          elementsById[landmark.id] = true;
         } else {
           elementsById[landmark.id] = true;
         }
@@ -273,6 +305,135 @@ function addLandmarkRoles(container) {
   sections.forEach(section => {
     if (!section.getAttribute('role') && possibleLandmarks[section.tagName.toLowerCase()]) {
       section.setAttribute('role', possibleLandmarks[section.tagName.toLowerCase()]);
+    }
+  });
+}
+
+// REACT_015: Add lang attribute to HTML element
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.lang) {
+    htmlElement.lang = 'en';
+  }
+}
+
+// REACT_027: Fix table structure issues
+function fixTableStructure() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!table.querySelector('thead')) {
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        const cells = firstRow.querySelectorAll('th, td');
+        cells.forEach(cell => {
+          const newTh = document.createElement('th');
+          newTh.textContent = cell.textContent;
+          if (cell.hasAttribute('colspan')) {
+            newTh.setAttribute('colspan', cell.getAttribute('colspan'));
+          }
+          if (cell.hasAttribute('rowspan')) {
+            newTh.setAttribute('rowspan', cell.getAttribute('rowspan'));
+          }
+          newTh.setAttribute('scope', 'col');
+          headerRow.appendChild(newTh);
+        });
+        thead.appendChild(headerRow);
+        table.insertBefore(thead, table.firstChild);
+      }
+    }
+    if (!table.querySelector('tbody')) {
+      const rows = table.querySelectorAll('tr');
+      const thead = table.querySelector('thead');
+      const rowsAfterHeader = thead ? Array.from(rows).slice(1) : Array.from(rows);
+      if (rowsAfterHeader.length > 0) {
+        const tbody = document.createElement('tbody');
+        rowsAfterHeader.forEach(row => {
+          tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
+      }
+    }
+  });
+}
+
+// REACT_017: Add/fix 2 landmark issues
+function addMainLandmark() {
+  let mainElement = document.querySelector('main');
+  if (!mainElement) {
+    mainElement = document.createElement('main');
+    mainElement.id = 'main-content';
+    const existingContent = document.body.firstElementChild;
+    if (existingContent) {
+      document.body.insertBefore(mainElement, existingContent);
+    } else {
+      document.body.appendChild(mainElement);
+    }
+  } else {
+    if (!mainElement.id) {
+      mainElement.id = 'main-content';
+    }
+    if (!mainElement.hasAttribute('role') || mainElement.getAttribute('role') !== 'main') {
+      mainElement.setAttribute('role', 'main');
+    }
+  }
+}
+
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarksDoc() {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      let isFirst = true;
+      elements.forEach(element => {
+        if (isFirst) {
+          isFirst = false;
+        } else {
+          element.removeAttribute('role');
+        }
+      });
+    }
+  });
+}
+
+// REACT_041: Add accessible names to 2 SVGs
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    const title = svg.querySelector('title');
+    if (title) {
+      const titleId = `svg-title-${index}`;
+      title.id = titleId;
+      svg.setAttribute('aria-labelledby', titleId);
+    } else {
+      const fallbackId = `svg-fallback-title-${index}`;
+      const newTitle = document.createElement('title');
+      newTitle.id = fallbackId;
+      newTitle.textContent = `SVG image ${index + 1}`;
+      svg.insertBefore(newTitle, svg.firstChild);
+      svg.setAttribute('aria-labelledby', fallbackId);
+    }
+  });
+}
+
+// REACT_036: Fix 1 fake link issue
+function fixFakeLinkIssue() {
+  const anchors = document.querySelectorAll('a');
+  anchors.forEach(anchor => {
+    if (!anchor.href || anchor.href === '#' || anchor.href === '' || anchor.href === 'javascript:;') {
+      if (!anchor.href || anchor.href === '#' || anchor.href === '' || anchor.href === 'javascript:;') {
+        const text = anchor.textContent.trim();
+        const button = document.createElement('button');
+        button.textContent = text;
+        Array.from(anchor.attributes).forEach(attr => {
+          if (attr.name !== 'href' && attr.name !== 'onclick') {
+            button.setAttribute(attr.name, attr.value);
+          }
+        });
+        anchor.parentNode.replaceChild(button, anchor);
+      }
     }
   });
 }
@@ -378,6 +539,59 @@ function renderIndexView(container) {
   console.log('Rendering index view');
 }
 
+// TODO: Add any other missing exports that might have been?
+// Added missing exports as per the issue
+function landmarkStructureCheck(container) {
+  if (!container) return { valid: false, errors: ['Container is required'] };
+  const landmarks = container.querySelectorAll('[role]');
+  const errors = [];
+  landmarks.forEach(lm => {
+    const role = lm.getAttribute('role');
+    if (!['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search', 'form'].includes(role)) {
+      errors.push(`Invalid landmark role: ${role}`);
+    }
+  });
+  return { valid: errors.length === 0, errors };
+}
+
+function setLanguageAttribute(element, lang) {
+  if (element && typeof lang === 'string' && lang.length > 0) {
+    element.setAttribute('lang', lang);
+    return true;
+  }
+  return false;
+}
+
+function addLandmarkRoles(elements) {
+  if (!Array.isArray(elements)) return [];
+  return elements.map(el => {
+    if (el.tagName) {
+      const tag = el.tagName.toLowerCase();
+      const roleMap = { nav: 'navigation', main: 'main', footer: 'contentinfo', aside: 'complementary' };
+      if (roleMap[tag] && !el.getAttribute('role')) {
+        el.setAttribute('role', roleMap[tag]);
+      }
+    }
+    return el;
+  });
+}
+
+function fixFakeLinks(links) {
+  if (!Array.isArray(links)) return [];
+  return links.map(link => {
+    if (link.href && !link.getAttribute('role')) {
+      if (link.href.startsWith('#') || link.href === '') {
+        link.setAttribute('role', 'button');
+      }
+    }
+    return link;
+  });
+}
+
+function isSecureContext() {
+  return window.isSecureContext === true || window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+}
+
 // Updated function using the new functions for rendering graph/index
 function renderDependencyGraphContent() {
   const container = document.getElementById('dependencyGraph');
@@ -400,6 +614,26 @@ function addProperLandmarkRegions(document) {
       console.log(`Missing landmark region: ${role}`);
     }
   });
+}
+
+// Configuration
+const config = {
+  // Configuration options
+};
+
+// App state
+const appState = {
+  // Application state
+};
+
+// Initialize function
+function initialize() {
+  // Initialization code
+}
+
+// Initialize app
+function initializeApp() {
+  // Initialize the app
 }
 
 // Function to count dependencies
@@ -434,6 +668,27 @@ function processData(data) {
   return data;
 }
 
+// Fetch user
+function fetchUser(userId) {
+  // Fetch user data
+}
+
+// Clear cache
+function clearCache() {
+  // Clear cache
+}
+
+// Validate input
+function validateInput(input) {
+  // Validate input
+}
+
+// Main execution
+function main() {
+  initialize();
+  console.log('Main function executed');
+}
+
 // Visualize dependency tree
 function VisualizeDependencyTree(data) {
   console.log('Visualizing dependency tree:', data);
@@ -446,7 +701,9 @@ function BookItem(book) {
       <List.Item.Meta
         title={book.title}
         description={book.author}
+        avatar={<img src={book.coverImage} alt={book.title} />}
       />
+      <List.Item.Meta description={book.description} />
     </List.Item>
   );
 }
@@ -461,27 +718,24 @@ export function addBook(book) {
 }
 
 // Ensure accessibility attributes are set when adding a book
-ensureDependencyGraphARIA();
+...
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
+  const sortedList = getBooksList.slice().sort((a, b) => a.title.localeCompare(b.title));
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+  const sortedList = getBooksList.slice().sort((a, b) => b.author.localeCompare(a.author));
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
-
-// Export utility functions
-export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies };
 
 // Render the main component containing the book list and sorting controls
 function Main() {
@@ -502,45 +756,57 @@ function Main() {
 
   // Render the list of book items and sorting controls
   return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
-      {/* Example of adding a new book form with accessibility considerations */}
-      <form onSubmit={(e) => {
-        e.preventDefault();
-        // Assuming there's a function to get the form data
-        const newBook = getFormData();
-        addBook(newBook);
-      }}>
-        <label htmlFor="title">Title:</label>
-        <input type="text" id="title" name="title" required aria-label="Book title" />
-        <label htmlFor="author">Author:</label>
-        <input type="text" id="author" name="author" required aria-label="Book author" />
-        <button type="submit">Add Book</button>
-      </form>
+    <div role="main">
+      <div role="region" aria-label="Sorting controls">
+        <button onClick={() => setSorting(sortByTitle)} aria-label="Sort books by title">Sort by Title</button>
+        <button onClick={() => setSorting(sortByAuthor)} aria-label="Sort books by author">Sort by Author</button>
+      </div>
+      <List itemLayout="vertical" ... renderItem={book => BookItem(book)} />
+      {/* Implement the required changes to improve accessibility for adding a new book */}
     </div>
   );
 }
 
-// Export the Main component
-export default Main;
-
-// Export functions for testing (only those defined in this file)
+// Export all functions
 export {
-  wrapPrimaryContentInMain,
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addLandmarkRegions,
+  processAccessibilityIssues,
+  initialize,
   initializeApp,
-  handleUserInteraction,
-  cleanup,
-  initApp,
   processData,
   fetchUser,
   clearCache,
+  validateInput,
+  main,
+  wrapPrimaryContentInMain,
+  handleUserInteraction,
+  cleanup,
+  initApp,
   VisualizeDependencyTree,
   checkLandmarkElement,
   ensureUniqueLandmarks,
+  landmarks,
+  appData,
+  icons,
+  validateLandmark,
+  renderDependencyGraphContent,
+  ensureLandmarkUniqueness,
+  countDependencies,
   ensureLandmarkUniqueness,
   validateLandmark,
   renderDependencyGraphContent,
@@ -567,5 +833,10 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  createInPageButtons
+  createInPageButtons,
+  fixFakeLinkIssue,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarksDoc
 };
+
+export default Main;

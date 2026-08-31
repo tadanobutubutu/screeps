@@ -37,11 +37,22 @@ function startApp() {
   return server;
 }
 
+/**
+ * Function to render dependency graphs
+ * @returns {String} HTML content of the dependency graph
+ */
+function renderDependencyGraph() {
+  // Implementation to render dependency graph
+  // Placeholder implementation:
+  return '<div>Dependency Graph HTML Content</div>';
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  renderDependencyGraph
 };
 
 // Start the application if run directly

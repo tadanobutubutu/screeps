@@ -21,7 +21,7 @@ function generateKey(book) {
 // Function to render a single book item
 function BookItem({ book }) {
   return (
-    <List.Item key={generateKey(book)}>
+    <List.Item>
       <List.Item.Meta
         title={book.title}
         description={`by ${book.author}`}

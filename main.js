@@ -110,6 +110,11 @@ function renderDependencyGraph(data, container) {
   return graphContainer;
 }
 
+// New function as per the issue request
+function myNewFunction() {
+  // New function implementation
+}
+
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
@@ -117,5 +122,6 @@ module.exports = {
   myFunction: function () {
     // Existing implementation
   },
-  addLangAttribute: addLangAttribute
+  addLangAttribute: addLangAttribute,
+  myNewFunction: myNewFunction
 };

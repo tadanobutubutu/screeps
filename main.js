@@ -39,6 +39,9 @@ module.exports = {
       }
     }
 
+    // Validate and ensure unique landmarks
+    ensureUniqueLandmarks(container);
+
     // Fix landmark issues
     const landmarkFixes = validateLandmark(container);
     if (landmarkFixes && landmarkFixes.length > 0) {
@@ -58,6 +61,10 @@ module.exports = {
         fixes.svgNamesAdded++;
       }
     });
+
+    // Validate table structure for accessibility
+    validateTableAccessibility(container);
+    validateTableStructure(container);
 
     // Fix fake link issues (elements that look like links but are missing href)
     const fakeLinks = container.querySelectorAll('a:not([href])');

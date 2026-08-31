@@ -1,11 +1,28 @@
-Here is the resolved file content:
-
-```javascript
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap } = main;
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap
+} = main;
 
-// Implement the function for addressing accessibility issues from insight report
 function implementAccessibilityFixesFromReport(container, report) {
   const fixes = {
     langAdded: false,
@@ -21,7 +38,7 @@ function implementAccessibilityFixesFromReport(container, report) {
 
   // Fix lang attribute on HTML element
   if (report.issues.missingLang) {
-    const htmlElement = container.querySelector('html') || container.ownerDocument?.querySelector('html');
+    const htmlElement = container.querySelector('html') || (container.ownerDocument && container.ownerDocument.querySelector ? container.ownerDocument.querySelector('html') : null) || (typeof document !== 'undefined' && document.querySelector ? document.querySelector('html') : null);
     if (htmlElement && !htmlElement.hasAttribute('lang')) {
       htmlElement.setAttribute('lang', 'en');
       fixes.langAdded = true;
@@ -32,17 +49,18 @@ function implementAccessibilityFixesFromReport(container, report) {
   if (report.issues.missingMainLandmark) {
     const mainElements = container.querySelectorAll('main, [role="main"]');
     if (mainElements.length === 0) {
-      // Try to convert the first section to main
       const firstSection = container.querySelector('section');
       if (firstSection) {
-        // Create a new main element and move content into it
-        const mainElement = container.ownerDocument.createElement('main');
-        while (firstSection.firstChild) {
-          mainElement.appendChild(firstSection.firstChild);
+        const doc = container.ownerDocument || (typeof document !== 'undefined' ? document : null);
+        if (doc) {
+          const mainElement = doc.createElement('main');
+          while (firstSection.firstChild) {
+            mainElement.appendChild(firstSection.firstChild);
+          }
+          firstSection.parentNode.insertBefore(mainElement, firstSection);
+          firstSection.remove();
+          fixes.mainLandmarkAdded = true;
         }
-        firstSection.parentNode.insertBefore(mainElement, firstSection);
-        firstSection.remove();
-        fixes.mainLandmarkAdded = true;
       }
     }
   }
@@ -50,27 +68,23 @@ function implementAccessibilityFixesFromReport(container, report) {
   // Fix landmarks by ensuring proper roles and accessible names
   if (report.issues.landmarkIssues && Array.isArray(report.issues.landmarkIssues)) {
     const uniqueLandmarksFixed = new Set();
-    
     report.issues.landmarkIssues.forEach(issue => {
       if (issue.selector && !uniqueLandmarksFixed.has(issue.selector)) {
         const element = container.querySelector(issue.selector);
         if (element) {
-          // Add accessible name if missing
           if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
             const role = element.getAttribute('role') || element.tagName.toLowerCase();
-            
-            // Try to get label from surrounding context
             const previousSibling = element.previousElementSibling;
-            if (previousSibling && previousSibling.textContent.trim()) {
+            const doc = container.ownerDocument || (typeof document !== 'undefined' ? document : null);
+            if (previousSibling && previousSibling.textContent.trim() && doc) {
               const labelId = `landmark-label-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-              const labelSpan = container.ownerDocument.createElement('span');
+              const labelSpan = doc.createElement('span');
               labelSpan.id = labelId;
               labelSpan.textContent = previousSibling.textContent.trim();
               labelSpan.style.display = 'none';
               element.parentNode.insertBefore(labelSpan, element);
               element.setAttribute('aria-labelledby', labelId);
             } else {
-              // Use role as fallback label
               const roleLabel = role.charAt(0).toUpperCase() + role.slice(1).replace(/[^a-zA-Z]/g, ' ');
               element.setAttribute('aria-label', roleLabel);
             }
@@ -87,25 +101,19 @@ function implementAccessibilityFixesFromReport(container, report) {
     report.issues.svgIssues.forEach(issue => {
       const svg = container.querySelector(issue.selector);
       if (svg && svg.tagName.toLowerCase() === 'svg') {
-        // Check if SVG already has an accessible name
         if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-          // Look for a title element within the SVG
           let titleElement = svg.querySelector('title');
-          
-          if (!titleElement) {
-            // Create a title element
-            titleElement = container.ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'title');
+          const doc = container.ownerDocument || (typeof document !== 'undefined' ? document : null);
+          if (!titleElement && doc) {
+            titleElement = doc.createElementNS('http://www.w3.org/2000/svg', 'title');
             const titleId = `svg-title-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             titleElement.id = titleId;
             titleElement.textContent = issue.suggestedName || 'Decorative SVG';
-            
-            // Insert title as first child of SVG
             if (svg.firstChild) {
               svg.insertBefore(titleElement, svg.firstChild);
             } else {
               svg.appendChild(titleElement);
             }
-            
             svg.setAttribute('aria-labelledby', titleId);
             fixes.svgNamesAdded++;
           }
@@ -117,16 +125,12 @@ function implementAccessibilityFixesFromReport(container, report) {
   // Fix fake links (elements that look like links but aren't)
   if (report.issues.fakeLinkIssues && Array.isArray(report.issues.fakeLinkIssues)) {
     const uniqueFakeLinksFixed = new Set();
-    
     report.issues.fakeLinkIssues.forEach(issue => {
       if (issue.selector && !uniqueFakeLinksFixed.has(issue.selector)) {
         const element = container.querySelector(issue.selector);
         if (element) {
-          // Check if this element should be a link or a button
-          const isNavigation = element.closest('nav') !== null;
-          
+          const isNavigation = element.closest && element.closest('nav') !== null;
           if (isNavigation || element.tagName.toLowerCase() === 'a') {
-            // Convert to proper link with href
             if (!element.hasAttribute('href')) {
               element.setAttribute('href', '#' + (element.id || `link-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`));
               element.setAttribute('role', 'link');
@@ -134,7 +138,6 @@ function implementAccessibilityFixesFromReport(container, report) {
               fixes.fakeLinksFixed++;
             }
           } else {
-            // Convert to button
             element.setAttribute('role', 'button');
             if (!element.hasAttribute('tabindex')) {
               element.setAttribute('tabindex', '0');
@@ -153,6 +156,8 @@ function implementAccessibilityFixesFromReport(container, report) {
 module.exports = {
   ...main,
 
+  implementAccessibilityFixesFromReport,
+
   addressAccessibilityIssues: (container) => {
     const fixes = {
       langAdded: false,
@@ -162,14 +167,20 @@ module.exports = {
       fakeLinksFixed: 0
     };
 
-    // ... Add lang attribute to HTML element if missing
+    // Add lang attribute to HTML element if missing
+    const doc = container.ownerDocument || (typeof document !== 'undefined' ? document : null);
+    const htmlEl = container.querySelector ? container.querySelector('html') : (doc && doc.querySelector ? doc.querySelector('html') : null);
+    if (htmlEl && !htmlEl.hasAttribute('lang')) {
+      htmlEl.setAttribute('lang', 'en');
+      fixes.langAdded = true;
+    }
 
     // Add main landmark if missing
-    const mainElement = container.querySelector('main');
+    const mainElement = container.querySelector ? container.querySelector('main') : null;
     if (!mainElement) {
-      const body = container.querySelector('body');
-      if (body) {
-        const newMain = document.createElement('main');
+      const body = container.querySelector ? container.querySelector('body') : (doc ? doc.body : null);
+      if (body && doc) {
+        const newMain = doc.createElement('main');
         while (body.firstChild) {
           newMain.appendChild(body.firstChild);
         }
@@ -178,60 +189,65 @@ module.exports = {
       }
     }
 
-    // ... Fix landmark issues
-
     // Fix SVG accessible names
-    const svgElements = container.querySelectorAll('svg');
-    svgElements.forEach(svg => {
-      const accessibleName = getSvgAccessibleName(svg);
-      if (accessibleName && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-        svg.setAttribute('aria-label', accessibleName);
-        fixes.svgNamesAdded++;
-      }
-    });
-
-    // ... Fix fake link issues (elements that look like links but are missing href)
-
-    // Validate accessibility report
-    const report = validateAccessibilityReport(container);
-    if (report && report.length > 0) {
-      log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
+    if (container.querySelectorAll && typeof getSvgAccessibleName === 'function') {
+      const svgElements = container.querySelectorAll('svg');
+      svgElements.forEach(svg => {
+        if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+          const accessibleName = getSvgAccessibleName(svg);
+          if (accessibleName) {
+            svg.setAttribute('aria-label', accessibleName);
+            fixes.svgNamesAdded++;
+          }
+        }
+      });
     }
 
-    // ... Add language attribute to HTML element
+    // Validate accessibility report
+    if (typeof validateAccessibilityReport === 'function') {
+      const report = validateAccessibilityReport(container);
+      if (report && report.length > 0) {
+        console.log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
+      }
+    }
 
-    // ... Implement focus trap for keyboard navigation
+    // Fix fake link issues (elements that look like links but are missing href)
+    if (container.querySelectorAll) {
+      const linkIssues = container.querySelectorAll('a:not([href]), [role="link"]:not([href])');
+      linkIssues.forEach(link => {
+        if (!link.hasAttribute('href')) {
+          link.setAttribute('href', '#' + (link.id || `link-${Date.now()}`));
+          fixes.fakeLinksFixed++;
+        }
+      });
+    }
 
+    // Log fixes
     if (fixes.langAdded) {
-      log('Lang attribute added to HTML element', 'info');
+      console.log('Lang attribute added to HTML element', 'info');
     }
 
     if (fixes.mainLandmarkAdded) {
-      log('Main landmark added', 'info');
+      console.log('Main landmark added', 'info');
     }
 
     const landmarkFixesCount = fixes.landmarksFixed || 0;
     if (landmarkFixesCount > 0) {
-      log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
+      console.log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
     }
 
     const svgFixes = fixes.svgNamesAdded || 0;
     if (svgFixes > 0) {
-      log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
+      console.log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
     }
 
     const fakeLinkFixes = fixes.fakeLinksFixed || 0;
     if (fakeLinkFixes > 0) {
-      log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
+      console.log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
     }
 
     return fixes;
   },
 
-  // ...
-
   focusTrap: focusTrap
 };
-```
-
-This file now includes both sets of functions, addressing accessibility issues and creating a focus trap for keyboard navigation. I have added comments to show where the code from both branches has been integrated and attempted to preserve the style as much as possible.

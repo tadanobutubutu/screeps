@@ -108,6 +108,27 @@ const accessibilityUtils = {
     return results;
   },
 
+  // Check if an element is a landmark element
+  checkLandmarkElement: (element) => {
+    if (!element) return { valid: false, issues: ['Element is null or undefined'] };
+
+    const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+    const role = element.getAttribute ? element.getAttribute('role') : null;
+
+    const validLandmarkTags = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'form'];
+    const validLandmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search', 'form'];
+
+    const isValidTag = validLandmarkTags.includes(tagName);
+    const isValidRole = role && validLandmarkRoles.includes(role);
+
+    const issues = [];
+    if (!isValidTag && !isValidRole) {
+      issues.push('Element is not a valid landmark');
+    }
+
+    return { valid: isValidTag || isValidRole, issues };
+  },
+
   // REACT_017: Validate landmark issues
   validateLandmark: (element) => {
     if (!element) return { valid: false, issues: ['Element is null'] };
@@ -455,6 +476,7 @@ module.exports = {
   validateLinkAccessibility: accessibilityUtils.validateLinkAccessibility,
   handleFakeLinks: accessibilityUtils.handleFakeLinks,
   addProperLandmarkRegions: accessibilityUtils.addProperLandmarkRegions,
+  checkLandmarkElement: accessibilityUtils.checkLandmarkElement,
 
   // Additional exports from HEAD
   rotateBack: rotateBack,

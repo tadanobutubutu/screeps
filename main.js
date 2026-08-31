@@ -18,10 +18,8 @@ const { spawn } = require('child_process');
 // - Maintain focus management for modal dialogs
 
 const accessibilityUtils = {
-  // ... existing methods from both branches ...
-
   /**
-   * Announce message to screen readers (from origin/head)
+   * Announce message to screen readers
    * @param {string} message - The message to announce
    * @param {string} [priority='polite'] - The priority of the message (optional, defaults to 'polite')
    */
@@ -38,7 +36,7 @@ const accessibilityUtils = {
   },
 
   /**
-   * Handle keyboard navigation (from origin/head)
+   * Handle keyboard navigation
    * @param {Event} e - The keyboard event
    * @param {Object} handlers - The handler functions for different keys
    */
@@ -63,7 +61,6 @@ function initAccessibility() {
 }
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
 const ensureElementId = (element) => {
   if (element && !element.id) {
     element.id = `auto-id-${Math.random().toString(36).substr(2, 9)}`;

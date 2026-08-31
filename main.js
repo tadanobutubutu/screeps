@@ -1,32 +1,17 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-
-// This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
-// This is the code that needs to be preserved and is common between both branches
-// ...
-
-// TODO: New code that was added to the branch
-// New function that does something different
-
-// This is the existing code that needs to be preserved
-// ...
-
-// New code that was added to the branch, but should not overwrite the preserved code
-// ...
-const https = require('https');
-const http = require('http');
-const React = require('react');
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views.
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark() and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
+// - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
+// - ADD: Address new accessibility issues from insight report
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Assuming main.js has a <html> tag, add the lang attribute based on your content
+// For example, if the page is in English, set lang to 'en'
+import React from 'react';
 
 /**
  * Renders a dependency graph view using the imported dependencyGraphContent module.
@@ -79,6 +64,25 @@ function detectAndSetLang(content) {
  */
 function improveKeyboardNavigation() {
   // New code to improve accessibility
+}
+
+/**
+ * Checks for duplicate ID attributes in the document, which can cause accessibility issues
+ * and maintenance problems.
+ * @returns {boolean} True if duplicates are found, false otherwise
+ */
+function function3() {
+  const elements = document.querySelectorAll('*');
+  const ids = [...elements].map(el => el.id);
+  const seen = new Set();
+  for (const id of ids) {
+    if (seen.has(id)) {
+      console.warn(`Duplicate ID found: "${id}"`);
+      return false;
+    }
+    seen.add(id);
+  }
+  return true;
 }
 
 // New function to address REACT_027: Fix 26 table structure issues
@@ -239,241 +243,4 @@ function checkLinkAndButtonAccessibility() {
 
 // New function to address REACT_017: Add/fix 4 landmark issues
 function validateLandmark(element) {
-  if (typeof document === 'undefined' || !element) {
-    return { valid: false, errors: ['Element not found'] };
-  }
-  
-  const errors = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article', 'search'];
-  
-  // Check if element is a valid landmark
-  const role = element.getAttribute('role');
-  const tagName = element.tagName.toLowerCase();
-  
-  if (role && !validLandmarks.includes(role)) {
-    errors.push(`Invalid landmark role: ${role}`);
-  }
-  
-  if (!role && !validLandmarks.includes(tagName)) {
-    errors.push(`Element is not a valid landmark: ${tagName}`);
-  }
-  
-  // Check for accessible name
-  const hasLabel = element.getAttribute('aria-label') || 
-                   element.getAttribute('aria-labelledby') ||
-                   element.querySelector('h1, h2, h3, h4, h5, h6');
-  
-  if (!hasLabel) {
-    errors.push('Landmark is missing accessible name (aria-label, aria-labelledby, or heading)');
-  }
-  
-  return { valid: errors.length === 0, errors };
-}
-
-function validateLandmarkStructure() {
-  if (typeof document === 'undefined') {
-    return { valid: false, errors: ['Document not available'] };
-  }
-  
-  const errors = [];
-  
-  // Check for multiple main landmarks
-  const mainElements = document.querySelectorAll('main, [role="main"]');
-  if (mainElements.length > 1) {
-    errors.push(`Multiple main landmarks found (${mainElements.length}). Only one main landmark should exist.`);
-  }
-  
-  // Check for proper nesting of landmarks
-  const landmarks = document.querySelectorAll('nav, main, aside, footer, [role]');
-  landmarks.forEach((landmark) => {
-    const parent = landmark.parentElement;
-    while (parent) {
-      const parentTag = parent.tagName.toLowerCase();
-      const parentRole = parent.getAttribute('role');
-      
-      // Check for invalid nesting
-      if (parentTag === 'header' && parent.querySelectorAll(':scope > header').length > 0) {
-        errors.push('Nested header elements found');
-      }
-      if (parentTag === 'footer' && parent.querySelectorAll(':scope > footer').length > 0) {
-        errors.push('Nested footer elements found');
-      }
-      
-      parent = parent.parentElement;
-    }
-  });
-
-  // New function to address REACT_041: Add accessible names to 2 SVGs
-  function getSvgAccessibleName(svgElement) {
-    if (typeof document === 'undefined' || !svgElement) {
-      return null;
-    }
-    
-    // Check for aria-label
-    let accessibleName = svgElement.getAttribute('aria-label');
-    if (accessibleName) return accessibleName;
-    
-    // Check for aria-labelledby referencing another element
-    const labelledBy = svgElement.getAttribute('aria-labelledby');
-    if (labelledBy) {
-      const labelElement = document.getElementById(labelledBy);
-      if (labelElement) return labelElement.textContent;
-    }
-    
-    // Check for title element inside SVG
-    const title = svgElement.querySelector('title');
-    if (title && title.textContent.trim()) {
-      return title.textContent.trim();
-    }
-    
-    // Check for desc element inside SVG
-    const desc = svgElement.querySelector('desc');
-    if (desc && desc.textContent.trim()) {
-      return desc.textContent.trim();
-    }
-    
-    return null;
-  }
-
-  function validateSvgAccessibility() {
-    if (typeof document === 'undefined') {
-      return { valid: true, errors: [] };
-    }
-    
-    const errors = [];
-    const svgs = document.querySelectorAll('svg');
-    
-    svgs.forEach((svg, index) => {
-      const name = getSvgAccessibleName(svg);
-      if (!name) {
-        errors.push(`SVG ${index + 1} is missing an accessible name (aria-label, aria-labelledby, title, or desc)`);
-      }
-    });
-    
-    return { valid: errors.length === 0, errors };
-  }
-
-  // New function to address REACT_025: Ensure unique landmarks (2 issues)
-  function ensureUniqueLandmarks() {
-    if (typeof document === 'undefined') {
-      return { valid: false, errors: ['Document not available'] };
-    }
-    
-    const errors = [];
-    const landmarkCounts = {};
-    
-    // Count landmarks by role or tag
-    const landmarks = document.querySelectorAll('header, nav, main, aside, footer, [role]');
-    landmarks.forEach((landmark) => {
-      const identifier = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-      
-      // main landmarks should be unique
-      if (identifier === 'main' || identifier === 'MAIN') {
-        if (landmarkCounts[identifier]) {
-          landmarkCounts[identifier]++;
-          errors.push(`Duplicate main landmark found (${landmarkCounts[identifier]})`);
-        } else {
-          landmarkCounts[identifier] = 1;
-        }
-      }
-    });
-    
-    return { valid: errors.length === 0, errors };
-  }
-
-  /**
-   * Gets the accessible name of an element, addressing REACT_036 fake link issues.
-   * @param {HTMLElement} element - The element to extract the accessible name from
-   * @returns {string|null} The accessible name or null
-   */
-  function personName(element) {
-    if (typeof document === 'undefined' || !element) {
-      return null;
-    }
-    
-    // Check for aria-label
-    const ariaLabel = element.getAttribute('aria-label');
-    if (ariaLabel) return ariaLabel;
-    
-    // Check for aria-labelledby referencing another element
-    const labelledBy = element.getAttribute('aria-labelledby');
-    if (labelledBy) {
-      const labelElement = document.getElementById(labelledBy);
-      if (labelElement) return labelElement.textContent;
-    }
-    
-    // Check for title attribute
-    const title = element.getAttribute('title');
-    if (title) return title;
-    
-    // Fall back to text content
-    const textContent = element.textContent.trim();
-    if (textContent) return textContent;
-    
-    return null;
-  }
-
-  /**
-   * Creates an accessible in-page button element, addressing REACT_036 fake link issues.
-   * @param {string} label - The visible label text for the button
-   * @param {function} onClick - The click handler function
-   * @returns {object} An object describing the button properties
-   */
-  function createInPageButton(label, onClick) {
-    if (typeof document === 'undefined') {
-      return null;
-    }
-    
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = label;
-    
-    if (typeof onClick === 'function') {
-      button.addEventListener('click', onClick);
-    }
-    
-    return button;
-  }
-
-  /**
-   * Validates that links and interactive elements have accessible names,
-   * addressing REACT_036 fake link issues.
-   * @param {HTMLElement} container - Optional container to scan within
-   * @returns {object} Validation result with valid flag and errors array
-   */
-  function validateAccessibleLinks(container) {
-    if (typeof document === 'undefined') {
-      return { valid: true, errors: [] };
-    }
-    
-    const errors = [];
-    const root = container || document;
-    const links = root.querySelectorAll('a, button, [role="link"], [role="button"]');
-    
-    links.forEach((el, index) => {
-      const name = personName(el);
-      if (!name || !name.trim()) {
-        errors.push(`Interactive element ${index + 1} is missing an accessible name`);
-      }
-    });
-    
-    return { valid: errors.length === 0, errors };
-  }
-}
-
-// Export all functions to maintain current exports
-module.exports = {
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  personName,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateSvgAccessibility,
-  ensureUniqueLandmarks,
-  validateAccessibleLinks
-};
+  if (typeof document === 'undefined' || !

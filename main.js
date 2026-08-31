@@ -1,9 +1,6 @@
-Here is the resolved file content:
-
-```javascript
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap } = main;
+const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap } = main;
 
 // Implement the function for addressing accessibility issues from insight report
 function implementAccessibilityFixesFromReport(container, report) {
@@ -150,8 +147,104 @@ function implementAccessibilityFixesFromReport(container, report) {
   return fixes;
 }
 
+// Render dependency graphs for debugging purposes
+function renderDependencyGraphs(container) {
+  if (!container) {
+    return null;
+  }
+
+  const moduleStructure = {
+    timestamp: new Date().toISOString(),
+    modules: [],
+    dependencies: [],
+    graph: {}
+  };
+
+  // Find all script and dependency-related elements
+  const scripts = container.querySelectorAll('script');
+  const links = container.querySelectorAll('link[rel="stylesheet"], link[rel="modulepreload"]');
+
+  scripts.forEach((script, index) => {
+    const src = script.getAttribute('src');
+    const type = script.getAttribute('type') || 'text/javascript';
+    moduleStructure.modules.push({
+      index,
+      src,
+      type,
+      isModule: type === 'module' || type === 'application/javascript'
+    });
+  });
+
+  links.forEach((link) => {
+    const rel = link.getAttribute('rel');
+    const href = link.getAttribute('href');
+    if (href) {
+      moduleStructure.dependencies.push({
+        rel,
+        href
+      });
+    }
+  });
+
+  // Build a simple dependency graph representation
+  moduleStructure.modules.forEach(mod => {
+    if (mod.src) {
+      moduleStructure.graph[mod.src] = moduleStructure.dependencies
+        .filter(dep => dep.href && mod.src && dep.href.includes(mod.src.split('/').pop().replace('.js', '')))
+        .map(dep => dep.href);
+    }
+  });
+
+  return moduleStructure;
+}
+
+// Display module structure for debugging purposes
+function displayModuleStructure(container, target) {
+  const structure = renderDependencyGraphs(container);
+  if (!structure) {
+    return;
+  }
+
+  const outputTarget = target || container;
+  if (!outputTarget) {
+    return;
+  }
+
+  const debugContainer = outputTarget.ownerDocument.createElement('div');
+  debugContainer.className = 'module-structure-debug';
+  debugContainer.setAttribute('data-debug', 'module-structure');
+  debugContainer.style.cssText = 'border: 1px solid #ccc; padding: 10px; margin: 10px 0; font-family: monospace; font-size: 12px;';
+
+  const title = outputTarget.ownerDocument.createElement('h3');
+  title.textContent = 'Module Structure (Debug)';
+  debugContainer.appendChild(title);
+
+  const modulesList = outputTarget.ownerDocument.createElement('div');
+  modulesList.textContent = `Modules: ${structure.modules.length}`;
+  debugContainer.appendChild(modulesList);
+
+  const depsList = outputTarget.ownerDocument.createElement('div');
+  depsList.textContent = `Dependencies: ${structure.dependencies.length}`;
+  debugContainer.appendChild(depsList);
+
+  const timestampEl = outputTarget.ownerDocument.createElement('div');
+  timestampEl.textContent = `Timestamp: ${structure.timestamp}`;
+  debugContainer.appendChild(timestampEl);
+
+  if (outputTarget.firstChild) {
+    outputTarget.insertBefore(debugContainer, outputTarget.firstChild);
+  } else {
+    outputTarget.appendChild(debugContainer);
+  }
+
+  return debugContainer;
+}
+
 module.exports = {
   ...main,
+
+  renderDependencyGraphs,
+  displayModuleStructure,
 
   addressAccessibilityIssues: (container) => {
     const fixes = {
@@ -232,6 +325,3 @@ module.exports = {
 
   focusTrap: focusTrap
 };
-```
-
-This file now includes both sets of functions, addressing accessibility issues and creating a focus trap for keyboard navigation. I have added comments to show where the code from both branches has been integrated and attempted to preserve the style as much as possible.

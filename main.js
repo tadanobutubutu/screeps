@@ -46,6 +46,19 @@ function getLangAttribute() {
   return 'en';
 }
 
+// Accessibility-related function to be added
+/**
+ * Checks for accessibility issues in the rendered content
+ * @param {string} content - Rendered HTML content
+ * @returns {Array} List of accessibility issues found
+ */
+function checkAccessibility(content) {
+  // Placeholder for accessibility checking logic
+  // This function should be implemented to check for accessibility issues
+  // For now, it just returns an empty array
+  return [];
+}
+
 /**
  * Detects the language of the given content and sets the HTML lang attribute
  * @param {string} content - The text content to analyze
@@ -229,7 +242,7 @@ function newFocusTrap(container) {
   };
 }
 
-// Export the new functions
+// Preserve all existing exports
 module.exports = {
   setHtmlLangAttribute,
   getLangAttribute,
@@ -243,5 +256,6 @@ module.exports = {
   getSvgAccessibleName,
   createWebResourceButton,
   validateUniqueLandmarks,
-  newFocusTrap
+  newFocusTrap,
+  checkAccessibility // Add the new export
 };

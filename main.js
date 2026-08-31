@@ -6,17 +6,40 @@ function createInPageButton(id, href, text, className) {
   // Logic for creating an in-page button with given properties
 }
 
-// Main entry point for dependency visualization tool
-
-const fs = require('fs');
-const path = require('path');
-
 /**
- * Calculates the depth of dependency tree
- * @param {Object} dependencies - The dependency object
- * @param {string} currentKey - Current key being processed
- * @returns {number} Maximum depth of the dependency tree
+ * Checks accessibility of links and buttons in the configuration
+ * @param {Object} config - Configuration object containing links and buttons
+ * @returns {Object} Validation result with issues found
  */
+function checkLinkButtonAccessibility(config) {
+  const issues = [];
+
+  // Check links
+  if (config.links && Array.isArray(config.links)) {
+    config.links.forEach((link, index) => {
+      if (typeof link.href !== 'undefined' && link.href) {
+        // Link is valid
+      } else {
+        issues.push(`Link at index ${index} is missing or invalid href attribute`);
+      }
+    });
+  }
+
+  // Check buttons
+  if (config.buttons && Array.isArray(config.buttons)) {
+    config.buttons.forEach((button, index) => {
+      if (button.type !== 'button') {
+        issues.push(`Button at index ${index} is not a button (type=${button.type})`);
+      }
+    });
+  }
+
+  return {
+    valid: issues.length === 0,
+    issues
+  };
+}
+
 function getDependencyDepth(dependencies, currentKey = '') {
   if (!dependencies || typeof dependencies !== 'object') {
     return 0;
@@ -59,11 +82,11 @@ function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
     output += `${prefix}${connector}${key}`;
     
     if (typeof value === 'object' && value !== null) {
-      output += '/\n';
+      output += '/\\n';
       const extension = isLast ? '    ' : '│   ';
       output += renderDependencyGraph(value, prefix + extension, isLastItem);
     } else {
-      output += ` -> ${value}\n`;
+      output += ` -> ${value}\\n`;
     }
   });
   
@@ -80,22 +103,22 @@ function displayModuleStructure(modules) {
     return 'Error: modules must be an array';
   }
   
-  let output = 'Module Structure:\n';
-  output += '==================\n\n';
+  let output = 'Module Structure:\\n';
+  output += '==================\\n\\n';
   
   modules.forEach((mod, index) => {
     const name = mod.name || mod.id || `Module ${index + 1}`;
-    output += `${index + 1}. ${name}\n`;
+    output += `${index + 1}. ${name}\\n`;
     
     if (mod.dependencies && Array.isArray(mod.dependencies)) {
-      output += `   Dependencies: ${mod.dependencies.join(', ')}\n`;
+      output += `   Dependencies: ${mod.dependencies.join(', ')}\\n`;
     }
     
     if (mod.path) {
-      output += `   Path: ${mod.path}\n`;
+      output += `   Path: ${mod.path}\\n`;
     }
     
-    output += '\n';
+    output += '\\n';
   });
   
   return output;
@@ -137,10 +160,10 @@ function renderAccessibleDependencyGraph(dependencies, depth = 0) {
 
   const keys = Object.keys(dependencies);
   if (keys.length === 0) {
-    return `Depth ${depth}: (empty)\n`;
+    return `Depth ${depth}: (empty)\\n`;
   }
 
-  let output = `Depth ${depth}: (${keys.length} item${keys.length === 1 ? '' : 's'})\n`;
+  let output = `Depth ${depth}: (${keys.length} item${keys.length === 1 ? '' : 's'})\\n`;
 
   keys.forEach((key, index) => {
     const value = dependencies[key];
@@ -148,10 +171,10 @@ function renderAccessibleDependencyGraph(dependencies, depth = 0) {
     const position = isLast ? 'last' : 'not last';
 
     if (typeof value === 'object' && value !== null) {
-      output += `  - ${key} (has ${Object.keys(value).length} child${Object.keys(value).length === 1 ? '' : 's'}, ${position})\n`;
+      output += `  - ${key} (has ${Object.keys(value).length} child${Object.keys(value).length === 1 ? '' : 's'}, ${position})\\n`;
       output += renderAccessibleDependencyGraph(value, depth + 1);
     } else {
-      output += `  - ${key} (leaf, value: ${value}, ${position})\n`;
+      output += `  - ${key} (leaf, value: ${value}, ${position})\\n`;
     }
   });
 
@@ -187,6 +210,7 @@ function main() {
 module.exports = {
   getLangAttribute,
   createInPageButton,
+  checkLinkButtonAccessibility,
   renderDependencyGraph,
   displayModuleStructure,
   getDependencyDepth,

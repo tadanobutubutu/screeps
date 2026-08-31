@@ -88,6 +88,17 @@ function BookForm() {
   );
 }
 
+// Function to create in-page buttons for sorting and add book functionality
+function createInPageButtons() {
+  return (
+    <div>
+      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      <BookForm />
+    </div>
+  );
+}
+
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
@@ -124,10 +135,8 @@ function Main() {
   // Render the list of book items, sorting controls, and the book form
   return (
     <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      {createInPageButtons()}
       <List dataSource={bookItems} />
-      <BookForm />
     </div>
   );
 }

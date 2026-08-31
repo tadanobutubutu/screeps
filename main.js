@@ -37,11 +37,22 @@ function startApp() {
   return server;
 }
 
+/**
+ * Function to count dependencies
+ * @returns {number} The count of dependencies
+ */
+function countDependencies() {
+  // Placeholder logic for counting dependencies
+  // This function should be implemented to count actual dependencies
+  return 0;
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  countDependencies
 };
 
 // Start the application if run directly

@@ -1,14 +1,3 @@
-// Line 1
-// Line 2
-// Line 3
-// Line 4
-// Line 5
-// TODO: This is the existing code that needs to be preserved
-// Line 7
-// Line 8
-// Line 9
-// Line 10
-
 // main.js - Application entry point
 
 const express = require('express');

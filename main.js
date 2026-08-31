@@ -249,8 +249,12 @@ function clamp(value, min, max) {
   /* existing code */
 }
 
+// TODO: Implement this function for creating in-page buttons
 function createInPageButton(buttonId, buttonText) {
-  /* existing code */
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  return button;
 }
 
 function validateLinkAccessibility(options) {

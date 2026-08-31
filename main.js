@@ -3,7 +3,6 @@
 // main.js - Combined utility and accessibility features
 
 // TODO: Identify and update specific functions that render dependency graphs or
-
 // Accessibility helper function for keyboard navigation
 function setupKeyboardNavigation(element, options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
@@ -311,6 +310,7 @@ function renderDependencyGraph(dependencies, container, options = {}) {
     nodeTextColor: '#ffffff',
     edgeColor: '#999999',
     animated: true,
+    debug: false,
     ...options
   };
   
@@ -320,6 +320,13 @@ function renderDependencyGraph(dependencies, container, options = {}) {
   
   if (!containerEl) {
     throw new Error('Container element not found for dependency graph rendering');
+  }
+  
+  // Debug logging for debugging purposes
+  if (defaultOptions.debug) {
+    console.log('Rendering dependency graph:', { dependencies, container: containerEl, options: defaultOptions });
+    console.log('Node count:', dependencies.nodes ? dependencies.nodes.length : 0);
+    console.log('Edge count:', dependencies.edges ? dependencies.edges.length : 0);
   }
   
   // Create SVG container
@@ -349,6 +356,11 @@ function renderDependencyGraph(dependencies, container, options = {}) {
       if (!dependencies || !dependencies.nodes || !dependencies.edges) {
         console.warn('Invalid dependency graph structure');
         return;
+      }
+      
+      // Debug logging on redraw
+      if (defaultOptions.debug) {
+        console.log('Redrawing dependency graph with', dependencies.nodes.length, 'nodes');
       }
       
       // Calculate positions (simple circular layout for nodes)
@@ -461,6 +473,66 @@ function renderDependencyGraph(dependencies, container, options = {}) {
   return graphControl;
 }
 
+/**
+ * Displays module structure for debugging purposes
+ * @param {Object} dependencies - Graph data structure with nodes and edges
+ * @param {string|HTMLElement} container - DOM element or selector to display the structure
+ * @param {Object} options - Display options
+ * @returns {HTMLElement} - The container element with the module structure displayed
+ */
+function displayModuleStructure(dependencies, container, options = {}) {
+  const containerEl = typeof container === 'string' 
+    ? document.querySelector(container) 
+    : container;
+  
+  if (!containerEl) {
+    throw new Error('Container element not found for displaying module structure');
+  }
+  
+  // Clear container
+  containerEl.innerHTML = '';
+  
+  // Create pre element for text display
+  const pre = document.createElement('pre');
+  pre.style.fontFamily = 'monospace';
+  pre.style.fontSize = '12px';
+  pre.style.whiteSpace = 'pre-wrap';
+  pre.style.padding = '10px';
+  pre.style.backgroundColor = '#f5f5f5';
+  pre.style.border = '1px solid #ddd';
+  pre.style.overflow = 'auto';
+  
+  // Build module structure string for debugging
+  let output = 'Module Structure:\n';
+  output += '================\n\n';
+  
+  if (dependencies && dependencies.nodes) {
+    output += `Total Nodes: ${dependencies.nodes.length}\n`;
+    output += `Total Edges: ${dependencies.edges ? dependencies.edges.length : 0}\n\n`;
+    
+    output += 'Nodes:\n';
+    dependencies.nodes.forEach((node, index) => {
+      const id = node.id || node.label || 'Unnamed';
+      const type = node.type || 'module';
+      output += `  ${index + 1}. [${type}] ${id}\n`;
+    });
+    
+    if (dependencies.edges && dependencies.edges.length > 0) {
+      output += '\nDependencies:\n';
+      dependencies.edges.forEach((edge, index) => {
+        output += `  ${index + 1}. ${edge.source || 'Unknown'} -> ${edge.target || 'Unknown'}\n`;
+      });
+    }
+  } else {
+    output += 'No module data available.\n';
+  }
+  
+  pre.textContent = output;
+  containerEl.appendChild(pre);
+  
+  return containerEl;
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -477,7 +549,8 @@ if (typeof module !== 'undefined' && module.exports) {
     deepClone,
     validateLandmark,
     renderDependencyGraph,
-    addressAccessibilityIssues
+    addressAccessibilityIssues,
+    displayModuleStructure
   };
 }
 

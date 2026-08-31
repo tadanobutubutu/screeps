@@ -335,3 +335,54 @@ function validateAccessibleLinks(container) {
   
   return { valid: errors.length === 0, errors };
 }
+
+/**
+ * Ensures the dependencyGraph container has a proper ARIA role.
+ * Finds the element by id 'dependencyGraph' (or a custom selector) and
+ * applies an appropriate ARIA role and accessible label if missing.
+ * @param {string} [containerId='dependencyGraph'] - The id of the container element
+ * @param {string} [role='figure'] - The ARIA role to apply if missing
+ * @param {string} [label='Dependency Graph'] - The accessible label to apply if missing
+ * @returns {object} Result indicating whether the container was found and updated
+ */
+function ensureDependencyGraphRole(containerId, role, label) {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+  
+  const id = containerId || 'dependencyGraph';
+  const desiredRole = role || 'figure';
+  const desiredLabel = label || 'Dependency Graph';
+  
+  const container = document.getElementById(id);
+  if (!container) {
+    return { valid: false, errors: [`Dependency graph container with id "${id}" not found`] };
+  }
+  
+  const errors = [];
+  
+  // Apply role if missing
+  if (!container.getAttribute('role')) {
+    container.setAttribute('role', desiredRole);
+  }
+  
+  // Apply accessible label if missing (aria-label or aria-labelledby)
+  const hasLabel = container.getAttribute('aria-label') ||
+                   container.getAttribute('aria-labelledby');
+  if (!hasLabel) {
+    container.setAttribute('aria-label', desiredLabel);
+  }
+  
+  // Validate the resulting attributes
+  const finalRole = container.getAttribute('role');
+  const finalLabel = container.getAttribute('aria-label') || container.getAttribute('aria-labelledby');
+  
+  if (!finalRole) {
+    errors.push('Dependency graph container is missing a role attribute');
+  }
+  if (!finalLabel) {
+    errors.push('Dependency graph container is missing an accessible label');
+  }
+  
+  return { valid: errors.length === 0, errors, container };
+}

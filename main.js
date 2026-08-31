@@ -480,6 +480,72 @@ function processAccessibilityReport(report) {
   return findings;
 }
 
+/**
+ * Renders the index view for the application.
+ * This function handles rendering the main index page with appropriate
+ * accessibility features and landmark roles.
+ */
+function renderIndexView() {
+  const container = document.getElementById('dependencyGraph');
+  
+  if (!container) {
+    console.warn('Dependency graph container not found');
+    return null;
+  }
+  
+  // Apply landmark role for accessibility
+  if (!container.getAttribute('role')) {
+    container.setAttribute('role', 'region');
+  }
+  
+  // Ensure accessible label
+  const accessibleLabel = container.getAttribute('aria-label') || 'Dependency Graph';
+  container.setAttribute('aria-label', accessibleLabel);
+  
+  // Clear existing content
+  container.innerHTML = '';
+  
+  // Create main content structure
+  const mainContent = document.createElement('div');
+  mainContent.setAttribute('role', 'main');
+  mainContent.className = 'index-view-content';
+  
+  // Add heading with proper heading hierarchy
+  const heading = document.createElement('h1');
+  heading.textContent = appData.title || 'Index View';
+  heading.setAttribute('id', 'index-view-heading');
+  mainContent.appendChild(heading);
+  
+  // Create content container
+  const contentContainer = document.createElement('div');
+  contentContainer.className = 'content-container';
+  contentContainer.setAttribute('role', 'group');
+  
+  // Add version info
+  const versionInfo = document.createElement('p');
+  versionInfo.className = 'version-info';
+  versionInfo.textContent = 'Version: ' + (appData.version || '1.0.0');
+  contentContainer.appendChild(versionInfo);
+  
+  // Add initialization status
+  const statusInfo = document.createElement('p');
+  statusInfo.className = 'status-info';
+  statusInfo.textContent = 'Status: ' + (appState.initialized ? 'Initialized' : 'Not Initialized');
+  contentContainer.appendChild(statusInfo);
+  
+  mainContent.appendChild(contentContainer);
+  
+  // Append to container
+  container.appendChild(mainContent);
+  
+  // Apply accessibility fixes
+  setLanguageAttribute();
+  addLandmarkRoles();
+  fixFakeLinks();
+  
+  return container;
+}
+
 // Example usage of the new function (if applicable)
 // const report = getInsightReport(); // Hypothetical function to get the insight report
 // addressAccessibilityIssues(report);
@@ -525,8 +591,9 @@ module.exports = {
   handleFakeLinks: handleFakeLinks,
   landmarks: landmarks,
   appData: appData,
-  initApp: initApp
+  initApp: initApp,
+  renderIndexView: renderIndexView
 };
 
 // Export functions for testing
-export { ensureUniqueLandmarks, initApp, setLanguageAttribute, addLandmarkRoles, fixFakeLinks, landmarks, appData };
+export { ensureUniqueLandmarks, initApp, setLanguageAttribute, addLandmarkRoles, fixFakeLinks, landmarks, appData, renderIndexView };

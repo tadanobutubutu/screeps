@@ -57,7 +57,7 @@ function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
-  button.ariaLabel = 'rotate back';
+  button.setAttribute('aria-label', 'rotate back');
   button.textContent = 'rotate back';
   button.addEventListener('click', rotateBack);
   return button;
@@ -257,7 +257,7 @@ function ensureUniqueLandmarks() {
 
 // Function to fix 1 fake link issue
 function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('[href="#"]:not([ aria-hidden ])');
+  const fakeLinks = document.querySelectorAll('[href="#"]:not([aria-hidden])');
   fakeLinks.forEach((link) => {
     link.removeAttribute('href');
   });

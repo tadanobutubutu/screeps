@@ -1,11 +1,21 @@
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
+/**
+ * @fileoverview Main module entry point for dependency visualization and accessibility utilities.
+ * @license MIT
+ */
+
 // Dependency imports
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
+const { dependencyGraphContent } = require('./dependency-graph');
+const { indexContent } = require('./index');
 const { spawn } = require('child_process');
 
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report:
-// ... (Removed hashes for ease of reading)
+// - Add keyboard navigation support for all interactive elements
+// - Ensure proper ARIA labels on dynamic content
+// - Maintain focus management for modal dialogs
 
 const accessibilityUtils = {
   // ... existing methods from both branches ...
@@ -40,11 +50,23 @@ const accessibilityUtils = {
   }
 };
 
+/**
+ * Initialize accessibility features for the application.
+ */
+function initAccessibility() {
+  // Set up accessibility utilities
+  if (typeof window !== 'undefined') {
+    // Ensure screen reader support is available
+    document.body.setAttribute('role', 'application');
+  }
+  return accessibilityUtils;
+}
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `auto-id-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element;
 };
@@ -134,13 +156,20 @@ function focusTrap(element) {
     }
   });
 
-  firstElement.focus();
+  return element;
 }
 
 function newFocusTrap() {
   // New function implementation
 }
 
+/**
+ * Spawn a child process with the given command and arguments.
+ * @param {string} command - The command to execute
+ * @param {string[]} args - Arguments to pass to the command
+ * @param {Object} options - Options for the spawn function
+ * @returns {ChildProcess} The spawned process
+ */
 function spawnProcess(command, args = [], options = {}) {
   return spawn(command, args, options);
 }
@@ -175,10 +204,11 @@ const exportUtils = {
     link.href = url;
     link.download = filename;
     link.setAttribute('aria-label', `Download ${filename}`);
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    link.remove();
 
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
@@ -209,13 +239,23 @@ const exportUtils = {
   }
 };
 
+/**
+ * Sanitize a filename to remove invalid characters.
+ * @param {string} filename - The filename to sanitize
+ * @returns {string} The sanitized filename
+ */
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9_.-]/g, '_');
+  return filename.replace(/[^a-z0-9.-]/gi, '_');
 }
 
+/**
+ * Safely read a file, returning null on error.
+ * @param {string} filePath - The path to the file to read
+ * @returns {string|null} The file contents or null if an error occurred
+ */
 function readFileSafe(filePath) {
   try {
-    return fs.readFileSync(filePath, 'utf8');
+    return require('fs').readFileSync(filePath, 'utf8');
   } catch (error) {
     log(`Error reading file ${filePath}: ${error.message}`, 'error');
     return null;
@@ -225,7 +265,7 @@ function readFileSafe(filePath) {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`${timestamp} [${level.toUpperCase()}] ${message}`);
+  console[level === 'error' ? 'error' : 'log'](`[${timestamp}] [${level}] ${message}`);
 }
 
 module.exports = {

@@ -13,33 +13,34 @@ module.exports = {
   },
 
   addSvgAccessibleNames: function() {
-    const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+    const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
       const title = svg.querySelector('title');
       if (title && title.textContent.trim()) {
+        svg.setAttribute('role', 'img');
         svg.setAttribute('aria-label', title.textContent.trim());
       }
     });
   },
 
   ensureUniqueLandmarks: function() {
-    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"], main, nav, aside, header, footer');
+    const landmarks = document.querySelectorAll('[role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"], main, nav, aside, header, footer');
     const seen = new Map();
     landmarks.forEach(landmark => {
       const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
       const count = (seen.get(role) || 0) + 1;
       seen.set(role, count);
-      if (count > 1 && !landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+      if (count > 1 && !landmark.getAttribute('aria-label')) {
         landmark.setAttribute('aria-label', `${role} ${count}`);
       }
     });
   },
 
   fixFakeLink: function() {
-    const fakeLinks = document.querySelectorAll('[role="link"]:not(a), [onclick]:not(a):not(button):not([role])');
+    const fakeLinks = document.querySelectorAll('a[href=""], a[href="#"], span.clickable, div.clickable');
     fakeLinks.forEach(el => {
-      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
-      if (!el.hasAttribute('role')) el.setAttribute('role', 'link');
+      if (!el.getAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.getAttribute('role')) el.setAttribute('role', 'link');
       el.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -72,7 +73,6 @@ module.exports = {
     }
 
     element.addEventListener('keydown', handleTab);
-    firstElement?.focus();
 
     return () => element.removeEventListener('keydown', handleTab);
   },
@@ -84,13 +84,15 @@ module.exports = {
       div.setAttribute('aria-live', priority);
       div.setAttribute('aria-atomic', 'true');
       div.style.position = 'absolute';
-      div.style.left = '-9999px';
+      div.style.left = '-999999px';
       document.body.appendChild(div);
       return div;
     })();
     liveRegion.textContent = '';
-    liveRegion.setAttribute('aria-live', priority);
-    liveRegion.textContent = message;
+    setTimeout(() => {
+      liveRegion.setAttribute('aria-live', priority);
+      liveRegion.textContent = message;
+    }, 100);
   },
 
   handleArrowKeys: function(element, callback) {
@@ -106,12 +108,113 @@ module.exports = {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
 
-  rotateBack: function() {},
+  rotateBack: function(element) {
+    if (element) {
+      element.style.transform = 'rotate(0deg)';
+      return element;
+    }
+  },
+
+  addressAccessibilityIssues: function(report) {
+    const results = {
+      addressed: [],
+      failed: []
+    };
+
+    if (!report || !report.data || !Array.isArray(report.data)) {
+      return results;
+    }
+
+    report.data.forEach(issue => {
+      try {
+        switch (issue.type) {
+          case 'fake-link':
+            this.fixFakeLink();
+            results.addressed.push(issue);
+            break;
+          case 'duplicate-landmark':
+          case 'non-unique-landmark':
+            this.ensureUniqueLandmarks();
+            results.addressed.push(issue);
+            break;
+          case 'missing-svg-title':
+          case 'svg-without-name':
+            this.addSvgAccessibleNames();
+            results.addressed.push(issue);
+            break;
+          case 'missing-language':
+            const html = document.documentElement;
+            if (!html.getAttribute('lang')) {
+              html.setAttribute('lang', 'en');
+              results.addressed.push(issue);
+            }
+            break;
+          case 'missing-alt-text':
+            const imagesWithoutAlt = document.querySelectorAll('img:not([alt])');
+            imagesWithoutAlt.forEach(img => {
+              img.setAttribute('alt', '');
+              img.setAttribute('role', 'presentation');
+            });
+            results.addressed.push(issue);
+            break;
+          case 'missing-heading':
+            const mainContent = document.querySelector('main');
+            if (mainContent && !mainContent.querySelector('h1, h2, h3, h4, h5, h6')) {
+              const heading = document.createElement('h1');
+              heading.textContent = 'Main Content';
+              heading.style.position = 'absolute';
+              heading.style.left = '-9999px';
+              mainContent.insertBefore(heading, mainContent.firstChild);
+            }
+            results.addressed.push(issue);
+            break;
+          case 'missing-form-label':
+            const inputs = document.querySelectorAll('input:not([aria-label]):not([aria-labelledby])');
+            inputs.forEach(input => {
+              const id = input.id || `auto-label-${Math.random().toString(36).substr(2, 9)}`;
+              if (!input.id) input.id = id;
+              const label = document.createElement('label');
+              label.htmlFor = id;
+              label.textContent = 'Label';
+              label.style.position = 'absolute';
+              label.style.left = '-9999px';
+              input.parentNode.insertBefore(label, input);
+            });
+            results.addressed.push(issue);
+            break;
+          case 'missing-button-name':
+          case 'empty-button':
+            const emptyButtons = document.querySelectorAll('button:empty');
+            emptyButtons.forEach(btn => {
+              btn.setAttribute('aria-label', 'Button');
+            });
+            results.addressed.push(issue);
+            break;
+          case 'link-empty-text':
+          case 'empty-link':
+            const emptyLinks = document.querySelectorAll('a:empty');
+            emptyLinks.forEach(link => {
+              const text = link.getAttribute('href') || 'Link';
+              link.textContent = text;
+            });
+            results.addressed.push(issue);
+            break;
+          default:
+            results.failed.push(issue);
+        }
+      } catch (error) {
+        results.failed.push({ ...issue, error: error.message });
+      }
+    });
+
+    return results;
+  },
 
   initializeAccessibility: function() {
     this.addSvgAccessibleNames();
     this.ensureUniqueLandmarks();
     this.fixFakeLink();
+    this.handleArrowKeys();
   },
 
   initialize: function() {

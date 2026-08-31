@@ -105,6 +105,11 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// Function to generate a report based on accessibility issues
+function generateAccessibilityReport() {
+  // TODO: Implement function for generating a report based on accessibility issues
+}
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
@@ -128,6 +133,7 @@ function Main() {
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List dataSource={bookItems} />
       <BookForm />
+      <Button onClick={generateAccessibilityReport}>Generate Accessibility Report</Button>
     </div>
   );
 }

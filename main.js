@@ -246,6 +246,38 @@ function handleFocusTrap(element) {
   });
 }
 
+// New functions from origin/main branch
+function newFocusTrap(element) {
+  return handleFocusTrap(element);
+}
+
+function addLangAttribute() {
+  if (typeof document !== 'undefined' && !document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+}
+
+function fixTableStructure(html) {
+  return validateTableAccessibility(html);
+}
+
+function addLandmarkIssues() {
+  return fixLandmarkIssues();
+}
+
+function validateTableAccessibilityImpl(html) {
+  return validateTableAccessibility(html);
+}
+
+function validateTableStructureImpl(html) {
+  return validateTableAccessibility(html);
+}
+
+function transformInputData(data) {
+  // Transform input data for accessibility processing
+  return data;
+}
+
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     
@@ -341,6 +373,50 @@ if (require.main === module) {
     });
 }
 
+// Accessibility utilities object from origin/main branch
+const accessibilityUtils = {
+  // Utility functions for accessibility
+  initSkipLink: () => {},
+  trapFocus: (element) => handleFocusTrap(element),
+  announceToScreenReader: (message, priority = 'polite') => {
+    if (typeof document !== 'undefined') {
+      const liveRegion = document.createElement('div');
+      liveRegion.setAttribute('role', 'status');
+      liveRegion.setAttribute('aria-live', priority);
+      liveRegion.setAttribute('aria-atomic', 'true');
+      liveRegion.style.position = 'absolute';
+      liveRegion.style.left = '-9999px';
+      liveRegion.textContent = message;
+      document.body.appendChild(liveRegion);
+      setTimeout(() => document.body.removeChild(liveRegion), 1000);
+    }
+  },
+  handleKeyboardNav: (e, handlers) => {
+    if (handlers[e.key]) {
+      handlers[e.key](e);
+    }
+  },
+
+  // Functions provided in both branches (merge)
+  ensureElementId: ensureElementHasId,
+  addAriaLabel: addAriaLabel,
+  renderDependencyGraph: renderDependencyGraph,
+
+  // Functions from the 'HEAD' branch
+  newFocusTrap: newFocusTrap,
+  addLangAttribute: addLangAttribute,
+  fixTableStructure: fixTableStructure,
+  addLandmarkIssues: addLandmarkIssues,
+  addSvgAccessibleNames: addSvgAccessibleNames,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  fixFakeLinkIssue: fixFakeLinkIssue,
+
+  // Functions from the 'origin/main' branch
+  validateTableAccessibility: validateTableAccessibilityImpl,
+  validateTableStructure: validateTableStructureImpl,
+  transformInputData: transformInputData,
+};
+
 module.exports = {
   createInPageButton,
   createWebResourceButton,
@@ -362,5 +438,15 @@ module.exports = {
   handleFocusTrap,
   revokeSession,
   functionA,
-  functionB
+  functionB,
+  accessibilityUtils,
+  newFocusTrap,
+  addLangAttribute,
+  fixTableStructure,
+  addLandmarkIssues,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  validateTableAccessibilityImpl,
+  validateTableStructureImpl,
+  transformInputData
 };

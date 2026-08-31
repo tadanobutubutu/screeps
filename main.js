@@ -266,6 +266,13 @@ function checkLinkAccessibility() {
 // New function to display module structure
 function displayModuleStructure(module) {
   console.log('Displaying module structure for:', module);
+  if (module && typeof module === 'object') {
+    console.log('Module structure:', JSON.stringify(module, null, 2));
+  } else if (typeof module === 'string') {
+    console.log('Module name:', module);
+  } else {
+    console.log('Module structure is empty or invalid');
+  }
 }
 
 // DOM-based accessibility code
@@ -294,7 +301,12 @@ function renderAccessibilityPage() {
 }
 
 const renderDependencyGraph = (data) => {
-  // Code to render the dependency graph
+  console.log('Rendering dependency graph for debugging purposes');
+  if (data) {
+    console.log('Dependency graph structure:', JSON.stringify(data, null, 2));
+  } else {
+    console.log('No dependency graph data available');
+  }
 };
 
 const renderIndex = () => {

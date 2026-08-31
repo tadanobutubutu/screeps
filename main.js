@@ -427,6 +427,70 @@ function detectAndSetLang() {
     return navigatorLang;
 }
 
+/**
+ * Renders the main index view combining dependency graph and accessibility information
+ * @param {Object} [dependencyInfo] - The dependency information from countDependencies()
+ * @param {Object} [accessibilityInfo] - The accessibility validation results
+ * @returns {string} Combined index view string
+ */
+function renderIndexView(dependencyInfo, accessibilityInfo) {
+    const lines = [];
+    
+    if (dependencyInfo) {
+        lines.push(renderDependencyGraph(dependencyInfo));
+    }
+    
+    if (accessibilityInfo) {
+        lines.push("Accessibility Validation Results");
+        lines.push("=".repeat(25));
+        lines.push("");
+        lines.push("- Accessibility Issues: " + (accessibilityInfo.issues ? accessibilityInfo.issues.length : 0));
+        lines.push("- Score: " + (accessibilityInfo.score || 0));
+        lines.push("");
+        
+        if (accessibilityInfo.issues && accessibilityInfo.issues.length > 0) {
+            lines.push("Issues:");
+            accessibilityInfo.issues.forEach((issue, idx) => {
+                lines.push(`  ${idx + 1}. ${issue.message}`);
+            });
+        }
+    }
+    
+    return lines.join("\n");
+}
+
+/**
+ * Renders the main view combining dependency graph information only
+ * @param {Object} [dependencyInfo] - The dependency information from countDependencies()
+ * @returns {string} Main view string
+ */
+function renderMainView(dependencyInfo) {
+    const lines = [];
+    
+    if (dependencyInfo) {
+        lines.push(renderDependencyGraph(dependencyInfo));
+    }
+    
+    return lines.join("\n");
+}
+
+// TODO: Update the existing function using the new functions for rendering graph/index
+function renderMainContent() {
+    const dependencyInfo = countDependencies();
+    
+    return renderMainView(dependencyInfo);
+}
+
+/**
+ * Generates a full report combining dependency and accessibility information
+ * @param {Object} [dependencyInfo] - The dependency information from countDependencies()
+ * @param {Object} [accessibilityInfo] - The accessibility validation results
+ * @returns {string} Full report string
+ */
+function generateFullReport(dependencyInfo, accessibilityInfo) {
+    return renderIndexView(dependencyInfo, accessibilityInfo);
+}
+
 module.exports = {
     validateWebAccessibility,
     validateTableAccessibility,
@@ -448,5 +512,9 @@ module.exports = {
     getDate,
     personName,
     setHtmlLangAttribute,
-    detectAndSetLang
+    detectAndSetLang,
+    renderIndexView,
+    renderMainView,
+    renderMainContent,
+    generateFullReport
 };

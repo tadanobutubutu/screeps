@@ -170,8 +170,6 @@ function ensureDependencyGraphARIA() {
   };
 }
 
-// TODO: add the new functions or changes requested in the issue
-
 // New utility functions
 
 /**
@@ -265,54 +263,91 @@ function isInViewport(element) {
   );
 }
 
-// Function to handle getLangAttribute for REACT_015
-function getLangAttribute(htmlElement) {
-  // Implement the logic to set the lang attribute based on the preferred language or localization
-}
-
 // Function to createInPageButton for REACT_015, REACT_036
 function createInPageButton(options) {
-  // Implement the logic to create a proper in-page link button
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  if (options.text) button.textContent = options.text;
+  if (options.onClick) button.addEventListener('click', options.onClick);
+  return button;
 }
 
 // Function to validateTableAccessibility for REACT_027
 function validateTableAccessibility(table) {
-  // Implement the logic to check for table accessibility issues and return a list of issues
+  const issues = [];
+  if (!table.querySelector('caption')) {
+    issues.push('Missing <caption> element');
+  }
+  if (!table.querySelector('th')) {
+    issues.push('Missing header cells (<th>)');
+  }
+  return issues;
 }
 
 // Function to validateTableStructure for REACT_027
 function validateTableStructure(table) {
-  // Implement the logic to check for table structure issues and return a list of issues
+  const issues = [];
+  const rows = table.querySelectorAll('tr');
+  rows.forEach((row, index) => {
+    const cells = row.querySelectorAll('td, th');
+    if (cells.length === 0) {
+      issues.push(`Row ${index + 1} has no cells`);
+    }
+  });
+  return issues;
 }
 
 // Function to validateLandmark for REACT_017
 function validateLandmark(element) {
-  // Implement the logic to check for landmark presence and proper use
+  const validRoles = ['banner', 'navigation', 'main', 'article', 'aside', 'footer', 'region'];
+  const role = element.getAttribute('role');
+  if (!role && !validRoles.some(r => element.hasAttribute(r))) {
+    return false;
+  }
+  if (role && !validRoles.includes(role)) {
+    return false;
+  }
+  return true;
 }
 
 // Function to validateLandmarkStructure for REACT_017
 function validateLandmarkStructure(element) {
-  // Implement the logic to check for landmark structure compliance
+  const issues = [];
+  if (element.getAttribute('role') === 'main' && document.querySelectorAll('[role="main"]').length > 1) {
+    issues.push('Multiple main landmarks found');
+  }
+  return issues;
 }
 
 // Function to ensureUniqueLandmarks for REACT_017, REACT_025
 function ensureUniqueLandmarks() {
-  // Implement the logic to check for and handle duplicate landmarks
+  const mains = document.querySelectorAll('[role="main"]');
+  if (mains.length > 1) {
+    mains[1].setAttribute('role', 'region');
+    mains[1].setAttribute('aria-label', 'Secondary main content');
+  }
 }
 
 // Function to getSvgAccessibleName for REACT_041
 function getSvgAccessibleName(svg) {
-  // Implement the logic to generate an accessible name for SVG elements
+  return svg.getAttribute('aria-label') || svg.getAttribute('title') || null;
 }
 
 // Function to setSvgAttributes for REACT_041
 function setSvgAttributes(svg, attributes) {
-  // Implement the logic to set specified attributes on SVG elements
+  Object.keys(attributes).forEach(key => {
+    svg.setAttribute(key, attributes[key]);
+  });
 }
 
 // Function to handleFakeLinks for REACT_036
 function handleFakeLinks(links) {
-  // Implement the logic to handle fake links within the app
+  links.forEach(link => {
+    if (link.getAttribute('role') === 'link') {
+      link.setAttribute('tabindex', '0');
+      link.setAttribute('aria-label', link.getAttribute('aria-label') || link.textContent);
+    }
+  });
 }
 
 // Export for use in other modules

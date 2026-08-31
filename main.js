@@ -95,6 +95,7 @@ function onAuthorSort() {
 
 // Export the necessary functions for use in other modules
 export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport };
+
 // Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 
 // Functions to improve accessibility (implementation assumed elsewhere)

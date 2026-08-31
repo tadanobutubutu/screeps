@@ -3,6 +3,7 @@
 // New function that needs to be exported
 function newFunction() {
   // Implementation of the new function
+  // Example: console.log('New function executed');
 }
 
 // Export the new function

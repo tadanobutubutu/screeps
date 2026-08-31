@@ -1,7 +1,7 @@
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
+<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e88 -->
 
 /**
  * Main application entry point with accessibility features
@@ -83,6 +83,45 @@ function countDependencies() {
     };
 }
 
+function renderIndexView(insightReport) {
+  if (!insightReport || !insightReport.sections) {
+    return;
+  }
+
+  const container = document.getElementById('index-view');
+  if (!container) {
+    return;
+  }
+
+  container.innerHTML = '';
+
+  if (insightReport.title) {
+    const titleElement = document.createElement('h1');
+    titleElement.textContent = insightReport.title;
+    container.appendChild(titleElement);
+  }
+
+  const sections = insightReport.sections;
+  for (let i = 0; i < sections.length; i++) {
+    const section = sections[i];
+    const sectionElement = document.createElement('section');
+
+    if (section.heading) {
+      const headingElement = document.createElement('h2');
+      headingElement.textContent = section.heading;
+      sectionElement.appendChild(headingElement);
+    }
+
+    if (section.content) {
+      const contentElement = document.createElement('p');
+      contentElement.textContent = section.content;
+      sectionElement.appendChild(contentElement);
+    }
+
+    container.appendChild(sectionElement);
+  }
+}
+
 /**
  * Handle credential response from browser authentication
  * @param {Object} response - The credential response object
@@ -161,6 +200,7 @@ if (typeof module !== 'undefined' && module.exports) {
     spawnSomeCommand,
     addLangAttribute,
     handleCredentialResponse,
+    renderIndexView,
     addSvgAccessibilityProps,
     getSvgAccessibleName,
     setSvgAttributes,
@@ -565,6 +605,7 @@ function MyComponent() {
 export {
   MyComponent,
   AddressabilityIssues,
+  renderIndexView,
   addSvgAccessibilityProps,
   getSvgAccessibleName,
   setSvgAttributes,

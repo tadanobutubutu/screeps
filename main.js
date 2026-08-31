@@ -37,11 +37,33 @@ function startApp() {
   return server;
 }
 
+/**
+ * Adds a lang attribute to the HTML element if it's not present
+ */
+function getLangAttribute() {
+  // Assuming 'document' is available in the context
+  if (!document.lang) {
+    document.lang = 'en'; // Default to English if lang attribute is missing
+  }
+}
+
+/**
+ * Creates an in-page button element with the appropriate attributes
+ */
+function createInPageButton() {
+  const button = document.createElement('button');
+  button.textContent = 'Click me';
+  button.setAttribute('lang', 'en'); // Ensure the button has the lang attribute
+  document.body.appendChild(button);
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  getLangAttribute,
+  createInPageButton
 };
 
 // Start the application if run directly

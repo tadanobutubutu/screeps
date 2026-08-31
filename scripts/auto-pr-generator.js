@@ -15,6 +15,14 @@ function getSanitizedRepo() {
     }
     return rawRepo;
 }
+
+function getSanitizedIssueNumber() {
+    const rawIssue = process.env.ISSUE_NUMBER;
+    if (!rawIssue || typeof rawIssue !== 'string' || !/^\d+$/.test(rawIssue)) {
+        throw new Error(`Invalid or missing ISSUE_NUMBER format: ${rawIssue}`);
+    }
+    return rawIssue;
+}
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
@@ -46,9 +54,13 @@ async function githubRequest(endpoint, options = {}) {
  * Issue の詳細情報を取得
  */
 async function getIssueDetails(issueNumber) {
-    console.log(`📋 Fetching issue #${issueNumber}...`);
+    const safeIssueNumber = issueNumber !== undefined ? String(issueNumber) : getSanitizedIssueNumber();
+    if (!/^\d+$/.test(safeIssueNumber)) {
+        throw new Error(`Invalid issue number format: ${safeIssueNumber}`);
+    }
+    console.log(`📋 Fetching issue #${safeIssueNumber}...`);
     const repo = getSanitizedRepo();
-    const issue = await githubRequest(`/repos/${repo}/issues/${issueNumber}`);
+    const issue = await githubRequest(`/repos/${repo}/issues/${safeIssueNumber}`);
     return issue;
 }
 
@@ -256,9 +268,13 @@ Closes #${issue.number}`;
  * メイン処理
  */
 async function main() {
-    if (!ISSUE_NUMBER) {
+    let issueNum;
+    try {
+        issueNum = getSanitizedIssueNumber();
+    } catch (err) {
         console.error('❌ ISSUE_NUMBER environment variable is not set');
         process.exit(1);
+        return;
     }
 
     if (!GITHUB_TOKEN || !ANTHROPIC_API_KEY) {
@@ -268,7 +284,7 @@ async function main() {
 
     try {
         // Issue を取得
-        const issue = await getIssueDetails(ISSUE_NUMBER);
+        const issue = await getIssueDetails(issueNum);
         console.log(`📝 Processing: ${issue.title}`);
 
         // Claude で分析
@@ -298,6 +314,7 @@ if (require.main === module) {
 module.exports = {
     githubRequest,
     getSanitizedRepo,
+    getSanitizedIssueNumber,
     getIssueDetails,
     analyzeIssueWithClaude,
     createFixBranch,

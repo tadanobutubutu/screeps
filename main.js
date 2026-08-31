@@ -1,4 +1,6 @@
-// Merged and resolved main.js
+const express = require('express');
+const path = require('path');
+
 class User {
     constructor(name, age) {
         this.name = name;
@@ -13,10 +15,6 @@ const landmarks = [];
 function spawnNewUser(name, age) {
     return new User(name, age);
 }
-
-// Web server dependencies (incorporated from origin/main)
-const express = require('express');
-const path = require('path');
 
 // Configuration
 const config = {
@@ -97,6 +95,30 @@ function validateTableAccessibility(table) {
     return issues;
 }
 
+// Accessibility helper function to validate table structure
+function validateTableStructure(table) {
+    const issues = [];
+    
+    // Check for proper table structure (thead, tbody, tfoot)
+    if (!table.querySelector('thead')) {
+        issues.push('Table missing thead');
+    }
+    if (!table.querySelector('tbody')) {
+        issues.push('Table missing tbody');
+    }
+    
+    // Check for proper row structure
+    const rows = table.querySelectorAll('tr');
+    rows.forEach((row, index) => {
+        const cells = row.querySelectorAll('td, th');
+        if (cells.length === 0) {
+            issues.push(`Row ${index} has no cells`);
+        }
+    });
+    
+    return issues;
+}
+
 // Main execution when run directly
 if (require.main === module) {
     // Start server
@@ -120,30 +142,6 @@ if (require.main === module) {
         });
         addressAccessibilityIssues(insightReport);
     }
-}
-
-// Accessibility helper function to validate table structure
-function validateTableStructure(table) {
-    const issues = [];
-    
-    // Check for proper table structure (thead, tbody, tfoot)
-    if (!table.querySelector('thead')) {
-        issues.push('Table missing thead');
-    }
-    if (!table.querySelector('tbody')) {
-        issues.push('Table missing tbody');
-    }
-    
-    // Check for proper row structure
-    const rows = table.querySelectorAll('tr');
-    rows.forEach((row, index) => {
-        const cells = row.querySelectorAll('td, th');
-        if (cells.length === 0) {
-            issues.push(`Row ${index} has no cells`);
-        }
-    });
-    
-    return issues;
 }
 
 /**
@@ -517,7 +515,13 @@ function countDependencies() {
 
 // Accessibility issue handlers
 function addressAccessibilityIssues(insightReport) {
-    // Implementation to address accessibility issues
+    if (!Array.isArray(insightReport)) {
+        return [];
+    }
+    return insightReport.map(issue => ({
+        ...issue,
+        addressed: true
+    }));
 }
 
 function getInsightReport() {

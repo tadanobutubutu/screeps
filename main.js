@@ -290,8 +290,37 @@ function fixFakeLinkIssue() {
   });
 }
 
+/**
+ * Addresses new accessibility issues for the dependencyGraph container
+ * by ensuring it has a proper ARIA role and accessible attributes.
+ * @param {HTMLElement} container - The dependency graph container element
+ * @returns {boolean} True if the container was modified, false otherwise
+ */
+function addressNewAccessibilityIssues(container) {
+  if (!container) {
+    return false;
+  }
+
+  // Ensure the container has a proper ARIA role
+  if (!container.hasAttribute('role')) {
+    container.setAttribute('role', 'img');
+  }
+
+  // Ensure the container has an id for reference
+  ensureElementHasId(container, 'dependency-graph');
+
+  // Add an accessible name if not present
+  if (!container.hasAttribute('aria-label') && !container.hasAttribute('aria-labelledby')) {
+    container.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+
+  return true;
+}
+
 // Render a dependency graph visualization with accessibility support
 function renderDependencyGraph(container, graphData) {
+  // Ensure the container has proper accessibility attributes
+  addressNewAccessibilityIssues(container);
   // ... Existing functions and exports ...
 }
 
@@ -351,6 +380,7 @@ if (typeof module !== 'undefined' && module.exports) {
     updateDependencyGraph,
     ensureElementHasId,
     addAriaLabel,
-    renderDependencyGraphs
+    renderDependencyGraphs,
+    addressNewAccessibilityIssues
   };
 }

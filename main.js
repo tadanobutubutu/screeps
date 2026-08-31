@@ -384,3 +384,23 @@ export {
   validateAndRender,
   renderPage
 };
+
+// Additional required exports
+export {
+  addLangAttribute,
+  wrapPrimaryContentInMain,
+  addFixLandmarkIssues,
+  addAriaToFormControls,
+  handleAccessibilityErrors,
+  fixAccessibilityIssues,
+  addressAccessibilityIssues,
+  googleSignIn,
+  harvest,
+  upgradeController,
+  formatProductName,
+  renderProductList,
+  renderAccessibilityPage,
+  renderDependencyGraph,
+  renderIndex,
+  getFullLangAttribute
+};

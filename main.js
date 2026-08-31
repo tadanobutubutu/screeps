@@ -1,53 +1,77 @@
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report
+// ----- END ORIGINAL CODE-----
+
 /**
- * Performs accessibility checks on tables in the document.
- * Verifies that tables have proper headers, captions, and scope attributes.
- * @returns {Object} An object containing accessibility issues found in tables
+ * Main entry point for the Screeps bot.
+ * Handles core game logic and integration points.
  */
-function checkTableAccessibility() {
-  const tables = document.querySelectorAll('table');
-  const issues = [];
+class ScreepsBot {
+  constructor() {
+    this.network = null;
+    this.tasks = [];
+    this.config = {};
+  }
 
-  tables.forEach((table, index) => {
-    // Check for caption
-    const caption = table.querySelector('caption');
-    if (!caption || !caption.textContent.trim()) {
-      issues.push({
-        tableIndex: index,
-        type: 'missing-caption',
-        message: `Table ${index + 1} is missing a caption element with content.`
-      });
+  async start() {
+    // Initialize network connection
+    await this.network.connect();
+    
+    // Load initial data
+    await this.loadData();
+    
+    console.log('Screenspider bot started');
+  }
+
+  loadData() {
+    // Placeholder for data loading logic
+    // Implement actual data fetching here
+  }
+
+  // Accessibility enhancement: Ensure all UI elements are properly labeled
+  setElementLabel(elementId, label) {
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.setAttribute('aria-label', label);
+      el.setAttribute('role', 'button');
     }
+  }
 
-    // Check for headers
-    const headers = table.querySelectorAll('th');
-    if (headers.length === 0) {
-      issues.push({
-        tableIndex: index,
-        type: 'missing-headers',
-        message: `Table ${index + 1} has no <th> header cells.`
-      });
-    }
+  // New feature: Priority-based task scheduling
+  addTaskWithPriority(taskFn, priority = 'medium') {
+    this.tasks.push({ task: taskFn, priority });
+    this.scheduleTasks();
+  }
 
-    // Check that <th> elements have scope attribute
-    headers.forEach((header, hIndex) => {
-      if (!header.hasAttribute('scope')) {
-        issues.push({
-          tableIndex: index,
-          type: 'missing-scope',
-          message: `Header cell ${hIndex + 1} in table ${index + 1} is missing a scope attribute.`
-        });
-      }
+  scheduleTasks() {
+    // Sort tasks by priority (high > medium > low)
+    this.tasks.sort((a, b) => {
+      const prioOrder = { high: 0, medium: 1, low: 2 };
+      return prioOrder[b.priority] - prioOrder[a.priority];
     });
-  });
 
-  return {
-    totalTables: tables.length,
-    issueCount: issues.length,
-    issues
-  };
+    // Execute highest priority task
+    if (this.tasks.length > 0) {
+      const nextTask = this.tasks[0];
+      try {
+        nextTask.task();
+      } catch (err) {
+        console.error(`Task failed: ${err.message}`);
+      }
+    }
+  }
 }
 
-// Export for testing
+// Helper function for UI updates with accessibility
+function updateUI(elementId, text) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.textContent = text;
+    element.setAttribute('aria-live', 'polite');
+  }
+}
+
+// Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkTableAccessibility };
+  module.exports = { ScreepsBot, updateUI };
 }

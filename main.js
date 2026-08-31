@@ -1,4 +1,4 @@
-// main.js - Resolved merge conflict
+// TODO: This is the existing code that needs to be preserved
 
 function calculateSum(a, b) {
   return a + b;

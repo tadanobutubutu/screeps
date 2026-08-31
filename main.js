@@ -1,7 +1,10 @@
-Here is the resolved file content:
-
-```javascript
 import React from 'react';
+import './styles.less';
+import fs from 'fs';
+import path from 'path';
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import { CONFIG } from './utils/constants';
 import { calculateSum } from './utils';
 import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
@@ -9,10 +12,7 @@ import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUti
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
-import fs from 'fs';
-import path from 'path';
 
-// Node.js functions for dependency visualization tool
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: 5000
@@ -75,10 +75,6 @@ function validateInput(input) {
   return true;
 }
 
-function getLangAttribute() {
-  return 'en';
-}
-
 function addLangAttribute(element) {
   if (element && typeof element === 'object') {
     element.lang = getLangAttribute();
@@ -107,5 +103,28 @@ function calculateSum(numbers) {
   return total;
 }
 
-// Rest of the functions for accessibility improvements remain as they are in the 'origin/main' branch
-```
+const App = () => {
+  const [programData, setProgramData] = useState(null);
+
+  useEffect(() => {
+    const loadProgramData = async () => {
+      const filePath = path.join(CONFIG.dataPath, 'program.json');
+      try {
+        const data = await fs.promises.readFile(filePath, 'utf8');
+        const parsedData = JSON.parse(data);
+        setProgramData(parsedData);
+      } catch (error) {
+        console.error('Error loading program data:', error);
+      }
+    };
+    loadProgramData();
+  }, []);
+
+  return (
+    <Router>
+      // ... Your accessible React Router setup ...
+    </Router>
+  );
+};
+
+export default App;

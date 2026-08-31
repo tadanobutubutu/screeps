@@ -8,7 +8,6 @@
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
 import './styles.css';
-import react from 'react';
 
 // This is the existing code that needs to be preserved
 // (This comment remains as-is)
@@ -206,6 +205,14 @@ const appData = {
   version: '1.0.0'
 };
 
+// Constants for exports
+const CONFIG = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
+const VERSION = '1.0.0';
+
 /**
  * Initializes the application and applies accessibility fixes.
  */
@@ -225,6 +232,13 @@ const initApp = () => {
 
   // Fix fake links
   fixFakeLinks();
+
+  // Ensure dependencyGraph container has proper ARIA role
+  const dependencyGraph = document.getElementById('dependencyGraph') || document.querySelector('.dependencyGraph');
+  if (dependencyGraph && !dependencyGraph.getAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'region');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+  }
 
   // Initialize the application data
   console.log('Initializing ' + appData.title + ' v' + appData.version);
@@ -262,7 +276,7 @@ function addressAccessibilityIssues(rootElement) {
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-function addressAccessibilityIssues(insightReport) {
+function addressAccessibilityIssuesFromReport(insightReport) {
   // This addresses issues from the insight report:
   // - REACT_015: Add lang attribute to HTML element
   // - REACT_027: Fix 26 table structure issues
@@ -286,7 +300,7 @@ function addressAccessibilityIssues(insightReport) {
         break;
       case 'REACT_027':
         // Fix table structure issues
-        if (issue.type === 'structure') {
+        if (issue.subtype === 'structure') {
           validateTableStructure();
           fixTableStructure();
         } else {
@@ -505,10 +519,8 @@ function processAccessibilityReport(report) {
 module.exports = {
   config: config,
   appState: appState,
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
+  CONFIG: CONFIG,
+  VERSION: VERSION,
   initialize: initialize,
   initializeApp: initializeApp,
   processData: processData,
@@ -519,6 +531,7 @@ module.exports = {
   formatDate: formatDate,
   validateInput: validateInput,
   addressAccessibilityIssues: addressAccessibilityIssues,
+  addressAccessibilityIssuesFromReport: addressAccessibilityIssuesFromReport,
   processAccessibilityReport: processAccessibilityReport,
   getInsightReport: getInsightReport,
   getLangAttribute: getLangAttribute,
@@ -542,8 +555,10 @@ module.exports = {
   handleFakeLinks: handleFakeLinks,
   landmarks: landmarks,
   appData: appData,
-  initApp: initApp
+  initApp: initApp,
+  getConfig: getConfig,
+  getVersion: getVersion
 };
 
 // Export functions for testing
-export { ensureUniqueLandmarks, initApp, setLanguageAttribute, addLandmarkRoles, fixFakeLinks, landmarks, appData };
+export { ensureUniqueLandmarks, initApp, setLanguageAttribute, addLandmarkRoles, fixFakeLinks, landmarks, appData, addressAccessibilityIssues, addressAccessibilityIssuesFromReport, getInsightReport, processAccessibilityReport, getConfig, getVersion };

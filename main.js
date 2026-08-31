@@ -1,4 +1,4 @@
-// Your existing code...
+// TODO: Add back any required exports that might have been?
 
 // Adding an alt attribute to an image
 const imageElement = document.getElementById('example-image');
@@ -33,5 +33,6 @@ if (htmlElement) {
 }
 
 module.exports = {
-  // Your exported functions and modules here...
+  getLangAttribute,
+  createInPageButton
 };

@@ -9,7 +9,7 @@
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: function() {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = document.querySelector('#skip-link');
     if (skipLink) {
       skipLink.addEventListener('click', function(e) {
         e.preventDefault();
@@ -33,11 +33,11 @@ const accessibilityUtils = {
     element.addEventListener('keydown', function(e) {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
           e.preventDefault();
+          firstElement.focus();
         }
       }
     });
@@ -80,7 +80,7 @@ const accessibilityUtils = {
 
 function ensureElementId(element) {
   if (element && !element.id) {
-    element.id = 'element-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    element.id = 'element-' + Date.now() + '-' + Math.floor(Math.random() * 1000000000);
   }
   return element;
 }
@@ -156,7 +156,7 @@ const exportUtils = {
 
   exportToJSON: function(data, filename) {
     const jsonString = JSON.stringify(data, null, 2);
-    exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
+    this.exportData(jsonString, filename || 'export.json', 'application/json');
   },
 
   exportToCSV: function(data, filename) {
@@ -178,17 +178,17 @@ const exportUtils = {
     }
     
     const csvString = csvRows.join('\n');
-    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
+    this.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
 };
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-z0-9_.-]/gi, '_');
+  return filename.replace(/[^a-z0-9_\-\.]/gi, '_');
 }
 
 function readFileSafe(filePath) {
   try {
-    return fs.readFileSync(filePath, 'utf8');
+    return require('fs').readFileSync(filePath, 'utf8');
   } catch (error) {
     log('Error reading file ' + filePath + ': ' + error.message, 'error');
     return null;
@@ -228,7 +228,7 @@ function initAccessibility() {
   accessibilityUtils.initSkipLink();
   
   // Add keyboard support for all interactive elements
-  const elements = document.querySelectorAll('[data-accessible]');
+  const elements = document.querySelectorAll('button, a, input, select, textarea');
   for (let i = 0; i < elements.length; i++) {
     const element = elements[i];
     element.addEventListener('keydown', function(e) {
@@ -317,5 +317,6 @@ module.exports = {
   ensureElementId: ensureElementId,
   addAriaLabel: addAriaLabel,
   renderDependencyGraph: renderDependencyGraph,
-  calculateSum: calculateSum
+  calculateSum: calculateSum,
+  transformInputData: transformInputData
 };

@@ -6,5 +6,3 @@ function newFunction() {
 
 // Export the new function (both versions agreed to do this)
 export { newFunction };
-
-// TODO: Any additional changes requested in the issue (assuming there are none)

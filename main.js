@@ -55,7 +55,7 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâäèéêëîïôûùüÿœæç]/i.test(content)) {
+    } else if (/[àâäçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
@@ -63,6 +63,35 @@ function detectAndSetLang(content) {
   }
 
   return lang;
+}
+
+/**
+ * Creates a person name element with proper accessibility attributes
+ * @param {Object} options - Options for creating the person name element
+ * @param {string} options.firstName - The person's first name
+ * @param {string} options.lastName - The person's last name
+ * @param {string} options.lang - The language code for the name (default: 'en')
+ * @param {HTMLElement} options.container - Optional container element to append to
+ * @returns {HTMLElement} The created element with accessible naming
+ */
+function personName(options = {}) {
+  const { firstName = '', lastName = '', lang = 'en', container = null } = options;
+  const fullName = `${firstName} ${lastName}`.trim();
+  
+  if (typeof document !== 'undefined') {
+    const nameElement = document.createElement('span');
+    nameElement.setAttribute('lang', lang);
+    nameElement.setAttribute('aria-label', fullName);
+    nameElement.textContent = fullName || 'Unknown';
+    
+    if (container) {
+      container.appendChild(nameElement);
+    }
+    
+    return nameElement;
+  }
+  
+  return fullName || 'Unknown';
 }
 
 /**
@@ -110,18 +139,73 @@ function validateUniqueLandmarks() {
   // Ensures each landmark has a unique identifier for accessibility
 }
 
-// New function to generate a person name with accessible attributes
-function personName(name, options = {}) {
-  const { lang = 'en' } = options;
-  
-  if (typeof document !== 'undefined') {
-    const nameElement = document.createElement('span');
-    nameElement.setAttribute('lang', lang);
-    nameElement.textContent = name || 'Unknown';
-    return nameElement;
+/**
+ * Creates a focus trap for keyboard navigation within a given container element.
+ * Prevents focus from leaving the container when Tab key is pressed.
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @returns {Object} An object with a detach method to remove the focus trap
+ */
+function newFocusTrap(container) {
+  if (!container || typeof document === 'undefined') {
+    return { detach: () => {} };
   }
+
+  const focusableSelectors = [
+    'button:not([disabled])',
+    'a[href]',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(', ');
+
+  let previousActiveElement = document.activeElement;
+
+  const handleKeyDown = (event) => {
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    const focusableElements = Array.from(
+      container.querySelectorAll(focusableSelectors)
+    ).filter(el => el.offsetParent !== null);
+
+    if (focusableElements.length === 0) {
+      event.preventDefault();
+      return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  };
+
+  container.addEventListener('keydown', handleKeyDown);
+
+  // Optionally focus the first focusable element in the trap
+  const focusableElements = Array.from(
+    container.querySelectorAll(focusableSelectors)
+  ).filter(el => el.offsetParent !== null);
   
-  return name || 'Unknown';
+  if (focusableElements.length > 0) {
+    focusableElements[0].focus();
+  }
+
+  return {
+    detach: () => {
+      container.removeEventListener('keydown', handleKeyDown);
+      if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
+        previousActiveElement.focus();
+      }
+    }
+  };
 }
 
 // Export the new functions
@@ -129,6 +213,7 @@ module.exports = {
   setHtmlLangAttribute,
   getLangAttribute,
   detectAndSetLang,
+  personName,
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
@@ -136,5 +221,5 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   validateUniqueLandmarks,
-  personName
+  newFocusTrap
 };

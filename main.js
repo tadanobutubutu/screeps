@@ -256,6 +256,144 @@ function groupByCategory(items, getCategory) {
   }, {});
 }
 
+function getLangAttribute(element) {
+  if (element && typeof element.getAttribute === 'function') {
+    return element.getAttribute('lang') || (typeof document !== 'undefined' && document.documentElement ? document.documentElement.getAttribute('lang') : 'en');
+  }
+  return (typeof document !== 'undefined' && document.documentElement ? document.documentElement.getAttribute('lang') : 'en') || 'en';
+}
+
+function createInPageButton(label, targetId) {
+  if (typeof document === 'undefined') return null;
+  const btn = document.createElement('button');
+  btn.textContent = label || 'In-page link';
+  btn.setAttribute('type', 'button');
+  btn.setAttribute('aria-label', label || 'Navigate to section');
+  btn.addEventListener('click', () => {
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.setAttribute('tabindex', '-1');
+      target.focus();
+    }
+  });
+  return btn;
+}
+
+function validateTableAccessibility(table) {
+  if (!table) return false;
+  if (typeof table.querySelector === 'function') {
+    return !!(table.querySelector('caption') || table.getAttribute('aria-label') || table.getAttribute('aria-labelledby') || table.getAttribute('summary'));
+  }
+  return false;
+}
+
+function validateTableStructure(table) {
+  if (!table) return false;
+  if (typeof table.querySelector === 'function') {
+    return !!(table.querySelector('thead') && table.querySelector('tbody'));
+  }
+  return false;
+}
+
+function validateLandmark(element) {
+  if (!element) return false;
+  const role = (element.getAttribute && element.getAttribute('role')) || null;
+  const tag = (element.tagName && element.tagName.toLowerCase()) || '';
+  const validRoles = ['banner', 'navigation', 'main', 'search', 'contentinfo', 'complementary', 'region'];
+  if (validRoles.indexOf(role) !== -1) return true;
+  if (['header', 'footer', 'main', 'aside', 'nav', 'section'].indexOf(tag) !== -1) return true;
+  return false;
+}
+
+function validateLandmarkStructure(element) {
+  if (!element) return false;
+  const role = (element.getAttribute && element.getAttribute('role')) || null;
+  if (role === 'region' || role === 'navigation' || role === 'complementary') {
+    const labeled = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || (element.id ? true : false);
+    return !!labeled;
+  }
+  return true;
+}
+
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  if (svg.querySelector) {
+    const title = svg.querySelector('title');
+    if (title && title.textContent) return title.textContent.trim();
+  }
+  return (svg.getAttribute && (svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.getAttribute('title'))) || '';
+}
+
+function setSvgAttributes(svg, accessibleName) {
+  if (!svg) return;
+  if (svg.setAttribute) {
+    svg.setAttribute('role', 'img');
+    if (accessibleName) svg.setAttribute('aria-label', accessibleName);
+  }
+  if (accessibleName && svg.querySelector && !svg.querySelector('title')) {
+    if (typeof document !== 'undefined') {
+      const title = document.createElement('title');
+      title.textContent = accessibleName;
+      svg.insertBefore(title, svg.firstChild);
+    }
+  }
+}
+
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') return;
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="search"], [role="contentinfo"], [role="complementary"], [role="region"], header, footer, nav, main, aside, section');
+  const seen = {};
+  landmarks.forEach(el => {
+    const label = (el.getAttribute && el.getAttribute('aria-label')) || el.id || (el.tagName ? el.tagName.toLowerCase() : 'landmark');
+    if (seen[label]) {
+      const newLabel = label + '-unique';
+      if (el.setAttribute) el.setAttribute('aria-label', newLabel);
+      seen[newLabel] = true;
+    } else {
+      seen[label] = true;
+    }
+  });
+}
+
+function validateLinkAccessibility(link) {
+  if (!link) return false;
+  const href = link.getAttribute ? link.getAttribute('href') : null;
+  if (!href || href === '#' || href.indexOf('#') === 0) return false;
+  const text = link.textContent || '';
+  const labeled = link.getAttribute ? (link.getAttribute('aria-label') || link.getAttribute('aria-labelledby')) : null;
+  return !!(text.trim() || labeled);
+}
+
+function handleFakeLinks() {
+  if (typeof document === 'undefined') return;
+  const links = document.querySelectorAll('a[href="#"], a:not([href])');
+  links.forEach(link => {
+    if (link.setAttribute) link.setAttribute('role', 'button');
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute ? link.getAttribute('href') : null;
+      if (href === '#') e.preventDefault();
+    });
+  });
+}
+
+function addProperLandmarkRegions() {
+  if (typeof document === 'undefined') return;
+  const header = document.querySelector('header');
+  if (header && header.setAttribute && !header.getAttribute('role')) header.setAttribute('role', 'banner');
+  const footer = document.querySelector('footer');
+  if (footer && footer.setAttribute && !footer.getAttribute('role')) footer.setAttribute('role', 'contentinfo');
+  const main = document.querySelector('main');
+  if (main && main.setAttribute && !main.getAttribute('role')) main.setAttribute('role', 'main');
+  const navs = document.querySelectorAll('nav');
+  navs.forEach(n => {
+    if (n.setAttribute && !n.getAttribute('role')) n.setAttribute('role', 'navigation');
+  });
+}
+
+function personName(first, last) {
+  return (first || '') + (last ? ' ' + last : '');
+}
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -281,6 +419,42 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
+
+  const processValue = (val) => {
+    if (typeof val === 'string') {
+      if (trimWhitespace) val = val.trim();
+      if (uppercase) val = val.toUpperCase();
+      if (maxLength !== null && val.length > maxLength) val = val.slice(0, maxLength);
+    }
+    return val;
+  };
+
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => {
+      if (item && typeof item === 'object') {
+        const newItem = preserveKeys ? { ...item } : {};
+        for (const k in item) {
+          if (Object.prototype.hasOwnProperty.call(item, k)) {
+            newItem[k] = processValue(item[k]);
+          }
+        }
+        return newItem;
+      }
+      return processValue(item);
+    });
+  }
+
+  if (inputData && typeof inputData === 'object') {
+    const result = preserveKeys ? { ...inputData } : {};
+    for (const k in inputData) {
+      if (Object.prototype.hasOwnProperty.call(inputData, k)) {
+        result[k] = processValue(inputData[k]);
+      }
+    }
+    return result;
+  }
+
+  return processValue(inputData);
 }
 
 // Initialize on DOM ready
@@ -308,5 +482,18 @@ module.exports = {
   readFileSafe,
   processData,
   filterValidItems,
-  groupByCategory
+  groupByCategory,
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  personName
 };

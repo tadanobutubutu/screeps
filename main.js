@@ -1,6 +1,4 @@
-// Existing code starts here
-
-// This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
 // More existing code that should be preserved
@@ -234,7 +232,7 @@ function checkLandmarkElement(id) {
  *
  * @returns {Array<Object>} Array of results containing landmark information and status.
  */
-function addProperLandmarkRegions() {
+function addProperLandmarkRegionsDocument() {
   const results = [];
   const landmarks = document.querySelectorAll('main, nav, header, footer, aside, section');
 
@@ -467,5 +465,5 @@ module.exports = {
   mainExecution,
   versionOneImplementation,
   checkLandmarkElement,
-  addProperLandmarkRegions
+  addProperLandmarkRegionsDocument
 };

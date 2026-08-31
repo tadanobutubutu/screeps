@@ -234,7 +234,7 @@ function checkLandmarkElement(id) {
  *
  * @returns {Array<Object>} Array of results containing landmark information and status.
  */
-function addProperLandmarkRegions() {
+function addProperLandmarkRegionsDocument() {
   const results = [];
   const landmarks = document.querySelectorAll('main, nav, header, footer, aside, section');
 
@@ -435,6 +435,10 @@ const report = {
 };
 // addressAccessibilityIssues(report);
 
+function main() {
+  return addressAccessibilityIssues(report);
+}
+
 module.exports = {
   config,
   appState,
@@ -467,5 +471,5 @@ module.exports = {
   mainExecution,
   versionOneImplementation,
   checkLandmarkElement,
-  addProperLandmarkRegions
+  addProperLandmarkRegionsDocument
 };

@@ -1,3 +1,4 @@
+// TODO: Address accessibility issues from insight report
 // Import necessary dependencies
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -87,6 +88,7 @@ function createInPageButton(buttonText, onClickHandler) {
   return (
     <button 
       onClick={onClickHandler}
+      type="button"
       lang={getLangAttribute()}
     >
       {buttonText}
@@ -282,6 +284,7 @@ function AddBookForm({ onAddBook }) {
   const [error, setError] = useState('');
   const titleInputRef = useRef(null);
   const formRef = useRef(null);
+  const errorId = 'add-book-error';
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -344,6 +347,7 @@ function AddBookForm({ onAddBook }) {
           onKeyDown={handleTitleKeyDown}
           aria-required="true"
           aria-labelledby="add-book-title-label"
+          aria-describedby={error ? errorId : undefined}
           placeholder="Enter book title"
           style={{ marginLeft: '8px' }}
         />
@@ -360,6 +364,7 @@ function AddBookForm({ onAddBook }) {
           onChange={(e) => setAuthor(e.target.value)}
           aria-required="true"
           aria-labelledby="add-book-author-label"
+          aria-describedby={error ? errorId : undefined}
           placeholder="Enter author name"
           style={{ marginLeft: '8px' }}
         />
@@ -367,6 +372,7 @@ function AddBookForm({ onAddBook }) {
 
       {error && (
         <div 
+          id={errorId}
           role="alert" 
           aria-live="polite"
           style={{ color: 'red', marginBottom: '8px' }}
@@ -377,7 +383,7 @@ function AddBookForm({ onAddBook }) {
 
       <button 
         type="submit"
-        aria-describedby={error ? 'add-book-error' : undefined}
+        aria-describedby={error ? errorId : undefined}
       >
         Add Book
       </button>
@@ -412,19 +418,25 @@ function Main() {
 
   // Render the list of book items, sorting controls, and the book form
   return (
-    <div>
+    <div 
+      role="main"
+      aria-label="Books management interface"
+      lang={getLangAttribute()}
+    >
       <h2 id="add-book-heading">Add a New Book</h2>
       <AddBookForm onAddBook={handleAddBook} />
       
       <h2 id="books-list-heading">Books List</h2>
       <div role="group" aria-labelledby="books-list-heading">
         <button 
+          type="button"
           onClick={() => setSorting(sortByTitle)}
           aria-pressed={sorting === sortByTitle}
         >
           Sort by Title
         </button>
         <button 
+          type="button"
           onClick={() => setSorting(sortByAuthor)}
           aria-pressed={sorting === sortByAuthor}
         >

@@ -164,6 +164,147 @@ function setSvgAttributes(svgElement, accessibleName) {
   }
 }
 
+// Accessibility helper function to check landmark elements
+function checkLandmarkElements(container) {
+  const issues = [];
+  const landmarks = {
+    banner: null,
+    navigation: [],
+    main: null,
+    contentinfo: null,
+    complementary: [],
+    search: [],
+    region: [],
+    form: []
+  };
+  
+  // Find all landmark elements by role and semantic HTML tags
+  const landmarkSelectors = [
+    '[role="banner"]', 'header',
+    '[role="navigation"]', 'nav',
+    '[role="main"]', 'main',
+    '[role="contentinfo"]', 'footer',
+    '[role="complementary"]', 'aside',
+    '[role="search"]',
+    '[role="region"]', 'section',
+    '[role="form"]', 'form'
+  ];
+  
+  const allLandmarks = container.querySelectorAll(landmarkSelectors.join(','));
+  
+  allLandmarks.forEach(element => {
+    const role = element.getAttribute('role') || element.tagName.toLowerCase();
+    
+    // Categorize landmarks
+    switch (role) {
+      case 'banner':
+      case 'header':
+        if (!landmarks.banner) {
+          landmarks.banner = element;
+        } else {
+          issues.push('Multiple banner landmarks found - only one allowed');
+        }
+        break;
+      case 'navigation':
+      case 'nav':
+        landmarks.navigation.push(element);
+        break;
+      case 'main':
+        if (!landmarks.main) {
+          landmarks.main = element;
+        } else {
+          issues.push('Multiple main landmarks found - only one allowed');
+        }
+        break;
+      case 'contentinfo':
+      case 'footer':
+        if (!landmarks.contentinfo) {
+          landmarks.contentinfo = element;
+        } else {
+          issues.push('Multiple contentinfo landmarks found - only one allowed');
+        }
+        break;
+      case 'complementary':
+      case 'aside':
+        landmarks.complementary.push(element);
+        break;
+      case 'search':
+        landmarks.search.push(element);
+        break;
+      case 'region':
+      case 'section':
+        landmarks.region.push(element);
+        break;
+      case 'form':
+        landmarks.form.push(element);
+        break;
+    }
+    
+    // Check for accessible name on region, form, search, and complementary landmarks
+    if (['region', 'section', 'form', 'search', 'complementary', 'aside'].includes(role)) {
+      const hasAriaLabel = element.hasAttribute('aria-label');
+      const hasAriaLabelledBy = element.hasAttribute('aria-labelledby');
+      const hasTitle = element.hasAttribute('title');
+      
+      if (!hasAriaLabel && !hasAriaLabelledBy && !hasTitle) {
+        issues.push(`${role} landmark missing accessible name (aria-label, aria-labelledby, or title)`);
+      }
+    }
+    
+    // Check for proper nesting - main should not be descendant of other landmarks
+    if (role === 'main') {
+      let parent = element.parentElement;
+      while (parent && parent !== container) {
+        const parentRole = parent.getAttribute('role') || parent.tagName.toLowerCase();
+        if (['banner', 'header', 'navigation', 'nav', 'contentinfo', 'footer', 'main', 'complementary', 'aside', 'search'].includes(parentRole)) {
+          issues.push('Main landmark should not be nested inside another landmark');
+          break;
+        }
+        parent = parent.parentElement;
+      }
+    }
+  });
+  
+  // Check for required landmarks
+  if (!landmarks.main) {
+    issues.push('Page missing main landmark');
+  }
+  
+  // Check complementary landmarks - should have accessible names if more than one
+  if (landmarks.complementary.length > 1) {
+    landmarks.complementary.forEach((comp, index) => {
+      if (!comp.hasAttribute('aria-label') && !comp.hasAttribute('aria-labelledby') && !comp.hasAttribute('title')) {
+        issues.push(`Complementary landmark ${index + 1} missing accessible name`);
+      }
+    });
+  }
+  
+  // Check search landmarks - should have accessible names if more than one
+  if (landmarks.search.length > 1) {
+    landmarks.search.forEach((search, index) => {
+      if (!search.hasAttribute('aria-label') && !search.hasAttribute('aria-labelledby') && !search.hasAttribute('title')) {
+        issues.push(`Search landmark ${index + 1} missing accessible name`);
+      }
+    });
+  }
+  
+  // Check region landmarks - must have accessible names
+  landmarks.region.forEach((region, index) => {
+    if (!region.hasAttribute('aria-label') && !region.hasAttribute('aria-labelledby') && !region.hasAttribute('title')) {
+      issues.push(`Region landmark ${index + 1} missing accessible name`);
+    }
+  });
+  
+  // Check form landmarks - must have accessible names
+  landmarks.form.forEach((form, index) => {
+    if (!form.hasAttribute('aria-label') && !form.hasAttribute('aria-labelledby') && !form.hasAttribute('title')) {
+      issues.push(`Form landmark ${index + 1} missing accessible name`);
+    }
+  });
+  
+  return { landmarks, issues };
+}
+
 // Accessibility helper function to ensure unique landmarks
 function ensureUniqueLandmarks(container) {
   const landmarks = {};

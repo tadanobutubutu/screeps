@@ -1,5 +1,5 @@
-// TODO: Any additional changes requested in the issue
 // main.js - Accessibility improvements implementation
+// Merged from HEAD and origin/main
 
 // ============================================
 // Utility Functions
@@ -30,6 +30,18 @@ function ensureElementHasId(element, prefix = 'element') {
   const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = id;
   return id;
+}
+
+/**
+ * Ensures an element has an ID using the original utility approach
+ * @param {HTMLElement} element - The element to check
+ * @returns {string} The element's ID
+ */
+function ensureElementHasIdOrigin(element) {
+  if (element && !element.id) {
+    element.id = 'element-' + Math.random().toString(36).substr(2, 9);
+  }
+  return element;
 }
 
 /**
@@ -345,6 +357,14 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
 }
 
 // ============================================
+// Render Graph Index (merged from origin/main)
+// ============================================
+
+function renderGraphIndex(container, dependencies, options = {}) {
+  return renderDependencyGraphs(container, dependencies, options);
+}
+
+// ============================================
 // Initialize Application
 // ============================================
 
@@ -369,7 +389,9 @@ module.exports = {
   exportData,
   focusTrap,
   renderDependencyGraphs,
+  renderGraphIndex,
   accessibilityUtils,
   ensureElementHasId,
+  ensureElementHasIdOrigin,
   addAriaLabel
 };

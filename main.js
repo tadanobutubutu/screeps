@@ -78,6 +78,38 @@ function calculateProduct(a, b) {
   return a * b;
 }
 
+/**
+ * Checks links and buttons for accessibility and fixes issues
+ * @param {Array} elements - Array of DOM elements to check (links and buttons)
+ * @param {Object} options - Options for how to address issues
+ * @param {string} options.defaultText - Default text to add when no other text is available
+ * @param {boolean} options.useAriaLabel - Prefer aria-label over visible text
+ * @returns {Object} - Summary of fixes applied
+ */
+function checkLinkAndButtonAccessibility(elements, options = {}) {
+  const issues = [];
+  
+  elements.forEach((element, index) => {
+    const tagName = element.tagName.toLowerCase();
+    
+    if (tagName === 'a' || tagName === 'link') {
+      issues.push({
+        type: 'link',
+        element: element,
+        index: index
+      });
+    } else if (tagName === 'button') {
+      issues.push({
+        type: 'button',
+        element: element,
+        index: index
+      });
+    }
+  });
+  
+  return addressAccessibilityIssues(issues, options);
+}
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct };

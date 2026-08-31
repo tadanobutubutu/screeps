@@ -44,6 +44,12 @@ function newFunction() {
   // Function body
 }
 
+// New function for rendering graph/index
+function renderGraphIndex() {
+  // Code to render the graph/index
+  console.log('Graph/index rendered');
+}
+
 // Don't forget to test your new additions in the test file
 
 // Export accessibility utility functions
@@ -55,4 +61,6 @@ export {
   validateLinkAccessibility,
   handleFakeLinks,
   checkLinkAccessibility,
+  newFunction,
+  renderGraphIndex
 };

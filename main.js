@@ -677,7 +677,7 @@ function renderAccessibilityReportHtml(report) {
                 <li>Total Issues: ${report.summary.totalIssues}</li>
                 <li>Critical: ${report.summary.critical}</li>
                 <li>Moderate: ${report.summary.moderate}</li>
-                <li>Passed: ${report.summary.passed}</li>
+                <li>Passed: ${report.summary.passed.length}</li>
             </ul>
         </div>
         
@@ -726,7 +726,7 @@ function generateAndDisplayReport() {
     console.log(`Total Issues: ${report.summary.totalIssues}`);
     console.log(`Critical: ${report.summary.critical}`);
     console.log(`Moderate: ${report.summary.moderate}`);
-    console.log(`Passed: ${report.summary.passed}`);
+    console.log(`Passed: ${report.summary.passed.length}`);
     
     if (report.issues.length > 0) {
         console.log('\n--- Issues ---');

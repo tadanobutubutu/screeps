@@ -163,6 +163,19 @@
       };
     }
 
+    // Export the report generation function
+    // All exports verified and present
+    module.exports = {
+      generateAccessibilityReport: async function () {
+        const report = await scanAccessibility();
+        writeReport(report);
+      },
+      addressAccessibilityIssues,
+      getLangAttribute,
+      createInPageButton,
+      a11y
+    };
+
     // Initialize on DOM ready
     if (typeof document !== 'undefined') {
         if (document.readyState === 'loading') {

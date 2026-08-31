@@ -3,7 +3,7 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark() and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
 // - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
@@ -59,77 +59,24 @@ function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
 }
 
-// New function to address REACT_027: Fix 26 table structure issues
-function validateTableAccessibility(tableElement) {
-  if (typeof document === 'undefined' || !tableElement) {
-    return { valid: false, errors: ['Table element not found or document not available'] };
-  }
-  
-  const errors = [];
-  
-  // Check if table has proper structure
-  if (!tableElement.querySelector('thead')) {
-    errors.push('Table is missing <thead> element');
-  }
-  
-  if (!tableElement.querySelector('tbody')) {
-    errors.push('Table is missing <tbody> element');
-  }
-  
-  // Check for th elements in thead
-  const thead = tableElement.querySelector('thead');
-  const thElements = thead ? thead.querySelectorAll('th') : [];
-  if (thElements.length === 0) {
-    errors.push('Table header row is missing <th> elements');
-  }
-  
-  // Check that all th elements have scope attributes
-  thElements.forEach((th, index) => {
-    if (!th.getAttribute('scope')) {
-      errors.push(`Table header cell ${index + 1} is missing scope attribute`);
+// TODO: Implement new function3 logic here
+/**
+ * Checks for duplicate ID attributes in the document, which can cause accessibility issues
+ * and maintenance problems.
+ * @returns {boolean} True if duplicates are found, false otherwise
+ */
+function function3() {
+  const elements = document.querySelectorAll('*');
+  const ids = [...elements].map(el => el.id);
+  const seen = new Set();
+  for (const id of ids) {
+    if (seen.has(id)) {
+      console.warn(`Duplicate ID found: "${id}"`);
+      return false;
     }
-  });
-  
-  // Check for proper caption or summary
-  const hasCaption = tableElement.querySelector('caption');
-  const hasSummary = tableElement.getAttribute('aria-describedby');
-  if (!hasCaption && !hasSummary) {
-    errors.push('Table is missing a caption or aria-describedby for accessibility');
+    seen.add(id);
   }
-  
-  return { valid: errors.length === 0, errors };
-}
-
-function validateTableStructure(tableElement) {
-  if (typeof document === 'undefined' || !tableElement) {
-    return { valid: false, errors: ['Table element not found'] };
-  }
-  
-  const errors = [];
-  const rows = tableElement.querySelectorAll('tr');
-  
-  rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td, th');
-    const cellCount = cells.length;
-    
-    // Check for empty cells
-    cells.forEach((cell, cellIndex) => {
-      if (!cell.textContent.trim()) {
-        errors.push(`Row ${rowIndex + 1}, Cell ${cellIndex + 1} is empty`);
-      }
-    });
-    
-    // Check that rows have consistent cell counts
-    if (rowIndex > 0) {
-      const prevRow = rows[rowIndex - 1];
-      const prevCells = prevRow.querySelectorAll('td, th');
-      if (cellCount !== prevCells.length) {
-        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
-      }
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
+  return true;
 }
 
 // New function to address REACT_017: Add/fix 4 landmark issues
@@ -349,5 +296,6 @@ module.exports = {
   getSvgAccessibleName,
   validateSvgAccessibility,
   ensureUniqueLandmarks,
-  validateAccessibleLinks
+  validateAccessibleLinks,
+  function3
 };

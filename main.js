@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserve
 
 // New function for creating in-page buttons
 function createInPageButton(buttonId, buttonText) {

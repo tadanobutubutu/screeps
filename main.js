@@ -653,3 +653,46 @@ module.exports = {
 if (require.main === module) {
   main.init();
 }
+
+/**
+ * Ensures that each element in the given collection has a unique id.
+ * @param {NodeList|Array} elements - The elements to check.
+ * @returns {Array} The elements with ids set.
+ */
+function ensureElementsHaveId(elements) {
+  if (!elements) return [];
+  const arr = Array.from(elements);
+  arr.forEach((el, index) => {
+    if (!el.id) {
+      el.id = `auto-id-${index}`;
+    }
+  });
+  return arr;
+}
+
+/**
+ * Adds aria-label to each element in the collection if missing.
+ * @param {NodeList|Array} elements - The elements to add labels to.
+ * @param {string} label - The label to add.
+ */
+function addAriaLabelsToElements(elements, label) {
+  if (!elements) return;
+  const arr = Array.from(elements);
+  arr.forEach(el => {
+    if (!el.getAttribute('aria-label')) {
+      el.setAttribute('aria-label', label);
+    }
+  });
+}
+
+/**
+ * Renders a dependency graph from a module object.
+ * @param {Object} module - The module with dependencies.
+ * @returns {string} The rendered graph.
+ */
+function renderDependencyGraphFromModule(module) {
+  if (!module || !module.dependencies) {
+    return '';
+  }
+  return renderDependencyGraph(module.dependencies);
+}

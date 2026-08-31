@@ -18,17 +18,17 @@ module.exports = {
     };
 
     // Add lang attribute to HTML element if missing
-    const htmlElement = container.querySelector('html') || document.documentElement;
-    const langAttr = getLangAttribute(htmlElement);
+    const htmlElement = container || document.documentElement;
+    const langAttr = main.getLangAttribute(htmlElement);
     if (!langAttr) {
-      htmlElement.setAttribute('lang', 'en');
+      main.addLangAttribute(htmlElement, 'en');
       fixes.langAdded = true;
     }
 
     // Add main landmark if missing
-    const mainElement = container.querySelector('main');
+    const mainElement = htmlElement.querySelector('main');
     if (!mainElement) {
-      const body = container.querySelector('body');
+      const body = htmlElement.querySelector('body');
       if (body) {
         const newMain = document.createElement('main');
         while (body.firstChild) {
@@ -52,18 +52,18 @@ module.exports = {
     // Fix SVG accessible names
     const svgElements = container.querySelectorAll('svg');
     svgElements.forEach(svg => {
-      const accessibleName = getSvgAccessibleName(svg);
-      if (accessibleName && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-        svg.setAttribute('aria-label', accessibleName);
+      const accessibleName = main.getSvgAccessibleName(svg);
+      if (accessibleName && accessibleName.length > 0) {
+        main.addAccessibleNamesToSVGs(svg, accessibleName);
         fixes.svgNamesAdded++;
       }
     });
 
     // Fix fake link issues (elements that look like links but are missing href)
-    const fakeLinks = container.querySelectorAll('a:not([href])');
+    const fakeLinks = container.querySelectorAll('[style*="cursor: pointer"]');
     fakeLinks.forEach(link => {
       const style = window.getComputedStyle(link);
-      if (style.cursor === 'pointer' || link.hasAttribute('onclick')) {
+      if (style.cursor === 'pointer' || link.getAttribute('href') === null) {
         link.setAttribute('role', 'link');
         link.setAttribute('tabindex', '0');
         fixes.fakeLinksFixed++;
@@ -73,30 +73,30 @@ module.exports = {
     // Validate accessibility report
     const report = validateAccessibilityReport(container);
     if (report && report.length > 0) {
-      log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
+      main.log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
     }
 
     if (fixes.langAdded) {
-      log('Lang attribute added to HTML element', 'info');
+      main.log('Lang attribute added to HTML element', 'info');
     }
 
     if (fixes.mainLandmarkAdded) {
-      log('Main landmark added', 'info');
+      main.log('Main landmark added', 'info');
     }
 
     const landmarkFixesCount = fixes.landmarksFixed || 0;
     if (landmarkFixesCount > 0) {
-      log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
+      main.log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
     }
 
     const svgFixes = fixes.svgNamesAdded || 0;
     if (svgFixes > 0) {
-      log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
+      main.log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
     }
 
     const fakeLinkFixes = fixes.fakeLinksFixed || 0;
     if (fakeLinkFixes > 0) {
-      log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
+      main.log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
     }
 
     return fixes;
@@ -105,7 +105,7 @@ module.exports = {
   // TODO: Implement a new function to handle focus trap for keyboard navigation
   focusTrap: (element) => {
     const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
     let activeElementIndex = focusableElements.length - 1;
 
@@ -119,7 +119,7 @@ module.exports = {
       if (focusableElements[index]) {
         focusableElements[index].focus();
       } else {
-        focusableElements[0].focus();
+        element.focus();
       }
       activeElementIndex = index;
     }
@@ -128,7 +128,7 @@ module.exports = {
       setActiveElement(activeElementIndex + 1);
     }
 
-    function previousFocusableElement() {
+    function prevFocusableElement() {
       setActiveElement(activeElementIndex - 1);
     }
 
@@ -144,14 +144,14 @@ module.exports = {
       switch (e.key) {
         case 'Tab':
           if (e.shiftKey) {
-            previousFocusableElement();
+            prevFocusableElement();
           } else {
             nextFocusableElement();
           }
           e.preventDefault();
           break;
         case 'ArrowLeft':
-          previousFocusableElement();
+          prevFocusableElement();
           e.preventDefault();
           break;
         case 'ArrowRight':
@@ -196,7 +196,7 @@ module.exports = {
   // TODO: Address new accessibility issues from insight report ( implement new functions and fixes as needed)
 
   // Credential response handling
-  async handleCredentialResponse(response) {
+  handleCredentialResponse: async (response) => {
     if (!response) {
       throw new Error('No response received');
     }
@@ -219,7 +219,7 @@ module.exports = {
   // Existing utility functions
   log: (message, level = 'info') => {
     const timestamp = new Date().toISOString();
-    console.log(`${timestamp} [${level}] ${message}`);
+    console.log(`[${timestamp}] [${level}] ${message}`);
   },
 
   // Export functionality with accessibility support

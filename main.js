@@ -119,6 +119,7 @@ function ensureLandmarkUniqueness(elements) {
         if (elementsById[landmark.id]) {
           elementsById[landmark.id] = true;
         } else {
+          elementsById[landmark.id] = true;
           landmark.id += '_duplicate';
         }
       }

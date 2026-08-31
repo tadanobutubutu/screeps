@@ -8,7 +8,7 @@
 // Existing code ends here
 
 // TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
+// (This comment remains as-is)
 // Addressed accessibility issues from insight report
 
 // ... (other code in main.js)
@@ -290,6 +290,28 @@ function greet(name) {
 
 function add(a, b) {
   return a + b;
+}
+
+function function3(data) {
+  if (!data || typeof data !== 'object') {
+    return null;
+  }
+  const result = {};
+  for (const key in data) {
+    if (Object.prototype.hasOwnProperty.call(data, key)) {
+      const value = data[key];
+      if (typeof value === 'string') {
+        result[key] = value.trim();
+      } else if (typeof value === 'number' || typeof value === 'boolean') {
+        result[key] = value;
+      } else if (Array.isArray(value)) {
+        result[key] = value.map(item => (typeof item === 'string' ? item.trim() : item));
+      } else if (typeof value === 'object' && value !== null) {
+        result[key] = function3(value);
+      }
+    }
+  }
+  return result;
 }
 
 // Export existing functionality and new functions

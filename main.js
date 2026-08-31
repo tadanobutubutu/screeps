@@ -1,7 +1,8 @@
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
+// TODO: Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
 
 /**
  * Main application entry point with accessibility features
@@ -211,7 +212,7 @@ function enhanceSemanticMarkup() {
   const inputs = document.querySelectorAll('input, select, textarea');
   inputs.forEach((input) => {
     const id = input.id || `input-${Math.random().toString(36).slice(2, 9)}`;
-    input.id = id;
+    input.id = input.id || id;
     if (!input.hasAttribute('aria-label') && !document.querySelector(`label[for="${id}"]`)) {
       input.setAttribute('aria-label', input.name || 'Input field');
     }
@@ -413,17 +414,43 @@ const AddressabilityIssues = {
   }
 };
 
-function MyComponent() {
-  // Existing code that needs to be updated
-  const langAttr = getLangAttribute();
-  return (
-    <div lang={langAttr}>
-      {/* Content */}
-    </div>
-  );
+function ensureDependencyGraphAccessibility() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  
+  if (!dependencyGraph) {
+    return { success: false, error: 'dependencyGraph element not found' };
+  }
+
+  // Ensure proper ARIA role for the dependency graph container
+  if (!dependencyGraph.getAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'region');
+  }
+
+  // Add accessible name
+  if (!dependencyGraph.getAttribute('aria-label')) {
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+  }
+
+  // Add aria-describedby if description exists
+  const description = document.getElementById('dependencyGraphDescription');
+  if (description) {
+    dependencyGraph.setAttribute('aria-describedby', 'dependencyGraphDescription');
+  }
+
+  return { 
+    success: true, 
+    role: dependencyGraph.getAttribute('role'),
+    label: dependencyGraph.getAttribute('aria-label')
+  };
 }
 
-export {
-  MyComponent,
-  AddressabilityIssues,
-};
+function addressAccessibilityIssues(insightReport) {
+  // Address specific accessibility issues from insight report
+  const results = [];
+  
+  // Handle dependency graph accessibility
+  const depGraphResult = ensureDependencyGraphAccessibility();
+  results.push({ issue: 'dependencyGraph-aria-role', result: depGraphResult });
+  
+  return results;
+}

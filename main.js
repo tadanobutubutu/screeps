@@ -127,7 +127,7 @@ function countDependencies() {
   // Existing function implementation
 
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`];
+  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/;
   const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }
@@ -252,6 +252,22 @@ addLangAttribute();
 //   // Implement accessibility changes here
 // }
 
+/**
+ * Renders the dependency graph view using the graph rendering utilities
+ * @returns {string} The rendered graph content
+ */
+function renderGraphView() {
+  return dependencyGraphContent;
+}
+
+/**
+ * Renders the index view using the index rendering utilities
+ * @returns {string} The rendered index content
+ */
+function renderIndex() {
+  return renderIndexView();
+}
+
 module.exports = {
   checkLandmarkElements,
   createInPageButton,
@@ -273,6 +289,8 @@ module.exports = {
   ensureUniqueLandmarks,
   checkLandmarkElementsInDom,
   renderIndexView,
+  renderGraphView,
+  renderIndex,
   newRequiredFunction,
   additionalFunction,
   createAccessibleWebResourceButton

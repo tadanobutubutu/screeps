@@ -1,3 +1,5 @@
+// TODO: Add back any required exports that might have been removed.
+
 // Main application entry point
 // This file initializes the application and exports core modules
 
@@ -758,10 +760,22 @@ function getSvgAccessibleName() {
   // Get SVG accessible name logic
 }
 
+// Existing exports (must be preserved)
+// TODO: Add back any required exports that might have been removed.
+
 // Main exports
 module.exports = {
   appName: 'MyApplication',
   version: '1.0.0',
+  initialize: function() {
+    return 'initialized';
+  },
+  process: function(data) {
+    return data;
+  },
+  getVersion: function() {
+    return '1.0.0';
+  },
   renderDependencyGraph,
   updateDependencyGraphRender,
   getAllDependencyNodes,

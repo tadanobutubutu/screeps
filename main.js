@@ -105,6 +105,12 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// Function to update the sorting function
+function updateSortingFunction(sortFunction) {
+  // Update the state with the new sorting function
+  setSorting(sortFunction);
+}
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
@@ -124,8 +130,8 @@ function Main() {
   // Render the list of book items, sorting controls, and the book form
   return (
     <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      <button onClick={() => updateSortingFunction(sortByTitle)}>Sort by Title</button>
+      <button onClick={() => updateSortingFunction(sortByAuthor)}>Sort by Author</button>
       <List dataSource={bookItems} />
       <BookForm />
     </div>

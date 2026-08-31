@@ -26,9 +26,23 @@ function renderIndex(data, options = {}) {
   return indexContent(data, options);
 }
 
+// New function to ensure the element has an id and add aria-label
+/**
+ * Ensures that the element has an id and adds an aria-label attribute if it doesn't have one
+ * @param {Element} element - The element to check and modify
+ * @param {string} label - The label text for the aria-label attribute
+ */
+function ensureElementIdAndAriaLabel(element, label) {
+  if (!element.id) {
+    element.id = 'unique-id'; // Assign a unique ID if none exists
+  }
+  element.setAttribute('aria-label', label);
+}
+
 // Preserve all existing exports
 module.exports = {
   renderDependencyGraph,
   renderIndex,
+  ensureElementIdAndAriaLabel,
   // Preserve any other existing exports here
 };

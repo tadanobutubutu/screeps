@@ -470,6 +470,14 @@ function generateAccessibilityReport() {
   };
 }
 
+// Spawning logic implementation
+function spawnEntity(type, position) {
+  // Create a new entity object with type and position
+  const entity = { type, position };
+  // Additional spawning logic can be added here
+  return entity;
+}
+
 // Export the new function
 export {
   VERSION,
@@ -481,7 +489,8 @@ export {
   root,
   validateTableAccessibility,
   validateTableStructure,
-  generateAccessibilityReport
+  generateAccessibilityReport,
+  spawnEntity
 };
 
 // Add the new function to the default export
@@ -495,5 +504,6 @@ export default {
   root,
   validateTableAccessibility,
   validateTableStructure,
-  generateAccessibilityReport
+  generateAccessibilityReport,
+  spawnEntity
 };

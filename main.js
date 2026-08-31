@@ -1,3 +1,5 @@
+`
+
 // main.js
 
 // Find the primary content element in the DOM
@@ -132,24 +134,45 @@ function validateLandmark(landmark) {
   };
 }
 
-// Validate landmark structure
-function landmarkStructureCheck(landmark) {
-  const errors = [];
-  
-  if (!landmark) {
-    errors.push('Landmark is required');
-    return { valid: false, errors };
-  }
-
-  // Check for required properties
-  if (!landmark.role) {
-    errors.push('Landmark must have a role');
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors
+// Function to validate landmark structure for accessibility issues
+function validateLandmarkStructure() {
+  const results = {
+    hasMain: false,
+    hasNav: false,
+    hasHeader: false,
+    hasFooter: false,
+    issues: []
   };
+  
+  if (typeof document !== 'undefined' && document.querySelector) {
+    // Check for main landmark - critical for screen reader navigation
+    const mainElement = document.querySelector('main, [role="main"]');
+    results.hasMain = mainElement !== null;
+    
+    // Check for navigation landmark
+    const navElement = document.querySelector('nav, [role="navigation"]');
+    results.hasNav = navElement !== null;
+    
+    // Check for header/banner landmark
+    const headerElement = document.querySelector('header, [role="banner"]');
+    results.hasHeader = headerElement !== null;
+    
+    // Check for footer landmark
+    const footerElement = document.querySelector('footer, [role="contentinfo"]');
+    results.hasFooter = footerElement !== null;
+    
+    // Report missing main landmark as critical issue
+    if (!results.hasMain) {
+      results.issues.push('Missing main landmark. Screen readers rely on this to identify primary content.');
+    }
+  }
+  
+  return results;
+}
+
+// Function to handle sorting books by title (ascending)
+function sortByTitle(a, b) {
+  return a.title.localeCompare(b.title);
 }
 
 /**
@@ -239,28 +262,26 @@ function createInPageButtons(buttonsData) {
 }
 
 // Function to set language attribute
-function setLanguageAttribute(document, lang) {
-  if (document.documentElement) {
-    document.documentElement.lang = lang || 'en';
+function setLanguageAttribute(element, lang) {
+  if (element && typeof lang === 'string' && lang.length > 0) {
+    element.setAttribute('lang', lang);
+    return true;
   }
+  return false;
 }
 
 // Function to add landmark roles
-function addLandmarkRoles(container) {
-  if (!container) return;
-  
-  const possibleLandmarks = {
-    'nav': 'navigation',
-    'aside': 'complementary',
-    'section': 'region',
-    'form': 'form'
-  };
-  
-  const sections = container.querySelectorAll('nav, aside, section, form');
-  sections.forEach(section => {
-    if (!section.getAttribute('role') && possibleLandmarks[section.tagName.toLowerCase()]) {
-      section.setAttribute('role', possibleLandmarks[section.tagName.toLowerCase()]);
+function addLandmarkRoles(elements) {
+  if (!Array.isArray(elements)) return [];
+  return elements.map(el => {
+    if (el.tagName) {
+      const tag = el.tagName.toLowerCase();
+      const roleMap = { nav: 'navigation', main: 'main', footer: 'contentinfo', aside: 'complementary' };
+      if (roleMap[tag] && !el.getAttribute('role')) {
+        el.setAttribute('role', roleMap[tag]);
+      }
     }
+    return el;
   });
 }
 
@@ -394,18 +415,15 @@ function fixFakeLinkIssue() {
 }
 
 // Function to fix fake links
-function fixFakeLinks(container) {
-  if (!container) return;
-  
-  const fakeLinks = container.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
-  fakeLinks.forEach(link => {
-    if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
-      link.setAttribute('role', 'button');
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        // Handle as button click
-      });
+function fixFakeLinks(links) {
+  if (!Array.isArray(links)) return [];
+  return links.map(link => {
+    if (link.href && !link.getAttribute('role')) {
+      if (link.href.startsWith('#') || link.href === '') {
+        link.setAttribute('role', 'button');
+      }
     }
+    return link;
   });
 }
 
@@ -456,7 +474,7 @@ function addressInsightIssues(document) {
   
   // Address REACT_015: Add lang attribute
   if (!document.documentElement.lang) {
-    setLanguageAttribute(document, 'en');
+    setLanguageAttribute(document.documentElement, 'en');
     issues.push('lang attribute added');
   }
   
@@ -494,8 +512,7 @@ function renderIndexView(container) {
   console.log('Rendering index view');
 }
 
-// TODO: Add any other missing exports that might have been?
-// Added missing exports as per the issue
+// Validate landmark structure in a container
 function landmarkStructureCheck(container) {
   if (!container) return { valid: false, errors: ['Container is required'] };
   const landmarks = container.querySelectorAll('[role]');
@@ -507,40 +524,6 @@ function landmarkStructureCheck(container) {
     }
   });
   return { valid: errors.length === 0, errors };
-}
-
-function setLanguageAttribute(element, lang) {
-  if (element && typeof lang === 'string' && lang.length > 0) {
-    element.setAttribute('lang', lang);
-    return true;
-  }
-  return false;
-}
-
-function addLandmarkRoles(elements) {
-  if (!Array.isArray(elements)) return [];
-  return elements.map(el => {
-    if (el.tagName) {
-      const tag = el.tagName.toLowerCase();
-      const roleMap = { nav: 'navigation', main: 'main', footer: 'contentinfo', aside: 'complementary' };
-      if (roleMap[tag] && !el.getAttribute('role')) {
-        el.setAttribute('role', roleMap[tag]);
-      }
-    }
-    return el;
-  });
-}
-
-function fixFakeLinks(links) {
-  if (!Array.isArray(links)) return [];
-  return links.map(link => {
-    if (link.href && !link.getAttribute('role')) {
-      if (link.href.startsWith('#') || link.href === '') {
-        link.setAttribute('role', 'button');
-      }
-    }
-    return link;
-  });
 }
 
 function isSecureContext() {
@@ -690,10 +673,21 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// Export utility functions
+export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies, validateLandmarkStructure };
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
   const dispatch = useDispatch();
+
+  // Validate landmark structure for accessibility on mount
+  useEffect(() => {
+    const landmarkResults = validateLandmarkStructure();
+    if (landmarkResults.issues.length > 0) {
+      console.warn('Landmark structure issues detected:', landmarkResults.issues);
+    }
+  }, []);
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {

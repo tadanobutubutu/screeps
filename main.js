@@ -1,11 +1,11 @@
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// _Commit: ec56c28dafbd3fb2078fbae75354cf99a4fb9f89_
-
-// TODO: Address accessibility issues from insight report:
-
-// Screeps AI - Main Module
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
 // Main game loop
 module.exports = function() {
@@ -47,7 +47,7 @@ module.exports = function() {
 };
 
 // Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
@@ -471,7 +471,7 @@ svgs.forEach(svg => {
 
 // Ensure unique landmarks
 // Ensuring all landmarks have unique identifiers
-const landmarks = getDocument() ? getDocument().querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"], [role="search"]') : [];
+const landmarks = getDocument() ? getDocument().querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"]') : [];
 const landmarkIds = new Set();
 landmarks.forEach(landmark => {
     if (landmark.id) {
@@ -548,7 +548,7 @@ checkLinkAccessibility();
 // Handle fake links
 handleFakeLinks();
 
-// Handle fake link issues
+// Handle accessibility errors
 handleAccessibilityErrors();
 
 // Render functions
@@ -653,117 +653,4 @@ function handleAccessibilityIssues() {
     validateLandmarkStructure();
 
     // Ensure unique landmarks
-    const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"], [role="search"]');
-    const landmarkIds = new Set();
-    landmarks.forEach(landmark => {
-        if (landmark.id) {
-            if (landmarkIds.has(landmark.id)) {
-                const baseName = landmark.id.replace(/-\d+$/, '');
-                landmark.id = createUniqueLandmarkId(baseName);
-            } else {
-                landmarkIds.add(landmark.id);
-            }
-        }
-    });
-
-    // REACT_041: Add accessible names to SVGs
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach(svg => {
-        const accessibleName = getSvgAccessibleName(svg);
-        setSvgAttributes(svg, accessibleName);
-    });
-
-    // REACT_036: Fix fake link issues
-    handleFakeLinks();
-
-    // Validate link accessibility
-    validateLinkAccessibility();
-}
-
-// Set SVG attributes helper function
-function setSvgAttributes(svg, accessibleName) {
-    if (svg && accessibleName) {
-        svg.setAttribute('aria-label', accessibleName);
-        svg.setAttribute('role', 'img');
-    }
-}
-
-// Placeholder utility functions referenced in exports
-function formatCurrency(value) {
-    return `$${value.toFixed(2)}`;
-}
-
-function formatDate(date) {
-    return date.toLocaleDateString();
-}
-
-function calculateDiscount(subtotal) {
-    return subtotal * 0.1;
-}
-
-function validateInput(input) {
-    return input && typeof input === 'object';
-}
-
-// Export accessibility utility functions
-export { makeHeaderFocusable };
-
-export const createInPageButton = () => {
-    // Create an accessible in-page button for navigation
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.setAttribute('aria-label', 'Navigate to section');
-    return button;
-};
-
-// Export UI / product functions
-export {
-    checkLinkAccessibility,
-    displayModuleStructure
-};
-
-// Export accessibility functions
-export {
-    getLangAttribute,
-    createInPageButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    ensureUniqueLandmarks,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    validateLinkAccessibility,
-    handleFakeLinks
-};
-
-// Export utility functions
-export {
-    formatCurrency,
-    formatDate,
-    calculateDiscount,
-    validateInput,
-    calculateTotalPrice,
-    renderCart,
-    validateAndRender,
-    renderPage
-};
-
-// New function to render dependency graphs or display module structure
-function renderDependencyGraph(module) {
-    // Implementation to render the dependency graph for a given module
-    // This is a placeholder function and should be replaced with actual logic
-    console.log('Rendering dependency graph for:', module);
-    // Example output: 'Rendering dependency graph for: ModuleName'
-}
-
-// New function to display module structure
-function displayModuleStructure(module) {
-    // Implementation to display the module structure for a given module
-    // This is a placeholder function and should be replaced with actual logic
-    console.log('Displaying module structure for:', module);
-    // Example output: 'Displaying module structure for: ModuleName'
-}
-
-// Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
+    const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"], [role="

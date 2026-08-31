@@ -249,9 +249,11 @@ function handleAccessibilityIssues(options = {}) {
  * Adds lang attribute as per the issue requirement
  */
 function addLangAttribute() {
-    const elementToModify = document.documentElement;
-    if (elementToModify && !elementToModify.hasAttribute('lang')) {
-        elementToModify.setAttribute('lang', 'en');
+    if (typeof document !== 'undefined') {
+        const elementToModify = document.documentElement;
+        if (elementToModify && !elementToModify.hasAttribute('lang')) {
+            elementToModify.setAttribute('lang', 'en');
+        }
     }
 }
 
@@ -259,100 +261,112 @@ function addLangAttribute() {
 
 // New helper functions to address the additional accessibility requirements
 function ensureElementHasId(elementId) {
-  const element = document.getElementById(elementId);
-  if (element && !element.id) {
-    element.setAttribute('id', elementId);
-  }
+    if (typeof document !== 'undefined') {
+        const element = document.getElementById(elementId);
+        if (element && !element.id) {
+            element.setAttribute('id', elementId);
+        }
+    }
 }
 
 function addAriaLabelToElement(elementId, label) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
+    if (typeof document !== 'undefined') {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.setAttribute('aria-label', label);
+        }
+    }
 }
 
-// Ensure elements have the required IDs
-ensureElementHasId('myTable');
-ensureElementHasId('mySvg');
-ensureElementHasId('inPageButton');
-ensureElementHasId('main-content');
-ensureElementHasId('navigation');
-ensureElementHasId('footer');
+// DOM-based accessibility code - wrapped in document check for Node.js compatibility
 
-// Add ARIA labels for better screen reader support
-addAriaLabelToElement('myTable', 'Product data table');
-addAriaLabelToElement('mySvg', 'Company logo');
-addAriaLabelToElement('inPageButton', 'Accessibility menu');
-addAriaLabelToElement('logo', 'Company logo');
-addAriaLabelToElement('menu', 'Accessibility menu');
+if (typeof document !== 'undefined') {
+    // Ensure elements have the required IDs
+    ensureElementHasId('myTable');
+    ensureElementHasId('mySvg');
+    ensureElementHasId('inPageButton');
+    ensureElementHasId('main-content');
+    ensureElementHasId('navigation');
+    ensureElementHasId('footer');
 
-// DOM-based accessibility code
+    // Add ARIA labels for better screen reader support
+    addAriaLabelToElement('myTable', 'Product data table');
+    addAriaLabelToElement('mySvg', 'Company logo');
+    addAriaLabelToElement('inPageButton', 'Accessibility menu');
+    addAriaLabelToElement('logo', 'Company logo');
+    addAriaLabelToElement('menu', 'Accessibility menu');
 
-// Add lang attribute to HTML element
-addLangAttribute();
+    // Add lang attribute to HTML element
+    addLangAttribute();
 
-// Create in-page button with accessibility considerations
-createInPageButton();
+    // Create in-page button with accessibility considerations
+    if (typeof createInPageButton === 'function') {
+        createInPageButton();
+    }
 
-// Ensure button has an id and appropriate ARIA label
-ensureElementHasId('accessibility-btn');
-addAriaLabelToElement('accessibility-btn', 'Accessibility menu');
+    // Ensure button has an id and appropriate ARIA label
+    ensureElementHasId('accessibility-btn');
+    addAriaLabelToElement('accessibility-btn', 'Accessibility menu');
 
-// Validate table structure and accessibility
-// Assuming you have a table element with an id of 'myTable'
-const table = document.getElementById('myTable');
-if (table) {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
+    // Validate table structure and accessibility
+    // Assuming you have a table element with an id of 'myTable'
+    const table = document.getElementById('myTable');
+    if (table) {
+        if (typeof validateTableAccessibility === 'function') validateTableAccessibility(table);
+        if (typeof validateTableStructure === 'function') validateTableStructure(table);
+    }
+
+    // Add/fix landmark issues
+    if (typeof validateLandmark === 'function') validateLandmark();
+    if (typeof validateLandmarkStructure === 'function') validateLandmarkStructure();
+
+    // Add accessible names to SVGs
+    // Assuming you have an SVG element with an id of 'mySvg'
+    const svg = document.getElementById('mySvg');
+    if (svg) {
+        const accessibleName = typeof getSvgAccessibleName === 'function' ? getSvgAccessibleName(svg) : null;
+        if (accessibleName && typeof setSvgAttributes === 'function') {
+            setSvgAttributes(svg, accessibleName);
+        }
+    }
+
+    // Ensure unique landmarks
+    const landmarks = []; // Populate with landmark elements
+    const uniqueLandmarkList = uniqueLandmarks(landmarks);
+
+    // Handle fake links
+    if (typeof handleFakeLinks === 'function') {
+        handleFakeLinks();
+    }
+
+    // Fix button identifiers
+    // Ensuring all buttons have proper accessible identifiers
+    const buttons = document.querySelectorAll('button, [role="button"]');
+    buttons.forEach((button, index) => {
+        if (!button.id) {
+            button.id = `button-${index}`;
+        }
+    });
+
+    // Google sign-in accessibility
+    // Ensuring Google sign-in button has proper accessible name and role
+    function googleSignIn() {
+        const googleButton = document.querySelector('.google-sign-in-button');
+        if (googleButton) {
+            googleButton.setAttribute('aria-label', 'Sign in with Google');
+            googleButton.setAttribute('role', 'button');
+        }
+    }
+    googleSignIn();
 }
-
-// Add/fix landmark issues
-validateLandmark();
-validateLandmarkStructure();
-
-// Add accessible names to SVGs
-// Assuming you have an SVG element with an id of 'mySvg'
-const svg = document.getElementById('mySvg');
-if (svg) {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
-}
-
-// Ensure unique landmarks
-const landmarks = []; // Populate with landmark elements
-const uniqueLandmarkList = uniqueLandmarks(landmarks);
-
-// Handle fake links
-handleFakeLinks();
-
-// Fix button identifiers
-// Ensuring all buttons have proper accessible identifiers
-const buttons = document.querySelectorAll('button, [role="button"]');
-buttons.forEach((button, index) => {
-  if (!button.id) {
-    button.id = `button-${index}`;
-  }
-});
-
-// Google sign-in accessibility
-// Ensuring Google sign-in button has proper accessible name and role
-function googleSignIn() {
-  const googleButton = document.querySelector('.google-sign-in-button');
-  if (googleButton) {
-    googleButton.setAttribute('aria-label', 'Sign in with Google');
-    googleButton.setAttribute('role', 'button');
-  }
-}
-googleSignIn();
 
 // Assuming you have functions that render dependency graphs and index views
 const renderDependencyGraph = (data) => {
-  // Code to render the dependency graph using the data provided
+    // Code to render the dependency graph using the data provided
 };
 
 const renderIndex = () => {
-  // Code to render the index view
+    // Code to render the index view
 };
 
 // React / UI related functions
@@ -360,182 +374,105 @@ const renderIndex = () => {
 // TODO: Add these imported modules to the relevant rendering functions
 
 function formatProductName(product) {
-  return `${product.name} - ${formatCurrency(product.price)}`;
+    return `${product.name} - ${formatCurrency(product.price)}`;
 }
 
 function renderProductList(products) {
-  const container = document.createElement('div');
-  container.className = 'product-list';
-  container.innerHTML = products.map(product => `
-    <div class="product-card">
-      <h3>${formatProductName(product)}</h3>
-      <p class="price">${formatCurrency(product.price)}</p>
-    </div>
-  `).join('');
-  return container;
+    const container = document.createElement('div');
+    container.className = 'product-list';
+    container.innerHTML = products.map(product => `
+        <div class="product-card">
+            <h3>${formatProductName(product)}</h3>
+            <p class="price">${formatCurrency(product.price)}</p>
+        </div>
+    `).join('');
+    return container;
 }
 
 function calculateTotalPrice(cart) {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = calculateDiscount(subtotal);
-  return subtotal - discount;
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const discount = calculateDiscount(subtotal);
+    return subtotal - discount;
 }
 
 function renderCart(cart) {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = calculateDiscount(subtotal);
-  const total = subtotal - discount;
-  return `
-    <div class="cart">
-      <h2>Shopping Cart</h2>
-      <p>Subtotal: ${formatCurrency(subtotal)}</p>
-      <p>Discount: -${formatCurrency(discount)}</p>
-      <p>Total: ${formatCurrency(total)}</p>
-      <p>Date: ${formatDate(new Date())}</p>
-    </div>
-  `;
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const discount = calculateDiscount(subtotal);
+    const total = subtotal - discount;
+    return `
+        <div class="cart">
+            <h2>Shopping Cart</h2>
+            <p>Subtotal: ${formatCurrency(subtotal)}</p>
+            <p>Discount: -${formatCurrency(discount)}</p>
+            <p>Total: ${formatCurrency(total)}</p>
+            <p>Date: ${formatDate(new Date())}</p>
+        </div>
+    `;
 }
 
 function validateAndRender(input) {
-  if (validateInput(input)) {
-    return `<div class="validated">${formatCurrency(input.value)}</div>`;
-  }
-  return '<p>Invalid input</p>';
+    if (validateInput(input)) {
+        return `<div class="validated">${formatCurrency(input.value)}</div>`;
+    }
+    return '<p>Invalid input</p>';
 }
 
 function renderPage(data) {
-  const header = renderHeader(data.title);
-  const content = renderProductList(data.products || []);
-  const footer = renderFooter();
-  return `${header}${content}${footer}`;
+    const header = renderHeader(data.title);
+    const content = renderProductList(data.products || []);
+    const footer = renderFooter();
+    return `${header}${content}${footer}`;
 }
 
 // TODO: Update the existing function using the new functions for rendering graph/index
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 function specificFunctionThatRendersGraphOrIndex() {
-  // Call the updated functions to render the graph or index as needed
-  renderDependencyGraph(dependencyGraphContent);
-  renderIndex();
+    // Call the updated functions to render the graph or index as needed
+    renderDependencyGraph(dependencyGraphContent);
+    renderIndex();
 }
-
-// Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
-
-// Export utility functions
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  // Newly added accessibility functions
-  getFullLangAttribute,
-  addAriaLabel,
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  ensureUniqueLandmarks,
-  createAccessibleLink,
-  handleAccessibilityIssues,
-  addLangAttribute
-};
-
-// Export component functions
-export {
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput
-};
-
-// Export UI / product functions
-export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage,
-  dependencyGraphContent,
-  indexContent
-};
 
 // New function or change requested in the issue
 function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility();
+    // Implementation for checking link accessibility
+    // This function will be used to validate the accessibility of links
+    return validateLinkAccessibility();
 }
 
 // Function to render dependency graphs or display module structure
 function renderDependencyGraph(module) {
-  // Implementation to render the dependency graph for a given module
-  // Builds a graph representation of the module's dependencies
-  const nodes = [];
-  const edges = [];
-  if (module && module.dependencies) {
-    nodes.push({ id: module.name || 'root', label: module.name || 'root' });
-    for (const dep of module.dependencies) {
-      const depName = typeof dep === 'string' ? dep : dep.name;
-      nodes.push({ id: depName, label: depName });
-      edges.push({ from: module.name || 'root', to: depName });
+    // Implementation to render the dependency graph for a given module
+    // Builds a graph representation of the module's dependencies
+    const nodes = [];
+    const edges = [];
+    if (module && module.dependencies) {
+        nodes.push({ id: module.name || 'root', label: module.name || 'root' });
+        for (const dep of module.dependencies) {
+            const depName = typeof dep === 'string' ? dep : dep.name;
+            nodes.push({ id: depName, label: depName });
+            edges.push({ from: module.name || 'root', to: depName });
+        }
     }
-  }
-  console.log('Rendering dependency graph for:', module, { nodes, edges });
-  return { nodes, edges };
+    console.log('Rendering dependency graph for:', module, { nodes, edges });
+    return { nodes, edges };
 }
 
 // Function to display module structure
 function displayModuleStructure(module) {
-  // Implementation to display the module structure for a given module
-  // Returns a structured representation of the module
-  if (!module) {
-    return null;
-  }
-  const structure = {
-    name: module.name || 'unnamed',
-    exports: module.exports || [],
-    imports: module.imports || [],
-    dependencies: module.dependencies || []
-  };
-  console.log('Displaying module structure for:', module, structure);
-  return structure;
+    // Implementation to display the module structure for a given module
+    // Returns a structured representation of the module
+    if (!module) {
+        return null;
+    }
+    const structure = {
+        name: module.name || 'unnamed',
+        exports: module.exports || [],
+        imports: module.imports || [],
+        dependencies: module.dependencies || []
+    };
+    console.log('Displaying module structure for:', module, structure);
+    return structure;
 }
-
-// Export state
-export {
-  state,
-  updateState
-};
-
-// Export internal functions for accessibility
-export {
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  addAriaLabel,
-  addLangAttribute
-};
-
-// ... other exports ...
-
-// Export UI / product functions
-export {
-  renderHeader,
-  renderFooter,
-  renderProductCard
-};
-
-// Exporting for CommonJS compatibility
-module.exports = {
-  specificFunctionThatRendersGraphOrIndex
-};
-
-// Export additional required functions
-export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute };
 
 // Report generation logic
 /**
@@ -554,6 +491,10 @@ function generateAccessibilityReport() {
         issues: [],
         passed: []
     };
+
+    if (typeof document === 'undefined') {
+        return report;
+    }
 
     // Check lang attribute
     const htmlElement = document.querySelector('html');
@@ -745,24 +686,46 @@ function generateAndDisplayReport() {
     return report;
 }
 
-// Export report generation functions
+// Export all functions and utilities
 export {
-  generateAccessibilityReport,
-  renderAccessibilityReportHtml,
-  generateAndDisplayReport
+    // Accessibility utilities
+    getLangAttribute,
+    createInPageButton,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    getFullLangAttribute,
+    addAriaLabel,
+    ensureUniqueLandmarkId,
+    uniqueLandmarks,
+    ensureUniqueLandmarks,
+    createAccessibleLink,
+    handleAccessibilityIssues,
+    addLangAttribute,
+    
+    // UI/Product functions
+    formatProductName,
+    renderProductList,
+    calculateTotalPrice,
+    renderCart,
+    validateAndRender,
+    renderPage,
+    
+    // Graph and structure functions
+    checkLinkAccessibility,
+    renderDependencyGraph,
+    displayModuleStructure,
+    
+    // Report generation functions
+    generateAccessibilityReport,
+    renderAccessibilityReportHtml,
+    generateAndDisplayReport,
+    
+    // Legacy exports for compatibility
+    specificFunctionThatRendersGraphOrIndex
 };
-
-// Export ensureUniqueLandmarkId for ensuring unique landmark IDs
-export { ensureUniqueLandmarkId };
-
-// Export uniqueLandmarks for getting unique landmarks from a list
-export { uniqueLandmarks };
-
-// Export addAriaLabel for adding aria-label attributes to elements
-export { addAriaLabel };
-
-// Export addLangAttribute for adding lang attributes to elements
-export { addLangAttribute };
-
-// Export the internal set for tracking used landmark IDs
-export { _usedLandmarkIds };

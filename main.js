@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report:
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())

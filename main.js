@@ -6,8 +6,6 @@
 const http = require('http');
 const path = require('path');
 
-// TODO: This is the existing code that needs to be preserved
-
 // Application configuration
 const config = {
   port: process.env.PORT || 3000,
@@ -44,6 +42,8 @@ module.exports = {
   config
 };
 
+// New functions
+
 // New function to handle logging
 function logMessage(message) {
   console.log(`[LOG]: ${message}`);
@@ -66,3 +66,5 @@ function gracefulShutdown(server) {
 function addLangAttribute(htmlElement) {
   htmlElement.setAttribute('lang', 'en');
 }
+
+// TODO: Any additional changes requested in the issue should be added after this function

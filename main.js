@@ -262,8 +262,58 @@ function ensureDependencyGraphAriaRole(doc) {
 }
 
 // New function as per the issue request
-function newFunction() {
-  // New function implementation
+/**
+ * Apply all accessibility fixes to the document in one consolidated pass.
+ * Runs the suite of accessibility fixes addressing REACT_015, REACT_017,
+ * REACT_025, REACT_027, REACT_036, REACT_040, REACT_041, and REACT_042.
+ * @param {Document} doc - The document object
+ * @param {Object} [options] - Optional configuration
+ * @param {string} [options.lang='en'] - Language code for the html element
+ * @returns {Object} A summary of the fixes applied
+ */
+function newFunction(doc, options = {}) {
+  const { lang = 'en' } = options;
+  const summary = {
+    langAttribute: null,
+    tablesFixed: 0,
+    mainLandmark: null,
+    uniqueLandmarks: [],
+    svgAccessibleNames: 0,
+    fakeLinks: 0,
+    buttonsFixed: 0,
+    dependencyGraph: null,
+  };
+
+  if (!doc) {
+    return summary;
+  }
+
+  // REACT_015: Add lang attribute to HTML element
+  summary.langAttribute = addLangAttribute(doc, lang);
+
+  // REACT_027: Fix table structure issues
+  summary.tablesFixed = fixTableStructure(doc);
+
+  // REACT_017: Add/fix landmark issues (main landmark + landmark regions)
+  summary.mainLandmark = addMainLandmark(doc);
+  addLandmarkRegions(doc);
+
+  // REACT_025: Ensure unique landmarks
+  summary.uniqueLandmarks = ensureUniqueLandmarks(doc);
+
+  // REACT_041: Add accessible names to SVGs
+  summary.svgAccessibleNames = addAccessibleNamesToSVGs(doc);
+
+  // REACT_036: Fix fake link issues
+  summary.fakeLinks = fixFakeLinkIssues(doc);
+
+  // REACT_040: Fix button identifiers
+  summary.buttonsFixed = fixButtonIdentifiers(doc);
+
+  // REACT_042: Ensure dependencyGraph container has proper ARIA role
+  summary.dependencyGraph = ensureDependencyGraphAriaRole(doc);
+
+  return summary;
 }
 
 // Export all functions

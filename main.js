@@ -12,7 +12,7 @@
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 // _Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
 
-<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
+/* todo-hash: 2940d94829911b172237e001ec7271ce7347833e */
 
 // Preserve existing functionality
 

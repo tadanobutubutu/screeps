@@ -48,7 +48,7 @@ function validateLandmark(landmark) {
   // Validate longitude
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || ... {
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
     errors.push('Landmark longitude must be a number');
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
@@ -82,7 +82,7 @@ function validateLandmark(landmark) {
  * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
-  const element = ...
+  const element = document.getElementById(id);
   return element !== null;
 }
 
@@ -103,9 +103,6 @@ function ensureUniqueLandmarks(landmarksArray) {
   });
 }
 
-// ... (previous and updated code remains as it is)
-
-// Updated function: ensures landmarks uniqueness when there's an array structure
 function ensureLandmarkUniqueness(elements) {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
 
@@ -114,10 +111,12 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if ... {
-          ... = true;
+        const id = landmark.id;
+        if (!elementsById.hasOwnProperty(id)) {
+          elementsById[id] = landmark;
         } else {
           landmark.id += '_duplicate';
+          elementsById[landmark.id] = landmark;
         }
       }
     }
@@ -126,19 +125,7 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
-// Updated: using the new functions for rendering graph/index
-function renderDependencyGraphContent(data) {
-  if (!data) {
-    return;
-  }
-
-  // Use the new dedicated functions based on the view type
-  if (data.viewType === 'graph') {
-    renderDependencyGraph(data);
-  } else if (data.viewType === 'index') {
-    renderIndexView(data);
-  }
-}
+// ... (previous and updated code remains as it is)
 
 // Export functions for testing
 export {

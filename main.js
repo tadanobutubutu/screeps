@@ -291,6 +291,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
 
 // Don't forget to test your new additions in the test file
 
+// Export accessibility utility functions
 module.exports = {
     addLangAttribute,
     fixTableStructure,

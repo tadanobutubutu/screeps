@@ -43,8 +43,65 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
+// Function to handle adding a new book from the form
+function handleAddBook(bookData) {
+  if (bookData && bookData.title && bookData.author) {
+    addBook(bookData);
+  }
+}
+
+// AddBookForm component with accessibility improvements
+function AddBookForm({ onSubmit }) {
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (title.trim() && author.trim()) {
+      onSubmit({ title: title.trim(), author: author.trim() });
+      setTitle('');
+      setAuthor('');
+    }
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      aria-label="Add a new book"
+      role="form"
+    >
+      <div>
+        <label htmlFor="book-title-input">Book Title</label>
+        <input
+          id="book-title-input"
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          aria-label="Book title"
+          required
+        />
+      </div>
+      <div>
+        <label htmlFor="book-author-input">Book Author</label>
+        <input
+          id="book-author-input"
+          type="text"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          aria-label="Book author"
+          required
+        />
+      </div>
+      <button
+        type="submit"
+        aria-label="Add new book"
+        id="add-book-btn"
+      >
+        Add Book
+      </button>
+    </form>
+  );
+}
 
 // Function for generating a report based on accessibility issues
 function generateAccessibilityReport(issues) {

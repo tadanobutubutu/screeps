@@ -78,9 +78,19 @@ function calculateProduct(a, b) {
   return a * b;
 }
 
+/**
+ * Adds a language attribute to the HTML element
+ * @param {string} lang - The language code to set on the HTML element (default: 'en')
+ */
+function setLanguageAttribute(lang = 'en') {
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('lang', lang);
+  }
+}
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct };
+  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct, setLanguageAttribute };
 }
 
 // If running in browser context
@@ -89,4 +99,5 @@ if (typeof window !== 'undefined') {
   window.addressAccessibilityIssues = addressAccessibilityIssues;
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;
+  window.setLanguageAttribute = setLanguageAttribute;
 }

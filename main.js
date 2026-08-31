@@ -7,6 +7,7 @@ import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUti
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
+import { CONFIG } from './utils/constants';
 
 // Node.js functions for dependency visualization tool
 const fs = require('fs');
@@ -41,7 +42,7 @@ export const main = {
   // New function to address all accessibility issues
   addressAccessibilityIssues: function() {
     fixAccessibilityIssues();
-    visualizeDependencyTree(getDependencies()); // Replace getDependencies() with actual function or variable
+    // Replace getDependencies() with actual function or variable
   }
 };
 
@@ -87,14 +88,12 @@ function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
-  button.ariaLabel = 'rotate back';
   button.textContent = 'rotate back';
   button.addEventListener('click', rotateBack);
   return button;
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.querySelector('a[href="#"]');
 if (fakeLink && fakeLink.tagName === 'A') {
   const parent = fakeLink.parentElement;
   const newButton = createUnrotateButton();
@@ -102,76 +101,79 @@ if (fakeLink && fakeLink.tagName === 'A') {
 }
 
 // Load landmarks from file (new addition)
-import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
-      const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
-      const data = fs.readFileSync(filePath, 'utf8');
-      return JSON.parse(data);
+    const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
   } catch (error) {
-      console.error('Error loading landmarks:', error.message);
-      return [];
+    console.error('Error loading landmarks:', error.message);
+    return [];
   }
 }
 
 // Process and filter landmarks (new addition)
 function processLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
 
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+  const validLandmarks = landmarks.filter(Boolean);
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
+  return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
 // Sort landmarks by name (new addition)
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
+  return landmarks.slice().sort((a, b) => {
+    const nameA = (a.name || '').toLowerCase();
+    const nameB = (b.name || '').toLowerCase();
 
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(nameA);
-    });
+    if (ascending) {
+      return nameA.localeCompare(nameB);
+    }
+    return nameB.localeCompare(nameA);
+  });
 }
 
 // Get landmark by ID (new addition)
 function getLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
+  return landmarks.find(landmark => landmark.id === id) || null;
 }
 
 // Ensure unique landmarks by ID (new addition)
 function ensureUniqueLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const seen = new Set();
+  const uniqueLandmarks = [];
+
+  for (const landmark of landmarks) {
+    if (!landmark || typeof landmark.id === 'undefined') {
+      continue;
     }
 
-    const seen = new Set();
-    const uniqueLandmarks = [];
+    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
 
-    for (const landmark of landmarks) {
-        if (!landmark || typeof landmark.id === 'undefined') {
-            continue;
-        }
-
-        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-        if (!seen.has(landmarkId)) {
-            seen.add(landmarkId);
-            uniqueLandmarks.push(landmark);
-        }
+    if (!seen.has(landmarkId)) {
+      seen.add(landmarkId);
+      uniqueLandmarks.push(landmark);
     }
+  }
 
-    return uniqueLandmarks;
+  return uniqueLandmarks;
 }
 
 // Export functions for testing (new addition)
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-      loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks
-    };
+  module.exports = {
+    loadLandmarks,
+    processLandmarks,
+    sortLandmarks,
+    getLandmarkById,
+    ensureUniqueLandmarks
+  };
 }

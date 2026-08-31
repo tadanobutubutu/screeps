@@ -621,7 +621,23 @@ export {
   checkLandmarkElement,
   ensureUniqueLandmarks,
   landmarkStructureCheck,
-  initApp
+  initApp,
+  rotateBack,
+  helloWorld,
+  addLandmarkRoles,
+  setLanguageAttribute,
+  addSVGAccessibleName,
+  fixFakeLinks,
+  initDependencyGraph,
+  renderDependencyGraph,
+  getElementById,
+  queryElements,
+  checkLandmarkElements,
+  validateLandmarkStructure,
+  ensureThScope,
+  addSvgAccessibleNames,
+  fixFakeLink,
+  initializeAccessibility
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)

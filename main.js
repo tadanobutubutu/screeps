@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List, Button, Input, Form } from 'antd';
+import { useForm } from 'antd/lib/form/Form'; // Add this import for accessibility improvements
 
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
@@ -18,7 +19,7 @@ export function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 export function generateKey(book) {
-  return ...
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
 // Function to render a single book item
@@ -62,20 +63,24 @@ export function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
-// Function to handle adding a new book with accessibility improvements
-function handleAddBook(values) {
+// Function to add a new book with accessibility improvements
+const handleAddBook = (values) => {
   addBook({
     id: Date.now(), // Generate a unique id using current timestamp
     title: values.title,
     author: values.author,
   });
-}
+};
 
-// Render the main component containing the book list and sorting controls
-function Main() {
+// Wrap the main function with AntD's Form.useForm() hook for accessibility improvements
+const Main = () => {
   const [sorting, setSorting] = useState(defaultSorting);
-  const [form] = Form.useForm();
-  const dispatch = useDispatch();
+  const [form] = useForm({
+    initialValues: {
+      title: '',
+      author: '',
+    },
+  }); // Initialize form values
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -87,7 +92,7 @@ function Main() {
   }, [sorting]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = ...
+  const bookItems = [...];
 
   // Render the list of book items and sorting controls
   return (
@@ -100,7 +105,11 @@ function Main() {
       <Form
         form={form}
         layout="inline"
-        onFinish={(values) => handleAddBook(values)}
+        initialValues={{
+          title: '',
+          author: '',
+        }} // Initialize form values
+        onFinish={handleAddBook}
       >
         <Form.Item
           label="Title"

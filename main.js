@@ -102,10 +102,72 @@ function renderDependencyGraph(data, container) {
   return graphContainer;
 }
 
+/**
+ * Creates a basic tower defense game board visualization.
+ * @param {HTMLElement} container - The parent element to append the board to
+ * @param {number} width - Board width (default 800)
+ * @param {number} height - Board height (default 600)
+ * @returns {HTMLElement} The created SVG board element
+ */
+function createTowerDefenseMap(container, width = 800, height = 600) {
+  if (!container) {
+    throw new Error('Container is required');
+  }
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  
+  // Background
+  const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  bg.setAttribute('width', width);
+  bg.setAttribute('height', height);
+  bg.setAttribute('fill', '#f0f0f0');
+  svg.appendChild(bg);
+
+  // Grid lines
+  for (let i = 0; i < width; i += 50) {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', i);
+    line.setAttribute('y1', 0);
+    line.setAttribute('x2', i);
+    line.setAttribute('y2', height);
+    line.setAttribute('stroke', '#ddd');
+    line.setAttribute('stroke-width', '1');
+    svg.appendChild(line);
+  }
+
+  // Sample towers
+  const tower1 = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  tower1.setAttribute('points', '50,450 80,430 160,470');
+  tower1.setAttribute('fill', '#3498db');
+  svg.appendChild(tower1);
+  
+  const tower2 = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  tower2.setAttribute('points', '300,460 380,440 490,510');
+  tower2.setAttribute('fill', '#2ecc71');
+  svg.appendChild(tower2);
+
+  // Label
+  const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  label.setAttribute('x', width / 2);
+  label.setAttribute('y', 30);
+  label.setAttribute('text-anchor', 'middle');
+  label.setAttribute('font-family', 'sans-serif');
+  label.setAttribute('font-size', '16');
+  label.setAttribute('fill', '#333');
+  label.textContent = 'Tower Defense Map';
+  svg.appendChild(label);
+
+  return svg;
+}
+
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraph,
+  createTowerDefenseMap,
   myFunction: function () {
     // Existing implementation
   }

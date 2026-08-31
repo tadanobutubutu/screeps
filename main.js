@@ -1,8 +1,3 @@
-// Import necessary dependencies
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
-
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
 

@@ -74,8 +74,46 @@ const accessibilityUtils = {
   },
 
   // New focus trap function for keyboard navigation
-  newFocusTrap: () => {
-    // New function implementation
+  newFocusTrap: (element) => {
+    if (!element) return;
+    
+    // Get all focusable elements within the container
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"]), details[open] > summary, details summary'
+    );
+    
+    if (focusableElements.length === 0) return;
+    
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
+    // Focus the first element when trap starts
+    firstElement.focus();
+    
+    // Add keydown listener for tab navigation
+    const keydownHandler = (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+      
+      // Allow Escape to close the trap
+      if (e.key === 'Escape') {
+        element.dispatchEvent(new CustomEvent('closeFocusTrap'));
+      }
+    };
+    
+    element.addEventListener('keydown', keydownHandler);
+    
+    // Return cleanup function
+    return () => {
+      element.removeEventListener('keydown', keydownHandler);
+    };
   }
 };
 

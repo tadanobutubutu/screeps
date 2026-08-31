@@ -89,6 +89,29 @@ function ensureUniqueLandmarks() {
   }
 }
 
+/**
+ * Adds lang attribute to the documentElement if not present
+ */
+function addLangAttribute() {
+  if (typeof document !== 'undefined') {
+    if (!document.documentElement.getAttribute('lang')) {
+      document.documentElement.setAttribute('lang', 'en');
+    }
+  }
+}
+
+/**
+ * Adds accessibility label to main element if not present
+ */
+function addMainAriaLabel() {
+  if (typeof document !== 'undefined') {
+    const mainElement = document.querySelector('main');
+    if (mainElement && !mainElement.getAttribute('aria-label')) {
+      mainElement.setAttribute('aria-label', 'Main content');
+    }
+  }
+}
+
 // Preserve all existing exports
 module.exports = {
   renderDependencyGraph,
@@ -98,5 +121,7 @@ module.exports = {
   checkLandmarkElement,
   wrapPrimaryContentInMain,
   checkLandmarks,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  addLangAttribute,
+  addMainAriaLabel
 };

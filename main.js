@@ -22,6 +22,14 @@ function createInPageButton() {
   // ...
 }
 
+// New function3 logic
+function function3() {
+  // TODO: Implement new function3 logic here
+  // Example implementation:
+  console.log('Function3 is running.');
+  // Add your implementation details here.
+}
+
 // Uncomment the implementation of the function for addressing new accessibility issues from the insight report
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
@@ -90,7 +98,8 @@ export {
   addressAccessibilityIssues,
   a11y,
   getLangAttribute,
-  createInPageButton
+  createInPageButton,
+  function3 // Exporting the new function3
 };
 
 root.render(
@@ -101,4 +110,5 @@ root.render(
 
 addressAccessibilityIssues(); // Call the function to address accessibility issues
 createInPageButton();
+function3(); // Call the new function3
 reportWebVitals();

@@ -61,7 +61,7 @@ function uniqueLandmarks(landmarks) {
 
 /**
  * Adds an aria-label attribute to an element if it doesn't already have one.
- * @param {HTMLElement} element - The element to add the aria-label to.
+ * @param {HTMLElement|string} elementId - The element or element ID to add the aria-label to.
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(elementId, label) {
@@ -222,22 +222,7 @@ function calculateSum(a, b) {
   return a + b;
 }
 
-// Ensure elements have the required IDs
-...
-...
-...
-
 // Add ARIA labels for better screen reader support
-function addAriaLabel(elementId, label) {
-  const element = typeof elementId === 'string' ? document.getElementById(elementId) : elementId;
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-}
-
-addAriaLabel('myTable', 'Product data table');
-addAriaLabel('myLogo', 'Company logo');
-addAriaLabel('myMenu', 'Accessibility menu');
 
 // DOM-based accessibility code
 

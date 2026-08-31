@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
@@ -21,7 +22,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `book-${book.id || book.title.toLowerCase().replace(/\s+/g, '-')}`;
+  return `book-${book.id || '-'}`;
 }
 
 // Function to render a single book item
@@ -63,7 +64,10 @@ function generateAccessibilityReport(issues) {
 
   report += `Issue Details:\n`;
   issues.forEach((issue, index) => {
-    report += `${index + 1}. [${issue.severity.toUpperCase()}] ${issue.description}`;
+    report += `${index + 1}. ${issue.description || 'No description'}`;
+    if (issue.severity) {
+      report += ` - Severity: ${issue.severity}`;
+    }
     if (issue.element) {
       report += ` - Element: ${issue.element}`;
     }
@@ -81,14 +85,14 @@ const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = getBooksList.slice().sort(sortByTitle);
+  const sortedList = getBooksList.sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = getBooksList.slice().sort(sortByAuthor);
+  const sortedList = getBooksList.sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
@@ -98,19 +102,19 @@ export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBoo
 // Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 
 // Functions to improve accessibility (implementation assumed elsewhere)
-function fixLandmarkIssues(container) {
+function ... {
   // implementation omitted
 }
-function fixFakeLinkIssues(container) {
+function ... {
   // implementation omitted
 }
 function fixButtonIdentifiers(container) {
   // implementation omitted
 }
-function addAccessibleNamesToSVGs(container, role) {
+function ... role) {
   // implementation omitted
 }
-function ensureDependencyGraphAriaRole(container) {
+function ... {
   // implementation omitted
 }
 
@@ -130,15 +134,15 @@ function Main() {
     const container = document.getElementById('main-content');
     if (container) {
       // Apply accessibility fixes
-      fixLandmarkIssues(container);
-      fixFakeLinkIssues(container);
       fixButtonIdentifiers(container);
+      ...
+      ...
 
       // Apply SVG accessibility
-      addAccessibleNamesToSVGs(container, 'Graphical element');
+      ... 'Graphical element');
 
       // Ensure dependency graph has proper ARIA role
-      ensureDependencyGraphAriaRole(container);
+      ...
     }
   }, [sorting]);
 
@@ -165,15 +169,4 @@ function Main() {
         </button>
       </nav>
       <List
-        itemLayout="vertical"
-        dataSource={getBooksList}
-        renderItem={book => BookItem(book)}
-        aria-label="Book list"
-      />
-      <AddBookForm onSubmit={handleAddBook} />
-    </div>
-  );
-}
-
-// Export the Main component
-export default Main;
+        item

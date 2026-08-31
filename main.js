@@ -308,6 +308,38 @@ const accessibilityUtils = {
     if (typeof document === 'undefined') return 'en';
     const htmlElement = document.documentElement;
     return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
+  },
+
+  // NEW: Implement a new function to handle focus trap for keyboard navigation
+  newFocusTrap: (element) => {
+    if (!element) return;
+    
+    const focusableElements = element.querySelectorAll(
+      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+    
+    if (focusableElements.length === 0) return;
+    
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
+    const trapFocusHandler = (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+    
+    element.addEventListener('keydown', trapFocusHandler);
+    
+    return () => {
+      element.removeEventListener('keydown', trapFocusHandler);
+    };
   }
 };
 
@@ -441,6 +473,7 @@ module.exports = {
   validateLinkAccessibility: accessibilityUtils.validateLinkAccessibility,
   handleFakeLinks: accessibilityUtils.handleFakeLinks,
   addProperLandmarkRegions: accessibilityUtils.addProperLandmarkRegions,
+  newFocusTrap: accessibilityUtils.newFocusTrap,
 
   // Export accessibility utils for direct access
   accessibilityUtils: accessibilityUtils,

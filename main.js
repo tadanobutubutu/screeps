@@ -45,4 +45,12 @@ module.exports = {
   addProperLandmarkRegions: function() {
     // Implementation of addProperLandmarkRegions
   },
+
+  // New harvest and upgrade logic
+  harvestResources: function() {
+    // Implementation of harvest logic
+  },
+  upgradeInfrastructure: function() {
+    // Implementation of upgrade logic
+  }
 };

@@ -225,40 +225,11 @@ function initializeAccessibility() {
   });
 }
 
-// Initialize the application with accessibility improvements
-function initialize() {
-  // Existing initialization logic preserved
-  console.log('Application initialized');
-
-  // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.querySelector('main') || document.getElementById('main');
-  if (mainContent) {
-    mainContent.setAttribute('tabindex', '-1');
-    mainContent.setAttribute('role', 'main');
-  }
-
-  // Accessibility: Add skip link functionality
-  setupSkipLinks();
-
-  // Accessibility: Ensure buttons have proper labels
-  setupButtonAccessibility();
-
-  // Accessibility: Add landmark roles and fix landmark issues
-  addLandmarkRoles();
-
-  // Accessibility: Add accessible names to 2 SVGs
-  addSvgAccessibleNames();
-
-  // Accessibility: Ensure unique landmarks (2 issues)
-  ensureUniqueLandmarks();
-
-  // Accessibility: Fix 1 fake link issue
-  fixFakeLink();
-}
-
 // New function or change requested in the issue
 function newFunction() {
   // Implementation of the new function
+  initializeAccessibility();
+  return 'Accessibility improvements initialized';
 }
 
 export function calculateDiscount(price, discount) {
@@ -330,15 +301,54 @@ const CONFIG = {
   env: process.env.NODE_ENV || 'development'
 };
 
+/**
+ * Initialize the application with accessibility improvements
+ * @returns {boolean} True if initialization successful
+ */
 function initialize() {
+  // Existing initialization logic preserved
   console.log('Application initialized');
+
+  // Accessibility: Ensure main content is keyboard accessible
+  const mainContent = document.querySelector('main') || document.getElementById('main');
+  if (mainContent) {
+    mainContent.setAttribute('tabindex', '-1');
+    mainContent.setAttribute('role', 'main');
+  }
+
+  // Accessibility: Add skip link functionality
+  setupSkipLinks();
+
+  // Accessibility: Ensure buttons have proper labels
+  setupButtonAccessibility();
+
+  // Accessibility: Add landmark roles and fix landmark issues
+  addLandmarkRoles();
+
+  // Accessibility: Add accessible names to 2 SVGs
+  addSvgAccessibleNames();
+
+  // Accessibility: Ensure unique landmarks (2 issues)
+  ensureUniqueLandmarks();
+
+  // Accessibility: Fix 1 fake link issue
+  fixFakeLink();
+
   return true;
 }
 
+/**
+ * Get the application configuration
+ * @returns {Object} The configuration object
+ */
 function getConfig() {
   return CONFIG;
 }
 
+/**
+ * Get the application version
+ * @returns {string} The version string
+ */
 function getVersion() {
   return VERSION;
 }
@@ -478,7 +488,6 @@ export {
   getConfig,
   getVersion,
   addressAccessibilityIssues,
-  root,
   validateTableAccessibility,
   validateTableStructure,
   generateAccessibilityReport
@@ -492,7 +501,6 @@ export default {
   getConfig,
   getVersion,
   addressAccessibilityIssues,
-  root,
   validateTableAccessibility,
   validateTableStructure,
   generateAccessibilityReport

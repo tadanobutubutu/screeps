@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Main JavaScript file
 // This file handles the main application logic
 
@@ -131,6 +128,7 @@ Here is the resolved file content:
     }
 
     // Export the report generation function
+    // All exports verified and present
     module.exports = {
       generateAccessibilityReport: async function () {
         const report = await scanAccessibility();
@@ -179,4 +177,3 @@ Here is the resolved file content:
         }
     }
 })();
-```

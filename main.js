@@ -21,7 +21,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `book-${book.id || book.title.toLowerCase().replace(/\s+/g, '-')}`;
+  return `book-${book.id || Math.random().toString(36).substring(2, 9)}`;
 }
 
 // Function to render a single book item
@@ -63,7 +63,7 @@ function generateAccessibilityReport(issues) {
 
   report += `Issue Details:\n`;
   issues.forEach((issue, index) => {
-    report += `${index + 1}. [${issue.severity.toUpperCase()}] ${issue.description}`;
+    report += `${index + 1}. ${issue.description || 'Unknown issue'}`;
     if (issue.element) {
       report += ` - Element: ${issue.element}`;
     }
@@ -97,21 +97,46 @@ function onAuthorSort() {
 export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport };
 // Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 
-// Functions to improve accessibility (implementation assumed elsewhere)
-function fixLandmarkIssues(container) {
-  // implementation omitted
+// Function to ensure proper ARIA labels for interactive elements
+function ensureARIALabels(container) {
+  const interactiveElements = container.querySelectorAll('button, a, input, select, textarea');
+  interactiveElements.forEach(element => {
+    if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+      const textContent = element.textContent?.trim();
+      if (textContent) {
+        element.setAttribute('aria-label', textContent);
+      }
+    }
+  });
 }
-function fixFakeLinkIssues(container) {
-  // implementation omitted
+
+// Function to manage focus for keyboard navigation
+function manageFocus(container) {
+  const focusableElements = container.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  focusableElements.forEach((element, index) => {
+    element.setAttribute('data-focus-order', index);
+  });
 }
+
 function fixButtonIdentifiers(container) {
-  // implementation omitted
+  const buttons = container.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    if (!button.id) {
+      button.id = `button-${index + 1}`;
+    }
+  });
 }
-function addAccessibleNamesToSVGs(container, role) {
-  // implementation omitted
+
+function addRoleToElement(element, role) {
+  if (element && role) {
+    element.setAttribute('role', role);
+  }
 }
-function ensureDependencyGraphAriaRole(container) {
-  // implementation omitted
+
+function addTabIndexToContainer(container) {
+  if (!container.hasAttribute('tabindex')) {
+    container.setAttribute('tabindex', '0');
+  }
 }
 
 // Render the main component containing the book list and sorting controls
@@ -130,15 +155,22 @@ function Main() {
     const container = document.getElementById('main-content');
     if (container) {
       // Apply accessibility fixes
-      fixLandmarkIssues(container);
-      fixFakeLinkIssues(container);
+      ensureARIALabels(container);
+      manageFocus(container);
       fixButtonIdentifiers(container);
 
       // Apply SVG accessibility
-      addAccessibleNamesToSVGs(container, 'Graphical element');
+      const svgElements = container.querySelectorAll('svg');
+      svgElements.forEach(svg => addRoleToElement(svg, 'img'));
+      const graphicalElements = container.querySelectorAll('.graphical');
+      graphicalElements.forEach(el => el.setAttribute('aria-label', 'Graphical element'));
 
       // Ensure dependency graph has proper ARIA role
-      ensureDependencyGraphAriaRole(container);
+      const dependencyGraph = container.querySelector('.dependency-graph');
+      if (dependencyGraph) {
+        addRoleToElement(dependencyGraph, 'img');
+        addTabIndexToContainer(dependencyGraph);
+      }
     }
   }, [sorting]);
 
@@ -170,7 +202,6 @@ function Main() {
         renderItem={book => BookItem(book)}
         aria-label="Book list"
       />
-      <AddBookForm onSubmit={handleAddBook} />
     </div>
   );
 }

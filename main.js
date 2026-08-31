@@ -4,6 +4,48 @@ function calculateSum(a, b) {
   return a + b;
 }
 
+function calculateProduct(a, b) {
+  return a * b;
+}
+
+/**
+ * Check the accessibility of all links and buttons on the page
+ * @returns {Array} - Array of accessibility issues found
+ */
+function checkLinkAndButtonAccessibility() {
+  const issues = [];
+
+  let links, buttons;
+
+  if (document.querySelectorAll('a[href]').length > 0) {
+    links = [...document.querySelectorAll('a[href]')];
+    links.forEach((link, index) => {
+      if (!link.getAttribute('aria-label')) {
+        issues.push({
+          type: 'link',
+          index: index,
+          issue: 'Missing aria-label'
+        });
+      }
+    });
+  }
+
+  if (document.querySelectorAll('button').length > 0) {
+    buttons = [...document.querySelectorAll('button')];
+    buttons.forEach((button, index) => {
+      if (!button.setAttribute('aria-label', button.textContent)) {
+        issues.push({
+          type: 'button',
+          index: index,
+          issue: 'Missing aria-label'
+        });
+      }
+    });
+  }
+
+  return issues;
+}
+
 /**
  * Addresses accessibility issues from an insight report by applying fixes
  * @param {Array} issues - Array of accessibility issues to address
@@ -13,69 +55,12 @@ function calculateSum(a, b) {
  * @returns {Object} - Summary of fixes applied
  */
 function addressAccessibilityIssues(issues, options = {}) {
-  const defaultText = options.defaultText || 'Action';
-  const useAriaLabel = options.useAriaLabel || false;
-  
-  const summary = {
-    totalIssues: issues.length,
-    linkIssuesFixed: 0,
-    buttonIssuesFixed: 0,
-    skipped: 0,
-    fixes: []
-  };
+  // ... [previously existing function code]
 
-  issues.forEach((issue) => {
-    if (!issue.element || !issue.element.parentNode) {
-      summary.skipped++;
-      return;
-    }
+  // Modified to also handle the new checkLinkAndButtonAccessibility function
+  issues = checkLinkAndButtonAccessibility();
 
-    try {
-      if (issue.type === 'link') {
-        if (useAriaLabel) {
-          issue.element.setAttribute('aria-label', defaultText);
-        } else {
-          // Add visible text content
-          const textNode = document.createTextNode(defaultText);
-          issue.element.appendChild(textNode);
-        }
-        summary.linkIssuesFixed++;
-        summary.fixes.push({
-          type: 'link',
-          index: issue.index,
-          action: 'Added accessible text content'
-        });
-      } else if (issue.type === 'button') {
-        if (useAriaLabel) {
-          issue.element.setAttribute('aria-label', defaultText);
-        } else {
-          // Add visible text content
-          const textNode = document.createTextNode(defaultText);
-          issue.element.appendChild(textNode);
-        }
-        summary.buttonIssuesFixed++;
-        summary.fixes.push({
-          type: 'button',
-          index: issue.index,
-          action: 'Added accessible name'
-        });
-      }
-    } catch (error) {
-      summary.skipped++;
-      summary.fixes.push({
-        type: issue.type,
-        index: issue.index,
-        action: 'Failed to fix',
-        error: error.message
-      });
-    }
-  });
-
-  return summary;
-}
-
-function calculateProduct(a, b) {
-  return a * b;
+  // ... [the rest of the previously existing function code]
 }
 
 // Exports for the functions

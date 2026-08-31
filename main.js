@@ -8,6 +8,18 @@ const dependencyGraphContent = require('./dependencyGraphContent');
 // Import index content module
 const indexContent = require('./indexContent');
 
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+const dependencyGraph = document.getElementById('dependencyGraph');
+
+if (dependencyGraph) {
+  // Set appropriate ARIA role for the dependency graph container
+  // Using 'region' role for a contained section of content
+  if (!dependencyGraph.getAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'region');
+  }
+}
+
 // Ensure element has an ID for graph references
 const ensureElementHasId = (element, prefix = 'element') => {
   if (!element) {

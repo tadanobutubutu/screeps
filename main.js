@@ -37,11 +37,23 @@ function startApp() {
   return server;
 }
 
+/**
+ * Function to check if landmark elements exist in the response
+ * @param {string} response - The response string from the server
+ * @returns {boolean} - True if landmark elements are found, False otherwise
+ */
+function checkLandmarkElements(response) {
+  // Implement the logic to check for landmark elements
+  // For the purpose of this example, let's assume a simple check for the presence of 'landmark'
+  return response.includes('landmark');
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  checkLandmarkElements
 };
 
 // Start the application if run directly

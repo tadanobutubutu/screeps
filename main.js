@@ -48,3 +48,12 @@ module.exports = {
 if (require.main === module) {
   startApp();
 }
+
+// New function to be added as per the issue
+function newFunction() {
+  // Implementation of the new function
+  console.log('This is the new function added to main.js');
+}
+
+// Export the new function
+module.exports.newFunction = newFunction;

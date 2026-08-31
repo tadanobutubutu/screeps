@@ -137,6 +137,20 @@ function addressAccessibilityIssues(insightReport) {
   }
 }
 
+/**
+ * Processes an insight report and addresses all accessibility issues within it
+ * @param {Object} insightReport - The insight report containing an array of issues
+ * @param {Array} insightReport.issues - List of issue objects to be addressed
+ */
+function processInsightReport(insightReport) {
+  if (!insightReport || !Array.isArray(insightReport.issues)) {
+    return;
+  }
+  insightReport.issues.forEach(issue => {
+    addressAccessibilityIssues(issue);
+  });
+}
+
 // Initialize accessibility features
 function initializeAccessibility() {
   const announcer = createAnnouncer();
@@ -462,6 +476,7 @@ if (typeof module !== 'undefined' && module.exports) {
     clamp,
     deepClone,
     addressAccessibilityIssues,
+    processInsightReport,
     renderDependencyGraph
   };
 }

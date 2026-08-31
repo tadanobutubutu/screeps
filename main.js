@@ -48,11 +48,6 @@ function replaceFakeLinks() {
     // Create a proper button element
     const newButton = document.createElement('button');
 
-    // Copy over relevant attributes and content
-    if (fakeLink.id) {
-      newButton.id = fakeLink.id;
-    }
-
     // Set ARIA attributes for accessibility
     newButton.setAttribute('role', 'button');
 

@@ -295,6 +295,12 @@ function renderIndex(data, options = {}) {
   return indexContent(data, options);
 }
 
+// Initialize app state
+const appState = {
+  sessions: new Map(),
+  credentials: []
+};
+
 if (typeof document !== 'undefined') {
   const mainElement = document.createElement('main');
   mainElement.setAttribute('lang', document.documentElement.lang);
@@ -411,7 +417,80 @@ function handleFocusTrap(element) {
   });
 }
 
+// Missing function implementations
+
+/**
+ * Decode a JWT token
+ * @param {string} token - JWT token to decode
+ * @returns {Object} - Decoded token payload
+ */
+function decodeJwtToken(token) {
+    try {
+        if (!token) {
+            return null;
+        }
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+            return null;
+        }
+        const payload = parts[1];
+        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+        return JSON.parse(decoded);
+    } catch (error) {
+        return null;
+    }
+}
+
+/**
+ * Generate a unique session ID
+ * @returns {string} - Unique session ID
+ */
+function generateSessionId() {
+    return `sess_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+}
+
+/**
+ * Validate table structure
+ * @param {Object} table - Table object to validate
+ * @returns {boolean} - True if table structure is valid
+ */
+function validateTableStructure(table) {
+    if (!table || typeof table !== 'object') {
+        return false;
+    }
+    if (!Array.isArray(table.headers) || !Array.isArray(table.rows)) {
+        return false;
+    }
+    if (table.headers.length === 0) {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Validate a session ID
+ * @param {string} sessionId - Session ID to validate
+ * @returns {Object|null} - Session data if valid, null otherwise
+ */
+function validateSession(sessionId) {
+    if (!sessionId) {
+        return null;
+    }
+    return appState.sessions.get(sessionId) || null;
+}
+
+/**
+ * Get count of active sessions
+ * @returns {number} - Count of active sessions
+ */
+function getActiveSessionsCount() {
+    return appState.sessions.size;
+}
+
 // HTTP Server setup
+const http = require('http');
+const url = require('url');
+
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     

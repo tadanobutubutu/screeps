@@ -1,13 +1,12 @@
 // TODO: This is the existing code that needs to be preserved
 
-// New function to be added or updated
-function newFunction() {
-  // Implementation of the new function
-}
-
-// Another new function to be added or updated
-function anotherNewFunction() {
-  // Implementation of the new function
+// New function to create in-page buttons
+function createInPageButton(buttonId, buttonText, onclickFunction) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  button.onclick = onclickFunction;
+  document.body.appendChild(button);
 }
 
 // Existing functions preserved from origin/main
@@ -21,8 +20,7 @@ module.exports.anotherFunction = function() {
 
 // Export any new functions or any functions that were previously only used within the file
 module.exports = {
-  newFunction,
-  anotherNewFunction,
+  createInPageButton,
   someFunction: module.exports.someFunction,
   anotherFunction: module.exports.anotherFunction,
   // ... any other exports that were previously in the file

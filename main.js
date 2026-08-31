@@ -36,7 +36,7 @@ function getSvgAccessibleName() {
   // ... code for handling SVG accessible names
 }
 
-function createInPageButton() {
+function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
@@ -88,23 +88,17 @@ function myNewFunction() {
   // Implement your new functionality here
 }
 
-// Application configuration
-const config = {
-  port: process.env.PORT || 3000,
-  env: process.env.NODE_ENV || 'development'
-};
+/* Original functions from origin/main */
 
-// Store credentials received from the response
-let storedCredentials = null;
+function getEnvVariable(name) {
+  if (process.env[name]) return process.env[name];
+  return null;
+}
 
-/**
- * Main application entry point with accessibility features
- */
 function createServer() {
   // ... (existing code)
 }
 
-// Utility for spawning a command
 function spawnSomeCommand(callback) {
     const child_process = require('child_process');
     const child = child_process.spawn('someCommand', [], {
@@ -119,23 +113,14 @@ function spawnSomeCommand(callback) {
     });
 }
 
-/**
- * Spawn a child process to run some command with proper error handling.
- * @param {Function} callback - Invoked with (err, result) when the command exits.
- */
 function startApp() {
   // ... (existing code)
 }
 
-/**
- * Function to count dependencies
- * @returns {number} The count of dependencies
- */
 function countDependencies() {
   return require.main.requires.length;
 }
 
-// Additional functions to address accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   // Implement function to address the reported accessibility issues
 }
@@ -322,7 +307,8 @@ module.exports = {
   createServer,
   startApp,
   config,
-  myNewFunction,
+  getEnvVariable,
+  addLangAttribute,
   handleCredentialResponse,
   getStoredCredentials,
   handleAddLangAttribute,
@@ -333,5 +319,14 @@ module.exports = {
   calculateAccessibilityScore,
   ensureUniqueLandmarksFromString,
   validateLandmark,
-  createInPageButton
+  createInPageButton,
+  addressNewAccessibilityIssues,
+  myNewFunction,
+  handleGracefulShutdown,
+  logMessage
 };
+
+// Start the application if run directly
+if (require.main === module) {
+  startApp();
+}

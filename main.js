@@ -153,7 +153,7 @@ function implementAccessibilityFixesFromReport(container, report) {
   return fixes;
 }
 
-// TODO: Preserved existing function from origin/main
+// Preserved existing function from origin/main
 function myAccessibleFunction() {
   const accessibilityElement = document.createElement('div');
   accessibilityElement.setAttribute('aria-label', 'Accessible description of the element');

@@ -121,6 +121,19 @@ function init() {
   setupAriaLiveRegions();
   setupFocusManagement();
   enhanceSemanticMarkup();
+
+  // Address accessibility issues from insight report
+  const defaultInsightReport = {
+    issues: [
+      { type: 'color-contrast', description: 'Insufficient color contrast for primary actions' },
+      { type: 'missing-alt-text', description: 'Image lacks alt attribute' },
+      { type: 'missing-aria-label', description: 'Interactive element missing ARIA label' },
+      { type: 'heading-order', description: 'Heading hierarchy violation detected' },
+      { type: 'add-linguistic-attribute', description: 'Missing language attribute on root element' }
+    ]
+  };
+
+  addressAccessibilityIssues(defaultInsightReport);
 }
 
 /**

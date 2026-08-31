@@ -290,6 +290,34 @@ function fixFakeLinks() {
   handleFakeLinks();
 }
 
+/**
+ * REACT_036: Fix dependency graph unrotate link
+ * Converts the fake link in dependency-graph.html to a proper button.
+ * @param {string} [docId='dependency-graph'] - The document element ID to search within.
+ * @returns {HTMLButtonElement|null} The created button element or null if not found.
+ */
+function fixDependencyGraphUnrotateLink(docId = 'dependency-graph') {
+  const doc = document.getElementById(docId);
+  if (!doc) return null;
+
+  const fakeLink = doc.querySelector('a#unrotate[href="#"]');
+  if (!fakeLink) return null;
+
+  const text = fakeLink.textContent;
+  const newButton = document.createElement('button');
+  newButton.id = 'unrotate';
+  newButton.type = 'button';
+  newButton.textContent = text;
+  newButton.className = fakeLink.className || '';
+
+  if (fakeLink.onclick) {
+    newButton.onclick = fakeLink.onclick;
+  }
+
+  fakeLink.parentNode.replaceChild(newButton, fakeLink);
+  return newButton;
+}
+
 function addLandmarkRegions() {
   // Code for adding proper landmark regions
   addProperLandmarkRegions();
@@ -400,6 +428,7 @@ function addressAccessibilityIssues(insightReport) {
         // Fix fake link issues
         handleFakeLinks();
         createInPageButton('Click me', () => {});
+        fixDependencyGraphUnrotateLink();
         break;
       default:
         // Handle unknown issue types
@@ -427,6 +456,7 @@ const initApp = () => {
 
   // Fix fake links
   fixFakeLinks();
+  fixDependencyGraphUnrotateLink();
 
   // Initialize the application data
   console.log('Initializing ' + appData.title + ' v' + appData.version);
@@ -469,6 +499,7 @@ module.exports = {
   createInPageButton,
   validateLinkAccessibility,
   handleFakeLinks,
+  fixDependencyGraphUnrotateLink,
   addLandmarkRegions,
   // Added from origin/main
   someFunction: function() {

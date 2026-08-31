@@ -1,7 +1,7 @@
 // Screeps AI - Main Module
 
 // Main game loop
-module.exports = function() {
+export default function () {
     // Initialize accessibility features
     const langAttr = getLangAttribute();
     const primaryContent = wrapPrimaryContentInMain();
@@ -37,7 +37,7 @@ module.exports = function() {
             upgradeController(creep, controller);
         }
     });
-};
+}
 
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -74,7 +74,6 @@ function checkLinkAccessibility() {
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
 // Internal set to track used landmark IDs
-// Global set to track used landmark IDs
 const _usedLandmarkIds = new Set();
 
 /**
@@ -317,16 +316,16 @@ function fixAccessibilityIssues(insightReport) {
 }
 
 // Add new function to address the accessibility issue REACT_043: Make header focusable
-export const makeHeaderFocusable = () => {
+export function makeHeaderFocusable() {
     // code to make the header element focusable
     // Example: Adding tabindex to the header
     const header = document.querySelector('header');
     if (header) {
         header.setAttribute('tabindex', '0');
     }
-};
+}
 
-export const fixFakeLinkIssues = () => {
+export function fixFakeLinkIssues() {
     // Fix fake link issues
     const doc = getDocument();
     if (!doc) return;
@@ -337,9 +336,9 @@ export const fixFakeLinkIssues = () => {
             link.setAttribute('role', 'button');
         }
     });
-};
+}
 
-export const createAccessibleLink = () => {
+export function createAccessibleLink() {
     // Create accessible link
     const doc = getDocument();
     if (!doc) return;
@@ -349,9 +348,9 @@ export const createAccessibleLink = () => {
             link.setAttribute('aria-label', 'Link');
         }
     });
-};
+}
 
-export const validateLinkAccessibility = () => {
+export function validateLinkAccessibility() {
     // Existing code...
     const doc = getDocument();
     if (!doc) return true;
@@ -363,9 +362,9 @@ export const validateLinkAccessibility = () => {
         }
     });
     return issues.length === 0;
-};
+}
 
-export const handleFakeLinks = () => {
+export function handleFakeLinks() {
     // Existing code...
     const doc = getDocument();
     if (!doc) return;

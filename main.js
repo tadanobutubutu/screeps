@@ -99,7 +99,7 @@ function validateTableStructure() {
       isValid = false;
       error = 'Table has no rows';
     } else {
-      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('th, td').length);
+      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td').length);
       const allSame = cellCounts.every(count => count === cellCounts[0]);
       
       if (!allSame) {
@@ -153,8 +153,8 @@ function generateAccessibilityReport() {
       totalTables,
       accessibleTables,
       validStructures,
-      accessibilityScore: totalTables > 0 ? Math.round((accessibleTables / totalTables) * 100) : 100,
-      structureScore: totalTables > 0 ? Math.round((validStructures / totalTables) * 100) : 100
+      accessibilityScore: totalTables > 0 ? (accessibleTables / totalTables) * 100 : 100,
+      structureScore: totalTables > 0 ? (validStructures / totalTables) * 100 : 100
     },
     issues,
     tableAccessibility: tableAccessibilityResults,

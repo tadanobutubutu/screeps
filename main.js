@@ -4,6 +4,11 @@
 // TODO: Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 
+// Import necessary dependencies
+import React from 'react';
+import { render } from 'react-dom';
+import { addLangAttribute, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, uniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, googleSignIn, decodeJwtResponse, fixButtonIdentifiers, ensureElementHasId, addAriaLabel, renderDependencyGraphs } from './AccessibilityHelpers';
+
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph');
 
@@ -37,9 +42,33 @@ function addAccessibleName(svgString) {
 const originalSvgString = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>';
 const modifiedSvgString = addAccessibleName(originalSvgString);
 
-// Import necessary dependencies
-import React from 'react';
-import { render } from 'react-dom';
-import { addLangAttribute, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, uniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, googleSignIn, decodeJwtResponse, fixButtonIdentifiers, ensureElementHasId, addAriaLabel, renderDependencyGraphs } from './AccessibilityHelpers';
+/**
+ * Validates table accessibility
+ * @param {Array} tableData - Table data to validate
+ * @returns {boolean} True if table is accessible, false otherwise
+ */
+function validateTableAccessibility(tableData) {
+  // Implementation placeholder - function to be implemented
+  return true;
+}
+
+/**
+ * Validates table structure
+ * @param {Array} tableData - Table data to validate
+ * @returns {boolean} True if table structure is valid, false otherwise
+ */
+function validateTableStructure(tableData) {
+  // Implementation placeholder - function to be implemented
+  return true;
+}
 
 // Other code...
+
+// Preserve all existing exports
+module.exports = {
+  renderDependencyGraph,
+  renderIndex,
+  validateTableAccessibility,
+  validateTableStructure,
+  // Preserve any other existing exports here
+};

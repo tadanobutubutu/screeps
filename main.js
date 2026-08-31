@@ -262,12 +262,96 @@ function fixFakeLinkIssue() {
 
 // Render a dependency graph visualization with accessibility support
 function renderDependencyGraph(container, graphData) {
-  // ... Existing functions and exports ...
+  // Ensure the container has proper ARIA role for accessibility
+  container.setAttribute('role', 'img');
+  container.setAttribute('aria-label', 'Dependency Graph Visualization');
+
+  // Clear previous content
+  container.innerHTML = '';
+
+  // Create a wrapper for the graph
+  const graphWrapper = document.createElement('div');
+  graphWrapper.className = 'dependency-graph-wrapper';
+  graphWrapper.setAttribute('tabindex', '0');
+
+  // Render nodes
+  if (graphData && graphData.nodes) {
+    graphData.nodes.forEach((node, index) => {
+      const nodeElement = document.createElement('div');
+      nodeElement.className = 'dependency-node';
+      nodeElement.textContent = node.label || `Module ${index + 1}`;
+      nodeElement.setAttribute('role', 'button');
+      nodeElement.setAttribute('tabindex', '0');
+      nodeElement.setAttribute('aria-label', `Module: ${node.label || `Module ${index + 1}`}`);
+      nodeElement.id = `node-${index}`;
+      graphWrapper.appendChild(nodeElement);
+    });
+  }
+
+  // Render edges (connections)
+  if (graphData && graphData.edges) {
+    graphData.edges.forEach(edge => {
+      const edgeElement = document.createElement('div');
+      edgeElement.className = 'dependency-edge';
+      edgeElement.setAttribute('aria-label', `Dependency from ${edge.source} to ${edge.target}`);
+      graphWrapper.appendChild(edgeElement);
+    });
+  }
+
+  container.appendChild(graphWrapper);
 }
 
 // Update existing dependency graph with new data
 function updateDependencyGraph(graphElement, newData) {
-  // ... Existing functions and exports ...
+  // Preserve ARIA attributes
+  graphElement.setAttribute('role', 'img');
+  graphElement.setAttribute('aria-label', 'Updated Dependency Graph Visualization');
+
+  // Update nodes
+  const existingNodes = graphElement.querySelectorAll('.dependency-node');
+  const newNodes = newData && newData.nodes ? newData.nodes : [];
+
+  // Remove excess nodes
+  while (existingNodes.length > newNodes.length) {
+    const lastNode = existingNodes[existingNodes.length - 1];
+    lastNode.parentNode.removeChild(lastNode);
+  }
+
+  // Add or update nodes
+  newNodes.forEach((node, index) => {
+    let nodeElement = existingNodes[index];
+    if (!nodeElement) {
+      nodeElement = document.createElement('div');
+      nodeElement.className = 'dependency-node';
+      nodeElement.setAttribute('role', 'button');
+      nodeElement.setAttribute('tabindex', '0');
+      graphElement.querySelector('.dependency-graph-wrapper').appendChild(nodeElement);
+    }
+    nodeElement.textContent = node.label || `Module ${index + 1}`;
+    nodeElement.setAttribute('aria-label', `Module: ${node.label || `Module ${index + 1}`}`);
+    nodeElement.id = `node-${index}`;
+  });
+
+  // Update edges
+  const existingEdges = graphElement.querySelectorAll('.dependency-edge');
+  const newEdges = newData && newData.edges ? newData.edges : [];
+
+  // Remove excess edges
+  while (existingEdges.length > newEdges.length) {
+    const lastEdge = existingEdges[existingEdges.length - 1];
+    lastEdge.parentNode.removeChild(lastEdge);
+  }
+
+  // Add or update edges
+  newEdges.forEach((edge, index) => {
+    let edgeElement = existingEdges[index];
+    if (!edgeElement) {
+      edgeElement = document.createElement('div');
+      edgeElement.className = 'dependency-edge';
+      graphElement.querySelector('.dependency-graph-wrapper').appendChild(edgeElement);
+    }
+    edgeElement.setAttribute('aria-label', `Dependency from ${edge.source} to ${edge.target}`);
+  });
 }
 
 // Initialize accessibility features on DOM ready

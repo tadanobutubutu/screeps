@@ -1,32 +1,22 @@
-Here is the resolved file content:
-
-```javascript
-import react from 'react';
-
-// Existing code starts here
-
 // Configuration
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: 5000
 };
 
-// App state
+// Application state
 const appState = {
-  initialized: false,
   data: null,
-  cache: new Map()
+  cache: new Map(),
+  initialized: false
 };
 
-// Initialize function
-function initialize() {
-  appState.initialized = true;
-  console.log('App initialized');
-}
-
-// Initialize app function
+// Initialize application
 function initializeApp() {
-  initialize();
+  if (appState.initialized) {
+    return appState;
+  }
+  appState.initialized = true;
   return appState;
 }
 
@@ -78,7 +68,18 @@ function validateInput(input) {
   return true;
 }
 
-// Newly added functions from origin/main
+// Language attribute functions (adapted for potential future use)
+function getLangAttribute() {
+  return 'en';
+}
+
+function addLangAttribute(element) {
+  if (element && typeof element === 'object') {
+    element.lang = getLangAttribute();
+  }
+  return element;
+}
+
 function validateLangAttribute(element) {
   if (!element || !element.lang) {
     return true;
@@ -93,23 +94,25 @@ function setLangAttribute(element, lang) {
   return element;
 }
 
-// Language attribute functions
-function getLangAttribute() {
-  return 'en';
-}
-
-function addLangAttribute(element) {
-  if (element && typeof element === 'object') {
-    element.lang = getLangAttribute();
-  }
-  return element;
-}
-
 function setElementLangAttribute(element, lang) {
   if (element && typeof element === 'object') {
     setLangAttribute(element, lang);
   }
   return element;
+}
+
+// Initialize function alias
+function initialize() {
+  return initializeApp();
+}
+
+// Main loop for Screeps
+function mainLoop() {
+  // Screeps game logic would go here
+  // Example:
+  // if (Game.time % 10 === 0) {
+  //   console.log('Tick:', Game.time);
+  // }
 }
 
 module.exports = {
@@ -130,8 +133,12 @@ module.exports = {
     timeout: 5000
   },
   helper,
-  formatDate
+  formatDate,
+  mainLoop
 };
-```
 
-This file includes the existing code, adaptations from the `origin/main` branch, and newly added functions for validating and setting the lang attribute. It also modifies the exports to include the `setElementLangAttribute` function. The new functions maintain a meaningful and consistent structure with the existing code.
+// Screeps global entry point
+if (typeof module !== 'undefined' && module.exports) {
+  // Running in Node.js/Screeps environment
+  global.mainLoop = mainLoop;
+}

@@ -120,10 +120,13 @@ function ensureUniqueLandmarks() {
 function fixAccessibilityIssues() {
   // 1. REACT_015: Ensure lang attribute is set on the HTML element
   const lang = getLangAttribute();
-  document.documentElement.setAttribute('lang', lang);
+  const htmlElement = getDocument().documentElement;
+  if (htmlElement && lang) {
+    htmlElement.setAttribute('lang', lang);
+  }
 
   // 2. REACT_027: Validate table accessibility and structure
-  const tables = document.querySelectorAll('table');
+  const tables = getDocument().querySelectorAll('table');
   tables.forEach(table => {
     validateTableAccessibility(table);
     validateTableStructure(table);
@@ -163,44 +166,6 @@ function fixAccessibilityIssues() {
   // 6. REACT_036: Fix fake link issue (personName is part of the fix)
   personName();
   handleFakeLinks();
-}
-
-// Helper function to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
-  const seenIds = new Set();
-  const seenRoles = new Map();
-
-  landmarks.forEach(landmark => {
-    const role = landmark.tagName.toLowerCase();
-    
-    // Ensure unique IDs
-    if (!landmark.id) {
-      let id = role;
-      let counter = 1;
-      while (seenIds.has(id)) {
-        id = `${role}-${counter++}`;
-      }
-      landmark.id = id;
-      seenIds.add(id);
-    } else {
-      seenIds.add(landmark.id);
-    }
-
-    // Track roles for uniqueness
-    if (!seenRoles.has(role)) {
-      seenRoles.set(role, []);
-    }
-    seenRoles.get(role).push(landmark);
-  });
-
-  // Ensure only one main landmark
-  const mainLandmarks = document.querySelectorAll('main');
-  if (mainLandmarks.length > 1) {
-    for (let i = 1; i < mainLandmarks.length; i++) {
-      mainLandmarks[i].setAttribute('aria-hidden', 'true');
-    }
-  }
 }
 
 // Implement wrapPrimaryContentInMain function
@@ -260,6 +225,7 @@ function ensureElementId(element) {
   if (!element.id) {
     element.id = element.id || element.name || '';
   }
+}
 
 // DOM-based accessibility code
 document.addEventListener('DOMContentLoaded', () => {
@@ -297,6 +263,7 @@ function addAriaLabel(element) {
   if (!element.getAttribute('aria-label')) {
     element.setAttribute('aria-label', 'View focus');
   }
+}
 
 const dependencyGraphContainer = document.createElement('div');
 dependencyGraphContainer.id = 'dependencyGraph';
@@ -356,170 +323,6 @@ function updateView(viewType) {
   } else if (viewType === 'index') {
     renderIndex();
   }
-}
-
-// Implement this function for ensuring unique landmarks
-function ensureUniqueLandmarks() {
-  // Landmarks that should be unique on a page
-  const uniqueLandmarkSelectors = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
-
-  uniqueLandmarkSelectors.forEach(selector => {
-    const elements = document.querySelectorAll(selector);
-    if (elements.length > 1) {
-      elements.forEach((element, index) => {
-        // Add or update aria-label to make each landmark unique
-        const existingLabel = element.getAttribute('aria-label');
-        const elementTag = element.tagName.toLowerCase();
-        const role = element.getAttribute('role') || elementTag;
-
-        if (!existingLabel) {
-          // Add index-based label for distinction
-          element.setAttribute('aria-label', `${role} ${index + 1}`);
-        }
-      });
-    }
-  });
-
-  // Ensure region and navigation landmarks have accessible names when multiple exist
-  const sectionLandmarkSelectors = ['nav', '[role="navigation"]', '[role="region"]', 'aside', '[role="complementary"]'];
-
-  sectionLandmarkSelectors.forEach(selector => {
-    const elements = document.querySelectorAll(selector);
-    if (elements.length > 1) {
-      elements.forEach((element, index) => {
-        const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.id;
-        const role = element.getAttribute('role') || element.tagName.toLowerCase();
-
-        if (!hasLabel) {
-          element.setAttribute('aria-label', `${role} ${index + 1}`);
-        }
-      });
-    }
-  });
-}
-
-// New function to fix accessibility issues as per the insight report
-function fixAccessibilityIssues() {
-  // 1. REACT_015: Ensure lang attribute is set on the HTML element
-  const lang = getLangAttribute();
-  const htmlElement = getDocument().documentElement;
-  if (htmlElement && lang) {
-    htmlElement.setAttribute('lang', lang);
-  }
-
-  // 2. REACT_027: Validate table accessibility and structure
-  const tables = getDocument().querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
-
-  // 3. REACT_017: Validate landmark and landmark structure issues
-  validateLandmark();
-  validateLandmarkStructure();
-
-  // 4. REACT_025: Ensure unique landmarks (addressing the 2 landmark uniqueness issues)
-  ensureUniqueLandmarks();
-  validateLandmarkStructure();
-
-  // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
-  const svgElements = getDocument().querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      setSvgAttributes(svg, accessibleName);
-    }
-  });
-
-  // 6. REACT_036: Fix fake link issue (personName is part of the fix)
-  handleFakeLinks();
-  handleAccessibilityIssues();
-
-  // Call the new function to fix accessibility issues
-  fixControlsAccessibility();
-}
-
-// Implement wrapPrimaryContentInMain function
-function wrapPrimaryContentInMain(primaryContent) {
-  // Wrap primary content in a <main> element for accessibility
-  const mainElement = getDocument().createElement('main');
-  mainElement.setAttribute('id', 'main-content');
-  mainElement.setAttribute('role', 'main');
-  if (typeof primaryContent === 'string') {
-    mainElement.innerHTML = primaryContent;
-  } else if (primaryContent.appendChild) {
-    mainElement.appendChild(primaryContent);
-  }
-  return mainElement;
-}
-
-// DOM-based accessibility code for controls
-
-function fixControlsAccessibility() {
-  // Add necessary code to address any remaining control accessibility issues
-}
-
-// Add lang attribute to HTML element
-const langAttr = getLangAttribute();
-const fullLangAttr = getFullLangAttribute ? getFullLangAttribute() : langAttr;
-const htmlDoc = getDocument().documentElement;
-if (htmlDoc && langAttr) {
-  htmlDoc.setAttribute('lang', fullLangAttr || langAttr);
-}
-
-// Create in-page button with accessibility considerations
-createInPageButton();
-
-// Validate table structure and accessibility
-// Assuming you have a table element with an id of 'myTable'
-const tables = getDocument().querySelectorAll('table');
-tables.forEach(table => {
-  validateTableAccessibility(table);
-  validateTableStructure(table);
-});
-
-// Add/fix landmark issues
-validateLandmark();
-validateLandmarkStructure();
-
-// Ensure unique landmarks (addressing REACT_025)
-ensureUniqueLandmarks();
-
-// Add accessible names to SVGs
-// Assuming you have an SVG element with an id of 'mySvg'
-const svgs = getDocument().querySelectorAll('svg');
-svgs.forEach(svg => {
-  const accessibleName = getSvgAccessibleName(svg);
-  if (accessibleName) {
-    setSvgAttributes(svg, accessibleName);
-  }
-});
-
-handleFakeLinks();
-
-function addAriaLabel(element) {
-  // Combined and reconciled code from both branches
-  if (!element.getAttribute('aria-label')) {
-    element.setAttribute('aria-label', 'View focus');
-  }
-}
-
-const dependencyGraphContainer = getDocument().createElement('div');
-dependencyGraphContainer.id = 'dependencyGraph';
-dependencyGraphContainer.setAttribute('role', 'region');
-dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
-
-// React / UI related functions
-
-function renderProductCard(product) {
-  return `<div class="product-card" role="article" aria-label="${formatProductName(product)}">
-    <h3>${product.name}</h3>
-    <p>${formatCurrency(product.price)}</p>
-  </div>`;
-}
-
-function calculateDiscount(subtotal) {
-  return subtotal * 0.1; // 10% discount
 }
 
 // New function as requested in the issue

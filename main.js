@@ -1,9 +1,27 @@
-Here is the resolved file content:
-
-```javascript
 // Existing code starts here
 
 // This is the existing code that needs to be preserved
+=======
+// TODO: This is the existing code that needs to be preserved
+
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+
+// Landmark data structure
+const landmarks = [];
+
+// Application data structure
+const appData = {
+    title: 'Frontend Application',
+    version: '1.0.0'
+};
+
+let icons = {};
+
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+>>>>>>> origin/main
 // (This comment remains as-is)
 
 // More existing code that should be preserved
@@ -18,6 +36,7 @@ Here is the resolved file content:
 
 // ... (existing code, exports, and functions)
 
+<<<<<<< HEAD
 function getLangAttribute() {
   const htmlElement = document.querySelector('html');
   if (!htmlElement.lang) {
@@ -259,6 +278,59 @@ function ensureUniqueLandmarksOld() {
 }
 
 // Updated implementation for landmark uniqueness
+=======
+  // Additional validation changes from the other branch
+  if (Array.isArray(landmark) && landmark.length > 0) {
+    if (!landmark[0].name || typeof landmark[0].name !== 'string' || landmark[0].name.trim() === '') {
+      errors.push('Landmark array must have a name');
+    }
+  }
+
+  // Check for updated validation changes from another branch that also checks for array composition
+  if (Array.isArray(landmark)) {
+    landmark.forEach(innerLandmark => {
+      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+        errors.push('Landmark array must have valid names');
+      }
+    });
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Function to check if the specified landmark element is in the document.
+ * @param {string} id - The ID of the landmark element.
+ * @returns {boolean} Returns true if the element exists; otherwise, false.
+ */
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  return element !== null;
+}
+
+// Ensure unique landmarks by filtering duplicates
+function ensureUniqueLandmarks(landmarksArray) {
+  if (!landmarksArray || landmarksArray.length === 0) {
+      return [];
+  }
+  const seen = new Set();
+  return landmarksArray.filter(landmark => {
+    const key = landmark.name + '_' + (landmark.role || 'default');
+    // Merge both approaches for checking uniqueness
+    if (seen.has(key)) {
+        return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+// ... (previous and updated code remains as it is)
+
+// Updated function: ensures landmarks uniqueness when there's an array structure
 function ensureLandmarkUniqueness(elements) {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
 
@@ -268,11 +340,15 @@ function ensureLandmarkUniqueness(elements) {
     for (const landmark of elements) {
       if (landmark.id) {
         if (elementsById[landmark.id]) {
+          // Handle duplicate IDs by incrementing the ID
           let idPart = landmark.id.split('-')[1];
           const counter = (+idPart || 1) + 1;
           landmark.id = landmark.id.replace(idPart, counter.toString());
         }
-        elementsById[landmark.id] = landmark;
+        elementsById[landmark.id] = true;
+      } else {
+        elementsById[landmark.id] = true;
+        landmark.id += '_duplicate';
       }
     }
   }
@@ -280,7 +356,39 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
+<<<<<<< HEAD
 // ... (rest of the code remains as it is)
-```
+=======
 
-I've resolved the Git merge conflict by preserving both changes, integrating the new function for rendering the dependency graph, and also adding the updated implementation for ensuring landmark uniqueness. The rest of the code remains as it was in the original versions. No syntax errors were introduced, and the comments and style were mostly preserved.
+// Export functions for testing
+export {
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  landmarkStructureCheck,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  isSecureContext,
+  initApp,
+  landmarks,
+  appData,
+  icons,
+  validateLandmark,
+  ensureUniqueLandmarks,
+  wrapPrimaryContentInMain,
+  addFixLandmarkIssues,
+  addAriaToFormControls,
+  fixFakeLinkIssues,
+  createAccessibleLink,
+  ensureLandmarkUniqueness,
+  validateSvgAccessibility,
+  processUniqueElements,
+  addressInsightIssues,
+  renderDependencyGraphContent,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  addProperLandmarkRegions,
+  countDependencies
+};
+>>>>>>> origin/main

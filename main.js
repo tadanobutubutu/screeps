@@ -233,6 +233,28 @@ function applyAccessibilityFixes(document, options = {}) {
   };
 }
 
+/**
+ * Count the number of dependencies in the document
+ * @param {Document} doc - The document object
+ * @returns {number} The total count of dependencies
+ */
+function countDependencies(doc) {
+  // Count main landmarks
+  const mainLandmark = doc.querySelector('main');
+  const mainCount = mainLandmark ? 1 : 0;
+  
+  // Count SVG elements
+  const svgs = doc.querySelectorAll('svg');
+  const svgCount = svgs.length;
+  
+  // Count buttons
+  const buttons = doc.querySelectorAll('button');
+  const buttonCount = buttons.length;
+  
+  // Return total count
+  return mainCount + svgCount + buttonCount;
+}
+
 // Export all functions
 module.exports = {
   myFunction,

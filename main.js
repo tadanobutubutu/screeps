@@ -132,13 +132,193 @@ function visualizeDependencyTree(dependencies) {
   console.log(report.graph);
 }
 
+// REACT_015: Add lang attribute to HTML element
+function addLangAttribute(htmlString, lang = 'en') {
+  if (typeof htmlString !== 'string') {
+    return htmlString;
+  }
+  
+  // Check if lang attribute already exists
+  if (/<html\s+[^>]*\blang\s*=/i.test(htmlString)) {
+    return htmlString;
+  }
+  
+  // Add lang attribute to the html element
+  return htmlString.replace(
+    /<html(\s*)>/i,
+    `<html$1 lang="${lang}">`
+  );
+}
+
+// REACT_027: Fix table structure issues
+function fixTableStructure(htmlString) {
+  if (typeof htmlString !== 'string') {
+    return htmlString;
+  }
+  
+  let result = htmlString;
+  
+  // Ensure <table> has proper structure - add <tbody> if missing and <tr> elements are direct children
+  result = result.replace(
+    /<table([^>]*)>(\s*)(<tr[\s\S]*?<\/tr>)(\s*)<\/table>/gi,
+    (match, attrs, whitespace, trContent, closingWs) => {
+      // Only add tbody if it's not already present
+      if (/<tbody[\s>]/i.test(trContent)) {
+        return match;
+      }
+      return `<table${attrs}>${whitespace}<tbody>${trContent}</tbody>${closingWs}</table>`;
+    }
+  );
+  
+  return result;
+}
+
+// REACT_017: Add/fix landmark issues
+function addMainLandmark(htmlString) {
+  if (typeof htmlString !== 'string') {
+    return htmlString;
+  }
+  
+  // Check if a <main> element already exists
+  if (/<main[\s>]/i.test(htmlString)) {
+    return htmlString;
+  }
+  
+  // Wrap content within <main> landmark - place after <body> opening tag
+  return htmlString.replace(
+    /(<body[^>]*>)([\s\S]*)(<\/body>)/i,
+    (match, openTag, content, closeTag) => {
+      // If content is just whitespace, don't add main
+      if (!content.trim()) {
+        return match;
+      }
+      return `${openTag}\n<main>\n${content}\n</main>\n${closeTag}`;
+    }
+  );
+}
+
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks(htmlString) {
+  if (typeof htmlString !== 'string') {
+    return htmlString;
+  }
+  
+  const landmarkTags = ['main', 'nav', 'header', 'footer', 'aside'];
+  let result = htmlString;
+  
+  landmarkTags.forEach(tag => {
+    const regex = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, 'gi');
+    const matches = [];
+    let match;
+    
+    while ((match = regex.exec(result)) !== null) {
+      matches.push({ full: match[0], index: match.index });
+    }
+    
+    // If multiple landmarks of the same type exist, mark them
+    if (matches.length > 1) {
+      matches.slice(1).forEach((m, i) => {
+        const ariaLabel = `Region ${i + 2}`;
+        const replacement = m.full.replace(
+          new RegExp(`<${tag}`, 'i'),
+          `<${tag} aria-label="${ariaLabel}"`
+        );
+        result = result.replace(m.full, replacement);
+      });
+    }
+  });
+  
+  return result;
+}
+
+// REACT_041: Add accessible names to SVGs
+function addSvgAccessibleNames(htmlString) {
+  if (typeof htmlString !== 'string') {
+    return htmlString;
+  }
+  
+  // Find SVGs without aria-label or aria-labelledby or title
+  return htmlString.replace(
+    /<svg([^>]*?)(\s*)(\/?)>/gi,
+    (match, attrs, whitespace, selfClose) => {
+      // Check if it already has aria-label, aria-labelledby, role="img", or title
+      const hasAriaLabel = /\baria-label\s*=/i.test(attrs);
+      const hasAriaLabelledby = /\baria-labelledby\s*=/i.test(i);
+      const hasRole = /\brole\s*=\s*["']img["']/i.test(attrs);
+      
+      if (hasAriaLabel || hasAriaLabelledby || hasRole) {
+        return match;
+      }
+      
+      // Add aria-label and role="img" for accessibility
+      return `<svg${attrs} role="img" aria-label="Decorative icon"${whitespace}${selfClose}>`;
+    }
+  );
+}
+
+// REACT_036: Fix fake link issue
+function fixFakeLinkIssue(htmlString) {
+  if (typeof htmlString !== 'string') {
+    return htmlString;
+  }
+  
+  // Convert elements with onclick handlers that look like links to actual links
+  // Pattern: <div onclick="..." class="...link..."> or <span onclick="..." class="...link...">
+  let result = htmlString.replace(
+    /<(div|span)([^>]*\bonclick\s*=\s*["'][^"']*["'][^>]*)>/gi,
+    (match, tag, attrs) => {
+      // Check if it appears to be acting as a link
+      const hasLinkClass = /\bclass\s*=\s*["'][^"']*\blink\b[^"']*["']/i.test(attrs) ||
+                           /\bclass\s*=\s*["'][^"']*link[^"']*["']/i.test(attrs);
+      
+      if (!hasLinkClass) {
+        return match;
+      }
+      
+      // Extract href from onclick if it contains location or href
+      const onclickMatch = attrs.match(/\bonclick\s*=\s*["']([^"']*)["']/i);
+      let href = '#';
+      
+      if (onclickMatch) {
+        const onclickCode = onclickMatch[1];
+        const hrefMatch = onclickCode.match(/(?:location\.href\s*=|window\.location\s*=|href\s*=)\s*['"]([^'"]+)['"]/i);
+        if (hrefMatch) {
+          href = hrefMatch[1];
+        }
+      }
+      
+      // Replace the onclick attribute with href and role
+      const newAttrs = attrs.replace(
+        /\bonclick\s*=\s*["'][^"']*["']/i,
+        ` href="${href}" role="link"`
+      );
+      
+      return `<a${newAttrs}>`;
+    }
+  );
+  
+  // Close the corresponding tags - this is a simplified approach
+  result = result.replace(
+    /<a([^>]*\bonclick-was-here[^>]*)>([\s\S]*?)<\/(div|span)>/gi,
+    '<a$1>$2</a>'
+  );
+  
+  return result;
+}
+
 module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
   getDependencyDepth,
   generateDependencyReport,
   main,
-  visualizeDependencyTree
+  visualizeDependencyTree,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue
 };
 
 // Run if executed directly

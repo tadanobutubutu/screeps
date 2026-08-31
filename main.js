@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
+// TODO: This is the existing code that needs to be preserved
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: ensureDependencyGraphARIA, getLangAttribute)
 const getLangAttribute = () => document.documentElement ? document.documentElement.lang || 'en' : 'en';
@@ -93,7 +94,6 @@ function addressAccessibilityIssues(issues, options = {}) {
 
 // ... (Functions that were unique in each branch)
 
-<<<<<<< HEAD
 // Function to add lang attribute to HTML element (REACT_015)
 function addLangAttribute(document) {
   if (!document.documentElement.hasAttribute('lang')) {
@@ -425,7 +425,6 @@ function validateLandmark(landmark) {
 }
 
 // Function to fix table structure issues
-=======
 function fixTableStructureIssues(document) {
   let fixedCount = 0;
   const tables = document.querySelectorAll('table');
@@ -470,11 +469,6 @@ function fixTableStructureIssues(document) {
   return fixedCount;
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { addressAccessibilityIssues }; // Adjusted exports to include addressAccessibilityIssues from the second branch
-}
-
->>>>>>> origin/main
 function uniqueLandmarks(document) {
   // Implementation for ensuring unique landmarks
 }
@@ -1219,5 +1213,5 @@ module.exports = {
   ...a11yStore,
 };
 if (typeof window !== 'undefined') {
-  window.addressAccessibilityIssues = addressAccessibilityIssues; // Adjusted to include new addressAccessibilityIssues function
+  window.addressAccessibilityIssues = addressAccessibilityIssues;
 }

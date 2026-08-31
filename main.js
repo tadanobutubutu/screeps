@@ -4,13 +4,21 @@
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
 const path = require('path');
+
+// Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+const { validateInput } = require('./utils');
+const { processData } = require('./utils');
 
 // Configuration
 const CONFIG = {
     dataPath: './data',
     maxResults: 100
+};
+
+const landmarkConfig = {
+    types: ['banner', 'navigation', 'main', 'complementary', 'contentinfo'],
+    required: ['id']
 };
 
 // Helper function to validate landmark structure
@@ -23,7 +31,7 @@ function isValidLandmark(landmark) {
 // Load landmarks from file
 function loadLandmarks() {
     try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
@@ -46,7 +54,7 @@ function processLandmarks(landmarks) {
 
 // Sort landmarks by name
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
+    return [...landmarks].sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
         
@@ -89,7 +97,7 @@ function ensureUniqueLandmarks(landmarks) {
 
 // Function to write the generated report to a file
 function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
+  const reportFile = path.join(CONFIG.dataPath, 'accessibility-report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
@@ -101,21 +109,27 @@ function generateAccessibilityReport() {
   return report;
 }
 
+// Scan accessibility using axe-core
+function scanAccessibility() {
+  return {
+    timestamp: new Date().toISOString(),
+    engine: 'axe-core',
+    version: axe.version,
+    results: []
+  };
+}
+
 // Existing utility function
 const formatResponse = (data) => {
   return JSON.stringify(data, null, 2);
 };
-
-// Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
-const { validateInput } = require('./utils/validators');
-const { processData } = require('./utils/processor');
 
 // Export new necessary functions
 module.exports = {
   validateInput,
   processData,
   formatResponse,
-  config,
+  config: CONFIG,
   // landmark functions
   isValidLandmark,
   loadLandmarks,
@@ -123,7 +137,8 @@ module.exports = {
   sortLandmarks,
   getLandmarkById,
   ensureUniqueLandmarks,
-  landmarkConfig
+  landmarkConfig,
+  generateAccessibilityReport
 };
 
 // Main execution when run directly

@@ -55,4 +55,5 @@ export {
   validateLinkAccessibility,
   handleFakeLinks,
   checkLinkAccessibility,
+  newFunction, // Added the new function to exports
 };

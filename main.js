@@ -301,12 +301,148 @@ function initialize() {
 }
 
 // Assuming the new function or update is related to the `Main` component,
-// and the function name is provided in the issue as `updateTitle`
+// and the function name is provided in the issue as `updateTitle
 const updateTitle = (newTitle) => {
   // This is a placeholder for the actual implementation.
   // The function should update the title of the Main component.
   // For example, this could be a method that sets a state or a prop that controls the title.
 };
+
+// TODO: Update the existing function using the new functions for rendering graph/index
+// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+
+/**
+ * Creates a visual representation of a graph node
+ * @param {Object} nodeData - Data for the node including id, label, and optional metadata
+ * @param {number} index - Index position of the node in the graph
+ * @returns {HTMLElement} The created node element
+ */
+function createGraphNode(nodeData, index) {
+  const node = document.createElement('div');
+  node.className = 'graph-node';
+  node.id = `graph-node-${nodeData.id || index}`;
+  node.setAttribute('role', 'img');
+  node.setAttribute('aria-label', nodeData.label || `Graph node ${index + 1}`);
+  node.textContent = nodeData.label || `Node ${index + 1}`;
+  
+  if (nodeData.x !== undefined && nodeData.y !== undefined) {
+    node.style.position = 'absolute';
+    node.style.left = `${nodeData.x}px`;
+    node.style.top = `${nodeData.y}px`;
+  }
+  
+  return node;
+}
+
+/**
+ * Renders a graph index element with navigation capabilities
+ * @param {Array} items - Array of items to display in the index
+ * @param {HTMLElement} container - Container element to render the index into
+ * @returns {HTMLElement} The rendered index container
+ */
+function renderGraphIndex(items, container) {
+  const indexContainer = document.createElement('div');
+  indexContainer.className = 'graph-index';
+  indexContainer.setAttribute('role', 'navigation');
+  indexContainer.setAttribute('aria-label', 'Graph index navigation');
+  
+  if (!items || !Array.isArray(items)) {
+    console.warn('renderGraphIndex: Invalid items provided');
+    return indexContainer;
+  }
+  
+  items.forEach((item, idx) => {
+    const indexItem = document.createElement('div');
+    indexItem.className = 'graph-index-item';
+    indexItem.setAttribute('role', 'listitem');
+    
+    const link = document.createElement('a');
+    link.href = item.href || `#graph-node-${item.id || idx}`;
+    link.textContent = item.label || `Item ${idx + 1}`;
+    link.setAttribute('aria-describedby', `graph-index-desc-${idx}`);
+    
+    const description = document.createElement('span');
+    description.id = `graph-index-desc-${idx}`;
+    description.className = 'sr-only';
+    description.textContent = item.description || `Navigate to ${link.textContent}`;
+    
+    indexItem.appendChild(link);
+    indexItem.appendChild(description);
+    indexContainer.appendChild(indexItem);
+  });
+  
+  if (container && container.appendChild) {
+    container.appendChild(indexContainer);
+  }
+  
+  return indexContainer;
+}
+
+/**
+ * Renders a complete graph visualization with nodes and optional index
+ * @param {Array} nodes - Array of node data objects
+ * @param {Object} options - Rendering options including showIndex, container, and callbacks
+ * @returns {Object} Object containing the rendered graph container and index reference
+ */
+function renderGraph(nodes, options = {}) {
+  const {
+    showIndex = true,
+    container = document.body,
+    onNodeClick = null,
+    indexTitle = 'Graph Index'
+  } = options;
+  
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'graph-container';
+  graphContainer.setAttribute('role', 'application');
+  graphContainer.setAttribute('aria-label', 'Interactive graph visualization');
+  
+  if (!nodes || !Array.isArray(nodes)) {
+    console.warn('renderGraph: Invalid nodes array provided');
+    return { graphContainer, indexContainer: null };
+  }
+  
+  // Render all graph nodes
+  nodes.forEach((nodeData, index) => {
+    const node = createGraphNode(nodeData, index);
+    
+    if (onNodeClick && typeof onNodeClick === 'function') {
+      node.addEventListener('click', () => onNodeClick(nodeData, index));
+      node.style.cursor = 'pointer';
+    }
+    
+    graphContainer.appendChild(node);
+  });
+  
+  let indexContainer = null;
+  
+  // Render the graph index if enabled
+  if (showIndex) {
+    const indexItems = nodes.map((node, idx) => ({
+      id: node.id || idx,
+      label: node.label || `Node ${idx + 1}`,
+      href: node.href || `#graph-node-${node.id || idx}`,
+      description: node.description
+    }));
+    
+    indexContainer = renderGraphIndex(indexItems, graphContainer);
+    
+    // Add index title
+    if (indexTitle) {
+      const titleElement = document.createElement('h2');
+      titleElement.textContent = indexTitle;
+      titleElement.className = 'graph-index-title';
+      graphContainer.insertBefore(titleElement, graphContainer.firstChild);
+    }
+  }
+  
+  // Append to container if provided
+  if (container && container.appendChild) {
+    container.appendChild(graphContainer);
+  }
+  
+  return { graphContainer, indexContainer };
+}
 
 // Export existing functionality and new functions
 export { 
@@ -322,7 +458,10 @@ export {
   calculateDiscount, 
   newFunction,
   rotateBack,
-  updateTitle
+  updateTitle,
+  createGraphNode,
+  renderGraphIndex,
+  renderGraph
 };
 
 export default Main;

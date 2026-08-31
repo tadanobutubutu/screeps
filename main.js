@@ -37,11 +37,23 @@ function startApp() {
   return server;
 }
 
+/**
+ * Adds a new route handler for '/data'
+ * @returns {Function} A middleware function to handle requests to '/data'
+ */
+function dataRouteHandler() {
+  return (req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ data: 'Sample data' }));
+  };
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  dataRouteHandler
 };
 
 // Start the application if run directly

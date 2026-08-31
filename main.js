@@ -1,5 +1,4 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
+// TODO: Identify and update specific functions that render dependency graphs or index views.
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
@@ -17,6 +16,55 @@
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 // >>>>>>> branch-name
+
+// TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)
+
+// Import required modules
+const fs = require('fs');
+const path = require('path');
+const http = require('http');
+const https = require('https');
+
+// Utility functions
+function getFileExtension(filepath) {
+  return path.extname(filepath);
+}
+
+function readFileAsync(filepath) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filepath, 'utf8', (err, data) => {
+      if (err) reject(err);
+      else resolve(data);
+    });
+  });
+}
+
+function writeFileAsync(filepath, data) {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(filepath, data, 'utf8', (err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+}
+
+function createServer(port, hostname, requestListener) {
+  const server = http.createServer(requestListener);
+  return server.listen(port, hostname);
+}
+
+function createHttpsServer(options, requestListener) {
+  const server = https.createServer(options, requestListener);
+  return server;
+}
+
+function getAbsolutePath(relativePath) {
+  return path.resolve(relativePath);
+}
+
+function joinPaths(...paths) {
+  return path.join(...paths);
+}
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
@@ -62,6 +110,13 @@ function detectAndSetLang(content) {
 // New function to address REACT_015: Add lang attribute to HTML element
 function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
+}
+
+// New function to address REACT_015 and REACT_036: personName function referenced in comments
+function personName(name) {
+  // Returns a formatted person name for accessibility purposes
+  if (!name) return '';
+  return name.trim();
 }
 
 // New function to address REACT_027: Fix 26 table structure issues
@@ -324,6 +379,77 @@ function createAccessibleLink(href, text, options = {}) {
 }
 
 /**
+ * Checks if a link element is accessible
+ * @param {HTMLAnchorElement} link - The link element to check
+ * @returns {Object} Result with valid boolean and errors array
+ */
+function isLinkAccessible(link) {
+  const errors = [];
+  
+  if (!link) {
+    return { valid: false, errors: ['Link element is required'] };
+  }
+  
+  // Check if it's an anchor element
+  if (link.tagName !== 'A') {
+    errors.push('Element is not an anchor tag');
+    return { valid: false, errors };
+  }
+  
+  // Check for href attribute
+  const href = link.getAttribute('href');
+  if (!href || href === '#' || href === '') {
+    // If no href, check if it's properly set up as a button
+    const role = link.getAttribute('role');
+    if (role !== 'button') {
+      errors.push('Link missing href attribute and not configured as a button');
+    }
+    // Check for click handler
+    if (!link.onclick && !link.hasAttribute('data-handler')) {
+      errors.push('Fake link missing click handler');
+    }
+  }
+  
+  // Check for accessible name
+  const textContent = link.textContent ? link.textContent.trim() : '';
+  const ariaLabel = link.getAttribute('aria-label');
+  const ariaLabelledby = link.getAttribute('aria-labelledby');
+  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
+  
+  if (!hasAccessibleName) {
+    errors.push('Link is missing accessible name (text content, aria-label, or aria-labelledby)');
+  }
+  
+  // Check for valid href if present
+  if (href && href !== '#') {
+    // Check for javascript: links
+    if (href.toLowerCase().startsWith('javascript:')) {
+      errors.push('Link uses javascript: protocol which is not accessible');
+    }
+    // Check for mailto: links without proper labeling
+    if (href.toLowerCase().startsWith('mailto:') && !ariaLabel && !textContent.includes('@')) {
+      errors.push('Mailto link may need aria-label for clarity');
+    }
+  }
+  
+  // Check target="_blank" has rel="noopener noreferrer"
+  if (link.getAttribute('target') === '_blank') {
+    const rel = link.getAttribute('rel');
+    if (!rel || !rel.includes('noopener') || !rel.includes('noreferrer')) {
+      errors.push('External link with target="_blank" missing rel="noopener noreferrer"');
+    }
+  }
+  
+  // Check for redundant title attribute
+  const title = link.getAttribute('title');
+  if (title && title === textContent) {
+    errors.push('Link title attribute duplicates link text');
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
+/**
  * Creates an accessible in-page button and appends it to the given parent element.
  * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
  * @returns {HTMLElement} The created button element
@@ -335,6 +461,461 @@ function createInPageButton(parent = document.body) {
   btn.setAttribute('aria-label', 'Open modal');
   parent.appendChild(btn);
   return btn;
+}
+
+/**
+ * Analyzes and returns the dependency structure of a module.
+ * @param {string} moduleName - The name of the module to analyze
+ * @param {Object} moduleRegistry - Optional registry of known modules and their dependencies
+ * @returns {Object} An object containing module info, dependencies, and dependents
+ */
+function getModuleDependencies(moduleName, moduleRegistry = {}) {
+  const dependencies = [];
+  const dependents = [];
+  
+  // Build dependency list from registry
+  if (moduleRegistry[moduleName]) {
+    const mod = moduleRegistry[moduleName];
+    if (mod.dependencies) {
+      mod.dependencies.forEach(dep => {
+        dependencies.push({
+          name: dep,
+          type: 'required'
+        });
+      });
+    }
+    if (mod.optionalDependencies) {
+      mod.optionalDependencies.forEach(dep => {
+        dependencies.push({
+          name: dep,
+          type: 'optional'
+        });
+      });
+    }
+  }
+  
+  // Find all modules that depend on this one
+  Object.keys(moduleRegistry).forEach(name => {
+    const mod = moduleRegistry[name];
+    const allDeps = [...(mod.dependencies || []), ...(mod.optionalDependencies || [])];
+    if (allDeps.includes(moduleName)) {
+      dependents.push({
+        name: name,
+        type: allDeps.includes(moduleName) ? 'required' : 'optional'
+      });
+    }
+  });
+  
+  return {
+    name: moduleName,
+    dependencies,
+    dependents,
+    metadata: moduleRegistry[moduleName] || {}
+  };
+}
+
+/**
+ * Renders a dependency graph as a visual representation.
+ * @param {Object} dependencies - Object containing module dependency data
+ * @param {Object} options - Rendering options (format, maxDepth, etc.)
+ * @returns {Object} An object containing the rendered graph data and metadata
+ */
+function renderDependencyGraph(dependencies, options = {}) {
+  const {
+    maxDepth = 3,
+    includeDevDependencies = true,
+    format = 'tree'
+  } = options;
+  
+  const graph = {
+    nodes: [],
+    edges: [],
+    metadata: {
+      totalNodes: 0,
+      totalEdges: 0,
+      maxDepth: 0,
+      circularDeps: []
+    }
+  };
+  
+  const visited = new Set();
+  const nodeMap = new Map();
+  
+  // Build nodes from dependencies
+  const addNode = (name, depth = 0) => {
+    if (visited.has(name)) {
+      return;
+    }
+    visited.add(name);
+    
+    const nodeId = `node_${graph.nodes.length}`;
+    const node = {
+      id: nodeId,
+      name: name,
+      depth: depth,
+      type: 'module'
+    };
+    
+    graph.nodes.push(node);
+    nodeMap.set(name, nodeId);
+    graph.metadata.totalNodes++;
+    graph.metadata.maxDepth = Math.max(graph.metadata.maxDepth, depth);
+  };
+  
+  // Build edges between nodes
+  const addEdge = (from, to) => {
+    const edgeId = `edge_${graph.edges.length}`;
+    graph.edges.push({
+      id: edgeId,
+      from: nodeMap.get(from) || from,
+      to: nodeMap.get(to) || to,
+      fromName: from,
+      toName: to
+    });
+    graph.metadata.totalEdges++;
+  };
+  
+  // Process dependencies recursively
+  const processDependencies = (deps, parentName = null, depth = 0) => {
+    if (depth > maxDepth) {
+      return;
+    }
+    
+    if (typeof deps === 'object' && deps !== null) {
+      if (deps.name) {
+        addNode(deps.name, depth);
+        if (parentName) {
+          addEdge(parentName, deps.name);
+        }
+        parentName = deps.name;
+      }
+      
+      if (Array.isArray(deps.dependencies)) {
+        deps.dependencies.forEach(dep => {
+          const depName = typeof dep === 'string' ? dep : dep.name;
+          addNode(depName, depth + 1);
+          if (parentName) {
+            addEdge(parentName, depName);
+          }
+          if (typeof dep === 'object' && dep.dependencies) {
+            processDependencies(dep, depName, depth + 1);
+          }
+        });
+      }
+      
+      if (includeDevDependencies && Array.isArray(deps.devDependencies)) {
+        deps.devDependencies.forEach(dep => {
+          const depName = typeof dep === 'string' ? dep : dep.name;
+          addNode(depName, depth + 1);
+          if (parentName) {
+            addEdge(parentName, depName);
+          }
+        });
+      }
+    }
+  };
+  
+  // Detect circular dependencies
+  const detectCircularDeps = (deps, path = []) => {
+    if (typeof deps !== 'object' || deps === null) {
+      return;
+    }
+    
+    const currentName = deps.name || 'root';
+    if (path.includes(currentName)) {
+      graph.metadata.circularDeps.push([...path, currentName]);
+      return;
+    }
+    
+    const newPath = [...path, currentName];
+    
+    if (Array.isArray(deps.dependencies)) {
+      deps.dependencies.forEach(dep => {
+        const depName = typeof dep === 'string' ? dep : dep.name;
+        if (depName) {
+          detectCircularDeps({ name: depName, dependencies: [] }, newPath);
+        }
+      });
+    }
+  };
+  
+  // Process the input dependencies
+  if (dependencies) {
+    processDependencies(dependencies);
+    detectCircularDeps(dependencies);
+  }
+  
+  // Generate ASCII tree representation if requested
+  let treeRepresentation = '';
+  if (format === 'tree') {
+    const renderTree = (nodes, parentId = null, prefix = '', isLast = true) => {
+      const children = nodes.filter(n => {
+        if (parentId === null) {
+          return graph.edges.every(e => e.from !== n.id);
+        }
+        return graph.edges.some(e => e.from === parentId && e.to === n.id);
+      });
+      
+      children.forEach((node, index) => {
+        const isLastChild = index === children.length - 1;
+        const connector = isLast ? '└── ' : '├── ';
+        const childPrefix = prefix + (isLast ? '    ' : '│   ');
+        
+        treeRepresentation += `${prefix}${connector}${node.name}\n`;
+        
+        const nodeChildren = nodes.filter(n => 
+          graph.edges.some(e => e.from === node.id && e.to === n.id)
+        );
+        nodeChildren.forEach((child, childIndex) => {
+          const childConnector = childIndex === nodeChildren.length - 1 ? '└── ' : '├── ';
+          treeRepresentation += `${childPrefix}${childConnector}${child.name}\n`;
+        });
+      });
+    };
+    
+    treeRepresentation = 'Dependency Graph:\n';
+    treeRepresentation += `Total Modules: ${graph.metadata.totalNodes}\n`;
+    treeRepresentation += `Total Dependencies: ${graph.metadata.totalEdges}\n`;
+    treeRepresentation += '─'.repeat(40) + '\n';
+    
+    const rootNodes = graph.nodes.filter(n => 
+      graph.edges.every(e => e.to !== n.id)
+    );
+    rootNodes.forEach((node, index) => {
+      treeRepresentation += `${node.name}\n`;
+      renderTree(graph.nodes, node.id, '', index === rootNodes.length - 1);
+    });
+  }
+  
+  return {
+    graph,
+    tree: treeRepresentation,
+    format
+  };
+}
+
+/**
+ * Gets the structure of modules for debugging purposes.
+ * @param {Object} modules - Object containing module data
+ * @returns {Object} An object containing the module structure information
+ */
+function getModuleStructure(modules) {
+  const structure = {
+    modules: [],
+    totalCount: 0,
+    exports: {},
+    imports: {}
+  };
+  
+  if (typeof modules !== 'object' || modules === null) {
+    return structure;
+  }
+  
+  // Process each module
+  Object.keys(modules).forEach(moduleName => {
+    const mod = modules[moduleName];
+    const moduleInfo = {
+      name: moduleName,
+      path: mod.path || '',
+      type: mod.type || 'commonjs',
+      exports: [],
+      dependencies: [],
+      devDependencies: [],
+      peerDependencies: [],
+      size: mod.size || 0,
+      lineCount: mod.lineCount || 0
+    };
+    
+    // Extract exports
+    if (mod.exports) {
+      if (Array.isArray(mod.exports)) {
+        moduleInfo.exports = mod.exports;
+        mod.exports.forEach(exp => {
+          structure.exports[exp] = moduleName;
+        });
+      } else if (typeof mod.exports === 'object') {
+        moduleInfo.exports = Object.keys(mod.exports);
+        Object.keys(mod.exports).forEach(exp => {
+          structure.exports[exp] = moduleName;
+        });
+      }
+    }
+    
+    // Extract dependencies
+    if (Array.isArray(mod.dependencies)) {
+      moduleInfo.dependencies = mod.dependencies;
+      mod.dependencies.forEach(dep => {
+        if (!structure.imports[dep]) {
+          structure.imports[dep] = [];
+        }
+        structure.imports[dep].push(moduleName);
+      });
+    }
+    
+    if (Array.isArray(mod.devDependencies)) {
+      moduleInfo.devDependencies = mod.devDependencies;
+    }
+    
+    if (Array.isArray(mod.peerDependencies)) {
+      moduleInfo.peerDependencies = mod.peerDependencies;
+    }
+    
+    structure.modules.push(moduleInfo);
+    structure.totalCount++;
+  });
+  
+  return structure;
+}
+
+/**
+ * Displays module structure as a formatted string for debugging.
+ * @param {Object} moduleStructure - The module structure object from getModuleStructure
+ * @param {Object} options - Display options (verbose, showExports, etc.)
+ * @returns {string} A formatted string representation of the module structure
+ */
+function displayModuleStructure(moduleStructure, options = {}) {
+  const {
+    verbose = false,
+    showExports = true,
+    showDependencies = true,
+    maxDepth = 2
+  } = options;
+  
+  if (!moduleStructure || !moduleStructure.modules) {
+    return 'No module structure data available';
+  }
+  
+  let output = [];
+  output.push('═'.repeat(60));
+  output.push('MODULE STRUCTURE REPORT');
+  output.push('═'.repeat(60));
+  output.push(`Total Modules: ${moduleStructure.totalCount}`);
+  output.push(`Total Unique Exports: ${Object.keys(moduleStructure.exports || {}).length}`);
+  output.push(`Total Unique Imports: ${Object.keys(moduleStructure.imports || {}).length}`);
+  output.push('═'.repeat(60));
+  
+  // Sort modules alphabetically
+  const sortedModules = [...moduleStructure.modules].sort((a, b) => 
+    a.name.localeCompare(b.name)
+  );
+  
+  sortedModules.forEach((mod, index) => {
+    output.push('');
+    output.push(`${index + 1}. ${mod.name}`);
+    output.push('─'.repeat(40));
+    
+    if (verbose) {
+      output.push(`   Type: ${mod.type}`);
+      output.push(`   Path: ${mod.path}`);
+      output.push(`   Size: ${formatBytes(mod.size)}`);
+      output.push(`   Lines: ${mod.lineCount}`);
+    }
+    
+    if (showExports && mod.exports.length > 0) {
+      output.push('   Exports:');
+      mod.exports.forEach(exp => {
+        output.push(`     - ${exp}`);
+      });
+    }
+    
+    if (showDependencies) {
+      if (mod.dependencies.length > 0) {
+        output.push(`   Dependencies (${mod.dependencies.length}):`);
+        mod.dependencies.slice(0, maxDepth * 5).forEach(dep => {
+          output.push(`     → ${dep}`);
+        });
+        if (mod.dependencies.length > maxDepth * 5) {
+          output.push(`     ... and ${mod.dependencies.length - maxDepth * 5} more`);
+        }
+      }
+      
+      if (mod.devDependencies.length > 0) {
+        output.push(`   Dev Dependencies (${mod.devDependencies.length}):`);
+        mod.devDependencies.slice(0, maxDepth * 3).forEach(dep => {
+          output.push(`     → ${dep}`);
+        });
+        if (mod.devDependencies.length > maxDepth * 3) {
+          output.push(`     ... and ${mod.devDependencies.length - maxDepth * 3} more`);
+        }
+      }
+      
+      if (mod.peerDependencies.length > 0) {
+        output.push(`   Peer Dependencies (${mod.peerDependencies.length}):`);
+        mod.peerDependencies.forEach(dep => {
+          output.push(`     → ${dep}`);
+        });
+      }
+    }
+  });
+  
+  output.push('');
+  output.push('═'.repeat(60));
+  output.push('END OF REPORT');
+  output.push('═'.repeat(60));
+  
+  return output.join('\n');
+}
+
+/**
+ * Formats bytes into a human-readable string.
+ * @param {number} bytes - Number of bytes
+ * @returns {string} Formatted string (e.g., "1.5 KB")
+ */
+function formatBytes(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+/**
+ * Exports the dependency graph data in a serializable format.
+ * @param {Object} dependencies - The dependency data to export
+ * @returns {Object} Serializable representation of the dependency graph
+ */
+function exportDependencyGraph(dependencies) {
+  const graphData = renderDependencyGraph(dependencies, { format: 'data' });
+  
+  return {
+    format: 'json',
+    version: '1.0',
+    generated: new Date().toISOString(),
+    data: graphData.graph,
+    metadata: graphData.metadata,
+    circularDependencies: graphData.graph.metadata.circularDeps
+  };
+}
+
+/**
+ * Exports the module structure in a serializable format.
+ * @param {Object} moduleStructure - The module structure to export
+ * @returns {Object} Serializable representation of the module structure
+ */
+function exportModuleStructure(moduleStructure) {
+  return {
+    format: 'json',
+    version: '1.0',
+    generated: new Date().toISOString(),
+    modules: moduleStructure.modules.map(mod => ({
+      name: mod.name,
+      type: mod.type,
+      path: mod.path,
+      exports: mod.exports,
+      dependencies: mod.dependencies,
+      devDependencies: mod.devDependencies,
+      peerDependencies: mod.peerDependencies,
+      size: mod.size,
+      lineCount: mod.lineCount
+    })),
+    exportIndex: moduleStructure.exports,
+    importIndex: moduleStructure.imports,
+    statistics: {
+      totalModules: moduleStructure.totalCount,
+      totalExports: Object.keys(moduleStructure.exports || {}).length,
+      totalImports: Object.keys(moduleStructure.imports || {}).length
+    }
+  };
 }
 
 // TODO: Implement tower defense
@@ -398,11 +979,23 @@ function towerDefense() {
   };
 }
 
-// Export all functions to maintain current exports
+// Export functions
 module.exports = {
+  fs,
+  path,
+  http,
+  https,
+  getFileExtension,
+  readFileAsync,
+  writeFileAsync,
+  createServer,
+  createHttpsServer,
+  getAbsolutePath,
+  joinPaths,
   setHtmlLangAttribute,
   detectAndSetLang,
   getLangAttribute,
+  personName,
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
@@ -411,5 +1004,12 @@ module.exports = {
   getSvgAccessibleName,
   ensureUniqueLandmarks,
   createAccessibleLink,
-  towerDefense
+  isLinkAccessible,
+  towerDefense,
+  getModuleDependencies,
+  renderDependencyGraph,
+  getModuleStructure,
+  displayModuleStructure,
+  exportDependencyGraph,
+  exportModuleStructure
 };

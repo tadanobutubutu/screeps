@@ -167,11 +167,10 @@ function Main() {
       </header>
       <List ... />
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      <button onClick={createInPageButton}>Add Book</button>
     </main>
   );
 }
 
 // Export the Main component
 export default Main;
-```

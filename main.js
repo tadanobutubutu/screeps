@@ -245,3 +245,46 @@ dependencyGraphContainer.setAttribute('role', 'region');
 dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
 
 export { dependencyGraphContainer };
+
+// ----- END ORIGINAL CODE -----
+
+// --- New Implementation ---
+// TODO: Implement this function for creating in-page buttons
+function createInPageButtons() {
+  const main = document.querySelector('main');
+  if (!main) return;
+
+  const buttonContainer = document.createElement('div');
+  buttonContainer.setAttribute('role', 'toolbar');
+  buttonContainer.setAttribute('aria-label', 'In-page navigation controls');
+
+  const backToTopButton = document.createElement('button');
+  backToTopButton.textContent = 'Back to Top';
+  backToTopButton.setAttribute('aria-label', 'Back to top of page');
+  backToTopButton.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  const skipContentButton = document.createElement('button');
+  skipContentButton.textContent = 'Skip to Content';
+  skipContentButton.setAttribute('aria-label', 'Skip to main content');
+  skipContentButton.addEventListener('click', () => {
+    const mainContent = document.getElementById('main-content');
+    if (mainContent) {
+      mainContent.focus();
+    }
+  });
+
+  buttonContainer.appendChild(backToTopButton);
+  buttonContainer.appendChild(skipContentButton);
+
+  main.insertBefore(buttonContainer, main.firstChild);
+}
+
+// Invoke the function on DOM load
+if (typeof window !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', createInPageButtons);
+}
+
+// Export the new function for accessibility testing and reuse
+export { createInPageButtons };

@@ -1,285 +1,131 @@
-Here is the resolved version of the file 'main.js':
+import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityProps, getAccessibleLinkProps } from './accessibilityHelpers';
 
-```javascript
-import React from 'react';
-import process from 'process';
-import express from 'express';
-import path from 'path';
-import './styles.less';
-import './styles.css';
-import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
-import { CONFIG as UTILS_CONFIG } from './utils/constants';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-import { isSecureContext } from './utils.js';
+// Default sorting function for the book list
+const defaultSorting = sortByTitle;
 
-// Utility imports
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-
-// Existing code starts here
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
-
-let icons = {};
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
+// Function to handle sorting the book list by title (ascending)
+function onTitleSort() {
+  const sortedList = getBooksList.sort(sortByTitle);
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 };
 
-// Configuration & State
-const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: 5000,
-  dataPath: './data',
-  maxResults: 100
+// Function to handle sorting the book list by author (descending)
+function onAuthorSort() {
+  const sortedList = getBooksList.sort(sortByAuthor).reverse();
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 };
 
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map()
+// REACT_015: Helper to provide the lang attribute for the HTML element.
+// Returns an object containing props to spread onto the root <html> element.
+function getRootHtmlAccessibilityProps(lang = 'en') {
+  return { lang };
 };
 
-function initialize() {
-  appState.initialized = true;
-  console.log('App initialized');
-}
-
-function initializeApp() {
-  initialize();
-  return appState;
-}
-
-function processData(data) {
-  if (!data) {
-    return null;
+// REACT_017 / REACT_025: Helper to build landmark region props with a unique
+// label so each landmark has a distinct accessible name (fixes duplicate
+// landmarks and ensures proper landmark roles are used).
+function getLandmarkProps(role, label, id) {
+  const props = {
+    role,
+    'aria-label': label,
+  };
+  if (id) {
+    props.id = id;
   }
-  appState.data = data;
-  return data;
-}
+  return props;
+};
 
-function fetchUser(userId) {
-  if (!userId) {
-    return null;
+// REACT_041: Helper to return props that provide an accessible name for an
+// <svg> element (via aria-label) so screen readers can announce it.
+function getSvgAccessibilityProps(label, labelledById) {
+  const props = {
+    role: 'img',
+    focusable: 'false',
+  };
+  if (label) {
+    props['aria-label'] = label;
+  } else if (labelledById) {
+    props['aria-labelledby'] = labelledById;
+  } else {
+    // Fallback so the SVG is still considered decorative but explicitly marked.
+    props['aria-hidden'] = 'true';
   }
-  return { id: userId, name: 'User ' + userId };
-}
+  return props;
+};
 
-function clearCache() {
-  appState.cache.clear();
-}
+// REACT_036: Helper that returns props for converting a non-semantic element
+// that is being used as a link into a real, accessible anchor.
+function getAccessibleLinkProps(href, label) {
+  return {
+    href,
+    role: 'link',
+    'aria-label': label,
+  };
+};
 
-function someFunction() {
-  return 'some value';
-}
-
-function helper(input) {
-  return input ? input.toUpperCase() : '';
-}
-
-function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-  return date.toISOString();
-}
-
-function validateInput(input) {
-  if (!input) {
-    return false;
-  }
-  return true;
-}
-
-function getLangAttribute() {
-  return getLangAttribute || 'en';
-}
-
-function addLangAttribute(element) {
-  if (element && typeof element === 'object') {
-    element.lang = getLangAttribute();
-  }
-  return element;
-}
-
-function validateTableAccessibility() {
-  return validateTableAccessibility || validateTableStructure;
-}
-
-function validateTableStructure() {
-  // Code for validating table structure
-}
-
-function fixTableStructure() {
-  // Code for fixing table structure issues
-}
-
-function addMainLandmark() {
-  // Code for adding main landmark
-}
-
-function validateLandmark() {
-  // Code for validating landmark
-}
-
-function validateLandmarkStructure() {
-  // Code for validating landmark structure
-}
-
-function validateLandmarkAttributes() {
-  // Code for validating landmark attributes
-}
-
-function getSvgAccessibleName() {
-  return getSvgAccessibleName || 'Accessible SVG Icon';
-}
-
-function setSvgAttributes(svg, accessibleName) {
-  if (svg && typeof svg === 'object') {
-    svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', accessibleName || '');
-  }
-  return svg;
-}
-
-function ensureUniqueLandmarks(landmarks) {
-  // Address duplicate landmark issues
-  // ...
-}
-
-function createInPageButton() {
-  // Code for creating an in-page button
-}
-
-function validateLinkAccessibility() {
-  return validateLinkAccessibility || handleFakeLinks;
-}
-
-function handleFakeLinks(links) {
-  // Fixes issues with fake links
-  // ...
-}
-
-// Graph rendering functions
-function renderGraph(container, options = {}) {
-  // Renders the graph
-  // ...
-}
-
-function renderIndex(container, options = {}) {
-  // Renders the index
-  // ...
-}
-
-function updateGraph(element, newData) {
-  // Updates the graph with new data
-  // ...
-}
-
-function updateIndex(element, newItems) {
-  // Updates the index with new items
-  // ...
-}
-
-// Address Accessibility Issues from Insight Report
-function addressAccessibilityIssues(insightReport) {
-  // Implementation of the function to address accessibility issues
-  // This addresses issues from the insight report:
-  // - REACT_015: Add lang attribute to HTML element
-  // - REACT_027: Fix 26 table structure issues
-  // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs
-  // - REACT_025: Ensure unique landmarks (2 issues)
-  // - REACT_036: Fix 1 fake link issue
-
-  if (!insightReport || !insightReport.issues) {
-    return;
-  }
-
-  insightReport.issues.forEach(issue => {
-    switch (issue.type) {
-      case 'REACT_015':
-        addLangAttribute(issue.element);
-        break;
-      case 'REACT_027':
-        if (issue.type === 'structure') {
-          validateTableStructure();
-          fixTableStructure();
-        } else {
-          validateTableAccessibility();
-        }
-        break;
-      case 'REACT_017':
-        if (issue.structure) {
-          validateLandmarkStructure();
-          addMainLandmark();
-        } else {
-          validateLandmark();
-        }
-        createInPageButton();
-        break;
-      case 'REACT_041':
-        const accessibleName = getSvgAccessibleName();
-        setSvgAttributes(issue.svg, accessibleName);
-        break;
-      case 'REACT_025':
-        ensureUniqueLandmarks();
-        break;
-      case 'REACT_036':
-        handleFakeLinks();
-        createInPageButton();
-        break;
-      default:
-        // Handle unknown issue types
-        break;
-    }
+// Render the main component containing the book list and sorting controls
+function Main() {
+  const [sorting, setSorting] = useState(() => {
+    const sortFunction = addBook.length > 0 ? sortByTitle : sortByTitle; // Use sortByTitle if the 'addBook' function is present, otherwise use default
+    return sortFunction;
   });
-}
+  const dispatch = useDispatch();
+  const booksList = useSelector(state => state.books.list);
 
-function getInsightReport() {
-  // ...
-}
+  // Map the book list to the BookItem function to create book items
+  const bookItems = booksList.map(book => BookItem(book));
 
-// Main entry point
-function main() {
-  initialize();
-  console.log('Main function executed');
-}
+  const handleAddBook = () => {
+    // Implement the accessibility improvements
+    enhanceAccessibilityForAddBook();
+    // Add the new book as before
+    addBook();
+  };
 
-// If running directly, visualize the dependency tree and start the server
-if (typeof require !== 'undefined' && require.main === module) {
-  main();
+  const handleSort = (sortFunction) => () => {
+    const sortedList = [...booksList].sort(sortFunction);
+    // Dispatch an action to update the sorted book list in the Redux store
+    dispatch({ type: 'SORT_BOOKS', payload: sortedList });
+    setSorting(sortFunction);
+  };
 
-  // Start server
-  const PORT = process.env.PORT || 3000;
-  const HOST = process.env.HOST || 'localhost';
-  const app = express();
-  app.use('/', app);
-  app.listen(PORT, () => {
-    console.log(`Server running on http://${HOST}:${PORT}`);
-  });
-
-  // Visualize dependency tree when running directly
-  visualizeDependencyTree(require.dependencies);
-}
-
-// Exports
-export {
-  expressApp,
-  initApp,
-  CONFIG,
-  config,
-  appState,
-  getInsightReport,
-  HTML,
-  icons,
-  appData
+  // Render the list of book items and sorting controls
+  return (
+    <main {...getLandmarkProps('main', 'Main content')}>
+      <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
+      <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
+      <List
+        itemLayout="vertical"
+        dataSource={booksList}
+        renderItem={book => (
+          <List.Item key={generateKey(book)}>
+            <BookItem book={book} />
+          </List.Item>
+        )}
+      />
+      <Button onClick={handleAddBook} {...getAccessibleLinkProps('', 'Add Book')}>
+        {typeof enhanceAccessibilityForAddBook === 'function' ? 'Add Book (Experimental Accessibility Improvements)' : 'Add Book'}
+      </Button>
+      <button onClick={enhanceAccessibilityForAddBook} aria-label="Enhance accessibility for adding a new book">Enhance Accessibility</button>
+    </main>
+  );
 };
-```
 
-This version of the file combines both changes and keeps any functionalities that are not clearly redundant. It properly resolves the conflicts while preserving the original style and format. Also, there are no syntax errors.
+// Export the Main component
+export default Main;
+
+// Function to handle updating book dependencies
+function updateBookDependencies(bookId, newDependencies) {
+  // Perform any necessary validation or processing before updating the book's dependencies
+  // ...
+
+  // Dispatch an action to update the book's dependencies in the Redux store
+  dispatch(setDependencyGraph({ bookId, dependencies: newDependencies }));
+};

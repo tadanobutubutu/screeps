@@ -373,3 +373,93 @@ export function renderDependencyGraphs(container, dependencies = []) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', '100%');
+  
+  // Add basic graph styling
+  const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+  style.textContent = `
+    .node { fill: #3498db; stroke: #2980b9; stroke-width: 2; }
+    .node-label { font-family: sans-serif; font-size: 12px; text-anchor: middle; fill: #2c3e50; }
+    .edge { stroke: #95a5a6; stroke-width: 1.5; fill: none; marker-end: url(#arrowhead); }
+    .edge-label { font-family: sans-serif; font-size: 10px; fill: #7f8c8d; }
+  `;
+  svg.appendChild(style);
+  
+  // Add arrowhead marker for edges
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  marker.setAttribute('id', 'arrowhead');
+  marker.setAttribute('markerWidth', '10');
+  marker.setAttribute('markerHeight', '7');
+  marker.setAttribute('refX', '9');
+  marker.setAttribute('refY', '3.5');
+  marker.setAttribute('orient', 'auto');
+  const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+  polygon.setAttribute('fill', '#95a5a6');
+  marker.appendChild(polygon);
+  defs.appendChild(marker);
+  svg.appendChild(defs);
+  
+  // Simple layout: arrange nodes in a grid
+  const nodeRadius = 30;
+  const spacingX = 180;
+  const spacingY = 120;
+  const startX = 100;
+  const startY = 80;
+  const cols = Math.ceil(Math.sqrt(dependencies.length));
+  
+  const nodeElements = new Map();
+  
+  // Create nodes for each dependency
+  dependencies.forEach((dep, index) => {
+    const col = index % cols;
+    const row = Math.floor(index / cols);
+    const x = startX + col * spacingX;
+    const y = startY + row * spacingY;
+    
+    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    group.setAttribute('class', 'node-group');
+    group.setAttribute('data-name', dep.name || `dep-${index}`);
+    
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('class', 'node');
+    circle.setAttribute('cx', x);
+    circle.setAttribute('cy', y);
+    circle.setAttribute('r', nodeRadius);
+    group.appendChild(circle);
+    
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('class', 'node-label');
+    text.setAttribute('x', x);
+    text.setAttribute('y', y + 4);
+    text.textContent = dep.name || `Dependency ${index + 1}`;
+    group.appendChild(text);
+    
+    svg.appendChild(group);
+    nodeElements.set(dep.name || `dep-${index}`, { x, y, element: group });
+  });
+  
+  // Create edges for dependencies
+  dependencies.forEach((dep, index) => {
+    if (dep.dependsOn && dep.dependsOn.length > 0) {
+      const sourceNode = nodeElements.get(dep.name || `dep-${index}`);
+      dep.dependsOn.forEach(targetName => {
+        const targetNode = nodeElements.get(targetName);
+        if (sourceNode && targetNode) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('class', 'edge');
+          line.setAttribute('x1', sourceNode.x);
+          line.setAttribute('y1', sourceNode.y + nodeRadius);
+          line.setAttribute('x2', targetNode.x);
+          line.setAttribute('y2', targetNode.y - nodeRadius);
+          svg.insertBefore(line, svg.firstChild); // Insert before nodes so edges are behind
+        }
+      });
+    }
+  });
+  
+  graphContainer.appendChild(svg);
+  container.appendChild(graphContainer);
+  
+  return container;
+}

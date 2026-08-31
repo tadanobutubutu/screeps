@@ -1,7 +1,7 @@
 // Existing code starts here
 
-// This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// TODO: This is the existing code that needs to be preserved
+// ----- END ORIGINAL CODE (unchanged) -----
 
 // More existing code that should be preserved
 

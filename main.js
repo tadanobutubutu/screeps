@@ -5,6 +5,81 @@ function calculateSum(a, b) {
 }
 
 /**
+ * Checks if a link element is accessible (has discernible text or aria-label)
+ * @param {HTMLElement} linkElement - The link element to check
+ * @returns {boolean} - True if the link is accessible
+ */
+function isLinkAccessible(linkElement) {
+  if (!linkElement || linkElement.tagName !== 'A') {
+    return false;
+  }
+  
+  const ariaLabel = linkElement.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim().length > 0) {
+    return true;
+  }
+  
+  const textContent = linkElement.textContent;
+  if (textContent && textContent.trim().length > 0) {
+    return true;
+  }
+  
+  // Check for img with alt text inside the link
+  const img = linkElement.querySelector('img');
+  if (img && img.getAttribute('alt')) {
+    return true;
+  }
+  
+  // Check for aria-labelledby
+  const labelledBy = linkElement.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * Checks links and buttons for accessibility issues
+ * @param {Document|HTMLElement} [root=document] - The root element to search within
+ * @returns {Array} - Array of accessibility issues found
+ */
+function checkLinkAndButtonAccessibility(root = document) {
+  const issues = [];
+
+  // Check links
+  const links = root.querySelectorAll('a');
+  links.forEach((link, index) => {
+    if (!isLinkAccessible(link)) {
+      issues.push({
+        type: 'link',
+        element: link,
+        index: index,
+        message: 'Link has no discernible text'
+      });
+    }
+  });
+
+  // Check buttons
+  const buttons = root.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    const ariaLabel = button.getAttribute('aria-label');
+    const textContent = button.textContent && button.textContent.trim();
+    
+    if (!ariaLabel && !textContent) {
+      issues.push({
+        type: 'button',
+        element: button,
+        index: index,
+        message: 'Button has no accessible name'
+      });
+    }
+  });
+
+  return issues;
+}
+
+/**
  * Addresses accessibility issues from an insight report by applying fixes
  * @param {Array} issues - Array of accessibility issues to address
  * @param {Object} options - Options for how to address the issues

@@ -7,6 +7,7 @@ const http = require('http');
 const path = require('path');
 
 // TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 // Application configuration
 const config = {
@@ -37,11 +38,17 @@ function startApp() {
   return server;
 }
 
+// New function requested in the issue
+function newFunction() {
+  console.log('This is a new function that has been added.');
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  newFunction // Exporting the new function
 };
 
 // Start the application if run directly

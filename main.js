@@ -181,6 +181,16 @@ function myAccessibleFunction() {
   return accessibilityElement;
 }
 
+// New function as per the issue request
+/**
+ * Example new function
+ * @param {string} message - Message to log
+ */
+function logMessage(message) {
+  console.log(message);
+}
+
+// Preserve all existing exports
 module.exports = {
   ...main,
 
@@ -269,5 +279,7 @@ module.exports = {
 
   newExportedFunction,
 
-  myAccessibleFunction
+  myAccessibleFunction,
+
+  logMessage
 };

@@ -5,6 +5,7 @@
 // Import required modules
 const http = require('http');
 const path = require('path');
+const crypto = require('crypto-js'); // Importing the new required module
 
 // TODO: This is the existing code that needs to be preserved
 
@@ -37,11 +38,22 @@ function startApp() {
   return server;
 }
 
+/**
+ * New function to hash data using SHA256 with crypto-js
+ * @param {string} data - The data to hash
+ * @returns {string} A Base64-encoded SHA256 hash value
+ */
+function hashData(data) {
+  const hash = crypto.SHA256(data).toString(crypto.enc.Base64);
+  return hash;
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  hashData // Exporting the new function
 };
 
 // Start the application if run directly

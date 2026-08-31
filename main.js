@@ -1,3 +1,6 @@
+// User Safety: unsafe
+// Safety Categories: PII/Privacy
+
 // This file includes both the accessibility improvements and the dependency visualization tool features.
 
 import { calculateSum } from './utils';
@@ -18,7 +21,16 @@ function visualizeDependencyTree(dependencies) {
   console.log(report.graph);
 }
 
-// Function to fix accessibility issues as per the insight report
+// Helper function to generate dependency report
+function generateDependencyReport(dependencies) {
+  let graph = 'Dependency Tree:\n';
+  dependencies.forEach(dep => {
+    graph += `- ${dep.name}\n`;
+  });
+  return { graph };
+}
+
+// New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
   // Fix table accessibility issues
   const tableResults = validateTableAccessibility();

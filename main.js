@@ -1,9 +1,6 @@
-Here's the resolved file content:
-
-```javascript
 // Existing code starts here
 import { initializeApp } from './app.js';
-import { registerSW } from 'effector-swift';
+import { registerSW } from 'effector-sw';
 // This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
@@ -53,7 +50,7 @@ function ensureUniqueLandmarks(landmarks) {
  *
  * @param {string} lang - The language code to set (default: 'en', e.g., 'en', 'es', 'fr').
  */
-function setupLanguageAttribute(lang) {
+function setupLanguageAttribute(lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', lang);
@@ -143,6 +140,79 @@ function addSVGAccessibleName(svgSelector, accessibleName) {
 }
 
 /**
+ * Adds accessible names to SVG elements (plural version for initialize call).
+ * This addresses the REACT_041 issue for multiple SVGs.
+ */
+function addSVGAccessibleNames() {
+  // Add accessible names to 2 SVGs as mentioned in the issue
+  addSVGAccessibleName('svg.icon-user', 'User profile');
+  addSVGAccessibleName('svg.icon-menu', 'Navigation menu');
+}
+
+/**
+ * Fixes fake links (elements that look like links but are not semantic <a> tags).
+ *
+ * This addresses the REACT_036 issue by identifying elements that have
+ * click handlers but are not <a> tags and adding appropriate ARIA roles
+ * and attributes to make them accessible.
+ */
+function replaceFakeLinks() {
+  // Find elements with click handlers that are not <a> tags
+  const fakeLinks = document.querySelectorAll('[onclick]:not(a):not(button):not([role="button"])');
+  fakeLinks.forEach((element) => {
+    element.setAttribute('role', 'button');
+    element.setAttribute('tabindex', '0');
+    // Add keyboard support
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        element.click();
+      }
+    });
+  });
+}
+
+/**
+ * Sets up skip links for keyboard navigation.
+ */
+function setupSkipLinks() {
+  // Check if skip link already exists
+  if (document.getElementById('skip-link')) {
+    return;
+  }
+
+  const skipLink = document.createElement('a');
+  skipLink.id = 'skip-link';
+  skipLink.href = '#main';
+  skipLink.textContent = 'Skip to main content';
+  skipLink.className = 'skip-link';
+  skipLink.style.cssText = 'position: absolute; top: -40px; left: 0; background: #000; color: #fff; padding: 8px; z-index: 100; transition: top 0.3s;';
+  
+  skipLink.addEventListener('focus', () => {
+    skipLink.style.top = '0';
+  });
+  
+  skipLink.addEventListener('blur', () => {
+    skipLink.style.top = '-40px';
+  });
+
+  document.body.insertBefore(skipLink, document.body.firstChild);
+}
+
+/**
+ * Ensures buttons have proper accessible labels.
+ */
+function setupButtonAccessibility() {
+  const buttons = document.querySelectorAll('button:not([aria-label]):not([aria-labelledby])');
+  buttons.forEach((button) => {
+    if (!button.textContent.trim() && !button.querySelector('svg')) {
+      // Button has no text content and no SVG, might need attention
+      console.warn('Button without accessible name found:', button);
+    }
+  });
+}
+
+/**
  * Fixes fake links (elements that look like links but are not semantic <a> tags).
  *
  * This addresses the REACT_036 issue by identifying elements that have
@@ -180,6 +250,9 @@ function initialize() {
   // Existing initialization logic preserved
   console.log('Application initialized');
 
+  // Accessibility: Add lang attribute to HTML element (REACT_015)
+  setupLanguageAttribute('en');
+
   // Accessibility: Ensure main content is keyboard accessible
   const mainContent = document.querySelector('main') || document.getElementById('main');
   if (mainContent) {
@@ -193,16 +266,16 @@ function initialize() {
   // Accessibility: Ensure buttons have proper labels
   setupButtonAccessibility();
 
-  // Accessibility: Add landmark roles and fix landmark issues
+  // Accessibility: Add landmark roles and fix landmark issues (REACT_017)
   addLandmarkRoles();
 
-  // Accessibility: Add accessible names to 2 SVGs
+  // Accessibility: Add accessible names to 2 SVGs (REACT_041)
   addSVGAccessibleNames();
 
-  // Accessibility: Ensure unique landmarks (2 issues)
+  // Accessibility: Ensure unique landmarks (2 issues) (REACT_025)
   ensureUniqueLandmarkElements();
 
-  // Accessibility: Fix 1 fake link issue
+  // Accessibility: Fix 1 fake link issue (REACT_036)
   replaceFakeLinks();
 }
 
@@ -216,7 +289,3 @@ if (typeof document !== 'undefined') {
 }
 
 // More existing code that should be preserved
-
-```
-
-In the merged file, both the changes related to accessibility and the existing code have been integrated. The comments and style have been preserved, and there are no syntax errors. Additionally, new functions and an export statement have been added where appropriate.

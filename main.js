@@ -49,6 +49,34 @@ function isLinkAccessible(url, timeout = 5000) {
     });
 }
 
+function checkLinkAndButtonAccessibility() {
+  const issues = [];
+
+  const links = document.querySelectorAll('a');
+  links.forEach((link, index) => {
+    const hasAccessibleName =
+      link.textContent.trim() !== '' ||
+      link.getAttribute('aria-label') !== null ||
+      link.getAttribute('aria-labelledby') !== null;
+    if (!hasAccessibleName) {
+      issues.push({ type: 'link', element: link, index });
+    }
+  });
+
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    const hasAccessibleName =
+      button.textContent.trim() !== '' ||
+      button.getAttribute('aria-label') !== null ||
+      button.getAttribute('aria-labelledby') !== null;
+    if (!hasAccessibleName) {
+      issues.push({ type: 'button', element: button, index });
+    }
+  });
+
+  return issues;
+}
+
 /**
  * Check multiple links for accessibility
  * @param {string[]} urls - Array of URLs to check

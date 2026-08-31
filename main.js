@@ -1,8 +1,4 @@
-// TODO: Implement this function for adding SVG accessibility props
-
 // main.js - Combined utility and accessibility features
-
-// TODO: Identify and update specific functions that render dependency graphs or
 
 // Accessibility helper function for keyboard navigation
 function setupKeyboardNavigation(element, options = {}) {
@@ -99,19 +95,41 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+// Set lang attribute on the document (REACT_015)
+function setDocumentLang(lang = 'en') {
+  if (document.documentElement) {
+    document.documentElement.setAttribute('lang', lang);
+  }
+}
+
 // Initialize accessibility features
 function initializeAccessibility() {
   const announcer = createAnnouncer();
   
+  // Set language attribute (REACT_015)
+  setDocumentLang();
+  
   // Ensure all landmarks have unique IDs
   ensureUniqueLandmarks();
+  
+  // Add main landmark if not present
+  const mainLandmark = document.querySelector('main, [role="main"], #main-content');
+  if (!mainLandmark) {
+    const mainElement = document.querySelector('body > *:first-child');
+    if (mainElement) {
+      mainElement.setAttribute('role', 'main');
+      mainElement.id = 'main-content';
+    }
+  }
   
   // Return the announcer for use in the app
   return {
     announce: announcer.announce,
     setupKeyboardNavigation,
     trapFocus,
-    prefersReducedMotion
+    prefersReducedMotion,
+    setDocumentLang,
+    ensureUniqueLandmarks
   };
 }
 
@@ -197,7 +215,7 @@ function isEmpty(value) {
  */
 function capitalize(str) {
   if (typeof str !== 'string' || str.length === 0) return str;
-  return str.charAt(0).UpperCase() + str.slice(1);
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 /**
@@ -423,7 +441,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getRandomInt,
     clamp,
     deepClone,
-    renderDependencyGraph
+    renderDependencyGraph,
+    setDocumentLang
   };
 }
 

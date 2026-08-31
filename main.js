@@ -526,6 +526,128 @@ function setSvgAttributes(svg, accessibleName) {
 }
 
 /**
+ * Validates SVG accessibility
+ * @param {HTMLElement} svg - The SVG element to validate
+ * @returns {Object} Validation result with accessibility status
+ */
+function validateSvgAccessibility(svg) {
+  if (!svg) {
+    return { valid: false, issues: ['SVG element is null or undefined'] };
+  }
+  
+  const issues = [];
+  
+  // Check for role attribute
+  if (!svg.hasAttribute('role')) {
+    issues.push('SVG is missing role attribute');
+  }
+  
+  // Check for accessible name
+  if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+    issues.push('SVG is missing accessible name (aria-label or aria-labelledby)');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Ensures unique landmarks on the page
+ * @returns {Object} Result with fixed issues
+ */
+function ensureUniqueLandmarks() {
+  const mainLandmarks = document.querySelectorAll('main, [role="main"]');
+  const navLandmarks = document.querySelectorAll('nav, [role="navigation"]');
+  
+  const results = {
+    mainLandmarksFixed: 0,
+    navLandmarksFixed: 0
+  };
+  
+  // Fix multiple main landmarks
+  if (mainLandmarks.length > 1) {
+    for (let i = 1; i < mainLandmarks.length; i++) {
+      const landmark = mainLandmarks[i];
+      landmark.removeAttribute('role');
+      landmark.tagName.toLowerCase() === 'main' ? landmark.outerHTML = landmark.textContent : landmark.replaceWith(...landmark.childNodes);
+      results.mainLandmarksFixed++;
+    }
+  }
+  
+  // Fix multiple nav landmarks
+  if (navLandmarks.length > 1) {
+    for (let i = 1; i < navLandmarks.length; i++) {
+      const landmark = navLandmarks[i];
+      landmark.removeAttribute('role');
+      landmark.tagName.toLowerCase() === 'nav' ? landmark.outerHTML = landmark.textContent : landmark.replaceWith(...landmark.childNodes);
+      results.navLandmarksFixed++;
+    }
+  }
+  
+  return results;
+}
+
+/**
+ * Fixes fake link issues
+ * @returns {number} Number of fake links fixed
+ */
+function fixFakeLinkIssues() {
+  let fixedCount = 0;
+  const clickableElements = document.querySelectorAll('[onclick]');
+  
+  for (const element of clickableElements) {
+    const hasHref = element.getAttribute('href');
+    const hasOnClick = element.hasAttribute('onclick');
+    const isClickable = element.style.cursor === 'pointer' ||
+                        element.classList.contains('link') ||
+                        element.classList.contains('btn-link') ||
+                        element.getAttribute('role') === 'link';
+
+    if (isClickable && !hasHref && hasOnClick) {
+      element.setAttribute('href', '#');
+      element.removeAttribute('onclick');
+      fixedCount++;
+    }
+  }
+  
+  return fixedCount;
+}
+
+/**
+ * Adds proper landmark regions to the page
+ * @returns {Object} Result with added landmarks
+ */
+function addProperLandmarkRegions() {
+  const results = {
+    mainAdded: false,
+    navAdded: false
+  };
+  
+  // Add main landmark if not present
+  if (!document.querySelector('main, [role="main"]')) {
+    const wrapper = document.createElement('main');
+    const content = document.body.firstChild;
+    if (content) {
+      wrapper.appendChild(content);
+      document.body.insertBefore(wrapper, document.body.firstChild);
+      results.mainAdded = true;
+    }
+  }
+  
+  // Add nav landmark if not present
+  if (!document.querySelector('nav, [role="navigation"]')) {
+    const nav = document.createElement('nav');
+    nav.setAttribute('aria-label', 'Main navigation');
+    document.body.insertBefore(nav, document.body.firstChild);
+    results.navAdded = true;
+  }
+  
+  return results;
+}
+
+/**
  * Implements fixes for accessibility issues identified in the insight report.
  * Calls existing accessibility validation and remediation functions to address
  * all reported issues systematically.

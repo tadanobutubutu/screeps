@@ -41,6 +41,29 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+/**
+ * Validates a landmark object to ensure it meets accessibility criteria.
+ * A valid landmark must have a non-empty name and, if provided, a recognized role.
+ *
+ * @param {Object} landmark - The landmark object to validate.
+ * @param {string} landmark.name - The name of the landmark (required).
+ * @param {string} [landmark.role] - The ARIA role of the landmark (optional).
+ * @returns {boolean} Returns true if the landmark is valid, false otherwise.
+ */
+function validateLandmark(landmark) {
+  if (!landmark || typeof landmark !== 'object') {
+    return false;
+  }
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    return false;
+  }
+  const validRoles = ['navigation', 'main', 'banner', 'contentinfo', 'complementary', 'form', 'region', 'search'];
+  if (landmark.role && !validRoles.includes(landmark.role)) {
+    return false;
+  }
+  return true;
+}
+
 // ... (other code in main.js)
 
 // React accessibility changes

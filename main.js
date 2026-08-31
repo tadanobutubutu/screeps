@@ -32,9 +32,9 @@ function checkLinkAccessibility() {
   return issues;
 }
 
-// Example of adding a new function
+// Add a new function
 function newFunction() {
-  // Function body
+  // Function body of the new function
 }
 
 // Don't forget to test your new additions in the test file
@@ -48,4 +48,5 @@ export {
   validateLinkAccessibility,
   handleFakeLinks,
   checkLinkAccessibility,
+  newFunction // Include the new function in the exports
 };

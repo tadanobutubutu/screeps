@@ -36,7 +36,7 @@ export function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        ...
+        // TODO: Add ariaLabel for accessibility
       />
     </List.Item>
   );
@@ -49,10 +49,9 @@ function addBook(book) {
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
+  // TODO: Implement accessibility for the addBook function or form
+  // ...
 }
-
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
@@ -69,6 +68,21 @@ function onAuthorSort() {
   const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+}
+
+// TODO: Implement the required changes to improve accessibility for the addBook function or form
+// ...
+
+// Function for getting the accessible name for SVGs
+function getSvgAccessibleName(svg) {
+  // Return a user-friendly name for the SVG based on its contents or attributes
+  // ...
+}
+
+// Function for setting SVG attributes to improve accessibility
+function setSvgAttributes(svg, accessibleName) {
+  // Set the 'aria-label' attribute on the SVG element to the accessibleName
+  svg.setAttribute('aria-label', accessibleName);
 }
 
 // Render the main component containing the book list and sorting controls
@@ -101,6 +115,6 @@ function Main() {
   );
 }
 
-// Export the Main component
+// Export the Main component and the new functions for accessibility
 export default Main;
-```
+export { getSvgAccessibleName, setSvgAttributes };

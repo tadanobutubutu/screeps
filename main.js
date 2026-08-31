@@ -373,3 +373,92 @@ export function renderDependencyGraphs(container, dependencies = []) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', '100%');
+  svg.setAttribute('aria-hidden', 'true');
+  
+  // Add accessible description for screen readers
+  const description = document.createElement('div');
+  description.setAttribute('role', 'group');
+  description.setAttribute('aria-label', 'Dependency list');
+  description.style.position = 'absolute';
+  description.style.width = '1px';
+  description.style.height = '1px';
+  description.style.padding = '0';
+  description.style.margin = '-1px';
+  description.style.overflow = 'hidden';
+  description.style.clip = 'rect(0, 0, 0, 0)';
+  description.style.whiteSpace = 'nowrap';
+  description.style.border = '0';
+  
+  // Build accessible list of dependencies
+  dependencies.forEach((dep, index) => {
+    const depItem = document.createElement('div');
+    depItem.textContent = `Dependency ${index + 1}: ${dep.name || dep.label || 'Unnamed'}`;
+    description.appendChild(depItem);
+  });
+  
+  // Calculate node positions
+  const nodePositions = new Map();
+  const nodeRadius = 20;
+  const padding = 40;
+  const cols = Math.ceil(Math.sqrt(dependencies.length));
+  
+  dependencies.forEach((dep, index) => {
+    const col = index % cols;
+    const row = Math.floor(index / cols);
+    const x = padding + col * (nodeRadius * 3);
+    const y = padding + row * (nodeRadius * 3);
+    nodePositions.set(index, { x, y, dep });
+  });
+  
+  // Draw edges between dependencies
+  dependencies.forEach((dep, fromIndex) => {
+    if (dep.dependencies) {
+      dep.dependencies.forEach(depIndex => {
+        const from = nodePositions.get(fromIndex);
+        const to = nodePositions.get(depIndex);
+        
+        if (from && to) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', from.x);
+          line.setAttribute('y1', from.y);
+          line.setAttribute('x2', to.x);
+          line.setAttribute('y2', to.y);
+          line.setAttribute('stroke', '#666');
+          line.setAttribute('stroke-width', '2');
+          svg.appendChild(line);
+        }
+      });
+    }
+  });
+  
+  // Draw nodes
+  nodePositions.forEach((pos, index) => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', pos.x);
+    circle.setAttribute('cy', pos.y);
+    circle.setAttribute('r', nodeRadius);
+    circle.setAttribute('fill', '#4a90d9');
+    circle.setAttribute('stroke', '#333');
+    circle.setAttribute('stroke-width', '2');
+    circle.setAttribute('tabindex', '0');
+    circle.setAttribute('role', 'button');
+    circle.setAttribute('aria-label', `Dependency ${index + 1}: ${pos.dep.name || pos.dep.label || 'Unnamed'}`);
+    svg.appendChild(circle);
+    
+    // Add label
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', pos.x);
+    text.setAttribute('y', pos.y + nodeRadius + 15);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', '#333');
+    text.setAttribute('font-size', '12');
+    text.textContent = pos.dep.name || pos.dep.label || `Dep ${index + 1}`;
+    svg.appendChild(text);
+  });
+  
+  graphContainer.appendChild(svg);
+  graphContainer.appendChild(description);
+  container.appendChild(graphContainer);
+  
+  return graphContainer;
+}

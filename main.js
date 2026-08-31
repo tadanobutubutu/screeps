@@ -8,6 +8,30 @@ import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibility
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
 
+// Harvest and upgrade logic
+function harvest(resource, multiplier = 1) {
+  if (typeof resource !== 'number' || resource < 0) {
+    return 0;
+  }
+  const harvested = Math.floor(resource * multiplier);
+  console.log(`Harvested ${harvested} resources`);
+  return harvested;
+}
+
+function upgrade(currentLevel, successRate = 0.8) {
+  if (typeof currentLevel !== 'number' || currentLevel < 0) {
+    return 1;
+  }
+  const roll = Math.random();
+  if (roll < successRate) {
+    const newLevel = currentLevel + 1;
+    console.log(`Upgrade successful! Level: ${currentLevel} -> ${newLevel}`);
+    return newLevel;
+  }
+  console.log(`Upgrade failed. Level remained at ${currentLevel}`);
+  return currentLevel;
+}
+
 // Node.js functions for dependency visualization tool
 const fs = require('fs');
 const path = require('path');
@@ -33,6 +57,16 @@ export const main = {
     return `Hello, ${name}!`;
   },
 
+  // Harvest function to collect resources
+  harvest: function(resource, multiplier) {
+    return harvest(resource, multiplier);
+  },
+
+  // Upgrade function to improve capabilities
+  upgrade: function(currentLevel, successRate) {
+    return upgrade(currentLevel, successRate);
+  },
+
   // New function for rotating back
   rotateBack: function() {
     console.log('Reverting back the rotation.');
@@ -41,7 +75,7 @@ export const main = {
   // New function to address all accessibility issues
   addressAccessibilityIssues: function() {
     fixAccessibilityIssues();
-    visualizeDependencyTree(getDependencies()); // Replace getDependencies() with actual function or variable
+    ... // Replace getDependencies() with actual function or variable
   }
 };
 
@@ -105,7 +139,7 @@ if (fakeLink && fakeLink.tagName === 'A') {
 import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
-      const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+      const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
       const data = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(data);
   } catch (error) {
@@ -120,7 +154,7 @@ function processLandmarks(landmarks) {
         return [];
     }
 
-    const validLandmarks = landmarks.filter(isValidLandmark);
+    const validLandmarks = landmarks.filter(landmark => landmark && landmark.name);
     const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
@@ -140,7 +174,7 @@ function sortLandmarks(landmarks, ascending = true) {
 }
 
 // Get landmark by ID (new addition)
-function getLandmarkById(landmarks, id) {
+function getLandmarkById(id) {
     return landmarks.find(landmark => landmark.id === id) || null;
 }
 
@@ -172,6 +206,7 @@ function ensureUniqueLandmarks(landmarks) {
 // Export functions for testing (new addition)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-      loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks
+      loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks,
+      harvest, upgrade
     };
 }

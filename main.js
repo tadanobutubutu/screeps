@@ -1,5 +1,19 @@
 // main.js
 
+import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import { initializeApp } from './app.js';
+import { isSecureContext } from './utils.js';
+import { calculateSum } from './utils';
+import { getLangAttribute } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+import { fetchUser, clearCache } from './utils/user';
+
 // Find the primary content element in the DOM
 const primaryContent = document.querySelector('.primary-content') ||
                         document.querySelector('[role="main"]') ||
@@ -23,32 +37,6 @@ function wrapPrimaryContentInMain() {
   }
   return null;
 }
-
-// Import necessary dependencies
-import React, { useState, useEffect } from 'react';
-import { List, Button } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
-import { setDependencyGraph } from './actions/dependencyGraph';
-import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-import { isSecureContext } from './utils.js';
-import fs from 'fs';
-import './styles.css';
-import './styles.less';
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { CONFIG } from './utils/constants';
-import App from './App';
-import { helper, formatDate } from './utils';
-import { someFunction } from './utils/someFunction';
-import express from 'express';
-import path from 'path';
-import { fetchUser, clearCache } from './utils/user';
 
 // Landmark data structure
 const landmarks = [];
@@ -132,6 +120,33 @@ function validateLandmark(landmark) {
   };
 }
 
+// Address accessibility issues from the insight report
+function addressAccessibilityIssues() {
+  const rootElement = document.querySelector('html');
+  rootElement.setAttribute('lang', document.querySelector('html').getAttribute('lang') || 'en');
+
+  // Validate table accessibility and fix table structure as needed
+  // You can add your code for validateTableAccessibility, validateTableStructure, and fixTableStructure here
+
+  // Add main landmark role to a main container
+  const mainElement = document.querySelector('main');
+  mainElement.setAttribute('role', 'main');
+
+  // Add navigation landmark role to a nav container
+  const navElement = document.querySelector('nav');
+  navElement.setAttribute('role', 'navigation');
+
+  // Add accessible names to SVGs
+  // You can add your code for getSvgAccessibleName and setSvgAttributes here
+
+  // Ensure unique landmarks
+  // You can add your code for ensureUniqueLandmarks here
+
+  // Fix fake links by adding 'role="button"' attribute to links without 'href'
+  const fakeLinks = document.querySelectorAll('a:not([href])');
+  fakeLinks.forEach(link => link.setAttribute('role', 'button'));
+}
+
 // Validate landmark structure
 function landmarkStructureCheck(landmark) {
   const errors = [];
@@ -162,7 +177,6 @@ function checkLandmarkElement(id) {
   return element !== null;
 }
 
-// Ensure unique landmarks by filtering duplicates
 function ensureUniqueLandmarks(landmarksArray) {
   if (!landmarksArray || landmarksArray.length === 0) {
       return {};
@@ -189,6 +203,11 @@ function ensureLandmarkUniqueness(elements) {
       if (landmark.id) {
         if (elementsById[landmark.id]) {
           landmark.id += '_duplicate';
+          // Ensure the new ID is also unique
+          while (elementsById[landmark.id]) {
+            landmark.id += '_duplicate';
+          }
+          elementsById[landmark.id] = true;
         } else {
           elementsById[landmark.id] = true;
         }
@@ -765,6 +784,13 @@ export {
   VisualizeDependencyTree,
   checkLandmarkElement,
   ensureUniqueLandmarks,
+  landmarks,
+  appData,
+  icons,
+  validateLandmark,
+  renderDependencyGraphContent,
+  ensureLandmarkUniqueness,
+  countDependencies,
   ensureLandmarkUniqueness,
   validateLandmark,
   renderDependencyGraphContent,
@@ -796,3 +822,5 @@ export {
   addSvgAccessibleNames,
   ensureUniqueLandmarksDoc
 };
+
+export default Main;

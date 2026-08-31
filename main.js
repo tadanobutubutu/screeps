@@ -42,12 +42,11 @@ function startApp() {
   return server;
 }
 
-// New function to handle logging
+// New functions to handle logging and graceful shutdown
 function logMessage(message) {
   console.log(`[LOG]: ${message}`);
 }
 
-// New function to handle graceful shutdown
 function handleGracefulShutdown(server) {
   server.close(() => {
     console.log('Server closed gracefully');
@@ -107,7 +106,7 @@ function handleAddLangAttribute(htmlDocument, lang) {
   addLangAttribute(htmlElement, lang);
 }
 
-// New function to handle the new functionalities
+// New function to add new functionality
 function newFunctionality() {
   // Example functionality to demonstrate changes
   console.log('New functionality has been added.');
@@ -128,6 +127,13 @@ function renderDependencyGraph() {
 function renderIndex() {
   return indexContent();
 }
+
+// TODO: THIS IS THE EXISTING CODE THAT NEEDS TO BE PRESERVED
+// TODO: This is the existing code that needs to be preserved
+// Line 7
+// Line 8
+// Line 9
+// Line 10
 
 // Export functions for testing
 module.exports = {

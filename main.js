@@ -205,6 +205,110 @@ function transformInputData(inputData, options = {}) {
   return result;
 }
 
+// Utility exports object - made accessible per line 14 TODO
+const exportUtils = {
+  sanitizeFilename,
+  readFileSafe,
+  processData,
+  filterValidItems,
+  groupByCategory
+};
+
+// Sanitize a filename by removing unsafe characters
+function sanitizeFilename(filename) {
+  if (!filename || typeof filename !== 'string') {
+    return '';
+  }
+  return filename
+    .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
+    .replace(/^\.+/, '')
+    .replace(/\s+/g, '_')
+    .substring(0, 255);
+}
+
+// Safely read a file (browser/Node compatible abstraction)
+function readFileSafe(path, encoding = 'utf8') {
+  if (!path) {
+    throw new Error('File path is required');
+  }
+  // In Node.js environment
+  if (typeof require !== 'undefined' && typeof module !== 'undefined') {
+    try {
+      const fs = require('fs');
+      return fs.readFileSync(path, encoding);
+    } catch (err) {
+      throw new Error(`Failed to read file: ${err.message}`);
+    }
+  }
+  // Browser environment fallback (fetch)
+  if (typeof fetch !== 'undefined') {
+    return fetch(path)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`Failed to read file: ${res.statusText}`);
+        }
+        return encoding === 'utf8' ? res.text() : res.blob();
+      });
+  }
+  throw new Error('No file reading mechanism available');
+}
+
+// Process data with a transformer function
+function processData(data, transformer) {
+  if (!data) {
+    return null;
+  }
+  if (typeof transformer !== 'function') {
+    return data;
+  }
+  if (Array.isArray(data)) {
+    return data.map(item => transformer(item));
+  }
+  return transformer(data);
+}
+
+// Filter valid items based on a predicate
+function filterValidItems(items, predicate) {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  const validate = typeof predicate === 'function' ? predicate : (item) => item != null;
+  return items.filter(validate);
+}
+
+// Group items by a category key
+function groupByCategory(items, keyFn) {
+  if (!Array.isArray(items)) {
+    return {};
+  }
+  const getKey = typeof keyFn === 'function' ? keyFn : (item) => item;
+  return items.reduce((acc, item) => {
+    const key = getKey(item);
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(item);
+    return acc;
+  }, {});
+}
+
+// Initialize accessibility features
+function initAccessibility() {
+  accessibilityUtils.initSkipLink();
+
+  // Wire up screen reader announcers for any [data-announce] elements
+  if (typeof document !== 'undefined') {
+    const announcers = document.querySelectorAll('[data-announce]');
+    announcers.forEach((el) => {
+      const message = el.getAttribute('data-announce');
+      const priority = el.getAttribute('data-announce-priority') || 'polite';
+      if (message) {
+        accessibilityUtils.announceToScreenReader(message, priority);
+      }
+    });
+  }
+}
+
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {

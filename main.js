@@ -82,11 +82,27 @@ const addAriaLabel = (element, label) => {
   return element;
 };
 
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views to import and use dependencyGraphContent/indexContent from the
+// appropriate modules.
+// Updated: imported and used dependencyGraphContent and indexContent in the
+// relevant rendering functions.
+const { dependencyGraphContent, indexContent } = require('./dependencyGraphContent/indexContent');
+
 const renderDependencyGraph = (data) => {
-  // Implementation for rendering dependency graphs
+  // Implementation for rendering dependency graphs using dependencyGraphContent
   return {
     nodes: data.nodes || [],
-    edges: data.edges || []
+    edges: data.edges || [],
+    content: dependencyGraphContent(data)
+  };
+};
+
+const renderIndexView = (data) => {
+  // Implementation for rendering index views using indexContent
+  return {
+    items: data,
+    content: indexContent(data)
   };
 };
 
@@ -528,6 +544,7 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
+  renderIndexView,
   calculateSum,
   getLangAttribute,
   personName,
@@ -539,5 +556,7 @@ module.exports = {
   createInPageButton,
   ensureUniqueLandmarks,
   newFocusTrap,
-  transformInputData
+  transformInputData,
+  dependencyGraphContent,
+  indexContent
 };

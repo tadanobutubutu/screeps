@@ -12,7 +12,7 @@ function ensureElementHasId(element, prefix = 'element') {
   }
   
   if (!element.id) {
-    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
   
   return element.id;
@@ -47,8 +47,6 @@ function renderDependencyGraphs(container, options = {}) {
   const { nodes = [], edges = [] } = options;
   const graphContainer = document.createElement('div');
   graphContainer.className = 'dependency-graph';
-  graphContainer.setAttribute('role', 'img');
-  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
   
   // Render nodes
   nodes.forEach(node => {
@@ -61,8 +59,8 @@ function renderDependencyGraphs(container, options = {}) {
   
   // Render edges (connections between nodes)
   edges.forEach(edge => {
-    const sourceId = ensureElementHasId(document.getElementById(edge.source) || { id: edge.source }, 'node-source');
-    const targetId = ensureElementHasId(document.getElementById(edge.target) || { id: edge.target }, 'node-target');
+    const sourceId = ensureElementHasId({ id: edge.source } || { id: edge.source }, 'node-source');
+    const targetId = ensureElementHasId({ id: edge.target } || { id: edge.target }, 'node-target');
     
     const edgeElement = document.createElement('div');
     edgeElement.className = 'graph-edge';
@@ -75,9 +73,36 @@ function renderDependencyGraphs(container, options = {}) {
   return graphContainer;
 }
 
+/**
+ * Counts the total number of dependencies
+ * @param {Array} dependencies - Array of dependency objects or strings
+ * @param {Object} options - Options for counting
+ * @param {boolean} options.recursive - Whether to count nested dependencies
+ * @returns {number} The total count of dependencies
+ */
+function countDependencies(dependencies, options = {}) {
+  if (!Array.isArray(dependencies)) {
+    return 0;
+  }
+  
+  const { recursive = false } = options;
+  let count = dependencies.length;
+  
+  if (recursive) {
+    dependencies.forEach(dep => {
+      if (dep.dependencies && Array.isArray(dep.dependencies)) {
+        count += countDependencies(dep.dependencies, { recursive: true });
+      }
+    });
+  }
+  
+  return count;
+}
+
 // Export functions
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraphs
+  renderDependencyGraphs,
+  countDependencies
 };

@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file, preserving both changes and logic:
-
-```javascript
 // Configuration - merged from both branches
 const APP_CONFIG = {
   dataPath: './data',
@@ -74,7 +71,7 @@ function addLangAttribute(element) {
   // Code for adding the language attribute to the specified element
 }
 
-// Accessibility functions from the conflicted branch
+// Accessibility functions
 function ensureLangAttribute() {
   if (document.documentElement.getAttribute('lang') === null) {
     document.documentElement.setAttribute('lang', document.documentElement.lang || 'en');
@@ -229,8 +226,6 @@ export {
   replaceButtonIds,
   ensureDependencyGraphAriaRole,
   googleSignIn,
-  initializeApp,
   getLangAttribute,
   addLangAttribute
 };
-```

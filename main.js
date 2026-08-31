@@ -1,6 +1,12 @@
 // TODO: This is the existing code that needs to be preserved
 // Existing exports and functions would go here...
 
+// Process accessibility insights report on initialization
+addressAccessibilityInsights({
+  source: 'insight-report',
+  issues: ['aria-roles', 'landmark-structure', 'table-structure', 'svg-accessible-names', 'lang-attribute']
+});
+
 // New function to render dependency graphs
 function renderDependencyGraph(dependencyData) {
     // Hypothetical logic to render a dependency graph

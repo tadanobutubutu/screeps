@@ -146,3 +146,8 @@
 
 **Learning:** Declaring `aria-keyshortcuts="Escape"` on interactive search inputs and clear triggers informs assistive technology users of supported keyboard shortcuts for input clearing and focus management (WCAG 2.1.4 / 2.1.1).
 **Action:** Always include `aria-keyshortcuts` attributes on form inputs and control buttons when custom key handlers (such as Escape or Alt-based shortcuts) are configured.
+
+## 2026-08-28 - [ARIA Keyshortcuts Formatting Specification]
+
+**Learning:** Declaring `aria-keyshortcuts` attributes on interactive elements requires using lowercase letters when the Shift key is not part of the shortcut combination (e.g., `Alt+r` rather than `Alt+R`), according to W3C ARIA specifications. Using uppercase letters implies that the Shift key is required (e.g., `Alt+Shift+R`), which misinforms screen-reader users when the event listener only listens for unshifted keypresses.
+**Action:** Always format `aria-keyshortcuts` strings using lowercase letters (e.g., `Alt+r`, `Alt+s`) unless the Shift key is explicitly required.

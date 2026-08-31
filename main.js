@@ -87,26 +87,31 @@ const path = require('path');
 // Configuration
 const config = {
     apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
+    timeout: 5000,
+    debug: true,
+    version: '1.0.0'
 };
 
-// App state
 const appState = {
-    initialized: false,
-    data: null,
-    cache: new Map()
+  initialized: false,
+  data: null,
+  cache: new Map()
 };
 
-// Initialize function
-function initialize() {
-    appState.initialized = true;
-    console.log('App initialized');
-}
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+// TODO: This is the existing code that needs to be preserved
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
 // Initialize app function
 function initializeApp() {
-    initialize();
-    return appState;
+    appState.initialized = true;
+    console.log('Initializing application...');
+    return true;
 }
 
 // Visualize dependency tree function (incorporated from origin/main)
@@ -171,7 +176,6 @@ function ensureLandmarkUniqueness(elements) {
 
 // Main function (required export)
 function main() {
-    initialize();
     initializeApp();
     console.log('Main function executed');
     return { executed: true };
@@ -194,19 +198,152 @@ if (require.main === module) {
     app.listen(PORT, () => {
         console.log(`Server running on http://${HOST}:${PORT}`);
     });
+}
 
-    // Visualize dependency tree when running directly
-    visualizeDependencyTree(require.dependencies);
+// Function to render the form for adding a new book entry
+function BookForm() {
+  const dispatch = useDispatch();
 
-    // Run accessibility check and fix issues if any
-    const insightReport = getInsightReport();
-    if (insightReport.length > 0) {
-      console.log('Accessibility issues found:');
-      insightReport.forEach((issue) => {
-        console.log(`${issue.type}: ${issue.description}`);
-      });
-      addressAccessibilityIssues(insightReport);
+  // Define state for the form inputs
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+
+  // Handle input changes
+  const handleTitleChange = (e) => setTitle(e.target.value);
+  const handleAuthorChange = (e) => setAuthor(e.target.value);
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Perform any necessary validation or processing before adding the book
+    // ...
+
+    // Dispatch an action to add the book to the books list in the Redux store
+    dispatch({ type: 'ADD_BOOK', payload: { title, author } });
+  };
+
+  // Render the form
+  return (
+    <form onSubmit={handleSubmit}>
+      <label htmlFor="title">Title:</label>
+      <input
+        type="text"
+        id="title"
+        value={title}
+        onChange={handleTitleChange}
+        aria-label="Book title"
+      />
+      <label htmlFor="author">Author:</label>
+      <input
+        type="text"
+        id="author"
+        value={author}
+        onChange={handleAuthorChange}
+        aria-label="Book author"
+      />
+      <button type="submit">Add Book</button>
+    </form>
+  );
+}
+
+// Accessibility helper functions
+// REACT_015: Add lang attribute to HTML element
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+// REACT_015 & REACT_036: Create accessible in-page button
+function createInPageButton(buttonText, onClickHandler) {
+  return (
+    <button 
+      onClick={onClickHandler}
+      lang={getLangAttribute()}
+    >
+      {buttonText}
+    </button>
+  );
+}
+
+// REACT_027: Validate table accessibility
+function validateTableAccessibility(tableElement) {
+  const issues = [];
+  // Check for proper table structure
+  const hasCaption = tableElement.querySelector('caption');
+  const hasHeaders = tableElement.querySelector('th');
+  
+  if (!hasCaption) {
+    issues.push('Table is missing a caption');
+  }
+  if (!hasHeaders) {
+    issues.push('Table is missing header cells (th)');
+  }
+
+  return issues;
+}
+
+// REACT_017: Validate landmarks
+function validateLandmarkStructure() {
+  const issues = [];
+  const mainElement = document.querySelector('main');
+  const headerElement = document.querySelector('header');
+  const footerElement = document.querySelector('footer');
+  
+  if (!mainElement) {
+    issues.push('Missing main landmark');
+  }
+  if (!headerElement) {
+    issues.push('Missing header landmark');
+  }
+  if (!footerElement) {
+    issues.push('Missing footer landmark');
+  }
+  
+  return issues;
+}
+
+// REACT_041: Get SVG accessible name
+function getSvgAccessibleName(svgElement) {
+  // Check for aria-label
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  // Check for aria-labelledby
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    return labelElement ? labelElement.textContent : '';
+  }
+  
+  // Check for title element inside SVG
+  const titleElement = svgElement.querySelector('title');
+  return titleElement ? titleElement.textContent : '';
+}
+
+// REACT_041: Set SVG attributes for accessibility
+function setSvgAttributes(svgElement, accessibleName) {
+  if (accessibleName && !svgElement.getAttribute('aria-label')) {
+    svgElement.setAttribute('aria-label', accessibleName);
+  }
+  if (!svgElement.getAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
+  }
+}
+
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  const issues = [];
+  const landmarkTypes = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  
+  landmarkTypes.forEach(type => {
+    const landmarks = document.querySelectorAll(`[role="${type}"]`);
+    if (landmarks.length > 1) {
+      issues.push(`Multiple ${type} landmarks found - should be unique`);
     }
+  });
+  
+  return issues;
 }
 
 /**
@@ -331,24 +468,79 @@ function upgradeLandmarks(landmarksToUpgrade) {
   return upgradedLandmarks;
 }
 
-// Table accessibility functions (merged from both branches)
-function validateTableAccessibility() {
-  // Implementation for merged table accessibility validation
+// REACT_025: Add proper landmark regions
+function addProperLandmarkRegions() {
+  const issues = [];
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
+  
+  if (!mainContent) {
+    issues.push('Missing main landmark region');
+  }
+  
+  return issues;
 }
 
-function validateTableStructure() {
-  // Implementation for merged table structure validation
+// REACT_036: Validate link accessibility
+function validateLinkAccessibility(linkElement) {
+  const issues = [];
+  const href = linkElement.getAttribute('href');
+  const text = linkElement.textContent.trim();
+  const ariaLabel = linkElement.getAttribute('aria-label');
+  
+  if (!href || href === '#' || href === '') {
+    issues.push('Link has no valid href attribute');
+  }
+  
+  if (!text && !ariaLabel) {
+    issues.push('Link has no accessible name');
+  }
+  
+  if (linkElement.getAttribute('role') === 'link' && !href) {
+    issues.push('Fake link detected without href');
+  }
+  
+  return issues;
 }
 
-function fixTableStructure() {
-  // Implementation for merged table structure fixing
+// REACT_036: Handle fake links
+function handleFakeLinks() {
+  const issues = [];
+  const fakeLinks = document.querySelectorAll('[role="link"]');
+  
+  fakeLinks.forEach((link, index) => {
+    const href = link.getAttribute('href');
+    if (!href) {
+      issues.push(`Fake link ${index} has no href attribute`);
+    }
+    
+    // Convert fake link to accessible button if it's clickable
+    if (link.tagName !== 'A' && link.onclick) {
+      issues.push(`Consider using <button> instead of fake link ${index}`);
+    }
+  });
+  
+  return issues;
 }
 
-// Landmark functions (merged from both branches)
+// TODO: Implement new function3 logic here
+function function3(param1, param2) {
+  // New function3 implementation
+  if (!param1 || !param2) {
+    return null;
+  }
+  
+  // Process parameters and return result
+  const result = {
+    combined: `${param1}-${param2}`,
+    timestamp: Date.now(),
+    validated: true
+  };
+  
+  return result;
+}
 
-// SVG accessibility functions (merged from both branches)
-
-// ... existing functions ...
+// Default sorting function for the book list
+const defaultSorting = sortByTitle;
 
 // Insight report and accessibility functions
 function getInsightReport() {
@@ -366,22 +558,41 @@ function addressAccessibilityIssues(issues) {
   });
 }
 
-// Exports from both branches
 module.exports = {
     User,
     spawnNewUser,
     config,
-    initialize,
     initializeApp,
     main,
     visualizeDependencyTree,
     processData,
     validateLandmark,
+    validateLandmarkObject,
+    ensureLandmarkUniqueness,
+    ensureUniqueLandmarks,
+    checkLandmarkElement,
+    checkLandmarkElementForBrowser,
+    checkLandmarkElementForServer,
+    harvestLandmarks,
+    upgradeLandmarks,
+    validateTableAccessibility,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    addProperLandmarkRegions,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    getLangAttribute,
+    createInPageButton,
     getInsightReport,
     addressAccessibilityIssues,
+    function3,
+    appState,
     express,
     path,
     app,
     PORT,
-    HOST
+    HOST,
+    BookForm,
+    BookItem
 };

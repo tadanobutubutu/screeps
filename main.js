@@ -1,3 +1,8 @@
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report
+
+// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+
 const main = require('./utilities');
 
 const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap } = main;

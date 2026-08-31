@@ -502,13 +502,14 @@ function processAccessibilityReport(report) {
 // addressAccessibilityIssues(report);
 
 // Add back removed exports
+const CONFIG = config;
+const VERSION = '1.0.0';
+
 module.exports = {
   config: config,
   appState: appState,
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
+  CONFIG: CONFIG,
+  VERSION: VERSION,
   initialize: initialize,
   initializeApp: initializeApp,
   processData: processData,
@@ -521,6 +522,8 @@ module.exports = {
   addressAccessibilityIssues: addressAccessibilityIssues,
   processAccessibilityReport: processAccessibilityReport,
   getInsightReport: getInsightReport,
+  getConfig: getConfig,
+  getVersion: getVersion,
   getLangAttribute: getLangAttribute,
   addLangAttribute: addLangAttribute,
   setLanguageAttribute: setLanguageAttribute,

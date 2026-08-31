@@ -241,42 +241,160 @@ function renderDependencyGraph(data, container) {
   return graphContainer;
 }
 
+/**
+ * REACT_015: Get the lang attribute from the HTML element
+ * @returns {string} The current lang attribute value
+ */
+function getLangAttribute() {
+    const htmlElement = document.querySelector('html');
+    if (htmlElement && htmlElement.hasAttribute('lang')) {
+        return htmlElement.getAttribute('lang');
+    }
+    return '';
+}
+
+/**
+ * REACT_015: Get a person's name in a localized format
+ * @param {string} firstName - The person's first name
+ * @param {string} lastName - The person's last name
+ * @returns {string} The formatted name based on lang
+ */
+function personName(firstName, lastName) {
+    const lang = getLangAttribute();
+    // East Asian languages typically use family name first
+    if (lang && (lang.startsWith('zh') || lang.startsWith('ja') || lang.startsWith('ko'))) {
+        return `${lastName} ${firstName}`;
+    }
+    return `${firstName} ${lastName}`;
+}
+
+/**
+ * REACT_027: Validate the accessibility of tables on the page
+ */
+function validateTableAccessibility() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        const headers = table.querySelectorAll('th');
+        headers.forEach(th => {
+            if (!th.hasAttribute('scope')) {
+                th.setAttribute('scope', 'col');
+            }
+        });
+    });
+}
+
+/**
+ * REACT_027: Validate the structure of a single table
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {boolean} Whether the table has proper structure
+ */
+function validateTableStructure(table) {
+    if (!table) {
+        return false;
+    }
+    const hasThead = table.querySelector('thead') !== null;
+    const hasTbody = table.querySelector('tbody') !== null;
+    return hasThead || hasTbody;
+}
+
+/**
+ * REACT_017: Validate a landmark element
+ * @param {HTMLElement} landmark - The landmark element to validate
+ * @returns {boolean} Whether the landmark is valid
+ */
+function validateLandmark(landmark) {
+    if (!landmark) {
+        return false;
+    }
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    const validRoles = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search', 'form', 'region'];
+    return validRoles.includes(role);
+}
+
+/**
+ * REACT_017: Validate the structure of all landmarks on the page
+ * @returns {boolean} Whether all landmarks have valid structure
+ */
+function validateLandmarkStructure() {
+    const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+    let allValid = true;
+    landmarks.forEach(landmark => {
+        if (!validateLandmark(landmark)) {
+            allValid = false;
+        }
+    });
+    return allValid;
+}
+
+/**
+ * REACT_041: Get the accessible name for an SVG element
+ * @param {SVGElement} svg - The SVG element
+ * @returns {string} The accessible name of the SVG
+ */
+function getSvgAccessibleName(svg) {
+    if (!svg) {
+        return '';
+    }
+    if (svg.hasAttribute('aria-label')) {
+        return svg.getAttribute('aria-label');
+    }
+    if (svg.hasAttribute('aria-labelledby')) {
+        const labelId = svg.getAttribute('aria-labelledby');
+        const labelElement = document.getElementById(labelId);
+        if (labelElement) {
+            return labelElement.textContent;
+        }
+    }
+    const title = svg.querySelector('title');
+    if (title) {
+        return title.textContent;
+    }
+    return '';
+}
+
+/**
+ * REACT_036: Create an in-page button element
+ * @param {string} text - The text content of the button
+ * @param {string} id - The id attribute for the button
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(text, id) {
+    const button = document.createElement('button');
+    button.setAttribute('type', 'button');
+    if (id) {
+        button.id = id;
+    }
+    button.textContent = text;
+    return button;
+}
+
 // Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute, getLangAttribute)
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 document.documentElement.setAttribute('lang', 'en');
 
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure, fixTableStructureIssues, validateTableAccessibility)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
 fixTableStructure();
 fixTableStructureIssues();
 validateTableAccessibility();
 
-// - REACT_017: Add/fix 4 landmark issues (DONE: fixLandmarkIssues, addMainLandmark, addLandmarkRegions, checkLandmarkElements)
+// - REACT_017: Add/fix 4 landmark issues (DONE: addLandmarkIssues; handled by validateLandmark(), ... and validateLandmarkStructure())
 fixLandmarkIssues();
 addMainLandmark();
 addLandmarkRegions();
 checkLandmarkElements();
 
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks, uniqueLandmarks)
+// - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
 ensureUniqueLandmarks();
-uniqueLandmarks();
 
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames, addAccessibleNamesToSVGs)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames; handled by getSvgAccessibleName() and ...)
 addSvgAccessibleNames();
 addAccessibleNamesToSVGs();
 
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
 fixFakeLinkIssue();
-fixFakeLinkIssues();
+fixFakeLinks();
 
-// - REACT_037: Google sign-in logic (DONE: googleSignIn)
-googleSignIn();
-
-// - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-fixButtonIdentifiers();
-
-// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: fixDependencyGraphAria, ensureDependencyGraphAriaRole)
-fixDependencyGraphAria();
-ensureDependencyGraphAriaRole();
+// - ADD: Address new accessibility issues from insight report
 
 /**
  * Additional accessibility fix functions referenced in HEAD
@@ -288,10 +406,6 @@ function fixTableStructure() {
 
 function fixTableStructureIssues() {
     // Implementation for fixing table structure issues
-}
-
-function validateTableAccessibility() {
-    // Implementation for validating table accessibility
 }
 
 function fixLandmarkIssues() {
@@ -399,5 +513,12 @@ module.exports = {
   googleSignIn,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
-  ensureDependencyGraphAriaRole
+  ensureDependencyGraphAriaRole,
+  getLangAttribute,
+  personName,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton
 };

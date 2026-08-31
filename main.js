@@ -52,7 +52,10 @@ const createResourceButton = (url, title, icon) => {
 
 // Add lang attribute to HTML element
 function addLangAttribute() {
-    // Implementation goes here
+    const html = document.querySelector('html');
+    if (html) {
+        html.setAttribute('lang', 'en'); // Set the default language
+    }
 }
 
 // Fix 26 table structure issues
@@ -145,7 +148,20 @@ module.exports = {
   createResourceButton, // NEW export for the utility function
   renderDependencyGraph,
   displayModuleStructure,
-  newFunction
+  newFunction,
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  uniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixButtonIdentifiers,
+  ensureDependencyGraphARIA
 };
 
 // TODO: Any additional changes requested in the issue (assuming there are none)

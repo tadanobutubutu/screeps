@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserve
+// TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
@@ -691,7 +691,7 @@ function ensureElementHasId(element, prefix = 'element') {
 }
 
 // Export the newFocusTrap function as a standalone utility
-const newFocusTrapExported = accessibilityUtils.newFocusTrap;
+const newFocusTrapExported = newFocusTrap;
 
 // Export all utilities
 module.exports = {

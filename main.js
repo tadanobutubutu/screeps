@@ -132,19 +132,6 @@
       require(modulePath)[functionName](callback);
     }
 
-    // Export the report generation function
-    module.exports = {
-      generateAccessibilityReport: async function () {
-        const report = await scanAccessibility();
-        writeReport(report);
-      },
-      addressAccessibilityIssues,
-      getLangAttribute,
-      createInPageButton,
-      a11y,
-      importAndExecute
-    };
-
     // Initialize the application with accessibility improvements
     function initialize() {
         // Ensure the dependencyGraph container has a proper ARIA role
@@ -172,6 +159,22 @@
             a11y.init();
         }
     }
+
+    // Export the report generation function
+    module.exports = {
+      generateAccessibilityReport: async function () {
+        const report = await scanAccessibility();
+        writeReport(report);
+      },
+      addressAccessibilityIssues,
+      getLangAttribute,
+      createInPageButton,
+      a11y,
+      scanAccessibility,
+      writeReport,
+      importAndExecute,
+      initialize
+    };
 
     // Initialize on DOM ready
     if (typeof document !== 'undefined') {

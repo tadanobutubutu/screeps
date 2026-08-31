@@ -241,16 +241,19 @@ function ensureUniqueLandmarks() {
   let uniqueIds = [];
 
   function generateUniqueId() {
-    return `landmark-${Date.now()}-Math.floor(Math.random() * 1000)}`;
+    return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
   }
 
   landmarks.forEach((landmark) => {
-    const existingIds = uniqueIds.map((id) => id.split('-')[1]);
+    const existingIds = uniqueIds.map((id) => {
+      const parts = id.split('-');
+      return parts.length > 1 ? parts[1] : id;
+    });
     let id;
 
-    while (existingIds.includes(landmark.id.split('-')[1])) {
+    do {
       id = generateUniqueId();
-    }
+    } while (existingIds.includes(id.split('-')[1]));
 
     uniqueIds.push(id);
     landmark.id = id;
@@ -354,8 +357,11 @@ function renderDependencyGraphs(container, options = {}) {
   
   // Render edges (connections between nodes)
   edges.forEach(edge => {
-    const sourceId = ensureElementHasId(document.getElementById(edge.source) || { id: edge.source }, 'node-source');
-    const targetId = ensureElementHasId(document.getElementById(edge.target) || { id: edge.target }, 'node-target');
+    const sourceEl = document.getElementById(edge.source);
+    const targetEl = document.getElementById(edge.target);
+    
+    if (sourceEl) ensureElementHasId(sourceEl, 'node-source');
+    if (targetEl) ensureElementHasId(targetEl, 'node-target');
     
     const edgeElement = document.createElement('div');
     edgeElement.className = 'graph-edge';

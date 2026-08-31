@@ -55,6 +55,13 @@ function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
 }
 
+// New function to address REACT_015 and REACT_036: personName function referenced in comments
+function personName(name) {
+  // Returns a formatted person name for accessibility purposes
+  if (!name) return '';
+  return name.trim();
+}
+
 // New function to address REACT_027: Fix 26 table structure issues
 function validateTableAccessibility(table) {
   // This function validates the accessibility of tables
@@ -315,6 +322,77 @@ function createAccessibleLink(href, text, options = {}) {
 }
 
 /**
+ * Checks if a link element is accessible
+ * @param {HTMLAnchorElement} link - The link element to check
+ * @returns {Object} Result with valid boolean and errors array
+ */
+function isLinkAccessible(link) {
+  const errors = [];
+  
+  if (!link) {
+    return { valid: false, errors: ['Link element is required'] };
+  }
+  
+  // Check if it's an anchor element
+  if (link.tagName !== 'A') {
+    errors.push('Element is not an anchor tag');
+    return { valid: false, errors };
+  }
+  
+  // Check for href attribute
+  const href = link.getAttribute('href');
+  if (!href || href === '#' || href === '') {
+    // If no href, check if it's properly set up as a button
+    const role = link.getAttribute('role');
+    if (role !== 'button') {
+      errors.push('Link missing href attribute and not configured as a button');
+    }
+    // Check for click handler
+    if (!link.onclick && !link.hasAttribute('data-handler')) {
+      errors.push('Fake link missing click handler');
+    }
+  }
+  
+  // Check for accessible name
+  const textContent = link.textContent ? link.textContent.trim() : '';
+  const ariaLabel = link.getAttribute('aria-label');
+  const ariaLabelledby = link.getAttribute('aria-labelledby');
+  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
+  
+  if (!hasAccessibleName) {
+    errors.push('Link is missing accessible name (text content, aria-label, or aria-labelledby)');
+  }
+  
+  // Check for valid href if present
+  if (href && href !== '#') {
+    // Check for javascript: links
+    if (href.toLowerCase().startsWith('javascript:')) {
+      errors.push('Link uses javascript: protocol which is not accessible');
+    }
+    // Check for mailto: links without proper labeling
+    if (href.toLowerCase().startsWith('mailto:') && !ariaLabel && !textContent.includes('@')) {
+      errors.push('Mailto link may need aria-label for clarity');
+    }
+  }
+  
+  // Check target="_blank" has rel="noopener noreferrer"
+  if (link.getAttribute('target') === '_blank') {
+    const rel = link.getAttribute('rel');
+    if (!rel || !rel.includes('noopener') || !rel.includes('noreferrer')) {
+      errors.push('External link with target="_blank" missing rel="noopener noreferrer"');
+    }
+  }
+  
+  // Check for redundant title attribute
+  const title = link.getAttribute('title');
+  if (title && title === textContent) {
+    errors.push('Link title attribute duplicates link text');
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
+/**
  * Creates an accessible in-page button and appends it to the given parent element.
  * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
  * @returns {HTMLElement} The created button element
@@ -394,6 +472,7 @@ module.exports = {
   setHtmlLangAttribute,
   detectAndSetLang,
   getLangAttribute,
+  personName,
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
@@ -402,5 +481,6 @@ module.exports = {
   getSvgAccessibleName,
   ensureUniqueLandmarks,
   createAccessibleLink,
+  isLinkAccessible,
   towerDefense
 };

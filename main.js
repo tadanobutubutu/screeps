@@ -1,7 +1,3 @@
-import './styles.css';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-
 // Landmark data structure
 const landmarks = [];
 

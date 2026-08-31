@@ -47,6 +47,25 @@ function ensureDependencyGraphARIA() {
   };
 }
 
+// Function to count dependencies
+function countDependencies(dependencies) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0;
+  }
+  
+  let count = 0;
+  
+  if (Array.isArray(dependencies)) {
+    // Count array elements
+    count = dependencies.length;
+  } else {
+    // Count object properties
+    count = Object.keys(dependencies).length;
+  }
+  
+  return count;
+}
+
 // Function to handle sorting books by title (ascending)
 export function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
@@ -219,7 +238,7 @@ function Main() {
 }
 
 // Export the necessary functions for use in other modules
-export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport };
+export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport, countDependencies };
 // Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 
 // Export the Main component

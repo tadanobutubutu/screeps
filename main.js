@@ -7,6 +7,11 @@
  * Main application entry point with accessibility features
  */
 
+// Import required modules
+const path = require('path');
+const fs = require('fs');
+const child_process = require('child_process');
+
 function addSvgAccessibilityProps() {
   const svgElements = document.querySelectorAll('svg');
 
@@ -24,7 +29,7 @@ function addSvgAccessibilityProps() {
   });
 }
 
-const checkTableStructure = /* existing code */
+const checkTableStructure = /* existing code */;
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -43,8 +48,6 @@ const sampleInsightReport = {
 // Implement function for addressing accessibility issues from insight report
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
     const packageJsonPath = path.join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
@@ -135,7 +138,9 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
-    handleCredentialResponse
+    handleCredentialResponse,
+    MyComponent,
+    AddressabilityIssues
   };
 } else {
   // Browser environment - wait for DOM
@@ -380,7 +385,6 @@ const AddressabilityIssues = {
   },
 
   spawnSomeCommand(callback) {
-    const child_process = require('child_process');
     child_process.spawn('someCommand', {}, {
       stdio: 'inherit',
     }).on('exit', (code, signal) => {
@@ -397,8 +401,6 @@ const AddressabilityIssues = {
   },
 
   countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
     const packageJsonPath = path.join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
@@ -413,14 +415,17 @@ const AddressabilityIssues = {
   }
 };
 
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
 function MyComponent() {
   // Existing code that needs to be updated
   const langAttr = getLangAttribute();
-  return (
-    <div lang={langAttr}>
-      {/* Content */}
-    </div>
-  );
+  const div = document.createElement('div');
+  div.setAttribute('lang', langAttr);
+  div.textContent = 'Content';
+  return div;
 }
 
 export {

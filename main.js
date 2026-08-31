@@ -93,11 +93,43 @@ function validateSession(sessionId) {
 }
 
 /**
+ * Revoke a session
+ * @param {string} sessionId
+ * @returns {boolean} True if session was revoked
+ */
+function revokeSession(sessionId) {
+    const existed = appState.sessions.has(sessionId);
+    if (existed) {
+        appState.sessions.delete(sessionId);
+    }
+    return existed;
+}
+
+/**
+ * Generate a new session ID
+ * @returns {string} New session ID
+ */
+function generateSessionId() {
+    return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+/**
  * Get the count of active sessions
  * @returns {number}
  */
 function getActiveSessionsCount() {
     return appState.sessions.size;
+}
+
+/**
+ * Create a new session
+ * @param {Object} userData - User data to store in session
+ * @returns {string} Session ID
+ */
+function createSession(userData) {
+    const sessionId = generateSessionId();
+    appState.sessions.set(sessionId, { user: userData, createdAt: Date.now() });
+    return sessionId;
 }
 
 const a11yStore = {
@@ -108,14 +140,17 @@ const a11yStore = {
    * @returns {boolean} True if the user prefers reduced motion
    */
   prefersReducedMotion() {
+    if (typeof window === 'undefined') return false;
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
 
   prefersHighContrast() {
+    if (typeof window === 'undefined') return false;
     return window.matchMedia('(prefers-contrast: more)').matches;
   },
 
   updateLiveRegion(message, priority = 'polite') {
+    if (typeof document === 'undefined') return;
     if (!this.liveRegion) this.createLiveRegion();
     this.announce(message, priority);
   },
@@ -199,6 +234,16 @@ const a11yStore = {
     });
   },
 
+  /**
+   * New function implementation from origin/main
+   */
+  newFunction() {
+    // New function implementation from origin/main
+    if (typeof console !== 'undefined') {
+      console.log('New function called');
+    }
+  },
+
   preserveExistingCode() {
     // TODO: This is the existing code that needs to be preserved
     // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -207,12 +252,67 @@ const a11yStore = {
     // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
     // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
     // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-  },
-
-  newFunction() {
-    // New function implementation from origin/main
   }
 };
+
+// Main entry point for the Screeps bot.
+// Handles core game logic and integration points.
+class ScreepsBot {
+  constructor() {
+    this.network = null;
+    this.tasks = [];
+    this.config = {};
+  }
+
+  async start() {
+    // Initialize network connection
+    await this.network.connect();
+    
+    // Load initial data
+    await this.loadData();
+    
+    console.log('Screenspider bot started');
+  }
+
+  loadData() {
+    // Placeholder for data loading logic
+    // Implement actual data fetching here
+  }
+
+  // Accessibility enhancement: Ensure all UI elements are properly labeled
+  setElementLabel(elementId, label) {
+    if (typeof document === 'undefined') return;
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.setAttribute('aria-label', label);
+      el.setAttribute('role', 'button');
+    }
+  }
+
+  // New feature: Priority-based task scheduling
+  addTaskWithPriority(taskFn, priority = 'medium') {
+    this.tasks.push({ task: taskFn, priority });
+    this.scheduleTasks();
+  }
+
+  scheduleTasks() {
+    // Sort tasks by priority (high > medium > low)
+    this.tasks.sort((a, b) => {
+      const prioOrder = { high: 0, medium: 1, low: 2 };
+      return prioOrder[b.priority] - prioOrder[a.priority];
+    });
+
+    // Execute highest priority task
+    if (this.tasks.length > 0) {
+      const nextTask = this.tasks[0];
+      try {
+        nextTask.task();
+      } catch (err) {
+        console.error(`Task failed: ${err.message}`);
+      }
+    }
+  }
+}
 
 /**
  * Get the language attribute for an element or document.
@@ -292,6 +392,85 @@ function validateLinkAccessibility(link) {
  */
 function handleFakeLinks() {
   a11yStore.fixFakeLinks();
+}
+
+/**
+ * Wrap primary content in a main element for accessibility
+ */
+function wrapPrimaryContentInMain() {
+  if (typeof document === 'undefined') return;
+  const main = document.querySelector('main');
+  if (!main) {
+    const mainEl = document.createElement('main');
+    mainEl.id = 'main-content';
+    while (document.body.firstChild) {
+      mainEl.appendChild(document.body.firstChild);
+    }
+    document.body.appendChild(mainEl);
+  }
+}
+
+/**
+ * Check landmarks for uniqueness and add labels
+ */
+function checkLandmarks() {
+  a11yStore.checkLandmarkElements();
+}
+
+/**
+ * Ensure landmark elements have unique IDs
+ */
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') return;
+  const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
+  const idCounts = {};
+  
+  landmarks.forEach((landmark) => {
+    const tag = landmark.tagName.toLowerCase();
+    idCounts[tag] = (idCounts[tag] || 0) + 1;
+    if (!landmark.id || landmark.id === '') {
+      landmark.id = `${tag}-${idCounts[tag]}`;
+    }
+  });
+}
+
+/**
+ * Handle focus trap for modal dialogs
+ * @param {HTMLElement} container - Container element
+ */
+function handleFocusTrap(container) {
+  if (typeof document === 'undefined' || !container) return;
+  const focusableElements = container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (focusableElements.length === 0) return;
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+  
+  container.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  });
+}
+
+/**
+ * Get accessible name for SVG element
+ * @param {SVGElement} svg
+ * @returns {string}
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const title = svg.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent;
+  }
+  return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
 }
 
 /**
@@ -387,265 +566,39 @@ function processData(items) {
 function handleCredentialResponse(credentialResponse) {
     const parsedResponse = parseCredentialResponse(credentialResponse);
     
-    if (!parsedResponse.success) {
-        return {
-            status: 'error',
-            message: parsedResponse.error
-        };
+    if (!parsedResponse) {
+        return { status: 'error', message: 'Failed to parse credential response' };
     }
-
-    const credential = parsedResponse.credential;
     
-    if (!credential) {
-        return {
-            status: 'error',
-            message: 'No credential provided'
-        };
+    if (parsedResponse.success === false) {
+        return { status: 'error', message: parsedResponse.error };
     }
-
-    // Decode the JWT token to extract user information
-    const decodedToken = decodeJwtToken(credential);
     
-    if (!decodedToken) {
-        return {
-            status: 'error',
-            message: 'Failed to decode credential token'
-        };
-    }
-
-    // Create session for the authenticated user
-    const sessionId = generateSessionId();
-    const sessionData = {
-        user: {
-            email: decodedToken.email,
-            name: decodedToken.name,
-            picture: decodedToken.picture,
-            sub: decodedToken.sub
-        },
-        authenticatedAt: Date.now(),
-        credential: credential
-    };
-
-    appState.sessions.set(sessionId, sessionData);
-    appState.credentials.push({
-        sessionId,
-        clientId: parsedResponse.clientId,
-        timestamp: Date.now()
-    });
-
     return {
         status: 'success',
-        sessionId,
-        user: sessionData.user
+        credential: parsedResponse
     };
 }
 
 /**
- * Generate a unique session ID
- * @returns {string} - Generated session ID
- */
-function generateSessionId() {
-    const timestamp = Date.now().toString(36);
-    const randomPart = Math.random().toString(36).substring(2, 15);
-    return timestamp + '-' + randomPart;
-}
-
-/**
- * Validates the structure of the table to ensure accessibility.
- * @param {HTMLElement} table - The table to validate
- * @returns {boolean} True if the table is accessible, false otherwise
+ * Validate table structure for accessibility
+ * @param {HTMLElement} table
+ * @returns {boolean}
  */
 function validateTableStructure(table) {
-    if (!table) {
-        throw new Error('Table is required');
-    }
-    
-    // Check for table caption (provides context for screen readers)
-    const caption = table.querySelector('caption');
-    if (!caption) {
-        return false;
-    }
-    
-    // Check for header cells (required for accessible tables)
-    const headers = table.querySelectorAll('th');
-    if (headers.length === 0) {
-        return false;
-    }
-    
-    // Verify all header cells have scope attribute
-    for (const header of headers) {
-        if (!header.hasAttribute('scope')) {
-            return false;
-        }
-    }
-    
-    return true;
-}
-
-function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
+  if (!table || table.tagName !== 'TABLE') return false;
   
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
+  // Check for table header
+  const hasHeader = table.querySelector('thead') !== null;
+  const headerCells = table.querySelectorAll('th').length;
   
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
+  // Check for proper caption
+  const hasCaption = table.querySelector('caption') !== null;
   
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
+  // Check for scope attributes on header cells
+  const headersWithScope = table.querySelectorAll('th[scope]').length;
   
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
-    if (labeledElement && labeledElement.textContent) {
-      return labeledElement.textContent.trim();
-    }
-  }
-  
-  return 'SVG graphic';
-}
-
-/**
- * Renders the dependency graph view
- * @param {Object} deps - Dependencies object
- * @param {Object} options - Rendering options
- * @returns {string} Rendered dependency graph HTML
- */
-function renderDependencyGraph(deps, options = {}) {
-  // Use dependencyGraphContent from the imported module
-  return dependencyGraphContent(deps, options);
-}
-
-/**
- * Renders the main index view
- * @param {Object} data - View data
- * @param {Object} options - Rendering options
- * @returns {string} Rendered index HTML
- */
-function renderIndex(data, options = {}) {
-  // Use indexContent from the imported module
-  return indexContent(data, options);
-}
-
-if (typeof document !== 'undefined') {
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('lang', document.documentElement.lang);
-
-  if (!document.documentElement.getAttribute('lang')) {
-    document.documentElement.setAttribute('lang', 'en');
-  }
-}
-
-function newFunction() {
-  // Implementation from origin/main
-}
-
-if (typeof document !== 'undefined') {
-  const banners = document.querySelectorAll('[role="banner"], [role="header"]');
-  if (banners.length > 1) {
-    throw new Error('Document should have at most one banner or header landmark');
-  }
-}
-
-function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
-}
-
-function wrapPrimaryContentInMain() {
-  if (typeof document === 'undefined' || !document.body) {
-    return null;
-  }
-
-  let mainElement = document.querySelector('main');
-  if (mainElement) {
-    return mainElement;
-  }
-
-  const elementsToExclude = [];
-  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
-  landmarks.forEach(landmark => elementsToExclude.push(landmark));
-
-  mainElement = document.createElement('main');
-
-  const bodyChildren = Array.from(document.body.children);
-  bodyChildren.forEach(child => {
-    if (!elementsToExclude.includes(child)) {
-      mainElement.appendChild(child);
-    }
-  });
-
-  document.body.appendChild(mainElement);
-
-  return mainElement;
-}
-
-function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
-}
-
-/**
- * Ensure unique main landmarks exist in the document.
- * Logs a warning if multiple main landmarks are detected.
- */
-function ensureUniqueLandmarks() {
-  const mains = document.querySelectorAll('main, [role="main"]');
-  if (mains.length > 1) {
-    console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
-    throw new Error('Document should have at most one main landmark');
-  }
-}
-
-/**
- * Revoke a session
- * @param {string} sessionId - The session ID to revoke
- * @returns {boolean} - True if session was revoked
- */
-function revokeSession(sessionId) {
-    return appState.sessions.delete(sessionId);
-}
-
-/**
- * Focus trap handler to keep focus within a container.
- * @param {Element} element - Element to monitor for focus events
- */
-function handleFocusTrap(element) {
-  if (!element || typeof element.querySelectorAll !== 'function') {
-    return;
-  }
-
-  const focusableElements = Array.from(element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  ));
-
-  if (focusableElements.length === 0) {
-    return;
-  }
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  element.addEventListener('keydown', function(event) {
-    if (event.key !== 'Tab') {
-      return;
-    }
-
-    if (event.shiftKey) {
-      if (document.activeElement === firstElement) {
-        event.preventDefault();
-        lastElement.focus();
-      }
-    } else {
-      if (document.activeElement === lastElement) {
-        event.preventDefault();
-        firstElement.focus();
-      }
-    }
-  });
+  return hasHeader && headerCells > 0 && (hasCaption || headersWithScope > 0);
 }
 
 // HTTP Server setup
@@ -742,6 +695,19 @@ const server = http.createServer((req, res) => {
     res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
 });
 
+/**
+ * Helper function for UI updates with accessibility
+ * @param {string} elementId - Element ID to update
+ * @param {string} text - Text content to set
+ */
+function updateUI(elementId, text) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.textContent = text;
+    element.setAttribute('aria-live', 'polite');
+  }
+}
+
 // Start server if this is the main module
 if (require.main === module) {
     const PORT = process.env.PORT || 3000;
@@ -752,7 +718,7 @@ if (require.main === module) {
 
 // Export modules for testing
 module.exports = {
-    addSvgAccessibilityProps,
+    addSvgAccessibilityProps: a11yStore.addSVGAccessibilityProps,
     isLandmarkElement,
     handleCredentialResponse,
     parseCredentialResponse,
@@ -765,10 +731,11 @@ module.exports = {
     server,
     sanitizeFilename,
     processData,
-    renderDependencyGraph,
-    renderIndex,
-    newFunction,
-    checkLandmarkElement,
+    renderDependencyGraph: main.renderDependencyGraph,
+    renderIndex: main.renderIndex,
+    greetingFunction,
+    newFunction: a11yStore.newFunction,
+    checkLandmarkElement: a11yStore.checkLandmarkElements,
     wrapPrimaryContentInMain,
     checkLandmarks,
     ensureUniqueLandmarks,
@@ -780,5 +747,9 @@ module.exports = {
     setSvgAttributes,
     validateLinkAccessibility,
     handleFakeLinks,
-    addProperLandmarkRegions
+    addProperLandmarkRegions,
+    ScreepsBot,
+    config,
+    getWelcomeMessage,
+    updateUI
 };

@@ -1,12 +1,10 @@
 /**
  * Main application entry point
  */
- 
+
 // Import required modules
 const http = require('http');
 const path = require('path');
-
-// TODO: This is the existing code that needs to be preserved
 
 // Application configuration
 const config = {
@@ -50,6 +48,11 @@ function newFunction() {
   console.log('This is the new function that was requested to be added.');
 }
 
+// Add lang attribute to the response header for accessibility
+function addLangAttribute(res) {
+  res.setHeader('lang', 'en');
+}
+
 // Exports (if any) must be preserved
 // export ...; // Example of an existing export
 
@@ -59,7 +62,8 @@ module.exports = {
   startApp,
   config,
   newFunction,
-  countDependencies
+  countDependencies,
+  addLangAttribute
 };
 
 // Start the application if run directly

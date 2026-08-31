@@ -303,4 +303,12 @@ export {
   someFunction,
   exportedFunction,
 };
-```
+
+// TODO: Implement this function for creating in-page buttons
+// (Implementation added below)
+function createInPageButton() {
+  const button = document.createElement('button');
+  button.textContent = 'Accessible Button';
+  button.setAttribute('aria-label', 'Accessible Button');
+  document.body.appendChild(button);
+}

@@ -7,11 +7,11 @@
 // REACT_036: Fix 1 fake link issue
 
 // REACT_015: Add lang attribute to the <html> element
-function addLangAttribute(html) {
+function addLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;
     return html.replace(/<html([^>]*)>/i, (match, attrs) => {
         if (/\blang=/i.test(match)) return match;
-        return `<html${attrs} lang="en">`;
+        return `<html${attrs} lang="${lang}">`;
     });
 }
 
@@ -151,7 +151,7 @@ function addSvgAccessibleNames(html) {
     return html;
 }
 
-// REACT_025: Ensure unique landmarks (2 issues)
+// REACT_025: Ensure unique landmarks
 function ensureUniqueLandmarks(html) {
     if (typeof html !== 'string') return html;
 
@@ -182,7 +182,7 @@ function ensureUniqueLandmarks(html) {
             html = html.replace(pattern, (match) => {
                 count++;
                 if (count === 1) return match;
-                return match.replace(/^</, '<' + tag).replace(`<${tag}`, `<${tag} role="region"`);
+                return match.replace(new RegExp(`<${tag}`, 'i'), `<${tag} role="region"`);
             });
         }
     });
@@ -190,7 +190,7 @@ function ensureUniqueLandmarks(html) {
     return html;
 }
 
-// REACT_036: Fix 1 fake link issue
+// REACT_036: Fix fake link issues
 function fixFakeLinks(html) {
     if (typeof html !== 'string') return html;
 
@@ -238,8 +238,6 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.className = buttonClass;
     document.body.appendChild(button);
 }
-
-// TODO: Re-add the required exports for functionA and functionB
 
 module.exports = {
     addLangAttribute,

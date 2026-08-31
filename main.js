@@ -17,7 +17,7 @@ function getLangAttribute() {
 }
 
 // Function to ensure ARIA attributes are properly set for the dependency graph
-function ensureDependencyGraphARIA() {
+function ensureAccessibilityAttributes() {
   // Ensure the document has proper lang attribute for accessibility
   const lang = getLangAttribute();
   
@@ -55,7 +55,7 @@ function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        description={book.author}
+        ...
       />
     </List.Item>
   );
@@ -71,21 +71,21 @@ function addBook(book) {
 }
 
 // Ensure accessibility attributes are set when adding a book
-ensureDependencyGraphARIA();
+...
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
@@ -108,10 +108,12 @@ function Main() {
 
   // Render the list of book items and sorting controls
   return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />
+    <div role="main">
+      <div role="region" aria-label="Sorting controls">
+        <button onClick={() => setSorting(sortByTitle)} aria-label="Sort books by title">Sort by Title</button>
+        <button onClick={() => setSorting(sortByAuthor)} aria-label="Sort books by author">Sort by Author</button>
+      </div>
+      <List itemLayout="vertical" ... renderItem={book => BookItem(book)} />
       {/* Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
     </div>

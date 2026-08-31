@@ -489,3 +489,8 @@ export {
   validateAndRender,
   renderPage
 };
+
+// Additional exports for missing functions identified in the issue
+export { ensureUniqueLandmarkId };
+export { addLangAttribute };
+export { wrapPrimaryContentInMain };

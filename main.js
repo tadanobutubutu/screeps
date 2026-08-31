@@ -48,6 +48,9 @@ app.get('/api/status', (req, res) => {
   });
 });
 
+// New: Check link accessibility
+checkLinkAccessibility();
+
 // TODO: Implement renderIndexView functionality
 function renderIndexView(req, res, options = {}) {
   const defaultOptions = {

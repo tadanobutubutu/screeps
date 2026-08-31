@@ -1,5 +1,5 @@
 // main.js
-// Updated to import and use dependencyGraphContent and indexContent, and introduce getDependencyGraphData function.
+// Updated to import and use dependencyGraphContent and indexContent
 
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
@@ -33,37 +33,15 @@ export function renderIndex() {
 
 // Any other existing code remains unchanged
 // TODO: Add back any required exports that might have been removed
-// TODO: This is the existing code that needs to be preserved
-//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-//<!-- todo-hash: ... -->
+// TODO: Address accessibility issues from insight report — CONTINUING
 
-// main.js
-// Updated to import and use dependencyGraphContent and indexContent
-import { dependencyGraphContent } from './dependencyGraphContent';
-import { indexContent } from './indexContent';
+// Combined id and ARIA label from both branches
+const dependencyGraphContainer = document.createElement('div');
+dependencyGraphContainer.id = 'dependencyGraph';
+dependencyGraphContainer.setAttribute('role', 'region');
+dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
 
-// Existing functions (preserved)
-// ... (any other imports and functions remain unchanged)
-
-/**
- * Renders the dependency graph view.
- * Updated to use dependencyGraphContent.
- */
-export function renderDependencyGraph() {
-  // Example usage: replace with actual rendering logic
-  console.log('Rendering dependency graph', dependencyGraphContent);
-}
-
-/**
- * Renders the index view.
- * Updated to use indexContent.
- */
-export function renderIndex() {
-  // Example usage: replace with actual rendering logic
-  console.log('Rendering index', indexContent);
-}
-
-export { makeHeaderFocusable }; // new export statement from conflicting branch
+export { makeHeaderFocusable };
 
 function ensureElementId(element) {
   // Combined and reconciled code from both branches
@@ -79,22 +57,6 @@ function addAriaLabel(element) {
   }
 }
 
-const dependencyGraphContainer = document.createElement('div');
-dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
-dependencyGraphContainer.setAttribute('role', 'region');
-dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
-
-// TODO: Address accessibility issues from insight report — CONTINUING
-// - Added keyboard navigation support
-// - Added ARIA labels for interactive elements
-// - Added screen reader announcements
-// - Added focus trapping for modals
-// Imported from conflicting changes (FIXME: review and merge correctly)
-
-/**
- * Adds keyboard navigation support to an element.
- * @param {HTMLElement} element - The element to make keyboard navigable.
- */
 export function addKeyboardNavigation(element) {
   if (!element) return;
   element.setAttribute('tabindex', '0');
@@ -107,20 +69,11 @@ export function addKeyboardNavigation(element) {
   });
 }
 
-/**
- * Sets an ARIA label on an interactive element.
- * @param {HTMLElement} element - The element to label.
- * @param {string} label - The label text.
- */
 export function setAriaLabel(element, label) {
   if (!element) return;
   element.setAttribute('aria-label', label);
 }
 
-/**
- * Announces a message to screen readers via an aria-live region.
- * @param {string} message - The message to announce.
- */
 export function announceToScreenReader(message) {
   let liveRegion = document.getElementById('sr-live-region');
   if (!liveRegion) {
@@ -135,10 +88,6 @@ export function announceToScreenReader(message) {
   liveRegion.textContent = message;
 }
 
-/**
- * Traps focus within a modal element so keyboard navigation stays inside it.
- * @param {HTMLElement} modal - The modal element.
- */
 export function trapFocusInModal(modal) {
   if (!modal) return;
   const focusableSelectors = 'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])';

@@ -5,7 +5,7 @@
 // (This comment remains as-is)
 // TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport } = require('./utilities');
+const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, validateAccessibilityReport } = require('./utilities');
 const main = require('./utilities');
 
 const http = require('http');
@@ -708,6 +708,64 @@ if (typeof document !== 'undefined') {
   }
 }
 
+/**
+ * Wraps the primary content element in a <main> landmark element for accessibility.
+ * This ensures proper landmark structure for screen readers.
+ * 
+ * @param {HTMLElement|string} containerOrSelector - The container element or CSS selector
+ * @param {Object} [options={}] - Configuration options
+ * @param {string} [options.mainId='main-content'] - ID to assign to the main element
+ * @param {string} [options.mainLabel='Main content'] - aria-label for the main element
+ * @param {boolean} [options.skipExistingMain=true] - Skip if a main element already exists
+ * @returns {HTMLElement|null} The created or existing main element, or null if failed
+ */
+function wrapPrimaryContentInMain(containerOrSelector, options = {}) {
+  const {
+    mainId = 'main-content',
+    mainLabel = 'Main content',
+    skipExistingMain = true
+  } = options;
+
+  // Get the container element
+  let container;
+  if (typeof containerOrSelector === 'string') {
+    container = document.querySelector(containerOrSelector);
+  } else if (containerOrSelector instanceof HTMLElement) {
+    container = containerOrSelector;
+  }
+
+  if (!container) {
+    log('wrapPrimaryContentInMain: Container not found', 'error');
+    return null;
+  }
+
+  // Check if a main element already exists (by ID or tag)
+  if (skipExistingMain) {
+    const existingMain = container.querySelector('main') || document.getElementById(mainId);
+    if (existingMain) {
+      log('wrapPrimaryContentInMain: Main element already exists, skipping', 'info');
+      return existingMain;
+    }
+  }
+
+  // Create the main element
+  const mainElement = document.createElement('main');
+  mainElement.id = mainId;
+  mainElement.setAttribute('aria-label', mainLabel);
+
+  // Move all children of the container into the main element
+  while (container.firstChild) {
+    mainElement.appendChild(container.firstChild);
+  }
+
+  // Append the main element to the container
+  container.appendChild(mainElement);
+
+  log('wrapPrimaryContentInMain: Primary content wrapped in <main> landmark', 'info');
+  
+  return mainElement;
+}
+
 // Export all functions
 module.exports = {
   ...main,
@@ -755,5 +813,6 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   newFocusTrap,
-  transformInputData
+  transformInputData,
+  wrapPrimaryContentInMain
 };

@@ -290,6 +290,77 @@ export {
   checkLinkAccessibility,
 };
 
+// Helper functions to support missing imports
+function formatCurrency(amount) {
+  return `$${amount.toFixed(2)}`;
+}
+
+function formatDate(date) {
+  return date.toLocaleDateString();
+}
+
+function calculateDiscount(subtotal) {
+  if (subtotal > 100) return subtotal * 0.1;
+  return 0;
+}
+
+function validateInput(input) {
+  return input !== null && input !== undefined && input !== '';
+}
+
+function renderHeader(title) {
+  return `<header><h1>${title}</h1></header>`;
+}
+
+function renderFooter() {
+  return `<footer><p>© 2023 My Company</p></footer>`;
+}
+
+function renderProductCard(product) {
+  return `<div class="product-card">${formatProductName(product)}</div>`;
+}
+
+// State management
+const state = {
+  cart: [],
+  products: []
+};
+
+function updateState(newState) {
+  Object.assign(state, newState);
+  return state;
+}
+
+// Landmark utility function
+function addLandmarkRegionToElement(element, regionType) {
+  if (element && regionType) {
+    element.setAttribute('role', regionType);
+  }
+}
+
+// Dependency utilities
+function getDependencyDepth(module) {
+  if (!module || !module.dependencies) return 0;
+  if (module.dependencies.length === 0) return 1;
+  return 1 + Math.max(...module.dependencies.map(dep => getDependencyDepth(dep)));
+}
+
+// New function to render dependency graphs or display module structure
+function renderDependencyGraph(module) {
+  // Implementation to render the dependency graph for a given module
+  // This is a placeholder function and should be replaced with actual logic
+  console.log('Rendering dependency graph for:', module);
+  // Example output: 'Rendering dependency graph for: ModuleName'
+}
+
+// New function to display module structure
+function displayModuleStructure(module) {
+  // Implementation to display the module structure for a given module
+  // This is a placeholder function and should be replaced with actual logic
+  console.log('Displaying module structure for:', module);
+  // Example output: 'Displaying module structure for: ModuleName'
+}
+
 // Export utility functions
 export {
   formatCurrency,
@@ -383,22 +454,6 @@ function ensureUniqueLandmarks(landmarksList) {
   return uniqueLandmarks;
 }
 
-// New function to render dependency graphs or display module structure
-function renderDependencyGraph(module) {
-  // Implementation to render the dependency graph for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Rendering dependency graph for:', module);
-  // Example output: 'Rendering dependency graph for: ModuleName'
-}
-
-// New function to display module structure
-function displayModuleStructure(module) {
-  // Implementation to display the module structure for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Displaying module structure for:', module);
-  // Example output: 'Displaying module structure for: ModuleName'
-}
-
 function handleFakeLinks(links) {
   const fixedLinks = [];
   
@@ -469,6 +524,9 @@ function displayModuleStructure(modules) {
 function calculateSum(a, b) {
   return a + b;
 }
+
+// Create a local reference to greet from main object for export
+const greet = main.greet;
 
 module.exports = {
   main,

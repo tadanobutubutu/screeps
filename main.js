@@ -37,7 +37,10 @@ function getSvgAccessibleName() {
 }
 
 function createInPageButton() {
-  // ... code for handling in-page button creation
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  return button;
 }
 
 // ADD: New function for handling the new accessibility issues from the insight report
@@ -75,6 +78,14 @@ if (typeof window !== 'undefined') {
   functionsToExpose.forEach(functionName => {
     window[functionName] = window[functionName] || eval(functionName);
   });
+}
+
+/**
+ * A new function to be added
+ * This function does a specific functionality
+ */
+function myNewFunction() {
+  // Implement your new functionality here
 }
 
 // Application configuration
@@ -311,6 +322,7 @@ module.exports = {
   createServer,
   startApp,
   config,
+  myNewFunction,
   handleCredentialResponse,
   getStoredCredentials,
   handleAddLangAttribute,

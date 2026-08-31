@@ -1,4 +1,5 @@
-import './styles.css';
+// TODO: This is the existing code that needs to be preserved
+import './styles.less';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 
@@ -17,9 +18,9 @@ let icons = {};
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//<!-- todo- hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f80b51b788bad4952d8f93f08d3c7d22a06ff80d3_
+//<!-- todo- hash: b498b47abee4b3f29c69a97b2237d968a50cc419 -->
 
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
@@ -89,7 +90,7 @@ function checkLandmarkElement(id) {
 // Ensure unique landmarks by filtering duplicates
 function ensureUniqueLandmarks(landmarksArray) {
   if (!landmarksArray || landmarksArray.length === 0) {
-      return {};
+      return [];
   }
   const seen = new Set();
   return landmarksArray.filter(landmark => {
@@ -114,10 +115,11 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (!elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
-        } else {
+        if (elementsById[landmark.id]) {
+          elementsById[landmark.id + '_duplicate'] = true;
           landmark.id += '_duplicate';
+        } else {
+          elementsById[landmark.id] = true;
         }
       }
     }

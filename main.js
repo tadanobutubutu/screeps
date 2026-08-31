@@ -156,6 +156,12 @@ const addLandmarkRoles = () => {
   if (footerElement && !footerElement.getAttribute('role')) {
     footerElement.setAttribute('role', 'contentinfo');
   }
+
+  // Specific main-content ID
+  const mainContent = document.getElementById('main-content');
+  if (mainContent && !mainContent.getAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
 };
 
 /**
@@ -308,21 +314,22 @@ const appData = {
 // Initialization function
 const initApp = () => {
   // Initialize the main application
-  initializeApp();
+  console.log('Application initializing');
 
   // Apply accessibility fixes
   setLanguageAttribute(); // Default to 'en'
   addLandmarkRoles();
-  ensureUniqueLandmarks(landmarks);
 
   // Add accessible names to SVGs (example selectors and names)
   addSVGAccessibleName('.home-icon', 'Home icon');
   addSVGAccessibleName('.settings-icon', 'Settings icon');
 
   // Define icons object
-  icons = {
+  const icons = {
     icon: '<svg viewBox="0 0 100 100" aria-label="Screeps icon"></svg>'
   };
+  
+  return { appData, icons };
 }
 
 function getConfig() {
@@ -399,37 +406,6 @@ function handleEvent(event) {
   // Event handling logic would go here
 }
 
-// Merged landmark roles function to include both implementations
-function addLandmarkRoles() {
-  // From HEAD: Navigation, Main, Header
-  const navElement = document.querySelector('nav');
-  if (navElement && !navElement.getAttribute('role')) {
-    navElement.setAttribute('role', 'navigation');
-  }
-
-  const mainElement = document.querySelector('main');
-  if (mainElement && !mainElement.getAttribute('role')) {
-    mainElement.setAttribute('role', 'main');
-  }
-
-  const headerElement = document.querySelector('header');
-  if (headerElement && !headerElement.getAttribute('role')) {
-    headerElement.setAttribute('role', 'banner');
-  }
-
-  // From origin/main: Footer
-  const footerElement = document.querySelector('footer');
-  if (footerElement && !footerElement.getAttribute('role')) {
-    footerElement.setAttribute('role', 'contentinfo');
-  }
-
-  // From origin/main: Specific main-content ID
-  const mainContent = document.getElementById('main-content');
-  if (mainContent && !mainContent.getAttribute('role')) {
-    mainContent.setAttribute('role', 'main');
-  }
-}
-
 // Function to add accessible names to 2 SVGs
 function addSvgAccessibleNames() {
   const svg1 = document.getElementById('svg1');
@@ -440,7 +416,7 @@ function addSvgAccessibleNames() {
 }
 
 // Function to ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
+function ensureUniqueLandmarkRoles() {
   // Define landmark roles - some should be unique per page
   const uniqueLandmarkRoles = ['main', 'banner', 'contentinfo'];
   const multipleAllowedRoles = ['navigation', 'complementary', 'region', 'search', 'form'];
@@ -516,7 +492,7 @@ function ensureUniqueLandmarks() {
 
 // Function to fix 1 fake link issue
 function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('[href="#"]:not([ aria-hidden ])');
+  const fakeLinks = document.querySelectorAll('[href="#"]:not([aria-hidden])');
   fakeLinks.forEach((link) => {
     link.removeAttribute('href');
   });
@@ -569,7 +545,7 @@ function initialize() {
   addSvgAccessibleNames();
 
   // Accessibility: Ensure unique landmarks (2 issues)
-  ensureUniqueLandmarks();
+  ensureUniqueLandmarkRoles();
 
   // Accessibility: Fix 1 fake link issue
   fixFakeLink();

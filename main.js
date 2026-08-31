@@ -41,7 +41,7 @@ export const main = {
   // New function to address all accessibility issues
   addressAccessibilityIssues: function() {
     fixAccessibilityIssues();
-    visualizeDependencyTree(getDependencies()); // Replace getDependencies() with actual function or variable
+    ... // Replace getDependencies() with actual function or variable
   }
 };
 
@@ -105,7 +105,7 @@ if (fakeLink && fakeLink.tagName === 'A') {
 import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
-      const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+      const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
       const data = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(data);
   } catch (error) {
@@ -120,15 +120,15 @@ function processLandmarks(landmarks) {
         return [];
     }
 
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+    const validLandmarks = landmarks.filter(landmark => landmark && landmark.name);
+    const uniqueLandmarks = [...new Set(validLandmarks.map(landmark => landmark.name))];
 
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
 // Sort landmarks by name (new addition)
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
+    return landmarks.sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
 

@@ -37,34 +37,37 @@ module.exports = function() {
 
     // New: Check link accessibility
     checkLinkAccessibility();
+
+    // New function to check link accessibility
+    function checkLinkAccessibility() {
+        const doc = getDocument();
+        if (doc) {
+            const links = doc.querySelectorAll('a');
+            let issues = [];
+            links.forEach(link => {
+                if (!link.textContent && !link.getAttribute('aria-label')) {
+                    issues.push('Link missing accessible name');
+                }
+            });
+            return issues.length === 0;
+        }
+    }
+
+    // New function to address accessibility issues
+    function addressAccessibilityIssues(doc) {
+        if (!doc || !doc.documentElement) {
+            // Fallback for environment without document (e.g., test environment)
+            return;
+        }
+
+        // ... existing code ...
+    }
+
+    // New function to get the document
+    function getDocument() {
+        if (typeof document !== 'undefined') {
+            return document;
+        }
+        return null;
+    }
 };
-
-function checkLinkAccessibility() {
-    const doc = getDocument();
-    if (doc) {
-        const links = doc.querySelectorAll('a');
-        let issues = [];
-        links.forEach(link => {
-            if (!link.textContent && !link.getAttribute('aria-label')) {
-                issues.push('Link missing accessible name');
-            }
-        });
-        return issues.length === 0;
-    }
-}
-
-function addressAccessibilityIssues(doc) {
-    if (!doc || !doc.documentElement) {
-        // Fallback for environment without document (e.g., test environment)
-        return;
-    }
-
-    // ... existing code ...
-}
-
-function getDocument() {
-    if (typeof document !== 'undefined') {
-        return document;
-    }
-    return null;
-}

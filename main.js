@@ -37,11 +37,21 @@ function startApp() {
   return server;
 }
 
+/**
+ * Adds a new function to the main.js file
+ * This function will return a string with the server status
+ * @returns {string} The server status
+ */
+function getServerStatus() {
+  return `Server is running on port ${config.port}`;
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  getServerStatus
 };
 
 // Start the application if run directly

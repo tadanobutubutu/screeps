@@ -8,6 +8,14 @@ const path = require('path');
 
 // TODO: This is the existing code that needs to be preserved
 
+/**
+ * A new function to be added
+ * This function does a specific functionality
+ */
+function myNewFunction() {
+  // Implement your new functionality here
+}
+
 // Application configuration
 const config = {
   port: process.env.PORT || 3000,
@@ -41,7 +49,8 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  myNewFunction // New function is added here
 };
 
 // Start the application if run directly

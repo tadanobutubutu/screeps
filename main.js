@@ -1,6 +1,3 @@
-import express from 'express';
-import path from 'path';
-import fs from 'fs';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
@@ -12,8 +9,18 @@ import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibility
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 import { CONFIG } from './utils/constants';
 import { App } from './App';
+import './styles.css';
 
-const expressApp = express();
+// Landmark data structure
+const landmarks = [];
+
+// Application data structure
+const appData = {
+    title: 'Frontend Application',
+    version: '1.0.0'
+};
+
+let icons = {};
 
 // Configuration and state
 let config = {};
@@ -202,24 +209,11 @@ function wrapPrimaryContentInMain(parent) {
   // ... original function implementation ...
 }
 
-function ensureUniqueLandmarks(landmarks) {
-  // Implementation for ensuring unique landmarks
-  return landmarks;
-}
-
 function addLangAttribute() {
   const lang = getLangAttribute();
   if (typeof document !== 'undefined' && document.documentElement) {
     document.documentElement.lang = lang;
   }
-}
-
-function addLandmarkRoles() {
-  // Implementation for adding landmark roles
-}
-
-function fixFakeLinks() {
-  // Implementation for fixing fake links
 }
 
 function createInPageButton() {
@@ -257,15 +251,61 @@ function formatResponse(data) {
   return { success: true, data };
 }
 
-let icons = {};
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
-};
+// Implemented validateLandmark functionality
+function validateLandmark(landmark) {
+  const errors = [];
 
-/**
- * Initializes the application and applies accessibility fixes.
- */
+  // Check if landmark exists
+  if (!landmark) {
+    errors.push('Landmark is required');
+    return { valid: false, errors };
+  }
+
+  // Validate name
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
+  }
+
+  // Validate latitude
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+
+  // Validate longitude
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+
+  // Additional validation changes from the other branch
+  if (Array.isArray(landmark) && landmark.length > 0) {
+    if (!landmark[0].name || typeof landmark[0].name !== 'string' || landmark[0].name.trim() === '') {
+      errors.push('Landmark array must have a name');
+    }
+  }
+
+  // Check for updated validation changes from another branch that also checks for array composition
+  if (Array.isArray(landmark)) {
+    landmark.forEach(innerLandmark => {
+      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+        errors.push('Landmark array must have valid names');
+      }
+    });
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
 const initApp = () => {
   // Initialize the main application
   initializeAppWrapper();
@@ -285,13 +325,20 @@ const initApp = () => {
 
   // Initialize the application data
   console.log('Initializing ' + appData.title + ' v' + appData.version);
-  // ... (assuming other initialization logic is present)
 };
 
 function setLanguageAttribute(lang = 'en') {
   if (typeof document !== 'undefined' && document.documentElement) {
     document.documentElement.lang = lang;
   }
+}
+
+function addLandmarkRoles() {
+  // Implementation for adding landmark roles
+}
+
+function fixFakeLinks() {
+  // Implementation for fixing fake links
 }
 
 // Check if the environment is secure before initializing
@@ -327,8 +374,63 @@ function countDependencies() {
   return dependencies.length;
 }
 
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  return element !== null;
+}
+
+// Ensure unique landmarks by filtering duplicates
+function ensureUniqueLandmarks(landmarksArray) {
+  if (!landmarksArray || landmarksArray.length === 0) {
+      return {};
+  }
+  const seen = new Set();
+  return landmarksArray.filter(landmark => {
+    const key = landmark.name + '_' + (landmark.role || 'default');
+    // Merge both approaches for checking uniqueness
+    if (seen.has(key)) {
+        return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+// Updated function: ensures landmarks uniqueness when there's an array structure
+function ensureLandmarkUniqueness(elements) {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+
+  const elementsById = {};
+
+  if (Array.isArray(elements)) {
+    for (const landmark of elements) {
+      if (landmark.id) {
+        if (elementsById[landmark.id]) {
+          elementsById[landmark.id] = true;
+        } else {
+          landmark.id += '_duplicate';
+        }
+      }
+    }
+  }
+
+  return elements;
+}
+
+// Updated function using the new functions for rendering graph/index
+function renderDependencyGraphContent() {
+  const container = document.getElementById('dependencyGraph');
+  if (!container) {
+    return;
+  }
+  
+  // Use the new functions for rendering
+  renderDependencyGraph(container);
+  renderIndexView(container);
+}
+
 // Export all functions for Node.js/CommonJS
-module.exports = {
+export {
   config: CONFIG,
   App,
   someFunction: function() {
@@ -358,7 +460,6 @@ module.exports = {
   validateInput,
   processData,
   formatResponse,
-  config: CONFIG,
   isValidLandmark,
   loadLandmarks,
   processLandmarks,
@@ -372,11 +473,16 @@ module.exports = {
   sortByTitle,
   sortByAuthor,
   countDependencies,
-  main
+  main,
+  checkLandmarkElement,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  isSecureContext,
+  initApp,
+  landmarks,
+  appData,
+  icons,
+  ensureLandmarkUniqueness,
+  renderDependencyGraphContent
 };
-
-expressApp.use('/', expressApp);
-const port = process.env.PORT || 3000;
-expressApp.listen(port, () => {
-  console.log(`Listening on port ${port}`);
-});

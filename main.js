@@ -49,6 +49,16 @@ if (require.main === module) {
   startApp();
 }
 
+// New code to address accessibility issues
+function setARIARoleForDependencyGraph() {
+  // Assuming there is a DOM element with the id 'dependencyGraph'
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    // Set the appropriate ARIA role
+    dependencyGraph.setAttribute('role', 'grid');
+  }
+}
+
 // New functions for addressing accessibility issues
 function addLangAttribute() {
   const htmlElement = document.querySelector('html');
@@ -95,6 +105,11 @@ function fixFakeLink() {
     link.setAttribute('href', link.getAttribute('data-href'));
   });
 }
+
+// Call the function to set the ARIA role when the application starts
+startApp().on('listening', () => {
+  setARIARoleForDependencyGraph();
+});
 
 // Call these functions as needed, for example on page load
 window.onload = () => {

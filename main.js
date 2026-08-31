@@ -209,6 +209,63 @@ function renderDependencyGraph(data, container) {
   return container;
 }
 
+/**
+ * Generates a report based on accessibility issues
+ * @param {Array<Object>} issues - The list of accessibility issues
+ * @returns {Object} A report summarizing the accessibility issues
+ */
+function generateAccessibilityReport(issues) {
+  if (!Array.isArray(issues)) {
+    throw new Error('Issues must be an array');
+  }
+  
+  const report = {
+    totalIssues: issues.length,
+    severityCounts: {
+      critical: 0,
+      serious: 0,
+      moderate: 0,
+      minor: 0
+    },
+    issuesByType: {},
+    issues: []
+  };
+  
+  issues.forEach(issue => {
+    if (!issue || typeof issue !== 'object') {
+      return;
+    }
+    
+    const severity = issue.severity || 'minor';
+    if (report.severityCounts[severity] !== undefined) {
+      report.severityCounts[severity]++;
+    } else {
+      report.severityCounts.minor++;
+    }
+    
+    const type = issue.type || 'other';
+    if (!report.issuesByType[type]) {
+      report.issuesByType[type] = 0;
+    }
+    report.issuesByType[type]++;
+    
+    report.issues.push({
+      type: type,
+      severity: severity,
+      message: issue.message || '',
+      element: issue.element || null
+    });
+  });
+  
+  report.summary = `Found ${report.totalIssues} accessibility issue(s): ` +
+    `${report.severityCounts.critical} critical, ` +
+    `${report.severityCounts.serious} serious, ` +
+    `${report.severityCounts.moderate} moderate, ` +
+    `${report.severityCounts.minor} minor.`;
+  
+  return report;
+}
+
 // REACT_017: Add/fix landmark issues - Add main landmark
 function addMainLandmark(document) {
   const mainElements = document.querySelectorAll('main');
@@ -287,7 +344,7 @@ function ensureUniqueLandmarks(document) {
       if (seenIds.has(id)) {
         landmark.id = `${id}-unique-${Math.random().toString(36).substr(2, 9)}`;
       }
-      seenIds.add(landmark.id);
+      seenIds.add(id);
     }
   });
   
@@ -551,51 +608,6 @@ const loop = () => {
 
 // Module exports
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        loop,
-        myNewFunction,
-        ensureDependencyGraphARIA,
-        ensureLandmarkIds,
-        addressAccessibilityIssues,
-        validateLandmarkStructure,
-        getLandmarkSummary,
-        findLandmarks,
-        LANDMARK_ELEMENTS,
-        LANDMARK_SELECTORS,
-        add,
-        subtract,
-        multiply,
-        divide,
-        addLangAttribute,
-        fixTableStructure,
-        addMainLandmark,
-        ensureUniqueLandmarks,
-        addSvgAccessibleNames,
-        fixFakeLinkIssue,
-        handleCredentialResponse,
-        newFocusTrap
-    };
-}
-
-// Auto-validate on load if this is a browser context
-if (typeof window !== 'undefined') {
-    // Store validation result globally for debugging
-    window.landmarkValidation = validateLandmarkStructure(document);
-}
-
-// Main accessibility fix function
-function applyAccessibilityFixes(document, options = {}) {
-  const lang = options.lang || 'en';
-  
-  return {
-    langAdded: addLangAttribute(document, lang),
-    tablesFixed: fixTableStructureIssues(document),
-    mainsAdded: addMainLandmark(document),
-    svgsFixed: addSvgAccessibleNames(document),
-    landmarksEnsured: ensureUniqueLandmarks(document),
-    linksFixed: fixFakeLinkIssue(document)
-  };
-}
 
 // Export all functions
 module.exports = {
@@ -617,5 +629,58 @@ module.exports = {
   addAccessibleNamesToSvg,
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraph
+  renderDependencyGraph,
+  myFunction: function () {
+    // Existing implementation
+  },
+  addLangAttribute: addLangAttribute,
+  generateAccessibilityReport: generateAccessibilityReport,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  checkLinkAndButtonAccessibility,
+  applyAccessibilityFixes,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarksArray,
+  getSvgAccessibleName,
+  addAccessibleNamesToSvg,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph,
+  handleCredentialResponse,
+  newFocusTrap,
+  loop,
+  generateAccessibilityReport,
+  ensureDependencyGraphARIA,
+  ensureLandmarkIds,
+  addressAccessibilityIssues,
+  validateLandmarkStructure,
+  getLandmarkSummary,
+  findLandmarks,
+  LANDMARK_ELEMENTS,
+  LANDMARK_SELECTORS
 };
+
+// Auto-validate on load if this is a browser context
+if (typeof window !== 'undefined') {
+    // Store validation result globally for debugging
+    window.landmarkValidation = validateLandmarkStructure(document);
+}
+
+// Main accessibility fix function
+function applyAccessibilityFixes(document, options = {}) {
+  const lang = options.lang || 'en';
+  
+  return {
+    langAdded: addLangAttribute(document, lang),
+    tablesFixed: fixTableStructureIssues(document),
+    mainsAdded: addMainLandmark(document),
+    svgsFixed: addSvgAccessibleNames(document),
+    landmarksEnsured: ensureUniqueLandmarks(document),
+    linksFixed: fixFakeLinkIssue(document)
+  };
+}

@@ -35,7 +35,25 @@ function generateAccessibilityReport(issuesData) {
   };
 
   // Fill the report's data and conclusions
-  // ...
+  if (analyzedIssues && analyzedIssues.length > 0) {
+    report.data = {
+      totalIssues: analyzedIssues.length,
+      issues: analyzedIssues,
+    };
+    
+    // Generate conclusions based on issue severity
+    const criticalIssues = analyzedIssues.filter(i => i.severity === 'critical').length;
+    const majorIssues = analyzedIssues.filter(i => i.severity === 'major').length;
+    const minorIssues = analyzedIssues.filter(i => i.severity === 'minor').length;
+    
+    report.conclusions = `Found ${analyzedIssues.length} accessibility issues: ${criticalIssues} critical, ${majorIssues} major, and ${minorIssues} minor.`;
+  } else {
+    report.data = {
+      totalIssues: 0,
+      issues: [],
+    };
+    report.conclusions = 'No accessibility issues found. Your application is fully accessible!';
+  }
 
   // Return the final report
   return report;

@@ -2,6 +2,12 @@
 // <!-- todo-hash: 479849cecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 
 // TODO: This is the existing code that needs to be preserved
+
+// Add lang attribute to HTML element
+if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.setAttribute('lang', 'en'); // Assuming English is the default language
+}
+
 // Existing exports and functions should remain here
 
 // Here is the implementation for checking link accessibility
@@ -28,3 +34,5 @@ function addressAccessibilityIssues(insightReport) {
 
 // Preserve existing exports and functions
 // ... (existing exports and functions from main.js)
+
+// ...rest of the main.js content, preserving existing exports, functions, and structure

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Main JavaScript file
 // This file handles the main application logic
 
@@ -58,6 +55,37 @@ Here is the resolved file content:
       button.textContent = 'Accessibility Info';
       button.setAttribute('aria-label', 'Show accessibility information');
       document.body.appendChild(button);
+    }
+
+    // Function to ensure unique landmarks
+    function ensureUniqueLandmarks() {
+      // Get all elements with ARIA role attributes
+      const landmarkRoles = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article', 'form'];
+      const elementsByRole = {};
+
+      // Collect elements by their role
+      document.querySelectorAll('[role]').forEach(element => {
+        const role = element.getAttribute('role');
+        if (landmarkRoles.includes(role)) {
+          if (!elementsByRole[role]) {
+            elementsByRole[role] = [];
+          }
+          elementsByRole[role].push(element);
+        }
+      });
+
+      // For each role with multiple elements, ensure they are unique
+      Object.keys(elementsByRole).forEach(role => {
+        const elements = elementsByRole[role];
+        if (elements.length > 1) {
+          elements.forEach((element, index) => {
+            if (index > 0) {
+              // For duplicate elements, add a unique aria-label
+              element.setAttribute('aria-label', `${role} ${index + 1}`);
+            }
+          });
+        }
+      });
     }
 
     // Function to address accessibility issues
@@ -128,6 +156,9 @@ Here is the resolved file content:
       if (htmlElement) {
         htmlElement.setAttribute('lang', getLangAttribute());
       }
+
+      // Ensure unique landmarks
+      ensureUniqueLandmarks();
     }
 
     // Export the report generation function
@@ -179,4 +210,3 @@ Here is the resolved file content:
         }
     }
 })();
-```

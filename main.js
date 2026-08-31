@@ -5,6 +5,52 @@ function calculateSum(a, b) {
 }
 
 /**
+ * Checks link and button accessibility in a given context
+ * @param {Object} context - Context object containing document or DOM elements
+ * @returns {Array} - Array of accessibility issues found
+ */
+function checkLinkAndButtonAccessibility(context = {}) {
+  const issues = [];
+  const documentObj = context.document || (typeof document !== 'undefined' ? document : {});
+  
+  if (typeof documentObj.querySelectorAll !== 'function') {
+    return issues;
+  }
+  
+  try {
+    // Check links
+    const links = documentObj.querySelectorAll('a');
+    links.forEach((link, index) => {
+      if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
+        issues.push({
+          type: 'link',
+          element: link,
+          index: index,
+          description: 'Link without accessible name or text content'
+        });
+      }
+    });
+    
+    // Check buttons
+    const buttons = documentObj.querySelectorAll('button');
+    buttons.forEach((button, index) => {
+      if (!button.textContent.trim() && !button.getAttribute('aria-label')) {
+        issues.push({
+          type: 'button',
+          element: button,
+          index: index,
+          description: 'Button without accessible name or text content'
+        });
+      }
+    });
+  } catch (error) {
+    // Error handling for DOM queries in restricted environments
+  }
+  
+  return issues;
+}
+
+/**
  * Addresses accessibility issues from an insight report by applying fixes
  * @param {Array} issues - Array of accessibility issues to address
  * @param {Object} options - Options for how to address the issues

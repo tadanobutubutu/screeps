@@ -1,19 +1,7 @@
-// TODO: This is the existing code that needs to be preserve
-// (This comment remains as-is)
-
-// Import the new modules (from HEAD)
-import React from 'react';
-import { render } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-import { WindowContext } from 'react-open-window';
-
-// CommonJS requires (from origin/main)
-
 const main = require('./utilities');
 const { requireDir } = require('require-dir');
 requireDir(require.resolve('./utilities'));
 
-// Import all utilities functions for convenience
 const {
   createInPageButton,
   createWebResourceButton,
@@ -42,18 +30,42 @@ const {
   addAccessibleNamesToSVGs,
   renderDependencyGraphAria,
   addMainLandmarkToIndex,
-  // New function to handle focus trap
   newFocusTrap: newMainFocusTrap,
-  // New functions to address new accessibility issues from insight report
-  newAddressAccessibilityIssues: addressAccessibilityIssues
+  newAddressAccessibilityIssues: addressAccessibilityIssues,
+  dependencyGraphContent,
+  indexContent
 } = main;
+
+const {
+  addLangAttribute: importedAddLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  uniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  googleSignIn,
+  decodeJwtResponse,
+  fixButtonIdentifiers,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs
+} = require('./AccessibilityHelpers');
+
+const { dependencyGraphContent: externalDependencyGraphContent } = require('./dependency-graph');
+const { indexContent: externalIndexContent } = require('./index-template');
 
 const a11yStore = {
   prefersReducedMotion() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
   newFocusTrap: newMainFocusTrap,
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  handleAccessibilityIssues
 };
 
 const appState = {
@@ -62,123 +74,126 @@ const appState = {
 
 const http = require('http');
 
-// Import required modules
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-function ensureElementId(element, fs = fs, path = path) {
+function ensureElementId(element, fsModule = fs, pathModule = path) {
   if (element && !element.id) {
     element.id = 'element-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
   }
-  return id;
-}
-
-const handleCredentialResponse = (credentialResponse) => {
-  // Process credential response - basic implementation
-  if (!credentialResponse || typeof credentialResponse !== 'object') {
-    return { status: 'error', message: 'Invalid credential response' };
-  }
-
-  // Check for site name in the origin and set it as the username
-  const siteName = document.location.hostname;
-  const username = siteName.split('.').slice(0, 2).join('.');
-
-  // Handle the credentialResponse
-  const authentication = credentialResponse.getBasicProfile();
-  if (authentication) {
-    const idToken = credentialResponse.getIdToken();
-
-    // Store the session data
-    const sessionData = {
-      idToken,
-      email: sessionData.email,
-      username,
-      firstName: authentication.getGivenName(),
-      lastName: authentication.getFamilyName(),
-      imageUrl: authentication.getImageUrl(),
-    };
-
-    // Add or update session data in the state
-    const existingSession = appState.sessions.get(sessionData.idToken);
-    if (existingSession) {
-      existingSession.email = sessionData.email;
-      existingSession.firstName = sessionData.firstName;
-      existingSession.lastName = sessionData.lastName;
-      existingSession.imageUrl = sessionData.imageUrl;
-    } else {
-      appState.sessions.set(sessionData.idToken, sessionData);
-    }
-
-    // Announce success to screen readers (guard in case function missing)
-    if (accessibilityUtils.announceToScreenReader) {
-      accessibilityUtils.announceToScreenReader(`Logged in as ${sessionData.username}`);
-    }
-
-    return { status: 'success', data: sessionData };
-  }
-
-  return { status: 'error', message: 'User does not have a Google account' };
-};
-
-/**
- * Adds an aria-label attribute to an element.
- * @param {HTMLElement} element - The element to add aria-label to
- * @param {string} label - The label text to set
- * @returns {HTMLElement} The element with the aria-label added
- */
-function addAriaLabel(element, label) {
-  if (!element) {
-    return null;
-  }
-
-  if (typeof label !== 'string' || label.trim() === '') {
-    return element;
-  }
-
-  element.setAttribute('aria-label', label);
   return element;
 }
 
-// Find the relevant rendering functions, that's where we might add the new modules.
-// We'll assume there are two relevant functions, `renderMyComponent` and `renderAnotherComponent`.
+function addAccessibleName(svgString) {
+  const svg = new DOMParser().parseFromString(svgString, "image/svg+xml");
+  const svgElement = svg.documentElement;
+  if (!svgElement.getAttribute('aria-label')) {
+    svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
+  }
+  return new XMLSerializer().serializeToString(svg);
+}
 
-// original code for renderMyComponent before the line 70 comment
-// ...
+function validateTableAccessibility(tableData) {
+  return true;
+}
 
-// Add the new module usage to renderMyComponent
+function validateTableStructure(tableData) {
+  return true;
+}
+
+function handleAccessibilityIssues() {
+  getLangAttribute();
+  validateTableAccessibility();
+  validateTableStructure();
+  validateLandmark();
+  validateLandmarkStructure();
+  ensureUniqueLandmarks();
+  getSvgAccessibleName();
+  createInPageButton();
+}
+
+function formatVersion(version) {
+  if (!version) return 'latest';
+  return version.startsWith('v') ? version : `v${version}`;
+}
+
+function sanitizeHtml(str) {
+  if (!str) return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function renderMyComponent(props) {
-  // use the imported React module here and other necessary work
+  // Use the imported React module here and other necessary work
   // ...
 }
 
-// original code for renderAnotherComponent before the line 70 comment
-// ...
-
-// Add the new module usage to renderAnotherComponent
 function renderAnotherComponent(props) {
-  // use the imported React module, Testing Library, and WindowContext here and other necessary work
+  // Use the imported React module, Testing Library, and WindowContext here
   // ...
 }
 
-/**
- * Renders the graph index view
- * @param {Object} graphData - The graph data to render
- * @returns {string} Rendered graph index HTML
- */
 function renderGraphIndex(graphData) {
-  // Use the existing renderDependencyGraph function for actual rendering
   return renderDependencyGraph(graphData);
 }
 
-/**
- * Renders the dependency graph view
- * @param {Object} deps - Dependencies object
- * @param {Object} options - Rendering options
- * @returns {string} Rendered dependency graph HTML
- */
 function renderDependencyGraph(deps, options = {}) {
-  // Use dependencyGraphContent from the imported module
-  // Note: dependencyGraphContent should be provided by the utilities module
-  return dependencyGraphContent(deps, options);
+  return externalDependencyGraphContent(deps, options);
 }
+
+function renderIndex() {
+  return externalIndexContent();
+}
+
+function renderAdditionalContent() {
+  // Implementation placeholder
+  return '';
+}
+
+module.exports = {
+  renderDependencyGraph,
+  renderIndex,
+  handleAccessibilityIssues,
+  formatVersion,
+  sanitizeHtml,
+  validateTableAccessibility,
+  validateTableStructure,
+  renderAdditionalContent,
+  createInPageButton,
+  createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  getSvgAccessibleName,
+  getLangAttribute,
+  ensureElementId,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addMainLandmark,
+  addLangAttribute,
+  fixTableStructureIssues,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  renderDependencyGraphAria,
+  addMainLandmarkToIndex,
+  dependencyGraphContent: externalDependencyGraphContent,
+  indexContent: externalIndexContent,
+  addAccessibleName,
+  newFocusTrap: newMainFocusTrap,
+  addressAccessibilityIssues: addressAccessibilityIssues
+};

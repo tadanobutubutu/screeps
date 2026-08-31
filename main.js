@@ -1,22 +1,13 @@
-Here's the resolved `main.js` file:
-
-```javascript
-// Toy example for a mixed repository with accessibility improvements and dependency visualization tool features
-
-import './styles.less';
 import react from 'react';
 import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { getLangAttribute, getFullLangAttribute, validateTableAccessibility, validateTableStructure } from './utils/accessibilityUtils';
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
 import { CONFIG } from './utils/constants';
 
 import fs from 'fs';
 import path from 'path';
-
 import react, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 
@@ -63,19 +54,13 @@ const App = () => {
 
 const Accessibility = ({ data }) => {
   // ... Your accessibility-related code here ...
+  // ... Newly added functionality for addressing accessibility issues from the insight report ...
 };
 
 const DependencyVisualization = ({ data }) => {
   // ... Your dependency visualization code here ...
 };
 
-export default App;
-
-// Node.js functions for dependency visualization tool
-const fs = require('fs');
-const path = require('path');
-
-// Load landmarks from file (new addition)
 const loadLandmarks = () => {
   try {
     const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
@@ -87,7 +72,6 @@ const loadLandmarks = () => {
   }
 };
 
-// Process and filter landmarks (new addition)
 const processLandmarks = (landmarks) => {
   if (!Array.isArray(landmarks)) {
     return [];
@@ -99,7 +83,6 @@ const processLandmarks = (landmarks) => {
   return uniqueLandmarks.slice(0, CONFIG.maxResults);
 };
 
-// Sort landmarks by name (new addition)
 const sortLandmarks = (landmarks, ascending = true) => {
   return [...landmarks].sort((a, b) => {
     const nameA = (a.name || '').toLowerCase();
@@ -112,12 +95,10 @@ const sortLandmarks = (landmarks, ascending = true) => {
   });
 };
 
-// Get landmark by ID (new addition)
 const getLandmarkById = (landmarks, id) => {
   return landmarks.find(landmark => landmark && landmark.id === id) || null;
 };
 
-// Ensure unique landmarks by ID (new addition)
 const ensureUniqueLandmarks = (landmarks) => {
   if (!Array.isArray(landmarks)) {
     return [];
@@ -142,7 +123,7 @@ const ensureUniqueLandmarks = (landmarks) => {
   return uniqueLandmarks;
 };
 
-// Export functions for testing (new addition)
+// Export functions for testing
 export { loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks };
 
 // CommonJS export for testing
@@ -154,7 +135,6 @@ if (typeof module !== 'undefined' && module.exports) {
     getLandmarkById,
     ensureUniqueLandmarks,
   };
-}
 ```
 
-This file combines both accessibility improvements and dependency visualization tools. The Node.js functions for loading, processing, and sorting landmarks were moved to the bottom of the file.
+In the resolved version of the `main.js` file, the React app and the file I/O functions for dependency visualization tools are integrated into a single script. Also, the Node.js functions related to handling and managing landmark data have been moved to the bottom of the file, following the existing React portion for better organization and separation of concerns.

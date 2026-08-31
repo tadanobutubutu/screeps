@@ -191,47 +191,201 @@ function calculateSum(numbers) {
 // Additional utility functions for accessibility
 function addMainLandmark() {
   // Implementation for REACT_017: Add landmark issues
-  // ...
+  const existingMain = document.querySelector('main');
+  if (!existingMain) {
+    const mainElement = document.createElement('main');
+    const body = document.body;
+    if (body.firstChild) {
+      body.insertBefore(mainElement, body.firstChild);
+    } else {
+      body.appendChild(mainElement);
+    }
+    return mainElement;
+  }
+  return existingMain;
 }
 
 function ensureUniqueLandmarks() {
   // Implementation for REACT_025: Ensure unique landmarks
-  // ...
+  const landmarks = document.querySelectorAll(
+    'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]'
+  );
+  
+  const landmarkTypes = {};
+  let fixedCount = 0;
+  
+  landmarks.forEach((landmark) => {
+    const tagName = landmark.tagName.toLowerCase();
+    const role = landmark.getAttribute('role');
+    const identifier = role || tagName;
+    
+    if (!landmarkTypes[identifier]) {
+      landmarkTypes[identifier] = 0;
+    } else {
+      landmarkTypes[identifier]++;
+      if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+        landmark.setAttribute('aria-label', `${identifier} ${landmarkTypes[identifier] + 1}`);
+        fixedCount++;
+      }
+    }
+  });
+  
+  return fixedCount;
 }
 
 function addAltAttribute() {
   // Implementation for adding alt attributes
-  // ...
+  const images = document.querySelectorAll('img:not([alt])');
+  let addedCount = 0;
+  
+  images.forEach((img) => {
+    const src = img.getAttribute('src') || '';
+    const filename = src.split('/').pop() || 'image';
+    img.setAttribute('alt', filename);
+    addedCount++;
+  });
+  
+  return addedCount;
 }
 
 function replaceButtonId() {
   // Implementation for replacing button id
-  // ...
+  const buttons = document.querySelectorAll('button:not([id])');
+  let fixedCount = 0;
+  
+  buttons.forEach((button, index) => {
+    const existingText = button.textContent.trim();
+    const id = `button-${index + 1}-${Date.now()}`;
+    button.id = id;
+    fixedCount++;
+  });
+  
+  return fixedCount;
 }
 
 function addLangAttribute() {
   // Implementation for adding lang attribute
-  // ...
+  const html = document.querySelector('html');
+  if (html && !html.hasAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+    return true;
+  }
+  return false;
 }
 
 function fixTableStructure() {
   // Implementation for fixing table structure
-  // ...
+  const tables = document.querySelectorAll('table');
+  let fixedCount = 0;
+  
+  tables.forEach((table) => {
+    let fixed = false;
+    
+    // Add caption if missing
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table';
+      table.insertBefore(caption, table.firstChild);
+      fixed = true;
+    }
+    
+    // Ensure thead exists
+    if (!table.querySelector('thead')) {
+      const rows = table.querySelectorAll('tr');
+      if (rows.length > 0) {
+        const thead = document.createElement('thead');
+        thead.appendChild(rows[0]);
+        table.insertBefore(thead, table.firstChild);
+        fixed = true;
+        
+        // Add scope to header cells
+        const headerCells = thead.querySelectorAll('th');
+        headerCells.forEach((cell) => {
+          if (!cell.hasAttribute('scope')) {
+            cell.setAttribute('scope', 'col');
+          }
+        });
+      }
+    }
+    
+    if (fixed) fixedCount++;
+  });
+  
+  return fixedCount;
 }
 
 function addSvgAccessibleName() {
   // Implementation for adding SVG accessible name
-  // ...
+  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+  let addedCount = 0;
+  
+  svgs.forEach((svg, index) => {
+    const title = svg.querySelector('title');
+    if (title) {
+      const titleId = `svg-title-${index}-${Date.now()}`;
+      title.id = titleId;
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-labelledby', titleId);
+      addedCount++;
+    } else {
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-label', `Image ${index + 1}`);
+      addedCount++;
+    }
+  });
+  
+  return addedCount;
 }
 
 function fixFakeLinkIssue() {
   // Implementation for fixing fake link issues
-  // ...
+  const fakeLinks = document.querySelectorAll('[role="link"]:not(a), span[onclick], div[onclick]');
+  let fixedCount = 0;
+  
+  fakeLinks.forEach((element) => {
+    const onclick = element.getAttribute('onclick');
+    const text = element.textContent.trim();
+    
+    if (onclick) {
+      const anchor = document.createElement('a');
+      anchor.setAttribute('href', '#');
+      anchor.setAttribute('onclick', `${onclick}; return false;`);
+      anchor.textContent = text;
+      
+      // Copy accessibility attributes
+      const ariaLabel = element.getAttribute('aria-label');
+      if (ariaLabel) {
+        anchor.setAttribute('aria-label', ariaLabel);
+      }
+      
+      element.parentNode.replaceChild(anchor, element);
+      fixedCount++;
+    }
+  });
+  
+  return fixedCount;
 }
 
 function addAriaAttribute() {
   // Implementation for adding aria attributes
-  // ...
+  const elements = document.querySelectorAll('input:not([aria-label]):not([aria-labelledby]), select:not([aria-label]):not([aria-labelledby]), textarea:not([aria-label]):not([aria-labelledby])');
+  let addedCount = 0;
+  
+  elements.forEach((element) => {
+    const placeholder = element.getAttribute('placeholder');
+    const id = element.id;
+    const label = document.querySelector(`label[for="${id}"]`);
+    
+    if (placeholder) {
+      element.setAttribute('aria-label', placeholder);
+      addedCount++;
+    } else if (label) {
+      element.setAttribute('aria-label', label.textContent.trim());
+      addedCount++;
+    }
+  });
+  
+  return addedCount;
 }
 
 /**

@@ -37,11 +37,18 @@ function startApp() {
   return server;
 }
 
+// New function to enhance accessibility
+function checkAccessibility() {
+  // Placeholder for actual accessibility check logic
+  console.log('Accessibility check is pending.');
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  checkAccessibility
 };
 
 // Start the application if run directly

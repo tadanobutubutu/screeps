@@ -253,6 +253,7 @@ module.exports = {
   getDependencyDepth,
   generateDependencyReport,
   renderDependencyHTML,
+  renderDependencyList,
   renderAccessibleDependencyGraph,
   visualizeDependencyTree,
   main

@@ -1,4 +1,5 @@
-// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 
 // TODO: Add back any required exports that might have been removed.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
@@ -381,6 +382,10 @@ function calculateTotalPrice(cart) {
   return subtotal - discount;
 }
 
+function calculateSum(numbers) {
+  return numbers.reduce((sum, num) => sum + num, 0);
+}
+
 function renderCart(cart) {
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const discount = calculateDiscount(subtotal);
@@ -449,6 +454,7 @@ export {
   formatCurrency,
   formatDate,
   calculateDiscount,
+  calculateSum,
   validateInput
 };
 

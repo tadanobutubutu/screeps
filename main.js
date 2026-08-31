@@ -1,11 +1,3 @@
-Looking at this conflict, I need to merge two branches:
-
-1. **HEAD branch**: Has a comprehensive structure with exports, accessibility utilities, export utils, spawn process, dependency graphs, etc.
-2. **origin/main branch**: Has new accessibility functions (addLangAttribute, fixTableStructure, addMainLandmark, fixLandmarkIssues, ensureUniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, googleSignIn, fixButtonIdentifiers)
-
-I'll integrate the new accessibility functions from origin/main into the HEAD branch structure, preserving both sets of functionality and ensuring everything is properly exported.
-
-```javascript
 // Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
@@ -14,17 +6,141 @@ const fs = require('fs');
 
 // Accessibility utilities and functions
 const accessibilityUtils = {
-  // ... existing methods from both branches ...
+  // Initialize skip link functionality for keyboard navigation
+  initSkipLink: () => {
+    const skipLink = document.querySelector('#skip-link');
+    if (skipLink) {
+      skipLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = skipLink.getAttribute('href');
+        const target = document.querySelector(targetId);
+        if (target) {
+          target.setAttribute('tabindex', '-1');
+          target.focus();
+        }
+      });
+    }
+  },
+
+  // Trap focus within an element (for modals, dialogs)
+  trapFocus: (element) => {
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    });
+  },
+
+  // Announce message to screen readers
+  announceToScreenReader: (message, priority = 'polite') => {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 1000);
+  },
+
+  // Handle keyboard navigation
+  handleKeyboardNav: (e, handlers) => {
+    const key = e.key;
+    if (handlers[key]) {
+      handlers[key](e);
+    }
+  }
 };
 
-// New functions from origin/main to address accessibility issues
+/**
+ * Ensures an element has an ID, generating one if needed.
+ * @param {HTMLElement} element - The element to check
+ * @param {string} prefix - Prefix for generated ID
+ * @returns {string} The element's ID
+ */
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element.id) {
+    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element.id;
+}
+
+/**
+ * Adds an aria-label attribute to an element.
+ * @param {HTMLElement} element - The element to add aria-label to
+ * @param {string} label - The label text to set
+ * @returns {HTMLElement} The element with the aria-label added
+ */
+function addAriaLabel(element, label) {
+  if (!element) {
+    return null;
+  }
+  
+  if (typeof label !== 'string' || label.trim() === '') {
+    return element;
+  }
+  
+  element.setAttribute('aria-label', label);
+  return element;
+}
+
+/**
+ * Ensures an element has both an id and an aria-label for accessibility.
+ * @param {HTMLElement} element - The element to enhance
+ * @param {string} idPrefix - The prefix for generating an id if needed
+ * @param {string} ariaLabel - The aria-label text
+ * @returns {string|null} The id of the element, or null if element is invalid
+ */
+function ensureElementAccessibility(element, idPrefix, ariaLabel) {
+  if (!element) {
+    return null;
+  }
+  
+  const id = ensureElementHasId(element, idPrefix);
+  addAriaLabel(element, ariaLabel);
+  
+  return id;
+}
+
+// Sample main.js with dependencyGraph container
+function renderDependencyGraph() {
+  const container = document.getElementById('dependency-graph');
+
+  if (container) {
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency graph visualization');
+    
+    // Ensure the container has an id for accessibility
+    ensureElementHasId(container, 'dep-graph');
+  }
+}
+
+// Accessibility functions to address insight report issues
+
+/**
+ * Adds lang attribute to the HTML element
+ */
 function addLangAttribute() {
-  // Add lang attribute to the HTML element
   document.documentElement.setAttribute('lang', 'en');
 }
 
+/**
+ * Fix table structure issues for accessibility
+ */
 function fixTableStructure() {
-  // Fix table structure issues for accessibility
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     if (!table.querySelector('thead')) {
@@ -38,15 +154,19 @@ function fixTableStructure() {
   });
 }
 
+/**
+ * Adds a main landmark to the document
+ */
 function addMainLandmark() {
-  // Add a main landmark
   const mainElement = document.createElement('main');
   mainElement.setAttribute('role', 'main');
   document.body.appendChild(mainElement);
 }
 
+/**
+ * Fix landmark issues in the document
+ */
 function fixLandmarkIssues() {
-  // Fix landmark issues
   const landmarks = document.querySelectorAll('[role], main, nav, header, footer');
   landmarks.forEach(landmark => {
     if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
@@ -55,8 +175,10 @@ function fixLandmarkIssues() {
   });
 }
 
+/**
+ * Ensure unique landmarks
+ */
 function ensureUniqueLandmarks() {
-  // Ensure unique landmarks
   const landmarks = document.querySelectorAll('nav, [role="navigation"]');
   landmarks.forEach((landmark, index) => {
     if (!landmark.id) {
@@ -65,8 +187,10 @@ function ensureUniqueLandmarks() {
   });
 }
 
+/**
+ * Add accessible names to SVGs using aria-label
+ */
 function addSvgAccessibleNames() {
-  // Add accessible names to SVGs
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
@@ -76,8 +200,10 @@ function addSvgAccessibleNames() {
   });
 }
 
+/**
+ * Add accessible names to SVGs using title element (alternative implementation)
+ */
 function addAccessibleNamesToSVGs() {
-  // Add accessible names to SVGs (alternative implementation)
   const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
   svgs.forEach(svg => {
     const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
@@ -87,8 +213,10 @@ function addAccessibleNamesToSVGs() {
   });
 }
 
+/**
+ * Fix fake link issue - elements with role="link" that aren't anchor tags
+ */
 function fixFakeLinkIssue() {
-  // Fix fake link issue
   const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
   fakeLinks.forEach(link => {
     if (!link.hasAttribute('tabindex')) {
@@ -97,13 +225,17 @@ function fixFakeLinkIssue() {
   });
 }
 
+/**
+ * Google sign-in logic placeholder
+ */
 function googleSignIn() {
-  // Google sign-in logic placeholder
   // Implementation would integrate with Google OAuth
 }
 
+/**
+ * Fix button identifiers for accessibility
+ */
 function fixButtonIdentifiers() {
-  // Replace 'my-button' with actual button id for accessibility
   const buttons = document.querySelectorAll('button');
   buttons.forEach((button, index) => {
     if (!button.id) {
@@ -115,6 +247,35 @@ function fixButtonIdentifiers() {
   });
 }
 
+/**
+ * New focus trap implementation
+ * @returns {Function} A function that traps focus within a given element
+ */
+function newFocusTrap() {
+  return (element) => {
+    if (!element) return;
+    const focusable = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          first.focus();
+          e.preventDefault();
+        }
+      }
+    });
+  };
+}
+
+// Export functionality with accessibility support
 const exportUtils = {
   exportData: (data, filename, mimeType) => {
     const blob = new Blob([data], { type: mimeType });
@@ -128,6 +289,7 @@ const exportUtils = {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
+    // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
   },
 
@@ -156,42 +318,20 @@ const exportUtils = {
   }
 };
 
-const initAccessibility = () => {
-  // Initialize accessibility features
-  addLangAttribute();
-  fixTableStructure();
-  addMainLandmark();
-  fixLandmarkIssues();
-  ensureUniqueLandmarks();
-  addSvgAccessibleNames();
-  addAccessibleNamesToSVGs();
-  fixFakeLinkIssue();
-  fixButtonIdentifiers();
-};
+function sanitizeFilename(filename) {
+  return filename.replace(/[^a-z0-9_.-]/gi, '_');
+}
 
-const handleCredentialResponse = (response) => {
-  // Handle credential response from Google sign-in
-  googleSignIn();
-};
-
-const ensureElementId = (element) => {
-  if (!element.id) {
-    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+function readFileSafe(filePath) {
+  try {
+    return fs.readFileSync(filePath, 'utf8');
+  } catch (error) {
+    log(`Error reading file ${filePath}: ${error.message}`, 'error');
+    return null;
   }
-  return element.id;
-};
+}
 
-const ensureElementHasId = (element, prefix) => {
-  if (!element.id) {
-    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  return element.id;
-};
-
-const addAriaLabel = (element, label) => {
-  element.setAttribute('aria-label', label);
-};
-
+// Dependency graph rendering functions
 const renderDependencyGraph = (data) => {
   // Render a single dependency graph
   const container = document.getElementById('dependency-graph');
@@ -239,30 +379,9 @@ const focusTrap = (element) => {
   });
 };
 
-const newFocusTrap = () => {
-  // New focus trap implementation
-  const element = document.querySelector('.modal');
-  if (element) {
-    focusTrap(element);
-  }
-};
-
 const spawnProcess = (command, args = [], options = {}) => {
   return spawn(command, args, options);
 };
-
-function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9_.-]/g, '_');
-}
-
-function readFileSafe(filePath) {
-  try {
-    return fs.readFileSync(filePath, 'utf8');
-  } catch (error) {
-    log(`Error reading file ${filePath}: ${error.message}`, 'error');
-    return null;
-  }
-}
 
 // Application data store
 let appData = {
@@ -270,7 +389,7 @@ let appData = {
   config: {}
 };
 
-// Additional functionality
+// Logging utility
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
   console.log(`${timestamp} [${level.toUpperCase()}] ${message}`);
@@ -303,9 +422,88 @@ function validateTableAccessibility() {
   return issues;
 }
 
-// Call initialization functions
-initAccessibility();
+// Data processing functions
+function processData(items) {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  return items.map(item => ({
+    ...item,
+    processed: true,
+    timestamp: Date.now()
+  }));
+}
 
+function filterValidItems(items, validator) {
+  return items.filter(item => {
+    try {
+      return validator(item);
+    } catch {
+      return false;
+    }
+  });
+}
+
+function groupByCategory(items, getCategory) {
+  return items.reduce((groups, item) => {
+    const category = getCategory(item);
+    if (!groups[category]) {
+      groups[category] = [];
+    }
+    groups[category].push(item);
+    return groups;
+  }, {});
+}
+
+// Initialize accessibility features
+const initAccessibility = () => {
+  // Initialize skip link
+  accessibilityUtils.initSkipLink();
+
+  // Add keyboard support for all interactive elements
+  document.querySelectorAll('[data-accessible]').forEach(element => {
+    element.addEventListener('keydown', (e) => {
+      accessibilityUtils.handleKeyboardNav(e, {
+        Enter: () => element.click(),
+        ' ': () => element.click()
+      });
+    });
+  });
+
+  // Run all accessibility fixes
+  addLangAttribute();
+  fixTableStructure();
+  addMainLandmark();
+  fixLandmarkIssues();
+  ensureUniqueLandmarks();
+  addSvgAccessibleNames();
+  addAccessibleNamesToSVGs();
+  fixFakeLinkIssue();
+  fixButtonIdentifiers();
+};
+
+const handleCredentialResponse = (response) => {
+  // Handle credential response from Google sign-in
+  googleSignIn();
+};
+
+const ensureElementId = (element) => {
+  if (!element.id) {
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element.id;
+};
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAccessibility);
+  } else {
+    initAccessibility();
+  }
+}
+
+// Export all utilities
 module.exports = {
   accessibilityUtils,
   exportUtils,
@@ -338,6 +536,8 @@ module.exports = {
   addAccessibleNamesToSVGs,
   fixFakeLinkIssue,
   googleSignIn,
-  fixButtonIdentifiers
+  fixButtonIdentifiers,
+  processData,
+  filterValidItems,
+  groupByCategory
 };
-```

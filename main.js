@@ -68,7 +68,7 @@ function formatDate(date) {
   if (!(date instanceof Date)) {
     date = new Date(date);
   }
-  return date.toISOString().split('T')[0];
+  return date.toISOString();
 }
 
 // Validate input function
@@ -206,7 +206,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_041':
         // Add accessible names to SVGs
         if (issue.element) {
-          setSvgAttributes(issue.element, getSvgAccessibleName());
+          setSvgAttributes(issue.element, issue.accessibleName || getSvgAccessibleName());
         }
         break;
       case 'REACT_025':
@@ -241,115 +241,99 @@ function getInsightReport() {
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
-    tableAccessibilityIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_027',
-        subtype: 'accessibility',
-        description: issue.description || 'Table accessibility issue',
-        severity: issue.severity || 'high',
-        element: issue.element,
-        table: issue.table
-      });
+    issues.push({
+      type: 'REACT_027',
+      subtype: 'accessibility',
+      description: issue.description || 'Table accessibility issue',
+      severity: issue.severity || 'high',
+      element: issue.element,
+      table: issue.table
     });
   }
   
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
-    tableStructureIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_027',
-        subtype: 'structure',
-        description: issue.description || 'Table structure issue',
-        severity: issue.severity || 'high',
-        element: issue.element,
-        table: issue.table
-      });
+    issues.push({
+      type: 'REACT_027',
+      subtype: 'structure',
+      description: issue.description || 'Table structure issue',
+      severity: issue.severity || 'high',
+      element: issue.element,
+      table: issue.table
     });
   }
   
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
-    landmarkIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_017',
-        description: issue.description || 'Landmark issue',
-        severity: issue.severity || 'medium',
-        element: issue.element,
-        landmark: issue.landmark
-      });
+    issues.push({
+      type: 'REACT_017',
+      description: issue.description || 'Landmark issue',
+      severity: issue.severity || 'medium',
+      element: issue.element,
+      landmark: issue.landmark
     });
   }
   
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
-    landmarkStructureIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_017',
-        structure: true,
-        description: issue.description || 'Landmark structure issue',
-        severity: issue.severity || 'medium',
-        element: issue.element,
-        landmark: issue.landmark
-      });
+    issues.push({
+      type: 'REACT_017',
+      structure: true,
+      description: issue.description || 'Landmark structure issue',
+      severity: issue.severity || 'medium',
+      element: issue.element,
+      landmark: issue.landmark
     });
   }
   
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
-    landmarkAttributeIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_017',
-        description: issue.description || 'Landmark attribute issue',
-        severity: issue.severity || 'low',
-        element: issue.element,
-        landmark: issue.landmark
-      });
+    issues.push({
+      type: 'REACT_017',
+      description: issue.description || 'Landmark attribute issue',
+      severity: issue.severity || 'low',
+      element: issue.element,
+      landmark: issue.landmark
     });
   }
   
   // Check SVG accessibility
-  const svgAccessibleNames = getSvgAccessibleName();
+  const svgAccessibleNames = [];
   if (svgAccessibleNames && svgAccessibleNames.length > 0) {
-    svgAccessibleNames.forEach(function(svg) {
-      issues.push({
-        type: 'REACT_041',
-        description: 'SVG is missing accessible name',
-        severity: 'medium',
-        svg: svg.element,
-        svgId: svg.id
-      });
+    issues.push({
+      type: 'REACT_041',
+      description: 'SVG is missing accessible name',
+      severity: 'medium',
+      svg: svg.element,
+      svgId: svg.id
     });
   }
   
   // Check for unique landmarks
   const uniqueLandmarkIssues = ensureUniqueLandmarks();
   if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
-    uniqueLandmarkIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_025',
-        description: issue.description || 'Duplicate or missing landmark',
-        severity: issue.severity || 'medium',
-        element: issue.element,
-        landmark: issue.landmark
-      });
+    issues.push({
+      type: 'REACT_025',
+      description: issue.description || 'Duplicate or missing landmark',
+      severity: issue.severity || 'medium',
+      element: issue.element,
+      landmark: issue.landmark
     });
   }
   
   // Check link accessibility
   const linkIssues = validateLinkAccessibility();
   if (linkIssues && linkIssues.length > 0) {
-    linkIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_036',
-        description: issue.description || 'Link accessibility issue',
-        severity: issue.severity || 'medium',
-        element: issue.element,
-        link: issue.link
-      });
+    issues.push({
+      type: 'REACT_036',
+      description: issue.description || 'Link accessibility issue',
+      severity: issue.severity || 'medium',
+      element: issue.element,
+      link: issue.link
     });
   }
   
@@ -366,77 +350,4 @@ function getInsightReport() {
       linkIssues: issues.filter(function(i) { return i.type === 'REACT_036'; }).length,
       critical: issues.filter(function(i) { return i.severity === 'critical'; }).length,
       high: issues.filter(function(i) { return i.severity === 'high'; }).length,
-      medium: issues.filter(function(i) { return i.severity === 'medium'; }).length,
-      low: issues.filter(function(i) { return i.severity === 'low'; }).length
-    },
-    timestamp: new Date().toISOString(),
-    generatedAt: new Date().toLocaleString()
-  };
-  
-  return report;
-}
-
-function processAccessibilityReport(report) {
-  // Process accessibility report and return findings
-  var findings = {
-    langAttribute: false,
-    tableIssues: 0,
-    landmarkIssues: 0,
-    svgIssues: 0,
-    uniqueLandmarkIssues: 0,
-    fakeLinkIssues: 0
-  };
-
-  if (report) {
-    if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027.count || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
-  }
-
-  return findings;
-}
-
-// Example usage of the new function (if applicable)
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
-
-// Add back removed exports
-module.exports = {
-  config: config,
-  appState: appState,
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
-  initialize: initialize,
-  initializeApp: initializeApp,
-  processData: processData,
-  fetchUser: fetchUser,
-  clearCache: clearCache,
-  someFunction: someFunction,
-  helper: helper,
-  formatDate: formatDate,
-  validateInput: validateInput,
-  addressAccessibilityIssues: addressAccessibilityIssues,
-  processAccessibilityReport: processAccessibilityReport,
-  getInsightReport: getInsightReport,
-  getLangAttribute: getLangAttribute,
-  addLangAttribute: addLangAttribute,
-  validateTableAccessibility: validateTableAccessibility,
-  validateTableStructure: validateTableStructure,
-  fixTableStructure: fixTableStructure,
-  addMainLandmark: addMainLandmark,
-  validateLandmark: validateLandmark,
-  validateLandmarkStructure: validateLandmarkStructure,
-  validateLandmarkAttributes: validateLandmarkAttributes,
-  addLandmarkRegions: addLandmarkRegions,
-  getSvgAccessibleName: getSvgAccessibleName,
-  setSvgAttributes: setSvgAttributes,
-  ensureUniqueLandmarks: ensureUniqueLandmarks,
-  createInPageButton: createInPageButton,
-  validateLinkAccessibility: validateLinkAccessibility,
-  handleFakeLinks: handleFakeLinks
-};
+      medium: issues.filter(function

@@ -1,6 +1,3 @@
-Here's the resolved file content:
-
-```javascript
 // Existing code starts here
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-swift';
@@ -216,7 +213,3 @@ if (typeof document !== 'undefined') {
 }
 
 // More existing code that should be preserved
-
-```
-
-In the merged file, both the changes related to accessibility and the existing code have been integrated. The comments and style have been preserved, and there are no syntax errors. Additionally, new functions and an export statement have been added where appropriate.

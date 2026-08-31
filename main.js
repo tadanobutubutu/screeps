@@ -1,7 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
 
 /**
  * Main application entry point with accessibility features
@@ -413,17 +413,20 @@ const AddressabilityIssues = {
   }
 };
 
-function MyComponent() {
-  // Existing code that needs to be updated
-  const langAttr = getLangAttribute();
-  return (
-    <div lang={langAttr}>
-      {/* Content */}
-    </div>
-  );
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports.MyComponent = function MyComponent() {
+    // Existing code that needs to be updated
+    const langAttr = getLangAttribute();
+    return {
+      type: 'div',
+      props: { lang: langAttr },
+      children: []
+    };
+  };
+
+  module.exports.AddressabilityIssues = AddressabilityIssues;
 }
 
-export {
-  MyComponent,
-  AddressabilityIssues,
-};
+function getLangAttribute() {
+  return 'en';
+}

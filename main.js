@@ -93,6 +93,16 @@ function getSvgAccessibleName() {
   // Implementation for getting SVG accessible name
 }
 
+// New function to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  // Implementation for ensuring unique landmarks
+}
+
+// New function to fix fake link issues
+function fixFakeLinkIssue() {
+  // Implementation for fixing fake link issues
+}
+
 // Export the new functions
 module.exports = {
   setHtmlLangAttribute,
@@ -102,5 +112,7 @@ module.exports = {
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-  getSvgAccessibleName
+  getSvgAccessibleName,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue
 };

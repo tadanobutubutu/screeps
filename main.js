@@ -1,11 +1,21 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserve
 // Addressed accessibility issues from insight report
 
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport } = require('./utilities');
+const { 
+  createInPageButton: importedCreateInPageButton,
+  createWebResourceButton: importedCreateWebResourceButton,
+  validateTableAccessibility: importedValidateTableAccessibility,
+  validateTableStructure: importedValidateTableStructure,
+  validateLandmark: importedValidateLandmark,
+  validateLandmarkStructure: importedValidateLandmarkStructure,
+  getSvgAccessibleName: importedGetSvgAccessibleName,
+  getLangAttribute: importedGetLangAttribute,
+  validateAccessibilityReport: importedValidateAccessibilityReport
+} = require('./utilities');
 const main = require('./utilities');
 
 const http = require('http');

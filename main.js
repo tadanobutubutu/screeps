@@ -2,6 +2,8 @@ import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+
 // Landmark data structure
 const landmarks = [];
 
@@ -114,7 +116,7 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (elementsById[landmark.id]) {
+        if (!elementsById[landmark.id]) {
           elementsById[landmark.id] = true;
         } else {
           landmark.id += '_duplicate';

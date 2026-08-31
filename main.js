@@ -6,4 +6,9 @@ function newFunction() {
   // Function body
 }
 
+// TODO: This is the new function request
+function newRequestedFunction() {
+  // New function body
+}
+
 // Don't forget to test your new additions in the test file

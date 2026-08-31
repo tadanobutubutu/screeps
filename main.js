@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserve
+// TODO: Existing main.js content before the merge conflict...
 // (This comment remains as-is)
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
@@ -74,8 +74,108 @@ const accessibilityUtils = {
   },
 
   // New focus trap function for keyboard navigation
-  newFocusTrap: () => {
-    // New function implementation
+  newFocusTrap: (element) => {
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    });
+  },
+
+  // Announce message to screen readers
+  announceToScreenReader: (message, priority = 'polite') => {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 1000);
+  },
+
+  // Handle keyboard navigation
+  handleKeyboardNav: (e, handlers) => {
+    const key = e.key;
+    if (handlers[key]) {
+      handlers[key](e);
+    }
+  },
+
+  // New focus trap function for keyboard navigation
+  newFocusTrap: (element) => {
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    });
+  },
+
+  // Announce message to screen readers
+  announceToScreenReader: (message, priority = 'polite') => {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 1000);
+  },
+
+  // Handle keyboard navigation
+  handleKeyboardNav: (e, handlers) => {
+    const key = e.key;
+    if (handlers[key]) {
+      handlers[key](e);
+    }
+  },
+
+  // New focus trap function for keyboard navigation
+  newFocusTrap: (element) => {
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    });
   }
 };
 
@@ -250,8 +350,6 @@ function groupByCategory(items, getCategory) {
 
 _Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
 
-<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
-
 // TODO: Implement the new function as per the issue requirements
 function transformInputData(inputData, options = {}) {
   const {
@@ -322,7 +420,7 @@ if (typeof document !== 'undefined') {
 
 // New function: validateTableAccessibility
 function validateTableAccessibility(tableElement) {
-  const issues = [];
+  const issues = [];;
 
   if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
     issues.push('Element is not a TABLE element');
@@ -332,79 +430,4 @@ function validateTableAccessibility(tableElement) {
   // Check for presence of <caption> (accessibility best practice for table description)
   const caption = tableElement.querySelector('caption');
   if (!caption || !caption.textContent.trim()) {
-    issues.push('TABLE is missing a descriptive caption');
-  }
-
-  // Check that all rows have consistent number of cells
-  const rows = Array.from(tableElement.querySelectorAll('tr'));
-  let expectedCellCount = null;
-
-  rows.forEach((row, rowIndex) => {
-    const cells = Array.from(row.children).filter(
-      child => ['TH', 'TD'].includes(child.tagName.toUpperCase())
-    );
-
-    if (expectedCellCount === null && cells.length > 0) {
-      expectedCellCount = cells.length;
-    }
-
-    if (expectedCellCount !== null && cells.length !== expectedCellCount) {
-      issues.push(`Row ${rowIndex + 1} has inconsistent number of cells`);
-    }
-  });
-
-  // Check that TH elements exist (header row/column should be marked)
-  const thCells = tableElement.querySelectorAll('th');
-  if (thCells.length === 0) {
-    issues.push('TABLE has no header cells (TH) defined');
-  }
-
-  return issues;
-}
-
-/**
- * Ensures the element has an id. If the element doesn't have an id,
- * generates one and assigns it to the element.
- * @param {HTMLElement} element - The element to check and modify
- * @param {string} [prefix='element'] - Prefix for the generated id
- * @returns {string} The element's id (existing or newly generated)
- */
-function ensureElementHasId(element, prefix = 'element') {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-  
-  if (element.id) {
-    return element.id;
-  }
-  
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
-}
-
-// Export the newFocusTrap function as a standalone utility
-const newFocusTrap = accessibilityUtils.newFocusTrap;
-
-// Export all utilities
-module.exports = {
-  accessibilityUtils,
-  exportUtils,
-  initAccessibility,
-  handleCredentialResponse,
-  ensureElementId,
-  addAriaLabel,
-  renderDependencyGraph,
-  calculateSum,
-  newFocusTrap,
-  log,
-  sanitizeFilename,
-  readFileSafe,
-  processData,
-  filterValidItems,
-  initAccessibility,
-  groupByCategory,
-  transformInputData,
-  validateTableAccessibility,
-  ensureElementHasId
-};
+    issues.push('TABLE

@@ -48,7 +48,7 @@ function validateLandmark(landmark) {
   // Validate longitude
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+  } else if (typeof landmark.longitude !== 'number' || ... {
     errors.push('Landmark longitude must be a number');
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
@@ -82,7 +82,7 @@ function validateLandmark(landmark) {
  * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
+  const element = ...
   return element !== null;
 }
 
@@ -103,52 +103,232 @@ function ensureUniqueLandmarks(landmarksArray) {
   });
 }
 
-// ... (previous and updated code remains as it is)
-
-// Updated function: ensures landmarks uniqueness when there's an array structure
-function ensureLandmarkUniqueness(elements) {
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-
-  const elementsById = {};
-
-  if (Array.isArray(elements)) {
-    for (const landmark of elements) {
-      if (landmark.id) {
-        if (!elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
-        } else {
-          landmark.id += '_duplicate';
-        }
-      }
-    }
+// Landmark structure check function
+function landmarkStructureCheck(element) {
+  if (!element) {
+    return { valid: false, errors: ['Element is required'] };
   }
-
-  return elements;
+  const errors = [];
+  // Basic structure validation
+  if (typeof element !== 'object') {
+    errors.push('Element must be an object');
+  }
+  return { valid: errors.length === 0, errors };
 }
 
-// Export functions for testing
-export {
-  checkLandmarkElement,
-  ensureUniqueLandmarks,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  initApp,
-  landmarks,
-  appData,
-  icons,
-  validateLandmark,
-  ensureFocusableElements,
-  renderDependencyGraphContent,
-  ensureLandmarkUniqueness,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  countDependencies
-};
+// Set language attribute on document
+function setLanguageAttribute(lang) {
+  if (document && lang) {
+    document.documentElement.lang = lang;
+    return true;
+  }
+  return false;
+}
+
+// Add landmark roles to elements
+function addLandmarkRoles(container) {
+  const landmarkSelectors = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
+  const elements = container ? container.querySelectorAll(landmarkSelectors.join(',')) : document.querySelectorAll(landmarkSelectors.join(','));
+  
+  elements.forEach(el => {
+    if (!el.getAttribute('role')) {
+      const tagName = el.tagName.toLowerCase();
+      if (tagName === 'main') el.setAttribute('role', 'main');
+      else if (tagName === 'nav') el.setAttribute('role', 'navigation');
+      else if (tagName === 'aside') el.setAttribute('role', 'complementary');
+    }
+  });
+  
+  return elements.length;
+}
+
+// Fix fake links (anchor tags without href)
+function fixFakeLinks(container) {
+  const links = container ? container.querySelectorAll('a:not([href])') : document.querySelectorAll('a:not([href])');
+  let fixedCount = 0;
+  
+  links.forEach(link => {
+    if (link.getAttribute('onclick') || link.dataset.action) {
+      link.setAttribute('role', 'button');
+      fixedCount++;
+    }
+  });
+  
+  return fixedCount;
+}
+
+// Check if running in secure context
+function isSecureContext() {
+  return window.isSecureContext || window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+}
+
+// Initialize the application
+function initApp() {
+  initializeApp();
+  registerSW();
+  return true;
+}
+
+// Ensure focusable elements have proper tabindex
+function ensureFocusableElements(container) {
+  const focusableSelectors = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])';
+  const elements = container ? container.querySelectorAll(focusableSelectors) : document.querySelectorAll(focusableSelectors);
+  let fixedCount = 0;
+  
+  elements.forEach(el => {
+    if (!el.hasAttribute('tabindex')) {
+      el.setAttribute('tabindex', '0');
+      fixedCount++;
+    }
+  });
+  
+  return fixedCount;
+}
+
+// Render dependency graph content
+function renderDependencyGraphContent(data) {
+  const container = document.getElementById('dependencyGraph');
+  if (!container) return false;
+  
+  // Ensure proper ARIA role
+  container.setAttribute('role', 'img');
+  container.setAttribute('aria-label', 'Dependency graph visualization');
+  
+  if (data && typeof data === 'object') {
+    container.innerHTML = JSON.stringify(data, null, 2);
+    return true;
+  }
+  
+  return false;
+}
+
+// Validate SVG accessibility
+function validateSvgAccessibility(svgElement) {
+  const errors = [];
+  
+  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
+    errors.push('Valid SVG element is required');
+    return { valid: false, errors };
+  }
+  
+  // Check for title
+  const title = svgElement.querySelector('title');
+  if (!title) {
+    errors.push('SVG should have a title element');
+  }
+  
+  // Check for desc
+  const desc = svgElement.querySelector('desc');
+  if (!desc) {
+    errors.push('SVG should have a desc element for accessibility');
+  }
+  
+  // Check for ARIA attributes
+  if (!svgElement.getAttribute('role') && !svgElement.getAttribute('aria-label')) {
+    errors.push('SVG should have role or aria-label');
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// Process unique elements
+function processUniqueElements(elements) {
+  if (!Array.isArray(elements)) {
+    return { unique: [], duplicates: 0 };
+  }
+  
+  const seen = new Set();
+  const unique = [];
+  let duplicates = 0;
+  
+  elements.forEach(el => {
+    const key = JSON.stringify(el);
+    if (seen.has(key)) {
+      duplicates++;
+    } else {
+      seen.add(key);
+      unique.push(el);
+    }
+  });
+  
+  return { unique, duplicates };
+}
+
+// Address insight issues
+function addressInsightIssues() {
+  const issues = [];
+  
+  // Check dependencyGraph container
+  const depGraph = document.getElementById('dependencyGraph');
+  if (depGraph && !depGraph.getAttribute('role')) {
+    depGraph.setAttribute('role', 'img');
+    depGraph.setAttribute('aria-label', 'Dependency graph visualization');
+    issues.push('Fixed dependencyGraph ARIA role');
+  }
+  
+  return issues;
+}
+
+// Render dependency graph
+function renderDependencyGraph(dependencies) {
+  const container = document.getElementById('dependencyGraph');
+  if (!container) return false;
+  
+  container.setAttribute('role', 'img');
+  container.setAttribute('aria-label', 'Dependency graph');
+  
+  if (Array.isArray(dependencies)) {
+    const list = document.createElement('ul');
+    dependencies.forEach(dep => {
+      const item = document.createElement('li');
+      item.textContent = dep.name || dep;
+      list.appendChild(item);
+    });
+    container.appendChild(list);
+    return true;
+  }
+  
+  return false;
+}
+
+// Render index view
+function renderIndexView(data) {
+  const container = document.getElementById('indexView');
+  if (!container) return false;
+  
+  container.innerHTML = '';
+  
+  if (data && Array.isArray(data)) {
+    const list = document.createElement('ul');
+    data.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item.name || item;
+      list.appendChild(li);
+    });
+    container.appendChild(list);
+    return true;
+  }
+  
+  return false;
+}
+
+// Calculate sum utility function
+function calculateSum(numbers) {
+  if (!Array.isArray(numbers)) {
+    return 0;
+  }
+  return numbers.reduce((sum, num) => sum + (typeof num === 'number' ? num : 0), 0);
+}
+
+// Add proper landmark regions
+function addProperLandmarkRegions(container) {
+  const regions = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  let count = 0;
+  
+  regions.forEach(role => {
+    const elements = (container || document).querySelectorAll(`[role="${role}"]`);
+    elements.forEach(el => {
+      if (!el.id) {
+        el.id = `${role}-region-${count}`;
+      }
+      count++;

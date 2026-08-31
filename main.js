@@ -1,5 +1,3 @@
-// Existing code starts here
-
 // This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
@@ -573,6 +571,9 @@ function initialize() {
 
   // Accessibility: Fix 1 fake link issue
   fixFakeLink();
+
+  // TODO: Add initialization for dependencyGraph with proper ARIA role
+  initDependencyGraph('dependencyGraph');
 }
 
 // New function requested in the issue

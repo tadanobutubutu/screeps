@@ -67,10 +67,24 @@ function addLandmarkRegions() {
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
     // Implementation goes here
+    const landmarks = ['header', 'footer', 'nav', 'main', 'section', 'article'];
+    const seenLandmarks = new Set();
+
+    landmarks.forEach((landmark) => {
+        const elements = document.getElementsByTagName(landmark);
+        elements.forEach((element) => {
+            if (!seenLandmarks.has(element.id)) {
+                seenLandmarks.add(element.id);
+            } else {
+                console.error(`Duplicate landmark element with id: ${element.id}`);
+            }
+        });
+    });
 }
 
 function uniqueLandmarks() {
     // Implementation goes here
+    ensureUniqueLandmarks();
 }
 
 // Add accessible names to 2 SVGs

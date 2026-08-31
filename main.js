@@ -135,7 +135,12 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
-    handleCredentialResponse
+    handleCredentialResponse,
+    createInPageButton,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    MyComponent,
+    AddressabilityIssues
   };
 } else {
   // Browser environment - wait for DOM
@@ -406,9 +411,9 @@ const AddressabilityIssues = {
     const devDependencies = packageJson.devDependencies || {};
 
     return {
-      dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
-      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+        dependencies: Object.keys(dependencies).length,
+        devDependencies: Object.keys(devDependencies).length,
+        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
   }
 };
@@ -422,8 +427,3 @@ function MyComponent() {
     </div>
   );
 }
-
-export {
-  MyComponent,
-  AddressabilityIssues,
-};

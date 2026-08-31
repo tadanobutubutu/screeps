@@ -175,6 +175,23 @@ function addSvgAccessibleNames() {
   if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
 }
 
+// New functions for rendering graph and index
+function renderGraph() {
+  const graph = document.querySelector('.graph');
+  if (graph) {
+    graph.setAttribute('role', 'img');
+    graph.setAttribute('aria-label', 'Graph');
+  }
+}
+
+function renderIndex() {
+  const index = document.querySelector('.index');
+  if (index) {
+    index.setAttribute('role', 'list');
+    index.setAttribute('aria-label', 'Index');
+  }
+}
+
 // Function to ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
   const landmarks = document.querySelectorAll('[role="main"]');
@@ -284,6 +301,10 @@ function initializeAccessibility() {
 
   // Add accessible names to SVGs
   addSvgAccessibleNames();
+
+  // Render graph and index using the new functions
+  renderGraph();
+  renderIndex();
 }
 
 // Initialize the application with accessibility improvements

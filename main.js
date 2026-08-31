@@ -23,6 +23,46 @@ export { makeHeaderFocusable };
 // Export statements preserved
 export { existingFunction };
 
+// New function requested in the issue
+function wrapPrimaryContentInMain() {
+  const primaryContent = document.querySelector('main') || document.querySelector('[role="main"]');
+  const primaryContentElement = primaryContent || document.createElement('main');
+
+  if (!primaryContent) {
+    // Create a new main element and wrap the primary content
+    const newMain = document.createElement('main');
+    newMain.setAttribute('role', 'main');
+    newMain.id = 'main-content';
+
+    // Move all top-level body children (excluding existing mains, headers, footers, etc.) into the new main
+    const bodyChildren = document.body.children;
+    const elementsToMove = [];
+    for (let i = 0; i < bodyChildren.length; i++) {
+      const child = bodyChildren[i];
+      const tagName = child.tagName.toLowerCase();
+      if (!['header', 'footer', 'nav', 'main', 'aside'].includes(tagName)) {
+        elementsToMove.push(child);
+      }
+    }
+
+    elementsToMove.forEach((element) => {
+      newMain.appendChild(element);
+    });
+
+    document.body.appendChild(newMain);
+  } else if (primaryContent) {
+    // Ensure main has proper attributes
+    if (!primaryContent.hasAttribute('role')) {
+      primaryContent.setAttribute('role', 'main');
+    }
+    if (!primaryContent.id) {
+      primaryContent.id = 'main-content';
+    }
+  }
+}
+
+export { wrapPrimaryContentInMain };
+
 // New function or changes requested
 function addressAccessibilityIssues(insightReport) {
   // Handle case where insightReport is null, undefined, or not an object

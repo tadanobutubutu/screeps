@@ -418,60 +418,20 @@ function specificFunctionThatRendersGraphOrIndex() {
   renderIndex();
 }
 
-// Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
-
-// Export utility functions
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  // Newly added accessibility functions
-  getFullLangAttribute,
-  addAriaLabel,
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  ensureUniqueLandmarks,
-  createAccessibleLink,
-  handleAccessibilityIssues,
-  addLangAttribute
-};
-
-// Export component functions
-export {
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput
-};
-
-// Export UI / product functions
-export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage,
-  dependencyGraphContent,
-  indexContent
-};
-
-// New function or change requested in the issue
+/**
+ * New function to check link accessibility
+ */
 function checkLinkAccessibility() {
   // Implementation for checking link accessibility
   // This function will be used to validate the accessibility of links
   return validateLinkAccessibility();
 }
 
-// Function to render dependency graphs or display module structure
+/**
+ * Function to render dependency graphs or display module structure
+ * @param {Object} module - The module to render the dependency graph for
+ * @returns {Object} The graph data with nodes and edges
+ */
 function renderDependencyGraph(module) {
   // Implementation to render the dependency graph for a given module
   // Builds a graph representation of the module's dependencies
@@ -489,7 +449,11 @@ function renderDependencyGraph(module) {
   return { nodes, edges };
 }
 
-// Function to display module structure
+/**
+ * Function to display module structure
+ * @param {Object} module - The module to display structure for
+ * @returns {Object} The module structure
+ */
 function displayModuleStructure(module) {
   // Implementation to display the module structure for a given module
   // Returns a structured representation of the module
@@ -506,38 +470,77 @@ function displayModuleStructure(module) {
   return structure;
 }
 
-// Export state
-export {
-  state,
-  updateState
-};
+/**
+ * Formats a currency value
+ * @param {number} value - The value to format
+ * @returns {string} The formatted currency string
+ */
+function formatCurrency(value) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(value);
+}
 
-// Export internal functions for accessibility
-export {
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  addAriaLabel,
-  addLangAttribute
-};
+/**
+ * Formats a date
+ * @param {Date} date - The date to format
+ * @returns {string} The formatted date string
+ */
+function formatDate(date) {
+  return new Intl.DateTimeFormat('en-US').format(date);
+}
 
-// ... other exports ...
+/**
+ * Calculates discount based on subtotal
+ * @param {number} subtotal - The subtotal amount
+ * @returns {number} The calculated discount
+ */
+function calculateDiscount(subtotal) {
+  if (subtotal > 100) {
+    return subtotal * 0.1;
+  }
+  return 0;
+}
 
-// Export UI / product functions
-export {
-  renderHeader,
-  renderFooter,
-  renderProductCard
-};
+/**
+ * Validates input
+ * @param {Object} input - The input to validate
+ * @returns {boolean} Whether the input is valid
+ */
+function validateInput(input) {
+  return input && typeof input.value !== 'undefined';
+}
 
-// Exporting for CommonJS compatibility
-module.exports = {
-  specificFunctionThatRendersGraphOrIndex
-};
+/**
+ * Renders the header
+ * @param {string} title - The title for the header
+ * @returns {string} The HTML string for the header
+ */
+function renderHeader(title) {
+  return `<header><h1>${title}</h1></header>`;
+}
 
-// Export additional required functions
-export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute };
+/**
+ * Renders the footer
+ * @returns {string} The HTML string for the footer
+ */
+function renderFooter() {
+  return `<footer><p>Footer content</p></footer>`;
+}
 
-// Report generation logic
+/**
+ * Renders a product card
+ * @param {Object} product - The product to render
+ * @returns {string} The HTML string for the product card
+ */
+function renderProductCard(product) {
+  return `<div class="product-card">
+    <h3>${product.name}</h3>
+    <p class="price">${formatCurrency(product.price)}</p>
+  </div>`;
+}
+
 /**
  * Generates an accessibility report based on the current document state.
  * @returns {Object} An object containing the accessibility report data.
@@ -745,6 +748,88 @@ function generateAndDisplayReport() {
     return report;
 }
 
+// Fixed exports section - moving all exports to the end after function declarations
+
+// Export the new function
+export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
+
+// Export utility functions
+export {
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  // Newly added accessibility functions
+  getFullLangAttribute,
+  addAriaLabel,
+  ensureUniqueLandmarkId,
+  uniqueLandmarks,
+  ensureUniqueLandmarks,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  addLangAttribute
+};
+
+// Export component functions
+export {
+  formatCurrency,
+  formatDate,
+  calculateDiscount,
+  validateInput
+};
+
+// Export UI / product functions
+export {
+  formatProductName,
+  renderProductList,
+  calculateTotalPrice,
+  renderCart,
+  validateAndRender,
+  renderPage,
+  dependencyGraphContent,
+  indexContent
+};
+
+// Export state (assuming it exists, otherwise comment out)
+// export {
+//   state,
+//   updateState
+// };
+
+// Export internal functions for accessibility
+export {
+  ensureUniqueLandmarkId,
+  uniqueLandmarks,
+  addAriaLabel,
+  addLangAttribute
+};
+
+// ... other exports ...
+
+// Export UI / product functions
+export {
+  renderHeader,
+  renderFooter,
+  renderProductCard
+};
+
+// Exporting for CommonJS compatibility
+module.exports = {
+  specificFunctionThatRendersGraphOrIndex
+};
+
+// Export additional required functions
+export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute };
+
+// Export the internal set for tracking used landmark IDs
+export { _usedLandmarkIds };
+
 // Export report generation functions
 export {
   generateAccessibilityReport,
@@ -752,17 +837,5 @@ export {
   generateAndDisplayReport
 };
 
-// Export ensureUniqueLandmarkId for ensuring unique landmark IDs
-export { ensureUniqueLandmarkId };
-
-// Export uniqueLandmarks for getting unique landmarks from a list
-export { uniqueLandmarks };
-
-// Export addAriaLabel for adding aria-label attributes to elements
-export { addAriaLabel };
-
-// Export addLangAttribute for adding lang attributes to elements
-export { addLangAttribute };
-
-// Export the internal set for tracking used landmark IDs
-export { _usedLandmarkIds };
+// Export specificFunctionThatRendersGraphOrIndex as well
+export { specificFunctionThatRendersGraphOrIndex };

@@ -6,7 +6,7 @@
 // ----- BEGIN NEW CHANGES (added to resolve issue) -----
 
 // New function or change as per the issue description
-function newFunction() {
+export function newFunction() {
     // New function implementation
 }
 
@@ -15,18 +15,16 @@ function newFunction() {
 // TODO: Address accessibility issues from insight report:
 
 // Example accessibility fix: Add appropriate ARIA roles
-function someFunction() {
+export function someFunction() {
     // existing function logic...
     // Example accessibility fix: Adding an ARIA role for the element
-    let importantElement = document.createElement('div');
+    let importantElement = document.createElement('button');
     importantElement.setAttribute('role', 'button');
-    importantElement.setAttribute('tabindex', '0');
     importantElement.setAttribute('aria-pressed', 'false');
     importantElement.onclick = function() {
         // Handle click event...
-        importantElement.setAttribute('aria-pressed', 'true');
+        this.setAttribute('aria-pressed', 'true');
     };
-    document.body.appendChild(importantElement);
     // existing function logic...
 }
 

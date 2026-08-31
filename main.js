@@ -1,276 +1,167 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-// For example, if the page is in English, set lang to 'en'
-import React from 'react';
+const main = require('./utilities');
 
-/**
- * Adds the lang attribute to the document's <html> tag based on content
- * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
- * @returns {string} The lang attribute value that was set
- */
-function setHtmlLangAttribute(lang) {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.lang = lang || 'en';
-  }
-  return lang || 'en';
-}
+const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
-/**
- * Detects the language of the given content and sets the HTML lang attribute
- * @param {string} content - The text content to analyze
- * @returns {string} The detected language code
- */
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
+
+const http = require('http');
+
+const { functionA, functionB } = require('./functionModule');
+
+const a11yStore = {
+  // ... existing methods ...
+};
+
+const renderGraphIndex = (graphData) => {
+  renderDependencyGraph(graphData);
+};
+
+const getSvgAccessibleName = (svgElement) => {
+  return getSvgAccessibleName(svgElement);
+};
+
 function detectAndSetLang(content) {
-  // Simple language detection based on common patterns
-  let lang = 'en'; // Default to English
-  
-  if (content) {
-    // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
-      lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
-      lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
-      lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
-      lang = 'ar'; // Arabic
-    } else if (/(?:les?|la|des?|et|en|du|un|une|que|cette)/i.test(content)) {
-      lang = 'fr'; // French
-    } else if (/(?:der|die|das|und|ist|von|ein|eine|nicht)/i.test(content)) {
-      lang = 'de'; // German
-    }
-  }
-  
-  setHtmlLangAttribute(lang);
-  return lang;
+  return detectAndSetLang(content);
 }
 
-// New function to address REACT_015: Add lang attribute to HTML element
-function getLangAttribute() {
-  return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
+function renderDependencyGraph(deps, options = {}) {
+  return dependencyGraphContent(deps, options);
 }
 
-// New function to address REACT_027: Fix 26 table structure issues
-function validateTableAccessibility(table) {
-  const issues = [];
-  
-  if (!table) {
-    return issues;
-  }
-  
-  // Check if table has a caption
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    issues.push({
-      code: 'REACT_027',
-      message: 'Table is missing a caption element for accessibility'
-    });
-  }
-  
-  // Check if table headers have scope or are properly associated
-  const headers = table.querySelectorAll('th');
-  headers.forEach((th, index) => {
-    if (!th.hasAttribute('scope') && !th.id) {
-      issues.push({
-        code: 'REACT_027',
-        message: `Table header at index ${index} is missing scope attribute`
-      });
-    }
-  });
-  
-  // Check if data cells have headers association
-  const cells = table.querySelectorAll('td');
-  if (headers.length > 0 && cells.length === 0) {
-    issues.push({
-      code: 'REACT_027',
-      message: 'Table has headers but no data cells with headers attribute'
-    });
-  }
-  
-  return issues;
+function renderIndex(data, options = {}) {
+  return indexContent(data, options);
 }
 
-function validateTableStructure(table) {
-  const issues = [];
-  
-  if (!table) {
-    return issues;
-  }
-  
-  // Check for proper thead and tbody structure
-  const thead = table.querySelector('thead');
-  const tbody = table.querySelector('tbody');
-  const tfoot = table.querySelector('tfoot');
-  
-  if (!thead) {
-    issues.push({
-      code: 'REACT_027',
-      message: 'Table is missing thead element'
-    });
-  }
-  
-  if (!tbody) {
-    issues.push({
-      code: 'REACT_027',
-      message: 'Table is missing tbody element'
-    });
-  }
-  
-  // Validate consistent column count
-  const rows = table.querySelectorAll('tr');
-  let expectedCols = 0;
-  
-  rows.forEach((row, index) => {
-    const cells = row.querySelectorAll('th, td');
-    const colspan = Array.from(cells).reduce((sum, cell) => {
-      return sum + (parseInt(cell.getAttribute('colspan'), 10) || 1);
-    }, 0);
-    
-    if (index === 0) {
-      expectedCols = colspan;
-    } else if (colspan !== expectedCols) {
-      issues.push({
-        code: 'REACT_027',
-        message: `Row ${index} has inconsistent column count (expected ${expectedCols}, got ${colspan})`
-      });
-    }
-  });
-  
-  return issues;
+function newFunction() {
+  return newFunction();
 }
 
-// New function to address REACT_017: Add/fix 4 landmark issues
-function validateLandmark(element) {
-  const issues = [];
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
-  
-  if (!element) {
-    element = document.body;
+function wrapPrimaryContentInMain() {
+  return wrapPrimaryContentInMain();
+}
+
+function checkLandmarkElement(role, element) {
+  return checkLandmarkElement(role, element);
+}
+
+function checkLandmarks(container = document) {
+  return checkLandmarks(container);
+}
+
+function ensureUniqueLandmarks() {
+  return ensureUniqueLandmarks();
+}
+
+function revokeSession(sessionId) {
+  return revokeSession(sessionId);
+}
+
+function handleFocusTrap(element) {
+  return handleFocusTrap(element);
+}
+
+const server = http.createServer((req, res) => {
+  // CORS headers for credential responses
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(200);
+    res.end();
+    return;
   }
-  
-  landmarkRoles.forEach(role => {
-    const landmarks = element.querySelectorAll(`[role="${role}"]`);
-    landmarks.forEach((landmark, index) => {
-      // Check for accessible name on landmark
-      const hasLabel = landmark.getAttribute('aria-label') || 
-                       landmark.getAttribute('aria-labelledby') ||
-                       landmark.querySelector('h1, h2, h3, h4, h5, h6');
-      
-      if (!hasLabel && landmark.tagName.toLowerCase() !== landmark.tagName.toLowerCase()) {
-        issues.push({
-          code: 'REACT_017',
-          message: `Landmark with role="${role}" is missing accessible name at index ${index}`
-        });
+
+  // Health check endpoint
+  if (req.url === '/health') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok', sessions: getActiveSessionsCount() }));
+    return;
+  }
+
+  // Credential response endpoint
+  if (req.url === '/api/credential' && req.method === 'POST') {
+    let body = '';
+
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+
+    req.on('end', () => {
+      try {
+        const credentialResponse = JSON.parse(body);
+        const result = handleCredentialResponse(credentialResponse);
+
+        res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(result));
+      } catch (error) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
       }
     });
-  });
-  
-  return issues;
-}
+    return;
+  }
 
-function validateLandmarkStructure() {
-  const issues = [];
-  
-  if (typeof document === 'undefined') {
-    return issues;
-  }
-  
-  // Check for multiple main landmarks
-  const mains = document.querySelectorAll('[role="main"], main');
-  if (mains.length > 1) {
-    issues.push({
-      code: 'REACT_017',
-      message: `Page has ${mains.length} main landmarks, should have only one`
-    });
-  }
-  
-  // Check for multiple banner landmarks
-  const banners = document.querySelectorAll('[role="banner"], header');
-  if (banners.length > 1) {
-    issues.push({
-      code: 'REACT_017',
-      message: `Page has ${banners.length} banner landmarks, should have only one`
-    });
-  }
-  
-  // Check for multiple contentinfo landmarks
-  const contentinfos = document.querySelectorAll('[role="contentinfo"], footer');
-  if (contentinfos.length > 1) {
-    issues.push({
-      code: 'REACT_017',
-      message: `Page has ${contentinfos.length} contentinfo landmarks, should have only one`
-    });
-  }
-  
-  // Check for multiple navigation landmarks
-  const navigations = document.querySelectorAll('[role="navigation"], nav');
-  navigations.forEach((nav, index) => {
-    const hasLabel = nav.getAttribute('aria-label') || nav.getAttribute('aria-labelledby');
-    if (!hasLabel) {
-      issues.push({
-        code: 'REACT_017',
-        message: `Navigation landmark at index ${index} is missing accessible name`
-      });
+  // Session validation endpoint
+  if (req.url === '/api/session/validate' && req.method === 'GET') {
+    const sessionId = req.url.split('sessionId=')[1];
+
+    if (!sessionId) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
+      return;
     }
-  });
-  
-  return issues;
-}
 
-// New function to address REACT_041: Add accessible names to 2 SVGs
-function getSvgAccessibleName(svg) {
-  if (!svg) {
-    return '';
-  }
-  
-  // Check if SVG already has an accessible title
-  const title = svg.querySelector('title');
-  if (title) {
-    return title.textContent;
-  }
-  
-  // Check aria-label
-  const ariaLabel = svg.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel;
-  }
-  
-  // Check aria-labelledby reference
-  const ariaLabelledby = svg.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const titleElement = document.getElementById(ariaLabelledby);
-    if (titleElement) {
-      return titleElement.textContent;
+    const session = validateSession(sessionId);
+
+    if (session) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'valid', user: session.user }));
+    } else {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'invalid', message: 'Session expired or invalid' }));
     }
+    return;
   }
-  
-  return '';
-}
 
-// New function to address REACT_025: Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
-  const issues = [];
-  
-  if (typeof document === 'undefined') {
-    return issues;
+  // Session revocation endpoint
+  if (req.url === '/api/session/revoke' && req.method === 'POST') {
+    let body = '';
+
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+
+    req.on('end', () => {
+      try {
+        const { sessionId } = JSON.parse(body);
+        const revoked = revokeSession(sessionId);
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
+      } catch (error) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
+      }
+    });
+    return;
   }
-  
-  const landmarkLabels = {};
-  
-  // Collect all landmarks with their labels
-  const landmarks = document.querySelectorAll('[role]');
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    const label = landmark.getAttribute('aria-label') || 
-                  landmark.getAttribute('aria-labelledby') ||
-                  (landmark.querySelector('h
+
+  res.writeHead(404, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
+});
+
+module.exports = {
+  renderDependencyGraph,
+  renderIndex,
+  renderGraphIndex,
+  newFunction,
+  checkLandmarkElement,
+  wrapPrimaryContentInMain,
+  checkLandmarks,
+  ensureUniqueLandmarks,
+  handleFocusTrap,
+  revokeSession,
+  functionA,
+  functionB
+};

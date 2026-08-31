@@ -1,4 +1,4 @@
-// TODO: Implement this function for adding SVG accessibility props
+// TODO: Address accessibility issues from insight report:
 
 // main.js - Combined utility and accessibility features
 
@@ -99,7 +99,7 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
+// Function to address accessibility issues from insight report
 // Mock implementation of the function to address accessibility issues
 // This should be replaced with actual logic based on the insight report structure
 // For example, we might log the issues or take some action to fix them
@@ -128,6 +128,97 @@ function addressAccessibilityIssues(insightReport) {
             } else {
               seenIds.add(element.id);
             }
+          }
+        });
+      }
+      break;
+    case 'REACT_026': // Ensure SVG elements have accessibility attributes
+      if (insightReport.elements) {
+        insightReport.elements.forEach((element) => {
+          if (element.tagName && element.tagName.toLowerCase() === 'svg') {
+            // Apply accessibility props to SVG elements
+            const options = insightReport.details || {};
+            addSvgAccessibilityProps(element, options);
+          }
+        });
+      }
+      break;
+    case 'REACT_027': // Ensure interactive elements are keyboard accessible
+      if (insightReport.elements) {
+        insightReport.elements.forEach((element) => {
+          if (!element.hasAttribute('tabindex') && !element.hasAttribute('role')) {
+            // Add default tabindex for interactive elements without proper roles
+            const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+            const interactiveTags = ['a', 'button', 'input', 'select', 'textarea'];
+            if (interactiveTags.includes(tagName)) {
+              element.setAttribute('tabindex', '0');
+            }
+          }
+        });
+      }
+      break;
+    case 'REACT_028': // Ensure color contrast is sufficient
+      if (insightReport.details && insightReport.details.suggestions) {
+        insightReport.details.suggestions.forEach((suggestion) => {
+          if (suggestion.element && suggestion.newColor) {
+            suggestion.element.style.color = suggestion.newColor;
+          }
+        });
+      }
+      break;
+    case 'REACT_029': // Ensure form inputs have labels
+      if (insightReport.elements) {
+        insightReport.elements.forEach((element) => {
+          const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+          if (tagName === 'input' || tagName === 'select' || tagName === 'textarea') {
+            if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+              // Check for associated label element
+              const labels = document.querySelectorAll(`label[for="${element.id}"]`);
+              if (labels.length === 0 && element.id) {
+                // Create a label element if none exists
+                const label = document.createElement('label');
+                label.setAttribute('for', element.id);
+                label.textContent = insightReport.details?.defaultLabel || 'Field';
+                element.parentNode.insertBefore(label, element);
+              }
+            }
+          }
+        });
+      }
+      break;
+    case 'REACT_030': // Ensure images have alt text
+      if (insightReport.elements) {
+        insightReport.elements.forEach((element) => {
+          const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+          if (tagName === 'img') {
+            if (!element.hasAttribute('alt')) {
+              element.setAttribute('alt', insightReport.details?.defaultAlt || 'Image');
+            }
+          }
+        });
+      }
+      break;
+    case 'REACT_031': // Ensure focus indicators are visible
+      if (insightReport.elements) {
+        insightReport.elements.forEach((element) => {
+          element.addEventListener('focus', () => {
+            element.style.outline = '2px solid #005fcc';
+            element.style.outlineOffset = '2px';
+          });
+          element.addEventListener('blur', () => {
+            element.style.outline = '';
+            element.style.outlineOffset = '';
+          });
+        });
+      }
+      break;
+    case 'REACT_032': // Ensure dynamic content has live regions
+      if (insightReport.elements) {
+        insightReport.elements.forEach((element) => {
+          if (!element.hasAttribute('aria-live')) {
+            const politeness = insightReport.details?.politeness || 'polite';
+            element.setAttribute('aria-live', politeness);
+            element.setAttribute('aria-atomic', 'true');
           }
         });
       }
@@ -422,6 +513,10 @@ function renderDependencyGraph(dependencies, container, options = {}) {
         
         // Set tabindex for keyboard navigation
         nodeGroup.setAttribute('tabindex', '0');
+        
+        // Add accessibility attributes to node group
+        nodeGroup.setAttribute('role', 'button');
+        nodeGroup.setAttribute('aria-label', node.label || node.id);
         
         svg.appendChild(nodeGroup);
       });

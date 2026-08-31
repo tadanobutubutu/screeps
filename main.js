@@ -1,7 +1,7 @@
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
-// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report
 module.exports = {
   // Existing exports preserved
 };
@@ -22,10 +22,10 @@ function createInPageButton(buttonText, onClickHandler) {
 // (Now implemented)
 
 // Example usage (if needed):
-// const btn = createInPageButton('Click Me', () => console.log('Clicked'));
-// document.body.appendChild(btn);
+// const btn = createInPageButton('Say Hello', () => console.log('Clicked'));
+// ...
 
-export { createInPageButton };
+export { createInPageButton, generateAccessibilityReport };
 
 function analyzeAccessibility(issuesData) {
   // presume this function is already defined

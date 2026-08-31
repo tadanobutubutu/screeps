@@ -142,11 +142,35 @@ function validateTableAccessibility() {
       });
     }
     
-    // Fix 1 fake link issue
+    // Fix 1 fake link issue - replace <a href="#"> with <button>
     const links = table.querySelectorAll('a');
     links.forEach(link => {
       if (link.href === '#') {
-        link.style.display = 'none';
+        const button = document.createElement('button');
+        button.textContent = link.textContent;
+        
+        // Preserve id if present
+        if (link.id) {
+          button.id = link.id;
+        }
+        
+        // Preserve classes if present
+        if (link.className) {
+          button.className = link.className;
+        }
+        
+        // Preserve inline onclick handler if present
+        if (link.onclick) {
+          button.onclick = link.onclick;
+        }
+        
+        // Preserve inline style if present
+        if (link.style.cssText) {
+          button.style.cssText = link.style.cssText;
+        }
+        
+        // Replace the link with the button
+        link.parentNode.replaceChild(button, link);
       }
     });
   }

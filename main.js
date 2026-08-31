@@ -14,10 +14,8 @@ function existingFunction() {
 }
 
 // TODO: Add back any required exports that might have been removed
-// For example, if a function called 'someFunction' was required elsewhere
-// function someFunction() {
-//   // Implement the function logic here
-// }
+// For example, if the issue requires adding back an export like `calculateSum`, you would add:
+// export function calculateSum(a, b) { return a + b; }
 // Add it to existing exports
 
 /**
@@ -30,9 +28,9 @@ function checkLinkAccessibility() {
   const links = document.querySelectorAll('a');
   const issues = [];
   links.forEach(link => {
-    const href = link.getAttribute('href');
+    const href = link.getAttribute('href') || '';
     const text = link.textContent.trim();
-    if (!text && !link.getAttribute('aria-label')) {
+    if (!text) {
       issues.push(`Link with href "${href}" has no accessible text`);
     }
   });

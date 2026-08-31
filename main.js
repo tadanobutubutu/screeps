@@ -37,11 +37,23 @@ function startApp() {
   return server;
 }
 
+/**
+ * Checks if the element with the given landmark identifier exists in the response
+ * @param {http.ServerResponse} res - The HTTP server response object
+ * @param {string} landmark - The landmark identifier to check for
+ * @returns {boolean} True if the landmark element exists, false otherwise
+ */
+function checkLandmarkElement(res, landmark) {
+  const responseBody = res._responseBody; // Assuming the response body is stored in res._responseBody
+  return responseBody && responseBody.includes(landmark);
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  checkLandmarkElement
 };
 
 // Start the application if run directly

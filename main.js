@@ -97,40 +97,42 @@ function Main() {
 
   // Render the list of book items and sorting controls
   return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List>
-        {bookItems}
-      </List>
-      {/* Accessible form for adding a new book */}
-      <form onSubmit={handleAddBook} aria-label="Add new book">
-        <div>
-          <label htmlFor="book-title">Book Title:</label>
-          <input
-            id="book-title"
-            type="text"
-            value={newBookTitle}
-            onChange={(e) => setNewBookTitle(e.target.value)}
-            ref={addBookInputRef}
-            required
-            aria-required="true"
-          />
-        </div>
-        <div>
-          <label htmlFor="book-author">Author:</label>
-          <input
-            id="book-author"
-            type="text"
-            value={newBookAuthor}
-            onChange={(e) => setNewBookAuthor(e.target.value)}
-            required
-            aria-required="true"
-          />
-        </div>
-        <button type="submit">Add Book</button>
-      </form>
-    </div>
+    <main role="main">
+      <div>
+        <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+        <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+        <List>
+          {bookItems}
+        </List>
+        {/* Accessible form for adding a new book */}
+        <form onSubmit={handleAddBook} aria-label="Add new book">
+          <div>
+            <label htmlFor="book-title">Book Title:</label>
+            <input
+              id="book-title"
+              type="text"
+              value={newBookTitle}
+              onChange={(e) => setNewBookTitle(e.target.value)}
+              ref={addBookInputRef}
+              required
+              aria-required="true"
+            />
+          </div>
+          <div>
+            <label htmlFor="book-author">Author:</label>
+            <input
+              id="book-author"
+              type="text"
+              value={newBookAuthor}
+              onChange={(e) => setNewBookAuthor(e.target.value)}
+              required
+              aria-required="true"
+            />
+          </div>
+          <button type="submit">Add Book</button>
+        </form>
+      </div>
+    </main>
   );
 }
 

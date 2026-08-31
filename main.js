@@ -1,3 +1,5 @@
+// TODO: Add back any required exports that might have been?
+
 // main.js
 
 // Existing function 1
@@ -11,20 +13,16 @@ function greet(name) {
 function calculateArea(width, height) {
   return width * height;
 }
-
 function celsiusToFahrenheit(celsius) {
   return (celsius * 9/5) + 32;
 }
-
 function formatDate(date) {
   const d = new Date(date);
   return d.toISOString().split('T')[0];
 }
-
 function isEven(number) {
   return number % 2 === 0;
 }
-
 function generateId() {
   return Math.random().toString(36).substring(2, 9);
 }

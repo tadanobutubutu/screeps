@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // User Safety: unsafe
 // Safety Categories: PII/Privacy
 
@@ -35,6 +32,9 @@ function generateDependencyReport(dependencies) {
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
+  // Initialize issues array
+  const issues = [];
+
   // Fix table accessibility issues
   const tableResults = validateTableAccessibility();
   const tableStructureResults = validateTableStructure();
@@ -155,45 +155,4 @@ function fixAccessibilityIssues() {
       langAttribute: issues.filter(function(i) { return i.type === 'REACT_015'; }).length,
       tableIssues: issues.filter(function(i) { return i.type === 'REACT_027'; }).length,
       landmarkIssues: issues.filter(function(i) { return i.type === 'REACT_017'; }).length,
-      svgIssues: issues.filter(function(i) { return i.type === 'REACT_041'; }).length,
-      uniqueLandmarkIssues: issues.filter(function(i) { return i.type === 'REACT_025'; }).length,
-      linkIssues: issues.filter(function(i) { return i.type === 'REACT_036'; }).length,
-      critical: issues.filter(function(i) { return i.severity === 'critical'; }).length,
-      high: issues.filter(function(i) { return i.severity === 'high'; }).length,
-      medium: issues.filter(function(i) { return i.severity === 'medium'; }).length,
-      low: issues.filter(function(i) { return i.severity === 'low'; }).length
-    },
-    timestamp: new Date().toISOString(),
-    generatedAt: new Date().toLocaleString()
-  };
-
-  return report;
-}
-
-function processAccessibilityReport(report) {
-  // Process accessibility report and return findings
-  var findings = {
-    langAttribute: false,
-    tableIssues: 0,
-    landmarkIssues: 0,
-    svgIssues: 0,
-    uniqueLandmarkIssues: 0,
-    fakeLinkIssues: 0
-  };
-
-  if (report) {
-    if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027.length || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.length || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041.length || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.length || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.length || 0;
-  }
-
-  return findings;
-}
-
-module.exports = {
-  fixAccessibilityIssues, processAccessibilityReport
-};
-```
+      svgIssues: issues.filter(function(i) { return

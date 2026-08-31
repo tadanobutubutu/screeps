@@ -140,7 +140,7 @@ function validateLandmarkStructure(element) {
  */
 function getSvgAccessibleName(svg) {
   if (!svg || typeof svg !== 'object') return '';
-  return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
+  return ... || svg.getAttribute('title') || '';
 }
 
 module.exports = { setHtmlLangAttribute, getLangAttribute, detectAndSetLang, personName, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName };

@@ -16,14 +16,14 @@ if (divElement) {
 
 // Function to get the language attribute value
 function getLangAttribute() {
-  // Implementation of getLangAttribute function
-  // ...
+  return document.documentElement.getAttribute('lang') || 'en';
 }
 
 // Function to create an in-page button and add the lang attribute
 function createInPageButton() {
-  // Implementation of createInPageButton function
-  // ...
+  const button = document.createElement('button');
+  button.setAttribute('lang', getLangAttribute());
+  return button;
 }
 
 // Adding the lang attribute to the HTML element
@@ -33,5 +33,7 @@ if (htmlElement) {
 }
 
 module.exports = {
+  getLangAttribute,
+  createInPageButton,
   // Your exported functions and modules here...
 };

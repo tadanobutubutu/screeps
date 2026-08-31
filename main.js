@@ -39,14 +39,14 @@ const defaultSorting = sortByTitle;
 function onTitleSort(dispatch, books) {
   const sortedList = [...books].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+  dispatch({ type: SORT_BY_TITLE, payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort(dispatch, books) {
   const sortedList = [...books].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+  dispatch({ type: SORT_BY_AUTHOR, payload: sortedList });
 }
 
 // Function to create a new book entry in the Redux store
@@ -113,22 +113,69 @@ function AddBookForm() {
   );
 }
 
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort(dispatch, books) {
-  const sortedList = [...books].sort(sortByTitle);
-  dispatch({ type: SORT_BY_TITLE, payload: sortedList });
+// REACT_036: Function to detect and handle fake links in the document
+function detectFakeLinks() {
+  if (typeof document === 'undefined' || !document.querySelectorAll) return [];
+  
+  // Look for elements with role="link" that don't have href attribute
+  const potentialFakeLinks = document.querySelectorAll('[role="link"]:not([href])');
+  // Also look for elements styled to look like links but are divs/spans without role
+  const styledAsLinks = document.querySelectorAll('div.link, span.link, a[role="button"]');
+  
+  const fakeLinks = [];
+  
+  potentialFakeLinks.forEach(el => {
+    if (!el.hasAttribute('href')) {
+      fakeLinks.push(el);
+    }
+  });
+  
+  styledAsLinks.forEach(el => {
+    if (!el.tagName.toLowerCase() === 'a' || (!el.getAttribute('href') && !el.getAttribute('role'))) {
+      fakeLinks.push(el);
+    }
+  });
+  
+  return Array.from(fakeLinks);
 }
 
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort(dispatch, books) {
-  const sortedList = [...books].sort(sortByAuthor);
-  dispatch({ type: SORT_BY_AUTHOR, payload: sortedList });
+// REACT_041: Function to find SVG elements without accessible names
+function findSvgWithoutAccessibleNames() {
+  if (typeof document === 'undefined' || !document.querySelectorAll) return [];
+  
+  const svgs = document.querySelectorAll('svg');
+  const svgsWithoutNames = [];
+  
+  svgs.forEach(svg => {
+    const hasAccessibleName = 
+      svg.getAttribute('aria-label') || 
+      svg.getAttribute('aria-labelledby') || 
+      (svg.querySelector('title') && svg.querySelector('title').textContent.trim());
+    
+    if (!hasAccessibleName) {
+      svgsWithoutNames.push(svg);
+    }
+  });
+  
+  return Array.from(svgsWithoutNames);
+}
+
+// REACT_015: Function to apply lang attribute to HTML element
+function applyLangAttribute() {
+  if (typeof document === 'undefined') return;
+  
+  const lang = getLangAttribute();
+  const htmlElement = document.documentElement;
+  
+  if (htmlElement && lang) {
+    htmlElement.setAttribute('lang', lang);
+  }
 }
 
 // REACT_015: Function to get the lang attribute for the HTML element
 function getLangAttribute() {
   // Determine the appropriate lang attribute based on document settings or default to 'en'
-  const lang = document.documentElement.lang || 'en';
+  const lang = typeof document !== 'undefined' ? (document.documentElement.lang || 'en') : 'en';
   return lang;
 }
 
@@ -177,7 +224,7 @@ function validateLandmarkStructure(landmarkElement) {
 
 // REACT_017 & REACT_025: Function to validate landmark accessibility (unique landmarks, proper labels)
 function validateLandmarkAccessibility(landmarkElements) {
-  if (!Array.isArray(landmarkElements) || landmarkElements.length === 0) return false;
+  if (!Array.isArray(landmarkElements) || landmarkElements.length === 0) return true;
   const seenRoles = new Set();
   const seenLabels = new Set();
   for (const el of landmarkElements) {
@@ -239,6 +286,59 @@ function handleFakeLinks(fakeLinkElements) {
   }
 }
 
+// REACT_015: Function to fix HTML lang attribute
+function fixHtmlLangAttribute() {
+  if (typeof document === 'undefined') return false;
+  
+  try {
+    const htmlElement = document.documentElement;
+    if (!htmlElement) return false;
+    
+    const currentLang = htmlElement.getAttribute('lang');
+    const expectedLang = getLangAttribute();
+    
+    if (currentLang !== expectedLang) {
+      htmlElement.setAttribute('lang', expectedLang);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    return false;
+  }
+}
+
+// REACT_036: Function to fix fake link issues
+function fixFakeLinkIssues() {
+  try {
+    const fakeLinks = detectFakeLinks();
+    if (fakeLinks.length > 0) {
+      handleFakeLinks(fakeLinks);
+      return fakeLinks.length;
+    }
+    return 0;
+  } catch (error) {
+    return 0;
+  }
+}
+
+// REACT_041: Function to fix SVG accessibility issues
+function fixSvgAccessibilityIssues() {
+  try {
+    const svgs = findSvgWithoutAccessibleNames();
+    let fixedCount = 0;
+    
+    svgs.forEach((svg, index) => {
+      let accessibleName = svg.getAttribute('data-accessible-name') || `Icon ${index + 1}`;
+      setSvgAttributes(svg, accessibleName);
+      fixedCount++;
+    });
+    
+    return fixedCount;
+  } catch (error) {
+    return 0;
+  }
+}
+
 function Main() {
   const dispatch = useDispatch();
   const books = useSelector(state => state.books.list);
@@ -261,6 +361,11 @@ function Main() {
       handleAuthorSort();
     }
   }, [sorting, handleTitleSort, handleAuthorSort]);
+
+  // REACT_015: Apply lang attribute to HTML element on mount
+  useEffect(() => {
+    applyLangAttribute();
+  }, []);
 
   // Map the book list to the BookItem function to create book items
   const bookItems = books.map((book) => (
@@ -311,4 +416,11 @@ export {
   setSvgAttributes,
   validateLinkAccessibility,
   handleFakeLinks,
+  // New exports for addressing accessibility issues
+  applyLangAttribute,
+  detectFakeLinks,
+  findSvgWithoutAccessibleNames,
+  fixHtmlLangAttribute,
+  fixFakeLinkIssues,
+  fixSvgAccessibilityIssues,
 };

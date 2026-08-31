@@ -21,10 +21,10 @@ import { render } from 'react-dom';
  * REACT_015: Add lang attribute to HTML element
  * Ensures the HTML element has a proper lang attribute for screen readers
  */
-export function addLangAttribute(document, lang = 'en') {
-  let htmlElement = document.querySelector('html');
-  if (!htmlElement) {
-    htmlElement = document.getElementsByTagName('html')[0];
+export function addLangAttribute(container, lang = 'en') {
+  let htmlElement = container?.querySelector('html');
+  if (!htmlElement && container?.ownerDocument) {
+    htmlElement = container.ownerDocument.documentElement;
   }
   if (htmlElement && !htmlElement.getAttribute('lang')) {
     htmlElement.setAttribute('lang', lang);
@@ -44,17 +44,19 @@ export function fixTableStructure(tableElement) {
   headers.forEach(th => {
     if (!th.getAttribute('scope')) {
       const row = th.closest('tr');
-      const cellIndex = Array.from(row.children).indexOf(th);
+      const cellIndex = Array.from(row?.children || []).indexOf(th);
       th.setAttribute('scope', cellIndex === 0 ? 'row' : 'col');
     }
   });
   
   // Add caption if missing and table doesn't have one
-  if (!tableElement.querySelector('caption')) {
-    const caption = document.createElement('caption');
-    caption.textContent = 'Data table';
-    caption.style.srOnly = true;
-    tableElement.insertBefore(caption, tableElement.firstChild);
+  if (!tableElement.querySelector('caption') && !tableElement.getAttribute('aria-label')) {
+    const caption = tableElement.ownerDocument?.createElement('caption');
+    if (caption) {
+      caption.textContent = 'Data table';
+      caption.style.srOnly = true;
+      tableElement.insertBefore(caption, tableElement.firstChild);
+    }
   }
   
   return tableElement;
@@ -69,7 +71,7 @@ export function fixLandmarkIssues(container) {
   // Ensure main content is wrapped in main landmark
   const mainElement = container.querySelector('main') || container.querySelector('[role="main"]');
   if (!mainElement) {
-    const existingMain = container.querySelector('#main-content');
+    const existingMain = container.querySelector('div:not([role])');
     if (existingMain) {
       existingMain.setAttribute('role', 'main');
     }
@@ -105,7 +107,7 @@ export function addMainLandmark(container) {
   
   if (!mainElement) {
     // Create a main landmark if none exists
-    mainElement = document.createElement('main');
+    mainElement = container.ownerDocument?.createElement('main');
     mainElement.setAttribute('id', 'main-content');
     const body = container.querySelector('body');
     if (body) {
@@ -181,13 +183,13 @@ export function addSvgAccessibleNames(svgElement, accessibleName) {
   // Add title element inside SVG
   let title = svgElement.querySelector('title');
   if (!title) {
-    title = document.createElement('title');
+    title = svgElement.ownerDocument?.createElement('title');
     svgElement.insertBefore(title, svgElement.firstChild);
   }
   title.textContent = accessibleName;
   
   // Add aria-labelledby reference
-  const titleId = `svg-title-${Date.now()}`;
+  const titleId = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
   title.setAttribute('id', titleId);
   svgElement.setAttribute('aria-labelledby', titleId);
   
@@ -202,13 +204,13 @@ export function addSvgAccessibleNames(svgElement, accessibleName) {
 /**
  * REACT_041: Add accessible names to all SVGs in container
  */
-export function addAccessibleNamesToSVGs(container) {
+export function addAccessibleNamesToSVGs(container, defaultName = 'Icon') {
   if (!container) return;
   
-  const svgs = container.querySelectorAll('svg');
+  const svgs = container.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
   svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
-      addSvgAccessibleNames(svg, `Icon ${index + 1}`);
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      addSvgAccessibleNames(svg, `${defaultName} ${index + 1}`);
     }
   });
   
@@ -224,7 +226,7 @@ export function fixFakeLinkIssue(element) {
   // Check if element is a fake link (clickable non-link element)
   const tagName = element.tagName.toLowerCase();
   const role = element.getAttribute('role');
-  const onClick = element.getAttribute('onclick');
+  const onClick = element.getAttribute('onclick') || element.onclick;
   
   if (onClick && tagName !== 'a' && tagName !== 'button') {
     // Convert to proper button or anchor
@@ -255,7 +257,7 @@ export function fixFakeLinkIssue(element) {
 export function fixFakeLinkIssues(container) {
   if (!container) return null;
   
-  const clickableElements = container.querySelectorAll('[onclick]');
+  const clickableElements = container.querySelectorAll('[onclick], [role="button"]');
   clickableElements.forEach(el => {
     const tagName = el.tagName.toLowerCase();
     if (tagName !== 'a' && tagName !== 'button' && tagName !== 'input') {
@@ -315,9 +317,9 @@ export function fixButtonIdentifiers(container) {
   buttons.forEach((button, index) => {
     // Generate unique id if missing
     if (!button.id) {
-      const existingId = button.getAttribute('data-testid') || button.getAttribute('aria-label');
+      const existingId = button.getAttribute('data-testid') || button.textContent?.trim();
       if (existingId) {
-        button.id = existingId.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+        button.id = existingId.replace(/\s+/g, '-').toLowerCase();
       } else {
         button.id = `button-${index + 1}`;
       }
@@ -325,7 +327,7 @@ export function fixButtonIdentifiers(container) {
     
     // Remove generic placeholder ids
     if (button.id === 'my-button' || button.id === 'button') {
-      button.id = `button-${Date.now()}-${index}`;
+      button.id = `button-${index + 1}`;
     }
   });
   
@@ -339,7 +341,7 @@ export function ensureElementHasId(element, prefix = 'element') {
   if (!element) return null;
   
   if (!element.id) {
-    element.id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   }
   
   return element;
@@ -348,28 +350,4 @@ export function ensureElementHasId(element, prefix = 'element') {
 /**
  * NEW: Add aria-label to element
  */
-export function addAriaLabel(element, label) {
-  if (!element) return null;
-  
-  if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
-    element.setAttribute('aria-label', label);
-  }
-  
-  return element;
-}
-
-/**
- * NEW: Render dependency graphs
- */
-export function renderDependencyGraphs(container, dependencies = []) {
-  if (!container) return null;
-  
-  const graphContainer = document.createElement('div');
-  graphContainer.setAttribute('role', 'img');
-  graphContainer.setAttribute('aria-label', `Dependency graph with ${dependencies.length} dependencies`);
-  graphContainer.id = 'dependency-graph';
-  
-  // Create SVG for graph visualization
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', '100%');
-  svg.setAttribute('height', '100%');
+export

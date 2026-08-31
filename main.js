@@ -1,4 +1,4 @@
-// main.js - Resolved merge conflict
+// main.js - Accessibility improvements implementation
 
 function calculateSum(a, b) {
   return a + b;
@@ -39,6 +39,7 @@ function addressAccessibilityIssues(issues, options = {}) {
           const textNode = document.createTextNode(defaultText);
           issue.element.appendChild(textNode);
         }
+        issue.element.setAttribute('tabindex', '0');
         summary.linkIssuesFixed++;
         summary.fixes.push({
           type: 'link',
@@ -53,6 +54,7 @@ function addressAccessibilityIssues(issues, options = {}) {
           const textNode = document.createTextNode(defaultText);
           issue.element.appendChild(textNode);
         }
+        issue.element.setAttribute('aria-pressed', 'false');
         summary.buttonIssuesFixed++;
         summary.fixes.push({
           type: 'button',
@@ -80,12 +82,11 @@ function calculateProduct(a, b) {
 
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct };
+  module.exports = { addressAccessibilityIssues, calculateSum, calculateProduct };
 }
 
 // If running in browser context
 if (typeof window !== 'undefined') {
-  window.checkLinkAndButtonAccessibility = checkLinkAndButtonAccessibility;
   window.addressAccessibilityIssues = addressAccessibilityIssues;
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;

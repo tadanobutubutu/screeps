@@ -6,13 +6,21 @@
 const http = require('http');
 const path = require('path');
 
-// TODO: This is the existing code that needs to be preserved
-
 // Application configuration
 const config = {
   port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development'
 };
+
+/**
+ * Retrieves the value of an environment variable
+ * @param {string} name - The name of the environment variable
+ * @returns {string|null} The value of the environment variable or null if it doesn't exist
+ */
+function getEnvVariable(name) {
+  if (process.env[name]) return process.env[name];
+  return null;
+}
 
 /**
  * Creates and starts the HTTP server
@@ -41,7 +49,8 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  getEnvVariable // Added the new function
 };
 
 // Start the application if run directly

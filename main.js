@@ -7,7 +7,11 @@
 
 // New function or change as per the issue description
 function newFunction() {
-    // New function implementation
+    // Implementation that uses the new functions for rendering graph/index
+    // Example: calling the newly available rendering utilities
+    const graphRenderer = new GraphRenderer();
+    const indexRenderer = new IndexRenderer();
+    return graphRenderer.render();
 }
 
 // ----- END NEW CHANGES -----

@@ -29,7 +29,7 @@ function getLangAttribute() {
 }
 
 // Function to ensure ARIA attributes are properly set for the dependency graph
-function ensureDependencyGraphARIA() {
+function ensureAriaAttributes() {
   const lang = getLangAttribute();
 
   // Set lang attribute on document root if not already set
@@ -47,6 +47,29 @@ function ensureDependencyGraphARIA() {
   };
 }
 
+// Function to count dependencies in the dependency graph
+export function countDependencies() {
+  // Get the list of books from Redux store
+  const books = getBooksList || [];
+  
+  // Initialize total dependency count
+  let totalDependencies = 0;
+  
+  // Iterate through each book and count its dependencies
+  books.forEach(book => {
+    // Check if book has dependencies array
+    if (book.dependencies && Array.isArray(book.dependencies)) {
+      totalDependencies += book.dependencies.length;
+    }
+    // Also check for related books that might count as dependencies
+    if (book.relatedBooks && Array.isArray(book.relatedBooks)) {
+      totalDependencies += book.relatedBooks.length;
+    }
+  });
+  
+  return totalDependencies;
+}
+
 // Function to handle sorting books by title (ascending)
 export function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
@@ -59,14 +82,14 @@ export function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 export function generateKey(book) {
-  return `book-${book.id || book.title.toLowerCase().replace(/\s+/g, '-')}`;
+  return `book-${book.id || Math.random().toString(36).substr(2, 9) || ''}-`;
 }
 
 // Function to render a single book item
 export function BookItem({ book }) {
   return (
     <List.Item key={generateKey(book)}>
-      <List.Item.Meta title={book.title} description={book.author} />
+      <List.Item.Meta title={book.title} description={book.description || ''} />
     </List.Item>
   );
 }
@@ -77,7 +100,7 @@ export function addBook(book) {
   // ...
 
   // Ensure accessibility attributes are set before adding the book
-  ensureDependencyGraphARIA();
+  ensureAriaAttributes();
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
@@ -108,7 +131,7 @@ function generateAccessibilityReport(issues) {
 
   report += `Issue Details:\n`;
   issues.forEach((issue, index) => {
-    report += `${index + 1}. [${issue.severity.toUpperCase()}] ${issue.description}`;
+    report += `${index + 1}. ${issue.description || 'No description'}`;
     if (issue.element) {
       report += ` - Element: ${issue.element}`;
     }
@@ -126,14 +149,14 @@ const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 export function onTitleSort() {
-  const sortedList = getBooksList.slice().sort(sortByTitle);
+  const sortedList = [...getBooksList].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 export function onAuthorSort() {
-  const sortedList = getBooksList.slice().sort(sortByAuthor);
+  const sortedList = [...getBooksList].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
@@ -141,19 +164,19 @@ export function onAuthorSort() {
 // Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 
 // Functions to improve accessibility (implementation assumed elsewhere)
-function fixLandmarkIssues(container) {
+function addLangAttribute() {
   // implementation omitted
 }
-function fixFakeLinkIssues(container) {
+function fixTableStructureIssues() {
   // implementation omitted
 }
 function fixButtonIdentifiers(container) {
   // implementation omitted
 }
-function addAccessibleNamesToSVGs(container, role) {
+function addLandmarkRole(role) {
   // implementation omitted
 }
-function ensureDependencyGraphAriaRole(container) {
+function ensureUniqueLandmarks() {
   // implementation omitted
 }
 
@@ -173,15 +196,14 @@ function Main() {
     const container = document.getElementById('main-content');
     if (container) {
       // Apply accessibility fixes
-      fixLandmarkIssues(container);
-      fixFakeLinkIssues(container);
       fixButtonIdentifiers(container);
+      addLandmarkRole('main');
 
       // Apply SVG accessibility
-      addAccessibleNamesToSVGs(container, 'Graphical element');
+      fixFakeLinkIssue('Graphical element');
 
       // Ensure dependency graph has proper ARIA role
-      ensureDependencyGraphAriaRole(container);
+      ensureUniqueLandmarks();
     }
   }, [sorting]);
 
@@ -213,13 +235,13 @@ function Main() {
         renderItem={book => BookItem(book)}
         aria-label="Book list"
       />
-      <AddBookForm onSubmit={handleAddBook} />
+      <AddBookForm onAdd={handleAddBook} />
     </div>
   );
 }
 
 // Export the necessary functions for use in other modules
-export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport };
+export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport, countDependencies };
 // Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 
 // Export the Main component

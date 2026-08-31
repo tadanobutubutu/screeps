@@ -98,12 +98,11 @@ function createInPageButton(options) {
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-  // Existing function implementation
-
-  // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/g;
-  const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
-  return importCount.length;
+  // Parse dependencyGraphContent to extract dependencies
+  // Count the number of dependencies using regex
+  const importRegex = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/g;
+  const imports = (dependencyGraphContent || '').match(importRegex) || [];
+  return imports.length;
 }
 
 // Render index view content using indexContent
@@ -370,7 +369,7 @@ const a11yStore = {
       svg.setAttribute('role', 'img');
       if (!svg.getAttribute('aria-labelledby')) {
         const titleText = svg.getAttribute('title') || 'Image description';
-        const descriptionId = `svg-desc-${Math.floor(Math.random() * 1000)}`;
+        const descriptionId = `svg-description-${Math.round(Math.random() * 1000)}`;
         svg.setAttribute('aria-labelledby', descriptionId);
 
         const descriptionElement = document.createElement('desc');

@@ -37,11 +37,24 @@ function startApp() {
   return server;
 }
 
+// New function to address accessibility issues from the insight report
+function ensureAccessibility(req, res, next) {
+  // Implement accessibility checks here
+  // For example, add headers for CORS, Content Security Policy, etc.
+  // This is a placeholder for the actual implementation
+  res.setHeader('Content-Security-Policy', "default-src 'self';");
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('X-Frame-Options', 'DENY');
+  next();
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  ensureAccessibility
 };
 
 // Start the application if run directly

@@ -32,6 +32,8 @@ function newFunction() {
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     // a11yStore.init(); // Ensure a11yStore is imported
+    // Call addressAccessibilityIssuesDOM to address REACT_025 and other issues
+    addressAccessibilityIssuesDOM();
   });
 }
 
@@ -91,7 +93,7 @@ function rotateBack() {
 /**
  * Calculate the sum of two numbers
  * @param {number} a - First number
- * @param {number} b - Second number
+ * @param {b} - Second number
  * @returns {number} Sum of a and b
  */
 function calculateSum(a, b) {

@@ -14,7 +14,14 @@ function renderDependencyGraphs(svgElements) {
   setSvgAttributes(svgElements);
 }
 
-const checkTableStructure = /* existing code */
+function checkLandmarkElements() {
+  // New function to check landmark elements
+  // Placeholder implementation
+  console.log('Checking landmark elements...');
+}
+
+// Export the new function (both versions agreed to do this)
+export { checkLandmarkElements };
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -30,22 +37,19 @@ const sampleInsightReport = {
   ]
 };
 
-// Implement function for addressing accessibility issues from insight report
-// TODO: Implement a function to count dependencies
 function countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  const fs = require('fs');
+  const packageJsonPath = require('path').join(__dirname, 'package.json');
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
+  const dependencies = packageJson.dependencies || {};
+  const devDependencies = packageJson.devDependencies || {};
 
-    return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
+  return {
+    dependencies: Object.keys(dependencies).length,
+    devDependencies: Object.keys(devDependencies).length,
+    total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+  };
 }
 
 /**
@@ -54,46 +58,46 @@ function countDependencies() {
  * @returns {Object} Processed credential information
  */
 function handleCredentialResponse(response) {
-    if (!response) {
-        return { success: false, error: 'No credential response provided' };
+  if (!response) {
+    return { success: false, error: 'No credential response provided' };
+  }
+
+  // Check if response contains expected credential data
+  const hasCredential = response.credential || response.token || response.id;
+  
+  if (!hasCredential) {
+    return { success: false, error: 'Invalid credential response format' };
+  }
+
+  // Process credential information
+  const processedCredential = {
+    id: response.id || null,
+    token: response.token || response.credential || null,
+    name: response.name || 'Anonymous User',
+    email: response.email || null,
+    success: true
+  };
+
+  // Handle different types of credential responses
+  if (response.credential) {
+    // Google Sign-In response
+    try {
+      // Credential is a base64-encoded JWT
+      const payload = JSON.parse(atob(response.credential.split('.')[1]));
+      processedCredential.id = payload.sub || processedCredential.id;
+      processedCredential.email = payload.email || processedCredential.email;
+      processedCredential.name = payload.name || processedCredential.name;
+    } catch (error) {
+      console.warn('Failed to parse credential response:', error);
     }
+  }
 
-    // Check if response contains expected credential data
-    const hasCredential = response.credential || response.token || response.id;
-    
-    if (!hasCredential) {
-        return { success: false, error: 'Invalid credential response format' };
-    }
+  // Announce success to screen readers
+  if (typeof announceToScreenReader === 'function') {
+    announceToScreenReader('User successfully authenticated');
+  }
 
-    // Process credential information
-    const processedCredential = {
-        id: response.id || null,
-        token: response.token || response.credential || null,
-        name: response.name || 'Anonymous User',
-        email: response.email || null,
-        success: true
-    };
-
-    // Handle different types of credential responses
-    if (response.credential) {
-        // Google Sign-In response
-        try {
-            // Credential is a base64-encoded JWT
-            const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            processedCredential.id = payload.sub || processedCredential.id;
-            processedCredential.email = payload.email || processedCredential.email;
-            processedCredential.name = payload.name || processedCredential.name;
-        } catch (error) {
-            console.warn('Failed to parse credential response:', error);
-        }
-    }
-
-    // Announce success to screen readers
-    if (typeof announceToScreenReader === 'function') {
-        announceToScreenReader('User successfully authenticated');
-    }
-
-    return processedCredential;
+  return processedCredential;
 }
 
 // Ensure DOM is fully loaded before executing scripts
@@ -123,7 +127,8 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
-    handleCredentialResponse
+    handleCredentialResponse,
+    sampleInsightReport
   };
 } else {
   // Browser environment - wait for DOM
@@ -194,7 +199,7 @@ function handleCredentialResponse(response) {
 
   // Check if response contains expected credential data
   const hasCredential = response.credential || response.token || response.id;
-
+  
   if (!hasCredential) {
     return { success: false, error: 'Invalid credential response format' };
   }
@@ -492,3 +497,160 @@ if (typeof module !== 'undefined' && module.exports) {
     init();
   }
 }
+
+function init() {
+  const svgElements = document.querySelectorAll('svg');
+
+  svgElements.forEach((svg) => {
+    if (!svg.hasAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      svg.setAttribute('aria-label', accessibleName);
+    }
+
+    setSvgAttributes(svg);
+
+    setupAriaLiveRegions();
+    setupFocusManagement();
+    enhanceSemanticMarkup();
+  });
+}
+
+function getSvgAccessibleName(svg) {
+  const title = svg.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent.trim();
+  }
+  const desc = svg.querySelector('desc');
+  if (desc && desc.textContent) {
+    return desc.textContent.trim();
+  }
+  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '';
+}
+
+function setSvgAttributes(svg) {
+  if (!svg.hasAttribute('aria-hidden')) {
+    svg.setAttribute('aria-hidden', 'true');
+  }
+}
+
+// Function for checking table structure
+const checkTableStructure = (table) => {
+  if (!table) return false;
+  const rows = table.querySelectorAll('tr');
+  return rows.length > 0;
+};
+
+function getVersion() {
+  const fs = require('fs');
+  const packageJsonPath = require('path').join(__dirname, 'package.json');
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  return packageJson.version;
+}
+
+function handleCredentialResponse(response) {
+  if (!response) {
+    return { success: false, error: 'No credential response provided' };
+  }
+
+  // Check if response contains expected credential data
+  const hasCredential = response.credential || response.token || response.id;
+  
+  if (!hasCredential) {
+    return { success: false, error: 'Invalid credential response format' };
+  }
+
+  // Process credential information
+  const processedCredential = {
+    id: response.id || null,
+    token: response.token || response.credential || null,
+    name: response.name || 'Anonymous User',
+    email: response.email || null,
+    success: true
+  };
+
+  // Handle different types of credential responses
+  if (response.credential) {
+    // Google Sign-In response
+    try {
+      // Credential is a base64-encoded JWT
+      const payload = JSON.parse(atob(response.credential.split('.')[1]));
+      processedCredential.id = payload.sub || processedCredential.id;
+      processedCredential.email = payload.email || processedCredential.email;
+      processedCredential.name = payload.name || processedCredential.name;
+    } catch (error) {
+      console.warn('Failed to parse credential response:', error);
+    }
+  }
+
+  // Announce success to screen readers
+  if (typeof announceToScreenReader === 'function') {
+    announceToScreenReader('User successfully authenticated');
+  }
+
+  return processedCredential;
+}
+
+function setupAriaLiveRegions() {
+  const liveRegion = document.getElementById('aria-live-region');
+  if (!liveRegion) {
+    const region = document.createElement('div');
+    region.id = 'aria-live-region';
+    region.setAttribute('aria-live', 'polite');
+    region.setAttribute('aria-atomic', 'true');
+    region.className = 'sr-only';
+    document.body.appendChild(region);
+  }
+}
+
+function setupFocusManagement() {
+  // Trap focus within modal dialogs
+  const modals = document.querySelectorAll('[role="dialog"]');
+  modals.forEach((modal) => {
+    modal.addEventListener('keydown', trapFocus);
+  });
+
+  // Ensure all interactive elements are keyboard accessible
+  const interactiveElements = document.querySelectorAll(
+    'button, a, input, select, textarea, [tabindex]'
+  );
+  interactiveElements.forEach((element) => {
+    if (!element.getAttribute('tabindex')) {
+      element.setAttribute('tabindex', '0');
+    }
+  });
+}
+
+function enhanceSemanticMarkup() {
+  // Add skip link if not present
+  if (!document.getElementById('skip-link')) {
+    const skipLink = document.createElement('a');
+    skipLink.id = 'skip-link';
+    skipLink.href = '#main-content';
+    skipLink.textContent = 'Skip to main content';
+    skipLink.className = 'skip-link';
+    skipLink.style.position = 'absolute';
+    skipLink.style.left = '-9999px';
+    document.body.insertBefore(skipLink, document.body.firstChild);
+  }
+
+  // Ensure images have alt attributes
+  const images = document.querySelectorAll('img');
+  images.forEach((img) => {
+    if (!img.hasAttribute('alt')) {
+      img.setAttribute('alt', '');
+      img.setAttribute('role', 'presentation');
+    }
+  });
+
+  // Ensure form inputs have associated labels
+  const inputs = document.querySelectorAll('input:not([type="hidden"]), select, textarea');
+  inputs.forEach((input) => {
+    const id = input.id || `input-${Math.random().toString(36).substr(2, 9)}`;
+    input.id = id;
+    if (!input.hasAttribute('aria-label') && !document.querySelector(`label[for="${id}"]`)) {
+      input.setAttribute('aria-label', input.name || 'Input');
+    }

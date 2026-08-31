@@ -74,12 +74,12 @@ function handleCredentialResponse(response) {
   console.log('Handling credential response:', response);
 }
 
-// Existing exports and functions would go here...
-// Line 96: preserved from commit eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// preserved from commit f8051b788bad4952d8493f08d3c7d22a06ff80d3
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// preserved from commit 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-// maintained from commit d2add6d9898508dfc9093bc2ddfad74ce45e0537
-// <!-- todo-hash: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
+// Add accessibility function to handle the lang attribute for the entire HTML document
+function handleAddLangAttribute(htmlDocument) {
+  // Get the html element and call addLangAttribute
+  const htmlElement = htmlDocument.documentElement;
+  addLangAttribute(htmlElement);
+}
+
+// Add export for handleAddLangAttribute
+module.exports.handleAddLangAttribute = handleAddLangAttribute;

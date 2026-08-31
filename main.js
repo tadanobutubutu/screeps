@@ -2,6 +2,9 @@
 // (This comment remains as-is)
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
+const fs = require('fs');
+const path = require('path');
+
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
 
@@ -206,13 +209,81 @@ function transformInputData(inputData, options = {}) {
 }
 
 // Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAccessibility);
-  } else {
-    initAccessibility();
+function initAccessibility() {
+  if (typeof document !== 'undefined') {
+    accessibilityUtils.initSkipLink();
   }
 }
+
+// Utility functions for file and data processing
+function sanitizeFilename(filename) {
+  if (typeof filename !== 'string') {
+    return '';
+  }
+  return filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+}
+
+function readFileSafe(filePath) {
+  try {
+    if (typeof fs.readFileSync === 'function') {
+      return fs.readFileSync(filePath, 'utf8');
+    }
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function processData(data) {
+  if (!data) {
+    return null;
+  }
+  if (typeof data === 'string') {
+    return data.trim();
+  }
+  if (Array.isArray(data)) {
+    return data.map(item => processData(item));
+  }
+  if (typeof data === 'object') {
+    const result = {};
+    for (const key in data) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        result[key] = processData(data[key]);
+      }
+    }
+    return result;
+  }
+  return data;
+}
+
+function filterValidItems(items) {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  return items.filter(item => item != null && item !== undefined && item !== '');
+}
+
+function groupByCategory(items, categoryKey) {
+  if (!Array.isArray(items)) {
+    return {};
+  }
+  return items.reduce((acc, item) => {
+    const key = item && item[categoryKey] ? item[categoryKey] : 'uncategorized';
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(item);
+    return acc;
+  }, {});
+}
+
+const exportUtils = {
+  sanitizeFilename,
+  readFileSafe,
+  processData,
+  filterValidItems,
+  groupByCategory
+};
 
 // Export all utilities
 module.exports = {

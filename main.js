@@ -1,3 +1,4 @@
+// TODO: This is the modified and merged code
 // This is the existing code that needs to be preserved in main.js
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----

@@ -1,28 +1,38 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
-// - ADD: Address new accessibility issues from insight report
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-// For example, if the page is in English, set lang to 'en'
-import React from 'react';
+// This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+
+// This is the code that needs to be preserved and is common between both branches
+// ...
+
+// TODO: New code that was added to the branch
+// New function that does something different
+
+// This is the existing code that needs to be preserved
+// ...
+
+// New code that was added to the branch, but should not overwrite the preserved code
+// ...
+const https = require('https');
+const http = require('http');
+const React = require('react');
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
 
 /**
- * Adds the lang attribute to the document's <html> tag based on content
- * @param {string} lang language code (e.g., 'en', 'es', 'fr')
- * @returns {string} The lang attribute value that was set
+ * Renders a dependency graph view using the imported dependencyGraphContent module.
+ * @returns {string} The rendered dependency graph content
  */
-function setHtmlLangAttribute(lang) {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.lang = lang || 'en';
-  }
-  return lang || 'en';
+function renderDependencyGraph() {
+  return dependencyGraphContent;
+}
+
+/**
+ * Renders an index view using the imported indexContent module.
+ * @returns {string} The rendered index content
+ */
+function renderIndexView() {
+  return indexContent;
 }
 
 /**
@@ -46,17 +56,20 @@ function detectAndSetLang(content) {
       lang = 'ar'; // Arabic
     } else if (/[àâçéèêëîïôûùüÿœæ]|[ÀÂÇÉÈÊËÎÏÔÛÙÜŸŒÆ]/.test(content)) {
       lang = 'fr'; // French
-    } else if (/[äöüß]|[ÄÖÜ]/.test(content)) {
-      lang = 'de'; // German
+    } else if (/[àâäéèêëïîôùûüç]/i.test(content)) {
+      lang = 'fr'; // French
     }
   }
   
+  setHtmlLangAttribute(lang);
   return lang;
 }
 
-// New function to address REACT_015: Add lang attribute to HTML element
-function getLangAttribute() {
-  return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
+/**
+ * Improves keyboard navigation for accessibility
+ */
+function improveKeyboardNavigation() {
+  // New code to improve accessibility
 }
 
 // New function to address REACT_027: Fix 26 table structure issues
@@ -87,49 +100,128 @@ function validateTableAccessibility(tableElement) {
   thElements.forEach((th, index) => {
     if (!th.getAttribute('scope')) {
       errors.push(`Table header cell ${index + 1} is missing scope attribute`);
+=======
+// New code to implement the fix for the accessibility issue
+// Assuming the insight report indicated that a certain button needed to be focusable
+document.querySelector('.focusable-button').setAttribute('tabindex', '0');
+
+// Before:
+document.documentElement.lang = '';
+
+// After:
+document.documentElement.lang = 'en'; // Replace 'en' with the appropriate language code
+
+const someFunction = () => {
+  // some existing implementation
+};
+
+// New function to create an in-page button
+const createInPageButton = (text, url) => {
+  const button = document.createElement('a');
+  button.textContent = text;
+  button.setAttribute('href', url);
+  button.style.display = 'none';
+  document.body.appendChild(button);
+  return button;
+};
+
+// New function to validate link accessibility and handle fake links
+const validateLinkAccessibility = () => {
+  const links = document.getElementsByTagName('a');
+  for (let i = 0; i < links.length; i++) {
+    const link = links[i];
+    if (link.href.startsWith('#') || !link.hasAttribute('href')) {
+      handleFakeLinks(link);
+>>>>>>> origin/main
     }
-  });
-  
-  // Check for proper caption or summary
-  const hasCaption = tableElement.querySelector('caption');
-  const hasSummary = tableElement.getAttribute('aria-describedby');
-  if (!hasCaption && !hasSummary) {
-    errors.push('Table is missing a caption or aria-describedby for accessibility');
   }
-  
-  return { valid: errors.length === 0, errors };
+};
+
+// New function to handle fake links by wrapping them in an in-page button
+const handleFakeLinks = (link) => {
+  const fakeLinkButton = createInPageButton(link.textContent, link.href);
+  link.textContent = '';
+  link.setAttribute('target', '_top');
+  link.addEventListener('click', (event) => {
+    event.preventDefault();
+    fakeLinkButton.click();
+  });
+};
+
+/**
+ * Check if a link/URL is accessible
+ * @param {string} url - The URL to check
+ * @param {number} timeout - Request timeout in milliseconds (default: 5000)
+ * @returns {Promise<{accessible: boolean, statusCode: number|null, error: string|null}>}
+ */
+function isLinkAccessible(url, timeout = 5000) {
+    return new Promise((resolve) => {
+        if (!url || typeof url !== 'string') {
+            resolve({ accessible: false, statusCode: null, error: 'Invalid URL' });
+            return;
+        }
+
+        let parsedUrl;
+        try {
+            parsedUrl = new URL(url);
+        } catch (e) {
+            resolve({ accessible: false, statusCode: null, error: 'Malformed URL' });
+            return;
+        }
+
+        const protocol = parsedUrl.protocol === 'https:' ? https : http;
+        const options = {
+            hostname: parsedUrl.hostname,
+            port: parsedUrl.port,
+            path: parsedUrl.pathname + parsedUrl.search,
+            method: 'HEAD',
+            timeout: timeout,
+        };
+
+        const req = protocol.request(options, (res) => {
+            const accessible = res.statusCode >= 200 && res.statusCode < 400;
+            resolve({ accessible, statusCode: res.statusCode, error: null });
+        });
+
+        req.on('error', (e) => {
+            resolve({ accessible: false, statusCode: null, error: e.message });
+        });
+
+        req.on('timeout', () => {
+            req.destroy();
+            resolve({ accessible: false, statusCode: null, error: 'Request timeout' });
+        });
+
+        req.end();
+    });
 }
 
-function validateTableStructure(tableElement) {
-  if (typeof document === 'undefined' || !tableElement) {
-    return { valid: false, errors: ['Table element not found'] };
-  }
-  
-  const errors = [];
-  const rows = tableElement.querySelectorAll('tr');
-  
-  rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td, th');
-    const cellCount = cells.length;
-    
-    // Check for empty cells
-    cells.forEach((cell, cellIndex) => {
-      if (!cell.textContent.trim()) {
-        errors.push(`Row ${rowIndex + 1}, Cell ${cellIndex + 1} is empty`);
-      }
-    });
-    
-    // Check that rows have consistent cell counts
-    if (rowIndex > 0) {
-      const prevRow = rows[rowIndex - 1];
-      const prevCells = prevRow.querySelectorAll('td, th');
-      if (cellCount !== prevCells.length) {
-        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
-      }
+function checkLinkAndButtonAccessibility() {
+  const issues = [];
+
+  const links = document.querySelectorAll('a');
+  links.forEach((link, index) => {
+    const hasAccessibleName =
+      link.textContent.trim() !== '' ||
+      link.getAttribute('aria-label') !== null ||
+      link.getAttribute('aria-labelledby') !== null;
+    if (!hasAccessibleName) {
+      issues.push({ type: 'link', element: link, index });
     }
   });
-  
-  return { valid: errors.length === 0, errors };
+
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    const hasAccessibleName =
+      button.textContent.trim() !== '' ||
+      button.getAttribute('aria-label') !== null ||
+      button.getAttribute('aria-labelledby') !== null;
+    if (!hasAccessibleName) {
+      issues.push({ type: 'button', element: button, index });
+    }
+  });
+
+  return issues;
 }
 
 // New function to address REACT_017: Add/fix 4 landmark issues
@@ -179,7 +271,7 @@ function validateLandmarkStructure() {
   }
   
   // Check for proper nesting of landmarks
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, [role]');
+  const landmarks = document.querySelectorAll('nav, main, aside, footer, [role]');
   landmarks.forEach((landmark) => {
     const parent = landmark.parentElement;
     while (parent) {
@@ -187,31 +279,22 @@ function validateLandmarkStructure() {
       const parentRole = parent.getAttribute('role');
       
       // Check for invalid nesting
+<<<<<<< HEAD
       if (parentTag === 'header' && parent.querySelectorAll(':scope > header').length > 0) {
         errors.push('Nested header elements found');
       }
       if (parentTag === 'footer' && parent.querySelectorAll(':scope > footer').length > 0) {
+=======
+      if (parentTag === 'header' && parentTag === 'header') {
+        errors.push('Nested header elements found');
+      }
+      if (parentTag === 'footer' && parentTag === 'footer') {
+>>>>>>> origin/main
         errors.push('Nested footer elements found');
       }
       
       parent = parent.parentElement;
     }
   });
-  
-  return { valid: errors.length === 0, errors };
-}
 
-// New function to address REACT_041: Add accessible names to 2 SVGs
-function getSvgAccessibleName(svgElement) {
-  if (typeof document === 'undefined' || !svgElement) {
-    return null;
-  }
-  
-  // Check for aria-label
-  let accessibleName = svgElement.getAttribute('aria-label');
-  if (accessibleName) return accessibleName;
-  
-  // Check for aria-labelledby referencing another element
-  const labelledBy = svgElement.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const
+  return

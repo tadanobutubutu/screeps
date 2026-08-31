@@ -1,7 +1,12 @@
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
+// REACT_015: Add lang attribute
+// REACT_027: Fix 26 table structure issues
+// REACT_017: Add/fix 4 landmark issues
+// REACT_041: Add accessible names to 2 SVGs
+// REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
+// REACT_036: Fix 1 fake link issue
 
 /**
  * Main application entry point with accessibility features
@@ -135,7 +140,8 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
-    handleCredentialResponse
+    handleCredentialResponse,
+    AddressabilityIssues
   };
 } else {
   // Browser environment - wait for DOM
@@ -210,9 +216,9 @@ function enhanceSemanticMarkup() {
   // Ensure form inputs have associated labels
   const inputs = document.querySelectorAll('input, select, textarea');
   inputs.forEach((input) => {
-    const id = input.id || `input-${Math.random().toString(36).slice(2, 9)}`;
+    const id = input.id || 'input-' + Math.random().toString(36).slice(2, 9);
     input.id = id;
-    if (!input.hasAttribute('aria-label') && !document.querySelector(`label[for="${id}"]`)) {
+    if (!input.hasAttribute('aria-label') && !document.querySelector('label[for="' + id + '"]')) {
       input.setAttribute('aria-label', input.name || 'Input field');
     }
   });
@@ -262,9 +268,9 @@ function handleFakeLinks(issues) {
 }
 
 // Accessibility utilities
-const hello = () => {
+function hello() {
   return 'Hello from main.js';
-};
+}
 
 // Utilities for addressing accessibility issues
 const AddressabilityIssues = {
@@ -277,11 +283,13 @@ const AddressabilityIssues = {
       return [];
     }
 
-    const report = accessibilityReport.issues.map(issue => ({
-      issueType: issue.type,
-      status: issue.status || 'pending',
-      fixApplied: issue.fixApplied || ''
-    }));
+    const report = accessibilityReport.issues.map(function(issue) {
+      return {
+        issueType: issue.type,
+        status: issue.status || 'pending',
+        fixApplied: issue.fixApplied || ''
+      };
+    });
 
     return report;
   },
@@ -299,7 +307,7 @@ const AddressabilityIssues = {
       'other': 1
     };
 
-    return fixedIssues.reduce((score, issue) => {
+    return fixedIssues.reduce(function(score, issue) {
       const points = scorePoints[issue.type] || scorePoints['other'];
       return score + points;
     }, 0);
@@ -370,7 +378,7 @@ const AddressabilityIssues = {
     if (!landmarkRoles.includes(landmarkRole)) {
       return { 
         valid: false, 
-        error: `Invalid landmark role: ${landmarkRole}`,
+        error: 'Invalid landmark role: ' + landmarkRole,
         element: tagName,
         role: landmarkRole
       };
@@ -383,11 +391,11 @@ const AddressabilityIssues = {
     const child_process = require('child_process');
     child_process.spawn('someCommand', {}, {
       stdio: 'inherit',
-    }).on('exit', (code, signal) => {
+    }).on('exit', function(code, signal) {
       if (code === 0) {
         callback(null, 'Successfully executed someCommand');
       } else {
-        callback(new Error(`someCommand failed with code ${code}`));
+        callback(new Error('someCommand failed with code ' + code));
       }
     });
   },
@@ -396,34 +404,5 @@ const AddressabilityIssues = {
     element.setAttribute('lang', lang);
   },
 
-  countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-
-    return {
-      dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
-      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
-  }
-};
-
-function MyComponent() {
-  // Existing code that needs to be updated
-  const langAttr = getLangAttribute();
-  return (
-    <div lang={langAttr}>
-      {/* Content */}
-    </div>
-  );
-}
-
-export {
-  MyComponent,
-  AddressabilityIssues,
+  countDependencies: countDependencies
 };

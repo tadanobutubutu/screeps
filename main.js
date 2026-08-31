@@ -1,3 +1,4 @@
+// TODO: Add back any required exports that might have been?
 // TODO: Implement this function
 function myFunction(param1, param2) {
   // Place the implementation of the function here
@@ -320,6 +321,16 @@ function fixFakeLinkIssue(document) {
   });
   
   return count;
+}
+
+// Add lang attribute to document
+function addLangAttribute(document, lang = 'en') {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
+    return 1;
+  }
+  return 0;
 }
 
 // TODO: Implement this function for checking link and button accessibility

@@ -52,7 +52,9 @@ function run(room) {
             }
         }
 
-        for (const tower of towers) {
+        // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loop to avoid iterator allocations per tick.
+        for (let i = 0; i < towers.length; i++) {
+            const tower = towers[i];
             if (tower.store[RESOURCE_ENERGY] < 10) {
                 continue;
             }
@@ -482,7 +484,9 @@ function getStats(room) {
     }
 
     let totalEnergy = 0;
-    for (const tower of towers) {
+    // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loop to avoid iterator allocations per tick.
+    for (let i = 0; i < towers.length; i++) {
+        const tower = towers[i];
         const ratio = tower.store[RESOURCE_ENERGY] / tower.store.getCapacity(RESOURCE_ENERGY);
         totalEnergy += ratio;
         if (ratio < TOWER_ENERGY_PRIORITY) {
@@ -503,7 +507,9 @@ function getStats(room) {
  */
 function showDashboard(room) {
     const towers = cache.getMyStructures(room, STRUCTURE_TOWER);
-    for (const tower of towers) {
+    // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loop to avoid iterator allocations per tick.
+    for (let i = 0; i < towers.length; i++) {
+        const tower = towers[i];
         const ratio = tower.store[RESOURCE_ENERGY] / tower.store.getCapacity(RESOURCE_ENERGY);
         const color = ratio > 0.7 ? '#00ff88' : ratio > 0.4 ? '#ffaa00' : '#ff4444';
         tower.room.visual.text(`🏰 ${Math.floor(ratio * 100)}%`, tower.pos.x, tower.pos.y - 1, {

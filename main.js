@@ -157,6 +157,12 @@ function countDependencies() {
   };
 }
 
+// New function to check for accessibility issues
+function checkAccessibility() {
+  // Placeholder for actual accessibility check logic
+  console.log('Accessibility check is being performed...');
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
@@ -164,7 +170,8 @@ module.exports = {
   stopApp,
   handleHealthCheck,
   restartApp,
-  config
+  config,
+  checkAccessibility
 };
 
 // Sample insight report

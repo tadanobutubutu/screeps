@@ -1,24 +1,74 @@
-Here is the resolved file content:
-
-```javascript
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import express from 'express';
 import path from 'path';
 import './styles.css';
+import './styles.less';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
 import fs from 'fs';
-
-import './styles.less';
 import { calculateSum } from './utils';
 import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
 import { CONFIG } from './utils/constants';
+
+const expressApp = express();
+
+// Configuration and state
+let config = {};
+let appState = {};
+
+// Configuration
+const CONFIG = {
+  dataPath: './data',
+  maxResults: 100
+};
+
+// Initialize function
+function initialize() {
+  config = { apiUrl: process.env.API_URL || 'default', timeout: 5000 };
+  appState = { initialized: true };
+}
+
+function initializeApp() {
+  initialize();
+}
+
+function processData(data) {
+  return data;
+}
+
+function fetchUser(userId) {
+  return { id: userId, name: 'User' };
+}
+
+function clearCache() {
+  appState = {};
+}
+
+function validateInput(input) {
+  return input && input.length > 0;
+}
+
+// Main execution
+function main() {
+  initialize();
+  console.log('Main function executed');
+}
+
+// Run if executed directly
+if (typeof require !== 'undefined' && require.main === module) {
+  main();
+}
+
+const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+
+function wrapPrimaryContentInMain(parent) {
+  // ... original function implementation ...
+}
 
 const App = () => {
   const [programData, setProgramData] = useState(null);
@@ -39,40 +89,52 @@ const App = () => {
     return date.toISOString().split('T')[0];
   };
 
-  module.exports = {
-    config: CONFIG,
-    App,
-    someFunction,
-    helper,
-    formatDate,
-    calculateSum,
-    getLangAttribute,
-    getFullLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    initializeApp,
-    checkLinkAccessibility,
-    handleFakeLinks,
-  };
+  // ... Your accessible React Router setup ...
+};
 
-// Remaining existing code starts here
-
-// ... (Preserve the rest of the existing code)
+module.exports = {
+  config: CONFIG,
+  App,
+  someFunction,
+  helper,
+  formatDate,
+  calculateSum,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  initializeApp,
+  checkLinkAccessibility,
+  handleFakeLinks,
+  ...module.exports, // Preserve existing functions
+  generateAccessibilityReport,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks,
+  addLangAttribute,
+  createInPageButton,
+  validateInput,
+  processData,
+  formatResponse,
+  config: CONFIG,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  landmarkConfig: CONFIG,
+  generateAccessibilityReport,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks
+};
 
 module.exports.main = main;
-```
 
-This solution combines both changes to the file. It preserves and integrates the React and Express changes from the conflicting branches, while also keeping and using functions added by each branch. The main differences:
-
-- Includes imports, constants, and functions from both branches.
-- Adds `someFunction`, `CONFIG`, `helper`, and `formatDate` from the 'origin/main' branch.
-- Adds the `App` component (which contains state) to export.
-- Includes the uses of the `useState` hook (which requires React) from the 'HEAD' branch.
-- Removes the unnecessary `import { React, react } from 'react'` line as it not needed with the first import statement.
-- Removes the `import express` statement as Express was only used in one branch. If you want to keep this import/use express server, you can include it back in the file.
-
-Upon resolving the conflict, all significant functionality is preserved and added to the codebase.
+expressApp.use('/', expressApp);
+const port = process.env.PORT || 3000;
+expressApp.listen(port, () => {
+  console.log(`Listening on port ${port}`);
+});

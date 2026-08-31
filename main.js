@@ -48,3 +48,8 @@ module.exports = {
 if (require.main === module) {
   startApp();
 }
+
+// New function requested in the issue
+function getServerConfig() {
+  return config;
+}

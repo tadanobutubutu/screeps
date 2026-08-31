@@ -8,8 +8,6 @@ import a11y from './AccessibilityUtilities'; // Assuming accessibility utilities
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-// Your existing code...
-
 // Function to get the language attribute value
 function getLangAttribute() {
   // Implementation of getLangAttribute function
@@ -85,6 +83,15 @@ function addressAccessibilityIssues() {
     htmlElement.setAttribute('lang', getLangAttribute());
   }
 }
+
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (implemented)
+// - REACT_017: Add landmark roles and fix landmark issues (implemented)
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues) (implemented)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
 
 export {
   addressAccessibilityIssues,

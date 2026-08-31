@@ -126,6 +126,127 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
+// Added missing functions to make them accessible
+
+function landmarkStructureCheck() {
+  return landmarks.length > 0;
+}
+
+function setLanguageAttribute(lang) {
+  if (document.documentElement) {
+    document.documentElement.setAttribute('lang', lang);
+  }
+}
+
+function addLandmarkRoles(element, role) {
+  if (element && role) {
+    element.setAttribute('role', role);
+    return true;
+  }
+  return false;
+}
+
+function fixFakeLinks(link) {
+  if (link && link.href === '#' || link.href === 'javascript:void(0)') {
+    link.href = 'javascript:void(0);';
+    return true;
+  }
+  return false;
+}
+
+function isSecureContext() {
+  return window.isSecureContext === true;
+}
+
+function initApp() {
+  initializeApp();
+  registerSW();
+}
+
+function ensureFocusableElements() {
+  const focusable = document.querySelectorAll('a, button, input, textarea, select, [tabindex]');
+  return focusable.length > 0;
+}
+
+function renderDependencyGraphContent() {
+  return document.getElementById('dependencyGraph') !== null;
+}
+
+function validateSvgAccessibility(svg) {
+  if (!svg) return { valid: false, errors: ['SVG element is required'] };
+  if (!svg.getAttribute('role') && !svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+    return { valid: false, errors: ['SVG must have role, aria-label, or aria-labelledby attribute'] };
+  }
+  return { valid: true, errors: [] };
+}
+
+function processUniqueElements(elements) {
+  if (!Array.isArray(elements)) return [];
+  const seen = new Set();
+  return elements.filter(item => {
+    const key = typeof item === 'object' && item.id ? item.id : String(item);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function addressInsightIssues() {
+  const issues = [];
+  
+  // Check for ARIA roles on landmark containers
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph && !dependencyGraph.getAttribute('role')) {
+    issues.push('dependencyGraph container missing ARIA role');
+  }
+  
+  return {
+    issues,
+    resolved: issues.length === 0
+  };
+}
+
+function renderDependencyGraph(data) {
+  if (!data) return null;
+  
+  const container = document.getElementById('dependencyGraph');
+  if (!container) return null;
+  
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', 'Dependency Graph');
+  container.innerHTML = JSON.stringify(data);
+  
+  return container;
+}
+
+function renderIndexView(title) {
+  document.title = title || 'Frontend Application';
+  
+  const header = document.querySelector('header');
+  if (header) {
+    header.setAttribute('role', 'banner');
+  }
+  
+  return document.body !== null;
+}
+
+function calculateSum(a, b) {
+  if (typeof a !== 'number' || typeof b !== 'number') {
+    return NaN;
+  }
+  return a + b;
+}
+
+function addProperLandmarkRegions() {
+  const regions = document.querySelectorAll('[role="region"], [role="main"], [role="navigation"], [role="complementary"], [role="contentinfo"], [role="form"], [role="search"]');
+  return regions.length;
+}
+
+function countDependencies(dependencies) {
+  if (!Array.isArray(dependencies)) return 0;
+  return dependencies.length;
+}
+
 // Export functions for testing
 export {
   checkLandmarkElement,

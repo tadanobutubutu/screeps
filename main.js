@@ -1,107 +1,125 @@
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport, validateTableAccessibility } = require('./utilities');
+const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, newFocusTrap, renderAdditionalContent } = main;
 
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues, renderGraphIndex } = main;
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse: oldHandleCredentialResponse, ensureElementHasIdOrigin: oldEnsureElementHasIdOrigin, addAriaLabel: oldAddAriaLabel, renderGraphIndex } = main;
 
-const http = require('http');
-const url = require('url');
+// ... Existing functionality ...
 
-// Function to validate table accessibility
-const validateTableAccessibility = (html) => {
-  const issues = [];
-
-  // Check if HTML contains tables
-  const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
-  let match;
-
-  while ((match = tableRegex.exec(html)) !== null) {
-    const tableContent = match[0];
-    const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
-
-    // Check for caption
-    const hasCaption = /<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent);
-    if (!hasCaption) {
-      issues.push({
-        type: 'table',
-        severity: 'warning',
-        message: `Table ${tableNumber} is missing a <caption> element for accessibility`,
-        suggestion: 'Add a <caption> element immediately after the <table> tag to describe the purpose of the table'
-      });
-    }
-
-    // Check for th elements
-    const hasHeaders = /<th[^>]*>/i.test(tableContent);
-    if (!hasHeaders) {
-      issues.push({
-        type: 'table',
-        severity: 'warning',
-        message: `Table ${tableNumber} appears to be a data table but has no <th> (table header) elements`,
-        suggestion: 'Add <th> elements for column or row headers to improve accessibility for screen readers'
-      });
-    }
-
-    // Check for scope attributes on th elements
-    const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
-    thMatches.forEach((thTag, index) => {
-      if (!/scope=["'](row|col|rowgroup|colgroup)["']/i.test(thTag)) {
-        issues.push({
-          type: 'table',
-          severity: 'info',
-          message: `Table ${tableNumber} header ${index + 1} is missing a 'scope' attribute`,
-          suggestion: 'Add scope="col", scope="row", scope="rowgroup", or scope="colgroup" to <th> elements'
-        });
-      }
-    });
-
-    // Check for thead and tbody structure
-    const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent);
-    const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent);
-
-    if (!hasThead) {
-      issues.push({
-        type: 'table',
-        severity: 'info',
-        message: `Table ${tableNumber} is missing <thead> element`,
-        suggestion: 'Wrap header rows in a <thead> element for better semantic structure'
-      });
-    }
-
-    if (!hasTbody) {
-      issues.push({
-        type: 'table',
-        severity: 'info',
-        message: `Table ${tableNumber} is missing <tbody> element`,
-        suggestion: 'Wrap data rows in a <tbody> element for better semantic structure'
-      });
-    }
-
-    // Check for id and headers attributes for complex tables
-    const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
-    if (hasMultipleHeaders) {
-      const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
-      const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
-
-      if (!hasIdAttr && !hasHeadersAttr) {
-        issues.push({
-          type: 'table',
-          severity: 'warning',
-          message: `Table ${tableNumber} has multiple headers but may not have proper id/headers associations`,
-          suggestion: 'For complex tables, ensure header cells have unique id attributes and data cells have headers attributes referencing those ids'
-        });
-      }
-    }
+// New focus trap function for keyboard navigation
+const newFocusTrap = (element) => {
+  if (!element) {
+    return () => {};
   }
 
-  return issues;
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+
+  if (focusableElements.length === 0) {
+    console.warn('No focusable elements found in container');
+    return;
+  }
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+
+    if (e.key === 'Escape') {
+      element.dispatchEvent(new CustomEvent('focusTrapEscape'));
+    }
+  };
+
+  element.addEventListener('keydown', handleKeyDown);
+  firstElement.focus();
+
+  // Return cleanup function
+  return () => {
+    element.removeEventListener('keydown', handleKeyDown);
+  };
 };
 
-// Re-add the required exports for functionA and functionB
-const { functionA, functionB } = require('./functionModule');
+// Initialize accessibility features
+const initAccessibility = () => {
+  accessibilityUtils.initSkipLink();
 
-// Export modules for testing
+  // Add keyboard support for all interactive elements
+  document.querySelectorAll('[data-accessible]').forEach(element => {
+    element.addEventListener('keydown', (e) => {
+      accessibilityUtils.handleKeyboardNav(e, {
+        Enter: () => element.click(),
+        ' ': () => element.click()
+      });
+    });
+  });
+};
+
+// ... Existing functionality ...
+
+// Export functionality with accessibility support
+const exportUtilities = {
+  exportData: (data, filename, mimeType) => {
+    const blob = new Blob([data], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.setAttribute('aria-label', "Download " + filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
+  },
+
+  exportToJSON: (data, filename) => {
+    const jsonString = JSON.stringify(data, null, 2);
+    exportUtilities.exportData(jsonString, filename || 'export.json', 'application/json');
+  },
+
+  exportToCSV: (data, filename) => {
+    if (!data || data.length === 0) return;
+
+    const headers = Object.keys(data[0]);
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+
+    for (const row of data) {
+      const values = headers.map(header => {
+        const escaped = ('' + row[header]).replace(/"/g, '\\"');
+        return "\"" + escaped + "\"";
+      });
+      csvRows.push(values.join(','));
+    }
+
+    const csvString = csvRows.join('\n');
+    exportUtilities.exportData(csvString, filename || 'export.csv', 'text/csv');
+  },
+  // ... Existing functionality ...
+};
+
 module.exports = {
   ...module.exports,
   renderGraphIndex,
-  validateTableAccessibility
+  validateTableAccessibility,
+  validateTableStructure,
+  newFocusTrap,
+  initAccessibility,
+  focusTrap,
+  exportUtilities,
+  oldHandleCredentialResponse: handleCredentialResponse,
+  oldEnsureElementHasIdOrigin: ensureElementHasIdOrigin,
+  oldAddAriaLabel: addAriaLabel,
+  // ... Remaining functionality ...
 };

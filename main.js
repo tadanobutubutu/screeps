@@ -40,7 +40,7 @@ function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
   if (onClickHandler && typeof onClickHandler === 'function') {
-    button.addEventListener('click', onClickHandler);
+    ... onClickHandler);
   }
   return button;
 }
@@ -76,16 +76,16 @@ function createUnrotateButton() {
   button.setAttribute('role', 'button');
   button.setAttribute('aria-label', 'rotate back');
   button.textContent = 'rotate back';
-  button.addEventListener('click', rotateBack);
+  ... rotateBack);
   return button;
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.querySelector('a[href="#"]');
+const fakeLink = ...
 if (fakeLink && fakeLink.tagName === 'A') {
   const parent = fakeLink.parentElement;
   const newButton = createUnrotateButton();
-  parent.replaceChild(newButton, fakeLink);
+  ... fakeLink);
 }
 
 // Add lang attribute to HTML element
@@ -105,21 +105,21 @@ function getConfig() {
 }
 
 // Example usage for SVGs:
-// const svg1 = document.querySelector('.svg-1');
-// const svg2 = document.querySelector('.svg-2');
-// svg1.setAttribute('aria-label', 'Description of first icon');
-// svg2.setAttribute('aria-label', 'Description of second icon');
+// const svg1 = ...
+// const svg2 = ...
+// ... 'Description of first icon');
+// ... 'Description of second icon');
 
 // REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // Ensure all <th> elements have scope attribute
 function ensureThScope() {
-  const thElements = document.querySelectorAll('th');
+  const thElements = ...
   thElements.forEach(th => {
-    if (!th.hasAttribute('scope')) {
+    if ... {
       // Determine if it's a column header or row header based on context
       const parent = th.parentElement;
       const parentTagName = parent ? parent.tagName.toLowerCase() : '';
-      const isFirstCell = parent && Array.from(parent.children).indexOf(th) === 0;
+      const isFirstCell = parent && ... === 0;
 
       if (isFirstCell && parentTagName === 'tr') {
         th.setAttribute('scope', 'row');
@@ -134,14 +134,14 @@ function ensureThScope() {
  * Setup skip link functionality for keyboard navigation
  */
 function setupSkipLinks() {
-  const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
+  const skipLink = ... || ...
   if (skipLink) {
-    skipLink.addEventListener('click', (e) => {
+    ... (e) => {
       e.preventDefault();
-      const target = document.querySelector(skipLink.getAttribute('href') || '');
+      const target = ... || '');
       if (target) {
         target.focus();
-        target.scrollIntoView({ behavior: 'smooth' });
+        ... behavior: 'smooth' });
       }
     });
   }
@@ -151,9 +151,9 @@ function setupSkipLinks() {
  * Ensure buttons have proper accessibility attributes
  */
 function setupButtonAccessibility() {
-  const buttons = document.querySelectorAll('button');
+  const buttons = ...
   buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+    if ... && !button.textContent.trim()) {
       button.setAttribute('aria-label', 'Action button');
     }
   });
@@ -178,28 +178,28 @@ function handleEvent(event) {
 }
 
 function addLandmarkRoles() {
-  const header = document.querySelector('header');
+  const header = ...
   if (header) header.setAttribute('role', 'banner');
 
-  const mainContent = document.querySelector('main') || document.getElementById('main-content');
+  const mainContent = ... || ...
   if (mainContent) mainContent.setAttribute('role', 'main');
 
-  const footer = document.querySelector('footer');
+  const footer = ...
   if (footer) footer.setAttribute('role', 'contentinfo');
 }
 
 // Function to add accessible names to 2 SVGs
 function addSvgAccessibleNames() {
-  const svg1 = document.querySelector('.svg-1');
-  if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
+  const svg1 = ...
+  if (svg1) ... 'SVG image 1');
 
-  const svg2 = document.querySelector('.svg-2');
-  if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
+  const svg2 = ...
+  if (svg2) ... 'SVG image 2');
 }
 
 // Function to ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"]');
+  const landmarks = ...
   const landmarkIds = new Set();
 
   landmarks.forEach((landmark) => {
@@ -214,118 +214,107 @@ function ensureUniqueLandmarks() {
 
 // Function to fix 1 fake link issue
 function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
-  fakeLinks.forEach((link) => {
+  const fakeLinks = ...
+  ... => {
     link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
+    ... '0');
   });
 }
 
 // Initialize accessibility improvements
 function initializeAccessibility() {
   // Replace fake links with proper buttons
-  const fakeLink = document.querySelector('a[href="#"]');
+  const fakeLink = ...
   if (fakeLink && fakeLink.tagName === 'A') {
     const parent = fakeLink.parentElement;
     const newButton = createUnrotateButton();
-    parent.replaceChild(newButton, fakeLink);
+    ... fakeLink);
   }
 
   // Ensure table headers have proper scope
   ensureThScope();
 
   // Add accessible names to SVGs
-  const svgs = document.querySelectorAll('svg');
+  const svgs = ...
   svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') || svg.getAttribute('aria-hidden') !== 'true') {
-      svg.setAttribute('aria-label', `Icon ${index + 1}`);
+    if ... || ... !== 'true') {
+      ... `Icon ${index + 1}`);
     }
   });
 }
 
-// New function or change requested in the issue
-function newFunction() {
-  // Implementation of the new function
-}
-
-export function calculateDiscount(price, discount) {
-  if (typeof price !== 'number' || price < 0) {
-    throw new Error('Price must be a non-negative number');
-  }
-  if (typeof discount !== 'number' || discount < 0) {
-    throw new Error('Discount must be a non-negative number');
-  }
-
-  // Calculate discounted price
-  const discountedPrice = price * (1 - discount / 100);
-  return Math.max(0, discountedPrice);
-}
-
-function greet(name) {
-  return `Hello, ${name}!`;
-}
-
-function add(a, b) {
-  return a + b;
-}
-
-// Initialize the application with accessibility improvements
-function initialize() {
-  // Existing initialization logic preserved
-  console.log('Application initialized');
-
-  // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.querySelector('main') || document.getElementById('main-content');
-  if (mainContent) {
-    mainContent.setAttribute('tabindex', '-1');
-    mainContent.setAttribute('role', 'main');
+/**
+ * Renders a dependency graph visualization
+ * @param {Array} dependencies - Array of dependency objects with id, name, and connections
+ * @param {HTMLElement} container - The DOM element to render the graph into
+ * @returns {void}
+ */
+function renderDependencyGraph(dependencies, container) {
+  if (!container || !dependencies || !Array.isArray(dependencies)) {
+    console.error('Invalid container or dependencies provided');
+    return;
   }
 
-  // Accessibility: Add skip link functionality
-  setupSkipLinks();
+  // Clear existing content
+  container.innerHTML = '';
 
-  // Accessibility: Ensure buttons have proper labels
-  setupButtonAccessibility();
+  // Create SVG for the dependency graph
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '400');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Dependency graph visualization');
 
-  // Accessibility: Add landmark roles and fix landmark issues
-  addLandmarkRoles();
+  const nodeWidth = 120;
+  const nodeHeight = 60;
+  const horizontalGap = 40;
+  const verticalGap = 80;
 
-  // Accessibility: Add accessible names to 2 SVGs
-  addSvgAccessibleNames();
+  // Calculate positions for nodes
+  const positions = dependencies.map((dep, index) => ({
+    ...dep,
+    x: 50 + (index % 5) * (nodeWidth + horizontalGap),
+    y: 50 + Math.floor(index / 5) * (nodeHeight + verticalGap)
+  }));
 
-  // Accessibility: Ensure unique landmarks (2 issues)
-  ensureUniqueLandmarks();
+  // Render connections (edges)
+  positions.forEach(node => {
+    if (node.connections && Array.isArray(node.connections)) {
+      node.connections.forEach(targetId => {
+        const targetNode = positions.find(n => n.id === targetId);
+        if (targetNode) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', node.x + nodeWidth / 2);
+          line.setAttribute('y1', node.y + nodeHeight / 2);
+          line.setAttribute('x2', targetNode.x + nodeWidth / 2);
+          line.setAttribute('y2', targetNode.y + nodeHeight / 2);
+          line.setAttribute('stroke', '#666');
+          line.setAttribute('stroke-width', '2');
+          line.setAttribute('marker-end', 'url(#arrowhead)');
+          svg.appendChild(line);
+        }
+      });
+    }
+  });
 
-  // Accessibility: Fix 1 fake link issue
-  fixFakeLink();
-}
+  // Add arrow marker definition
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  marker.setAttribute('id', 'arrowhead');
+  marker.setAttribute('markerWidth', '10');
+  marker.setAttribute('markerHeight', '7');
+  marker.setAttribute('refX', '9');
+  marker.setAttribute('refY', '3.5');
+  marker.setAttribute('orient', 'auto');
+  const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+  polygon.setAttribute('fill', '#666');
+  marker.appendChild(polygon);
+  defs.appendChild(marker);
+  svg.appendChild(defs);
 
-// Assuming the new function or update is related to the `Main` component,
-// and the function name is provided in the issue as `updateTitle`
-const updateTitle = (newTitle) => {
-  // This is a placeholder for the actual implementation.
-  // The function should update the title of the Main component.
-  // For example, this could be a method that sets a state or a prop that controls the title.
-};
-
-// Export existing functionality and new functions
-export { 
-  initialize, 
-  getConfig, 
-  setupSkipLinks, 
-  setupButtonAccessibility, 
-  createInPageButton, 
-  performTask, 
-  handleEvent, 
-  greet, 
-  add, 
-  calculateDiscount, 
-  newFunction,
-  rotateBack,
-  updateTitle
-};
-
-export default Main;
-export { Main, updateTitle };
-
-initializeAccessibility();
+  // Render nodes
+  positions.forEach(node => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('tabindex', '0');
+    g.setAttribute('role',

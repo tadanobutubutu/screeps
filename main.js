@@ -85,7 +85,7 @@ function validateLandmarks(doc) {
 
   landmarks.forEach(landmark => {
     results.landmarks.push({
-      tag: landmark.tagName.toLowerCase(),
+      tag: landmark.tagName ? landmark.tagName.toLowerCase() : null,
       id: landmark.id || null,
       className: landmark.className || null
     });
@@ -136,19 +136,20 @@ function setSvgAccessibleName(svg, name) {
     throw new Error('SVG element is required');
     return;
   }
+  // Set aria-label or create title element for SVG accessibility
   svg.setAttribute('aria-label', name);
 }
 
 function improveAccessibility(container) {
   if (!container) {
-    container = document.body;
+    container = typeof document !== 'undefined' ? document.body : null;
   }
   if (container) {
     renderDependencyGraphContent(container);
   }
 
   // Ensure all clickable elements are focusable
-  const focusable = container.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+  const focusable = container.querySelectorAll('button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -189,7 +190,7 @@ function ensureLandmarkUniqueness(elements) {
   return uniqueElements;
 }
 
-// TODO: Add your code here
+// Address accessibility issues from insight report:
 function validateLandmarkUniqueness(landmarks) {
   const errors = [];
   
@@ -205,8 +206,8 @@ function validateLandmarkUniqueness(landmarks) {
       return;
     }
     
-    const tag = landmark.tagName.toLowerCase();
-    const role = landmark.getAttribute('role');
+    const tag = landmark.tagName ? landmark.tagName.toLowerCase() : null;
+    const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
     
     if (seenTags.has(tag) && !['section', 'article', 'div'].includes(tag)) {
       errors.push(`Duplicate landmark tag ${tag} found at index ${index}. Only section, article, and div can be repeated.`);
@@ -234,8 +235,9 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      const title = svg.querySelector('title');
+    const hasTitle = svg.querySelector('title');
+    if (!hasTitle) {
+      const title = document.createElement('title');
       if (title) {
         const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
         title.id = titleId;
@@ -285,7 +287,7 @@ function addProperLandmarkRegions(affectedElements) {
   if (!affectedElements || !Array.isArray(affectedElements)) return;
 
   affectedElements.forEach(el => {
-    if (el && el.tagName && !el.hasAttribute('role')) {
+    if (el && el.tagName) {
       el.setAttribute('role', 'region');
     }
   });

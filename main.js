@@ -88,7 +88,7 @@ const addLandmarkRoles = () => {
   // Main content landmark
   const mainElement = document.querySelector('main');
   if (mainElement && !mainElement.getAttribute('role')) {
-    mainElement.setAttribute('role', 'main');
+    navElement.setAttribute('role', 'main');
   }
 
   // Header landmark (banner)
@@ -191,3 +191,12 @@ export function newFunction() {
 }
 
 // ... (other code in main.js)
+
+// Required exports for functionA and functionB
+export function functionA() {
+  // Function A implementation
+}
+
+export function functionB() {
+  // Function B implementation
+}

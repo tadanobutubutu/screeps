@@ -1,1 +1,19 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js
+
+// TODO: This is the existing code that needs to be preserved
+// (This should be preserved)
+
+// Additional existing functionality
+function existingFunction() {
+  return 'existing functionality';
+}
+
+function anotherFunction() {
+  return 'another function';
+}
+
+// Module exports
+module.exports = {
+  existingFunction,
+  anotherFunction
+};

@@ -39,7 +39,7 @@ export function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 export function generateKey(book) {
-  return ...
+  return `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
@@ -48,7 +48,7 @@ export function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        ...
+        description={book.author}
       />
     </List.Item>
   );
@@ -135,7 +135,7 @@ function validateLinkAccessibility() {
 
 // Function to handle sorting the book list by title (ascending)
 export function onTitleSort() {
-  const sortedList = ...
+  const sortedList = [...getBooksList].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
@@ -150,6 +150,7 @@ export function onAuthorSort() {
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const dispatch = useDispatch();
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -158,10 +159,10 @@ function Main() {
     } else if (sorting === sortByAuthor) {
       onAuthorSort();
     }
-  }, [sorting]);
+  }, [sorting, dispatch]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = ...
+  const bookItems = getBooksList.map(book => BookItem(book));
 
   // Render the list of book items and sorting controls
   return (
@@ -170,7 +171,9 @@ function Main() {
         <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
         <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       </header>
-      <List ... />
+      <List>
+        {bookItems}
+      </List>
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
     </main>

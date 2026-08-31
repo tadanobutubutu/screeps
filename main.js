@@ -383,6 +383,134 @@ function ensureElementHasId(element, prefix = 'element') {
   return id;
 }
 
+// New functions for rendering dependency graphs and displaying module structure for debugging purposes
+
+/**
+ * Displays module structure for debugging purposes.
+ * Returns a structured representation of a module's exports, dependencies, and structure.
+ * @param {Object} module - The module object to inspect
+ * @param {Object} options - Configuration options
+ * @param {number} options.maxDepth - Maximum depth to traverse (default: 3)
+ * @param {boolean} options.includePrivate - Include private properties starting with _ (default: false)
+ * @param {string} options.format - Output format: 'object', 'string', or 'tree' (default: 'object')
+ * @returns {Object|string} Module structure representation
+ */
+function displayModuleStructure(module, options = {}) {
+  const {
+    maxDepth = 3,
+    includePrivate = false,
+    format = 'object'
+  } = options;
+
+  if (!module || typeof module !== 'object') {
+    return module;
+  }
+
+  const visited = new WeakSet();
+  
+  function traverse(obj, depth = 0) {
+    if (depth > maxDepth || obj === null || obj === undefined) {
+      return obj;
+    }
+    
+    if (typeof obj !== 'object') {
+      return obj;
+    }
+    
+    if (visited.has(obj)) {
+      return '[Circular]';
+    }
+    visited.add(obj);
+    
+    if (Array.isArray(obj)) {
+      return obj.map(item => traverse(item, depth + 1));
+    }
+    
+    const result = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (!includePrivate && key.startsWith('_')) {
+        continue;
+      }
+      result[key] = traverse(value, depth + 1);
+    }
+    return result;
+  }
+  
+  const structure = traverse(module);
+  
+  if (format === 'string') {
+    return JSON.stringify(structure, null, 2);
+  }
+  
+  if (format === 'tree') {
+    function toTree(obj, prefix = '') {
+      if (typeof obj !== 'object' || obj === null) {
+        return `${prefix}${obj}`;
+      }
+      let result = '';
+      const keys = Object.keys(obj);
+      keys.forEach((key, index) => {
+        const isLast = index === keys.length - 1;
+        const newPrefix = prefix + (isLast ? '└── ' : '├── ');
+        const childPrefix = prefix + (isLast ? '    ' : '│   ');
+        result += `${newPrefix}${key}: `;
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+          result += '\n' + toTree(obj[key], childPrefix);
+        } else {
+          result += `${obj[key]}\n`;
+        }
+      });
+      return result;
+    }
+    return toTree(structure);
+  }
+  
+  return structure;
+}
+
+/**
+ * Generates a dependency graph from module exports and imports.
+ * @param {Object} modules - Map of module names to their exports/dependencies
+ * @returns {Object} Dependency graph with nodes and edges
+ */
+function generateDependencyGraph(modules) {
+  const nodes = [];
+  const edges = [];
+  const nodeMap = new Map();
+  
+  // Create nodes for each module
+  for (const [name, module] of Object.entries(modules)) {
+    const id = `module-${name}`;
+    nodeMap.set(name, id);
+    nodes.push({
+      id,
+      label: name,
+      type: 'module',
+      exports: module.exports ? Object.keys(module.exports) : [],
+      dependencies: module.dependencies || []
+    });
+  }
+  
+  // Create edges for dependencies
+  for (const [name, module] of Object.entries(modules)) {
+    const sourceId = nodeMap.get(name);
+    if (module.dependencies) {
+      for (const dep of module.dependencies) {
+        const targetId = nodeMap.get(dep);
+        if (targetId) {
+          edges.push({
+            source: sourceId,
+            target: targetId,
+            type: 'depends-on'
+          });
+        }
+      }
+    }
+  }
+  
+  return { nodes, edges };
+}
+
 // Export the newFocusTrap function as a standalone utility
 const newFocusTrap = accessibilityUtils.newFocusTrap;
 
@@ -406,5 +534,7 @@ module.exports = {
   groupByCategory,
   transformInputData,
   validateTableAccessibility,
-  ensureElementHasId
+  ensureElementHasId,
+  displayModuleStructure,
+  generateDependencyGraph
 };

@@ -1,3 +1,4 @@
+// TODO: Create or update the affected functions to be accessible
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
 // TODO: Address accessibility issues from insight report:
@@ -36,17 +37,17 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if ... {
+    if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
     } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if ... {
+    } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if ... {
+    } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
     } else if (/[àâäéèêëïîôùûüç]/i.test(content)) {
       lang = 'fr'; // French
-    } else if ... {
+    } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }
@@ -355,4 +356,18 @@ function createInPageButton(parent = (typeof document !== 'undefined' ? document
   }
   
   return btn;
+}
+
+/**
+ * Formats a person's name for accessible use in landmark and other labels.
+ * @param {string} firstName - The first name of the person
+ * @param {string} lastName - The last name of the person
+ * @returns {string} The formatted full name
+ */
+function personName(firstName, lastName) {
+  if (!firstName && !lastName) {
+    return '';
+  }
+  const name = [firstName, lastName].filter(Boolean).join(' ');
+  return name.trim();
 }

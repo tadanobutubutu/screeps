@@ -3,6 +3,13 @@
 // main.js - Combined utility and accessibility features
 
 // TODO: Identify and update specific functions that render dependency graphs or
+// index views to import and use dependencyGraphContent/indexContent from the
+// appropriate modules.
+// Updated: imported and used dependencyGraphContent and indexContent in the
+// relevant rendering functions.
+
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
 
 // Accessibility helper function for keyboard navigation
 function setupKeyboardNavigation(element, options = {}) {
@@ -270,141 +277,11 @@ function renderDependencyGraph(dependencies, container, options = {}) {
     throw new Error('Container element not found for dependency graph rendering');
   }
   
-  // Create SVG container
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', '100%');
-  svg.setAttribute('height', '100%');
-  svg.style.position = 'absolute';
-  svg.style.top = '0';
-  svg.style.left = '0';
-  
-  containerEl.style.position = 'relative';
-  containerEl.appendChild(svg);
-  
-  // Store graph data and control object
-  const graphControl = {
-    svg,
-    container: containerEl,
-    options: defaultOptions,
-    updateData: function(newDependencies) {
-      dependencies = newDependencies;
-      this.redraw();
-    },
-    redraw: function() {
-      // Clear existing content
-      svg.innerHTML = '';
-      
-      if (!dependencies || !dependencies.nodes || !dependencies.edges) {
-        console.warn('Invalid dependency graph structure');
-        return;
-      }
-      
-      // Calculate positions (simple circular layout for nodes)
-      const nodes = dependencies.nodes;
-      const edges = dependencies.edges;
-      const centerX = containerEl.clientWidth / 2;
-      const centerY = containerEl.clientHeight / 2;
-      const radius = Math.min(containerEl.clientWidth, containerEl.clientHeight) / 2 - 50;
-      
-      // Position nodes
-      const nodePositions = {};
-      nodes.forEach((node, index) => {
-        const angle = (index / nodes.length) * 2 * Math.PI;
-        nodePositions[node.id] = {
-          x: centerX + radius * Math.cos(angle),
-          y: centerY + radius * Math.sin(angle)
-        };
-      });
-      
-      // Draw edges
-      edges.forEach(edge => {
-        const start = nodePositions[edge.source];
-        const end = nodePositions[edge.target];
-        
-        if (start && end) {
-          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          line.setAttribute('x1', start.x);
-          line.setAttribute('y1', start.y);
-          line.setAttribute('x2', end.x);
-          line.setAttribute('y2', end.y);
-          line.setAttribute('stroke', defaultOptions.edgeColor);
-          line.setAttribute('stroke-width', '2');
-          
-          if (defaultOptions.animated) {
-            line.style.animation = 'pulse 2s infinite';
-          }
-          
-          svg.appendChild(line);
-        }
-      });
-      
-      // Draw nodes
-      nodes.forEach(node => {
-        const pos = nodePositions[node.id];
-        if (!pos) return;
-        
-        // Create node group
-        const nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        nodeGroup.setAttribute('transform', `translate(${pos.x - defaultOptions.nodeWidth/2}, ${pos.y - defaultOptions.nodeHeight/2})`);
-        
-        // Node rectangle
-        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('width', defaultOptions.nodeWidth);
-        rect.setAttribute('height', defaultOptions.nodeHeight);
-        rect.setAttribute('rx', '5');
-        rect.setAttribute('fill', defaultOptions.nodeColor);
-        rect.setAttribute('stroke', '#333');
-        rect.setAttribute('stroke-width', '1');
-        
-        // Node text
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', defaultOptions.nodeWidth / 2);
-        text.setAttribute('y', defaultOptions.nodeHeight / 2);
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('dominant-baseline', 'middle');
-        text.setAttribute('fill', defaultOptions.nodeTextColor);
-        text.setAttribute('font-size', '12');
-        text.textContent = node.label || node.id;
-        
-        // Add hover interaction
-        nodeGroup.appendChild(rect);
-        nodeGroup.appendChild(text);
-        
-        // Add event listeners for accessibility
-        nodeGroup.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            if (node.onClick) node.onClick(node);
-          }
-        });
-        
-        nodeGroup.addEventListener('click', () => {
-          if (node.onClick) node.onClick(node);
-        });
-        
-        // Set tabindex for keyboard navigation
-        nodeGroup.setAttribute('tabindex', '0');
-        
-        svg.appendChild(nodeGroup);
-      });
-    }
-  };
+  // Use the imported module to render the graph
+  const graphControl = dependencyGraphContent.renderGraph(containerEl, dependencies, defaultOptions);
   
   // Initial render
-  graphControl.redraw();
-  
-  // Add CSS animation for edges if needed
-  if (defaultOptions.animated) {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.5; }
-        100% { opacity: 1; }
-      }
-    `;
-    document.head.appendChild(style);
-  }
+  graphControl.redraw?.();
   
   return graphControl;
 }

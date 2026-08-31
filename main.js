@@ -766,3 +766,122 @@ export { addLangAttribute };
 
 // Export the internal set for tracking used landmark IDs
 export { _usedLandmarkIds };
+
+/**
+ * Returns the first focusable element within a given container.
+ * @param {HTMLElement} container - The container element to search within.
+ * @returns {HTMLElement|null} The first focusable element, or null if none found.
+ */
+function getFocusableElements(container) {
+    if (!container || typeof container.querySelectorAll !== 'function') {
+        return [];
+    }
+    const selector = [
+        'a[href]',
+        'button:not([disabled])',
+        'textarea:not([disabled])',
+        'input:not([disabled]):not([type="hidden"])',
+        'select:not([disabled])',
+        '[tabindex]:not([tabindex="-1"])',
+        '[contenteditable="true"]'
+    ].join(',');
+    return Array.from(container.querySelectorAll(selector));
+}
+
+/**
+ * Returns the first focusable element within a given container.
+ * @param {HTMLElement} container - The container element to search within.
+ * @returns {HTMLElement|null} The first focusable element, or null if none found.
+ */
+function getFirstFocusable(container) {
+    const focusables = getFocusableElements(container);
+    return focusables.length > 0 ? focusables[0] : null;
+}
+
+/**
+ * Returns the last focusable element within a given container.
+ * @param {HTMLElement} container - The container element to search within.
+ * @returns {HTMLElement|null} The last focusable element, or null if none found.
+ */
+function getLastFocusable(container) {
+    const focusables = getFocusableElements(container);
+    return focusables.length > 0 ? focusables[focusables.length - 1] : null;
+}
+
+/**
+ * Implements a focus trap for keyboard navigation within a container element.
+ * Ensures that Tab and Shift+Tab keys cycle through focusable elements
+ * within the container, supporting keyboard accessibility.
+ *
+ * @param {HTMLElement|string} target - The container element (or its ID) to trap focus within.
+ * @returns {Object|null} An object with an `release` method to remove the trap,
+ *                        or null if the container could not be found.
+ */
+function newFocusTrap(target) {
+    let container = null;
+    if (typeof target === 'string') {
+        container = (typeof document !== 'undefined') ? document.getElementById(target) : null;
+    } else if (target && typeof target.addEventListener === 'function') {
+        container = target;
+    }
+
+    if (!container) {
+        return null;
+    }
+
+    const handleKeyDown = (event) => {
+        if (!event || event.key !== 'Tab') {
+            return;
+        }
+        const focusables = getFocusableElements(container);
+        if (focusables.length === 0) {
+            event.preventDefault();
+            return;
+        }
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = (typeof document !== 'undefined') ? document.activeElement : null;
+
+        if (event.shiftKey) {
+            if (active === first || !container.contains(active)) {
+                event.preventDefault();
+                if (typeof last.focus === 'function') {
+                    last.focus();
+                }
+            }
+        } else {
+            if (active === last || !container.contains(active)) {
+                event.preventDefault();
+                if (typeof first.focus === 'function') {
+                    first.focus();
+                }
+            }
+        }
+    };
+
+    container.addEventListener('keydown', handleKeyDown);
+
+    // Attempt to move focus into the container initially
+    const initial = getFirstFocusable(container);
+    if (initial && typeof initial.focus === 'function') {
+        try {
+            initial.focus();
+        } catch (e) {
+            // ignore focus errors
+        }
+    }
+
+    return {
+        release() {
+            try {
+                container.removeEventListener('keydown', handleKeyDown);
+            } catch (e) {
+                // ignore
+            }
+        },
+        container
+    };
+}
+
+// Export the new focus trap function
+export { newFocusTrap, getFocusableElements, getFirstFocusable, getLastFocusable };

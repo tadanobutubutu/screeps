@@ -287,24 +287,13 @@ function applyAccessibilityFixes(html) {
     return result;
 }
 
+// New function to address accessibility issues
 function addressAccessibilityIssues(insightReport) {
   // Apply accessibility fixes to HTML content based on insight report
   if (insightReport && insightReport.html) {
     insightReport.html = applyAccessibilityFixes(insightReport.html);
   }
-  console.log('Addressing accessibility issues from insight report:', insightReport);
-}
 
-function createInPageButton(buttonId, buttonText, buttonClass) {
-    const button = document.createElement('button');
-    button.id = buttonId;
-    button.textContent = buttonText;
-    button.className = buttonClass;
-    document.body.appendChild(button);
-}
-
-// New function to address accessibility issues
-function addressAccessibilityIssues() {
   // Implement the changes required to address accessibility issues from the insight report
   // For example, this could be calling existing utility functions to validate accessibility
   const linkIssues = checkLinkAccessibility();
@@ -315,6 +304,7 @@ function addressAccessibilityIssues() {
 
   // Handle issues (e.g., log them, display warnings, etc.)
   // For demonstration purposes, we will just log the issues to the console
+  console.log('Addressing accessibility issues from insight report:', insightReport);
   console.log('Link Accessibility Issues:', linkIssues);
   console.log('Table Accessibility Issues:', tableIssues);
   console.log('Table Structure Issues:', tableStructureIssues);
@@ -325,7 +315,18 @@ function addressAccessibilityIssues() {
   // For example, you might want to update the DOM or call other functions
 }
 
+function createInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    document.body.appendChild(button);
+}
+
 // Don't forget to test your new additions in the test file
+
+// Export the function for testing and external use
+module.exports = { newFunction };
 
 // Export accessibility utility functions
 export {
@@ -348,8 +349,3 @@ export {
   divide,
   wrapPrimaryContentInMain
 };
-
-// Run if executed directly
-if (typeof require !== 'undefined' && require.main === module) {
-  main();
-}

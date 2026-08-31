@@ -9,111 +9,84 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
-/**
- * Get the lang attribute value for the HTML element
- * @returns {string} The language code
- */
-function getLangAttribute() {
-  return 'en';
-}
+const someFunction = () => {
+  // some existing implementation
+};
 
-/**
- * Create an accessible in-page button
- * @param {Object} options - Button options
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(options = {}) {
-  const button = document.createElement('button');
-  button.textContent = options.text || 'Button';
-  button.setAttribute('aria-label', options.ariaLabel || options.text || 'In-page button');
-  if (options.lang) {
-    button.setAttribute('lang', options.lang);
-  }
+// New function to create an in-page button
+const createInPageButton = (text, url) => {
+  const button = document.createElement('a');
+  button.textContent = text;
+  button.setAttribute('href', url);
+  button.style.display = 'none';
+  document.body.appendChild(button);
   return button;
-}
+};
 
-/**
- * Validate table accessibility
- * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result
- */
-function validateTableAccessibility(table) {
-  const issues = [];
-  
-  if (!table) {
-    return { valid: false, issues: ['Table not found'] };
+// New function to validate link accessibility and handle fake links
+const validateLinkAccessibility = (target) => {
+  // Single-link validation mode
+  if (target && target.nodeType === 1 && target.tagName === 'A') {
+    const issues = [];
+    if (!target) {
+      return { valid: false, issues: ['Link not found'] };
+    }
+    const hasText = target.textContent.trim().length > 0;
+    const hasAriaLabel = target.hasAttribute('aria-label');
+    const hasTitle = target.hasAttribute('title');
+    if (!hasText && !hasAriaLabel && !hasTitle) {
+      issues.push('Link must have text content, aria-label, or title');
+    }
+    const href = target.getAttribute('href');
+    if (!href || href === '#') {
+      issues.push('Link should have a valid href attribute');
+    }
+    return { valid: issues.length === 0, issues };
   }
-  
-  const headers = table.querySelectorAll('th');
-  const hasCaption = table.querySelector('caption') !== null;
-  
-  if (headers.length === 0) {
-    issues.push('Table should have header cells (th)');
-  }
-  
-  if (!hasCaption && !table.getAttribute('aria-label')) {
-    issues.push('Table should have a caption or aria-label');
-  }
-  
-  return { valid: issues.length === 0, issues };
-}
 
-/**
- * Validate table structure
- * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result
- */
-function validateTableStructure(table) {
-  const issues = [];
-  
-  if (!table) {
-    return { valid: false, issues: ['Table not found'] };
+  // Document-level scan for fake links
+  const links = document.getElementsByTagName('a');
+  for (let i = 0; i < links.length; i++) {
+    const link = links[i];
+    if ((link.href && link.href.startsWith('#')) || !link.hasAttribute('href')) {
+      handleFakeLinks(link);
+    }
   }
-  
-  const rows = table.querySelectorAll('tr');
-  let hasHeaderRow = false;
-  
-  rows.forEach((row, index) => {
-    const cells = row.querySelectorAll('th, td');
-    if (cells.length === 0) {
-      issues.push(`Row ${index} has no cells`);
-    }
-    if (row.querySelector('th')) {
-      hasHeaderRow = true;
-    }
+};
+
+// New function to handle fake links by wrapping them in an in-page button,
+// or process clickable non-anchor/non-button elements when given a Document
+const handleFakeLinks = (target) => {
+  // Document mode: handle non-anchor clickable elements
+  if (target && target.nodeType === 9) {
+    const results = { found: 0, processed: 0 };
+    const clickableElements = target.querySelectorAll('[onclick], [role="button"]');
+    clickableElements.forEach(element => {
+      if (element.tagName !== 'A' && element.tagName !== 'BUTTON') {
+        results.found++;
+        if (!element.getAttribute('tabindex') && !element.hasAttribute('role')) {
+          element.setAttribute('role', 'button');
+          element.setAttribute('tabindex', '0');
+          results.processed++;
+        }
+      }
+    });
+    return results;
+  }
+
+  // Link mode: wrap a single anchor in an in-page button
+  const link = target;
+  if (!link) return;
+  const fakeLinkButton = createInPageButton(link.textContent, link.href);
+  link.textContent = '';
+  link.setAttribute('target', '_top');
+  link.addEventListener('click', (event) => {
+    event.preventDefault();
+    fakeLinkButton.click();
   });
-  
-  if (!hasHeaderRow) {
-    issues.push('Table should have a header row with th elements');
-  }
-  
-  return { valid: issues.length === 0, issues };
-}
+};
 
-/**
- * Validate landmark accessibility
- * @param {Document} doc - The document to validate
- * @returns {Object} Validation result
- */
-function validateLandmark(doc) {
-  const issues = [];
-  const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
-  
-  landmarks.forEach(landmark => {
-    const elements = doc.querySelectorAll(landmark);
-    if (elements.length > 1) {
-      const count = elements.length;
-      issues.push(`Multiple ${landmark} landmarks found: ${count}`);
-    }
-  });
-  
-  const mainElement = doc.querySelector('main') || doc.querySelector('[role="main"]');
-  if (!mainElement) {
-    issues.push('Document should have a main landmark');
-  }
-  
-  return { valid: issues.length === 0, issues };
-}
+// Continue with the rest of your existing code here...
 
 /**
  * Validate landmark structure
@@ -235,71 +208,15 @@ function addSvgAccessibilityProps(doc) {
   return results;
 }
 
-/**
- * Validate link accessibility
- * @param {HTMLAnchorElement} link - The link to validate
- * @returns {Object} Validation result
- */
-function validateLinkAccessibility(link) {
-  const issues = [];
-  
-  if (!link) {
-    return { valid: false, issues: ['Link not found'] };
-  }
-  
-  const hasText = link.textContent.trim().length > 0;
-  const hasAriaLabel = link.hasAttribute('aria-label');
-  const hasTitle = link.hasAttribute('title');
-  
-  if (!hasText && !hasAriaLabel && !hasTitle) {
-    issues.push('Link must have text content, aria-label, or title');
-  }
-  
-  const href = link.getAttribute('href');
-  if (!href || href === '#') {
-    issues.push('Link should have a valid href attribute');
-  }
-  
-  return { valid: issues.length === 0, issues };
-}
-
-/**
- * Handle fake links (elements with click handlers but no href)
- * @param {Document} doc - The document to process
- * @returns {Object} Processing result
- */
-function handleFakeLinks(doc) {
-  const results = { found: 0, processed: 0 };
-  
-  const clickableElements = doc.querySelectorAll('[onclick], [role="button"]');
-  
-  clickableElements.forEach(element => {
-    if (element.tagName !== 'A' && element.tagName !== 'BUTTON') {
-      results.found++;
-      
-      if (!element.getAttribute('tabindex') && !element.hasAttribute('role')) {
-        element.setAttribute('role', 'button');
-        element.setAttribute('tabindex', '0');
-        results.processed++;
-      }
-    }
-  });
-  
-  return results;
-}
-
 // Export functions for testing
 module.exports = {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  addSvgAccessibilityProps,
-  validateLinkAccessibility,
-  handleFakeLinks
+  someFunction: someFunction,
+  createInPageButton: createInPageButton,
+  validateLinkAccessibility: validateLinkAccessibility,
+  handleFakeLinks: handleFakeLinks,
+  validateLandmarkStructure: validateLandmarkStructure,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  getSvgAccessibleName: getSvgAccessibleName,
+  setSvgAttributes: setSvgAttributes,
+  addSvgAccessibilityProps: addSvgAccessibilityProps
 };

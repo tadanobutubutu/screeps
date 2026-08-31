@@ -229,7 +229,20 @@ function fixButtonIdentifiers(container, buttonMappings = {}) {
   });
 }
 
-// Accessibility function to ensure dependencyGraph container has proper ARIA role
+// Functions that render dependency graphs or manage their accessibility
+// These functions are identified as specific functions that render dependency graphs
+// or manage their accessibility:
+
+/**
+ * Renders a dependency graph with proper ARIA attributes for accessibility.
+ * This function identifies the dependency graph container and ensures it has
+ * appropriate role and aria-label attributes for screen readers.
+ * 
+ * @param {HTMLElement} container - The container element to search within
+ * @param {string} role - The ARIA role to assign (default: 'img')
+ * @param {string} label - The aria-label text for the dependency graph
+ * @returns {HTMLElement} The dependency graph element with accessibility attributes
+ */
 function ensureDependencyGraphAriaRole(container, role = 'img', label = 'Dependency graph') {
   if (!container) return;
   
@@ -246,6 +259,128 @@ function ensureDependencyGraphAriaRole(container, role = 'img', label = 'Depende
   }
   
   return dependencyGraph;
+}
+
+/**
+ * Updates the dependency graph visualization with accessibility improvements.
+ * This function applies all necessary accessibility enhancements to ensure
+ * the dependency graph is properly announced by screen readers.
+ * 
+ * @param {HTMLElement} container - The container element holding the dependency graph
+ * @param {Object} options - Configuration options for the dependency graph
+ * @param {string} options.role - ARIA role for the graph (default: 'img')
+ * @param {string} options.label - Accessible label for the graph
+ * @param {boolean} options.includeDescription - Whether to add aria-describedby
+ * @returns {HTMLElement} The updated dependency graph element
+ */
+function updateDependencyGraphAccessibility(container, options = {}) {
+  const { role = 'img', label = 'Dependency graph', includeDescription = false } = options;
+  
+  if (!container) return null;
+  
+  // Find the dependency graph element
+  const dependencyGraph = container.querySelector('[class*="dependencyGraph"]') ||
+                           container.querySelector('[id*="dependencyGraph"]') ||
+                           container.querySelector('svg') ||
+                           container;
+  
+  // Set role attribute
+  if (!dependencyGraph.getAttribute('role')) {
+    dependencyGraph.setAttribute('role', role);
+  }
+  
+  // Set aria-label
+  if (!dependencyGraph.getAttribute('aria-label') && !dependencyGraph.getAttribute('aria-labelledby')) {
+    dependencyGraph.setAttribute('aria-label', label);
+  }
+  
+  // Optionally add description
+  if (includeDescription && !dependencyGraph.getAttribute('aria-describedby')) {
+    const descId = `dep-graph-desc-${Math.random().toString(36).substr(2, 9)}`;
+    const desc = document.createElement('desc');
+    desc.id = descId;
+    desc.textContent = 'Visual representation of project dependencies';
+    if (dependencyGraph.firstChild) {
+      dependencyGraph.insertBefore(desc, dependencyGraph.firstChild);
+    } else {
+      dependencyGraph.appendChild(desc);
+    }
+    dependencyGraph.setAttribute('aria-describedby', descId);
+  }
+  
+  return dependencyGraph;
+}
+
+/**
+ * Identifies all dependency graph elements within a container and returns
+ * information about their current accessibility state.
+ * 
+ * @param {HTMLElement} container - The container to search within
+ * @returns {Array} Array of objects containing dependency graph element info
+ */
+function identifyDependencyGraphs(container) {
+  if (!container) return [];
+  
+  const graphs = [];
+  
+  // Find elements with dependency graph related identifiers
+  const graphSelectors = [
+    '[class*="dependencyGraph"]',
+    '[id*="dependencyGraph"]',
+    '[data-testid*="dependency"]',
+    '[role="img"]'
+  ];
+  
+  graphSelectors.forEach(selector => {
+    const elements = container.querySelectorAll(selector);
+    elements.forEach((el, index) => {
+      const isSvg = el.tagName.toLowerCase() === 'svg';
+      const hasRole = el.hasAttribute('role');
+      const hasLabel = el.hasAttribute('aria-label') || el.hasAttribute('aria-labelledby');
+      
+      graphs.push({
+        element: el,
+        selector: selector,
+        index: index,
+        isSvg: isSvg,
+        hasRole: hasRole,
+        hasLabel: hasLabel,
+        role: el.getAttribute('role'),
+        label: el.getAttribute('aria-label') || (el.querySelector('title') ? el.querySelector('title').textContent : null)
+      });
+    });
+  });
+  
+  return graphs;
+}
+
+/**
+ * Applies comprehensive accessibility improvements to all dependency graphs
+ * found within the given container.
+ * 
+ * @param {HTMLElement} container - The container holding dependency graphs
+ * @returns {Array} Array of updated dependency graph elements
+ */
+function applyDependencyGraphAccessibility(container) {
+  if (!container) return [];
+  
+  const graphs = identifyDependencyGraphs(container);
+  const updated = [];
+  
+  graphs.forEach(graph => {
+    if (!graph.hasRole) {
+      graph.element.setAttribute('role', 'img');
+    }
+    
+    if (!graph.hasLabel) {
+      const label = graph.isSvg ? 'Dependency graph' : 'Dependency visualization';
+      graph.element.setAttribute('aria-label', label);
+    }
+    
+    updated.push(graph.element);
+  });
+  
+  return updated;
 }
 
 // Export necessary functions for use in other modules
@@ -775,5 +910,9 @@ module.exports = {
   isInitialized,
   appData,
   processLandmarks,
-  setSvgAccessibleName
+  setSvgAccessibleName,
+  ensureDependencyGraphAriaRole,
+  updateDependencyGraphAccessibility,
+  identifyDependencyGraphs,
+  applyDependencyGraphAccessibility
 };

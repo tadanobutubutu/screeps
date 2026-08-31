@@ -61,11 +61,9 @@ function main() {
 }
 
 // Run if executed directly
-if (require.main === module) {
+if (typeof require !== 'undefined' && require.main === module) {
   main();
 }
-
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
 // Landmark data structure
 const landmarks = [];

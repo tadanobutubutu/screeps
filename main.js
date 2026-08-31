@@ -1,183 +1,76 @@
-Here is the resolved version of the `main.js` file, merging the changes from both parties, preserving functionality, and ensuring no syntax errors or style issues:
-
-```javascript
+import React, { useState, useEffect } from 'react';
+import express from 'express';
+import path from 'path';
+import './styles.css';
 import './styles.less';
-import react from 'react';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import { isSecureContext } from './utils.js';
+import fs from 'fs';
 import { calculateSum } from './utils';
 import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
 import { CONFIG } from './utils/constants';
+import { App } from './App';
 
-import fs from 'fs';
-import path from 'path';
-import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
-import React from 'react'; // Include React for test compatibility
+const expressApp = express();
 
-// ... (as is) Node.js functions for dependency visualization tool
+let config = {};
+let appState = {};
 
-const config = {
-  apiUrl: process.env.API_URL || ...
-  timeout: 5000
+// Configuration and state
+const CONFIG = {
+  dataPath: './data',
+  maxResults: 100
 };
 
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map()
-};
-
+// Initialize function
 function initialize() {
-  appState.initialized = true;
-  console.log('App initialized');
+  config = { apiUrl: process.env.API_URL || 'default', timeout: 5000 };
+  appState = { initialized: true };
 }
 
 function initializeApp() {
   initialize();
-  return appState;
 }
 
 function processData(data) {
-  if (!data) {
-    return null;
-  }
-  appState.data = data;
   return data;
 }
 
 function fetchUser(userId) {
-  if (!userId) {
-    return null;
-  }
-  return { id: userId, name: 'User ' + userId };
+  return { id: userId, name: 'User' };
 }
 
 function clearCache() {
-  appState.cache.clear();
-}
-
-function someFunction() {
-  return 'some value';
-}
-
-function helper(input) {
-  return input ? input.toUpperCase() : '';
-}
-
-function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-  return ...
+  appState = {};
 }
 
 function validateInput(input) {
-  if (!input) {
-    return false;
-  }
-  return true;
+  return input && input.length > 0;
 }
 
-function getLangAttribute() {
-  return 'en';
+// Main execution
+function main() {
+  initialize();
+  console.log('Main function executed');
 }
 
-function addLangAttribute(element) {
-  if (element && typeof element === 'object') {
-    element.lang = getLangAttribute();
-  }
-  return element;
+// Run if executed directly
+if (typeof require !== 'undefined' && require.main === module) {
+  main();
 }
 
-function setLanguageAttribute() {
-  document.documentElement.lang = 'en';
-}
+const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
-function addLandmarkRoles() {
-  const mainElement = ...
-  if (mainElement && ... {
-    mainElement.setAttribute('role', 'main');
-  }
-
-  const navElement = ...
-  if (navElement && ... {
-    ... 'navigation');
-  }
-}
-
-function fixFakeLinks() {
-  const fakeLinks = ...
-  fakeLinks.forEach(link => {
-    if ... {
-      link.setAttribute('role', 'button');
-    }
-  });
+function wrapPrimaryContentInMain(parent) {
+  // ... original function implementation ...
 }
 
 let icons = {};
-
-function validateTableAccessibility() {
-  console.log('Validating table accessibility');
-}
-
-function validateTableStructure() {
-  console.log('Validating table structure');
-}
-
-function fixTableStructure() {
-  console.log('Fixing table structure issues');
-}
-
-function validateLandmark() {
-  console.log('Validating landmark');
-}
-
-function validateLandmarkStructure() {
-  console.log('Validating landmark structure');
-}
-
-function ... {
-  console.log('Validating landmark attributes');
-}
-
-function addLandmarkRegions() {
-  console.log('Adding landmark regions');
-}
-
-function getSvgAccessibleName() {
-  return 'Accessible SVG Icon';
-}
-
-function setSvgAttributes(svg, accessibleName) {
-  if (svg && typeof svg === 'object') {
-    svg.setAttribute('role', 'img');
-    ... accessibleName);
-  }
-  return svg;
-}
-
-function ensureUniqueLandmarks() {
-  console.log('Ensuring unique landmarks');
-}
-
-function createInPageButton() {
-  // This function is not present in either party, so it's removed
-}
-
-function validateLinkAccessibility() {
-  console.log('Validating link accessibility');
-}
-
-function handleFakeLinks() {
-  console.log('Handling fake links');
-}
-
-const landmarks = [];
-
 const appData = {
   title: 'Screeps',
   version: '1.0.0'
@@ -223,29 +116,56 @@ function getVersion() {
   return VERSION;
 }
 
-const App = () => {
-  const [programData, setProgramData] = useState(null);
-
-  useEffect(() => {
-    const loadProgramData = async () => {
-      const filePath = path.join(CONFIG.dataPath, 'program.json');
-      try {
-        const data = await fs.promises.readFile(filePath, 'utf8');
-        const parsedData = JSON.parse(data);
-        setProgramData(parsedData);
-      } catch (error) {
-        console.error('Error loading program data:', error);
-      }
-    };
-    loadProgramData();
-  }, []);
-
-  return (
-    <Router>
-      // ... Your accessible React Router setup ...
-    </Router>
-  );
+// Exporting modified module.exports from the original branch
+module.exports = {
+  config: CONFIG,
+  App,
+  someFunction: someFunction || function() {
+    return 'some value';
+  },
+  helper: helper || function(input) {
+    return input ? input.toUpperCase() : '';
+  },
+  formatDate: formatDate || function(date) {
+    if (!(date instanceof Date)) {
+      date = new Date(date);
+    }
+    return date.toISOString().split('T')[0];
+  },
+  ...module.exports, // Preserve existing functions
+  calculateSum,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  initializeApp,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  generateAccessibilityReport,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks,
+  addLangAttribute,
+  createInPageButton,
+  validateInput,
+  processData,
+  formatResponse,
+  config: CONFIG,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  landmarkConfig: CONFIG
 };
 
-export default App;
-```
+module.exports.main = main;
+
+expressApp.use('/', expressApp);
+const port = process.env.PORT || 3000;
+expressApp.listen(port, () => {
+  console.log(`Listening on port ${port}`);
+});

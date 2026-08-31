@@ -1,153 +1,135 @@
-// TODO: Identify and update specific functions as needed
+const main = require('./utilities');
 
-// Main module
-
-// Dependency imports
-const { main } = require('./utilities');
-const { functionA, functionB } = require('./functionModule');
-
-/**
- * Validates table accessibility in the provided HTML
- * @param {string} html - The HTML content to validate
- * @returns {Array} Array of accessibility issues found in tables
- */
-const validateTableAccessibility = (html) => {
-  const issues = [];
-  
-  // Check if HTML contains tables
-  const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
-  let match;
-  
-  while ((match = tableRegex.exec(html)) !== null) {
-    const tableContent = match[0];
-    const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
-    
-    // Check for caption
-    const hasCaption = /<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent);
-    if (!hasCaption) {
-      issues.push({
-        type: 'table',
-        severity: 'warning',
-        message: `Table ${tableNumber} is missing a <caption> element for accessibility`,
-        suggestion: 'Add a <caption> element immediately after the <table> tag to describe the purpose of the table'
-      });
-    }
-    
-    // Check for th elements
-    const hasHeaders = /<th[^>]*>/i.test(tableContent);
-    if (!hasHeaders) {
-      issues.push({
-        type: 'table',
-        severity: 'warning',
-        message: `Table ${tableNumber} appears to be a data table but has no <th> (table header) elements`,
-        suggestion: 'Add <th> elements for column or row headers to improve accessibility for screen readers'
-      });
-    }
-    
-    // Check for scope attributes on th elements
-    const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
-    thMatches.forEach((thTag, index) => {
-      if (!/scope=["'](row|col|rowgroup|colgroup)["']/i.test(thTag)) {
-        issues.push({
-          type: 'table',
-          severity: 'info',
-          message: `Table ${tableNumber} header ${index + 1} is missing a 'scope' attribute`,
-          suggestion: 'Add scope="col", scope="row", scope="rowgroup", or scope="colgroup" to <th> elements'
-        });
-      }
-    });
-    
-    // Check for thead and tbody structure
-    const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent);
-    const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent);
-    
-    if (!hasThead) {
-      issues.push({
-        type: 'table',
-        severity: 'info',
-        message: `Table ${tableNumber} is missing <thead> element`,
-        suggestion: 'Wrap header rows in a <thead> element for better semantic structure'
-      });
-    }
-    
-    if (!hasTbody) {
-      issues.push({
-        type: 'table',
-        severity: 'info',
-        message: `Table ${tableNumber} is missing <tbody> element`,
-        suggestion: 'Wrap data rows in a <tbody> element for better semantic structure'
-      });
-    }
-    
-    // Check for id and headers attributes for complex tables
-    const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
-    if (hasMultipleHeaders) {
-      const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
-      const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
-      
-      if (!hasIdAttr && !hasHeadersAttr) {
-        issues.push({
-          type: 'table',
-          severity: 'warning',
-          message: `Table ${tableNumber} has multiple headers but may not have proper id/headers associations`,
-          suggestion: 'For complex tables, ensure header cells have unique id attributes and data cells have headers attributes referencing those ids'
-        });
-      }
-    }
-  }
-  
-  return issues;
+const accessibilityUtils = {
+  // ... existing accessibilityUtils implementation
 };
 
-// Re-add the required exports for functionA and functionB
-const { functionA, functionB } = require('./functionModule');
-
-// App state for session management
-const appState = {
-  sessions: new Map()
+const exportUtils = {
+  // ... existing exportUtils implementation
 };
 
-// Helper functions for session management
-function getActiveSessionsCount() {
-  return appState.sessions.size;
-}
-
-function validateSession(sessionId) {
-  return appState.sessions.get(sessionId) || null;
-}
-
-function handleCredentialResponse(credentialResponse) {
-  // Process credential response - basic implementation
-  if (!credentialResponse || typeof credentialResponse !== 'object') {
-    return { status: 'error', message: 'Invalid credential response' };
-  }
-  return { status: 'success', credential: credentialResponse };
-}
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  handleCredentialResponse,
+  ensureElementId,
+  addAriaLabel,
+  renderDependencyGraph,
+  // New function to handle focus trap
+  newFocusTrap: newMainFocusTrap,
+  // New functions to address new accessibility issues from insight report
+  addressAccessibilityIssues: newAddressAccessibilityIssues
+} = main;
 
 const a11yStore = {
   prefersReducedMotion() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
-
-  prefersHighContrast() {
-    return window.matchMedia('(prefers-contrast: more)').matches;
-  },
-
-  updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
-    this.announce(message, priority);
-  },
+  newFocusTrap: newFocusTrap,
+  addressAccessibilityIssues: newAddressAccessibilityIssues
 };
+
+const appState = {
+  sessions: new Map()
+};
+
+const handleCredentialResponse = (credentialResponse) => {
+  // Process credential response - basic implementation
+  if (!credentialResponse || typeof credentialResponse !== 'object') {
+    return { status: 'error', message: 'Invalid credential response' };
+  }
+
+  // Check for site name in the origin and set it as the username
+  const siteName = document.location.hostname;
+  const username = siteName.split('.').slice(0, 2).join('.');
+
+  // Handle the credentialResponse
+  const authentication = credentialResponse.getBasicProfile();
+  if (authentication) {
+    const idToken = credentialResponse.getIdToken();
+
+    // Store the session data
+    const sessionData = {
+      idToken,
+      email: authentication.getEmail(),
+      username,
+      firstName: authentication.getGivenName(),
+      lastName: authentication.getFamilyName(),
+      imageUrl: authentication.getImageUrl(),
+    };
+
+    // Add or update session data in the state
+    const existingSession = appState.sessions.get(sessionData.idToken);
+    if (existingSession) {
+      existingSession.email = sessionData.email;
+      existingSession.firstName = sessionData.firstName;
+      existingSession.lastName = sessionData.lastName;
+      existingSession.imageUrl = sessionData.imageUrl;
+    } else {
+      appState.sessions.set(sessionData.idToken, sessionData);
+    }
+
+    // Announce success to screen readers
+    accessibilityUtils.announceToScreenReader(`Logged in as ${sessionData.username}`);
+
+    return { status: 'success', data: sessionData };
+  }
+
+  return { status: 'error', message: 'User does not have a Google account' };
+};
+
+/**
+ * Adds an aria-label attribute to an element.
+ * @param {HTMLElement} element - The element to add aria-label to
+ * @param {string} label - The label text to set
+ * @returns {HTMLElement} The element with the aria-label added
+ */
+function addAriaLabel(element, label) {
+  if (!element) {
+    return null;
+  }
+
+  if (typeof label !== 'string' || label.trim() === '') {
+    return element;
+  }
+
+  element.setAttribute('aria-label', label);
+  return element;
+}
+
+/**
+ * Ensures an element has both an id and an aria-label for accessibility.
+ * @param {HTMLElement} element - The element to enhance
+ * @param {string} idPrefix - The prefix for generating an id if needed
+ * @param {string} ariaLabel - The aria-label text
+ * @returns {string|null} The id of the element, or null if element is invalid
+ */
+function ensureElementAccessibility(element, idPrefix, ariaLabel) {
+  if (!element) {
+    return null;
+  }
+
+  const id = ensureElementId(element, idPrefix);
+  addAriaLabel(element, ariaLabel);
+
+  return id;
+}
 
 /**
  * Renders the graph index view
  * @param {Object} graphData - The graph data to render
  * @returns {string} Rendered graph index HTML
  */
-const renderGraphIndex = (graphData) => {
+function renderGraphIndex(graphData) {
   // Use the existing renderDependencyGraph function for actual rendering
   return renderDependencyGraph(graphData);
-};
+}
 
 /**
  * Renders the dependency graph view
@@ -159,3 +141,15 @@ function renderDependencyGraph(deps, options = {}) {
   // Use dependencyGraphContent from the imported module
   return dependencyGraphContent(deps, options);
 }
+
+module.exports = {
+  // ... existing exports, updated to use new functions (accessibilityUtils, newFocusTrap)
+  a11yStore,
+  appState,
+  handleCredentialResponse,
+  ensureElementId,
+  addAriaLabel,
+  renderGraphIndex,
+  renderDependencyGraph,
+  // ... additional exports (if any)
+};

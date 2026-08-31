@@ -49,10 +49,143 @@ const landmarkStructureCheck = (landmark) => {
  * Sets the language attribute on the HTML element.
  */
 function setLanguageAttribute() {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
+}
+
+/**
+ * Generates a report based on accessibility issues found in the page.
+ * Uses axe-core to scan the document and generates a structured report.
+ * @param {Object} options - Optional configuration for the scan.
+ * @param {string[]} options.tags - Tags to filter results (e.g., ['wcag2a', 'wcag2aa']).
+ * @param {string[]} options.runOnly - Limit Axe to only run specified tags or rules.
+ * @returns {Promise<Object>} Resolves with the accessibility report.
+ */
+async function generateAccessibilityReport(options = {}) {
+  const report = {
+    timestamp: new Date().toISOString(),
+    url: typeof window !== 'undefined' ? window.location.href : '',
+    issues: [],
+    summary: {
+      critical: 0,
+      serious: 0,
+      moderate: 0,
+      minor: 0,
+      total: 0
+    }
+  };
+
+  // Check if axe-core is available
+  if (typeof axe === 'undefined') {
+    console.warn('axe-core is not loaded. Accessibility scanning unavailable.');
+    return report;
+  }
+
+  try {
+    // Configure axe-core options
+    const axeOptions = {};
+    if (options.tags && options.tags.length > 0) {
+      axeOptions.runOnly = {
+        type: 'tag',
+        values: options.tags
+      };
+    }
+    if (options.runOnly && options.runOnly.length > 0) {
+      axeOptions.runOnly = {
+        type: 'rule',
+        values: options.runOnly
+      };
+    }
+
+    // Run axe-core analysis on the entire document
+    const results = await axe.run(document.body, axeOptions);
+
+    // Process violations by impact level
+    if (results && results.violations) {
+      results.violations.forEach(violation => {
+        const impact = violation.impact || 'unknown';
+        if (report.summary.hasOwnProperty(impact)) {
+          report.summary[impact]++;
+        }
+        report.summary.total++;
+
+        // Add each violation to issues array
+        violation.nodes.forEach(node => {
+          report.issues.push({
+            id: violation.id,
+            description: violation.description,
+            help: violation.help,
+            helpUrl: violation.helpUrl,
+            impact: impact,
+            element: node.html,
+            target: Array.isArray(node.target) ? node.target.join(', ') : node.target,
+            standards: {
+              wcag: violation.tags.filter(tag => tag.startsWith('wcag')).join(', ')
+            }
+          });
+        });
+      });
+    }
+
+    // Include passes in report if requested
+    if (options.includePasses && results && results.passes) {
+      report.passes = results.passes.map(pass => ({
+        id: pass.id,
+        description: pass.description,
+        help: pass.help,
+        helpUrl: pass.helpUrl,
+        impact: 'pass',
+        elements: pass.nodes.map(node => node.html)
+      }));
+    }
+
+    return report;
+  } catch (error) {
+    console.error('Error running accessibility scan:', error);
+    report.error = error.message;
+    return report;
+  }
+}
+
+/**
+ * Writes the accessibility report to the console and optionally to a file.
+ * @param {Object} report - The accessibility report to write.
+ * @param {Object} options - Options for writing the report.
+ * @param {boolean} options.console - Whether to log to console.
+ * @param {boolean} options.format - Output format ('json' or 'text').
+ */
+function writeAccessibilityReport(report, options = {}) {
+  const format = options.format || 'json';
+  
+  if (options.console !== false) {
+    if (format === 'json') {
+      console.log('Accessibility Report:', JSON.stringify(report, null, 2));
+    } else {
+      console.log('=== Accessibility Report ===');
+      console.log(`Timestamp: ${report.timestamp}`);
+      console.log(`URL: ${report.url}`);
+      console.log(`\nSummary:`);
+      console.log(`  Critical: ${report.summary.critical}`);
+      console.log(`  Serious: ${report.summary.serious}`);
+      console.log(`  Moderate: ${report.summary.moderate}`);
+      console.log(`  Minor: ${report.summary.minor}`);
+      console.log(`  Total Issues: ${report.summary.total}`);
+      
+      if (report.issues.length > 0) {
+        console.log(`\nDetailed Issues:`);
+        report.issues.forEach((issue, index) => {
+          console.log(`\n[${index + 1}] ${issue.id} (${issue.impact})`);
+          console.log(`    ${issue.help}`);
+          console.log(`    Element: ${issue.element}`);
+          console.log(`    Help: ${issue.helpUrl}`);
+        });
+      }
+    }
+  }
+  
+  return report;
 }
 
 /**
@@ -82,7 +215,7 @@ function validateLandmarkStructure(landmark) {
  * Adds landmark roles to elements.
  */
 function addLandmarkRoles() {
-  const landmarkElements = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+  const landmarkElements = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"], [role="search"]');
   landmarkElements.forEach((element, index) => {
     if (!element.id) {
       element.id = 'landmark-' + index;
@@ -150,7 +283,8 @@ function getSvgAccessibleName(svg) {
 function setSvgAttributes(svg, name) {
   if (!svg) return;
   
-  if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+  if (name && !svg.hasAttribute('aria-label')) {
+    svg.setAttribute('role', 'img');
     svg.setAttribute('aria-label', name);
   }
 }
@@ -182,7 +316,7 @@ function validateLinkAccessibility(link) {
   
   const href = link.getAttribute('href');
   const hasProperHref = href && href.length > 0 && href !== '#';
-  const hasAccessibleText = link.textContent.trim().length > 0 || link.hasAttribute('aria-label');
+  const hasAccessibleText = link.textContent.trim().length > 0 || link.getAttribute('aria-label');
   
   return hasProperHref || hasAccessibleText;
 }
@@ -190,80 +324,4 @@ function validateLinkAccessibility(link) {
 /**
  * Handles fake links by converting them to proper buttons or adding accessibility attributes.
  */
-function handleFakeLinks() {
-  const links = document.querySelectorAll('a[href="#"], a:not([href])');
-  links.forEach(link => {
-    if (link.getAttribute('href') === '#' || !link.hasAttribute('href')) {
-      link.setAttribute('role', 'button');
-      link.setAttribute('tabindex', '0');
-    }
-  });
-}
-
-/**
- * Fixes fake links that don't have proper href attributes.
- */
-function fixFakeLinks() {
-  handleFakeLinks();
-}
-
-/**
- * REACT_037: Add proper landmark regions
- * Ensures proper landmark regions are added to the document.
- */
-function addProperLandmarkRegions() {
-  const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
-  if (mainElement && !mainElement.id) {
-    mainElement.id = 'main-content';
-  }
-  
-  const navElements = document.querySelectorAll('nav');
-  navElements.forEach((nav, index) => {
-    if (!nav.id) {
-      nav.id = 'navigation-' + index;
-    }
-  });
-  
-  const footerElement = document.querySelector('footer') || document.querySelector('[role="contentinfo"]');
-  if (footerElement && !footerElement.id) {
-    footerElement.id = 'footer';
-  }
-}
-
-/**
- * Initializes the application and applies accessibility fixes.
- */
-const initApp = () => {
-  // Initialize the main application
-  initializeApp();
-
-  // Apply accessibility fixes
-  setLanguageAttribute(); // Default to 'en'
-  addLandmarkRoles();
-  ensureUniqueLandmarks(landmarks);
-  
-  // Add accessible names to SVGs (example selectors and names)
-  icons = {
-    icon: '<svg viewBox="0 0 100 100" aria-label="Screps icon"></svg>'
-  };
-
-  // Fix fake links
-  fixFakeLinks();
-  
-  // Initialize the application data
-  console.log('Initializing ' + appData.title + ' v' + appData.version);
-  // ... (assuming other initialization logic is present)
-};
-
-// Check if the environment is secure before initializing
-if (isSecureContext()) {
-  initApp();
-} else {
-  console.warn('Application is not running in a secure context. Some features may not be available.');
-}
-
-// Register the service worker
-registerSW();
-
-// Export functions for testing
-// ... (only include exported functions if needed and remove unrelated code)
+function handle

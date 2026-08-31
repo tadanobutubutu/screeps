@@ -6,6 +6,10 @@
 const http = require('http');
 const path = require('path');
 
+// Import content modules
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
+
 // Application configuration
 const config = {
   port: process.env.PORT || 3000,
@@ -109,6 +113,22 @@ function newFunctionality() {
   console.log('New functionality has been added.');
 }
 
+/**
+ * Renders the dependency graph view
+ * @returns {string} Rendered dependency graph content
+ */
+function renderDependencyGraph() {
+  return dependencyGraphContent();
+}
+
+/**
+ * Renders the index view
+ * @returns {string} Rendered index content
+ */
+function renderIndex() {
+  return indexContent();
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
@@ -117,5 +137,7 @@ module.exports = {
   handleCredentialResponse,
   getStoredCredentials,
   handleAddLangAttribute,
-  newFunctionality
+  newFunctionality,
+  renderDependencyGraph,
+  renderIndex
 };

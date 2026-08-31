@@ -2,6 +2,7 @@
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
 
+
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
 // TODO: Address accessibility issues from insight report:
@@ -19,7 +20,7 @@ import React from 'react';
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
- * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
+ * @param {string} lang - The language code (e. g., 'en', 'es', 'fr')
  * @returns {string} The lang attribute value that was set
  */
 function setHtmlLangAttribute(lang) {
@@ -51,27 +52,27 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if ... {
+    if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if ... {
+    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if ... {
+    } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if ... {
+    } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if ... {
+    } else if (/[éèêàâïîôùûüç]/i.test(content)) {
       lang = 'fr'; // French
-    } else if ... {
+    } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }
   
-  return ...
+  return lang;
 }
 
 /**
  * Returns a properly formatted person name
- * @param {string} name - The person's name
+ * @param {string} name - The person 's name
  * @returns {string} The formatted person name
  */
 function personName(name) {
@@ -80,7 +81,7 @@ function personName(name) {
 }
 
 /**
- * Creates an accessible in-page button and appends it to the given parent element.
+ * Creates an accessible in- page button and appends it to the given parent element.
  * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
  * @returns {HTMLElement} The created button element
  */

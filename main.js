@@ -237,7 +237,7 @@ function BookItem(book) {
 function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
-
+  
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
@@ -275,14 +275,48 @@ function Main() {
   // Map the book list to the BookItem function to create book items
   const bookItems = ...
 
-  // Render the list of book items and sorting controls
   return (
     <div>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List ... />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      
+      {/* Added form for adding new books with accessibility improvements */}
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        // Extract book data from form
+        const bookData = {
+          title: formData.get('title').trim(),
+          author: formData.get('author').trim()
+          // Additional fields can be added as needed
+        };
+        
+        addBook(bookData);
+      }}>
+        <div>
+          <label htmlFor="title">Title:</label>
+          <input 
+            id="title" 
+            type="text" 
+            name="title" 
+            required 
+            aria-required="true"
+          />
+        </div>
+        <div>
+          <label htmlFor="author">Author:</label>
+          <input 
+            id="author" 
+            type="text" 
+            name="author" 
+            required 
+            aria-required="true"
+          />
+        </div>
+        <button type="submit" aria-label="Add new book">Add Book</button>
+      </form>
     </div>
   );
 }

@@ -1,7 +1,13 @@
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-
 import { calculateSum } from './utils';
 
 export function newNecessaryFunction() {
   return "New function implemented";
 }
+
+// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+function wrapPrimaryContentInMain(content) {
+  // Implementation details here
+  return `<main>${content}</main>`;
+}
+
+export { wrapPrimaryContentInMain };

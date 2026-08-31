@@ -484,6 +484,17 @@ export {
   generateAccessibilityReport
 };
 
+// Add back any required exports that might have been missing
+export { 
+  createUnrotateButton, 
+  ensureThScope, 
+  addLandmarkRoles, 
+  addSvgAccessibleNames, 
+  ensureUniqueLandmarks, 
+  fixFakeLink, 
+  initializeAccessibility 
+};
+
 // Add the new function to the default export
 export default {
   VERSION,

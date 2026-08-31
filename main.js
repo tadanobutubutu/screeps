@@ -1,9 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// TODO: Address any missing required exports
-// REACT_015: Add lang attribute
-
 const Main = ({ children, title, lang = 'en' }) => {
   return (
     <main lang={lang}>
@@ -21,5 +18,16 @@ Main.propTypes = {
 
 // Adding the missing required exports
 export { Main, PropTypes };
+
+// New function to render dependency graphs
+const renderDependencyGraph = (dependencies) => {
+  // Placeholder for the actual implementation
+  console.log('Rendering dependency graph for:', dependencies);
+  // Here you would implement the logic to render the graph
+};
+
+// Example usage of the new function
+// Assuming there's a state or some data structure available
+// renderDependencyGraph(someDependencyData);
 
 export default Main;

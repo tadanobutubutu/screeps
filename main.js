@@ -1,5 +1,4 @@
-// main.js - Application entry point
-// TODO: Address accessibility issues from insight report
+// Existing code and exports
 
 const express = require('express');
 const axe = require('axe-core');
@@ -20,16 +19,15 @@ function isValidLandmark(landmark) {
            landmark.id !== null;
 }
 
-// Load landmarks from file
-function loadLandmarks() {
-    try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error loading landmarks:', error.message);
-        return [];
-    }
+// New function to handle REACT_015 (Add lang attribute to HTML element)
+function getLangAttribute() {
+  // Default to English, but could be made configurable
+  return 'en';
+}
+
+// New function to add lang attribute
+function addLangAttribute(element) {
+  element.setAttribute('lang', getLangAttribute());
 }
 
 // Process and filter landmarks
@@ -85,6 +83,20 @@ function ensureUniqueLandmarks(landmarks) {
     }
 
     return uniqueLandmarks;
+}
+
+// Load landmarks from data file
+function loadLandmarks() {
+    try {
+        const dataFile = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        if (fs.existsSync(dataFile)) {
+            const data = fs.readFileSync(dataFile, 'utf8');
+            return JSON.parse(data);
+        }
+    } catch (error) {
+        console.error('Error loading landmarks:', error.message);
+    }
+    return [];
 }
 
 // Function to write the generated report to a file (for accessibility issues)
@@ -153,7 +165,7 @@ module.exports = {
   validateInput,
   processData,
   formatResponse,
-  config,
+  config: CONFIG,
   // landmark functions
   isValidLandmark,
   loadLandmarks,
@@ -161,7 +173,14 @@ module.exports = {
   sortLandmarks,
   getLandmarkById,
   ensureUniqueLandmarks,
-  generateAccessibilityReport // Add this export for the new function
+  // accessibility functions
+  generateAccessibilityReport,
+  scanAccessibility,
+  formatAccessibilityReport,
+  writeAccessibilityReport,
+  // i18n/accessibility functions
+  getLangAttribute,
+  addLangAttribute
 };
 
 // Main execution when run directly

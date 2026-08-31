@@ -1,3 +1,37 @@
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+
+const ensureElementId = (element) => {
+  if (element && typeof element === 'object' && !element.id) {
+    element.id = 'element-' + Math.random().toString(36).slice(2, 9);
+  }
+  return element;
+};
+
+const addAriaLabel = (element, label) => {
+  if (element && typeof element === 'object') {
+    element.setAttribute('aria-label', label || '');
+  }
+  return element;
+};
+
+const renderDependencyGraphs = (dependencies, container) => {
+  if (!container || typeof document === 'undefined') return;
+  container.innerHTML = '';
+  if (dependencies && Array.isArray(dependencies)) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'dependency-graph';
+    dependencies.forEach((dep) => {
+      const item = document.createElement('div');
+      item.className = 'dependency-node';
+      item.textContent = (dep && typeof dep === 'object' && dep.name) ? dep.name : String(dep);
+      wrapper.appendChild(item);
+    });
+    container.appendChild(wrapper);
+  }
+};
+
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
 
@@ -456,5 +490,9 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   addSvgAccessibleName,
-  createInPageButton
+  createInPageButton,
+  // Preserved existing functions
+  ensureElementId,
+  addAriaLabel,
+  renderDependencyGraphs
 };

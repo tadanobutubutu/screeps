@@ -529,11 +529,6 @@ export {
   renderProductCard
 };
 
-// Exporting for CommonJS compatibility
-module.exports = {
-  specificFunctionThatRendersGraphOrIndex
-};
-
 // Export additional required functions
 export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute };
 
@@ -766,3 +761,65 @@ export { addLangAttribute };
 
 // Export the internal set for tracking used landmark IDs
 export { _usedLandmarkIds };
+
+// Additional definitions to satisfy exports and make functions accessible
+
+// Define missing utility functions
+function formatCurrency(amount) {
+    return `$${Number(amount).toFixed(2)}`;
+}
+
+function formatDate(date) {
+    return date.toLocaleDateString();
+}
+
+function calculateDiscount(subtotal) {
+    return subtotal * 0.1; // 10% discount example
+}
+
+function validateInput(input) {
+    return input && input.value !== undefined;
+}
+
+// Define missing rendering functions
+function renderHeader(title) {
+    return `<header><h1>${title}</h1></header>`;
+}
+
+function renderFooter() {
+    return `<footer><p>Footer</p></footer>`;
+}
+
+function renderProductCard(product) {
+    return `
+        <div class="product-card">
+            <h3>${formatProductName(product)}</h3>
+            <p class="price">${formatCurrency(product.price)}</p>
+        </div>
+    `;
+}
+
+// Define missing state variables
+const state = {
+    initialized: true
+};
+
+function updateState(newState) {
+    Object.assign(state, newState);
+}
+
+// Define missing content placeholders
+const dependencyGraphContent = { name: 'root', dependencies: [] };
+const indexContent = { items: [] };
+
+// Make additional functions accessible
+export {
+    ensureElementHasId,
+    addAriaLabelToElement,
+    googleSignIn,
+    renderIndex,
+    specificFunctionThatRendersGraphOrIndex
+};
+
+// Ensure specificFunctionThatRendersGraphOrIndex is exported (replacing module.exports)
+export { specificFunctionThatRendersGraphOrIndex };

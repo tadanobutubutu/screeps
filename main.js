@@ -147,6 +147,16 @@ const accessibilityUtils = {
   // Function to handle accessibility issues
   handleAccessibilityIssues: function(container, report) {
     // Implementation to handle accessibility issues
+  },
+
+  // Add an accessible name to an SVG element
+  addAccessibleName: function(svgString) {
+    const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml');
+    const svgElement = svg.documentElement;
+    if (!svgElement.getAttribute('aria-label')) {
+      svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
+    }
+    return new XMLSerializer().serializeToString(svg);
   }
 };
 
@@ -268,6 +278,35 @@ function newExportedFunction() {
   // Implementation of the new function from the other conflict branch
 }
 
+// Access the dependencyGraph container and ensure it has proper ARIA role
+const dependencyGraph = document.getElementById('dependencyGraph');
+
+if (!dependencyGraph) {
+  throw new Error('Dependency graph container not found');
+}
+
+// Set appropriate ARIA role for the dependency graph container
+// Using 'region' role for a contained section of content
+if (!dependencyGraph.getAttribute('role')) {
+  dependencyGraph.setAttribute('role', 'region');
+}
+
+// Add accessible label if not already present
+if (!dependencyGraph.getAttribute('aria-label')) {
+  dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+}
+
+// Render SVGs with accessible names
+// ... (assuming you have SVGs and SVG-rendering code)
+
+const originalSvgString1 = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard 1</title><text y="0.9em" font-size="90">🐛</text></svg>';
+const modifiedSvgString1 = accessibilityUtils.addAccessibleName(originalSvgString1);
+
+const originalSvgString2 = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard 2</title><text y="0.9em" font-size="90">🐜</text></svg>';
+const modifiedSvgString2 = accessibilityUtils.addAccessibleName(originalSvgString2);
+
+// ... (render the modified SVGs)
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -277,7 +316,7 @@ function newExportedFunction() {
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 
-_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
+_Commit: b8888a2108389f599fb68eef1dc4d5df1051e52_
 
 // TODO: Implement the new function as per the issue requirements
 function transformInputData(inputData, options = {}) {

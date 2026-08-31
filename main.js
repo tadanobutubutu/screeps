@@ -55,12 +55,8 @@ function validateLandmarkStructure() {
   return validateLandmarkStructure();
 }
 
-function updateDocumentAccessibility() {
-  return true;
-}
-
-function createInPageButton() {
-  return createInPageButton();
+function getSvgAccessible() {
+  return getSvgAccessibleName();
 }
 
 // Placeholder variables for content
@@ -78,9 +74,9 @@ function countDependencies() {
 // Implement this function for ensuring unique landmarks (merged from both branches)
 function ensureUniqueLandmarks() {
   // Landmarks that should be unique on a page
-  const uniqueLandmarkSelectors = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
+  const primaryLandmarkSelectors = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
   
-  uniqueLandmarkSelectors.forEach(selector => {
+  primaryLandmarkSelectors.forEach(selector => {
     const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
       elements.forEach((element, index) => {
@@ -173,6 +169,7 @@ function fixAccessibilityIssues() {
 
   // 4. REACT_025: Ensure unique landmarks (addressing the 2 landmark uniqueness issues)
   ensureUniqueLandmarks();
+  handleFakeLinks();
 
   // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
   const svgElements = (getDocument ? getDocument() : document).querySelectorAll('svg');
@@ -212,14 +209,14 @@ function wrapPrimaryContentInMain(primaryContent) {
 }
 
 // DOM-based accessibility code for controls
-function initializeAccessibilityControls() {
+function addAccessibilityControls() {
   // Add necessary code to address any remaining control accessibility issues
 }
 
 // Renders the dependency graph view.
 // Updated to use dependencyGraphContent.
 export function renderDependencyGraph() {
-  const container = document.getElementById('dependency-graph-container');
+  const container = document.getElementById('dependencyGraph');
   if (container && dependencyGraphContent) {
     container.innerHTML = dependencyGraphContent;
     // Apply accessibility fixes to new content
@@ -230,7 +227,7 @@ export function renderDependencyGraph() {
 // Renders the index view.
 // Updated to use indexContent.
 export function renderIndex() {
-  const container = document.getElementById('index-container');
+  const container = document.getElementById('indexView');
   if (container && indexContent) {
     container.innerHTML = indexContent;
     // Apply accessibility fixes to new content
@@ -261,7 +258,7 @@ export function spawnProcess(command, args = [], options = {}) {
  */
 export function spawnDependencyGraphWorker(options = {}) {
   return new Promise((resolve, reject) => {
-    const worker = spawnProcess('node', ['--worker'], {
+    const worker = spawnProcess('node', [], {
       ...options,
       stdio: ['pipe', 'pipe', 'pipe', 'ipc']
     });
@@ -285,7 +282,7 @@ export function spawnDependencyGraphWorker(options = {}) {
  */
 export function spawnIndexWorker(options = {}) {
   return new Promise((resolve, reject) => {
-    const worker = spawnProcess('node', ['--index-worker'], {
+    const worker = spawnProcess('node', [], {
       ...options,
       stdio: ['pipe', 'pipe', 'pipe', 'ipc']
     });
@@ -308,59 +305,4 @@ export { makeHeaderFocusable };
 function makeHeaderFocusable() {
   const header = document.querySelector('header');
   if (header) {
-    header.setAttribute('tabindex', '0');
-    header.setAttribute('role', 'banner');
-    header.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        header.focus();
-      }
-    });
-  }
-}
-
-function ensureElementId(element) {
-  // Combined and reconciled code from both branches
-  if (!element.id) {
-    element.id = element.id || element.name || '';
-  }
-}
-
-function initializeAccessibility() {
-  // DOM-based accessibility code
-  const doc = getDocument ? getDocument() : document;
-  // Add lang attribute to HTML element
-  const langAttr = getLangAttribute();
-  if (langAttr) {
-    doc.documentElement.setAttribute('lang', langAttr);
-  }
-
-  // Create in-page button with accessibility considerations
-  createInPageButton();
-
-  // Validate table structure and accessibility
-  const tables = doc.querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
-
-  // Add/fix landmark issues
-  validateLandmark();
-  validateLandmarkStructure();
-
-  // Add accessible names to SVGs
-  const svgElements = doc.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
-  });
-
-  // Ensure unique landmarks
-  ensureUniqueLandmarks();
-  handleFakeLinks();
-}
-
-function addAriaLabel(element) {
-  // Combined and reconciled code from both branches
-  if (!element.getAttribute('aria-label')) {
-    element.setAttribute('aria
+    header.setAttribute('tabindex',

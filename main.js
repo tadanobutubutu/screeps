@@ -1,9 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// TODO: Address any missing required exports
-// REACT_015: Add lang attribute
-
 const Main = ({ children, title, lang = 'en' }) => {
   return (
     <main lang={lang}>
@@ -21,5 +18,20 @@ Main.propTypes = {
 
 // Adding the missing required exports
 export { Main, PropTypes };
+
+// TODO: Implement a function to count dependencies
+const countDependencies = (code) => {
+  const dependencyRegex = /import\s+[\w.]+ from\s+['"]([\w.]+)['"];/g;
+  let match;
+  let dependencyCount = 0;
+
+  while ((match = dependencyRegex.exec(code)) !== null) {
+    if (!dependencyRegex.test(code.slice(match.index))) {
+      dependencyCount++;
+    }
+  }
+
+  return dependencyCount;
+};
 
 export default Main;

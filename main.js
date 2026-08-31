@@ -274,6 +274,26 @@ function ensureDependencyGraphAriaRole(doc) {
   return container;
 }
 
+/**
+ * Render the main application with all accessibility enhancements
+ * @param {Document} doc - The document object
+ * @param {Object} options - Rendering options
+ */
+function renderApp(doc, options = {}) {
+  const { lang = 'en' } = options;
+  
+  // Apply all accessibility fixes
+  addLangAttribute(doc, lang);
+  fixTableStructure(doc);
+  fixLandmarkIssues(doc);
+  addAccessibleNamesToSVGs(doc);
+  fixFakeLinkIssues(doc);
+  fixButtonIdentifiers(doc);
+  ensureDependencyGraphAriaRole(doc);
+  
+  return doc;
+}
+
 // Export all functions
 export {
   addLangAttribute,
@@ -291,5 +311,6 @@ export {
   fixButtonIdentifiers,
   ensureDependencyGraphAriaRole,
   newExportedFunction,
-  newFunction
+  newFunction,
+  renderApp
 };

@@ -1,6 +1,3 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: ensureDependencyGraphARIA, getLangAttribute)
-
 // Helper function to get the language attribute value
 function getLangAttribute() {
   // Try to get the language from various sources
@@ -8,7 +5,7 @@ function getLangAttribute() {
   if (document.documentElement && document.documentElement.lang) {
     return document.documentElement.lang;
   }
-  
+
   // Fall back to browser language or default to 'en'
   return navigator.language || navigator.userLanguage || 'en';
 }
@@ -20,7 +17,7 @@ function ensureDependencyGraphARIA() {
   document.documentElement.setAttribute('lang', lang);
 }
 
-// Existing code starts here
+// TODO: Add back any required exports that might have been removed.
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
@@ -31,11 +28,11 @@ if (typeof document !== 'undefined') {
   ensureDependencyGraphARIA();
 }
 
+// Existing code starts here
+export { getLangAttribute, ensureDependencyGraphARIA };
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
-
-export { getLangAttribute, ensureDependencyGraphARIA };

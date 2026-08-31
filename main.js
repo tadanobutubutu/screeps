@@ -6,23 +6,104 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import a11y from './AccessibilityUtilities'; // Assuming accessibility utilities are in a separate file
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-
-// Your existing code...
-
-// Function to get the language attribute value
-function getLangAttribute() {
-  // Implementation of getLangAttribute function
-  // ...
+// Helper to get full language attribute
+function getFullLangAttribute() {
+  return getLangAttribute();
 }
 
-// Function to create an in-page button and add the lang attribute
-function createInPageButton() {
-  // Implementation of createInPageButton function
-  // ...
+// Table accessibility validators
+function validateTableAccessibility() {
+  const tbElements = document.querySelectorAll('table tbody');
+  let valid = true;
+  for (const tbody of tbElements) {
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    if (rows.length === 0) {
+      console.warn('Table tbody is empty');
+      valid = false;
+    } else if (!rows.some(row => row.hasAttribute('th'))) {
+      console.warn('Table tbody lacks header row');
+      valid = false;
+    }
+  }
+  return valid;
 }
 
-// Uncomment the implementation of the function for addressing new accessibility issues from the insight report
+function validateTableStructure() {
+  const tbs = document.querySelectorAll('table tbody');
+  let valid = true;
+  for (const tbody of tbs) {
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    if (rows.some(row => row.querySelector('table'))) {
+      console.warn('Nested table found inside tbody');
+      valid = false;
+    }
+  }
+  return valid;
+}
+
+// Landmark accessibility validators
+function validateLandmark() {
+  const svgs = document.querySelectorAll('svg');
+  for (const svg of svgs) {
+    if (!svg.getAttribute('aria-labelledby') && !svg.getAttribute('aria-label')) {
+      const parent = svg.parentNode;
+      const label = parent?.querySelector('[role="img"], [alt]')?.textContent || '';
+      if (label) {
+        svg.setAttribute('aria-labelledby', label);
+      } else {
+        const id = 'svg-' + Math.random().toString(36).substr(2, 9);
+        svg.setAttribute('id', id);
+        svg.setAttribute('aria-labelledby', id);
+      }
+    }
+  }
+}
+
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll('[role="img"], [role="presentation"], [role="alert"]');
+  const ids = [...landmarks.map(l => l.id)].filter(id => id !== undefined);
+  const seen = new Set();
+  for (const id of ids) {
+    if (seen.has(id)) {
+      console.error(`Duplicate landmark ID: ${id}`);
+      return false;
+    }
+    seen.add(id);
+  }
+  return true;
+}
+
+function ensureUniqueLandmarks() {
+  const landmarkEls = document.querySelectorAll('[role="img"], [role="presentation"]');
+  const ids = new Set();
+  for (const el of landmarkEls) {
+    const id = el.id || 'unknown';
+    if (ids.has(id)) {
+      console.warn(`Duplicate landmark ID: ${id}`);
+      return false;
+    }
+    ids.add(id);
+  }
+  return true;
+}
+
+// SVG accessibility helpers
+function getSvgAccessibleName(svg) {
+  const text = svg.textContent.trim();
+  if (text) return text;
+  const title = svg.getAttribute('title');
+  return title || 'SVG without accessible name';
+}
+
+function createAccessibleLink(text, href) {
+  const link = document.createElement('a');
+  link.textContent = text;
+  link.href = href;
+  link.setAttribute('aria-label', text);
+  return link;
+}
+
+// Main accessibility remediation function
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
   const rootContainer = document.getElementById('root').parentElement;
@@ -64,41 +145,4 @@ function addressAccessibilityIssues() {
     document.body.classList.remove('keyboard-nav');
   });
 
-  a11y.trapFocus(document.getElementById('modal')); // Assuming a modal/dialog element with the ID "modal"
-  a11y.announce('Welcome to the bot!', 'assertive'); // Assuming announce function from a11y utilities
-
-  // Adding an alt attribute to an image
-  const imageElement = document.getElementById('example-image');
-  if (imageElement) {
-    imageElement.setAttribute('alt', 'A description of the image');
-  }
-
-  // Correcting the ARIA role for a div
-  const divElement = document.getElementById('example-div');
-  if (divElement) {
-    divElement.setAttribute('role', 'list');
-  }
-
-  // Adding the lang attribute to the HTML element
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', getLangAttribute());
-  }
-}
-
-export {
-  addressAccessibilityIssues,
-  a11y,
-  getLangAttribute,
-  createInPageButton
-};
-
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-addressAccessibilityIssues(); // Call the function to address accessibility issues
-createInPageButton();
-reportWebVitals();
+  a11y.trapFocus(document.getElementById('modal')); // Assuming a modal

@@ -292,70 +292,11 @@ function add(a, b) {
   return a + b;
 }
 
-// Export existing functionality and new functions
-export { 
-  initialize, 
-  getConfig, 
-  setupSkipLinks, 
-  setupButtonAccessibility, 
-  createInPageButton, 
-  performTask, 
-  handleEvent, 
-  greet, 
-  add, 
-  calculateDiscount, 
-  newFunction, 
-  renderIndexView 
-};
-
-// Compatibility for CommonJS if needed (as per HEAD)
-module.exports.newFunction = newFunction;
-module.exports.renderIndexView = renderIndexView;
-
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initialize);
-  } else {
-    initialize();
-  }
-}
-
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-document.documentElement.lang = 'en';
-
-reportWebVitals();
-
-const VERSION = '1.0.0';
-
-const CONFIG = {
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  env: process.env.NODE_ENV || 'development'
-};
-
-function initializeReactApp() {
-  console.log('Application initialized');
-  return true;
-}
-
-function getReactConfig() {
-  return CONFIG;
-}
-
-function getVersion() {
-  return VERSION;
+// New accessibility-related functions
+function handleFakeLinks(link) {
+  const parent = link.parentElement;
+  const newButton = createUnrotateButton();
+  parent.replaceChild(newButton, link);
 }
 
 // TODO: This is the existing code that needs to be preserved
@@ -485,30 +426,81 @@ function generateAccessibilityReport() {
   };
 }
 
-// Export the new function
+// Constants for configuration
+const VERSION = '1.0.0';
+
+const CONFIG = {
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  env: process.env.NODE_ENV || 'development'
+};
+
+// React imports
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+document.documentElement.lang = 'en';
+
+reportWebVitals();
+
+// Export all functions and constants
 export {
-  VERSION,
-  CONFIG,
-  initialize: initializeReactApp,
-  getConfig: getReactConfig,
-  getVersion,
+  initialize,
+  getConfig,
+  setupSkipLinks,
+  setupButtonAccessibility,
+  createInPageButton,
+  rotateBack,
+  performTask,
+  handleEvent,
+  greet,
+  add,
+  calculateDiscount,
+  newFunction,
+  renderIndexView,
+  ensureThScope,
+  ensureUniqueLandmarks,
+  fixFakeLink,
+  handleFakeLinks,
   addressAccessibilityIssues,
   root,
+  validateTableAccessibility,
+  validateTableStructure,
+  generateAccessibilityReport,
+  VERSION,
+  CONFIG,
+  addLandmarkRoles,
+  addSvgAccessibleNames,
+  initializeAccessibility
+};
+
+// Default export
+export default {
+  VERSION,
+  CONFIG,
+  initialize,
+  getConfig,
+  getVersion: () => VERSION,
+  addressAccessibilityIssues,
   validateTableAccessibility,
   validateTableStructure,
   generateAccessibilityReport
 };
 
-// Add the new function to the default export
-export default {
-  VERSION,
-  CONFIG,
-  initialize: initializeReactApp,
-  getConfig: getReactConfig,
-  getVersion,
-  addressAccessibilityIssues,
-  root,
-  validateTableAccessibility,
-  validateTableStructure,
-  generateAccessibilityReport
-};
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
+}

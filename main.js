@@ -6,8 +6,6 @@
 const http = require('http');
 const path = require('path');
 
-// TODO: This is the existing code that needs to be preserved
-
 // Application configuration
 const config = {
   port: process.env.PORT || 3000,
@@ -55,4 +53,3 @@ module.exports = {
 if (require.main === module) {
   startApp();
 }
-```

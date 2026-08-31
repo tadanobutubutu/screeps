@@ -190,4 +190,10 @@ export function newFunction() {
   document.body.appendChild(button);
 }
 
+// New function to render dependency graphs
+export function renderDependencyGraph(graphData) {
+  // Implementation to render dependency graph using graphData
+  console.log('Rendering dependency graph with data:', graphData);
+}
+
 // ... (other code in main.js)

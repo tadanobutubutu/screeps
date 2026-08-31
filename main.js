@@ -1,1 +1,128 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js - Application entry point
+// TODO: Address accessibility issues from insight report
+
+const fs = require('fs');
+const path = require('path');
+
+// Configuration
+const CONFIG = {
+    dataPath: './data',
+    maxResults: 100
+};
+
+// Helper function to validate landmark structure
+function isValidLandmark(landmark) {
+    return landmark && 
+           typeof landmark.id !== 'undefined' && 
+           landmark.id !== null;
+}
+
+// Spawn default landmarks
+function spawnLandmarks() {
+    return [
+        { id: 1, name: 'Eiffel Tower', location: 'Paris, France' },
+        { id: 2, name: 'Statue of Liberty', location: 'New York, USA' },
+        { id: 3, name: 'Big Ben', location: 'London, UK' },
+        { id: 4, name: 'Taj Mahal', location: 'Agra, India' },
+        { id: 5, name: 'Sydney Opera House', location: 'Sydney, Australia' }
+    ];
+}
+
+// Load landmarks from file
+function loadLandmarks() {
+    try {
+        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        if (!fs.existsSync(filePath)) {
+            return spawnLandmarks();
+        }
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error loading landmarks:', error.message);
+        return [];
+    }
+}
+
+// Process and filter landmarks
+function processLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+    
+    const validLandmarks = landmarks.filter(isValidLandmark);
+    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+    
+    return uniqueLandmarks.slice(0, CONFIG.maxResults);
+}
+
+// Sort landmarks by name
+function sortLandmarks(landmarks, ascending = true) {
+    return landmarks.slice().sort((a, b) => {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+        
+        if (ascending) {
+            return nameA.localeCompare(nameB);
+        }
+        return nameB.localeCompare(nameA);
+    });
+}
+
+// Get landmark by ID
+function getLandmarkById(landmarks, id) {
+    return landmarks.find(landmark => landmark.id === id) || null;
+}
+
+// Ensure unique landmarks by ID
+function ensureUniqueLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+    
+    const seen = new Set();
+    const uniqueLandmarks = [];
+    
+    for (const landmark of landmarks) {
+        if (!landmark || typeof landmark.id === 'undefined') {
+            continue;
+        }
+        
+        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+        
+        if (!seen.has(landmarkId)) {
+            seen.add(landmarkId);
+            uniqueLandmarks.push(landmark);
+        }
+    }
+    
+    return uniqueLandmarks;
+}
+
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        CONFIG,
+        isValidLandmark,
+        loadLandmarks,
+        processLandmarks,
+        sortLandmarks,
+        getLandmarkById,
+        ensureUniqueLandmarks,
+        spawnLandmarks
+    };
+}
+
+// Main execution when run directly
+if (require.main === module) {
+    const landmarks = loadLandmarks();
+    const processed = processLandmarks(landmarks);
+    const sorted = sortLandmarks(processed);
+    
+    console.log(`Loaded ${landmarks.length} landmarks`);
+    console.log(`Processed to ${processed.length} unique landmarks`);
+    console.log(`Sorted ${sorted.length} landmarks`);
+    
+    if (sorted.length > 0) {
+        console.log('First landmark:', sorted[0]);
+    }
+}

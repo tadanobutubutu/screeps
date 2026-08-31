@@ -1,55 +1,62 @@
-// Import necessary dependencies
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import express from 'express';
+import path from 'path';
+import fs from 'fs';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import { isSecureContext } from './utils.js';
+import { calculateSum } from './utils';
+import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+import { CONFIG } from './utils/constants';
+import { App } from './App';
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
+const expressApp = express();
 
-// Function to get the language attribute value for accessibility
-function getLangAttribute() {
-  // Return the language code from the document's HTML element
-  // This helps screen readers pronounce content correctly
-  if (typeof document !== 'undefined' && document.documentElement) {
-    return document.documentElement.lang || 'en';
-  }
-  return 'en';
+// Configuration and state
+let config = {};
+let appState = {};
+
+// Initialize function
+function initialize() {
+  config = { apiUrl: process.env.API_URL || 'default', timeout: 5000 };
+  appState = { initialized: true };
 }
 
-// Function to ensure ARIA attributes are properly set for the dependency graph
-function ensureAriaAttributes() {
-  // Ensure the document has proper lang attribute for accessibility
-  const lang = getLangAttribute();
-  
-  // Set lang attribute on document root if not already set
-  if (typeof document !== 'undefined' && document.documentElement) {
-    if (!document.documentElement.lang) {
-      document.documentElement.lang = lang;
-    }
-  }
-  
-  return {
-    lang: lang,
-    accessible: true
-  };
+function initializeAppWrapper() {
+  initialize();
 }
 
-// Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
+function processData(data) {
+  return data;
 }
 
-// Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
+function fetchUser(userId) {
+  return { id: userId, name: 'User' };
 }
 
-// Function to generate a key for each book item
-function generateKey(book) {
-  return book.id || `${book.title.substring(0, 3)}-${Math.random().toString(36).substr(2, 9)}`;
+function clearCache() {
+  appState = {};
 }
 
-// TODO: Implement tower defense
+function validateInput(input) {
+  return input && input.length > 0;
+}
+
+// Main execution
+function main() {
+  initialize();
+  console.log('Main function executed');
+}
+
+// Run if executed directly
+if (typeof require !== 'undefined' && require.main === module) {
+  main();
+}
+
+// Tower Defense System (pure JS, no React dependencies)
 function createTowerDefenseSystem() {
   const towers = [];
   const enemies = [];
@@ -171,149 +178,205 @@ function createTowerDefenseSystem() {
   };
 }
 
-// Function to count dependencies
+// Accessibility utilities
+function ensureAriaAttributes() {
+  const lang = getLangAttribute();
+  
+  if (typeof document !== 'undefined' && document.documentElement) {
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = lang;
+    }
+  }
+  
+  return {
+    lang: lang,
+    accessible: true
+  };
+}
+
+function generateAccessibilityReport() {
+  return { timestamp: new Date().toISOString(), issues: [] };
+}
+
+function wrapPrimaryContentInMain(parent) {
+  // ... original function implementation ...
+}
+
+function ensureUniqueLandmarks(landmarks) {
+  // Implementation for ensuring unique landmarks
+  return landmarks;
+}
+
+function addLangAttribute() {
+  const lang = getLangAttribute();
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang;
+  }
+}
+
+function addLandmarkRoles() {
+  // Implementation for adding landmark roles
+}
+
+function fixFakeLinks() {
+  // Implementation for fixing fake links
+}
+
+function createInPageButton() {
+  // Implementation for creating in-page button
+}
+
+function isValidLandmark(landmark) {
+  return landmark && landmark.role;
+}
+
+function loadLandmarks() {
+  return [];
+}
+
+function processLandmarks(landmarks) {
+  return landmarks;
+}
+
+function sortLandmarks(landmarks) {
+  return landmarks.sort((a, b) => a.id.localeCompare(b.id));
+}
+
+function getLandmarkById(landmarks, id) {
+  return landmarks.find(l => l.id === id);
+}
+
+function formatDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.toISOString().split('T')[0];
+}
+
+function formatResponse(data) {
+  return { success: true, data };
+}
+
+let icons = {};
+const appData = {
+  title: 'Screeps',
+  version: '1.0.0'
+};
+
+/**
+ * Initializes the application and applies accessibility fixes.
+ */
+const initApp = () => {
+  // Initialize the main application
+  initializeAppWrapper();
+
+  // Apply accessibility fixes
+  setLanguageAttribute(); // Default to 'en'
+  addLandmarkRoles();
+  ensureUniqueLandmarks([]);
+
+  // Add accessible names to SVGs (example selectors and names)
+  icons = {
+    icon: '<svg viewBox="0 0 100 100" aria-label="Screeps icon"></svg>'
+  };
+
+  // Fix fake links
+  fixFakeLinks();
+
+  // Initialize the application data
+  console.log('Initializing ' + appData.title + ' v' + appData.version);
+  // ... (assuming other initialization logic is present)
+};
+
+function setLanguageAttribute(lang = 'en') {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang;
+  }
+}
+
+// Check if the environment is secure before initializing
+if (typeof isSecureContext === 'function' && isSecureContext()) {
+  initApp();
+} else {
+  console.warn('Application is not running in a secure context. Some features may not be available.');
+}
+
+function getConfig() {
+  return CONFIG;
+}
+
+function getVersion() {
+  return appData.version;
+}
+
+// Book management utilities (adapted for Node.js)
+function generateKey(book) {
+  return book.id || `${book.title.substring(0, 3)}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+function sortByTitle(a, b) {
+  return a.title.localeCompare(b.title);
+}
+
+function sortByAuthor(a, b) {
+  return b.author.localeCompare(a.author);
+}
+
 function countDependencies() {
-  const dependencies = ['react', 'react-redux', 'antd'];
+  const dependencies = ['express', 'effector-sw'];
   return dependencies.length;
 }
 
-// Function to render a single book item
-function BookItem(book) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        description={book.author}
-      />
-    </List.Item>
-  );
-}
+// Export all functions for Node.js/CommonJS
+module.exports = {
+  config: CONFIG,
+  App,
+  someFunction: function() {
+    return 'some value';
+  },
+  helper: function(input) {
+    return input ? input.toUpperCase() : '';
+  },
+  formatDate,
+  calculateSum,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  initializeApp: initializeAppWrapper,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  generateAccessibilityReport,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks,
+  addLangAttribute,
+  createInPageButton,
+  validateInput,
+  processData,
+  formatResponse,
+  config: CONFIG,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  landmarkConfig: CONFIG,
+  // Tower defense exports
+  createTowerDefenseSystem,
+  // Book management exports
+  generateKey,
+  sortByTitle,
+  sortByAuthor,
+  countDependencies,
+  main
+};
 
-// Function to create a new book entry in the Redux store
-export function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
-
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
-}
-
-// Ensure accessibility attributes are set when adding a book
-ensureAriaAttributes();
-
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
-
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
-  const sortedList = getBooksList.slice().sort(sortByTitle);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
-}
-
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
-  const sortedList = getBooksList.slice().sort(sortByAuthor);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-}
-
-// Export utility functions
-export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies, createTowerDefenseSystem };
-
-// Render the main component containing the book list and sorting controls
-function Main() {
-  const [sorting, setSorting] = useState(defaultSorting);
-  const dispatch = useDispatch();
-  const [towerDefense, setTowerDefense] = useState(null);
-  const [gameState, setGameState] = useState({ score: 0, lives: 10, gameOver: false });
-  const [selectedTowerType, setSelectedTowerType] = useState('basic');
-
-  useEffect(() => {
-    if (!towerDefense) {
-      setTowerDefense(createTowerDefenseSystem());
-    }
-  }, [towerDefense]);
-
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
-    }
-  }, [sorting]);
-
-  // Tower defense game loop
-  useEffect(() => {
-    if (!towerDefense || gameState.gameOver) return;
-
-    const gameLoop = setInterval(() => {
-      const currentTime = Date.now();
-      towerDefense.updateTowers(currentTime);
-      towerDefense.moveEnemies();
-
-      setGameState({
-        score: towerDefense.getScore(),
-        lives: towerDefense.getLives(),
-        gameOver: towerDefense.isGameOver()
-      });
-    }, 100);
-
-    return () => clearInterval(gameLoop);
-  }, [towerDefense, gameState.gameOver]);
-
-  function handlePlaceTower(x, y) {
-    if (towerDefense && !gameState.gameOver) {
-      towerDefense.createTower(x, y, selectedTowerType);
-      setGameState({
-        ...gameState,
-        score: towerDefense.getScore()
-      });
-    }
-  }
-
-  function handleStartWave() {
-    if (towerDefense && !gameState.gameOver) {
-      for (let i = 0; i < 5; i++) {
-        setTimeout(() => {
-          towerDefense.createEnemy(0, 100 + i * 20);
-        }, i * 1000);
-      }
-    }
-  }
-
-  function handleRestartGame() {
-    setTowerDefense(createTowerDefenseSystem());
-    setGameState({ score: 0, lives: 10, gameOver: false });
-  }
-
-  // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(book => BookItem(book));
-
-  // Render the list of book items and sorting controls
-  return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List itemLayout="vertical" dataSource={bookItems} renderItem={book => BookItem(book)} />
-      
-      {/* Tower Defense Section */}
-      <div style={{ marginTop: '40px', padding: '20px', border: '2px solid #333', borderRadius: '8px' }}>
-        <h2>Tower Defense Game</h2>
-        <div style={{ marginBottom: '10px' }}>
-          <span style={{ marginRight: '20px' }}>Score: {gameState.score}</span>
-          <span style={{ marginRight: '20px' }}>Lives: {gameState.lives}</span>
-          {gameState.gameOver && <span style={{ color: 'red', fontWeight: 'bold' }}>GAME OVER</span>}
-        </div>
-        
-        <div style={{ marginBottom: '10px' }}>
-          <label style={{ marginRight: '10px' }}>Tower Type:</label>
-          <select 
-            value={selectedTowerType} 
-            onChange={(e) => setSelectedTowerType(e.target.value)}
-            style={{ marginRight: '10px' }}
-          >
-            <option value="basic">Basic Tower (Damage: 10, Range: 2)</option>
-            <option value="sniper">Sniper Tower (Damage: 25, Range: 5)</option>
-            <option
+expressApp.use('/', expressApp);
+const port = process.env.PORT || 3000;
+expressApp.listen(port, () => {
+  console.log(`Listening on port ${port}`);
+});

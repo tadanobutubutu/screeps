@@ -56,6 +56,12 @@ function validateInput(input) {
   return input && input.length > 0;
 }
 
+// Main function (missing export - referenced in module.exports but not defined)
+function main() {
+  mainExecution();
+  return { executed: true };
+}
+
 // Main execution
 function main() {
   initialize();

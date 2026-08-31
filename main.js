@@ -1,5 +1,3 @@
-main.js
-
 // TODO: Address accessibility issues from insight report:
 
 // Insight Report Accessibility Issues:
@@ -19,6 +17,8 @@ main.js
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // (Added functions for REACT_017 and new REACT_025)
 
+var a11yStore;
+
 (function() {
     'use strict';
 
@@ -29,136 +29,166 @@ main.js
 
     // BEGIN CHANGES TO ADDRESS ACCESSIBILITY ISSUES
 
-<<<<<<< HEAD
-// Landmark elements that should be checked for proper usage
-const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
+    // Landmark elements that should be checked for proper usage
+    const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
 
-// New implementation to count dependencies using Document and regex
-function countDependencies() {
-    const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
-    const importCount = (document.body.textContent || '').match(importCommentRegExp)?.length || 0;
-    return importCount;
-}
+    // New implementation to count dependencies using Document and regex
+    function countDependencies() {
+        const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
+        const text = (typeof document !== 'undefined' && document.body) ? document.body.textContent || '' : '';
+        const importCount = text.match(importCommentRegExp)?.length || 0;
+        return importCount;
+    }
 
-// Function to add landmark regions ensuring proper IDs
-function addLandmarkRegions() {
-    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
-    landmarkElements.forEach((landmark) => {
-        if (landmark) {
-            if (!landmark.id) {
-                landmark.id = `${landmark.tagName.toLowerCase()}-${landmark.id ? landmark.id : 0}`;
-            }
-        }
-    });
-}
-
-// New function to check landmark elements
-function checkLandmarkElements() {
-    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
-    landmarkElements.forEach((landmark, index) => {
-        if (landmark.id === '') {
-            landmark.id = `${landmark.tagName.toLowerCase()}-${index}`;
-        }
-        
-        if (landmarkElements.length > 1) {
-            if (landmark.id === '') {
+    // Function to add landmark regions ensuring proper IDs
+    function addLandmarkRegions() {
+        const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
+        landmarkElements.forEach((landmark, index) => {
+            if (landmark && !landmark.id) {
                 landmark.id = `${landmark.tagName.toLowerCase()}-${index}`;
             }
-        }
-    });
-}
+        });
+    }
 
-// New function to ensure all landmark elements have unique IDs
-function ensureLandmarkUniqueness() {
-    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
-    const ids = new Set();
-    let hasDuplicate = false;
-    
-    landmarkElements.forEach((landmark) => {
-        if (landmark.id) {
-            if (ids.has(landmark.id)) {
-                hasDuplicate = true;
-            }
-            ids.add(landmark.id);
-        } else {
-            const tagName = landmark.tagName.toLowerCase();
-            const id = `${tagName}-${landmark.id ? landmark.id : 0}`;
-            landmark.id = id;
-            if (ids.has(id)) {
-                hasDuplicate = true;
-            }
-            ids.add(id);
-        }
-    });
-    
-    return !hasDuplicate;
-}
-
-// New function to handle adding landmark regions
-function addLandmarkRegions() {
-    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
-    landmarkElements.forEach((landmark) => {
-        if (landmark) {
-            if (!landmark.id) {
-                landmark.id = `${landmark.tagName.toLowerCase()}-${landmark.id ? landmark.id : 0}`;
-            }
-        }
-    });
-}
-
-// New function to check dependency counts using Document and regex
-function countDependencies() {
-    const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
-    const importCount = (document.body.textContent || '').match(importCommentRegExp)?.length || 0;
-    return importCount;
-}
-
-// Function to add landmark regions ensuring proper IDs
-function addLandmarkRegions() {
-    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
-    landmarkElements.forEach((landmark) => {
-        if (landmark) {
-            if (!landmark.id) {
-                landmark.id = `${landmark.tagName.toLowerCase()}-${landmark.id ? landmark.id : 0}`;
-            }
-        }
-    });
-}
-
-// New function to check landmark elements
-function checkLandmarkElements() {
-    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
-    landmarkElements.forEach((landmark, index) => {
-        if (landmark.id === '') {
-            landmark.id = `${landmark.tagName.toLowerCase()}-${index}`;
-        }
-        
-        if (landmarkElements.length > 1) {
-            if (landmark.id === '') {
+    // New function to check landmark elements
+    function checkLandmarkElements() {
+        const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
+        landmarkElements.forEach((landmark, index) => {
+            if (landmark && (!landmark.id || landmark.id === '')) {
                 landmark.id = `${landmark.tagName.toLowerCase()}-${index}`;
             }
+        });
+    }
+
+    // New function to ensure all landmark elements have unique IDs
+    function ensureLandmarkUniqueness() {
+        const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
+        const ids = new Set();
+        let hasDuplicate = false;
+
+        landmarkElements.forEach((landmark) => {
+            if (landmark) {
+                if (!landmark.id) {
+                    const tagName = landmark.tagName.toLowerCase();
+                    landmark.id = `${tagName}-${Math.floor(Math.random() * 10000)}`;
+                }
+                if (ids.has(landmark.id)) {
+                    hasDuplicate = true;
+                    const tagName = landmark.tagName.toLowerCase();
+                    landmark.id = `${tagName}-${Math.floor(Math.random() * 10000)}`;
+                }
+                ids.add(landmark.id);
+            }
+        });
+
+        return !hasDuplicate;
+    }
+
+    // Store for accessibility announcements (screen reader support)
+    a11yStore = {
+
+        // Existing code
+
+        // New property to count dependencies
+        countDependencies() {
+            return countDependencies();
+        },
+
+        init() {
+            this.setupSkipLinks();
+            this.fixFakeLinks(); // Added for REACT_036
+            this.setupLiveRegion();
+            addLandmarkRegions();
+            checkLandmarkElements();
+            ensureLandmarkUniqueness();
+        },
+
+        setupSkipLinks() {
+            if (typeof document === 'undefined') return;
+            const skipLink = document.getElementById('skip-link');
+            if (skipLink) return;
+            const link = document.createElement('a');
+            link.href = '#main-content';
+            link.textContent = 'Skip to main content';
+            link.id = 'skip-link';
+            link.style.position = 'absolute';
+            link.style.top = '-40px';
+            link.style.left = '0';
+            link.style.background = '#000';
+            link.style.color = '#fff';
+            link.style.padding = '8px';
+            link.style.zIndex = '100';
+            link.addEventListener('focus', () => { link.style.top = '0'; });
+            link.addEventListener('blur', () => { link.style.top = '-40px'; });
+            if (document.body) {
+                document.body.insertBefore(link, document.body.firstChild);
+            }
+        },
+
+        fixFakeLinks() {
+            if (typeof document === 'undefined') return;
+            const links = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"], a:not([href])');
+            links.forEach((link) => {
+                if (!link.hasAttribute('role')) {
+                    link.setAttribute('role', 'button');
+                }
+                if (!link.hasAttribute('aria-label') && (!link.textContent || link.textContent.trim() === '')) {
+                    link.setAttribute('aria-label', 'Button');
+                }
+            });
+        },
+
+        setupLiveRegion() {
+            if (typeof document === 'undefined') return;
+            let liveRegion = document.getElementById('a11y-live-region');
+            if (!liveRegion) {
+                liveRegion = document.createElement('div');
+                liveRegion.id = 'a11y-live-region';
+                liveRegion.setAttribute('aria-live', 'polite');
+                liveRegion.setAttribute('aria-atomic', 'true');
+                liveRegion.style.position = 'absolute';
+                liveRegion.style.left = '-10000px';
+                liveRegion.style.top = 'auto';
+                liveRegion.style.width = '1px';
+                liveRegion.style.height = '1px';
+                liveRegion.style.overflow = 'hidden';
+                if (document.body) {
+                    document.body.appendChild(liveRegion);
+                }
+            }
+            this.liveRegion = liveRegion;
+        },
+
+        // Create a live region for screen reader announcements
+        announce(message) {
+            if (this.liveRegion) {
+                this.liveRegion.textContent = message;
+            }
         }
-    });
+    };
+
+})();
+
+// TODO: Preserve existing code
+// ... your existing code ...
+
+// Here's the new function
+function newFunction() {
+    // ... your implementation ...
+    // Integrated accessibility initialization
+    if (typeof a11yStore !== 'undefined' && typeof a11yStore.init === 'function') {
+        try {
+            a11yStore.init();
+        } catch (e) {
+            // Fail silently if DOM is unavailable
+        }
+    }
+    return true;
 }
 
-// Store for accessibility announcements (screen reader support)
-const a11yStore = {
-
-  // Existing code
-
-  // New property to count dependencies
-  countDependencies() {
-    return countDependencies();
-  },
-
-  init() {
-    ...
-    ...
-    ...
-    this.setupSkipLinks();
-    ...
-    ...
-    this.fixFakeLinks(); // Added for REACT_036
-  },
-
-  // Create a live region for screen reader announcements
+// Export the new function
+module.exports = {
+    // ... existing exports ...
+    newFunction,
+    a11yStore: typeof a11yStore !== 'undefined' ? a11yStore : undefined
+};

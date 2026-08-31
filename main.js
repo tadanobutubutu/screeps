@@ -2,6 +2,7 @@
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Ensure unique landmarks
+// - Identify and update specific functions that render dependency graphs or
 
 // Accessibility helper function for keyboard navigation
 function setupKeyboardNavigation(element, options = {}) {
@@ -215,6 +216,94 @@ function deepClone(obj) {
   return obj;
 }
 
+/**
+ * Builds a dependency graph from a list of modules and their dependencies.
+ * @param {Array<{name: string, dependencies: string[]}>} modules - List of modules with their dependencies.
+ * @returns {Object} - An adjacency map representing the dependency graph.
+ */
+function buildDependencyGraph(modules) {
+  const graph = {};
+  modules.forEach(module => {
+    graph[module.name] = module.dependencies.slice();
+  });
+  return graph;
+}
+
+/**
+ * Renders a dependency graph as an SVG element.
+ * @param {Object} graph - Adjacency map of the dependency graph.
+ * @param {Object} [options] - Rendering options.
+ * @param {number} [options.width=400] - Width of the SVG.
+ * @param {number} [options.height=300] - Height of the SVG.
+ * @returns {SVGElement} - The rendered SVG element.
+ */
+function renderDependencyGraph(graph, options = {}) {
+  const { width = 400, height = 300 } = options;
+
+  const svg = typeof document !== 'undefined'
+    ? document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    : null;
+
+  if (!svg) return null;
+
+  svg.setAttribute('width', String(width));
+  svg.setAttribute('height', String(height));
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Dependency graph');
+
+  const nodes = Object.keys(graph);
+  const nodeCount = nodes.length;
+  const radius = Math.min(width, height) / 2 - 40;
+  const centerX = width / 2;
+  const centerY = height / 2;
+
+  // Position nodes in a circle and append them
+  const positions = {};
+  nodes.forEach((node, index) => {
+    const angle = (2 * Math.PI * index) / Math.max(nodeCount, 1);
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
+    positions[node] = { x, y };
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', String(x));
+    circle.setAttribute('cy', String(y));
+    circle.setAttribute('r', '20');
+    circle.setAttribute('fill', '#4a90e2');
+    circle.setAttribute('stroke', '#333');
+    circle.setAttribute('stroke-width', '1.5');
+    svg.appendChild(circle);
+
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', String(x));
+    label.setAttribute('y', String(y + 4));
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('fill', '#fff');
+    label.setAttribute('font-size', '10');
+    label.textContent = node;
+    svg.appendChild(label);
+  });
+
+  // Draw edges between dependent nodes
+  nodes.forEach(node => {
+    const deps = graph[node] || [];
+    deps.forEach(dep => {
+      if (!positions[dep]) return;
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', String(positions[node].x));
+      line.setAttribute('y1', String(positions[node].y));
+      line.setAttribute('x2', String(positions[dep].x));
+      line.setAttribute('y2', String(positions[dep].y));
+      line.setAttribute('stroke', '#999');
+      line.setAttribute('stroke-width', '1');
+      svg.appendChild(line);
+    });
+  });
+
+  return svg;
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -227,7 +316,9 @@ if (typeof module !== 'undefined' && module.exports) {
     capitalize,
     getRandomInt,
     clamp,
-    deepClone
+    deepClone,
+    buildDependencyGraph,
+    renderDependencyGraph
   };
 }
 

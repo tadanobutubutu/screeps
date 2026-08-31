@@ -65,12 +65,17 @@ function generateKey(book) {
 
 // Function to fetch book dependencies and update the Redux store
 async function fetchBookDependencies(bookId) {
-  // Fetch dependencies for the specified book
-  // ... (Assuming you have an API endpoint to fetch book dependencies or implementing this logic)
-
-  // Dispatch an action to update the book's dependencies in the Redux store
-  dispatch(setDependencyGraph({ bookId, dependencies: /* The fetched dependencies */ }));
-};
+  try {
+    const response = await fetch(`https://api.example.com/books/${bookId}/dependencies`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const dependencies = await response.json();
+    dispatch(setDependencyGraph({ bookId, dependencies }));
+  } catch (error) {
+    console.error('Error fetching book dependencies:', error);
+  }
+}
 
 // Function to handle updating book dependencies
 function updateBookDependencies(bookId, newDependencies) {

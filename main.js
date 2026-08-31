@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import express from 'express';
-import axe from 'axe-core';
-import fastMap from 'fast-map';
 import path from 'path';
-import react from 'react';
+import './styles.css';
+import './styles.less';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
+import fs from 'fs';
 import { calculateSum } from './utils';
 import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
@@ -14,7 +14,6 @@ import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUti
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 import { CONFIG } from './utils/constants';
-import './styles.less';
 
 const expressApp = express();
 
@@ -71,41 +70,51 @@ function wrapPrimaryContentInMain(parent) {
   // ... original function implementation ...
 }
 
-const app = () => {
+const App = () => {
   const [programData, setProgramData] = useState(null);
-
-  useEffect(() => {
-    const loadProgramData = async () => {
-      const filePath = path.join(CONFIG.dataPath, 'program.json');
-      try {
-        const data = await fs.promises.readFile(filePath, 'utf8');
-        const parsedData = JSON.parse(data);
-        setProgramData(parsedData);
-      } catch (error) {
-        console.error('Error loading program data:', error);
-      }
-    };
-    loadProgramData();
-  }, []);
+  const someFunction = () => {
+    return 'some value';
+  };
+  const CONFIG = {
+    apiUrl: process.env.API_URL || 'https://api.example.com',
+    timeout: 5000
+  };
+  const helper = (input) => {
+    return input ? input.toUpperCase() : '';
+  };
+  const formatDate = (date) => {
+    if (!(date instanceof Date)) {
+      date = new Date(date);
+    }
+    return date.toISOString().split('T')[0];
+  };
 
   // ... Your accessible React Router setup ...
 };
 
-export default app;
 module.exports = {
+  config: CONFIG,
+  App,
+  someFunction,
+  helper,
+  formatDate,
+  calculateSum,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  initializeApp,
+  checkLinkAccessibility,
+  handleFakeLinks,
   ...module.exports, // Preserve existing functions
   generateAccessibilityReport,
   wrapPrimaryContentInMain,
   ensureUniqueLandmarks,
   addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
   createInPageButton,
   validateInput,
   processData,
@@ -122,8 +131,10 @@ module.exports = {
   ensureUniqueLandmarks
 };
 
-app.use('/', expressApp);
+module.exports.main = main;
+
+expressApp.use('/', expressApp);
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+expressApp.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });

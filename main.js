@@ -9,6 +9,7 @@
 
 import './styles.css';
 import react from 'react';
+import React from 'react';
 
 // This is the existing code that needs to be preserved
 // (This comment remains as-is)
@@ -304,7 +305,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_041':
         // Add accessible names to SVGs
         if (issue.element) {
-          setSvgAttributes(issue.element, getSvgAccessibleName());
+          setSvgAttributes(issue.element, issue.accessibleName || getSvgAccessibleName());
         }
         break;
       case 'REACT_025':

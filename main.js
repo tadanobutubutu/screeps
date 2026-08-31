@@ -346,18 +346,123 @@ function googleSignIn() {
 }
 googleSignIn();
 
+// Helper functions for UI rendering
+function formatCurrency(amount) {
+  return `$${parseFloat(amount).toFixed(2)}`;
+}
+
+function formatDate(date) {
+  return date.toLocaleDateString();
+}
+
+function calculateDiscount(amount) {
+  if (amount >= 100) {
+    return amount * 0.1;
+  }
+  return 0;
+}
+
+function validateInput(input) {
+  if (!input || !input.value) return false;
+  return !isNaN(parseFloat(input.value)) && isFinite(input.value);
+}
+
+function renderHeader(title) {
+  return `<header><h1>${title}</h1></header>`;
+}
+
+function renderFooter() {
+  return `<footer>&copy; 2024 My Company</footer>`;
+}
+
+function renderProductCard(product) {
+  return `
+    <div class="product-card">
+      <h3>${product.name}</h3>
+      <p class="price">${formatCurrency(product.price)}</p>
+    </div>
+  `;
+}
+
+// Variables for rendering functions
+const dependencyGraphContent = {
+  name: 'main',
+  dependencies: ['utils/accessibilityUtils', 'utils/tableAccessibilityUtils', 'utils/landmarkUtils', 'utils/svgAccessibilityUtils', 'utils/linkAccessibilityUtils']
+};
+
+const indexContent = {
+  title: 'Application Index',
+  products: [
+    { name: 'Product A', price: 29.99 },
+    { name: 'Product B', price: 39.99 },
+    { name: 'Product C', price: 49.99 }
+  ]
+};
+
 // Assuming you have functions that render dependency graphs and index views
 const renderDependencyGraph = (data) => {
   // Code to render the dependency graph using the data provided
+  // Uses imported modules: getSvgAccessibleName, setSvgAttributes
+  if (data && typeof data === 'object') {
+    const nodes = [];
+    const edges = [];
+    
+    if (data.dependencies) {
+      nodes.push({ id: data.name || 'root', label: data.name || 'root' });
+      
+      for (const dep of data.dependencies) {
+        const depName = typeof dep === 'string' ? dep : (dep.name || 'unknown');
+        if (depName) {
+          nodes.push({ id: depName, label: depName });
+          edges.push({ from: data.name || 'root', to: depName });
+        }
+      }
+    }
+    
+    // Use imported modules for SVG accessibility in the graph
+    if (typeof getSvgAccessibleName === 'function' && typeof setSvgAttributes === 'function') {
+      const svgElements = document.querySelectorAll('.dependency-graph svg');
+      svgElements.forEach((svg) => {
+        const accessibleName = getSvgAccessibleName(svg);
+        if (accessibleName) {
+          setSvgAttributes(svg, accessibleName);
+        }
+      });
+    }
+  }
+  
+  console.log('Rendering dependency graph with data:', data);
 };
 
 const renderIndex = () => {
   // Code to render the index view
+  // Uses imported modules: validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure
+  if (typeof validateLandmark === 'function') {
+    validateLandmark(document);
+  }
+  if (typeof validateLandmarkStructure === 'function') {
+    validateLandmarkStructure(document);
+  }
+  
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table) => {
+    if (typeof validateTableAccessibility === 'function') {
+      validateTableAccessibility(table);
+    }
+    if (typeof validateTableStructure === 'function') {
+      validateTableStructure(table);
+    }
+  });
+  
+  // Use handleFakeLinks for link accessibility
+  if (typeof handleFakeLinks === 'function') {
+    handleFakeLinks(document);
+  }
+  
+  console.log('Rendering index view');
 };
 
 // React / UI related functions
-
-// TODO: Add these imported modules to the relevant rendering functions
 
 function formatProductName(product) {
   return `${product.name} - ${formatCurrency(product.price)}`;
@@ -410,16 +515,51 @@ function renderPage(data) {
   return `${header}${content}${footer}`;
 }
 
-// TODO: Update the existing function using the new functions for rendering graph/index
-// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+// Updated specificFunctionThatRendersGraphOrIndex using imported modules
 function specificFunctionThatRendersGraphOrIndex() {
   // Call the updated functions to render the graph or index as needed
+  // Uses imported modules in rendering functions
   renderDependencyGraph(dependencyGraphContent);
   renderIndex();
 }
 
+// New helper functions for accessibility checking
+function checkLinkAccessibility() {
+  // Implementation for checking link accessibility
+  // This function will be used to validate the accessibility of links
+  return validateLinkAccessibility();
+}
+
+// Function to display module structure
+function displayModuleStructure(module) {
+  // Implementation to display the module structure for a given module
+  // Returns a structured representation of the module
+  if (!module) {
+    return null;
+  }
+  const structure = {
+    name: module.name || 'unnamed',
+    exports: module.exports || [],
+    imports: module.imports || [],
+    dependencies: module.dependencies || []
+  };
+  console.log('Displaying module structure for:', module, structure);
+  return structure;
+}
+
+// State management
+const state = {
+  initialized: false
+};
+
+function updateState(newState) {
+  Object.assign(state, newState);
+}
+
+// ... other exports ...
+
 // Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
+export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, specificFunctionThatRendersGraphOrIndex };
 
 // Export utility functions
 export {
@@ -449,7 +589,10 @@ export {
   formatCurrency,
   formatDate,
   calculateDiscount,
-  validateInput
+  validateInput,
+  renderHeader,
+  renderFooter,
+  renderProductCard
 };
 
 // Export UI / product functions
@@ -461,50 +604,10 @@ export {
   validateAndRender,
   renderPage,
   dependencyGraphContent,
-  indexContent
+  indexContent,
+  ensureElementHasId,
+  addAriaLabelToElement
 };
-
-// New function or change requested in the issue
-function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility();
-}
-
-// Function to render dependency graphs or display module structure
-function renderDependencyGraph(module) {
-  // Implementation to render the dependency graph for a given module
-  // Builds a graph representation of the module's dependencies
-  const nodes = [];
-  const edges = [];
-  if (module && module.dependencies) {
-    nodes.push({ id: module.name || 'root', label: module.name || 'root' });
-    for (const dep of module.dependencies) {
-      const depName = typeof dep === 'string' ? dep : dep.name;
-      nodes.push({ id: depName, label: depName });
-      edges.push({ from: module.name || 'root', to: depName });
-    }
-  }
-  console.log('Rendering dependency graph for:', module, { nodes, edges });
-  return { nodes, edges };
-}
-
-// Function to display module structure
-function displayModuleStructure(module) {
-  // Implementation to display the module structure for a given module
-  // Returns a structured representation of the module
-  if (!module) {
-    return null;
-  }
-  const structure = {
-    name: module.name || 'unnamed',
-    exports: module.exports || [],
-    imports: module.imports || [],
-    dependencies: module.dependencies || []
-  };
-  console.log('Displaying module structure for:', module, structure);
-  return structure;
-}
 
 // Export state
 export {
@@ -520,22 +623,8 @@ export {
   addLangAttribute
 };
 
-// ... other exports ...
-
-// Export UI / product functions
-export {
-  renderHeader,
-  renderFooter,
-  renderProductCard
-};
-
-// Exporting for CommonJS compatibility
-module.exports = {
-  specificFunctionThatRendersGraphOrIndex
-};
-
-// Export additional required functions
-export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute };
+// Export the internal set for tracking used landmark IDs
+export { _usedLandmarkIds };
 
 // Report generation logic
 /**
@@ -752,17 +841,11 @@ export {
   generateAndDisplayReport
 };
 
-// Export ensureUniqueLandmarkId for ensuring unique landmark IDs
-export { ensureUniqueLandmarkId };
-
-// Export uniqueLandmarks for getting unique landmarks from a list
-export { uniqueLandmarks };
-
-// Export addAriaLabel for adding aria-label attributes to elements
-export { addAriaLabel };
-
-// Export addLangAttribute for adding lang attributes to elements
-export { addLangAttribute };
-
-// Export the internal set for tracking used landmark IDs
-export { _usedLandmarkIds };
+// Exporting for CommonJS compatibility
+module.exports = {
+  specificFunctionThatRendersGraphOrIndex,
+  checkLinkAccessibility,
+  displayModuleStructure,
+  renderDependencyGraph,
+  generateAccessibilityReport
+};

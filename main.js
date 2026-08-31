@@ -10,23 +10,20 @@ function createInPageButton(buttonText, onClickHandler) {
   return button;
 }
 
-// TODO: Implement this function for creating in-page buttons
-// (Now implemented)
-
 // Example usage (if needed):
 // const btn = createInPageButton('Click Me', () => console.log('Clicked'));
-// document.body.appendChild(btn);
+// ...
 
-export { createInPageButton };
+export { createInPageButton, analyzeAccessibility, generateAccessibilityReport };
 
 function analyzeAccessibility(issuesData) {
-  // presume this function is already defined
+  // Implementation of accessibility analysis
   // placeholder implementation
   return issuesData;
 }
 
 function generateAccessibilityReport(issuesData) {
-  const analyzedIssues = analyzeAccessibility(issuesData); // presume this function is already defined
+  const analyzedIssues = analyzeAccessibility(issuesData);
 
   // Define the structure of the report here
   const report = {
@@ -41,6 +38,3 @@ function generateAccessibilityReport(issuesData) {
   // Return the final report
   return report;
 }
-
-// Export the report function as well
-export { generateAccessibilityReport };

@@ -138,5 +138,8 @@ module.exports = {
   handleAddLangAttribute,
   newFunctionality,
   renderDependencyGraph,
-  renderIndex
+  renderIndex,
+  logMessage,
+  handleGracefulShutdown,
+  addLangAttribute
 };

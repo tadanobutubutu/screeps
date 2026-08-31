@@ -7,6 +7,7 @@ const _utils = require('./utils');
 const someFunction = _utils.default || _utils.someFunction || _utils;
 
 // Existing configuration
+// TODO: This is the existing code that needs to be preserved
 const config = {
     verbose: true,
     debug: false,

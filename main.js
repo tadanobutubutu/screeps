@@ -13,6 +13,10 @@ const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUnique
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
 // - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
 
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch)
+// Code for version 1 implementation goes here.
+
 module.exports = {
   ...main,
 

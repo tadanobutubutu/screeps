@@ -1,5 +1,9 @@
 // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
 
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report
+// ----- END ORIGINAL CODE -----
+
 // Helper to manage focus within a container
 function trapFocus(container) {
   const focusableElements = container.querySelectorAll(

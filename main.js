@@ -6,7 +6,7 @@ import { validateTableAccessibility, validateTableStructure } from './utils/tabl
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
+import { CONFIG } from './utils/constants';
 
 // Node.js functions for dependency visualization tool
 const fs = require('fs');
@@ -370,20 +370,25 @@ function createUnrotateButton() {
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.querySelector('a[href="#"]');
-if (fakeLink && fakeLink.tagName === 'A') {
-  const parent = fakeLink.parentElement;
-  const newButton = createUnrotateButton();
-  parent.replaceChild(newButton, fakeLink);
+function replaceFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach((fakeLink) => {
+    if (fakeLink && fakeLink.tagName === 'A') {
+      const parent = fakeLink.parentElement;
+      const newButton = createUnrotateButton();
+      if (parent) {
+        parent.replaceChild(newButton, fakeLink);
+      }
+    }
+  });
 }
 
 // Load landmarks from file (new addition)
-import { CONFIG } from './utils/constants';
 function loadLandmarks() {
   try {
-    const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
+      const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
+      const data = fs.readFileSync(filePath, 'utf8');
+      return JSON.parse(data);
   } catch (error) {
     console.error('Error loading landmarks:', error.message);
     return [];
@@ -396,7 +401,7 @@ function processLandmarks(landmarks) {
         return [];
     }
 
-    const validLandmarks = landmarks.filter(landmark => landmark && typeof landmark.id !== 'undefined');
+    const validLandmarks = landmarks.filter(landmark => landmark && typeof landmark.id !== 'undefined' && landmark.name);
     const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }

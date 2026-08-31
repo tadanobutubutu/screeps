@@ -1,9 +1,6 @@
-// Main application logic
 function init() {
   console.log('Application initialized');
 }
-
-// TODO: Validate the table structure for accessibility issues
 
 /**
  * Validates table structure for accessibility issues
@@ -12,26 +9,26 @@ function init() {
  */
 function validateTableAccessibility(tableElement) {
   const issues = [];
-  
+
   if (!tableElement || tableElement.tagName !== 'TABLE') {
     return {
       isValid: false,
       issues: ['Invalid table element provided']
     };
   }
-  
+
   // Check if table has a caption for context
   const caption = tableElement.querySelector('caption');
   if (!caption) {
     issues.push('Table should have a caption element to describe its purpose');
   }
-  
+
   // Check if table has header cells (th)
   const headers = tableElement.querySelector('thead th, thead td');
   if (!headers || headers.length === 0) {
     issues.push('Table should have header cells in thead for accessibility');
   }
-  
+
   // Validate header cells have scope attributes
   const thElements = tableElement.querySelectorAll('th');
   thElements.forEach((th, index) => {
@@ -39,44 +36,47 @@ function validateTableAccessibility(tableElement) {
       issues.push(`Header cell at index ${index} should have a scope attribute (col, row, colgroup, or rowgroup)`);
     }
   });
-  
+
   // Check for empty header cells
   thElements.forEach((th, index) => {
     if (!th.textContent || th.textContent.trim() === '') {
       issues.push(`Header cell at index ${index} should not be empty`);
     }
   });
-  
+
   // Check if table has proper structure (thead and tbody)
   const thead = tableElement.querySelector('thead');
   if (!thead) {
     issues.push('Table should use thead element for header rows');
   }
-  
+
   const tbody = tableElement.querySelector('tbody');
   if (!tbody) {
     issues.push('Table should use tbody element for data rows');
   }
-  
+
   // Check for proper header-description relationships
   const dataCells = tableElement.querySelectorAll('td');
   dataCells.forEach((td, index) => {
     if (!td.hasAttribute('headers') && thElements.length > 0) {
       // Only suggest headers attribute if there are multiple headers
       // and the cell might need explicit association
+      td.setAttribute('headers', thElements[index].id);
     }
   });
-  
+
   // Check for complex tables needing id/headers association
   const rowHeaders = tableElement.querySelectorAll('tbody th');
   if (rowHeaders.length > 0) {
     rowHeaders.forEach((th, index) => {
       if (!th.id) {
         issues.push(`Row header at index ${index} should have an id attribute for association with data cells`);
+        th.id = `row-header-${index}`;
       }
+      dataCells[index].setAttribute('headers', th.id);
     });
   }
-  
+
   return {
     isValid: issues.length === 0,
     issues: issues
@@ -96,7 +96,7 @@ function validateAllTablesAccessibility(container) {
     tablesWithIssues: 0,
     allIssues: []
   };
-  
+
   tables.forEach((table, index) => {
     const validation = validateTableAccessibility(table);
     if (validation.isValid) {
@@ -109,15 +109,56 @@ function validateAllTablesAccessibility(container) {
       });
     }
   });
-  
+
   return results;
 }
+
+(function() {
+    'use strict';
+
+    const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
+
+    function countDependencies() {
+        // ... existing countDependencies() implementation ...
+    }
+
+    function addLandmarkRegions() {
+        // ... existing addLandmarkRegions() implementation ...
+    }
+
+    function checkLandmarkElements() {
+        // ... existing checkLandmarkElements() implementation ...
+    }
+
+    function ensureLandmarkUniqueness() {
+        // ... existing ensureLandmarkUniqueness() implementation ...
+    }
+
+    // ... existing a11yStore properties and methods ...
+
+    // Create a new function that initializes accessibility
+    function initAccessibility() {
+        a11yStore.init();
+    }
+
+    // Wrap the existing init() function call with the accessibility initialization
+    function init() {
+        initAccessibility();
+        console.log('Application initialized');
+    }
+
+})();
 
 // Export functions for testing and external use
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     validateTableAccessibility,
     validateAllTablesAccessibility,
-    init
+    init,
+    countDependencies,
+    addLandmarkRegions,
+    checkLandmarkElements,
+    ensureLandmarkUniqueness,
+    a11yStore
   };
 }

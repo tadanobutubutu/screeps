@@ -30,7 +30,7 @@ let appState = {};
 
 // Initialize function
 function initialize() {
-  config = { apiUrl: process.env.API_URL || 'https://api.example.com', timeout: 5000 };
+  config = { apiUrl: process.env.API_URL || 'http://localhost:3000', timeout: 5000 };
   appState = { initialized: true };
 }
 
@@ -107,7 +107,7 @@ const landmarkStructureCheck = (landmark) => {
  * Sets the language attribute on the HTML element.
  */
 function setLanguageAttribute() {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
@@ -135,12 +135,12 @@ function validateLandmark(landmark) {
 
   landmarkRoles.forEach(role => {
     const elements = document.querySelectorAll(`[role="${role}"]`);
-    const tagElements = document.querySelectorAll(role);
+    const tagElements = document.querySelectorAll(role === 'main' ? 'main' : role);
 
     const totalCount = elements.length + (role === 'main' ? 0 : tagElements.length);
 
     if (totalCount > 1) {
-      issues.push(`REACT_017: Landmark role "${role}" appears ${totalCount} times, should be unique`);
+      issues.push(`Landmark role "${role}" appears ${totalCount} times, should be unique`);
     }
   });
 
@@ -156,12 +156,18 @@ function validateLandmarkStructure(landmark) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer'];
 
-  document.querySelectorAll('header, nav, main, aside, footer').forEach((element, index) => {
+  if (!landmark) {
+    issues.push('Landmark is required');
+    return { valid: false, issues };
+  }
+
+  const elements = document.querySelectorAll('header, nav, main, aside, footer');
+  elements.forEach((element, index) => {
     const tagName = element.tagName.toLowerCase();
     const role = element.getAttribute('role');
 
-    if (role && !validLandmarks.includes(role)) {
-      issues.push(`REACT_017: Element at index ${index} has invalid role "${role}"`);
+    if (role && !validLandmarks.includes(role.toLowerCase())) {
+      issues.push(`Element at index ${index} has invalid role "${role}"`);
     }
   });
 
@@ -182,7 +188,7 @@ function validateLandmarkAttributes(landmark) {
  * Adds landmark roles to elements.
  */
 function addLandmarkRoles() {
-  const landmarkElements = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+  const landmarkElements = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="search"]');
   landmarkElements.forEach((element, index) => {
     if (!element.id) {
       element.id = 'landmark-' + index;
@@ -192,6 +198,13 @@ function addLandmarkRoles() {
 
 function addMainLandmark() {
   // Code for adding main landmark
+  let main = document.querySelector('main, [role="main"]');
+  if (!main) {
+    main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    document.body.insertBefore(main, document.body.firstChild);
+  }
+  return main;
 }
 
 /**
@@ -210,14 +223,14 @@ function validateTableAccessibility(table) {
   // Check for caption
   const caption = table.querySelector('caption');
   if (!caption) {
-    issues.push('REACT_027: Table is missing a caption');
+    issues.push('Table is missing a caption');
   }
 
   // Check for th elements with scope or headers
   const headers = table.querySelectorAll('th');
   headers.forEach((th, index) => {
-    if (!th.getAttribute('scope') && !th.getAttribute('id')) {
-      issues.push(`REACT_027: Header at index ${index} is missing scope or id attribute`);
+    if (!th.getAttribute('scope') && !th.getAttribute('headers')) {
+      issues.push(`Header at index ${index} is missing scope or id attribute`);
     }
   });
 
@@ -240,23 +253,23 @@ function validateTableStructure(table) {
   let cellCount = 0;
 
   rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td, th');
+    const cells = row.querySelectorAll('th, td');
     const isHeaderRow = row.parentElement.tagName === 'THEAD';
 
     cells.forEach((cell, cellIndex) => {
       if (cell.tagName === 'TH' && !isHeaderRow) {
-        issues.push(`REACT_027: Row ${rowIndex} contains th but is not in thead`);
+        issues.push(`Row ${rowIndex} contains th but is not in thead`);
       }
       if (cell.tagName === 'TD' && isHeaderRow) {
-        issues.push(`REACT_027: Row ${rowIndex} in thead contains td instead of th`);
+        issues.push(`Row ${rowIndex} in thead contains td instead of th`);
       }
     });
 
     if (rowIndex > 0) {
       const prevRow = rows[rowIndex - 1];
-      const prevCells = prevRow.querySelectorAll('td, th').length;
+      const prevCells = prevRow.querySelectorAll('th, td').length;
       if (cells.length !== prevCells) {
-        issues.push(`REACT_027: Row ${rowIndex} has ${cells.length} cells but previous row has ${prevCells}`);
+        issues.push(`Row ${rowIndex} has ${cells.length} cells but previous row has ${prevCells}`);
       }
     }
 
@@ -276,7 +289,7 @@ function fixTableStructure() {
 }
 
 /**
- * REACT_041: Add accessible names to 2 SVGs
+ * REACT_041: Add accessible name to an SVG element.
  * Gets accessible name for an SVG element.
  * @param {SVGElement} svg - The SVG element.
  * @returns {string|null} Returns the accessible name or null.
@@ -336,12 +349,11 @@ function setSvgAttributes(svgElement, name) {
   title.textContent = name;
 
   // Generate unique ID for the title
-  const titleId = `svg-title-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
   title.setAttribute('id', titleId);
 
   // Set aria-labelledby
   svgElement.setAttribute('aria-labelledby', titleId);
-  svgElement.removeAttribute('aria-hidden');
 
   return true;
 }

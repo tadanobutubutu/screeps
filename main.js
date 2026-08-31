@@ -13,6 +13,31 @@ const appData = {
 
 let icons = {};
 
+/**
+ * Divides two numbers with proper error handling.
+ * @param {number} numerator - The number to be divided.
+ * @param {number} denominator - The number to divide by.
+ * @returns {number|object} Returns the result of division or an error object.
+ */
+function divide(numerator, denominator) {
+  // Check if both arguments are numbers
+  if (typeof numerator !== 'number' || typeof denominator !== 'number') {
+    return { error: true, message: 'Both arguments must be numbers' };
+  }
+
+  // Check for NaN values
+  if (isNaN(numerator) || isNaN(denominator)) {
+    return { error: true, message: 'Arguments cannot be NaN' };
+  }
+
+  // Handle division by zero
+  if (denominator === 0) {
+    return { error: true, message: 'Division by zero is not allowed' };
+  }
+
+  return numerator / denominator;
+}
+
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
@@ -48,7 +73,7 @@ function validateLandmark(landmark) {
   // Validate longitude
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+  } else if (typeof landmark.longitude !== 'number' || ... {
     errors.push('Landmark longitude must be a number');
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
@@ -82,7 +107,7 @@ function validateLandmark(landmark) {
  * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
+  const element = ...
   return element !== null;
 }
 
@@ -114,8 +139,8 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (!elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
+        if ... {
+          ... = true;
         } else {
           landmark.id += '_duplicate';
         }
@@ -150,5 +175,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  divide
 };

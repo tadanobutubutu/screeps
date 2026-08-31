@@ -7,3 +7,6 @@ function newFunction() {
 }
 
 // Don't forget to test your new additions in the test file
+
+// Export the function for testing and external use
+module.exports = { newFunction };

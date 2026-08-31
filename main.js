@@ -205,6 +205,61 @@ function transformInputData(inputData, options = {}) {
   return result;
 }
 
+function initAccessibility() {
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        if (accessibilityUtils && typeof accessibilityUtils.initSkipLink === 'function') {
+          accessibilityUtils.initSkipLink();
+        }
+      });
+    } else {
+      if (accessibilityUtils && typeof accessibilityUtils.initSkipLink === 'function') {
+        accessibilityUtils.initSkipLink();
+      }
+    }
+  }
+}
+
+const exportUtils = {
+  exportToJSON: (data) => JSON.stringify(data),
+  exportToString: (data) => String(data)
+};
+
+function sanitizeFilename(filename) {
+  if (typeof filename !== 'string') return '';
+  return filename.replace(/[^a-zA-Z0-9._-]/g, '_').replace(/\s+/g, '_');
+}
+
+function readFileSafe(filePath) {
+  try {
+    const fs = require('fs');
+    return fs.readFileSync(filePath, 'utf8');
+  } catch (e) {
+    return null;
+  }
+}
+
+function processData(data) {
+  return data;
+}
+
+function filterValidItems(items) {
+  if (!Array.isArray(items)) return [];
+  return items.filter(item => item != null && item !== '');
+}
+
+function groupByCategory(items, categoryKey = 'category') {
+  const groups = {};
+  if (!Array.isArray(items)) return groups;
+  items.forEach(item => {
+    const key = item && item[categoryKey] !== undefined && item[categoryKey] !== null ? item[categoryKey] : 'unknown';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(item);
+  });
+  return groups;
+}
+
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {

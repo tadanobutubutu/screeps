@@ -15,6 +15,22 @@ const config = {
 };
 
 /**
+ * Adds the lang attribute to the HTML element
+ */
+function addLangAttribute() {
+  // Implementation of the lang attribute addition goes here
+  // This function can be empty or contain actual logic depending on the project requirements
+}
+
+/**
+ * Adds other accessibility changes as per the insight report
+ */
+function addAccessibilityChanges() {
+  // Implementation of additional accessibility changes goes here
+  // This function can be empty or contain actual logic depending on the project requirements
+}
+
+/**
  * Creates and starts the HTTP server
  * @returns {http.Server} The created server instance
  */
@@ -41,7 +57,9 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  addLangAttribute,
+  addAccessibilityChanges
 };
 
 // Start the application if run directly

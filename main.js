@@ -1,82 +1,72 @@
-// Import necessary dependencies
 import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import { useLandmark, getFullLangAttribute, addLangAttribute } from './utils';
+import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityProps, getAccessibleLinkProps } from './accessibility';
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
+const Main = () => {
+  const [sorting, setSorting] = useState(sortByTitle);
+  const dispatch = useDispatch();
+  const booksList = useSelector(state => state.books.list);
+  const [newBookTitle, setNewBookTitle] = useState('');
+  const [newBookAuthor, setNewBookAuthor] = useState('');
+  const addBookInputRef = React.useRef(null);
 
-// Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
-}
+  // Sorting functions from both branches (they complement each other)
+  function sortByTitle(a, b) {
+    return a.title.localeCompare(b.title);
+  }
 
-// Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
-}
+  function sortByAuthor(a, b) {
+    return b.author.localeCompare(a.author);
+  }
 
-// Function to generate a key for each book item
-function generateKey(book) {
-  return book.id ? `book-${book.id}` : `book-${book.title}-${book.author}`;
-}
+  function generateKey(book) {
+    return book.id ? `book-${book.id}` : `book-${book.title}-${book.author}`;
+  }
 
-// Function to render a single book item
-function BookItem(book) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        description={book.author}
-      />
-    </List.Item>
-  );
-}
+  function BookItem(book) {
+    return (
+      <List.Item key={generateKey(book)}>
+        <List.Item.Meta
+          title={book.title}
+          description={book.author}
+        />
+      </List.Item>
+    );
+  }
 
-// Function to create a new book entry in the Redux store
-function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
+  // AddBook component modified to accept title and author as props
+  function AddBook({ onAdd, title, author }) {
+    const [titleForm, setTitleForm] = useState(title);
+    const [authorForm, setAuthorForm] = useState(author);
 
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
-}
+    const handleSubmit = (event) => {
+      event.preventDefault();
+      setTitleForm('');
+      setAuthorForm('');
+      
+      if (titleForm.trim() && authorForm.trim()) {
+        addBook({ title: titleForm.trim(), author: authorForm.trim() });
+      } else {
+        // Fallback to simple addBook call if needed
+        addBook();
+      }
+    };
 
-// TODO: This is the existing code that needs to be preserved
-function AddBook({ onAdd }) {
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [error, setError] = useState('');
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setError('');
-
-    if (!title.trim()) {
-      setError('Title is required');
-      return;
-    }
-    if (!author.trim()) {
-      setError('Author is required');
-      return;
-    }
-
-    onAdd({ title: title.trim(), author: author.trim() });
-    setTitle('');
-    setAuthor('');
-  };
-
-  return (
-    <form onSubmit={handleSubmit} aria-label="Add new book form">
-      <div role="group" aria-labelledby="add-book-heading">
-        <h3 id="add-book-heading">Add a New Book</h3>
+    return (
+      <form onSubmit={handleSubmit} aria-label="Add new book">
         <div>
           <label htmlFor="book-title-input">Book Title:</label>
           <input
             id="book-title-input"
             type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={titleForm}
+            onChange={(e) => setTitleForm(e.target.value)}
+            ref={addBookInputRef}
+            required
             aria-required="true"
             aria-invalid={!!error}
             aria-describedby={error ? 'book-title-error' : undefined}
@@ -88,8 +78,9 @@ function AddBook({ onAdd }) {
           <input
             id="book-author-input"
             type="text"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
+            value={authorForm}
+            onChange={(e) => setAuthorForm(e.target.value)}
+            required
             aria-required="true"
             aria-invalid={!!error}
             aria-describedby={error ? 'book-author-error' : undefined}
@@ -102,54 +93,38 @@ function AddBook({ onAdd }) {
           </div>
         )}
         <button type="submit" aria-label="Submit new book">Add Book</button>
-      </div>
-    </form>
-  );
-}
+      </form>
+    );
+  }
 
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
+  // Default sorting function for the book list
+  const defaultSorting = sortByTitle;
 
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
-}
+  // Function to handle sorting the book list by title (ascending)
+  function onTitleSort() {
+    const sortedList = [...getBooksList].sort(sortByTitle);
+    // Dispatch an action to update the sorted book list in the Redux store
+    dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+  }
 
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-}
+  // Function to handle sorting the book list by author (descending)
+  function onAuthorSort() {
+    const sortedList = [...getBooksList].sort(sortByAuthor);
+    // Dispatch an action to update the sorted book list in the Redux store
+    dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+  }
 
-// Render the main component containing the book list and sorting controls
-function Main() {
-  const [sorting, setSorting] = useState(defaultSorting);
+  // Render the main component containing the book list and sorting controls
+  const listItems = booksList.map(book => BookItem(book));
 
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
-    }
-  }, [sorting]);
-
-  // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map((book) => BookItem(book));
-
-  // Render the list of book items and sorting controls
   return (
     <div>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={getBooksList} renderItem={(book) => BookItem(book)} />
-      <AddBook onAdd={addBook} />
+      <List dataSource={listItems} renderItem={(book) => BookItem(book)} />
+      <AddBook onAdd={addBook} title={newBookTitle} author={newBookAuthor} />
     </div>
   );
-}
+};
 
-// Export the Main component
 export default Main;

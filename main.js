@@ -8,10 +8,10 @@ const accessibilityUtils = {
   // Functions provided in both branches (merge)
   ensureElementId: ensureElementId,
   addAriaLabel: addAriaLabel,
-  renderDependencyGraph: renderDependencyGraph,
+  renderDependencyGraph: renderDependencyGraphs,
 
   // Functions from the 'HEAD' branch
-  newFocusTrap: newFocusTrap,
+  newFocusTrap: focusTrap,
   addLangAttribute: addLangAttribute,
   fixTableStructure: fixTableStructure,
   addLandmarkIssues: addLandmarkIssues,
@@ -48,7 +48,20 @@ const {
   addSvgAccessibleName,
   fixFakeLinkIssue,
   addAriaAttribute,
-  implementAccessibilityFixesFromReport
+  implementAccessibilityFixesFromReport,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  setSvgAccessibilityProps,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  ensureElementHasIdOrigin,
+  addAriaLabel: addAriaLabelAlt,
+  googleSignIn,
+  handleCredentialResponse: handleCredentialResponseAlt,
+  renderGraphIndex
 } = require('./utilities');
 
 const http = require('http');
@@ -307,4 +320,268 @@ const focusTrap = (element) => {
   }
 
   function moveFocusToFirst() {
-    set
+    setActiveElement(0);
+  }
+
+  function moveFocusToLast() {
+    setActiveElement(focusableElements.length - 1);
+  }
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        prevFocusableElement();
+      } else {
+        nextFocusableElement();
+      }
+      e.preventDefault();
+    }
+  });
+
+  // Focus the first element initially
+  setActiveElement(0);
+
+  return {
+    nextFocusableElement,
+    prevFocusableElement,
+    moveFocusToFirst,
+    moveFocusToLast,
+    destroy: () => {
+      element.removeEventListener('keydown', arguments[0]);
+    }
+  };
+};
+
+// Function to generate a new session ID
+function generateSessionId() {
+  return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+// Wrapper function to render dependency graphs with accessibility enhancements
+function renderGraphIndex(graphData) {
+  if (!graphData) {
+    throw new Error('Graph data is required');
+  }
+
+  const container = graphData.container || document.getElementById(graphData.id);
+  const dependencies = graphData.dependencies || {};
+  const options = graphData.options || {};
+
+  // Render the dependency graph
+  const renderedGraph = renderDependencyGraphs(container, dependencies, options);
+
+  // Apply accessibility enhancements
+  if (typeof addressAccessibilityIssues === 'function') {
+    addressAccessibilityIssues(renderedGraph);
+  }
+
+  // Set SVG accessibility properties if available
+  if (typeof setSvgAccessibilityProps === 'function') {
+    setSvgAccessibilityProps(renderedGraph);
+  }
+
+  // Add accessible names to SVGs
+  if (typeof addAccessibleNamesToSVGs === 'function') {
+    addAccessibleNamesToSVGs(renderedGraph);
+  }
+
+  return renderedGraph;
+}
+
+// Wraps primary content in a <main> landmark element
+function wrapPrimaryContentInMain() {
+    if (typeof document === 'undefined') return;
+    const main = document.querySelector('main');
+    if (!main) {
+      const mainEl = document.createElement('main');
+      mainEl.id = 'main-content';
+      while (document.body.firstChild) {
+        mainEl.appendChild(document.body.firstChild);
+      }
+      document.body.appendChild(mainEl);
+    }
+}
+
+// Consolidated accessibility issue handler
+function addressAccessibilityIssues(graphData) {
+  if (!graphData) return;
+
+  // Fix landmark issues
+  if (typeof fixLandmarkIssues === 'function') {
+    fixLandmarkIssues(graphData);
+  }
+
+  // Fix fake link issues
+  if (typeof fixFakeLinkIssues === 'function') {
+    fixFakeLinkIssues(graphData);
+  }
+
+  // Fix image alt texts
+  if (typeof fixImageAltTexts === 'function') {
+    fixImageAltTexts(graphData);
+  }
+
+  // Ensure unique landmarks
+  if (typeof uniqueLandmarks === 'function') {
+    uniqueLandmarks(graphData);
+  }
+
+  // Fix button identifiers
+  if (typeof fixButtonIdentifiers === 'function') {
+    fixButtonIdentifiers(graphData);
+  }
+
+  // Fix dependency graph ARIA attributes
+  if (typeof fixDependencyGraphAria === 'function') {
+    fixDependencyGraphAria(graphData);
+  }
+
+  // Add main landmark to index
+  if (typeof addMainLandmarkToIndex === 'function') {
+    addMainLandmarkToIndex(graphData);
+  }
+}
+
+// Top-level jQuery implementation for accessibility enhancement
+$(document).ready(() => {
+  // Initialize skip links
+  if (typeof accessibilityUtils.initSkipLink === 'function') {
+    accessibilityUtils.initSkipLink();
+  }
+
+  // Wrap primary content in <main> landmark
+  wrapPrimaryContentInMain();
+
+  // Add language attribute to document
+  if (typeof addLangAttribute === 'function') {
+    addLangAttribute(document.documentElement);
+  }
+
+  // Fix table structure issues
+  if (typeof fixTableStructure === 'function') {
+    fixTableStructure();
+  }
+
+  // Add main landmark
+  if (typeof addMainLandmark === 'function') {
+    addMainLandmark();
+  }
+
+  // Ensure unique landmarks
+  if (typeof ensureUniqueLandmarks === 'function') {
+    ensureUniqueLandmarks();
+  }
+
+  // Set SVG accessibility properties
+  if (typeof setSvgAccessibilityProps === 'function') {
+    setSvgAccessibilityProps();
+  }
+
+  // Add accessible names to SVGs
+  if (typeof addAccessibleNamesToSVGs === 'function') {
+    addAccessibleNamesToSVGs();
+  }
+
+  // Fix fake link issues
+  if (typeof fixFakeLinkIssue === 'function') {
+    fixFakeLinkIssue();
+  }
+
+  // Fix landmark issues
+  if (typeof fixLandmarkIssues === 'function') {
+    fixLandmarkIssues();
+  }
+
+  // Add landmark regions
+  if (typeof addLandmarkRegions === 'function') {
+    addLandmarkRegions();
+  }
+
+  // Fix button identifiers
+  if (typeof fixButtonIdentifiers === 'function') {
+    fixButtonIdentifiers();
+  }
+
+  // Fix dependency graph ARIA
+  if (typeof fixDependencyGraphAria === 'function') {
+    fixDependencyGraphAria();
+  }
+
+  // Add main landmark to index
+  if (typeof addMainLandmarkToIndex === 'function') {
+    addMainLandmarkToIndex();
+  }
+
+  // Fix image alt texts
+  if (typeof fixImageAltTexts === 'function') {
+    fixImageAltTexts();
+  }
+
+  // Ensure unique landmarks
+  if (typeof uniqueLandmarks === 'function') {
+    uniqueLandmarks();
+  }
+
+  // Initialize focus traps
+  const focusableContainers = document.querySelectorAll('[data-focus-trap]');
+  focusableContainers.forEach(container => {
+    focusTrap(container);
+  });
+});
+
+// Export modules for testing
+module.exports = {
+    accessibilityUtils,
+    CONFIG,
+    log,
+    validateInput,
+    parseJSONsafe,
+    formatResponse,
+    delay,
+    retryOperation,
+    sanitizeFilename,
+    readFileSafe,
+    processData,
+    filterValidItems,
+    groupByCategory,
+    myNewFunction,
+    calculateSum,
+    ensureElementId,
+    addAriaLabel,
+    renderDependencyGraphs,
+    handleCredentialResponse,
+    focusTrap,
+    generateSessionId,
+    renderGraphIndex,
+    wrapPrimaryContentInMain,
+    addressAccessibilityIssues,
+    createInPageButton,
+    createWebResourceButton,
+    validateLandmark,
+    validateLandmarkStructure,
+    validateAccessibilityReport,
+    getSvgAccessibleName,
+    getLangAttribute,
+    addAltAttribute,
+    replaceButtonId,
+    addAriaAttribute,
+    implementAccessibilityFixesFromReport,
+    ensureElementHasId,
+    ensureUniqueLandmarks,
+    addMainLandmark,
+    fixTableStructure,
+    addSvgAccessibleName,
+    fixFakeLinkIssue,
+    googleSignIn,
+    handleCredentialResponseAlt,
+    renderGraphIndex,
+    setSvgAccessibilityProps,
+    addAccessibleNamesToSVGs,
+    addSvgAccessibleNames,
+    fixButtonIdentifiers,
+    fixDependencyGraphAria,
+    addMainLandmarkToIndex,
+    validateTableAccessibility,
+    validateTableStructure,
+    transformInputData
+};

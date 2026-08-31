@@ -15,7 +15,62 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return book.id || `${book.title}-${book.author}`;
+  return book.id || ...
+}
+
+// Function to validate the landmark structure for accessibility issues
+function validateLandmarkStructure(container) {
+  const errors = [];
+  
+  // Check for main landmark
+  const mainLandmark = container.querySelector('main, [role="main"]');
+  if (!mainLandmark) {
+    errors.push('Missing main landmark: The page should have exactly one main landmark for the primary content.');
+  }
+  
+  // Check for multiple main landmarks
+  const mainLandmarks = container.querySelectorAll('main, [role="main"]');
+  if (mainLandmarks.length > 1) {
+    errors.push('Multiple main landmarks found: There should only be one main landmark per page.');
+  }
+  
+  // Check for proper labeling on landmark regions
+  const landmarks = container.querySelectorAll('[role="region"], [role="navigation"], [role="complementary"], nav, aside');
+  landmarks.forEach(landmark => {
+    const hasAriaLabel = landmark.getAttribute('aria-label');
+    const hasAriaLabelledby = landmark.getAttribute('aria-labelledby');
+    const hasLabel = landmark.querySelector('label');
+    
+    if (!hasAriaLabel && !hasAriaLabelledby && !hasLabel) {
+      const tagName = landmark.tagName.toLowerCase();
+      const role = landmark.getAttribute('role') || tagName;
+      errors.push(`Unlabeled landmark <${tagName}> with role="${role}": Landmarks should have an accessible name via aria-label, aria-labelledby, or contain a label element.`);
+    }
+  });
+  
+  // Check heading hierarchy
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+  headings.forEach(heading => {
+    const level = parseInt(heading.tagName[1], 10);
+    if (previousLevel !== 0 && level - previousLevel > 1) {
+      errors.push(`Heading hierarchy skipped from h${previousLevel} to h${level}: Headings should not skip levels.`);
+    }
+    previousLevel = level;
+  });
+  
+  // Check for h1 presence in main landmark
+  if (mainLandmark) {
+    const h1InMain = mainLandmark.querySelector('h1');
+    if (!h1InMain) {
+      errors.push('Missing h1 in main landmark: The main content should contain an h1 heading.');
+    }
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
 }
 
 // Function to render a single book item
@@ -54,7 +109,7 @@ function BookForm() {
 
   // Render the form
   return (
-    <form onSubmit={handleSubmit}>
+    <form ...
       <label htmlFor="title">Title:</label>
       <input
         type="text"
@@ -63,7 +118,7 @@ function BookForm() {
         onChange={handleTitleChange}
         aria-label="Book title"
       />
-      <label htmlFor="author">Author:</label>
+      <label ...
       <input
         type="text"
         id="author"
@@ -80,7 +135,7 @@ function BookForm() {
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
-function onTitleSort(dispatch, list) {
+function ... list) {
   const sortedList = [...list].sort(sortByTitle);
   dispatch({ type: 'SET_SORTED_LIST', payload: sortedList });
 }
@@ -106,7 +161,7 @@ function AddBookForm({ onAddBook }) {
     if (!title.trim()) {
       setError('Title is required');
       if (titleInputRef.current) {
-        titleInputRef.current.focus();
+        ...
       }
       return;
     }
@@ -122,7 +177,7 @@ function AddBookForm({ onAddBook }) {
     
     // Move focus to title input after successful submission for accessibility
     if (titleInputRef.current) {
-      titleInputRef.current.focus();
+      ...
     }
   };
 
@@ -132,7 +187,7 @@ function AddBookForm({ onAddBook }) {
       // Move to author input on Enter key
       const form = formRef.current;
       if (form) {
-        const authorInput = form.querySelector('#add-book-author');
+        const authorInput = ...
         if (authorInput) {
           authorInput.focus();
         }
@@ -143,7 +198,7 @@ function AddBookForm({ onAddBook }) {
   return (
     <form 
       ref={formRef}
-      onSubmit={handleSubmit} 
+      ... 
       aria-label="Add new book form"
       style={{ marginBottom: '16px' }}
     >
@@ -215,7 +270,7 @@ function Main() {
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
     if (sorting === sortByTitle) {
-      onTitleSort(dispatch, booksList);
+      ... booksList);
     } else if (sorting === sortByAuthor) {
       onAuthorSort(dispatch, booksList);
     }
@@ -228,34 +283,15 @@ function Main() {
 
   // Render the list of book items, sorting controls, and the book form
   return (
-    <div>
-      <h2 id="add-book-heading">Add a New Book</h2>
-      <AddBookForm onAddBook={handleAddBook} />
+    <main role="main" aria-label="Book management section">
+      <h1>Book Manager</h1>
+      <section aria-labelledby="add-book-heading">
+        <h2 id="add-book-heading">Add a New Book</h2>
+        <AddBookForm onAddBook={handleAddBook} />
+      </section>
       
-      <h2 id="books-list-heading">Books List</h2>
-      <div role="group" aria-labelledby="books-list-heading">
-        <button 
-          onClick={() => setSorting(sortByTitle)}
-          aria-pressed={sorting === sortByTitle}
-        >
-          Sort by Title
-        </button>
-        <button 
-          onClick={() => setSorting(sortByAuthor)}
-          aria-pressed={sorting === sortByAuthor}
-        >
-          Sort by Author
-        </button>
-      </div>
-      
-      <List 
-        aria-label="Books collection"
-        dataSource={bookItems}
-      />
-    </div>
-  );
-}
-
-// Export the Main component and the BookForm component
-export default Main;
-export { BookForm };
+      <section aria-labelledby="book-list-heading">
+        <h2 id="book-list-heading">Book List</h2>
+        <div role="group" aria-label="Sort books" ...
+          <button 
+            onClick={() => set

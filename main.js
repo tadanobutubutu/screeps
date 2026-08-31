@@ -122,7 +122,11 @@ const app = express();
 
 // TODO: add the new functions or changes requested in the issue
 // Here is the implementation for checking link accessibility
-// The existing isLinkAccessible function implementation
+function isLinkAccessible(link) {
+  // Implementation for checking link accessibility
+  // Placeholder code
+  return true;
+}
 
 // Endpoint for getting landmarks
 app.get('/landmarks', (req, res) => {
@@ -142,7 +146,8 @@ module.exports = {
   sortLandmarks,
   getLandmarkById,
   ensureUniqueLandmarks,
-  landmarkConfig
+  landmarkConfig,
+  isLinkAccessible // Add the new function to the exports
 };
 
 // Main execution when run directly

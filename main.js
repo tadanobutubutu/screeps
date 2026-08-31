@@ -232,6 +232,9 @@ function ensureLangAttribute(document) {
 
 // Export all functions for testing
 export {
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph,
   ensureLandmarkRoles,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,

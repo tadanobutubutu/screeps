@@ -18,6 +18,15 @@ function visualizeDependencyTree(dependencies) {
   console.log(report.graph);
 }
 
+// Helper function to generate dependency report
+function generateDependencyReport(dependencies) {
+  let graph = 'Dependency Tree:\n';
+  dependencies.forEach(dep => {
+    graph += `- ${dep.name}\n`;
+  });
+  return { graph };
+}
+
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
   // Code to fix accessibility issues as per the insight report
@@ -41,7 +50,6 @@ export const main = {
   // New function to address all accessibility issues
   addressAccessibilityIssues: function() {
     fixAccessibilityIssues();
-    visualizeDependencyTree(getDependencies()); // Replace getDependencies() with actual function or variable
   }
 };
 
@@ -105,7 +113,7 @@ if (fakeLink && fakeLink.tagName === 'A') {
 import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
-      const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+      const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
       const data = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(data);
   } catch (error) {
@@ -115,63 +123,3 @@ function loadLandmarks() {
 }
 
 // Process and filter landmarks (new addition)
-function processLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
-
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
-}
-
-// Sort landmarks by name (new addition)
-function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
-
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(nameA);
-    });
-}
-
-// Get landmark by ID (new addition)
-function getLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
-}
-
-// Ensure unique landmarks by ID (new addition)
-function ensureUniqueLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
-
-    const seen = new Set();
-    const uniqueLandmarks = [];
-
-    for (const landmark of landmarks) {
-        if (!landmark || typeof landmark.id === 'undefined') {
-            continue;
-        }
-
-        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-        if (!seen.has(landmarkId)) {
-            seen.add(landmarkId);
-            uniqueLandmarks.push(landmark);
-        }
-    }
-
-    return uniqueLandmarks;
-}
-
-// Export functions for testing (new addition)
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-      loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks
-    };
-}

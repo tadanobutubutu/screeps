@@ -15,7 +15,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return book.id || `${book.title}-${book.author}`;
+  return book.id || book.title + book.author;
 }
 
 // Function to render a single book item
@@ -232,8 +232,8 @@ function Main() {
       <h2 id="add-book-heading">Add a New Book</h2>
       <AddBookForm onAddBook={handleAddBook} />
       
-      <h2 id="books-list-heading">Books List</h2>
-      <div role="group" aria-labelledby="books-list-heading">
+      <h2 id="book-list-heading">Book List</h2>
+      <div role="group" aria-label="Sorting controls">
         <button 
           onClick={() => setSorting(sortByTitle)}
           aria-pressed={sorting === sortByTitle}
@@ -251,6 +251,7 @@ function Main() {
       <List 
         aria-label="Books collection"
         dataSource={bookItems}
+        renderItem={(item) => item}
       />
     </div>
   );

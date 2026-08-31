@@ -13,6 +13,9 @@ const appData = {
 
 let icons = {};
 
+// Books data structure (added for addBook functionality)
+const books = [];
+
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
@@ -126,6 +129,160 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
+// Accessibility improvements for addBook function/form:
+// - Added ARIA live region updates for screen reader feedback
+// - Form includes proper labels, fieldset, and legend for accessibility
+// - Input validation with clear error messages
+// - Focus management handled by natural form flow
+
+/**
+ * Adds a book to the collection with accessibility features.
+ * Updates an ARIA live region to announce additions to screen readers.
+ * @param {Object} book - The book object to add.
+ * @param {string} book.title - The title of the book (required).
+ * @param {string} book.author - The author of the book (optional).
+ * @param {string} book.isbn - The ISBN of the book (optional).
+ * @returns {boolean} Returns true if book was added successfully.
+ * @throws {Error} If book data is invalid.
+ */
+function addBook(book) {
+  // Input validation with accessible error messages
+  if (!book || typeof book !== 'object') {
+    throw new Error('Invalid book data provided. Please provide a valid book object.');
+  }
+  
+  if (!book.title || typeof book.title !== 'string' || book.title.trim() === '') {
+    throw new Error('Book title is required. Please enter a valid title.');
+  }
+
+  // Create a sanitized book object
+  const newBook = {
+    id: Date.now() + Math.random(), // Simple unique ID generation
+    title: book.title.trim(),
+    author: book.author ? book.author.trim() : 'Unknown Author',
+    isbn: book.isbn ? book.isbn.trim() : null,
+    dateAdded: new Date().toISOString()
+  };
+
+  // Add to books array
+  books.push(newBook);
+
+  // Update ARIA live region for screen reader announcements
+  const liveRegion = document.getElementById('book-announcements');
+  if (liveRegion) {
+    liveRegion.textContent = `Book "${newBook.title}" has been added successfully.`;
+  }
+
+  // Dispatch custom event for other components to react
+  const event = new CustomEvent('bookAdded', { 
+    detail: newBook,
+    bubbles: true 
+  });
+  document.dispatchEvent(event);
+
+  return true;
+}
+
+/**
+ * Renders an accessible form for adding books.
+ * Includes proper semantic HTML, labels, and ARIA attributes.
+ * @param {Function} onSubmit - Callback function to handle form submission.
+ * @returns {HTMLElement} The accessible form element.
+ */
+function renderAddBookForm(onSubmit) {
+  const form = document.createElement('form');
+  form.setAttribute('aria-labelledby', 'add-book-form-title');
+  form.setAttribute('novalidate', 'novalidate'); // We'll handle validation manually
+  
+  form.innerHTML = `
+    <fieldset>
+      <legend id="add-book-form-title">Add New Book</legend>
+      <div>
+        <label for="book-title-input">Title: <span aria-hidden="true">*</span></label>
+        <input 
+          type="text" 
+          id="book-title-input" 
+          name="title" 
+          required 
+          aria-required="true"
+          aria-describedby="title-help"
+          placeholder="Enter book title">
+        <small id="title-help" class="sr-only">Required field</small>
+      </div>
+      <div>
+        <label for="book-author-input">Author:</label>
+        <input 
+          type="text" 
+          id="book-author-input" 
+          name="author" 
+          placeholder="Enter author name">
+      </div>
+      <div>
+        <label for="book-isbn-input">ISBN:</label>
+        <input 
+          type="text" 
+          id="book-isbn-input" 
+          name="isbn" 
+          placeholder="Enter ISBN (optional)">
+      </div>
+      <div>
+        <button type="submit" id="submit-book-btn">Add Book</button>
+        <button type="reset" id="reset-book-btn">Clear Form</button>
+      </div>
+    </fieldset>
+  `;
+
+  // Form submission handler with accessibility focus
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    const bookData = {
+      title: formData.get('title'),
+      author: formData.get('author'),
+      isbn: formData.get('isbn')
+    };
+
+    try {
+      addBook(bookData);
+      
+      // Reset form on success
+      form.reset();
+      
+      // Move focus to the title input for next entry (accessibility best practice)
+      const titleInput = form.querySelector('#book-title-input');
+      if (titleInput) titleInput.focus();
+      
+      // Call additional callback if provided
+      if (onSubmit && typeof onSubmit === 'function') {
+        onSubmit(bookData);
+      }
+    } catch (error) {
+      // Display error in an accessible way
+      const errorElement = document.createElement('div');
+      errorElement.setAttribute('role', 'alert');
+      errorElement.setAttribute('aria-live', 'assertive');
+      errorElement.className = 'error-message';
+      errorElement.textContent = error.message;
+      
+      // Insert error after the form legend
+      const legend = form.querySelector('legend');
+      if (legend) {
+        legend.insertAdjacentElement('afterend', errorElement);
+      }
+      
+      // Remove error after a few seconds
+      setTimeout(() => {
+        if (errorElement.parentNode) {
+          errorElement.parentNode.removeChild(errorElement);
+        }
+      }, 5000);
+    }
+  });
+
+  return form;
+}
+
 // Export functions for testing
 export {
   checkLandmarkElement,
@@ -150,5 +307,9 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  // Added exports for addBook functionality
+  addBook,
+  renderAddBookForm,
+  books
 };

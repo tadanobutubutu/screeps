@@ -48,21 +48,18 @@ function checkLandmarkElements(response) {
   return response.includes('landmark');
 }
 
-// Export functions for testing
-module.exports = {
-  createServer,
-  startApp,
-  config,
-  checkLandmarkElements
-};
-
-// Start the application if run directly
-if (require.main === module) {
-  startApp();
+// New function as per the issue
+function newFunction() {
+  // TODO: Implement the new function as per the issue
+  console.log('New function called');
 }
 
 // New code to address accessibility issues
 function setARIARoleForDependencyGraph() {
+  // Check if running in browser environment
+  if (typeof document === 'undefined') {
+    return;
+  }
   // Assuming there is a DOM element with the id 'dependencyGraph'
   const dependencyGraph = document.getElementById('dependencyGraph');
   if (dependencyGraph) {
@@ -73,6 +70,10 @@ function setARIARoleForDependencyGraph() {
 
 // New functions for addressing accessibility issues
 function addLangAttribute() {
+  // Check if running in browser environment
+  if (typeof document === 'undefined') {
+    return;
+  }
   const htmlElement = document.querySelector('html');
   if (htmlElement) {
     htmlElement.setAttribute('lang', 'en');
@@ -80,6 +81,10 @@ function addLangAttribute() {
 }
 
 function addLandmarkRoles() {
+  // Check if running in browser environment
+  if (typeof document === 'undefined') {
+    return;
+  }
   // Example of adding landmark roles to certain elements
   // This is a placeholder function and should be implemented according to the actual HTML structure
   const mainContent = document.querySelector('#main-content');
@@ -96,6 +101,10 @@ function addLandmarkRoles() {
 }
 
 function ensureUniqueLandmarks() {
+  // Check if running in browser environment
+  if (typeof document === 'undefined') {
+    return;
+  }
   // Example of ensuring unique landmarks
   // This is a placeholder function and should be implemented according to the actual HTML structure
   const landmarks = document.querySelectorAll('main, nav, aside, footer');
@@ -109,6 +118,10 @@ function ensureUniqueLandmarks() {
 }
 
 function fixFakeLink() {
+  // Check if running in browser environment
+  if (typeof document === 'undefined') {
+    return;
+  }
   // Example of fixing fake link issues
   // This is a placeholder function and should be implemented according to the actual HTML structure
   const fakeLinks = document.querySelectorAll('.fake-link');
@@ -118,15 +131,35 @@ function fixFakeLink() {
   });
 }
 
-// Call the function to set the ARIA role when the application starts
-startApp().on('listening', () => {
-  setARIARoleForDependencyGraph();
-});
-
-// Call these functions as needed, for example on page load
-window.onload = () => {
-  addLangAttribute();
-  addLandmarkRoles();
-  ensureUniqueLandmarks();
-  fixFakeLink();
+// Export functions for testing
+module.exports = {
+  createServer,
+  startApp,
+  config,
+  checkLandmarkElements,
+  newFunction,
+  setARIARoleForDependencyGraph,
+  addLangAttribute,
+  addLandmarkRoles,
+  ensureUniqueLandmarks,
+  fixFakeLink
 };
+
+// Start the application if run directly
+if (require.main === module) {
+  const server = startApp();
+  // Call the function to set the ARIA role when the application starts
+  server.on('listening', () => {
+    setARIARoleForDependencyGraph();
+  });
+  newFunction();
+  // Call these functions as needed, for example on page load
+  if (typeof window !== 'undefined') {
+    window.onload = () => {
+      addLangAttribute();
+      addLandmarkRoles();
+      ensureUniqueLandmarks();
+      fixFakeLink();
+    };
+  }
+}

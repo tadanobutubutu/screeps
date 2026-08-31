@@ -15,7 +15,6 @@ import { renderHeader, renderFooter, renderProductCard } from './components.js';
 import { state, updateState } from './state.js';
 
 // TODO: Address accessibility issues from insight report:
-// ... (Already addressed in the existing code) ...
 
 // Placeholder variables for content
 let dependencyGraphContent;
@@ -215,15 +214,18 @@ function existingFunction() {
   // existing code
 }
 
-// Add new function to address the accessibility issue REACT_043: Make header focusable
+// Function to make header focusable and add role="banner"
 function makeHeaderFocusable() {
-  // code to make the header element focusable
-  const header = ...
+  // Code to make the header element focusable
+  const header = document.querySelector('header');
   if (header) {
     header.setAttribute('tabindex', '0');
     header.setAttribute('role', 'banner');
   }
 }
+
+// Call function to make header focusable
+makeHeaderFocusable();
 
 // Add export statement of the new function
 export { makeHeaderFocusable };

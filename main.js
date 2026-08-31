@@ -267,52 +267,129 @@ function isInViewport(element) {
 
 // Function to handle getLangAttribute for REACT_015
 function getLangAttribute(htmlElement) {
-  // Implement the logic to set the lang attribute based on the preferred language or localization
+  if (!htmlElement) {
+    htmlElement = document.querySelector('html');
+  }
+  return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
 // Function to createInPageButton for REACT_015, REACT_036
-function createInPageButton(options) {
-  // Implement the logic to create a proper in-page link button
+function createInPageButton(options = {}) {
+  const { target, text = 'Jump to content', className = 'in-page-button' } = options;
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.className = className;
+  button.addEventListener('click', () => {
+    const element = document.querySelector(target);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+  return button;
 }
 
 // Function to validateTableAccessibility for REACT_027
 function validateTableAccessibility(table) {
-  // Implement the logic to check for table accessibility issues and return a list of issues
+  const issues = [];
+  if (!table) return issues;
+  if (!table.querySelector('caption')) {
+    issues.push('Table missing caption');
+  }
+  const ths = table.querySelectorAll('th');
+  if (ths.length === 0) {
+    issues.push('Table missing header cells');
+  }
+  ths.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      issues.push('Header cell missing scope attribute');
+    }
+  });
+  return issues;
 }
 
 // Function to validateTableStructure for REACT_027
 function validateTableStructure(table) {
-  // Implement the logic to check for table structure issues and return a list of issues
+  const issues = [];
+  if (!table) return issues;
+  if (!table.querySelector('thead')) {
+    issues.push('Table missing thead');
+  }
+  if (!table.querySelector('tbody')) {
+    issues.push('Table missing tbody');
+  }
+  return issues;
 }
 
 // Function to validateLandmark for REACT_017
 function validateLandmark(element) {
-  // Implement the logic to check for landmark presence and proper use
+  const issues = [];
+  if (!element) return issues;
+  const landmarkRoles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search', 'region'];
+  const role = element.getAttribute('role');
+  if (landmarkRoles.includes(role)) {
+    if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+      issues.push('Landmark missing accessible name');
+    }
+  } else {
+    issues.push('Element is not a valid landmark');
+  }
+  return issues;
 }
 
 // Function to validateLandmarkStructure for REACT_017
 function validateLandmarkStructure(element) {
-  // Implement the logic to check for landmark structure compliance
+  const issues = [];
+  // Placeholder for more complex checks
+  return issues;
 }
 
 // Function to ensureUniqueLandmarks for REACT_017, REACT_025
 function ensureUniqueLandmarks() {
-  // Implement the logic to check for and handle duplicate landmarks
+  const issues = [];
+  const landmarks = document.querySelectorAll('[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], [role="main"], [role="navigation"], [role="search"], [role="region"]');
+  const roles = {};
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (roles[role]) {
+      issues.push(`Duplicate landmark role: ${role}`);
+    }
+    roles[role] = true;
+  });
+  return issues;
 }
 
 // Function to getSvgAccessibleName for REACT_041
 function getSvgAccessibleName(svg) {
-  // Implement the logic to generate an accessible name for SVG elements
+  if (!svg) return '';
+  const label = svg.getAttribute('aria-label');
+  if (label) return label;
+  const title = svg.querySelector('title');
+  if (title) return title.textContent;
+  return 'SVG graphic';
 }
 
 // Function to setSvgAttributes for REACT_041
-function setSvgAttributes(svg, attributes) {
-  // Implement the logic to set specified attributes on SVG elements
+function setSvgAttributes(svg, attributes = {}) {
+  if (!svg) return;
+  Object.keys(attributes).forEach(attr => {
+    svg.setAttribute(attr, attributes[attr]);
+  });
 }
 
 // Function to handleFakeLinks for REACT_036
 function handleFakeLinks(links) {
-  // Implement the logic to handle fake links within the app
+  links.forEach(link => {
+    if (link.tagName !== 'A') {
+      link.setAttribute('role', 'link');
+      link.setAttribute('tabindex', '0');
+      link.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          link.click();
+        }
+      });
+    }
+  });
 }
 
 // Export for use in other modules

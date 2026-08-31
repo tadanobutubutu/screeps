@@ -260,7 +260,7 @@ function Main() {
     } else if (sorting === sortByAuthor) {
       handleAuthorSort();
     }
-  }, [sorting, handleTitleSort, handleAuthorSort]);
+  }, [sorting, handleTitleSort, handleAuthorSort, books]);
 
   // Map the book list to the BookItem function to create book items
   const bookItems = books.map((book) => (

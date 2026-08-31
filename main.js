@@ -9,6 +9,8 @@
 
 import './styles.css';
 import react from 'react';
+import React from 'react';
+// Existing code starts here
 
 // This is the existing code that needs to be preserved
 // (This comment remains as-ist)
@@ -77,7 +79,7 @@ function formatDate(date) {
   if (!(date instanceof Date)) {
     date = new Date(date);
   }
-  return ...
+  return date.toISOString();
 }
 
 // Validate input function
@@ -86,7 +88,7 @@ function validateInput(input) {
     return false;
   }
   return true;
-};;
+}
 
 // Language attribute functions
 function getLangAttribute() {
@@ -378,4 +380,19 @@ function getInsightReport() {
     });
   }
   
-  // Check
+  // Check landmark attributes
+  const landmarkAttributeIssues = validateLandmarkAttributes();
+  if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
+    landmarkAttributeIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_017',
+        description: issue.description || 'Landmark attribute issue',
+        severity: issue.severity || 'low',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+  
+  // Check SVG accessibility
+  const svgAccessibleNames = getSvgAccessibleName();

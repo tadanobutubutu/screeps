@@ -1,7 +1,13 @@
 // main.js - Combined utility and accessibility features
 
 // TODO: Address accessibility issues from insight report:
-// - REACT_025: Ensure unique landmarks
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// Ensure the dependencyGraph container has a proper ARIA role
 
 // Accessibility helper function for keyboard navigation
 function setupKeyboardNavigation(element, options = {}) {
@@ -113,6 +119,14 @@ function ensureUniqueLandmarks() {
   });
 }
 
+// Ensure dependencyGraph container has proper ARIA role
+function ensureDependencyGraphAriaRole() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph && !dependencyGraph.getAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'graph');
+  }
+}
+
 // ARIA live region announcer
 function createAnnouncer() {
   const announcer = document.createElement('div');
@@ -142,6 +156,9 @@ function initializeAccessibility() {
   
   // Ensure all landmarks have unique IDs
   ensureUniqueLandmarks();
+  
+  // Ensure dependencyGraph container has a proper ARIA role
+  ensureDependencyGraphAriaRole();
   
   // Return the announcer for use in the app
   return {
@@ -595,7 +612,8 @@ if (typeof module !== 'undefined' && module.exports) {
     handleFakeLinks,
     createAccessibleButton,
     addProperLandmarkRegions,
-    ensureUniqueLandmarks
+    ensureUniqueLandmarks,
+    ensureDependencyGraphAriaRole
   };
 }
 

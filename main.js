@@ -128,13 +128,6 @@ function renderIndex() {
   return indexContent();
 }
 
-// TODO: THIS IS THE EXISTING CODE THAT NEEDS TO BE PRESERVED
-// TODO: This is the existing code that needs to be preserved
-// Line 7
-// Line 8
-// Line 9
-// Line 10
-
 // Export functions for testing
 module.exports = {
   createServer,

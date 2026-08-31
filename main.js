@@ -1,6 +1,7 @@
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-
+// Import required module(s)
 import { calculateSum } from './utils';
+
+// TODO: Address accessibility issues from insight report
 
 // More existing code that should be preserved
 
@@ -13,7 +14,7 @@ import { calculateSum } from './utils';
 // ... (other code in main.js)
 
 /**
- * Creates an in-page button element with optional click handler.
+ * Creates an in-page button element with optional click handler and accessibility attributes.
  * @param {string} buttonText - The label text for the button
  * @param {Function} onClickHandler - Callback function triggered when the button is clicked
  * @returns {HTMLElement} The created button element
@@ -55,8 +56,7 @@ export function rotateBack() {
 function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
-  button.setAttribute('role', 'button');
-  button.ariaLabel = 'rotate back';
+  button.setAttribute('aria-label', 'Rotate back');
   button.textContent = 'rotate back';
   button.addEventListener('click', rotateBack);
   return button;

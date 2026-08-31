@@ -75,7 +75,48 @@ const accessibilityUtils = {
 
   // New focus trap function for keyboard navigation
   newFocusTrap: () => {
-    // New function implementation
+    let currentIndex = 0;
+    let focusableElements = [];
+
+    const updateFocusableElements = (container) => {
+      const elements = container.querySelectorAll(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      focusableElements = Array.from(elements);
+      currentIndex = 0;
+    };
+
+    const focusElement = (index) => {
+      if (focusableElements.length > 0) {
+        const adjustedIndex = ((index % focusableElements.length) + focusableElements.length) % focusableElements.length;
+        focusableElements[adjustedIndex].focus();
+        currentIndex = adjustedIndex;
+      }
+    };
+
+    const handleKeyDown = (e, container) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey) {
+          focusElement(currentIndex - 1);
+          e.preventDefault();
+        } else {
+          focusElement(currentIndex + 1);
+          e.preventDefault();
+        }
+      }
+    };
+
+    return {
+      activate: (container) => {
+        updateFocusableElements(container || document);
+        container?.addEventListener('keydown', (e) => handleKeyDown(e, container));
+      },
+      deactivate: (container) => {
+        container?.removeEventListener('keydown', (e) => handleKeyDown(e, container));
+      },
+      focusFirst: () => focusElement(0),
+      focusLast: () => focusElement(focusableElements.length - 1)
+    };
   }
 };
 
@@ -247,7 +288,6 @@ function groupByCategory(items, getCategory) {
 // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-
 _Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
 
 <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->

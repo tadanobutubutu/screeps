@@ -3,8 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: ensureDependencyGraphARIA, getLangAttribute)
+// REACT_015: Add lang attribute to HTML element (ensureDependencyGraphARIA, getLangAttribute)
 const getLangAttribute = () => document.documentElement ? document.documentElement.lang || 'en' : 'en';
 document.documentElement.lang = getLangAttribute();
 
@@ -31,14 +30,14 @@ function addLangAttribute(lang = 'en') {
 }
 
 function addMainLandmark(document) {
-  let mainElement = document.querySelector('main');
+  let mainElement = ...
 
   if (!mainElement) {
     const body = document.body;
-    const main = document.createElement('main');
+    const main = ...
     main.setAttribute('id', 'main-content');
 
-    const children = Array.from(body.children);
+    const children = ...
     for (const child of children) {
       if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' &&
           child.tagName !== 'LINK' && child.tagName !== 'META') {
@@ -47,7 +46,7 @@ function addMainLandmark(document) {
       }
     }
 
-    body.insertBefore(main, body.firstChild);
+    ... body.firstChild);
     mainElement = main;
   }
 
@@ -58,20 +57,20 @@ function addMainLandmark(document) {
   return mainElement;
 }
 
-function validateLandmarkElements(document) {
-  const main = document.querySelector('main');
+function ... {
+  const main = ...
   if (main && !main.id) {
     main.id = 'main-content';
   }
 
-  const navigations = document.querySelectorAll('nav');
+  const navigations = ...
   navigations.forEach((nav, index) => {
-    if (!nav.id && !nav.getAttribute('aria-label')) {
+    if (!nav.id && ... {
       nav.setAttribute('aria-label', `navigation-${index + 1}`);
     }
   });
 
-  const regions = document.querySelectorAll('[role="region"]');
+  const regions = ...
   regions.forEach((region, index) => {
     if (!region.id) {
       region.id = `region-${index + 1}`;
@@ -95,39 +94,39 @@ function addressAccessibilityIssues(issues, options = {}) {
 
 // ... (Functions that were unique in each branch)
 
-function fixTableStructureIssues(document) {
+function ... {
   let fixedCount = 0;
-  const tables = document.querySelectorAll('table');
+  const tables = ...
 
   tables.forEach(table => {
-    const existingThead = table.querySelector('thead');
-    const existingTbody = table.querySelector('tbody');
-    const rows = table.querySelectorAll('tr');
+    const existingThead = ...
+    const existingTbody = ...
+    const rows = ...
 
     if (!existingTbody && rows.length > 0) {
-      const remainingRows = rows.length > 1 ? Array.from(rows).slice(1) : [];
+      const remainingRows = rows.length > 1 ? ... : [];
       if (remainingRows.length > 0) {
-        const tbody = document.createElement('tbody');
-        remainingRows.forEach(row => tbody.appendChild(row));
-        table.appendChild(tbody);
+        const tbody = ...
+        ... => ...
+        ...
         fixedCount++;
       }
     }
 
-    const allRows = table.querySelectorAll('tr');
+    const allRows = ...
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('th');
+      const cells = ...
       if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
         const firstCell = cells[0];
-        const th = document.createElement('th');
+        const th = ...
         th.textContent = firstCell.textContent;
         th.scope = 'col';
-        row.replaceChild(th, firstCell);
+        ... firstCell);
         fixedCount++;
       }
     });
 
-    const headerCells = table.querySelectorAll('th');
+    const headerCells = ...
     headerCells.forEach(th => {
       if (!th.scope) {
         th.setAttribute('scope', 'col');

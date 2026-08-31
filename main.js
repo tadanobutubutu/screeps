@@ -140,3 +140,45 @@ if (require.main === module) {
     console.log('First landmark:', sorted[0]);
   }
 }
+
+// New function to ensure elements have an id
+function ensureElementId(element) {
+  if (!element || typeof element.id !== 'string' || element.id.trim() === '') {
+    element.id = `generated-id-${Math.random().toString(36).substr(2, 9)}`;
+  }
+}
+
+// New function to add aria-label to elements
+function addAriaLabel(element, label) {
+  if (!element || typeof element.setAttribute !== 'function') {
+    return;
+  }
+  element.setAttribute('aria-label', label);
+}
+
+// New function to render dependency graphs
+function renderDependencyGraph(landmarks) {
+  // Placeholder for rendering logic
+  console.log('Rendering dependency graphs for landmarks...');
+}
+
+// Update the main execution to use the new functions
+if (require.main === module) {
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+  const sorted = sortLandmarks(processed);
+  
+  console.log(`Loaded ${landmarks.length} landmarks`);
+  console.log(`Processed to ${processed.length} unique landmarks`);
+  console.log(`Sorted ${sorted.length} landmarks`);
+  
+  if (sorted.length > 0) {
+    sorted.forEach(landmark => {
+      ensureElementId(landmark);
+      addAriaLabel(landmark, 'Description of landmark');
+    });
+    renderDependencyGraph(sorted);
+    
+    console.log('First landmark with id and aria-label:', sorted[0]);
+  }
+}

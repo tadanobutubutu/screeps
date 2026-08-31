@@ -8,11 +8,12 @@
  * @returns {Function} - Debounced function
  */
 function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
+  var timeout;
+  return function executedFunction() {
+    var args = Array.prototype.slice.call(arguments);
+    var later = function() {
       clearTimeout(timeout);
-      func(...args);
+      func.apply(this, args);
     };
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
@@ -26,12 +27,13 @@ function debounce(func, wait) {
  * @returns {Function} - Throttled function
  */
 function throttle(func, limit) {
-  let inThrottle;
-  return function executedFunction(...args) {
+  var inThrottle;
+  return function executedFunction() {
+    var args = Array.prototype.slice.call(arguments);
     if (!inThrottle) {
-      func(...args);
+      func.apply(this, args);
       inThrottle = true;
-      setTimeout(() => (inThrottle = false), limit);
+      setTimeout(function() { inThrottle = false; }, limit);
     }
   };
 }
@@ -40,10 +42,14 @@ function throttle(func, limit) {
 // main.js - Accessibility improvements implementation
 
 // Accessibility helper function for keyboard navigation
-function handleKeyboardNavigation(options = {}) {
-  const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
+function handleKeyboardNavigation(options) {
+  options = options || {};
+  var onEnter = options.onEnter;
+  var onEscape = options.onEscape;
+  var onArrowUp = options.onArrowUp;
+  var onArrowDown = options.onArrowDown;
   
-  return (event) => {
+  return function(event) {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -52,9 +58,9 @@ function handleKeyboardNavigation(options = {}) {
         if (onEscape) onEscape(event);
         break;
       case 'ArrowUp':
-        if (onArrowUp) {
+        if (onArrowDown) {
           event.preventDefault();
-          onArrowUp(event);
+          onArrowDown(event);
         }
         break;
       case 'ArrowDown':
@@ -68,18 +74,18 @@ function handleKeyboardNavigation(options = {}) {
 }
 
 // Alias for backwards compatibility
-const handleKeyboard = handleKeyboardNavigation;
+var handleKeyboard = handleKeyboardNavigation;
 
 // Helper to manage focus within a container
 function trapFocus(container) {
-  const focusableElements = container.querySelectorAll(
+  var focusableElements = container.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
 
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
+  var firstElement = focusableElements[0];
+  var lastElement = focusableElements[focusableElements.length - 1];
 
-  const handleTab = (event) => {
+  var handleTab = function(event) {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -93,23 +99,23 @@ function trapFocus(container) {
 
   container.addEventListener('keydown', handleTab);
   
-  return () => {
+  return function() {
     container.removeEventListener('keydown', handleTab);
   };
 }
 
 // ARIA live region announcer
 function createAnnouncer() {
-  const announcer = document.createElement('div');
+  var announcer = document.createElement('div');
   announcer.setAttribute('aria-live', 'polite');
   announcer.setAttribute('aria-atomic', 'true');
   announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
   document.body.appendChild(announcer);
 
   return {
-    announce: (message) => {
+    announce: function(message) {
       announcer.textContent = '';
-      setTimeout(() => {
+      setTimeout(function() {
         announcer.textContent = message;
       }, 100);
     }
@@ -123,30 +129,30 @@ function prefersReducedMotion() {
 
 // Initialize accessibility features
 function initializeAccessibility() {
-  const announcer = createAnnouncer();
+  var announcer = createAnnouncer();
 
   // Return the announcer for use in the app
   return {
     announce: announcer.announce,
-    handleKeyboardNavigation,
-    handleKeyboard,
-    trapFocus,
-    createAnnouncer,
-    prefersReducedMotion,
-    ensureDependencyGraphARIA,
-    getLangAttribute
+    handleKeyboardNavigation: handleKeyboardNavigation,
+    handleKeyboard: handleKeyboard,
+    trapFocus: trapFocus,
+    createAnnouncer: createAnnouncer,
+    prefersReducedMotion: prefersReducedMotion,
+    ensureDependencyGraphARIA: ensureDependencyGraphARIA,
+    getLangAttribute: getLangAttribute
   };
 }
 
 // Get the lang attribute from the HTML element
 function getLangAttribute() {
-  const htmlElement = document.querySelector('html');
+  var htmlElement = document.querySelector('html');
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
 // Ensure the HTML element has proper ARIA attributes including lang
 function ensureDependencyGraphARIA() {
-  let htmlElement = document.querySelector('html');
+  var htmlElement = document.querySelector('html');
   
   if (!htmlElement) {
     htmlElement = document.createElement('html');
@@ -202,10 +208,10 @@ function clamp(value, min, max) {
 function deepClone(obj) {
   if (obj === null || typeof obj !== 'object') return obj;
   if (obj instanceof Date) return new Date(obj);
-  if (Array.isArray(obj)) return obj.map(item => deepClone(item));
+  if (Array.isArray(obj)) return obj.map(function(item) { return deepClone(item); });
   if (typeof obj === 'object') {
-    const cloned = {};
-    for (const key in obj) {
+    var cloned = {};
+    for (var key in obj) {
       if (obj.hasOwnProperty(key)) cloned[key] = deepClone(obj[key]);
     }
     return cloned;
@@ -227,7 +233,8 @@ function generateId() {
  * @param {*} defaultValue - Default value if parsing fails
  * @returns {*} - Parsed object or default value
  */
-function safeJsonParse(str, defaultValue = null) {
+function safeJsonParse(str, defaultValue) {
+  defaultValue = defaultValue !== undefined ? defaultValue : null;
   try {
     return JSON.parse(str);
   } catch (e) {
@@ -237,15 +244,15 @@ function safeJsonParse(str, defaultValue = null) {
 
 // Add accessible names to SVG elements
 function addAccessibleNamesToSvg(container) {
-  const svgs = container.querySelectorAll('svg');
+  var svgs = container.querySelectorAll('svg');
   if (svgs.length >= 2) {
     svgs[0].setAttribute('aria-label', 'First SVG');
     svgs[1].setAttribute('aria-label', 'Second SVG');
   }
   
-  svgs.forEach((svg, index) => {
+  svgs.forEach(function(svg, index) {
     if (!svg.hasAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
-      svg.setAttribute('aria-label', `SVG element ${index + 1}`);
+      svg.setAttribute('aria-label', 'SVG element ' + (index + 1));
     }
   });
 }
@@ -256,7 +263,7 @@ function addAccessibleNamesToSvg(container) {
  * @returns {boolean} - True if element is in viewport
  */
 function isInViewport(element) {
-  const rect = element.getBoundingClientRect();
+  var rect = element.getBoundingClientRect();
   return (
     rect.top >= 0 &&
     rect.left >= 0 &&

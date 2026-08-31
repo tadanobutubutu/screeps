@@ -3,7 +3,10 @@
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import { List, Button } from 'antd';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityProps, getAccessibleLinkProps } from './accessibility';
 
 // Function to add SVG accessibility props
 function addSvgAccessibilityProps(props = {}) {

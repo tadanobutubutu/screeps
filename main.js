@@ -1,4 +1,3 @@
-// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // Main entry point for dependency visualization tool
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
@@ -166,7 +165,7 @@ function fixAccessibilityIssues() {
 }
 
 /**
- * Divides two numbers with proper error handling
+ * Divides two number with proper error handling
  * @param {number} dividend - The number to be divided
  * @param {number} divisor - The number to divide by
  * @returns {number} Result of division
@@ -303,4 +302,3 @@ export {
   someFunction,
   exportedFunction,
 };
-```

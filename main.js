@@ -6,6 +6,9 @@ const fs = require('fs');
 const _utils = require('./utils');
 const someFunction = _utils.default || _utils.someFunction || _utils;
 
+// Import functionA and functionB from utils
+const { functionA, functionB } = require('./utils');
+
 // Existing configuration
 const config = {
     verbose: true,
@@ -448,5 +451,7 @@ module.exports = {
     getDate,
     personName,
     setHtmlLangAttribute,
-    detectAndSetLang
+    detectAndSetLang,
+    functionA,
+    functionB
 };

@@ -5,7 +5,7 @@
 // (This comment remains as-is)
 // TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport } = require('./utilities');
+const { createWebResourceButton, validateAccessibilityReport } = require('./utilities');
 const main = require('./utilities');
 
 const http = require('http');

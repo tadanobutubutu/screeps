@@ -2,11 +2,27 @@
  * Main entry point for the application
  */
 
+// Helper function to check if a link is accessible
+function checkLinkAccessibility(linkUrl) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  return fetch(linkUrl, { method: 'HEAD', signal: controller.signal })
+    .then(response => {
+      clearTimeout(timeout);
+      return response.ok;
+    })
+    .catch(() => {
+      clearTimeout(timeout);
+      return false;
+    });
+}
+
 // Function to create in-page buttons
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
-  button.addEventListener('click', onClickHandler);
+  button.onclick = onClickHandler;
   return button;
 }
 
@@ -15,9 +31,9 @@ function createInPageButton(buttonText, onClickHandler) {
 
 // Example usage (if needed):
 // const btn = createInPageButton('Click Me', () => console.log('Clicked'));
-// document.body.appendChild(btn);
+// ...
 
-export { createInPageButton };
+export { createInPageButton, checkLinkAccessibility };
 
 function generateAccessibilityReport(issuesData) {
   const analyzedIssues = analyzeAccessibility(issuesData); // presume this function is already defined

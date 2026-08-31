@@ -103,6 +103,29 @@ function ensureUniqueLandmarks(landmarksArray) {
   });
 }
 
+// New function for creating in-page buttons
+function createInPageButtons(buttonsData) {
+  const buttonsContainer = document.getElementById('in-page-buttons-container');
+
+  if (!buttonsContainer) {
+    console.error('In-page buttons container not found');
+    return;
+  }
+
+  buttonsData.forEach(buttonData => {
+    const button = document.createElement('button');
+    button.id = buttonData.id;
+    button.textContent = buttonData.text;
+    button.setAttribute('data-role', buttonData.role);
+
+    button.addEventListener('click', () => {
+      location.hash = buttonData.href;
+    });
+
+    buttonsContainer.appendChild(button);
+  });
+}
+
 // ... (previous and updated code remains as it is)
 
 // Updated function: ensures landmarks uniqueness when there's an array structure
@@ -150,5 +173,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  createInPageButtons // Added new export
 };

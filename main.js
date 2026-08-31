@@ -1,3 +1,6 @@
+// TODO: Add back any required exports that might have been?
+// (This comment remains as-is)
+
 // Importing the necessary functions
 import { getLangAttribute, createInPageButton, getFullLangAttribute } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure, addScopeToTableHeaderCells } from './utils/tableAccessibilityUtils';
@@ -550,5 +553,37 @@ export {
   renderFooter,
   renderProductCard,
   state,
-  updateState
+  updateState,
+  debounce,
+  throttle,
+  isEmpty,
+  capitalize,
+  getRandomInt,
+  clamp,
+  deepClone,
+  generateId,
+  safeJsonParse,
+  handleKeyboardNavigation,
+  handleKeyboard,
+  trapFocus,
+  createAnnouncer,
+  prefersReducedMotion,
+  createLandmarkId,
+  ensureUniqueLandmarkId,
+  addAriaLabel,
+  addLangAttribute,
+  handleReact015,
+  handleReact017AndReact025,
+  handleReact041,
+  handleReact036,
+  ensureElementHasId,
+  addAriaLabelById,
+  generateAccessibilityReport,
+  getDocument,
+  ensureUniqueLandmarks,
+  harvest,
+  upgradeController,
+  initializeAccessibility,
+  ensureDependencyGraphARIA,
+  isInViewport
 };

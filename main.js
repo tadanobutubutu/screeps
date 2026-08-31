@@ -200,6 +200,16 @@ const createInPageButton = (text, url) => {
 };
 
 // New function to validate link accessibility and handle fake links
+const createInPageButton = (text, url) => {
+  const button = document.createElement('a');
+  button.textContent = text;
+  button.setAttribute('href', url);
+  button.style.display = 'none';
+  document.body.appendChild(button);
+  return button;
+};
+
+// New function to validate link accessibility and handle fake links
 const validateLinkAccessibility = () => {
   const links = document.getElementsByTagName('a');
   for (let i = 0; i < links.length; i++) {
@@ -235,7 +245,7 @@ function validateLandmark(element) {
   const tagName = element.tagName.toLowerCase();
   
   if (role && !validLandmarks.includes(role)) {
-    errors.push(`Invalid landmark role: ${role}`);
+    errors.push(`Element has invalid landmark role: ${role}`);
   }
   
   if (!role && !validLandmarks.includes(tagName)) {
@@ -356,11 +366,11 @@ function ensureUniqueLandmarks() {
     
     // main landmarks should be unique
     if (identifier === 'main' || identifier === 'MAIN') {
-      if (landmarkCounts[identifier]) {
-        landmarkCounts[identifier]++;
-        errors.push(`Duplicate main landmark found (${landmarkCounts[identifier]})`);
+      if (landmarkCounts['main']) {
+        landmarkCounts['main']++;
+        errors.push(`Duplicate main landmark found (${landmarkCounts['main']})`);
       } else {
-        landmarkCounts[identifier] = 1;
+        landmarkCounts['main'] = 1;
       }
     }
   });
@@ -567,7 +577,7 @@ function checkLinkAndButtonAccessibility() {
     return [];
   }
   
-  const issues = [];
+  const issues = [];;
 
   const links = document.querySelectorAll('a');
   links.forEach((link, index) => {

@@ -22,4 +22,14 @@ Main.propTypes = {
 // Adding the missing required exports
 export { Main, PropTypes };
 
+// Function to count dependencies
+const countDependencies = (dependencies) => {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0;
+  }
+  return Object.keys(dependencies).length;
+};
+
+export { countDependencies };
+
 export default Main;

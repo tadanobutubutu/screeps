@@ -1,8 +1,5 @@
-// Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
-
-// Existing rendering functions (preserving existing exports and functions)
 
 /**
  * Renders the dependency graph view
@@ -11,7 +8,6 @@ const { indexContent } = require('./indexContent');
  * @returns {string} Rendered dependency graph HTML
  */
 function renderDependencyGraph(deps, options = {}) {
-  // Use dependencyGraphContent from the imported module
   return dependencyGraphContent(deps, options);
 }
 
@@ -22,7 +18,6 @@ function renderDependencyGraph(deps, options = {}) {
  * @returns {string} Rendered index HTML
  */
 function renderIndex(data, options = {}) {
-  // Use indexContent from the imported module
   return indexContent(data, options);
 }
 
@@ -55,16 +50,20 @@ function wrapPrimaryContentInMain() {
     return null;
   }
 
-  let mainElement = document.querySelector('main');
+  let mainElement = document.querySelector('main, [role="main"]');
   if (mainElement) {
     return mainElement;
   }
 
   const elementsToExclude = [];
-  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll(
+    'header, nav, aside, footer, ' +
+    '[role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]'
+  );
   landmarks.forEach(landmark => elementsToExclude.push(landmark));
 
   mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
 
   const bodyChildren = Array.from(document.body.children);
   bodyChildren.forEach(child => {
@@ -89,11 +88,9 @@ function ensureUniqueLandmarks() {
   }
 }
 
-// Preserve all existing exports
 module.exports = {
   renderDependencyGraph,
   renderIndex,
-  // Preserve any other existing exports here
   newFunction,
   checkLandmarkElement,
   wrapPrimaryContentInMain,

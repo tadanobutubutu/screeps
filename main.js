@@ -13,7 +13,7 @@ const accessibilityUtils = {
     if (skipLink) {
       skipLink.addEventListener('click', function(e) {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const target = document.getElementById(skipLink.getAttribute('href').slice(1));
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -25,7 +25,7 @@ const accessibilityUtils = {
   // Trap focus within an element (for modals, dialogs)
   trapFocus: function(element) {
     const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
     );
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
@@ -33,11 +33,11 @@ const accessibilityUtils = {
     element.addEventListener('keydown', function(e) {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
           e.preventDefault();
+          firstElement.focus();
         }
       }
     });
@@ -156,7 +156,7 @@ const exportUtils = {
 
   exportToJSON: function(data, filename) {
     const jsonString = JSON.stringify(data, null, 2);
-    exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
+    this.exportData(jsonString, filename || 'export.json', 'application/json');
   },
 
   exportToCSV: function(data, filename) {
@@ -178,16 +178,17 @@ const exportUtils = {
     }
     
     const csvString = csvRows.join('\n');
-    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
+    this.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
 };
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-z0-9_.-]/gi, '_');
+  return filename.replace(/[^a-z0-9.-]/gi, '_');
 }
 
 function readFileSafe(filePath) {
   try {
+    const fs = require('fs');
     return fs.readFileSync(filePath, 'utf8');
   } catch (error) {
     log('Error reading file ' + filePath + ': ' + error.message, 'error');
@@ -228,7 +229,7 @@ function initAccessibility() {
   accessibilityUtils.initSkipLink();
   
   // Add keyboard support for all interactive elements
-  const elements = document.querySelectorAll('[data-accessible]');
+  const elements = document.querySelectorAll('button, a, [role="button"]');
   for (let i = 0; i < elements.length; i++) {
     const element = elements[i];
     element.addEventListener('keydown', function(e) {
@@ -317,5 +318,12 @@ module.exports = {
   ensureElementId: ensureElementId,
   addAriaLabel: addAriaLabel,
   renderDependencyGraph: renderDependencyGraph,
-  calculateSum: calculateSum
+  calculateSum: calculateSum,
+  log: log,
+  sanitizeFilename: sanitizeFilename,
+  readFileSafe: readFileSafe,
+  processData: processData,
+  filterValidItems: filterValidItems,
+  groupByCategory: groupByCategory,
+  transformInputData: transformInputData
 };

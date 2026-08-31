@@ -25,6 +25,11 @@ const accessibilityUtils = {
     });
   },
 
+  // NEW: Focus trap for keyboard navigation
+  newFocusTrap: (element) => {
+    accessibilityUtils.trapFocus(element);
+  },
+
   // Announce message to screen readers
   announceToScreenReader: (message, priority = 'polite') => {
     const announcer = document.createElement('div');
@@ -441,6 +446,7 @@ module.exports = {
   validateLinkAccessibility: accessibilityUtils.validateLinkAccessibility,
   handleFakeLinks: accessibilityUtils.handleFakeLinks,
   addProperLandmarkRegions: accessibilityUtils.addProperLandmarkRegions,
+  newFocusTrap: accessibilityUtils.newFocusTrap,
 
   // Export accessibility utils for direct access
   accessibilityUtils: accessibilityUtils,

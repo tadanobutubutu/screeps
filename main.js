@@ -1,13 +1,34 @@
 const main = require('./utilities');
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport, validateTableStructure, getSvgAccessibleName, getLangAttribute, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap } = require('./utilities');
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap
+} = main;
 
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
+const { functionA, functionB } = require('./functionModule');
+
 const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
 
 const http = require('http');
 const url = require('url');
-const { functionA, functionB } = require('./functionModule');
 
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
@@ -233,6 +254,8 @@ const a11yStore = {
   prefersHighContrast() {
     return window.matchMedia('(prefers-contrast: more)').matches;
   },
+
+  focusTrap: focusTrap,
 
   updateLiveRegion(message, priority = 'polite') {
     if (!this.liveRegion) this.createLiveRegion();

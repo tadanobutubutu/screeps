@@ -20,7 +20,7 @@ function newFunction() {
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssues, fixFakeLinkIssues)
 // - REACT_037: Google sign-in logic (DONE: googleSignIn)
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphAriaRole)
+// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: fixDependencyGraphAccessibility)
 
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
@@ -108,7 +108,7 @@ function ensureUniqueLandmarks(doc) {
   const landmarks = doc.querySelectorAll('[role], header, nav, main, aside, footer');
   const seen = new Map();
   const duplicates = [];
-  
+
   landmarks.forEach((el) => {
     const role = el.getAttribute('role') || el.tagName.toLowerCase();
     if (seen.has(role)) {
@@ -121,7 +121,7 @@ function ensureUniqueLandmarks(doc) {
       seen.set(role, el);
     }
   });
-  
+
   return duplicates;
 }
 
@@ -224,7 +224,7 @@ function googleSignIn(options = {}) {
         button.textContent = 'Sign in with Google';
       }
     }
-    
+
     // Proceed with sign-in logic
     if (typeof google !== 'undefined' && google.accounts) {
       google.accounts.id.initialize(options);
@@ -274,6 +274,24 @@ function ensureDependencyGraphAriaRole(doc) {
   return container;
 }
 
+/**
+ * Fix dependencyGraph accessibility by ensuring it has proper ARIA role
+ * @param {Document} doc - The document object
+ * @returns {Element|null} The dependencyGraph container with proper ARIA role
+ */
+function fixDependencyGraphAccessibility(doc) {
+  const container = doc.querySelector('#dependencyGraph, .dependency-graph, [data-dependency-graph]');
+  if (container) {
+    if (!container.getAttribute('role')) {
+      container.setAttribute('role', 'region');
+    }
+    if (!container.getAttribute('aria-label')) {
+      container.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
+  return container;
+}
+
 // Export all functions
 export {
   addLangAttribute,
@@ -290,6 +308,7 @@ export {
   googleSignIn,
   fixButtonIdentifiers,
   ensureDependencyGraphAriaRole,
+  fixDependencyGraphAccessibility,
   newExportedFunction,
   newFunction
 };

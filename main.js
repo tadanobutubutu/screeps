@@ -37,6 +37,16 @@ module.exports = function() {
 
     // New: Check link accessibility
     checkLinkAccessibility();
+
+    // Update the existing function using the new functions for rendering graph/index
+    // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+    function renderGraphIndex() {
+        // Assuming the function is responsible for rendering the graph/index page
+        const doc = getDocument();
+        if (doc) {
+            addressAccessibilityIssues(doc);
+        }
+    }
 };
 
 function checkLinkAccessibility() {

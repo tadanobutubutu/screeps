@@ -1,4 +1,11 @@
-import react from 'react';
+import React from 'react';
+import express from 'express';
+import path from 'path';
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import { isSecureContext } from './utils.js';
+
 // Existing code starts here
 
 // This is the existing code that needs to be preserved
@@ -81,7 +88,23 @@ function validateInput(input) {
 
 // Language attribute functions
 function getLangAttribute() {
+  if (typeof document !== 'undefined') {
+    return document.documentElement.getAttribute('lang') || 'en';
+  }
   return 'en';
+}
+
+// Utility functions
+function function1() {
+  return 'Hello from function1';
+}
+
+function function2(param) {
+  return param * 2;
+}
+
+function function3() {
+  return 'function3 implemented';
 }
 
 function addLangAttribute(element) {
@@ -98,22 +121,22 @@ function setLanguageAttribute() {
 
 // Function to add landmark roles to main containers
 function addLandmarkRoles() {
-  const mainElement = ...
-  if (mainElement && ... {
+  const mainElement = document.querySelector('main');
+  if (mainElement) {
     mainElement.setAttribute('role', 'main');
   }
   
-  const navElement = ...
-  if (navElement && ... {
-    ... 'navigation');
+  const navElement = document.querySelector('nav');
+  if (navElement) {
+    navElement.setAttribute('role', 'navigation');
   }
 }
 
 // Function to fix fake links (links without href)
 function fixFakeLinks() {
-  const fakeLinks = ...
+  const fakeLinks = document.querySelectorAll('a[rel="nofollow"]');
   fakeLinks.forEach(link => {
-    if ... {
+    if (link.hasAttribute('href')) {
       link.setAttribute('role', 'button');
     }
   });
@@ -139,7 +162,13 @@ function fixTableStructure() {
 
 // Landmark functions
 function addMainLandmark() {
-  console.log('Adding main landmark');
+  if (typeof document !== 'undefined') {
+    const existingMain = document.querySelector('main');
+    if (!existingMain) {
+      const mainElement = document.createElement('main');
+      document.body.insertBefore(mainElement, document.body.firstChild);
+    }
+  }
 }
 
 function validateLandmark() {
@@ -166,10 +195,9 @@ function getSvgAccessibleName() {
   return 'Accessible SVG Icon';
 }
 
-function setSvgAttributes(svg, accessibleName) {
+function setAndGetImageAlt(svg, accessibleName) {
   if (svg && typeof svg === 'object') {
-    svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', accessibleName || '');
+    svg.setAttribute('alt', accessibleName || '');
   }
   return svg;
 }
@@ -182,7 +210,9 @@ function ensureUniqueLandmarks() {
 
 // Button creation function
 function createInPageButton() {
-  console.log('Creating in-page button');
+  const button = document.createElement('button');
+  button.setAttribute('lang', getLangAttribute());
+  return button;
 }
 
 // Link accessibility functions
@@ -215,266 +245,4 @@ function renderGraph(container, options = {}) {
   
   const graphElement = document.createElement('div');
   graphElement.className = 'graph-renderer';
-  graphElement.setAttribute('role', 'img');
-  graphElement.setAttribute('aria-label', options.title || 'Data visualization graph');
-  
-  graphElement.style.width = `${width}px`;
-  graphElement.style.height = `${height}px`;
-  
-  if (data) {
-    graphElement.setAttribute('data-graph-data', JSON.stringify(data));
-  }
-  
-  graphContainer.appendChild(graphElement);
-  
-  console.log('Graph rendered with options:', options);
-  
-  return graphElement;
-}
-
-function renderIndex(container, options = {}) {
-  const { items = [], columns = 3 } = options;
-  
-  if (!container) {
-    console.error('Index container not provided');
-    return null;
-  }
-  
-  const indexContainer = typeof container === 'string' 
-    ? document.querySelector(container) 
-    : container;
-  
-  if (!indexContainer) {
-    console.error('Index container element not found');
-    return null;
-  }
-  
-  const indexElement = document.createElement('div');
-  indexElement.className = 'index-renderer';
-  indexElement.setAttribute('role', 'list');
-  indexElement.setAttribute('aria-label', options.title || 'Index listing');
-  
-  indexElement.style.display = 'grid';
-  indexElement.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
-  
-  items.forEach((item, index) => {
-    const itemElement = document.createElement('div');
-    itemElement.className = 'index-item';
-    itemElement.setAttribute('role', 'listitem');
-    itemElement.textContent = item.label || item.name || `Item ${index + 1}`;
-    indexElement.appendChild(itemElement);
-  });
-  
-  indexContainer.appendChild(indexElement);
-  
-  console.log('Index rendered with', items.length, 'items');
-  
-  return indexElement;
-}
-
-function updateGraph(element, newData) {
-  if (!element) {
-    console.error('Graph element not provided for update');
-    return false;
-  }
-  
-  if (newData) {
-    element.setAttribute('data-graph-data', JSON.stringify(newData));
-  }
-  
-  console.log('Graph updated with new data');
-  return true;
-}
-
-function updateIndex(element, newItems) {
-  if (!element) {
-    console.error('Index element not provided for update');
-    return false;
-  }
-  
-  if (!Array.isArray(newItems)) {
-    console.error('Invalid items provided for index update');
-    return false;
-  }
-  
-  // Clear existing items
-  while (element.firstChild) {
-    element.removeChild(element.firstChild);
-  }
-  
-  // Add new items
-  newItems.forEach((item, index) => {
-    const itemElement = document.createElement('div');
-    itemElement.className = 'index-item';
-    itemElement.setAttribute('role', 'listitem');
-    itemElement.textContent = item.label || item.name || `Item ${index + 1}`;
-    element.appendChild(itemElement);
-  });
-  
-  console.log('Index updated with', newItems.length, 'items');
-  return true;
-}
-
-// Address accessibility issues from insight report
-function addressAccessibilityIssues(insightReport) {
-  // This addresses issues from the insight report:
-  // - REACT_015: Add lang attribute to HTML element
-  // - REACT_027: Fix 26 table structure issues
-  // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs
-  // - REACT_025: Ensure unique landmarks (2 issues)
-  // - REACT_036: Fix 1 fake link issue
-
-  if (!insightReport || !insightReport.issues) {
-    return;
-  }
-
-  // Address accessibility issues from insight report
-  ... {
-    switch (issue.type) {
-      case 'REACT_015':
-        // Add lang attribute to HTML element
-        if (issue.element) {
-          ...
-        }
-        break;
-      case 'REACT_027':
-        // Fix table structure issues
-        if (issue.subtype === 'structure') {
-          validateTableStructure();
-          ...
-        } else {
-          validateTableAccessibility();
-        }
-        break;
-      case 'REACT_017':
-        // Add/fix landmark issues
-        addMainLandmark();
-        validateLandmark();
-        ...
-        ...
-        addLandmarkRegions();
-        break;
-      case 'REACT_041':
-        // Add accessible names to SVGs
-        if (issue.element) {
-          setSvgAttributes(issue.element, issue.accessibleName || getSvgAccessibleName());
-        }
-        break;
-      case 'REACT_025':
-        // Ensure unique landmarks
-        ensureUniqueLandmarks();
-        break;
-      case 'REACT_036':
-        // Fix fake link issue
-        handleFakeLinks();
-        ...
-        break;
-      default:
-        console.log('Unknown issue type:', issue.type);
-    }
-  });
-}
-
-function getInsightReport() {
-  const issues = [];
-  
-  // Check for lang attribute on HTML element
-  const langAttribute = getLangAttribute();
-  if (!langAttribute) {
-    issues.push({
-      type: 'REACT_015',
-      description: 'HTML element is missing lang attribute',
-      severity: 'critical',
-      element: 'html'
-    });
-  }
-  
-  // Check table accessibility
-  const tableAccessibilityIssues = validateTableAccessibility();
-  if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
-    ... {
-      issues.push({
-        type: 'REACT_027',
-        subtype: 'accessibility',
-        description: issue.description || 'Table accessibility issue',
-        severity: issue.severity || 'high',
-        element: issue.element,
-        table: issue.table
-      });
-    });
-  }
-  
-  // Check table structure
-  const tableStructureIssues = validateTableStructure();
-  if (tableStructureIssues && tableStructureIssues.length > 0) {
-    ... {
-      issues.push({
-        type: 'REACT_027',
-        subtype: 'structure',
-        description: issue.description || 'Table structure issue',
-        severity: issue.severity || 'high',
-        element: issue.element,
-        table: issue.table
-      });
-    });
-  }
-  
-  // Check landmark issues
-  const landmarkIssues = validateLandmark();
-  if (landmarkIssues && landmarkIssues.length > 0) {
-    ... {
-      issues.push({
-        type: 'REACT_017',
-        description: issue.description || 'Landmark issue',
-        severity: issue.severity || 'medium',
-        element: issue.element,
-        landmark: issue.landmark
-      });
-    });
-  }
-  
-  // Check landmark structure
-  const landmarkStructureIssues = ...
-  if (landmarkStructureIssues && ... > 0) {
-    ... {
-      issues.push({
-        type: 'REACT_017',
-        structure: true,
-        description: issue.description || 'Landmark structure issue',
-        severity: issue.severity || 'medium',
-        element: issue.element,
-        landmark: issue.landmark
-      });
-    });
-  }
-  
-  // Check landmark attributes
-  const landmarkAttributeIssues = validateLandmarkAttributes();
-  if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
-    landmarkAttributeIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_017',
-        description: issue.description || 'Landmark attribute issue',
-        severity: issue.severity || 'low',
-        element: issue.element,
-        landmark: issue.landmark
-      });
-    });
-  }
-  
-  // Check SVG accessibility
-  const svgAccessibleNames = [];
-  if (svgAccessibleNames && svgAccessibleNames.length > 0) {
-    svgAccessibleNames.forEach(function(svg) {
-      issues.push({
-        type: 'REACT_041',
-        description: 'SVG is missing accessible name',
-        severity: 'medium',
-        svg: svg
-      });
-    });
-  }
-  
-  return issues;
-}
+  graphElement.setAttribute('role', 'img

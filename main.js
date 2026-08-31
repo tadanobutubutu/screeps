@@ -7,7 +7,7 @@ const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUnique
 module.exports = {
   ...main,
 
-  // TODO: Address accessibility issues from insight report
+  // Address accessibility issues from insight report
   addressAccessibilityIssues: (container) => {
     const fixes = {
       langAdded: false,
@@ -19,7 +19,7 @@ module.exports = {
 
     // Add lang attribute to HTML element if missing
     const htmlElement = container.querySelector('html') || document.documentElement;
-    const langAttr = getLangAttribute(htmlElement);
+    const langAttr = addLangAttribute(htmlElement);
     if (!langAttr) {
       htmlElement.setAttribute('lang', 'en');
       fixes.langAdded = true;
@@ -28,47 +28,27 @@ module.exports = {
     // Add main landmark if missing
     const mainElement = container.querySelector('main');
     if (!mainElement) {
-      const body = container.querySelector('body');
-      if (body) {
-        const newMain = document.createElement('main');
-        while (body.firstChild) {
-          newMain.appendChild(body.firstChild);
-        }
-        body.appendChild(newMain);
-        fixes.mainLandmarkAdded = true;
-      }
+      addMainLandmark(container);
+      fixes.mainLandmarkAdded = true;
     }
 
     // Fix landmark issues
-    const landmarkFixes = validateLandmark(container);
+    const landmarkFixes = fixLandmarkIssues(container);
     if (landmarkFixes && landmarkFixes.length > 0) {
       fixes.landmarksFixed = landmarkFixes.length;
     }
-    const landmarkStructureFixes = validateLandmarkStructure(container);
-    if (landmarkStructureFixes && landmarkStructureFixes.length > 0) {
-      fixes.landmarksFixed += landmarkStructureFixes.length;
-    }
 
     // Fix SVG accessible names
-    const svgElements = container.querySelectorAll('svg');
-    svgElements.forEach(svg => {
-      const accessibleName = getSvgAccessibleName(svg);
-      if (accessibleName && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-        svg.setAttribute('aria-label', accessibleName);
-        fixes.svgNamesAdded++;
-      }
-    });
+    const svgFixes = addAccessibleNamesToSVGs(container);
+    if (svgFixes && svgFixes > 0) {
+      fixes.svgNamesAdded = svgFixes;
+    }
 
     // Fix fake link issues (elements that look like links but are missing href)
-    const fakeLinks = container.querySelectorAll('a:not([href])');
-    fakeLinks.forEach(link => {
-      const style = window.getComputedStyle(link);
-      if (style.cursor === 'pointer' || link.hasAttribute('onclick')) {
-        link.setAttribute('role', 'link');
-        link.setAttribute('tabindex', '0');
-        fixes.fakeLinksFixed++;
-      }
-    });
+    const fakeLinkFixes = fixFakeLinkIssues(container);
+    if (fakeLinkFixes && fakeLinkFixes > 0) {
+      fixes.fakeLinksFixed = fakeLinkFixes;
+    }
 
     // Validate accessibility report
     const report = validateAccessibilityReport(container);
@@ -89,14 +69,14 @@ module.exports = {
       log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
     }
 
-    const svgFixes = fixes.svgNamesAdded || 0;
-    if (svgFixes > 0) {
-      log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
+    const svgFixesCount = fixes.svgNamesAdded || 0;
+    if (svgFixesCount > 0) {
+      log(`Fixed accessible names for ${svgFixesCount} SVGs`, 'info');
     }
 
-    const fakeLinkFixes = fixes.fakeLinksFixed || 0;
-    if (fakeLinkFixes > 0) {
-      log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
+    const fakeLinkFixesCount = fixes.fakeLinksFixed || 0;
+    if (fakeLinkFixesCount > 0) {
+      log(`Fixed fake link issues for ${fakeLinkFixesCount} elements`, 'info');
     }
 
     return fixes;
@@ -170,30 +150,30 @@ module.exports = {
     });
   },
 
-  // TODO: Import the new function to create a button with correct accessibility properties for in-page linking
+  // Import the new function to create a button with correct accessibility properties for in-page linking
   createInPageButton: createInPageButton,
 
-  // TODO: Create a utility function to create a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
+  // Create a utility function to create a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
   createWebResourceButton: createWebResourceButton,
 
-  // TODO: Validate the table structure for accessibility issues
+  // Validate the table structure for accessibility issues
   validateTableAccessibility,
   validateTableStructure,
 
-  // TODO: Validate the landmark structure for accessibility issues
+  // Validate the landmark structure for accessibility issues
   validateLandmark,
   validateLandmarkStructure,
 
-  // TODO: Extract the accessible name for an SVG from its content
+  // Extract the accessible name for an SVG from its content
   getSvgAccessibleName,
 
-  // TODO: Add a language attribute to the HTML element
+  // Add a language attribute to the HTML element
   getLangAttribute,
 
-  // TODO: Validate the accessibility report for issues
+  // Validate the accessibility report for issues
   validateAccessibilityReport,
 
-  // TODO: Address new accessibility issues from insight report ( implement new functions and fixes as needed)
+  // Address new accessibility issues from insight report ( implement new functions and fixes as needed)
 
   // Credential response handling
   async handleCredentialResponse(response) {

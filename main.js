@@ -1,3 +1,5 @@
+// main.js
+
 const main = require('./utilities');
 const accessibilityUtils = {
   // ... existing accessibilityUtils implementation
@@ -53,6 +55,11 @@ const a11yStore = {
   newFocusTrap: newFocusTrap,
   addressAccessibilityIssues: addressAccessibilityIssues
 };
+
+// Initialize wrapPrimaryContentInMain on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  wrapPrimaryContentInMain();
+});
 
 // Import all utilities functions for convenience (merged from both branches)
 

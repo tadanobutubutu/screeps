@@ -57,6 +57,55 @@ function fixFakeLinkIssue() {
   // Implementation for fixing fake link issue
 }
 
+// Utility function to create a web resource button suitable for accessibility
+function createWebResourceButton(options) {
+  const { type, label, url, icon, target = '_blank' } = options;
+  
+  // Create button element
+  const button = document.createElement('button');
+  
+  // Set accessibility attributes
+  button.setAttribute('type', 'button');
+  button.setAttribute('aria-label', label || `${type} link`);
+  button.setAttribute('role', 'link');
+  button.setAttribute('tabindex', '0');
+  
+  // Set the URL for the link behavior
+  button.setAttribute('data-url', url || '#');
+  
+  // Add accessible name and icon
+  if (icon) {
+    button.innerHTML = icon;
+    // Add screen reader only text for accessibility
+    const srSpan = document.createElement('span');
+    srSpan.className = 'sr-only';
+    srSpan.textContent = label || `${type} link`;
+    button.appendChild(srSpan);
+  } else {
+    button.textContent = label || type;
+  }
+  
+  // Handle click to navigate
+  const handleClick = function() {
+    const targetUrl = button.getAttribute('data-url');
+    if (targetUrl && targetUrl !== '#') {
+      window.open(targetUrl, target, 'noopener,noreferrer');
+    }
+  };
+  
+  button.addEventListener('click', handleClick);
+  
+  // Handle keyboard activation (Enter and Space)
+  button.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleClick();
+    }
+  });
+  
+  return button;
+}
+
 // Call the new functions as needed, for example:
 addLangAttribute();
 // fixTableStructure();
@@ -87,5 +136,6 @@ module.exports = {
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   handleCredentialResponse,
+  createWebResourceButton,
   // Add any additional exports as required by tests
 };

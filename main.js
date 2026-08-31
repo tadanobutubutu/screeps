@@ -3,6 +3,12 @@ const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
 const { spawn } = require('child_process');
 
+// Application data store
+let appData = {
+  tables: [],
+  config: {}
+};
+
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report:
 // ... (Removed hashes for ease of reading)
@@ -39,6 +45,41 @@ const accessibilityUtils = {
     }
   }
 };
+
+/**
+ * Initialize accessibility features for the application
+ * @returns {Object} Object containing initialized accessibility utilities and status
+ */
+function initAccessibility() {
+  // Set lang attribute on html element if not set
+  if (document.documentElement.lang === undefined || document.documentElement.lang === '') {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+
+  // Add skip link for keyboard navigation
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.className = 'sr-only';
+  skipLink.textContent = 'Skip to main content';
+  skipLink.addEventListener('focus', () => {
+    skipLink.classList.remove('sr-only');
+  });
+  skipLink.addEventListener('blur', () => {
+    skipLink.classList.add('sr-only');
+  });
+  document.body.insertBefore(skipLink, document.body.firstChild);
+
+  // Initialize focus trap for modals and dialogs
+  const focusableModal = document.querySelector('[role="dialog"], [role="alertdialog"]');
+  if (focusableModal) {
+    accessibilityUtils.focusTrap = focusTrap;
+  }
+
+  return {
+    utils: accessibilityUtils,
+    initialized: true
+  };
+}
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
@@ -348,5 +389,15 @@ module.exports = {
   renderDependencyGraphs,
   spawnProcess,
   focusTrap,
-  newFocusTrap
+  newFocusTrap,
+  getTables,
+  getConfig,
+  setConfig,
+  validateTableAccessibility,
+  sanitizeFilename,
+  readFileSafe,
+  log,
+  appData,
+  dependencyGraphContent,
+  indexContent
 };

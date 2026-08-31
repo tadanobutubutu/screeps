@@ -57,6 +57,20 @@ function addLandmarkRoles(insightReport) {
   });
 }
 
+// New function for creating in-page buttons
+function createInPageButtons(buttonElements, containerSelector) {
+  const container = document.querySelector(containerSelector);
+  if (container) {
+    buttonElements.forEach(button => {
+      const newButton = document.createElement('button');
+      newButton.textContent = button.textContent;
+      newButton.setAttribute('id', button.id);
+      newButton.setAttribute('role', 'button');
+      container.appendChild(newButton);
+    });
+  }
+}
+
 // Address other insight report issues
 function fixLandmarkIssues(insightReport) {
   const issues = insightReport.issues || [];
@@ -245,6 +259,13 @@ function implementNewFunction() {
   fixTableHeaderCellScope();
   // Note: fixUniqueLandmarks requires an insightReport parameter, so we call it with an empty object
   fixUniqueLandmarks({ issues: [] });
+  // TODO: Implement this function for creating in-page buttons
+  const buttonElements = [ // Add the elements you want to convert to buttons
+    { textContent: 'Button 1', id: 'button1' },
+    { textContent: 'Button 2', id: 'button2' },
+    // ...
+  ];
+  createInPageButtons(buttonElements, '.container'); // Modify the containerSelector based on the target container
 }
 
 // Function to improve accessibility based on insight report
@@ -302,7 +323,8 @@ module.exports = {
   someFunction,
   addressAccessibilityIssues,
   renderDependencyGraphContent,
-  fixUniqueLandmarks
+  createInPageButtons,
+  fixUniqueLandmarks // Add the createInPageButtons and fixUniqueLandmarks functions to the exports
 };
 
 // Execute main function

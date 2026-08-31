@@ -95,6 +95,8 @@ function detectAndSetLang(content) {
   return lang;
 }
 
+// TODO: Any additional changes requested in the issue should be added after this function
+
 /**
  * Improves keyboard navigation for accessibility
  */

@@ -1,12 +1,78 @@
-Here is the resolved file content:
-
-```javascript
 const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000,
   debug: true,
   version: '1.0.0'
 };
 
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
+};
+
+function validateLandmark(landmark) {
+  const errors = [];
+
+  if (!landmark) {
+    errors.push('Landmark is required');
+    return { valid: false, errors };
+  }
+
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
+  }
+
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+
+  if (Array.isArray(landmark)) {
+    landmark.forEach((innerLandmark, index) => {
+      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+        errors.push(`Landmark at index ${index} must have a valid name`);
+      }
+    });
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+function ensureLandmarkUniqueness(elements) {
+  const elementsById = {};
+
+  if (Array.isArray(elements)) {
+    for (const landmark of elements) {
+      if (landmark.id) {
+        if (elementsById[landmark.id]) {
+          landmark.id += '_duplicate';
+        } else {
+          elementsById[landmark.id] = true;
+        }
+      }
+    }
+  }
+
+  return elements;
+}
+
 function initializeApp() {
+  appState.initialized = true;
   console.log('Initializing application...');
   return true;
 }
@@ -19,69 +85,107 @@ function generateKey(book) {
   return book.id || `${book.title}-${book.author}`;
 }
 
-function BookItem({ book }) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        description={`by ${book.author}`}
-      />
-    </List.Item>
-  );
+async function makeApiCall(url, options = {}) {
+  try {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('API call failed:', error);
+    throw error;
+  }
 }
 
-function BookForm() {
-  const dispatch = useDispatch();
-
-  // Define state for the form inputs
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-
-  // Handle input changes
-  const handleTitleChange = (e) => setTitle(e.target.value);
-  const handleAuthorChange = (e) => setAuthor(e.target.value);
-
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Perform any necessary validation or processing before adding the book
-    // ...
-
-    // Dispatch an action to add the book to the books list in the Redux store
-    dispatch({ type: 'ADD_BOOK', payload: { title, author } });
-  };
+function processData(data) {
+  if (!validateInput(data)) {
+    throw new Error('Invalid input data');
+  }
+  return {
+    processed: true,
+    data: data,
+    timestamp: Date.now()
 
   const validateInput = (input) => input !== null && input !== undefined;
 
-  // TODO: Implement your logic after the existing code
-  async function makeApiCall(url, options = {}) {
-    try {
-      const response = await fetch(url, options);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('API call failed:', error);
-      throw error;
-    }
-  }
+  const BookItem = ({ book }) => {
+    return (
+      <List.Item key={generateKey(book)}>
+        <List.Item.Meta
+          title={book.title}
+          description={`by ${book.author}`}
+        />
+      </List.Item>
+    );
+  };
 
-  // Now produce the final output: either the updated file or the fallback with the new function added.
-  const finalContent = currentContent
-    ? currentContent.replace(
-        /TODO: Implement this new function for making API calls/,
-        `\n\nasync function makeApiCall(url, options = {}) {\n  try {\n    const response = await fetch(url, options);\n    if (!response.ok) {\n      throw new Error(\`HTTP error! status: \${response.status}\`);\n    }\n    const data = await response.json();\n    return data;\n  } catch (error) {\n    console.error('API call failed:', error);\n    throw error;\n  }\n}`
-      )
-    : fallbackContent;
+  const BookForm = () => {
+    const dispatch = useDispatch();
 
-  finalContent;
+    // Define state for the form inputs
+    const [title, setTitle] = useState('');
+    const [author, setAuthor] = useState('');
+
+    // Handle input changes
+    const handleTitleChange = (e) => setTitle(e.target.value);
+    const handleAuthorChange = (e) => setAuthor(e.target.value);
+
+    // Handle form submission
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      // Perform any necessary validation or processing before adding the book
+      // ...
+
+      // Dispatch an action to add the book to the books list in the Redux store
+      dispatch({ type: 'ADD_BOOK', payload: { title, author } });
+    };
+
+    return (
+      <form onSubmit={handleSubmit}>
+        <Form.Item
+          label="Title"
+          required
+          validationRules={[Rules.required]}
+        >
+          <Input value={title} onChange={handleTitleChange}/>
+        </Form.Item>
+        <Form.Item
+          label="Author"
+          required
+          validationRules={[Rules.required]}
+        >
+          <Input value={author} onChange={handleAuthorChange}/>
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
+        </Form.Item>
+      </form>
+    );
+  };
+
+  return { BookForm, BookItem };
 }
 
-export default BookForm;
+if (require.main === module) {
+  main();
+  console.log('Main function executed');
+}
 
-module.exports = { initializeApp, setupHandlers, makeApiCall };
-```
-
-This updated `main.js` file incorporates functionality from both changesets while maintaining functionality and resolving the Git merge conflict. The code uses React, Redux, and AntD for the UI, and the functions for handling book items and form submission are preserved. It also introduces a new function `makeApiCall` for making API calls, which can be used to load or save book data as needed. The `config` object with the `debug` and `version` properties is also kept. The finalContent variable helps to integrate the fallback content if the current content cannot be read.
+module.exports = {
+  config,
+  appState,
+  validateLandmark,
+  ensureLandmarkUniqueness,
+  initializeApp,
+  setupHandlers,
+  validateInput,
+  processData,
+  makeApiCall,
+  BookItem,
+  BookForm,
+  main
+};

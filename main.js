@@ -1,7 +1,3 @@
-Here is the resolved file content with conflicts merged:
-
-```javascript
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
 const http = require('http');
 const url = require('url');
 
@@ -9,14 +5,24 @@ const url = require('url');
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
 const { functionA, functionB } = require('./functionModule');
+const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
+const accessibilityUtils = {
+  // ... existing accessibilityUtils implementation
+};
+const exportUtils = {
+  // ... existing exportUtils implementation
+};
 
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, renderGraphIndex, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
 
 const a11yStore = {
-  // ... existing methods ...
+  prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  },
+  newFocusTrap: newFocusTrap,
+  addressAccessibilityIssues: addressAccessibilityIssues
 };
 
 /**
@@ -110,7 +116,46 @@ function handleCredentialResponse(credentialResponse) {
     throw new Error(parsedResponse.error);
 }
 
-// ... Rest of the code remains the same ...
-
-=========================================
-```
+module.exports = {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  validateTableAccessibility,
+  validateTableStructure,
+  renderDependencyGraph,
+  renderIndex,
+  renderGraphIndex,
+  newFunction,
+  newFunction1,
+  newFunction2,
+  updateGraphRendering,
+  checkLandmarkElement,
+  wrapPrimaryContentInMain,
+  checkLandmarks,
+  ensureUniqueLandmarks,
+  handleFocusTrap,
+  revokeSession,
+  functionA,
+  functionB,
+  accessibilityUtils,
+  newFocusTrap,
+  addLangAttribute,
+  fixTableStructure,
+  addLandmarkIssues,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  validateTableAccessibilityImpl,
+  validateTableStructureImpl,
+  transformInputData,
+  setSvgAccessibleProps,
+  addAccessibleNamesToSVGs,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  addressAccessibilityIssues,
+  a11yStore
+};

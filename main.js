@@ -2,6 +2,9 @@ const main = require('./utilities');
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
 const { spawn } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const http = require('http');
 
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
@@ -87,7 +90,6 @@ function initAccessibility() {
 }
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
 const ensureElementId = (element) => {
   if (element && !element.id) {
     element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -127,9 +129,34 @@ const renderDependencyGraph = (data) => {
   };
 };
 
-function newFocusTrap() {
-  // New function implementation
-}
+// New accessibility functions implementation
+const newFocusTrap = (element) => {
+  if (!element) return;
+
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+
+  if (focusableElements.length === 0) return;
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+
+  // Focus first element when trap starts
+  firstElement.focus();
+};
 
 function spawnProcess(command, args = [], options = {}) {
   return spawn(command, args, options);
@@ -151,7 +178,7 @@ function readFileSafe(filePath) {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`${timestamp} [${level.toUpperCase()}] ${message}`);
+  console[level](`[${timestamp}] ${message}`);
 }
 
 // Export functionality with accessibility support
@@ -223,10 +250,13 @@ module.exports = {
   myNewFunction,
   calculateSum,
   ensureElementHasId,
+  ensureElementId,
   addAriaLabel,
   renderDependencyGraphs,
+  renderDependencyGraph,
   handleCredentialResponse,
   focusTrap,
+  newFocusTrap,
   addressAccessibilityIssues,
   createInPageButton,
   createWebResourceButton,
@@ -240,9 +270,6 @@ module.exports = {
   accessibilityUtils,
   exportUtils,
   initAccessibility,
-  ensureElementId,
-  renderDependencyGraph,
-  newFocusTrap,
   spawnProcess,
   getTables,
   getConfig,
@@ -252,7 +279,10 @@ module.exports = {
   log,
   appData,
   dependencyGraphContent,
-  indexContent
+  indexContent,
+  http,
+  fs,
+  path
 };
 
 // Also attach to global scope for browser/standalone access
@@ -261,10 +291,13 @@ if (typeof window !== 'undefined') {
   window.myNewFunction = myNewFunction;
   window.calculateSum = calculateSum;
   window.ensureElementHasId = ensureElementHasId;
+  window.ensureElementId = ensureElementId;
   window.addAriaLabel = addAriaLabel;
   window.renderDependencyGraphs = renderDependencyGraphs;
+  window.renderDependencyGraph = renderDependencyGraph;
   window.handleCredentialResponse = handleCredentialResponse;
   window.focusTrap = focusTrap;
+  window.newFocusTrap = newFocusTrap;
   window.addressAccessibilityIssues = addressAccessibilityIssues;
   window.createInPageButton = createInPageButton;
   window.createWebResourceButton = createWebResourceButton;
@@ -278,9 +311,6 @@ if (typeof window !== 'undefined') {
   window.accessibilityUtils = accessibilityUtils;
   window.exportUtils = exportUtils;
   window.initAccessibility = initAccessibility;
-  window.ensureElementId = ensureElementId;
-  window.renderDependencyGraph = renderDependencyGraph;
-  window.newFocusTrap = newFocusTrap;
   window.spawnProcess = spawnProcess;
   window.getTables = getTables;
   window.getConfig = getConfig;
@@ -289,4 +319,6 @@ if (typeof window !== 'undefined') {
   window.readFileSafe = readFileSafe;
   window.log = log;
   window.appData = appData;
+  window.dependencyGraphContent = dependencyGraphContent;
+  window.indexContent = indexContent;
 }

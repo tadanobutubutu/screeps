@@ -101,7 +101,7 @@ function countDependencies() {
   // Existing function implementation
 
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`];
+  const importCommentRegExp = new RegExp('/\\/\\/\\s*require\\s*\\(|import\\s+.*\\s+from\\s+[\'"]/');
   const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }

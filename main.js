@@ -1,3 +1,8 @@
+// main.js - Accessibility-focused implementation
+
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
+
 /**
  * Main application entry point
  */
@@ -131,6 +136,49 @@ function fixFakeLink() {
   });
 }
 
+function handleCredentialResponse(response) {
+    if (!response) {
+        return { success: false, error: 'No credential response provided' };
+    }
+
+    // Check if response contains expected credential data
+    const hasCredential = response.credential || response.token || response.id;
+    
+    if (!hasCredential) {
+        return { success: false, error: 'Invalid credential response format' };
+    }
+
+    // Process credential information
+    const processedCredential = {
+        id: response.id || null,
+        token: response.token || response.credential || null,
+        name: response.name || 'Anonymous User',
+        email: response.email || null,
+        success: true
+    };
+
+    // Handle different types of credential responses
+    if (response.credential) {
+        // Google Sign-In response
+        try {
+            // Credential is a base64-encoded JWT
+            const payload = JSON.parse(atob(response.credential.split('.')[1]));
+            processedCredential.id = payload.sub || processedCredential.id;
+            processedCredential.email = payload.email || processedCredential.email;
+            processedCredential.name = payload.name || processedCredential.name;
+        } catch (error) {
+            console.warn('Failed to parse credential response:', error);
+        }
+    }
+
+    // Announce success to screen readers
+    if (typeof announceToScreenReader === 'function') {
+        announceToScreenReader('User successfully authenticated');
+    }
+
+    return processedCredential;
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
@@ -142,7 +190,8 @@ module.exports = {
   addLangAttribute,
   addLandmarkRoles,
   ensureUniqueLandmarks,
-  fixFakeLink
+  fixFakeLink,
+  handleCredentialResponse
 };
 
 // Start the application if run directly

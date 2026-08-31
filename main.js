@@ -5,6 +5,9 @@ function myFunction(param1, param2) {
   // ...
 }
 
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 // REACT_027: Fix table structure issues
 function fixTableStructureIssues(document) {
   const tables = document.querySelectorAll('table');
@@ -207,6 +210,13 @@ function checkLinkAndButtonAccessibility(document) {
   });
   
   return issues;
+}
+
+// Add language attribute to html element
+function addLangAttribute(document, lang) {
+  const htmlElement = document.documentElement;
+  htmlElement.setAttribute('lang', lang);
+  return true;
 }
 
 // Main accessibility fix function

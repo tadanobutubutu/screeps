@@ -237,13 +237,35 @@ function BookItem(book) {
   );
 }
 
+// Function to handle spawning logic for a book
+function spawnBook(book) {
+  // Validate the book object exists
+  if (!book) {
+    return null;
+  }
+
+  // Ensure required fields are present, defaulting if necessary
+  const spawnedBook = {
+    id: book.id || `${book.title}-${book.author}-${Date.now()}`,
+    title: book.title || 'Untitled',
+    author: book.author || 'Unknown',
+    ...book,
+  };
+
+  return spawnedBook;
+}
+
 // Function to create a new book entry in the Redux store
 function addBook(book) {
   // Perform any necessary validation or processing before adding the book
-  // ...
+  const processedBook = spawnBook(book);
+
+  if (!processedBook) {
+    return;
+  }
 
   // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
+  dispatch({ type: 'ADD_BOOK', payload: processedBook });
 }
 
 // Function to improve accessibility for the addBook function or form

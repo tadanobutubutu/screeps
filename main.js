@@ -153,6 +153,60 @@ function initializeAccessibility() {
 }
 
 /**
+ * Generates a report based on accessibility issues
+ * @returns {Object} - Report containing accessibility issues found
+ */
+function generateAccessibilityReport() {
+  const issues = [];
+  const landmarks = document.querySelectorAll('[role="region"], [role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"]');
+  const landmarkIds = {};
+  
+  // Check for duplicate landmark IDs
+  landmarks.forEach(landmark => {
+    if (landmark.id) {
+      if (landmarkIds[landmark.id]) {
+        issues.push({
+          type: 'DUPLICATE_ID',
+          rule: 'REACT_025',
+          message: `Duplicate landmark ID found: "${landmark.id}"`,
+          element: landmark.tagName.toLowerCase()
+        });
+      } else {
+        landmarkIds[landmark.id] = true;
+      }
+    }
+  });
+  
+  // Check for landmarks without accessible names
+  landmarks.forEach(landmark => {
+    const hasLabel = landmark.getAttribute('aria-label') || 
+                     landmark.getAttribute('aria-labelledby') ||
+                     landmark.querySelector('[aria-label]') ||
+                     landmark.querySelector('[aria-labelledby]') ||
+                     landmark.querySelector('h1, h2, h3, h4, h5, h6');
+    
+    if (!hasLabel) {
+      issues.push({
+        type: 'MISSING_LABEL',
+        rule: 'ARIA_025',
+        message: `Landmark without accessible name found`,
+        element: landmark.tagName.toLowerCase()
+      });
+    }
+  });
+  
+  return {
+    timestamp: new Date().toISOString(),
+    totalIssues: issues.length,
+    issues: issues,
+    summary: {
+      duplicateIds: issues.filter(i => i.type === 'DUPLICATE_ID').length,
+      missingLabels: issues.filter(i => i.type === 'MISSING_LABEL').length
+    }
+  };
+}
+
+/**
  * Checks if a value is an empty string, null, or undefined
  * @param {*} value - The value to check
  * @returns {boolean} - True if the value is empty
@@ -227,7 +281,8 @@ if (typeof module !== 'undefined' && module.exports) {
     capitalize,
     getRandomInt,
     clamp,
-    deepClone
+    deepClone,
+    generateAccessibilityReport
   };
 }
 

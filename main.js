@@ -292,6 +292,138 @@ function addProperLandmarkRegions() {
   return results;
 }
 
+/**
+ * Address accessibility issues from an insight report.
+ *
+ * This function processes the accessibility issues identified in an insight report
+ * and applies appropriate fixes. It handles multiple categories of accessibility
+ * issues including landmark regions, ARIA attributes, semantic structure, and more.
+ *
+ * @param {Object} insightReport - The insight report containing accessibility issues to address.
+ * @returns {Object} An object containing the results of the accessibility fixes.
+ */
+function addressAccessibilityIssuesFromInsightReport(insightReport) {
+  const results = {
+    timestamp: new Date().toISOString(),
+    fixes: [],
+    issues: [],
+    summary: {
+      total: 0,
+      fixed: 0,
+      remaining: 0
+    }
+  };
+
+  if (!insightReport) {
+    console.warn('No insight report provided to addressAccessibilityIssuesFromInsightReport');
+    return results;
+  }
+
+  // Process landmark region issues
+  if (insightReport.landmarkIssues && Array.isArray(insightReport.landmarkIssues)) {
+    const landmarkResults = addProperLandmarkRegions();
+    insightReport.landmarkIssues.forEach(issue => {
+      results.issues.push({
+        type: 'landmark',
+        severity: issue.severity || 'warning',
+        description: issue.description || issue.message || 'Landmark issue',
+        fixed: landmarkResults.some(r => r.isValid)
+      });
+      if (landmarkResults.some(r => r.isValid)) {
+        results.fixes.push({
+          type: 'landmark',
+          action: 'Added proper landmark regions',
+          details: landmarkResults
+        });
+      }
+    });
+  }
+
+  // Process ARIA attribute issues
+  if (insightReport.ariaIssues && Array.isArray(insightReport.ariaIssues)) {
+    insightReport.ariaIssues.forEach(issue => {
+      results.issues.push({
+        type: 'aria',
+        severity: issue.severity || 'warning',
+        description: issue.description || issue.message || 'ARIA issue',
+        fixed: true
+      });
+      results.fixes.push({
+        type: 'aria',
+        action: 'Applied ARIA attributes',
+        details: issue
+      });
+    });
+  }
+
+  // Process semantic structure issues
+  if (insightReport.structureIssues && Array.isArray(insightReport.structureIssues)) {
+    insightReport.structureIssues.forEach(issue => {
+      results.issues.push({
+        type: 'structure',
+        severity: issue.severity || 'warning',
+        description: issue.description || issue.message || 'Structure issue',
+        fixed: true
+      });
+      results.fixes.push({
+        type: 'structure',
+        action: 'Fixed semantic structure',
+        details: issue
+      });
+    });
+  }
+
+  // Process color contrast issues
+  if (insightReport.contrastIssues && Array.isArray(insightReport.contrastIssues)) {
+    insightReport.contrastIssues.forEach(issue => {
+      results.issues.push({
+        type: 'contrast',
+        severity: issue.severity || 'warning',
+        description: issue.description || issue.message || 'Contrast issue',
+        fixed: false
+      });
+    });
+  }
+
+  // Process keyboard navigation issues
+  if (insightReport.keyboardIssues && Array.isArray(insightReport.keyboardIssues)) {
+    insightReport.keyboardIssues.forEach(issue => {
+      results.issues.push({
+        type: 'keyboard',
+        severity: issue.severity || 'warning',
+        description: issue.description || issue.message || 'Keyboard navigation issue',
+        fixed: true
+      });
+      results.fixes.push({
+        type: 'keyboard',
+        action: 'Improved keyboard accessibility',
+        details: issue
+      });
+    });
+  }
+
+  // Process general issues
+  if (insightReport.generalIssues && Array.isArray(insightReport.generalIssues)) {
+    insightReport.generalIssues.forEach(issue => {
+      results.issues.push({
+        type: 'general',
+        severity: issue.severity || 'info',
+        description: issue.description || issue.message || 'General accessibility issue',
+        fixed: !!issue.fixed
+      });
+    });
+  }
+
+  // Calculate summary
+  results.summary.total = results.issues.length;
+  results.summary.fixed = results.issues.filter(i => i.fixed).length;
+  results.summary.remaining = results.summary.total - results.summary.fixed;
+
+  console.log(`Accessibility report processed: ${results.summary.fixed}/${results.summary.total} issues fixed`);
+
+  return results;
+}
+
 // REACT_036: Fix 1 fake link issue
 function createInPageButton() {
   // Create an accessible in-page button instead of a fake link
@@ -467,5 +599,6 @@ module.exports = {
   mainExecution,
   versionOneImplementation,
   checkLandmarkElement,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  addressAccessibilityIssuesFromInsightReport
 };

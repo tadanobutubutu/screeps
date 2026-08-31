@@ -225,6 +225,96 @@ function addProperLandmarkRegions(container) {
   return { main, usedIds };
 }
 
+// Function to handle focus trap for keyboard navigation
+function createFocusTrap(container, options = {}) {
+  const {
+    onEscape = null,
+    initialFocus = null,
+    returnFocus = true,
+  } = options;
+  
+  let previousActiveElement = null;
+  let isActive = false;
+  
+  // Get all focusable elements within the container
+  const getFocusableElements = () => {
+    const focusableSelectors = [
+      'button:not([disabled])',
+      'a[href]',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(', ');
+    
+    return Array.from(container.querySelectorAll(focusableSelectors));
+  };
+  
+  // Handle keydown events to trap focus
+  const handleKeyDown = (event) => {
+    if (!isActive) return;
+    
+    if (event.key === 'Tab') {
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length === 0) return;
+      
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      
+      // Shift + Tab on first element moves to last
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+      // Tab on last element moves to first
+      else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+    
+    // Handle escape key
+    if (event.key === 'Escape' && onEscape) {
+      event.preventDefault();
+      onEscape();
+    }
+  };
+  
+  // Activate the focus trap
+  const activate = () => {
+    previousActiveElement = document.activeElement;
+    isActive = true;
+    container.addEventListener('keydown', handleKeyDown);
+    
+    // Set initial focus
+    if (initialFocus) {
+      initialFocus.focus();
+    } else {
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length > 0) {
+        focusableElements[0].focus();
+      }
+    }
+  };
+  
+  // Deactivate the focus trap
+  const deactivate = () => {
+    isActive = false;
+    container.removeEventListener('keydown', handleKeyDown);
+    
+    // Return focus to the previously focused element
+    if (returnFocus && previousActiveElement && previousActiveElement.focus) {
+      previousActiveElement.focus();
+    }
+  };
+  
+  return {
+    activate,
+    deactivate,
+    getFocusableElements,
+  };
+}
+
 // Function to render a single book item
 function BookItem(book) {
   return (

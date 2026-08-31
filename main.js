@@ -37,10 +37,29 @@ function generateDependencyReport(dependencies) {
 
 // Accessibility fix function
 function fixAccessibilityIssues() {
-  // Code to fix accessibility issues as per the insight report
+  // Fix table accessibility issues
+  const tableResults = validateTableAccessibility();
+  const tableStructureResults = validateTableStructure();
+  
+  // Fix landmark accessibility issues
+  const landmarkResults = validateLandmark();
+  const landmarkStructureResults = validateLandmarkStructure();
+  
+  // Fix link accessibility issues
+  const linkResults = validateLinkAccessibility();
+  handleFakeLinks();
+  
+  // Return summary of fixes applied
+  return {
+    tables: tableResults,
+    tableStructure: tableStructureResults,
+    landmarks: landmarkResults,
+    landmarkStructure: landmarkStructureResults,
+    links: linkResults
+  };
 }
 
-// Landmark handling functions
+// Landmark handling functions (from origin/main, more robust)
 function loadLandmarks() {
   try {
     const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
@@ -53,27 +72,57 @@ function loadLandmarks() {
 }
 
 function processLandmarks(landmarks) {
-  return ensureUniqueLandmarks(landmarks);
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const validLandmarks = landmarks.filter(function(landmark) {
+    return landmark && landmark.name;
+  });
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+  return sortLandmarks(uniqueLandmarks).slice(0, CONFIG.maxResults);
 }
 
-function sortLandmarks(landmarks) {
-  return landmarks.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+function sortLandmarks(landmarks, ascending = true) {
+  return landmarks.slice().sort(function(a, b) {
+    const nameA = (a.name || '').toLowerCase();
+    const nameB = (b.name || '').toLowerCase();
+
+    if (ascending) {
+      return nameA.localeCompare(nameB);
+    }
+    return nameB.localeCompare(nameA);
+  });
 }
 
 function getLandmarkById(landmarks, id) {
-  return landmarks.find(l => l.id === id);
+  return landmarks.find(function(landmark) { return landmark.id === id; }) || null;
 }
 
 function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
   const seen = new Set();
-  return landmarks.filter(landmark => {
-    const key = landmark.name + '_' + (landmark.role || 'default');
-    if (seen.has(key)) {
-      return false;
+  const uniqueLandmarks = [];
+
+  for (let i = 0; i < landmarks.length; i++) {
+    const landmark = landmarks[i];
+    if (!landmark || typeof landmark.id === 'undefined') {
+      continue;
     }
-    seen.add(key);
-    return true;
-  });
+
+    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+
+    if (!seen.has(landmarkId)) {
+      seen.add(landmarkId);
+      uniqueLandmarks.push(landmark);
+    }
+  }
+
+  return uniqueLandmarks;
 }
 
 /**
@@ -110,14 +159,18 @@ function createUnrotateButton() {
   return button;
 }
 
-// Replace fake links with proper buttons
+// Replace fake links with proper buttons (from origin/main, handles multiple)
 function handleFakeLinksInDocument() {
-  const fakeLink = document.querySelector('a[href="#"]');
-  if (fakeLink && fakeLink.tagName === 'A') {
-    const parent = fakeLink.parentElement;
-    const newButton = createUnrotateButton();
-    parent.replaceChild(newButton, fakeLink);
-  }
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(function(fakeLink) {
+    if (fakeLink && fakeLink.tagName === 'A') {
+      const parent = fakeLink.parentElement;
+      const newButton = createUnrotateButton();
+      if (parent) {
+        parent.replaceChild(newButton, fakeLink);
+      }
+    }
+  });
 }
 
 /**
@@ -152,8 +205,12 @@ const visualizationMain = {
   },
 
   addressAccessibilityIssues: function() {
-    fixAccessibilityIssues();
-    visualizeDependencyTree(getDependencies());
+    const results = fixAccessibilityIssues();
+    const dependencies = getDependencies();
+    return {
+      accessibilityFixes: results,
+      dependencies: dependencies
+    };
   }
 };
 

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -35,6 +32,3 @@ export { Main, PropTypes };
 
 export default Main;
 export { Main, updateTitle };
-```
-
-This resolved file retains and integrates both changes. It includes the new `updateTitle` function and exports it, as well as exports the `PropTypes` to ensure all required exports are present in the library.

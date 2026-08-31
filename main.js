@@ -26,7 +26,8 @@ const existingFunction = () => {
 const newAccessibleFunction = () => {
   // New function logic to improve accessibility
   // Example: Ensure proper ARIA roles and properties are set
-
+  // Implementing the requirement to add the lang attribute
+  addLangAttribute();
   return true;
 };
 

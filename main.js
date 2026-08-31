@@ -1,14 +1,13 @@
-Here's the resolved file content:
-
-```javascript
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import express from 'express';
 import path from 'path';
 import './styles.css';
+import './styles.less';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
-import './utils/accessibilityUtils'; // Include the accessibilityUtils module
+
+import './utils/accessibilityUtils';
 import './utils/tableAccessibilityUtils';
 import './utils/landmarkUtils';
 import './utils/svgAccessibilityUtils';
@@ -23,9 +22,11 @@ const App = () => {
   const someFunction = () => {
     return 'some value';
   };
+
   const helper = (input) => {
     return input ? input.toUpperCase() : '';
   };
+
   const formatDate = (date) => {
     if (!(date instanceof Date)) {
       date = new Date(date);
@@ -43,6 +44,48 @@ const App = () => {
 };
 
 export default App;
-```
 
-In this resolution, I took both changes into account keeping them both as they add features. I merged the React import, added the missing exported variable `config` from the first change, and moved the functions `someFunction`, `helper`, and `formatDate` below the React import to be accessible in the entire file, as they were created in the second change. Also, added the import of the `accessibilityUtils` module to fix the conflict related to that module.
+module.exports = {
+  config: CONFIG,
+  App,
+  someFunction,
+  helper,
+  formatDate,
+  calculateSum,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  initializeApp,
+  checkLinkAccessibility,
+  handleFakeLinks,
+  generateAccessibilityReport,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks,
+  addLangAttribute,
+  createInPageButton,
+  validateInput,
+  processData,
+  formatResponse,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  landmarkConfig: CONFIG,
+  generateAccessibilityReport,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks
+};
+
+module.exports.main = main;
+
+expressApp.use('/', expressApp);
+const port = process.env.PORT || 3000;
+expressApp.listen(port, () => {
+  console.log(`Listening on port ${port}`);
+});

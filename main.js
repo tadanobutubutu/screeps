@@ -106,6 +106,21 @@ const formatResponse = (data) => {
   return JSON.stringify(data, null, 2);
 };
 
+// Function to create in-page buttons
+function createInPageButtons(buttons) {
+    const buttonContainer = document.createElement('div');
+    buttonContainer.id = 'inPageButtons';
+    
+    buttons.forEach(buttonData => {
+        const button = document.createElement('button');
+        button.textContent = buttonData.text;
+        button.onclick = buttonData.onclick;
+        buttonContainer.appendChild(button);
+    });
+    
+    document.body.appendChild(buttonContainer);
+}
+
 // Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
 const { validateInput } = require('./utils/validators');
 const { processData } = require('./utils/processor');
@@ -123,7 +138,8 @@ module.exports = {
   sortLandmarks,
   getLandmarkById,
   ensureUniqueLandmarks,
-  landmarkConfig
+  landmarkConfig,
+  createInPageButtons // Exporting the new function
 };
 
 // Main execution when run directly

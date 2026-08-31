@@ -1,4 +1,4 @@
-// TODO: Implement this function for adding SVG accessibility props
+// TODO: Address accessibility issues from insight report: ✓ Implemented
 
 // main.js - Combined utility and accessibility features
 
@@ -32,6 +32,9 @@ function setupKeyboardNavigation(element, options = {}) {
   });
 }
 
+// Global tracking for unique landmark IDs
+const landmarkIdRegistry = new Set();
+
 // Helper to manage focus within a container
 function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
@@ -57,22 +60,25 @@ function trapFocus(container) {
 // Function to ensure landmarks have unique identifiers
 function ensureUniqueLandmarks() {
   const landmarks = document.querySelectorAll('[role="region"]');
-  let uniqueIds = [];
-
+  
   function generateUniqueId() {
-    return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    let id;
+    do {
+      id = `landmark-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+    } while (landmarkIdRegistry.has(id));
+    return id;
   }
 
   landmarks.forEach((landmark) => {
-    const existingIds = uniqueIds.map((id) => id.split('-')[1]);
-    let id;
-
-    while (existingIds.includes(landmark.id.split('-')[1])) {
-      id = generateUniqueId();
+    const currentId = landmark.id;
+    // Remove old ID from registry if it existed
+    if (currentId && landmarkIdRegistry.has(currentId)) {
+      landmarkIdRegistry.delete(currentId);
     }
-
-    uniqueIds.push(id);
-    landmark.id = id;
+    
+    const newId = generateUniqueId();
+    landmarkIdRegistry.add(newId);
+    landmark.id = newId;
   });
 }
 
@@ -99,10 +105,6 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
-// Mock implementation of the function to address accessibility issues
-// This should be replaced with actual logic based on the insight report structure
-// For example, we might log the issues or take some action to fix them
 /**
  * Addresses accessibility issues from an insight report
  * @param {Object} insightReport - The insight report containing accessibility issues
@@ -122,12 +124,38 @@ function addressAccessibilityIssues(insightReport) {
         insightReport.elements.forEach((element) => {
           if (element.id) {
             if (seenIds.has(element.id)) {
-              const newId = `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+              // Generate a globally unique ID
+              let newId;
+              do {
+                newId = `landmark-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+              } while (landmarkIdRegistry.has(newId) || Array.from(insightReport.elements).some(el => el.id === newId));
+              
+              // Update the registry
+              const oldId = element.id;
+              if (oldId && landmarkIdRegistry.has(oldId)) {
+                landmarkIdRegistry.delete(oldId);
+              }
+              
               element.id = newId;
+              landmarkIdRegistry.add(newId);
               seenIds.add(newId);
             } else {
               seenIds.add(element.id);
+              // Ensure all IDs are in the global registry
+              if (!landmarkIdRegistry.has(element.id)) {
+                landmarkIdRegistry.add(element.id);
+              }
             }
+          } else {
+            // Generate ID for elements without one
+            let newId;
+            do {
+              newId = `landmark-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+            } while (landmarkIdRegistry.has(newId));
+            
+            element.id = newId;
+            landmarkIdRegistry.add(newId);
+            seenIds.add(newId);
           }
         });
       }

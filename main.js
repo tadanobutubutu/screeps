@@ -1,13 +1,4 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
+// TODO: Address accessibility issues from insight report
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
@@ -36,17 +27,17 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if ... {
+    if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
     } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if ... {
+    } else if (/[\u0400-\u04FF]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if ... {
+    } else if (/[\u0600-\u06FF]/.test(content)) {
       lang = 'ar'; // Arabic
     } else if (/[àâäéèêëïîôùûüç]/i.test(content)) {
       lang = 'fr'; // French
-    } else if ... {
+    } else if (/[äöüßÄÖÜ]/i.test(content)) {
       lang = 'de'; // German
     }
   }
@@ -58,6 +49,17 @@ function detectAndSetLang(content) {
 // New function to address REACT_015: Add lang attribute to HTML element
 function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
+}
+
+function personName(name, lang) {
+  if (typeof document === 'undefined') {
+    return name || '';
+  }
+  const span = document.createElement('span');
+  span.textContent = name || '';
+  span.setAttribute('lang', lang || getLangAttribute() || 'en');
+  span.setAttribute('aria-label', name || '');
+  return span;
 }
 
 // New function to address REACT_027: Fix 26 table structure issues
@@ -155,7 +157,11 @@ function validateLandmark(element) {
   const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
   
   if (!element) {
-    element = document.body;
+    if (typeof document !== 'undefined') {
+      element = document.body;
+    } else {
+      return issues;
+    }
   }
   
   landmarkRoles.forEach(role => {
@@ -247,7 +253,7 @@ function getSvgAccessibleName(svg) {
   
   // Check aria-labelledby reference
   const ariaLabelledby = svg.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
+  if (ariaLabelledby && typeof document !== 'undefined') {
     const titleElement = document.getElementById(ariaLabelledby);
     if (titleElement) {
       return titleElement.textContent;
@@ -255,6 +261,19 @@ function getSvgAccessibleName(svg) {
   }
   
   return '';
+}
+
+function setSvgAccessibleName(svg, name) {
+  if (!svg || typeof document === 'undefined') {
+    return;
+  }
+  let title = svg.querySelector('title');
+  if (!title) {
+    title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    svg.insertBefore(title, svg.firstChild);
+  }
+  title.textContent = name || '';
+  svg.setAttribute('aria-label', name || '');
 }
 
 // New function to address REACT_025: Ensure unique landmarks (2 issues)

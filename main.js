@@ -409,7 +409,7 @@ function ensureUniqueLandmarks() {
 
 // Function to fix 1 fake link issue
 function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('[href="#"]:not([ aria-hidden ])');
+  const fakeLinks = document.querySelectorAll('[href="#"]:not([aria-hidden])');
   fakeLinks.forEach((link) => {
     link.removeAttribute('href');
   });
@@ -534,7 +534,9 @@ export {
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
-module.exports.newFunction = newFunction;
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports.newFunction = newFunction;
+}
 
 module.exports = main;
 module.exports.default = main;

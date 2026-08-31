@@ -187,6 +187,67 @@ function getAccessibleLinkProps(href, label) {
   };
 };
 
+// Function to address accessibility issues from insight report
+function addressAccessibilityIssuesFromInsightReport(insightReport) {
+  const fixes = [];
+  if (!insightReport || !insightReport.accessibilityIssues) {
+    return fixes;
+  }
+
+  const issues = insightReport.accessibilityIssues;
+
+  issues.forEach(issue => {
+    switch (issue.type) {
+      case 'missing-alt-text':
+        fixes.push({
+          element: issue.elementId,
+          action: 'addAltText',
+          altText: issue.suggestedAltText || ''
+        });
+        break;
+      case 'low-contrast':
+        fixes.push({
+          element: issue.elementId,
+          action: 'adjustColorContrast',
+          suggestedColors: issue.suggestedColors || {}
+        });
+        break;
+      case 'missing-label':
+        fixes.push({
+          element: issue.elementId,
+          action: 'addLabel',
+          label: issue.suggestedLabel || ''
+        });
+        break;
+      case 'empty-heading':
+        fixes.push({
+          element: issue.elementId,
+          action: 'addHeadingText',
+          text: issue.suggestedText || 'Untitled Section'
+        });
+        break;
+      case 'duplicate-id':
+        fixes.push({
+          element: issue.elementId,
+          action: 'makeIdUnique',
+          newId: issue.suggestedId || `${issue.elementId}-${Math.random().toString(36).substr(2, 9)}`
+        });
+        break;
+      case 'missing-lang':
+        fixes.push({
+          element: 'html',
+          action: 'setLang',
+          lang: issue.suggestedLang || 'en'
+        });
+        break;
+      default:
+        break;
+    }
+  });
+
+  return fixes;
+}
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(() => {

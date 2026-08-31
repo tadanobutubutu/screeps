@@ -668,6 +668,12 @@ function getFullLangAttribute(el) {
     return element ? (element.lang || element.getAttribute('lang') || '') : '';
 }
 
+// REACT_015: Add lang attribute to HTML element
+// Add the language attribute to the HTML element for proper accessibility
+if (typeof document !== 'undefined' && document.documentElement) {
+  detectAndSetLang();
+}
+
 module.exports = {
     validateWebAccessibility,
     validateTableAccessibility,

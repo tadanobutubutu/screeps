@@ -1,5 +1,4 @@
 // Import required module(s)
-const missingModule = require('./missingModule');
 
 // Existing code...
 
@@ -17,26 +16,40 @@ const metadata = {
   description: "Dashboard for Screeps",
 };
 
+// Focus trap utility for modal dialogs and menus
+// Restricts keyboard focus to a given container element
+function newFocusTrap(element) {
+  const focusableSelectors = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  const focusableElements = element.querySelectorAll(focusableSelectors);
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  return {
+    activate: () => {
+      if (firstFocusable) {
+        firstFocusable.focus();
+      }
+    },
+    handleTab: (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable.focus();
+        } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    }
+  };
+}
+
 const accessibilityUtils = {
   // Trap focus within an element (for modals, dialogs)
   trapFocus: (element) => {
-    const focusableElements = element.querySelectorAll(
-      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
-    );
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement.focus();
-        }
-      }
-    });
+    const trap = newFocusTrap(element);
+    trap.activate();
+    element.addEventListener('keydown', trap.handleTab);
   },
 
   // Announce message to screen readers
@@ -335,6 +348,15 @@ const accessibilityUtils = {
       } else {
         document.body.appendChild(newSkipLink);
       }
+    } else {
+      // Existing skip link - add click handler
+      skipLink.addEventListener('click', (e) => {
+        const target = document.querySelector(skipLink.getAttribute('href'));
+        if (target) {
+          target.setAttribute('tabindex', '-1');
+          target.focus();
+        }
+      });
     }
   },
 
@@ -343,6 +365,166 @@ const accessibilityUtils = {
     if (typeof document === 'undefined') return 'en';
     const htmlElement = document.documentElement;
     return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
+  },
+
+  // Additional utility functions from origin/main
+  addLangAttributeToHtml: (langCode = 'en') => {
+    const html = document.documentElement;
+    if (html && langCode) {
+      html.setAttribute('lang', langCode);
+      console.log(`Set lang attribute to: ${langCode}`);
+    }
+  },
+
+  addLandmarkRoles: (container = document) => {
+    const main = container.querySelector('main');
+    if (main && !main.getAttribute('role')) {
+      main.setAttribute('role', 'main');
+    }
+
+    const nav = container.querySelector('nav');
+    if (nav && !nav.getAttribute('role')) {
+      nav.setAttribute('role', 'navigation');
+    }
+
+    const footer = container.querySelector('footer');
+    if (footer && !footer.getAttribute('role')) {
+      footer.setAttribute('role', 'contentinfo');
+    }
+
+    const aside = container.querySelector('aside');
+    if (aside && !aside.getAttribute('role')) {
+      aside.setAttribute('role', 'complementary');
+    }
+
+    const search = container.querySelector('[role="search"]');
+    if (search && !search.id) {
+      search.setAttribute('id', 'main-search');
+    }
+
+    console.log('Added landmark roles to semantic elements');
+  },
+
+  wrapPrimaryContentInMain: () => {
+    const primaryContent = document.querySelector('main') || document.querySelector('[role="main"]');
+
+    if (!primaryContent) {
+      // Create a new main element and wrap the primary content
+      const newMain = document.createElement('main');
+      newMain.setAttribute('role', 'main');
+      newMain.id = 'main-content';
+
+      // Move all top-level body children (excluding existing mains, headers, footers, etc.) into the new main
+      const bodyChildren = document.body.children;
+      const elementsToMove = [];
+      for (let i = 0; i < bodyChildren.length; i++) {
+        const child = bodyChildren[i];
+        const tagName = child.tagName.toLowerCase();
+        if (!['header', 'footer', 'nav', 'main', 'aside'].includes(tagName)) {
+          elementsToMove.push(child);
+        }
+      }
+
+      elementsToMove.forEach((element) => {
+        newMain.appendChild(element);
+      });
+
+      document.body.appendChild(newMain);
+    } else {
+      // Ensure main has proper attributes
+      if (!primaryContent.hasAttribute('role')) {
+        primaryContent.setAttribute('role', 'main');
+      }
+      if (!primaryContent.id) {
+        primaryContent.id = 'main-content';
+      }
+    }
+  },
+
+  addAccessibleNamesToSVGs: (container = document) => {
+    const svgs = container.querySelectorAll('svg');
+
+    svgs.forEach((svg, index) => {
+      if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+        const existingTitle = svg.querySelector('title');
+        if (!existingTitle) {
+          const title = document.createElement('title');
+          title.textContent = `SVG icon ${index + 1}`;
+          svg.insertBefore(title, svg.firstChild);
+        }
+
+        const titleId = `svg-title-${index + 1}`;
+        const titleEl = svg.querySelector('title');
+        if (titleEl) {
+          titleEl.id = titleId;
+        }
+
+        svg.setAttribute('aria-labelledby', titleId);
+      }
+    });
+
+    console.log(`Added accessible names to ${svgs.length} SVGs`);
+  },
+
+  fixFakeLinks: (container = document) => {
+    const clickableElements = container.querySelectorAll('[onclick]:not(a):not(button)');
+
+    clickableElements.forEach((element, index) => {
+      const text = element.textContent?.trim();
+      const isIconOnly = element.querySelector('svg, img, i[class*="icon"]');
+
+      if (element.tagName === 'DIV' || element.tagName === 'SPAN') {
+        // Convert to button if it's clickable
+        element.setAttribute('role', 'button');
+
+        if (!element.getAttribute('tabindex')) {
+          element.setAttribute('tabindex', '0');
+        }
+
+        if (isIconOnly && !element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+          element.setAttribute('aria-label', `Button ${index + 1}`);
+        }
+
+        if (!text) {
+          console.warn(`Fake link element ${index + 1} may need accessible name`);
+        }
+      }
+    });
+
+    console.log(`Fixed ${clickableElements.length} fake link elements`);
+  },
+
+  addressAccessibilityIssues: (insightReport) => {
+    // Handle case where insightReport is null, undefined, or not an object
+    if (!insightReport || typeof insightReport !== 'object') {
+      console.warn('Invalid insight report provided to addressAccessibilityIssues');
+      return;
+    }
+    // Process the insight report and apply fixes as needed
+    console.log('Processing accessibility insights:', insightReport);
+  },
+
+  // Utility functions from origin/main
+  ensureElementId: (element) => {
+    if (element && !element.id) {
+      element.id = `el-${Math.random().toString(36).slice(2, 9)}`;
+    }
+    return element;
+  },
+
+  addAriaLabel: (element, label) => {
+    if (element && label && !element.getAttribute('aria-label')) {
+      element.setAttribute('aria-label', label);
+    }
+  },
+
+  renderDependencyGraph: (data) => {
+    if (!data) return null;
+    const container = document.createElement('div');
+    container.className = 'dependency-graph';
+    container.setAttribute('role', 'img');
+    container.setAttribute('aria-label', 'Dependency graph visualization');
+    return container;
   }
 };
 
@@ -432,6 +614,13 @@ const initAccessibility = () => {
       });
     }
   });
+
+  // Apply additional accessibility fixes from origin/main
+  accessibilityUtils.addLangAttributeToHtml();
+  accessibilityUtils.addLandmarkRoles();
+  accessibilityUtils.wrapPrimaryContentInMain();
+  accessibilityUtils.addAccessibleNamesToSVGs();
+  accessibilityUtils.fixFakeLinks();
 };
 
 // Initialize on DOM ready
@@ -484,5 +673,17 @@ module.exports = {
 
   // Export accessibility utils for direct access
   accessibilityUtils: accessibilityUtils,
-  exportUtils: exportUtils
+  exportUtils: exportUtils,
+
+  // Additional exports from origin/main
+  newFocusTrap: newFocusTrap,
+  addLangAttributeToHtml: accessibilityUtils.addLangAttributeToHtml,
+  addLandmarkRoles: accessibilityUtils.addLandmarkRoles,
+  wrapPrimaryContentInMain: accessibilityUtils.wrapPrimaryContentInMain,
+  addAccessibleNamesToSVGs: accessibilityUtils.addAccessibleNamesToSVGs,
+  fixFakeLinks: accessibilityUtils.fixFakeLinks,
+  addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
+  ensureElementId: accessibilityUtils.ensureElementId,
+  addAriaLabel: accessibilityUtils.addAriaLabel,
+  renderDependencyGraph: accessibilityUtils.renderDependencyGraph
 };

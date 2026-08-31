@@ -1,4 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
+// ----- END ORIGINAL CODE (unchanged) -----
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)

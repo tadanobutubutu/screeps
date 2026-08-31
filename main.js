@@ -17,7 +17,7 @@ function getLangAttribute() {
 }
 
 // Function to ensure ARIA attributes are properly set for the dependency graph
-function ensureDependencyGraphARIA() {
+function ... {
   // Ensure the document has proper lang attribute for accessibility
   const lang = getLangAttribute();
   
@@ -34,6 +34,19 @@ function ensureDependencyGraphARIA() {
   };
 }
 
+// Function to wrap primary content in a main element for accessibility
+function wrapPrimaryContentInMain(content) {
+  return (
+    <main 
+      id="main-content"
+      role="main"
+      aria-label="Main content area"
+    >
+      {content}
+    </main>
+  );
+}
+
 // Function to handle sorting books by title (ascending)
 function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
@@ -46,7 +59,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return book.id || `${book.title}-${Math.random().toString(36).substr(2, 9)}`;
+  return book.id || ... 9)}`;
 }
 
 // Function to count dependencies
@@ -61,7 +74,7 @@ function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        description={book.author}
+        ...
       />
     </List.Item>
   );
@@ -77,27 +90,27 @@ export function addBook(book) {
 }
 
 // Ensure accessibility attributes are set when adding a book
-ensureDependencyGraphARIA();
+...
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
 // Export utility functions
-export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies };
+export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies, wrapPrimaryContentInMain };
 
 // Render the main component containing the book list and sorting controls
 function Main() {
@@ -116,12 +129,12 @@ function Main() {
   // Map the book list to the BookItem function to create book items
   const bookItems = getBooksList.map(book => BookItem(book));
 
-  // Render the list of book items and sorting controls
-  return (
+  // Define the primary content to be wrapped in main element
+  const primaryContent = (
     <div>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />
+      <List itemLayout="vertical" ... renderItem={book => BookItem(book)} />
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
       {/* Example of adding a new book form with accessibility considerations */}
@@ -133,10 +146,17 @@ function Main() {
       }}>
         <label htmlFor="title">Title:</label>
         <input type="text" id="title" name="title" required />
-        <label htmlFor="author">Author:</label>
+        <label ...
         <input type="text" id="author" name="author" required />
         <button type="submit">Add Book</button>
       </form>
+    </div>
+  );
+
+  // Render the list of book items and sorting controls
+  return (
+    <div>
+      {wrapPrimaryContentInMain(primaryContent)}
     </div>
   );
 }

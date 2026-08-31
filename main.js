@@ -10,7 +10,9 @@ function addressAccessibilityIssues(insightReport) {
 }
 
 // Export the new function if needed
-// export { addressAccessibilityIssues };</think>const fs = require('fs');
+// export { addressAccessibilityIssues };
+
+const fs = require('fs');
 const path = require('path');
 
 // Import dependency graph and index content modules
@@ -118,7 +120,7 @@ function countDependencies() {
   // Existing function implementation
 
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`];
+  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/g;
   const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }

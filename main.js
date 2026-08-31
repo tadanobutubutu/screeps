@@ -37,11 +37,18 @@ function startApp() {
   return server;
 }
 
+// New function added as per issue
+function handleRequest(req, res) {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Request received\n');
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  handleRequest
 };
 
 // Start the application if run directly

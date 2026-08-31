@@ -151,6 +151,41 @@ function addSvgAccessibleNames(html) {
     return html;
 }
 
+// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+/**
+ * Wraps the primary content of the page in a <main> element for improved accessibility.
+ * This function checks if a <main> element already exists; if not, it creates one
+ * and moves all body content into it.
+ * @returns {Element|null} The <main> element if successfully created/wrapped, or null if body is not available
+ */
+function wrapPrimaryContentInMain() {
+  const body = document.body;
+  
+  // Return null if body element is not available
+  if (!body) {
+    return null;
+  }
+  
+  // Check if a <main> element already exists to avoid duplication
+  const existingMain = document.querySelector('main');
+  if (existingMain) {
+    return existingMain;
+  }
+  
+  // Create a new <main> element
+  const main = document.createElement('main');
+  
+  // Move all existing body children into the <main> element
+  while (body.firstChild) {
+    main.appendChild(body.firstChild);
+  }
+  
+  // Append the <main> element to the body
+  body.appendChild(main);
+  
+  return main;
+}
+
 // REACT_025: Ensure unique landmarks
 function ensureUniqueLandmarks(html) {
     if (typeof html !== 'string') return html;
@@ -234,40 +269,6 @@ function checkLinkAccessibility() {
   return issues;
 }
 
-/**
- * Wraps the primary content of the page in a <main> element for improved accessibility.
- * This function checks if a <main> element already exists; if not, it creates one
- * and moves all body content into it.
- * @returns {Element|null} The <main> element if successfully created/wrapped, or null if body is not available
- */
-function wrapPrimaryContentInMain() {
-  const body = document.body;
-  
-  // Return null if body element is not available
-  if (!body) {
-    return null;
-  }
-  
-  // Check if a <main> element already exists to avoid duplication
-  const existingMain = document.querySelector('main');
-  if (existingMain) {
-    return existingMain;
-  }
-  
-  // Create a new <main> element
-  const main = document.createElement('main');
-  
-  // Move all existing body children into the <main> element
-  while (body.firstChild) {
-    main.appendChild(body.firstChild);
-  }
-  
-  // Append the <main> element to the body
-  body.appendChild(main);
-  
-  return main;
-}
-
 // Main function that applies all accessibility fixes
 function applyAccessibilityFixes(html) {
     let result = html;
@@ -296,6 +297,8 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// Don't forget to test your new additions in the test file
+
 module.exports = {
     addLangAttribute,
     fixTableStructure,
@@ -306,9 +309,9 @@ module.exports = {
     applyAccessibilityFixes,
     addressAccessibilityIssues,
     createInPageButton,
+    divide,
     checkLinkAccessibility,
-    wrapPrimaryContentInMain,
-    divide
+    wrapPrimaryContentInMain
 };
 
 // Run if executed directly

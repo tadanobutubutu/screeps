@@ -49,7 +49,7 @@ const landmarkStructureCheck = (landmark) => {
  * Sets the language attribute on the HTML element.
  */
 function setLanguageAttribute() {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
@@ -82,7 +82,7 @@ function validateLandmarkStructure(landmark) {
  * Adds landmark roles to elements.
  */
 function addLandmarkRoles() {
-  const landmarkElements = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+  const landmarkElements = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"]');
   landmarkElements.forEach((element, index) => {
     if (!element.id) {
       element.id = 'landmark-' + index;
@@ -116,7 +116,7 @@ function validateTableStructure(table) {
   
   const rows = table.querySelectorAll('tr');
   rows.forEach(row => {
-    const cells = row.querySelectorAll('th, td');
+    const cells = row.querySelectorAll('td, th');
     cells.forEach(cell => {
       if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
         cell.setAttribute('scope', 'col');
@@ -136,10 +136,11 @@ function validateTableStructure(table) {
 function getSvgAccessibleName(svg) {
   if (!svg) return null;
   
-  return svg.getAttribute('aria-label') || 
-         svg.getAttribute('aria-labelledby') || 
-         svg.querySelector('title')?.textContent || 
-         null;
+  const title = svg.querySelector('title');
+  const desc = svg.querySelector('desc');
+  const ariaLabel = svg.getAttribute('aria-label');
+  
+  return title?.textContent || desc?.textContent || ariaLabel || null;
 }
 
 /**
@@ -150,7 +151,7 @@ function getSvgAccessibleName(svg) {
 function setSvgAttributes(svg, name) {
   if (!svg) return;
   
-  if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+  if (name && !svg.hasAttribute('aria-label') && !svg.querySelector('title')) {
     svg.setAttribute('aria-label', name);
   }
 }
@@ -182,7 +183,7 @@ function validateLinkAccessibility(link) {
   
   const href = link.getAttribute('href');
   const hasProperHref = href && href.length > 0 && href !== '#';
-  const hasAccessibleText = link.textContent.trim().length > 0 || link.hasAttribute('aria-label');
+  const hasAccessibleText = link.textContent.trim().length > 0 || link.getAttribute('aria-label');
   
   return hasProperHref || hasAccessibleText;
 }
@@ -191,9 +192,9 @@ function validateLinkAccessibility(link) {
  * Handles fake links by converting them to proper buttons or adding accessibility attributes.
  */
 function handleFakeLinks() {
-  const links = document.querySelectorAll('a[href="#"], a:not([href])');
+  const links = document.querySelectorAll('a:not([href])');
   links.forEach(link => {
-    if (link.getAttribute('href') === '#' || !link.hasAttribute('href')) {
+    if (!link.getAttribute('href') || link.getAttribute('href') === '#') {
       link.setAttribute('role', 'button');
       link.setAttribute('tabindex', '0');
     }
@@ -211,7 +212,7 @@ function fixFakeLinks() {
  * REACT_037: Add proper landmark regions
  * Ensures proper landmark regions are added to the document.
  */
-function addProperLandmarkRegions() {
+function ensureProperLandmarkRegions() {
   const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
   if (mainElement && !mainElement.id) {
     mainElement.id = 'main-content';
@@ -241,6 +242,7 @@ const initApp = () => {
   setLanguageAttribute(); // Default to 'en'
   addLandmarkRoles();
   ensureUniqueLandmarks(landmarks);
+  ensureProperLandmarkRegions();
   
   // Add accessible names to SVGs (example selectors and names)
   icons = {

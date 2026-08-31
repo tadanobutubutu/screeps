@@ -48,22 +48,35 @@ function validateAccessibilityReport(report, options = {}) {
     minor: { count: counts.minor, allowed: config.maxMinor, passed: counts.minor <= config.maxMinor }
   };
 
-  // Added function from the conflicting branch
-  function greet(name) {
-    return `Hello, ${name}!`;
-  }
-
-  exports.greet = greet; // Exported function was moved from the bottom to the top to avoid conflicts
-
-  // Exported functions from the original function
-  exports.validateAccessibilityReport = validateAccessibilityReport;
-  exports.formatValidationSummary = formatValidationSummary;
-
-  // Additional functions from the conflicting branch
-  exports.calculateSum = function (a, b) {
-    return a + b;
-  };
-  exports.calculateProduct = function (a, b) {
-    return a * b;
+  return {
+    passed,
+    summary: counts,
+    details
   };
 }
+
+function formatValidationSummary(result) {
+  if (!result || typeof result !== 'object') {
+    return 'Invalid validation result';
+  }
+  const summary = result.summary || {};
+  return `Accessibility report: ${result.passed ? 'PASSED' : 'FAILED'} (critical: ${summary.critical || 0}, serious: ${summary.serious || 0}, moderate: ${summary.moderate || 0}, minor: ${summary.minor || 0})`;
+}
+
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+function calculateSum(a, b) {
+  return a + b;
+}
+
+function calculateProduct(a, b) {
+  return a * b;
+}
+
+exports.validateAccessibilityReport = validateAccessibilityReport;
+exports.formatValidationSummary = formatValidationSummary;
+exports.greet = greet;
+exports.calculateSum = calculateSum;
+exports.calculateProduct = calculateProduct;

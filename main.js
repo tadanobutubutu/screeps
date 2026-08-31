@@ -254,6 +254,9 @@ function initialize() {
 
   // Accessibility: Fix 1 fake link issue
   fixFakeLink();
+
+  // Initialize accessibility improvements
+  initializeAccessibility();
 }
 
 // New function or change requested in the issue

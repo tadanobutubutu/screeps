@@ -70,10 +70,23 @@ function initAccessibility() {
   });
 }
 
+// TODO: Implement a function to count dependencies
+function countDependencies() {
+  try {
+    const packageJson = require('./package.json');
+    const dependencies = Object.keys(packageJson.dependencies || {}).length;
+    const devDependencies = Object.keys(packageJson.devDependencies || {}).length;
+    return dependencies + devDependencies;
+  } catch (error) {
+    console.error('Error counting dependencies:', error.message);
+    return 0;
+  }
+}
+
 // New function or change requested in the issue
 export function newExportedFunction() {
   // Implementation of the new function
 }
 
 // Export accessibility utilities for use elsewhere
-export { trapFocus, initSkipLink, announceToScreenReader, initAccessibility };
+export { trapFocus, initSkipLink, announceToScreenReader, initAccessibility, countDependencies };

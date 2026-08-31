@@ -1,3 +1,11 @@
+import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import { useLandmark, getFullLangAttribute, addLangAttribute } from './utils';
+import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityProps, getAccessibleLinkProps } from './accessibility';
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -6,18 +14,12 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
-// TODO: This is the existing code that needs to be preserved
-import react from 'react';
-
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
-
-// ... (existing code, exports, and functions)
-
+// Accessibility utility functions (from HEAD, renamed to avoid conflicts)
 function getLangAttribute() {
   // Code for getting the language attribute
 }
 
-function addLangAttribute(element) {
+function addLangAttributeToHtml(element) {
   // Code for adding the language attribute to the specified element
 }
 
@@ -77,6 +79,36 @@ function addLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
+function getInsightReport() {
+  // Mock implementation to get insight report
+  return {
+    issues: []
+  };
+}
+
+function processAccessibilityReport(report) {
+  // Process accessibility report and return findings
+  const findings = {
+    langAttribute: false,
+    tableIssues: 0,
+    landmarkIssues: 0,
+    svgIssues: 0,
+    uniqueLandmarkIssues: 0,
+    fakeLinkIssues: 0
+  };
+
+  if (report) {
+    if (report.REACT_015) findings.langAttribute = true;
+    if (report.REACT_027) findings.tableIssues = report.REACT_027 || 0;
+    if (report.REACT_017) findings.landmarkIssues = report.REACT_017 || 0;
+    if (report.REACT_041) findings.svgIssues = report.REACT_041 || 0;
+    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025 || 0;
+    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036 || 0;
+  }
+
+  return findings;
+}
+
 function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
   // This addresses issues from the insight report:
@@ -97,7 +129,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_015':
         // Add lang attribute to HTML element
         if (issue.element) {
-          addLangAttribute(issue.element);
+          addLangAttributeToHtml(issue.element);
         }
         break;
       case 'REACT_027':
@@ -142,105 +174,157 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// Configuration
+// Configuration and utility functions (from HEAD)
 const config = {
   // Configuration options
 };
 
-// App state
 const appState = {
   // Application state
 };
 
-// Initialize function
 function initialize() {
   // Initialization code
 }
 
-// Initialize app
 function initializeApp() {
   // Initialize the app
 }
 
-// Process data
 function processData(data) {
   // Process data
 }
 
-// Fetch user
 function fetchUser(userId) {
   // Fetch user data
 }
 
-// Clear cache
 function clearCache() {
   // Clear cache
 }
 
-// Validate input
 function validateInput(input) {
   // Validate input
 }
 
-// Main execution
 function main() {
   initialize();
   console.log('Main function executed');
 }
 
-// Run if executed directly
-if (require.main === module) {
-  main();
+// Added from origin/main
+function someFunction() {
+  return 'some value';
 }
 
-function getInsightReport() {
-  // Mock implementation to get insight report
-  return {
-    issues: []
-  };
+const CONFIG = {
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  timeout: 5000
+};
+
+function helper(input) {
+  return input ? input.toUpperCase() : '';
 }
 
-function processAccessibilityReport(report) {
-  // Process accessibility report and return findings
-  const findings = {
-    langAttribute: false,
-    tableIssues: 0,
-    landmarkIssues: 0,
-    svgIssues: 0,
-    uniqueLandmarkIssues: 0,
-    fakeLinkIssues: 0
-  };
-
-  if (report) {
-    if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027 || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017 || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041 || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025 || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036 || 0;
+function formatDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
   }
-
-  return findings;
+  return date.toISOString().split('T')[0];
 }
 
-// Example usage of the new function (if applicable)
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
+// Main React component (from origin/main)
+const MainComponent = () => {
+  const [sorting, setSorting] = useState(sortByTitle);
+  const dispatch = useDispatch();
+  const booksList = useSelector(state => state.books.list);
+  const [newBookTitle, setNewBookTitle] = useState('');
+  const [newBookAuthor, setNewBookAuthor] = useState('');
+  const addBookInputRef = React.useRef(null);
 
-// Add back removed exports
-module.exports = {
-  config,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  processAccessibilityReport,
+  const handleAddBook = (e) => {
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
+    // Implement the accessibility improvements
+    if (typeof enhanceAccessibilityForAddBook === 'function') {
+      enhanceAccessibilityForAddBook();
+    }
+    // Add the new book using the form values if provided
+    if (newBookTitle.trim() && newBookAuthor.trim()) {
+      addBook({ title: newBookTitle.trim(), author: newBookAuthor.trim() });
+      setNewBookTitle('');
+      setNewBookAuthor('');
+    } else {
+      // Add the new book as before
+      addBook();
+    }
+  };
+
+  const handleSort = (sortFunction) => () => {
+    const sortedList = [...booksList].sort(sortFunction);
+    // Dispatch an action to update the sorted book list in the Redux store
+    dispatch({ type: 'SORT_BOOKS', payload: sortedList });
+    setSorting(sortFunction);
+  };
+
+  // Render the list of book items and sorting controls
+  const listItems = booksList.map(book => BookItem(book));
+  return (
+    <main id="main" lang="en" {...useLandmark('main')}>
+      <div {...addLangAttribute('main')}>
+        <div>
+          <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
+          <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
+        </div>
+        <List
+          itemLayout="vertical"
+          dataSource={listItems}
+          renderItem={book => (
+            <List.Item key={generateKey(book)}>
+              <BookItem book={book} />
+            </List.Item>
+          )}
+        />
+        {/* Accessible form for adding a new book */}
+        <form onSubmit={handleAddBook} aria-label="Add new book">
+          <div>
+            <label htmlFor="book-title">Book Title:</label>
+            <input
+              id="book-title"
+              type="text"
+              value={newBookTitle}
+              onChange={(e) => setNewBookTitle(e.target.value)}
+              ref={addBookInputRef}
+              required
+              aria-required="true"
+            />
+          </div>
+          <div>
+            <label htmlFor="book-author">Author:</label>
+            <input
+              id="book-author"
+              type="text"
+              value={newBookAuthor}
+              onChange={(e) => setNewBookAuthor(e.target.value)}
+              required
+              aria-required="true"
+            />
+          </div>
+          <button type="submit">Add Book</button>
+        </form>
+      </div>
+    </main>
+  );
+};
+
+// Export the Main component as default
+export default MainComponent;
+
+// Export accessibility functions and utilities as named exports
+export {
   getLangAttribute,
-  addLangAttribute,
+  addLangAttributeToHtml as addLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
   fixTableStructure,
@@ -256,21 +340,24 @@ module.exports = {
   handleFakeLinks,
   addLandmarkRegions,
   getInsightReport,
-  // Added from origin/main
-  someFunction: function() {
-    return 'some value';
-  },
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'http://localhost:3000',
-    timeout: 5000
-  },
-  helper: function(input) {
-    return input ? input.toUpperCase() : '';
-  },
-  formatDate: function(date) {
-    if (!(date instanceof Date)) {
-      date = new Date(date);
-    }
-    return date.toISOString().split('T')[0];
-  }
+  processAccessibilityReport,
+  addressAccessibilityIssues,
+  config,
+  appState,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  initialize,
+  validateInput,
+  someFunction,
+  CONFIG,
+  helper,
+  formatDate
 };
+
+// Run if executed directly (Node.js environment)
+if (require.main === module) {
+  main();
+}
+```

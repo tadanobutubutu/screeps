@@ -356,3 +356,16 @@ function createInPageButton(parent = (typeof document !== 'undefined' ? document
   
   return btn;
 }
+
+// Export all functions
+export { setHtmlLangAttribute };
+export { detectAndSetLang };
+export { getLangAttribute };
+export { validateTableAccessibility };
+export { validateTableStructure };
+export { validateLandmark };
+export { validateLandmarkStructure };
+export { getSvgAccessibleName };
+export { ensureUniqueLandmarks };
+export { createAccessibleLink };
+export { createInPageButton };

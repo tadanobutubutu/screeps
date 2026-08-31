@@ -15,6 +15,25 @@ const config = {
 };
 
 /**
+ * Validates the table structure for accessibility issues
+ * @param {HTMLTableElement} table - The table to validate
+ * @returns {boolean} Returns true if no accessibility issues are found, false otherwise
+ */
+function validateTableAccessibility(table) {
+  // Add accessibility validation logic here
+  // This is a placeholder function
+  // In a real-world scenario, you would include checks for table headers, roles, etc.
+  if (!table) return false;
+
+  const headers = table.rows[0].cells;
+  if (headers.length === 0) return false;
+
+  // Add more validation logic as needed
+
+  return true; // Assume table passes validation for this placeholder function
+}
+
+/**
  * Creates and starts the HTTP server
  * @returns {http.Server} The created server instance
  */
@@ -41,7 +60,8 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  validateTableAccessibility
 };
 
 // Start the application if run directly

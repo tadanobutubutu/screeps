@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // Import necessary dependencies
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -176,9 +177,12 @@ function getSvgAccessibleName(svgElement) {
     return labelElement ? labelElement.textContent : '';
   }
   
-  // Check for title element inside SVG
-  const titleElement = svgElement.querySelector('title');
-  return titleElement ? titleElement.textContent : '';
+  // Check for (const svgElement of document.querySelectorAll('svg')) {
+    const titleElement = svgElement.querySelector('title');
+    return titleElement ? titleElement.textContent : '';
+  }
+  
+  return '';
 }
 
 // REACT_041: Set SVG attributes for accessibility

@@ -316,11 +316,16 @@ function getStructuresNeedingEnergy(room) {
     );
 }
 
+// ⚡ PERFORMANCE OPTIMIZATION: Hoist container filter predicate to module scope to avoid per-fetch object allocations.
+function _isContainerStructure(s) {
+    return s.structureType === STRUCTURE_CONTAINER;
+}
+
 function getContainers(room) {
     if (room._containers && room._containersTick === Game.time) return room._containers;
     return get(
         `containers_${room.name}`,
-        () => room.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_CONTAINER } }),
+        () => room.find(FIND_STRUCTURES, { filter: _isContainerStructure }),
         CACHE_TTL.STRUCTURES
     );
 }

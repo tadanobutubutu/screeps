@@ -19,9 +19,9 @@ const {
   min,
   mode,
   median,
-} = require('./mathHelpers');
+} = require('./mathUtils');
 
-const { class1, function1, Object1 } = require('./path/to/module');
+const { class1, function1, Object1 } = require('./utils');
 
 const a11yStore = {
   // ... existing methods ...
@@ -35,21 +35,23 @@ const a11yStore = {
   },
 
   updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
+    if (!this.liveRegion) {
+      this.liveRegion = document.getElementById('a11y-live-region');
+    }
     this.announce(message, priority);
   },
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
+    landmarkElements.forEach(element => {
+      const landmarks = document.querySelectorAll(element);
       landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
+          landmark.id = `${element}-${index}`;
         }
         
         if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+          if (!landmark.getAttribute('aria-label')) {
             landmark.setAttribute('aria-label', `${element} ${index + 1}`);
           }
         }
@@ -57,9 +59,9 @@ const a11yStore = {
     });
   },
 
-  addSVGAccessibilityProps() {
+  fixSvgAccessibility() {
     const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
+    svgElements.forEach(svg => {
       let titleElement = svg.querySelector('title');
       if (!titleElement) {
         titleElement = document.createElement('title');
@@ -73,18 +75,18 @@ const a11yStore = {
       
       svg.setAttribute('aria-labelledby', titleElement.id);
       
-      if (!svg.hasAttribute('role')) {
+      if (!svg.getAttribute('role')) {
         svg.setAttribute('role', 'img');
       }
     });
   },
 
   fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href]:not(a)');
-    fakeLinks.forEach((link) => {
+    const fakeLinks = document.querySelectorAll('[href="#"]');
+    fakeLinks.forEach(link => {
       link.setAttribute('role', 'link');
       link.setAttribute('tabindex', '0');
-      link.setAttribute('data-interactive', 'true');
+      link.setAttribute('aria-disabled', 'true');
     });
   },
 
@@ -103,9 +105,9 @@ const a11yStore = {
   }
 };
 
-function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
+function getSvgAccessibleName(svg) {
+  const title = svg.querySelector('title');
+  const desc = svg.querySelector('desc');
   
   if (title && title.textContent) {
     return title.textContent.trim();
@@ -115,12 +117,12 @@ function getSvgAccessibleName(svgElement) {
     return desc.textContent.trim();
   }
   
-  const ariaLabel = svgElement.getAttribute('aria-label');
+  const ariaLabel = svg.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel.trim();
   }
   
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
     const labeledElement = document.getElementById(ariaLabelledby);
     if (labeledElement && labeledElement.textContent) {
@@ -139,7 +141,8 @@ function getSvgAccessibleName(svgElement) {
  */
 function renderDependencyGraph(deps, options = {}) {
   // Use dependencyGraphContent from the imported module
-  return dependencyGraphContent(deps, options);
+  const graphContent = dependencyGraphContent(deps, options);
+  return `<div class="dependency-graph-container" role="img" aria-label="Dependency graph visualization">${graphContent}</div>`;
 }
 
 /**
@@ -154,11 +157,10 @@ function renderIndex(data, options = {}) {
 }
 
 if (typeof document !== 'undefined') {
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('lang', document.documentElement.lang);
-
-  if (!document.documentElement.getAttribute('lang')) {
-    document.documentElement.setAttribute('lang', 'en');
+  const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang')) {
+    document.documentElement.lang = 'en';
   }
 }
 
@@ -167,7 +169,7 @@ function newFunction() {
 }
 
 if (typeof document !== 'undefined') {
-  const banners = document.querySelectorAll('[role="banner"], [role="header"]');
+  const banners = document.querySelectorAll('[role="header"], header');
   if (banners.length > 1) {
     throw new Error('Document should have at most one banner or header landmark');
   }
@@ -182,16 +184,17 @@ function wrapPrimaryContentInMain() {
     return null;
   }
 
-  let mainElement = document.querySelector('main');
+  let mainElement = document.querySelector('main, [role="main"]');
   if (mainElement) {
     return mainElement;
   }
 
   const elementsToExclude = [];
-  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
   landmarks.forEach(landmark => elementsToExclude.push(landmark));
 
   mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
 
   const bodyChildren = Array.from(document.body.children);
   bodyChildren.forEach(child => {

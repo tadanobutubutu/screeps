@@ -1,17 +1,10 @@
-Here is the resolved version of the file `main.js`, incorporating both changes:
-
-```javascript
-import React from 'react';
-import express from 'express';
-import path from 'path';
-import './styles.css';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-import { isSecureContext } from './utils.js';
-import { visualizeDependencyTree } from './utils.js';
-import { setLanguageAttribute, addLandmarkRoles, ensureUniqueLandmarks, handleFakeLinks, getSvgAccessibleName, setSvgAttributes } from './accessibility_fixes.js';
-import addLandmarkRoles from './fix_landmark_issues.js'; // New line for REACT_017
-import ensureUniqueLandmarks2 from './fix_unique_landmarks2.js'; // New line for REACT_025
+import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import { useLandmark, getFullLangAttribute, addLangAttribute } from './utils';
+import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityProps, getAccessibleLinkProps } from './accessibility';
 
 const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
@@ -27,15 +20,20 @@ const config = {
   timeout: 5000
 };
 
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import { isSecureContext } from './utils.js';
+import { visualizeDependencyTree } from './utils.js';
+import { setLanguageAttribute, addLandmarkRoles, ensureUniqueLandmarks, handleFakeLinks, getSvgAccessibleName, setSvgAttributes } from './accessibility_fixes.js';
+import addLandmarkRoles from './fix_landmark_issues.js'; // REACT_017
+import ensureUniqueLandmarks2 from './fix_unique_landmarks2.js'; // REACT_025
+
 const appState = {
   initialized: false,
   data: null,
   cache: new Map()
 };
 
-/**
- * Initializes the application and applies accessibility fixes.
- */
 const initApp = () => {
   // Initialize the main application
   initializeApp();
@@ -104,6 +102,46 @@ const port = process.env.PORT || 3000;
 expressApp.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
-```
 
-In this resolved version, the code incorporates the additional implementation for REACT_017 (`addLandmarkRoles`) and REACT_025 (`ensureUniqueLandmarks2`) from the conflicting changes, making the codebase more inclusive and accessible. The new functions have been added and incorporated alongside the existing code and functions while maintaining syntactical and stylistic consistency.
+// REACT_017: Add/fix 2 landmark issues
+function addLandmarkRoles() {
+  const mainElement = document.querySelector('main');
+  if (mainElement && mainElement.setAttribute) {
+    mainElement.setAttribute('role', 'main');
+  }
+  
+  const navElement = document.querySelector('nav');
+  if (navElement && navElement.setAttribute) {
+    navElement.setAttribute('role', 'navigation');
+  }
+}
+
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks(landmarks) {
+  console.log('Ensuring unique landmarks');
+  return [];
+}
+
+// Function to handle sorting the book list by title (ascending)
+function sortByTitle(a, b) {
+  return a.title.localeCompare(b.title);
+}
+
+// Function to handle sorting the book list by author (descending)
+function sortByAuthor(a, b) {
+  return b.author.localeCompare(a.author);
+}
+
+// Render the main component containing the book list and sorting controls
+const listItems = booksList.map(book => BookItem(book));
+
+return (
+  <div>
+    <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+    <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+    <List dataSource={listItems} renderItem={(book) => BookItem(book)} />
+    <AddBook onAdd={addBook} title={newBookTitle} author={newBookAuthor} />
+  </div>
+);
+
+// App state

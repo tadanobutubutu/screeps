@@ -275,6 +275,31 @@ function checkUniqueLinkText(link) {
   return count === 1;
 }
 
+// Updated existing function using the new functions for rendering graph/index
+function renderGraphIndex(modules) {
+  if (!Array.isArray(modules)) {
+    return 'Error: modules must be an array';
+  }
+  
+  const graphContainer = document.getElementById('dependency-graph');
+  const indexContainer = document.getElementById('module-index');
+  
+  if (graphContainer) {
+    renderDependencyGraph(modules);
+  }
+  
+  if (indexContainer) {
+    displayModuleStructure(modules);
+  }
+  
+  // Return combined output for both graph and index
+  let output = 'Dependency Graph & Module Index:\n';
+  output += '================================\n\n';
+  output += displayModuleStructure(modules);
+  
+  return output;
+}
+
 // Utilities for accessibility scores calculation and logging
 export {
   getLangAttribute,
@@ -322,7 +347,7 @@ export {
 };
 
 // Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, checkLandmarkElements };
+export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, checkLandmarkElements, renderGraphIndex };
 
 // ... other exports ...
 
@@ -494,5 +519,6 @@ module.exports = {
   handleFakeLinks,
   addProperLandmarkRegions,
   displayModuleStructure,
-  calculateSum
+  calculateSum,
+  renderGraphIndex
 };

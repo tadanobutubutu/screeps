@@ -327,6 +327,84 @@ function transformInputData(inputData, options = {}) {
   return inputData;
 }
 
+// Accessibility functions to address insight report issues
+function addLangAttribute() {
+  const html = document.documentElement;
+  if (!html.getAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+  }
+}
+
+function fixTableStructure() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!table.querySelector('thead')) {
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        firstRow.querySelectorAll('th').forEach(cell => headerRow.appendChild(cell));
+        thead.appendChild(headerRow);
+        table.insertBefore(thead, table.firstChild);
+      }
+    }
+    if (!table.querySelector('tbody')) {
+      const tbody = document.createElement('tbody');
+      const rows = table.querySelectorAll('tr');
+      rows.forEach(row => {
+        if (!row.closest('thead')) {
+          tbody.appendChild(row);
+        }
+      });
+      table.appendChild(tbody);
+    }
+  });
+}
+
+function addLandmarkIssues() {
+  const landmarks = document.querySelectorAll('main, nav, aside, header, footer, section[aria-label], div[role="main"]');
+  landmarks.forEach(landmark => {
+    if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+      const tag = landmark.tagName.toLowerCase();
+      landmark.setAttribute('aria-label', tag);
+    }
+  });
+}
+
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('title')) {
+      svg.setAttribute('aria-label', 'SVG graphic');
+    }
+  });
+}
+
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="search"]');
+  const ids = new Set();
+  landmarks.forEach(landmark => {
+    let id = landmark.id;
+    if (!id) {
+      id = 'landmark-' + Math.random().toString(36).substr(2, 9);
+      landmark.id = id;
+    }
+    if (ids.has(id)) {
+      const newId = id + '-' + Math.random().toString(36).substr(2, 9);
+      landmark.id = newId;
+    }
+    ids.add(landmark.id);
+  });
+}
+
+function fixFakeLinkIssue() {
+  const links = document.querySelectorAll('a[href=""], a:not([href])');
+  links.forEach(link => {
+    link.setAttribute('role', 'button');
+    link.setAttribute('tabindex', '0');
+  });
+}
+
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
@@ -347,5 +425,11 @@ module.exports = {
   renderDependencyGraph,
   calculateSum,
   transformInputData,
-  newFocusTrap
+  newFocusTrap,
+  addLangAttribute,
+  fixTableStructure,
+  addLandmarkIssues,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue
 };

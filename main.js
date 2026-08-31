@@ -4,9 +4,9 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from 'node-libs-react/report-validator';
-import a11y from './AccessibilityUtilities';
+import a11y from './AccessibilityUtilities'; // Assuming accessibility utilities are in a separate file
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 
 // Function to get the language attribute value
 function getLangAttribute() {
@@ -227,11 +227,13 @@ function addressAccessibilityIssues() {
     document.body.classList.remove('keyboard-navigation');
   });
 
-  // Assuming a modal/dialog element with the ID "modal"
-  a11y.announce('Welcome to the bot!', 'assertive'); // Assuming announce function from a11y utilities
+  const modal = document.getElementById('modal'); // Assuming a modal/dialog element with the ID "modal"
+  if (modal) {
+    a11y.announce('Welcome to the bot!', 'assertive'); // Assuming announce function from a11y utilities
+  }
 
   // Adding an alt attribute to an image
-  const imageElement = document.querySelector('img[alt=""]');
+  const imageElement = document.querySelector('img:not([alt])');
   if (imageElement) {
     imageElement.setAttribute('alt', 'A description of the image');
   }
@@ -242,11 +244,9 @@ function addressAccessibilityIssues() {
     divElement.setAttribute('role', 'list');
   }
 
-  // Adding the lang attribute to the HTML element
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', getLangAttribute() || 'en');
-  }
+  // Addressing Accessibility Issues
+  addressAccessibilityIssues(); // Call the function to address accessibility issues
+  createInPageButton();
 }
 
 export {

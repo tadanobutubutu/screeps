@@ -1,6 +1,4 @@
-/**
- * Main application entry point
- */
+// main.js - Accessibility-focused implementation
 
 // Import required modules
 const http = require('http');
@@ -15,36 +13,64 @@ const config = {
   port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development'
 };
+=======
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+function renderDependencyGraphs(svgElements) {
+  const accessibleName = getSvgAccessibleName(svgElements);
+  if (accessibleName) {
+    // Use accessibleName
+  }
 
-/**
- * Creates and starts the HTTP server
- * @returns {http.Server} The created server instance
- */
-function createServer() {
-  const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok', config }));
-  });
-  return server;
+  setSvgAttributes(svgElements);
 }
 
-/**
- * Starts the application
- */
-function startApp() {
-  const server = createServer();
-  server.listen(config.port, () => {
-    console.log(`Server running on port ${config.port}`);
-  });
-  return server;
-}
+function checkLandmarkElements() {
+  const checkLandmarkElement = (selector, role, implicitRole) => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach((element) => {
+      const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+      const landmarkRole = role || implicitRole[tagName];
 
-/**
- * Stops the application server
- * @param {http.Server} server - The server instance to stop
- * @param {Function} [callback] - Optional callback to execute after server is closed
- * @returns {http.Server} The stopped server instance
- */
+      if (!landmarkRole) {
+        console.warn(`Missing landmark role for ${tagName}`);
+        return;
+      }
+
+      if (!landmarkRoles.includes(landmarkRole)) {
+        console.warn(`Invalid landmark role: ${landmarkRole} for ${tagName}`);
+      }
+    });
+  };
+
+  const landmarkRoles = [
+    'banner',
+    'main',
+    'navigation',
+    'search',
+    'contentinfo',
+    'complementary',
+    'region',
+    'form'
+  ];
+
+  checkLandmarkElement('[role="main"], main', 'main', {
+    'main': 'main',
+    'header': 'banner',
+    'nav': 'navigation',
+    'footer': 'contentinfo',
+    'aside': 'complementary',
+    'form': 'form',
+    'section': 'region'
+  });
+
+  checkLandmarkElement('[role="banner"], header', 'banner');
+  checkLandmarkElement('[role="navigation"], nav', 'navigation');
+  checkLandmarkElement('[role="contentinfo"], footer', 'contentinfo');
+  checkLandmarkElement('[role="complementary"], aside', 'complementary');
+  checkLandmarkElement('[role="search"], [role="form"], form', 'form');
+}
+=======
+// Stop the application server
 function stopApp(server, callback) {
   if (!server) {
     throw new Error('A server instance is required to stop the application');
@@ -57,22 +83,13 @@ function stopApp(server, callback) {
   return server;
 }
 
-/**
- * Handles health check requests
- * @param {http.IncomingMessage} req - The incoming request object
- * @param {http.ServerResponse} res - The server response object
- * @returns {void}
- */
+// Handles health check requests
 function handleHealthCheck(req, res) {
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ status: 'healthy', timestamp: new Date().toISOString() }));
 }
 
-/**
- * Restarts the application
- * @param {http.Server} server - The current server instance
- * @returns {http.Server} A new server instance
- */
+// Restarts the application
 function restartApp(server) {
   if (server) {
     server.close();
@@ -90,7 +107,37 @@ module.exports = {
   config
 };
 
-// Start the application if run directly
-if (require.main === module) {
-  startApp();
+// Sample insight report
+export { checkLandmarkElements, sampleInsightReport };
+
+const sampleInsightReport = {
+  title: 'Quarterly Performance Report',
+  sections: [
+    {
+      heading: 'Sales Overview',
+      content: 'Total sales increased by 15% compared to last quarter.'
+    },
+    {
+      heading: 'Customer Satisfaction',
+      content: 'Average satisfaction score: 4.2 out of 5.'
+    }
+  ]
+};
+
+function countDependencies() {
+  const fs = require('fs');
+  const packageJsonPath = require('path').join(__dirname, 'package.json');
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+  const dependencies = packageJson.dependencies || {};
+  const devDependencies = packageJson.devDependencies || {};
+
+  return {
+    dependencies: Object.keys(dependencies).length,
+    devDependencies: Object.keys(devDependencies).length,
+    total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+  };
 }
+
+// Rest of the code remains the same
+```

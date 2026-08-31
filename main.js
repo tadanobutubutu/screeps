@@ -1,3 +1,4 @@
+// Existing code from main.js
 (function() {
     'use strict';
 
@@ -35,7 +36,6 @@
     }
 
     // Function to create in-page buttons
-    // Merging both versions by keeping the new functions and improving the existing function
     function createInPageButton(buttonText, onClickHandler) {
       const button = document.createElement('button');
       button.textContent = buttonText;

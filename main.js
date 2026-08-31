@@ -49,7 +49,44 @@ function ensureUniqueLandmarks() {
 
 // New function to add accessible names to SVGs
 function addSvgAccessibleNames() {
-  // Implementation for adding accessible names to SVGs
+  // Extract the accessible name for an SVG from its content
+  const svgs = document.querySelectorAll('svg');
+  
+  svgs.forEach(svg => {
+    // Skip if SVG already has an accessible name
+    if (svg.hasAttribute('aria-label') || 
+        svg.hasAttribute('aria-labelledby') || 
+        svg.hasAttribute('title')) {
+      return;
+    }
+    
+    // Try to find a <title> element inside the SVG
+    const titleElement = svg.querySelector('title');
+    if (titleElement && titleElement.textContent.trim()) {
+      svg.setAttribute('aria-label', titleElement.textContent.trim());
+      return;
+    }
+    
+    // Try to find a <desc> element inside the SVG
+    const descElement = svg.querySelector('desc');
+    if (descElement && descElement.textContent.trim()) {
+      svg.setAttribute('aria-label', descElement.textContent.trim());
+      return;
+    }
+    
+    // If SVG has role="img" or is decorative, handle accordingly
+    const role = svg.getAttribute('role');
+    if (role === 'img' || role === 'graphics-document') {
+      // Try to get text content from the SVG
+      const textContent = svg.textContent.trim();
+      if (textContent) {
+        svg.setAttribute('aria-label', textContent);
+      } else {
+        // Mark as decorative if no accessible name can be determined
+        svg.setAttribute('aria-hidden', 'true');
+      }
+    }
+  });
 }
 
 // New function to fix fake link issue

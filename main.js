@@ -19,13 +19,29 @@ function createInPageButton(buttonText, onClickHandler) {
 }
 
 // TODO: Implement this function for creating in-page buttons
-// (Now implemented)
+function spawnProcess(command) {
+  return new Promise((resolve, reject) => {
+    const childProcess = require('child_process').spawn(command);
+    childProcess.stdout.on('data', (data) => {
+      console.log(`stdout: ${data}`);
+      resolve(data.toString());
+    });
+    childProcess.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`);
+      reject(new Error(`stderr: ${data}`));
+    });
+    childProcess.on('close', (code) => {
+      console.log(`child process exited with code ${code}`);
+    });
+  });
+}
 
 // Example usage (if needed):
-// const btn = createInPageButton('Click Me', () => console.log('Clicked'));
-// document.body.appendChild(btn);
+// spawnProcess('echo', ['Hello, World!'])
+//   .then(stdout => console.log(stdout))
+//   .catch(error => console.error(error));
 
-export { createInPageButton };
+export { createInPageButton, spawnProcess };
 
 function analyzeAccessibility(issuesData) {
   // presume this function is already defined

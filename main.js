@@ -568,6 +568,13 @@ function addProperLandmarkRegions() {
   return landmarks;
 }
 
+// New function: Check if a link is accessible
+function isLinkAccessible(link) {
+  if (!link) return false;
+  const validation = validateLinkAccessibility(link);
+  return validation.valid;
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -595,7 +602,8 @@ if (typeof module !== 'undefined' && module.exports) {
     handleFakeLinks,
     createAccessibleButton,
     addProperLandmarkRegions,
-    ensureUniqueLandmarks
+    ensureUniqueLandmarks,
+    isLinkAccessible
   };
 }
 

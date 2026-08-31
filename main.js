@@ -66,8 +66,3 @@ function gracefulShutdown(server) {
 function addLangAttribute(htmlElement) {
   htmlElement.setAttribute('lang', 'en');
 }
-
-// Let's leave the existing fixTableStructure, fixLandmarkIssues, ensureUniqueLandmarks,
-// addSvgAccessibleNames, fixFakeLinkIssues, googleSignIn, fixButtonIdentifiers,
-// and ensureDependencyGraphAriaRole functions as TODO to be implemented.
-// You can implement them as needed, or omit them if they are not relevant to your issue.

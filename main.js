@@ -603,6 +603,146 @@ function newFunction() {
   document.body.appendChild(button);
 }
 
+// Tower Defense Implementation
+const TOWER_DEFENSE_CONFIG = {
+  boardSize: { rows: 8, cols: 8 },
+  towerCost: 100,
+  enemyHealth: 100,
+  enemySpeed: 50,
+  maxTowers: 10,
+  gameInterval: 1000
+};
+
+class TowerDefenseGame {
+  constructor(config = TOWER_DEFENSE_CONFIG) {
+    this.config = config;
+    this.board = this.createBoard();
+    this.towers = [];
+    this.enemies = [];
+    this.gameIntervalId = null;
+    this.isRunning = false;
+  }
+
+  createBoard() {
+    const { rows, cols } = this.config.boardSize;
+    return Array.from({ length: rows }, () => 
+      Array.from({ length: cols }, () => ({ type: 'path', tower: null }))
+    );
+  }
+
+  placeTower(row, col) {
+    if (this.towers.length >= this.config.maxTowers) {
+      return false;
+    }
+    
+    if (this.board[row] && this.board[row][col]) {
+      const cell = this.board[row][col];
+      if (cell.type !== 'path' || cell.tower) {
+        return false;
+      }
+      
+      const tower = {
+        id: this.towers.length,
+        row,
+        col,
+        damage: 10,
+        range: 3,
+        cost: this.config.towerCost
+      };
+      
+      cell.tower = tower;
+      this.towers.push(tower);
+      return true;
+    }
+    return false;
+  }
+
+  spawnEnemy() {
+    const enemy = {
+      id: this.enemies.length,
+      health: this.config.enemyHealth,
+      position: { row: 0, col: 0 },
+      pathIndex: 0
+    };
+    this.enemies.push(enemy);
+  }
+
+  updateEnemies() {
+    this.enemies.forEach(enemy => {
+      // Simplified movement logic - move along path
+      if (enemy.position.col < this.config.boardSize.cols - 1) {
+        enemy.position.col++;
+      } else if (enemy.position.row < this.config.boardSize.rows - 1) {
+        enemy.position.row++;
+        enemy.position.col = 0;
+      } else {
+        // Enemy reached the end - remove from array
+        return false;
+      }
+      return true;
+    });
+    
+    // Remove enemies that reached the end
+    this.enemies = this.enemies.filter(enemy => 
+      enemy.position.row < this.config.boardSize.rows - 1
+    );
+  }
+
+  updateTowers() {
+    this.towers.forEach(tower => {
+      // Find enemies in range and attack
+      this.enemies.forEach(enemy => {
+        const distance = Math.abs(tower.row - enemy.position.row) + 
+                         Math.abs(tower.col - enemy.position.col);
+        
+        if (distance <= tower.range) {
+          enemy.health -= tower.damage;
+          if (enemy.health <= 0) {
+            // Mark enemy for removal
+            enemy.health = 0;
+          }
+        }
+      });
+    });
+    
+    // Remove dead enemies
+    this.enemies = this.enemies.filter(enemy => enemy.health > 0);
+  }
+
+  start() {
+    if (this.isRunning) return;
+    
+    this.isRunning = true;
+    this.spawnEnemy(); // Initial enemy
+    
+    this.gameIntervalId = setInterval(() => {
+      this.spawnEnemy();
+      this.updateEnemies();
+      this.updateTowers();
+    }, this.config.gameInterval);
+  }
+
+  stop() {
+    if (this.gameIntervalId) {
+      clearInterval(this.gameIntervalId);
+      this.gameIntervalId = null;
+    }
+    this.isRunning = false;
+  }
+
+  getGameState() {
+    return {
+      board: this.board,
+      towers: this.towers,
+      enemies: this.enemies,
+      isRunning: this.isRunning
+    };
+  }
+}
+
+// Export tower defense game class
+export { TowerDefenseGame, TOWER_DEFENSE_CONFIG };
+
 export function calculateDiscount(price, discount) {
   if (typeof price !== 'number' || price < 0) {
     throw new Error('Price must be a non-negative number');

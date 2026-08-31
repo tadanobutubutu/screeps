@@ -1,7 +1,6 @@
 // TODO: Add back any required exports that might have been removed
 
 // Main application entry point
-
 const express = require('express');
 const path = require('path');
 import './styles.css';
@@ -36,73 +35,35 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Error:', err.message);
-  res.status(500).json({ error: 'Internal server error' });
-});
-
-// Start server
-if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server running on http://${HOST}:${PORT}`);
-  });
-}
-
-// Export all required items
-module.exports = {
-  app,
-  PORT,
-  HOST,
-  // Export utility functions that might be needed
-  formatResponse: (data, status = 'success') => {
-    return { status, data, timestamp: new Date().toISOString() };
-  },
-  validateInput: (input) => {
-    if (!input || typeof input !== 'object') {
-      return { valid: false, error: 'Invalid input' };
-    }
-    return { valid: true };
-  },
-  processData: (data) => {
-    if (!data) return null;
-    return { ...data, processed: true, processedAt: Date.now() };
-  }
+const config = {
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  timeout: 5000
 };
 
-// Accessibility and Landmark Functions
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-import { isSecureContext } from './utils.js';
-
-// wrapPrimaryContentInMain function implemented at the bottom of the file
-
-// Application data structure
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
-};
-
-// Configuration and state
-let config = {};
 let appState = {};
 
-// Initialize function
 function initialize() {
-  config = { apiUrl: process.env.API_URL || 'http://localhost:3000', timeout: 5000 };
   appState = { initialized: true };
 }
 
 function initializeApp() {
   initialize();
+  return appState;
 }
 
 function processData(data) {
+  if (!data) {
+    return null;
+  }
+  appState.data = data;
   return data;
 }
 
 function fetchUser(userId) {
-  return { id: userId, name: 'User' };
+  if (!userId) {
+    return null;
+  }
+  return { id: userId, name: 'User ' + userId };
 }
 
 function clearCache() {
@@ -113,63 +74,76 @@ function validateInput(input) {
   return input && input.length > 0;
 }
 
-// Main function (required export)
-function main() {
-  mainExecution();
-  return { executed: true };
-}
-
-// Main function - required export
-function main() {
-  mainExecution();
-}
-
-// Main execution
-function main() {
-  initialize();
-  console.log('Main function executed');
-}
-
-// Landmark data structure
-const landmarks = [];
-
-/**
- * Function to check if the specified landmark element is in the document.
- * @param {string} id - The ID of the landmark element.
- * @returns {boolean} Returns true if the element exists; otherwise, false.
- */
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  return element !== null;
-}
-
-// Ensure unique landmarks by filtering duplicates
-function ensureUniqueLandmarks(landmarks) {
-  const seen = new Set();
-  return landmarks.filter(landmark => {
-    const key = landmark.name + '_' + (landmark.role || 'default');
-    if (seen.has(key)) {
-      return false;
-    }
-    seen.add(key);
-    return true;
-  });
-}
-
-// Testing the checkLandmarkElement function:
-// To test this function, we could create a test file with the following content:
-const landmarkStructureCheck = (landmark) => {
-  if (!landmark.name || !landmark.coordinates) {
-    return false;
-  }
-  return true;
+export {
+  app,
+  PORT,
+  HOST,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  validateInput,
+  formatResponse,
+  validateInput,
+  processData,
+  config
 };
 
-/**
- * REACT_015: Add lang attribute to HTML element
- * Sets the language attribute on the HTML element.
- */
-function setLanguageAttribute() {
-  const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang
+// Application data structure
+const appData = {
+  title: 'Screeps',
+  version: '1.0.0'
+};
+
+// Accessibility and Landmark Functions
+function addLandmarkRegions() {
+  addProperLandmarkRegions();
+}
+
+function addProperLandmarkRegions(container) {
+  const result = { added: [], issues: [] };
+  const root = container || document.body;
+
+  // Check for main landmark
+  let main = root.querySelector('main, [role="main"]');
+  if (!main) {
+    main = document.createElement('main');
+    const firstChild = root.firstChild;
+    if (firstChild) {
+      root.insertBefore(main, firstChild);
+    } else {
+      root.appendChild(main);
+    }
+    result.added.push('main');
+  }
+
+  // Check for header/banner landmark
+  let header = root.querySelector('header, [role="banner"]');
+  if (!header) {
+    header = document.createElement('header');
+    root.insertBefore(header, root.firstChild);
+    result.added.push('header');
+  }
+
+  // Check for footer/contentinfo landmark
+  let footer = root.querySelector('footer, [role="contentinfo"]');
+  if (!footer) {
+    footer = document.createElement('footer');
+    root.appendChild(footer);
+    result.added.push('footer');
+  }
+
+  return result;
+}
+
+// Export utility functions
+export {
+  addLandmarkRegions,
+  addProperLandmarkRegions,
+  checkLandmarkElement,
+  config,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  addMainLandmark
+};

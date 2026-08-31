@@ -20,8 +20,14 @@ const config = {
  */
 function createServer() {
   const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok', config }));
+    // Add the following new function to simulate the server's behavior (for the proposed issue)
+    if (req.url === '/api/example') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok', message: 'This is an example response' }));
+    } else {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok', config }));
+    }
   });
   return server;
 }
@@ -37,11 +43,20 @@ function startApp() {
   return server;
 }
 
-// Export functions for testing
+// Export functions for testing and the new function for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  // Add the new function to be tested
+  handleRequest: function(req) {
+    return new Promise(resolve => {
+      const server = createServer();
+      server.request(req, (res) => {
+        resolve(res);
+      });
+    });
+  }
 };
 
 // Start the application if run directly

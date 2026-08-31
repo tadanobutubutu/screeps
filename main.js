@@ -292,6 +292,28 @@ function add(a, b) {
   return a + b;
 }
 
+/**
+ * Renders a dependency graph into a container.
+ * @param {HTMLElement} container - The container element to render into.
+ * @param {Object} data - The dependency graph data.
+ */
+function renderDependencyGraph(container, data) {
+  if (container) {
+    container.innerHTML = JSON.stringify(data);
+  }
+}
+
+/**
+ * Updates an existing dependency graph with new data.
+ * @param {HTMLElement} container - The container element of the graph.
+ * @param {Object} data - The new data to apply.
+ */
+function updateDependencyGraph(container, data) {
+  if (container) {
+    renderDependencyGraph(container, data);
+  }
+}
+
 // Export existing functionality and new functions
 export { 
   initialize, 
@@ -305,12 +327,16 @@ export {
   add, 
   calculateDiscount, 
   newFunction, 
-  renderIndexView 
+  renderIndexView,
+  renderDependencyGraph,
+  updateDependencyGraph 
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
 module.exports.newFunction = newFunction;
 module.exports.renderIndexView = renderIndexView;
+module.exports.renderDependencyGraph = renderDependencyGraph;
+module.exports.updateDependencyGraph = updateDependencyGraph;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {

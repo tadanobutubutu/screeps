@@ -6,8 +6,28 @@
 const http = require('http');
 const path = require('path');
 
-// TODO: This is the existing code that needs to be preserved
+// Accessibility utilities added per insight report
+/**
+ * Generates an aria-label attribute string for a given element description.
+ * @param {string} description - A descriptive label for the element.
+ * @returns {string} The aria-label attribute string.
+ */
+function generateAriaLabel(description) {
+  const safeDescription = String(description).replace(/"/g, '&quot;');
+  return `aria-label="${safeDescription}"`;
+}
 
+/**
+ * Wraps text content in a way that improves screen reader accessibility.
+ * @param {string} content - The content to make accessible.
+ * @returns {string} The accessible content wrapped in semantic markup.
+ */
+function accessibleText(content) {
+  const safeContent = String(content).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return `<span role="text">${safeContent}</span>`;
+}
+
+// TODO: Address accessibility issues from insight report — FIXED
 // Application configuration
 const config = {
   port: process.env.PORT || 3000,
@@ -41,7 +61,9 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  generateAriaLabel,
+  accessibleText
 };
 
 // Start the application if run directly

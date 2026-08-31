@@ -5,6 +5,55 @@ function calculateSum(a, b) {
 }
 
 /**
+ * Checks links and buttons for accessibility issues
+ * @param {Array} elements - Array of DOM elements to check (links and buttons)
+ * @returns {Array} - Array of accessibility issues found
+ */
+function checkLinkAndButtonAccessibility(elements) {
+  const issues = [];
+  
+  elements.forEach((element, index) => {
+    if (!element) {
+      return;
+    }
+    
+    const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+    
+    if (tagName === 'a' || tagName === 'link') {
+      const hasAccessibleName = element.getAttribute('aria-label') || 
+                                element.textContent || 
+                                element.innerText ||
+                                element.title;
+      
+      if (!hasAccessibleName) {
+        issues.push({
+          type: 'link',
+          element: element,
+          index: index,
+          issue: 'Link has no accessible name'
+        });
+      }
+    } else if (tagName === 'button') {
+      const hasAccessibleName = element.getAttribute('aria-label') || 
+                                element.textContent || 
+                                element.innerText ||
+                                element.title;
+      
+      if (!hasAccessibleName) {
+        issues.push({
+          type: 'button',
+          element: element,
+          index: index,
+          issue: 'Button has no accessible name'
+        });
+      }
+    }
+  });
+  
+  return issues;
+}
+
+/**
  * Addresses accessibility issues from an insight report by applying fixes
  * @param {Array} issues - Array of accessibility issues to address
  * @param {Object} options - Options for how to address the issues

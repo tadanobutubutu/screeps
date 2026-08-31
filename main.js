@@ -1,262 +1,228 @@
-// Import necessary dependencies
-import React, { useState, useEffect, useRef } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { List, Button } from 'antd';
+const express = require('express');
+const path = require('path');
 
-// Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
+class User {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
 }
 
-// Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
+const landmarks = [];
+
+function spawnNewUser(name, age) {
+    return new User(name, age);
 }
 
-// Function to generate a key for each book item
-function generateKey(book) {
-  return book.id || `${book.title}-${book.author}`;
+const config = {
+    apiUrl: process.env.API_URL || 'https://api.example.com',
+    timeout: 5000
+};
+
+const appState = {
+    initialized: false,
+    data: null,
+    cache: new Map()
+};
+
+function initialize() {
+    appState.initialized = true;
+    console.log('App initialized');
 }
 
-// Function to render a single book item
-function BookItem({ book }) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        description={`by ${book.author}`}
-      />
-    </List.Item>
-  );
+function initializeApp() {
+    initialize();
+    return appState;
 }
 
-// Function to render the form for adding a new book entry
-function BookForm() {
-  const dispatch = useDispatch();
-
-  // Define state for the form inputs
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-
-  // Handle input changes
-  const handleTitleChange = (e) => setTitle(e.target.value);
-  const handleAuthorChange = (e) => setAuthor(e.target.value);
-
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Perform any necessary validation or processing before adding the book
-    // ...
-
-    // Dispatch an action to add the book to the books list in the Redux store
-    dispatch({ type: 'ADD_BOOK', payload: { title, author } });
-  };
-
-  // Render the form
-  return (
-    <form onSubmit={handleSubmit}>
-      <label htmlFor="title">Title:</label>
-      <input
-        type="text"
-        id="title"
-        value={title}
-        onChange={handleTitleChange}
-        aria-label="Book title"
-      />
-      <label htmlFor="author">Author:</label>
-      <input
-        type="text"
-        id="author"
-        value={author}
-        onChange={handleAuthorChange}
-        aria-label="Book author"
-      />
-      <button type="submit">Add Book</button>
-    </form>
-  );
+function main() {
+    initialize();
+    initializeApp();
+    console.log('Main function executed');
+    return { executed: true };
 }
 
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
+function validateLandmark(landmark) {
+    const errors = [];
 
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort(dispatch, list) {
-  const sortedList = [...list].sort(sortByTitle);
-  dispatch({ type: 'SET_SORTED_LIST', payload: sortedList });
-}
-
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort(dispatch, list) {
-  const sortedList = [...list].sort(sortByAuthor);
-  dispatch({ type: 'SET_SORTED_LIST', payload: sortedList });
-}
-
-// Accessible Add Book Form component
-function AddBookForm({ onAddBook }) {
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [error, setError] = useState('');
-  const titleInputRef = useRef(null);
-  const formRef = useRef(null);
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setError('');
-
-    if (!title.trim()) {
-      setError('Title is required');
-      if (titleInputRef.current) {
-        titleInputRef.current.focus();
-      }
-      return;
+    if (landmark === undefined || landmark === null) {
+        errors.push('Landmark must have a valid object structure');
+    } else if (!landmarkStructureCheck(landmark)) {
+        errors.push('Landmark must have a name, latitude, and longitude');
     }
 
-    if (!author.trim()) {
-      setError('Author is required');
-      return;
+    // Additional validation: check for array composition with name
+    if (Array.isArray(landmark) && landmark.length > 0) {
+        landmark.forEach(innerLandmark => {
+            if (!innerLandmark || typeof innerLandmark !== 'object' || !innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+                errors.push('Landmark array must have valid landmarks with names');
+            }
+        });
     }
 
-    onAddBook({ title: title.trim(), author: author.trim() });
-    setTitle('');
-    setAuthor('');
-    
-    // Move focus to title input after successful submission for accessibility
-    if (titleInputRef.current) {
-      titleInputRef.current.focus();
-    }
-  };
+    return errors;
+}
 
-  const handleTitleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      // Move to author input on Enter key
-      const form = formRef.current;
-      if (form) {
-        const authorInput = form.querySelector('#add-book-author');
-        if (authorInput) {
-          authorInput.focus();
+// Accessibility helper functions (merged)
+
+function validateTableAccessibility(table) {
+    const issues = validateTableAccessibility(table) || validateTableAccessibility(table);
+    return issues;
+}
+
+function validateTableStructure(table) {
+    const issues = validateTableStructure(table) || validateTableStructure(table);
+    return issues;
+}
+
+function fixTableStructure(table) {
+    fixTableStructure(table) || fixTableStructure(table);
+}
+
+// Landmark helper functions (merged)
+
+function ensureLandmarkUniqueness(elements, unique) {
+    if (unique && Array.isArray(elements)) {
+        const elementsById = {};
+
+        for (const landmark of elements) {
+            if (landmark && landmark.id) {
+                if (!elementsById[landmark.id]) {
+                    elementsById[landmark.id] = true;
+                } else {
+                    landmark.id += '_duplicate';
+                }
+            }
         }
+
+        return elements;
+    }
+    return elements;
+}
+
+function getSvgAccessibleName(svgElement) {
+    // Check for aria-label
+    let label = svgElement.getAttribute('aria-label');
+
+    // Check for aria-labelledby
+    const labelledBy = svgElement.getAttribute('aria-labelledby');
+    if (labelledBy) {
+        const labelElement = document.getElementById(labelledBy);
+        if (labelElement) {
+            label = labelElement.textContent;
+        }
+    }
+
+    // Check for title element inside SVG
+    if (!label) {
+        const title = svgElement.querySelector('title');
+        if (title) {
+            label = title.textContent;
+        }
+    }
+
+    return label || '';
+}
+
+function setSvgAttributes(svgElement, accessibleName) {
+    svgElement.setAttribute('role', 'img');
+
+    if (!svgElement.getAttribute('aria-label') && accessibleName) {
+        svgElement.setAttribute('aria-label', accessibleName);
+    }
+
+    const existingTitle = svgElement.querySelector('title');
+    if (!existingTitle && accessibleName) {
+        const title = document.createElement('title');
+        title.textContent = accessibleName;
+        svgElement.insertBefore(title, svgElement.firstChild);
+    }
+}
+
+function ensureUniqueLandmarks(landmarksArray) {
+    return ensureUniqueLandmarks(landmarksArray);
+}
+
+// Accessibility helper functions (added back)
+
+function setLanguageAttribute(lang) {
+    if (typeof document !== 'undefined') {
+        document.documentElement.setAttribute('lang', lang);
+    }
+}
+
+function addLandmarkRoles(element, role) {
+    if (element && role) {
+        element.setAttribute('role', role);
+    }
+    return element;
+}
+
+function fixFakeLinks(element) {
+    if (element && element.tagName === 'A' && !element.hasAttribute('href')) {
+        element.setAttribute('role', 'button');
+    }
+    return element;
+}
+
+function isSecureContext() {
+    if (typeof window !== 'undefined' && window.isSecureContext !== undefined) {
+        return window.isSecureContext;
+    }
+    return false;
+}
+
+// New function for handling focus trap for keyboard navigation
+function newFocusTrap(focusableElements, onEscape) {
+  const initialFocus = null;
+
+  function trapFocus(event) {
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      const focusable = Array.from(focusableElements).filter(el => el.offsetWidth > 0 && el.offsetHeight > 0);
+      if (focusable[0]) {
+        focusable[0].focus();
+      } else {
+        if (initialFocus) initialFocus.focus();
       }
+    } else if (event.key === 'Escape') {
+      // Close the trap by returning focus to the last focused element
+      // In a real implementation, we would need to track the previous element
+      console.log('Focus trap triggered, returning focus');
     }
+  }
+
+  document.addEventListener('keydown', trapFocus);
+
+  return () => {
+    document.removeEventListener('keydown', trapFocus);
   };
-
-  return (
-    <form 
-      ref={formRef}
-      onSubmit={handleSubmit}
-      aria-label="Add new book form"
-      style={{ marginBottom: '16px' }}
-    >
-      <div style={{ marginBottom: '8px' }}>
-        <label htmlFor="add-book-title" id="add-book-title-label">
-          Book Title
-        </label>
-        <input
-          id="add-book-title"
-          ref={titleInputRef}
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onKeyDown={handleTitleKeyDown}
-          aria-required="true"
-          aria-labelledby="add-book-title-label"
-          placeholder="Enter book title"
-          style={{ marginLeft: '8px' }}
-        />
-      </div>
-      
-      <div style={{ marginBottom: '8px' }}>
-        <label htmlFor="add-book-author" id="add-book-author-label">
-          Author
-        </label>
-        <input
-          id="add-book-author"
-          type="text"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          aria-required="true"
-          aria-labelledby="add-book-author-label"
-          placeholder="Enter author name"
-          style={{ marginLeft: '8px' }}
-        />
-      </div>
-
-      {error && (
-        <div 
-          role="alert" 
-          aria-live="polite"
-          style={{ color: 'red', marginBottom: '8px' }}
-        >
-          {error}
-        </div>
-      )}
-
-      <button 
-        type="submit"
-        aria-describedby={error ? 'add-book-error' : undefined}
-      >
-        Add Book
-      </button>
-    </form>
-  );
 }
 
-// Render the main component containing the book list and sorting controls
-function Main() {
-  const dispatch = useDispatch();
-  const booksList = useSelector(state => state.books?.list || []);
-  const [sorting, setSorting] = useState(defaultSorting);
+// TODO: Implement spawning logic
 
-  // Function to add a new book to the Redux store
-  const handleAddBook = (book) => {
-    dispatch({ type: 'ADD_BOOK', payload: book });
-  };
+// ... Additional functions and exports
 
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort(dispatch, booksList);
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort(dispatch, booksList);
+// Main execution when run directly
+if (require.main === module) {
+    // Start server
+    const app = express();
+    const PORT = process.env.PORT || 3000;
+    const HOST = process.env.HOST || 'localhost';
+
+    app.listen(PORT, () => {
+        console.log(`Server running on http://${HOST}:${PORT}`);
+    });
+
+    // Visualize dependency tree when running directly
+    visualizeDependencyTree(require.dependencies);
+
+    // Run accessibility check and fix issues if any
+    const insightReport = getInsightReport();
+    if (insightReport.length > 0) {
+        console.log('Accessibility issues found:');
+        insightReport.forEach((issue) => {
+            console.log(`${issue.type}: ${issue.description}`);
+        });
+        addressAccessibilityIssues(insightReport);
     }
-  }, [sorting, dispatch, booksList]);
-
-  // Map the book list to the BookItem function to create book items
-  const bookItems = booksList.map((book) => (
-    <BookItem key={generateKey(book)} book={book} />
-  ));
-
-  // Render the list of book items, sorting controls, and the book form
-  return (
-    <div>
-      <h2 id="add-book-heading">Add a New Book</h2>
-      <AddBookForm onAddBook={handleAddBook} />
-      
-      <h2>Book List</h2>
-      <div role="group" aria-label="Sorting controls">
-        <button 
-          onClick={() => setSorting(sortByTitle)}
-          aria-pressed={sorting === sortByTitle}
-        >
-          Sort by Title
-        </button>
-        <button 
-          onClick={() => setSorting(sortByAuthor)}
-          aria-pressed={sorting === sortByAuthor}
-        >
-          Sort by Author
-        </button>
-      </div>
-      
-      <List 
-        aria-label="Books collection"
-        dataSource={bookItems}
-        renderItem={(item) => item}
-      />
-    </div>
-  );
 }
-
-// Export the Main component and the BookForm component
-export default Main;
-export { BookForm };

@@ -8,11 +8,12 @@
  * @returns {Function} - Debounced function
  */
 function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
+  var timeout;
+  return function executedFunction() {
+    var args = Array.prototype.slice.call(arguments);
+    var later = function() {
       clearTimeout(timeout);
-      func(...args);
+      func.apply(this, args);
     };
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
@@ -26,12 +27,15 @@ function debounce(func, wait) {
  * @returns {Function} - Throttled function
  */
 function throttle(func, limit) {
-  let inThrottle;
-  return function executedFunction(...args) {
+  var inThrottle;
+  return function executedFunction() {
+    var args = Array.prototype.slice.call(arguments);
     if (!inThrottle) {
-      func(...args);
+      func.apply(this, args);
       inThrottle = true;
-      setTimeout(() => (inThrottle = false), limit);
+      setTimeout(function() {
+        inThrottle = false;
+      }, limit);
     }
   };
 }
@@ -64,12 +68,14 @@ function clamp(value, min, max) {
 function deepClone(obj) {
   if (obj === null || typeof obj !== 'object') return obj;
   if (obj instanceof Date) return new Date(obj);
-  if (Array.isArray(obj)) return obj.map(item => deepClone(item));
+  if (Array.isArray(obj)) return obj.map(function(item) {
+    return deepClone(item);
+  });
   if (typeof obj === 'object') {
-    const cloned = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) cloned[key] = deepClone(obj[key]);
-    }
+    var cloned = {};
+    Object.keys(obj).forEach(function(key) {
+      cloned[key] = deepClone(obj[key]);
+    });
     return cloned;
   }
   return obj;
@@ -89,7 +95,8 @@ function generateId() {
  * @param {*} defaultValue - Default value if parsing fails
  * @returns {*} - Parsed object or default value
  */
-function safeJsonParse(str, defaultValue = null) {
+function safeJsonParse(str, defaultValue) {
+  if (defaultValue === undefined) defaultValue = null;
   try {
     return JSON.parse(str);
   } catch (e) {
@@ -98,10 +105,14 @@ function safeJsonParse(str, defaultValue = null) {
 }
 
 // Accessibility helper functions
-function handleKeyboardNavigation(options = {}) {
-  const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
+function handleKeyboardNavigation(options) {
+  if (options === undefined) options = {};
+  var onEnter = options.onEnter;
+  var onEscape = options.onEscape;
+  var onArrowUp = options.onArrowUp;
+  var onArrowDown = options.onArrowDown;
   
-  return (event) => {
+  return function(event) {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -126,18 +137,18 @@ function handleKeyboardNavigation(options = {}) {
 }
 
 // Alias for backwards compatibility
-const handleKeyboard = handleKeyboardNavigation;
+var handleKeyboard = handleKeyboardNavigation;
 
 // Helper to manage focus within a container
 function trapFocus(container) {
-  const focusableElements = container.querySelectorAll(
+  var focusableElements = container.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
 
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
+  var firstElement = focusableElements[0];
+  var lastElement = focusableElements[focusableElements.length - 1];
 
-  const handleTab = (event) => {
+  function handleTab(event) {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -147,27 +158,27 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  };
+  }
 
   container.addEventListener('keydown', handleTab);
   
-  return () => {
+  return function() {
     container.removeEventListener('keydown', handleTab);
   };
 }
 
 // ARIA live region announcer
 function createAnnouncer() {
-  const announcer = document.createElement('div');
+  var announcer = document.createElement('div');
   announcer.setAttribute('aria-live', 'polite');
   announcer.setAttribute('aria-atomic', 'true');
   announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
   document.body.appendChild(announcer);
 
   return {
-    announce: (message) => {
+    announce: function(message) {
       announcer.textContent = '';
-      setTimeout(() => {
+      setTimeout(function() {
         announcer.textContent = message;
       }, 100);
     }
@@ -181,15 +192,15 @@ function prefersReducedMotion() {
 
 // Get the lang attribute from the HTML element
 function getLangAttribute() {
-  const doc = getDocument();
-  const htmlElement = doc ? doc.querySelector('html') : null;
+  var doc = getDocument();
+  var htmlElement = doc ? doc.querySelector('html') : null;
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
 // Ensure the HTML element has proper ARIA attributes including lang
 function ensureDependencyGraphARIA() {
-  const doc = getDocument();
-  let htmlElement = doc ? doc.querySelector('html') : null;
+  var doc = getDocument();
+  var htmlElement = doc ? doc.querySelector('html') : null;
   
   if (!htmlElement) {
     return { lang: null, dir: null };
@@ -214,15 +225,15 @@ function ensureDependencyGraphARIA() {
 
 // Add accessible names to SVG elements
 function addAccessibleNamesToSvg(container) {
-  const svgs = container.querySelectorAll('svg');
+  var svgs = container.querySelectorAll('svg');
   if (svgs.length >= 2) {
     svgs[0].setAttribute('aria-label', 'First SVG');
     svgs[1].setAttribute('aria-label', 'Second SVG');
   }
   
-  svgs.forEach((svg, index) => {
+  svgs.forEach(function(svg, index) {
     if (!svg.hasAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
-      svg.setAttribute('aria-label', `SVG element ${index + 1}`);
+      svg.setAttribute('aria-label', 'SVG element ' + (index + 1));
     }
   });
 }
@@ -234,7 +245,7 @@ function addAccessibleNamesToSvg(container) {
  */
 function isInViewport(element) {
   if (typeof document === 'undefined') return false;
-  const rect = element.getBoundingClientRect();
+  var rect = element.getBoundingClientRect();
   return (
     rect.top >= 0 &&
     rect.left >= 0 &&
@@ -287,7 +298,7 @@ function handleFakeLinks(links) {
 }
 
 // Internal set to track used landmark IDs
-const _usedLandmarkIds = new Set();
+var _usedLandmarkIds = {};
 
 /**
  * Creates a unique identifier for a landmark given a base name.
@@ -295,13 +306,13 @@ const _usedLandmarkIds = new Set();
  * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
-    let candidate = baseName;
-    if (_usedLandmarkIds.has(candidate)) {
+    var candidate = baseName;
+    if (_usedLandmarkIds.hasOwnProperty(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
-        candidate = `${baseName}-${suffix}`;
+        var suffix = Math.random().toString(36).substring(2, 9);
+        candidate = baseName + '-' + suffix;
     }
-    _usedLandmarkIds.add(candidate);
+    _usedLandmarkIds[candidate] = true;
     return candidate;
 }
 
@@ -320,7 +331,7 @@ function addAriaLabel(element, label) {
  * Adds lang attribute as per the issue requirement
  */
 function addLangAttribute() {
-  const elementToModify = typeof document !== 'undefined' ? document.querySelector('html') : null;
+  var elementToModify = typeof document !== 'undefined' ? document.querySelector('html') : null;
   if (elementToModify) {
     elementToModify.setAttribute('lang', 'en'); // Example: English
   }
@@ -328,14 +339,14 @@ function addLangAttribute() {
 
 // New helper functions to address the additional accessibility requirements
 function ensureElementHasId(elementId) {
-  const element = typeof document !== 'undefined' ? document.getElementById(elementId) : null;
+  var element = typeof document !== 'undefined' ? document.getElementById(elementId) : null;
   if (element && !element.hasAttribute('id')) {
     element.setAttribute('id', elementId);
   }
 }
 
 function addAriaLabelById(elementId, label) {
-  const element = typeof document !== 'undefined' ? document.getElementById(elementId) : null;
+  var element = typeof document !== 'undefined' ? document.getElementById(elementId) : null;
   if (element) {
     element.setAttribute('aria-label', label);
   }
@@ -361,7 +372,7 @@ function displayModuleStructure(module) {
 function generateAccessibilityReport() {
   // Implementation for generating a report based on accessibility issues
   // This is a placeholder; actual implementation should collect issues
-  const report = {
+  var report = {
     timestamp: new Date().toISOString(),
     issues: []
   };
@@ -370,11 +381,11 @@ function generateAccessibilityReport() {
 
 // Function to check link accessibility
 function checkLinkAccessibility() {
-  const doc = getDocument();
+  var doc = getDocument();
   if (doc) {
-    const links = doc.querySelectorAll('a');
-    let issues = [];
-    links.forEach(link => {
+    var links = doc.querySelectorAll('a');
+    var issues = [];
+    links.forEach(function(link) {
       if (!link.textContent && !link.getAttribute('aria-label')) {
         issues.push('Link missing accessible name');
       }
@@ -450,8 +461,8 @@ if (typeof document !== 'undefined') {
     createInPageButton();
     
     // Validate tables
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
+    var tables = document.querySelectorAll('table');
+    tables.forEach(function(table) {
       validateTableAccessibility(table);
       validateTableStructure(table);
     });
@@ -462,9 +473,9 @@ if (typeof document !== 'undefined') {
     ensureUniqueLandmarks();
     
     // Add accessible names to SVGs
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach(svg => {
-      const accessibleName = getSvgAccessibleName(svg);
+    var svgs = document.querySelectorAll('svg');
+    svgs.forEach(function(svg) {
+      var accessibleName = getSvgAccessibleName(svg);
       setSvgAttributes(svg, accessibleName);
     });
     
@@ -480,15 +491,15 @@ if (typeof document !== 'undefined') {
     addAriaLabelById('inPageButton', 'Accessibility menu');
     
     // Fix button identifiers
-    const buttons = document.querySelectorAll('button, [role="button"]');
-    buttons.forEach((button, index) => {
+    var buttons = document.querySelectorAll('button, [role="button"]');
+    buttons.forEach(function(button, index) {
       if (!button.id) {
-        button.id = `accessible-button-${index}`;
+        button.id = 'accessible-button-' + index;
       }
     });
     
     // Google sign-in accessibility
-    const googleButton = document.querySelector('[data-google-signin]');
+    var googleButton = document.querySelector('[data-google-signin]');
     if (googleButton) {
       googleButton.setAttribute('aria-label', 'Sign in with Google');
       googleButton.setAttribute('role', 'button');
@@ -498,26 +509,26 @@ if (typeof document !== 'undefined') {
 
 // Initialize accessibility features
 function initializeAccessibility() {
-  const announcer = createAnnouncer();
+  var announcer = createAnnouncer();
 
   // Return the announcer for use in the app
   return {
     announce: announcer.announce,
-    handleKeyboardNavigation,
-    handleKeyboard,
-    trapFocus,
-    createAnnouncer,
-    prefersReducedMotion,
-    ensureDependencyGraphARIA,
-    getLangAttribute
+    handleKeyboardNavigation: handleKeyboardNavigation,
+    handleKeyboard: handleKeyboard,
+    trapFocus: trapFocus,
+    createAnnouncer: createAnnouncer,
+    prefersReducedMotion: prefersReducedMotion,
+    ensureDependencyGraphARIA: ensureDependencyGraphARIA,
+    getLangAttribute: getLangAttribute
   };
 }
 
 // Screeps game loop
 module.exports = function() {
     // Initialize accessibility features
-    const langAttr = getLangAttribute();
-    const primaryContent = wrapPrimaryContentInMain();
+    var langAttr = getLangAttribute();
+    var primaryContent = wrapPrimaryContentInMain();
 
     // Validate accessibility
     validateTableAccessibility();
@@ -527,7 +538,7 @@ module.exports = function() {
     addFixLandmarkIssues();
 
     // SVG accessibility
-    const svgName = getSvgAccessibleName();
+    var svgName = getSvgAccessibleName();
     addAriaToFormControls();
 
     // Unique landmarks and fake link fixes
@@ -536,13 +547,15 @@ module.exports = function() {
     createAccessibleLink();
 
     // Harvest and upgrade logic
-    const creeps = Game.creeps;
-    const sources = Game.sources;
-    const controller = Game.controllers[0]; // assuming first controller
+    var creeps = Game.creeps;
+    var sources = Game.sources;
+    var controller = Game.controllers[0]; // assuming first controller
 
-    Object.values(creeps).forEach(creep => {
-        const source = creep.findClosestByPath(FIND_SOURCES, {
-            filter: (source) => source.energy > 0
+    Object.values(creeps).forEach(function(creep) {
+        var source = creep.findClosestByPath(FIND_SOURCES, {
+            filter: function(source) {
+                return source.energy > 0;
+            }
         });
         if (source) {
             harvest(creep, source);

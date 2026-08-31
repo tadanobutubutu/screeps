@@ -4,6 +4,7 @@ const path = require('path');
 // Import dependency graph and index content modules
 const dependencyGraphContent = require('./dependencyGraphContent');
 const indexContent = require('./indexContent');
+const a11yStore = require('./a11yStore');
 
 // Landmark elements that should be checked for proper usage
 const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
@@ -93,20 +94,12 @@ function createInPageButton(options) {
   return button;
 }
 
-// TODO: This is the existing code that needs to be preserved
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-
-// TODO: Implement a function to count dependencies
+// Implement a function to count dependencies
 function countDependencies() {
   // Existing function implementation
 
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`];
+  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/g;
   const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }
@@ -115,9 +108,6 @@ function countDependencies() {
 function renderIndexView() {
   return indexContent;
 }
-
-// Import a11y store configuration
-const a11yStore = require('./a11yStore');
 
 // New function to handle adding landmark regions
 function addLandmarkRegions() {
@@ -211,9 +201,6 @@ function newFunction() {
   // Implement specific fixes based on insight report when available
 }
 
-// TODO: This is the existing code that needs to be preserved
-
-// ADD YOUR CODE HERE if any other issues need to be addressed
 // Example of addressing REACT_015: Add lang attribute to HTML element
 function addLangAttribute() {
   const htmlElement = document.querySelector('html');

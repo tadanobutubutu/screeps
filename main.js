@@ -58,14 +58,14 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâäçéèêëîïôûü]/i.test(content)) {
+    } else if (/[àâäéèêëïîôùûüç]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }
   
-  return setHtmlLangAttribute(lang);
+  return lang;
 }
 
 /**
@@ -142,4 +142,66 @@ function getSvgAccessibleName(svg) {
   return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
 }
 
-module.exports = { setHtmlLangAttribute, getLangAttribute, detectAndSetLang, personName, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName };
+// Rendering functions that use the imported accessibility modules
+/**
+ * Renders a dependency graph with accessibility features
+ * @param {Object} props - The component props
+ * @returns {React.Component} A React component
+ */
+function renderDependencyGraph(props) {
+  // Add lang attribute for accessibility
+  const lang = getLangAttribute() || 'en';
+  setHtmlLangAttribute(lang);
+  
+  // Create accessible in-page button
+  const btn = createInPageButton();
+  
+  return React.createElement('div', { 
+    className: 'dependency-graph',
+    role: 'region',
+    'aria-label': 'Dependency graph'
+  }, 
+    React.createElement('h1', {}, personName(props.title)),
+    React.createElement('button', { 
+      type: 'button',
+      role: 'button',
+      'aria-label': 'Open modal'
+    }, 'Open Graph')
+  );
+}
+
+/**
+ * Renders an index view with accessibility features
+ * @param {Object} props - The component props
+ * @returns {React.Component} A React component
+ */
+function renderIndexView(props) {
+  // Add lang attribute for accessibility
+  const lang = getLangAttribute() || 'en';
+  setHtmlLangAttribute(lang);
+  
+  return React.createElement('div', { 
+    className: 'index-view',
+    role: 'main'
+  }, 
+    React.createElement('h1', {}, personName(props.title)),
+    React.createElement('table', { 
+      role: 'table'
+    }, validateTableStructure(props.table))
+  );
+}
+
+module.exports = { 
+  setHtmlLangAttribute, 
+  getLangAttribute, 
+  detectAndSetLang, 
+  personName, 
+  createInPageButton, 
+  validateTableAccessibility, 
+  validateTableStructure, 
+  validateLandmark, 
+  validateLandmarkStructure, 
+  getSvgAccessibleName,
+  renderDependencyGraph,
+  renderIndexView
+};

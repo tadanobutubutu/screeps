@@ -293,23 +293,43 @@ function fixControlsAccessibility() {
 
 // Renders the dependency graph view.
 // Updated to use dependencyGraphContent.
+// Enhanced for debugging: adds console logging, data attributes for inspection, and debug metadata.
 export function renderDependencyGraph() {
   const container = document.getElementById('dependency-graph-container');
   if (container && dependencyGraphContent) {
     container.innerHTML = dependencyGraphContent;
     // Apply accessibility fixes to new content
     fixAccessibilityIssues();
+    // Debug: log rendering info and attach metadata
+    console.debug('[renderDependencyGraph] Rendered at', new Date().toISOString());
+    console.debug('[renderDependencyGraph] Content length:', dependencyGraphContent.length);
+    console.debug('[renderDependencyGraph] Module structure:', {
+      containerId: container.id,
+      childCount: container.children.length,
+      dependencies: countDependencies()
+    });
+    container.setAttribute('data-rendered-at', new Date().toISOString());
+    container.setAttribute('data-dependency-count', String(countDependencies()));
   }
 }
 
 // Renders the index view.
 // Updated to use indexContent.
+// Enhanced for debugging: adds console logging, data attributes for inspection, and debug metadata.
 export function renderIndex() {
   const container = document.getElementById('index-container');
   if (container && indexContent) {
     container.innerHTML = indexContent;
     // Apply accessibility fixes to new content
     fixAccessibilityIssues();
+    // Debug: log rendering info and attach metadata
+    console.debug('[renderIndex] Rendered at', new Date().toISOString());
+    console.debug('[renderIndex] Content length:', indexContent.length);
+    console.debug('[renderIndex] Module structure:', {
+      containerId: container.id,
+      childCount: container.children.length
+    });
+    container.setAttribute('data-rendered-at', new Date().toISOString());
   }
 }
 
@@ -504,7 +524,10 @@ function renderPage(data) {
 
 // Update the existing function using the new functions for rendering graph/index
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+// Enhanced for debugging: adds console logging for view type tracking and dependency info.
 function updateView(viewType) {
+  // Debug: log which view is being requested
+  console.debug('[updateView] Switching to view:', viewType);
   // Call the updated functions to render the graph or index as needed
   if (viewType === 'graph') {
     renderDependencyGraph(dependencyGraphContent);

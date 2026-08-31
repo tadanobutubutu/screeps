@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 import React from 'react';
 import express from 'express';
 import path from 'path';
@@ -11,15 +8,11 @@ import { isSecureContext } from './utils.js';
 import { visualizeDependencyTree } from './utils.js';
 import axe from 'axe-core';
 
-// Configuration - merged from both branches
-const APP_CONFIG = {
-  dataPath: './data',
-  maxResults: 100,
-  apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: 5000
-};
+// main.js
 
-// App state - merged from both branches
+// Existing imports, exports, and functions from main.js
+// ...
+
 const appState = {
   initialized: false,
   data: null,
@@ -37,65 +30,66 @@ function setLanguageAttribute() {
   }
 }
 
-/**
- * Generates a report based on accessibility issues found in the page.
- * Uses axe-core to scan the document and generates a structured report.
- * @param {Object} options - Optional configuration for the scan.
- * @param {string[]} options.tags - Tags to filter results (e.g., ['wcag2a', 'wcag2aa']).
- * @param {string[]} options.runOnly - Limit Axe to only run specified tags or rules.
- * @returns {Promise<Object>} Resolves with the accessibility report.
- */
 async function generateAccessibilityReport(options = {}) {
-  // ... Previous code (from HEAD) ...
+  // Configure axe-core options
+  const axeOptions = {};
+  if (options.tags && options.tags.length > 0) {
+    axeOptions.runOnly = {
+      type: 'tag',
+      values: options.tags
+    };
+  }
+  if (options.runOnly && options.runOnly.length > 0) {
+    axeOptions.runOnly = {
+      type: 'rule',
+      values: options.runOnly
+    };
+  }
 
-  try {
-    // Configure axe-core options
-    const axeOptions = {};
-    if (options.tags && options.tags.length > 0) {
-      axeOptions.runOnly = {
-        type: 'tag',
-        values: options.tags
-      };
-    }
-    if (options.runOnly && options.runOnly.length > 0) {
-      axeOptions.runOnly = {
-        type: 'rule',
-        values: options.runOnly
-      };
-    }
+  const results = await axe.run(document.body, axeOptions);
+  const report = {
+    summary: {
+      critical: 0,
+      serious: 0,
+      moderate: 0,
+      minor: 0,
+      unknown: 0,
+      total: 0
+    },
+    violations: []
+  };
 
-    // Run axe-core analysis on the entire document
-    const results = await axe.run(document.body, axeOptions);
+  // Process violations by impact level
+  if (results && results.violations) {
+    results.violations.forEach(violation => {
+      const impact = violation.impact || 'unknown';
+      if (report.summary.hasOwnProperty(impact)) {
+        report.summary[impact]++;
+      }
+      report.summary.total++;
 
-    // ... Previous code (from both branches) ...
-
-    // Process violations by impact level
-    if (results && results.violations) {
-      results.violations.forEach(violation => {
-        const impact = violation.impact || 'unknown';
-        if (report.summary.hasOwnProperty(impact)) {
-          report.summary[impact]++;
-        }
-        report.summary.total++;
-
-        // Add each violation to issues array
-        violation.nodes.forEach(node => {
-          // ... Previous code (from both branches) ...
+      // Add each violation to issues array
+      violation.nodes.forEach(node => {
+        report.violations.push({
+          id: violation.id,
+          impact: violation.impact,
+          description: violation.description,
+          help: violation.help,
+          helpUrl: violation.helpUrl,
+          nodes: [node],
+          selector: node.target ? node.target.join(', ') : ''
         });
       });
-    }
-
-    // ... Previous code (from both branches) ...
-  } catch (error) {
-    console.error('Error while generating accessibility report:', error);
+    });
   }
 
   return report;
 }
 
-// Utility functions from HEAD
-function fetchUser(userId) {
-  return { id: userId, name: 'User' };
+// New spawning logic implementation
+function spawnEntity(entityType, params) {
+  // Logic to spawn an entity of the specified type with given parameters
+  // ...
 }
 
 function clearCache() {
@@ -125,16 +119,11 @@ function validateInput(input) {
   return true;
 }
 
-// ... Replace other HEAD functions if necessary
-
-// Function to check if the specified landmark element is in the document.
-// (Adapted from the original HEAD code)
 function checkLandmarkElement(id) {
   const element = document.getElementById(id);
   return element !== null;
 }
 
-// Ensure unique landmarks by filtering duplicates
 function ensureUniqueLandmarks(landmarks) {
   const seen = new Set();
   return landmarks.filter(landmark => {
@@ -147,9 +136,18 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
-// ... Add functionality from both branches that requires merging
-
-export { APP_CONFIG, generateAccessibilityReport, fetchUser, clearCache, someFunction, helper, formatDate, validateInput, checkLandmarkElement, ensureUniqueLandmarks, appState, setLanguageAttribute };
-```
-
-This resolution aims to preserve both sets of functionality, with modifications made where necessary to merge similar code sections.
+export {
+  APP_CONFIG,
+  generateAccessibilityReport,
+  fetchUser,
+  clearCache,
+  someFunction,
+  helper,
+  formatDate,
+  validateInput,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  appState,
+  setLanguageAttribute,
+  spawnEntity
+};

@@ -17,7 +17,7 @@ function getLangAttribute() {
 }
 
 // Function to ensure ARIA attributes are properly set for the dependency graph
-function ensureDependencyGraphARIA() {
+function ... {
   // Ensure the document has proper lang attribute for accessibility
   const lang = getLangAttribute();
   
@@ -46,7 +46,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return book.id || `${book.title}-${Math.random().toString(36).substr(2, 9)}`;
+  return book.id || ... 9)}`;
 }
 
 // Function to count dependencies
@@ -55,13 +55,73 @@ function countDependencies() {
   return dependencies.length;
 }
 
+// Function to handle focus trap for keyboard navigation
+function trapFocus(containerRef) {
+  // Get the container element from ref or direct element
+  const container = containerRef && containerRef.current ? containerRef.current : containerRef;
+  
+  if (!container || typeof document === 'undefined') return null;
+
+  // Get all focusable elements within the container
+  const focusableSelectors = [
+    'button:not([disabled])',
+    '[href]',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(',');
+
+  const focusableElements = Array.from(container.querySelectorAll(focusableSelectors));
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  // Handle keydown events for focus trapping
+  function handleKeyDown(e) {
+    // Check if Tab key is pressed
+    if (e.key === 'Tab') {
+      // If Shift + Tab is pressed and focus is on first element, move to last element
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        if (lastElement) lastElement.focus();
+      }
+      // If Tab is pressed and focus is on last element, move to first element
+      else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        if (firstElement) firstElement.focus();
+      }
+    }
+
+    // Handle Escape key to optionally release focus trap
+    if (e.key === 'Escape') {
+      // Dispatch custom event for external handling
+      const event = new CustomEvent('focusTrapRelease', { detail: { container } });
+      container.dispatchEvent(event);
+    }
+  }
+
+  // Add event listener to container
+  container.addEventListener('keydown', handleKeyDown);
+
+  // Focus the first focusable element
+  if (firstElement && typeof firstElement.focus === 'function') {
+    firstElement.focus();
+  }
+
+  // Return cleanup function to release focus trap
+  return function releaseFocusTrap() {
+    container.removeEventListener('keydown', handleKeyDown);
+  };
+}
+
 // Function to render a single book item
 function BookItem(book) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        description={book.author}
+        ...
       />
     </List.Item>
   );
@@ -77,27 +137,27 @@ export function addBook(book) {
 }
 
 // Ensure accessibility attributes are set when adding a book
-ensureDependencyGraphARIA();
+...
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
 // Export utility functions
-export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies };
+export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies, trapFocus };
 
 // Render the main component containing the book list and sorting controls
 function Main() {
@@ -121,19 +181,19 @@ function Main() {
     <div>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />
+      <List itemLayout="vertical" ... renderItem={book => BookItem(book)} />
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
       {/* Example of adding a new book form with accessibility considerations */}
       <form onSubmit={(e) => {
         e.preventDefault();
-        // Assuming there's a function to get the form data
+        // Assuming there is a function to get the form data
         const newBook = getFormData();
         addBook(newBook);
       }}>
         <label htmlFor="title">Title:</label>
         <input type="text" id="title" name="title" required />
-        <label htmlFor="author">Author:</label>
+        <label ...
         <input type="text" id="author" name="author" required />
         <button type="submit">Add Book</button>
       </form>

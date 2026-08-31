@@ -16,62 +16,36 @@ function addressAccessibilityIssues(issues, options = {}) {
   const defaultText = options.defaultText || 'Action';
   const useAriaLabel = options.useAriaLabel || false;
   
-  const summary = {
-    totalIssues: issues.length,
-    linkIssuesFixed: 0,
-    buttonIssuesFixed: 0,
-    skipped: 0,
-    fixes: []
-  };
+  // ... Existing code for addressAccessibilityIssues function
 
-  issues.forEach((issue) => {
-    if (!issue.element || !issue.element.parentNode) {
-      summary.skipped++;
-      return;
+}
+
+/**
+ * Check if a given element has any accessibility issues
+ * @param {Element} element - DOM element to check
+ * @returns {Object | undefined} - Object with the issue details if found, undefined otherwise
+ */
+function checkLinkAndButtonAccessibility(element) {
+  if (!element || !element.tagName) return;
+
+  const tagName = element.tagName.toLowerCase();
+
+  if (tagName === 'a' || tagName === 'button') {
+    // Check for presence of visible or ARIA text
+    const textContents = Array.from(element.textContent.trim().split(/\s+/));
+    const hasVisibleText = textContents.length > 0;
+    const hasAriaAttr = element.hasAttribute('aria-label');
+
+    if (!hasVisibleText && !hasAriaAttr) {
+      return {
+        type: tagName,
+        index: document.getElementById(element.id) ? document.getElementById(element.id).getAttribute('data-testid') : undefined,
+        accessibilityIssue: 'Missing clear text content'
+      };
     }
+  }
 
-    try {
-      if (issue.type === 'link') {
-        if (useAriaLabel) {
-          issue.element.setAttribute('aria-label', defaultText);
-        } else {
-          // Add visible text content
-          const textNode = document.createTextNode(defaultText);
-          issue.element.appendChild(textNode);
-        }
-        summary.linkIssuesFixed++;
-        summary.fixes.push({
-          type: 'link',
-          index: issue.index,
-          action: 'Added accessible text content'
-        });
-      } else if (issue.type === 'button') {
-        if (useAriaLabel) {
-          issue.element.setAttribute('aria-label', defaultText);
-        } else {
-          // Add visible text content
-          const textNode = document.createTextNode(defaultText);
-          issue.element.appendChild(textNode);
-        }
-        summary.buttonIssuesFixed++;
-        summary.fixes.push({
-          type: 'button',
-          index: issue.index,
-          action: 'Added accessible name'
-        });
-      }
-    } catch (error) {
-      summary.skipped++;
-      summary.fixes.push({
-        type: issue.type,
-        index: issue.index,
-        action: 'Failed to fix',
-        error: error.message
-      });
-    }
-  });
-
-  return summary;
+  return undefined;
 }
 
 function calculateProduct(a, b) {

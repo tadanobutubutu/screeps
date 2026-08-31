@@ -262,8 +262,53 @@ function ensureDependencyGraphAriaRole(doc) {
 }
 
 // New function as per the issue request
-function newFunction() {
-  // New function implementation
+/**
+ * Validate document accessibility compliance and return issues found
+ * @param {Document} doc - The document object
+ * @returns {Object} Validation results with accessibility issues found
+ */
+function newFunction(doc) {
+  const issues = [];
+  
+  // Check for lang attribute on HTML element
+  const html = doc.documentElement;
+  if (!html || !html.hasAttribute('lang')) {
+    issues.push({ type: 'lang', message: 'HTML element missing lang attribute' });
+  }
+  
+  // Check for main landmark
+  const mains = doc.querySelectorAll('main');
+  if (mains.length === 0) {
+    issues.push({ type: 'landmark', message: 'No main landmark found' });
+  }
+  
+  // Check for images without alt text
+  const imagesWithoutAlt = doc.querySelectorAll('img:not([alt])');
+  if (imagesWithoutAlt.length > 0) {
+    issues.push({ type: 'image', count: imagesWithoutAlt.length, message: `${imagesWithoutAlt.length} image(s) missing alt attribute` });
+  }
+  
+  // Check for form inputs without labels
+  const inputsWithoutLabel = doc.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([aria-label]):not([aria-labelledby])');
+  const labels = doc.querySelectorAll('label');
+  const labelForIds = new Set([...labels].map(l => l.getAttribute('for')).filter(Boolean));
+  
+  inputsWithoutLabel.forEach(input => {
+    const id = input.getAttribute('id');
+    if (!labelForIds.has(id)) {
+      issues.push({ type: 'form', element: input, message: 'Form input missing associated label' });
+    }
+  });
+  
+  // Check for empty buttons
+  const emptyButtons = doc.querySelectorAll('button:not([aria-label]):not([aria-labelledby])');
+  emptyButtons.forEach(button => {
+    if (!button.textContent.trim()) {
+      issues.push({ type: 'button', element: button, message: 'Button missing accessible name' });
+    }
+  });
+  
+  return { issues, count: issues.length };
 }
 
 // Export all functions

@@ -38,7 +38,7 @@ function createUnrotateButton() {
 function replaceFakeLinks() {
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach((link) => {
-    if (link.getAttribute('aria-hidden') === 'true') {
+    if (link.getAttribute('data-rotate') === 'true') {
       const parent = link.parentElement;
       const newButton = createUnrotateButton();
       parent.replaceChild(newButton, link);
@@ -88,12 +88,12 @@ function getConfig() {
 // Ensure all <th> elements have scope attribute
 function ensureThScope() {
   const thElements = document.querySelectorAll('th');
-  thElements.forEach(th => {
+  thElements.forEach((th) => {
     if (!th.hasAttribute('scope')) {
       // Determine if it's a column header or row header based on context
       const parent = th.parentElement;
       const parentTagName = parent ? parent.tagName.toLowerCase() : '';
-      const isFirstCell = parent && Array.from(parent.children).indexOf(th) === 0;
+      const isFirstCell = parent && parent.cells[0] === th;
 
       if (isFirstCell && parentTagName === 'tr') {
         th.setAttribute('scope', 'row');
@@ -108,7 +108,7 @@ function ensureThScope() {
  * Setup skip link functionality for keyboard navigation
  */
 function setupSkipLinks() {
-  const skipLink = document.getElementById('skip-link') || document.querySelector('.skip-link');
+  const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
@@ -155,7 +155,7 @@ function addLandmarkRoles() {
   const header = document.querySelector('header');
   if (header) header.setAttribute('role', 'banner');
 
-  const mainContent = document.querySelector('main');
+  const mainContent = document.querySelector('main') || document.getElementById('main');
   if (mainContent) mainContent.setAttribute('role', 'main');
 
   const footer = document.querySelector('footer');
@@ -164,16 +164,16 @@ function addLandmarkRoles() {
 
 // Function to add accessible names to 2 SVGs
 function addSvgAccessibleNames() {
-  const svg1 = document.querySelector('.svg-1');
+  const svg1 = document.querySelector('.svg-icon-1') || document.getElementById('svg-icon-1');
   if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
 
-  const svg2 = document.querySelector('.svg-2');
+  const svg2 = document.querySelector('.svg-icon-2') || document.getElementById('svg-icon-2');
   if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
 }
 
 // Function to ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"]');
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
   const landmarkIds = new Set();
 
   landmarks.forEach((landmark) => {
@@ -204,7 +204,7 @@ function initialize() {
   console.log('Application initialized');
 
   // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.querySelector('main') || document.getElementById('main-content');
+  const mainContent = document.querySelector('main') || document.getElementById('main');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
     mainContent.setAttribute('role', 'main');
@@ -251,20 +251,20 @@ function countDependencies(source) {
   let count = 0;
 
   // Count ES module imports: import ... from '...'; import '...';
-  const importRegex = /import\s+(?:[^'"]*?from\s+)?['"]([^'"]+)['"]/g;
+  const importRegex = /import\s+(?:.*?\s+from\s+)?['"][^'"]+['"]|import\s+['"][^'"]+['"]/g;
   let match;
   while ((match = importRegex.exec(source)) !== null) {
     count++;
   }
 
   // Count CommonJS requires: require('...')
-  const requireRegex = /require\(\s*['"]([^'"]+)['"]\s*\)/g;
+  const requireRegex = /require\s*\(\s*['"][^'"]+['"]\s*\)/g;
   while ((match = requireRegex.exec(source)) !== null) {
     count++;
   }
 
   // Count dynamic imports: import('...')
-  const dynamicImportRegex = /import\(\s*['"]([^'"]+)['"]\s*\)/g;
+  const dynamicImportRegex = /import\s*\(\s*['"][^'"]+['"]\s*\)/g;
   while ((match = dynamicImportRegex.exec(source)) !== null) {
     count++;
   }

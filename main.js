@@ -7,6 +7,20 @@ const http = require('http');
 const path = require('path');
 
 // TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Original code goes here
+// ----- END ORIGINAL CODE-----
+
+// New function to handle GET requests for a specific resource
+function handleResourceRequest(req, res) {
+  if (req.url === '/resource') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ resource: 'data' }));
+  } else {
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Resource not found' }));
+  }
+}
 
 // Application configuration
 const config = {
@@ -20,8 +34,12 @@ const config = {
  */
 function createServer() {
   const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok', config }));
+    if (req.method === 'GET') {
+      handleResourceRequest(req, res);
+    } else {
+      res.writeHead(405, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Method not allowed' }));
+    }
   });
   return server;
 }
@@ -41,7 +59,8 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  handleResourceRequest // Export the new function
 };
 
 // Start the application if run directly

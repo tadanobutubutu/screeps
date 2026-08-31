@@ -20,7 +20,70 @@ function visualizeDependencyTree(dependencies) {
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // Code to fix accessibility issues as per the insight report
+  const results = [];
+  
+  // Validate and fix table accessibility
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const tableValidation = validateTableAccessibility(table);
+    if (tableValidation && tableValidation.issues) {
+      results.push(...tableValidation.issues);
+    }
+  });
+  
+  // Validate and fix landmark accessibility
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"]');
+  landmarks.forEach(landmark => {
+    const landmarkValidation = validateLandmark(landmark);
+    if (landmarkValidation && landmarkValidation.issues) {
+      results.push(...landmarkValidation.issues);
+    }
+  });
+  
+  // Validate and fix link accessibility
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    const linkValidation = validateLinkAccessibility(link);
+    if (linkValidation && linkValidation.issues) {
+      results.push(...linkValidation.issues);
+    }
+  });
+  
+  // Handle fake links (links with href="#")
+  handleFakeLinks();
+  
+  // Check for missing lang attribute
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    results.push({
+      type: 'lang-missing',
+      message: 'HTML element is missing lang attribute',
+      element: htmlElement,
+      severity: 'critical'
+    });
+  }
+  
+  // Check for duplicate IDs that may affect accessibility
+  const ids = [];
+  const duplicateIds = [];
+  document.querySelectorAll('[id]').forEach(el => {
+    if (ids.includes(el.id)) {
+      duplicateIds.push(el.id);
+    } else {
+      ids.push(el.id);
+    }
+  });
+  
+  if (duplicateIds.length > 0) {
+    results.push({
+      type: 'duplicate-ids',
+      message: 'Duplicate IDs found: ' + duplicateIds.join(', '),
+      duplicateIds: duplicateIds,
+      severity: 'error'
+    });
+  }
+  
+  return results;
 }
 
 // Main entry point for dependency visualization tool
@@ -41,7 +104,6 @@ export const main = {
   // New function to address all accessibility issues
   addressAccessibilityIssues: function() {
     fixAccessibilityIssues();
-    visualizeDependencyTree(getDependencies()); // Replace getDependencies() with actual function or variable
   }
 };
 
@@ -87,25 +149,29 @@ function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
-  button.ariaLabel = 'rotate back';
+  button.setAttribute('aria-label', 'rotate back');
   button.textContent = 'rotate back';
   button.addEventListener('click', rotateBack);
   return button;
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.querySelector('a[href="#"]');
-if (fakeLink && fakeLink.tagName === 'A') {
-  const parent = fakeLink.parentElement;
-  const newButton = createUnrotateButton();
-  parent.replaceChild(newButton, fakeLink);
-}
+const fakeLinks = document.querySelectorAll('a[href="#"]');
+fakeLinks.forEach(fakeLink => {
+  if (fakeLink && fakeLink.tagName === 'A') {
+    const parent = fakeLink.parentElement;
+    const newButton = createUnrotateButton();
+    if (parent) {
+      parent.replaceChild(newButton, fakeLink);
+    }
+  }
+});
 
 // Load landmarks from file (new addition)
 import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
-      const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+      const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
       const data = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(data);
   } catch (error) {
@@ -120,15 +186,15 @@ function processLandmarks(landmarks) {
         return [];
     }
 
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+    const validLandmarks = landmarks.filter(l => l && l.name);
+    const uniqueLandmarks = [...new Set(validLandmarks.map(l => l.id))].map(id => validLandmarks.find(l => l.id === id));
 
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
 // Sort landmarks by name (new addition)
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
+    return landmarks.sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
 
@@ -140,7 +206,8 @@ function sortLandmarks(landmarks, ascending = true) {
 }
 
 // Get landmark by ID (new addition)
-function getLandmarkById(landmarks, id) {
+function getLandmarkById(id) {
+    const landmarks = loadLandmarks();
     return landmarks.find(landmark => landmark.id === id) || null;
 }
 
@@ -172,6 +239,6 @@ function ensureUniqueLandmarks(landmarks) {
 // Export functions for testing (new addition)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-      loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks
+      loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks, fixAccessibilityIssues
     };
 }

@@ -142,7 +142,8 @@ module.exports = {
   sortLandmarks,
   getLandmarkById,
   ensureUniqueLandmarks,
-  landmarkConfig: CONFIG
+  landmarkConfig: CONFIG,
+  generateAccessibilityReport // Add the new function to the exports
 };
 
 // Main execution when run directly

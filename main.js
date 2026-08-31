@@ -6,7 +6,7 @@
 const http = require('http');
 const path = require('path');
 
-// TODO: This is the existing code that needs to be preserved
+// TODO: Add exports for new functions if needed - UPDATED: Added exports below
 
 // Application configuration
 const config = {

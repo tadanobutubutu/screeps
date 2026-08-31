@@ -15,6 +15,61 @@ const config = {
 };
 
 /**
+ * Makes an API call to the specified URL
+ * @param {string} url - The URL to make the request to
+ * @param {Object} options - Request options (method, headers, body, etc.)
+ * @returns {Promise<Object>} Promise resolving to the response data
+ */
+function makeApiCall(url, options = {}) {
+  return new Promise((resolve, reject) => {
+    const urlObj = new URL(url);
+    const requestOptions = {
+      hostname: urlObj.hostname,
+      port: urlObj.port || (urlObj.protocol === 'https:' ? 443 : 80),
+      path: urlObj.pathname + urlObj.search,
+      method: options.method || 'GET',
+      headers: options.headers || {}
+    };
+
+    const protocol = urlObj.protocol === 'https:' ? require('https') : http;
+
+    const req = protocol.request(requestOptions, (res) => {
+      let data = '';
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      res.on('end', () => {
+        try {
+          const parsedData = JSON.parse(data);
+          resolve({
+            statusCode: res.statusCode,
+            headers: res.headers,
+            data: parsedData
+          });
+        } catch (e) {
+          resolve({
+            statusCode: res.statusCode,
+            headers: res.headers,
+            data: data
+          });
+        }
+      });
+    });
+
+    req.on('error', (error) => {
+      reject(error);
+    });
+
+    if (options.body) {
+      const body = typeof options.body === 'string' ? options.body : JSON.stringify(options.body);
+      req.write(body);
+    }
+
+    req.end();
+  });
+}
+
+/**
  * Creates and starts the HTTP server
  * @returns {http.Server} The created server instance
  */
@@ -41,7 +96,8 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  makeApiCall
 };
 
 // Start the application if run directly

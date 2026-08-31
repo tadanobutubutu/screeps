@@ -6,11 +6,6 @@ function newFunction() {
   // Implementation details go here
 }
 
-// New function as per the issue request
-function newFunction() {
-  // New function implementation
-}
-
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -92,7 +87,7 @@ function addLandmarkRegions(doc) {
   landmarks.forEach((landmark) => {
     const elements = doc.querySelectorAll(landmark);
     elements.forEach((el) => {
-      if (!el.getAttribute('role') && !el.tagName.toLowerCase() === landmark) {
+      if (!el.getAttribute('role') && el.tagName.toLowerCase() !== landmark) {
         el.setAttribute('role', landmark.charAt(0).toUpperCase() + landmark.slice(1));
       }
     });
@@ -154,7 +149,7 @@ function addSvgAccessibleNames(svg, name) {
     svg.setAttribute('aria-label', name);
     // Add title element if not present
     if (!svg.querySelector('title')) {
-      const title = document.createElement('title');
+      const title = doc.createElement('title');
       title.textContent = name;
       svg.insertBefore(title, svg.firstChild);
     }
@@ -198,7 +193,7 @@ function fixFakeLinkIssues(doc) {
  * @param {Element} link - The link element
  */
 function fixFakeLinkIssue(link) {
-  if (link && link.tagName.toLowerCase() === 'a') {
+  if (link && link.tagName && link.tagName.toLowerCase() === 'a') {
     if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
       link.setAttribute('role', 'button');
     }

@@ -7,14 +7,21 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
-// Import necessary dependencies
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000,
+  debug: true,
+  version: '1.0.0'
+};
+
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
+};
 
 const fs = require('fs');
 const path = require('path');
-const config = ...
 const logger = require('./utils/logger');
 
 // Initial setup
@@ -200,7 +207,7 @@ function getLangAttribute() {
 }
 
 // REACT_017 & REACT_025: Validate landmark elements for accessibility
-function validateLandmark(element) {
+function validateLandmarkAccessibility(element) {
   // Check if element is a valid landmark
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
   if (!element) return false;
@@ -223,12 +230,31 @@ function validateLandmarkStructure(landmarks) {
     }
     
     // Check for landmark nesting issues
-    if (!validateLandmark(landmark)) {
+    if (!validateLandmarkAccessibility(landmark)) {
       errors.push('Invalid landmark element found');
     }
   });
   
   return errors;
+}
+
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks(elements) {
+  const elementsById = {};
+
+  if (Array.isArray(elements)) {
+    for (const landmark of elements) {
+      if (landmark.id) {
+        if (elementsById[landmark.id]) {
+          landmark.id += '_duplicate';
+        } else {
+          elementsById[landmark.id] = true;
+        }
+      }
+    }
+  }
+
+  return elements;
 }
 
 function handleAccessibilityIssues() {
@@ -311,12 +337,55 @@ function createInPageButton(buttonProps) {
   }
   
   return {
-    tag: 'button',
-    type: 'button',
+    tag: role,
+    type: role === 'button' ? 'button' : undefined,
     onClick: onClick,
     ariaLabel: ariaLabel || label,
     className: className,
     content: label + (icon ? icon : '')
+  };
+}
+
+// REACT_017 & REACT_025: Validate landmark elements (data validation for landmarks with geographic coordinates)
+function validateLandmark(landmark) {
+  const errors = [];
+
+  if (!landmark) {
+    errors.push('Landmark is required');
+    return { valid: false, errors };
+  }
+
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
+  }
+
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+
+  if (Array.isArray(landmark)) {
+    landmark.forEach((innerLandmark, index) => {
+      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+        errors.push(`Landmark at index ${index} must have a valid name`);
+      }
+    });
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
   };
 }
 
@@ -330,4 +399,115 @@ function validateLinkAccessibility(link) {
   }
   
   // Check if link is properly structured (not a fake link)
-  if (link.hasAttribute('href') && link.tagName !== 'A
+  if (link.hasAttribute('href') && link.tagName !== 'A') {
+    errors.push('Element with href should be an anchor tag');
+  }
+  
+  // Check for proper button semantics if it's a button
+  if (link.getAttribute('role') === 'link' && link.tagName !== 'A') {
+    errors.push('Element with role="link" should be an anchor tag');
+  }
+  
+  return errors;
+}
+
+// REACT_036: Handle fake links (links that should be buttons)
+function handleFakeLinks() {
+  const fakeLinks = document.querySelectorAll('[href][role="button"], a[role="button"]');
+  const issues = [];
+  
+  fakeLinks.forEach(link => {
+    issues.push({
+      element: link,
+      message: 'This link has role="button" but is an anchor element - consider using a button instead',
+      fix: 'Replace <a role="button"> with <button>'
+    });
+  });
+  
+  return issues;
+}
+
+function ensureLandmarkUniqueness(elements) {
+  const elementsById = {};
+
+  if (Array.isArray(elements)) {
+    for (const landmark of elements) {
+      if (landmark.id) {
+        if (elementsById[landmark.id]) {
+          landmark.id += '_duplicate';
+        } else {
+          elementsById[landmark.id] = true;
+        }
+      }
+    }
+  }
+
+  return elements;
+}
+
+function initializeApp() {
+  appState.initialized = true;
+  console.log('Initializing application...');
+  return true;
+}
+
+function setupHandlers() {
+  console.log('Setting up event handlers...');
+}
+
+function validateInput(input) {
+  return input !== null && input !== undefined;
+}
+
+function processData(data) {
+  if (!validateInput(data)) {
+    throw new Error('Invalid input data');
+  }
+  return {
+    processed: true,
+    data: data,
+    timestamp: Date.now()
+  };
+}
+
+function main() {
+  initializeApp();
+  setupHandlers();
+  return processData;
+}
+
+if (require.main === module) {
+  main();
+  console.log('Main function executed');
+}
+
+module.exports = {
+  config,
+  appState,
+  validateLandmark,
+  validateLandmarkAccessibility,
+  validateLandmarkStructure,
+  ensureLandmarkUniqueness,
+  ensureUniqueLandmarks,
+  initializeApp,
+  setupHandlers,
+  validateInput,
+  validateLinkAccessibility,
+  processData,
+  main,
+  getLangAttribute,
+  createInPageButton,
+  checkDocumentAccessibility,
+  handleAccessibilityIssues,
+  handleFakeLinks,
+  sortByTitle,
+  sortByAuthor,
+  generateKey,
+  BookItem,
+  addBook,
+  AddBookForm,
+  defaultSorting,
+  onTitleSort,
+  onAuthorSort,
+  Main
+};

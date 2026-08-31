@@ -1,16 +1,5 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 4 landmark issues (DONE: fixLandmarkIssues, addMainLandmark, addLandmarkRegions)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks, uniqueLandmarks)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames, addAccessibleNamesToSVGs)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
-// - REACT_037: Google sign-in logic (DONE: googleSignIn)
-// - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-// - NEW: Ensure element has an id (DONE: ensureElementHasId)
-// - NEW: Add aria-label (DONE: addAriaLabel)
-// - NEW: Render dependency graphs (DONE: renderDependencyGraphs)
-
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 // Import necessary dependencies
 import React from 'react';
 import { render } from 'react-dom';
@@ -21,12 +10,12 @@ import { render } from 'react-dom';
  * REACT_015: Add lang attribute to HTML element
  * Ensures the HTML element has a proper lang attribute for screen readers
  */
-export function addLangAttribute(document, lang = 'en') {
-  let htmlElement = document.querySelector('html');
+export function addLangAttribute(element, lang = 'en') {
+  let htmlElement = element || document.documentElement;
   if (!htmlElement) {
     htmlElement = document.getElementsByTagName('html')[0];
   }
-  if (htmlElement && !htmlElement.getAttribute('lang')) {
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', lang);
   }
   return htmlElement;
@@ -42,7 +31,7 @@ export function fixTableStructure(tableElement) {
   // Ensure table has proper scope attributes on headers
   const headers = tableElement.querySelectorAll('th');
   headers.forEach(th => {
-    if (!th.getAttribute('scope')) {
+    if (!th.hasAttribute('scope')) {
       const row = th.closest('tr');
       const cellIndex = Array.from(row.children).indexOf(th);
       th.setAttribute('scope', cellIndex === 0 ? 'row' : 'col');
@@ -53,7 +42,7 @@ export function fixTableStructure(tableElement) {
   if (!tableElement.querySelector('caption')) {
     const caption = document.createElement('caption');
     caption.textContent = 'Data table';
-    caption.style.srOnly = true;
+    caption.classList.add('sr-only');
     tableElement.insertBefore(caption, tableElement.firstChild);
   }
   
@@ -69,7 +58,7 @@ export function fixLandmarkIssues(container) {
   // Ensure main content is wrapped in main landmark
   const mainElement = container.querySelector('main') || container.querySelector('[role="main"]');
   if (!mainElement) {
-    const existingMain = container.querySelector('#main-content');
+    const existingMain = container.querySelector('[role="main"]');
     if (existingMain) {
       existingMain.setAttribute('role', 'main');
     }
@@ -78,7 +67,7 @@ export function fixLandmarkIssues(container) {
   // Ensure navigation has proper nav landmarks
   const navElements = container.querySelectorAll('nav');
   navElements.forEach(nav => {
-    if (!nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
+    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
       nav.setAttribute('aria-label', 'Navigation');
     }
   });
@@ -107,7 +96,7 @@ export function addMainLandmark(container) {
     // Create a main landmark if none exists
     mainElement = document.createElement('main');
     mainElement.setAttribute('id', 'main-content');
-    const body = container.querySelector('body');
+    const body = document.body;
     if (body) {
       body.insertBefore(mainElement, body.firstChild);
     }
@@ -187,12 +176,12 @@ export function addSvgAccessibleNames(svgElement, accessibleName) {
   title.textContent = accessibleName;
   
   // Add aria-labelledby reference
-  const titleId = `svg-title-${Date.now()}`;
+  const titleId = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
   title.setAttribute('id', titleId);
   svgElement.setAttribute('aria-labelledby', titleId);
   
   // Ensure role is set
-  if (!svgElement.getAttribute('role')) {
+  if (!svgElement.hasAttribute('role')) {
     svgElement.setAttribute('role', 'img');
   }
   
@@ -207,7 +196,7 @@ export function addAccessibleNamesToSVGs(container) {
   
   const svgs = container.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
       addSvgAccessibleNames(svg, `Icon ${index + 1}`);
     }
   });
@@ -224,7 +213,7 @@ export function fixFakeLinkIssue(element) {
   // Check if element is a fake link (clickable non-link element)
   const tagName = element.tagName.toLowerCase();
   const role = element.getAttribute('role');
-  const onClick = element.getAttribute('onclick');
+  const onClick = element.getAttribute('onclick') || element.onclick;
   
   if (onClick && tagName !== 'a' && tagName !== 'button') {
     // Convert to proper button or anchor
@@ -233,7 +222,7 @@ export function fixFakeLinkIssue(element) {
     }
     
     // Add keyboard accessibility
-    if (!element.getAttribute('tabindex')) {
+    if (!element.hasAttribute('tabindex')) {
       element.setAttribute('tabindex', '0');
     }
     
@@ -255,8 +244,8 @@ export function fixFakeLinkIssue(element) {
 export function fixFakeLinkIssues(container) {
   if (!container) return null;
   
-  const clickableElements = container.querySelectorAll('[onclick]');
-  clickableElements.forEach(el => {
+  const clickableElements = container.querySelectorAll('[onclick], [role="button"], [role="link"]');
+  clickableElements.forEach((el) => {
     const tagName = el.tagName.toLowerCase();
     if (tagName !== 'a' && tagName !== 'button' && tagName !== 'input') {
       fixFakeLinkIssue(el);
@@ -298,9 +287,9 @@ export function googleSignIn() {
 // Helper to decode JWT
 function decodeJwtResponse(token) {
   const base64Url = token.split('.')[1];
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const base64 = (base64Url + '=').replace(/-/g, '+').replace(/_/g, '/');
   const jsonPayload = decodeURIComponent(
-    atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
+    atob(base64).split('').map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
   );
   return JSON.parse(jsonPayload);
 }
@@ -315,9 +304,9 @@ export function fixButtonIdentifiers(container) {
   buttons.forEach((button, index) => {
     // Generate unique id if missing
     if (!button.id) {
-      const existingId = button.getAttribute('data-testid') || button.getAttribute('aria-label');
+      const existingId = button.getAttribute('data-testid') || button.textContent;
       if (existingId) {
-        button.id = existingId.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+        button.id = existingId.replace(/[^a-z0-9]/gi, '-').toLowerCase();
       } else {
         button.id = `button-${index + 1}`;
       }
@@ -325,7 +314,7 @@ export function fixButtonIdentifiers(container) {
     
     // Remove generic placeholder ids
     if (button.id === 'my-button' || button.id === 'button') {
-      button.id = `button-${Date.now()}-${index}`;
+      button.id = `button-${index + 1}`;
     }
   });
   
@@ -339,7 +328,7 @@ export function ensureElementHasId(element, prefix = 'element') {
   if (!element) return null;
   
   if (!element.id) {
-    element.id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   }
   
   return element;
@@ -351,7 +340,7 @@ export function ensureElementHasId(element, prefix = 'element') {
 export function addAriaLabel(element, label) {
   if (!element) return null;
   
-  if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+  if (!element.getAttribute('aria-label') && label) {
     element.setAttribute('aria-label', label);
   }
   
@@ -373,3 +362,26 @@ export function renderDependencyGraphs(container, dependencies = []) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', '100%');
+  svg.setAttribute('viewBox', '0 0 800 600');
+  svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  
+  // Create a simple visual representation of dependencies
+  const nodeSpacing = 100;
+  const startX = 50;
+  const startY = 50;
+  
+  dependencies.forEach((dep, index) => {
+    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    const x = startX + (index % 8) * nodeSpacing;
+    const y = startY + Math.floor(index / 8) * nodeSpacing;
+    
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', x);
+    rect.setAttribute('y', y);
+    rect.setAttribute('width', '80');
+    rect.setAttribute('height', '40');
+    rect.setAttribute('rx', '5');
+    rect.setAttribute('fill', '#e0e0e0');
+    rect.setAttribute('stroke', '#333');
+    
+    const text = document.createElementNS('http://www.w3.org/200

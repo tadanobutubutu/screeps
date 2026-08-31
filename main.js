@@ -14,7 +14,7 @@ const {
   createAccessibleLink,
 } = require('./accessibility-helpers');
 
-const { class1, function1, Object1 } = require('./components');
+const { class1, address, Object1 } = require('./components');
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: ensureDependencyGraphARIA, getLangAttribute)
@@ -206,7 +206,7 @@ function calculateProduct(a, b) {
 /**
  * Renders a graph visualization for accessibility issues
  * @param {Array} issues - Array of accessibility issues to render
- * @param {HTMLElement} container - The container element to render the graph into
+ * @param {Element} container - The container element to render the graph into
  */
 function renderAccessibilityGraph(issues, container) {
   if (!container || !issues || issues.length === 0) {
@@ -236,7 +236,7 @@ function renderAccessibilityGraph(issues, container) {
 /**
  * Renders an index of accessibility issues
  * @param {Array} issues - Array of accessibility issues to render
- * @param {HTMLElement} container - The container element to render the index into
+ * @param {Element} container - The container element to render the index into
  */
 function renderAccessibilityIndex(issues, container) {
   if (!container || !issues || issues.length === 0) {
@@ -273,8 +273,8 @@ function renderAccessibilityIndex(issues, container) {
 
 /**
  * Renders both graph and index for accessibility issues
- * @param {HTMLElement} container - The container element to check for accessibility issues
- * @param {HTMLElement} outputContainer - The container element to render results into
+ * @param {Element} container - The container element to check for accessibility issues
+ * @param {Element} outputContainer - The container element to render results into
  */
 function renderAccessibilityResults(container, outputContainer) {
   const issues = checkAccessibility(container);
@@ -508,7 +508,7 @@ const mainElement = document.querySelector('main') || wrapPrimaryContentInMain()
 console.log('Main element lang:', document.documentElement.lang);
 
 if (!document.documentElement.lang) {
-  document.documentElement.lang = 'en';
+  addLangAttribute();
 }
 
 /**
@@ -596,7 +596,7 @@ function setSvgAccessibilityProps(svgElement) {
 
 /**
  * Checks if a link has appropriate accessibility attributes.
- * @param {HTMLElement} linkElement - The link element to check
+ * @param {HTMLAnchorElement} linkElement - The link element to check
  * @returns {boolean} True if the link is accessible, false otherwise
  */
 function isLinkAccessibleCheck(link) {
@@ -614,7 +614,7 @@ function isButtonAccessible(button) {
 
 /**
  * Checks link and button accessibility in the document or specific container.
- * @param {HTMLElement} [container=document] - The container to check for accessibility
+ * @param {Element} [container=document] - The container to check for accessibility
  * @returns {Object} An object with accessibleLink and accessibleButton properties
  */
 function checkAccessibility(container) {
@@ -656,7 +656,7 @@ function validateLandmarkAttributes() {
 
 /**
  * Validates landmark roles in the document to ensure proper ARIA landmark usage.
- * @param {HTMLElement} [container=document] - The container to validate landmarks in
+ * @param {Element} [container=document] - The container to validate landmarks in
  * @returns {Object} An object containing validation results
  */
 function validateLandmarkRole(container = document) {

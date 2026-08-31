@@ -16,10 +16,11 @@ let icons = {};
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+const ARIA_DEPENDENCY_GRAPH_ROLE = 'graph';
+function addAccessibleARIARoles() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  dependencyGraph.setAttribute('role', ARIA_DEPENDENCY_GRAPH_ROLE);
+}
 
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
@@ -103,8 +104,6 @@ function ensureUniqueLandmarks(landmarksArray) {
   });
 }
 
-// ... (previous and updated code remains as it is)
-
 // Updated function: ensures landmarks uniqueness when there's an array structure
 function ensureLandmarkUniqueness(elements) {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -126,29 +125,44 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
+// Add the new function to add ARIA roles to elements with a certain ID pattern
+function addARIArolesToElements() {
+  const landmarkElements = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+
+  landmarkElements.forEach(landmark => {
+    const elements = document.querySelectorAll(`[data-landmark="${landmark}"]`);
+    elements.forEach(element => {
+      const role = `landmark-${landmark}`;
+      element.setAttribute('role', role);
+    });
+  });
+}
+
 // Export functions for testing
 export {
   checkLandmarkElement,
   ensureUniqueLandmarks,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
+  addLandmarkRegions,
   initApp,
   landmarks,
   appData,
   icons,
   validateLandmark,
   ensureFocusableElements,
+  addAccessibleARIARoles,
   renderDependencyGraphContent,
   ensureLandmarkUniqueness,
   validateSvgAccessibility,
   processUniqueElements,
+  addARIArolesToElements,
   addressInsightIssues,
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions,
   countDependencies
 };
+
+// Before adding the new functions, initialize `addAccessibleARIARoles`, `addARIArolesToElements` and `addressInsightIssues` with empty functions.
+function addAccessibleARIARoles() {}
+function addARIArolesToElements() {}
+function addressInsightIssues() {}

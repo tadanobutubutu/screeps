@@ -37,10 +37,21 @@ function startApp() {
   return server;
 }
 
+/**
+ * Stops the application
+ * @param {http.Server} server The server instance to stop
+ */
+function stopApp(server) {
+  server.close(() => {
+    console.log('Server stopped');
+  });
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
+  stopApp,
   config
 };
 

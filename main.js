@@ -2,14 +2,21 @@
 
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
+const { CONFIG: UTILS_CONFIG } = require('./utils/constants');
+const { getLangAttribute, getFullLangAttribute, addLangAttribute, createInPageButton } = require('./utils/accessibilityUtils');
+const { validateTableAccessibility, validateTableStructure, fixTableStructure } = require('./utils/tableAccessibilityUtils');
+const { validateLandmark, validateLandmarkStructure, addMainLandmark, isValidLandmark, loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById } = require('./utils/landmarkUtils');
+const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svgAccessibilityUtils');
+const { validateLinkAccessibility, handleFakeLinks, validateInput, formatResponse } = require('./utils/linkAccessibilityUtils');
 
 function renderFunction1() {
   // Existing functionality
 
   // Add the imported modules to function1 as needed
   // Using accessible utilities instead of undefined modules
-  const moduleAReturnValue = await accessiblyHelper();
-  const moduleBReturnValue = await anotherHelper();
+  const moduleAReturnValue = accessiblyHelper();
+  const moduleBReturnValue = anotherHelper();
 
   // ... (remaining function1 logic)
 }
@@ -18,13 +25,11 @@ function renderFunction2() {
   // Existing functionality
 
   // Add the imported modules to function2 as needed
-  const moduleAReturnValue = await accessiblyHelper();
-  const moduleBReturnValue = await anotherHelper();
+  const moduleAReturnValue = accessiblyHelper();
+  const moduleBReturnValue = anotherHelper();
 
   // ... (remaining function2 logic)
 }
-
-// ... (remaining exported functions and other code)
 
 const accessibilityUtils = {
     // TODO: Implement the function for addressing new accessibility issues
@@ -73,7 +78,6 @@ const accessibilityUtils = {
 
 // Function to write the generated report to a file (Resolved conflict: Implementation preserved)
 function writeReport(report) {
-  const fs = require('fs');
   const reportFile = path.join(__dirname, 'accessibility_report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
@@ -113,10 +117,54 @@ function addLangAttribute(element) {
 }
 
 // TODO: Implement function for generating a report based on accessibility issues (Resolved conflict: Placeholder removed and replaced with full implementation)
+
+// New function to generate a report based on accessibility issues
 function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
+  const issues = [];
+
+  // Checks for images without alt attributes and buttons without accessible name
+  const images = document.querySelectorAll('img,button');
+  images.forEach((img, index) => {
+    if (!(img.hasAttribute('alt') || (img.tagName === 'BUTTON' && img.getAttribute('aria-label')))) {
+      issues.push({
+        type: 'missing-alt-or-name',
+        element: img.tagName.toLowerCase(),
+        index: index,
+        message: `Missing alt or accessible name for ${img.tagName.toLowerCase()}`
+      });
+    }
+  });
+
+  // Rest of original checks for links, form inputs, empty headings, and added labels
+  // ...
+
+  // Original axe-core based generation
+  const options = {
+    rules: [{ id: 'color-contrast' }, { id: 'aria-roles' }],
+  };
+
+  if (typeof axe !== 'undefined') {
+    const report = axe.auditWebpage(document.body, options);
+    return report;
+  }
+
+  return issues;
+}
+
+// Function to add wrapper for main element to enhance accessibility
+function wrapPrimaryContentInMain(parent) {
+  if (!parent || typeof parent.nodeType !== 'number') {
+    throw new Error('Invalid parent element');
+  }
+
+  if (parent.tagName && parent.tagName.toLowerCase() === 'main') {
+    return parent;
+  }
+
+  const mainElement = document.createElement('main');
+  mainElement.appendChild(parent);
+
+  return mainElement;
 }
 
 // Basic configuration
@@ -179,12 +227,22 @@ const appData = {
 };
 
 // Configuration and state
+const appConfig = {
+  ...UTILS_CONFIG,
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
 let config = {};
 let appState = {};
 
 // Initialize function
 function initialize() {
-  config = { apiUrl: process.env.API_URL || 'http://localhost:3000', timeout: 5000 };
+  appConfig.apiUrl = process.env.API_URL || 'http://localhost:3000';
+  appConfig.timeout = 5000;
+  config = appConfig;
   appState = { initialized: true };
 }
 
@@ -244,6 +302,13 @@ const landmarkStructureCheck = (landmark) => {
   return true;
 };
 
+// New function to render dependency graph (Preserved)
+function renderDependencyGraph(landmarks) {
+  // Implementation for rendering dependency graph
+  console.log('Rendering dependency graph for', landmarks.length, 'landmarks');
+  return { rendered: true, count: landmarks.length };
+}
+
 // Main execution when run directly (Merged functionality)
 if (require.main === module) {
     const landmarks = loadLandmarks();
@@ -266,9 +331,6 @@ if (require.main === module) {
       console.log(`Server running on http://${HOST}:${PORT}`);
     });
 }
-
-// New function to render dependency graph (Preserved)
-module.exports.renderDependencyGraph = renderDependencyGraph;
 
 /**
  * REACT_015: Add lang attribute to HTML element
@@ -315,28 +377,7 @@ function validateTableAccessibility(table) {
   return true;
 }
 
-// added a generateAccessibilityReport function
-function generateAccessibilityReport() {
-  const issues = [];
-
-  // Checks for images without alt attributes and buttons without accessible name
-  const images = document.querySelectorAll('img,button');
-  images.forEach((img, index) => {
-    if (!(img.hasAttribute('alt') || (img.tagName === 'BUTTON' && img.getAttribute('aria-label')))) {
-      issues.push({
-        type: 'missing-alt-or-name',
-        element: img.tagName.toLowerCase(),
-        index: index,
-        message: `Missing alt or accessible name for ${img.tagName.toLowerCase()}`
-      });
-    }
-  });
-
-  // Rest of original checks for links, form inputs, empty headings, and added labels
-  // ...
-}
-
-// added a addressAccessibilityIssues function
+// added an addressAccessibilityIssues function
 function addressAccessibilityIssues() {
   // Updated to include both sets of fixes
   // ...
@@ -378,8 +419,7 @@ function anotherHelper() {
     // ... include the successful return of the functions, similar to the example implementation
     resolve(Object.fromEntries([
         ['initAppData', initAppData],
-        ['accessiblyHelper', accessiblyHelper],
-        ['someFunction', someFunction], // unresolved example function
+        ['accessiblyHelper', accessiblyHelper]
     ]));
   });
 }
@@ -400,5 +440,25 @@ module.exports = {
     PORT,
     HOST,
     renderDependencyGraph,
-    main
+    main,
+    wrapPrimaryContentInMain,
+    ensureUniqueLandmarks,
+    addLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    fixTableStructure,
+    addMainLandmark,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    isValidLandmark,
+    loadLandmarks,
+    processLandmarks,
+    sortLandmarks,
+    getLandmarkById,
+    config: appConfig,
+    initialize,
+    initializeApp,
+    clearCache
 };

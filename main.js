@@ -18,15 +18,15 @@ module.exports = {
     };
 
     // Add lang attribute to HTML element if missing
-    const htmlElement = container.querySelector('html') || document.documentElement;
+    const htmlElement = container || document.documentElement;
     const langAttr = getLangAttribute(htmlElement);
     if (!langAttr) {
-      htmlElement.setAttribute('lang', 'en');
+      addLangAttribute(htmlElement, 'en');
       fixes.langAdded = true;
     }
 
     // Add main landmark if missing
-    const mainElement = container.querySelector('main');
+    const mainElement = container.querySelector('main') || container.querySelector('[role="main"]');
     if (!mainElement) {
       const body = container.querySelector('body');
       if (body) {
@@ -34,7 +34,7 @@ module.exports = {
         while (body.firstChild) {
           newMain.appendChild(body.firstChild);
         }
-        body.appendChild(newMain);
+        body.insertBefore(newMain, body.firstChild);
         fixes.mainLandmarkAdded = true;
       }
     }
@@ -53,14 +53,14 @@ module.exports = {
     const svgElements = container.querySelectorAll('svg');
     svgElements.forEach(svg => {
       const accessibleName = getSvgAccessibleName(svg);
-      if (accessibleName && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-        svg.setAttribute('aria-label', accessibleName);
+      if (accessibleName && accessibleName.trim()) {
+        setSvgAccessibilityProps(svg, accessibleName);
         fixes.svgNamesAdded++;
       }
     });
 
     // Fix fake link issues (elements that look like links but are missing href)
-    const fakeLinks = container.querySelectorAll('a:not([href])');
+    const fakeLinks = container.querySelectorAll('[role="link"], a:not([href])');
     fakeLinks.forEach(link => {
       const style = window.getComputedStyle(link);
       if (style.cursor === 'pointer' || link.hasAttribute('onclick')) {
@@ -119,7 +119,7 @@ module.exports = {
       if (focusableElements[index]) {
         focusableElements[index].focus();
       } else {
-        focusableElements[0].focus();
+        element.focus();
       }
       activeElementIndex = index;
     }
@@ -219,7 +219,7 @@ module.exports = {
   // Existing utility functions
   log: (message, level = 'info') => {
     const timestamp = new Date().toISOString();
-    console.log(`${timestamp} [${level}] ${message}`);
+    console.log(`[${timestamp}] [${level}] ${message}`);
   },
 
   // Export functionality with accessibility support

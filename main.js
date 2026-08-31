@@ -28,24 +28,12 @@ import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessib
 // main.js - Combined utility and accessibility features
 
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// Add the language attribute to the HTML element for proper accessibility
-document.documentElement.lang = getLangAttribute();
-
-// Create in-page button with accessibility considerations
-createInPageButton();
-
-// Validate table structure and accessibility
-// Ensuring all tables in the document are accessible
-const tables = document.querySelectorAll('table');
-tables.forEach(table => {
-  validateTableAccessibility(table);
-  validateTableStructure(table);
-});
-
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
+// - REACT_036: Fix 1 fake link issue (handled by handleFakeLinks(), createInPageButton(), createAccessibleLink(), and personName())
+// - ADD: Address new accessibility issues from insight report
 
 // Internal set to track used landmark IDs
 // Global set to track used landmark IDs

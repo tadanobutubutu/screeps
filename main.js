@@ -8,20 +8,31 @@ const path = require('path');
 
 // TODO: This is the existing code that needs to be preserved
 
-// Application configuration
-const config = {
-  port: process.env.PORT || 3000,
-  env: process.env.NODE_ENV || 'development'
-};
+// New Function - Custom middleware example
+function myCustomMiddleware(req, res, next) {
+  console.log('Custom middleware being invoked');
+  next();
+}
+
+// New Function - Simple API endpoint example
+function getData(req, res) {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ data: 'Hello, World!' }));
+}
 
 /**
- * Creates and starts the HTTP server
+ * Creates and starts the HTTP server with the new functions
  * @returns {http.Server} The created server instance
  */
 function createServer() {
   const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok', config }));
+    // Old server logic
+
+    // New logic with custom middleware
+    myCustomMiddleware(req, res, () => {
+      // Old logic for handling the request
+      getData(req, res);
+    });
   });
   return server;
 }
@@ -41,10 +52,12 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
+  myCustomMiddleware,
+  getData,
   config
 };
 
-// Start the application if run directly
+// Start the application if run directly (with new functions)
 if (require.main === module) {
   startApp();
 }

@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -297,4 +299,17 @@ function handleFakeLinks(issues) {
     return issues;
   }
   return issues.map((issue) => {
-    if (issue.type === 'fake
+    if (issue.type === 'fake') {
+      return {
+        ...issue,
+        severity: 'warning',
+        message: issue.message || 'Fake link detected',
+        fix: {
+          action: 'add-href',
+          params: { href: '#' }
+        }
+      };
+    }
+    return issue;
+  });
+}

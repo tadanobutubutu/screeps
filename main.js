@@ -138,8 +138,24 @@ function getSvgAccessibleName(svgElement) {
  * @returns {string} Rendered dependency graph HTML
  */
 function renderDependencyGraph(deps, options = {}) {
+  // Validate input
+  if (!deps || typeof deps !== 'object') {
+    console.warn('renderDependencyGraph: Invalid dependencies object provided');
+    return '<div class="dependency-graph error">Invalid dependency data</div>';
+  }
+
+  // Log for debugging purposes when in development mode
+  if (options.debug) {
+    console.log('Rendering dependency graph with data:', JSON.stringify(deps, null, 2));
+  }
+
   // Use dependencyGraphContent from the imported module
-  return dependencyGraphContent(deps, options);
+  try {
+    return dependencyGraphContent(deps, options);
+  } catch (error) {
+    console.error('Error rendering dependency graph:', error.message);
+    return `<div class="dependency-graph error">Error rendering graph: ${error.message}</div>`;
+  }
 }
 
 /**
@@ -149,8 +165,24 @@ function renderDependencyGraph(deps, options = {}) {
  * @returns {string} Rendered index HTML
  */
 function renderIndex(data, options = {}) {
+  // Validate input
+  if (!data || typeof data !== 'object') {
+    console.warn('renderIndex: Invalid data object provided');
+    return '<div class="index-view error">Invalid view data</div>';
+  }
+
+  // Log for debugging purposes when in development mode
+  if (options.debug) {
+    console.log('Rendering index view with data:', JSON.stringify(data, null, 2));
+  }
+
   // Use indexContent from the imported module
-  return indexContent(data, options);
+  try {
+    return indexContent(data, options);
+  } catch (error) {
+    console.error('Error rendering index view:', error.message);
+    return `<div class="index-view error">Error rendering view: ${error.message}</div>`;
+  }
 }
 
 if (typeof document !== 'undefined') {

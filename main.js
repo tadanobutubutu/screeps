@@ -13,6 +13,44 @@
 // For example, if the page is in English, set lang to 'en'
 import React from 'react';
 
+function isLinkAccessible(link) {
+  if (!link) {
+    return false;
+  }
+
+  const tagName = link.tagName ? link.tagName.toUpperCase() : '';
+  const role = link.getAttribute ? link.getAttribute('role') : null;
+  const href = link.getAttribute ? link.getAttribute('href') : null;
+  const text = link.textContent || '';
+  const ariaLabel = link.getAttribute ? link.getAttribute('aria-label') : null;
+
+  // Must be an anchor or have a link role
+  if (tagName !== 'A' && role !== 'link') {
+    return false;
+  }
+
+  // Must have a valid href (not missing, empty, or just a hash)
+  if (!href || typeof href !== 'string' || href.trim() === '' || href.trim() === '#') {
+    return false;
+  }
+
+  // Must not be a button disguised as a link
+  if (role === 'button') {
+    return false;
+  }
+
+  // Must have an accessible name
+  const hasText = text.trim().length > 0;
+  const hasAriaLabel = ariaLabel && ariaLabel.trim().length > 0;
+  const hasAriaLabelledby = link.getAttribute ? !!link.getAttribute('aria-labelledby') : false;
+
+  if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
+    return false;
+  }
+
+  return true;
+}
+
 /**
  * Adds the lang attribute to the document's <html> tag based on content
  * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')

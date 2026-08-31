@@ -228,34 +228,6 @@ function checkLandmarkElements() {
     };
 }
 
-// New function or change requested in the issue
-function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  const links = document.querySelectorAll('a[href], area[href]');
-  const results = [];
-  
-  links.forEach((link, index) => {
-    const href = link.getAttribute('href');
-    const isAccessible = validateLinkAccessibility(link);
-    const hasText = link.textContent.trim().length > 0 || link.getAttribute('aria-label');
-    const hasUniqueText = checkUniqueLinkText(link);
-    
-    results.push({
-      index,
-      url: href,
-      isAccessible,
-      hasText,
-      hasUniqueText,
-      element: link
-    });
-  });
-  
-  handleFakeLinks(results);
-  
-  return results;
-}
-
 /**
  * Checks if link text is unique among sibling links
  * @param {HTMLAnchorElement} link - The link element to check
@@ -391,31 +363,6 @@ function renderDependencyGraph(module) {
   // Example output: 'Rendering dependency graph for: ModuleName'
 }
 
-// New function to display module structure
-function displayModuleStructure(module) {
-  // Implementation to display the module structure for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Displaying module structure for:', module);
-  // Example output: 'Displaying module structure for: ModuleName'
-}
-
-function handleFakeLinks(links) {
-  const fixedLinks = [];
-  
-  for (let link of links) {
-    if (!validateLinkAccessibility(link)) {
-      link.setAttribute('href', '#');
-      link.setAttribute('role', 'button');
-      link.style.pointerEvents = 'none';
-      fixedLinks.push(link);
-    } else {
-      fixedLinks.push(link);
-    }
-  }
-  
-  return fixedLinks;
-}
-
 // REACT_037: Add proper landmark regions
 function addProperLandmarkRegions(element) {
   if (!element || element.nodeType !== Node.ELEMENT_NODE) {
@@ -428,37 +375,6 @@ function addProperLandmarkRegions(element) {
   if (!currentRole && validLandmarkRegions.includes(element.tagName.toLowerCase())) {
     element.setAttribute('role', element.tagName.toLowerCase());
   }
-}
-
-/**
- * Displays module structure for debugging purposes.
- * @param {Array} modules - Array of module objects
- * @returns {string} Formatted module structure display
- */
-function displayModuleStructure(modules) {
-  if (!Array.isArray(modules)) {
-    return 'Error: modules must be an array';
-  }
-  
-  let output = 'Module Structure:\n';
-  output += '==================\n\n';
-  
-  modules.forEach((mod, index) => {
-    const name = mod.name || mod.id || `Module ${index + 1}`;
-    output += `${index + 1}. ${name}\n`;
-    
-    if (mod.dependencies && Array.isArray(mod.dependencies)) {
-      output += `   Dependencies: ${mod.dependencies.join(', ')}\n`;
-    }
-    
-    if (mod.path) {
-      output += `   Path: ${mod.path}\n`;
-    }
-    
-    output += '\n';
-  });
-  
-  return output;
 }
 
 /**

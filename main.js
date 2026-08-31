@@ -6,6 +6,19 @@ import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibility
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 import { checkLinkAccessibility } from './utils/linkAccessibilityUtils'; // Added from origin/main
 
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+
+//_Commit: 005175ace506f095c1a71007b8d1c35f40f9622d_
+
+//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+
 // Main module for calculator operations
 // Main entry point for dependency visualization tool
 const main = {
@@ -172,6 +185,98 @@ function addAriaLabel(element, label) {
     if (!element.getAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
+}
+
+/**
+ * Ensures the dependencyGraph container has a proper ARIA role for accessibility.
+ * Addresses the accessibility issues from the insight report by:
+ * - Setting appropriate ARIA role (region or figure)
+ * - Adding descriptive aria-label if not present
+ * - Ensuring the container is properly identified for screen readers
+ * @param {HTMLElement|string} container - The container element or selector
+ * @param {Object} options - Configuration options
+ * @param {string} options.role - ARIA role to set (default: 'region')
+ * @param {string} options.label - Label for the container
+ * @param {boolean} options.forceUpdate - Force update even if role exists
+ * @returns {boolean} True if accessibility attributes were successfully applied
+ */
+function ensureDependencyGraphAriaRole(container, options = {}) {
+    const {
+        role = 'region',
+        label = 'Dependency Graph',
+        forceUpdate = false
+    } = options;
+    
+    // Get the container element
+    let element = container;
+    if (typeof container === 'string') {
+        element = document.querySelector(container);
+    }
+    
+    // Check if element exists
+    if (!element || element.nodeType !== Node.ELEMENT_NODE) {
+        console.warn('ensureDependencyGraphAriaRole: Invalid container element provided');
+        return false;
+    }
+    
+    // Check current role
+    const currentRole = element.getAttribute('role');
+    
+    // Set ARIA role if not present or force update
+    if (!currentRole || forceUpdate) {
+        element.setAttribute('role', role);
+    }
+    
+    // Add aria-label if not present
+    const currentLabel = element.getAttribute('aria-label');
+    if (!currentLabel) {
+        element.setAttribute('aria-label', label);
+    }
+    
+    // Add aria-roledescription for better description
+    if (!element.getAttribute('aria-roledescription')) {
+        element.setAttribute('aria-roledescription', 'dependency graph visualization');
+    }
+    
+    // Ensure element has an accessible name
+    if (!currentLabel && !element.textContent.trim()) {
+        console.warn('ensureDependencyGraphAriaRole: Container has no accessible name');
+        return false;
+    }
+    
+    return true;
+}
+
+/**
+ * Applies accessibility attributes to a dependency graph container element.
+ * This function should be called when rendering the dependency graph to ensure
+ * the container meets accessibility standards.
+ * @param {HTMLElement} container - The dependency graph container element
+ * @param {string} title - Optional title for the container
+ * @returns {HTMLElement} The container with accessibility attributes
+ */
+function applyDependencyGraphAccessibility(container, title = 'Dependency Graph') {
+    if (!container) {
+        return null;
+    }
+    
+    // Ensure the container has proper ARIA role
+    ensureDependencyGraphAriaRole(container, {
+        role: 'region',
+        label: title
+    });
+    
+    // Add tabindex if not present to make it focusable
+    if (!container.hasAttribute('tabindex')) {
+        container.setAttribute('tabindex', '0');
+    }
+    
+    // Ensure semantic structure
+    if (!container.id) {
+        container.id = 'dependency-graph-container';
+    }
+    
+    return container;
 }
 
 /**
@@ -621,7 +726,9 @@ module.exports = {
   checkLandmarkElements,
   checkLinkAccessibility,
   addAriaLabel,
-  calculateSum
+  calculateSum,
+  ensureDependencyGraphAriaRole,
+  applyDependencyGraphAccessibility
 };
 
 // Run if executed directly

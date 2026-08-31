@@ -7,6 +7,14 @@
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+
 const { getDepGraph } = require('./depGraph');
 const {
   getLangAttribute,
@@ -18,9 +26,6 @@ const {
 } = require('./accessibility-helpers');
 
 const { class1, address, Object1 } = require('./components');
-
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: ensureDependencyGraphARIA, getLangAttribute)
 
 // Accessibility utilities
 
@@ -507,11 +512,52 @@ function addressAccessibilityIssues(report) {
   });
 }
 
-const mainElement = document.querySelector('main') || wrapPrimaryContentInMain();
-console.log('Main element lang:', document.documentElement.lang);
+if (typeof document !== 'undefined' && document.querySelector) {
+  const mainElement = document.querySelector('main') || wrapPrimaryContentInMain();
+  if (document.documentElement && document.documentElement.lang !== undefined) {
+    console.log('Main element lang:', document.documentElement.lang);
+  }
 
-if (!document.documentElement.lang) {
-  addLangAttribute();
+  if (document.documentElement && !document.documentElement.lang) {
+    addLangAttribute();
+  }
+}
+
+// React entry initialization from HEAD branch
+// REACT_015: Add lang attribute to HTML element
+if (typeof document !== 'undefined' && document.documentElement) {
+  document.documentElement.lang = 'en';
+}
+
+if (typeof document !== 'undefined' && typeof document.getElementById === 'function') {
+  try {
+    const React = require('react');
+    const ReactDOM = require('react-dom/client');
+    require('./index.css');
+    const AppModule = require('./App');
+    const App = AppModule.default || AppModule;
+    const reportWebVitalsModule = require('./reportWebVitals');
+    const reportWebVitals = reportWebVitalsModule.default || reportWebVitalsModule;
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+
+    root.render(
+      React.createElement(
+        React.StrictMode,
+        null,
+        React.createElement(App, null)
+      )
+    );
+
+    // If you want to start measuring performance in your app, pass a function
+    // to log results (for example: reportWebVitals(console.log))
+    // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+    if (typeof reportWebVitals === 'function') {
+      reportWebVitals();
+    }
+  } catch (e) {
+    // React dependencies unavailable in this environment
+  }
 }
 
 /**

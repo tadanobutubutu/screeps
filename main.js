@@ -48,3 +48,18 @@ module.exports = {
 if (require.main === module) {
   startApp();
 }
+
+// New code to address accessibility issues
+function setARIARoleForDependencyGraph() {
+  // Assuming there is a DOM element with the id 'dependencyGraph'
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    // Set the appropriate ARIA role
+    dependencyGraph.setAttribute('role', 'grid');
+  }
+}
+
+// Call the function to set the ARIA role when the application starts
+startApp().on('listening', () => {
+  setARIARoleForDependencyGraph();
+});

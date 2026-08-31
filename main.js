@@ -157,6 +157,58 @@ function handleFakeLinks() {
   console.log('Handling fake links');
 }
 
+// Implement harvest and upgrade logic (Line 14 - previously TODO)
+// Harvest resources into the app state
+function harvest() {
+  if (!appState.initialized) {
+    console.warn('Cannot harvest: app not initialized');
+    return null;
+  }
+  
+  const harvestedData = {
+    timestamp: Date.now(),
+    status: 'harvested',
+    data: appState.data
+  };
+  
+  // Store in cache
+  appState.cache.set('harvest', harvestedData);
+  
+  console.log('Harvested data successfully');
+  return harvestedData;
+}
+
+// Upgrade application state based on harvested data
+function upgrade() {
+  if (!appState.initialized) {
+    console.warn('Cannot upgrade: app not initialized');
+    return false;
+  }
+  
+  const cached = appState.cache.get('harvest');
+  
+  if (!cached) {
+    console.warn('No harvested data available for upgrade');
+    return false;
+  }
+  
+  // Upgrade logic: process cached data
+  const upgraded = {
+    ...cached,
+    status: 'upgraded',
+    upgradedAt: Date.now()
+  };
+  
+  // Update app state with upgraded data
+  appState.data = {
+    ...appState.data,
+    ...upgraded
+  };
+  
+  console.log('Upgrade completed successfully');
+  return true;
+}
+
 // Address accessibility issues from insight report
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
@@ -438,5 +490,7 @@ module.exports = {
   ensureUniqueLandmarks: ensureUniqueLandmarks,
   createInPageButton: createInPageButton,
   validateLinkAccessibility: validateLinkAccessibility,
-  handleFakeLinks: handleFakeLinks
+  handleFakeLinks: handleFakeLinks,
+  harvest: harvest,
+  upgrade: upgrade
 };

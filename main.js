@@ -58,6 +58,8 @@ function detectAndSetLang(content) {
   return lang;
 }
 
+// TODO: Any additional changes requested in the issue should be added after this function
+
 /**
  * Sets the lang attribute on the HTML element
  * @param {string} lang - The language code to set

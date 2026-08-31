@@ -23,3 +23,12 @@ Main.propTypes = {
 export { Main, PropTypes };
 
 export default Main;
+
+// Harvest and upgrade logic
+export function harvest(currentResources = 0, amount = 1) {
+  return currentResources + amount;
+}
+
+export function upgrade(currentLevel = 1) {
+  return currentLevel + 1;
+}

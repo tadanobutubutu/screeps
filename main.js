@@ -1,3 +1,15 @@
+// TODO: This is the existing code that needs to be preserved
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+
+_Commit: d0d271c350fcefd4c47c79539762088f4602e90d_
+
+<!-- todo-hash: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
+
 // TODO: Address accessibility issues from insight report — FIXED
 // TODO: Add back any required exports that might have been removed.
 
@@ -32,7 +44,7 @@ const { class1, address, Object1 } = require('./components');
 /**
  * Sets the lang attribute on an element with validation
  * REACT_015: Address lang attribute accessibility requirement
- * @param {HTMLElement} element - The target element
+ * @param {Element} element - The target element
  * @param {string} lang - The language code (e.g., 'en', 'en-US')
  * @returns {boolean} - Returns true if successful, false otherwise
  */
@@ -54,7 +66,7 @@ const setLangAttribute = (element, lang) => {
 /**
  * Checks and returns accessibility attributes for an element
  * REACT_025: Add other accessibility changes as per the insight report
- * @param {HTMLElement} element - The target element
+ * @param {Element} element - The target element
  * @returns {Object} - Object containing accessibility attribute values
  */
 const checkAccessibilityAttributes = (element) => {
@@ -76,7 +88,7 @@ const checkAccessibilityAttributes = (element) => {
 
 /**
  * Ensures element has proper accessibility attributes
- * @param {HTMLElement} element - The target element
+ * @param {Element} element - The target element
  * @param {Object} options - Accessibility options
  * @returns {boolean} - Returns true if all attributes were set successfully
  */
@@ -526,7 +538,7 @@ if (typeof document !== 'undefined' && document.querySelector) {
 // React entry initialization from HEAD branch
 // REACT_015: Add lang attribute to HTML element
 if (typeof document !== 'undefined' && document.documentElement) {
-  document.documentElement.lang = 'en';
+  addLangAttribute();
 }
 
 if (typeof document !== 'undefined' && typeof document.getElementById === 'function') {
@@ -654,7 +666,7 @@ function isLinkAccessibleCheck(link) {
 
 /**
  * Checks if a button has appropriate accessibility attributes.
- * @param {HTMLButtonElement} button - The button element to check
+ * @param {HTMLButtonElement} button - The button to check
  * @returns {boolean} True if the button is accessible, false otherwise
  */
 function isButtonAccessible(button) {

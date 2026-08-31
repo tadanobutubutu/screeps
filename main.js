@@ -409,6 +409,29 @@ function addressAccessibilityIssues(insightReport) {
 }
 
 /**
+ * Renders the graph/index view using the new rendering functions.
+ */
+function renderGraphIndex() {
+  // Code for rendering graph/index using the new functions
+  renderGraph();
+  renderIndex();
+}
+
+/**
+ * New function for rendering a graph.
+ */
+function renderGraph() {
+  // Code for rendering a graph
+}
+
+/**
+ * New function for rendering an index.
+ */
+function renderIndex() {
+  // Code for rendering an index
+}
+
+/**
  * Initializes the application and applies accessibility fixes.
  */
 const initApp = () => {
@@ -427,6 +450,9 @@ const initApp = () => {
 
   // Fix fake links
   fixFakeLinks();
+
+  // Render graph/index using new functions
+  renderGraphIndex();
 
   // Initialize the application data
   console.log('Initializing ' + appData.title + ' v' + appData.version);
@@ -470,6 +496,9 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   addLandmarkRegions,
+  renderGraphIndex,
+  renderGraph,
+  renderIndex,
   // Added from origin/main
   someFunction: function() {
     return 'some value';

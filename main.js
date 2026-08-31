@@ -37,11 +37,17 @@ function startApp() {
   return server;
 }
 
+// Import the new function to create a button with correct accessibility properties
+function createAccessibleButton(text, href) {
+  return `<button type="button" aria-label="${text}">${text}</button>`;
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  createAccessibleButton
 };
 
 // Start the application if run directly

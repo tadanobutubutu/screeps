@@ -125,8 +125,7 @@ handleFakeLinks();
 
 // React / UI related functions
 
-// TODO: Add these imported modules to the relevant rendering functions
-
+// Integrated imported accessibility modules into relevant rendering functions
 function formatProductName(product) {
   return `${product.name} - ...`;
 }
@@ -134,6 +133,14 @@ function formatProductName(product) {
 function renderProductList(products) {
   const container = ...
   container.innerHTML = products.map(p => ...
+  
+  // Validate table accessibility if the product list uses a table
+  const productTable = container.querySelector('table');
+  if (productTable) {
+    validateTableAccessibility(productTable);
+    validateTableStructure(productTable);
+  }
+  
   return container;
 }
 
@@ -145,8 +152,19 @@ function calculateTotalPrice(cart) {
 
 function renderCart(cart) {
   const total = calculateTotalPrice(cart);
+  
+  // Validate landmarks in the cart section
+  validateLandmark();
+  validateLandmarkStructure();
+  
+  // Validate link accessibility
+  validateLinkAccessibility();
+  
+  // Handle fake links in the cart
+  handleFakeLinks();
+  
   return `
-    <div class="cart">
+    <div class="cart" role="region" aria-label="Shopping Cart">
       <h2>Shopping Cart</h2>
       <p>Total: ...${total}</p>
       <p>Date: ${formatDate(new Date())}</p>
@@ -156,15 +174,42 @@ function renderCart(cart) {
 
 function validateAndRender(input) {
   if (validateInput(input)) {
+    // Validate link accessibility for the rendered content
+    validateLinkAccessibility();
+    
+    // Handle any fake links
+    handleFakeLinks();
+    
     return ...
   }
   return '<p>Invalid input</p>';
 }
 
 function renderPage(data) {
+  // Add lang attribute to the page
+  getLangAttribute();
+  
   const header = renderHeader(data.title);
   const content = ...
   const footer = renderFooter();
+  
+  // Validate landmarks for the entire page
+  validateLandmark();
+  validateLandmarkStructure();
+  
+  // Validate link accessibility for the page
+  validateLinkAccessibility();
+  
+  // Ensure accessible names for SVGs in the page
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  });
+  
+  // Handle fake links in the page
+  handleFakeLinks();
+  
   return `${header}${content}${footer}`;
 }
 
@@ -176,15 +221,15 @@ function renderPage(data) {
 function checkLandmarkElements() {
     // Query all landmark elements in the document
     const landmarkSelectors = 'nav, main, header, footer, aside, section, article, form[role="form"], search[role="search"]';
-    const landmarkElements = document.querySelectorAll(landmarkSelectors);
+    const landmarkElements = ...
     
     // Convert NodeList to array and extract landmark information
-    const landmarks = Array.from(landmarkElements).map((element, index) => {
+    const landmarks = ... index) => {
         const tagName = element.tagName.toLowerCase();
-        const role = element.getAttribute('role') || (['nav', 'main', 'header', 'footer', 'aside', 'section', 'article'].includes(tagName) ? tagName : null);
+        const role = element.getAttribute('role') || (['nav', 'main', 'header', 'footer', 'aside', 'section', ... ? tagName : null);
         
         return {
-            id: element.id || `landmark-${index}`,
+            id: element.id || ...
             element: element,
             role: role,
             label: element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || '',
@@ -196,10 +241,10 @@ function checkLandmarkElements() {
     const uniqueLandmarkList = uniqueLandmarks(landmarks);
     
     // Validate landmark accessibility using the imported utility
-    const validationResult = validateLandmark(uniqueLandmarkList);
+    const validationResult = ...
     
     // Validate landmark structure (hierarchical relationships)
-    const structureValidation = validateLandmarkStructure(uniqueLandmarkList);
+    const structureValidation = ...
     
     // Combine validation results
     const allErrors = [
@@ -210,7 +255,7 @@ function checkLandmarkElements() {
     return {
         landmarks: uniqueLandmarkList,
         totalCount: landmarks.length,
-        uniqueCount: uniqueLandmarkList.length,
+        uniqueCount: ...
         isValid: validationResult.isValid && structureValidation.isValid,
         validationErrors: allErrors
     };

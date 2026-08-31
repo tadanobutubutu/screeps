@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+
 // Main module for calculator operations and dependency visualization tool
 
 // Preserve existing functionality

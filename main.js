@@ -1,4 +1,5 @@
 // main.js - Application entry point
+// TODO: Existing main.js content before the merge conflict...
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 
@@ -155,9 +156,11 @@ function validateLinkAccessibility(links) {
 
 // Endpoint for getting landmarks
 app.get('/landmarks', (req, res) => {
-    const landmarks = loadLandmarks();
-    const processed = processLandmarks(landmarks);
-    res.json(processed);
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+  const sorted = sortLandmarks(processed);
+  
+  res.json(sorted);
 });
 
 // Export new necessary functions
@@ -177,7 +180,8 @@ module.exports = {
   // link accessibility functions
   isLinkAccessible,
   handleFakeLinks,
-  validateLinkAccessibility
+  validateLinkAccessibility,
+  generateAccessibilityReport
 };
 
 // Main execution when run directly

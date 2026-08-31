@@ -227,11 +227,36 @@ function fixFakeLinkIssue() {
 
 /* New function to handle credential response */
 function handleCredentialResponse(response) {
-  // TODO: Implement the logic to handle the credential response
+  // Implement the logic to handle the credential response
   // This function should be called when a credential response is received
   // For example, you might parse the response, validate it, and then store or use the credentials
-  console.log('Handling credential response:', response);
-  // Placeholder for actual implementation
+  
+  try {
+    // Check if response is ok
+    if (response.ok) {
+      console.log('Handling credential response:', response);
+      
+      // Try to parse JSON response
+      const json = await response.json();
+      
+      // If credentials are present in the response, set them
+      if (json && typeof json === 'object' && 'credentials' in json) {
+        const credentials = json.credentials;
+        if (Array.isArray(credentials)) {
+          // Set cookies based on credentials
+          Object.entries(credentials).forEach(([key, value]) => {
+            if (value) {
+              document.cookie = `${key}=${value}; path=/`;
+            }
+          });
+        }
+      }
+    } else {
+      console.warn('Credential response is not OK:', response.status);
+    }
+  } catch (error) {
+    console.error('Error handling credential response:', error);
+  }
 }
 
 // Module exports
@@ -262,4 +287,3 @@ if (typeof window !== 'undefined') {
     // Store validation result globally for debugging
     window.landmarkValidation = validateLandmarkStructure(document);
 }
->>>>>>> origin/main

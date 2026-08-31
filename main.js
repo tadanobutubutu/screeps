@@ -1,4 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
+<<<<<<< HEAD
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -164,4 +165,60 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructureById,
   validateTableStructure // Add new function to validate all tables
-};
+=======
+// (This comment remains as-is)
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+
+// Accessibility utilities and functions
+// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+
+// Utility functions for accessibility
+const accessibilityUtils = {
+  // Initialize skip link functionality for keyboard navigation
+  initSkipLink: function() {
+    const skipLink = document.getElementById('skip-link');
+    if (skipLink) {
+      skipLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = skipLink.getAttribute('href').slice(1);
+        const target = document.getElementById(targetId);
+        if (target) {
+          target.setAttribute('tabindex', '-1');
+          target.focus();
+        }
+      });
+    }
+  },
+
+  // Trap focus within an element (for modals, dialogs)
+  trapFocus: function(element) {
+    const focusableElements = element.querySelectorAll(
+      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    });
+  },
+
+  // Announce message to screen readers
+  announceToScreenReader: function(message, priority) {
+    if (priority === undefined) {
+      priority = 'polite';
+    }
+    const announcer = document.createElement('div');
+    announcer.setAttribute('role', 'status');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';

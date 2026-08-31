@@ -175,7 +175,11 @@ function myNewFunction(input) {
   return input.toUpperCase();
 }
 
-// Calculate sum of numbers array
+/**
+ * Calculates the sum of an array of numbers
+ * @param {number[]} numbers - Array of numbers to sum
+ * @returns {number} Sum of the numbers
+ */
 function calculateSum(numbers) {
     return numbers.reduce((sum, num) => sum + num, 0);
 }
@@ -406,6 +410,33 @@ function upgrade(item) {
   return item;
 }
 
+/**
+ * Displays the module structure (dependency tree) starting from the current module for debugging purposes.
+ * Logs the structure to the console.
+ */
+function displayModuleStructure() {
+  const visited = new Set();
+  const indent = (depth) => '  '.repeat(depth);
+  
+  const traverse = (m, depth = 0) => {
+    if (!m || visited.has(m.id)) {
+      return;
+    }
+    visited.add(m.id);
+    
+    console.log(`${indent(depth)}${m.id}`);
+    
+    // Traverse children (modules that this module required)
+    if (Array.isArray(m.children)) {
+      for (const child of m.children) {
+        traverse(child, depth + 1);
+      }
+    }
+  };
+  
+  traverse(module);
+}
+
 // Export all functions
 module.exports = {
   addSvgAccessibilityProps,
@@ -432,6 +463,7 @@ module.exports = {
   addressAccessibilityIssues,
   harvest,
   upgrade,
+  displayModuleStructure,
 
   // Re-export from utilities
   createInPageButton,

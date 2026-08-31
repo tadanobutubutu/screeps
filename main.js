@@ -6,7 +6,10 @@
 const http = require('http');
 const path = require('path');
 
-// TODO: This is the existing code that needs to be preserved
+// TODO: Add the implementation of the requested function
+function calculateSum(a, b) {
+  return a + b;
+}
 
 // Application configuration
 const config = {
@@ -41,7 +44,9 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  // Add the new export for calculateSum function
+  calculateSum
 };
 
 // Start the application if run directly

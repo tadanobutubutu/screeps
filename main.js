@@ -37,11 +37,33 @@ function startApp() {
   return server;
 }
 
+/**
+ * Adds lang attribute to HTML element
+ * @returns {string} The lang attribute value
+ */
+function getLangAttribute() {
+  // Example implementation, replace with actual logic
+  return 'en';
+}
+
+/**
+ * Creates an in-page button element
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton() {
+  // Example implementation, replace with actual logic
+  const button = document.createElement('button');
+  button.textContent = 'Click me';
+  return button;
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  getLangAttribute,
+  createInPageButton
 };
 
 // Start the application if run directly

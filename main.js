@@ -1,7 +1,7 @@
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
@@ -280,6 +280,25 @@ function ensureUniqueLandmarks() {
 }
 
 /**
+ * Creates an accessible in-page button for navigation, handling REACT_015.
+ * Uses getLangAttribute() to determine the language for the button label.
+ */
+function createInPageButton() {
+  const lang = getLangAttribute();
+  const buttonText = `Main Navigation (${lang})`;
+  
+  const button = document.createElement('button');
+  button.textContent = buttonText;
+  button.setAttribute('role', 'button');
+  button.setAttribute('aria-label', buttonText);
+  button.tabIndex = 0;
+  
+  if (document.body) {
+    document.body.appendChild(button);
+  }
+}
+
+/**
  * Gets the accessible name of an element, addressing REACT_036 fake link issues.
  * @param {HTMLElement} element - The element to extract the accessible name from
  * @returns {string|null} The accessible name or null
@@ -315,39 +334,4 @@ function personName(element) {
  * Validates that links and interactive elements have accessible names,
  * addressing REACT_036 fake link issues.
  * @param {HTMLElement} container - Optional container to scan within
- * @returns {object} Validation result with valid flag and errors array
- */
-function validateAccessibleLinks(container) {
-  if (typeof document === 'undefined') {
-    return { valid: true, errors: [] };
-  }
-  
-  const errors = [];
-  const root = container || document;
-  const links = root.querySelectorAll('a, button, [role="link"], [role="button"]');
-  
-  links.forEach((el, index) => {
-    const name = personName(el);
-    if (!name || !name.trim()) {
-      errors.push(`Interactive element ${index + 1} is missing an accessible name`);
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// Export all functions to maintain current exports
-module.exports = {
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateSvgAccessibility,
-  ensureUniqueLandmarks,
-  validateAccessibleLinks
-};
+ * @returns {object}

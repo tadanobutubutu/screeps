@@ -103,20 +103,6 @@ function createInPageButton(buttonText, onClickHandler) {
   return button;
 }
 
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  if (!element) {
-    return false;
-  }
-  
-  // Validate that the landmark has required properties
-  if (element.getAttribute('name') && element.getAttribute('coordinates')) {
-    return true;
-  }
-  
-  return false;
-}
-
 // If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
 // If not, define it here:
 export function rotateBack() {
@@ -271,7 +257,7 @@ function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
-  button.ariaLabel = 'rotate back';
+  button.setAttribute('aria-label', 'rotate back');
   button.textContent = 'rotate back';
   button.addEventListener('click', rotateBack);
   return button;
@@ -527,6 +513,83 @@ const icons = {
 };
 
 /**
+ * Checks if a link is accessible based on various accessibility criteria.
+ * 
+ * This function validates links for accessibility issues such as:
+ * - Links without text content or aria-label
+ * - Links pointing to # (placeholder links)
+ * - Links without href attribute
+ * 
+ * @param {HTMLElement} link - The link element to check
+ * @returns {Object} An object containing accessibility check results
+ */
+function isLinkAccessible(link) {
+  const results = {
+    isAccessible: true,
+    issues: []
+  };
+
+  // Skip if document is not available (e.g., in Node.js test environment)
+  if (typeof document === 'undefined') {
+    return results;
+  }
+
+  if (!link) {
+    results.isAccessible = false;
+    results.issues.push('Link element is null or undefined');
+    return results;
+  }
+
+  // Check if link has href attribute
+  const href = link.getAttribute('href');
+  if (!href) {
+    results.isAccessible = false;
+    results.issues.push('Link is missing href attribute');
+  }
+
+  // Check for placeholder links
+  if (href === '#' || href === '' || href === 'javascript:void(0)') {
+    results.isAccessible = false;
+    results.issues.push('Link is a placeholder (href="#" or empty)');
+  }
+
+  // Check if link has text content or aria-label
+  const linkText = link.textContent.trim();
+  const ariaLabel = link.getAttribute('aria-label');
+  const ariaLabelledby = link.getAttribute('aria-labelledby');
+
+  if (!linkText && !ariaLabel && !ariaLabelledby) {
+    results.isAccessible = false;
+    results.issues.push('Link has no text content or accessible name');
+  }
+
+  // Check if link is hidden from assistive technology
+  if (link.getAttribute('aria-hidden') === 'true' || link.getAttribute('hidden') !== null) {
+    results.isAccessible = false;
+    results.issues.push('Link is hidden from assistive technology');
+  }
+
+  // Check for proper role (if not an anchor tag)
+  const tagName = link.tagName.toLowerCase();
+  if (tagName !== 'a' && tagName !== 'area') {
+    const role = link.getAttribute('role');
+    if (!role || role !== 'link') {
+      results.isAccessible = false;
+      results.issues.push(`Non-anchor element missing role="link"`);
+    }
+  }
+
+  // Check for tabindex (links should be focusable)
+  const tabindex = link.getAttribute('tabindex');
+  if (tabindex === '-1') {
+    results.isAccessible = false;
+    results.issues.push('Link has tabindex="-1" making it non-focusable');
+  }
+
+  return results;
+}
+
+/**
  * Adds proper landmark regions to the document.
  *
  * This function ensures that key landmark regions (banner, main, contentinfo,
@@ -715,7 +778,8 @@ export {
   ensurePageUniqueLandmarks,
   fixFakeLink,
   initializeAccessibility,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  isLinkAccessible
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
@@ -738,6 +802,7 @@ module.exports.ensurePageUniqueLandmarks = ensurePageUniqueLandmarks;
 module.exports.fixFakeLink = fixFakeLink;
 module.exports.initializeAccessibility = initializeAccessibility;
 module.exports.addProperLandmarkRegions = addProperLandmarkRegions;
+module.exports.isLinkAccessible = isLinkAccessible;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {

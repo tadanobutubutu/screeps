@@ -1,15 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-// ...
-// New function to ensure the element has an id, add aria-label, render dependency graphs
-function enhanceElementWithAriaLabel(elementId, ariaLabel) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.setAttribute('id', elementId);
-    element.setAttribute('aria-label', ariaLabel);
-    // Additional code to render dependency graphs or other enhancements
-  }
-}
-
 const main = require('./utilities');
 
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
@@ -205,8 +193,6 @@ module.exports = {
   // TODO: Validate the accessibility report for issues
   validateAccessibilityReport,
 
-  // TODO: Address new accessibility issues from insight report ( implement new functions and fixes as needed)
-
   // Credential response handling
   async handleCredentialResponse(response) {
     if (!response) {
@@ -241,5 +227,12 @@ module.exports = {
   focusTrap,
 
   // Export the new function from HEAD
-  enhanceElementWithAriaLabel
+  enhanceElementWithAriaLabel: (elementId, ariaLabel) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.setAttribute('id', elementId);
+      element.setAttribute('aria-label', ariaLabel);
+      // Additional code to render dependency graphs or other enhancements
+    }
+  }
 };

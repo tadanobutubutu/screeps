@@ -386,6 +386,46 @@ function ensureElementHasId(element, prefix = 'element') {
 // Export the newFocusTrap function as a standalone utility
 const newFocusTrap = accessibilityUtils.newFocusTrap;
 
+// ----- Additional functions for rendering dependency graphs and displaying module structure -----
+
+/**
+ * Renders a dependency graph as a simple text representation.
+ * @param {Object} data - The graph data with nodes and edges.
+ * @returns {string} A string representation of the graph.
+ */
+function renderDependencyGraphVisualization(data) {
+  const nodes = data.nodes || [];
+  const edges = data.edges || [];
+  let output = 'Dependency Graph:\n';
+  output += 'Nodes:\n';
+  nodes.forEach(node => {
+    output += ` - ${node.id || node.name || JSON.stringify(node)}\n`;
+  });
+  output += 'Edges:\n';
+  edges.forEach(edge => {
+    output += ` ${edge.source} -> ${edge.target}\n`;
+  });
+  return output;
+}
+
+/**
+ * Displays the module structure in a tree-like format.
+ * @param {Object} module - The module object with name and children.
+ * @param {number} depth - Current depth for indentation.
+ * @returns {string} A string representation of the module tree.
+ */
+function displayModuleStructure(module, depth = 0) {
+  if (!module) return '';
+  const indent = '  '.repeat(depth);
+  let output = `${indent}${module.name || 'Module'}\n`;
+  if (module.children && Array.isArray(module.children)) {
+    module.children.forEach(child => {
+      output += displayModuleStructure(child, depth + 1);
+    });
+  }
+  return output;
+}
+
 // Export all utilities
 module.exports = {
   accessibilityUtils,
@@ -406,5 +446,7 @@ module.exports = {
   groupByCategory,
   transformInputData,
   validateTableAccessibility,
-  ensureElementHasId
+  ensureElementHasId,
+  renderDependencyGraphVisualization,
+  displayModuleStructure
 };

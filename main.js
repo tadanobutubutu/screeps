@@ -85,7 +85,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // If running in browser context
 if (typeof window !== 'undefined') {
-  window.checkLinkAndButtonAccessibility = checkLinkAndButtonAccessibility;
+  window.checkLinkAndButtonAccessibility = checkLinkLinkAndButtonAccessibility;
   window.addressAccessibilityIssues = addressAccessibilityIssues;
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;

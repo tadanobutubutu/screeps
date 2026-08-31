@@ -26,9 +26,33 @@ function renderIndex(data, options = {}) {
   return indexContent(data, options);
 }
 
+/**
+ * Renders module structure for debugging
+ * @param {Object} modules - Modules object
+ * @param {Object} options - Rendering options
+ * @returns {string} Rendered module structure HTML
+ */
+function renderModuleStructure(modules, options = {}) {
+  // Simple HTML representation of module structure
+  let html = '<div class="module-structure">';
+  for (const [name, mod] of Object.entries(modules)) {
+    html += `<div class="module"><h3>${name}</h3>`;
+    if (mod.dependencies) {
+      html += '<ul>';
+      mod.dependencies.forEach(dep => {
+        html += `<li>${dep}</li>`;
+      });
+      html += '</ul>';
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
 // Preserve all existing exports
 module.exports = {
   renderDependencyGraph,
   renderIndex,
-  // Preserve any other existing exports here
+  renderModuleStructure,
 };

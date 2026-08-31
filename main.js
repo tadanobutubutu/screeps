@@ -5,6 +5,57 @@ function calculateSum(a, b) {
 }
 
 /**
+ * Checks for accessibility issues on links and buttons within a given root element
+ * @param {Object} rootElement - The root DOM element to scan for accessibility issues
+ * @returns {Array} - Array of accessibility issues found
+ */
+function checkLinkAndButtonAccessibility(rootElement) {
+  const issues = [];
+  const baseElement = rootElement || (typeof document !== 'undefined' ? document.body : null);
+
+  if (!baseElement) {
+    return issues;
+  }
+
+  const links = baseElement.querySelectorAll ? baseElement.querySelectorAll('a') : [];
+  const buttons = baseElement.querySelectorAll ? baseElement.querySelectorAll('button') : [];
+
+  let index = 0;
+
+  links.forEach((link) => {
+    const hasText = link.textContent && link.textContent.trim().length > 0;
+    const hasAriaLabel = link.getAttribute('aria-label');
+    const hasAccessibleName = hasText || hasAriaLabel;
+
+    if (!hasAccessibleName) {
+      issues.push({
+        type: 'link',
+        element: link,
+        index: index++,
+        issue: 'Link is missing accessible text or aria-label'
+      });
+    }
+  });
+
+  buttons.forEach((button) => {
+    const hasText = button.textContent && button.textContent.trim().length > 0;
+    const hasAriaLabel = button.getAttribute('aria-label');
+    const hasAccessibleName = hasText || hasAriaLabel;
+
+    if (!hasAccessibleName) {
+      issues.push({
+        type: 'button',
+        element: button,
+        index: index++,
+        issue: 'Button is missing accessible text or aria-label'
+      });
+    }
+  });
+
+  return issues;
+}
+
+/**
  * Addresses accessibility issues from an insight report by applying fixes
  * @param {Array} issues - Array of accessibility issues to address
  * @param {Object} options - Options for how to address the issues

@@ -34,6 +34,42 @@ function ensureDependencyGraphARIA() {
   };
 }
 
+// Function to validate landmark structure for accessibility issues
+function validateLandmarkStructure() {
+  const results = {
+    hasMain: false,
+    hasNav: false,
+    hasHeader: false,
+    hasFooter: false,
+    issues: []
+  };
+  
+  if (typeof document !== 'undefined' && document.querySelector) {
+    // Check for main landmark - critical for screen reader navigation
+    const mainElement = document.querySelector('main, [role="main"]');
+    results.hasMain = mainElement !== null;
+    
+    // Check for navigation landmark
+    const navElement = document.querySelector('nav, [role="navigation"]');
+    results.hasNav = navElement !== null;
+    
+    // Check for header/banner landmark
+    const headerElement = document.querySelector('header, [role="banner"]');
+    results.hasHeader = headerElement !== null;
+    
+    // Check for footer landmark
+    const footerElement = document.querySelector('footer, [role="contentinfo"]');
+    results.hasFooter = footerElement !== null;
+    
+    // Report missing main landmark as critical issue
+    if (!results.hasMain) {
+      results.issues.push('Missing main landmark. Screen readers rely on this to identify primary content.');
+    }
+  }
+  
+  return results;
+}
+
 // Function to handle sorting books by title (ascending)
 function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
@@ -97,12 +133,20 @@ function onAuthorSort() {
 }
 
 // Export utility functions
-export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies };
+export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies, validateLandmarkStructure };
 
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
   const dispatch = useDispatch();
+
+  // Validate landmark structure for accessibility on mount
+  useEffect(() => {
+    const landmarkResults = validateLandmarkStructure();
+    if (landmarkResults.issues.length > 0) {
+      console.warn('Landmark structure issues detected:', landmarkResults.issues);
+    }
+  }, []);
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {

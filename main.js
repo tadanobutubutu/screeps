@@ -1,12 +1,6 @@
 // main.js - Application entry point
 // TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 
 const express = require('express');
 const axe = require('axe-core');
@@ -122,11 +116,48 @@ const app = express();
 
 // TODO: add the new functions or changes requested in the issue
 // Here is the implementation for checking link accessibility
-// The existing isLinkAccessible function implementation
+
+// Check if a link is accessible (has accessible name via text, aria-label, or title)
+function isLinkAccessible(link) {
+    if (!link || typeof link !== 'object') {
+        return false;
+    }
+    if (!link.href && !link.url) {
+        return false;
+    }
+    const hasText = link.text && link.text.trim().length > 0;
+    const hasAriaLabel = link.ariaLabel || link['aria-label'];
+    const hasTitle = link.title;
+    return hasText || hasAriaLabel || hasTitle;
+}
+
+// Handle fake links by ensuring they have accessible names
+function handleFakeLinks(links) {
+    if (!Array.isArray(links)) {
+        return [];
+    }
+    return links.map(link => {
+        if (!isLinkAccessible(link) && (link.href || link.url)) {
+            link.text = link.text || link.href || link.url || '';
+            link.ariaLabel = link.ariaLabel || link.text;
+        }
+        return link;
+    });
+}
+
+// Validate link accessibility and return inaccessible links
+function validateLinkAccessibility(links) {
+    if (!Array.isArray(links)) {
+        return [];
+    }
+    return links.filter(link => !isLinkAccessible(link));
+}
 
 // Endpoint for getting landmarks
 app.get('/landmarks', (req, res) => {
-  // Your code for handling the request and response logic goes here
+    const landmarks = loadLandmarks();
+    const processed = processLandmarks(landmarks);
+    res.json(processed);
 });
 
 // Export new necessary functions
@@ -142,7 +173,11 @@ module.exports = {
   sortLandmarks,
   getLandmarkById,
   ensureUniqueLandmarks,
-  landmarkConfig: CONFIG
+  landmarkConfig: CONFIG,
+  // link accessibility functions
+  isLinkAccessible,
+  handleFakeLinks,
+  validateLinkAccessibility
 };
 
 // Main execution when run directly

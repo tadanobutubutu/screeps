@@ -106,29 +106,32 @@ module.exports = {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
 
+  // New functions requested in the issue
   rotateBack: function() {},
 
   initializeAccessibility: function() {
     this.addSvgAccessibleNames();
     this.ensureUniqueLandmarks();
     this.fixFakeLink();
+    this.rotateBack();
   },
 
   initialize: function() {
     this.initializeAccessibility();
+  },
+
+  analyzeAccessibility: function(issuesData) {
+    // Function added here to maintain the structure requested in the issue
+    return issuesData;
+  },
+
+  generateAccessibilityReport: function(issuesData) {
+    const analyzedIssues = this.analyzeAccessibility(issuesData);
+    const report = {
+      introduction: 'Accessibility report for the application',
+      data: analyzedIssues,
+      conclusions: ''
+    };
+    return report;
   }
 };
-
-function analyzeAccessibility(issuesData) {
-  return issuesData;
-}
-
-function generateAccessibilityReport(issuesData) {
-  const analyzedIssues = analyzeAccessibility(issuesData);
-  const report = {
-    introduction: 'Accessibility report for the application',
-    data: analyzedIssues,
-    conclusions: ''
-  };
-  return report;
-}

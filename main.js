@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Main JavaScript file
 // This file handles the main application logic
 
@@ -130,6 +127,11 @@ Here is the resolved file content:
       }
     }
 
+    // New function to import a module and execute a function
+    function importAndExecute(modulePath, functionName, callback) {
+      require(modulePath)[functionName](callback);
+    }
+
     // Export the report generation function
     module.exports = {
       generateAccessibilityReport: async function () {
@@ -139,7 +141,8 @@ Here is the resolved file content:
       addressAccessibilityIssues,
       getLangAttribute,
       createInPageButton,
-      a11y
+      a11y,
+      importAndExecute
     };
 
     // Initialize the application with accessibility improvements
@@ -179,4 +182,3 @@ Here is the resolved file content:
         }
     }
 })();
-```

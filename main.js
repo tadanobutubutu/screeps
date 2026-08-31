@@ -306,21 +306,37 @@ const hello = () => {
 // Utilities for addressing accessibility issues
 const AddressabilityIssues = {
   addressAccessibilityIssues(insightReport) {
-    /* existing code */
-  },
-
-  generateAccessibilityReport(accessibilityReport) {
-    if (!accessibilityReport || !Array.isArray(accessibilityReport.issues)) {
+    // Implementation for addressing accessibility issues from insight report
+    if (!insightReport || !insightReport.sections) {
       return [];
     }
 
-    const report = accessibilityReport.issues.map(issue => ({
-      issueType: issue.type,
-      status: issue.status || 'pending',
-      fixApplied: issue.fixApplied || ''
-    }));
+    const issues = [];
 
-    return report;
+    // Check for accessibility issues in each section
+    insightReport.sections.forEach(section => {
+      if (section.heading && !section.heading.startsWith('h')) {
+        issues.push({
+          type: 'heading-order',
+          description: `Invalid heading in section: ${section.heading}`,
+          fixApplied: false
+        });
+      }
+    });
+
+    return issues;
+  },
+
+  generateAccessibilityReport(accessibilityData) {
+    // Generate accessibility report from audit data
+    if (!accessibilityData) {
+      return { issues: [] };
+    }
+
+    return {
+      issues: Array.isArray(accessibilityData.issues) ? accessibilityData.issues : [],
+      timestamp: new Date().toISOString()
+    };
   },
 
   calculateAccessibilityScore(fixedIssues) {
@@ -415,167 +431,7 @@ const AddressabilityIssues = {
 
     return { valid: true, element: tagName, role: landmarkRole };
   },
-
-  spawnSomeCommand(callback) {
-    const child_process = require('child_process');
-    child_process.spawn('someCommand', {}, {
-      stdio: 'inherit',
-    }).on('exit', (code, signal) => {
-      if (code === 0) {
-        callback(null, 'Successfully executed someCommand');
-      } else {
-        callback(new Error(`someCommand failed with code ${code}`));
-      }
-    });
-  },
-
-  addLangAttribute(element, lang) {
-    element.setAttribute('lang', lang);
-  },
-
-  countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-
-    return {
-      dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
-      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
-  }
 };
-
-function addressAccessibilityIssues(insightReport) {
-  // Implementation for addressing accessibility issues from insight report
-  if (!insightReport || !insightReport.sections) {
-    return [];
-  }
-
-  const issues = [];
-
-  // Check for accessibility issues in each section
-  insightReport.sections.forEach(section => {
-    if (section.heading && !section.heading.startsWith('h')) {
-      issues.push({
-        type: 'heading-order',
-        description: `Invalid heading in section: ${section.heading}`,
-        fixApplied: false
-      });
-    }
-  });
-
-  return issues;
-}
-
-function generateAccessibilityReport(accessibilityData) {
-  // Generate accessibility report from audit data
-  if (!accessibilityData) {
-    return { issues: [] };
-  }
-
-  return {
-    issues: Array.isArray(accessibilityData.issues) ? accessibilityData.issues : [],
-    timestamp: new Date().toISOString()
-  };
-}
-
-function calculateAccessibilityScore(fixedIssues) {
-  if (!Array.isArray(fixedIssues)) {
-    return 0;
-  }
-
-  const scorePoints = {
-    'color-contrast': 5,
-    'missing-alt-text': 3,
-    'missing-aria-label': 5,
-    'heading-order': 2,
-    'other': 1
-  };
-
-  return fixedIssues.reduce((score, issue) => {
-    const points = scorePoints[issue.type] || scorePoints['other'];
-    return score + points;
-  }, 0);
-}
-
-function ensureUniqueLandmarksFromString(source) {
-  const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
-
-  const matches = Array.from(source.matchAll(mainBlockRegex));
-  if (matches.length <= 1) {
-    return source;
-  }
-
-  let result = source;
-  for (let i = 1; i < matches.length; i++) {
-    const block = matches[i][0];
-    const fixedBlock = block
-      .replace(/<main([^>]*)>/, '<section$1>')
-      .replace(/<\/main>/, '</section>');
-    result = result.replace(block, fixedBlock);
-  }
-
-  return result;
-}
-
-function validateLandmark(element) {
-  if (!element) {
-    return { valid: false, error: 'Element is required' };
-  }
-
-  const landmarkRoles = [
-    'banner',
-    'main',
-    'navigation',
-    'search',
-    'contentinfo',
-    'complementary',
-    'region',
-    'form'
-  ];
-
-  const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
-
-  const implicitLandmarks = {
-    'header': 'banner',
-    'main': 'main',
-    'nav': 'navigation',
-    'aside': 'complementary',
-    'footer': 'contentinfo',
-    'section': 'region',
-    'form': 'form'
-  };
-
-  let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
-
-  if (!landmarkRole && implicitLandmarks[tagName]) {
-    landmarkRole = implicitLandmarks[tagName];
-  }
-
-  if (!landmarkRole) {
-    return { 
-      valid: false, 
-      error: 'Element does not have a valid landmark role',
-      element: tagName
-    };
-  }
-
-  if (!landmarkRoles.includes(landmarkRole)) {
-    return { 
-      valid: false, 
-      error: `Invalid landmark role: ${landmarkRole}`,
-      element: tagName,
-      role: landmarkRole
-    };
-  }
-
-  return { valid: true, element: tagName, role: landmarkRole };
-}
 
 function spawnSomeCommand(callback) {
   const child_process = require('child_process');
@@ -595,49 +451,4 @@ function addLangAttribute(element, lang) {
 }
 
 function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-function getVersion() {
-  return '1.0.0';
-}
-
-function getConfig() {
-  return {};
-}
-
-function trapFocus(event) {
-  const element = event.target;
-  const focusableElements = element.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-
-  if (focusableElements.length === 0) return;
-
-  const firstFocusableElement = focusableElements[0];
-  const lastFocusableElement = focusableElements[focusableElements.length - 1];
-
-  if (event.key === 'Tab') {
-    if (event.shiftKey) {
-      if (document.activeElement === firstFocusableElement) {
-        lastFocusableElement.focus();
-        event.preventDefault();
-      }
-    } else {
-      if (document.activeElement === lastFocusableElement) {
-        firstFocusableElement.focus();
-        event.preventDefault();
-      }
-    }
-  }
-}
-
-function handleKeyNavigation(event) {
-  // Handle keyboard navigation for accessibility
-  if (event.key === 'Enter' || event.key === ' ') {
-    const element = event.target;
-    if (element.getAttribute('role') === 'button' && !element.hasAttribute('tabindex')) {
-      element.setAttribute('tabindex', '0');
-    }
-  }
-}
+  return document.documentElement.lang || '

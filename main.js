@@ -230,6 +230,14 @@
       return accessibilityUtils;
     }
 
+    // New function to count dependencies
+    function countDependencies() {
+      // Implementation of countDependencies function
+      // Placeholder implementation for demonstration purposes
+      console.log('Counting dependencies...');
+      // You would implement the actual dependency counting logic here
+    }
+
     // Accessibility utilities - preserves the original accessibilityUtils functionality
     const accessibilityUtils = {
         // Function for addressing new accessibility issues
@@ -369,6 +377,7 @@
       addressAccessibilityIssues,
       getLangAttribute,
       createInPageButton,
+      countDependencies, // Exporting the new function
       function3,
       a11y,
       setSvgAccessibleNames,

@@ -21,7 +21,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `book-${book.id || book.title.toLowerCase().replace(/\s+/g, '-')}`;
+  return `book-${book.id || '-'}`;
 }
 
 // Function to render a single book item
@@ -63,7 +63,7 @@ function generateAccessibilityReport(issues) {
 
   report += `Issue Details:\n`;
   issues.forEach((issue, index) => {
-    report += `${index + 1}. [${issue.severity.toUpperCase()}] ${issue.description}`;
+    report += `${index + 1}. ${issue.description || 'No description'}`;
     if (issue.element) {
       report += ` - Element: ${issue.element}`;
     }
@@ -81,14 +81,14 @@ const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = getBooksList.slice().sort(sortByTitle);
+  const sortedList = [...getBooksList].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = getBooksList.slice().sort(sortByAuthor);
+  const sortedList = [...getBooksList].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
@@ -98,21 +98,23 @@ export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBoo
 // Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 
 // Functions to improve accessibility (implementation assumed elsewhere)
-function fixLandmarkIssues(container) {
+function applyAccessibilityFixes(container) {
   // implementation omitted
 }
-function fixFakeLinkIssues(container) {
+function applyAccessibilityImprovements(container) {
   // implementation omitted
 }
 function fixButtonIdentifiers(container) {
   // implementation omitted
 }
-function addAccessibleNamesToSVGs(container, role) {
+function ensureDependencyGraphARIA(container, role) {
   // implementation omitted
 }
-function ensureDependencyGraphAriaRole(container) {
+function applySVGAccessibility(container) {
   // implementation omitted
 }
+
+// TODO: This is the existing code that needs to be preserved
 
 // Render the main component containing the book list and sorting controls
 function Main() {
@@ -130,15 +132,14 @@ function Main() {
     const container = document.getElementById('main-content');
     if (container) {
       // Apply accessibility fixes
-      fixLandmarkIssues(container);
-      fixFakeLinkIssues(container);
-      fixButtonIdentifiers(container);
+      applyAccessibilityFixes(container);
+      applyAccessibilityImprovements(container);
 
       // Apply SVG accessibility
-      addAccessibleNamesToSVGs(container, 'Graphical element');
+      applySVGAccessibility(container);
 
       // Ensure dependency graph has proper ARIA role
-      ensureDependencyGraphAriaRole(container);
+      ensureDependencyGraphARIA(container, 'img');
     }
   }, [sorting]);
 
@@ -170,7 +171,6 @@ function Main() {
         renderItem={book => BookItem(book)}
         aria-label="Book list"
       />
-      <AddBookForm onSubmit={handleAddBook} />
     </div>
   );
 }

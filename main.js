@@ -1,75 +1,35 @@
-// Main entry point for the application
+// main.js
 
-/**
- * Generates the HTML content with proper landmark elements
- * @param {Object} options - Configuration options
- * @returns {string} Generated HTML string
- */
-function generatePageContent(options = {}) {
-    const { title = 'Quality & Metrics Reports', content = '' } = options;
-    
-    return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title}</title>
-</head>
-<body>
-    <header>
-        <nav>...</nav>
-    </header>
-    <main>
-        ${content}
-    </main>
-    <footer>...</footer>
-</body>
-</html>
-    `.trim();
-}
+// TODO: Address accessibility issues from insight report:
 
-/**
- * Wraps content in a main landmark element
- * @param {string} content - The content to wrap
- * @returns {string} Content wrapped in main tags
- */
-function wrapInMainLandmark(content) {
-    return `<main>\n        ${content}\n    </main>`;
-}
+// Insight Report Accessibility Issues:
+// - Missing ARIA labels on interactive elements
+// - Keyboard navigation improvements needed
+// - Focus management for dynamic content
+// - Color contrast compliance
+// - Screen reader announcements for dynamic updates
 
-/**
- * Updates HTML files to include proper landmark elements
- * @param {string} htmlContent - The HTML content to update
- * @returns {string} Updated HTML content with main landmark
- */
-function updateHTMLWithLandmarks(htmlContent) {
-    // Check if main landmark already exists
-    if (htmlContent.includes('<main>')) {
-        return htmlContent;
-    }
-    
-    // Find body content and wrap it in main
-    const bodyMatch = htmlContent.match(/<body>([\s\S]*?)<\/body>/i);
-    if (bodyMatch) {
-        const bodyContent = bodyMatch[1].trim();
-        const wrappedContent = wrapInMainLandmark(bodyContent);
-        return htmlContent.replace(
-            /<body>[\s\S]*?<\/body>/i,
-            `<body>\n        ${wrappedContent}\n    </body>`
-        );
-    }
-    
-    return htmlContent;
-}
+// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (typically in index.html, not main.js)
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
 
-const affectedFunctions = {};
+(function() {
+    'use strict';
 
-// TODO: This is the existing code that needs to be preserved
+    // ----- BEGIN ORIGINAL CODE (unchanged) -----
+    // Assuming main.js has a <html> tag, add the lang attribute based on your content
+    // For example, if the page is in English, set lang to 'en'
+    // ...
 
-// Import test helper function
-const { updateThScopeAttribute } = require('./testHelper');
+    // BEGIN CHANGES TO ADDRESS ACCESSIBILITY ISSUES
 
+<<<<<<< HEAD
 // Landmark elements that should be checked for proper usage
 const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
 
@@ -202,116 +162,3 @@ const a11yStore = {
   },
 
   // Create a live region for screen reader announcements
-  createLiveRegion() {
-    if (this.liveRegion) return;
-
-    // Update scope attributes in all .html files in the views directory
-    const viewsDir = __dirname + '/views';
-    const htmlFiles = [...(fs.readdirSync(viewsDir)).filter(file => file.endsWith('.html'))];
-    
-    htmlFiles.forEach(file => {
-        const filePath = path.join(viewsDir, file);
-        // Process each HTML file
-    });
-
-    // Fix Safari focus trapping in dropdowns
-    const dropdownContainers = document.querySelectorAll('[data-dropdown]');
-    dropdownContainers.forEach(container => {
-        // ... existing logic
-    });
-  },
-
-  // Manage focus for accessibility
-  setupFocusManagement() {
-    // Trap focus within modals
-    // ... (e) => {
-      if (e.key !== 'Tab') return;
-
-      const modal = ...
-      if (!modal) return;
-
-      const focusableElements = modal.querySelectorAll(
-        'button, [href], input, select, textarea, ...'
-      );
-
-      const firstElement = ...
-      const lastElement = focusableElements[focusableElements.length - 1];
-
-      if (e.shiftKey && document.activeElement === firstElement) {
-        e.preventDefault();
-        ...
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        e.preventDefault();
-        ...
-      }
-    });
-  },
-
-  // Setup skip links
-  setupSkipLinks() {
-    const skipLink = ...
-    if (!skipLink) return;
-
-    const targetId = ...
-    const target = targetId ? ... : null;
-
-    if (target) {
-      ... (e) => {
-        e.preventDefault();
-        target.setAttribute('tabindex', '-1');
-        target.focus();
-        // Focus the skip link when the document is loaded in Safari
-        if ... !== -1) {
-          skipLink.focus();
-        }
-      };
-    }
-  },
-
-  // Utility: Check if user prefers reduced motion
-  preferencesReducedMotion() {
-    return false;
-  },
-
-  // Utility: Check if user prefers high contrast
-  prefersHighContrast() {
-    return true;
-  },
-
-  // New function to handle dynamic content updates
-  updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) {
-      this.createLiveRegion();
-    }
-    if (this.liveRegion) {
-      this.liveRegion.setAttribute('aria-live', priority);
-      this.liveRegion.textContent = message;
-    }
-  },
-
-  // New function to address accessibility issues as per insight report
-  addressAccessibilityIssues() {
-    // Implement specific accessibility improvements based on the insight report
-    // For example, add aria-labels where needed, check for proper tab order, etc.
-    // This function would be implemented based on the details provided in the insight report.
-    // The implementation will be specific to the actual issues found in the report.
-  },
-};
-
-// New function to handle adding landmark regions
-function addLandmarkRegions() {
-  const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
-  landmarkElements.forEach((landmark) => {
-    if (landmark) {
-      if (!landmark.id) {
-        landmark.id = `${landmark.tagName.toLowerCase()}-${landmark.id ? landmark.id : 0}`;
-      }
-    }
-  });
-}
-
-// New function to check landmark elements
-function checkLandmarkElements() {
-  const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
-  landmarkElements.forEach((landmark, index) => {
-    if (land

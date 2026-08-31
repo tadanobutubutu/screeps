@@ -107,6 +107,13 @@ function newFunction() {
   // Implementation of the new function
 }
 
+// New function3 implementation
+function function3() {
+  // Implementation of new function3 logic
+  console.log('Executing new function3 logic...');
+  // Example placeholder for actual implementation
+}
+
 // ... Rest of the code remains unchanged ...
 
 module.exports = {
@@ -117,7 +124,8 @@ module.exports = {
   createResourceButton, // NEW export for the utility function
   renderDependencyGraph,
   displayModuleStructure,
-  newFunction
+  newFunction,
+  function3
 };
 
 // TODO: Any additional changes requested in the issue (assuming there are none)

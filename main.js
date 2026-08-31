@@ -766,3 +766,6 @@ export { addLangAttribute };
 
 // Export the internal set for tracking used landmark IDs
 export { _usedLandmarkIds };
+
+// TODO: Any additional changes requested in the issue
+// main.js - Accessibility improvements implementation

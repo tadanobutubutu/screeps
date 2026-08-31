@@ -1,20 +1,18 @@
-Here is the resolved file content:
-
-```javascript
 // ... (existing import, const, let, or var declarations)
 import React from 'react';
-import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom/client';
+import './styles.css';
+import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import './index.css';
 import App from './App';
 import reportWebVitals from 'node-libs-react/report-validator';
+import { CONFIG, AccessibilityUtilities } from './utils/constants';
+import { isSecureContext } from './utils.js';
+import a11y from './AccessibilityUtilities';
 
-import { CONFIG } from './utils/constants';
-import AccessibilityUtilities from './AccessibilityUtilities';
-
-let landmarks = [];
 if (typeof window === 'undefined') {
-  landmarks = loadLandmarks();
+  AccessibilityUtilities = loadLandmarks();
 }
 
 function ensureUniqueLandmarks(landmarks) {
@@ -29,25 +27,62 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
-function processLandmarks() {
-  return ensureUniqueLandmarks(landmarks);
+function initAppData() {
+  appData.title = 'Screeps Bot';
 }
 
-// ... (preserve the rest of the code)
+function accessiblyHelper() {
+  return new Promise((resolve) => {
+    resolve(
+      Object.fromEntries([
+        ['validateTableAccessibility', validateTableAccessibility],
+        ['generateAccessibilityReport', generateAccessibilityReport],
+        ['addressAccessibilityIssues', addressAccessibilityIssues]
+      ])
+    );
+  });
+}
+
+function anotherHelper() {
+  return new Promise((resolve) => {
+    resolve(Object.fromEntries([
+      ['initAppData', initAppData],
+      ['accessiblyHelper', accessiblyHelper],
+      ['someFunction', someFunction],
+    ]));
+  });
+}
+
+function mainExecution() {
+  initialize();
+  initializeApp();
+  console.log('Main function executed');
+  return { executed: true };
+}
+
+function renderDependencyGraph() {
+  console.log('Rendering dependency graph');
+}
 
 function App() {
   const [initialized, setInitialized] = React.useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     main.init();
     setInitialized(true);
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (initialized) {
       main.addressAccessibilityIssues();
     }
   }, [initialized]);
+
+  useEffect(() => {
+    anotherHelper().then(() => {
+      // ... (code from version 1 to execute after both helpers are ready)
+    });
+  }, []);
 
   return (
     <React.StrictMode>
@@ -65,10 +100,3 @@ function App() {
 }
 
 export default App;
-
-// Add this at the bottom of the file
-import { accessiblyHelper } from './AccessibilityUtilities';
-
-// SetLEASE (Lock this file to prevent merge conflicts in the future)
-// git update-index --assume-unchanged main.js
-```

@@ -27,3 +27,16 @@ export class ExistingClass {
         // existing class logic...
     }
 }
+
+// Add lang attribute to HTML element
+function getLangAttribute() {
+    // Implementation to determine the language attribute value
+    // This function should be implemented to return the correct language value
+    // For example, it could check the document's language or a predefined setting
+    return 'en';
+}
+
+function createInPageButton() {
+    let langAttribute = getLangAttribute();
+    document.documentElement.setAttribute('lang', langAttribute);
+}

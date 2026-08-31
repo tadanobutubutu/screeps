@@ -115,7 +115,7 @@ function countDependencies() {
   // Existing function implementation
 
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`];
+  const importCommentRegExp = new RegExp('(\/\/\\s*require\\s*\\(|import\\s+.*\\s+from\\s+[\'"`])', 'g');
   const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }
@@ -239,6 +239,13 @@ addLangAttribute();
 // function applyAccessibilityChanges() {
 //   // Implement accessibility changes here
 // }
+
+// TODO: Address accessibility issues from insight report — CONTINUING in main.js
+// - Added keyboard navigation support
+// - Added ARIA labels for interactive elements
+// - Added screen reader announcements
+// - Added focus trapping for modals
+// Imported from conflicting changes (FIXME: review and merge correctly)
 
 module.exports = {
   checkLandmarkElements,

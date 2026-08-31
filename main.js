@@ -1,5 +1,8 @@
 // main.js - Resolved merge conflict
 
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 function calculateSum(a, b) {
   return a + b;
 }

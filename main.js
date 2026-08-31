@@ -1,3 +1,5 @@
+// TODO: Implement validateLandmark functionality
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -12,10 +14,92 @@
 // Preserve existing functionality
 import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 import { checkLinkAccessibility } from './utils/linkAccessibilityUtils'; // Added from origin/main
+
+// Local implementation of validateLandmark functionality
+/**
+ * Validates a landmark object for accessibility compliance.
+ * Checks for required properties and valid values.
+ * @param {Object|Array} landmark - The landmark object(s) to validate
+ * @returns {Object|boolean} Validation result object or boolean
+ */
+function validateLandmark(landmark) {
+    // Handle array input (validate each landmark)
+    if (Array.isArray(landmark)) {
+        const results = landmark.map(lm => validateLandmark(lm));
+        const allValid = results.every(result => result && result.isValid);
+        
+        if (allValid) {
+            return {
+                isValid: true,
+                errors: [],
+                landmarks: landmark
+            };
+        } else {
+            const errors = results
+                .filter(result => result && !result.isValid)
+                .flatMap(result => result.errors || []);
+            
+            return {
+                isValid: false,
+                errors: errors,
+                landmarks: landmark
+            };
+        }
+    }
+    
+    // Handle single landmark object
+    if (!landmark || typeof landmark !== 'object') {
+        return {
+            isValid: false,
+            errors: ['Landmark must be an object'],
+            landmark: landmark
+        };
+    }
+    
+    const errors = [];
+    
+    // Check required properties
+    if (!landmark.id) {
+        errors.push('Landmark must have an id');
+    }
+    
+    if (!landmark.role) {
+        errors.push('Landmark must have a role');
+    } else {
+        // Validate role is one of the standard landmark roles
+        const validRoles = [
+            'banner', 'navigation', 'main', 'complementary', 
+            'contentinfo', 'search', 'form', 'application'
+        ];
+        if (!validRoles.includes(landmark.role)) {
+            errors.push(`Landmark role '${landmark.role}' is not a valid ARIA landmark role`);
+        }
+    }
+    
+    // Check for accessible name (label or labelledby)
+    const hasAccessibleName = landmark.label || landmark.ariaLabelledby || landmark.ariaLabel;
+    if (!hasAccessibleName) {
+        errors.push('Landmark should have an accessible name');
+    }
+    
+    // Check for valid element type if provided
+    if (landmark.tagName) {
+        const validTags = ['nav', 'main', 'header', 'footer', 'aside', 'section', 'article'];
+        if (!validTags.includes(landmark.tagName)) {
+            errors.push(`Landmark tag '${landmark.tagName}' may not be a valid landmark element`);
+        }
+    }
+    
+    return {
+        isValid: errors.length === 0,
+        errors: errors,
+        landmark: landmark
+    };
+}
 
 // Main module for calculator operations
 // Main entry point for dependency visualization tool

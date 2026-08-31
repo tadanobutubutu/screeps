@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserve
+// TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
@@ -105,7 +105,6 @@ const renderDependencyGraph = (data) => {
 };
 
 // Add back any required exports that might have been removed.
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
 function calculateSum(a, b) { return a + b; }
 
 // Credential response handling
@@ -402,7 +401,6 @@ module.exports = {
   readFileSafe,
   processData,
   filterValidItems,
-  initAccessibility,
   groupByCategory,
   transformInputData,
   validateTableAccessibility,

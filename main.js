@@ -3,27 +3,9 @@ import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { setDependencyGraph } from './actions/dependencyGraph';
 import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
-import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityProps, getAccessibleLinkProps } from './accessibility';
+import UserSafety, { checkAllowed } from './UserSafety';
 
-// This is the existing code that needs to be preserved
-// (This comment remains as-is)
-
-// Filter only accessibility-related issues
-const accessibilityIssues = insightReport.issues.filter(
-  issue => issue.category === 'Accessibility' ||
-           (issue.type && issue.type.toLowerCase().includes('accessibility'))
-);
-
-// More existing code that should be preserved
-
-// Existing code ends here
-
-// TODO: Address accessibility issues from insight report
-
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
-
-// ... (existing code, exports, and functions)
-
+// Accessibility helper functions from HEAD
 function getLangAttribute() {
   // Code for getting the language attribute
 }
@@ -36,25 +18,10 @@ function validateTableAccessibility() {
   // Code for validating table accessibility
 }
 
-// TODO: Address accessibility issues from insight report — MERGED
-// REACT_015: Add lang attribute — exisiting code
-// REACT_017: Add/fix 4 landmark issues — exisiting code
-// REACT_027: Fix 26 table structure issues — exisiting code
-// REACT_025: Ensure unique landmarks — exisiting code
-// REACT_041: Add accessible names to 2 SVGs — added
-// REACT_036: Fix 1 fake link issue — added
-// REACT_037: Google sign-in logic — not provided
-// REACT_040: Replace my-button with actual button id for accessibility — not provided
-// REACT_042: Ensure dependencyGraph container has proper ARIA role — not provided
-
-// REACT_015: Add lang attribute to document (from merged code)
-function ensureLangAttribute() {
-  if (typeof document !== 'undefined' && document.documentElement && document.documentElement.getAttribute('lang') === null) {
-    document.documentElement.setAttribute('lang', document.documentElement.lang || 'en');
-  }
+function validateTableStructure() {
+  // Code for validating table structure
 }
 
-// REACT_027: Fix table structure issues (from merged code, with modifications)
 function fixTableStructure() {
   if (typeof document === 'undefined') return;
 
@@ -84,7 +51,6 @@ function fixTableStructure() {
   });
 }
 
-// REACT_017 & REACT_025: Fix and ensure unique landmarks (from merged code, with modifications)
 function fixLandmarks() {
   if (typeof document === 'undefined') return;
 
@@ -107,7 +73,6 @@ function fixLandmarks() {
   });
 }
 
-// REACT_041: Add accessible names to 2 SVGs (from merged code)
 function addSvgAccessibleNames() {
   if (typeof document === 'undefined') return;
 
@@ -123,7 +88,6 @@ function addSvgAccessibleNames() {
   });
 }
 
-// REACT_036: Fix fake link issues (from merged code, with modifications)
 function fixFakeLinks() {
   if (typeof document === 'undefined') return;
 
@@ -140,9 +104,10 @@ function fixFakeLinks() {
   });
 }
 
-// ...
-function validateTableStructure() {
-  // Code for validating table structure
+function ensureLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement && document.documentElement.getAttribute('lang') === null) {
+    document.documentElement.setAttribute('lang', document.documentElement.lang || 'en');
+  }
 }
 
 function addMainLandmark() {
@@ -190,31 +155,19 @@ function addLandmarkRegions() {
 }
 
 function addressAccessibilityIssues(insightReport) {
-  // Implementation of the function to address accessibility issues
-  // This addresses issues from the insight report:
-  // - REACT_015: Add lang attribute to HTML element
-  // - REACT_027: Fix 26 table structure issues
-  // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs
-  // - REACT_025: Ensure unique landmarks (2 issues)
-  // - REACT_036: Fix 1 fake link issue
-
   if (!insightReport || !insightReport.issues) {
     return;
   }
 
-  // Address accessibility issues from insight report
   insightReport.issues.forEach(issue => {
     switch (issue.type) {
       case 'REACT_015':
-        // Add lang attribute to HTML element
         if (issue.element) {
           addLangAttribute(issue.element);
         }
         ensureLangAttribute();
         break;
       case 'REACT_027':
-        // Fix table structure issues
         if (issue.type === 'structure') {
           validateTableStructure();
           fixTableStructure();
@@ -223,7 +176,6 @@ function addressAccessibilityIssues(insightReport) {
         }
         break;
       case 'REACT_017':
-        // Add/fix landmark issues
         if (issue.structure) {
           validateLandmarkStructure();
           addMainLandmark();
@@ -234,7 +186,6 @@ function addressAccessibilityIssues(insightReport) {
         fixLandmarks();
         break;
       case 'REACT_041':
-        // Add accessible names to SVGs
         if (issue.svg) {
           const accessibleName = getSvgAccessibleName();
           setSvgAttributes(issue.svg, accessibleName);
@@ -242,72 +193,18 @@ function addressAccessibilityIssues(insightReport) {
         addSvgAccessibleNames();
         break;
       case 'REACT_025':
-        // Ensure unique landmarks
         ensureUniqueLandmarks();
         fixLandmarks();
         break;
       case 'REACT_036':
-        // Fix fake link issues
         handleFakeLinks();
         createInPageButton();
         fixFakeLinks();
         break;
       default:
-        // Handle unknown issue types
         break;
     }
   });
-}
-
-// Configuration
-const config = {
-  // Configuration options
-};
-
-// App state
-const appState = {
-  // Application state
-};
-
-// Initialize function
-function initialize() {
-  // Initialization code
-}
-
-// Initialize app
-function initializeApp() {
-  // Initialize the app
-}
-
-// Process data
-function processData(data) {
-  // Process data
-}
-
-// Fetch user
-function fetchUser(userId) {
-  // Fetch user data
-}
-
-// Clear cache
-function clearCache() {
-  // Clear cache
-}
-
-// Validate input
-function validateInput(input) {
-  // Validate input
-}
-
-// Main execution
-function main() {
-  initialize();
-  console.log('Main function executed');
-}
-
-// Run if executed directly
-if (require.main === module) {
-  main();
 }
 
 function getInsightReport() {
@@ -463,7 +360,6 @@ function getInsightReport() {
 }
 
 function processAccessibilityReport(report) {
-  // Process accessibility report and return findings
   const findings = {
     langAttribute: false,
     tableIssues: 0,
@@ -485,11 +381,204 @@ function processAccessibilityReport(report) {
   return findings;
 }
 
-// Example usage of the new function (if applicable)
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
+// Book management functions from origin/main (adjusted to accept dispatch as parameter)
+async function fetchBookDependencies(bookId, dispatch) {
+  try {
+    const response = await fetch(`https://api.example.com/books/${bookId}/dependencies`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const dependencies = await response.json();
+    dispatch(setDependencyGraph({ bookId, dependencies }));
+  } catch (error) {
+    console.error('Error fetching book dependencies:', error);
+  }
+}
 
-// Add back removed exports
+function updateBookDependencies(bookId, newDependencies, dispatch) {
+  // Perform any necessary validation or processing before updating the book's dependencies
+  // Dispatch an action to update the book's dependencies in the Redux store
+  dispatch(setDependencyGraph({ bookId, dependencies: newDependencies }));
+}
+
+// User Safety checks
+function checkSafety(book) {
+  const safetyIssues = [];
+  if (book.isPrivate) {
+    safetyIssues.push('PII/Privacy');
+  }
+  if (book.adviceUnauthorized) {
+    safetyIssues.push('Unauthorized Advice');
+  }
+  if (book.activityIllegal) {
+    safetyIssues.push('Illegal Activity');
+  }
+  return safetyIssues.length ? safetyIssues : undefined;
+}
+
+// Accessibility: AddBookForm component with proper labels and ARIA attributes
+function AddBookForm({ onAdd, checkAllowed }) {
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const dispatch = useDispatch();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (title.trim() && author.trim()) {
+      const book = { 
+        title: title.trim(), 
+        author: author.trim(), 
+        isPrivate: false, 
+        adviceUnauthorized: false, 
+        activityIllegal: false 
+      };
+      const safetyCheck = checkSafety(book);
+      if (safetyCheck) {
+        alert(`Safety concerns: ${safetyCheck.join(', ')}`);
+      } else {
+        if (checkAllowed) {
+          onAdd({ title: title.trim(), author: author.trim() });
+          setTitle('');
+          setAuthor('');
+        } else {
+          alert('You are not authorized to add this books.');
+        }
+      }
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Title"
+        aria-label="Book title"
+      />
+      <input
+        type="text"
+        value={author}
+        onChange={(e) => setAuthor(e.target.value)}
+        placeholder="Author"
+        aria-label="Book author"
+      />
+      <button type="submit">Add Book</button>
+    </form>
+  );
+}
+
+// Function to handle user authorization
+function authorizeUser(callback) {
+  // Implement user authorization logic here
+  callback();
+}
+
+// Main component
+function Main({ checkAllowed }) {
+  const dispatch = useDispatch();
+  const [booksList, setBooksList] = useState([]);
+  const [sortOrder, setSortOrder] = useState('title');
+
+  const handleSort = (sortFunction) => {
+    setSortOrder(sortFunction.name);
+    const sortedBooks = [...booksList].sort(sortFunction);
+    setBooksList(sortedBooks);
+  };
+
+  const handleAddBook = (book) => {
+    const newBook = { ...book, id: generateKey(book) };
+    setBooksList([...booksList, newBook]);
+    // Update dependencies if needed
+    fetchBookDependencies(newBook.id, dispatch);
+  };
+
+  const AuthorizedAddBookForm = (props) => {
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    useEffect(() => {
+      authorizeUser(() => setIsAuthorized(true));
+    }, []);
+    return isAuthorized ? <AddBookForm {...props} checkAllowed={checkAllowed} /> : <div>Access denied - please login to add books.</div>;
+  };
+
+  return (
+    <main {...getLandmarkProps('main', 'Main content')}>
+      <button onClick={() => handleSort(sortByTitle)}>Sort by Title</button>
+      <button onClick={() => handleSort(sortByAuthor)}>Sort by Author</button>
+      <List
+        itemLayout="vertical"
+        dataSource={booksList}
+        renderItem={book => (
+          <List.Item key={generateKey(book)}>
+            <BookItem book={book} />
+          </List.Item>
+        )}
+      />
+      <AuthorizedAddBookForm onAdd={handleAddBook} />
+    </main>
+  );
+}
+
+// Configuration and other existing code
+const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
+const appState = {
+  // Application state
+};
+
+function initialize() {
+  // Initialization code
+}
+
+function initializeApp() {
+  // Initialize the app
+}
+
+function processData(data) {
+  // Process data
+}
+
+function fetchUser(userId) {
+  // Fetch user data
+}
+
+function clearCache() {
+  // Clear cache
+}
+
+function validateInput(input) {
+  // Validate input
+}
+
+function main() {
+  initialize();
+  console.log('Main function executed');
+}
+
+if (require.main === module) {
+  main();
+}
+
+// Helper functions
+const someFunction = function() {
+  return 'some value';
+};
+
+const helper = function(input) {
+  return input ? input.toUpperCase() : '';
+};
+
+const formatDate = function(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.toISOString().split('T')[0];
+};
+
+// Merged exports
 module.exports = {
   config,
   appState,
@@ -509,9 +598,6 @@ module.exports = {
   fixLandmarks,
   addSvgAccessibleNames,
   fixFakeLinks,
-  // googleSignIn, // Not merged
-  // replaceButtonIds, // Not merged
-  // ensureDependencyGraphAriaRole, // Not merged
   addMainLandmark,
   validateLandmark,
   validateLandmarkStructure,
@@ -524,23 +610,17 @@ module.exports = {
   handleFakeLinks,
   addLandmarkRegions,
   getInsightReport,
-  // Added from origin/main
-  someFunction: function() {
-    return 'some value';
-  },
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
-  helper: function(input) {
-    return input ? input.toUpperCase() : '';
-  },
-  formatDate: function(date) {
-    if (!(date instanceof Date)) {
-      date = new Date(date);
-    }
-    return date.toISOString().split('T')[0];
-  },
+  fetchBookDependencies,
+  updateBookDependencies,
+  checkSafety,
+  AddBookForm,
+  authorizeUser,
+  Main,
+  someFunction,
+  CONFIG: config,
+  helper,
+  formatDate,
   ensureLangAttribute,
   ensureUniqueLandmarks,
+  checkAllowed
 };

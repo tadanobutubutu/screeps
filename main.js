@@ -48,40 +48,22 @@ function validateAccessibilityReport(report, options = {}) {
     minor: { count: counts.minor, allowed: config.maxMinor, passed: counts.minor <= config.maxMinor }
   };
 
-  return {
-    passed,
-    summary: counts,
-    details,
-    timestamp: new Date().toISOString()
+  // Added function from the conflicting branch
+  function greet(name) {
+    return `Hello, ${name}!`;
+  }
+
+  exports.greet = greet; // Exported function was moved from the bottom to the top to avoid conflicts
+
+  // Exported functions from the original function
+  exports.validateAccessibilityReport = validateAccessibilityReport;
+  exports.formatValidationSummary = formatValidationSummary;
+
+  // Additional functions from the conflicting branch
+  exports.calculateSum = function (a, b) {
+    return a + b;
+  };
+  exports.calculateProduct = function (a, b) {
+    return a * b;
   };
 }
-
-/**
- * Generates a human-readable summary of the validation result.
- * @param {Object} validationResult - Result from validateAccessibilityReport.
- * @returns {string} Formatted summary string.
- */
-function formatValidationSummary(validationResult) {
-  if (validationResult.error) {
-    return `Validation Error: ${validationResult.error}`;
-  }
-
-  const { passed, summary, details } = validationResult;
-  const status = passed ? 'PASSED' : 'FAILED';
-  
-  let output = `Accessibility Validation: ${status}\n`;
-  output += `Total Issues: ${summary.critical + summary.serious + summary.moderate + summary.minor}\n\n`;
-  
-  output += 'Breakdown by Severity:\n';
-  for (const [severity, data] of Object.entries(details)) {
-    const statusIcon = data.passed ? '✓' : '✗';
-    output += `  ${statusIcon} ${severity.charAt(0).toUpperCase() + severity.slice(1)}: ${data.count}/${data.allowed}\n`;
-  }
-
-  return output;
-}
-
-module.exports = {
-  validateAccessibilityReport,
-  formatValidationSummary
-};

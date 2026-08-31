@@ -37,11 +37,19 @@ function startApp() {
   return server;
 }
 
+// New function as per the issue requirements
+function newFunction() {
+  // TODO: Implement the new function as per the issue requirements
+  // Placeholder implementation
+  return "New function executed";
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  newFunction // Add the new function to the exports
 };
 
 // Start the application if run directly

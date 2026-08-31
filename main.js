@@ -53,16 +53,19 @@ function wrapPrimaryContentInMain(parent) {
   return mainElement;
 }
 
-// Initialize app function
-function initializeApp() {
-  initialize();
-  return appState;
+// New spawning logic implementation
+function spawnEntity(entityType, params) {
+  // Logic to spawn an entity of the specified type with given parameters
+  // ...
 }
 
-// Utility functions from HEAD
-function fetchUser(userId) {
-  return { id: userId, name: 'User' };
-}
+// Existing code continues below
+
+// Example usage of the new spawnEntity function
+// Assuming there's an existing function or method that calls spawnEntity
+// ...
+// spawnEntity('type1', { x: 10, y: 20 });
+// ...
 
 function clearCache() {
   appState.data = null;
@@ -708,7 +711,8 @@ module.exports = {
   registerSW,
   initApp,
   App,
-  landmarks
+  landmarks,
+  spawnEntity
 };
 
 module.exports.main = main;

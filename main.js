@@ -3,6 +3,12 @@
  * @module main
  */
 
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+
+// Import required modules (example: fs module for file operations)
+const fs = require('fs');
+const path = require('path');
+
 /**
  * Application configuration
  * @type {Object}
@@ -19,7 +25,7 @@ const config = {
  */
 function log(message) {
     if (config.debug) {
-        console.log(`[${config.appName}] ${message}`);
+        console.log(`${message}`);
     }
 }
 
@@ -38,7 +44,7 @@ function newExportedFunction() {
  */
 async function init() {
     log('Initializing application...');
-    console.log(`Welcome to ${config.appName} v${config.version}`);
+    console.log(`Welcome to ${config.appName} v${config.version}!`);
 }
 
 /**

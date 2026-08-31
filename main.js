@@ -1,3 +1,5 @@
+// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+
 // Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');

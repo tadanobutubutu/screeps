@@ -419,7 +419,7 @@ function specificFunctionThatRendersGraphOrIndex() {
 }
 
 // Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
+export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, specificFunctionThatRendersGraphOrIndex, renderIndex };
 
 // Export utility functions
 export {
@@ -441,7 +441,9 @@ export {
   ensureUniqueLandmarks,
   createAccessibleLink,
   handleAccessibilityIssues,
-  addLangAttribute
+  addLangAttribute,
+  // Internal set for tracking used landmark IDs
+  _usedLandmarkIds
 };
 
 // Export component functions
@@ -512,30 +514,12 @@ export {
   updateState
 };
 
-// Export internal functions for accessibility
-export {
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  addAriaLabel,
-  addLangAttribute
-};
-
-// ... other exports ...
-
 // Export UI / product functions
 export {
   renderHeader,
   renderFooter,
   renderProductCard
 };
-
-// Exporting for CommonJS compatibility
-module.exports = {
-  specificFunctionThatRendersGraphOrIndex
-};
-
-// Export additional required functions
-export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute };
 
 // Report generation logic
 /**
@@ -752,17 +736,4 @@ export {
   generateAndDisplayReport
 };
 
-// Export ensureUniqueLandmarkId for ensuring unique landmark IDs
-export { ensureUniqueLandmarkId };
-
-// Export uniqueLandmarks for getting unique landmarks from a list
-export { uniqueLandmarks };
-
-// Export addAriaLabel for adding aria-label attributes to elements
-export { addAriaLabel };
-
-// Export addLangAttribute for adding lang attributes to elements
-export { addLangAttribute };
-
-// Export the internal set for tracking used landmark IDs
-export { _usedLandmarkIds };
+// TODO: Add any other missing exports that might have been?

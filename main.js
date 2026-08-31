@@ -48,7 +48,7 @@ function validateLandmark(landmark) {
   // Validate longitude
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+  } else if (typeof landmark.longitude !== 'number' || ... {
     errors.push('Landmark longitude must be a number');
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
@@ -82,7 +82,7 @@ function validateLandmark(landmark) {
  * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
+  const element = ...
   return element !== null;
 }
 
@@ -114,8 +114,8 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (!elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
+        if ... {
+          ... = true;
         } else {
           landmark.id += '_duplicate';
         }
@@ -124,6 +124,20 @@ function ensureLandmarkUniqueness(elements) {
   }
 
   return elements;
+}
+
+// Updated: using the new functions for rendering graph/index
+function renderDependencyGraphContent(data) {
+  if (!data) {
+    return;
+  }
+
+  // Use the new dedicated functions based on the view type
+  if (data.viewType === 'graph') {
+    renderDependencyGraph(data);
+  } else if (data.viewType === 'index') {
+    renderIndexView(data);
+  }
 }
 
 // Export functions for testing

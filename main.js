@@ -7,155 +7,85 @@
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// ADD: Address new accessibility issues from insight report
 
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const fastMap = require('fast-map');
-const path = require('path');
+// ... (Existing code and exports)
 
-// Configuration
-const CONFIG = {
-    dataPath: './data',
-    maxResults: 100
-};
-
-// Helper function to validate landmark structure
-function isValidLandmark(landmark) {
-    return landmark && 
-           typeof landmark.id !== 'undefined' && 
-           landmark.id !== null;
+// New function to add accessible names to custom HTML elements
+function addAccessibleName(element) {
+  if (typeof element.accessibleName !== 'string') {
+    element.accessibleName = element.innerHTML;
+  }
 }
 
-// Load landmarks from file
-function loadLandmarks() {
-    try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error loading landmarks:', error.message);
-        return [];
+// New function to validate custom HTML elements accessibility
+function validateCustomElementsAccessibility(elements) {
+  for (const element of elements) {
+    if (element.tagName !== 'BUTTON' && element.tagName !== 'A') {
+      addAccessibleName(element);
     }
+  }
 }
 
-// Process and filter landmarks
-function processLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
+// Appended new function to ensure unique landmarks for custom HTML elements by ID
+function ensureUniqueCustomElementsById(elements) {
+  const seen = new Set();
+  const uniqueElements = [];
+
+  for (const element of elements) {
+    if (!element || typeof element.id === 'undefined') {
+      continue;
     }
-    
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-    
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
-}
 
-// Sort landmarks by name
-function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
-        
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(nameA);
-    });
-}
+    const elementId = typeof element.id === 'string' ? element.id : String(element.id);
 
-// Get landmark by ID
-function getLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
-}
-
-// Ensure unique landmarks by ID
-function ensureUniqueLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
+    if (!seen.has(elementId)) {
+      seen.add(elementId);
+      uniqueElements.push(element);
     }
-    
-    const seen = new Set();
-    const uniqueLandmarks = [];
-    
-    for (const landmark of landmarks) {
-        if (!landmark || typeof landmark.id === 'undefined') {
-            continue;
-        }
-        
-        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-        
-        if (!seen.has(landmarkId)) {
-            seen.add(landmarkId);
-            uniqueLandmarks.push(landmark);
-        }
+  }
+
+  return uniqueElements;
+}
+
+// New function to generate a report based on custom HTML elements accessibility
+function generateCustomElementsAccessibilityReport(customElements) {
+  const report = {
+    customElementsAccessibility: {}
+  };
+
+  validateCustomElementsAccessibility(customElements);
+
+  for (const element of customElements) {
+    const { id, accessibleName } = element;
+    const accessibleNameTrimmed = accessibleName.trim();
+
+    if (accessibleNameTrimmed.length === 0 || id === null || typeof id !== 'string') {
+      report.customElementsAccessibility[id] = {
+        issue: 'accessibleName is missing or empty',
+        message: `Element with ID "${id}" does not have accessibleName set.`
+      };
     }
-    
-    return uniqueLandmarks;
+  }
+
+  return report;
 }
 
-// Function to write the generated report to a file
-function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
-  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
+// Modified generateAccessibilityReport function to scan custom HTML elements accessibility
 function generateAccessibilityReport() {
   const report = scanAccessibility();
+  const linksReport = generateLinksAccessibilityReport();
+  const customElementsReport = generateCustomElementsAccessibilityReport(document.getElementsByTagName('*'));
+
+  report.linksAccessibility = linksReport;
+  report.customElementsAccessibility = customElementsReport.customElementsAccessibility;
   writeReport(report);
   return report;
 }
 
-// Existing utility function
-const formatResponse = (data) => {
-  return JSON.stringify(data, null, 2);
-};
-
-// Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
-const { validateInput } = require('./utils/validators');
-const { processData } = require('./utils/processor');
-
-// Application main entry point
-const app = express();
-
-// TODO: add the new functions or changes requested in the issue
-// Here is the implementation for checking link accessibility
-// The existing isLinkAccessible function implementation
-
-// Endpoint for getting landmarks
-app.get('/landmarks', (req, res) => {
-  // Your code for handling the request and response logic goes here
-});
-
 // Export new necessary functions
 module.exports = {
-  validateInput,
-  processData,
-  formatResponse,
-  config: CONFIG,
-  // landmark functions
-  isValidLandmark,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  ensureUniqueLandmarks,
-  landmarkConfig: CONFIG
+  // ... (Existing exports)
+  ensureUniqueCustomElementsById,
+  generateCustomElementsAccessibilityReport
 };
-
-// Main execution when run directly
-if (require.main === module) {
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-  const sorted = sortLandmarks(processed);
-  
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
-  
-  if (sorted.length > 0) {
-    console.log('First landmark:', sorted[0]);
-  }
-}

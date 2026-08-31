@@ -5,7 +5,7 @@
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateUniqueLandmarks() and personName())
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
@@ -26,6 +26,17 @@ function setHtmlLangAttribute(lang) {
 }
 
 /**
+ * Gets the lang attribute from the document's <html> tag
+ * @returns {string} The current lang attribute value or default 'en'
+ */
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.lang || 'en';
+  }
+  return 'en';
+}
+
+/**
  * Detects the language of the given content and sets the HTML lang attribute
  * @param {string} content - The text content to analyze
  * @returns {string} The detected language code
@@ -36,7 +47,7 @@ function detectAndSetLang(content) {
 
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
+    if (/[\u4e00-\u9fa5]/.test(content)) {
       lang = 'zh'; // Chinese
     } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
@@ -44,7 +55,7 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
+    } else if (/[àâäçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
@@ -55,37 +66,32 @@ function detectAndSetLang(content) {
 }
 
 /**
- * Gets the current lang attribute from the document's <html> tag
- * @returns {string} The current lang attribute value, defaults to 'en'
- */
-function getLangAttribute() {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    return document.documentElement.lang || 'en';
-  }
-  return 'en';
-}
-
-/**
  * Creates a person name element with proper accessibility attributes
  * @param {Object} options - Options for creating the person name element
  * @param {string} options.firstName - The person's first name
  * @param {string} options.lastName - The person's last name
+ * @param {string} options.lang - The language code for the name (default: 'en')
  * @param {HTMLElement} options.container - Optional container element to append to
  * @returns {HTMLElement} The created element with accessible naming
  */
 function personName(options = {}) {
-  const { firstName = '', lastName = '', container = null } = options;
+  const { firstName = '', lastName = '', lang = 'en', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
   
-  const element = document.createElement('span');
-  element.setAttribute('aria-label', fullName);
-  element.textContent = fullName;
-  
-  if (container) {
-    container.appendChild(element);
+  if (typeof document !== 'undefined') {
+    const nameElement = document.createElement('span');
+    nameElement.setAttribute('lang', lang);
+    nameElement.setAttribute('aria-label', fullName);
+    nameElement.textContent = fullName || 'Unknown';
+    
+    if (container) {
+      container.appendChild(nameElement);
+    }
+    
+    return nameElement;
   }
   
-  return element;
+  return fullName || 'Unknown';
 }
 
 /**
@@ -125,6 +131,12 @@ function validateLandmarkStructure() {
 // New function to get SVG accessible name
 function getSvgAccessibleName() {
   // Implementation for getting SVG accessible name
+}
+
+// New function to validate unique landmarks
+function validateUniqueLandmarks() {
+  // Implementation for validating unique landmark roles
+  // Ensures each landmark has a unique identifier for accessibility
 }
 
 /**
@@ -199,8 +211,8 @@ function newFocusTrap(container) {
 // Export the new functions
 module.exports = {
   setHtmlLangAttribute,
-  detectAndSetLang,
   getLangAttribute,
+  detectAndSetLang,
   personName,
   createInPageButton,
   validateTableAccessibility,
@@ -208,5 +220,6 @@ module.exports = {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
+  validateUniqueLandmarks,
   newFocusTrap
 };

@@ -8,6 +8,7 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
 // - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
 // - ADD: Address new accessibility issues from insight report
+
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
@@ -336,6 +337,144 @@ function validateAccessibleLinks(container) {
   return { valid: errors.length === 0, errors };
 }
 
+// TODO: Implement functions to address new accessibility issues
+// These should be added based on the specific insight report requirements
+
+// TODO: Implement function to create in-page navigation buttons
+function createInPageButton(buttonConfig) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  
+  const button = document.createElement('button');
+  
+  // Set button properties
+  if (buttonConfig.text) {
+    const textNode = document.createTextNode(buttonConfig.text);
+    button.appendChild(textNode);
+  }
+  
+  if (buttonConfig.ariaLabel) {
+    button.setAttribute('aria-label', buttonConfig.ariaLabel);
+  }
+  
+  if (buttonConfig.role) {
+    button.setAttribute('role', buttonConfig.role);
+  }
+  
+  // Add click handler if provided
+  if (buttonConfig.onClick) {
+    button.addEventListener('click', buttonConfig.onClick);
+  }
+  
+  return button;
+}
+
+// TODO: Implement function to validate image accessibility
+function validateImageAccessibility(imageElement) {
+  if (typeof document === 'undefined' || !imageElement) {
+    return { valid: false, errors: ['Image element not found'] };
+  }
+  
+  const errors = [];
+  
+  // Check for alt attribute
+  const alt = imageElement.getAttribute('alt');
+  if (!alt && !imageElement.getAttribute('role') === 'img') {
+    errors.push('Image is missing alt text');
+  }
+  
+  // Check for decorative images
+  if (alt === ' ') {
+    // Empty alt or alt with just a space
+  } else if (alt === '') {
+    // Non-decorative image without alt
+  } else if (!alt) {
+    // Image without alt
+  }
+  
+  // Check for aria-describedby if alt is empty
+  const ariaDescribedBy = imageElement.getAttribute('aria-describedby');
+  if (!alt && !ariaDescribedBy) {
+    errors.push('Non-decorative image should have either alt text or aria-describedby');
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// TODO: Implement function to validate form accessibility
+function validateFormAccessibility(formElement) {
+  if (typeof document === 'undefined' || !formElement) {
+    return { valid: false, errors: ['Form element not found'] };
+  }
+  
+  const errors = [];
+  
+  // Check for form labels
+  const inputs = formElement.querySelectorAll('input, select, textarea');
+  inputs.forEach((input, index) => {
+    const inputId = input.getAttribute('id');
+    const inputName = input.getAttribute('name');
+    
+    // Check for associated label
+    let hasLabel = false;
+    
+    if (inputId) {
+      const label = formElement.querySelector(`label[for="${inputId}"]`);
+      if (label) hasLabel = true;
+    }
+    
+    // Also check for aria-label or aria-labelledby
+    if (!input.getAttribute('aria-label') && !input.getAttribute('aria-labelledby')) {
+      hasLabel = false;
+    }
+    
+    if (!hasLabel) {
+      errors.push(`Input ${inputName || index + 1} is missing a label`);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// TODO: Implement function to validate semantic HTML
+function validateSemanticHTML(element) {
+  if (typeof document === 'undefined' || !element) {
+    return { valid: false, errors: ['Element not found'] };
+  }
+  
+  const errors = [];
+  const tagName = element.tagName.toLowerCase();
+  const role = element.getAttribute('role');
+  
+  // Check for proper heading hierarchy
+  if (tagName.startsWith('h') && tagName.length === 2) {
+    const level = parseInt(tagName.charAt(1));
+    const siblings = element.parentElement ? element.parentElement.querySelectorAll(`h${level}`) : [];
+    if (siblings.length > 1) {
+      errors.push(`Multiple h${level} elements found at the same level`);
+    }
+  }
+  
+  // Check for skip navigation links
+  if (element.tagName.toLowerCase() === 'a' && element.getAttribute('href') === '#main') {
+    // Check if it has proper attributes
+    if (!element.textContent.trim()) {
+      errors.push('Skip navigation link should have accessible text');
+    }
+  }
+  
+  // Check for list accessibility
+  if (tagName === 'ul' || tagName === 'ol') {
+    const listItems = element.querySelectorAll('li');
+    if (listItems.length === 0) {
+      errors.push('List should contain at least one list item');
+    }
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
 // Export all functions to maintain current exports
 module.exports = {
   setHtmlLangAttribute,
@@ -349,5 +488,9 @@ module.exports = {
   getSvgAccessibleName,
   validateSvgAccessibility,
   ensureUniqueLandmarks,
-  validateAccessibleLinks
+  validateAccessibleLinks,
+  createInPageButton,
+  validateImageAccessibility,
+  validateFormAccessibility,
+  validateSemanticHTML
 };

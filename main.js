@@ -6,6 +6,7 @@
 const http = require('http');
 const path = require('path');
 
+// Functions have been made accessible via module.exports
 // TODO: This is the existing code that needs to be preserved
 
 // Application configuration

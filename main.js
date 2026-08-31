@@ -7,6 +7,9 @@ const http = require('http');
 const path = require('path');
 
 // TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
+// ----- END ORIGINAL CODE -----
 
 // Application configuration
 const config = {
@@ -55,4 +58,3 @@ module.exports = {
 if (require.main === module) {
   startApp();
 }
-```

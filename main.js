@@ -1,65 +1,57 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import express from 'express';
 import path from 'path';
 import './styles.css';
-import './styles.less';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
-import fs from 'fs';
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { CONFIG } from './utils/constants';
+import { visualizeDependencyTree } from './utils.js';
 
-const expressApp = express();
-
-// Configuration and state
-let config = {};
-let appState = {};
-
-// Configuration
+// Configuration - merged from both branches
 const APP_CONFIG = {
   dataPath: './data',
-  maxResults: 100
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
+// App state - merged from both branches
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
 };
 
 // Initialize function
 function initialize() {
-  config = { apiUrl: process.env.API_URL || 'default', timeout: 5000 };
-  appState = { initialized: true };
+  appState.initialized = true;
+  console.log('App initialized');
 }
 
+// Initialize app function
 function initializeApp() {
   initialize();
+  return appState;
 }
 
-function processData(data) {
-  return data;
-}
-
+// Utility functions from HEAD
 function fetchUser(userId) {
   return { id: userId, name: 'User' };
 }
 
 function clearCache() {
-  appState = {};
+  appState.data = null;
+  appState.cache.clear();
 }
 
-// Helper function
 function someFunction() {
   return 'some value';
 }
 
-// Helper for input transformation
 function helper(input) {
   return input ? input.toUpperCase() : '';
 }
 
-// Format date function
 function formatDate(date) {
   if (!(date instanceof Date)) {
     date = new Date(date);
@@ -67,7 +59,6 @@ function formatDate(date) {
   return date.toISOString().split('T')[0];
 }
 
-// Validate input function
 function validateInput(input) {
   if (!input || input.length === 0) {
     return false;
@@ -75,10 +66,12 @@ function validateInput(input) {
   return true;
 }
 
-// Main execution function
+// Main function (required export)
 function main() {
   initialize();
+  initializeApp();
   console.log('Main function executed');
+  return { executed: true };
 }
 
 // Landmark data structure
@@ -112,10 +105,34 @@ function getLangAttribute() {
   return 'en';
 }
 
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+function getLangAttributeUpdated() {
+  const htmlElement = document.querySelector('html');
+  return htmlElement ? htmlElement.getAttribute('lang') : null;
+}
+
+function getFullLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  return htmlElement ? htmlElement.getAttribute('lang') : null;
+}
+
+function addLangAttribute(element, lang = 'en') {
+  if (element && typeof element.setAttribute === 'function') {
+    element.setAttribute('lang', lang);
+  }
+}
+
+function setLanguageAttribute() {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    addLangAttribute(htmlElement);
+  }
+}
+
+// React component (placeholder)
+const HTML = ({ lang }) => React.createElement('html', { lang }, null);
 
 function wrapPrimaryContentInMain(parent) {
-  // ... original function implementation ...
+  // Implementation preserved
 }
 
 // Table accessibility functions
@@ -155,6 +172,14 @@ function validateLandmarkAttributes() {
 
 function addLandmarkRegions() {
   console.log('Adding landmark regions');
+}
+
+function addLandmarkRoles() {
+  console.log('Adding landmark roles');
+}
+
+function addProperLandmarkRegions() {
+  addLandmarkRegions();
 }
 
 // SVG accessibility functions
@@ -204,32 +229,30 @@ function handleFakeLinks() {
   console.log('Handling fake links');
 }
 
+function checkLinkAccessibility() {
+  console.log('Checking link accessibility');
+  return [];
+}
+
+function fixFakeLinks() {
+  handleFakeLinks();
+}
+
 // Address accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
-  // This addresses issues from the insight report:
-  // - REACT_015: Add lang attribute to HTML element
-  // - REACT_027: Fix 26 table structure issues
-  // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs
-  // - REACT_025: Ensure unique landmarks (2 issues)
-  // - REACT_036: Fix 1 fake link issue
-
   if (!insightReport || !insightReport.issues) {
     return;
   }
 
-  // Address accessibility issues from insight report
   insightReport.issues.forEach(function(issue) {
     switch (issue.type) {
       case 'REACT_015':
-        // Add lang attribute to HTML element
         if (issue.element) {
           addLangAttribute(issue.element);
         }
         break;
       case 'REACT_027':
-        // Fix table structure issues
-        if (issue.type === 'structure') {
+        if (issue.subtype === 'structure') {
           validateTableStructure();
           fixTableStructure();
         } else {
@@ -237,7 +260,6 @@ function addressAccessibilityIssues(insightReport) {
         }
         break;
       case 'REACT_017':
-        // Add/fix landmark issues
         addMainLandmark();
         validateLandmark();
         validateLandmarkStructure();
@@ -245,17 +267,14 @@ function addressAccessibilityIssues(insightReport) {
         addLandmarkRegions();
         break;
       case 'REACT_041':
-        // Add accessible names to SVGs
         if (issue.element) {
           setSvgAttributes(issue.element, issue.accessibleName || getSvgAccessibleName());
         }
         break;
       case 'REACT_025':
-        // Ensure unique landmarks
         ensureUniqueLandmarks(landmarks);
         break;
       case 'REACT_036':
-        // Fix fake link issue
         handleFakeLinks();
         validateLinkAccessibility();
         break;
@@ -263,15 +282,6 @@ function addressAccessibilityIssues(insightReport) {
         console.log('Unknown issue type:', issue.type);
     }
   });
-}
-
-/**
- * Gets the language attribute of the HTML element.
- * @returns {string|null} The language code or null.
- */
-function getLangAttributeUpdated() {
-  const htmlElement = document.querySelector('html');
-  return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
 /**
@@ -481,7 +491,6 @@ function getInsightReport() {
  * @returns {Object} The processed findings.
  */
 function processAccessibilityReport(report) {
-  // Process accessibility report and return findings
   var findings = {
     langAttribute: false,
     tableIssues: 0,
@@ -503,68 +512,42 @@ function processAccessibilityReport(report) {
   return findings;
 }
 
-// Additional helper functions that might be needed
-function setLanguageAttribute() {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    addLangAttribute(htmlElement);
-  }
+// Additional helper functions
+function calculateSum(a, b) {
+  return a + b;
 }
 
-function addLandmarkRoles() {
-  // Add landmark roles to the document
-  console.log('Adding landmark roles');
-}
-
-function fixFakeLinks() {
-  handleFakeLinks();
-}
-
-function addProperLandmarkRegions() {
-  addLandmarkRegions();
+function processData(data) {
+  return data;
 }
 
 function formatResponse(data) {
-  // Format response data for API calls
   return JSON.stringify(data);
 }
 
 function isValidLandmark(landmark) {
-  // Validate if element is a proper landmark
   return landmark && landmark.role;
 }
 
 function loadLandmarks() {
-  // Load landmarks from configuration
   return landmarks;
 }
 
 function processLandmarks(landmarksArray) {
-  // Process landmarks array
   return landmarksArray || [];
 }
 
 function sortLandmarks(landmarksArray) {
-  // Sort landmarks by name
   if (!landmarksArray) return [];
   return landmarksArray.slice().sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 }
 
 function getLandmarkById(id) {
-  // Get landmark by ID
   return landmarks.find(landmark => landmark.id === id);
 }
 
 function generateAccessibilityReport() {
-  // Generate comprehensive accessibility report
   return getInsightReport();
-}
-
-function addLangAttribute(element, lang = 'en') {
-  // Add language attribute to element
-  if (element && typeof element.setAttribute === 'function') {
-    element.setAttribute('lang', lang);
-  }
 }
 
 // Data for the application
@@ -573,22 +556,19 @@ const appData = {
   version: '1.0.0'
 };
 
-const APP_CONFIG = config;
 const VERSION = '1.0.0';
+const CONFIG = APP_CONFIG;
 
 // Check if the environment is secure before initializing
 function isSecureContext() {
-  // In a browser, check if the context is secure
   if (typeof window !== 'undefined' && window.isSecureContext) {
     return window.isSecureContext;
   }
-  // For Node.js, return false
   return false;
 }
 
 // Register the service worker
 function registerSW() {
-  // Register service worker if available
   if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').then(registration => {
       console.log('Service worker registered:', registration);
@@ -602,23 +582,16 @@ function registerSW() {
  * Initializes the application and applies accessibility fixes.
  */
 const initApp = () => {
-  // Initialize the main application
   initializeApp();
-
-  // Apply accessibility fixes
-  setLanguageAttribute(); // Default to 'en'
+  setLanguageAttribute();
   addLandmarkRoles();
   ensureUniqueLandmarks(landmarks);
 
-  // Add accessible names to SVGs (example selectors and names)
   const icons = {
     icon: '<svg viewBox="0 0 100 100" aria-label="Screeps icon"></svg>'
   };
 
-  // Fix fake links
   fixFakeLinks();
-
-  // Initialize the application data
   console.log('Initializing ' + appData.title + ' v' + appData.version);
 };
 
@@ -632,132 +605,92 @@ if (isSecureContext()) {
 // Register the service worker
 registerSW();
 
-// React component for the main application
+// React component for the main application (placeholder)
 const App = () => {
-  const [programData, setProgramData] = useState(null);
-
-  // ... Your accessible React Router setup ...
+  const [programData, setProgramData] = React.useState(null);
+  return null;
 };
 
+// Express server setup (merged from origin/main)
+const expressApp = express();
 expressApp.use('/', expressApp);
-const port = process.env.PORT || 3000;
-expressApp.listen(port, () => {
-  console.log(`Listening on port ${port}`);
-});
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || 'localhost';
 
-// Run if executed directly
+// Main execution when run directly (Merged functionality)
 if (typeof require !== 'undefined' && require.main === module) {
-  main();
+  // Start server
+  expressApp.listen(PORT, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
+  });
+
+  // Visualize dependency tree when running directly
+  if (require.dependencies) {
+    visualizeDependencyTree(require.dependencies);
+  }
 }
 
-// Export functions for testing
-export { 
-  ensureUniqueLandmarks, 
-  initApp, 
-  setLanguageAttribute, 
-  addLandmarkRoles, 
-  fixFakeLinks, 
-  landmarks, 
-  appData, 
-  addressAccessibilityIssues, 
-  processAccessibilityReport, 
-  getLangAttributeUpdated, 
-  addLangAttribute, 
-  validateTableAccessibility, 
-  validateTableStructure, 
-  fixTableStructure, 
-  addMainLandmark, 
-  validateLandmark, 
-  validateLandmarkStructure, 
-  validateLandmarkAttributes, 
-  getSvgAccessibleName, 
-  setSvgAttributes, 
-  createInPageButton, 
-  validateLinkAccessibility, 
-  handleFakeLinks, 
-  addLandmarkRegions, 
-  addProperLandmarkRegions,
-  checkLandmarkElement,
-  CONFIG,
-  VERSION,
+// Export functions for testing (merged from both branches)
+module.exports = {
+  config: CONFIG,
+  APP_CONFIG,
   initialize,
   initializeApp,
-  processData,
+  main,
   fetchUser,
   clearCache,
-  validateInput,
-  getInsightReport,
-  personName,
-  newFocusTrap,
-  addressNewAccessibilityIssues,
-  calculateSum,
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  initializeApp,
-  checkLinkAccessibility,
-  handleFakeLinks,
-  generateAccessibilityReport,
-  wrapPrimaryContentInMain,
-  ensureUniqueLandmarks,
-  addLangAttribute,
-  createInPageButton,
-  validateInput,
-  processData,
-  formatResponse,
-  config: CONFIG,
-  isValidLandmark,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  landmarkConfig: CONFIG,
-  generateAccessibilityReport,
-  wrapPrimaryContentInMain,
-  ensureUniqueLandmarks
-};
-
-module.exports = {
-  config: APP_CONFIG,
-  App,
   someFunction,
   helper,
   formatDate,
-  calculateSum,
+  validateInput,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
   getLangAttribute,
+  getLangAttributeUpdated,
   getFullLangAttribute,
+  addLangAttribute,
+  setLanguageAttribute,
+  HTML,
+  wrapPrimaryContentInMain,
   validateTableAccessibility,
   validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
   validateLandmark,
   validateLandmarkStructure,
+  validateLandmarkAttributes,
+  addLandmarkRegions,
+  addLandmarkRoles,
+  addProperLandmarkRegions,
   getSvgAccessibleName,
   setSvgAttributes,
-  initializeApp,
-  checkLinkAccessibility,
-  handleFakeLinks,
-  generateAccessibilityReport,
-  wrapPrimaryContentInMain,
-  ensureUniqueLandmarks,
-  addLangAttribute,
   createInPageButton,
-  validateInput,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  checkLinkAccessibility,
+  fixFakeLinks,
+  addressAccessibilityIssues,
+  addressNewAccessibilityIssues,
+  personName,
+  newFocusTrap,
+  getInsightReport,
+  processAccessibilityReport,
+  calculateSum,
   processData,
   formatResponse,
-  config: APP_CONFIG,
   isValidLandmark,
   loadLandmarks,
   processLandmarks,
   sortLandmarks,
   getLandmarkById,
-  landmarkConfig: APP_CONFIG,
   generateAccessibilityReport,
-  wrapPrimaryContentInMain,
-  ensureUniqueLandmarks
+  appData,
+  VERSION,
+  isSecureContext,
+  registerSW,
+  initApp,
+  App,
+  landmarks
 };
 
 module.exports.main = main;

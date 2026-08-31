@@ -14,3 +14,11 @@ function handleCredentialResponse(response) {
 // export function someExistingFunction() {
 //   // Existing function implementation
 // }
+
+// TODO: Implement a function to count dependencies
+function countDependencies(dependencies) {
+  if (!Array.isArray(dependencies)) {
+    return 0;
+  }
+  return dependencies.filter(Boolean).length;
+}

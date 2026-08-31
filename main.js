@@ -201,6 +201,7 @@ function originalAddRequiredLandmarks(doc) {
             doc.body.appendChild(el);
         }
     });
+// TODO: This is the existing code that needs to be preserved
 }
 
 // Helper function to get document object safely

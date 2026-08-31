@@ -1,7 +1,7 @@
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
-// REACT_027: Fix 26 table structure issues
 // REACT_017: Add/fix 4 landmark issues
+// REACT_027: Fix 26 table structure issues
 // REACT_025: Ensure unique landmarks
 // REACT_041: Add accessible names to 2 SVGs
 // REACT_036: Fix 1 fake link issue
@@ -123,7 +123,7 @@ const googleSignIn = {
   initialize: function(clientId) {
     if (typeof google !== 'undefined' && google.accounts) {
       google.accounts.id.initialize({
-        client_id: clientId,
+        client_id: client_id,
         callback: this.handleCredentialResponse.bind(this)
       });
       return true;

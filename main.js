@@ -1,11 +1,10 @@
+const main = require('./utilities');
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
 // Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
-
-// Utility functions for accessibility
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: () => {
@@ -113,40 +112,12 @@ const ensureElementHasId = (element, prefix = 'element') => {
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
-function newFocusTrap() {
-  // New function implementation: traps focus within a given element
-  return (element) => {
-    if (!element) return;
-    const focusable = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    if (focusable.length === 0) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === first) {
-          last.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          first.focus();
-          e.preventDefault();
-        }
-      }
-    });
-  };
-}
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
-const addAriaLabel = (element, label) => {
+function addAriaLabel(element, label) {
   if (element) {
     element.setAttribute('aria-label', label);
   }
   return element;
-};
+}
 
 const renderDependencyGraph = (data) => {
   // Implementation for rendering dependency graphs
@@ -182,7 +153,25 @@ function setConfig(config) {
 // Import necessary dependencies
 import React from 'react';
 import { render } from 'react-dom';
-import { addLangAttribute, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, uniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, googleSignIn, decodeJwtResponse, fixButtonIdentifiers, ensureElementHasId, addAriaLabel, renderDependencyGraphs } from './AccessibilityHelpers';
+import {
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  uniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  googleSignIn,
+  decodeJwtResponse,
+  fixButtonIdentifiers,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs
+} from './AccessibilityHelpers';
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph');

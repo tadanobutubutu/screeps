@@ -1,4 +1,4 @@
-// main.js - Accessibility Validator and Utilities
+// main..js - Accessibility Validator and Utilities
 
 /**
  * Validates landmark structure for accessibility issues
@@ -7,7 +7,7 @@
 
 // Common landmark selectors
 const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form'];
-const LANDMARK_SELECTORS = LANDMARK_ELEMENTS.join(',');
+const LANDMARK_SELECTORS = LANDMARK_ELEMENTS.join(', ');
 
 /**
  * Finds all landmark elements in a document or container
@@ -66,8 +66,7 @@ function validateLandmarkStructure(context = document) {
     const forms = context.querySelectorAll('form');
     forms.forEach((form, index) => {
         const hasLabel = form.getAttribute('aria-label') || 
-                         form.getAttribute('aria-labelledby') ||
-                         form.getAttribute('name');
+                         form.getAttribute('aria-labelledby');
         if (!hasLabel && form.querySelectorAll('input, select, textarea').length > 0) {
             issues.push({
                 type: 'warning',
@@ -96,7 +95,7 @@ function validateLandmarkStructure(context = document) {
     const headers = context.querySelectorAll('header');
     headers.forEach((header, index) => {
         // Header inside main should be a banner, not a sectioning element
-        if (header.closest('main') && !header.closest('section') && !header.closest('article')) {
+        if (header.closest('main') && !header.closest('article')) {
             issues.push({
                 type: 'info',
                 code: 'HEADER_NESTING',
@@ -141,7 +140,7 @@ function getLandmarkSummary(context = document) {
         infos.forEach(i => summary.push(`  • ${i.message}`));
     }
     
-    summary.push(`\nValidation ${result.isValid ? 'PASSED' : 'FAILED'}`);
+    summary.push(`Overall: ${result.isValid ? 'PASSED' : 'FAILED'}`);
     
     return summary.join('\n');
 }
@@ -201,10 +200,10 @@ function fixFakeLinkIssue() {
 
 // Call the new functions as needed, for example:
 addLangAttribute();
-// fixTableStructure();
+// ...
 // addMainLandmark();
 // ensureUniqueLandmarks();
-// addSvgAccessibleNames();
+// ...
 // fixFakeLinkIssue();
 
 // New function to handle credential response

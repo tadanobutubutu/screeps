@@ -39,9 +39,6 @@ function getWelcomeMessage() {
   return greetingFunction() + " This is a new function that returns a welcome message.";
 }
 
-export default greetingFunction;
-export { config, getWelcomeMessage };
-
 const { class1, function1, Object1 } = require('./path/to/module');
 
 const a11yStore = {
@@ -283,26 +280,26 @@ function generateSessionId() {
  */
 function validateTableStructure(table) {
     if (!table) {
-        throw new Error('Table is required');
+      throw new Error('Table is required');
     }
     
     // Check for table caption (provides context for screen readers)
     const caption = table.querySelector('caption');
     if (!caption) {
-        return false;
+      return false;
     }
     
     // Check for header cells (required for accessible tables)
     const headers = table.querySelectorAll('th');
     if (headers.length === 0) {
-        return false;
+      return false;
     }
     
     // Verify all header cells have scope attribute
     for (const header of headers) {
-        if (!header.hasAttribute('scope')) {
-            return false;
-        }
+      if (!header.hasAttribute('scope')) {
+        return false;
+      }
     }
     
     return true;
@@ -334,6 +331,85 @@ function getSvgAccessibleName(svgElement) {
   }
   
   return 'SVG graphic';
+}
+
+/**
+ * Validates table accessibility by checking structure and headers.
+ * @param {HTMLElement} table - The table to validate
+ * @returns {Object} - Validation result with success status and details
+ */
+function validateTableAccessibility(table) {
+  if (!table) {
+    return { success: false, error: 'Table is required' };
+  }
+  
+  const hasCaption = !!table.querySelector('caption');
+  const headers = table.querySelectorAll('th');
+  
+  const headerValidation = Array.from(headers).every(header => header.hasAttribute('scope'));
+  
+  return {
+    success: hasCaption && headers.length > 0 && headerValidation,
+    details: {
+      hasCaption,
+      headerCount: headers.length,
+      headersHaveScope: headerValidation
+    }
+  };
+}
+
+/**
+ * Check accessibility of landmark elements in the document.
+ * @param {HTMLElement} container - The container element to check
+ */
+function validateLandmark(container) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+  
+  const landmarkSelectors = [
+    'main', 'nav', 'header', 'footer', 'aside',
+    '[role="main"]', '[role="navigation"]', '[role="banner"]',
+    '[role="contentinfo"]', '[role="complementary"]'
+  ];
+  
+  const landmarks = document.querySelectorAll(landmarkSelectors.join(', '));
+  const landmarkCount = {};
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    landmarkCount[role] = (landmarkCount[role] || 0) + 1;
+  });
+  
+  return landmarkCount;
+}
+
+/**
+ * Validates the structure of landmark elements.
+ * @param {HTMLElement} container - The container element to check
+ */
+function validateLandmarkStructure(container) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+  
+  const requiredRoles = ['main', 'banner', 'navigation', 'contentinfo'];
+  const foundRoles = new Set();
+  
+  container.querySelectorAll('[role]').forEach(el => {
+    const role = el.getAttribute('role');
+    if (requiredRoles.includes(role)) {
+      foundRoles.add(role);
+    }
+  });
+  
+  return {
+    hasMain: foundRoles.has('main'),
+    hasBanner: foundRoles.has('banner'),
+    hasNav: foundRoles.has('navigation'),
+    hasFooter: foundRoles.has('contentinfo'),
+    missingRoles: requiredRoles.filter(r => !foundRoles.has(r))
+  };
 }
 
 /**
@@ -427,57 +503,98 @@ function ensureUniqueLandmarks() {
 }
 
 /**
- * Revoke a session
- * @param {string} sessionId - The session ID to revoke
- * @returns {boolean} - True if session was revoked
+ * Create an in-page button with accessibility features.
+ * @param {string} text - Button text
+ * @param {string} targetId - Target element ID to scroll to
+ * @returns {HTMLButtonElement} The created button
  */
-function revokeSession(sessionId) {
-    return appState.sessions.delete(sessionId);
+function createInPageButton(text, targetId) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = text;
+  button.setAttribute('aria-label', `Scroll to ${text}`);
+  button.addEventListener('click', () => {
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+  return button;
 }
 
 /**
- * Focus trap handler to keep focus within a container.
- * @param {Element} element - Element to monitor for focus events
+ * Generate accessible name from an element's content.
+ * @param {HTMLElement} element - Element to get accessible name for
+ * @returns {string} - Accessible name
  */
-function handleFocusTrap(element) {
-  if (!element || typeof element.querySelectorAll !== 'function') {
-    return;
+function personName(element) {
+  if (!element) {
+    return '';
   }
-
-  const focusableElements = Array.from(element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  ));
-
-  if (focusableElements.length === 0) {
-    return;
+  
+  const ariaLabel = element.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel.trim();
   }
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  element.addEventListener('keydown', function(event) {
-    if (event.key !== 'Tab') {
-      return;
+  
+  const ariaLabelledBy = element.getAttribute('aria-labelledby');
+  if (ariaLabelledBy) {
+    const labelElement = document.getElementById(ariaLabelledBy);
+    if (labelElement) {
+      return labelElement.textContent.trim();
     }
+  }
+  
+  if (element.textContent) {
+    return element.textContent.trim();
+  }
+  
+  return element.title || '';
+}
 
-    if (event.shiftKey) {
-      if (document.activeElement === firstElement) {
-        event.preventDefault();
-        lastElement.focus();
-      }
-    } else {
-      if (document.activeElement === lastElement) {
-        event.preventDefault();
-        firstElement.focus();
-      }
+// Initialize appState with required structures
+const appState = {
+  sessions: new Map(),
+  credentials: []
+};
+
+/**
+ * Validate a session
+ * @param {string} sessionId - The session ID to validate
+ * @returns {Object|null} - Session data or null if invalid
+ */
+function validateSession(sessionId) {
+  return appState.sessions.get(sessionId) || null;
+}
+
+/**
+ * Get active sessions count
+ * @returns {number} - Number of active sessions
+ */
+function getActiveSessionsCount() {
+  return appState.sessions.size;
+}
+
+/**
+ * Decode a JWT token
+ * @param {string} token - The JWT token to decode
+ * @returns {Object|null} - Decoded token payload or null
+ */
+function decodeJwtToken(token) {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      return null;
     }
-  });
+    const payload = parts[1];
+    const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+    return JSON.parse(decoded);
+  } catch (e) {
+    return null;
+  }
 }
 
 // HTTP Server setup
-const http = require('http');
-const url = require('url');
-
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     
@@ -571,6 +688,15 @@ const server = http.createServer((req, res) => {
     res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
 });
 
+/**
+ * Revoke a session
+ * @param {string} sessionId - The session ID to revoke
+ * @returns {boolean} - True if session was revoked
+ */
+function revokeSession(sessionId) {
+    return appState.sessions.delete(sessionId);
+}
+
 // Start server if this is the main module
 if (require.main === module) {
     const PORT = process.env.PORT || 3000;
@@ -588,6 +714,11 @@ module.exports = {
     decodeJwtToken,
     generateSessionId,
     validateTableStructure,
+    validateTableAccessibility,
+    validateLandmark,
+    validateLandmarkStructure,
+    createInPageButton,
+    personName,
     validateSession,
     revokeSession,
     getActiveSessionsCount,
@@ -601,6 +732,5 @@ module.exports = {
     wrapPrimaryContentInMain,
     checkLandmarks,
     ensureUniqueLandmarks,
-    handleFocusTrap,
     getSvgAccessibleName
 };

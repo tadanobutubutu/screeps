@@ -14,3 +14,23 @@ function handleCredentialResponse(response) {
 // export function someExistingFunction() {
 //   // Existing function implementation
 // }
+
+// REACT_015: Returns the appropriate lang attribute value based on the current language setting
+function getLangAttribute() {
+  // TODO: Implement logic to retrieve the current language setting
+  // and return the corresponding lang attribute value
+  // For now, returning a default value
+  return 'en';
+}
+
+// REACT_015: Creates and inserts an in-page button element into the DOM
+function createInPageButton() {
+  // TODO: Implement logic to create an in-page button element
+  // and insert it into the DOM at an appropriate location
+  const lang = getLangAttribute();
+  const button = document.createElement('button');
+  button.setAttribute('lang', lang);
+  button.textContent = 'Click me';
+  document.body.appendChild(button);
+  return button;
+}

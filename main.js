@@ -274,6 +274,143 @@ function ensureDependencyGraphAriaRole(doc) {
   return container;
 }
 
+/**
+ * Handle focus trap for keyboard navigation within a given container
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @param {Object} options - Configuration options for the focus trap
+ * @param {boolean} options.escapeDeactivates - Whether pressing Escape should deactivate the trap
+ * @returns {Object} An object with methods to manage the focus trap
+ */
+function handleFocusTrap(container, options = { escapeDeactivates: true }) {
+  if (!container || !container.setAttribute) {
+    console.warn('Invalid container provided for focus trap');
+    return {
+      activate: () => {},
+      deactivate: () => {},
+      isActive: () => false,
+      handleKeydown: () => {}
+    };
+  }
+
+  // Store original tabindex values for restoration
+  const originalTabindex = new Map();
+  let isActiveTrap = false;
+
+  // Collect all focusable elements in the container
+  const getFocusableElements = () => {
+    return container.querySelectorAll(
+      'a[href], area[href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), ' +
+      'textarea:not([disabled]), button:not([disabled]), iframe, object, embed, ' +
+      '[tabindex]:not([tabindex="-1"]), [contenteditable]'
+    );
+  };
+
+  const focusableElements = () => Array.from(getFocusableElements());
+
+  const handleFocusIn = () => {
+    if (!isActiveTrap) return;
+    const elements = focusableElements();
+    if (elements.length === 0) return;
+
+    // If focus is on the container itself and there are focusable children, focus the first
+    if (container === document.activeElement && elements[0]) {
+      elements[0].focus();
+    }
+  };
+
+  const handleKeydown = (event) => {
+    if (!isActiveTrap || event.key !== 'Tab') return;
+    
+    const elements = focusableElements();
+    if (elements.length === 1) {
+      // With only one focusable element, keep focus within the container
+      event.preventDefault();
+      if (document.activeElement === elements[0]) {
+        elements[0].focus();
+      }
+      return;
+    }
+
+    if (elements.length === 0) return;
+
+    const firstElement = elements[0];
+    const lastElement = elements[elements.length - 1];
+
+    if (event.shiftKey) {
+      // Shift + Tab
+      if (document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      // Tab
+      if (document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+  };
+
+  const handleEscapeKeydown = (event) => {
+    if (!isActiveTrap || event.key !== 'Escape') return;
+
+    if (options.escapeDeactivates) {
+      event.preventDefault();
+      deactivate();
+
+      // Restore focus to the container after deactivation
+      if (container.hasAttribute('tabindex')) {
+        container.focus();
+      }
+    }
+  };
+
+  const activate = () => {
+    if (isActiveTrap) return;
+
+    // Ensure container can receive focus if it doesn't already
+    if (!container.hasAttribute('tabindex')) {
+      container.setAttribute('tabindex', '-1');
+      originalTabindex.set(container, null);
+    } else {
+      originalTabindex.set(container, container.getAttribute('tabindex'));
+    }
+
+    isActiveTrap = true;
+
+    // Add event listeners
+    document.addEventListener('focusin', handleFocusIn);
+    document.addEventListener('keydown', handleKeydown);
+    document.addEventListener('keydown', handleEscapeKeydown);
+  };
+
+  const deactivate = () => {
+    if (!isActiveTrap) return;
+
+    isActiveTrap = false;
+
+    // Remove event listeners
+    document.removeEventListener('focusin', handleFocusIn);
+    document.removeEventListener('keydown', handleKeydown);
+    document.removeEventListener('keydown', handleEscapeKeydown);
+
+    // Restore original tabindex if it wasn't originally present
+    if (originalTabindex.get(container) === null) {
+      container.removeAttribute('tabindex');
+    } else if (originalTabindex.has(container)) {
+      container.setAttribute('tabindex', originalTabindex.get(container));
+    }
+  };
+
+  return {
+    activate,
+    deactivate,
+    isActive: () => isActiveTrap,
+    handleKeydown,
+    handleEscapeKeydown
+  };
+}
+
 // Export all functions
 export {
   addLangAttribute,
@@ -290,5 +427,6 @@ export {
   googleSignIn,
   fixButtonIdentifiers,
   ensureDependencyGraphAriaRole,
+  handleFocusTrap,
   newFunction
 };

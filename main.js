@@ -6,13 +6,19 @@
 const http = require('http');
 const path = require('path');
 
-// TODO: This is the existing code that needs to be preserved
-
 // Application configuration
 const config = {
   port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development'
 };
+
+/**
+ * Add the implementation of this function
+ */
+function additionalFunction() {
+  // Function implementation goes here
+  console.log('This is the additional function');
+}
 
 /**
  * Creates and starts the HTTP server
@@ -41,7 +47,8 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  additionalFunction // Export the new function for testing
 };
 
 // Start the application if run directly

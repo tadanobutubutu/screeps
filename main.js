@@ -135,7 +135,9 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
-    handleCredentialResponse
+    handleCredentialResponse,
+    handleFakeLinks,
+    createInPageButton
   };
 } else {
   // Browser environment - wait for DOM

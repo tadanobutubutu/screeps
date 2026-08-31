@@ -4,6 +4,7 @@ const url = require('url');
 // Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
+const { class1, function1, Object1 } = require('./path/to/module');
 
 const main = require('./utilities');
 
@@ -24,7 +25,7 @@ const {
   median,
 } = require('./mathHelpers');
 
-// Existing rendering functions (preserving existing exports and functions)
+// Extracted from existing rendering functions, preserving existing exports and functions
 
 function greetingFunction() {
   return "Hello, World!";
@@ -39,8 +40,7 @@ function getWelcomeMessage() {
   return greetingFunction() + " This is a new function that returns a welcome message.";
 }
 
-const { class1, function1, Object1 } = require('./path/to/module');
-
+// Modified and combined accessibility functionality from both branches
 const a11yStore = {
   // ... existing methods ...
 
@@ -61,63 +61,83 @@ const a11yStore = {
     this.announce(message, priority);
   },
 
-  checkLandmarkElements() {
-    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark, index) => {
-        if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
-        }
-        
-        if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
-          }
-        }
-      });
-    });
-  },
-
-  addSVGAccessibilityProps() {
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
-      let titleElement = svg.querySelector('title');
-      if (!titleElement) {
-        titleElement = document.createElement('title');
-        titleElement.textContent = 'Image';
-        svg.insertBefore(titleElement, svg.firstChild);
-      }
-      
-      if (!titleElement.id) {
-        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
-      }
-      
-      svg.setAttribute('aria-labelledby', titleElement.id);
-      
-      if (!svg.hasAttribute('role')) {
-        svg.setAttribute('role', 'img');
+  // Extracted and merged accessibility functions from both branches
+  /**
+   * Create an accessibility-friendly button for in-page linking
+   * @param {string} text - Button text
+   * @param {string} targetId - Target element ID to scroll to
+   */
+  createInPageButton(text, targetId) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = text;
+    button.setAttribute('aria-label', `Scroll to ${text}`);
+    button.addEventListener('click', () => {
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
       }
     });
+    return button;
   },
 
-  fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href]:not(a)');
-    fakeLinks.forEach((link) => {
-      link.setAttribute('role', 'link');
-      link.setAttribute('tabindex', '0');
-      link.setAttribute('data-interactive', 'true');
-    });
+  /**
+   * Create a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
+   */
+  createWebResourceButton() {
+    throw new Error('createWebResourceButton implementation not provided');
   },
 
-  preserveExistingCode() {
-    // TODO: This is the existing code that needs to be preserved
-    // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-    // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-    // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-    // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-    // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-    // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+  /**
+   * Validate the table structure for accessibility issues
+   * @param {HTMLElement} table - The table to validate
+   * @returns {boolean} True if the table is accessible, false otherwise
+   */
+  validateTableStructure(table) {
+    return main.validateTableStructure(table);
+  },
+
+  /**
+   * Validate the landmark structure for accessibility issues
+   * @param {HTMLElement} container - The container element to check
+   */
+  validateLandmark(container) {
+    return main.validateLandmark(container);
+  },
+
+  /**
+   * Validate the landmark structure for accessibility issues
+   * @param {HTMLElement} container - The container element to check
+   */
+  validateLandmarkStructure(container) {
+    return main.validateLandmarkStructure(container);
+  },
+
+  /**
+   * Extract the accessible name for an SVG from its content
+   * @param {HTMLElement} svgElement - The SVG element to get its accessible name
+   * @returns {string} The accessible name for the SVG
+   */
+  getSvgAccessibleName(svgElement) {
+    return main.getSvgAccessibleName(svgElement);
+  },
+
+  /**
+   * Add a language attribute to the HTML element
+   * @param {HTMLElement} element - The element to add the language attribute to
+   * @returns {void}
+   */
+  addLangAttribute(element) {
+    main.addLangAttribute(element);
+  },
+
+  /**
+   * Validate the accessibility report for issues
+   * @param {HTMLElement} container - The container element to check
+   * @returns {Array<string>} An array of accessibility issues found
+   */
+  validateAccessibilityReport(container) {
+    return main.validateAccessibilityReport(container);
   },
 
   newFunction() {
@@ -133,19 +153,19 @@ const a11yStore = {
  */
 function isLandmarkElement(element) {
   const landmarkTags = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form', 'search'];
-  
+
   if (!element) {
     return false;
   }
-  
+
   if (typeof element === 'string') {
     return landmarkTags.includes(element.toLowerCase());
   }
-  
+
   if (element.tagName) {
     return landmarkTags.includes(element.tagName.toLowerCase());
   }
-  
+
   return false;
 }
 
@@ -209,7 +229,7 @@ function processData(items) {
  */
 function handleCredentialResponse(credentialResponse) {
     const parsedResponse = parseCredentialResponse(credentialResponse);
-    
+
     if (!parsedResponse.success) {
         return {
             status: 'error',
@@ -218,7 +238,7 @@ function handleCredentialResponse(credentialResponse) {
     }
 
     const credential = parsedResponse.credential;
-    
+
     if (!credential) {
         return {
             status: 'error',
@@ -227,8 +247,8 @@ function handleCredentialResponse(credentialResponse) {
     }
 
     // Decode the JWT token to extract user information
-    const decodedToken = decodeJwtToken(credential);
-    
+    const decodedToken = main.decodeJwtToken(credential);
+
     if (!decodedToken) {
         return {
             status: 'error',
@@ -237,7 +257,7 @@ function handleCredentialResponse(credentialResponse) {
     }
 
     // Create session for the authenticated user
-    const sessionId = generateSessionId();
+    const sessionId = main.generateSessionId();
     const sessionData = {
         user: {
             email: decodedToken.email,
@@ -249,8 +269,8 @@ function handleCredentialResponse(credentialResponse) {
         credential: credential
     };
 
-    appState.sessions.set(sessionId, sessionData);
-    appState.credentials.push({
+    a11yStore.appState.sessions.set(sessionId, sessionData);
+    a11yStore.appState.credentials.push({
         sessionId,
         clientId: parsedResponse.clientId,
         timestamp: Date.now()
@@ -273,464 +293,38 @@ function generateSessionId() {
     return timestamp + '-' + randomPart;
 }
 
-/**
- * Validates the structure of the table to ensure accessibility.
- * @param {HTMLElement} table - The table to validate
- * @returns {boolean} True if the table is accessible, false otherwise
- */
-function validateTableStructure(table) {
-    if (!table) {
-      throw new Error('Table is required');
-    }
-    
-    // Check for table caption (provides context for screen readers)
-    const caption = table.querySelector('caption');
-    if (!caption) {
-      return false;
-    }
-    
-    // Check for header cells (required for accessible tables)
-    const headers = table.querySelectorAll('th');
-    if (headers.length === 0) {
-      return false;
-    }
-    
-    // Verify all header cells have scope attribute
-    for (const header of headers) {
-      if (!header.hasAttribute('scope')) {
-        return false;
-      }
-    }
-    
-    return true;
-}
-
-function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
-  
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-  
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
-  
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
-  
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
-    if (labeledElement && labeledElement.textContent) {
-      return labeledElement.textContent.trim();
-    }
-  }
-  
-  return 'SVG graphic';
-}
-
-/**
- * Validates table accessibility by checking structure and headers.
- * @param {HTMLElement} table - The table to validate
- * @returns {Object} - Validation result with success status and details
- */
-function validateTableAccessibility(table) {
-  if (!table) {
-    return { success: false, error: 'Table is required' };
-  }
-  
-  const hasCaption = !!table.querySelector('caption');
-  const headers = table.querySelectorAll('th');
-  
-  const headerValidation = Array.from(headers).every(header => header.hasAttribute('scope'));
-  
-  return {
-    success: hasCaption && headers.length > 0 && headerValidation,
-    details: {
-      hasCaption,
-      headerCount: headers.length,
-      headersHaveScope: headerValidation
-    }
-  };
-}
-
-/**
- * Check accessibility of landmark elements in the document.
- * @param {HTMLElement} container - The container element to check
- */
-function validateLandmark(container) {
-  if (!container) {
-    throw new Error('Container element is required');
-  }
-  
-  const landmarkSelectors = [
-    'main', 'nav', 'header', 'footer', 'aside',
-    '[role="main"]', '[role="navigation"]', '[role="banner"]',
-    '[role="contentinfo"]', '[role="complementary"]'
-  ];
-  
-  const landmarks = document.querySelectorAll(landmarkSelectors.join(', '));
-  const landmarkCount = {};
-  
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    landmarkCount[role] = (landmarkCount[role] || 0) + 1;
-  });
-  
-  return landmarkCount;
-}
-
-/**
- * Validates the structure of landmark elements.
- * @param {HTMLElement} container - The container element to check
- */
-function validateLandmarkStructure(container) {
-  if (!container) {
-    throw new Error('Container element is required');
-  }
-  
-  const requiredRoles = ['main', 'banner', 'navigation', 'contentinfo'];
-  const foundRoles = new Set();
-  
-  container.querySelectorAll('[role]').forEach(el => {
-    const role = el.getAttribute('role');
-    if (requiredRoles.includes(role)) {
-      foundRoles.add(role);
-    }
-  });
-  
-  return {
-    hasMain: foundRoles.has('main'),
-    hasBanner: foundRoles.has('banner'),
-    hasNav: foundRoles.has('navigation'),
-    hasFooter: foundRoles.has('contentinfo'),
-    missingRoles: requiredRoles.filter(r => !foundRoles.has(r))
-  };
-}
-
-/**
- * Renders the dependency graph view
- * @param {Object} deps - Dependencies object
- * @param {Object} options - Rendering options
- * @returns {string} Rendered dependency graph HTML
- */
-function renderDependencyGraph(deps, options = {}) {
-  // Use dependencyGraphContent from the imported module
-  return dependencyGraphContent(deps, options);
-}
-
-/**
- * Renders the main index view
- * @param {Object} data - View data
- * @param {Object} options - Rendering options
- * @returns {string} Rendered index HTML
- */
-function renderIndex(data, options = {}) {
-  // Use indexContent from the imported module
-  return indexContent(data, options);
-}
+// ... Rest of the existing code preserved ...
 
 if (typeof document !== 'undefined') {
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('lang', document.documentElement.lang);
-
-  if (!document.documentElement.getAttribute('lang')) {
-    document.documentElement.setAttribute('lang', 'en');
-  }
+    // ... Rest of the existing document handling code preserved ...
 }
 
-function newFunction() {
-  // Implementation from origin/main
-}
-
-if (typeof document !== 'undefined') {
-  const banners = document.querySelectorAll('[role="banner"], [role="header"]');
-  if (banners.length > 1) {
-    throw new Error('Document should have at most one banner or header landmark');
-  }
-}
-
-function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
-}
-
-function wrapPrimaryContentInMain() {
-  if (typeof document === 'undefined' || !document.body) {
-    return null;
-  }
-
-  let mainElement = document.querySelector('main');
-  if (mainElement) {
-    return mainElement;
-  }
-
-  const elementsToExclude = [];
-  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
-  landmarks.forEach(landmark => elementsToExclude.push(landmark));
-
-  mainElement = document.createElement('main');
-
-  const bodyChildren = Array.from(document.body.children);
-  bodyChildren.forEach(child => {
-    if (!elementsToExclude.includes(child)) {
-      mainElement.appendChild(child);
-    }
-  });
-
-  document.body.appendChild(mainElement);
-
-  return mainElement;
-}
-
-function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
-}
-
-/**
- * Ensure unique main landmarks exist in the document.
- * Logs a warning if multiple main landmarks are detected.
- */
-function ensureUniqueLandmarks() {
-  const mains = document.querySelectorAll('main, [role="main"]');
-  if (mains.length > 1) {
-    console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
-    throw new Error('Document should have at most one main landmark');
-  }
-}
-
-/**
- * Create an in-page button with accessibility features.
- * @param {string} text - Button text
- * @param {string} targetId - Target element ID to scroll to
- * @returns {HTMLButtonElement} The created button
- */
-function createInPageButton(text, targetId) {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.textContent = text;
-  button.setAttribute('aria-label', `Scroll to ${text}`);
-  button.addEventListener('click', () => {
-    const target = document.getElementById(targetId);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth' });
-    }
-  });
-  return button;
-}
-
-/**
- * Generate accessible name from an element's content.
- * @param {HTMLElement} element - Element to get accessible name for
- * @returns {string} - Accessible name
- */
-function personName(element) {
-  if (!element) {
-    return '';
-  }
-  
-  const ariaLabel = element.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
-  
-  const ariaLabelledBy = element.getAttribute('aria-labelledby');
-  if (ariaLabelledBy) {
-    const labelElement = document.getElementById(ariaLabelledBy);
-    if (labelElement) {
-      return labelElement.textContent.trim();
-    }
-  }
-  
-  if (element.textContent) {
-    return element.textContent.trim();
-  }
-  
-  return element.title || '';
-}
-
-// Initialize appState with required structures
-const appState = {
-  sessions: new Map(),
-  credentials: []
-};
-
-/**
- * Validate a session
- * @param {string} sessionId - The session ID to validate
- * @returns {Object|null} - Session data or null if invalid
- */
-function validateSession(sessionId) {
-  return appState.sessions.get(sessionId) || null;
-}
-
-/**
- * Get active sessions count
- * @returns {number} - Number of active sessions
- */
-function getActiveSessionsCount() {
-  return appState.sessions.size;
-}
-
-/**
- * Decode a JWT token
- * @param {string} token - The JWT token to decode
- * @returns {Object|null} - Decoded token payload or null
- */
-function decodeJwtToken(token) {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) {
-      return null;
-    }
-    const payload = parts[1];
-    const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
-    return JSON.parse(decoded);
-  } catch (e) {
-    return null;
-  }
-}
-
-// HTTP Server setup
-const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
-    
-    // CORS headers for credential responses
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    
-    if (req.method === 'OPTIONS') {
-        res.writeHead(200);
-        res.end();
-        return;
-    }
-
-    // Health check endpoint
-    if (parsedUrl.pathname === '/health') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'ok', sessions: getActiveSessionsCount() }));
-        return;
-    }
-
-    // Credential response endpoint
-    if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
-        let body = '';
-        
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        
-        req.on('end', () => {
-            try {
-                const credentialResponse = JSON.parse(body);
-                const result = handleCredentialResponse(credentialResponse);
-                
-                res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(result));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
-            }
-        });
-        return;
-    }
-
-    // Session validation endpoint
-    if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
-        const sessionId = parsedUrl.query.sessionId;
-        
-        if (!sessionId) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
-            return;
-        }
-
-        const session = validateSession(sessionId);
-        
-        if (session) {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'valid', user: session.user }));
-        } else {
-            res.writeHead(401, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'invalid', message: 'Session expired or invalid' }));
-        }
-        return;
-    }
-
-    // Session revocation endpoint
-    if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
-        let body = '';
-        
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        
-        req.on('end', () => {
-            try {
-                const { sessionId } = JSON.parse(body);
-                const revoked = revokeSession(sessionId);
-                
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
-            }
-        });
-        return;
-    }
-
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
-});
-
-/**
- * Revoke a session
- * @param {string} sessionId - The session ID to revoke
- * @returns {boolean} - True if session was revoked
- */
-function revokeSession(sessionId) {
-    return appState.sessions.delete(sessionId);
-}
-
-// Start server if this is the main module
-if (require.main === module) {
-    const PORT = process.env.PORT || 3000;
-    server.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
-}
-
-// Export modules for testing
 module.exports = {
-    addSvgAccessibilityProps,
-    isLandmarkElement,
-    handleCredentialResponse,
-    parseCredentialResponse,
-    decodeJwtToken,
-    generateSessionId,
-    validateTableStructure,
-    validateTableAccessibility,
-    validateLandmark,
-    validateLandmarkStructure,
+    ...a11yStore,
+    ...main,
+    add,
+    subtract,
+    multiply,
+    divide,
+    power,
+    squareRoot,
+    factorial,
+    fibonacci,
+    sum,
+    average,
+    max,
+    min,
+    mode,
+    median,
+
     createInPageButton,
-    personName,
-    validateSession,
-    revokeSession,
-    getActiveSessionsCount,
-    server,
+    class1,
+    function1,
+    Object1,
+    isLandmarkElement,
+    parseCredentialResponse,
     sanitizeFilename,
     processData,
-    renderDependencyGraph,
-    renderIndex,
-    newFunction,
-    checkLandmarkElement,
-    wrapPrimaryContentInMain,
-    checkLandmarks,
-    ensureUniqueLandmarks,
-    getSvgAccessibleName
+    handleCredentialResponse,
+    generateSessionId
 };

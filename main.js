@@ -7,6 +7,7 @@ const http = require('http');
 const path = require('path');
 
 // TODO: This is the existing code that needs to be preserved
+// (Implementation added above)
 
 // Application configuration
 const config = {

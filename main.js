@@ -420,11 +420,14 @@ module.exports = {
     // Implementation of the new export
     // TODO: Implement this function for checking landmark elements
     function checkLandmarkElement(element) {
-      // Placeholder for the actual implementation
-      // This function should check if the given element is a landmark element
-      // For example, it might check for specific attributes or classes
-      // For now, let's assume any element is a landmark element
-      return true;
+      if (!element) return false;
+
+      const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search', 'form'];
+      const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+      const landmarkTags = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'form'];
+      const role = element.getAttribute('role');
+
+      return landmarkTags.includes(tagName) || (role && validRoles.includes(role));
     }
 
     return checkLandmarkElement;

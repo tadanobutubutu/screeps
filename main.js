@@ -308,6 +308,135 @@ const accessibilityUtils = {
     if (typeof document === 'undefined') return 'en';
     const htmlElement = document.documentElement;
     return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
+  },
+
+  // New functions for rendering graph/index
+  renderGraph: (container, data, options = {}) => {
+    if (typeof document === 'undefined') return null;
+    if (!container) return null;
+
+    const graphContainer = typeof container === 'string'
+      ? document.getElementById(container) || document.querySelector(container)
+      : container;
+
+    if (!graphContainer) return null;
+
+    // Clear existing content
+    graphContainer.innerHTML = '';
+
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const width = options.width || graphContainer.clientWidth || 600;
+    const height = options.height || graphContainer.clientHeight || 400;
+
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('width', String(width));
+    svg.setAttribute('height', String(height));
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', options.ariaLabel || 'Graph visualization');
+
+    const nodes = (data && data.nodes) || [];
+    const edges = (data && data.edges) || [];
+
+    nodes.forEach((node, index) => {
+      const circle = document.createElementNS(svgNS, 'circle');
+      circle.setAttribute('cx', String(node.x || (index * 50) + 50));
+      circle.setAttribute('cy', String(node.y || 50));
+      circle.setAttribute('r', String(node.radius || 10));
+      circle.setAttribute('fill', node.color || '#4285f4');
+      svg.appendChild(circle);
+
+      if (node.label) {
+        const text = document.createElementNS(svgNS, 'text');
+        text.setAttribute('x', String(node.x || (index * 50) + 50));
+        text.setAttribute('y', String((node.y || 50) + 25));
+        text.textContent = node.label;
+        svg.appendChild(text);
+      }
+    });
+
+    edges.forEach((edge) => {
+      const line = document.createElementNS(svgNS, 'line');
+      line.setAttribute('x1', String(edge.x1 || 0));
+      line.setAttribute('y1', String(edge.y1 || 0));
+      line.setAttribute('x2', String(edge.x2 || 0));
+      line.setAttribute('y2', String(edge.y2 || 0));
+      line.setAttribute('stroke', edge.color || '#999');
+      svg.appendChild(line);
+    });
+
+    graphContainer.appendChild(svg);
+    return svg;
+  },
+
+  renderIndex: (container, items, options = {}) => {
+    if (typeof document === 'undefined') return null;
+    if (!container) return null;
+
+    const indexContainer = typeof container === 'string'
+      ? document.getElementById(container) || document.querySelector(container)
+      : container;
+
+    if (!indexContainer) return null;
+
+    // Clear existing content
+    indexContainer.innerHTML = '';
+
+    const list = document.createElement(options.ordered ? 'ol' : 'ul');
+    list.setAttribute('role', 'list');
+    if (options.ariaLabel) {
+      list.setAttribute('aria-label', options.ariaLabel);
+    }
+
+    (items || []).forEach((item) => {
+      const listItem = document.createElement('li');
+
+      if (typeof item === 'string') {
+        listItem.textContent = item;
+      } else if (item && typeof item === 'object') {
+        if (item.href) {
+          const link = document.createElement('a');
+          link.href = item.href;
+          link.textContent = item.label || item.text || item.href;
+          if (item.ariaLabel) link.setAttribute('aria-label', item.ariaLabel);
+          listItem.appendChild(link);
+        } else {
+          listItem.textContent = item.label || item.text || '';
+        }
+      }
+
+      list.appendChild(listItem);
+    });
+
+    indexContainer.appendChild(list);
+    return list;
+  },
+
+  renderGraphIndex: (container, graphData, indexItems, options = {}) => {
+    if (typeof document === 'undefined') return null;
+    if (!container) return null;
+
+    const rootContainer = typeof container === 'string'
+      ? document.getElementById(container) || document.querySelector(container)
+      : container;
+
+    if (!rootContainer) return null;
+
+    // Clear existing content
+    rootContainer.innerHTML = '';
+
+    // Create graph section
+    const graphSection = document.createElement('section');
+    graphSection.setAttribute('aria-label', options.graphLabel || 'Graph');
+    rootContainer.appendChild(graphSection);
+    accessibilityUtils.renderGraph(graphSection, graphData, options.graphOptions || {});
+
+    // Create index section
+    const indexSection = document.createElement('section');
+    indexSection.setAttribute('aria-label', options.indexLabel || 'Index');
+    rootContainer.appendChild(indexSection);
+    accessibilityUtils.renderIndex(indexSection, indexItems, options.indexOptions || {});
+
+    return rootContainer;
   }
 };
 
@@ -441,6 +570,11 @@ module.exports = {
   validateLinkAccessibility: accessibilityUtils.validateLinkAccessibility,
   handleFakeLinks: accessibilityUtils.handleFakeLinks,
   addProperLandmarkRegions: accessibilityUtils.addProperLandmarkRegions,
+
+  // New rendering functions
+  renderGraph: accessibilityUtils.renderGraph,
+  renderIndex: accessibilityUtils.renderIndex,
+  renderGraphIndex: accessibilityUtils.renderGraphIndex,
 
   // Export accessibility utils for direct access
   accessibilityUtils: accessibilityUtils,

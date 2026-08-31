@@ -89,6 +89,28 @@ function ensureUniqueLandmarks() {
   }
 }
 
+// New function to add/fix 4 landmark issues
+function addMainLandmark() {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  document.body.insertBefore(mainElement, document.body.firstChild);
+}
+
+// New function to ensure unique landmarks
+function uniqueLandmarks() {
+  const roles = ['banner', 'header', 'navigation', 'main', 'contentinfo', 'complementary', 'navigation', 'region'];
+  roles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      console.warn(`Multiple elements with role "${role}" detected. Ensure each role is unique.`);
+    }
+  });
+}
+
 // Preserve all existing exports
 module.exports = {
   renderDependencyGraph,
@@ -98,5 +120,7 @@ module.exports = {
   checkLandmarkElement,
   wrapPrimaryContentInMain,
   checkLandmarks,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  addMainLandmark,
+  uniqueLandmarks
 };

@@ -93,7 +93,13 @@ function addProperLandmarkRegions() {
     'use strict';
 
     // DOM Elements
-    const dependencyGraph = document.getElementById('dependencyGraph');
+    const dependencyGraph = document.getElementById('dependency-graph') || document.querySelector('.dependency-graph');
+
+    // Import required modules and React components
+    const axe = require('axe-core');
+    const fs = require('fs');
+    const path = require('path');
+    const a11y = require('./a11y');
 
     // Functions to ensure the element has an id, add aria-label, render dependency graphs
     // (Previously existing code that needs to be preserved)
@@ -185,7 +191,7 @@ function addProperLandmarkRegions() {
 
     // Function to write the generated report to a file
     function writeReport(report) {
-      const reportFile = path.join(__dirname, 'accessibility_report.json');
+      const reportFile = path.join(__dirname, 'accessibility-report.json');
       fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
     }
 
@@ -201,6 +207,7 @@ function addProperLandmarkRegions() {
       const button = document.createElement('button');
       button.textContent = 'Accessibility Info';
       button.setAttribute('aria-label', 'Show accessibility information');
+      button.className = 'in-page-button';
       document.body.appendChild(button);
     }
 
@@ -231,9 +238,22 @@ function addProperLandmarkRegions() {
       // Merging existing accessibility improvements logic and new functions
 
       // Ensure the root container has an accessible name
-      const rootContainer = document.getElementById('root') ? document.getElementById('root').parentElement : null;
+      const rootContainer = document.getElementById('root') || document.querySelector('.root');
       if (rootContainer) {
         rootContainer.setAttribute('role', 'main');
+      }
+
+      // Initialize skip link functionality
+      const skipLink = document.querySelector('.skip-link');
+      if (skipLink) {
+        skipLink.addEventListener('click', function(e) {
+          const targetId = skipLink.getAttribute('href').substring(1);
+          const target = document.getElementById(targetId);
+          if (target) {
+            target.setAttribute('tabindex', '-1');
+            target.focus();
+          }
+        });
       }
 
       // Add role="button" to all buttons
@@ -244,7 +264,8 @@ function addProperLandmarkRegions() {
       });
 
       // Ensure all buttons with role="button" respond to Enter key
-      document.querySelectorAll('[role="button"]').forEach(function(button) {
+      const buttonsWithRoleButton = document.querySelectorAll('[role="button"]');
+      buttonsWithRoleButton.forEach(function(button) {
         button.addEventListener('keydown', function(e) {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -278,7 +299,7 @@ function addProperLandmarkRegions() {
       });
 
       // Trap focus in modal and announce welcome message
-      const modalElement = document.getElementById('modal');
+      const modalElement = document.querySelector('.modal');
       if (modalElement && a11y && a11y.trapFocus) {
         a11y.trapFocus(modalElement);
       }
@@ -287,13 +308,13 @@ function addProperLandmarkRegions() {
       }
 
       // Adding an alt attribute to an image
-      const imageElement = document.getElementById('example-image');
+      const imageElement = document.querySelector('.main-image');
       if (imageElement) {
         imageElement.setAttribute('alt', 'A description of the image');
       }
 
       // Correcting the ARIA role for a div
-      const divElement = document.getElementById('example-div');
+      const divElement = document.querySelector('.list-container');
       if (divElement) {
         divElement.setAttribute('role', 'list');
       }

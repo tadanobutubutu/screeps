@@ -115,7 +115,7 @@ function countDependencies() {
   // Existing function implementation
 
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`];
+  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/;
   const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }
@@ -240,6 +240,54 @@ addLangAttribute();
 //   // Implement accessibility changes here
 // }
 
+/**
+ * Generates a report based on accessibility issues found in the provided data.
+ * @param {Object} accessibilityData - The accessibility data containing issues
+ * @param {Array} accessibilityData.issues - Array of accessibility issues
+ * @returns {Object} - A structured report of the accessibility issues
+ */
+function generateAccessibilityReport(accessibilityData) {
+  const report = {
+    summary: {
+      totalIssues: 0,
+      criticalIssues: 0,
+      moderateIssues: 0,
+      minorIssues: 0
+    },
+    issuesList: []
+  };
+
+  if (!accessibilityData || !Array.isArray(accessibilityData.issues)) {
+    return report;
+  }
+
+  accessibilityData.issues.forEach(issue => {
+    report.summary.totalIssues += 1;
+    
+    // Categorize issue severity
+    switch (issue.severity) {
+      case 'critical':
+        report.summary.criticalIssues += 1;
+        break;
+      case 'moderate':
+        report.summary.moderateIssues += 1;
+        break;
+      case 'minor':
+        report.summary.minorIssues += 1;
+        break;
+    }
+
+    report.issuesList.push({
+      code: issue.code,
+      message: issue.message,
+      severity: issue.severity,
+      nodes: issue.nodes || []
+    });
+  });
+
+  return report;
+}
+
 module.exports = {
   checkLandmarkElements,
   createInPageButton,
@@ -262,5 +310,6 @@ module.exports = {
   checkLandmarkElementsInDom,
   renderIndexView,
   newRequiredFunction,
-  additionalFunction
+  additionalFunction,
+  generateAccessibilityReport
 };

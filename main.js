@@ -59,7 +59,16 @@ function addressAccessibilityIssues(doc) {
         return;
     }
 
-    // ... existing code ...
+    const links = doc.querySelectorAll('a');
+    links.forEach(link => {
+        if (!link.textContent && !link.getAttribute('aria-label')) {
+            // If link has an href attribute, use it as the accessible name
+            const href = link.getAttribute('href');
+            if (href) {
+                link.setAttribute('aria-label', href);
+            }
+        }
+    });
 }
 
 function getDocument() {

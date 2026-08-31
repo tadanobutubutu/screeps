@@ -306,7 +306,14 @@ export {
   add, 
   calculateDiscount, 
   newFunction, 
-  countDependencies 
+  countDependencies,
+  createUnrotateButton,
+  replaceFakeLinks,
+  ensureThScope,
+  addLandmarkRoles,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  initializeAccessibility
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)

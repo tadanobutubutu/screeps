@@ -8,9 +8,13 @@ const express = require('express');
 const app = express();
 
 // New function added to resolve issue
-function newFunction() {
-    // Implementation of new feature
-    return "newFunction executed";
+function createButton(buttonText, buttonId, buttonClass, onClickHandler) {
+    let button = document.createElement('button');
+    button.textContent = buttonText;
+    button.id = buttonId;
+    button.className = buttonClass;
+    button.addEventListener('click', onClickHandler);
+    document.body.appendChild(button);
 }
 
 // Accessibility fix example: Add appropriate ARIA roles
@@ -51,5 +55,6 @@ module.exports = {
     newFunction,
     someFunction,
     existingFunction,
-    ExistingClass
+    ExistingClass,
+    createButton // Export the new function
 };

@@ -82,6 +82,23 @@ function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
+// REACT_015: Get person name for accessibility context
+function personName() {
+  const userName = document.documentElement.getAttribute('data-user-name');
+  const metaAuthor = document.querySelector('meta[name="author"]');
+  const fallbackName = 'User';
+  
+  if (userName) {
+    return userName;
+  }
+  
+  if (metaAuthor && metaAuthor.content) {
+    return metaAuthor.content;
+  }
+  
+  return fallbackName;
+}
+
 // REACT_015 & REACT_036: Create accessible in-page button
 function createInPageButton(buttonText, onClickHandler) {
   return (
@@ -258,6 +275,110 @@ function handleFakeLinks() {
   });
   
   return issues;
+}
+
+// NEW: Implement focus trap for keyboard navigation
+function newFocusTrap(containerElement, options = {}) {
+  const {
+    onActivate = () => {},
+    onDeactivate = () => {},
+    escapeDeactivates = true,
+    clickOutsideDeactivates = true,
+    returnFocusOnDeactivate = true,
+  } = options;
+
+  let previousActiveElement = null;
+  let isActive = false;
+
+  const focusableElementsSelector = [
+    'a[href]',
+    'button:not([disabled])',
+    'textarea:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])',
+    '[contenteditable="true"]',
+  ].join(',');
+
+  function getFocusableElements() {
+    return Array.from(containerElement.querySelectorAll(focusableElementsSelector))
+      .filter(el => !el.hasAttribute('disabled') && el.offsetParent !== null);
+  }
+
+  function handleKeyDown(event) {
+    if (!isActive) return;
+
+    if (event.key === 'Tab') {
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length === 0) return;
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (event.shiftKey) {
+        if (document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+
+    if (event.key === 'Escape' && escapeDeactivates) {
+      event.preventDefault();
+      deactivate();
+    }
+  }
+
+  function handleClickOutside(event) {
+    if (!isActive || !clickOutsideDeactivates) return;
+    
+    if (!containerElement.contains(event.target)) {
+      deactivate();
+    }
+  }
+
+  function activate() {
+    if (isActive) return;
+    
+    previousActiveElement = document.activeElement;
+    isActive = true;
+    
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('click', handleClickOutside);
+    
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus();
+    }
+    
+    onActivate();
+  }
+
+  function deactivate() {
+    if (!isActive) return;
+    
+    isActive = false;
+    
+    document.removeEventListener('keydown', handleKeyDown);
+    document.removeEventListener('click', handleClickOutside);
+    
+    if (returnFocusOnDeactivate && previousActiveElement) {
+      previousActiveElement.focus();
+    }
+    
+    onDeactivate();
+  }
+
+  return {
+    activate,
+    deactivate,
+    isActive: () => isActive,
+  };
 }
 
 // Default sorting function for the book list

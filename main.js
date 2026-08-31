@@ -129,6 +129,18 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
+/**
+ * Ensures the dependency graph container has a proper ARIA role for accessibility.
+ * This function finds the dependency graph element and sets its role and aria-label.
+ */
+function ensureDependencyGraphAccessibility() {
+  const container = document.getElementById('dependencyGraph') || document.querySelector('[data-dependency-graph]');
+  if (container) {
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
 // Export functions for testing
 export {
   checkLandmarkElement,
@@ -153,5 +165,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  ensureDependencyGraphAccessibility
 };

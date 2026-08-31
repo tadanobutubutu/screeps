@@ -2,7 +2,7 @@
 
 // main.js - Combined utility and accessibility features
 
-// TODO: Identify and update specific functions that render dependency graphs or
+// TODO: Identify and update specific functions that render dependency graphs or update them accordingly
 
 // Accessibility helper function for keyboard navigation
 function setupKeyboardNavigation(element, options = {}) {

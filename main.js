@@ -110,6 +110,63 @@ function renderDependencyGraph(data, container) {
   return graphContainer;
 }
 
+/**
+ * Generates a report based on accessibility issues
+ * @param {Array<Object>} issues - The list of accessibility issues
+ * @returns {Object} A report summarizing the accessibility issues
+ */
+function generateAccessibilityReport(issues) {
+  if (!Array.isArray(issues)) {
+    throw new Error('Issues must be an array');
+  }
+  
+  const report = {
+    totalIssues: issues.length,
+    severityCounts: {
+      critical: 0,
+      serious: 0,
+      moderate: 0,
+      minor: 0
+    },
+    issuesByType: {},
+    issues: []
+  };
+  
+  issues.forEach(issue => {
+    if (!issue || typeof issue !== 'object') {
+      return;
+    }
+    
+    const severity = issue.severity || 'minor';
+    if (report.severityCounts[severity] !== undefined) {
+      report.severityCounts[severity]++;
+    } else {
+      report.severityCounts.minor++;
+    }
+    
+    const type = issue.type || 'other';
+    if (!report.issuesByType[type]) {
+      report.issuesByType[type] = 0;
+    }
+    report.issuesByType[type]++;
+    
+    report.issues.push({
+      type: type,
+      severity: severity,
+      message: issue.message || '',
+      element: issue.element || null
+    });
+  });
+  
+  report.summary = `Found ${report.totalIssues} accessibility issue(s): ` +
+    `${report.severityCounts.critical} critical, ` +
+    `${report.severityCounts.serious} serious, ` +
+    `${report.severityCounts.moderate} moderate, ` +
+    `${report.severityCounts.minor} minor.`;
+  
+  return report;
+}
+
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
@@ -117,5 +174,6 @@ module.exports = {
   myFunction: function () {
     // Existing implementation
   },
-  addLangAttribute: addLangAttribute
+  addLangAttribute: addLangAttribute,
+  generateAccessibilityReport: generateAccessibilityReport
 };

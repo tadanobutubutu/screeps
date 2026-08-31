@@ -235,7 +235,7 @@ function isEmpty(value) {
  */
 function capitalize(str) {
   if (typeof str !== 'string' || str.length === 0) return str;
-  return str.charAt(0).UpperCase() + str.slice(1);
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 /**
@@ -447,6 +447,149 @@ function renderDependencyGraph(dependencies, container, options = {}) {
   return graphControl;
 }
 
+/**
+ * Displays module structure for debugging purposes
+ * @param {Object|Array} modules - Module data structure with module information
+ * @param {string|HTMLElement} container - DOM element or selector to display the structure
+ * @param {Object} options - Display options
+ * @returns {Object} - Control object for the module structure display
+ */
+function displayModuleStructure(modules, container, options = {}) {
+  const defaultOptions = {
+    showDependencies: true,
+    showExports: true,
+    maxDepth: Infinity,
+    indentSize: 2,
+    ...options
+  };
+  
+  const containerEl = typeof container === 'string' 
+    ? document.querySelector(container) 
+    : container;
+  
+  if (!containerEl) {
+    throw new Error('Container element not found for module structure display');
+  }
+  
+  // Clear container
+  containerEl.innerHTML = '';
+  
+  // Create a pre element for structured output
+  const pre = document.createElement('pre');
+  pre.style.fontFamily = 'monospace';
+  pre.style.whiteSpace = 'pre-wrap';
+  pre.style.backgroundColor = '#f5f5f5';
+  pre.style.padding = '10px';
+  pre.style.border = '1px solid #ddd';
+  pre.style.borderRadius = '4px';
+  pre.style.overflow = 'auto';
+  pre.style.maxHeight = '500px';
+  
+  // Generate the module structure text
+  let output = '';
+  
+  function renderModule(module, depth = 0, visited = new Set()) {
+    if (depth > defaultOptions.maxDepth) return;
+    if (visited.has(module.id)) return;
+    visited.add(module.id);
+    
+    const indent = ' '.repeat(depth * defaultOptions.indentSize);
+    output += `${indent}📦 ${module.name || module.id}\n`;
+    
+    if (module.path) {
+      output += `${indent}   📁 ${module.path}\n`;
+    }
+    
+    if (module.exports && defaultOptions.showExports) {
+      output += `${indent}   📤 Exports:\n`;
+      module.exports.forEach(exp => {
+        output += `${indent}      - ${exp}\n`;
+      });
+    }
+    
+    if (module.dependencies && defaultOptions.showDependencies) {
+      output += `${indent}   🔗 Dependencies:\n`;
+      module.dependencies.forEach(dep => {
+        output += `${indent}      - ${dep.name || dep.id}\n`;
+        if (typeof dep === 'object' && dep !== null) {
+          renderModule(dep, depth + 2, visited);
+        }
+      });
+    }
+    
+    output += '\n';
+  }
+  
+  // Handle both single module and array of modules
+  if (Array.isArray(modules)) {
+    modules.forEach(module => renderModule(module));
+  } else if (modules && typeof modules === 'object') {
+    renderModule(modules);
+  } else {
+    output = 'No module data available';
+  }
+  
+  pre.textContent = output;
+  containerEl.appendChild(pre);
+  
+  // Return control object
+  return {
+    container: containerEl,
+    element: pre,
+    updateData: function(newModules) {
+      modules = newModules;
+      this.redraw();
+    },
+    redraw: function() {
+      containerEl.innerHTML = '';
+      let newOutput = '';
+      
+      function renderModuleRecursive(module, depth = 0, visited = new Set()) {
+        if (depth > defaultOptions.maxDepth) return;
+        if (visited.has(module.id)) return;
+        visited.add(module.id);
+        
+        const indent = ' '.repeat(depth * defaultOptions.indentSize);
+        newOutput += `${indent}📦 ${module.name || module.id}\n`;
+        
+        if (module.path) {
+          newOutput += `${indent}   📁 ${module.path}\n`;
+        }
+        
+        if (module.exports && defaultOptions.showExports) {
+          newOutput += `${indent}   📤 Exports:\n`;
+          module.exports.forEach(exp => {
+            newOutput += `${indent}      - ${exp}\n`;
+          });
+        }
+        
+        if (module.dependencies && defaultOptions.showDependencies) {
+          newOutput += `${indent}   🔗 Dependencies:\n`;
+          module.dependencies.forEach(dep => {
+            newOutput += `${indent}      - ${dep.name || dep.id}\n`;
+            if (typeof dep === 'object' && dep !== null) {
+              renderModuleRecursive(dep, depth + 2, visited);
+            }
+          });
+        }
+        
+        newOutput += '\n';
+      }
+      
+      if (Array.isArray(modules)) {
+        modules.forEach(module => renderModuleRecursive(module));
+      } else if (modules && typeof modules === 'object') {
+        renderModuleRecursive(modules);
+      } else {
+        newOutput = 'No module data available';
+      }
+      
+      pre.textContent = newOutput;
+      containerEl.appendChild(pre);
+    }
+  };
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -462,7 +605,8 @@ if (typeof module !== 'undefined' && module.exports) {
     clamp,
     deepClone,
     addressAccessibilityIssues,
-    renderDependencyGraph
+    renderDependencyGraph,
+    displayModuleStructure
   };
 }
 

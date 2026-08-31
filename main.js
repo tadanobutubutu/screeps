@@ -37,11 +37,17 @@ function startApp() {
   return server;
 }
 
+// New function to handle focus trap for keyboard navigation
+function newFocusTrap() {
+  // Implementation details would go here
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  newFocusTrap
 };
 
 // Start the application if run directly

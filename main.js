@@ -445,10 +445,6 @@ if (typeof document !== 'undefined') {
   }
 }
 
-function newFunction() {
-  // Implementation from origin/main
-}
-
 if (typeof document !== 'undefined') {
   const banners = document.querySelectorAll('[role="banner"], [role="header"]');
   if (banners.length > 1) {
@@ -597,9 +593,6 @@ function decodeJwtToken(token) {
 }
 
 // HTTP Server setup
-const http = require('http');
-const url = require('url');
-
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     
@@ -702,6 +695,30 @@ function revokeSession(sessionId) {
     return appState.sessions.delete(sessionId);
 }
 
+/**
+ * Handle focus trap for accessibility (e.g., modals)
+ * @param {HTMLElement} container - The container to trap focus within
+ */
+function handleFocusTrap(container) {
+    if (!container) return;
+    const focusableElements = container.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusableElements.length === 0) return;
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    container.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab') return;
+        if (e.shiftKey && document.activeElement === firstElement) {
+            lastElement.focus();
+            e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+            firstElement.focus();
+            e.preventDefault();
+        }
+    });
+}
+
 // Start server if this is the main module
 if (require.main === module) {
     const PORT = process.env.PORT || 3000;
@@ -712,30 +729,31 @@ if (require.main === module) {
 
 // Export modules for testing
 module.exports = {
-    addSvgAccessibilityProps,
-    isLandmarkElement,
-    handleCredentialResponse,
-    parseCredentialResponse,
-    decodeJwtToken,
-    generateSessionId,
-    validateTableStructure,
-    validateTableAccessibility,
-    validateLandmark,
-    validateLandmarkStructure,
-    createInPageButton,
-    personName,
-    validateSession,
-    revokeSession,
-    getActiveSessionsCount,
-    server,
-    sanitizeFilename,
-    processData,
-    renderDependencyGraph,
-    renderIndex,
-    newFunction,
-    checkLandmarkElement,
-    wrapPrimaryContentInMain,
-    checkLandmarks,
-    ensureUniqueLandmarks,
-    getSvgAccessibleName
+  renderDependencyGraph,
+  renderIndex,
+  getSvgAccessibleName,
+  newFunction,
+  checkLandmarkElement,
+  wrapPrimaryContentInMain,
+  checkLandmarks,
+  ensureUniqueLandmarks,
+  handleFocusTrap,
+  revokeSession,
+  addSvgAccessibilityProps,
+  isLandmarkElement,
+  handleCredentialResponse,
+  parseCredentialResponse,
+  decodeJwtToken,
+  generateSessionId,
+  validateTableStructure,
+  validateTableAccessibility,
+  validateLandmark,
+  validateLandmarkStructure,
+  createInPageButton,
+  personName,
+  validateSession,
+  getActiveSessionsCount,
+  server,
+  sanitizeFilename,
+  processData
 };

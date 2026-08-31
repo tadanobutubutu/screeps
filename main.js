@@ -250,6 +250,14 @@ addLangAttribute();
 //   // Implement accessibility changes here
 // }
 
+/**
+ * Renders the dependency graph content
+ * @returns {string} - The dependency graph content
+ */
+function renderDependencyGraph() {
+  return dependencyGraphContent;
+}
+
 module.exports = {
   checkLandmarkElements,
   createInPageButton,
@@ -271,6 +279,7 @@ module.exports = {
   ensureUniqueLandmarks,
   checkLandmarkElementsInDom,
   renderIndexView,
+  renderDependencyGraph,
   newRequiredFunction,
   additionalFunction,
   createAccessibleWebResourceButton,

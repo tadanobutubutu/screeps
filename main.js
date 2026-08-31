@@ -74,8 +74,88 @@ const accessibilityUtils = {
   },
 
   // New focus trap function for keyboard navigation
-  newFocusTrap: () => {
-    // New function implementation
+  newFocusTrap: (container) => {
+    if (!container) return null;
+    
+    let isActive = false;
+    let previousActiveElement = null;
+    
+    const getFocusableElements = () => {
+      return container.querySelectorAll(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+    };
+    
+    const handleKeyDown = (e) => {
+      if (e.key === 'Tab') {
+        const focusableElements = getFocusableElements();
+        if (focusableElements.length === 0) return;
+        
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+      
+      // Handle Escape key to deactivate
+      if (e.key === 'Escape' && isActive) {
+        deactivate();
+      }
+    };
+    
+    const activate = () => {
+      if (isActive) return;
+      
+      previousActiveElement = document.activeElement;
+      isActive = true;
+      container.setAttribute('data-focus-trap', 'active');
+      container.addEventListener('keydown', handleKeyDown);
+      
+      // Focus first focusable element
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length > 0) {
+        focusableElements[0].focus();
+      }
+    };
+    
+    const deactivate = () => {
+      if (!isActive) return;
+      
+      isActive = false;
+      container.removeAttribute('data-focus-trap');
+      container.removeEventListener('keydown', handleKeyDown);
+      
+      // Return focus to previous element
+      if (previousActiveElement && previousActiveElement.focus) {
+        previousActiveElement.focus();
+      }
+    };
+    
+    const updateFocusableElements = () => {
+      // Dynamically update focusable elements when DOM changes
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length === 0) return;
+      
+      // Re-focus if current active element is not focusable
+      if (!document.activeElement || 
+          !container.contains(document.activeElement) ||
+          document.activeElement.getAttribute('tabindex') === '-1') {
+        focusableElements[0].focus();
+      }
+    };
+    
+    return {
+      activate,
+      deactivate,
+      updateFocusableElements,
+      isActive: () => isActive
+    };
   }
 };
 
@@ -657,17 +737,8 @@ function addressAccessibilityIssues(container) {
   return allIssues;
 }
 
-function newFocusTrap() {
-  // New function implementation
-  return {
-    activate: () => {
-      // Implementation for focus trap activation
-    },
-    deactivate: () => {
-      // Implementation for focus trap deactivation
-    }
-  };
-}
+// Export the newFocusTrap function as a standalone utility
+const newFocusTrapExported = accessibilityUtils.newFocusTrap;
 
 /**
  * Ensures the element has an id. If the element doesn't have an id,
@@ -689,9 +760,6 @@ function ensureElementHasId(element, prefix = 'element') {
   element.id = id;
   return id;
 }
-
-// Export the newFocusTrap function as a standalone utility
-const newFocusTrapExported = accessibilityUtils.newFocusTrap;
 
 // Export all utilities
 module.exports = {
@@ -722,5 +790,5 @@ module.exports = {
   fixFakeLinks,
   personName,
   addressAccessibilityIssues,
-  newFocusTrap
+  newFocusTrap: accessibilityUtils.newFocusTrap
 };

@@ -126,6 +126,12 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
+// New function to handle some additional functionality
+function newFunctionality() {
+  // Implementation of new functionality
+  console.log('New functionality executed');
+}
+
 // Export functions for testing
 export {
   checkLandmarkElement,
@@ -150,5 +156,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  newFunctionality
 };

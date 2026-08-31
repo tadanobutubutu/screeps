@@ -29,7 +29,7 @@ function getLangAttribute() {
 }
 
 // Function to ensure ARIA attributes are properly set for the dependency graph
-function ensureDependencyGraphARIA() {
+function ensureAccessibilityAttributes() {
   const lang = getLangAttribute();
 
   // Set lang attribute on document root if not already set
@@ -59,7 +59,7 @@ export function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 export function generateKey(book) {
-  return `book-${book.id || book.title.toLowerCase().replace(/\s+/g, '-')}`;
+  return `book-${book.id || 'unknown'}-${Date.now()}`;
 }
 
 // Function to render a single book item
@@ -77,7 +77,7 @@ export function addBook(book) {
   // ...
 
   // Ensure accessibility attributes are set before adding the book
-  ensureDependencyGraphARIA();
+  ensureAccessibilityAttributes();
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
@@ -108,7 +108,7 @@ function generateAccessibilityReport(issues) {
 
   report += `Issue Details:\n`;
   issues.forEach((issue, index) => {
-    report += `${index + 1}. [${issue.severity.toUpperCase()}] ${issue.description}`;
+    report += `${index + 1}. ${issue.type}: ${issue.description}`;
     if (issue.element) {
       report += ` - Element: ${issue.element}`;
     }
@@ -141,19 +141,19 @@ export function onAuthorSort() {
 // Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 
 // Functions to improve accessibility (implementation assumed elsewhere)
-function fixLandmarkIssues(container) {
+function addLangAttribute() {
   // implementation omitted
 }
-function fixFakeLinkIssues(container) {
+function fixTableStructureIssues() {
   // implementation omitted
 }
 function fixButtonIdentifiers(container) {
   // implementation omitted
 }
-function addAccessibleNamesToSVGs(container, role) {
+function addLandmarkRole(container, role) {
   // implementation omitted
 }
-function ensureDependencyGraphAriaRole(container) {
+function addSvgAccessibleNames() {
   // implementation omitted
 }
 
@@ -173,15 +173,14 @@ function Main() {
     const container = document.getElementById('main-content');
     if (container) {
       // Apply accessibility fixes
-      fixLandmarkIssues(container);
-      fixFakeLinkIssues(container);
-      fixButtonIdentifiers(container);
+      addLangAttribute();
+      fixTableStructureIssues();
 
       // Apply SVG accessibility
-      addAccessibleNamesToSVGs(container, 'Graphical element');
+      addSvgAccessibleNames();
 
       // Ensure dependency graph has proper ARIA role
-      ensureDependencyGraphAriaRole(container);
+      addLandmarkRole(container, 'main');
     }
   }, [sorting]);
 
@@ -209,11 +208,11 @@ function Main() {
       </nav>
       <List
         itemLayout="vertical"
-        dataSource={getBooksList}
+        dataSource={bookItems}
         renderItem={book => BookItem(book)}
         aria-label="Book list"
       />
-      <AddBookForm onSubmit={handleAddBook} />
+      <AddBookForm onAddBook={handleAddBook} />
     </div>
   );
 }

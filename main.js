@@ -78,6 +78,66 @@ function calculateProduct(a, b) {
   return a * b;
 }
 
+function checkLinkAndButtonAccessibility(rootElement) {
+  const elements = rootElement || (typeof document !== 'undefined' ? document : null);
+  
+  if (!elements) {
+    return {
+      totalIssues: 0,
+      issues: [],
+      hasIssues: false
+    };
+  }
+
+  const issues = [];
+
+  // Check links for accessibility
+  const links = elements.querySelectorAll('a[href], area[href]');
+  links.forEach((link, index) => {
+    const hasText = link.textContent.trim().length > 0;
+    const hasAriaLabel = link.getAttribute('aria-label');
+    const hasAriaLabelledBy = link.getAttribute('aria-labelledby');
+    const hasTitle = link.getAttribute('title');
+    const img = link.querySelector('img[alt]');
+    const hasImgAlt = img && img.getAttribute('alt') && img.getAttribute('alt').trim().length > 0;
+    
+    if (!hasText && !hasAriaLabel && !hasAriaLabelledBy && !hasTitle && !hasImgAlt) {
+      issues.push({
+        type: 'link',
+        index: index,
+        element: link
+      });
+    }
+  });
+
+  // Check buttons for accessibility
+  const buttons = elements.querySelectorAll('button, [role="button"]');
+  buttons.forEach((button, index) => {
+    const hasText = button.textContent.trim().length > 0;
+    const hasAriaLabel = button.getAttribute('aria-label');
+    const hasAriaLabelledBy = button.getAttribute('aria-labelledby');
+    const hasTitle = button.getAttribute('title');
+    const img = button.querySelector('img[alt]');
+    const hasImgAlt = img && img.getAttribute('alt') && img.getAttribute('alt').trim().length > 0;
+    
+    if (!hasText && !hasAriaLabel && !hasAriaLabelledBy && !hasTitle && !hasImgAlt) {
+      issues.push({
+        type: 'button',
+        index: index,
+        element: button
+      });
+    }
+  });
+
+  const result = {
+    totalIssues: issues.length,
+    issues: issues,
+    hasIssues: issues.length > 0
+  };
+
+  return result;
+}
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct };

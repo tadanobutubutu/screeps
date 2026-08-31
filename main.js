@@ -17,7 +17,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return book.id || `${book.title}-${book.author}`;
+  return book.id || book.title + book.author;
 }
 
 // Function to render a single book item
@@ -62,7 +62,6 @@ function addBook(book) {
 function DependencyGraph({ nodes, edges }) {
   return (
     <div 
-      className="dependency-graph"
       role="img"
       aria-label="Dependency graph showing relationships between books and authors"
       tabIndex={0}
@@ -113,18 +112,6 @@ function AddBookForm() {
   );
 }
 
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort(dispatch, books) {
-  const sortedList = [...books].sort(sortByTitle);
-  dispatch({ type: SORT_BY_TITLE, payload: sortedList });
-}
-
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort(dispatch, books) {
-  const sortedList = [...books].sort(sortByAuthor);
-  dispatch({ type: SORT_BY_AUTHOR, payload: sortedList });
-}
-
 // REACT_015: Function to get the lang attribute for the HTML element
 function getLangAttribute() {
   // Determine the appropriate lang attribute based on document settings or default to 'en'
@@ -139,7 +126,7 @@ function createInPageButton(label, onClickHandler) {
   button.textContent = label;
   button.setAttribute('aria-label', label);
   if (typeof onClickHandler === 'function') {
-    button.addEventListener('click', onClickHandler);
+    button.onclick = onClickHandler;
   }
   return button;
 }
@@ -177,7 +164,7 @@ function validateLandmarkStructure(landmarkElement) {
 
 // REACT_017 & REACT_025: Function to validate landmark accessibility (unique landmarks, proper labels)
 function validateLandmarkAccessibility(landmarkElements) {
-  if (!Array.isArray(landmarkElements) || landmarkElements.length === 0) return false;
+  if (!landmarkElements || landmarkElements.length === 0) return false;
   const seenRoles = new Set();
   const seenLabels = new Set();
   for (const el of landmarkElements) {
@@ -198,8 +185,8 @@ function validateLandmarkAccessibility(landmarkElements) {
 function getSvgAccessibleName(svgElement) {
   if (!svgElement) return '';
   return (
-    svgElement.getAttribute('aria-label') ||
     svgElement.getAttribute('aria-labelledby') ||
+    svgElement.getAttribute('aria-label') ||
     svgElement.querySelector('title')?.textContent ||
     ''
   );
@@ -211,7 +198,7 @@ function setSvgAttributes(svgElement, accessibleName) {
   svgElement.setAttribute('role', 'img');
   svgElement.setAttribute('aria-label', accessibleName);
   if (!svgElement.querySelector('title')) {
-    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    const title = document.createElement('title');
     title.textContent = accessibleName;
     svgElement.insertBefore(title, svgElement.firstChild);
   }
@@ -228,7 +215,7 @@ function validateLinkAccessibility(linkElement) {
 
 // REACT_036: Function to handle fake links (divs/buttons styled as links) and convert to accessible elements
 function handleFakeLinks(fakeLinkElements) {
-  if (!Array.isArray(fakeLinkElements)) return;
+  if (!fakeLinkElements) return;
   for (const el of fakeLinkElements) {
     // Replace fake link with a proper accessible element
     el.setAttribute('role', 'button');
@@ -273,8 +260,10 @@ function Main() {
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <AddBookForm />
-      <section role="region" aria-label="Book dependency graph" aria-roledescription="dependencyGraph">
-        <List dataSource={bookItems} />
+      <section role="region" aria-label="Book dependency graph">
+        <List>
+          {bookItems}
+        </List>
       </section>
       <DependencyGraph 
         nodes={[]} 
@@ -299,16 +288,4 @@ export {
   defaultSorting,
   validateLandmark,
   DependencyGraph,
-  AddBookForm,
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark as validateLandmarkElement,
-  validateLandmarkStructure,
-  validateLandmarkAccessibility,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-};
+  AddBookForm

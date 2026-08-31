@@ -1,3 +1,8 @@
+// Imported modules
+import { graphRenderer } from './graphRenderer.js';
+import { layoutEngine } from './layoutEngine.js';
+import { dataProcessor } from './dataProcessor.js';
+
 // Existing code starts here
 
 // This is the existing code that needs to be preserved

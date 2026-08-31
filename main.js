@@ -2,7 +2,7 @@
 
 // Add lang attribute to HTML element
 function addLangAttribute(lang) {
-    const htmlElement = document.querySelector('html');
+    const htmlElement = document.documentElement;
     if (htmlElement) {
         htmlElement.setAttribute('lang', lang);
     }
@@ -22,7 +22,7 @@ function ensureElementHasId(element) {
     return element.id;
   }
   
-  const id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const id = `element-${Math.random().toString(36).substr(2, 9)}`;
   element.id = id;
   return id;
 }
@@ -104,8 +104,8 @@ function renderDependencyGraph(data, container) {
   }
   
   graphContainer.appendChild(svg);
-  ensureElementHasId(graphContainer);
-  addAriaLabel(graphContainer, 'Dependency graph visualization');
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
   
   return graphContainer;
 }

@@ -1,20 +1,6 @@
-// TODO: This is the existing code that needs to be preserve
-// (This comment remains as-is)
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-
 const fs = require('fs');
 
 // Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and newFocusTrap())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
-
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: () => {
@@ -75,13 +61,31 @@ const accessibilityUtils = {
 
   // New focus trap function for keyboard navigation
   newFocusTrap: () => {
-    // New function implementation
+    const focusableSelector = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusableElements = document.querySelectorAll(focusableSelector);
+
+    if (focusableElements.length === 0) return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    const handleKeyDown = (e) => {
+      if (e.key !== 'Tab') return;
+
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
   }
 };
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
 const ensureElementId = (element) => {
   if (element && !element.id) {
     element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
@@ -97,15 +101,12 @@ const addAriaLabel = (element, label) => {
 };
 
 const renderDependencyGraph = (data) => {
-  // Implementation for rendering dependency graphs
   return {
     nodes: data.nodes || [],
     edges: data.edges || []
   };
 };
 
-// Add back any required exports that might have been removed.
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
 function calculateSum(a, b) { return a + b; }
 
 // Credential response handling
@@ -149,7 +150,6 @@ const exportUtils = {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     
-    // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
   },
 
@@ -362,13 +362,8 @@ function validateTableAccessibility(tableElement) {
   return issues;
 }
 
-/**
- * Ensures the element has an id. If the element doesn't have an id,
- * generates one and assigns it to the element.
- * @param {HTMLElement} element - The element to check and modify
- * @param {string} [prefix='element'] - Prefix for the generated id
- * @returns {string} The element's id (existing or newly generated)
- */
+// Ensure the element has an id. If the element doesn't have an id,
+// generates one and assigns it to the element.
 function ensureElementHasId(element, prefix = 'element') {
   if (!element) {
     throw new Error('Element is required');
@@ -385,6 +380,129 @@ function ensureElementHasId(element, prefix = 'element') {
 
 // Export the newFocusTrap function as a standalone utility
 const newFocusTrap = accessibilityUtils.newFocusTrap;
+
+// Generate a report based on accessibility issues
+function generateAccessibilityReport(issues, options = {}) {
+  const {
+    format = 'json',
+    groupBySeverity = true,
+    includeSummary = true
+  } = options;
+  
+  // Handle empty issues array
+  if (!issues || !Array.isArray(issues) || issues.length === 0) {
+    return {
+      summary: {
+        totalIssues: 0,
+        timestamp: new Date().toISOString()
+      },
+      issues: [],
+      message: format === 'json' ? 
+        JSON.stringify({ summary: { totalIssues: 0, timestamp: new Date().toISOString() }, issues: [], message: 'No accessibility issues found' }) : 
+        'No accessibility issues found'
+    };
+  }
+  
+  let processedIssues = [...issues];
+  let groups = {};
+  let summary = {
+    totalIssues: issues.length,
+    timestamp: new Date().toISOString()
+  };
+  
+  // Group issues by severity if requested
+  if (groupBySeverity) {
+    groups = processedIssues.reduce((acc, issue) => {
+      // Determine severity - default to 'unknown' if not specified
+      let severity = 'unknown';
+      
+      if (typeof issue === 'string') {
+        // Try to infer severity from issue text
+        const lowerIssue = issue.toLowerCase();
+        if (lowerIssue.includes('critical') || lowerIssue.includes('error')) {
+          severity = 'critical';
+        } else if (lowerIssue.includes('warning') || lowerIssue.includes('serious')) {
+          severity = 'serious';
+        } else {
+          severity = 'moderate';
+        }
+      } else if (issue.severity) {
+        severity = issue.severity;
+      } else if (issue.level) {
+        severity = issue.level;
+      }
+      
+      if (!acc[severity]) {
+        acc[severity] = [];
+      }
+      acc[severity].push(issue);
+      return acc;
+    }, {});
+    
+    // Add group counts to summary
+    if (includeSummary) {
+      summary.groups = Object.keys(groups).reduce((acc, key) => {
+        acc[key] = groups[key].length;
+        return acc;
+      }, {});
+    }
+  }
+  
+  // Create report based on format
+  const report = {
+    summary: includeSummary ? summary : undefined,
+    groups: groupBySeverity ? groups : undefined,
+    issues: processedIssues
+  };
+  
+  // Remove undefined properties
+  Object.keys(report).forEach(key => {
+    if (report[key] === undefined) {
+      delete report[key];
+    }
+  });
+  
+  // Return formatted output
+  if (format === 'json') {
+    return JSON.stringify(report, null, 2);
+  }
+  
+  if (format === 'text') {
+    let textReport = '';
+    if (includeSummary) {
+      textReport += `Accessibility Issues Report\n`;
+      textReport += `========================\n`;
+      textReport += `Total Issues: ${summary.totalIssues}\n`;
+      textReport += `Generated: ${summary.timestamp}\n\n`;
+      
+      if (groupBySeverity && summary.groups) {
+        textReport += `By Severity:\n`;
+        Object.entries(summary.groups).forEach(([severity, count]) => {
+          textReport += `  ${severity}: ${count}\n`;
+        });
+        textReport += `\n`;
+      }
+    }
+    
+    textReport += `Issues:\n`;
+    if (groupBySeverity) {
+      Object.entries(groups).forEach(([severity, severityIssues]) => {
+        textReport += `\n${severity.toUpperCase()} (${severityIssues.length}):\n`;
+        severityIssues.forEach((issue, index) => {
+          textReport += `  ${index + 1}. ${typeof issue === 'string' ? issue : (issue.message || JSON.stringify(issue))}\n`;
+        });
+      });
+    } else {
+      processedIssues.forEach((issue, index) => {
+        textReport += `${index + 1}. ${typeof issue === 'string' ? issue : (issue.message || JSON.stringify(issue))}\n`;
+      });
+    }
+    
+    return textReport;
+  }
+  
+  return report;
+}
 
 // Export all utilities
 module.exports = {
@@ -406,5 +524,6 @@ module.exports = {
   groupByCategory,
   transformInputData,
   validateTableAccessibility,
-  ensureElementHasId
+  ensureElementHasId,
+  generateAccessibilityReport
 };

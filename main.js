@@ -235,17 +235,50 @@ function safeJsonParse(str, defaultValue = null) {
   }
 }
 
+// Function to get SVG accessible name for REACT_041
+function getSvgAccessibleName(svg) {
+  // If SVG already has an aria-label, return it
+  if (svg.hasAttribute('aria-label')) {
+    return svg.getAttribute('aria-label');
+  }
+  
+  // If SVG is hidden from accessibility, return null
+  if (svg.getAttribute('aria-hidden') === 'true') {
+    return null;
+  }
+  
+  // Return null to indicate a name should be generated
+  return null;
+}
+
+// Function to set SVG attributes for REACT_041
+function setSvgAttributes(svg, attributes) {
+  if (!svg || !attributes) return;
+  
+  for (const [key, value] of Object.entries(attributes)) {
+    if (value !== null && value !== undefined) {
+      svg.setAttribute(key, value);
+    }
+  }
+}
+
 // Add accessible names to SVG elements
 function addAccessibleNamesToSvg(container) {
   const svgs = container.querySelectorAll('svg');
+  
+  // Set special labels for the first two SVGs if there are at least two
   if (svgs.length >= 2) {
-    svgs[0].setAttribute('aria-label', 'First SVG');
-    svgs[1].setAttribute('aria-label', 'Second SVG');
+    setSvgAttributes(svgs[0], { 'aria-label': 'Dependency graph' });
+    setSvgAttributes(svgs[1], { 'aria-label': 'Index overview' });
   }
   
+  // Process remaining SVGs using the new utility functions
   svgs.forEach((svg, index) => {
-    if (!svg.hasAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
-      svg.setAttribute('aria-label', `SVG element ${index + 1}`);
+    const existingName = getSvgAccessibleName(svg);
+    
+    // If SVG doesn't have an accessible name yet, generate one
+    if (existingName === null && !svg.getAttribute('aria-hidden')) {
+      setSvgAttributes(svg, { 'aria-label': `Graph element ${index + 1}` });
     }
   });
 }
@@ -266,7 +299,7 @@ function isInViewport(element) {
 }
 
 // Function to handle getLangAttribute for REACT_015
-function getLangAttribute(htmlElement) {
+function getLangAttributeFromElement(htmlElement) {
   // Implement the logic to set the lang attribute based on the preferred language or localization
 }
 
@@ -300,16 +333,6 @@ function ensureUniqueLandmarks() {
   // Implement the logic to check for and handle duplicate landmarks
 }
 
-// Function to getSvgAccessibleName for REACT_041
-function getSvgAccessibleName(svg) {
-  // Implement the logic to generate an accessible name for SVG elements
-}
-
-// Function to setSvgAttributes for REACT_041
-function setSvgAttributes(svg, attributes) {
-  // Implement the logic to set specified attributes on SVG elements
-}
-
 // Function to handleFakeLinks for REACT_036
 function handleFakeLinks(links) {
   // Implement the logic to handle fake links within the app
@@ -337,15 +360,15 @@ if (typeof module !== 'undefined' && module.exports) {
     safeJsonParse,
     addAccessibleNamesToSvg,
     isInViewport,
-    getLangAttribute,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    getLangAttributeFromElement,
     createInPageButton,
     validateTableAccessibility,
     validateTableStructure,
     validateLandmark,
     validateLandmarkStructure,
     ensureUniqueLandmarks,
-    getSvgAccessibleName,
-    setSvgAttributes,
     handleFakeLinks
   };
 }

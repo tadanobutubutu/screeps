@@ -7,7 +7,7 @@ import path from 'path';
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import React from 'react';
-import { CONFIG as UTILS_CONFIG } from './utils/constants';
+import { CONFIG, CONFIG as UTILS_CONFIG } from './utils/constants';
 import express from 'express';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
@@ -20,7 +20,6 @@ import { validateTableAccessibility, validateTableStructure, fixTableStructure }
 import { validateLandmark, validateLandmarkStructure, addMainLandmark, isValidLandmark, loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks, validateInput, processData, formatResponse, createInPageButton } from './utils/linkAccessibilityUtils';
-import { CONFIG } from './utils/constants';
 
 // Configuration
 const appConfig = {

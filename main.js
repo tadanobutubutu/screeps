@@ -417,6 +417,20 @@ function specificFunctionThatRendersGraphOrIndex() {
   renderIndex();
 }
 
+/**
+ * Creates an in-page button and appends it to the document body.
+ * @returns {HTMLButtonElement} The created in-page button element.
+ */
+function createInPageButton() {
+    const button = document.createElement('button');
+    button.id = 'inPageButton';
+    button.type = 'button';
+    button.textContent = 'Click me';
+    button.setAttribute('aria-label', 'In-page button');
+    document.body.appendChild(button);
+    return button;
+}
+
 // Export the new function
 export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
 

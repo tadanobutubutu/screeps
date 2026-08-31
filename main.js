@@ -97,7 +97,7 @@ function addressAccessibilityIssues(insightReport) {
   }
 
   // Address accessibility issues from insight report
-  insightReport.issues.forEach(issue => {
+  insightReport.issues.forEach(function(issue) {
     switch (issue.type) {
       case 'REACT_015':
         // Add lang attribute to HTML element
@@ -127,7 +127,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_041':
         // Add accessible names to SVGs
         if (issue.svg) {
-          const accessibleName = getSvgAccessibleName(issue.svg);
+          var accessibleName = getSvgAccessibleName(issue.svg);
           setSvgAttributes(issue.svg, accessibleName);
         }
         break;
@@ -148,12 +148,12 @@ function addressAccessibilityIssues(insightReport) {
 }
 
 // Configuration
-const config = {
+var config = {
   // Configuration options
 };
 
 // App state
-const appState = {
+var appState = {
   // Application state
 };
 
@@ -199,10 +199,10 @@ if (require.main === module) {
 }
 
 function getInsightReport() {
-  const issues = [];
+  var issues = [];
   
   // Check for lang attribute on HTML element
-  const langAttribute = getLangAttribute();
+  var langAttribute = getLangAttribute();
   if (!langAttribute) {
     issues.push({
       type: 'REACT_015',
@@ -213,9 +213,9 @@ function getInsightReport() {
   }
   
   // Check table accessibility
-  const tableAccessibilityIssues = validateTableAccessibility();
+  var tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
-    tableAccessibilityIssues.forEach(issue => {
+    tableAccessibilityIssues.forEach(function(issue) {
       issues.push({
         type: 'REACT_027',
         subtype: 'accessibility',
@@ -228,9 +228,9 @@ function getInsightReport() {
   }
   
   // Check table structure
-  const tableStructureIssues = validateTableStructure();
+  var tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
-    tableStructureIssues.forEach(issue => {
+    tableStructureIssues.forEach(function(issue) {
       issues.push({
         type: 'REACT_027',
         subtype: 'structure',
@@ -243,9 +243,9 @@ function getInsightReport() {
   }
   
   // Check landmark issues
-  const landmarkIssues = validateLandmark();
+  var landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
-    landmarkIssues.forEach(issue => {
+    landmarkIssues.forEach(function(issue) {
       issues.push({
         type: 'REACT_017',
         description: issue.description || 'Landmark issue',
@@ -257,9 +257,9 @@ function getInsightReport() {
   }
   
   // Check landmark structure
-  const landmarkStructureIssues = validateLandmarkStructure();
+  var landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
-    landmarkStructureIssues.forEach(issue => {
+    landmarkStructureIssues.forEach(function(issue) {
       issues.push({
         type: 'REACT_017',
         structure: true,
@@ -272,9 +272,9 @@ function getInsightReport() {
   }
   
   // Check landmark attributes
-  const landmarkAttributeIssues = validateLandmarkAttributes();
+  var landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
-    landmarkAttributeIssues.forEach(issue => {
+    landmarkAttributeIssues.forEach(function(issue) {
       issues.push({
         type: 'REACT_017',
         description: issue.description || 'Landmark attribute issue',
@@ -286,9 +286,9 @@ function getInsightReport() {
   }
   
   // Check SVG accessibility
-  const svgAccessibleNames = getSvgAccessibleName();
+  var svgAccessibleNames = getSvgAccessibleName();
   if (svgAccessibleNames && svgAccessibleNames.length > 0) {
-    svgAccessibleNames.forEach(svg => {
+    svgAccessibleNames.forEach(function(svg) {
       issues.push({
         type: 'REACT_041',
         description: 'SVG is missing accessible name',
@@ -300,9 +300,9 @@ function getInsightReport() {
   }
   
   // Check for unique landmarks
-  const uniqueLandmarkIssues = ensureUniqueLandmarks();
+  var uniqueLandmarkIssues = ensureUniqueLandmarks();
   if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
-    uniqueLandmarkIssues.forEach(issue => {
+    uniqueLandmarkIssues.forEach(function(issue) {
       issues.push({
         type: 'REACT_025',
         description: issue.description || 'Duplicate or missing landmark',
@@ -314,9 +314,9 @@ function getInsightReport() {
   }
   
   // Check link accessibility
-  const linkIssues = validateLinkAccessibility();
+  var linkIssues = validateLinkAccessibility();
   if (linkIssues && linkIssues.length > 0) {
-    linkIssues.forEach(issue => {
+    linkIssues.forEach(function(issue) {
       issues.push({
         type: 'REACT_036',
         description: issue.description || 'Link accessibility issue',
@@ -328,100 +328,16 @@ function getInsightReport() {
   }
   
   // Generate the report
-  const report = {
+  var report = {
     issues: issues,
     summary: {
       totalIssues: issues.length,
-      langAttribute: issues.filter(i => i.type === 'REACT_015').length,
-      tableIssues: issues.filter(i => i.type === 'REACT_027').length,
-      landmarkIssues: issues.filter(i => i.type === 'REACT_017').length,
-      svgIssues: issues.filter(i => i.type === 'REACT_041').length,
-      uniqueLandmarkIssues: issues.filter(i => i.type === 'REACT_025').length,
-      linkIssues: issues.filter(i => i.type === 'REACT_036').length,
-      critical: issues.filter(i => i.severity === 'critical').length,
-      high: issues.filter(i => i.severity === 'high').length,
-      medium: issues.filter(i => i.severity === 'medium').length,
-      low: issues.filter(i => i.severity === 'low').length
-    },
-    timestamp: new Date().toISOString(),
-    generatedAt: new Date().toLocaleString()
-  };
-  
-  return report;
-}
-
-function processAccessibilityReport(report) {
-  // Process accessibility report and return findings
-  const findings = {
-    langAttribute: false,
-    tableIssues: 0,
-    landmarkIssues: 0,
-    svgIssues: 0,
-    uniqueLandmarkIssues: 0,
-    fakeLinkIssues: 0
-  };
-
-  if (report) {
-    if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027.count || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
-  }
-
-  return findings;
-}
-
-// Example usage of the new function (if applicable)
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
-
-// Add back removed exports
-module.exports = {
-  config,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  processAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  getInsightReport,
-  // Added from origin/main
-  someFunction: function() {
-    return 'some value';
-  },
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
-  helper: function(input) {
-    return input ? input.toUpperCase() : '';
-  },
-  formatDate: function(date) {
-    if (!(date instanceof Date)) {
-      date = new Date(date);
-    }
-    return date.toISOString().split('T')[0];
-  }
-};
-// ----- END ORIGINAL CODE (unchanged) -----
+      langAttribute: issues.filter(function(i) { return i.type === 'REACT_015'; }).length,
+      tableIssues: issues.filter(function(i) { return i.type === 'REACT_027'; }).length,
+      landmarkIssues: issues.filter(function(i) { return i.type === 'REACT_017'; }).length,
+      svgIssues: issues.filter(function(i) { return i.type === 'REACT_041'; }).length,
+      uniqueLandmarkIssues: issues.filter(function(i) { return i.type === 'REACT_025'; }).length,
+      linkIssues: issues.filter(function(i) { return i.type === 'REACT_036'; }).length,
+      critical: issues.filter(function(i) { return i.severity === 'critical'; }).length,
+      high: issues.filter(function(i) { return i.severity === 'high'; }).length,
+      medium: issues.filter(function(i) { return

@@ -126,6 +126,14 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
+/**
+ * Counts the number of dependencies (landmarks) in the application.
+ * @returns {number} The count of dependencies.
+ */
+function countDependencies() {
+  return landmarks.length;
+}
+
 // Export functions for testing
 export {
   checkLandmarkElement,

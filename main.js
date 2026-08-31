@@ -1,4 +1,23 @@
-import react from 'react';
+import './styles.less';
+import './styles.css';
+import fs from 'fs';
+import path from 'path';
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import React from 'react';
+import { CONFIG as UTILS_CONFIG } from './utils/constants';
+import express from 'express';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import { isSecureContext } from './utils.js';
+
+// Utility imports
+import { calculateSum } from './utils';
+import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 
 // Existing code starts here
 
@@ -10,7 +29,9 @@ import react from 'react';
 // Configuration
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: 5000
+  timeout: 5000,
+  dataPath: './data',
+  maxResults: 100
 };
 
 // App state
@@ -20,7 +41,13 @@ const appState = {
   cache: new Map()
 };
 
-// Initialize function
+const CONFIG = {
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
 function initialize() {
   appState.initialized = true;
   console.log('App initialized');
@@ -212,7 +239,7 @@ function addressAccessibilityIssues(insightReport) {
         break;
       case 'REACT_027':
         // Fix table structure issues
-        validatelTableStructure();
+        validateTableStructure();
         fixTableStructure();
         break;
       case 'REACT_017':

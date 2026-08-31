@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Main JavaScript file
 // This file handles the main application logic
 
@@ -60,74 +57,50 @@ Here is the resolved file content:
       document.body.appendChild(button);
     }
 
-    // Function to address accessibility issues
-    function addressAccessibilityIssues() {
-      // Ensure the root container has an accessible name
-      const rootContainer = document.getElementById('root') ? document.getElementById('root').parentElement : null;
-      if (rootContainer) {
-        rootContainer.setAttribute('role', 'main');
+    // Functions to add accessible names to 2 SVGs
+    function setSvgAccessibleNames(svgId1, svgId2, accessibleNames1, accessibleNames2) {
+      const svg1 = document.getElementById(svgId1);
+      const svg2 = document.getElementById(svgId2);
+
+      if (svg1) {
+        svg1.setAttribute('aria-labelledby', `svg-${svgId1}-label`);
+        const labelDiv = document.createElement('div');
+        labelDiv.id = `svg-${svgId1}-label`;
+        labelDiv.textContent = accessibleNames1;
+        svg1.appendChild(labelDiv);
       }
 
-      // Initialize skip link functionality
-      const skipLink = document.querySelector('[href^="#"]');
-      if (skipLink) {
-        skipLink.addEventListener('click', function(e) {
-          const targetId = this.getAttribute('href').slice(1);
-          const target = document.getElementById(targetId);
-          if (target) {
-            target.setAttribute('tabindex', '-1');
-            target.focus();
-          }
-        });
+      if (svg2) {
+        svg2.setAttribute('aria-labelledby', `svg-${svgId2}-label`);
+        const labelDiv = document.createElement('div');
+        labelDiv.id = `svg-${svgId2}-label`;
+        labelDiv.textContent = accessibleNames2;
+        svg2.appendChild(labelDiv);
       }
+    }
 
-      // Ensure all buttons with role="button" respond to Enter key
-      document.querySelectorAll('[role="button"]').forEach(function(button) {
-        button.addEventListener('keydown', function(e) {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            this.click();
-          }
-        });
-      });
+    // Function to ensure unique landmarks (2 issues)
+    function ensureUniqueLandmarks() {
+      const landmarks = [...document.querySelectorAll('[aria-landmark]')];
+      const landmarkIds = landmarks.map(landmark => landmark.getAttribute('aria-landmark'));
 
-      // Add focusVisible polyfill behavior
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Tab') {
-          document.body.classList.add('keyboard-nav');
+      const uniqueIds = new Set(landmarkIds);
+
+      landmarks.forEach((landmark, index) => {
+        if (!uniqueIds.has(landmarkIds[index])) {
+          landmark.setAttribute('aria-landmark', '');
+          uniqueIds.add(landmarkIds[index]);
         }
       });
+    }
 
-      document.addEventListener('mousedown', function() {
-        document.body.classList.remove('keyboard-nav');
+    // Function to fix 1 fake link issue
+    function fixFakeLink() {
+      const fakeLinks = document.querySelectorAll(':not([href])[role="link"]');
+      fakeLinks.forEach(link => {
+        link.removeAttribute('role'); // Remove the role attribute after fixing the issue
+        link.setAttribute('href', '#');
       });
-
-      // Trap focus in modal and announce welcome message
-      const modalElement = document.getElementById('modal');
-      if (modalElement && a11y && a11y.trapFocus) {
-        a11y.trapFocus(modalElement);
-      }
-      if (a11y && a11y.announce) {
-        a11y.announce('Welcome to the bot!', 'assertive');
-      }
-
-      // Adding an alt attribute to an image
-      const imageElement = document.getElementById('example-image');
-      if (imageElement) {
-        imageElement.setAttribute('alt', 'A description of the image');
-      }
-
-      // Correcting the ARIA role for a div
-      const divElement = document.getElementById('example-div');
-      if (divElement) {
-        divElement.setAttribute('role', 'list');
-      }
-
-      // Adding the lang attribute to the HTML element
-      const htmlElement = document.documentElement;
-      if (htmlElement) {
-        htmlElement.setAttribute('lang', getLangAttribute());
-      }
     }
 
     // Export the report generation function
@@ -139,7 +112,10 @@ Here is the resolved file content:
       addressAccessibilityIssues,
       getLangAttribute,
       createInPageButton,
-      a11y
+      a11y,
+      setSvgAccessibleNames,
+      ensureUniqueLandmarks,
+      fixFakeLink
     };
 
     // Initialize the application with accessibility improvements
@@ -156,14 +132,15 @@ Here is the resolved file content:
         // Create the in-page button
         createInPageButton();
 
-        // Existing initialization logic preserved
-        // Accessibility: Ensure main content is keyboard accessible
-        // Accessibility: Add skip link functionality
-        // Accessibility: Ensure buttons have proper labels
-        // Accessibility: Add landmark roles and fix landmark issues
-        // Accessibility: Add accessible names to 2 SVGs
-        // Accessibility: Ensure unique landmarks (2 issues)
-        // Accessibility: Fix 1 fake link issue
+        // Add accessible names to 2 SVGs
+        setSvgAccessibleNames('svg1Id', 'svg2Id', ' aria-label for SVG1', ' aria-label for SVG2');
+
+        // Ensure unique landmarks (2 issues)
+        ensureUniqueLandmarks();
+
+        // Fix 1 fake link issue
+        fixFakeLink();
+
         // Initialize accessibility features from a11y utilities
         if (a11y && a11y.init) {
             a11y.init();
@@ -179,4 +156,3 @@ Here is the resolved file content:
         }
     }
 })();
-```

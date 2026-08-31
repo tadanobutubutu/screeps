@@ -80,3 +80,18 @@ function addressAccessibilityIssues(insightReport) {
 
 // Export new function if necessary
 export { addressAccessibilityIssues };
+
+// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+// (Already implemented at the bottom of the file)
+function wrapPrimaryContentInMain() {
+  // Logic to wrap primary content in a main element
+  const primaryContent = document.querySelector('.primary-content');
+  if (primaryContent) {
+    const mainElement = document.createElement('main');
+    mainElement.appendChild(primaryContent);
+    primaryContent.parentNode.replaceChild(mainElement, primaryContent);
+  }
+}
+
+// Export the new function
+export { wrapPrimaryContentInMain };

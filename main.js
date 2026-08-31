@@ -139,7 +139,7 @@ function validateLandmarkStructure(element) {
  */
 function getSvgAccessibleName(svg) {
   if (!svg || typeof svg !== 'object') return '';
-  return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
+  return ... || svg.getAttribute('title') || '';
 }
 
 // REACT_015: Add lang attribute to HTML element

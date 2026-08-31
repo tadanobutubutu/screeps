@@ -12,7 +12,7 @@ function ensureElementHasId(element, prefix = 'element') {
   }
   
   if (!element.id) {
-    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `${prefix}-${Date.now().toString(36).slice(-9)}`;
   }
   
   return element.id;
@@ -47,8 +47,12 @@ function renderDependencyGraphs(container, options = {}) {
   const { nodes = [], edges = [] } = options;
   const graphContainer = document.createElement('div');
   graphContainer.className = 'dependency-graph';
-  graphContainer.setAttribute('role', 'img');
-  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+  
+  // Ensure container has an id for accessibility
+  const containerId = ensureElementHasId(container, 'graph-container');
+  
+  // Add aria-label for accessibility
+  addAriaLabel(graphContainer, 'Dependency graph visualization');
   
   // Render nodes
   nodes.forEach(node => {
@@ -61,8 +65,8 @@ function renderDependencyGraphs(container, options = {}) {
   
   // Render edges (connections between nodes)
   edges.forEach(edge => {
-    const sourceId = ensureElementHasId(document.getElementById(edge.source) || { id: edge.source }, 'node-source');
-    const targetId = ensureElementHasId(document.getElementById(edge.target) || { id: edge.target }, 'node-target');
+    const sourceId = edge.source?.id || ensureElementHasId({ id: edge.source }, 'node-source');
+    const targetId = edge.target?.id || ensureElementHasId({ id: edge.target }, 'node-target');
     
     const edgeElement = document.createElement('div');
     edgeElement.className = 'graph-edge';
@@ -75,9 +79,40 @@ function renderDependencyGraphs(container, options = {}) {
   return graphContainer;
 }
 
+/**
+ * Renders the index page with dependency graph
+ * @param {HTMLElement} container - The container element for the index
+ * @param {Object} data - The index data containing nodes and edges
+ * @returns {HTMLElement} The rendered index container
+ */
+function renderIndex(container, data = {}) {
+  if (!container) {
+    throw new Error('Container is required');
+  }
+  
+  const indexContainer = document.createElement('div');
+  indexContainer.className = 'index-container';
+  
+  // Ensure container has an id for accessibility
+  ensureElementHasId(indexContainer, 'index');
+  
+  // Add aria-label for accessibility
+  addAriaLabel(indexContainer, 'Dependency index');
+  
+  // Render the dependency graphs using the new function
+  renderDependencyGraphs(indexContainer, {
+    nodes: data.nodes || [],
+    edges: data.edges || []
+  });
+  
+  container.appendChild(indexContainer);
+  return indexContainer;
+}
+
 // Export functions
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraphs
+  renderDependencyGraphs,
+  renderIndex
 };

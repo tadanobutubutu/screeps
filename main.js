@@ -118,14 +118,37 @@ const a11yStore = {
   // ... existing methods ...
 };
 
-// Assuming the new function is called `renderGraphIndex` and it should replace or integrate with the existing `renderDependencyGraphs` function.
-const renderGraphIndex = (graphData) => {
-  // Placeholder for the new rendering logic
-  // This function should use the new functions for rendering the graph/index
-  // For example, it could call `setSvgAccessibilityProps`, `addAccessibleNamesToSVGs`, etc.
-  // Replace this with the actual implementation details
-  renderDependencyGraph(graphData);
-};
+// New rendering function
+function renderGraphIndex(graphData, options = {}) {
+  // Implementation of the new function
+  const container = document.createElement('div');
+  container.innerHTML = graphData;
+  addLangAttribute(container);
+  addMainLandmark(container);
+  addLandmarkRegions(container);
+  fixTableStructureIssues(container);
+  fixLandmarkIssues(container);
+  fixFakeLinkIssue(container);
+  renderDependencyGraphs(container, main.renderData);
+
+  return container;
+}
+
+// Access the dependencyGraph container and ensure it has proper ARIA role
+const dependencyGraph = document.getElementById('dependencyGraph');
+
+if (dependencyGraph) {
+  // Set appropriate ARIA role for the dependency graph container
+  // Using 'region' role for a contained section of content
+  if (!dependencyGraph.getAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'region');
+  }
+  
+  // Add accessible label if not already present
+  if (!dependencyGraph.getAttribute('aria-label')) {
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+}
 
 function getSvgAccessibleName(svgElement) {
   const title = svgElement.querySelector('title');
@@ -382,119 +405,6 @@ if (require.main === module) {
         console.log(`Server running on port ${PORT}`);
     });
 }
-
-    // Add lang attribute to HTML element if missing
-    const htmlElement = container.querySelector('html') || container.ownerDocument?.querySelector('html');
-    if (htmlElement && !htmlElement.hasAttribute('lang')) {
-      htmlElement.setAttribute('lang', getLangAttribute(container));
-      fixes.langAdded = true;
-    }
-
-    // Add main landmark if missing
-    const mainElement = container.querySelector('main, [role="main"]');
-    if (!mainElement) {
-      const body = container.querySelector('body');
-      if (body) {
-        const newMain = document.createElement('main');
-        while (body.firstChild) {
-          newMain.appendChild(body.firstChild);
-        }
-        fixes.mainLandmarkAdded = true;
-      }
-    }
-
-    // Fix landmark issues by ensuring proper roles and accessible names
-    const landmarkElements = container.querySelectorAll('header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
-    const processedLandmarks = new Set();
-    
-    landmarkElements.forEach(landmark => {
-      if (processedLandmarks.has(landmark)) return;
-      processedLandmarks.add(landmark);
-      
-      if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
-        const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-        const previousSibling = landmark.previousElementSibling;
-        
-        if (previousSibling && previousSibling.textContent.trim()) {
-          const labelId = `landmark-label-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-          const labelSpan = container.ownerDocument.createElement('span');
-          labelSpan.id = labelId;
-          labelSpan.textContent = previousSibling.textContent.trim();
-          labelSpan.style.display = 'none';
-          landmark.parentNode.insertBefore(labelSpan, landmark);
-          landmark.setAttribute('aria-labelledby', labelId);
-        } else {
-          const roleLabel = role.charAt(0).toUpperCase() + role.slice(1).replace(/[^a-zA-Z]/g, ' ');
-          landmark.setAttribute('aria-label', roleLabel);
-        }
-        fixes.landmarksFixed++;
-      }
-    });
-
-    // Fix fake link issues (elements that look like links but are missing href)
-    const uniqueFakeLinksFixed = new Set();
-    const fakeLinks = container.querySelectorAll('a:not([href]), [role="link"]:not([href])');
-    fakeLinks.forEach(element => {
-      if (uniqueFakeLinksFixed.has(element)) return;
-      
-      const isNavigation = element.closest('nav') !== null;
-      
-      if (isNavigation || element.tagName.toLowerCase() === 'a') {
-        if (!element.hasAttribute('href')) {
-          element.setAttribute('href', '#' + (element.id || `link-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`));
-          element.setAttribute('role', 'link');
-          uniqueFakeLinksFixed.add(element);
-          fixes.fakeLinksFixed++;
-        }
-      } else {
-        element.setAttribute('role', 'button');
-        if (!element.hasAttribute('tabindex')) {
-          element.setAttribute('tabindex', '0');
-        }
-        uniqueFakeLinksFixed.add(element);
-        fixes.fakeLinksFixed++;
-      }
-    });
-
-    // Validate accessibility report
-    const report = validateAccessibilityReport(container);
-    if (report && report.length > 0) {
-      log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
-    }
-
-    // Implement focus trap for keyboard navigation
-    focusTrap(container);
-
-    if (fixes.langAdded) {
-      log('Lang attribute added to HTML element', 'info');
-    }
-
-    if (fixes.mainLandmarkAdded) {
-      log('Main landmark added', 'info');
-    }
-
-    const landmarkFixesCount = fixes.landmarksFixed || 0;
-    if (landmarkFixesCount > 0) {
-      log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
-    }
-
-    const svgFixes = fixes.svgNamesAdded || 0;
-    if (svgFixes > 0) {
-      log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
-    }
-
-    const fakeLinkFixes = fixes.fakeLinksFixed || 0;
-    if (fakeLinkFixes > 0) {
-      log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
-    }
-
-    return fixes;
-  },
-
-  // ...
-
-  focusTrap: focusTrap
-};
 
 // Export modules for testing
 module.exports = {

@@ -68,7 +68,7 @@ function formatDate(date) {
   if (!(date instanceof Date)) {
     date = new Date(date);
   }
-  return date.toISOString().split('T')[0];
+  return date.toISOString();
 }
 
 // Validate input function
@@ -133,7 +133,7 @@ function getSvgAccessibleName() {
 function setSvgAttributes(svg, accessibleName) {
   if (svg && typeof svg === 'object') {
     svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', accessibleName);
+    if (accessibleName) svg.setAttribute('aria-label', accessibleName);
   }
   return svg;
 }
@@ -158,12 +158,6 @@ function handleFakeLinks() {
 }
 
 // Address accessibility issues from insight report
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 function addressAccessibilityIssues(insightReport) {
   // This addresses issues from the insight report:
   // - REACT_015: Add lang attribute to HTML element
@@ -206,7 +200,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_041':
         // Add accessible names to SVGs
         if (issue.element) {
-          setSvgAttributes(issue.element, getSvgAccessibleName());
+          setSvgAttributes(issue.element, issue.accessibleName || getSvgAccessibleName());
         }
         break;
       case 'REACT_025':
@@ -391,52 +385,4 @@ function processAccessibilityReport(report) {
     if (report.REACT_015) findings.langAttribute = true;
     if (report.REACT_027) findings.tableIssues = report.REACT_027.count || 0;
     if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
-  }
-
-  return findings;
-}
-
-// Example usage of the new function (if applicable)
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
-
-// Add back removed exports
-module.exports = {
-  config: config,
-  appState: appState,
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
-  initialize: initialize,
-  initializeApp: initializeApp,
-  processData: processData,
-  fetchUser: fetchUser,
-  clearCache: clearCache,
-  someFunction: someFunction,
-  helper: helper,
-  formatDate: formatDate,
-  validateInput: validateInput,
-  addressAccessibilityIssues: addressAccessibilityIssues,
-  processAccessibilityReport: processAccessibilityReport,
-  getInsightReport: getInsightReport,
-  getLangAttribute: getLangAttribute,
-  addLangAttribute: addLangAttribute,
-  validateTableAccessibility: validateTableAccessibility,
-  validateTableStructure: validateTableStructure,
-  fixTableStructure: fixTableStructure,
-  addMainLandmark: addMainLandmark,
-  validateLandmark: validateLandmark,
-  validateLandmarkStructure: validateLandmarkStructure,
-  validateLandmarkAttributes: validateLandmarkAttributes,
-  addLandmarkRegions: addLandmarkRegions,
-  getSvgAccessibleName: getSvgAccessibleName,
-  setSvgAttributes: setSvgAttributes,
-  ensureUniqueLandmarks: ensureUniqueLandmarks,
-  createInPageButton: createInPageButton,
-  validateLinkAccessibility: validateLinkAccessibility,
-  handleFakeLinks: handleFakeLinks
-};
+    if (report.REACT_041) findings.svgIssues

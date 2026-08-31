@@ -37,11 +37,25 @@ function startApp() {
   return server;
 }
 
+/**
+ * Gets the health status of the server
+ * @returns {Object} Health status object
+ */
+function getHealthStatus() {
+  return {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    environment: config.env,
+    uptime: process.uptime ? process.uptime() : 0
+  };
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  getHealthStatus
 };
 
 // Start the application if run directly

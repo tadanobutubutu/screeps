@@ -5,8 +5,10 @@
 import react from 'react';
 // Existing code starts here
 
+
 // This is the existing code that needs to be preserved
 // (This comment remains as-is)
+
 
 // More existing code that should be preserved
 
@@ -363,11 +365,11 @@ function processAccessibilityReport(report) {
 
   if (report) {
     if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027.count || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
+    if (report.REACT_027) findings.tableIssues = report.REACT_027.length || 0;
+    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.length || 0;
+    if (report.REACT_041) findings.svgIssues = report.REACT_041.length || 0;
+    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.length || 0;
+    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.length || 0;
   }
 
   return findings;
@@ -421,7 +423,4 @@ module.exports = {
     if (!(date instanceof Date)) {
       date = new Date(date);
     }
-    return date.toISOString().split('T')[0];
-  }
-};
-// ----- END ORIGINAL CODE (unchanged) -----
+    return date.toISOString

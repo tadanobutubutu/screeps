@@ -59,6 +59,16 @@ function main() {
     });
 }
 
+function init() {
+  const svgElements = [];
+
+  svgElements.forEach((svg) => {
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+  });
+}
+
 const checkTableStructure = function(table) {
     if (!table) return false;
     const rows = table.querySelectorAll('tr');
@@ -100,8 +110,8 @@ function countDependencies() {
     const devDependencies = packageJson.devDependencies || {};
 
     return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
+        dependencies: Object.keys(dependencies),
+        devDependencies: Object.keys(devDependencies),
         total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
 }
@@ -232,6 +242,7 @@ function setupAriaLiveRegions() {
   if (!liveRegion) {
     const region = document.createElement('div');
     region.id = 'aria-live-region';
+    region.setAttribute('role', 'status');
     region.setAttribute('aria-live', 'polite');
     region.setAttribute('aria-atomic', 'true');
     region.className = 'sr-only';
@@ -243,7 +254,7 @@ function setupFocusManagement() {
   // Trap focus within modal dialogs
   const modals = document.querySelectorAll('[role="dialog"], [role="modal"]');
   modals.forEach((modal) => {
-    modal.addEventListener('keydown', trapFocus);
+    trapFocus(modal);
   });
 
   // Ensure all interactive elements are keyboard accessible

@@ -27,6 +27,44 @@ function createServer() {
 }
 
 /**
+ * Creates an in-page button configuration object.
+ * @param {Object} options - Button options
+ * @param {string} options.id - Unique identifier for the button
+ * @param {string} options.label - Text label displayed on the button
+ * @param {string} [options.className='in-page-button'] - CSS class for styling
+ * @param {Function} [options.onClick] - Click event handler
+ * @returns {Object} The button configuration object
+ */
+function createInPageButton(options) {
+  if (!options || typeof options !== 'object') {
+    throw new TypeError('Options object is required');
+  }
+  if (!options.id || typeof options.id !== 'string') {
+    throw new TypeError('Button id is required and must be a string');
+  }
+  if (!options.label || typeof options.label !== 'string') {
+    throw new TypeError('Button label is required and must be a string');
+  }
+
+  return {
+    id: options.id,
+    label: options.label,
+    className: options.className || 'in-page-button',
+    type: 'button',
+    onClick: typeof options.onClick === 'function' ? options.onClick : null,
+    render() {
+      return {
+        tag: 'button',
+        id: this.id,
+        className: this.className,
+        textContent: this.label,
+        type: this.type
+      };
+    }
+  };
+}
+
+/**
  * Starts the application
  */
 function startApp() {
@@ -41,6 +79,7 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
+  createInPageButton,
   config
 };
 

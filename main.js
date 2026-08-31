@@ -335,3 +335,13 @@ module.exports = {
   validateLandmark,
   createInPageButton
 };
+
+// Start the application if run directly
+if (require.main === module) {
+  startApp();
+}
+
+// New function as per the issue
+function newFunction() {
+  console.log('This is a new function that was added to main.js');
+}

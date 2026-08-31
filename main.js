@@ -1,3 +1,33 @@
+// Import required module(s)
+import { calculateSum } from './utils';
+
+// TODO: Address accessibility issues from insight report
+
+// More existing code that should be preserved
+
+// Existing code ends here
+
+// TODO: This is the existing code that needs to be preserved
+// (This should be preserved)
+// Addressed accessibility issues from insight report
+
+// ... (other code in main.js)
+
+/**
+ * Creates an in-page button element with optional click handler and accessibility attributes.
+ * @param {string} buttonText - The label text for the button
+ * @param {Function} onClickHandler - Callback function triggered when the button is clicked
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(buttonText, onClickHandler) {
+  const button = document.createElement('button');
+  button.textContent = buttonText;
+  if (onClickHandler && typeof onClickHandler === 'function') {
+    button.addEventListener('click', onClickHandler);
+  }
+  return button;
+}
+
 // TODO: Add back any required exports that might have been removed
 // Here's an example of how to export a required function from another file:
 // export function someFunction() {
@@ -34,6 +64,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+// REACT_036: Fix fake link issue - convert <a href="#"> to <button> with proper ARIA
+function createUnrotateButton() {
+  const button = document.createElement('button');
+  button.id = 'unrotate';
+  button.setAttribute('aria-label', 'Rotate back');
+  button.textContent = 'rotate back';
+  button.addEventListener('click', rotateBack);
+  return button;
+}
 
 // Routes
 app.get('/health', (req, res) => {

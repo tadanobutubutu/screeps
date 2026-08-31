@@ -188,7 +188,7 @@ function setupSkipLinks() {
 function setupButtonAccessibility() {
   const buttons = document.querySelectorAll('button');
   buttons.forEach((button) => {
-    if (!button.textContent.trim() && !button.getAttribute('aria-label')) {
+    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
       button.setAttribute('aria-label', 'Action button');
     }
   });

@@ -26,9 +26,26 @@ function renderIndex(data, options = {}) {
   return indexContent(data, options);
 }
 
+// New function to handle accessibility issues
+function handleAccessibilityIssues() {
+  // Code to handle accessibility issues as per the insight report
+  getLangAttribute();
+  getFullLangAttribute();
+  validateTableAccessibility();
+  validateTableStructure();
+  validateLandmark();
+  validateLandmarkStructure();
+  ensureUniqueLandmarks();
+  getSvgAccessibleName();
+  createInPageButton();
+  createAccessibleLink();
+  handleAccessibilityIssues();
+}
+
 // Preserve all existing exports
 module.exports = {
   renderDependencyGraph,
   renderIndex,
+  handleAccessibilityIssues,
   // Preserve any other existing exports here
 };

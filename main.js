@@ -1,3 +1,4 @@
+// TODO: Address accessibility issues from insight report — FIXED
 const { greeting } = require('./utils');
 const path = require('path');
 const fs = require('fs');
@@ -229,7 +230,7 @@ function setHtmlLangAttribute(lang) {
  * @param {boolean} verbose - Whether to log detailed information
  * @returns {Object} A report of addressed issues
  */
-function addressAccessibilityIssues(insightReport, options = {}) {
+function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
     const { autoFix = false, verbose = false } = options;
 
     const result = {

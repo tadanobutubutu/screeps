@@ -32,7 +32,7 @@ function addressAccessibilityIssues() {
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependency-graph') || document.querySelector('[data-dependency-graph]');
+  const container = document.querySelector('.dependency-graph-container') || document.querySelector('[data-dependency-graph-container]');
   if (container) {
     container.innerHTML = data;
   }
@@ -44,9 +44,9 @@ function ensureUniqueLandmarks() {
   const uniqueLandmarkMap = {};
 
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`) || [];
+    const elements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`) || [];
     elements.forEach(el => {
-      const isUnique = !uniqueLandmarkMap[landmark] || Array.from(uniqueLandmarkMap[landmark]).filter(e => e === el).length === 0;
+      const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
       if (isUnique) {
         uniqueLandmarkMap[landmark] = uniqueLandmarkMap[landmark] || [];
         uniqueLandmarkMap[landmark].push(el);
@@ -59,7 +59,7 @@ function ensureUniqueLandmarks() {
 }
 
 // New function to add landmark roles and fix issues
-function addLandmarkRoles(insightReport) {
+function fixLandmarkIssues(insightReport) {
   const issues = insightReport.issues || [];
 
   issues.forEach(issue => {
@@ -105,12 +105,12 @@ function fixFakeLinks() {
   // Implementation for fixing fake link issues goes here.
   // Handle both anchor tags with href="#" and div elements with role="link"
   const fakeLinkAnchors = document.querySelectorAll('a[href="#"]') || [];
-  const fakeLinkDivs = document.querySelectorAll('[role="link"]') || [];
+  const fakeLinkDivs = document.querySelectorAll('div[role="link"]') || [];
 
   [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
     link.setAttribute('role', 'button');
     link.tabIndex = 0;
-    if (link.tagName === 'A' && !link.getAttribute('aria-label')) {
+    if (link.tagName === 'A' && link.getAttribute('href') === '#') {
       link.setAttribute('aria-label', 'Button');
     }
   });
@@ -149,11 +149,11 @@ function fixTableHeaderCellScope() {
     headerCells.forEach(cell => {
       if (!cell.hasAttribute('scope')) {
         const rows = Array.from(table.querySelectorAll('tr'));
-        const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
+        const cellIndex = Array.from(cell.parentElement.children).indexOf(cell);
         let isHeaderRow = true;
 
         rows.forEach(row => {
-          const rowCells = Array.from(row.querySelectorAll('td')) || [];
+          const rowCells = Array.from(row.querySelectorAll('th, td')) || [];
           if (rowCells[cellIndex] !== cell) {
             isHeaderRow = false;
           }
@@ -205,8 +205,9 @@ function addSvgAccessibleNames() {
 }
 
 // Updated function for REACT_025 (ensuring unique landmarks)
-function fixUniqueLandmarks(insightReport) {
+function implementNewFunction(insightReport) {
   const issues = insightReport.issues || [];
+  const uniqueLandmarkMap = {};
 
   issues.forEach(issue => {
     if (issue.code === 'REACT_025') {
@@ -230,10 +231,10 @@ function improveAccessibility() {
   fixFakeLinks();
   ensureUniqueLandmarks();
   addLangAttribute();
+  addSvgAccessibleNames();
   fixTableStructureIssues();
   fixTableHeaderCellScope();
   addMainLandmark();
-  addSvgAccessibleNames();
 }
 
 // Existing code preserved below
@@ -250,7 +251,7 @@ module.exports = {
   renderIndexView,
   calculateSum,
   fixLandmarkIssues,
-  addLandmarkRoles,
+  addLandmarkRoles: fixLandmarkIssues,
   ensureUniqueLandmarks,
   fixFakeLinks,
   fixTableStructureIssues,
@@ -263,7 +264,7 @@ module.exports = {
   someFunction,
   addressAccessibilityIssues,
   renderDependencyGraphContent,
-  fixUniqueLandmarks
+  fixUniqueLandmarks: ensureUniqueLandmarks
 };
 
 // Execute main function

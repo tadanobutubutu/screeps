@@ -63,7 +63,7 @@ function createUnrotateButton() {
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.querySelector('a[href="#"]');
+const fakeLink = document.querySelector('.fake-link');
 if (fakeLink && fakeLink.tagName === 'A') {
   const parent = fakeLink.parentElement;
   const newButton = createUnrotateButton();
@@ -135,7 +135,7 @@ function setupSkipLinks() {
 function setupButtonAccessibility() {
   const buttons = document.querySelectorAll('button');
   buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+    if (!button.textContent.trim() && !button.getAttribute('aria-label')) {
       button.setAttribute('aria-label', 'Action button');
     }
   });
@@ -181,7 +181,7 @@ function addSvgAccessibleNames() {
 
 // Function to ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"]');
+  const landmarks = document.querySelectorAll('[role="banner"], [role="main"], [role="contentinfo"]');
   const landmarkIds = new Set();
 
   landmarks.forEach((landmark) => {
@@ -198,120 +198,122 @@ function ensureUniqueLandmarks() {
 function fixFakeLink() {
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach((link) => {
-    if (!link.textContent.trim() && !link.getAttribute('aria-hidden')) {
+    if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
       // Convert to button or add proper label
     }
   });
 }
 
+/**
+ * Validates table structure for accessibility issues
+ * @returns {Array} Array of accessibility issues found in tables
+ */
+function validateTableStructure() {
+  const issues = [];
+  const tables = document.querySelectorAll('table');
+
+  tables.forEach((table, tableIndex) => {
+    // Check if table has a caption, aria-label, or aria-labelledby for accessible name
+    const caption = table.querySelector('caption');
+    const ariaLabel = table.getAttribute('aria-label');
+    const ariaLabelledby = table.getAttribute('aria-labelledby');
+
+    if (!caption && !ariaLabel && !ariaLabelledby) {
+      issues.push({
+        tableIndex: tableIndex,
+        issue: 'Table missing accessible name (caption, aria-label, or aria-labelledby)'
+      });
+    }
+
+    // Check if table headers have proper scope attributes
+    const headers = table.querySelectorAll('th');
+    headers.forEach((th, thIndex) => {
+      if (!th.hasAttribute('scope')) {
+        // Determine the appropriate scope based on context
+        const parent = th.parentElement;
+        const parentTagName = parent ? parent.tagName.toLowerCase() : '';
+        const siblings = parent ? Array.from(parent.children) : [];
+        const isFirstCell = siblings.indexOf(th) === 0;
+
+        // Auto-fix: Set appropriate scope
+        if (isFirstCell && parentTagName === 'tr') {
+          th.setAttribute('scope', 'row');
+        } else if (parentTagName === 'thead' || !isFirstCell) {
+          th.setAttribute('scope', 'col');
+        }
+
+        issues.push({
+          tableIndex: tableIndex,
+          headerIndex: thIndex,
+          issue: 'Table header missing scope attribute (auto-fixed)'
+        });
+      }
+    });
+
+    // Check for proper table structure (thead, tbody)
+    if (!table.querySelector('thead')) {
+      issues.push({
+        tableIndex: tableIndex,
+        issue: 'Table missing thead element for proper semantic structure'
+      });
+    }
+
+    if (!table.querySelector('tbody')) {
+      issues.push({
+        tableIndex: tableIndex,
+        issue: 'Table missing tbody element for proper semantic structure'
+      });
+    }
+
+    // Check if TH elements are properly associated with headers for complex tables
+    const dataCells = table.querySelectorAll('td');
+    const thElements = table.querySelectorAll('th');
+    if (thElements.length > 0 && dataCells.length > 0) {
+      // For tables with headers, check if headers have id and data cells have headers attribute
+      const firstHeaderRow = table.querySelector('thead tr') || table.querySelector('tr');
+      const headerCells = firstHeaderRow ? firstHeaderRow.querySelectorAll('th') : [];
+
+      headerCells.forEach((th, idx) => {
+        if (!th.id) {
+          th.id = `table-${tableIndex}-header-${idx}`;
+        }
+      });
+
+      dataCells.forEach((td) => {
+        const existingHeaders = td.getAttribute('headers');
+        if (!existingHeaders) {
+          // Try to auto-fix by associating with column position
+          const row = td.parentElement;
+          const cells = row ? Array.from(row.children) : [];
+          const cellIndex = cells.indexOf(td);
+          const correspondingTh = headerCells[cellIndex];
+          if (correspondingTh && correspondingTh.id) {
+            td.setAttribute('headers', correspondingTh.id);
+          }
+        }
+      });
+    }
+  });
+
+  // Log issues found
+  if (issues.length > 0) {
+    console.log('Table accessibility issues found:', issues.length);
+    issues.forEach((issue, idx) => {
+      console.log(`Issue ${idx + 1}:`, issue);
+    });
+  } else {
+    console.log('No table accessibility issues found.');
+  }
+
+  return issues;
+}
+
 // Initialize accessibility improvements
 function initializeAccessibility() {
   // Replace fake links with proper buttons
-  const fakeLink = document.querySelector('a[href="#"]');
+  const fakeLink = document.querySelector('.fake-link');
   if (fakeLink && fakeLink.tagName === 'A') {
     const parent = fakeLink.parentElement;
     const newButton = createUnrotateButton();
     parent.replaceChild(newButton, fakeLink);
   }
-
-  // Ensure table headers have proper scope
-  ensureThScope();
-
-  // Add accessible names to SVGs
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') || svg.getAttribute('aria-hidden') !== 'true') {
-      svg.setAttribute('aria-label', `Icon ${index + 1}`);
-    }
-  });
-}
-
-// Initialize the application with accessibility improvements
-function initialize() {
-  // Existing initialization logic preserved
-  console.log('Application initialized');
-
-  // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.querySelector('main') || document.getElementById('main');
-  if (mainContent) {
-    mainContent.setAttribute('tabindex', '-1');
-    mainContent.setAttribute('role', 'main');
-  }
-
-  // Accessibility: Add skip link functionality
-  setupSkipLinks();
-
-  // Accessibility: Ensure buttons have proper labels
-  setupButtonAccessibility();
-
-  // Accessibility: Add landmark roles and fix landmark issues
-  addLandmarkRoles();
-
-  // Accessibility: Add accessible names to 2 SVGs
-  addSvgAccessibleNames();
-
-  // Accessibility: Ensure unique landmarks (2 issues)
-  ensureUniqueLandmarks();
-
-  // Accessibility: Fix 1 fake link issue
-  fixFakeLink();
-}
-
-// New function or change requested in the issue
-function newFunction() {
-  // Implementation of the new function
-}
-
-export function calculateDiscount(price, discount) {
-  if (typeof price !== 'number' || price < 0) {
-    throw new Error('Price must be a non-negative number');
-  }
-  if (typeof discount !== 'number' || discount < 0) {
-    throw new Error('Discount must be a non-negative number');
-  }
-
-  // Calculate discounted price
-  const discountedPrice = price * (1 - discount / 100);
-  return Math.max(0, discountedPrice);
-}
-
-function greet(name) {
-  return `Hello, ${name}!`;
-}
-
-function add(a, b) {
-  return a + b;
-}
-
-export function newNecessaryFunction() {
-  return "New function implemented";
-}
-
-// Export existing functionality and new functions
-export { 
-  initialize, 
-  getConfig, 
-  setupSkipLinks, 
-  setupButtonAccessibility, 
-  createInPageButton, 
-  performTask, 
-  handleEvent, 
-  greet, 
-  add, 
-  calculateDiscount, 
-  newFunction 
-};
-
-// Compatibility for CommonJS if needed (as per HEAD)
-module.exports = newFunction;
-
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initialize);
-  } else {
-    initialize();
-  }
-}
-
-// More existing code that should be preserved

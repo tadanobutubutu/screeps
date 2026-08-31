@@ -1,30 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import React from 'react';
-// Existing code starts here
-
-// This is the existing code that needs to be preserved
-// (This comment remains as-is)
-
-// More existing code that should be preserved
-
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const fastMap = require('fast-map');
-const path = require('path');
+import express from 'express';
+import path from 'path';
+import fs from 'fs';
 import { calculateSum } from './utils';
 import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks, checkLinkAccessibility } from './utils/linkAccessibilityUtils';
 import { CONFIG } from './utils/constants';
+
+// Configuration and state
+let config = {};
+let appState = {};
+
+const axe = require('axe-core');
+const fastMap = require('fast-map');
 
 // Configuration
 const CONFIG = {
   dataPath: './data',
-  maxResults: 100
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'default',
+  timeout: 5000
 };
 
 // App state
@@ -36,62 +34,28 @@ const appState = {
 
 // Initialize function
 function initialize() {
-  appState.initialized = true;
-  console.log('App initialized');
+  config = { apiUrl: process.env.API_URL || 'default', timeout: 5000 };
+  appState = { initialized: true };
 }
 
-// Initialize app function
 function initializeApp() {
   initialize();
-  return appState;
 }
 
-// Process data function
 function processData(data) {
-  if (!data) {
-    return null;
-  }
-  appState.data = data;
   return data;
 }
 
-// Fetch user function
 function fetchUser(userId) {
-  if (!userId) {
-    return null;
-  }
-  return { id: userId, name: 'User ' + userId };
+  return { id: userId, name: 'User' };
 }
 
-// Clear cache function
 function clearCache() {
-  appState.cache.clear();
+  appState = {};
 }
 
-// Helper function
-function someFunction() {
-  return 'some value';
-}
-
-// Helper for input transformation
-function helper(input) {
-  return input ? input.toUpperCase() : '';
-}
-
-// Format date function
-function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-  return date.toISOString();
-}
-
-// Validate input function
 function validateInput(input) {
-  if (!input) {
-    return false;
-  }
-  return true;
+  return input && input.length > 0;
 }
 
 // Language attribute functions
@@ -328,11 +292,12 @@ function getInsightReport() {
 
   // Check SVG accessibility
   const svgAccessibleNames = getSvgAccessibleName();
+}
 
 // New function to generate a report based on accessibility issues
 function generateAccessibilityReport() {
   const options = {
-    rules: [{ id: 'color-contrast' }, { id: 'aria-roles' }], // Customize allowed or ignored rules here
+    rules: [{ id: 'color-contrast' }, { id: 'aria-roles' }],
   };
 
   const report = axe.auditWebpage(document.body, options);
@@ -403,28 +368,71 @@ const App = () => {
   );
 };
 
-// ... Your accessibility functions (merged both parties)
+// Main execution
+function main() {
+  initialize();
+  console.log('Main function executed');
+}
 
-export default App;
+// Run if executed directly
+if (typeof require !== 'undefined' && require.main === module) {
+  main();
+}
+
+const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+
+function wrapPrimaryContentInMain(parent) {
+  // ... original function implementation ...
+}
+
+const AppComponent = () => {
+  const [programData, setProgramData] = useState(null);
+  const someFunction = () => {
+    return 'some value';
+  };
+  const CONFIG = {
+    apiUrl: process.env.API_URL || 'https://api.example.com',
+    timeout: 5000
+  };
+  const helper = (input) => {
+    return input ? input.toUpperCase() : '';
+  };
+  const formatDate = (date) => {
+    if (!(date instanceof Date)) {
+      date = new Date(date);
+    }
+    return date.toISOString().split('T')[0];
+  };
+
+  // ... Your accessible React Router setup ...
+};
+
 module.exports = {
-  ...module.exports, // Preserve existing functions
-  generateAccessibilityReport,
-  wrapPrimaryContentInMain,
-  ensureUniqueLandmarks,
-  addLangAttribute,
+  config: CONFIG,
+  App,
+  someFunction,
+  helper,
+  formatDate,
+  calculateSum,
+  getLangAttribute,
+  getFullLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
   setSvgAttributes,
+  initializeApp,
+  checkLinkAccessibility,
+  handleFakeLinks,
+  generateAccessibilityReport,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks,
+  addLangAttribute,
   createInPageButton,
   validateInput,
   processData,
   formatResponse,
-  config: CONFIG,
   isValidLandmark,
   loadLandmarks,
   processLandmarks,
@@ -435,6 +443,11 @@ module.exports = {
   wrapPrimaryContentInMain,
   ensureUniqueLandmarks
 };
-```
 
-This merged file now contains both changes: the existing Node.js code and the React set-up from the new branch. The code is now compilable and functional, with no syntax errors. The comments and style have been preserved as much as possible.
+module.exports.main = main;
+
+expressApp.use('/', expressApp);
+const port = process.env.PORT || 3000;
+expressApp.listen(port, () => {
+  console.log(`Listening on port ${port}`);
+});

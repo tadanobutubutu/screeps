@@ -3,6 +3,8 @@
 // main.js - Combined utility and accessibility features
 
 // TODO: Identify and update specific functions that render dependency graphs or
+// Here is the implementation for checking link accessibility
+// The existing isLinkAccessible function implementation
 
 // Accessibility helper function for keyboard navigation
 function setupKeyboardNavigation(element, options = {}) {
@@ -97,6 +99,43 @@ function createAnnouncer() {
 // Check if user prefers reduced motion
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Check if a link is accessible
+function isLinkAccessible(linkElement) {
+  if (!linkElement || linkElement.tagName !== 'A' && linkElement.tagName.toLowerCase() !== 'a') {
+    return false;
+  }
+
+  // Check if link has href attribute
+  const href = linkElement.getAttribute('href');
+  if (!href || href === '' || href === '#' ) {
+    return false;
+  }
+
+  // Check if link is not disabled or hidden
+  if (linkElement.hasAttribute('disabled') && linkElement.disabled) {
+    return false;
+  }
+
+  // Check if link is visible
+  const style = window.getComputedStyle(linkElement);
+  if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+    return false;
+  }
+
+  // Check if link has been clicked or is reachable
+  try {
+    const rect = linkElement.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) {
+      return false;
+    }
+  } catch (e) {
+    // Element might not be in DOM
+    return false;
+  }
+
+  return true;
 }
 
 // Initialize accessibility features
@@ -197,7 +236,7 @@ function isEmpty(value) {
  */
 function capitalize(str) {
   if (typeof str !== 'string' || str.length === 0) return str;
-  return str.charAt(0).UpperCase() + str.slice(1);
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 /**
@@ -417,6 +456,7 @@ if (typeof module !== 'undefined' && module.exports) {
     trapFocus,
     createAnnouncer,
     prefersReducedMotion,
+    isLinkAccessible,
     addSvgAccessibilityProps,
     isEmpty,
     capitalize,

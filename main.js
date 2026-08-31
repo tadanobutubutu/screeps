@@ -23,6 +23,57 @@ function fixAccessibilityIssues() {
   // Code to fix accessibility issues as per the insight report
 }
 
+/**
+ * Renders the index view for the dependency visualization tool.
+ * @returns {HTMLElement} The rendered index view container element
+ */
+function renderIndexView() {
+  const container = document.createElement('div');
+  container.id = 'index-view';
+  container.className = 'index-view';
+  container.setAttribute('role', 'main');
+  container.setAttribute('aria-label', 'Dependency Visualization Tool Index');
+
+  const header = document.createElement('header');
+  const title = document.createElement('h1');
+  title.textContent = 'Dependency Visualization Tool';
+  header.appendChild(title);
+  container.appendChild(header);
+
+  const description = document.createElement('p');
+  description.className = 'description';
+  description.textContent = 'Analyze and visualize your project dependencies with accessibility support.';
+  container.appendChild(description);
+
+  const actionsContainer = document.createElement('div');
+  actionsContainer.className = 'actions';
+
+  const visualizeButton = document.createElement('button');
+  visualizeButton.id = 'visualize-dependencies-btn';
+  visualizeButton.setAttribute('role', 'button');
+  visualizeButton.setAttribute('aria-label', 'Visualize project dependencies');
+  visualizeButton.textContent = 'Visualize Dependencies';
+  visualizeButton.onclick = () => {
+    const dependencies = getDependencies();
+    visualizeDependencyTree(dependencies);
+  };
+  actionsContainer.appendChild(visualizeButton);
+
+  const accessibilityButton = document.createElement('button');
+  accessibilityButton.id = 'check-accessibility-btn';
+  accessibilityButton.setAttribute('role', 'button');
+  accessibilityButton.setAttribute('aria-label', 'Check and address accessibility issues');
+  accessibilityButton.textContent = 'Check Accessibility';
+  accessibilityButton.onclick = () => {
+    main.addressAccessibilityIssues();
+  };
+  actionsContainer.appendChild(accessibilityButton);
+
+  container.appendChild(actionsContainer);
+
+  return container;
+}
+
 // Main entry point for dependency visualization tool
 export const main = {
   init: function() {
@@ -33,6 +84,10 @@ export const main = {
     return `Hello, ${name}!`;
   },
 
+  renderIndexView: function() {
+    return renderIndexView();
+  },
+
   // New function for rotating back
   rotateBack: function() {
     console.log('Reverting back the rotation.');
@@ -41,7 +96,7 @@ export const main = {
   // New function to address all accessibility issues
   addressAccessibilityIssues: function() {
     fixAccessibilityIssues();
-    visualizeDependencyTree(getDependencies()); // Replace getDependencies() with actual function or variable
+    ... // Replace getDependencies() with actual function or variable
   }
 };
 
@@ -55,7 +110,7 @@ function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
   if (onClickHandler && typeof onClickHandler === 'function') {
-    button.addEventListener('click', onClickHandler);
+    ... onClickHandler);
   }
   return button;
 }
@@ -89,24 +144,24 @@ function createUnrotateButton() {
   button.setAttribute('role', 'button');
   button.ariaLabel = 'rotate back';
   button.textContent = 'rotate back';
-  button.addEventListener('click', rotateBack);
+  ... rotateBack);
   return button;
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.querySelector('a[href="#"]');
+const fakeLink = ...
 if (fakeLink && fakeLink.tagName === 'A') {
   const parent = fakeLink.parentElement;
   const newButton = createUnrotateButton();
-  parent.replaceChild(newButton, fakeLink);
+  ... fakeLink);
 }
 
 // Load landmarks from file (new addition)
 import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
-      const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
-      const data = fs.readFileSync(filePath, 'utf8');
+      const filePath = ... CONFIG.dataPath, 'landmarks.json');
+      const data = ... 'utf8');
       return JSON.parse(data);
   } catch (error) {
       console.error('Error loading landmarks:', error.message);
@@ -120,15 +175,15 @@ function processLandmarks(landmarks) {
         return [];
     }
 
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+    const validLandmarks = ...
+    const uniqueLandmarks = ...
 
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
+    return ... CONFIG.maxResults);
 }
 
 // Sort landmarks by name (new addition)
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
+    return ... b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
 
@@ -140,7 +195,7 @@ function sortLandmarks(landmarks, ascending = true) {
 }
 
 // Get landmark by ID (new addition)
-function getLandmarkById(landmarks, id) {
+function ... id) {
     return landmarks.find(landmark => landmark.id === id) || null;
 }
 
@@ -162,7 +217,7 @@ function ensureUniqueLandmarks(landmarks) {
 
         if (!seen.has(landmarkId)) {
             seen.add(landmarkId);
-            uniqueLandmarks.push(landmark);
+            ...
         }
     }
 

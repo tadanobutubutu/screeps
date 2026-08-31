@@ -57,6 +57,7 @@ if (typeof document !== 'undefined') {
  */
 export function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
+  button.type = 'button';
   button.textContent = buttonText;
   if (onClickHandler && typeof onClickHandler === 'function') {
     button.addEventListener('click', onClickHandler);
@@ -85,8 +86,8 @@ export function getConfig() {
 }
 
 // Example usage for SVGs:
-// const svg1 = ...
-// const svg2 = ...
+// const svg1 = document.querySelector('#svg1');
+// const svg2 = document.querySelector('#svg2');
 // svg1.setAttribute('aria-label', 'Description of first icon');
 // svg2.setAttribute('aria-label', 'Description of second icon');
 
@@ -228,4 +229,78 @@ export function replaceFakeLinks() {
     const newButton = createUnrotateButton();
     parent.replaceChild(newButton, fakeLink);
   }
+}
+
+function newFunction() {
+  // Implementation of the new function
+}
+
+// TODO: Implement a function to count dependencies
+/**
+ * Count the number of dependencies in the given dependency object or array
+ * @param {Object|Array} dependencies - The dependencies to count
+ * @returns {number} The number of dependencies
+ */
+function countDependencies(dependencies) {
+  if (!dependencies) {
+    return 0;
+  }
+  
+  if (Array.isArray(dependencies)) {
+    return dependencies.length;
+  }
+  
+  if (typeof dependencies === 'object') {
+    return Object.keys(dependencies).length;
+  }
+  
+  return 0;
+}
+
+export function calculateDiscount(price, discount) {
+  if (typeof price !== 'number' || price < 0) {
+    throw new Error('Price must be a non-negative number');
+  }
+  if (typeof discount !== 'number' || discount < 0) {
+    throw new Error('Discount must be a non-negative number');
+  }
+
+  // Calculate discounted price
+  const discountedPrice = price * (1 - discount / 100);
+  return Math.max(0, discountedPrice);
+}
+
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+function add(a, b) {
+  return a + b;
+}
+
+// Export existing functionality and new functions
+export { 
+  initialize, 
+  getConfig, 
+  setupSkipLinks, 
+  setupButtonAccessibility, 
+  createInPageButton, 
+  performTask, 
+  handleEvent, 
+  greet, 
+  add, 
+  calculateDiscount, 
+  newFunction,
+  countDependencies
+};
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
+}
+}
 }

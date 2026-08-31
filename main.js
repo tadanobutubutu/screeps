@@ -37,14 +37,31 @@ function startApp() {
   return server;
 }
 
+// New function to handle accessibility concerns
+function enhanceAccessibility(server) {
+  // Example: Implementing a middleware to check for accessibility concerns
+  server.use((req, res, next) => {
+    // Simulate accessibility check
+    const accessibilityPassed = true; // This should be replaced with actual accessibility checks
+    if (!accessibilityPassed) {
+      res.writeHead(406, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'error', message: 'Accessibility issues detected' }));
+    } else {
+      next();
+    }
+  });
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  enhanceAccessibility // New export for accessibility enhancements
 };
 
 // Start the application if run directly
 if (require.main === module) {
-  startApp();
+  const server = startApp();
+  enhanceAccessibility(server); // Apply the accessibility enhancements
 }

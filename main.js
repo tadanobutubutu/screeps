@@ -1,8 +1,17 @@
-const main = require('./main');
+const main = require('./utilities');
+const { requireDir } = require('require-dir');
+requireDir(require.resolve('./utilities'));
 
-// Accessibility function
+// Import all utilities functions for convenience
+const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport,
+  addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibleProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderGraphIndex, renderDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
+
+const http = require('http');
+
+// Accessibility function (merged from both branches)
 function setSvgAccessibleProps(svg) {
-  main.setSvgAttributes(svg);
+  addSvgAccessibleNames(svg); // From branch HEAD
+  validateLandmarkStructure(svg); // From branch origin/main
   const titleElement = main.getSvgAccessibleName(svg);
   if (titleElement) {
     svg.setAttribute('aria-labelledby', titleElement.id);
@@ -15,5 +24,6 @@ function setSvgAccessibleProps(svg) {
 // Exporting merged code
 module.exports = {
   ...main,
-  setSvgAccessibleProps
+  setSvgAccessibleProps,
+  renderGraphIndex // Replace renderDependencyGraphs with renderGraphIndex
 };

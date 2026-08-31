@@ -272,8 +272,6 @@ function groupByCategory(items, getCategory) {
 
 _Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
 
-<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
-
 // TODO: Implement the new function as per the issue requirements
 function transformInputData(inputData, options = {}) {
   const {

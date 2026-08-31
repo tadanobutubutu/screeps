@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Main JavaScript file
 // This file handles the main application logic
 
@@ -179,4 +176,3 @@ Here is the resolved file content:
         }
     }
 })();
-```

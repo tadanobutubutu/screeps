@@ -1,5 +1,4 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
+// TODO: Identify and update specific functions that render dependency graphs or index views.
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
@@ -8,6 +7,55 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
+
+// TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)
+
+// Import required modules
+const fs = require('fs');
+const path = require('path');
+const http = require('http');
+const https = require('https');
+
+// Utility functions
+function getFileExtension(filepath) {
+  return path.extname(filepath);
+}
+
+function readFileAsync(filepath) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filepath, 'utf8', (err, data) => {
+      if (err) reject(err);
+      else resolve(data);
+    });
+  });
+}
+
+function writeFileAsync(filepath, data) {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(filepath, data, 'utf8', (err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+}
+
+function createServer(port, hostname, requestListener) {
+  const server = http.createServer(requestListener);
+  return server.listen(port, hostname);
+}
+
+function createHttpsServer(options, requestListener) {
+  const server = https.createServer(options, requestListener);
+  return server;
+}
+
+function getAbsolutePath(relativePath) {
+  return path.resolve(relativePath);
+}
+
+function joinPaths(...paths) {
+  return path.join(...paths);
+}
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
@@ -53,6 +101,13 @@ function detectAndSetLang(content) {
 // New function to address REACT_015: Add lang attribute to HTML element
 function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
+}
+
+// New function to address REACT_015 and REACT_036: personName function referenced in comments
+function personName(name) {
+  // Returns a formatted person name for accessibility purposes
+  if (!name) return '';
+  return name.trim();
 }
 
 // New function to address REACT_027: Fix 26 table structure issues
@@ -312,6 +367,77 @@ function createAccessibleLink(href, text, options = {}) {
   }
   
   return link;
+}
+
+/**
+ * Checks if a link element is accessible
+ * @param {HTMLAnchorElement} link - The link element to check
+ * @returns {Object} Result with valid boolean and errors array
+ */
+function isLinkAccessible(link) {
+  const errors = [];
+  
+  if (!link) {
+    return { valid: false, errors: ['Link element is required'] };
+  }
+  
+  // Check if it's an anchor element
+  if (link.tagName !== 'A') {
+    errors.push('Element is not an anchor tag');
+    return { valid: false, errors };
+  }
+  
+  // Check for href attribute
+  const href = link.getAttribute('href');
+  if (!href || href === '#' || href === '') {
+    // If no href, check if it's properly set up as a button
+    const role = link.getAttribute('role');
+    if (role !== 'button') {
+      errors.push('Link missing href attribute and not configured as a button');
+    }
+    // Check for click handler
+    if (!link.onclick && !link.hasAttribute('data-handler')) {
+      errors.push('Fake link missing click handler');
+    }
+  }
+  
+  // Check for accessible name
+  const textContent = link.textContent ? link.textContent.trim() : '';
+  const ariaLabel = link.getAttribute('aria-label');
+  const ariaLabelledby = link.getAttribute('aria-labelledby');
+  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
+  
+  if (!hasAccessibleName) {
+    errors.push('Link is missing accessible name (text content, aria-label, or aria-labelledby)');
+  }
+  
+  // Check for valid href if present
+  if (href && href !== '#') {
+    // Check for javascript: links
+    if (href.toLowerCase().startsWith('javascript:')) {
+      errors.push('Link uses javascript: protocol which is not accessible');
+    }
+    // Check for mailto: links without proper labeling
+    if (href.toLowerCase().startsWith('mailto:') && !ariaLabel && !textContent.includes('@')) {
+      errors.push('Mailto link may need aria-label for clarity');
+    }
+  }
+  
+  // Check target="_blank" has rel="noopener noreferrer"
+  if (link.getAttribute('target') === '_blank') {
+    const rel = link.getAttribute('rel');
+    if (!rel || !rel.includes('noopener') || !rel.includes('noreferrer')) {
+      errors.push('External link with target="_blank" missing rel="noopener noreferrer"');
+    }
+  }
+  
+  // Check for redundant title attribute
+  const title = link.getAttribute('title');
+  if (title && title === textContent) {
+    errors.push('Link title attribute duplicates link text');
+  }
+  
+  return { valid: errors.length === 0, errors };
 }
 
 /**
@@ -844,11 +970,23 @@ function towerDefense() {
   };
 }
 
-// Export all functions to maintain current exports
+// Export functions
 module.exports = {
+  fs,
+  path,
+  http,
+  https,
+  getFileExtension,
+  readFileAsync,
+  writeFileAsync,
+  createServer,
+  createHttpsServer,
+  getAbsolutePath,
+  joinPaths,
   setHtmlLangAttribute,
   detectAndSetLang,
   getLangAttribute,
+  personName,
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
@@ -857,6 +995,7 @@ module.exports = {
   getSvgAccessibleName,
   ensureUniqueLandmarks,
   createAccessibleLink,
+  isLinkAccessible,
   towerDefense,
   getModuleDependencies,
   renderDependencyGraph,

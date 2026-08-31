@@ -294,10 +294,12 @@ function renderAccessibilityPage() {
 }
 
 const renderDependencyGraph = (data) => {
+  console.log('Rendering dependency graph with data:', data);
   // Code to render the dependency graph
 };
 
 const renderIndex = () => {
+  console.log('Rendering index view');
   // Code to render the index view
 };
 

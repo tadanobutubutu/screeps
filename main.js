@@ -37,6 +37,98 @@ function addAriaLabel(element, label) {
   return false;
 }
 
+// TODO: Implement this function for creating in-page buttons
+/**
+ * Creates an accessible in-page button with proper ARIA attributes.
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - The button text content
+ * @param {string} [options.ariaLabel] - Accessible label (defaults to text if not provided)
+ * @param {Function} [options.onClick] - Click event handler
+ * @param {string} [options.type='button'] - Button type (button, submit, reset)
+ * @param {string} [options.className] - Additional CSS classes
+ * @param {string} [options.id] - Optional explicit ID
+ * @param {HTMLElement} [options.container] - Container to append the button to
+ * @param {boolean} [options.disabled=false] - Whether the button is disabled
+ * @param {string} [options.ariaDescribedBy] - ID of element that describes the button
+ * @param {string} [options.ariaControls] - ID of element controlled by the button
+ * @param {boolean} [options.ariaExpanded] - Expanded state for toggle buttons
+ * @param {boolean} [options.ariaPressed] - Pressed state for toggle buttons
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(options = {}) {
+  const {
+    text,
+    ariaLabel,
+    onClick,
+    type = 'button',
+    className = '',
+    id,
+    container,
+    disabled = false,
+    ariaDescribedBy,
+    ariaControls,
+    ariaExpanded,
+    ariaPressed
+  } = options;
+
+  if (!text && !ariaLabel) {
+    throw new Error('createInPageButton: Either text or ariaLabel must be provided');
+  }
+
+  const button = document.createElement('button');
+  button.type = type;
+  button.textContent = text || '';
+
+  // Set accessible name
+  const accessibleLabel = ariaLabel || text;
+  addAriaLabel(button, accessibleLabel);
+
+  // Set ID if provided or generate one
+  if (id) {
+    button.id = id;
+  } else {
+    ensureElementHasId(button, 'btn');
+  }
+
+  // Add CSS classes
+  if (className) {
+    button.className = className;
+  }
+
+  // Set disabled state
+  if (disabled) {
+    button.disabled = true;
+    button.setAttribute('aria-disabled', 'true');
+  }
+
+  // Set ARIA attributes for toggle/expandable buttons
+  if (ariaControls) {
+    button.setAttribute('aria-controls', ariaControls);
+  }
+  if (typeof ariaExpanded === 'boolean') {
+    button.setAttribute('aria-expanded', ariaExpanded.toString());
+  }
+  if (typeof ariaPressed === 'boolean') {
+    button.setAttribute('aria-pressed', ariaPressed.toString());
+    button.setAttribute('role', 'switch');
+  }
+  if (ariaDescribedBy) {
+    button.setAttribute('aria-describedby', ariaDescribedBy);
+  }
+
+  // Add click handler if provided
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+
+  // Append to container if provided
+  if (container && container instanceof HTMLElement) {
+    container.appendChild(button);
+  }
+
+  return button;
+}
+
 // Accessible Insight Report Interface - Dependency Graph Rendering
 // Line 3: Address accessibility issues from insight report — FIXED
 
@@ -351,6 +443,7 @@ if (typeof module !== 'undefined' && module.exports) {
     updateDependencyGraph,
     ensureElementHasId,
     addAriaLabel,
-    renderDependencyGraphs
+    renderDependencyGraphs,
+    createInPageButton
   };
 }

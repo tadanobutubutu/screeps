@@ -6,7 +6,7 @@ const { indexContent } = require('./index-template');
 // Ensure the dependencyGraph container has a proper ARIA role
 
 // Import necessary dependencies
-import React from 'react';
+import React, { useRef } from 'react';
 import { render } from 'react-dom';
 import { addLangAttribute, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, uniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, googleSignIn, decodeJwtResponse, fixButtonIdentifiers, ensureElementHasId, addAriaLabel, renderDependencyGraphs } from './AccessibilityHelpers';
 
@@ -62,6 +62,7 @@ function validateTableStructure(tableData) {
   // Implementation placeholder - function to be implemented
   return true;
 }
+
 // New function to handle accessibility issues
 function handleAccessibilityIssues() {
   // Code to handle accessibility issues as per the insight report
@@ -75,7 +76,6 @@ function handleAccessibilityIssues() {
   getSvgAccessibleName();
   createInPageButton();
   createAccessibleLink();
-  handleAccessibilityIssues();
 }
 
 // New utility functions
@@ -105,6 +105,18 @@ function sanitizeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
+const App = () => {
+  const landmarkRef = useRef();
+
+  return (
+    <div>
+      {/* Add a designated landmark for accessibility - replace 'My Application' with an appropriate name for your app */}
+      <div id="landmark" ref={landmarkRef} aria-live="polite" aria-label="My Application"></div>
+      {/* The rest of your existing markup here */}
+    </div>
+  );
+};
+
 // Export all utility functions
 module.exports = {
   renderDependencyGraph,
@@ -114,5 +126,6 @@ module.exports = {
   sanitizeHtml,
   validateTableAccessibility,
   validateTableStructure,
-  renderAdditionalContent
+  renderAdditionalContent,
+  App
 };

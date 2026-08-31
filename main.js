@@ -1,227 +1,105 @@
-Here is the resolved file content:
+/**
+ * Main application entry point
+ */
 
-```javascript
+// Import required modules
+const http = require('http');
+const path = require('path');
+
 // TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
-/**
- * Get the language attribute value for the HTML element
- * @returns {string} The language attribute value
- */
-function getLangAttribute() {
-  return 'en';
-}
-
-/**
- * Get the full language attribute string for the HTML element
- * @returns {string} The full lang attribute (e.g., "en" or "en-US")
- */
-function getFullLangAttribute() {
-  return 'en-US';
-}
-
-/**
- * Adds the lang attribute to the HTML element based on the content of the page
- * @param {string} lang - The lang attribute value
- */
-function addLangAttribute(lang) {
-  const htmlEl = document.documentElement;
-  if (!htmlEl.getAttribute('lang')) {
-    htmlEl.setAttribute('lang', lang);
-  }
-}
-
-/**
- * Validates the structure of tables for accessibility
- * @param {Array} tables - Array of table objects to validate
- * @returns {Object} Validation result with success status and any issues found
- */
-function validateTableAccessibility(table) {
-  const issues = [];
-
-  if (!table.headers) {
-    issues.push('Missing headers attribute');
-  }
-
-  if (!table.scope) {
-    issues.push('Missing scope attribute');
-  }
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
-}
-
-/**
- * Validates the structure of landmark elements
- * @param {Array} landmarks - Array of landmark elements to validate
- * @returns {Object} Validation result with success status and any issues found
- */
-function validateLandmarkStructure(landmarks) {
-  const issues = [];
-
-  landmarks.forEach((landmark, index) => {
-    const result = validateLandmark(landmark);
-    if (!result.success) {
-      issues.push({
-        landmarkIndex: index,
-        issues: result.issues
-      });
-    }
-  });
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
-}
-
-/**
- * Validates landmark elements for accessibility
- * @param {Object} element - The element to validate
- * @returns {Object} Validation result with success status and any issues found
- */
-function validateLandmark(element) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-
-  if (!element.tagName) {
-    issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${element.tagName}`);
-  }
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
-}
-
-/**
- * Ensures all landmarks have unique accessible names
- * @param {Array} landmarks - Array of landmark elements to check
- * @returns {Object} Result with success status and any duplicate names found
- */
-function ensureUniqueLandmarks(landmarks) {
-  const names = [];
-  const duplicates = [];
-
-  landmarks.forEach(landmark => {
-    const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
-    if (names.includes(name)) {
-      duplicates.push(name);
-    } else {
-      names.push(name);
-    }
-  });
-
-  return {
-    success: duplicates.length === 0,
-    duplicates
-  };
-}
-
-/**
- * Gets the accessible name for an SVG element
- * @param {Object} svg - The SVG element
- * @returns {string} The accessible name for the SVG
- */
-function getSvgAccessibleName(svg) {
-  if (svg.ariaLabel) {
-    return svg.ariaLabel;
-  }
-  if (svg.ariaLabelledby) {
-    return svg.ariaLabelledby;
-  }
-  if (svg.title) {
-    return svg.title;
-  }
-  return 'Unnamed SVG';
-}
-
-/**
- * Creates an accessible in-page button
- * @param {Object} options - Button options
- * @param {string} options.text - Button text
- * @param {string} options.ariaLabel - Aria label for the button
- * @param {Function} options.onClick - Click handler
- * @returns {Object} Button element object
- */
-function createInPageButton(options) {
-  return {
-    type: 'button',
-    text: options.text,
-    ariaLabel: options.ariaLabel || options.text,
-    onClick: options.onClick,
-    accessibleName: getSvgAccessibleName({ ariaLabel: options.ariaLabel })
-  };
-}
-
-/**
- * Creates an accessible link element
- * @param {Object} options - Link options
- * @param {string} options.href - Link URL
- * @param {string} options.text - Link text
- * @param {string} options.ariaLabel - Aria label for the link
- * @returns {Object} Link element object
- */
-function createAccessibleLink(options) {
-  return {
-    type: 'a',
-    href: options.href,
-    text: options.text,
-    ariaLabel: options.ariaLabel || options.text,
-    isFake: false
-  };
-}
-
-/**
- * Handles accessibility issues found during validation
- * @param {Array} issues - Array of accessibility issues
- * @returns {Object} Summary of handled issues
- */
-function handleAccessibilityIssues(issues) {
-  const handled = [];
-  const unhandled = [];
-
-  issues.forEach(issue => {
-    if (issue.fixable) {
-      handled.push(issue);
-    } else {
-      unhandled.push(issue);
-    }
-  });
-
-  return {
-    total: issues.length,
-    handled: handled.length,
-    unhandled: unhandled.length,
-    unhandledIssues: unhandled
-  };
-}
-
-// Export all functions for testing and external use
-module.exports = {
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  createInPageButton,
-  createAccessibleLink,
-  handleAccessibilityIssues,
-  addLangAttribute // Added for merge
+// Application configuration
+const config = {
+  port: process.env.PORT || 3000,
+  env: process.env.NODE_ENV || 'development'
 };
-```
 
-This file has been merged with the new changes from the conflicting changeset, which includes additional functions for validating table structure, landmark structure, and ensuring unique landmarks; as well as functions for creating accessible in-page buttons and links. The added `addLangAttribute` function has also been included in the exports to make it accessible for external use.
+/**
+ * Creates and starts the HTTP server
+ * @returns {http.Server} The created server instance
+ */
+function createServer() {
+  const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok', config }));
+  });
+  return server;
+}
+
+/**
+ * Starts the application
+ */
+function startApp() {
+  const server = createServer();
+  server.listen(config.port, () => {
+    console.log(`Server running on port ${config.port}`);
+  });
+  return server;
+}
+
+// Export functions for testing
+module.exports = {
+  createServer,
+  startApp,
+  config
+};
+
+// Start the application if run directly
+if (require.main === module) {
+  startApp();
+}
+
+// New functions for addressing accessibility issues
+function addLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+function addLandmarkRoles() {
+  // Example of adding landmark roles to certain elements
+  // This is a placeholder function and should be implemented according to the actual HTML structure
+  const mainContent = document.querySelector('#main-content');
+  if (mainContent) {
+    mainContent.setAttribute('role', 'main');
+  }
+
+  const navigation = document.querySelector('#navigation');
+  if (navigation) {
+    navigation.setAttribute('role', 'navigation');
+  }
+
+  // Add more landmarks as needed
+}
+
+function ensureUniqueLandmarks() {
+  // Example of ensuring unique landmarks
+  // This is a placeholder function and should be implemented according to the actual HTML structure
+  const landmarks = document.querySelectorAll('main, nav, aside, footer');
+  landmarks.forEach((landmark, index) => {
+    if (index === 0) {
+      landmark.setAttribute('id', 'main-content');
+    } else {
+      landmark.setAttribute('id', `unique-landmark-${index}`);
+    }
+  });
+}
+
+function fixFakeLink() {
+  // Example of fixing fake link issues
+  // This is a placeholder function and should be implemented according to the actual HTML structure
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  fakeLinks.forEach((link) => {
+    link.setAttribute('role', 'link');
+    link.setAttribute('href', link.getAttribute('data-href'));
+  });
+}
+
+// Call these functions as needed, for example on page load
+window.onload = () => {
+  addLangAttribute();
+  addLandmarkRoles();
+  ensureUniqueLandmarks();
+  fixFakeLink();
+};

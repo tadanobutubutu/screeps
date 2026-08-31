@@ -42,7 +42,26 @@ function createInPageButton() {
 
 // ADD: New function for handling the new accessibility issues from the insight report
 function addressNewAccessibilityIssues() {
-  // ... code to handle the new accessibility issues
+  // Retrieve the language attribute for the HTML document
+  const lang = getLangAttribute();
+
+  // Apply the language attribute to the <body> element if not already present
+  const body = document.body;
+  if (body && typeof body !== 'undefined' && !body.getAttribute('lang')) {
+    body.setAttribute('lang', lang);
+  }
+
+  // Ensure the main content area has an appropriate ARIA role
+  const main = document.querySelector('main');
+  if (main && typeof main !== 'undefined') {
+    main.setAttribute('role', 'main');
+  }
+
+  // Attach an accessible label to the primary action button
+  const submitBtn = document.querySelector('.btn-submit');
+  if (submitBtn && typeof submitBtn !== 'undefined') {
+    submitBtn.setAttribute('aria-label', personName());
+  }
 }
 
 // Application configuration

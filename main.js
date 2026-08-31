@@ -121,6 +121,60 @@ function newFocusTrap(element) {
   });
 }
 
+const getLangAttribute = () => {
+  if (typeof document !== 'undefined') {
+    return document.documentElement.getAttribute('lang');
+  }
+  return null;
+};
+
+const personName = (first, last) => {
+  if (!first || !last) return '';
+  return `${first} ${last}`;
+};
+
+const validateTableAccessibility = (table) => {
+  if (!table || table.tagName !== 'TABLE') return false;
+  const caption = table.querySelector('caption');
+  const headers = table.querySelectorAll('th');
+  return !!caption && headers.length > 0;
+};
+
+const validateTableStructure = (table) => {
+  if (!table || table.tagName !== 'TABLE') return false;
+  const rows = table.querySelectorAll('tr');
+  return rows.length > 0;
+};
+
+const validateLandmark = (element) => {
+  if (!element) return false;
+  const role = element.getAttribute('role');
+  return ['banner', 'navigation', 'main', 'complementary', 'contentinfo'].includes(role);
+};
+
+const validateLandmarkStructure = (element) => {
+  return element && element.hasAttribute('aria-label');
+};
+
+const getSvgAccessibleName = (svg) => {
+  if (!svg) return '';
+  const desc = svg.querySelector('desc');
+  if (desc && desc.textContent) return desc.textContent;
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  const title = svg.querySelector('title');
+  if (title && title.textContent) return title.textContent;
+  return 'Image';
+};
+
+const createInPageButton = (text, onClick) => {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.setAttribute('aria-label', text);
+  if (onClick) button.addEventListener('click', onClick);
+  return button;
+};
+
 // Add back any required exports that might have been removed.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 function calculateSum(a, b) { return a + b; }
@@ -281,6 +335,45 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
+
+  if (typeof inputData === 'string') {
+    let result = inputData;
+    if (trimWhitespace) result = result.trim();
+    if (uppercase) result = result.toUpperCase();
+    if (maxLength !== null) result = result.substring(0, maxLength);
+    return result;
+  }
+
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => {
+      if (typeof item === 'string') {
+        let str = item;
+        if (trimWhitespace) str = str.trim();
+        if (uppercase) str = str.toUpperCase();
+        if (maxLength !== null) str = str.substring(0, maxLength);
+        return str;
+      }
+      return item;
+    });
+  }
+
+  if (typeof inputData === 'object' && inputData !== null) {
+    const result = {};
+    for (const key in inputData) {
+      if (preserveKeys) {
+        let val = inputData[key];
+        if (typeof val === 'string') {
+          if (trimWhitespace) val = val.trim();
+          if (uppercase) val = val.toUpperCase();
+          if (maxLength !== null) val = val.substring(0, maxLength);
+        }
+        result[key] = val;
+      }
+    }
+    return result;
+  }
+
+  return inputData;
 }
 
 // Initialize on DOM ready
@@ -308,5 +401,13 @@ module.exports = {
   readFileSafe,
   processData,
   filterValidItems,
-  groupByCategory
+  groupByCategory,
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton
 };

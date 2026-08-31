@@ -1,4 +1,11 @@
-// Import necessary dependencies
+// Read the current main.js file to see exact content and locate the TODO line
+const currentContent = readTextFile("/home/runner/work/screeps/screeps/main.js");
+
+// For safety, if the file cannot be read, fallback to the provided snippet and assume the TODO is at the end.
+if (!currentContent) {
+  // Use the provided snippet as fallback
+  // Append the new function after the last export statement
+  const fallbackContent = `// Import necessary dependencies
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List, Button } from 'antd';
@@ -15,7 +22,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return book.id || `${book.title}-${book.author}`;
+  return book.id || \`\${book.title}-\${book.author}\`;
 }
 
 // Function to render a single book item
@@ -24,7 +31,7 @@ function BookItem({ book }) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        description={`by ${book.author}`}
+        description={\`by \${book.author}\`}
       />
     </List.Item>
   );
@@ -119,7 +126,7 @@ function validateTableStructure(tableElement) {
   rows.forEach((row, rowIndex) => {
     const cells = row.querySelectorAll('td, th');
     if (cells.length === 0) {
-      issues.push(`REACT_027: Row ${rowIndex} has no cells`);
+      issues.push(\`REACT_027: Row \${rowIndex} has no cells\`);
     }
   });
   
@@ -134,7 +141,7 @@ function validateLandmark() {
   landmarks.forEach(landmark => {
     const elements = document.querySelectorAll(landmark);
     if (elements.length > 1 && landmark !== 'nav' && landmark !== 'aside') {
-      issues.push(`REACT_017: Multiple ${landmark} landmarks found`);
+      issues.push(\`REACT_017: Multiple \${landmark} landmarks found\`);
     }
   });
   
@@ -197,9 +204,9 @@ function ensureUniqueLandmarks() {
   const landmarkTypes = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
   
   landmarkTypes.forEach(type => {
-    const landmarks = document.querySelectorAll(`[role="${type}"]`);
+    const landmarks = document.querySelectorAll(\`[role="\${type}"]\`);
     if (landmarks.length > 1) {
-      issues.push(`REACT_025: Multiple ${type} landmarks found - should be unique`);
+      issues.push(\`REACT_025: Multiple \${type} landmarks found - should be unique\`);
     }
   });
   
@@ -248,12 +255,12 @@ function handleFakeLinks() {
   fakeLinks.forEach((link, index) => {
     const href = link.getAttribute('href');
     if (!href) {
-      issues.push(`REACT_036: Fake link ${index} has no href attribute`);
+      issues.push(\`REACT_036: Fake link \${index} has no href attribute\`);
     }
     
     // Convert fake link to accessible button if it's clickable
     if (link.tagName !== 'A' && link.getAttribute('onclick')) {
-      issues.push(`REACT_036: Consider using <button> instead of fake link ${index}`);
+      issues.push(\`REACT_036: Consider using <button> instead of fake link \${index}\`);
     }
   });
   
@@ -443,3 +450,12 @@ function Main() {
 // Export the Main component and the BookForm component
 export default Main;
 export { BookForm };
+
+// TODO: Implement this new function for making API calls\nasync function makeApiCall(url, options = {}) {\n  try {\n    const response = await fetch(url, options);\n    if (!response.ok) {\n      throw new Error(\`HTTP error! status: \${response.status}\`);\n    }\n    const data = await response.json();\n    return data;\n  } catch (error) {\n    console.error('API call failed:', error);\n    throw error;\n  }\n}`;
+
+// Now produce the final output: either the updated file or the fallback with the new function added.
+const finalContent = currentContent
+  ? currentContent.replace(/\/\/ TODO: Implement this new function for making API calls/, `\n\nasync function makeApiCall(url, options = {}) {\n  try {\n    const response = await fetch(url, options);\n    if (!response.ok) {\n      throw new Error(\\`HTTP error! status: \${response.status}\\`);\n    }\n    const data = await response.json();\n    return data;\n  } catch (error) {\n    console.error('API call failed:', error);\n    throw error;\n  }\n}`)
+  : fallbackContent;
+
+finalContent;

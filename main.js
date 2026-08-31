@@ -383,6 +383,351 @@ function ensureElementHasId(element, prefix = 'element') {
   return id;
 }
 
+// Accessibility: Get lang attribute from HTML element
+function getLangAttribute(element) {
+  if (!element) {
+    return document.documentElement?.lang || 'en';
+  }
+  
+  // Check element and its ancestors for lang attribute
+  let current = element;
+  while (current && current !== document.documentElement) {
+    if (current.lang) {
+      return current.lang;
+    }
+    current = current.parentElement;
+  }
+  
+  // Fall back to document language
+  return document.documentElement?.lang || 'en';
+}
+
+// Accessibility: Generate accessible name for person element
+function personName(element, options = {}) {
+  const {
+    preferFirstName = false,
+    includeTitle = true,
+    fallback = 'Person'
+  } = options;
+  
+  if (!element) {
+    return fallback;
+  }
+  
+  // Look for common name elements/attributes
+  const firstName = element.querySelector('[data-first-name], .first-name, .given-name, [itemprop="givenName"]');
+  const lastName = element.querySelector('[data-last-name], .last-name, .family-name, [itemprop="familyName"]');
+  const fullName = element.querySelector('[data-name], .name, [itemprop="name"]');
+  const titleAttr = element.getAttribute('title');
+  const ariaLabel = element.getAttribute('aria-label');
+  
+  let name = '';
+  
+  if (ariaLabel) {
+    name = ariaLabel;
+  } else if (fullName && fullName.textContent?.trim()) {
+    name = fullName.textContent.trim();
+  } else if (firstName && lastName) {
+    const first = firstName.textContent?.trim() || '';
+    const last = lastName.textContent?.trim() || '';
+    name = preferFirstName ? `${first} ${last}` : `${last}, ${first}`;
+  } else if (firstName?.textContent?.trim()) {
+    name = firstName.textContent.trim();
+  } else if (lastName?.textContent?.trim()) {
+    name = lastName.textContent.trim();
+  } else if (titleAttr) {
+    name = titleAttr;
+  }
+  
+  if (!name) {
+    return fallback;
+  }
+  
+  // Optionally prepend title
+  if (includeTitle && titleAttr && name !== titleAttr) {
+    return `${titleAttr}: ${name}`;
+  }
+  
+  return name;
+}
+
+// Accessibility: Validate table structure
+function validateTableStructure(tableElement) {
+  const issues = [];
+
+  if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
+    issues.push('Element is not a TABLE element');
+    return issues;
+  }
+
+  // Check for proper thead/tbody/tfoot structure
+  const thead = tableElement.querySelector('thead');
+  const tbody = tableElement.querySelector('tbody');
+  const tfoot = tableElement.querySelector('tfoot');
+  
+  if (tableElement.querySelectorAll('tr').length > 0 && !thead && !tbody) {
+    issues.push('TABLE should have a proper thead or tbody structure');
+  }
+
+  // Check scope attributes on TH elements
+  const thElements = tableElement.querySelectorAll('th');
+  thElements.forEach((th, index) => {
+    if (!th.hasAttribute('scope')) {
+      issues.push(`TH element at index ${index} is missing scope attribute`);
+    }
+  });
+
+  // Check for proper row/column headers using headers attribute
+  const tdWithHeaders = tableElement.querySelectorAll('td[headers]');
+  const headerIds = new Set();
+  thElements.forEach(th => {
+    if (th.id) headerIds.add(th.id);
+  });
+  
+  tdWithHeaders.forEach((td, index) => {
+    const headerRefs = td.getAttribute('headers').split(' ');
+    const invalidRefs = headerRefs.filter(ref => !headerIds.has(ref));
+    if (invalidRefs.length > 0) {
+      issues.push(`TD at index ${index} references non-existent headers: ${invalidRefs.join(', ')}`);
+    }
+  });
+
+  return issues;
+}
+
+// Accessibility: Validate landmarks
+function validateLandmark(element) {
+  const issues = [];
+  const validLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+
+  if (!element) {
+    // Validate all landmarks in document
+    if (typeof document !== 'undefined') {
+      const landmarks = document.querySelectorAll('[role], header, nav, main, aside, footer');
+      landmarks.forEach((landmark, index) => {
+        const role = landmark.getAttribute('role');
+        const tagName = landmark.tagName.toLowerCase();
+        
+        if (role && !validLandmarks.includes(role)) {
+          issues.push(`Landmark at index ${index} has invalid role: ${role}`);
+        }
+      });
+    }
+    return issues;
+  }
+
+  const role = element.getAttribute('role');
+  const tagName = element.tagName.toLowerCase();
+
+  // Check if element has valid landmark role or is a landmark element
+  const isLandmarkElement = ['header', 'nav', 'main', 'aside', 'footer'].includes(tagName);
+  const hasValidRole = role && (validLandmarks.includes(role) || role === 'navigation');
+
+  if (!isLandmarkElement && !hasValidRole) {
+    issues.push('Element is not a valid landmark');
+  }
+
+  return issues;
+}
+
+// Accessibility: Validate landmark structure
+function validateLandmarkStructure(document) {
+  const issues = [];
+
+  if (typeof document === 'undefined') {
+    issues.push('Document is required for landmark validation');
+    return issues;
+  }
+
+  // Check for multiple main landmarks
+  const mains = document.querySelectorAll('main, [role="main"]');
+  if (mains.length > 1) {
+    issues.push(`Found ${mains.length} main landmarks. There should typically be only one main landmark.`);
+  }
+
+  // Check for multiple banner landmarks
+  const banners = document.querySelectorAll('header:not([role]), [role="banner"]');
+  if (banners.length > 1) {
+    issues.push(`Found ${banners.length} banner landmarks. There should typically be only one banner landmark.`);
+  }
+
+  // Check for multiple contentinfo landmarks
+  const contentinfos = document.querySelectorAll('footer:not([role]), [role="contentinfo"]');
+  if (contentinfos.length > 1) {
+    issues.push(`Found ${contentinfos.length} contentinfo landmarks. There should typically be only one contentinfo landmark.`);
+  }
+
+  // Check for landmark accessibility name
+  const landmarksWithRoles = document.querySelectorAll('[role]');
+  landmarksWithRoles.forEach((landmark, index) => {
+    const role = landmark.getAttribute('role');
+    const hasLabel = landmark.hasAttribute('aria-label') || landmark.hasAttribute('aria-labelledby');
+    
+    // Regions and navigation typically need labels when multiple exist
+    if ((role === 'region' || role === 'navigation') && !hasLabel) {
+      const sameRoleLandmarks = document.querySelectorAll(`[role="${role}"]`);
+      if (sameRoleLandmarks.length > 1) {
+        issues.push(`Landmark with role="${role}" at index ${index} should have an accessible name when multiple exist`);
+      }
+    }
+  });
+
+  return issues;
+}
+
+// Accessibility: Get SVG accessible name
+function getSvgAccessibleName(svgElement, options = {}) {
+  const {
+    preferTitle = true,
+    fallback = 'Image'
+  } = options;
+
+  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
+    return fallback;
+  }
+
+  // Check aria-label first
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+
+  // Check aria-labelledby reference
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    if (labelElement && labelElement.textContent?.trim()) {
+      return labelElement.textContent.trim();
+    }
+  }
+
+  // Check for title element inside SVG
+  const title = svgElement.querySelector('title');
+  if (title && title.textContent?.trim()) {
+    return title.textContent.trim();
+  }
+
+  // Check for desc element
+  const desc = svgElement.querySelector('desc');
+  if (desc && desc.textContent?.trim()) {
+    return desc.textContent.trim();
+  }
+
+  // Check for data attributes
+  const dataName = svgElement.getAttribute('data-name') || svgElement.getAttribute('data-title');
+  if (dataName) {
+    return dataName;
+  }
+
+  // Fall back to role="img" with no name
+  const role = svgElement.getAttribute('role');
+  if (role === 'img') {
+    return fallback;
+  }
+
+  return fallback;
+}
+
+// Accessibility: Ensure unique landmarks
+function ensureUniqueLandmarks(document) {
+  const issues = [];
+  
+  if (typeof document === 'undefined') {
+    return { issues: ['Document is required'], duplicates: [] };
+  }
+
+  const duplicates = [];
+  const landmarkRoles = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search', 'region'];
+
+  landmarkRoles.forEach(role => {
+    const landmarks = document.querySelectorAll(`[role="${role}"], ${role === 'main' ? 'main' : role === 'navigation' ? 'nav' : role === 'banner' ? 'header' : role === 'contentinfo' ? 'footer' : role === 'complementary' ? 'aside' : ''}`);
+    const filteredLandmarks = Array.from(landmarks).filter(l => {
+      if (role === 'main') return l.tagName === 'MAIN' || l.getAttribute('role') === 'main';
+      if (role === 'navigation') return l.tagName === 'NAV' || l.getAttribute('role') === 'navigation';
+      if (role === 'banner') return l.tagName === 'HEADER' && !l.getAttribute('role');
+      if (role === 'contentinfo') return l.tagName === 'FOOTER' && !l.getAttribute('role');
+      return l.getAttribute('role') === role;
+    });
+
+    if (filteredLandmarks.length > 1) {
+      const ids = filteredLandmarks.map((l, i) => {
+        if (!l.id) {
+          l.id = `${role}-landmark-${i + 1}`;
+        }
+        return l.id;
+      });
+      duplicates.push({ role, count: filteredLandmarks.length, ids });
+      
+      // Add labels to distinguish landmarks
+      filteredLandmarks.forEach((landmark, index) => {
+        if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+          const label = `${role.charAt(0).toUpperCase() + role.slice(1)} ${index + 1}`;
+          landmark.setAttribute('aria-label', label);
+        }
+      });
+    }
+  });
+
+  return { issues, duplicates };
+}
+
+// Accessibility: Create in-page button (for fake link fix)
+function createInPageButton(options = {}) {
+  const {
+    text = 'Button',
+    onClick = null,
+    id = null,
+    className = '',
+    disabled = false,
+    ariaLabel = null
+  } = options;
+
+  const button = document.createElement('button');
+  
+  button.textContent = text;
+  button.className = className;
+  button.disabled = disabled;
+  
+  if (id) {
+    button.id = id;
+  }
+  
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+
+  // Ensure button semantics
+  button.setAttribute('type', 'button');
+  button.setAttribute('role', 'button');
+
+  // Add keyboard support
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!button.disabled) {
+        button.click();
+      }
+    }
+  });
+
+  // Add click handler
+  if (onClick && typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+
+  // Add focus styles
+  button.style.outline = 'none';
+  button.addEventListener('focus', () => {
+    button.style.outline = '2px solid currentColor';
+    button.style.outlineOffset = '2px';
+  });
+  button.addEventListener('blur', () => {
+    button.style.outline = 'none';
+  });
+
+  return button;
+}
+
 // Export the newFocusTrap function as a standalone utility
 const newFocusTrap = accessibilityUtils.newFocusTrap;
 
@@ -406,5 +751,13 @@ module.exports = {
   groupByCategory,
   transformInputData,
   validateTableAccessibility,
-  ensureElementHasId
+  ensureElementHasId,
+  getLangAttribute,
+  personName,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  ensureUniqueLandmarks,
+  createInPageButton
 };

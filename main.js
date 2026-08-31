@@ -200,6 +200,22 @@ function applyAccessibilityFixes(html) {
     return result;
 }
 
+function addressAccessibilityIssues(insightReport) {
+  // Apply accessibility fixes to HTML content based on insight report
+  if (insightReport && insightReport.html) {
+    insightReport.html = applyAccessibilityFixes(insightReport.html);
+  }
+  console.log('Addressing accessibility issues from insight report:', insightReport);
+}
+
+function createInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    document.body.appendChild(button);
+}
+
 module.exports = {
     addLangAttribute,
     fixTableStructure,
@@ -207,5 +223,7 @@ module.exports = {
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
     fixFakeLinks,
-    applyAccessibilityFixes
+    applyAccessibilityFixes,
+    addressAccessibilityIssues,
+    createInPageButton
 };

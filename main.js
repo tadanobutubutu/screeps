@@ -1,5 +1,10 @@
 // Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+// Accessibility issues from insight report have been addressed through:
+// - addressAccessibilityIssues() in accessibilityUtils
+// - validateTableAccessibility(), validateTableStructure(), validateLandmark(), validateLandmarkStructure()
+// - getSvgAccessibleName(), addSvgAccessibleName(), createInPageButton()
+// - getLangAttribute(), setLangAttribute(), personName()
+// - Enhanced export utilities with screen reader announcements
 
 // Utility functions for accessibility
 const accessibilityUtils = {

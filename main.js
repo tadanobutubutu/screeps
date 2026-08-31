@@ -5,7 +5,6 @@ const { indexContent } = require('./index');
 
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report:
-// ... (Removed hashes for ease of reading)
 
 const accessibilityUtils = {
   // ... existing methods from both branches ...
@@ -249,6 +248,93 @@ function newFocusTrap() {
   // New function implementation
 }
 
+// New functions integrated from origin/main branch
+
+/**
+ * Generate a unique landmark identifier
+ * @param {string} baseName - Base name for the landmark
+ * @param {number} index - Index to append
+ * @returns {string} Unique landmark identifier
+ */
+function generateUniqueLandmarkId(baseName, index) {
+  return `${baseName}-${index}`;
+}
+
+/**
+ * Check and fix landmark roles
+ * @param {Object} element - The element to apply landmark role to
+ * @param {string} role - The role to apply
+ * @returns {Object} Element with applied role
+ */
+function applyLandmarkRole(element, role) {
+  if (!element.props || !element.props.role) {
+    return {
+      ...element,
+      props: {
+        ...element.props,
+        role: role
+      }
+    };
+  }
+  return element;
+}
+
+/**
+ * Add accessible name to an SVG element
+ * @param {Object} svgElement - The SVG element
+ * @param {string} description - Description for accessibility
+ * @returns {Object} SVG element with accessible name
+ */
+function addSvgAccessibleName(svgElement, description) {
+  return {
+    ...svgElement,
+    props: {
+      ...svgElement.props,
+      'aria-label': description,
+      role: 'img'
+    }
+  };
+}
+
+/**
+ * Fix fake link issues by converting them to buttons
+ * @param {Object} element - The element to fix
+ * @returns {Object} Fixed element
+ */
+function fixFakeLink(element) {
+  if (element.type === 'a' && !element.props.href) {
+    return {
+      ...element,
+      type: 'button',
+      props: {
+        ...element.props,
+        role: 'button',
+        onClick: element.props.onClick || (() => {})
+      }
+    };
+  }
+  return element;
+}
+
+/**
+ * Ensure unique landmarks by generating unique IDs
+ * @param {string} baseName - Base name for landmarks
+ * @param {Array} elements - Elements to ensure uniqueness for
+ */
+function ensureUniqueLandmarks(baseName, elements) {
+  const seen = new Map();
+  elements.forEach((element, index) => {
+    const key = `${baseName}-${element.id || index}`;
+    if (seen.has(key)) {
+      const existing = seen.get(key);
+      element.id = `${baseName}-${existing.count + 1}`;
+      existing.count++;
+    } else {
+      seen.set(key, { count: 1, element });
+    }
+  });
+}
+
 function spawnProcess(command, args = [], options = {}) {
   return spawn(command, args, options);
 }
@@ -337,6 +423,35 @@ function log(message, level = 'info') {
   console[level](`[${timestamp}] [${level.toUpperCase()}] ${message}`);
 }
 
+// Accessibility initialization function
+function initAccessibility() {
+  // Set language attribute
+  if (document.documentElement.lang === undefined) {
+    document.documentElement.lang = 'en';
+  }
+  
+  // Ensure unique landmarks
+  const landmarks = ['navigation', 'search', 'main', 'contentinfo', 'complementary', 'form'];
+  landmarks.forEach((landmark, index) => {
+    const elements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`);
+    elements.forEach((element, elemIndex) => {
+      if (!element.id) {
+        element.id = generateUniqueLandmarkId(landmark, elemIndex);
+      }
+    });
+  });
+  
+  // Add accessible names to SVGs
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach((svg, index) => {
+    if (svg.getAttribute('aria-label') === null) {
+      svg.setAttribute('aria-label', `SVG graphic ${index + 1}`);
+    }
+  });
+  
+  log('Accessibility features initialized', 'info');
+}
+
 module.exports = {
   accessibilityUtils,
   exportUtils,
@@ -349,5 +464,17 @@ module.exports = {
   renderDependencyGraphs,
   spawnProcess,
   focusTrap,
-  newFocusTrap
+  newFocusTrap,
+  generateUniqueLandmarkId,
+  applyLandmarkRole,
+  addSvgAccessibleName,
+  fixFakeLink,
+  ensureUniqueLandmarks,
+  validateTableAccessibility,
+  getTables,
+  getConfig,
+  setConfig,
+  sanitizeFilename,
+  readFileSafe,
+  log
 };

@@ -418,8 +418,71 @@ function specificFunctionThatRendersGraphOrIndex() {
   renderIndex();
 }
 
+/**
+ * Wraps the primary content of the document in a <main> element if it isn't already.
+ * If a <main> element already exists, returns it. Otherwise, finds the primary
+ * content (e.g., element with id "main-content", or the largest content container)
+ * and wraps it in a <main> element. Adds an id of "main-content" if missing and
+ * ensures the main element is properly identified for accessibility purposes.
+ * @param {Document|HTMLElement} [root=document] - The root element to scan.
+ * @returns {HTMLElement|null} The main element, or null if no suitable content was found.
+ */
+function wrapPrimaryContentInMain(root = (typeof document !== 'undefined' ? document : null)) {
+    if (!root) {
+        return null;
+    }
+
+    // If a <main> element already exists, return the first one.
+    const existingMain = root.querySelector ? root.querySelector('main') : null;
+    if (existingMain) {
+        if (!existingMain.id) {
+            existingMain.id = 'main-content';
+        }
+        return existingMain;
+    }
+
+    // Find candidate primary content element.
+    let primaryContent = null;
+    if (root.getElementById) {
+        primaryContent = root.getElementById('main-content');
+    }
+    if (!primaryContent && root.querySelector) {
+        // Fallback: find the element with the most children/content
+        const candidates = root.querySelectorAll('div, section, article');
+        let maxScore = -1;
+        for (const candidate of candidates) {
+            // Skip elements that are themselves inside a landmark we'd convert
+            const score = (candidate.querySelectorAll('*').length || 0) + (candidate.textContent ? candidate.textContent.length : 0);
+            if (score > maxScore) {
+                maxScore = score;
+                primaryContent = candidate;
+            }
+        }
+    }
+
+    if (!primaryContent) {
+        return null;
+    }
+
+    // Create a new <main> element and wrap the primary content.
+    const main = (typeof document !== 'undefined') ? document.createElement('main') : null;
+    if (!main) {
+        return null;
+    }
+    main.id = primaryContent.id || 'main-content';
+
+    const parent = primaryContent.parentNode;
+    if (!parent) {
+        return null;
+    }
+    parent.insertBefore(main, primaryContent);
+    main.appendChild(primaryContent);
+
+    return main;
+}
+
 // Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
+export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, wrapPrimaryContentInMain };
 
 // Export utility functions
 export {
@@ -441,7 +504,9 @@ export {
   ensureUniqueLandmarks,
   createAccessibleLink,
   handleAccessibilityIssues,
-  addLangAttribute
+  addLangAttribute,
+  // Newly added wrap function
+  wrapPrimaryContentInMain
 };
 
 // Export component functions
@@ -517,7 +582,8 @@ export {
   ensureUniqueLandmarkId,
   uniqueLandmarks,
   addAriaLabel,
-  addLangAttribute
+  addLangAttribute,
+  wrapPrimaryContentInMain
 };
 
 // ... other exports ...
@@ -531,11 +597,12 @@ export {
 
 // Exporting for CommonJS compatibility
 module.exports = {
-  specificFunctionThatRendersGraphOrIndex
+  specificFunctionThatRendersGraphOrIndex,
+  wrapPrimaryContentInMain
 };
 
 // Export additional required functions
-export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute };
+export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute, wrapPrimaryContentInMain };
 
 // Report generation logic
 /**
@@ -763,6 +830,9 @@ export { addAriaLabel };
 
 // Export addLangAttribute for adding lang attributes to elements
 export { addLangAttribute };
+
+// Export wrapPrimaryContentInMain for wrapping primary content in a main element
+export { wrapPrimaryContentInMain };
 
 // Export the internal set for tracking used landmark IDs
 export { _usedLandmarkIds };

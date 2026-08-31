@@ -3,44 +3,31 @@ import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
 import { Button } from 'antd';
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
-
-// Get the dispatch function
-const dispatch = useDispatch();
-
-// Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
-}
-
-// Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
-}
+// Default sorting function for the book list
+const defaultSorting = (a, b) => a.title.localeCompare(b.title);
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `book-${book.id || book.title.toLowerCase().replace(/\s+/g, '-')}`;
+  return `book-${book.id || 'unknown'}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
 // Function to render a single book item
 function BookItem({ book }) {
   return (
     <List.Item key={generateKey(book)}>
-      <List.Item.Meta title={book.title} />
+      <List.Item.Meta title={book.title} description={book.author} />
     </List.Item>
   );
 }
 
 // Function to create a new book entry in the Redux store
-function addBook(book) {
+function addBook(book, dispatch) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
 // Handle form submission for adding a new book
-function handleAddBook(newBook) {
-  addBook(newBook);
+function handleAddBook(newBook, dispatch) {
+  addBook(newBook, dispatch);
 }
 
 // Function for generating a report based on accessibility issues
@@ -63,7 +50,7 @@ function generateAccessibilityReport(issues) {
 
   report += `Issue Details:\n`;
   issues.forEach((issue, index) => {
-    report += `${index + 1}. [${issue.severity.toUpperCase()}] ${issue.description}`;
+    report += `${index + 1}. ${issue.description || 'No description available'}`;
     if (issue.element) {
       report += ` - Element: ${issue.element}`;
     }
@@ -76,47 +63,114 @@ function generateAccessibilityReport(issues) {
   return report;
 }
 
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
-
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
-  const sortedList = getBooksList.slice().sort(sortByTitle);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+// Function to handle sorting books by title (ascending)
+function sortByTitle(a, b) {
+  return a.title.localeCompare(b.title);
 }
 
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
-  const sortedList = getBooksList.slice().sort(sortByAuthor);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+// Function to handle sorting books by author (descending)
+function sortByAuthor(a, b) {
+  return b.author.localeCompare(a.author);
 }
 
-// Export the necessary functions for use in other modules
-export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport };
 // Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 
-// Functions to improve accessibility (implementation assumed elsewhere)
-function fixLandmarkIssues(container) {
-  // implementation omitted
+// Function to add proper ARIA labels to interactive elements
+function addAriaLabels(container) {
+  if (!container) return;
+  const interactiveElements = container.querySelectorAll('button, a, input, select, textarea');
+  interactiveElements.forEach((element, index) => {
+    if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+      const label = element.textContent || `Interactive element ${index + 1}`;
+      element.setAttribute('aria-label', label);
+    }
+  });
 }
-function fixFakeLinkIssues(container) {
-  // implementation omitted
+
+// Function to manage focus for keyboard navigation
+function manageFocus(container) {
+  if (!container) return;
+  const focusableElements = container.querySelectorAll('button, a, input, select, textarea, [tabindex]');
+  focusableElements.forEach((element, index) => {
+    element.setAttribute('tabindex', index === 0 ? '0' : '1');
+  });
 }
+
+// Function to fix button identifiers for accessibility testing
 function fixButtonIdentifiers(container) {
-  // implementation omitted
+  if (!container) return;
+  const buttons = container.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    if (!button.id) {
+      button.id = `button-${index + 1}`;
+    }
+  });
 }
-function addAccessibleNamesToSVGs(container, role) {
-  // implementation omitted
+
+// Function to set ARIA role for an element
+function setAriaRole(element, role) {
+  if (element) {
+    element.setAttribute('role', role);
+  }
 }
-function ensureDependencyGraphAriaRole(container) {
-  // implementation omitted
+
+// Function to add descriptive labels to SVG elements
+function addSvgAccessibility(svgElement, description) {
+  if (svgElement) {
+    svgElement.setAttribute('aria-label', description);
+    svgElement.setAttribute('role', 'img');
+  }
+}
+
+// Function to ensure dependency graph has proper ARIA role
+function ensureDependencyGraphAria(container) {
+  if (!container) return;
+  const graphElement = container.querySelector('[data-graph]') || container.querySelector('svg');
+  if (graphElement) {
+    graphElement.setAttribute('role', 'img');
+    graphElement.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+}
+
+// Function to validate color contrast
+function validateColorContrast(foreground, background) {
+  const contrastRatio = getContrastRatio(foreground, background);
+  return contrastRatio >= 4.5; // WCAG AA standard for normal text
+}
+
+// Helper function to calculate contrast ratio
+function getContrastRatio(foreground, background) {
+  const getLuminance = (color) => {
+    const rgb = color.match(/\w\w/g).map(x => parseInt(x, 16) / 255);
+    const [r, g, b] = rgb.map(c => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const l1 = getLuminance(foreground);
+  const l2 = getLuminance(background);
+  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
 }
 
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  
+  // Get the list of books from the Redux store
+  const getBooksList = useSelector(state => state.books.list);
+  
+  // Get the dispatch function
+  const dispatch = useDispatch();
+
+  // Function to handle sorting the book list by title (ascending)
+  function onTitleSort() {
+    const sortedList = [...getBooksList].sort(sortByTitle);
+    dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+  }
+
+  // Function to handle sorting the book list by author (descending)
+  function onAuthorSort() {
+    const sortedList = [...getBooksList].sort(sortByAuthor);
+    dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+  }
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -130,20 +184,23 @@ function Main() {
     const container = document.getElementById('main-content');
     if (container) {
       // Apply accessibility fixes
-      fixLandmarkIssues(container);
-      fixFakeLinkIssues(container);
+      addAriaLabels(container);
+      manageFocus(container);
       fixButtonIdentifiers(container);
 
       // Apply SVG accessibility
-      addAccessibleNamesToSVGs(container, 'Graphical element');
+      const svgElements = container.querySelectorAll('svg');
+      svgElements.forEach(svg => {
+        addSvgAccessibility(svg, 'Graphical element');
+      });
 
       // Ensure dependency graph has proper ARIA role
-      ensureDependencyGraphAriaRole(container);
+      ensureDependencyGraphAria(container);
     }
-  }, [sorting]);
+  }, [sorting, getBooksList, dispatch]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(book => BookItem(book));
+  const bookItems = getBooksList.map(book => BookItem({ book }));
 
   // Render the list of book items and sorting controls
   return (
@@ -166,14 +223,17 @@ function Main() {
       </nav>
       <List
         itemLayout="vertical"
-        dataSource={getBooksList}
+        dataSource={bookItems}
         renderItem={book => BookItem(book)}
         aria-label="Book list"
       />
-      <AddBookForm onSubmit={handleAddBook} />
+      <AddBookForm dispatch={dispatch} />
     </div>
   );
 }
 
 // Export the Main component
 export default Main;
+
+// Export the necessary functions for use in other modules
+export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport };

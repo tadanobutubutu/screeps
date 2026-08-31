@@ -17,10 +17,24 @@ function isValidLandmark(landmark) {
            landmark.id !== null;
 }
 
+// Spawn default landmarks
+function spawnLandmarks() {
+    return [
+        { id: 1, name: 'Eiffel Tower', location: 'Paris, France' },
+        { id: 2, name: 'Statue of Liberty', location: 'New York, USA' },
+        { id: 3, name: 'Big Ben', location: 'London, UK' },
+        { id: 4, name: 'Taj Mahal', location: 'Agra, India' },
+        { id: 5, name: 'Sydney Opera House', location: 'Sydney, Australia' }
+    ];
+}
+
 // Load landmarks from file
 function loadLandmarks() {
     try {
         const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        if (!fs.existsSync(filePath)) {
+            return spawnLandmarks();
+        }
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
@@ -93,7 +107,8 @@ if (typeof module !== 'undefined' && module.exports) {
         processLandmarks,
         sortLandmarks,
         getLandmarkById,
-        ensureUniqueLandmarks
+        ensureUniqueLandmarks,
+        spawnLandmarks
     };
 }
 

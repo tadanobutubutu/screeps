@@ -5,6 +5,9 @@
  * Checks for proper use of HTML5 landmark elements and ARIA landmarks
  */
 
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 // Common landmark selectors
 const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form'];
 const LANDMARK_SELECTORS = LANDMARK_ELEMENTS.map(el => el).join(',');
@@ -67,7 +70,7 @@ function validateLandmarkStructure(context = document) {
     forms.forEach((form, index) => {
         const hasLabel = form.getAttribute('aria-label') || 
                          form.getAttribute('aria-labelledby') ||
-                         form.getAttribute('name');
+                         form.getAttribute('title');
         if (!hasLabel && form.querySelectorAll('input, select, textarea').length > 0) {
             issues.push({
                 type: 'warning',
@@ -96,7 +99,7 @@ function validateLandmarkStructure(context = document) {
     const headers = context.querySelectorAll('header');
     headers.forEach((header, index) => {
         // Header inside main should be a banner, not a sectioning element
-        if (header.closest('main') && !header.closest('section') && !header.closest('article')) {
+        if (header.closest('main') && !header.closest('article')) {
             issues.push({
                 type: 'info',
                 code: 'HEADER_NESTING',
@@ -141,7 +144,7 @@ function getLandmarkSummary(context = document) {
         infos.forEach(i => summary.push(`  • ${i.message}`));
     }
     
-    summary.push(`\nValidation ${result.isValid ? 'PASSED' : 'FAILED'}`);
+    summary.push(`\nValidation: ${result.isValid ? 'PASSED' : 'FAILED'}`);
     
     return summary.join('\n');
 }
@@ -201,10 +204,10 @@ function fixFakeLinkIssue() {
 
 // Call the new functions as needed, for example:
 addLangAttribute();
-// fixTableStructure();
+// ...
 // addMainLandmark();
 // ensureUniqueLandmarks();
-// addSvgAccessibleNames();
+// ...
 // fixFakeLinkIssue();
 
 // New function to handle credential response
@@ -241,5 +244,5 @@ if (typeof module !== 'undefined' && module.exports) {
 // Auto-validate on load if this is a browser context
 if (typeof window !== 'undefined') {
     // Store validation result globally for debugging
-    window.landmarkValidation = validateLandmarkStructure(document);
+    window.landmarkValidation = validateLandmarkStructure();
 }

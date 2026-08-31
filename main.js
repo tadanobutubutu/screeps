@@ -49,23 +49,46 @@ function detectAndSetLang(content) {
   let lang = 'en'; // Default to English
   
   if (content) {
-    // Check for common non-ASCII characters to help detect language
+    // Check for Chinese characters
     if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    }
+    // Check for Japanese hiragana or katakana
+    else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
+    }
+    // Check for Cyrillic characters (Russian, etc.)
+    else if (/[\u0400-\u04FF]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
+    }
+    // Check for Arabic characters
+    else if (/[\u0600-\u06FF\u0750-\u077F]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâäçéèêëîïôûü]/i.test(content)) {
+    }
+    // Check for French-specific characters
+    else if (/[àâäéèêëïîôùûüÿçœæ]/i.test(content)) {
       lang = 'fr'; // French
-    } else if (/[äöüß]/i.test(content)) {
+    }
+    // Check for German-specific characters
+    else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
+    }
+    // Check for Spanish-specific characters
+    else if (/[áéíóúüñ¿¡]/i.test(content)) {
+      lang = 'es'; // Spanish
+    }
+    // Check for Portuguese-specific characters
+    else if (/[áàâãéêíóôõúç]/i.test(content)) {
+      lang = 'pt'; // Portuguese
+    }
+    // Check for Korean characters
+    else if (/[\uac00-\ud7af]/.test(content)) {
+      lang = 'ko'; // Korean
     }
   }
   
-  return setHtmlLangAttribute(lang);
+  setHtmlLangAttribute(lang);
+  return lang;
 }
 
 /**
@@ -96,50 +119,3 @@ function createInPageButton(parent = document.body) {
  * Validates the accessibility of a table element
  * @param {HTMLElement} table - The table element to validate
  * @returns {boolean} Whether the table is accessible
- */
-function validateTableAccessibility(table) {
-  if (!table || typeof table !== 'object') return true;
-  return true;
-}
-
-/**
- * Validates the structure of a table element
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} Whether the table structure is valid
- */
-function validateTableStructure(table) {
-  if (!table || typeof table !== 'object') return true;
-  return true;
-}
-
-/**
- * Validates a landmark element for accessibility
- * @param {HTMLElement} element - The landmark element to validate
- * @returns {boolean} Whether the landmark is valid
- */
-function validateLandmark(element) {
-  if (!element || typeof element !== 'object') return true;
-  return true;
-}
-
-/**
- * Validates the structure of landmark elements
- * @param {HTMLElement} element - The landmark element to validate
- * @returns {boolean} Whether the landmark structure is valid
- */
-function validateLandmarkStructure(element) {
-  if (!element || typeof element !== 'object') return true;
-  return true;
-}
-
-/**
- * Gets the accessible name from an SVG element
- * @param {SVGSVGElement} svg - The SVG element
- * @returns {string} The accessible name of the SVG
- */
-function getSvgAccessibleName(svg) {
-  if (!svg || typeof svg !== 'object') return '';
-  return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
-}
-
-module.exports = { setHtmlLangAttribute, getLangAttribute, detectAndSetLang, personName, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName };

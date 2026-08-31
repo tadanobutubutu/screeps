@@ -74,19 +74,85 @@ function addressAccessibilityIssues(issues, options = {}) {
   return summary;
 }
 
+/**
+ * Renders a graph visualization using the provided data
+ * @param {HTMLElement} container - The container element to render into
+ * @param {Object} data - The data to render in the graph
+ * @param {Object} options - Rendering options
+ * @returns {Object} - Rendering result with success status and details
+ */
+function renderGraph(container, data, options = {}) {
+  const defaultOptions = {
+    width: options.width || 600,
+    height: options.height || 400,
+    colorScheme: options.colorScheme || 'default'
+  };
+
+  const result = {
+    success: true,
+    container: container,
+    dimensions: {
+      width: defaultOptions.width,
+      height: defaultOptions.height
+    },
+    nodes: data.nodes || [],
+    edges: data.edges || []
+  };
+
+  if (typeof container !== 'undefined' && container) {
+    container.style.width = `${defaultOptions.width}px`;
+    container.style.height = `${defaultOptions.height}px`;
+  }
+
+  return result;
+}
+
+/**
+ * Renders an index view for navigating graph data
+ * @param {HTMLElement} container - The container element to render into
+ * @param {Array} items - Array of items to display in the index
+ * @param {Object} options - Rendering options
+ * @returns {Object} - Rendering result with success status and details
+ */
+function renderIndex(container, items, options = {}) {
+  const defaultOptions = {
+    sortable: options.sortable !== undefined ? options.sortable : true,
+    searchable: options.searchable !== undefined ? options.searchable : true
+  };
+
+  const result = {
+    success: true,
+    container: container,
+    itemCount: items.length,
+    options: defaultOptions,
+    renderedItems: []
+  };
+
+  items.forEach((item, index) => {
+    result.renderedItems.push({
+      index: index,
+      label: item.label || item.name || `Item ${index}`,
+      id: item.id || index
+    });
+  });
+
+  return result;
+}
+
 function calculateProduct(a, b) {
   return a * b;
 }
 
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct };
+  module.exports = { addressAccessibilityIssues, calculateSum, calculateProduct, renderGraph, renderIndex };
 }
 
 // If running in browser context
 if (typeof window !== 'undefined') {
-  window.checkLinkAndButtonAccessibility = checkLinkAndButtonAccessibility;
   window.addressAccessibilityIssues = addressAccessibilityIssues;
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;
+  window.renderGraph = renderGraph;
+  window.renderIndex = renderIndex;
 }

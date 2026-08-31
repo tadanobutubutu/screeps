@@ -347,10 +347,6 @@ function googleSignIn() {
 googleSignIn();
 
 // Assuming you have functions that render dependency graphs and index views
-const renderDependencyGraph = (data) => {
-  // Code to render the dependency graph using the data provided
-};
-
 const renderIndex = () => {
   // Code to render the index view
 };

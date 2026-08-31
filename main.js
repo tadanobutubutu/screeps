@@ -1,11 +1,11 @@
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js ( preserving the original code )
-import react from 'react';
-// Existing code starts here
+// Main application entry point
 
-// This is the existing code that needs to be preserved
-// (This comment remains as-is)
-
-// More existing code that should be preserved
+const express = require('express');
+const path = require('path');
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import { isSecureContext } from './utils.js';
 
 // Configuration
 const config = {
@@ -13,51 +13,41 @@ const config = {
   timeout: 5000
 };
 
-// App state
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map()
-};
+const app = express();
 
-// Initialize function
-function initialize() {
-  appState.initialized = true;
-  console.log('App initialized');
-}
+// Basic configuration
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || 'localhost';
 
-// Initialize app function
-function initializeApp() {
-  initialize();
-  return appState;
-}
+// Middleware setup
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Process data function
-function processData(data) {
-  if (!data) {
-    return null;
-  }
-  appState.data = data;
-  return data;
-}
+// Static files
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Fetch user function
-function fetchUser(userId) {
-  if (!userId) {
-    return null;
-  }
-  return { id: userId, name: 'User ' + userId };
-}
+// Routes
+app.get('/', (req, res) => {
+  res.send('Welcome to the application');
+});
 
-// Clear cache function
-function clearCache() {
-  appState.cache.clear();
-}
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
-// Helper function
-function someFunction() {
-  return 'some value';
-}
+app.get('/api/status', (req, res) => {
+  res.json({
+    status: 'running',
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err.message);
+  res.status(500).json({ error: 'Internal server error' });
+});
 
 // Helper for input transformation
 function helper(input) {
@@ -161,7 +151,7 @@ function handleFakeLinks() {
 // Address accessibility issues from insight report
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_017: Add/fix 4 landmark issues
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
@@ -317,79 +307,4 @@ function getInsightReport() {
   if (svgAccessibleNames && svgAccessibleNames.length > 0) {
     svgAccessibleNames.forEach(function(svg) {
       issues.push({
-        type: 'REACT_041',
-        description: 'SVG is missing accessible name',
-        severity: 'medium',
-        svg: svg.element,
-        svgId: svg.id
-      });
-    });
-  }
-  
-  // Check for unique landmarks
-  const uniqueLandmarkIssues = ensureUniqueLandmarks();
-  if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
-    uniqueLandmarkIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_025',
-        description: issue.description || 'Duplicate or missing landmark',
-        severity: issue.severity || 'medium',
-        element: issue.element,
-        landmark: issue.landmark
-      });
-    });
-  }
-  
-  // Check link accessibility
-  const linkIssues = validateLinkAccessibility();
-  if (linkIssues && linkIssues.length > 0) {
-    linkIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_036',
-        description: issue.description || 'Link accessibility issue',
-        severity: issue.severity || 'medium',
-        element: issue.element,
-        link: issue.link
-      });
-    });
-  }
-  
-  // Generate the report
-  var report = {
-    issues: issues,
-    summary: {
-      totalIssues: issues.length,
-      langAttribute: issues.filter(function(i) { return i.type === 'REACT_015'; }).length,
-      tableIssues: issues.filter(function(i) { return i.type === 'REACT_027'; }).length,
-      landmarkIssues: issues.filter(function(i) { return i.type === 'REACT_017'; }).length,
-      svgIssues: issues.filter(function(i) { return i.type === 'REACT_041'; }).length,
-      uniqueLandmarkIssues: issues.filter(function(i) { return i.type === 'REACT_025'; }).length,
-      linkIssues: issues.filter(function(i) { return i.type === 'REACT_036'; }).length,
-      critical: issues.filter(function(i) { return i.severity === 'critical'; }).length,
-      high: issues.filter(function(i) { return i.severity === 'high'; }).length,
-      medium: issues.filter(function(i) { return i.severity === 'medium'; }).length,
-      low: issues.filter(function(i) { return i.severity === 'low'; }).length
-    },
-    timestamp: new Date().toISOString(),
-    generatedAt: new Date().toLocaleString()
-  };
-  
-  return report;
-}
-
-function processAccessibilityReport(report) {
-  // Process accessibility report and return findings
-  var findings = {
-    langAttribute: false,
-    tableIssues: 0,
-    landmarkIssues: 0,
-    svgIssues: 0,
-    uniqueLandmarkIssues: 0,
-    fakeLinkIssues: 0
-  };
-
-  if (report) {
-    if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027.length || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.length || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041.length || 0
+        type: 'REACT

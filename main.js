@@ -59,6 +59,7 @@ if (typeof document !== 'undefined') {
  */
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
+  button.type = 'button';
   button.textContent = buttonText;
   if (onClickHandler && typeof onClickHandler === 'function') {
     button.addEventListener('click', onClickHandler);
@@ -73,6 +74,8 @@ export function rotateBack() {
   console.log('Reverting back the rotation.');
 }
 
+// ... (other code in main.js)
+
 /**
  * Get the application configuration
  * @returns {Object} The configuration object with apiUrl and timeout properties
@@ -83,6 +86,12 @@ function getConfig() {
     timeout: 5000
   };
 }
+
+// Example usage for SVGs:
+// const svg1 = document.querySelector('#svg1');
+// const svg2 = document.querySelector('#svg2');
+// svg1.setAttribute('aria-label', 'Description of first icon');
+// svg2.setAttribute('aria-label', 'Description of second icon');
 
 // REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // Ensure all <th> elements have scope attribute
@@ -182,6 +191,16 @@ function ensureUniqueLandmarks() {
       console.error('Duplicate landmark ID encountered:', id);
     } else {
       landmarkIds.add(id);
+    }
+  });
+}
+
+// Function to fix 1 fake link issue
+function fixFakeLink() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach((link) => {
+    if (link.getAttribute('aria-current') === 'true') {
+      link.setAttribute('role', 'button');
     }
   });
 }
@@ -295,9 +314,6 @@ export {
   newFunction,
   countDependencies
 };
-
-// Compatibility for CommonJS if needed (as per HEAD)
-module.exports = newFunction;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {

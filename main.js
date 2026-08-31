@@ -78,9 +78,21 @@ function calculateProduct(a, b) {
   return a * b;
 }
 
+/**
+ * Ensures the dependencyGraph container has a proper ARIA role.
+ * @param {string} containerId - The ID of the container element (default 'dependencyGraph').
+ * @param {string} role - The ARIA role to assign (default 'region').
+ */
+function ensureDependencyGraphARIA(containerId = 'dependencyGraph', role = 'region') {
+  const container = document.getElementById(containerId);
+  if (container) {
+    container.setAttribute('role', role);
+  }
+}
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct };
+  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct, ensureDependencyGraphARIA };
 }
 
 // If running in browser context
@@ -89,4 +101,5 @@ if (typeof window !== 'undefined') {
   window.addressAccessibilityIssues = addressAccessibilityIssues;
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;
+  window.ensureDependencyGraphARIA = ensureDependencyGraphARIA;
 }

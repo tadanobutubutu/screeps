@@ -6,4 +6,9 @@ function newFunction() {
   // Function body
 }
 
+// New export
+export function newExportedFunction() {
+  // Function body
+}
+
 // Don't forget to test your new additions in the test file

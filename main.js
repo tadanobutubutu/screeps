@@ -1,3 +1,6 @@
+// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+// Column 1 of `main.js`:
+
 // TODO: This is the existing code that needs to be preserved
 // TODO: Add lang attribute to HTML element (DONE: addLangAttribute)
 document.documentElement.lang = 'en';
@@ -65,7 +68,7 @@ function fixButtonIdentifiers() {
 fixButtonIdentifiers();
 
 // TODO: Ensure dependencyGraph container has proper ARIA role (DONE: fixDependencyGraphAccessibility)
-function fixDependencyGraphAccessibility() {
+function fixDependencyGraphAccessibility(container) {
     // Your implementation here
 }
 fixDependencyGraphAccessibility();

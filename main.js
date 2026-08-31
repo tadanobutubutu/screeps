@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 import './styles.less';
 import './styles.css';
 import fs from 'fs';
@@ -58,7 +60,7 @@ function wrapPrimaryContentInMain(parent) {
 }
 
 function initialize() {
-  appConfig apiUrl = process.env.API_URL || 'default';
+  appConfig.apiUrl = process.env.API_URL || 'default';
   appConfig.timeout = 5000;
   appState = { initialized: true };
 }

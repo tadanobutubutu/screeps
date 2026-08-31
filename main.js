@@ -20,12 +20,19 @@ function createInPageButton(buttonText, onClickHandler) {
 
 // TODO: Implement this function for creating in-page buttons
 // (Now implemented)
+// New function as per the issue
+function handleButtonEvents(buttons, eventHandler) {
+  buttons.forEach(button => {
+    button.addEventListener('click', eventHandler);
+  });
+}
 
 // Example usage (if needed):
 // const btn = createInPageButton('Click Me', () => console.log('Clicked'));
 // document.body.appendChild(btn);
+// handleButtonEvents([btn], () => console.log('Button event handler'));
 
-export { createInPageButton };
+export { createInPageButton, handleButtonEvents };
 
 function analyzeAccessibility(issuesData) {
   // presume this function is already defined

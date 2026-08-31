@@ -34,29 +34,15 @@ export function rotateBack() {
   console.log('Reverting back the rotation.');
 }
 
-// ... (other code in main.js)
-
-// Additional accessibility-related code changes:
-// Ensure that all interactive elements have appropriate keyboard support
-// Check that ARIA attributes are correctly paired and have appropriate values
-
-// REACT_015: lang attribute should be added to the HTML element (typically in index.html)
-// <html lang="en">
-
-// REACT_017: Add landmark roles and fix landmark issues
-// Add main landmark role to main content area
-// Example: <main role="main">...</main>
-
-// REACT_025: Ensure unique landmarks
-// Ensure only one main landmark per page
-// Use unique aria-label or aria-labelledby for landmark regions
-
-// REACT_036: Fix fake link issue - convert <a href="#"> to <button> with proper ARIA
+/**
+ * Creates an accessible button element for unrotate functionality
+ * @returns {HTMLElement} The created button element with proper accessibility attributes
+ */
 function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
-  button.ariaLabel = 'rotate back';
+  button.setAttribute('aria-label', 'rotate back'); // Fixed: use setAttribute instead of direct property
   button.textContent = 'rotate back';
   button.addEventListener('click', rotateBack);
   return button;
@@ -84,6 +70,18 @@ function getConfig() {
     apiUrl: process.env.API_URL || '',
     timeout: 5000
   };
+}
+
+/**
+ * Set accessibility attributes on SVG elements
+ * @param {HTMLElement} svgElement - The SVG element to make accessible
+ * @param {string} description - The accessible description for the SVG
+ */
+function setSvgAttributes(svgElement, description) {
+  if (svgElement) {
+    svgElement.setAttribute('role', 'img');
+    svgElement.setAttribute('aria-label', description);
+  }
 }
 
 // Example usage for SVGs:
@@ -200,6 +198,20 @@ function fixFakeLink() {
   fakeLinks.forEach((link) => {
     if (!link.textContent.trim() && !link.getAttribute('aria-hidden')) {
       // Convert to button or add proper label
+      const button = document.createElement('button');
+      button.textContent = link.textContent || 'Action';
+      button.setAttribute('aria-label', link.getAttribute('aria-label') || 'Button');
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Handle the link action here
+        if (link.onclick) link.onclick(e);
+      });
+      
+      // Replace the link with the button
+      const parent = link.parentElement;
+      if (parent) {
+        parent.replaceChild(button, link);
+      }
     }
   });
 }

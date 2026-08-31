@@ -7,6 +7,7 @@ const http = require('http');
 const path = require('path');
 
 // TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report
 
 // Application configuration
 const config = {

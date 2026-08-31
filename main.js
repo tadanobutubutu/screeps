@@ -38,7 +38,8 @@ function createUnrotateButton() {
 function replaceFakeLinks() {
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach((link) => {
-    if (link.getAttribute('aria-hidden') === 'true') {
+    const needsReplacement = link.getAttribute('data-replace') === 'true';
+    if (needsReplacement) {
       const parent = link.parentElement;
       const newButton = createUnrotateButton();
       parent.replaceChild(newButton, link);
@@ -88,7 +89,7 @@ function getConfig() {
 // Ensure all <th> elements have scope attribute
 function ensureThScope() {
   const thElements = document.querySelectorAll('th');
-  thElements.forEach(th => {
+  thElements.forEach((th) => {
     if (!th.hasAttribute('scope')) {
       // Determine if it's a column header or row header based on context
       const parent = th.parentElement;
@@ -108,11 +109,12 @@ function ensureThScope() {
  * Setup skip link functionality for keyboard navigation
  */
 function setupSkipLinks() {
-  const skipLink = document.getElementById('skip-link') || document.querySelector('.skip-link');
+  const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = document.querySelector(skipLink.getAttribute('href') || '');
+      const targetId = skipLink.getAttribute('href') || '';
+      const target = document.querySelector(targetId) || document.getElementById(targetId.replace('#', ''));
       if (target) {
         target.focus();
         target.scrollIntoView({ behavior: 'smooth' });
@@ -127,7 +129,8 @@ function setupSkipLinks() {
 function setupButtonAccessibility() {
   const buttons = document.querySelectorAll('button');
   buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+    const hasLabel = button.getAttribute('aria-label') || button.getAttribute('aria-labelledby');
+    if (!hasLabel && !button.textContent.trim()) {
       button.setAttribute('aria-label', 'Action button');
     }
   });
@@ -155,7 +158,7 @@ function addLandmarkRoles() {
   const header = document.querySelector('header');
   if (header) header.setAttribute('role', 'banner');
 
-  const mainContent = document.querySelector('main');
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
   if (mainContent) mainContent.setAttribute('role', 'main');
 
   const footer = document.querySelector('footer');
@@ -164,16 +167,16 @@ function addLandmarkRoles() {
 
 // Function to add accessible names to 2 SVGs
 function addSvgAccessibleNames() {
-  const svg1 = document.querySelector('.svg-1');
+  const svg1 = document.getElementById('svg-1');
   if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
 
-  const svg2 = document.querySelector('.svg-2');
+  const svg2 = document.getElementById('svg-2');
   if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
 }
 
 // Function to ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"]');
+  const landmarks = document.querySelectorAll('[role]');
   const landmarkIds = new Set();
 
   landmarks.forEach((landmark) => {
@@ -251,20 +254,20 @@ function countDependencies(source) {
   let count = 0;
 
   // Count ES module imports: import ... from '...'; import '...';
-  const importRegex = /import\s+(?:[^'"]*?from\s+)?['"]([^'"]+)['"]/g;
+  const importRegex = /import\s+(?:.*?\s+from\s+)?['"][^'"]+['"]/g;
   let match;
   while ((match = importRegex.exec(source)) !== null) {
     count++;
   }
 
   // Count CommonJS requires: require('...')
-  const requireRegex = /require\(\s*['"]([^'"]+)['"]\s*\)/g;
+  const requireRegex = /require\s*\(\s*['"][^'"]+['"]\s*\)/g;
   while ((match = requireRegex.exec(source)) !== null) {
     count++;
   }
 
   // Count dynamic imports: import('...')
-  const dynamicImportRegex = /import\(\s*['"]([^'"]+)['"]\s*\)/g;
+  const dynamicImportRegex = /import\s*\(\s*['"][^'"]+['"]\s*\)/g;
   while ((match = dynamicImportRegex.exec(source)) !== null) {
     count++;
   }
@@ -310,8 +313,7 @@ export {
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
-module.exports.newFunction = newFunction;
-module.exports.countDependencies = countDependencies;
+module.exports = { newFunction, countDependencies };
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {

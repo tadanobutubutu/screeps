@@ -38,20 +38,20 @@ function detectAndSetLang(content) {
     // Check for common non-ASCII characters to help detect language
     if ... {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if ... {
       lang = 'ja'; // Japanese
     } else if ... {
       lang = 'ru'; // Russian/Cyrillic
     } else if ... {
       lang = 'ar'; // Arabic
-    } else if (/[àâäéèêëïîôùûüç]/i.test(content)) {
+    } else if ... {
       lang = 'fr'; // French
     } else if ... {
       lang = 'de'; // German
     }
   }
   
-  setHtmlLangAttribute(lang);
+  ...
   return lang;
 }
 
@@ -69,7 +69,7 @@ function validateTableAccessibility(table) {
   }
   
   // Check if table has a caption
-  const caption = table.querySelector('caption');
+  const caption = ...
   if (!caption) {
     issues.push({
       code: 'REACT_027',
@@ -78,9 +78,9 @@ function validateTableAccessibility(table) {
   }
   
   // Check if table headers have scope or are properly associated
-  const headers = table.querySelectorAll('th');
+  const headers = ...
   headers.forEach((th, index) => {
-    if (!th.getAttribute('scope') && !th.id) {
+    if ... && !th.id) {
       issues.push({
         code: 'REACT_027',
         message: `Table header at index ${index} is missing scope attribute`
@@ -89,7 +89,7 @@ function validateTableAccessibility(table) {
   });
   
   // Check if data cells have headers association
-  const cells = table.querySelectorAll('td[headers]');
+  const cells = ...
   if (headers.length > 0 && cells.length === 0) {
     issues.push({
       code: 'REACT_027',
@@ -108,9 +108,9 @@ function validateTableStructure(table) {
   }
   
   // Check for proper thead and tbody structure
-  const thead = table.querySelector('thead');
-  const tbody = table.querySelector('tbody');
-  const tfoot = table.querySelector('tfoot');
+  const thead = ...
+  const tbody = ...
+  const tfoot = ...
   
   if (!thead) {
     issues.push({
@@ -127,13 +127,13 @@ function validateTableStructure(table) {
   }
   
   // Validate consistent column count
-  const rows = table.querySelectorAll('tr');
+  const rows = ...
   let expectedCols = 0;
   
   rows.forEach((row, index) => {
-    const cells = row.querySelectorAll('td, th');
-    const colspan = Array.from(cells).reduce((sum, cell) => {
-      return sum + (parseInt(cell.getAttribute('colspan')) || 1);
+    const cells = ... th');
+    const colspan = ... cell) => {
+      return sum + ... || 1);
     }, 0);
     
     if (index === 0) {
@@ -159,14 +159,14 @@ function validateLandmark(element) {
   }
   
   landmarkRoles.forEach(role => {
-    const landmarks = element.querySelectorAll(`[role="${role}"]`);
+    const landmarks = ...
     landmarks.forEach((landmark, index) => {
       // Check for accessible name on landmark
-      const hasLabel = landmark.getAttribute('aria-label') || 
-                       landmark.getAttribute('aria-labelledby') ||
-                       landmark.querySelector('h1, h2, h3, h4, h5, h6');
+      const hasLabel = ... || 
+                       ... ||
+                       ... h2, h3, h4, h5, h6');
       
-      if (!hasLabel && landmarkRoles.indexOf(role) !== landmarkRoles.indexOf('main')) {
+      if (!hasLabel && ... !== ... {
         issues.push({
           code: 'REACT_017',
           message: `Landmark with role="${role}" is missing accessible name at index ${index}`
@@ -186,7 +186,7 @@ function validateLandmarkStructure() {
   }
   
   // Check for multiple main landmarks
-  const mains = document.querySelectorAll('main, [role="main"]');
+  const mains = ... [role="main"]');
   if (mains.length > 1) {
     issues.push({
       code: 'REACT_017',
@@ -195,7 +195,7 @@ function validateLandmarkStructure() {
   }
   
   // Check for multiple banner landmarks
-  const banners = document.querySelectorAll('[role="banner"]');
+  const banners = ...
   if (banners.length > 1) {
     issues.push({
       code: 'REACT_017',
@@ -204,7 +204,7 @@ function validateLandmarkStructure() {
   }
   
   // Check for multiple contentinfo landmarks
-  const contentinfos = document.querySelectorAll('[role="contentinfo"]');
+  const contentinfos = ...
   if (contentinfos.length > 1) {
     issues.push({
       code: 'REACT_017',
@@ -213,9 +213,9 @@ function validateLandmarkStructure() {
   }
   
   // Check for multiple navigation landmarks
-  const navigations = document.querySelectorAll('nav, [role="navigation"]');
+  const navigations = ... ...
   navigations.forEach((nav, index) => {
-    const hasLabel = nav.getAttribute('aria-label') || nav.getAttribute('aria-labelledby');
+    const hasLabel = nav.getAttribute('aria-label') || ...
     if (!hasLabel) {
       issues.push({
         code: 'REACT_017',
@@ -234,21 +234,21 @@ function getSvgAccessibleName(svg) {
   }
   
   // Check if SVG already has an accessible title
-  const title = svg.querySelector('title');
+  const title = ...
   if (title) {
     return title.textContent;
   }
   
   // Check aria-label
-  const ariaLabel = svg.getAttribute('aria-label');
+  const ariaLabel = ...
   if (ariaLabel) {
     return ariaLabel;
   }
   
   // Check aria-labelledby reference
-  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  const ariaLabelledby = ...
   if (ariaLabelledby) {
-    const titleElement = document.getElementById(ariaLabelledby);
+    const titleElement = ...
     if (titleElement) {
       return titleElement.textContent;
     }
@@ -268,12 +268,12 @@ function ensureUniqueLandmarks() {
   const landmarkLabels = {};
   
   // Collect all landmarks with their labels
-  const landmarks = document.querySelectorAll('[role]');
+  const landmarks = ...
   landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    const label = landmark.getAttribute('aria-label') || 
-                  landmark.getAttribute('aria-labelledby') ||
-                  (landmark.querySelector('h1, h2, h3, h4, h5, h6') || {}).textContent;
+    const role = ...
+    const label = ... || 
+                  ... ||
+                  ... h2, h3, h4, h5, h6') || {}).textContent;
     
     if (label) {
       const key = `${role}:${label}`;
@@ -306,20 +306,20 @@ function createAccessibleLink(href, text, options = {}) {
   link.setAttribute('role', 'link');
   
   // Add aria-label if provided
-  if (options['aria-label']) {
-    link.setAttribute('aria-label', options['aria-label']);
+  if ... {
+    link.setAttribute('aria-label', ...
   }
   
   // Handle onClick as button behavior - ensure it's properly announced
   if (options.onClick && !href) {
-    link.setAttribute('tabindex', '0');
-    link.addEventListener('click', (e) => {
+    ... '0');
+    ... (e) => {
       e.preventDefault();
       options.onClick(e);
     });
     
     // Ensure keyboard accessibility
-    link.addEventListener('keydown', (e) => {
+    ... (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         options.onClick(e);
@@ -328,8 +328,8 @@ function createAccessibleLink(href, text, options = {}) {
   }
   
   // Ensure links have accessible names
-  if (!text && !options['aria-label']) {
-    console.warn('REACT_036: Link is missing accessible name');
+  if (!text && ... {
+    ... Link is missing accessible name');
   }
   
   return link;
@@ -356,3 +356,16 @@ function createInPageButton(parent = (typeof document !== 'undefined' ? document
   
   return btn;
 }
+
+// Ensure the dependencyGraph container has a proper ARIA role
+/**
+ * Validates that the dependencyGraph container has a proper ARIA role for accessibility
+ * @param {HTMLElement|string} container - The container element or selector for the dependency graph
+ * @returns {Array} Array of issues found (empty if no issues)
+ */
+function validateDependencyGraphAccessibility(container) {
+  const issues = [];
+  
+  if (typeof document === 'undefined') {
+    return issues;
+  }

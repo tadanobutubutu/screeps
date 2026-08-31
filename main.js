@@ -9,11 +9,12 @@
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: function() {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = document.getElementById('skip-link');
     if (skipLink) {
       skipLink.addEventListener('click', function(e) {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const targetId = skipLink.getAttribute('href').slice(1);
+        const target = document.getElementById(targetId);
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -25,7 +26,7 @@ const accessibilityUtils = {
   // Trap focus within an element (for modals, dialogs)
   trapFocus: function(element) {
     const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
     );
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
@@ -49,6 +50,7 @@ const accessibilityUtils = {
       priority = 'polite';
     }
     const announcer = document.createElement('div');
+    announcer.setAttribute('role', 'status');
     announcer.setAttribute('aria-live', priority);
     announcer.setAttribute('aria-atomic', 'true');
     announcer.className = 'sr-only';
@@ -183,12 +185,12 @@ const exportUtils = {
 };
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-z0-9_.-]/gi, '_');
+  return filename.replace(/[^a-z0-9.-]/gi, '_');
 }
 
 function readFileSafe(filePath) {
   try {
-    return fs.readFileSync(filePath, 'utf8');
+    return require('fs').readFileSync(filePath, 'utf8');
   } catch (error) {
     log('Error reading file ' + filePath + ': ' + error.message, 'error');
     return null;
@@ -228,7 +230,7 @@ function initAccessibility() {
   accessibilityUtils.initSkipLink();
   
   // Add keyboard support for all interactive elements
-  const elements = document.querySelectorAll('[data-accessible]');
+  const elements = document.querySelectorAll('button, a, input, select, textarea');
   for (let i = 0; i < elements.length; i++) {
     const element = elements[i];
     element.addEventListener('keydown', function(e) {

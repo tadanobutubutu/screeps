@@ -1,6 +1,3 @@
-Here is the final resolved version of `main.js` file after the merge conflict:
-
-```javascript
 // Comments and existing code should be preserved as-is
 
 // Harvest and upgrade logic
@@ -32,6 +29,35 @@ const fs = require('fs');
 const path = require('path');
 
 // New function to visualize the dependency tree
+
+// Load landmarks from file
+function loadLandmarks() {
+  try {
+    const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error loading landmarks:', error.message);
+    return [];
+  }
+}
+
+// Ensure unique landmarks
+function ensureUniqueLandmarks(landmarks) {
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    const key = landmark.name + '_' + (landmark.role || 'default');
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+// Process and filter landmarks
+
+// Visualize the dependency tree
 function visualizeDependencyTree(dependencies) {
   const report = generateDependencyReport(dependencies);
   console.log(report.graph);
@@ -90,8 +116,3 @@ function createInPageButton(buttonText, onClickHandler) {
 export function rotateBack() {
   console.log('Reverting back the rotation.');
 }
-```
-
-Note that the changes related to accessibility (such as adding lang attribute, fixing landmark issues, and so on) have been removed from the final merged version as they seems to be new unrelated features. If you have further information on how those changes should be integrated, please provide that information and I'll be happy to update the solution.
-
-The merged version does not contain syntax errors and preserves the existing comments and style as much as possible.

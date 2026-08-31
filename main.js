@@ -26,36 +26,121 @@ function getFullLangAttribute() {
   return getLangAttribute();
 }
 
+// New function implementation for REACT_036: personName
 function personName() {
   // Fix for REACT_036: personName is part of the fake link fix
   return document.querySelector('[data-fake-link]')?.getAttribute('data-person-name') || 'Unknown';
 }
 
+// New function implementation for REACT_027: validateTableAccessibility
 function validateTableAccessibility(tableElement) {
-  return validateTableAccessibility(tableElement);
+  // Implement table accessibility validation logic
+  if (!tableElement.querySelector('thead')) {
+    console.error('Table is missing a <thead>');
+  }
+  if (!tableElement.querySelector('tbody')) {
+    console.error('Table is missing a <tbody>');
+  }
+  if (tableElement.getAttribute('role') !== 'grid') {
+    console.error('Table role is not set to "grid"');
+  }
+  // Additional validation logic
 }
 
+// New function implementation for REACT_027: validateTableStructure
 function validateTableStructure(tableElement) {
-  return validateTableStructure(tableElement);
+  // Implement table structure validation logic
+  const headers = tableElement.querySelectorAll('th');
+  const rows = tableElement.querySelectorAll('tr');
+  
+  if (headers.length === 0) {
+    console.error('Table has no headers');
+  }
+  
+  if (rows.length < 2) {
+    console.error('Table must have at least one data row');
+  }
 }
 
+// New function implementation for REACT_017: validateLandmark
 function validateLandmark() {
-  return validateLandmark();
+  // Implement landmark validation logic
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
+  landmarks.forEach(landmark => {
+    const tag = landmark.tagName.toLowerCase();
+    if (!landmark.getAttribute('role')) {
+      switch (tag) {
+        case 'header':
+          landmark.setAttribute('role', 'banner');
+          break;
+        case 'nav':
+          landmark.setAttribute('role', 'navigation');
+          break;
+        case 'main':
+          landmark.setAttribute('role', 'main');
+          break;
+        case 'aside':
+          landmark.setAttribute('role', 'complementary');
+          break;
+        case 'footer':
+          landmark.setAttribute('role', 'contentinfo');
+          break;
+      }
+    }
+  });
 }
 
+// New function implementation for REACT_017: validateLandmarkStructure
 function validateLandmarkStructure() {
-  return validateLandmarkStructure();
+  // Implement landmark structure validation logic
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    console.warn('Multiple main landmarks found, should be only one');
+    for (let i = 1; i < mainElements.length; i++) {
+      mainElements[i].setAttribute('aria-hidden', 'true');
+    }
+  }
 }
 
+// New function implementation for REACT_041: getSvgAccessibleName
 function getSvgAccessibleName(svgElement) {
-  return getSvgAccessibleName(svgElement);
+  // Implement function to get accessible name for SVG
+  const title = svgElement.querySelector('title');
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  
+  if (title) {
+    return title.textContent;
+  }
+  
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  if (ariaLabelledby) {
+    const labelledElement = document.getElementById(ariaLabelledby);
+    if (labelledElement) {
+      return labelledElement.textContent;
+    }
+  }
+  
+  return null;
 }
 
-function createInPageButton() {
-  return createInPageButton();
+// New function implementation for REACT_041: setSvgAttributes
+function setSvgAttributes(svgElement, accessibleName) {
+  // Implement function to set accessibility attributes on SVG
+  if (accessibleName) {
+    if (!svgElement.getAttribute('aria-label')) {
+      svgElement.setAttribute('aria-label', accessibleName);
+    }
+    if (!svgElement.hasAttribute('role')) {
+      svgElement.setAttribute('role', 'img');
+    }
+  }
 }
 
-// New function for REACT_031: Add 'aria-hidden' to decorative SVGs
+// New function implementation for REACT_031: Add 'aria-hidden' to decorative SVGs
 function addAriaHiddenToDecorativeSVGs() {
   const decorativeSVGs = document.querySelectorAll('svg');
   decorativeSVGs.forEach((svg) => {
@@ -246,7 +331,6 @@ function fixAccessibilityIssues() {
 
   // 4. REACT_025: Ensure unique landmarks (addressing the 2 landmark uniqueness issues)
   ensureUniqueLandmarks();
-  validateLinkAccessibility();
   handleFakeLinks();
 
   // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)

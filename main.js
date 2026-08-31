@@ -1,3 +1,9 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
 // Existing code starts here
 
 // This is the existing code that needs to be preserved
@@ -188,7 +194,7 @@ function ensureUniqueLandmarks() {
   landmarks.forEach((landmark) => {
     const id = landmark.id;
     if (landmarkIds.has(id)) {
-      console.error('Duplicate landmar ID encountered:', id);
+      console.error('Duplicate landmark ID encountered:', id);
     } else {
       landmarkIds.add(id);
     }
@@ -308,10 +314,6 @@ export {
   renderIndexView 
 };
 
-// Compatibility for CommonJS if needed (as per HEAD)
-module.exports.newFunction = newFunction;
-module.exports.renderIndexView = renderIndexView;
-
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
@@ -320,12 +322,6 @@ if (typeof document !== 'undefined') {
     initialize();
   }
 }
-
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

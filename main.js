@@ -18,14 +18,18 @@ function createInPageButton(buttonText, onClickHandler) {
   return button;
 }
 
-// TODO: Implement this function for creating in-page buttons
-// (Now implemented)
+// TODO: Implement this function for creating in-page buttons with an added aria-label
+function createInPageButtonWithAriaLabel(buttonText, onClickHandler, ariaLabel) {
+  const button = createInPageButton(buttonText, onClickHandler);
+  button.setAttribute('aria-label', ariaLabel);
+  return button;
+}
 
 // Example usage (if needed):
-// const btn = createInPageButton('Click Me', () => console.log('Clicked'));
+// const btn = createInPageButtonWithAriaLabel('Click Me', () => console.log('Clicked'), 'Click the blue button');
 // document.body.appendChild(btn);
 
-export { createInPageButton };
+export { createInPageButton, createInPageButtonWithAriaLabel };
 
 function analyzeAccessibility(issuesData) {
   // presume this function is already defined

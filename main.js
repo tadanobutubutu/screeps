@@ -4,21 +4,21 @@
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//_Commit: f80b788bad4952d8f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a97cc550c419 -->
 
 import './styles.css';
 import react from 'react';
 
 // This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// (This comment remains as-ist)
 
 // More existing code that should be preserved
 
 // Configuration
 const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: 5000
+  apiUrl: process.env.API_URL || ...
+  timeout: 5
 };
 
 // App state
@@ -77,7 +77,7 @@ function formatDate(date) {
   if (!(date instanceof Date)) {
     date = new Date(date);
   }
-  return date.toISOString().split('T')[0];
+  return ...
 }
 
 // Validate input function
@@ -86,7 +86,7 @@ function validateInput(input) {
     return false;
   }
   return true;
-};
+};;
 
 // Language attribute functions
 function getLangAttribute() {
@@ -107,22 +107,22 @@ function setLanguageAttribute() {
 
 // Function to add landmark roles to main containers
 function addLandmarkRoles() {
-  const mainElement = document.querySelector('main');
-  if (mainElement && !mainElement.getAttribute('role')) {
+  const mainElement = ...
+  if (mainElement && ... {
     mainElement.setAttribute('role', 'main');
   }
   
-  const navElement = document.querySelector('nav');
-  if (navElement && !navElement.getAttribute('role')) {
-    navElement.setAttribute('role', 'navigation');
+  const navElement = ...
+  if (navElement && ... {
+    ... 'navigation');
   }
 }
 
 // Function to fix fake links (links without href)
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a:not([href])');
+  const fakeLinks = ...
   fakeLinks.forEach(link => {
-    if (!link.getAttribute('role')) {
+    if ... {
       link.setAttribute('role', 'button');
     }
   });
@@ -157,7 +157,7 @@ function validateLandmarkStructure() {
   console.log('Validating landmark structure');
 }
 
-function validateLandmarkAttributes() {
+function ... {
   console.log('Validating landmark attributes');
 }
 
@@ -173,7 +173,7 @@ function getSvgAccessibleName() {
 function setSvgAttributes(svg, accessibleName) {
   if (svg && typeof svg === 'object') {
     svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', accessibleName);
+    ... accessibleName);
   }
   return svg;
 }
@@ -220,7 +220,7 @@ const initApp = () => {
 
   // Add accessible names to SVGs (example selectors and names)
   icons = {
-    icon: '<svg viewBox="0 0 100 100" aria-label="Screps icon"></svg>'
+    icon: '<svg viewBox="0 0 100 100" aria- label="Screeps icon"></svg>'
   };
 
   // Fix fake links
@@ -269,7 +269,7 @@ function addressAccessibilityIssues(insightReport) {
         break;
       case 'REACT_027':
         // Fix table structure issues
-        if (issue.type === 'structure') {
+        if (issue.subtype === 'structure') {
           validateTableStructure();
           fixTableStructure();
         } else {
@@ -287,7 +287,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_041':
         // Add accessible names to SVGs
         if (issue.element) {
-          setSvgAttributes(issue.element, getSvgAccessibleName());
+          setSvgAttributes(issue.element, issue.accessibleName || getSvgAccessibleName());
         }
         break;
       case 'REACT_025':
@@ -297,7 +297,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_036':
         // Fix fake link issue
         handleFakeLinks();
-        validateLinkAccessibility();
+        fixFakeLinks();
         break;
       default:
         console.log('Unknown issue type:', issue.type);
@@ -378,155 +378,4 @@ function getInsightReport() {
     });
   }
   
-  // Check landmark attributes
-  const landmarkAttributeIssues = validateLandmarkAttributes();
-  if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
-    landmarkAttributeIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_017',
-        description: issue.description || 'Landmark attribute issue',
-        severity: issue.severity || 'low',
-        element: issue.element,
-        landmark: issue.landmark
-      });
-    });
-  }
-  
-  // Check SVG accessibility
-  const svgAccessibleNames = getSvgAccessibleName();
-  if (svgAccessibleNames && svgAccessibleNames.length > 0) {
-    svgAccessibleNames.forEach(function(svg) {
-      issues.push({
-        type: 'REACT_041',
-        description: 'SVG is missing accessible name',
-        severity: 'medium',
-        svg: svg.element,
-        svgId: svg.id
-      });
-    });
-  }
-  
-  // Check for unique landmarks
-  const uniqueLandmarkIssues = ensureUniqueLandmarks();
-  if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
-    uniqueLandmarkIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_025',
-        description: issue.description || 'Duplicate or missing landmark',
-        severity: issue.severity || 'medium',
-        element: issue.element,
-        landmark: issue.landmark
-      });
-    });
-  }
-  
-  // Check link accessibility
-  const linkIssues = validateLinkAccessibility();
-  if (linkIssues && linkIssues.length > 0) {
-    linkIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_036',
-        description: issue.description || 'Link accessibility issue',
-        severity: issue.severity || 'medium',
-        element: issue.element,
-        link: issue.link
-      });
-    });
-  }
-  
-  // Generate the report
-  var report = {
-    issues: issues,
-    summary: {
-      totalIssues: issues.length,
-      langAttribute: issues.filter(function(i) { return i.type === 'REACT_015'; }).length,
-      tableIssues: issues.filter(function(i) { return i.type === 'REACT_027'; }).length,
-      landmarkIssues: issues.filter(function(i) { return i.type === 'REACT_017'; }).length,
-      svgIssues: issues.filter(function(i) { return i.type === 'REACT_041'; }).length,
-      uniqueLandmarkIssues: issues.filter(function(i) { return i.type === 'REACT_025'; }).length,
-      linkIssues: issues.filter(function(i) { return i.type === 'REACT_036'; }).length,
-      critical: issues.filter(function(i) { return i.severity === 'critical'; }).length,
-      high: issues.filter(function(i) { return i.severity === 'high'; }).length,
-      medium: issues.filter(function(i) { return i.severity === 'medium'; }).length,
-      low: issues.filter(function(i) { return i.severity === 'low'; }).length
-    },
-    timestamp: new Date().toISOString(),
-    generatedAt: new Date().toLocaleString()
-  };
-  
-  return report;
-}
-
-function processAccessibilityReport(report) {
-  // Process accessibility report and return findings
-  var findings = {
-    langAttribute: false,
-    tableIssues: 0,
-    landmarkIssues: 0,
-    svgIssues: 0,
-    uniqueLandmarkIssues: 0,
-    fakeLinkIssues: 0
-  };
-
-  if (report) {
-    if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027.count || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
-  }
-
-  return findings;
-}
-
-// Example usage of the new function (if applicable)
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
-
-// Add back removed exports
-module.exports = {
-  config: config,
-  appState: appState,
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
-  initialize: initialize,
-  initializeApp: initializeApp,
-  processData: processData,
-  fetchUser: fetchUser,
-  clearCache: clearCache,
-  someFunction: someFunction,
-  helper: helper,
-  formatDate: formatDate,
-  validateInput: validateInput,
-  addressAccessibilityIssues: addressAccessibilityIssues,
-  processAccessibilityReport: processAccessibilityReport,
-  getInsightReport: getInsightReport,
-  getLangAttribute: getLangAttribute,
-  addLangAttribute: addLangAttribute,
-  setLanguageAttribute: setLanguageAttribute,
-  addLandmarkRoles: addLandmarkRoles,
-  fixFakeLinks: fixFakeLinks,
-  validateTableAccessibility: validateTableAccessibility,
-  validateTableStructure: validateTableStructure,
-  fixTableStructure: fixTableStructure,
-  addMainLandmark: addMainLandmark,
-  validateLandmark: validateLandmark,
-  validateLandmarkStructure: validateLandmarkStructure,
-  validateLandmarkAttributes: validateLandmarkAttributes,
-  addLandmarkRegions: addLandmarkRegions,
-  getSvgAccessibleName: getSvgAccessibleName,
-  setSvgAttributes: setSvgAttributes,
-  ensureUniqueLandmarks: ensureUniqueLandmarks,
-  createInPageButton: createInPageButton,
-  validateLinkAccessibility: validateLinkAccessibility,
-  handleFakeLinks: handleFakeLinks,
-  landmarks: landmarks,
-  appData: appData,
-  initApp: initApp
-};
-
-// Export functions for testing
-export { ensureUniqueLandmarks, initApp, setLanguageAttribute, addLandmarkRoles, fixFakeLinks, landmarks, appData };
+  // Check

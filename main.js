@@ -112,13 +112,21 @@ function visualizeDependencyTree(dependencies) {
   console.log(report.graph);
 }
 
+// New function to visualize the dependency tree with a specific depth
+function visualizeDependencyTreeWithDepth(dependencies, maxDepth) {
+  const report = generateDependencyReport(dependencies);
+  const truncatedGraph = report.graph.split('\n').slice(0, maxDepth + 1).join('\n');
+  console.log(truncatedGraph);
+}
+
 module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
   getDependencyDepth,
   generateDependencyReport,
   main,
-  visualizeDependencyTree
+  visualizeDependencyTree,
+  visualizeDependencyTreeWithDepth
 };
 
 // Run if executed directly

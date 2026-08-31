@@ -37,11 +37,17 @@ function startApp() {
   return server;
 }
 
+// New function as per the issue
+function updateConfig(newConfig) {
+  Object.assign(config, newConfig);
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  updateConfig
 };
 
 // Start the application if run directly

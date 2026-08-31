@@ -18,7 +18,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `${book.id}-${book.title}-${book.author}`;
+  return book.id || `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
@@ -27,7 +27,7 @@ function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        description={book.author}
+        ...
       />
     </List.Item>
   );
@@ -57,7 +57,7 @@ function BookForm() {
 
   // Render the form
   return (
-    <form onSubmit={handleSubmit}>
+    <form ...
       <label htmlFor="title">Title:</label>
       <input
         type="text"
@@ -66,7 +66,7 @@ function BookForm() {
         onChange={handleTitleChange}
         aria-label="Book title"
       />
-      <label htmlFor="author">Author:</label>
+      <label ...
       <input
         type="text"
         id="author"
@@ -84,14 +84,14 @@ const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
@@ -110,14 +110,14 @@ function Main() {
   }, [sorting]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(BookItem);
+  const bookItems = ...
 
   // Render the list of book items, sorting controls, and the book form
   return (
     <div>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
+      <List ... />
       <BookForm />
     </div>
   );

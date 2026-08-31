@@ -96,6 +96,7 @@ const a11yStore = {
 
   newFunction() {
     // New function implementation from origin/main
+    console.log('New function called');
   }
 };
 
@@ -160,6 +161,7 @@ if (typeof document !== 'undefined') {
 
 function newFunction() {
   // Implementation from origin/main
+  console.log('New function called');
 }
 
 if (typeof document !== 'undefined') {

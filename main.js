@@ -116,7 +116,7 @@ function ensureElementHasId(element) {
     return element.id;
   }
   
-  const id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const id = 'element-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
   element.id = id;
   return id;
 }
@@ -166,7 +166,7 @@ function renderDependencyGraph(data, container) {
       const y = 100 + Math.floor(index / 4) * 150;
       
       const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      g.setAttribute('transform', `translate(${x}, ${y})`);
+      g.setAttribute('transform', 'translate(' + x + ', ' + y + ')');
       
       const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       circle.setAttribute('r', '30');
@@ -185,7 +185,7 @@ function renderDependencyGraph(data, container) {
   
   // Render edges
   if (data.edges && Array.isArray(data.edges)) {
-    data.edges.forEach(edge => {
+    data.edges.forEach(function(edge) {
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       line.setAttribute('x1', edge.sourceX || 0);
       line.setAttribute('y1', edge.sourceY || 0);

@@ -25,7 +25,7 @@ function validateLandmark(landmark) {
   // Validate longitude
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+  } else if (typeof landmark.longitude !== 'number') {
     errors.push('Landmark longitude must be a number');
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
@@ -148,7 +148,7 @@ function improveAccessibility(container) {
   }
 
   // Ensure all clickable elements are focusable
-  const focusable = container.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+  const focusable = container.querySelectorAll('button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -206,9 +206,9 @@ function validateLandmarkUniqueness(landmarks) {
     }
     
     const tag = landmark.tagName.toLowerCase();
-    const role = landmark.getAttribute('role');
+    const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
     
-    if (seenTags.has(tag) && !['section', 'article', 'div'].includes(tag)) {
+    if (seenTags.has(tag) && !['section', 'article'].includes(tag)) {
       errors.push(`Duplicate landmark tag ${tag} found at index ${index}. Only section, article, and div can be repeated.`);
     } else if (!seenTags.has(tag)) {
       seenTags.add(tag);
@@ -234,10 +234,10 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (svg && svg.querySelector) {
       const title = svg.querySelector('title');
       if (title) {
-        const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+        const titleId = 'svg-title-' + Math.random().toString(36).substring(2, 9);
         title.id = titleId;
         svg.setAttribute('aria-labelledby', titleId);
       }
@@ -285,7 +285,7 @@ function addProperLandmarkRegions(affectedElements) {
   if (!affectedElements || !Array.isArray(affectedElements)) return;
 
   affectedElements.forEach(el => {
-    if (el && el.tagName && !el.hasAttribute('role')) {
+    if (el && el.tagName) {
       el.setAttribute('role', 'region');
     }
   });

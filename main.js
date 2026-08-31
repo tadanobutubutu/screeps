@@ -103,8 +103,6 @@ function ensureUniqueLandmarks(landmarksArray) {
   });
 }
 
-// ... (previous and updated code remains as it is)
-
 // Updated function: ensures landmarks uniqueness when there's an array structure
 function ensureLandmarkUniqueness(elements) {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -125,6 +123,11 @@ function ensureLandmarkUniqueness(elements) {
 
   return elements;
 }
+
+// ... (previous and updated code remains as it is)
+
+// Implement tower defense
+// TODO: Implement tower defense logic
 
 // Export functions for testing
 export {
@@ -150,5 +153,24 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  // NEW EXPORT: ensureLandmarkUniquenessWithArray
+  ensureLandmarkUniquenessWithArray
 };
+
+function ensureLandmarkUniquenessWithArray(landmarksArray) {
+  if (!landmarksArray || landmarksArray.length === 0) return {};
+
+  const seen = new Set();
+  const uniqueLandmarks = [];
+  for (const landmark of landmarksArray) {
+    const key = landmark.name + '_' + (landmark.role || 'default');
+
+    if (seen.has(key)) continue;
+
+    seen.add(key);
+    uniqueLandmarks.push(landmark);
+  }
+
+  return uniqueLandmarks;
+}

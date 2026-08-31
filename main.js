@@ -5,11 +5,11 @@
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link, [href^="#"]');
+    const skipLink = document.querySelector('a[href^="#"]');
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const targetId = skipLink.getAttribute('href').slice(1);
+        const targetId = skipLink.getAttribute('href').substring(1);
         const target = document.getElementById(targetId) || document.querySelector(targetId);
         if (target) {
           target.setAttribute('tabindex', '-1');
@@ -22,7 +22,7 @@ const accessibilityUtils = {
   // Trap focus within an element (for modals, dialogs)
   trapFocus: (element) => {
     const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
     );
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
@@ -71,11 +71,12 @@ const accessibilityUtils = {
   // New function to address accessibility issues from insight report
   addressAccessibilityIssues: () => {
     // Example implementation: Add ARIA roles and properties
-    document.querySelectorAll('button').forEach(button => {
-      if (!button.hasAttribute('role')) {
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+      if (!button.getAttribute('role')) {
         button.setAttribute('role', 'button');
       }
-      if (!button.hasAttribute('aria-label')) {
+      if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
         button.setAttribute('aria-label', 'Button');
       }
     });
@@ -114,7 +115,7 @@ const getLangAttribute = (contentLanguage) => {
  */
 const setLangAttribute = (contentLanguage) => {
   if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.setAttribute('lang', getLangAttribute(contentLanguage));
+    document.documentElement.lang = getLangAttribute(contentLanguage);
   }
 };
 
@@ -145,13 +146,13 @@ const validateTableAccessibility = (table) => {
   // Check for scope attributes on th elements
   const thElements = table.querySelectorAll('th');
   thElements.forEach((th, index) => {
-    if (!th.hasAttribute('scope')) {
+    if (!th.getAttribute('scope')) {
       if (index === 0) {
         th.setAttribute('scope', 'row');
       } else {
         const row = th.closest('tr');
-        const isFirstRow = table.querySelector('thead') ? 
-          row === table.querySelector('thead').querySelector('tr') : 
+        const isFirstRow = table.tHead !== null ? 
+          row === table.tHead.rows[0] : 
           row === table.querySelector('tr');
         th.setAttribute('scope', isFirstRow ? 'col' : 'row');
       }
@@ -159,8 +160,8 @@ const validateTableAccessibility = (table) => {
   });
 
   // Check for thead and tbody structure
-  const hasThead = table.querySelector('thead') !== null;
-  const hasTbody = table.querySelector('tbody') !== null;
+  const hasThead = table.tHead !== null;
+  const hasTbody = table.tBodies.length > 0;
 
   if (!hasThead && table.rows.length > 0) {
     const firstRow = table.rows[0];
@@ -172,7 +173,7 @@ const validateTableAccessibility = (table) => {
     
     if (isHeaderRow) {
       const thead = document.createElement('thead');
-      thead.appendChild(firstRow.cloneNode(true));
+      thead.appendChild(firstRow);
       table.insertBefore(thead, table.firstChild);
     }
   }
@@ -205,7 +206,7 @@ const validateTableAccessibility = (table) => {
 const validateTableStructure = (table) => {
   if (!table) return false;
 
-  const rows = table.querySelectorAll('tr');
+  const rows = table.rows;
   if (rows.length === 0) return true;
 
   // Check for consistent column counts
@@ -255,7 +256,7 @@ const validateLandmarkStructure = (container) => {
   const landmarks = container.querySelectorAll(
     '[role="banner"], [role="navigation"], [role="main"], [role="article"],' +
     '[role="aside"], [role="section"], [role="header"], [role="footer"],' +
-    '[role="complementary"], header, nav, main, article, aside, section, footer'
+    'header, nav, main, article, aside, section, footer'
   );
 
   const results = [];
@@ -362,99 +363,4 @@ const createInPageButton = (targetSelector, buttonText, options = {}) => {
 
 // Export functionality with accessibility support
 const exportUtils = {
-  exportData: (data, filename, mimeType) => {
-    const blob = new Blob([data], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.setAttribute('aria-label', `Download ${filename}`);
-    link.setAttribute('role', 'button');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    // Announce download completion to screen readers
-    accessibilityUtils.announceToScreenReader(`Download of ${filename} started`, 'polite');
-  },
-
-  exportToJSON: (data, filename) => {
-    const jsonString = JSON.stringify(data, null, 2);
-    exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
-  },
-
-  exportToCSV: (data, filename) => {
-    if (!data || data.length === 0) {
-      accessibilityUtils.announceToScreenReader('No data available to export', 'assertive');
-      return;
-    }
-    
-    const headers = Object.keys(data[0]);
-    const csvRows = [];
-    csvRows.push(headers.join(','));
-    
-    for (const row of data) {
-      const values = headers.map(header => {
-        const escaped = ('' + row[header]).replace(/"/g, '\\"');
-        return `"${escaped}"`;
-      });
-      csvRows.push(values.join(','));
-    }
-    
-    const csvString = csvRows.join('\n');
-    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
-  }
-};
-
-// Initialize accessibility features
-const initAccessibility = () => {
-  accessibilityUtils.initSkipLink();
-  
-  // Set default language attribute (can be called with custom language)
-  const detectedLanguage = document.documentElement.lang || 'en';
-  setLangAttribute(detectedLanguage);
-  
-  // Add keyboard support for all interactive elements
-  document.querySelectorAll('[role="button"], .btn, button, a[href]').forEach(element => {
-    element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, {
-        Enter: () => element.click(),
-        ' ': () => {
-          e.preventDefault();
-          element.click();
-        }
-      });
-    });
-  });
-
-  // Address accessibility issues from the insight report
-  accessibilityUtils.addressAccessibilityIssues();
-};
-
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAccessibility);
-  } else {
-    initAccessibility();
-  }
-}
-
-// Export all utilities
-module.exports = {
-  accessibilityUtils,
-  exportUtils,
-  initAccessibility,
-  // New accessibility functions
-  getLangAttribute,
-  setLangAttribute,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  addSvgAccessibleName,
-  createInPageButton
-};
+  exportData: (data, filename, mimeType) =>

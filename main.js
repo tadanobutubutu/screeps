@@ -518,22 +518,6 @@ export {
   renderPage
 };
 
-// New function or change requested in the issue
-// (Removed duplicate checkLinkAccessibility definition)
-
-// Export state
-export {
-  state,
-  updateState
-};
-
-// Export UI / product functions
-export {
-  renderHeader,
-  renderFooter,
-  renderProductCard
-};
-
 // Exporting if necessary (no exports were requested to be removed)
 export function someFunction() {
   // ... implementation ...

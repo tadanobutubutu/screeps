@@ -1,7 +1,6 @@
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
 
 /**
  * Main application entry point with accessibility features
@@ -24,7 +23,7 @@ function addSvgAccessibilityProps() {
   });
 }
 
-const checkTableStructure = /* existing code */
+const checkTableStructure = /* existing code */ null;
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -39,6 +38,21 @@ const sampleInsightReport = {
     }
   ]
 };
+
+// Function for generating a report based on accessibility issues
+function generateAccessibilityReport(insightReport) {
+  if (!insightReport || !Array.isArray(insightReport.issues)) {
+    return [];
+  }
+
+  const report = insightReport.issues.map(issue => ({
+    issueType: issue.type,
+    status: issue.status || 'pending',
+    fixApplied: issue.fixApplied || ''
+  }));
+
+  return report;
+}
 
 // Implement function for addressing accessibility issues from insight report
 // TODO: Implement a function to count dependencies

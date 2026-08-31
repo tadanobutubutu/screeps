@@ -37,11 +37,23 @@ function startApp() {
   return server;
 }
 
+// TODO: Implement the new function as per the issue requirements
+/**
+ * New function example, this is a placeholder for the actual implementation
+ * @param {string} input - The input parameter for the new function
+ * @returns {string} The output result of the new function
+ */
+function newFunction(input) {
+  // Placeholder logic, replace with actual implementation
+  return `Processed: ${input}`;
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  newFunction
 };
 
 // Start the application if run directly

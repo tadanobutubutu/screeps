@@ -78,6 +78,37 @@ function calculateProduct(a, b) {
   return a * b;
 }
 
+function checkLinkAndButtonAccessibility(container) {
+  const root = container || (typeof document !== 'undefined' ? document : null);
+  if (!root || typeof root.querySelectorAll !== 'function') {
+    return [];
+  }
+
+  const issues = [];
+  let index = 0;
+
+  const checkType = (selector, type) => {
+    const elements = root.querySelectorAll(selector);
+    elements.forEach((el) => {
+      const textContent = el.textContent ? el.textContent.trim() : '';
+      const ariaLabel = el.getAttribute ? el.getAttribute('aria-label') : null;
+      const hasName = textContent.length > 0 || (ariaLabel && ariaLabel.trim().length > 0);
+      if (!hasName) {
+        issues.push({
+          type: type,
+          element: el,
+          index: index++
+        });
+      }
+    });
+  };
+
+  checkType('a', 'link');
+  checkType('button', 'button');
+
+  return issues;
+}
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct };

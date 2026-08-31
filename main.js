@@ -21,10 +21,10 @@ function getDependencyDepth(dependencies, currentKey = '') {
   if (!dependencies || typeof dependencies !== 'object') {
     return 0;
   }
-  
+
   let maxDepth = 0;
   const keys = Object.keys(dependencies);
-  
+
   keys.forEach(key => {
     const value = dependencies[key];
     if (typeof value === 'object' && value !== null) {
@@ -32,7 +32,7 @@ function getDependencyDepth(dependencies, currentKey = '') {
       maxDepth = Math.max(maxDepth, nestedDepth + 1);
     }
   });
-  
+
   return maxDepth;
 }
 
@@ -47,17 +47,17 @@ function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
   if (!dependencies || typeof dependencies !== 'object') {
     return '';
   }
-  
+
   let output = '';
   const keys = Object.keys(dependencies);
-  
+
   keys.forEach((key, index) => {
     const isLastItem = index === keys.length - 1;
     const connector = isLast ? '└── ' : '├── ';
     const value = dependencies[key];
-    
+
     output += prefix + connector + key;
-    
+
     if (typeof value === 'object' && value !== null) {
       output += '/\n';
       const extension = isLast ? '    ' : '│   ';
@@ -66,87 +66,12 @@ function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
       output += ` -> ${value}\n`;
     }
   });
-  
+
   return output;
 }
 
 /**
- * Displays module structure for debugging purposes.
- * @param {Array} modules - Array of module objects
- * @returns {string} Formatted module structure display
- */
-function displayModuleStructure(modules) {
-  if (!Array.isArray(modules)) {
-    return 'Error: modules must be an array';
-  }
-  
-  let output = 'Module Structure:\n';
-  output += '==================\n\n';
-  
-  modules.forEach((mod, index) => {
-    const name = mod.name || mod.id || `Module ${index + 1}`;
-    output += `${index + 1}. ${name}\n`;
-    
-    if (mod.dependencies && Array.isArray(mod.dependencies)) {
-      output += `   Dependencies: ${mod.dependencies.join(', ')}\n`;
-    }
-    
-    if (mod.path) {
-      output += `   Path: ${mod.path}\n`;
-    }
-    
-    output += '\n';
-  });
-  
-  return output;
-}
-
-/**
- * Generates a dependency report for debugging
- * @param {Object} dependencies - The dependency object
- * @returns {Object} Report containing statistics
- */
-function generateDependencyReport(dependencies) {
-  return {
-    totalDependencies: Object.keys(dependencies).length,
-    maxDepth: getDependencyDepth(dependencies),
-    graph: renderDependencyGraph(dependencies)
-  };
-}
-
-/**
- * Renders dependency visualization as HTML with proper accessibility attributes
- * @param {Object} dependencies - The dependency object
- * @returns {string} HTML string with lang attribute for accessibility
- */
-function renderDependencyHTML(dependencies) {
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dependency Visualization</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .dep-tree { background: #f5f5f5; padding: 15px; border-radius: 5px; }
-    .dep-item { margin: 5px 0; }
-    .nested { padding-left: 20px; border-left: 2px solid #ccc; }
-  </style>
-</head>
-<body>
-  <main role="main">
-    <h1>Dependency Tree</h1>
-    <div class="dep-tree" aria-label="Dependency structure">
-      ${renderDependencyList(dependencies)}
-    </div>
-  </main>
-</body>
-</html>`;
-  return html;
-}
-
-/**
- * Helper function to render dependency list as HTML
+ * Renders a dependency list as HTML
  * @param {Object} dependencies - The dependency object
  * @param {number} depth - Current nesting depth
  * @returns {string} HTML string of the dependency list
@@ -155,15 +80,15 @@ function renderDependencyList(dependencies, depth = 0) {
   if (!dependencies || typeof dependencies !== 'object') {
     return '';
   }
-  
+
   let output = '';
   const keys = Object.keys(dependencies);
-  
+
   keys.forEach((key) => {
     const value = dependencies[key];
     const indent = '<span class="nested">'.repeat(depth);
     const closeIndent = '</span>'.repeat(depth);
-    
+
     if (typeof value === 'object' && value !== null) {
       output += `<div class="dep-item">${indent}${key}/${closeIndent}</div>`;
       output += renderDependencyList(value, depth + 1);
@@ -171,7 +96,7 @@ function renderDependencyList(dependencies, depth = 0) {
       output += `<div class="dep-item">${indent}${key} → ${value}${closeIndent}</div>`;
     }
   });
-  
+
   return output;
 }
 
@@ -198,10 +123,10 @@ function renderAccessibleDependencyGraph(dependencies, depth = 0) {
 
   const keys = Object.keys(dependencies);
   if (keys.length === 0) {
-    return `Depth ${depth}: (empty)\n`;
+    return `Dependency tree at depth ${depth}: (empty)\n`;
   }
 
-  let output = `Depth ${depth}: (${keys.length} item${keys.length === 1 ? '' : 's'})\n`;
+  let output = `Dependency tree at depth ${depth}: \n`;
 
   keys.forEach((key, index) => {
     const value = dependencies[key];
@@ -209,10 +134,10 @@ function renderAccessibleDependencyGraph(dependencies, depth = 0) {
     const position = isLast ? 'last' : 'not last';
 
     if (typeof value === 'object' && value !== null) {
-      output += `  - ${key} (has ${Object.keys(value).length} child${Object.keys(value).length === 1 ? '' : 's'}, ${position})\n`;
+      output += `  Dependency ${key} has ${Object.keys(value).length} child${Object.keys(value).length === 1 ? '' : 'ren'} at depth ${depth + 1}. ${position}\n`;
       output += renderAccessibleDependencyGraph(value, depth + 1);
     } else {
-      output += `  - ${key} (leaf, value: ${value}, ${position})\n`;
+      output += `  Dependency ${key} is a leaf dependency. ${position}\n`;
     }
   });
 
@@ -223,6 +148,7 @@ function renderAccessibleDependencyGraph(dependencies, depth = 0) {
 function visualizeDependencyTree(dependencies) {
   const report = generateDependencyReport(dependencies);
   console.log(report.graph);
+  console.log(renderAccessibleDependencyGraph(dependencies));
 }
 
 /**
@@ -238,11 +164,14 @@ function main() {
       }
     }
   };
-  
+
   console.log('Dependency Graph:');
   console.log(renderDependencyGraph(sampleDependencies));
-  
+
   console.log('Depth:', getDependencyDepth(sampleDependencies));
+
+  console.log('\nAccessible Dependency Tree:');
+  console.log(renderAccessibleDependencyGraph(sampleDependencies));
 }
 
 module.exports = {

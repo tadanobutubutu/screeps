@@ -103,7 +103,30 @@ function writeReport(report) {
 // TODO: Implement function for generating a report based on accessibility issues
 // Replaced placeholder with full implementation using axe-core scanning and report writing
 function generateAccessibilityReport() {
-  const report = scanAccessibility();
+  const issues = scanAccessibility();
+  
+  // Calculate compliance metrics
+  const metrics = {
+    totalIssues: issues.length,
+    critical: issues.filter(i => i.severity === 'critical').length,
+    moderate: issues.filter(i => i.severity === 'moderate').length,
+    minor: issues.filter(i => i.severity === 'minor').length
+  };
+  
+  // Create a detailed report
+  const report = {
+    title: 'Accessibility Compliance Report',
+    generatedAt: new Date().toISOString(),
+    metrics,
+    detailedFindings: issues.map(issue => ({
+      id: issue.id,
+      severity: issue.severity,
+      category: issue.category,
+      message: issue.message,
+      location: issue.location
+    }))
+  };
+  
   writeReport(report);
   return report;
 }
@@ -120,16 +143,10 @@ const { processData } = require('./utils/processor');
 // Application main entry point
 const app = express();
 
-// TODO: add the new functions or changes requested in the issue
-// Here is the implementation for checking link accessibility
-// The existing isLinkAccessible function implementation
-
-// Endpoint for getting landmarks
 app.get('/landmarks', (req, res) => {
   // Your code for handling the request and response logic goes here
 });
 
-// Export new necessary functions
 module.exports = {
   validateInput,
   processData,
@@ -146,7 +163,6 @@ module.exports = {
   generateAccessibilityReport // Add the new function to the exports
 };
 
-// Main execution when run directly
 if (require.main === module) {
   const landmarks = loadLandmarks();
   const processed = processLandmarks(landmarks);

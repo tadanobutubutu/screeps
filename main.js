@@ -1,29 +1,26 @@
-Here is the resolved file content:
-
-```javascript
 import React, { useState, useEffect } from 'react';
 import express from 'express';
 import path from 'path';
 import './styles.css';
-import './styles.less';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
-import fs from 'fs';
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { CONFIG } from './utils/constants';
-import { App } from './App';
+import { visualizeDependencyTree } from './utils.js';
 
-const expressApp = express();
+// Configuration
+const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
 
-let config = {};
-let appState = {};
+// App state
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
+};
 
+// React Components
 const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
 const App = () => {
@@ -39,6 +36,17 @@ const App = () => {
   // ... existing App code ...
 };
 
+// Core Functions
+function initialize() {
+  appState.initialized = true;
+  console.log('App initialized');
+}
+
+function initializeApp() {
+  initialize();
+  return appState;
+}
+
 function main() {
   initialize();
 
@@ -48,49 +56,29 @@ function main() {
   }
 }
 
-function initialize() {
-  config = { apiUrl: process.env.API_URL || 'default', timeout: 5000 };
-  appState = { initialized: true };
+// Server Setup
+const app = express();
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || 'localhost';
+
+// Main execution when run directly
+if (require.main === module) {
+  // Start server
+  app.listen(PORT, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
+  });
+
+  // Visualize dependency tree when running directly
+  visualizeDependencyTree(require.dependencies);
 }
 
-export { config, App };
-
-function initializeApp() {
-  initialize();
-}
-
-function processData(data) {
-  return data;
-}
-
-function fetchUser(userId) {
-  return { id: userId, name: 'User' };
-}
-
-function clearCache() {
-  appState = {};
-}
-
-function validateInput(input) {
-  return input && input.length > 0;
-}
-
-// Main execution
-function main() {
-  initialize();
-  console.log('Main function executed');
-}
-
-// Run if executed directly
-if (typeof require !== 'undefined' && require.main === module) {
-  main();
-}
-
-exprressApp.use('/', expressApp);
-const port = process.env.PORT || 3000;
-expressApp.listen(port, () => {
-  console.log(`Listening on port ${port}`);
-});
+// Exports
+module.exports = {
+  config,
+  initialize,
+  initializeApp,
+  main,
+  App,
+  HTML
+};
 ```
-
-I merged the changes by keeping both changes related to configuration, state, and the main function execution from the original branch, and the `App`, `HTML`, and related functions from the conflicting branch. I also made sure to provide additional exported functions and removed unnecessary imports and functions which may have caused syntax errors.

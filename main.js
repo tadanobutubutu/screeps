@@ -38,7 +38,7 @@ function createUnrotateButton() {
 function replaceFakeLinks() {
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach((link) => {
-    if (link.getAttribute('aria-hidden') === 'true') {
+    if (link.getAttribute('data-fake-link') === 'true') {
       const parent = link.parentElement;
       const newButton = createUnrotateButton();
       parent.replaceChild(newButton, link);
@@ -88,7 +88,7 @@ function getConfig() {
 // Ensure all <th> elements have scope attribute
 function ensureThScope() {
   const thElements = document.querySelectorAll('th');
-  thElements.forEach(th => {
+  thElements.forEach((th) => {
     if (!th.hasAttribute('scope')) {
       // Determine if it's a column header or row header based on context
       const parent = th.parentElement;
@@ -108,11 +108,11 @@ function ensureThScope() {
  * Setup skip link functionality for keyboard navigation
  */
 function setupSkipLinks() {
-  const skipLink = document.getElementById('skip-link') || document.querySelector('.skip-link');
+  const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = document.querySelector(skipLink.getAttribute('href') || '');
+      const target = document.querySelector(skipLink.getAttribute('href') || '') || document.getElementById('main-content');
       if (target) {
         target.focus();
         target.scrollIntoView({ behavior: 'smooth' });
@@ -152,28 +152,28 @@ function handleEvent(event) {
 }
 
 function addLandmarkRoles() {
-  const header = document.querySelector('header');
+  const header = document.querySelector('header') || document.getElementById('header');
   if (header) header.setAttribute('role', 'banner');
 
-  const mainContent = document.querySelector('main');
+  const mainContent = document.querySelector('main') || document.getElementById('main-content');
   if (mainContent) mainContent.setAttribute('role', 'main');
 
-  const footer = document.querySelector('footer');
+  const footer = document.querySelector('footer') || document.getElementById('footer');
   if (footer) footer.setAttribute('role', 'contentinfo');
 }
 
 // Function to add accessible names to 2 SVGs
 function addSvgAccessibleNames() {
-  const svg1 = document.querySelector('.svg-1');
+  const svg1 = document.querySelector('svg:first-of-type') || document.getElementById('svg-1');
   if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
 
-  const svg2 = document.querySelector('.svg-2');
+  const svg2 = document.querySelector('svg:nth-of-type(2)') || document.getElementById('svg-2');
   if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
 }
 
 // Function to ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"]');
+  const landmarks = document.querySelectorAll('[role="banner"], [role="main"], [role="contentinfo"], [role="navigation"], [role="complementary"]');
   const landmarkIds = new Set();
 
   landmarks.forEach((landmark) => {
@@ -237,6 +237,28 @@ function newFunction() {
   // Implementation of the new function
 }
 
+// TODO: Implement a function to count dependencies
+/**
+ * Count the number of dependencies in the given dependency object or array
+ * @param {Object|Array} dependencies - The dependencies to count
+ * @returns {number} The number of dependencies
+ */
+function countDependencies(dependencies) {
+  if (!dependencies) {
+    return 0;
+  }
+  
+  if (Array.isArray(dependencies)) {
+    return dependencies.length;
+  }
+  
+  if (typeof dependencies === 'object') {
+    return Object.keys(dependencies).length;
+  }
+  
+  return 0;
+}
+
 export function calculateDiscount(price, discount) {
   if (typeof price !== 'number' || price < 0) {
     throw new Error('Price must be a non-negative number');
@@ -270,7 +292,8 @@ export {
   greet, 
   add, 
   calculateDiscount, 
-  newFunction 
+  newFunction,
+  countDependencies
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)

@@ -4,6 +4,12 @@
 // Existing Code
 // --------------
 
+// Imported modules
+const langUtils = require('./langUtils');
+const landmarkUtils = require('./landmarkUtils');
+const svgUtils = require('./svgUtils');
+const tableUtils = require('./tableUtils');
+
 export const getLang = () => {
   let lang = 'en';
   if (typeof navigator !== 'undefined') {
@@ -181,9 +187,10 @@ function addAriaLabel(element, label) {
  * Renders a dependency graph
  * @param {Object} data - The dependency data to render
  * @param {HTMLElement} container - The container element for the graph
+ * @param {Object} modules - Optional imported modules for rendering
  * @returns {HTMLElement} The rendered graph container
  */
-function renderDependencyGraph(data, container) {
+function renderDependencyGraph(data, container, modules = {}) {
   if (!data) {
     throw new Error('Dependency data is required');
   }
@@ -237,6 +244,11 @@ function renderDependencyGraph(data, container) {
   graphContainer.appendChild(svg);
   ensureElementHasId(graphContainer);
   addAriaLabel(graphContainer, 'Dependency graph visualization');
+  
+  // Use imported modules if provided
+  if (modules && modules.langUtils) {
+    modules.langUtils.getLang();
+  }
   
   return graphContainer;
 }
@@ -344,14 +356,20 @@ function ensureDependencyGraphAriaRole() {
 
 /**
  * Apply all accessibility fixes
+ * @param {Object} modules - Optional imported modules for rendering
  */
-function applyAccessibilityFixes() {
+function applyAccessibilityFixes(modules = {}) {
   addLangAttribute('en');
   addLandmarkRoles();
   ensureUniqueLandmarks();
   addAccessibleNamesToSVGs();
   fixFakeLinks();
   addScopeToTableHeaders();
+  
+  // Use imported modules if provided
+  if (modules && modules.landmarkUtils) {
+    modules.landmarkUtils.addLandmarkRoles();
+  }
 }
 
 /**

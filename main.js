@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Import required module(s)
 import { calculateSum } from './utils';
 
@@ -166,6 +163,3 @@ app.use((err, req, res, next) => {
 
 // Export the app (and the attached newFunction) for external use
 module.exports = app;
-```
-
-In this solution, I integrated both changes while preserving the relevant code. The accessibility improvements were merged into the existing codebase, and the `renderIndexView()` function was added as requested. The basic HTML response fallback mechanism was preserved to ensure the application can still function even if no template is available. Syntax errors were eliminated during the merge process.

@@ -3,9 +3,14 @@ function myNewFunction(someArg) {
 }
 
 // TODO: Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// Ensure all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
-// (Preserve existing function for control)
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// - ADD: Address new accessibility issues from insight report
+// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
 /**
  * Ensures the dependencyGraph container has a proper ARIA role
@@ -233,6 +238,110 @@ function getLandmarkSummary(context = document) {
     return summary.join('\n');
 }
 
+/**
+ * Implements a focus trap for keyboard navigation
+ * Creates a focus trap within the specified container element
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @returns {Object} Object with activate, deactivate, and toggle methods
+ */
+function newFocusTrap(container) {
+  if (!container) {
+    return {
+      activate: () => {},
+      deactivate: () => {},
+      toggle: () => {}
+    };
+  }
+
+  let isActive = false;
+  let previouslyFocusedElement = null;
+
+  function getFocusableElements(element) {
+    constFocusableSelectors = [
+      'a[href]',
+      'area[href]',
+      'input:not([disabled]):not([type="hidden"])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      'button:not([disabled])',
+      'iframe',
+      'object',
+      'embed',
+      '[tabindex]:not([tabindex="-1"])',
+      '[contenteditable="true"]:not([contenteditable="false"])'
+    ].join(', ');
+    
+    return Array.from(element.querySelectorAll(getFocusableSelectors))
+      .filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0);
+  }
+
+  function handleKeyDown(event) {
+    if (event.key === 'Tab') {
+      const focusableElements = getFocusableElements(container);
+      
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (event.shiftKey) {
+        if (document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
+    } else if (event.key === 'Escape') {
+      deactivate();
+    }
+  }
+
+  function activate() {
+    if (isActive) return;
+
+    previouslyFocusedElement = document.activeElement;
+    container.setAttribute('data-focus-trap-active', 'true');
+    
+    const focusableElements = getFocusableElements(container);
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus();
+    }
+
+    container.addEventListener('keydown', handleKeyDown);
+    isActive = true;
+  }
+
+  function deactivate() {
+    if (!isActive) return;
+
+    container.removeAttribute('data-focus-trap-active');
+    container.removeEventListener('keydown', handleKeyDown);
+    
+    if (previouslyFocusedElement) {
+      previouslyFocusedElement.focus();
+    }
+    
+    isActive = false;
+  }
+
+  function toggle() {
+    if (isActive) {
+      deactivate();
+    } else {
+      activate();
+    }
+  }
+
+  return { activate, deactivate, toggle };
+}
+
 /* Common utility functions */
 function add(a, b) {
   return a + b;
@@ -317,7 +426,8 @@ if (typeof module !== 'undefined' && module.exports) {
         ensureUniqueLandmarks,
         addSvgAccessibleNames,
         fixFakeLinkIssue,
-        handleCredentialResponse
+        handleCredentialResponse,
+        newFocusTrap
     };
 }
 

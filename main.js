@@ -481,6 +481,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Fix fake link issues
   fixFakeLinkIssues();
+  
+  // Address new accessibility issues
+  addressNewAccessibilityIssues();
 });
 
 const dependencyGraphContainer = document.createElement('div');
@@ -741,3 +744,108 @@ function updateGraphRendering() {
 
 // Export the new updateGraphRendering function if necessary
 export { updateGraphRendering };
+
+// TODO: Implement the function for addressing new accessibility issues
+// Implementation for addressing new accessibility issues from insight report
+function addressNewAccessibilityIssues() {
+  // 1. Ensure all interactive elements are keyboard accessible
+  const interactiveElements = document.querySelectorAll('[onclick], [onmouseover], [onfocus]');
+  interactiveElements.forEach(element => {
+    const tagName = element.tagName.toLowerCase();
+    if (!element.getAttribute('tabindex') && !['a', 'button', 'input', 'select', 'textarea', 'details', 'summary'].includes(tagName)) {
+      element.setAttribute('tabindex', '0');
+    }
+  });
+
+  // 2. Ensure images have alt text or are marked as decorative
+  const images = document.querySelectorAll('img');
+  images.forEach(img => {
+    if (!img.getAttribute('alt')) {
+      img.setAttribute('alt', '');
+    }
+  });
+
+  // 3. Ensure all form fields have associated labels
+  const formFields = document.querySelectorAll('input:not([type="hidden"]), select, textarea');
+  formFields.forEach(field => {
+    const hasLabel = field.getAttribute('aria-label') || field.getAttribute('aria-labelledby') || document.querySelector(`label[for="${field.id}"]`);
+    if (!hasLabel && field.name) {
+      const label = document.createElement('label');
+      label.setAttribute('for', field.name);
+      label.textContent = field.name;
+      field.parentNode.insertBefore(label, field);
+    }
+  });
+
+  // 4. Ensure proper heading hierarchy
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let lastHeadingLevel = 0;
+  headings.forEach(heading => {
+    const level = parseInt(heading.tagName.charAt(1));
+    if (level > lastHeadingLevel + 1) {
+      console.warn(`Heading level skipped from h${lastHeadingLevel} to h${level}`);
+    }
+    lastHeadingLevel = level;
+  });
+
+  // 5. Ensure links have descriptive text (not "click here" or "read more")
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    const linkText = link.textContent.trim().toLowerCase();
+    if (['click here', 'read more', 'learn more', 'here', 'more'].includes(linkText)) {
+      const ariaLabel = link.getAttribute('aria-label');
+      if (!ariaLabel) {
+        console.warn('Link text is not descriptive:', linkText);
+      }
+    }
+  });
+
+  // 6. Ensure focus indicators are visible
+  const focusableElements = document.querySelectorAll('a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  focusableElements.forEach(element => {
+    const style = window.getComputedStyle(element);
+    if (style.outline === 'none' || style.outlineWidth === '0px') {
+      if (!element.classList.contains('focus-visible') && !document.querySelector('.focus-visible')) {
+        element.style.outline = '2px solid #0066cc';
+        element.style.outlineOffset = '2px';
+      }
+    }
+  });
+
+  // 7. Ensure lists are properly structured
+  const listContainers = document.querySelectorAll('ul, ol');
+  listContainers.forEach(list => {
+    const directChildren = Array.from(list.children);
+    const hasListItems = directChildren.some(child => child.tagName === 'LI');
+    if (!hasListItems && directChildren.length > 0) {
+      console.warn('List contains non-list-item children');
+    }
+  });
+
+  // 8. Ensure tables have proper captions or summaries
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!table.querySelector('caption') && !table.getAttribute('aria-label') && !table.getAttribute('aria-labelledby')) {
+      console.warn('Table is missing a caption or accessible name');
+    }
+  });
+
+  // 9. Ensure video/audio elements have captions or transcripts
+  const videos = document.querySelectorAll('video');
+  videos.forEach(video => {
+    if (!video.querySelector('track[kind="captions"]') && !video.getAttribute('aria-label')) {
+      console.warn('Video may be missing captions');
+    }
+  });
+
+  // 10. Ensure dynamic content has live regions for screen readers
+  const dynamicContent = document.querySelectorAll('[data-live-region]');
+  dynamicContent.forEach(region => {
+    if (!region.getAttribute('aria-live')) {
+      region.setAttribute('aria-live', 'polite');
+    }
+  });
+}
+
+// Export the new function
+export { addressNewAccessibilityIssues };

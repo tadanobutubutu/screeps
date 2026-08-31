@@ -57,13 +57,15 @@ const addAriaLabel = (element, label) => {
 };
 
 const renderDependencyGraph = (data) => {
-  // Implementation for rendering dependency graphs
-  return {
-    nodes: data.nodes || [],
-    edges: data.edges || []
-  };
+  // Implementation for rendering dependency graphs using dependencyGraphContent
+  return dependencyGraphContent(data);
 };
 
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views to import and use dependencyGraphContent/indexContent from the
+// appropriate modules.
+// Updated: imported and used dependencyGraphContent and indexContent in the
+// relevant rendering functions.
 /**
  * Ensure an element has an id, generating one if necessary.
  * @param {HTMLElement} element - The element to check/generate id for

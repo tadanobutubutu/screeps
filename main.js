@@ -5,6 +5,33 @@ function calculateSum(a, b) {
 }
 
 /**
+ * Checks links and buttons for accessibility issues
+ * @returns {Array} - Array of accessibility issues found
+ */
+function checkLinkAndButtonAccessibility() {
+  const issues = [];
+  const elements = document.querySelectorAll('a, button');
+
+  elements.forEach((element, index) => {
+    const tagName = element.tagName.toLowerCase();
+    const hasTextContent = element.textContent.trim().length > 0;
+    const hasAriaLabel = element.getAttribute('aria-label') !== null;
+    const hasTitle = element.getAttribute('title') !== null;
+
+    if ((tagName === 'a' || tagName === 'button') && !hasTextContent && !hasAriaLabel && !hasTitle) {
+      issues.push({
+        type: tagName,
+        element: element,
+        index: index,
+        message: `${tagName === 'a' ? 'Link' : 'Button'} has no accessible text or label`
+      });
+    }
+  });
+
+  return issues;
+}
+
+/**
  * Addresses accessibility issues from an insight report by applying fixes
  * @param {Array} issues - Array of accessibility issues to address
  * @param {Object} options - Options for how to address the issues

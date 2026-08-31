@@ -1,9 +1,14 @@
 // Your existing code...
 
-// Adding an alt attribute to an image
+// Adding an alt attribute to an image and creating a function to get the alt for an image
 const imageElement = document.getElementById('example-image');
 if (imageElement) {
   imageElement.setAttribute('alt', 'A description of the image');
+}
+
+function getImageAlt() {
+  const imageElement = document.getElementById('example-image');
+  return imageElement ? imageElement.getAttribute('alt') : '';
 }
 
 // Correcting the ARIA role for a div
@@ -11,8 +16,6 @@ const divElement = document.getElementById('example-div');
 if (divElement) {
   divElement.setAttribute('role', 'list');
 }
-
-// Your existing code... (ensuring all your exported functions and modules are intact)
 
 // Function to get the language attribute value
 function getLangAttribute() {
@@ -34,4 +37,5 @@ if (htmlElement) {
 
 module.exports = {
   // Your exported functions and modules here...
+  getImageAlt, // Add this line to export the new getImageAlt function
 };

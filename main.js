@@ -23,6 +23,20 @@ function addLangAttributeToHtml(langCode = 'en') {
 }
 
 /**
+ * REACT_015: Add lang attribute to HTML element
+ * Sets the lang attribute on the HTML element for proper language declaration
+ * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
+ */
+function setHtmlLangAttribute(lang) {
+  // code to add the lang attribute to the HTML element for proper accessibility
+  // The lang attribute helps screen readers and search engines identify the language of the page
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
+/**
  * REACT_017: Add landmark roles and fix landmark issues
  * Ensures proper landmark roles are applied to main content areas
  * @param {HTMLElement} container - The container element to process
@@ -324,6 +338,9 @@ function newFunction(element) {
   const trap = newFocusTrap(element);
   trap.activate();
 }
+
+// Add export statement for the new REACT_015 function
+export { setHtmlLangAttribute };
 
 // Export statements preserved
 export { existingFunction };

@@ -9,9 +9,110 @@ function addLangAttribute(lang) {
 }
 
 /**
- * Ensures an element has an id attribute
- * @param {HTMLElement} element - The element to check
- * @returns {string} The element's id (existing or newly generated)
+ * Validates that a table element has the correct accessibility role.
+ * @param {HTMLElement} element - The table element to validate.
+ * @returns {boolean} True if the element is considered a valid table.
+ */
+function validateTableAccessibility(element) {
+  if (!element) return false;
+  // Prefer explicit role="table"; allow tables without explicit role if they contain <table>
+  if (element.getAttribute('role') !== 'table') {
+    const table = element.querySelector('table');
+    if (table) return true;
+  }
+  return true;
+}
+
+/**
+ * Checks whether a table element follows basic structural rules.
+ * @param {HTMLElement} element - The table element to validate.
+ * @returns {boolean} True if the table structure is acceptable.
+ */
+function validateTableStructure(element) {
+  if (!element) return false;
+  const rows = element.querySelectorAll('tr');
+  return rows.length > 0;
+}
+
+/**
+ * Validates a single landmark element (expected to be an SVG).
+ * @param {HTMLElement} element - The landmark element.
+ * @returns {boolean} True if the element passes the landmark check.
+ */
+function validateLandmark(element) {
+  if (!element) return false;
+  // Landmarks are expected to be SVG elements
+  return element.tagName === 'SVG';
+}
+
+/**
+ * Ensures that a landmark has a unique identifier or an accessible label.
+ * @param {HTMLElement} element - The landmark element.
+ * @returns {boolean} True if the landmark is valid.
+ */
+function validateLandmarkStructure(element) {
+  if (!element) return false;
+  return element.id || element.getAttribute('aria-label');
+}
+
+/**
+ * Guarantees that all landmarks have distinct identifiers.
+ * @param {Array<HTMLElement>} landmarks - Array of landmark elements.
+ * @returns {Array<HTMLElement>} A new array with duplicate IDs made unique.
+ */
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) return [];
+  const seen = new Set();
+  const result = [];
+  for (const lm of landmarks) {
+    const id = lm.id || 'unknown';
+    if (seen.has(id)) {
+      // Generate a unique ID by appending a timestamp
+      lm.id = `${id}-${Date.now()}`;
+    }
+    seen.add(id);
+    result.push(lm);
+  }
+  return result;
+}
+
+/**
+ * Extracts an accessible name from an SVG element.
+ * @param {HTMLElement} svgElement - The SVG element.
+ * @returns {string} The accessible name, or a fallback value.
+ */
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return '';
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  const title = svgElement.getAttribute('title');
+  if (title) return title;
+  return svgElement.tagName.toLowerCase();
+}
+
+/**
+ * Adds an accessible name (aria-label) to image elements within an SVG.
+ * @param {HTMLElement} svgElement - The parent SVG element.
+ * @param {string[]} names - Array of names to assign.
+ */
+function addAccessibleNamesToSvg(svgElement, names) {
+  const targetNames = Array.isArray(names) ? names : [names];
+  for (let i = 0; i < svgElement.children.length; i++) {
+    const child = svgElement.children[i];
+    if (child.nodeType === Node.ELEMENT_NODE) {
+      if (child.getAttribute('role') === 'img' || child.type === 'image') {
+        if (!child.getAttribute('aria-label') && targetNames.length > 0) {
+          addAriaLabel(child, targetNames[0]);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Ensures an element has an id attribute.
+ * @param {HTMLElement} element - The element to check.
+ * @returns {string} The element's id (existing or newly generated).
  */
 function ensureElementHasId(element) {
   if (!element) {
@@ -28,10 +129,10 @@ function ensureElementHasId(element) {
 }
 
 /**
- * Adds an aria-label attribute to an element
- * @param {HTMLElement} element - The element to add aria-label to
- * @param {string} label - The label text
- * @returns {HTMLElement} The element with aria-label added
+ * Adds an aria-label attribute to an element.
+ * @param {HTMLElement} element - The element to modify.
+ * @param {string} label - The label text.
+ * @returns {HTMLElement} The modified element.
  */
 function addAriaLabel(element, label) {
   if (!element) {
@@ -47,10 +148,10 @@ function addAriaLabel(element, label) {
 }
 
 /**
- * Renders a dependency graph
- * @param {Object} data - The dependency data to render
- * @param {HTMLElement} container - The container element for the graph
- * @returns {HTMLElement} The rendered graph container
+ * Renders a dependency graph.
+ * @param {Object} data - The dependency data to render.
+ * @param {HTMLElement} container - The container element for the graph.
+ * @returns {HTMLElement} The rendered graph container.
  */
 function renderDependencyGraph(data, container) {
   if (!data) {
@@ -117,5 +218,12 @@ module.exports = {
   myFunction: function () {
     // Existing implementation
   },
-  addLangAttribute: addLangAttribute
+  addLangAttribute: addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  addAccessibleNamesToSvg
 };

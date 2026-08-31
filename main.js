@@ -375,6 +375,11 @@ function renderProductList(products) {
   return container;
 }
 
+function calculateDiscount(subtotal) {
+  // Example discount: 10% of subtotal
+  return subtotal * 0.1;
+}
+
 function calculateTotalPrice(cart) {
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const discount = calculateDiscount(subtotal);

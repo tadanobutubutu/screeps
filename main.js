@@ -279,6 +279,77 @@ function addAriaLabel(element, label) {
 }
 
 /**
+ * Ensures that the dependencyGraph container has a proper ARIA role
+ * and that all landmark elements have unique ids. If a landmark
+ * doesn't have an id, one is generated.
+ * (Preserves the existing renderDependencyGraphs function for control.)
+ *
+ * @param {HTMLElement} container - The dependencyGraph container element
+ * @returns {Object} Result describing the accessibility fixes applied
+ */
+function ensureDependencyGraphAccessibility(container) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+
+  const result = {
+    containerId: null,
+    roleSet: false,
+    landmarkIdsGenerated: 0,
+    landmarkElements: []
+  };
+
+  // Ensure the container has an id
+  result.containerId = ensureElementHasId(container, 'dependency-graph');
+
+  // Ensure the container has a proper ARIA role for the dependency graph
+  if (!container.getAttribute('role')) {
+    container.setAttribute('role', 'img');
+    result.roleSet = true;
+  }
+
+  // Ensure container has an accessible label
+  addAriaLabel(container, `Dependency graph: ${result.containerId}`);
+
+  // Ensure all landmark elements inside the container have unique ids
+  const landmarkSelectors = [
+    'header', 'nav', 'main', 'aside', 'footer',
+    '[role="banner"]', '[role="navigation"]', '[role="main"]',
+    '[role="complementary"]', '[role="contentinfo"]',
+    'section[aria-label]', 'section[aria-labelledby]'
+  ];
+
+  const seenIds = new Set();
+  const landmarks = container.querySelectorAll(landmarkSelectors.join(','));
+
+  landmarks.forEach((landmark) => {
+    result.landmarkElements.push(landmark);
+    if (!landmark.id) {
+      const tagName = landmark.tagName.toLowerCase();
+      const role = landmark.getAttribute('role') || tagName;
+      const generatedId = `${role}-${Math.random().toString(36).substr(2, 9)}`;
+      landmark.id = generatedId;
+      seenIds.add(generatedId);
+      result.landmarkIdsGenerated += 1;
+    } else {
+      // If duplicate id exists within container, generate a new one
+      if (seenIds.has(landmark.id)) {
+        const tagName = landmark.tagName.toLowerCase();
+        const role = landmark.getAttribute('role') || tagName;
+        const newId = `${role}-${Math.random().toString(36).substr(2, 9)}`;
+        landmark.id = newId;
+        seenIds.add(newId);
+        result.landmarkIdsGenerated += 1;
+      } else {
+        seenIds.add(landmark.id);
+      }
+    }
+  });
+
+  return result;
+}
+
+/**
  * Renders dependency graphs for the given configuration.
  * @param {HTMLElement} container - The container element to render into
  * @param {Object} dependencies - The dependencies data to render
@@ -296,6 +367,12 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
   
   // Ensure container has an id for graph references
   const containerId = ensureElementHasId(container, 'graph-container');
+
+  // Address accessibility issues from insight report:
+  // Ensure the dependencyGraph container has a proper ARIA role
+  // Ensure all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
+  // (Preserve existing function for control)
+  ensureDependencyGraphAccessibility(container);
   
   // Add accessibility label if not present
   const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
@@ -728,6 +805,7 @@ module.exports = {
   calculateSum,
   ensureElementHasId,
   addAriaLabel,
+  ensureDependencyGraphAccessibility,
   renderDependencyGraphs,
   handleCredentialResponse,
   focusTrap,

@@ -1,6 +1,5 @@
-// TODO: add the new functions or changes requested in the issue
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
-=======
+// main.js - Main application entry point
+// Address accessibility issues from insight reports and provide landmark validation utilities
 
 /** TODO: Implement function for addressing accessibility issues from insight report */
 function addressAccessibilityIssues(insightReport) {
@@ -262,4 +261,3 @@ if (typeof window !== 'undefined') {
     // Store validation result globally for debugging
     window.landmarkValidation = validateLandmarkStructure(document);
 }
->>>>>>> origin/main

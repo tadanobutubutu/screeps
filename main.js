@@ -434,10 +434,154 @@ export { checkTableAccessibility };
 
 // TODO: Update the existing function using the new functions for rendering graph/index
 // Assuming newFunction is meant to be used to update the rendering of graph/index
+
+// New function that renders the graph with accessibility features applied
+function newFunction() {
+  // Render the dependency graph with accessibility improvements
+  const graphElement = getDocument().getElementById('dependencyGraph');
+  
+  if (graphElement) {
+    // Wrap the graph content in a main landmark for accessibility
+    const graphContent = graphElement.innerHTML;
+    const accessibleContent = wrapPrimaryContentInMain(graphContent);
+    
+    // Apply accessibility fixes to the graph container
+    graphElement.setAttribute('role', 'application');
+    graphElement.setAttribute('aria-label', 'Dependency Graph - Interactive visualization of project dependencies');
+    
+    // Apply landmark and accessibility validation
+    validateLandmark();
+    validateLandmarkStructure();
+    
+    // Ensure unique landmarks for accessibility
+    ensureUniqueLandmarks();
+    
+    // Handle any fake links that might be in the graph
+    handleFakeLinks();
+    handleAccessibilityIssues();
+    
+    // Apply SVG accessibility if present in the graph
+    const svgElements = graphElement.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      const accessibleName = getSvgAccessibleName(svg);
+      if (accessibleName) {
+        setSvgAttributes(svg, accessibleName);
+      }
+    });
+    
+    // Validate link accessibility in the graph
+    validateLinkAccessibility();
+    
+    console.log('Graph rendered with accessibility features applied');
+  }
+  
+  return graphElement;
+}
+
+// Updated function to use newFunction for rendering graph/index
 function updateGraphRendering() {
   // Use newFunction to update the rendering of graph/index
   newFunction();
+  
+  // Also apply fixAccessibilityIssues to ensure full accessibility coverage
+  fixAccessibilityIssues();
 }
 
 // Export the new updateGraphRendering function if necessary
 export { updateGraphRendering };
+
+// Updated renderDependencyGraph to use newFunction and accessibility utilities
+export function renderDependencyGraph() {
+  // Use newFunction to render the graph with accessibility features
+  newFunction();
+  
+  // Example usage: replace with actual rendering logic
+  console.log('Rendering dependency graph:', dependencyGraphContent);
+  
+  // Apply accessibility fixes specific to the dependency graph
+  const graphContainer = getDocument().getElementById('dependencyGraph');
+  if (graphContainer) {
+    // Ensure proper landmark structure
+    validateLandmark();
+    validateLandmarkStructure();
+    
+    // Ensure unique landmarks for multiple graph instances
+    ensureUniqueLandmarks();
+    
+    // Apply language attribute to the graph region
+    const lang = getLangAttribute();
+    if (lang) {
+      graphContainer.setAttribute('lang', lang);
+    }
+    
+    // Handle any accessibility issues specific to this view
+    handleAccessibilityIssues(graphContainer.innerHTML);
+    
+    // Validate table accessibility if tables are present in the graph
+    const tables = graphContainer.querySelectorAll('table');
+    tables.forEach(table => {
+      validateTableAccessibility(table);
+      validateTableStructure(table);
+    });
+    
+    // Apply SVG accessibility for any SVG elements in the graph
+    const svgs = graphContainer.querySelectorAll('svg');
+    svgs.forEach(svg => {
+      const accessibleName = getSvgAccessibleName(svg);
+      if (accessibleName) {
+        setSvgAttributes(svg, accessibleName);
+      }
+    });
+  }
+}
+
+// Updated renderIndex to use newFunction and accessibility utilities
+export function renderIndex() {
+  // Use newFunction to render the index with accessibility features
+  newFunction();
+  
+  // Example usage: replace with actual rendering logic
+  console.log('Rendering index view:', indexContent);
+  
+  // Apply accessibility fixes specific to the index view
+  const indexContainer = getDocument().getElementById('indexContent') || getDocument().getElementById('main-content');
+  if (indexContainer) {
+    // Ensure proper landmark structure
+    validateLandmark();
+    validateLandmarkStructure();
+    
+    // Ensure unique landmarks for multiple navigation elements
+    ensureUniqueLandmarks();
+    
+    // Apply language attribute to the index region
+    const lang = getLangAttribute();
+    if (lang) {
+      indexContainer.setAttribute('lang', lang);
+    }
+    
+    // Handle any accessibility issues specific to this view
+    handleAccessibilityIssues(indexContainer.innerHTML);
+    
+    // Validate table accessibility if tables are present in the index
+    const tables = indexContainer.querySelectorAll('table');
+    tables.forEach(table => {
+      validateTableAccessibility(table);
+      validateTableStructure(table);
+    });
+    
+    // Apply SVG accessibility for any SVG elements in the index
+    const svgs = indexContainer.querySelectorAll('svg');
+    svgs.forEach(svg => {
+      const accessibleName = getSvgAccessibleName(svg);
+      if (accessibleName) {
+        setSvgAttributes(svg, accessibleName);
+      }
+    });
+    
+    // Handle fake links in the index
+    handleFakeLinks();
+    
+    // Validate link accessibility
+    validateLinkAccessibility();
+  }
+}

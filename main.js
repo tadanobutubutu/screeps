@@ -1,16 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
-
-// New function for addressing accessibility issues from insight report
-function addressAccessibilityIssues(insightReport) {
-  // Implementation goes here
-  // For example:
-  // - Parse the insight report
-  // - Apply accessibility fixes based on the report
-  // - Return the updated report or a status of the fixes applied
-}
-
-// Export the new function if needed
-// export { addressAccessibilityIssues };</think>const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 // Import dependency graph and index content modules
@@ -118,7 +106,7 @@ function countDependencies() {
   // Existing function implementation
 
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`];
+  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*?\s+from\s+['"]/;
   const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }

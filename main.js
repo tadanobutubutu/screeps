@@ -126,29 +126,202 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
-// Export functions for testing
-export {
-  checkLandmarkElement,
-  ensureUniqueLandmarks,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  initApp,
-  landmarks,
-  appData,
-  icons,
-  validateLandmark,
-  ensureFocusableElements,
-  renderDependencyGraphContent,
-  ensureLandmarkUniqueness,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  countDependencies
-};
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_027: Fix 26 table structure issues
+// - REACT_017: Add/fix 4 landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+
+/**
+ * Get the language attribute for the HTML element
+ * @returns {string} The language attribute value
+ */
+function getLangAttribute() {
+  const htmlElement = document.documentElement;
+  return htmlElement.getAttribute('lang') || 'en';
+}
+
+/**
+ * Wrap primary content in a main element with proper landmark
+ * @param {string} contentId - The ID of the primary content container
+ */
+function wrapPrimaryContentInMain(contentId) {
+  const content = document.getElementById(contentId);
+  if (content && content.tagName !== 'MAIN') {
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('id', 'main-content');
+    mainElement.setAttribute('role', 'main');
+    while (content.firstChild) {
+      mainElement.appendChild(content.firstChild);
+    }
+    content.appendChild(mainElement);
+  }
+}
+
+/**
+ * Validate table accessibility
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {Object} Validation result with valid status and errors
+ */
+function validateTableAccessibility(table) {
+  const errors = [];
+  
+  if (!table) {
+    errors.push('Table element is required');
+    return { valid: false, errors };
+  }
+  
+  if (table.tagName !== 'TABLE') {
+    errors.push('Element must be a table');
+    return { valid: false, errors };
+  }
+  
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    errors.push('Table should have a caption for accessibility');
+  }
+  
+  // Check for th elements
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    errors.push('Table should have header cells (th) for accessibility');
+  }
+  
+  // Check for proper scope attributes on headers
+  headers.forEach(th => {
+    if (!th.getAttribute('scope')) {
+      errors.push('Header cells should have a scope attribute');
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Validate table structure
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {Object} Validation result with valid status and errors
+ */
+function validateTableStructure(table) {
+  const errors = [];
+  
+  if (!table) {
+    errors.push('Table element is required');
+    return { valid: false, errors };
+  }
+  
+  // Check for thead
+  const thead = table.querySelector('thead');
+  if (!thead) {
+    errors.push('Table should have a thead section');
+  }
+  
+  // Check for tbody
+  const tbody = table.querySelector('tbody');
+  if (!tbody) {
+    errors.push('Table should have a tbody section');
+  }
+  
+  // Check for proper row structure
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) {
+    errors.push('Table must have at least one row');
+  }
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Validate landmark structure
+ * @param {HTMLElement} element - The element to validate
+ * @returns {Object} Validation result with valid status and errors
+ */
+function validateLandmarkStructure(element) {
+  const errors = [];
+  
+  if (!element) {
+    errors.push('Element is required');
+    return { valid: false, errors };
+  }
+  
+  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary', 'form', 'region'];
+  const role = element.getAttribute('role');
+  const tagName = element.tagName.toLowerCase();
+  
+  // Check if element has a valid landmark role or is a landmark element
+  if (role && !validLandmarks.includes(role)) {
+    errors.push(`Invalid landmark role: ${role}`);
+  }
+  
+  // Check if landmark has accessible name
+  const hasName = element.getAttribute('aria-label') || 
+                  element.getAttribute('aria-labelledby') || 
+                  element.querySelector('h1, h2, h3, h4, h5, h6');
+  
+  if (!hasName) {
+    errors.push('Landmark should have an accessible name');
+  }
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Add and fix landmark issues
+ * @param {HTMLElement} container - The container element to process
+ * @returns {Array} List of issues that were fixed
+ */
+function addFixLandmarkIssues(container) {
+  const fixedIssues = [];
+  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary', 'form', 'region'];
+  
+  if (!container) {
+    return fixedIssues;
+  }
+  
+  // Find all potential landmark elements
+  const landmarkElements = container.querySelectorAll('[role], nav, main, header, footer, aside, form');
+  
+  landmarkElements.forEach(element => {
+    const role = element.getAttribute('role');
+    const tagName = element.tagName.toLowerCase();
+    
+    // Add role if missing and element is a landmark
+    if (!role && ['nav', 'main', 'header', 'footer', 'aside'].includes(tagName)) {
+      const defaultRole = tagName === 'header' ? 'banner' : tagName;
+      if (validLandmarks.includes(defaultRole)) {
+        element.setAttribute('role', defaultRole);
+        fixedIssues.push(`Added role="${defaultRole}" to ${tagName} element`);
+      }
+    }
+    
+    // Ensure landmark has accessible name
+    const hasName = element.getAttribute('aria-label') || 
+                    element.getAttribute('aria-labelledby');
+    
+    if (!hasName && !element.querySelector('h1, h2, h3, h4, h5, h6')) {
+      // Add aria-label if no accessible name exists
+      if (role) {
+        element.setAttribute('aria-label', role.charAt(0).toUpperCase() + role.slice(1) + ' region');
+        fixedIssues.push(`Added aria-label to element with role="${role}"`);
+      }
+    }
+  });
+  
+  return fixedIssues;
+}
+
+/**
+ * Get SVG accessible name
+ *

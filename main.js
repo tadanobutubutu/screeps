@@ -57,6 +57,29 @@ function fixTableStructure(html) {
     return html;
 }
 
+/**
+ * Divides two numbers with proper error handling
+ * @param {number} dividend - The number to be divided
+ * @param {number} divisor - The number to divide by
+ * @returns {number} The result of the division
+ * @throws {Error} If divisor is zero or if inputs are not valid numbers
+ */
+function divide(dividend, divisor) {
+  if (typeof dividend !== 'number' || typeof divisor !== 'number') {
+    throw new Error('Both arguments must be numbers');
+  }
+  
+  if (isNaN(dividend) || isNaN(divisor)) {
+    throw new Error('Both arguments must be valid numbers');
+  }
+  
+  if (divisor === 0) {
+    throw new Error('Division by zero is not allowed');
+  }
+  
+  return dividend / divisor;
+}
+
 // REACT_017: Add/fix landmark issues
 function fixLandmarks(html) {
     if (typeof html !== 'string') return html;
@@ -227,5 +250,11 @@ module.exports = {
     fixFakeLinks,
     applyAccessibilityFixes,
     addressAccessibilityIssues,
-    createInPageButton
+    createInPageButton,
+    divide
 };
+
+// Run if executed directly
+if (require.main === module) {
+  main();
+}

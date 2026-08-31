@@ -1,7 +1,7 @@
 /**
  * Main application entry point
  */
- 
+
 // Import required modules
 const http = require('http');
 const path = require('path');
@@ -50,6 +50,13 @@ function newFunction() {
   console.log('This is the new function that was requested to be added.');
 }
 
+// Function to render dependency graph (new function)
+function renderDependencyGraph() {
+  // Implementation of the function to render dependency graph
+  // This is a placeholder function. You should replace this with the actual logic to render the dependency graph.
+  console.log('Rendering dependency graph...');
+}
+
 // Exports (if any) must be preserved
 // export ...; // Example of an existing export
 
@@ -59,7 +66,8 @@ module.exports = {
   startApp,
   config,
   newFunction,
-  countDependencies
+  countDependencies,
+  renderDependencyGraph // Add the new function to exports
 };
 
 // Start the application if run directly

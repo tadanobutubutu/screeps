@@ -15,6 +15,16 @@ const config = {
 };
 
 /**
+ * Validates if the landmark is valid
+ * @param {string} landmark - The landmark to validate
+ * @returns {boolean} - Returns true if the landmark is valid, otherwise false
+ */
+function validateLandmark(landmark) {
+  // Implement validation logic here, for example:
+  return landmark && landmark.trim().length > 0;
+}
+
+/**
  * Creates and starts the HTTP server
  * @returns {http.Server} The created server instance
  */
@@ -41,7 +51,8 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  validateLandmark // Export the new function
 };
 
 // Start the application if run directly

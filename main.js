@@ -14,12 +14,15 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
+// Store the server instance for export
+let server = null;
+
 /**
  * Creates and starts the HTTP server
  * @returns {http.Server} The created server instance
  */
 function createServer() {
-  const server = http.createServer((req, res) => {
+  server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'ok', config }));
   });
@@ -37,10 +40,19 @@ function startApp() {
   return server;
 }
 
+/**
+ * Gets the server instance
+ * @returns {http.Server|null} The server instance
+ */
+function getServer() {
+  return server;
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
+  getServer,
   config
 };
 

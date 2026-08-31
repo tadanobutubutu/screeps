@@ -128,7 +128,7 @@ function ensureUniqueLandmarks() {
     'main[role="main"]',
     'aside[role="complementary"]',
     'footer[role="contentinfo"]'
-  ].join(', '));
+  ]).join(', '));
 
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
@@ -517,7 +517,9 @@ function validateAndRender(input) {
 }
 
 const renderIndex = () => {
-  // Code to render the index view
+  // Updated function to use the new rendering functions for graph/index
+  renderDependencyGraph(state.currentModule);
+  displayModuleStructure(state.currentModule);
 };
 
 // TODO: add the new functions or changes requested in the issue

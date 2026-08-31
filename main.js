@@ -1,9 +1,9 @@
-// TODO: Implement this function for adding SVG accessibility props
-
-// Import necessary dependencies
 import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityProps, getAccessibleLinkProps } from './accessibility';
 
 // Function to add SVG accessibility props
 function addSvgAccessibilityProps(props = {}) {
@@ -39,7 +39,7 @@ export function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 export function generateKey(book) {
-  return ...
+  return book.id.toString();
 }
 
 // Function to render a single book item
@@ -48,7 +48,7 @@ export function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        ...
+        description={book.author}
       />
     </List.Item>
   );
@@ -135,14 +135,14 @@ function validateLinkAccessibility() {
 
 // Function to handle sorting the book list by title (ascending)
 export function onTitleSort() {
-  const sortedList = ...
+  const sortedList = [...getBooksList].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 export function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+  const sortedList = [...getBooksList].sort(sortByAuthor.reverse());
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
@@ -166,7 +166,7 @@ function Main() {
   }, [sorting]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = ...
+  const bookItems = getBooksList.map(BookItem);
 
   // Render the list of book items and sorting controls
   return (
@@ -175,7 +175,7 @@ function Main() {
         <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
         <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       </header>
-      <List ... />
+      <List dataSource={bookItems} />
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
     </main>

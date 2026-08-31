@@ -227,7 +227,7 @@ function improveAccessibility() {
 
 // Configuration
 const config = {
-  apiUrl: process.env.API_URL || '',
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
   timeout: 5000
 };
 
@@ -296,7 +296,7 @@ function validateInput(input) {
     return false;
   }
   return true;
-};
+}
 
 // Language attribute functions
 function getLangAttribute() {
@@ -314,7 +314,7 @@ function addLandmarkRoles() {
   if (mainElement && !mainElement.hasAttribute('role')) {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   const navElement = document.querySelector('nav, #nav, .navigation');
   if (navElement && !navElement.hasAttribute('role')) {
     navElement.setAttribute('role', 'navigation');
@@ -349,10 +349,6 @@ function fixTableStructure() {
 }
 
 // Landmark functions
-function addMainLandmark() {
-  console.log('Adding main landmark');
-}
-
 function validateLandmark() {
   console.log('Validating landmark');
 }
@@ -382,11 +378,6 @@ function setSvgAttributes(svg, accessibleName) {
   return svg;
 }
 
-// Unique landmarks function
-function ensureUniqueLandmarks() {
-  console.log('Ensuring unique landmarks');
-}
-
 // Button creation function
 function createInPageButton() {
   console.log('Creating in-page button');
@@ -397,7 +388,7 @@ function validateLinkAccessibility() {
   console.log('Validating link accessibility');
 }
 
-function handleFakeLinks() {
+function handleFakeLinksConsole() {
   console.log('Handling fake links');
 }
 
@@ -409,6 +400,12 @@ const appData = {
   title: 'Screeps',
   version: '1.0.0'
 };
+
+// Existing code preserved below
+function main() {
+  console.log('Running main application');
+  return someFunction();
+}
 
 /**
  * Initializes the application and applies accessibility fixes.
@@ -432,7 +429,6 @@ const initApp = () => {
 
   // Initialize the application data
   console.log('Initializing ' + appData.title + ' v' + appData.version);
-  // ... (assuming other initialization logic is present)
 };
 
 // Check if the environment is secure before initializing
@@ -468,12 +464,12 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_015':
         // Add lang attribute to HTML element
         if (issue.element) {
-          document.documentElement.lang = 'en';
+          addLangAttribute(issue.element);
         }
         break;
       case 'REACT_027':
         // Fix table structure issues
-        if (issue.type === 'structure') {
+        if (issue.subtype === 'structure') {
           validateTableStructure();
           fixTableStructure();
         } else {
@@ -491,7 +487,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_041':
         // Add accessible names to SVGs
         if (issue.element) {
-          setSvgAttributes(issue.element, 'Accessible SVG');
+          setSvgAttributes(issue.element, getSvgAccessibleName());
         }
         break;
       case 'REACT_025':
@@ -501,6 +497,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_036':
         // Fix fake link issue
         handleFakeLinks();
+        fixFakeLinks();
         break;
       default:
         console.log('Unknown issue type:', issue.type);
@@ -510,7 +507,7 @@ function addressAccessibilityIssues(insightReport) {
 
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -521,7 +518,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -536,7 +533,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -551,7 +548,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -565,7 +562,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -574,19 +571,13 @@ function getInsightReport() {
         type: 'REACT_017',
         structure: true,
         description: issue.description || 'Landmark structure issue',
-        severity: issue.severity || 'high',
+        severity: issue.severity || 'medium',
         element: issue.element
       });
     });
   }
-  
-  return issues;
-}
 
-// Existing code preserved below
-function main() {
-  console.log('Running main application');
-  return someFunction();
+  return { issues };
 }
 
 // Export all functions for use elsewhere in the repository

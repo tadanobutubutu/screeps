@@ -1,18 +1,3 @@
-// main.js - Entry point for the application
-
-// TODO: Address accessibility issues from insight report:
-// ... (Removed hashes for ease of reading)
-
-// Accessibility improvements:
-// - Added semantic HTML structure
-// - Included ARIA attributes where necessary
-// - Ensured keyboard navigation support
-// - Added focus management
-
-// Import required modules
-const utils = require('./utils');
-
-// Function to get the language attribute value
 function getLangAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement) {
@@ -20,7 +5,10 @@ function getLangAttribute() {
   }
 }
 
-// Function to create an in-page button and add the lang attribute
+function personName() {
+  // Existing implementation
+}
+
 function createInPageButton() {
   const inPageButton = document.createElement('button');
   inPageButton.id = 'in-page-button';
@@ -32,7 +20,58 @@ function createInPageButton() {
   }
 }
 
-// Function for generating a report based on accessibility issues
+function validateTableAccessibility() {
+  // Implementation of validateTableAccessibility function
+  // ...
+}
+
+function validateTableStructure() {
+  // Existing implementation
+}
+
+function validateLandmark() {
+  // Implementation of validateLandmark function
+  // ...
+}
+
+function validateLandmarkStructure() {
+  // Implementation of validateLandmarkStructure function
+  // ...
+}
+
+function ensureUniqueLandmarks() {
+  // Implementation of ensureUniqueLandmarks function
+  // ...
+}
+
+function getSvgAccessibleName() {
+  // Implementation of getSvgAccessibleName function
+  // ...
+}
+
+function fixFakeLink() {
+  // New implementation for fixing fake link issues
+}
+
+function fixFakeLinkIssues() {
+  // Implementation of fixFakeLinkIssues function
+  // ...
+}
+
+function addressNewAccessibilityIssues() {
+  // Implementation of addressNewAccessibilityIssues function
+  // ...
+}
+
+function renderGraphIndex() {
+  // Code for rendering graph/index using a combination of the renderGraph and renderIndex functions
+}
+
+// This function is temporarily removed but can be re-added if needed
+/* function someFunction() {
+  return 'some value';
+} */
+
 function generateAccessibilityReport() {
   const issues = [];
 
@@ -147,59 +186,6 @@ function generateAccessibilityReport() {
   return report;
 }
 
-// Function to validate table structure and accessibility
-function validateTableAccessibility() {
-  // Implementation of validateTableAccessibility function
-  // ...
-}
-
-// Function to validate landmark structure and accessibility
-function validateLandmarkStructure() {
-  // Implementation of validateLandmarkStructure function
-  // ...
-}
-
-// Function to validate landmarks
-function validateLandmark() {
-  // Implementation of validateLandmark function
-  // ...
-}
-
-// Function to get accessible names for SVGs
-function getSvgAccessibleName() {
-  // Implementation of getSvgAccessibleName function
-  // ...
-}
-
-// Function to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // Implementation of ensureUniqueLandmarks function
-  // ...
-}
-
-// Function to fix fake link issues
-function fixFakeLinkIssues() {
-  // Implementation of fixFakeLinkIssues function
-  // ...
-}
-
-// Additional function to address new accessibility issues
-function addressNewAccessibilityIssues() {
-  // Implementation of addressNewAccessibilityIssues function
-  // ...
-}
-
-// A new function that combines the renderGraph and renderIndex functions
-function renderGraphIndex() {
-  // Code for rendering graph/index using a combination of the renderGraph and renderIndex functions
-}
-
-// This function is temporarily removed but can be re-added if needed
-/* function someFunction() {
-  return 'some value';
-} */
-
-// Function for addressing accessibility issues
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
   const rootContainer = document.getElementById('root');
@@ -241,9 +227,9 @@ function addressAccessibilityIssues() {
     document.body.classList.remove('keyboard-navigation');
   });
 
-  const modal = document.getElementById('modal'); // Assuming a modal/dialog element with the ID "modal"
+  const modal = document.getElementById('modal');
   if (modal) {
-    a11y.announce('Welcome to the bot!', 'assertive'); // Assuming announce function from a11y utilities
+    a11y.announce('Welcome to the bot!', 'assertive');
   }
 
   // Adding an alt attribute to an image
@@ -258,6 +244,9 @@ function addressAccessibilityIssues() {
     divElement.setAttribute('role', 'list');
   }
 }
+
+// Import required modules
+const utils = require('./utils');
 
 // Application configuration
 const config = {
@@ -312,16 +301,20 @@ module.exports = {
   main,
   helperFunction: utils.helper,
   getLangAttribute,
+  personName,
   createInPageButton,
   validateTableAccessibility,
+  validateTableStructure,
   validateLandmarkStructure,
   validateLandmark,
   getSvgAccessibleName,
   ensureUniqueLandmarks,
+  fixFakeLink,
   fixFakeLinkIssues,
   addressNewAccessibilityIssues,
   addressAccessibilityIssues,
   generateAccessibilityReport,
+  renderGraphIndex,
   a11y: utils.a11y
 };
 

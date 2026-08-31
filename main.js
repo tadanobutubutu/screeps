@@ -20,6 +20,64 @@ const config = {
 };
 
 /**
+ * Adds a new book to the collection with accessibility improvements
+ * @param {Object} bookData - The book data to add
+ * @param {string} bookData.title - The book title (required)
+ * @param {string} bookData.author - The book author (required)
+ * @param {string} [bookData.isbn] - The book ISBN (optional)
+ * @param {string} [bookData.description] - The book description (optional)
+ * @returns {Object} Result object with success status and book data or error message
+ */
+function addBook(bookData) {
+  const errors = [];
+  
+  // Validate book data exists
+  if (!bookData || typeof bookData !== 'object') {
+    return {
+      success: false,
+      error: 'Book data is required and must be an object',
+      accessibleError: 'Error: Book information is missing. Please provide valid book details.'
+    };
+  }
+  
+  // Validate title (required field)
+  if (!bookData.title || typeof bookData.title !== 'string' || bookData.title.trim() === '') {
+    errors.push('Title is required');
+  }
+  
+  // Validate author (required field)
+  if (!bookData.author || typeof bookData.author !== 'string' || bookData.author.trim() === '') {
+    errors.push('Author is required');
+  }
+  
+  // Return errors if validation failed
+  if (errors.length > 0) {
+    return {
+      success: false,
+      errors: errors,
+      accessibleError: `Error: ${errors.join('. ')}. Please fill in all required fields.`
+    };
+  }
+  
+  // Create the book object with sanitized data
+  const book = {
+    id: Date.now(),
+    title: bookData.title.trim(),
+    author: bookData.author.trim(),
+    isbn: bookData.isbn ? bookData.isbn.trim() : null,
+    description: bookData.description ? bookData.description.trim() : null,
+    createdAt: new Date().toISOString()
+  };
+  
+  return {
+    success: true,
+    book: book,
+    message: 'Book added successfully',
+    accessibleMessage: `Success: "${book.title}" by ${book.author} has been added to your collection.`;
+  };
+}
+
+/**
  * Creates and starts the HTTP server
  * @returns {http.Server} The created server instance
  */
@@ -184,6 +242,7 @@ module.exports = {
   createServer,
   startApp,
   config,
+  addBook,
   checkLandmarkElements,
   newFunction,
   setARIARoleForDependencyGraph,

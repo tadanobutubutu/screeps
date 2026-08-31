@@ -18,7 +18,7 @@ import React from 'react';
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
- * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
+ * @param {string} lang - The language code (e. g., 'en', 'es', 'fr')
  * @returns {string} The lang attribute value that was set
  */
 function setHtmlLangAttribute(lang) {
@@ -50,22 +50,22 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
+    if ... {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if ... {
       lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
-      lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
+    } else if ... {
+      lang = 'ru'; // Russian/cyrillic
+    } else if ... {
       lang = 'ar'; // Arabic
-    } else if (/[àâäçéèêëîïôûü]/i.test(content)) {
+    } else if ... {
       lang = 'fr'; // French
-    } else if (/[äöüß]/i.test(content)) {
+    } else if ... {
       lang = 'de'; // German
     }
   }
   
-  return setHtmlLangAttribute(lang);
+  return ...
 }
 
 /**
@@ -80,66 +80,4 @@ function personName(name) {
 
 /**
  * Creates an accessible in-page button and appends it to the given parent element.
- * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(parent = document.body) {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.setAttribute('role', 'button');
-  btn.setAttribute('aria-label', 'Open modal');
-  parent.appendChild(btn);
-  return btn;
-}
-
-/**
- * Validates the accessibility of a table element
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} Whether the table is accessible
- */
-function validateTableAccessibility(table) {
-  if (!table || typeof table !== 'object') return true;
-  return true;
-}
-
-/**
- * Validates the structure of a table element
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} Whether the table structure is valid
- */
-function validateTableStructure(table) {
-  if (!table || typeof table !== 'object') return true;
-  return true;
-}
-
-/**
- * Validates a landmark element for accessibility
- * @param {HTMLElement} element - The landmark element to validate
- * @returns {boolean} Whether the landmark is valid
- */
-function validateLandmark(element) {
-  if (!element || typeof element !== 'object') return true;
-  return true;
-}
-
-/**
- * Validates the structure of landmark elements
- * @param {HTMLElement} element - The landmark element to validate
- * @returns {boolean} Whether the landmark structure is valid
- */
-function validateLandmarkStructure(element) {
-  if (!element || typeof element !== 'object') return true;
-  return true;
-}
-
-/**
- * Gets the accessible name from an SVG element
- * @param {SVGSVGElement} svg - The SVG element
- * @returns {string} The accessible name of the SVG
- */
-function getSvgAccessibleName(svg) {
-  if (!svg || typeof svg !== 'object') return '';
-  return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
-}
-
-module.exports = { setHtmlLangAttribute, getLangAttribute, detectAndSetLang, personName, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName };
+ * @param {HTMLElement} parent - The parent element where the button should be inserted (

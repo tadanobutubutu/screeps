@@ -54,9 +54,12 @@
 
             // REACT_040: Replace my-button with actual button id
             this.replaceMyButtonId();
+
+            // REACT_037: Google sign-in logic
+            this.googleSignIn();
         },
         ensureUniqueLandmarks: function() {
-            // REACT_025: Ensure unique landmarks by adding unique IDs
+            // REACT_017 & REACT_025: Ensure unique landmarks by adding unique IDs
             var landmarks = this.main.querySelectorAll('[role="main"]');
             landmarks.forEach(function(landmark, index) {
                 if (!landmark.id) {
@@ -64,6 +67,70 @@
                 }
                 landmark.setAttribute('aria-label', landmark.getAttribute('aria-label') || 'Main content');
             });
+
+            // Additional landmark uniqueness handling from origin/main
+            const uniqueLandmarkSelectors = ['main', '[role"main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
+            uniqueLandmarkSelectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                if (elements.length > 1) {
+                    elements.forEach((element, index) => {
+                        const existingLabel = element.getAttribute('aria-label');
+                        const elementTag = element.tagName.toLowerCase();
+                        const role = element.getAttribute('role') || elementTag;
+
+                        if (!existingLabel) {
+                            element.setAttribute('aria-label', `${role} ${index + 1}`);
+                        }
+                    });
+                }
+            });
+
+            const sectionLandmarkSelectors = ['nav', '[role="region"]', 'aside'];
+            sectionLandmarkSelectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                if (elements.length > 1) {
+                    elements.forEach((element, index) => {
+                        const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.id;
+                        const role = element.getAttribute('role') || element.tagName.toLowerCase();
+
+                        if (!hasLabel) {
+                            element.setAttribute('aria-label', `${role} ${index + 1}`);
+                        }
+                    });
+                }
+            });
+
+            const landmarksAll = document.querySelectorAll('nav, main, aside, footer');
+            const seenIds = new Set();
+            const seenRoles = new Map();
+
+            landmarksAll.forEach(landmark => {
+                const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+
+                if (!landmark.id) {
+                    let id = role;
+                    let counter = 1;
+                    while (seenIds.has(id)) {
+                        id = `${role}-${counter++}`;
+                    }
+                    landmark.id = id;
+                    seenIds.add(id);
+                } else {
+                    seenIds.add(landmark.id);
+                }
+
+                if (!seenRoles.has(role)) {
+                    seenRoles.set(role, []);
+                }
+                seenRoles.get(role).push(landmark);
+            });
+
+            const mainLandmarks = document.querySelectorAll('main, [role="main"]');
+            if (mainLandmarks.length > 1) {
+                for (let i = 1; i < mainLandmarks.length; i++) {
+                    mainLandmarks[i].setAttribute('aria-hidden', 'true');
+                }
+            }
         },
         fixTableStructures: function() {
             // REACT_027: Fix 26 table structure issues - add proper th, caption, scope

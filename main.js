@@ -412,19 +412,9 @@ export { existingFunction };
 
 // New function or changes requested
 function checkTableAccessibility(table) {
-  // Implement accessibility checks on tables
-  // This function should check for appropriate headers, roles, etc.
-  // For example, check if the table has a `<thead>` and `<tbody>`, and if the `role` attribute is set to "grid"
-  if (!table.querySelector('thead')) {
-    console.error('Table is missing a <thead>');
-  }
-  if (!table.querySelector('tbody')) {
-    console.error('Table is missing a <tbody>');
-  }
-  if (table.getAttribute('role') !== 'grid') {
-    console.error('Table role is not set to "grid"');
-  }
-  // Add more checks as necessary
+  // Implement accessibility checks on tables using the imported utility functions
+  validateTableAccessibility(table);
+  validateTableStructure(table);
 }
 
 // Export new function if necessary

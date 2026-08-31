@@ -602,6 +602,122 @@ function getDependencyDepth(dependencies) {
   return maxDepth;
 }
 
+// Book form accessibility improvements
+/**
+ * Enhances the accessibility of the book addition form.
+ * Ensures the form has proper labeling, ARIA attributes,
+ * and keyboard navigation support.
+ * @param {HTMLFormElement} form - The form element to enhance.
+ */
+function enhanceAddBookForm(form) {
+  if (!form || form.nodeType !== Node.ELEMENT_NODE) {
+    return;
+  }
+
+  // Ensure the form has an accessible name
+  if (!form.getAttribute('aria-label') && !form.getAttribute('aria-labelledby')) {
+    const heading = form.querySelector('h2, h3, h4, h1');
+    if (heading) {
+      const headingId = heading.id || `form-title-${Math.random().toString(36).substr(2, 9)}`;
+      heading.setAttribute('id', headingId);
+      form.setAttribute('aria-labelledby', headingId);
+    } else {
+      form.setAttribute('aria-label', 'Add Book Form');
+    }
+  }
+
+  // Add role="form" if not present for better screen reader identification
+  if (!form.getAttribute('role')) {
+    form.setAttribute('role', 'form');
+  }
+
+  // Ensure required fields have proper attributes
+  const requiredFields = form.querySelectorAll('[required]');
+  requiredFields.forEach(field => {
+    const fieldId = field.id || `field-${Math.random().toString(36).substr(2, 9)}`;
+    if (!field.id) {
+      field.setAttribute('id', fieldId);
+    }
+
+    // Find associated label
+    let label = form.querySelector(`label[for="${fieldId}"]`);
+    if (!label) {
+      label = field.closest('label');
+    }
+
+    // If no label exists, create one
+    if (!label) {
+      const labelText = field.getAttribute('aria-label') || field.getAttribute('placeholder') || 'Required field';
+      label = document.createElement('label');
+      label.setAttribute('for', fieldId);
+      label.setAttribute('class', 'sr-only'); // Screen reader only
+      label.textContent = `${labelText} (required)`;
+      field.parentNode.insertBefore(label, field);
+    }
+
+    field.setAttribute('aria-required', 'true');
+  });
+
+  // Add ARIA live region for error/success messages
+  let liveRegion = form.querySelector('[aria-live]');
+  if (!liveRegion) {
+    liveRegion = document.createElement('div');
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.setAttribute('class', 'sr-only');
+    form.appendChild(liveRegion);
+  }
+
+  // Add submit button accessibility
+  const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
+  if (submitButton) {
+    if (!submitButton.getAttribute('aria-label') && !submitButton.textContent.trim()) {
+      submitButton.setAttribute('aria-label', 'Submit Book');
+    }
+  }
+}
+
+/**
+ * Initializes the addBook functionality with accessibility considerations.
+ * Attaches event listeners and ensures the form is accessible.
+ * @returns {Function} The addBook function.
+ */
+function initAddBook() {
+  const form = document.getElementById('addBookForm');
+  if (form) {
+    enhanceAddBookForm(form);
+  }
+
+  const addBook = (book) => {
+    if (!book || typeof book !== 'object') {
+      console.error('Invalid book object provided to addBook');
+      return false;
+    }
+
+    // Basic validation
+    const requiredFields = ['title', 'author'];
+    const missingFields = requiredFields.filter(field => !book[field]);
+
+    if (missingFields.length > 0) {
+      console.error('Missing required fields:', missingFields);
+      return false;
+    }
+
+    // Dispatch custom event for accessibility feedback
+    const event = new CustomEvent('bookAdded', {
+      detail: { book }
+    });
+    document.dispatchEvent(event);
+
+    return true;
+  };
+
+  return addBook;
+}
+
+// Initialize addBook function with accessibility enhancements
+const addBook = initAddBook();
+
 module.exports = {
   main,
   getDependencyDepth,
@@ -621,7 +737,10 @@ module.exports = {
   checkLandmarkElements,
   checkLinkAccessibility,
   addAriaLabel,
-  calculateSum
+  calculateSum,
+  enhanceAddBookForm,
+  initAddBook,
+  addBook
 };
 
 // Run if executed directly

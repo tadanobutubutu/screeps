@@ -377,6 +377,13 @@ function processAccessibilityReport(report) {
 // const report = getInsightReport(); // Hypothetical function to get the insight report
 // addressAccessibilityIssues(report);
 
+// TODO: Add any other missing exports that might have been?
+// Added missing exports as per the issue
+// ==============================================================================
+// Resolved Merge Conflict
+// Combined HEAD and origin/main changes while preserving all functionality
+// ==============================================================================
+
 // Add back removed exports
 module.exports = {
   config,
@@ -422,6 +429,9 @@ module.exports = {
       date = new Date(date);
     }
     return date.toISOString().split('T')[0];
-  }
+  },
+  // Added missing exports
+  HTML,
+  main
 };
 // ----- END ORIGINAL CODE (unchanged) -----

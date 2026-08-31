@@ -7,6 +7,7 @@ const http = require('http');
 const path = require('path');
 
 // TODO: This is the existing code that needs to be preserved
+// ...
 
 // Application configuration
 const config = {
@@ -48,3 +49,12 @@ module.exports = {
 if (require.main === module) {
   startApp();
 }
+
+// New function as per the issue
+function newFunction() {
+  // TODO: Implement the new function as needed
+  console.log('New function called');
+}
+
+// Export the new function
+module.exports.newFunction = newFunction;

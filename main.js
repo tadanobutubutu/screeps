@@ -1,11 +1,24 @@
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
+// TODO: This is the existing code that needs to be preserved
 
 /**
  * Main application entry point with accessibility features
  */
+
+// Helper function to get SVG accessible name
+function getSvgAccessibleName(svg) {
+  const title = svg.querySelector('title');
+  return title ? title.textContent : null;
+}
+
+// Helper function to set SVG attributes
+function setSvgAttributes(svg) {
+  if (!svg.hasAttribute('aria-hidden')) {
+    svg.setAttribute('aria-hidden', 'false');
+  }
+}
 
 function addSvgAccessibilityProps() {
   const svgElements = document.querySelectorAll('svg');
@@ -24,7 +37,20 @@ function addSvgAccessibilityProps() {
   });
 }
 
-const checkTableStructure = /* existing code */
+function checkTableStructure(table) {
+  if (!table) {
+    return { valid: false, error: 'No table provided' };
+  }
+  
+  const headers = table.querySelectorAll('th');
+  const rows = table.querySelectorAll('tr');
+  
+  return {
+    valid: headers.length > 0 && rows.length > 1,
+    headerCount: headers.length,
+    rowCount: rows.length
+  };
+}
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -106,46 +132,6 @@ function handleCredentialResponse(response) {
     return processedCredential;
 }
 
-// Ensure DOM is fully loaded before executing scripts
-if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment - setup basic exports
-  module.exports = {
-    checkTableStructure,
-    countDependencies,
-    init,
-    setupKeyboardNavigation,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    ensureUniqueLandmarksFromString,
-    validateLandmark,
-    spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse
-  };
-} else {
-  // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-}
-
 function init() {
   setupKeyboardNavigation();
   setupAriaLiveRegions();
@@ -154,7 +140,13 @@ function init() {
 }
 
 function setupKeyboardNavigation() {
-  /* existing code */
+  const focusableElements = document.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  
+  focusableElements.forEach((element) => {
+    element.addEventListener('keydown', handleKeyNavigation);
+  });
 }
 
 function setupAriaLiveRegions() {
@@ -219,7 +211,11 @@ function enhanceSemanticMarkup() {
 }
 
 function closeOpenDialogs() {
-  /* existing code */
+  const openDialogs = document.querySelectorAll('[role="dialog"][aria-hidden="false"]');
+  openDialogs.forEach((dialog) => {
+    dialog.setAttribute('aria-hidden', 'true');
+    dialog.removeAttribute('open');
+  });
 }
 
 function announceToScreenReader(message) {
@@ -234,31 +230,93 @@ function announceToScreenReader(message) {
 }
 
 function calculateDifference(a, b) {
-  /* existing code */
+  if (typeof a !== 'number' || typeof b !== 'number') {
+    return NaN;
+  }
+  return a - b;
 }
 
 function calculateProduct(a, b) {
-  /* existing code */
+  if (typeof a !== 'number' || typeof b !== 'number') {
+    return NaN;
+  }
+  return a * b;
 }
 
 function isNumber(value) {
-  /* existing code */
+  return typeof value === 'number' && !isNaN(value);
 }
 
 function clamp(value, min, max) {
-  /* existing code */
+  return Math.min(Math.max(value, min), max);
 }
 
 function createInPageButton(buttonId, buttonText) {
-  /* existing code */
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  button.className = 'in-page-button';
+  return button;
 }
 
 function validateLinkAccessibility(options) {
-  /* existing code */
+  const { link, requireDescriptiveText = true } = options || {};
+  
+  if (!link) {
+    return { valid: false, error: 'No link provided' };
+  }
+  
+  const issues = [];
+  
+  const href = link.getAttribute('href');
+  if (!href || href === '#') {
+    issues.push('Link has no valid href');
+  }
+  
+  const text = link.textContent.trim();
+  if (requireDescriptiveText && text.length < 3) {
+    issues.push('Link text is too short or missing');
+  }
+  
+  if (link.getAttribute('aria-label') || link.getAttribute('aria-labelledby')) {
+    return { valid: true, issues: [] };
+  }
+  
+  return { valid: issues.length === 0, issues };
 }
 
 function handleFakeLinks(issues) {
-  /* existing code */
+  if (!Array.isArray(issues)) {
+    return [];
+  }
+  
+  return issues.filter(issue => issue.type === 'fake-link');
+}
+
+function trapFocus(event) {
+  const focusableElements = event.target.parentElement.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+  
+  if (event.shiftKey && document.activeElement === firstElement) {
+    event.preventDefault();
+    lastElement.focus();
+  } else if (!event.shiftKey && document.activeElement === lastElement) {
+    event.preventDefault();
+    firstElement.focus();
+  }
+}
+
+function handleKeyNavigation(event) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    const target = event.target;
+    if (target.tagName === 'BUTTON' || target.getAttribute('role') === 'button') {
+      target.click();
+    }
+  }
 }
 
 // Accessibility utilities
@@ -266,10 +324,46 @@ const hello = () => {
   return 'Hello from main.js';
 };
 
+function getVersion() {
+  return '1.0.0';
+}
+
+function getConfig() {
+  return {
+    accessibility: {
+      highContrast: false,
+      reducedMotion: false,
+      fontSize: 'medium'
+    }
+  };
+}
+
+function getLangAttribute(element) {
+  if (element) {
+    return element.getAttribute('lang') || 'en';
+  }
+  return 'en';
+}
+
 // Utilities for addressing accessibility issues
 const AddressabilityIssues = {
   addressAccessibilityIssues(insightReport) {
-    /* existing code */
+    if (!insightReport || !insightReport.sections) {
+      return [];
+    }
+    
+    const issues = [];
+    insightReport.sections.forEach((section, index) => {
+      if (!section.heading) {
+        issues.push({
+          type: 'missing-heading',
+          section: index,
+          message: 'Section is missing a heading'
+        });
+      }
+    });
+    
+    return issues;
   },
 
   generateAccessibilityReport(accessibilityReport) {
@@ -396,7 +490,7 @@ const AddressabilityIssues = {
     element.setAttribute('lang', lang);
   },
 
-  countDependencies() {
+  getDependencyCount() {
     const path = require('path');
     const fs = require('fs');
     const packageJsonPath = path.join(process.cwd(), 'package.json');
@@ -413,17 +507,41 @@ const AddressabilityIssues = {
   }
 };
 
-function MyComponent() {
-  // Existing code that needs to be updated
-  const langAttr = getLangAttribute();
-  return (
-    <div lang={langAttr}>
-      {/* Content */}
-    </div>
-  );
+// Ensure DOM is fully loaded before executing scripts
+if (typeof module !== 'undefined' && module.exports) {
+  // Node.js environment - setup basic exports
+  module.exports = {
+    checkTableStructure,
+    countDependencies,
+    init,
+    setupKeyboardNavigation,
+    setupAriaLiveRegions,
+    setupFocusManagement,
+    enhanceSemanticMarkup,
+    trapFocus,
+    handleKeyNavigation,
+    closeOpenDialogs,
+    announceToScreenReader,
+    calculateDifference,
+    calculateProduct,
+    isNumber,
+    clamp,
+    hello,
+    getVersion,
+    getConfig,
+    getLangAttribute,
+    AddressabilityIssues,
+    handleCredentialResponse,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    addSvgAccessibilityProps,
+    sampleInsightReport
+  };
+} else {
+  // Browser environment - wait for DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 }
-
-export {
-  MyComponent,
-  AddressabilityIssues,
-};

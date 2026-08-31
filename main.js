@@ -24,7 +24,7 @@ function addSvgAccessibilityProps() {
   });
 }
 
-const checkTableStructure = /* existing code */
+const checkTableStructure = /* existing code */;
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -134,8 +134,10 @@ if (typeof module !== 'undefined' && module.exports) {
     ensureUniqueLandmarksFromString,
     validateLandmark,
     spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse
+    createInPageButton,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    countDependencies
   };
 } else {
   // Browser environment - wait for DOM
@@ -407,23 +409,3 @@ const AddressabilityIssues = {
 
     return {
       dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
-      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
-  }
-};
-
-function MyComponent() {
-  // Existing code that needs to be updated
-  const langAttr = getLangAttribute();
-  return (
-    <div lang={langAttr}>
-      {/* Content */}
-    </div>
-  );
-}
-
-export {
-  MyComponent,
-  AddressabilityIssues,
-};

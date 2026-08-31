@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
 root.render(
   <React.StrictMode>
     <App />
@@ -99,7 +100,7 @@ function validateTableStructure() {
       isValid = false;
       error = 'Table has no rows';
     } else {
-      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('th, td').length);
+      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td').length);
       const allSame = cellCounts.every(count => count === cellCounts[0]);
       
       if (!allSame) {
@@ -153,13 +154,41 @@ function generateAccessibilityReport() {
       totalTables,
       accessibleTables,
       validStructures,
-      accessibilityScore: totalTables > 0 ? Math.round((accessibleTables / totalTables) * 100) : 100,
-      structureScore: totalTables > 0 ? Math.round((validStructures / totalTables) * 100) : 100
+      accessibilityScore: totalTables > 0 ? (accessibleTables / totalTables) * 100 : 100,
+      structureScore: totalTables > 0 ? (validStructures / totalTables) * 100 : 100
     },
     issues,
     tableAccessibility: tableAccessibilityResults,
     tableStructure: tableStructureResults
   };
+}
+
+// Update the existing function using the new functions for rendering graph/index
+function renderGraphIndex() {
+  // Apply accessibility fixes to the main container
+  addressAccessibilityIssues();
+  
+  // Validate accessibility and structure of tables in the graph/index
+  const accessibilityResults = validateTableAccessibility();
+  const structureResults = validateTableStructure();
+  
+  // Generate the full accessibility report for graph/index
+  const report = generateAccessibilityReport();
+  
+  // Log accessibility status for the rendered graph/index
+  console.log('Graph/Index Accessibility Report:', report);
+  
+  // Announce the report status for screen readers
+  const announcement = document.getElementById('accessibility-announcement');
+  if (announcement) {
+    const status = report.issues.length === 0 
+      ? 'Graph/Index accessibility check passed' 
+      : `Graph/Index has ${report.issues.length} accessibility issues`;
+    announcement.textContent = status;
+  }
+  
+  // Return the report for further use
+  return report;
 }
 
 // Export the new function
@@ -173,7 +202,8 @@ export {
   root,
   validateTableAccessibility,
   validateTableStructure,
-  generateAccessibilityReport
+  generateAccessibilityReport,
+  renderGraphIndex
 };
 
 // Add the new function to the default export
@@ -187,5 +217,6 @@ export default {
   root,
   validateTableAccessibility,
   validateTableStructure,
-  generateAccessibilityReport
+  generateAccessibilityReport,
+  renderGraphIndex
 };

@@ -360,6 +360,29 @@ const createInPageButton = (targetSelector, buttonText, options = {}) => {
   return button;
 };
 
+/**
+ * Ensure the dependencyGraph container has a proper ARIA role
+ * @param {string} selector - Selector for the dependency graph container
+ */
+const ensureDependencyGraphAccessibility = (selector = '#dependencyGraph') => {
+  const graphContainer = document.querySelector(selector);
+  if (graphContainer) {
+    // Set appropriate ARIA role based on content type
+    if (!graphContainer.getAttribute('role')) {
+      graphContainer.setAttribute('role', 'region');
+    }
+    
+    // Add descriptive label for screen readers
+    const title = graphContainer.getAttribute('data-title') || 'Dependency Graph';
+    graphContainer.setAttribute('aria-label', title);
+    
+    // Mark as presentation if needed
+    if (graphContainer.classList.contains('presentation-mode')) {
+      graphContainer.setAttribute('aria-hidden', 'true');
+    }
+  }
+};
+
 // Export functionality with accessibility support
 const exportUtils = {
   exportData: (data, filename, mimeType) => {
@@ -430,6 +453,9 @@ const initAccessibility = () => {
 
   // Address accessibility issues from the insight report
   accessibilityUtils.addressAccessibilityIssues();
+  
+  // Ensure dependencyGraph container has proper ARIA role
+  ensureDependencyGraphAccessibility();
 };
 
 // Initialize on DOM ready
@@ -456,5 +482,6 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   addSvgAccessibleName,
-  createInPageButton
+  createInPageButton,
+  ensureDependencyGraphAccessibility
 };

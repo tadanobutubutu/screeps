@@ -432,12 +432,16 @@ export { checkTableAccessibility };
 
 // ----- END OF ORIGINAL CODE -----
 
-// TODO: Update the existing function using the new functions for rendering graph/index
-// Assuming newFunction is meant to be used to update the rendering of graph/index
+// Updated function using the new functions for rendering graph/index
 function updateGraphRendering() {
-  // Use newFunction to update the rendering of graph/index
-  newFunction();
+  // Update the rendering of graph/index using the existing render functions
+  if (dependencyGraphContent) {
+    renderDependencyGraph();
+  }
+  if (indexContent) {
+    renderIndex();
+  }
 }
 
-// Export the new updateGraphRendering function if necessary
+// Export the updated updateGraphRendering function if necessary
 export { updateGraphRendering };

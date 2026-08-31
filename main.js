@@ -1,3 +1,7 @@
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+
 const express = require('express');
 const path = require('path');
 
@@ -29,6 +33,62 @@ const appState = {
     cache: new Map()
 };
 
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+
+// Implemented validateLandmark functionality
+function validateLandmark(landmark) {
+  const errors = [];
+
+  // Check if landmark exists
+  if (!landmark) {
+    errors.push('Landmark is required');
+    return { valid: false, errors };
+  }
+
+  // Validate name
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
+  }
+
+  // Validate latitude
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+
+  // Validate longitude
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+
+  // Additional validation changes from the other branch
+  if (Array.isArray(landmark) && landmark.length > 0) {
+    landmark.forEach(innerLandmark => {
+      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+        errors.push('Landmark array must have valid names');
+      }
+    });
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
 // Initialize function
 function initialize() {
     appState.initialized = true;
@@ -43,51 +103,6 @@ function initialize() {
 function checkLandmarkElement(id) {
     const element = document ? document.getElementById(id) : null;
     return element !== null;
-}
-
-// Landmark validation function with merged logic from both branches
-function validateLandmark(landmark) {
-    const errors = [];
-
-    // Check if landmark exists
-    if (!landmark) {
-        errors.push('Landmark is required');
-        return { valid: false, errors };
-    }
-
-    // Validate name
-    if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
-        errors.push('Landmark must have a valid name');
-    }
-
-    // Validate latitude
-    if (landmark.latitude === undefined || landmark.latitude === null) {
-        errors.push('Landmark must have a latitude');
-    } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
-        errors.push('Landmark latitude must be a number');
-    } else if (landmark.latitude < -90 || landmark.latitude > 90) {
-        errors.push('Landmark latitude must be between -90 and 90');
-    }
-
-    // Validate longitude
-    if (landmark.longitude === undefined || landmark.longitude === null) {
-        errors.push('Landmark must have a longitude');
-    } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
-        errors.push('Landmark longitude must be a number');
-    } else if (landmark.longitude < -180 || landmark.longitude > 180) {
-        errors.push('Landmark longitude must be between -180 and 180');
-    }
-
-    // Additional validation: check for array composition with name
-    if (Array.isArray(landmark) && landmark.length > 0) {
-        landmark.forEach(innerLandmark => {
-            if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
-                errors.push('Landmark array must have valid names');
-            }
-        });
-    }
-
-    return { valid: errors.length === 0, errors };
 }
 
 /**
@@ -245,6 +260,22 @@ function ensureLandmarkUniqueness(elements) {
     return elements;
 }
 
+// Updated function: ensures landmarks uniqueness when there's an array structure
+function ensureUniqueLandmarks(landmarksArray) {
+    if (!landmarksArray || landmarksArray.length === 0) {
+        return [];
+    }
+    const seen = new Set();
+    return landmarksArray.filter(landmark => {
+        const key = landmark.name + '_' + (landmark.role || 'default');
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    }).filter(landmark => checkLandmarkElement(landmark.id));
+}
+
 // Accessibility helper function to get SVG accessible name
 function getSvgAccessibleName(svgElement) {
     // Check for aria-label
@@ -362,21 +393,6 @@ function processData(data) {
     return data;
 }
 
-function ensureUniqueLandmarks(landmarksArray) {
-    if (!landmarksArray || landmarksArray.length === 0) {
-        return [];
-    }
-    const seen = new Set();
-    return landmarksArray.filter(landmark => {
-        const key = landmark.name + '_' + (landmark.role || 'default');
-        if (seen.has(key)) {
-            return false;
-        }
-        seen.add(key);
-        return true;
-    }).filter(landmark => checkLandmarkElement(landmark.id));
-}
-
 // NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 function newFocusTrap(focusableElements, onEscape) {
   const initialFocus = null;
@@ -403,8 +419,7 @@ function newFocusTrap(focusableElements, onEscape) {
   };
 }
 
-// Added back required exports from origin/main
-
+// Additional functions from HEAD
 function landmarkStructureCheck(landmark) {
   if (!landmark) {
     return false;
@@ -486,30 +501,17 @@ function processUniqueElements(elements) {
   });
 }
 
-// Function to check if the specified landmark element is in the document.
-function checkLandmarkElement(id) {
-    const element = document ? document.getElementById(id) : null;
-    return element !== null;
-}
-
-// Ensure landmarks uniqueness when there's an array structure
-function ensureLandmarkUniqueness(elements) {
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-
-  const elementsById = {};
-
-  if (Array.isArray(elements)) {
-    for (const landmark of elements) {
-      if (landmark.id) {
-        if (elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
-        } else {
-          landmark.id += '_duplicate';
-        }
-      }
-    }
+/**
+ * Address accessibility issues from insight report by ensuring the dependencyGraph
+ * container has proper ARIA attributes for screen reader support.
+ */
+function addressInsightIssues() {
+  const container = document.getElementById('dependencyGraph');
+  if (container) {
+    container.setAttribute('role', 'img');
+    container.setAttribute('aria-label', 'Dependency graph visualization');
+    container.setAttribute('aria-describedby', 'dependencyGraphDesc');
   }
-  return elements;
 }
 
 function addressInsightIssues(insights) {

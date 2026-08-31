@@ -134,8 +134,11 @@ if (typeof module !== 'undefined' && module.exports) {
     ensureUniqueLandmarksFromString,
     validateLandmark,
     spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse
+    createInPageButton,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    MyComponent,
+    AddressabilityIssues
   };
 } else {
   // Browser environment - wait for DOM
@@ -355,75 +358,4 @@ const AddressabilityIssues = {
 
     let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
 
-    if (!landmarkRole && implicitLandmarks[tagName]) {
-      landmarkRole = implicitLandmarks[tagName];
-    }
-
-    if (!landmarkRole) {
-      return { 
-        valid: false, 
-        error: 'Element does not have a valid landmark role',
-        element: tagName
-      };
-    }
-
-    if (!landmarkRoles.includes(landmarkRole)) {
-      return { 
-        valid: false, 
-        error: `Invalid landmark role: ${landmarkRole}`,
-        element: tagName,
-        role: landmarkRole
-      };
-    }
-
-    return { valid: true, element: tagName, role: landmarkRole };
-  },
-
-  spawnSomeCommand(callback) {
-    const child_process = require('child_process');
-    child_process.spawn('someCommand', {}, {
-      stdio: 'inherit',
-    }).on('exit', (code, signal) => {
-      if (code === 0) {
-        callback(null, 'Successfully executed someCommand');
-      } else {
-        callback(new Error(`someCommand failed with code ${code}`));
-      }
-    });
-  },
-
-  addLangAttribute(element, lang) {
-    element.setAttribute('lang', lang);
-  },
-
-  countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-
-    return {
-      dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
-      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
-  }
-};
-
-function MyComponent() {
-  // Existing code that needs to be updated
-  const langAttr = getLangAttribute();
-  return (
-    <div lang={langAttr}>
-      {/* Content */}
-    </div>
-  );
-}
-
-export {
-  MyComponent,
-  AddressabilityIssues,
-};
+    if (!landmarkRole

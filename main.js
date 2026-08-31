@@ -36,15 +36,15 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fa5]/.test(content)) {
+    if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
     } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
+    } else if (/[àâçéèêëîïôùûüÿæœ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
@@ -146,7 +146,7 @@ function validateLandmark(element) {
   const tagName = element.tagName.toLowerCase();
   
   if (role && !validLandmarks.includes(role)) {
-    errors.push(`Invalid landmark role: ${role}`);
+    errors.push(`Element has invalid landmark role: ${role}`);
   }
   
   if (!role && !validLandmarks.includes(tagName)) {
@@ -267,87 +267,6 @@ function ensureUniqueLandmarks() {
     
     // main landmarks should be unique
     if (identifier === 'main' || identifier === 'MAIN') {
-      if (landmarkCounts[identifier]) {
-        landmarkCounts[identifier]++;
-        errors.push(`Duplicate main landmark found (${landmarkCounts[identifier]})`);
-      } else {
-        landmarkCounts[identifier] = 1;
-      }
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-/**
- * Gets the accessible name of an element, addressing REACT_036 fake link issues.
- * @param {HTMLElement} element - The element to extract the accessible name from
- * @returns {string|null} The accessible name or null
- */
-function personName(element) {
-  if (typeof document === 'undefined' || !element) {
-    return null;
-  }
-  
-  // Check for aria-label
-  const ariaLabel = element.getAttribute('aria-label');
-  if (ariaLabel) return ariaLabel;
-  
-  // Check for aria-labelledby referencing another element
-  const labelledBy = element.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const labelElement = document.getElementById(labelledBy);
-    if (labelElement) return labelElement.textContent;
-  }
-  
-  // Check for title attribute
-  const title = element.getAttribute('title');
-  if (title) return title;
-  
-  // Fall back to text content
-  const textContent = element.textContent.trim();
-  if (textContent) return textContent;
-  
-  return null;
-}
-
-/**
- * Validates that links and interactive elements have accessible names,
- * addressing REACT_036 fake link issues.
- * @param {HTMLElement} container - Optional container to scan within
- * @returns {object} Validation result with valid flag and errors array
- */
-function validateAccessibleLinks(container) {
-  if (typeof document === 'undefined') {
-    return { valid: true, errors: [] };
-  }
-  
-  const errors = [];
-  const root = container || document;
-  const links = root.querySelectorAll('a, button, [role="link"], [role="button"]');
-  
-  links.forEach((el, index) => {
-    const name = personName(el);
-    if (!name || !name.trim()) {
-      errors.push(`Interactive element ${index + 1} is missing an accessible name`);
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// Export all functions to maintain current exports
-module.exports = {
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateSvgAccessibility,
-  ensureUniqueLandmarks,
-  validateAccessibleLinks
-};
+      if (landmarkCounts['main']) {
+        landmarkCounts['main']++;
+        errors.push(`Duplicate main

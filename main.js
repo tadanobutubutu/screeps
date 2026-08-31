@@ -1,17 +1,25 @@
+// Dependency imports
+const { dependencyGraphContent } = require('./dependency-graph');
+const { indexContent } = require('./index-template');
+
+// TODO: Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+
 // Import necessary dependencies
-import React from 'react';
+import React, { useRef } from 'react';
 import { render } from 'react-dom';
 import { addLangAttribute, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, uniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, googleSignIn, decodeJwtResponse, fixButtonIdentifiers, ensureElementHasId, addAriaLabel, renderDependencyGraphs } from './AccessibilityHelpers';
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph');
+
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
   // Using 'region' role for a contained section of content
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-
+  
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
@@ -35,23 +43,6 @@ function addAccessibleName(svgString) {
 const originalSvgString = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>';
 const modifiedSvgString = addAccessibleName(originalSvgString);
 
-// New utility functions
-
-function formatVersion(version) {
-  if (!version) return 'latest';
-  return version.startsWith('v') ? version : `v${version}`;
-}
-
-function sanitizeHtml(str) {
-  if (!str) return '';
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
 /**
  * Validates table accessibility
  * @param {Array} tableData - Table data to validate
@@ -72,26 +63,117 @@ function validateTableStructure(tableData) {
   return true;
 }
 
-// New function to address accessibility issue REACT_015
-function getLangAttribute() {
-  // Implementation for adding lang attribute to HTML element
+function renderIndexView(data, options = {}) {
+  const {
+    container = null,
+    template = null,
+    itemRenderer = null,
+    emptyMessage = 'No items to display',
+    className = 'index-view',
+    ariaLabel = 'Index view'
+  } = options;
+
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    if (container) {
+      container.innerHTML = `<div class="${className}-empty" aria-live="polite">${emptyMessage}</div>`;
+    }
+    return `<div class="${className}-empty" aria-live="polite">${emptyMessage}</div>`;
+  }
+
+  const renderItem = itemRenderer || ((item) => {
+    if (typeof item === 'object' && item !== null) {
+      return `<div class="${className}-item" data-id="${item.id || ''}">${JSON.stringify(item)}</div>`;
+    }
+    return `<div class="${className}-item">${String(item)}</div>`;
+  });
+
+  const itemsHtml = data.map(renderItem).join('');
+  const html = `
+    <div class="${className}" role="list" aria-label="${ariaLabel}">
+      ${itemsHtml}
+    </div>
+  `;
+
+  if (container) {
+    container.innerHTML = html;
+    // Announce to screen readers
+    accessibilityUtils.announceToScreenReader(`Index view rendered with ${data.length} items`);
+  }
+
+  return html;
 }
 
-// Placeholder for createInPageButton - implementation needed
-function createInPageButton() {
-  // Implementation placeholder
+// New function to handle accessibility issues
+function handleAccessibilityIssues() {
+  // Code to handle accessibility issues as per the insight report
+  getLangAttribute();
+  getFullLangAttribute();
+  validateTableAccessibility();
+  validateTableStructure();
+  validateLandmark();
+  validateLandmarkStructure();
+  ensureUniqueLandmarks();
+  getSvgAccessibleName();
+  createInPageButton();
+  createAccessibleLink();
 }
 
-// Preserve all existing exports
+// New utility functions
+
+/**
+ * Formats a dependency version string for display
+ * @param {string} version - Version string
+ * @returns {string} Formatted version
+ */
+function formatVersion(version) {
+  if (!version) return 'latest';
+  return version.startsWith('v') ? version : `v${version}`;
+}
+
+/**
+ * Sanitizes a string for safe HTML rendering
+ * @param {string} str - String to sanitize
+ * @returns {string} Sanitized string
+ */
+function sanitizeHtml(str) {
+  if (!str) return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+const App = () => {
+  const landmarkRef = useRef();
+
+  return (
+    <div>
+      {/* Add a designated landmark for accessibility - replace 'My Application' with an appropriate name for your app */}
+      <div id="landmark" ref={landmarkRef} aria-live="polite" aria-label="My Application"></div>
+      {/* The rest of your existing markup here */}
+    </div>
+  );
+};
+
+// Export all utility functions
 module.exports = {
   renderDependencyGraph,
   renderIndex,
-  validateTableAccessibility,
-  validateTableStructure,
-  renderAdditionalContent,
-  getLangAttribute,
-  createInPageButton,
+  handleAccessibilityIssues,
   formatVersion,
   sanitizeHtml,
-  addAccessibleName
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  fixFakeLinks,
+  personName,
+  addressAccessibilityIssues,
+  newFocusTrap,
+  renderIndexView
 };

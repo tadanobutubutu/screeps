@@ -1,3 +1,5 @@
+// TODO: Existing main.js content before the merge conflict...
+
 // Screeps AI - Main Module
 
 // Main game loop
@@ -104,7 +106,8 @@ function getLangAttribute() {
 }
 
 function getFullLangAttribute(lang) {
-    return lang + '-US';
+    const defaultLang = getLangAttribute();
+    return lang ? `${defaultLang}-US` : defaultLang;
 }
 
 function wrapPrimaryContentInMain() {
@@ -144,11 +147,12 @@ function addAriaLabel(element, label) {
 /**
  * Adds lang attribute as per the issue requirement
  */
-function addLangAttribute(lang = 'en') {
+function addLangAttribute(lang) {
     const doc = getDocument();
     if (doc && doc.documentElement) {
-        if (doc.documentElement.lang !== lang) {
-            doc.documentElement.setAttribute('lang', getFullLangAttribute(lang));
+        const fullLang = getFullLangAttribute(lang || 'en');
+        if (doc.documentElement.lang !== fullLang) {
+            doc.documentElement.setAttribute('lang', fullLang);
         }
     }
 }
@@ -322,16 +326,17 @@ function fixAccessibilityIssues(insightReport) {
 }
 
 // Add new function to address the accessibility issue REACT_043: Make header focusable
-export const makeHeaderFocusable = () => {
+function makeHeaderFocusable() {
     // code to make the header element focusable
     // Example: Adding tabindex to the header
-    const header = document.querySelector('header');
+    const doc = getDocument();
+    const header = doc ? doc.querySelector('header') : null;
     if (header) {
         header.setAttribute('tabindex', '0');
     }
-};
+}
 
-export const fixFakeLinkIssues = () => {
+function fixFakeLinkIssues() {
     // Fix fake link issues
     const doc = getDocument();
     if (!doc) return;
@@ -342,9 +347,9 @@ export const fixFakeLinkIssues = () => {
             link.setAttribute('role', 'button');
         }
     });
-};
+}
 
-export const createAccessibleLink = () => {
+function createAccessibleLink() {
     // Create accessible link
     const doc = getDocument();
     if (!doc) return;
@@ -354,9 +359,9 @@ export const createAccessibleLink = () => {
             link.setAttribute('aria-label', 'Link');
         }
     });
-};
+}
 
-export const validateLinkAccessibility = () => {
+function validateLinkAccessibility() {
     // Existing code...
     const doc = getDocument();
     if (!doc) return true;
@@ -368,9 +373,9 @@ export const validateLinkAccessibility = () => {
         }
     });
     return issues.length === 0;
-};
+}
 
-export const handleFakeLinks = () => {
+function handleFakeLinks() {
     // Existing code...
     const doc = getDocument();
     if (!doc) return;
@@ -382,11 +387,6 @@ export const handleFakeLinks = () => {
             link.setAttribute('tabindex', '0');
         }
     });
-};
-
-// New function to check link accessibility
-function checkLinkAccessibility() {
-    return validateLinkAccessibility();
 }
 
 // New function to display module structure
@@ -396,14 +396,6 @@ function displayModuleStructure(module) {
 
 // DOM-based accessibility code
 
-// REACT_015: lang attribute added to HTML element
-// The React component rendering the HTML element provides the `lang` prop
-// The language attribute is set according to the application's settings
-function getFullLangAttribute(lang) {
-    const defaultLang = getLangAttribute();
-    return `${defaultLang}-US`;
-}
-
 // Helper function to get document object safely
 function getDocument() {
     if (typeof document !== 'undefined') {
@@ -412,108 +404,112 @@ function getDocument() {
     return null;
 }
 
-// Validate table structure and accessibility
-// Ensuring all tables in the document are accessible
-const tables = getDocument() ? getDocument().querySelectorAll('table') : [];
-tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-});
+// Initialize DOM-based accessibility when document is available
+if (typeof document !== 'undefined') {
+    // Validate table structure and accessibility
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        validateTableAccessibility(table);
+        validateTableStructure(table);
+    });
 
-// Add/fix landmark issues
-validateLandmark();
-validateLandmarkStructure();
-ensureUniqueLandmarks();
+    // Add/fix landmark issues
+    validateLandmark();
+    validateLandmarkStructure();
+    ensureUniqueLandmarks();
 
-// Add accessible names to SVGs
-// Adding accessible names to all SVG elements in the document
-const svgs = getDocument() ? getDocument().querySelectorAll('svg') : [];
-svgs.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
-});
+    // Add accessible names to SVGs
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+        const accessibleName = getSvgAccessibleName(svg);
+        setSvgAttributes(svg, accessibleName);
+    });
 
-// Ensure unique landmarks
-// Ensuring all landmarks have unique identifiers
-const landmarks = getDocument() ? getDocument().querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"], [role="search"]') : [];
-const landmarkIds = new Set();
-landmarks.forEach(landmark => {
-    if (landmark.id) {
-        if (landmarkIds.has(landmark.id)) {
-            const newId = createUniqueLandmarkId(landmark.getAttribute('role') || 'landmark');
-            landmark.id = newId;
+    // Ensure unique landmarks
+    const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"], [role="search"]');
+    const landmarkIds = new Set();
+    landmarks.forEach(landmark => {
+        if (landmark.id) {
+            if (landmarkIds.has(landmark.id)) {
+                const newId = createUniqueLandmarkId(landmark.getAttribute('role') || 'landmark');
+                landmark.id = newId;
+            } else {
+                landmarkIds.add(landmark.id);
+            }
         } else {
-            landmarkIds.add(landmark.id);
+            landmark.id = createUniqueLandmarkId(landmark.getAttribute('role') || 'landmark');
         }
-    } else {
-        landmark.id = createUniqueLandmarkId(landmark.getAttribute('role') || 'landmark');
-    }
-});
+    });
 
-// Validate link accessibility
-validateLinkAccessibility();
+    // Validate link accessibility
+    validateLinkAccessibility();
 
-// Fix fake link issues
-// Converting buttons styled as links to proper accessible buttons
-handleFakeLinks();
+    // Fix fake link issues
+    handleFakeLinks();
 
-// Fix button identifiers
-// Ensuring all buttons have proper accessible identifiers
-const buttons = getDocument() ? getDocument().querySelectorAll('button, [role="button"]') : [];
-buttons.forEach((button, index) => {
-    if (!button.id) {
-        button.id = `accessible-button-${index}`;
-    }
-});
+    // Fix button identifiers
+    const buttons = document.querySelectorAll('button, [role="button"]');
+    buttons.forEach((button, index) => {
+        if (!button.id) {
+            button.id = `accessible-button-${index}`;
+        }
+    });
 
-function createInPageButton() {
-    // Create an accessible in-page button for navigation
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.setAttribute('aria-label', 'Navigate to section');
-    return button;
-}
-
-// Google sign-in accessibility
-function googleSignIn() {
+    // Google sign-in accessibility
     const googleButton = document.querySelector('[data-google-signin]');
     if (googleButton) {
         addAriaLabel(googleButton, 'Sign in with Google');
         googleButton.setAttribute('role', 'button');
     }
+
+    // Validate table structure and accessibility
+    const table = document.getElementById('myTable');
+    if (table) {
+        validateTableAccessibility(table);
+        validateTableStructure(table);
+    }
+
+    // Add/fix landmark issues
+    validateLandmark();
+    validateLandmarkStructure();
+    ensureUniqueLandmarks();
+
+    // Add accessible names to SVGs
+    const svg = document.getElementById('mySvg');
+    if (svg) {
+        const accessibleName = getSvgAccessibleName(svg);
+        setSvgAttributes(svg, accessibleName);
+    }
+
+    // Ensure unique landmarks
+    createUniqueLandmarkId('main-content');
+
+    // Validate link accessibility (New Function)
+    checkLinkAccessibility();
+
+    // Handle fake links
+    handleFakeLinks();
+
+    // Handle fake link issues
+    handleAccessibilityErrors();
 }
-googleSignIn();
 
-// Validate table structure and accessibility
-const table = document.getElementById('myTable');
-if (table) {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
+function createInPageButton() {
+    // Create an accessible in-page button for navigation
+    const doc = getDocument();
+    if (!doc) return null;
+    const button = doc.createElement('button');
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Navigate to section');
+    return button;
 }
 
-// Add/fix landmark issues
-validateLandmark();
-validateLandmarkStructure();
-ensureUniqueLandmarks();
-
-// Add accessible names to SVGs
-const svg = document.getElementById('mySvg');
-if (svg) {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
+function setSvgAttributes(svg, accessibleName) {
+    if (!svg) return;
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+        svg.setAttribute('aria-label', accessibleName);
+    }
 }
-
-// Ensure unique landmarks
-createUniqueLandmarkId('main-content');
-
-// Validate link accessibility (New Function)
-checkLinkAccessibility();
-
-// Handle fake links
-handleFakeLinks();
-
-// Handle fake link issues
-handleAccessibilityErrors();
 
 // Render functions
 function renderPage(data) {
@@ -540,7 +536,8 @@ function formatProductName(product) {
 }
 
 function renderProductList(products) {
-    const container = document.getElementById('product-list');
+    const doc = getDocument();
+    const container = doc ? doc.getElementById('product-list') : null;
     if (container) {
         container.innerHTML = products.map(renderProductCard).join('');
     }
@@ -595,67 +592,76 @@ function handleAccessibilityIssues() {
     addFixLandmarkIssues();
 }
 
-// Export accessibility utility functions
-export { makeHeaderFocusable };
+// Utility functions (placeholder implementations)
+function formatCurrency(amount) {
+    return '$' + amount.toFixed(2);
+}
 
-export const createInPageButton = () => {
-    // Create an accessible in-page button for navigation
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.setAttribute('aria-label', 'Navigate to section');
-    return button;
-};
+function formatDate(date) {
+    return date.toLocaleDateString();
+}
+
+function calculateDiscount(amount) {
+    return 0; // Placeholder
+}
+
+function validateInput(input) {
+    return !!input;
+}
+
+function renderProductCard(product) {
+    return `<div class="product-card">${product.name}</div>`;
+}
+
+// Export accessibility utility functions
+module.exports.makeHeaderFocusable = makeHeaderFocusable;
 
 // Export UI / product functions
-export {
-    checkLinkAccessibility,
-    displayModuleStructure
-};
+module.exports.checkLinkAccessibility = checkLinkAccessibility;
+module.exports.displayModuleStructure = displayModuleStructure;
+module.exports.formatProductName = formatProductName;
+module.exports.renderProductList = renderProductList;
+module.exports.calculateTotalPrice = calculateTotalPrice;
+module.exports.renderCart = renderCart;
+module.exports.validateAndRender = validateAndRender;
+module.exports.renderPage = renderPage;
+module.exports.renderAccessibilityPage = renderAccessibilityPage;
 
 // Export accessibility functions
-export {
-    getLangAttribute,
-    createInPageButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    ensureUniqueLandmarks,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    validateLinkAccessibility,
-    handleFakeLinks
-};
+module.exports.getLangAttribute = getLangAttribute;
+module.exports.createInPageButton = createInPageButton;
+module.exports.validateTableAccessibility = validateTableAccessibility;
+module.exports.validateTableStructure = validateTableStructure;
+module.exports.validateLandmark = validateLandmark;
+module.exports.validateLandmarkStructure = validateLandmarkStructure;
+module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+module.exports.getSvgAccessibleName = getSvgAccessibleName;
+module.exports.setSvgAttributes = setSvgAttributes;
+module.exports.validateLinkAccessibility = validateLinkAccessibility;
+module.exports.handleFakeLinks = handleFakeLinks;
+module.exports.fixFakeLinkIssues = fixFakeLinkIssues;
+module.exports.createAccessibleLink = createAccessibleLink;
+module.exports.fixAccessibilityIssues = fixAccessibilityIssues;
+module.exports.addLangAttribute = addLangAttribute;
+module.exports.addAriaLabel = addAriaLabel;
+module.exports.handleAccessibilityErrors = handleAccessibilityErrors;
+module.exports.createUniqueLandmarkId = createUniqueLandmarkId;
+module.exports.handleAccessibilityIssues = handleAccessibilityIssues;
 
 // Export utility functions
-export {
-    formatCurrency,
-    formatDate,
-    calculateDiscount,
-    validateInput,
-    calculateTotalPrice,
-    renderCart,
-    validateAndRender,
-    renderPage
-};
+module.exports.formatCurrency = formatCurrency;
+module.exports.formatDate = formatDate;
+module.exports.calculateDiscount = calculateDiscount;
+module.exports.validateInput = validateInput;
+module.exports.renderProductCard = renderProductCard;
 
-// New function to render dependency graphs or display module structure
-function renderDependencyGraph(module) {
-    // Implementation to render the dependency graph for a given module
-    // This is a placeholder function and should be replaced with actual logic
-    console.log('Rendering dependency graph for:', module);
-    // Example output: 'Rendering dependency graph for: ModuleName'
-}
+// Export helper functions
+module.exports.getDocument = getDocument;
+module.exports.getFullLangAttribute = getFullLangAttribute;
+module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
+module.exports.addAriaToFormControls = addAriaToFormControls;
+module.exports.addFixLandmarkIssues = addFixLandmarkIssues;
 
-// New function to display module structure
-function displayModuleStructure(module) {
-    // Implementation to display the module structure for a given module
-    // This is a placeholder function and should be replaced with actual logic
-    console.log('Displaying module structure for:', module);
-    // Example output: 'Displaying module structure for: ModuleName'
-}
-
-// Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
-
-// ... other exports ...
+// Export game logic functions
+module.exports.harvest = harvest;
+module.exports.upgradeController = upgradeController;

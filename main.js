@@ -4,11 +4,10 @@
 import './styles.css';
 import react from 'react';
 
-import { initializeApp } from './app.js';
+import { initializeApp as initAppCore } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
 
-// TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -34,10 +33,6 @@ function initialize() {
   appState = { initialized: true };
 }
 
-function initializeApp() {
-  initialize();
-}
-
 function processData(data) {
   return data;
 }
@@ -61,7 +56,7 @@ function main() {
 }
 
 // Run if executed directly
-if (require.main === module) {
+if (typeof require !== 'undefined' && require.main === module) {
   main();
 }
 
@@ -562,6 +557,11 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
+// Initialize function - exported and accessible
+function initializeApp() {
+  initialize();
+}
+
 /**
  * Initializes the application and applies accessibility fixes.
  */
@@ -587,14 +587,16 @@ const initApp = () => {
 };
 
 // Check if the environment is secure before initializing
-if (isSecureContext()) {
+if (typeof isSecureContext !== 'undefined' && isSecureContext()) {
   initApp();
-} else {
+} else if (typeof window !== 'undefined') {
   console.warn('Application is not running in a secure context. Some features may not be available.');
 }
 
 // Register the service worker
-registerSW();
+if (typeof registerSW !== 'undefined') {
+  registerSW();
+}
 
 module.exports = {
   config,
@@ -609,6 +611,7 @@ module.exports = {
   processAccessibilityReport,
   getLangAttribute,
   addLangAttribute,
+  setLanguageAttribute,
   validateTableAccessibility,
   validateTableStructure,
   fixTableStructure,
@@ -623,6 +626,8 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   addLandmarkRegions,
+  addLandmarkRoles,
+  checkLandmarkElement,
   // Added from origin/main
   someFunction: function() {
     return 'some value';

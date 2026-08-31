@@ -3,6 +3,8 @@
  * @module main
  */
 
+// Import required module(s) and export the new necessary function(s) here in main.js
+
 /**
  * Application configuration
  * @type {Object}
@@ -19,7 +21,7 @@ const config = {
  */
 function log(message) {
     if (config.debug) {
-        console.log(`[${config.appName}] ${message}`);
+        console.log(`${message}`);
     }
 }
 
@@ -38,7 +40,7 @@ function newExportedFunction() {
  */
 async function init() {
     log('Initializing application...');
-    console.log(`Welcome to ${config.appName} v${config.version}`);
+    console.log(`Welcome to ${config.appName}`);
 }
 
 /**

@@ -105,9 +105,24 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// Function to handle focus trap for keyboard navigation
+const handleFocusTrap = () => {
+  const list = getBooksList;
+  if (list.length === 0) return;
+
+  if (currentIndex === 0) {
+    setCurrentIndex(list.length - 1);
+  } else if (currentIndex === list.length - 1) {
+    setCurrentIndex(0);
+  } else {
+    setCurrentIndex(currentIndex - 1);
+  }
+};
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -117,6 +132,9 @@ function Main() {
       onAuthorSort();
     }
   }, [sorting]);
+
+  // Handle focus trap
+  handleFocusTrap();
 
   // Map the book list to the BookItem function to create book items
   const bookItems = getBooksList.map(BookItem);
@@ -134,4 +152,4 @@ function Main() {
 
 // Export the Main component and the BookForm component
 export default Main;
-export { BookForm };
+export { Book

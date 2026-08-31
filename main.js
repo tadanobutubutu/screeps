@@ -231,6 +231,15 @@ function functionB() {
     console.log('functionB called (placeholder)');
 }
 
+// Corrected exports for new functions
+export function calculateSum(a, b) {
+  return a + b;
+}
+
+export function calculateProduct(a, b) {
+  return a * b;
+}
+
 // Additional new function or changes requested in the issue
 // Example: a new function to process some data
 function processData(data) {

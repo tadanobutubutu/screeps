@@ -64,15 +64,8 @@ function validateLandmark(landmark) {
         errors.push('Landmark longitude must be between -180 and 180');
     }
 
-    // Additional validation changes from the other branch
+    // Additional validation: check for array composition with name
     if (Array.isArray(landmark) && landmark.length > 0) {
-        if (!landmark[0].name || typeof landmark[0].name !== 'string' || landmark[0].name.trim() === '') {
-            errors.push('Landmark array must have a name');
-        }
-    }
-
-    // Check for updated validation changes from another branch that also checks for array composition
-    if (Array.isArray(landmark)) {
         landmark.forEach(innerLandmark => {
             if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
                 errors.push('Landmark array must have valid names');
@@ -178,10 +171,7 @@ function fixTableStructure() {
 
 // Landmark functions (merged from both branches)
 function ensureLandmarkUniqueness(elements) {
-    // Implementation to ensure uniqueness of landmarks when there's an array structure
     if (Array.isArray(elements)) {
-        const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-
         const elementsById = {};
 
         for (const landmark of elements) {
@@ -193,6 +183,8 @@ function ensureLandmarkUniqueness(elements) {
                 }
             }
         }
+
+        return elements;
     }
     return elements;
 }
@@ -339,7 +331,33 @@ function ensureUniqueLandmarks(landmarksArray) {
     }).filter(landmark => checkLandmarkElement(landmark.id));
 }
 
-// Added back required exports
+// NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
+function newFocusTrap(focusableElements, onEscape) {
+  const initialFocus = null;
+  
+  function trapFocus(event) {
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      const focusable = Array.from(focusableElements).filter(el => el.offsetWidth > 0 && el.offsetHeight > 0);
+      if (focusable[0]) {
+        focusable[0].focus();
+      } else {
+        if (initialFocus) initialFocus.focus();
+      }
+    } else if (event.key === 'Escape') {
+      // Close the trap by returning focus to the last focused element
+      // In a real implementation, we would need to track the previous element
+      console.log('Focus trap triggered, returning focus');
+    }
+  }
+  
+  document.addEventListener('keydown', trapFocus);
+  
+  return () => {
+    document.removeEventListener('keydown', trapFocus);
+  };
+}
+
+// Added back required exports from origin/main
 
 function landmarkStructureCheck(landmark) {
   if (!landmark) {
@@ -487,63 +505,6 @@ function createInPageButtons(buttonsData) {
     });
 }
 
-// Landmark validation function with merged logic from both branches
-function validateLandmark(landmark) {
-    const errors = [];
-
-    // Validate longitude
-    if (landmark.longitude === undefined || landmark.longitude === null) {
-        errors.push('Landmark must have a longitude');
-    } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
-        errors.push('Landmark longitude must be a number');
-    } else if (landmark.longitude < -180 || landmark.longitude > 180) {
-        errors.push('Landmark longitude must be between -180 and 180');
-    }
-
-    // Additional validation: check for array composition with name
-    if (Array.isArray(landmark) && landmark.length > 0) {
-        landmark.forEach(innerLandmark => {
-            if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
-                errors.push('Landmark array must have valid names');
-            }
-        });
-    }
-
-    return errors;
-}
-
-// Table accessibility functions (merged from both branches)
-function validateTableAccessibility() {
-    // Implementation for merged table accessibility validation
-}
-
-function validateTableStructure() {
-    // Implementation for merged table structure validation
-}
-
-function fixTableStructure() {
-    // Implementation for merged table structure fixing
-}
-
-function ensureLandmarkUniqueness(elements) {
-    if (Array.isArray(elements)) {
-        const elementsById = {};
-
-        for (const landmark of elements) {
-            if (landmark && landmark.id) {
-                if (!elementsById[landmark.id]) {
-                    elementsById[landmark.id] = true;
-                } else {
-                    landmark.id += '_duplicate';
-                }
-            }
-        }
-
-        return elements;
-    }
-    return elements;
-}
-
 // Function to count dependencies (migrated from the other branch)
 function countDependencies() {
     const dependencies = {
@@ -585,6 +546,7 @@ module.exports = {
     ensureUniqueLandmarks,
     ensureLandmarkUniqueness,
     createInPageButtons,
+    newFocusTrap,
     validateTableAccessibility,
     validateTableStructure,
     fixTableStructure,
@@ -639,4 +601,4 @@ if (require.main === module) {
         });
         addressAccessibilityIssues(insightReport);
     }
-}
+};

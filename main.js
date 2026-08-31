@@ -1,7 +1,6 @@
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
 
 /**
  * Main application entry point with accessibility features
@@ -56,6 +55,71 @@ function countDependencies() {
         devDependencies: Object.keys(devDependencies).length,
         total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
+}
+
+/**
+ * Ensures an element has a unique id attribute
+ * @param {HTMLElement} element - The element to ensure has an id
+ * @param {string} prefix - Optional prefix for the generated id
+ * @returns {string} The id of the element (existing or newly generated)
+ */
+function ensureElementHasId(element, prefix = 'elem') {
+  if (!element || !element.id) {
+    const uniqueId = `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
+    if (element && element.setAttribute) {
+      element.setAttribute('id', uniqueId);
+    }
+    return uniqueId;
+  }
+  return element.id;
+}
+
+/**
+ * Adds an aria-label attribute to an element
+ * @param {HTMLElement} element - The element to add aria-label to
+ * @param {string} label - The aria-label text to add
+ */
+function addAriaLabel(element, label) {
+  if (element && label !== undefined) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+/**
+ * Renders a dependency graph visualization
+ * @param {Object} dependencies - Object containing dependency information
+ * @param {HTMLElement} container - Container element to render the graph in
+ */
+function renderDependencyGraph(dependencies, container) {
+  if (!container || !dependencies) {
+    return;
+  }
+
+  const deps = Array.isArray(dependencies) ? dependencies : Object.entries(dependencies).flatMap(([key, value]) => {
+    if (Array.isArray(value)) {
+      return value.map(dep => ({ name: dep, type: key }));
+    }
+    return [{ name: key, type: 'other' }];
+  });
+
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'dependency-graph';
+  graphContainer.setAttribute('role', 'figure');
+  graphContainer.setAttribute('aria-label', 'Dependency Graph');
+
+  const title = document.createElement('h3');
+  title.textContent = 'Dependency Graph';
+  graphContainer.appendChild(title);
+
+  const list = document.createElement('ul');
+  deps.forEach(dep => {
+    const item = document.createElement('li');
+    item.textContent = `${dep.name} (${dep.type})`;
+    list.appendChild(item);
+  });
+
+  graphContainer.appendChild(list);
+  container.appendChild(graphContainer);
 }
 
 /**
@@ -135,7 +199,10 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
-    handleCredentialResponse
+    handleCredentialResponse,
+    ensureElementHasId,
+    addAriaLabel,
+    renderDependencyGraph
   };
 } else {
   // Browser environment - wait for DOM

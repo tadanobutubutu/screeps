@@ -28,7 +28,7 @@ import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessib
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarkId() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 // Internal set to track used landmark IDs
@@ -163,7 +163,6 @@ function createAccessibleLink({ href, text, ariaLabel, role = 'link' } = {}) {
  *
  * @param {Object} [options] - Optional configuration.
  * @param {Document|HTMLElement} [options.root=document] - Root element to operate on.
- * @param {string} [options.lang] - Optional explicit lang attribute value.
  * @returns {Object} A report describing what was applied.
  */
 function handleAccessibilityIssues(options = {}) {
@@ -520,15 +519,6 @@ export {
   addLangAttribute
 };
 
-// ... other exports ...
-
-// Export UI / product functions
-export {
-  renderHeader,
-  renderFooter,
-  renderProductCard
-};
-
 // Exporting for CommonJS compatibility
 module.exports = {
   specificFunctionThatRendersGraphOrIndex
@@ -738,31 +728,4 @@ function generateAndDisplayReport() {
     if (report.passed.length > 0) {
         console.log('\n--- Passed Checks ---');
         report.passed.forEach(item => {
-            console.log(`[PASS] ${item.category}: ${item.message}`);
-        });
-    }
-    
-    return report;
-}
-
-// Export report generation functions
-export {
-  generateAccessibilityReport,
-  renderAccessibilityReportHtml,
-  generateAndDisplayReport
-};
-
-// Export ensureUniqueLandmarkId for ensuring unique landmark IDs
-export { ensureUniqueLandmarkId };
-
-// Export uniqueLandmarks for getting unique landmarks from a list
-export { uniqueLandmarks };
-
-// Export addAriaLabel for adding aria-label attributes to elements
-export { addAriaLabel };
-
-// Export addLangAttribute for adding lang attributes to elements
-export { addLangAttribute };
-
-// Export the internal set for tracking used landmark IDs
-export { _usedLandmarkIds };
+            console.log(`[PASS

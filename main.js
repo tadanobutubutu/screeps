@@ -73,7 +73,7 @@ function uniqueLandmarks(landmarks) {
 
 /**
  * Adds an aria-label attribute to an element if it doesn't already have one.
- * @param {HTMLElement} elementId - The element to add the aria-label to.
+ * @param {HTMLElement|string} elementId - The element or element ID to add the aria-label to.
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(elementId, label) {
@@ -234,16 +234,10 @@ function calculateSum(a, b) {
   return a + b;
 }
 
-// Ensure elements have the required IDs
-// ... (removed duplicate ensureElementHasId calls)
-
 // Add ARIA labels for better screen reader support
 // (Removed duplicate addAriaLabel function definition and calls)
 
 // DOM-based accessibility code
-
-// Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', getLangAttribute());
 
 // Create in-page button with accessibility considerations
 createInPageButton();
@@ -375,16 +369,6 @@ function fixFakeLinkIssues() {
     // Fix fake link issues
 }
 
-// New function to create accessible link
-function createAccessibleLink(text, href) {
-    // Create accessible link
-    const link = document.createElement('a');
-    link.href = href;
-    link.textContent = text;
-    link.setAttribute('aria-label', text);
-    return link;
-}
-
 // New function to display module structure
 function displayModuleStructure(module) {
   // Implementation to display the module structure for a given module
@@ -418,13 +402,6 @@ function checkLinkAccessibility() {
 
   return results;
 }
-
-// State management
-const state = {
-  currentModule: null,
-  dependencyGraph: null,
-  moduleStructure: null
-};
 
 // Placeholder for dependency graph content
 const dependencyGraphContent = {};

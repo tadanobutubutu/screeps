@@ -105,11 +105,16 @@ function clearCache() {
 }
 
 // Accessibility helper functions
-const getRootHtmlAccessibilityProps = (lang = 'en') => {
+// REACT_015: Helper to provide the lang attribute for the HTML element.
+// Returns an object containing props to spread onto the root <html> element.
+function getRootHtmlAccessibilityProps(lang = 'en') {
   return { lang };
-};
+}
 
-const getLandmarkProps = (role, label, id) => {
+// REACT_017 / REACT_025: Helper to build landmark region props with a unique
+// label so each landmark has a distinct accessible name (fixes duplicate
+// landmarks and ensures proper landmark roles are used).
+function getLandmarkProps(role, label, id) {
   const props = {
     role,
     'aria-label': label,
@@ -118,9 +123,11 @@ const getLandmarkProps = (role, label, id) => {
     props.id = id;
   }
   return props;
-};
+}
 
-const getSvgAccessibilityProps = (label, labelledById) => {
+// REACT_041: Helper to return props that provide an accessible name for an
+// <svg> element (via aria-label) so screen readers can announce it.
+function getSvgAccessibilityProps(label, labelledById) {
   const props = {
     role: 'img',
     focusable: 'false',
@@ -134,15 +141,17 @@ const getSvgAccessibilityProps = (label, labelledById) => {
     props['aria-hidden'] = 'true';
   }
   return props;
-};
+}
 
-const getAccessibleLinkProps = (href, label) => {
+// REACT_036: Helper that returns props for converting a non-semantic element
+// that is being used as a link into a real, accessible anchor.
+function getAccessibleLinkProps(href, label) {
   return {
     href,
     role: 'link',
     'aria-label': label,
   };
-};
+}
 
 // Function to count dependencies
 function countDependencies() {
@@ -251,15 +260,30 @@ function Main() {
   });
   const dispatch = useDispatch();
   const booksList = useSelector(state => state.books.list);
+  const [newBookTitle, setNewBookTitle] = useState('');
+  const [newBookAuthor, setNewBookAuthor] = useState('');
+  const addBookInputRef = React.useRef(null);
 
   // Map the book list to the BookItem function to create book items
   const bookItems = booksList.map(book => BookItem(book));
 
-  const handleAddBook = () => {
+  const handleAddBook = (e) => {
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
     // Implement the accessibility improvements
-    enhanceAccessibilityForAddBook();
-    // Add the new book as before
-    addBook();
+    if (typeof enhanceAccessibilityForAddBook === 'function') {
+      enhanceAccessibilityForAddBook();
+    }
+    // Add the new book using the form values if provided
+    if (newBookTitle.trim() && newBookAuthor.trim()) {
+      addBook({ title: newBookTitle.trim(), author: newBookAuthor.trim() });
+      setNewBookTitle('');
+      setNewBookAuthor('');
+    } else {
+      // Add the new book as before
+      addBook();
+    }
   };
 
   const handleSort = (sortFunction) => () => {
@@ -272,21 +296,49 @@ function Main() {
   // Render the list of book items and sorting controls
   return (
     <main {...getLandmarkProps('main', 'Main content')}>
-      <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
-      <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
-      <List
-        itemLayout="vertical"
-        dataSource={booksList}
-        renderItem={book => (
-          <List.Item key={generateKey(book)}>
-            <BookItem book={book} />
-          </List.Item>
-        )}
-      />
-      <Button onClick={handleAddBook}>
-        {typeof enhanceAccessibilityForAddBook === 'function' ? 'Add Book (Experimental Accessibility Improvements)' : 'Add Book'}
-      </Button>
-      <button onClick={enhanceAccessibilityForAddBook} aria-label="Enhance accessibility for adding a new book">Enhance Accessibility</button>
+      <div>
+        <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
+        <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
+        <List
+          itemLayout="vertical"
+          dataSource={booksList}
+          renderItem={book => (
+            <List.Item key={generateKey(book)}>
+              <BookItem book={book} />
+            </List.Item>
+          )}
+        />
+        {/* Accessible form for adding a new book */}
+        <form onSubmit={handleAddBook} aria-label="Add new book">
+          <div>
+            <label htmlFor="book-title">Book Title:</label>
+            <input
+              id="book-title"
+              type="text"
+              value={newBookTitle}
+              onChange={(e) => setNewBookTitle(e.target.value)}
+              ref={addBookInputRef}
+              required
+              aria-required="true"
+            />
+          </div>
+          <div>
+            <label htmlFor="book-author">Author:</label>
+            <input
+              id="book-author"
+              type="text"
+              value={newBookAuthor}
+              onChange={(e) => setNewBookAuthor(e.target.value)}
+              required
+              aria-required="true"
+            />
+          </div>
+          <button type="submit">
+            {typeof enhanceAccessibilityForAddBook === 'function' ? 'Add Book (Experimental Accessibility Improvements)' : 'Add Book'}
+          </button>
+        </form>
+        <button onClick={enhanceAccessibilityForAddBook} aria-label="Enhance accessibility for adding a new book">Enhance Accessibility</button>
+      </div>
     </main>
   );
 }

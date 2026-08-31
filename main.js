@@ -109,6 +109,23 @@ function generateAccessibilityReport() {
   return report;
 }
 
+// New function to wrap primary content in main element for accessibility
+function wrapPrimaryContentInMain(parent) {
+  if (!parent || typeof parent.nodeType !== 'number') {
+    throw new Error('Invalid parent element');
+  }
+  
+  // If already a main element, return as-is
+  if (parent.tagName?.toLowerCase() === 'main') {
+    return parent;
+  }
+  
+  const mainElement = document.createElement('main');
+  mainElement.appendChild(parent);
+  
+  return mainElement;
+}
+
 // Existing utility function
 const formatResponse = (data) => {
   return JSON.stringify(data, null, 2);

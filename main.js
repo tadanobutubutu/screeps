@@ -90,6 +90,10 @@ const a11yStore = {
 
   preserveExistingCode() {
     // TODO: This is the existing code that needs to be preserved
+    // Address accessibility issues from insight report
+    // ----- END ORIGINAL CODE-----
+    // _Commit: 24b1050e0653046bcb3dc16ce5a6d88f195ec858_
+    // <!-- todo-hash: 7e8f4d52295e4741fc800bb64995476ce8502f37 -->
     // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
     // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
     // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_

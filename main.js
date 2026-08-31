@@ -87,12 +87,12 @@ function ensureElementId(element) {
   return element;
 }
 
-function addAriaLabel(element, label) {
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-  return element;
+// Existing function
+function existingFunction() {
+  // Function implementation
 }
+
+// TODO: Add exports for new functions if needed
 
 function renderDependencyGraph(data) {
   // Implementation for rendering dependency graphs
@@ -319,5 +319,6 @@ module.exports = {
   ensureElementId: ensureElementId,
   addAriaLabel: addAriaLabel,
   renderDependencyGraph: renderDependencyGraph,
-  calculateSum: calculateSum
+  calculateSum: calculateSum,
+  existingFunction: existingFunction
 };

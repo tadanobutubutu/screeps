@@ -293,6 +293,116 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+// REACT_015: Add lang attribute to HTML element
+function getLangAttribute() {
+  const htmlElement = document && document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute("lang", "en");
+  }
+  return htmlElement ? htmlElement.getAttribute("lang") : null;
+}
+
+// REACT_041: Add accessible names to SVGs
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return null;
+  return svgElement.getAttribute('aria-label') || svgElement.getAttribute('aria-labelledby') || null;
+}
+
+// REACT_036: Fix fake link issues - make sure links/buttons are properly accessible
+function createInPageButton(labelText, onClickHandler) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = labelText;
+  button.setAttribute('aria-label', labelText);
+  if (typeof onClickHandler === 'function') {
+    button.addEventListener('click', onClickHandler);
+  }
+  return button;
+}
+
+// REACT_027: Validate table structure and accessibility
+function validateTableAccessibility(table) {
+  const errors = [];
+
+  if (!table || table.tagName !== 'TABLE') {
+    errors.push('Element is not a valid table');
+    return { valid: false, errors };
+  }
+
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    errors.push('Table must have a caption element');
+  }
+
+  // Check for th elements in first row
+  const firstRow = table.querySelector('tr');
+  if (firstRow) {
+    const cells = firstRow.querySelectorAll('td, th');
+    const hasHeader = cells.length > 0 && Array.from(cells).every(cell => cell.tagName === 'TH');
+    if (!hasHeader) {
+      errors.push('First row of table should contain header cells (th)');
+    }
+  } else {
+    errors.push('Table must have at least one row');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+function validateTableStructure(doc) {
+  const results = {
+    valid: true,
+    tables: [],
+    errors: []
+  };
+
+  if (!doc) return results;
+
+  const tables = doc.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    const tableResult = validateTableAccessibility(table);
+    results.tables.push({
+      index,
+      valid: tableResult.valid,
+      errors: tableResult.errors
+    });
+    if (!tableResult.valid) {
+      results.valid = false;
+      results.errors.push(`Table ${index} has accessibility issues: ${tableResult.errors.join(', ')}`);
+    }
+  });
+
+  return results;
+}
+
+// REACT_017: Validate landmark structure
+function validateLandmarkStructure(landmark) {
+  const errors = [];
+
+  if (!landmark || !landmark.tagName) {
+    errors.push('Landmark element is required');
+    return { valid: false, errors };
+  }
+
+  // Ensure landmark has an accessible name
+  const ariaLabel = landmark.getAttribute('aria-label');
+  const ariaLabelledby = landmark.getAttribute('aria-labelledby');
+  const title = landmark.getAttribute('title');
+
+  if (!ariaLabel && !ariaLabelledby && !title) {
+    errors.push('Landmark must have an accessible name (via aria-label, aria-labelledby, or title)');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -312,5 +422,11 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  getLangAttribute,
+  getSvgAccessibleName,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure
 };

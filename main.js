@@ -128,7 +128,6 @@ if (typeof module !== 'undefined' && module.exports) {
     checkTableStructure,
     countDependencies,
     init,
-    setupKeyboardNavigation,
     setupAriaLiveRegions,
     setupFocusManagement,
     enhanceSemanticMarkup,
@@ -146,7 +145,6 @@ if (typeof module !== 'undefined' && module.exports) {
     addressAccessibilityIssues,
     generateAccessibilityReport,
     calculateAccessibilityScore,
-    ensureUniqueLandmarksFromString,
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
@@ -162,16 +160,39 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 function init() {
-  setupKeyboardNavigation();
   setupAriaLiveRegions();
-  setupFocusManagement();
   enhanceSemanticMarkup();
+  setupFocusManagement();
+  setupKeyboardNavigation();
 }
 
 function setupKeyboardNavigation() {
   /* existing code */
 }
 
+/**
+ * Handle keyboard navigation events
+ * @param {KeyboardEvent} event
+ */
+function handleKeyNavigation(event) {
+  // Skip to main content with Tab or specific key combination
+  if (event.key === 'Tab' && event.altKey) {
+    const mainContent = document.getElementById('main-content') || document.querySelector('main');
+    if (mainContent) {
+      mainContent.focus();
+      event.preventDefault();
+    }
+  }
+
+  // Escape key closes any open dialogs or menus
+  if (event.key === 'Escape') {
+    closeOpenDialogs();
+  }
+}
+
+/**
+ * Setup ARIA live regions for dynamic content announcements
+ */
 function setupAriaLiveRegions() {
   const liveRegion = document.getElementById('aria-live-region');
   if (!liveRegion) {
@@ -186,7 +207,7 @@ function setupAriaLiveRegions() {
 
 function setupFocusManagement() {
   // Trap focus within modal dialogs
-  const modals = document.querySelectorAll('[role="dialog"]');
+  const modals = document.querySelectorAll('[role="dialog"], [role="alertdialog"]');
   modals.forEach((modal) => {
     modal.addEventListener('keydown', trapFocus);
   });
@@ -202,6 +223,32 @@ function setupFocusManagement() {
   });
 }
 
+/**
+ * Trap focus within a container element
+ * @param {KeyboardEvent} event
+ */
+function trapFocus(event) {
+  if (event.key !== 'Tab') return;
+
+  const container = event.currentTarget;
+  const focusableElements = container.querySelectorAll(
+    'button, a, input, select, textarea, [tabindex], [contenteditable]'
+  );
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  if (event.shiftKey && document.activeElement === firstElement) {
+    lastElement.focus();
+    event.preventDefault();
+  } else if (!event.shiftKey && document.activeElement === lastElement) {
+    firstElement.focus();
+    event.preventDefault();
+  }
+}
+
+/**
+ * Enhance semantic markup for better accessibility
+ */
 function enhanceSemanticMarkup() {
   // Add skip link if not present
   if (!document.getElementById('skip-link')) {
@@ -210,11 +257,14 @@ function enhanceSemanticMarkup() {
     skipLink.href = '#main-content';
     skipLink.textContent = 'Skip to main content';
     skipLink.className = 'skip-link';
+    skipLink.style.position = 'absolute';
+    skipLink.style.left = '-9999px';
+    skipLink.style.top = '0';
     document.body.insertBefore(skipLink, document.body.firstChild);
   }
 
   // Ensure images have alt attributes
-  const images = document.querySelectorAll('img');
+  const images = document.querySelectorAll('img:not([alt])');
   images.forEach((img) => {
     if (!img.hasAttribute('alt')) {
       img.setAttribute('alt', '');
@@ -223,18 +273,21 @@ function enhanceSemanticMarkup() {
   });
 
   // Ensure form inputs have associated labels
-  const inputs = document.querySelectorAll('input, select, textarea');
+  const inputs = document.querySelectorAll('input:not([id]), select:not([id]), textarea:not([id])');
   inputs.forEach((input) => {
-    const id = input.id || `input-${Math.random().toString(36).slice(2, 9)}`;
+    const id = input.id || `input-${Math.random().toString(36).substr(2, 9)}`;
     input.id = id;
-    if (!input.hasAttribute('aria-label') && !document.querySelector(`label[for="${id}"]`)) {
+    if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
       input.setAttribute('aria-label', input.name || 'Input field');
     }
   });
 }
 
 function closeOpenDialogs() {
-  /* existing code */
+  const openDialogs = document.querySelectorAll('[aria-expanded="true"]');
+  openDialogs.forEach((dialog) => {
+    dialog.setAttribute('aria-expanded', 'false');
+  });
 }
 
 function announceToScreenReader(message) {
@@ -274,34 +327,6 @@ function validateLinkAccessibility(options) {
 
 function handleFakeLinks(issues) {
   /* existing code */
-}
-
-function trapFocus(event) {
-  // Implementation for trapping focus
-  const focusableElements = event.currentTarget.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-  if (focusableElements.length === 0) return;
-  
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-  
-  if (event.key === 'Tab') {
-    if (event.shiftKey && document.activeElement === firstElement) {
-      event.preventDefault();
-      lastElement.focus();
-    } else if (!event.shiftKey && document.activeElement === lastElement) {
-      event.preventDefault();
-      firstElement.focus();
-    }
-  }
-}
-
-function handleKeyNavigation(event) {
-  // Implementation for handling key navigation
-  if (event.key === 'Escape') {
-    closeOpenDialogs();
-  }
 }
 
 function getLangAttribute() {

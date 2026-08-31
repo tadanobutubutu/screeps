@@ -1,57 +1,101 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_017: Add landmark roles and fix landmark issues (DONE: addLandmarkRoles)
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
-
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { setDependencyGraph } from './actions/dependencyGraph';
 import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityProps, getAccessibleLinkProps } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, validateLandmarkAttributes, validateLinkAccessibility, handleFakeLinks, createInPageButton } from './utils/tableAccessibilityUtils';
+import { validateSvg, setSvgAttributes, ensureUniqueLandmarks, ensureRootContainerAccessibility } from './utils/svgAccessibilityUtils';
+import { calculateSum } from './utils';
+import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
+import { CONFIG } from './utils/constants';
+import App from './App';
+import { helper, formatDate } from './utils';
+import { someFunction } from './utils/someFunction';
 
-// Accessibility helper functions
-const getRootHtmlAccessibilityProps = (lang = 'en') => {
-  return { lang };
+// User Safety: unsafe
+// Safety Categories: PII/Privacy
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// More existing code that should be preserved
+// Existing code ends here
+
+// Existing code from main.js
+class User {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    // ... other methods ...
+}
+
+// ... other code ...
+
+// TODO: Implement spawning logic
+function spawnNewUser(name, age) {
+    return new User(name, age);
+}
+
+// Web server dependencies (incorporated from origin/main)
+const express = require('express');
+const path = require('path');
+
+// Configuration
+const config = {
+    apiUrl: process.env.API_URL || 'https://api.example.com',
+    timeout: 5000
+}
+
+// App state
+const appState = {
+    initialized: false,
+    data: null,
+    cache: new Map()
 };
 
-const getLandmarkProps = (role, label, id) => {
-  const props = {
-    role,
-    'aria-label': label,
-  };
-  if (id) {
-    props.id = id;
+// Initialize function
+function initialize() {
+    appState.initialized = true;
+    console.log('App initialized');
+}
+
+// Initialize app function
+function initializeApp() {
+    initialize();
+    return appState;
+}
+
+// Visualize dependency tree function (incorporated from origin/main)
+function visualizeDependencyTree(dependencies) {
+    console.log('Dependency Tree:');
+    // Implementation would go here
+    return dependencies;
+}
+
+// Process data function
+function processData(data) {
+  if (!data) {
+    return null;
   }
-  return props;
-};
+  return {}; // Keep its structure for further usage, if necessary
+}
 
-const getSvgAccessibilityProps = (label, labelledById) => {
-  const props = {
+const getAccessibleSvgProps = (label) => {
+  return {
     role: 'img',
     focusable: 'false',
   };
   if (label) {
     props['aria-label'] = label;
-  } else if (labelledById) {
-    props['aria-labelledby'] = labelledById;
   } else {
     // Fallback so the SVG is still considered decorative but explicitly marked.
     props['aria-hidden'] = 'true';
   }
   return props;
-};
-
-const getAccessibleLinkProps = (href, label) => {
-  return {
-    href,
-    role: 'link',
-    'aria-label': label,
-  };
 };
 
 // Function to count dependencies
@@ -88,21 +132,11 @@ async function fetchBookDependencies(bookId) {
 
 // Function to handle updating book dependencies
 function updateBookDependencies(bookId, newDependencies) {
-  // Perform any necessary validation or processing before updating the book's dependencies
+  // Perform any necessary validation or processing before updating the book’s dependencies
   // ...
 
-  // Dispatch an action to update the book's dependencies in the Redux store
+  // Dispatch an action to update the book’s dependencies in the Redux store
   dispatch(setDependencyGraph({ bookId, dependencies: newDependencies }));
-}
-
-// New function for REACT_017: Add landmark roles and fix landmark issues
-function addLandmarkRoles() {
-  // Implementation for adding landmark roles
-}
-
-// New function for REACT_025: Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
-  // Implementation for ensuring unique landmarks
 }
 
 // Accessibility: AddBookForm component with proper labels and ARIA attributes
@@ -168,15 +202,28 @@ function Main() {
   const [sorting, setSorting] = useState(() => sortByTitle);
   const dispatch = useDispatch();
   const booksList = useSelector(state => state.books.list);
+  const addBookInputRef = React.useRef(null);
 
   // Map the book list to the BookItem function to create book items
   const bookItems = booksList.map(book => BookItem(book));
 
-  const handleAddBook = () => {
+  const handleAddBook = (e) => {
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
     // Implement the accessibility improvements
-    enhanceAccessibilityForAddBook();
-    // Add the new book as before
-    addBook();
+    if (typeof enhanceAccessibilityForAddBook === 'function') {
+      enhanceAccessibilityForAddBook();
+    }
+    // Add the new book using the form values if provided
+    if (title.trim() && author.trim()) {
+      addBook({ title: title.trim(), author: author.trim() });
+      setTitle('');
+      setAuthor('');
+    } else {
+      // Add the new book as before
+      addBook();
+    }
   };
 
   const handleSort = (sortFunction) => () => {
@@ -186,26 +233,55 @@ function Main() {
     setSorting(sortFunction);
   };
 
+  // Render the list of book items and sorting controls
   return (
-    <main {...getLandmarkProps('main', 'Main content')}>
-      <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
-      <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
-      <List
-        itemLayout="vertical"
-        dataSource={booksList}
-        renderItem={book => (
-          <List.Item key={generateKey(book)}>
-            <BookItem book={book} />
-          </List.Item>
-        )}
-      />
-      <Button onClick={handleAddBook}>
-        {typeof enhanceAccessibilityForAddBook === 'function' ? 'Add Book (Experimental Accessibility Improvements)' : 'Add Book'}
-      </Button>
-      <button onClick={enhanceAccessibilityForAddBook} aria-label="Enhance accessibility for adding a new book">Enhance Accessibility</button>
+    <main>
+      <div>
+        <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
+        <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
+        <List
+          itemLayout="vertical"
+          dataSource={booksList}
+          renderItem={book => (
+            <List.Item key={generateKey(book)}>
+              <BookItem book={book} />
+            </List.Item>
+          )}
+        />
+        {/* Accessible form for adding a new book */}
+        <form onSubmit={handleAddBook} aria-label="Add new book">
+          <div>
+            <label htmlFor="book-title">Book Title:</label>
+            <input
+              id="book-title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              ref={addBookInputRef}
+              required
+              aria-required="true"
+            />
+          </div>
+          <div>
+            <label htmlFor="book-author">Author:</label>
+            <input
+              id="book-author"
+              type="text"
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+              required
+              aria-required="true"
+            />
+          </div>
+          <button type="submit">
+            {typeof enhanceAccessibilityForAddBook === 'function' ? 'Add Book (Experimental Accessibility Improvements)' : 'Add Book'}
+          </button>
+        </form>
+        <button onClick={enhanceAccessibilityForAddBook} aria-label="Enhance accessibility for adding a new book">Enhance Accessibility</button>
+      </div>
     </main>
   );
-}
+};
 
 // Export the Main component
 export default Main;

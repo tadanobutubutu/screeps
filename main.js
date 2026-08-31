@@ -279,7 +279,21 @@ function getFullLangAttribute() {
 }
 
 function createInPageButton() {
-  // Existing code...
+  // Create an in-page button to fix accessibility issue REACT_041
+  // Provides a focusable, interactive element with proper ARIA attributes
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = 'In-page action';
+  button.setAttribute('aria-label', 'In-page action button');
+  button.id = 'in-page-button';
+  button.className = 'in-page-button';
+
+  // Append to body so the button is rendered in the page
+  if (typeof document !== 'undefined' && document.body) {
+    document.body.appendChild(button);
+  }
+
+  return button;
 }
 
 // Render functions

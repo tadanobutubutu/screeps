@@ -78,9 +78,17 @@ function calculateProduct(a, b) {
   return a * b;
 }
 
+// New function to ensure the dependencyGraph container has a proper ARIA role
+function ensureDependencyGraphARIARole() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'graph');
+  }
+}
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct };
+  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct, ensureDependencyGraphARIARole };
 }
 
 // If running in browser context
@@ -89,4 +97,5 @@ if (typeof window !== 'undefined') {
   window.addressAccessibilityIssues = addressAccessibilityIssues;
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;
+  window.ensureDependencyGraphARIARole = ensureDependencyGraphARIARole;
 }

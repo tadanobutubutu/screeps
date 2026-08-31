@@ -1,3 +1,20 @@
+/**
+ * Main application entry point
+ */
+
+// Import required modules
+const http = require('http');
+const path = require('path');
+
+// TODO: This is the existing code that needs to be preserved
+// (Implementation added above)
+
+// Application configuration
+const config = {
+  port: process.env.PORT || 3000,
+  env: process.env.NODE_ENV || 'development'
+};
+
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs

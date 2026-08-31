@@ -1,7 +1,7 @@
 /**
  * Main application entry point
  */
- 
+
 // Import required modules
 const http = require('http');
 const path = require('path');

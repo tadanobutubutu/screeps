@@ -13,7 +13,7 @@ module.exports = {
   },
 
   addSvgAccessibleNames: function() {
-    const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+    const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
       const title = svg.querySelector('title');
       if (title && title.textContent.trim()) {
@@ -23,23 +23,23 @@ module.exports = {
   },
 
   ensureUniqueLandmarks: function() {
-    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"], main, nav, aside, header, footer');
+    const landmarks = document.querySelectorAll('[role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"], main, nav, aside, header, footer');
     const seen = new Map();
     landmarks.forEach(landmark => {
       const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
       const count = (seen.get(role) || 0) + 1;
       seen.set(role, count);
-      if (count > 1 && !landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+      if (count > 1 && landmark.id) {
         landmark.setAttribute('aria-label', `${role} ${count}`);
       }
     });
   },
 
   fixFakeLink: function() {
-    const fakeLinks = document.querySelectorAll('[role="link"]:not(a), [onclick]:not(a):not(button):not([role])');
+    const fakeLinks = document.querySelectorAll('.fake-link');
     fakeLinks.forEach(el => {
-      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
-      if (!el.hasAttribute('role')) el.setAttribute('role', 'link');
+      if (!el.getAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.getAttribute('role')) el.setAttribute('role', 'link');
       el.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -72,7 +72,6 @@ module.exports = {
     }
 
     element.addEventListener('keydown', handleTab);
-    firstElement?.focus();
 
     return () => element.removeEventListener('keydown', handleTab);
   },
@@ -89,8 +88,10 @@ module.exports = {
       return div;
     })();
     liveRegion.textContent = '';
-    liveRegion.setAttribute('aria-live', priority);
-    liveRegion.textContent = message;
+    setTimeout(() => {
+      liveRegion.setAttribute('aria-live', priority);
+      liveRegion.textContent = message;
+    }, 100);
   },
 
   handleArrowKeys: function(element, callback) {
@@ -116,19 +117,19 @@ module.exports = {
 
   initialize: function() {
     this.initializeAccessibility();
+  },
+
+  analyzeAccessibility: function(issuesData) {
+    return issuesData;
+  },
+
+  generateAccessibilityReport: function(issuesData) {
+    const analyzedIssues = this.analyzeAccessibility(issuesData);
+    const report = {
+      introduction: 'Accessibility report for the application',
+      data: analyzedIssues,
+      conclusions: ''
+    };
+    return report;
   }
 };
-
-function analyzeAccessibility(issuesData) {
-  return issuesData;
-}
-
-function generateAccessibilityReport(issuesData) {
-  const analyzedIssues = analyzeAccessibility(issuesData);
-  const report = {
-    introduction: 'Accessibility report for the application',
-    data: analyzedIssues,
-    conclusions: ''
-  };
-  return report;
-}

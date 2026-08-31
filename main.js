@@ -26,9 +26,23 @@ function renderIndex(data, options = {}) {
   return indexContent(data, options);
 }
 
+// Accessibility-related function to be added
+/**
+ * Checks for accessibility issues in the rendered content
+ * @param {string} content - Rendered HTML content
+ * @returns {Array} List of accessibility issues found
+ */
+function checkAccessibility(content) {
+  // Placeholder for accessibility checking logic
+  // This function should be implemented to check for accessibility issues
+  // For now, it just returns an empty array
+  return [];
+}
+
 // Preserve all existing exports
 module.exports = {
   renderDependencyGraph,
   renderIndex,
+  checkAccessibility, // Add the new export
   // Preserve any other existing exports here
 };

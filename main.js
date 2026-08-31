@@ -24,6 +24,6 @@ module.exports = {
   newFunction,
   anotherNewFunction,
   someFunction: module.exports.someFunction,
-  anotherFunction: module.exports.anotherFunction,
+  anotherFunction: module.exports.anotherFunction
   // ... any other exports that were previously in the file
 };

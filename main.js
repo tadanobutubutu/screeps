@@ -1,18 +1,6 @@
-// main.js - Application entry point
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const fastMap = require('fast-map');
 const path = require('path');
+const fs = require('fs');
+const express = require('express');
 
 // Configuration
 const CONFIG = {
@@ -111,34 +99,42 @@ function generateAccessibilityReport() {
 // Existing utility function
 const formatResponse = (data) => {
   return JSON.stringify(data, null, 2);
-};
+}
 
-// Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
+// Import required modules and export the new necessary functions here in main.js (preserving the original code)
 const { validateInput } = require('./utils/validators');
 const { processData } = require('./utils/processor');
 
 // Application main entry point
 const app = express();
 
-// TODO: add the new functions or changes requested in the issue
-// Here is the implementation for checking link accessibility
-function isLinkAccessible(link) {
-  // Implementation for checking link accessibility
-  // Placeholder code
-  return true;
-}
-
 // Endpoint for getting landmarks
 app.get('/landmarks', (req, res) => {
-  // Your code for handling the request and response logic goes here
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+  const sorted = sortLandmarks(processed);
+  res.json(sorted);
 });
+
+// Function to check link accessibility
+function isLinkAccessible(link) {
+    if (!link || typeof link.href !== 'string') return false;
+    const text = (link.textContent || '').trim();
+    if (text.length === 0) return false;
+    try {
+        new URL(link.href);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
 
 // Export new necessary functions
 module.exports = {
   validateInput,
   processData,
   formatResponse,
-  config,
+  config: CONFIG,
   // landmark functions
   isValidLandmark,
   loadLandmarks,
@@ -147,7 +143,8 @@ module.exports = {
   getLandmarkById,
   ensureUniqueLandmarks,
   landmarkConfig,
-  isLinkAccessible // Add the new function to the exports
+  isLinkAccessible,
+  generateAccessibilityReport
 };
 
 // Main execution when run directly

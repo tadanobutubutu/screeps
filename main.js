@@ -78,9 +78,13 @@ function calculateProduct(a, b) {
   return a * b;
 }
 
+function countDependencies(dependencies) {
+  return Object.keys(dependencies || {}).length;
+}
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct };
+  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct, countDependencies };
 }
 
 // If running in browser context
@@ -89,4 +93,5 @@ if (typeof window !== 'undefined') {
   window.addressAccessibilityIssues = addressAccessibilityIssues;
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;
+  window.countDependencies = countDependencies;
 }

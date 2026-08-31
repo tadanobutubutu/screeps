@@ -5,12 +5,12 @@
 // Import required modules
 const http = require('http');
 const path = require('path');
+const { getRandomInt } = require('./utils'); // Assuming there's a utils.js file containing the getRandomInt function
 
 // TODO: This is the existing code that needs to be preserved
 
 // Application configuration
 const config = {
-  port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development'
 };
 
@@ -19,6 +19,7 @@ const config = {
  * @returns {http.Server} The created server instance
  */
 function createServer() {
+  const serverPort = getRandomInt(3000, 3050);
   const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'ok', config }));
@@ -31,8 +32,8 @@ function createServer() {
  */
 function startApp() {
   const server = createServer();
-  server.listen(config.port, () => {
-    console.log(`Server running on port ${config.port}`);
+  server.listen(serverPort, () => {
+    console.log(`Server running on port ${serverPort}`);
   });
   return server;
 }
@@ -44,7 +45,7 @@ module.exports = {
   config
 };
 
-// Start the application if run directly
-if (require.main === module) {
-  startApp();
-}
+// Add the following line at the end of the file if you want to start the application if run directly
+// if (require.main === module) {
+//   startApp();
+// }

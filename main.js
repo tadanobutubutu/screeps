@@ -1,14 +1,5 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by personName() and ...)
-// - ADD: Address new accessibility issues from insight report
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
 import React from 'react';
@@ -334,4 +325,169 @@ function validateAccessibleLinks(container) {
   });
   
   return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Ensures an element has an id attribute, generating one if missing.
+ * Useful for accessibility when elements need unique identifiers for
+ * aria-labelledby, aria-describedby, or label for attributes.
+ * @param {HTMLElement} element - The element to ensure has an id
+ * @param {string} prefix - Optional prefix for generated id (default: 'elem')
+ * @returns {string|null} The element's id (existing or newly generated), or null if element is invalid
+ */
+function ensureElementHasId(element, prefix = 'elem') {
+  if (typeof document === 'undefined' || !element) {
+    return null;
+  }
+  
+  let id = element.getAttribute('id');
+  
+  if (!id) {
+    // Generate a unique id with prefix and random suffix
+    id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+    element.setAttribute('id', id);
+  }
+  
+  return id;
+}
+
+/**
+ * Adds an aria-label attribute to an element for accessibility.
+ * @param {HTMLElement} element - The element to add aria-label to
+ * @param {string} label - The label text to set
+ * @returns {boolean} True if successful, false otherwise
+ */
+function addAriaLabel(element, label) {
+  if (typeof document === 'undefined' || !element || typeof label !== 'string') {
+    return false;
+  }
+  
+  element.setAttribute('aria-label', label);
+  return true;
+}
+
+/**
+ * Renders a dependency graph visualization with accessible SVG markup.
+ * Creates a visual representation of dependencies with proper accessibility attributes.
+ * @param {HTMLElement} container - The container element to render the graph into
+ * @param {object} options - Configuration options for the graph
+ * @param {Array} options.nodes - Array of node objects with id and label properties
+ * @param {Array} options.edges - Array of edge objects with source and target properties
+ * @param {number} options.width - Width of the graph (default: 800)
+ * @param {number} options.height - Height of the graph (default: 600)
+ * @returns {boolean} True if successful, false otherwise
+ */
+function renderDependencyGraph(container, options = {}) {
+  if (typeof document === 'undefined' || !container) {
+    return false;
+  }
+  
+  const { nodes = [], edges = [], width = 800, height = 600 } = options;
+  
+  // Clear any existing content
+  container.innerHTML = '';
+  
+  // Create accessible SVG container
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', String(width));
+  svg.setAttribute('height', String(height));
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', `Dependency graph with ${nodes.length} nodes and ${edges.length} edges`);
+  
+  // Add accessible title
+  const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+  title.textContent = 'Dependency Graph';
+  svg.appendChild(title);
+  
+  // Add accessible description
+  const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+  desc.textContent = `This graph shows dependencies between ${nodes.length} components: ${nodes.map(n => n.label || n.id).join(', ')}`;
+  svg.appendChild(desc);
+  
+  // Calculate node positions in a simple grid layout
+  const nodePositions = {};
+  const nodeRadius = 20;
+  const cols = Math.ceil(Math.sqrt(nodes.length));
+  const padding = 60;
+  const spacingX = (width - 2 * padding) / Math.max(cols - 1, 1);
+  const spacingY = (height - 2 * padding) / Math.max(Math.ceil(nodes.length / cols) - 1, 1);
+  
+  nodes.forEach((node, index) => {
+    const col = index % cols;
+    const row = Math.floor(index / cols);
+    nodePositions[node.id] = {
+      x: padding + col * spacingX,
+      y: padding + row * spacingY
+    };
+  });
+  
+  // Draw edges first (so they appear behind nodes)
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  svg.appendChild(defs);
+  
+  // Arrow marker for edges
+  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  marker.setAttribute('id', 'arrowhead');
+  marker.setAttribute('markerWidth', '10');
+  marker.setAttribute('markerHeight', '7');
+  marker.setAttribute('refX', '10');
+  marker.setAttribute('refY', '3.5');
+  marker.setAttribute('orient', 'auto');
+  defs.appendChild(marker);
+  
+  const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  arrow.setAttribute('points', '0 0, 10 3.5, 0 7');
+  arrow.setAttribute('fill', '#666');
+  marker.appendChild(arrow);
+  
+  // Draw edges
+  edges.forEach((edge, index) => {
+    const sourcePos = nodePositions[edge.source];
+    const targetPos = nodePositions[edge.target];
+    
+    if (sourcePos && targetPos) {
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', String(sourcePos.x));
+      line.setAttribute('y1', String(sourcePos.y));
+      line.setAttribute('x2', String(targetPos.x));
+      line.setAttribute('y2', String(targetPos.y));
+      line.setAttribute('stroke', '#666');
+      line.setAttribute('stroke-width', '2');
+      line.setAttribute('marker-end', 'url(#arrowhead)');
+      line.setAttribute('aria-label', `Dependency from ${edge.source} to ${edge.target}`);
+      svg.appendChild(line);
+    }
+  });
+  
+  // Draw nodes
+  nodes.forEach((node, index) => {
+    const pos = nodePositions[node.id];
+    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    group.setAttribute('role', 'img');
+    group.setAttribute('aria-label', node.label || node.id);
+    
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', String(pos.x));
+    circle.setAttribute('cy', String(pos.y));
+    circle.setAttribute('r', String(nodeRadius));
+    circle.setAttribute('fill', '#4a90d9');
+    circle.setAttribute('stroke', '#2c5aa0');
+    circle.setAttribute('stroke-width', '2');
+    group.appendChild(circle);
+    
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', String(pos.x));
+    text.setAttribute('y', String(pos.y + 4));
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', '#fff');
+    text.setAttribute('font-size', '12');
+    text.setAttribute('font-family', 'Arial, sans-serif');
+    text.textContent = node.label || node.id;
+    group.appendChild(text);
+    
+    svg.appendChild(group);
+  });
+  
+  container.appendChild(svg);
+  return true;
 }

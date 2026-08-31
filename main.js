@@ -1,6 +1,6 @@
 // Dependency imports
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
+const { dependencyGraphContent } = require('./dependency-graph');
+const { indexContent } = require('./index-template');
 
 // Existing rendering functions (preserving existing exports and functions)
 
@@ -26,9 +26,38 @@ function renderIndex(data, options = {}) {
   return indexContent(data, options);
 }
 
+// New utility functions
+
+/**
+ * Formats a dependency version string for display
+ * @param {string} version - Version string
+ * @returns {string} Formatted version
+ */
+function formatVersion(version) {
+  if (!version) return 'latest';
+  return version.startsWith('v') ? version : `v${version}`;
+}
+
+/**
+ * Sanitizes a string for safe HTML rendering
+ * @param {string} str - String to sanitize
+ * @returns {string} Sanitized string
+ */
+function sanitizeHtml(str) {
+  if (!str) return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // Preserve all existing exports
 module.exports = {
   renderDependencyGraph,
   renderIndex,
+  formatVersion,
+  sanitizeHtml,
   // Preserve any other existing exports here
 };

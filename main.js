@@ -169,6 +169,7 @@ function fixAccessibilityIssues() {
 
   // 4. REACT_025: Ensure unique landmarks (addressing the 2 landmark uniqueness issues)
   ensureUniqueLandmarksFunc();
+  ensureUniqueLandmarks();
   handleFakeLinks();
 
   // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
@@ -186,9 +187,6 @@ function fixAccessibilityIssues() {
   if (typeof handleAccessibilityIssues === 'function') {
     handleAccessibilityIssues();
   }
-
-  // Call the new function to fix accessibility issues
-  fixAccessibilityIssues();
 }
 
 // Helper function to ensure unique landmarks (from origin/main, integrated above)
@@ -212,7 +210,7 @@ function wrapPrimaryContentInMain(primaryContent) {
 }
 
 // DOM-based accessibility code for controls
-function fixControlAccessibility() {
+function addAccessibilityControls() {
   // Add necessary code to address any remaining control accessibility issues
   const controls = document.querySelectorAll('button, a, input, select, textarea');
   controls.forEach(control => {
@@ -236,7 +234,7 @@ export function renderDependencyGraph() {
 // Renders the index view.
 // Updated to use indexContent.
 export function renderIndex() {
-  const container = document.getElementById('index');
+  const container = document.getElementById('indexView');
   if (container && indexContent) {
     container.innerHTML = indexContent;
     // Apply accessibility fixes to new content
@@ -321,3 +319,5 @@ function makeHeaderFocusable() {
         header.focus();
       }
     });
+  }
+}

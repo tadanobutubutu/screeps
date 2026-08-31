@@ -325,6 +325,19 @@ function addAriaLabel(element, label) {
 }
 
 /**
+ * Adds a lang attribute to an element.
+ * @param {HTMLElement} element - The element to add the lang attribute to.
+ * @param {string} lang - The language code.
+ */
+function addLangAttribute(element, lang) {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+  
+  element.setAttribute('lang', lang);
+}
+
+/**
  * Renders dependency graphs
  * @param {HTMLElement} container - The container element for the graph
  * @param {Object} options - Graph rendering options
@@ -380,6 +393,7 @@ if (typeof module !== 'undefined' && module.exports) {
     addressAccessibilityIssues,
     ensureElementHasId,
     addAriaLabel,
+    addLangAttribute,
     renderDependencyGraphs
   };
 }

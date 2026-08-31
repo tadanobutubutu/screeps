@@ -9,7 +9,7 @@ function newExportedFunction() {
  * REACT_015: Add lang attribute to HTML element
  */
 function addLangAttribute(lang) {
-    const htmlElement = document.querySelector('html');
+    const htmlElement = document.documentElement;
     if (htmlElement) {
         htmlElement.setAttribute('lang', lang);
     }
@@ -20,22 +20,22 @@ function addLangAttribute(lang) {
  */
 function addLandmarkRoles() {
     const header = document.querySelector('header');
-    if (header && !header.hasAttribute('role')) {
+    if (header && !header.getAttribute('role')) {
         header.setAttribute('role', 'banner');
     }
 
     const nav = document.querySelector('nav');
-    if (nav && !nav.hasAttribute('role')) {
+    if (nav && !nav.getAttribute('role')) {
         nav.setAttribute('role', 'navigation');
     }
 
     const main = document.querySelector('main');
-    if (main && !main.hasAttribute('role')) {
+    if (main && !main.getAttribute('role')) {
         main.setAttribute('role', 'main');
     }
 
     const footer = document.querySelector('footer');
-    if (footer && !footer.hasAttribute('role')) {
+    if (footer && !footer.getAttribute('role')) {
         footer.setAttribute('role', 'contentinfo');
     }
 }
@@ -45,7 +45,7 @@ function addLandmarkRoles() {
  * Ensures each landmark has a unique label via aria-label or aria-labelledby
  */
 function ensureUniqueLandmarks() {
-    const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+    const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
     const labelCounts = {};
 
     landmarks.forEach((landmark) => {
@@ -53,8 +53,8 @@ function ensureUniqueLandmarks() {
         labelCounts[tag] = (labelCounts[tag] || 0) + 1;
 
         if (labelCounts[tag] > 1) {
-            if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-                landmark.setAttribute('aria-label', tag.charAt(0).toUpperCase() + tag.slice(1) + ' ' + labelCounts[tag]);
+            if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+                landmark.setAttribute('aria-label', landmark.tagName.charAt(0).toUpperCase() + landmark.tagName.slice(1).toLowerCase() + ' ' + labelCounts[tag]);
             }
         }
     });
@@ -66,8 +66,8 @@ function ensureUniqueLandmarks() {
 function addAccessibleNamesToSVGs() {
     const svgs = document.querySelectorAll('svg');
     svgs.forEach((svg, index) => {
-        if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby') && !svg.hasAttribute('title')) {
-            const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        if (!svg.getAttribute('role') || svg.getAttribute('role') !== 'img') {
+            const title = document.createElement('title');
             title.textContent = 'Graphic ' + (index + 1);
             svg.insertBefore(title, svg.firstChild);
             svg.setAttribute('role', 'img');
@@ -80,7 +80,7 @@ function addAccessibleNamesToSVGs() {
  * Replaces <div> or <span> elements with click handlers that act as links with proper anchor tags
  */
 function fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[onclick], [data-href]');
+    const fakeLinks = document.querySelectorAll('[data-href]');
     fakeLinks.forEach((element) => {
         if (element.tagName.toLowerCase() !== 'a' && element.tagName.toLowerCase() !== 'button') {
             const href = element.getAttribute('data-href') || '#';
@@ -101,7 +101,7 @@ function addScopeToTableHeaders() {
     const thElements = document.querySelectorAll('th');
     thElements.forEach((th) => {
         if (!th.hasAttribute('scope')) {
-            const isInHead = th.closest('thead') || th.parentNode.parentNode.tagName.toLowerCase() === 'thead';
+            const isInHead = th.closest('thead') || th.parentElement.tagName.toLowerCase() === 'thead';
             th.setAttribute('scope', isInHead ? 'col' : 'row');
         }
     });
@@ -121,7 +121,7 @@ function ensureElementHasId(element) {
     return element.id;
   }
   
-  const id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const id = 'element-' + Math.random().toString(36).substr(2, 9);
   element.id = id;
   return id;
 }
@@ -158,6 +158,8 @@ function renderDependencyGraph(data, container) {
   
   const graphContainer = container || document.createElement('div');
   graphContainer.className = 'dependency-graph';
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
   
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('width', '100%');
@@ -203,10 +205,40 @@ function renderDependencyGraph(data, container) {
   }
   
   graphContainer.appendChild(svg);
-  ensureElementHasId(graphContainer);
-  addAriaLabel(graphContainer, 'Dependency graph visualization');
+  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
   
   return graphContainer;
+}
+
+/**
+ * REACT_042: Ensure dependencyGraph container has proper ARIA role
+ */
+function ensureDependencyGraphAriaRole() {
+    const containers = document.querySelectorAll('.dependency-graph');
+    containers.forEach(container => {
+        if (!container.getAttribute('role')) {
+            container.setAttribute('role', 'img');
+        }
+        if (!container.getAttribute('aria-label')) {
+            container.setAttribute('aria-label', 'Dependency graph visualization');
+        }
+    });
+}
+
+/**
+ * REACT_040: Replace my-button with actual button id for accessibility
+ */
+function fixButtonIdentifiers() {
+    const buttons = document.querySelectorAll('[class*="my-button"], [id*="my-button"]');
+    buttons.forEach((button, index) => {
+        const actualId = button.id || `accessible-button-${index + 1}`;
+        if (!button.id) {
+            button.id = actualId;
+        }
+        if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+            button.setAttribute('aria-label', `Button ${index + 1}`);
+        }
+    });
 }
 
 /**
@@ -219,6 +251,8 @@ function applyAccessibilityFixes() {
   addAccessibleNamesToSVGs();
   fixFakeLinks();
   addScopeToTableHeaders();
+  ensureDependencyGraphAriaRole();
+  fixButtonIdentifiers();
 }
 
 /**
@@ -240,5 +274,7 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraph,
   myFunction,
-  newExportedFunction
+  newExportedFunction,
+  ensureDependencyGraphAriaRole,
+  fixButtonIdentifiers
 };

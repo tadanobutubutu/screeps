@@ -55,11 +55,17 @@ function trapFocus(container) {
 
 // Function to ensure landmarks have unique identifiers
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="region"]');
+  // Query all landmark roles to ensure unique IDs across all landmark types
+  const landmarkRoles = [
+    'banner', 'main', 'navigation', 'search', 
+    'contentinfo', 'complementary', 'region', 'form'
+  ];
+  
+  const landmarks = document.querySelectorAll(landmarkRoles.join(', '));
   
   // Set to track used ID suffixes for quick lookup
   const usedSuffixes = new Set();
-  const landmarkIds = [];
+  const landmarkIds = [];;
 
   // Collect existing ID suffixes from landmarks that have IDs
   landmarks.forEach(landmark => {

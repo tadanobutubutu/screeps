@@ -6,4 +6,17 @@ function newFunction() {
   // Function body
 }
 
-// Don't forget to test your new additions in the test file
+// Another new function
+function anotherNewFunction() {
+  // Another function body
+}
+
+// Existing code preserved below
+
+// Existing function from main.js
+function existingFunction() {
+  // Existing function body
+}
+
+// Existing export preserved
+export { existingFunction, newFunction, anotherNewFunction };

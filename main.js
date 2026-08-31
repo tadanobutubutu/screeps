@@ -35,8 +35,6 @@ function getVersion() {
   return VERSION;
 }
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
   const rootContainer = document.getElementById('root');
@@ -61,7 +59,6 @@ function addressAccessibilityIssues() {
   }
 }
 
-// Validate that tables in the document are accessible
 function validateTableAccessibility() {
   const tables = document.querySelectorAll('table');
   const results = [];
@@ -85,7 +82,6 @@ function validateTableAccessibility() {
   return results;
 }
 
-// Validate the structure of tables in the document
 function validateTableStructure() {
   const tables = document.querySelectorAll('table');
   const results = [];
@@ -119,7 +115,6 @@ function validateTableStructure() {
   return results;
 }
 
-// Generate accessibility report
 function generateAccessibilityReport() {
   const timestamp = new Date().toISOString();
   const tableAccessibilityResults = validateTableAccessibility();
@@ -162,7 +157,6 @@ function generateAccessibilityReport() {
   };
 }
 
-// Export the new function
 export {
   VERSION,
   CONFIG,
@@ -176,7 +170,6 @@ export {
   generateAccessibilityReport
 };
 
-// Add the new function to the default export
 export default {
   VERSION,
   CONFIG,

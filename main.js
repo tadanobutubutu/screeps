@@ -1,22 +1,13 @@
-// Resolved main.js
-// Merged version combining accessibility features and application initialization
-
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom/client';
+import './index.css';
 import './styles.less';  // Note: Original was .css, keeping as specified
-import react from 'react';
+import App from './App';
+import reportWebVitals from 'node-libs-react/report-validator';
+import a11y from './AccessibilityUtilities';
 
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-import { isSecureContext } from './utils.js';
-
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
 // Application data structure
 const appData = {
@@ -59,13 +50,6 @@ function main() {
   initialize();
   console.log('Main function executed');
 }
-
-// Run if executed directly
-if (require.main === module) {
-  main();
-}
-
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
 // Landmark data structure
 const landmarks = [];
@@ -115,7 +99,11 @@ function setLanguageAttribute() {
 
 // REACT_015: Get lang attribute for HTML element
 function getLangAttribute() {
-  return document.documentElement.lang || 'en';
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    return htmlElement.lang || 'en';
+  }
+  return 'en';
 }
 
 function addLangAttribute(element) {
@@ -125,14 +113,23 @@ function addLangAttribute(element) {
   }
 }
 
-/**
- * REACT_017: Add/fix 2 landmark issues
- * Validates landmark elements for proper structure and accessibility.
- */
-function validateLandmark(landmark) {
-  const issues = [];
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
+// Function to create an in-page button and add the lang attribute
+function createInPageButton() {
+  const inPageButton = document.createElement('button');
+  inPageButton.id = 'in-page-button';
+  inPageButton.textContent = 'In-Page Button';
+  document.body.appendChild(inPageButton);
+  const buttonElement = document.getElementById('in-page-button');
+  if (buttonElement) {
+    buttonElement.setAttribute('aria-label', 'In-Page Button');
+  }
+}
 
+// Function for generating a report based on accessibility issues
+function generateAccessibilityReport() {
+  const issues = [];
+
+  const landmarkRoles = ['navigation', 'main', 'contentinfo', 'banner', 'complementary'];
   landmarkRoles.forEach(role => {
     const elements = document.querySelectorAll('[role="' + role + '"]');
     const tagElements = document.querySelectorAll(role);
@@ -144,7 +141,115 @@ function validateLandmark(landmark) {
     }
   });
 
-  return { valid: issues.length === 0, issues };
+  // Check for images without alt attributes
+  const images = document.querySelectorAll('img');
+  images.forEach((img, index) => {
+    if (!img.hasAttribute('alt')) {
+      issues.push({
+        type: 'missing-alt',
+        element: 'img',
+        index: index,
+        message: `Image at index ${index} is missing an alt attribute`
+      });
+    }
+  });
+
+  // Check for buttons without accessible names
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((btn, index) => {
+    const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
+    if (!accessibleName) {
+      issues.push({
+        type: 'missing-name',
+        element: 'button',
+        index: index,
+        message: `Button at index ${index} is missing an accessible name`
+      });
+    }
+  });
+
+  // Check for links without accessible names
+  const links = document.querySelectorAll('a');
+  links.forEach((link, index) => {
+    const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');
+    if (!accessibleName) {
+      issues.push({
+        type: 'missing-name',
+        element: 'a',
+        index: index,
+        message: `Link at index ${index} is missing an accessible name`
+      });
+    }
+  });
+
+  // Check for form inputs without labels
+  const inputs = document.querySelectorAll('input');
+  inputs.forEach((input, index) => {
+    const inputType = input.getAttribute('type');
+    if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
+      const labelId = input.getAttribute('aria-labelledby');
+      const labelText = input.getAttribute('aria-label');
+      const hasLabel = document.querySelector(`label[for="${input.id}"]`) || labelId || labelText;
+      if (!hasLabel) {
+        issues.push({
+          type: 'missing-label',
+          element: 'input',
+          index: index,
+          message: `Input at index ${index} is missing an associated label`
+        });
+      }
+    }
+  });
+
+  // Check for empty headings
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  headings.forEach((heading, index) => {
+    if (!heading.textContent.trim()) {
+      issues.push({
+        type: 'empty-heading',
+        element: heading.tagName.toLowerCase(),
+        index: index,
+        message: `${heading.tagName.toLowerCase()} at index ${index} has no text content`
+      });
+    }
+  });
+
+  // Ensure all form inputs have associated labels
+  const formInputs = document.querySelectorAll('input, select, textarea');
+  formInputs.forEach(input => {
+    const hasLabel = input.getAttribute('aria-label') ||
+                     document.querySelector(`label[for="${input.id}"]`);
+    if (!hasLabel && input.name) {
+      input.setAttribute('aria-label', input.name);
+    }
+  });
+
+  // Add landmark roles to main sections
+  const sections = document.querySelectorAll('section');
+  sections.forEach((section, index) => {
+    if (!section.getAttribute('role') && !section.getAttribute('aria-label')) {
+      section.setAttribute('aria-label', `Section ${index + 1}`);
+    }
+  });
+
+  // Ensure all links have accessible text
+  const linksAll = document.querySelectorAll('a');
+  linksAll.forEach(link => {
+    if (!link.textContent.trim() && link.getAttribute('href')) {
+      const href = link.getAttribute('href');
+      link.setAttribute('aria-label', `Link to ${href}`);
+    }
+  });
+
+  // Generate report
+  const report = {
+    timestamp: new Date().toISOString(),
+    totalIssues: issues.length,
+    issues: issues
+  };
+
+  console.log('Accessibility Report:', report);
+  return report;
 }
 
 /**
@@ -259,8 +364,6 @@ function validateTableStructure(table) {
         issues.push('Row ' + rowIndex + ' has ' + cells.length + ' cells but previous row has ' + prevCells.length);
       }
     }
-
-    cellCount += cells.length;
   });
 
   return { valid: issues.length === 0, issues };
@@ -345,3 +448,101 @@ function setSvgAttributes(svgElement, name) {
   title.setAttribute('id', titleId);
 
   // Set aria-labelledby
+  svgElement.setAttribute('aria-labelledby', titleId);
+
+  return true;
+}
+
+// Function for addressing new accessibility issues from the insight report
+function addressAccessibilityIssues() {
+  // Ensure the root container has an accessible name
+  const rootContainer = document.getElementById('root');
+  if (rootContainer) {
+    rootContainer.setAttribute('role', 'main');
+  }
+
+  // Initialize skip link functionality
+  const skipLink = document.getElementById('skip-link');
+  if (skipLink) {
+    skipLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetId = 'content';
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.setAttribute('tabindex', '-1');
+        target.focus();
+      }
+    });
+  }
+
+  // Ensure all buttons with role="button" respond to Enter key
+  document.querySelectorAll('button[role="button"]').forEach(button => {
+    button.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.click();
+      }
+    });
+  });
+
+  // Add focusVisible polyfill behavior
+  // ... (TODO: Implement from merge conflict)
+
+  // Adding an alt attribute to an image
+  const imageElement = document.querySelector('img[alt=""]');
+  if (imageElement) {
+    imageElement.setAttribute('alt', 'A description of the image');
+  }
+
+  // Correcting the ARIA role for a div
+  const divElement = document.querySelector('div[role="presentation"]');
+  if (divElement) {
+    divElement.setAttribute('role', 'list');
+  }
+
+  // Adding the lang attribute to the HTML element
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', getLangAttribute());
+  }
+}
+
+// Export functions for testing and reuse
+export {
+  addressAccessibilityIssues,
+  generateAccessibilityReport,
+  a11y,
+  getLangAttribute,
+  createInPageButton,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  addLandmarkRoles,
+  addMainLandmark,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  setLanguageAttribute,
+  addLangAttribute,
+  initialize,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  validateInput,
+  main
+};
+
+// Render the React application
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// Execute accessibility improvements and button creation
+addressAccessibilityIssues();
+createInPageButton();

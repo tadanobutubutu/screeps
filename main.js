@@ -1,19 +1,66 @@
-// TODO: Add back any required exports that might have been removed
-
-// Main application entry point
-
-const express = require('express');
-const path = require('path');
+import './styles.less';
 import './styles.css';
+import fs from 'fs';
+import path from 'path';
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { CONFIG as UTILS_CONFIG } from './utils/constants';
+import express from 'express';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
 
-const app = express();
+// Utility imports
+import { calculateSum } from './utils';
+import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 
-// Basic configuration
+// Main configuration
+const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
+
+// Core configuration
+const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
+let appState = { initialized: false, cache: new Map(), data: {} };
+
+const CONFIG = {
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
+// Initialize application and sets state and config
+function initialize() {
+  config.apiUrl = process.env.API_URL || 'http://localhost:3000';
+  appState = { initialized: true, cache: new Map(), data: {} };
+}
+
+function initializeApp() {
+  initialize();
+}
+
+function processData(data) {
+  if (!data) return null;
+  return { ...data, processed: true, processedAt: Date.now() };
+}
+
+function fetchUser(userId) {
+  return { id: userId, name: 'User' };
+}
+
+function clearCache() {
+  appState.cache.clear();
+}
 
 // Middleware setup
 app.use(express.json());
@@ -256,6 +303,55 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
+// Landmark data structure
+const landmarks = [];
+
+/**
+ * Function to check if the specified landmark element is in the document.
+ * @param {string} id - The ID of the landmark element.
+ * @returns {boolean} Returns true if the element exists; otherwise, false.
+ */
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  return element !== null;
+}
+
+// Testing the checkLandmarkElement function:
+// To test this function, we could create a test file with the following content:
+const landmarkStructureCheck = (landmark) => {
+  if (!landmark.name || !landmark.coordinates) {
+    return false;
+  }
+  return true;
+};
+
+/**
+ * REACT_015: Add lang attribute to HTML element
+ * Sets the language attribute on the HTML element.
+ */
+function setLanguageAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+  return htmlElement ? htmlElement.getAttribute('lang') : null;
+}
+
+// Main function (required export)
+function main() {
+  initialize();
+  initializeApp();
+  mainExecution();
+  console.log('Main function executed');
+  return { executed: true };
+}
+
+// Main execution function
+function mainExecution() {
+  console.log('Starting main execution');
+  // Placeholder for main execution logic
+}
+
 // Start server
 if (require.main === module) {
   app.listen(PORT, () => {
@@ -298,81 +394,8 @@ module.exports = {
   validateLinkAccessibility: validateLinkAccessibility,
   handleFakeLinks: handleFakeLinks,
   harvest: harvest,
-  upgrade: upgrade
+  upgrade: upgrade,
+  checkLandmarkElement: checkLandmarkElement,
+  landmarkStructureCheck: landmarkStructureCheck,
+  setLanguageAttribute: setLanguageAttribute
 };
-
-// Application data structure
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
-};
-
-// Configuration and state
-let config = {};
-let appState = { initialized: false, cache: new Map(), data: {} };
-
-// Initialize function
-function initialize() {
-  config = { apiUrl: process.env.API_URL || 'http://localhost:3000', timeout: 5000 };
-  appState = { initialized: true, cache: new Map(), data: {} };
-}
-
-function initializeApp() {
-  initialize();
-}
-
-function fetchUser(userId) {
-  return { id: userId, name: 'User' };
-}
-
-function clearCache() {
-  appState = { initialized: false, cache: new Map(), data: {} };
-}
-
-function processData(data) {
-  if (!data) return null;
-  return { ...data, processed: true, processedAt: Date.now() };
-}
-
-// Main function (required export)
-function main() {
-  initialize();
-  initializeApp();
-  mainExecution();
-  console.log('Main function executed');
-  return { executed: true };
-}
-
-// Landmark data structure
-const landmarks = [];
-
-/**
- * Function to check if the specified landmark element is in the document.
- * @param {string} id - The ID of the landmark element.
- * @returns {boolean} Returns true if the element exists; otherwise, false.
- */
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  return element !== null;
-}
-
-// Testing the checkLandmarkElement function:
-// To test this function, we could create a test file with the following content:
-const landmarkStructureCheck = (landmark) => {
-  if (!landmark.name || !landmark.coordinates) {
-    return false;
-  }
-  return true;
-};
-
-/**
- * REACT_015: Add lang attribute to HTML element
- * Sets the language attribute on the HTML element.
- */
-function setLanguageAttribute() {
-  const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
-  }
-  return htmlElement ? htmlElement.getAttribute('lang') : null;
-}

@@ -182,6 +182,14 @@ function ensureUniqueLandmarksFromString(source) {
   return result;
 }
 
+// TODO: Implement this function for creating in-page buttons
+function createInPageButton(buttonId, buttonText) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  return button;
+}
+
 function validateLandmark(element) {
   if (!element) {
     return { valid: false, error: 'Element is required' };
@@ -312,5 +320,6 @@ module.exports = {
   generateAccessibilityReport,
   calculateAccessibilityScore,
   ensureUniqueLandmarksFromString,
-  validateLandmark
+  validateLandmark,
+  createInPageButton
 };

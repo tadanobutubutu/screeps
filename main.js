@@ -74,8 +74,45 @@ const accessibilityUtils = {
   },
 
   // New focus trap function for keyboard navigation
-  newFocusTrap: () => {
-    // New function implementation
+  newFocusTrap: (element) => {
+    if (!element) {
+      return () => {};
+    }
+
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    
+    if (focusableElements.length === 0) {
+      return () => {};
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+      
+      if (e.key === 'Escape') {
+        element.dispatchEvent(new CustomEvent('focusTrapEscape'));
+      }
+    };
+
+    element.addEventListener('keydown', handleKeyDown);
+    firstElement.focus();
+
+    // Return cleanup function
+    return () => {
+      element.removeEventListener('keydown', handleKeyDown);
+    };
   }
 };
 
@@ -311,6 +348,261 @@ function transformInputData(inputData, options = {}) {
   return processValue(inputData);
 }
 
+// New accessibility functions for insight report issues
+
+/**
+ * Get lang attribute for HTML element - REACT_015
+ * @param {string} locale - The locale code (e.g., 'en', 'es', 'fr')
+ * @returns {string} The lang attribute value
+ */
+function getLangAttribute(locale = 'en') {
+  if (!locale) return 'en';
+  return locale.split('-')[0].toLowerCase();
+}
+
+/**
+ * Format person name for accessibility - REACT_015, REACT_036
+ * @param {Object} person - Person object with firstName, lastName, middleName
+ * @returns {string} Formatted full name
+ */
+function personName(person) {
+  if (!person) return '';
+  const parts = [];
+  if (person.firstName) parts.push(person.firstName);
+  if (person.middleName) parts.push(person.middleName);
+  if (person.lastName) parts.push(person.lastName);
+  return parts.join(' ').trim();
+}
+
+/**
+ * Validate table structure - REACT_027
+ * @param {HTMLTableElement} tableElement - The table element to validate
+ * @returns {Array<string>} Array of validation issues
+ */
+function validateTableStructure(tableElement) {
+  const issues = [];
+
+  if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
+    issues.push('Element is not a TABLE element');
+    return issues;
+  }
+
+  // Check for proper table structure with thead, tbody, tfoot
+  const thead = tableElement.querySelector('thead');
+  const tbody = tableElement.querySelector('tbody');
+  const tfoot = tableElement.querySelector('tfoot');
+
+  if (!thead) {
+    issues.push('TABLE is missing a THEAD section');
+  }
+
+  if (!tbody && !tableElement.querySelector('tr')) {
+    issues.push('TABLE has no data rows (TBODY or direct TR children)');
+  }
+
+  // Check for scope attributes on header cells
+  const headers = tableElement.querySelectorAll('th');
+  headers.forEach((th, index) => {
+    if (!th.hasAttribute('scope')) {
+      issues.push(`TH at index ${index} is missing scope attribute (should be 'col', 'row', 'colgroup', or 'rowgroup')`);
+    }
+  });
+
+  // Check for header IDs and data cell headers attributes (complex tables)
+  const hasHeadersAttr = tableElement.querySelector('td[headers]');
+  if (hasHeadersAttr) {
+    const headerIds = new Set();
+    tableElement.querySelectorAll('th[id]').forEach(th => headerIds.add(th.id));
+    
+    tableElement.querySelectorAll('td[headers]').forEach(td => {
+      const headersList = td.getAttribute('headers').split(/\s+/);
+      headersList.forEach(id => {
+        if (!headerIds.has(id)) {
+          issues.push(`TD references non-existent header ID: ${id}`);
+        }
+      });
+    });
+  }
+
+  return issues;
+}
+
+/**
+ * Validate landmark structure - REACT_017
+ * @param {HTMLElement} element - The element to validate as a landmark
+ * @returns {Array<string>} Array of validation issues
+ */
+function validateLandmark(element) {
+  const issues = [];
+  
+  if (!element) {
+    issues.push('Element is required');
+    return issues;
+  }
+
+  const landmarkRoles = [
+    'banner', 'complementary', 'contentinfo', 'form', 
+    'main', 'navigation', 'region', 'search'
+  ];
+
+  const role = element.getAttribute('role');
+  const tagName = element.tagName.toLowerCase();
+  
+  // Check if element is a landmark
+  const isLandmark = landmarkRoles.includes(role) || 
+    (tagName === 'main') || 
+    (tagName === 'nav') || 
+    (tagName === 'aside') || 
+    (tagName === 'header') || 
+    (tagName === 'footer') || 
+    (tagName === 'form') || 
+    (tagName === 'section' && element.hasAttribute('aria-label')) ||
+    (tagName === 'section' && element.hasAttribute('aria-labelledby'));
+
+  if (!isLandmark) {
+    issues.push('Element is not a recognized landmark');
+  }
+
+  // Check for accessible name on region landmarks
+  if (role === 'region' || tagName === 'section') {
+    if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      issues.push('Region/section landmark must have an accessible name (aria-label or aria-labelledby)');
+    }
+  }
+
+  // Check for duplicate landmarks of certain types
+  const uniqueLandmarks = ['main', 'banner', 'contentinfo'];
+  if (uniqueLandmarks.includes(role) || uniqueLandmarks.includes(tagName)) {
+    const existing = document.querySelectorAll(`[role="${role}"], ${tagName}`);
+    if (existing.length > 1) {
+      issues.push(`Multiple ${role || tagName} landmarks found - should be unique`);
+    }
+  }
+
+  return issues;
+}
+
+/**
+ * Validate landmark structure across document - REACT_017
+ * @returns {Array<string>} Array of validation issues
+ */
+function validateLandmarkStructure() {
+  const issues = [];
+  
+  // Check for main landmark
+  const mainLandmarks = document.querySelectorAll('main, [role="main"]');
+  if (mainLandmarks.length === 0) {
+    issues.push('Document is missing a main landmark');
+  } else if (mainLandmarks.length > 1) {
+    issues.push('Document has multiple main landmarks');
+  }
+
+  // Check for banner landmark
+  const bannerLandmarks = document.querySelectorAll('header[role="banner"], [role="banner"]');
+  if (bannerLandmarks.length > 1) {
+    issues.push('Document has multiple banner landmarks');
+  }
+
+  // Check for contentinfo landmark
+  const contentinfoLandmarks = document.querySelectorAll('footer[role="contentinfo"], [role="contentinfo"]');
+  if (contentinfoLandmarks.length > 1) {
+    issues.push('Document has multiple contentinfo landmarks');
+  }
+
+  // Check all region landmarks have accessible names
+  const regions = document.querySelectorAll('[role="region"], section');
+  regions.forEach((region, index) => {
+    if (!region.hasAttribute('aria-label') && !region.hasAttribute('aria-labelledby')) {
+      issues.push(`Region landmark at index ${index} is missing accessible name`);
+    }
+  });
+
+  // Check navigation landmarks
+  const navLandmarks = document.querySelectorAll('nav, [role="navigation"]');
+  navLandmarks.forEach((nav, index) => {
+    if (navLandmarks.length > 1 && !nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+      issues.push(`Navigation landmark at index ${index} should have accessible name when multiple exist`);
+    }
+  });
+
+  return issues;
+}
+
+/**
+ * Get accessible name for SVG elements - REACT_041
+ * @param {SVGElement} svgElement - The SVG element
+ * @returns {string} The accessible name
+ */
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return '';
+
+  // Check for aria-label
+  if (svgElement.hasAttribute('aria-label')) {
+    return svgElement.getAttribute('aria-label');
+  }
+
+  // Check for aria-labelledby
+  if (svgElement.hasAttribute('aria-labelledby')) {
+    const id = svgElement.getAttribute('aria-labelledby');
+    const labelElement = document.getElementById(id);
+    if (labelElement) {
+      return labelElement.textContent.trim();
+    }
+  }
+
+  // Check for <title> child
+  const title = svgElement.querySelector('title');
+  if (title && title.textContent.trim()) {
+    return title.textContent.trim();
+  }
+
+  // Check for <desc> child
+  const desc = svgElement.querySelector('desc');
+  if (desc && desc.textContent.trim()) {
+    return desc.textContent.trim();
+  }
+
+  return '';
+}
+
+/**
+ * Create an accessible in-page button (not a fake link) - REACT_036
+ * @param {Object} options - Button options
+ * @param {string} options.text - Button text
+ * @param {Function} options.onClick - Click handler
+ * @param {string} [options.ariaLabel] - Accessible label
+ * @param {string} [options.className] - CSS class
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(options) {
+  const { text, onClick, ariaLabel, className = '' } = options;
+  
+  if (!text || typeof onClick !== 'function') {
+    throw new Error('Button text and onClick handler are required');
+  }
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = text;
+  button.className = className;
+  
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+  
+  button.addEventListener('click', onClick);
+  
+  // Add keyboard support
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick(e);
+    }
+  });
+  
+  return button;
+}
+
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
@@ -402,9 +694,16 @@ module.exports = {
   readFileSafe,
   processData,
   filterValidItems,
-  initAccessibility,
   groupByCategory,
   transformInputData,
   validateTableAccessibility,
-  ensureElementHasId
+  ensureElementHasId,
+  // New accessibility functions
+  getLangAttribute,
+  personName,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton
 };

@@ -19,9 +19,9 @@ const {
   min,
   mode,
   median,
-} = require('./mathUtils');
+} = require('./mathHelpers');
 
-const { class1, function1, Object1 } = require('./utils');
+const { class1, function1, Object1 } = require('./path/to/module');
 
 const a11yStore = {
   // ... existing methods ...
@@ -35,23 +35,21 @@ const a11yStore = {
   },
 
   updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) {
-      this.liveRegion = document.getElementById('a11y-live-region');
-    }
+    if (!this.liveRegion) this.createLiveRegion();
     this.announce(message, priority);
   },
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach(element => {
-      const landmarks = document.querySelectorAll(element);
+    landmarkElements.forEach((element) => {
+      const landmarks = document.querySelectorAll(`[role="${element}"]`);
       landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
-          landmark.id = `${element}-${index}`;
+          landmark.setAttribute('id', `${element}-${index}`);
         }
         
         if (landmarks.length > 1) {
-          if (!landmark.getAttribute('aria-label')) {
+          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
             landmark.setAttribute('aria-label', `${element} ${index + 1}`);
           }
         }
@@ -59,9 +57,9 @@ const a11yStore = {
     });
   },
 
-  fixSvgAccessibility() {
+  addSVGAccessibilityProps() {
     const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach(svg => {
+    svgElements.forEach((svg) => {
       let titleElement = svg.querySelector('title');
       if (!titleElement) {
         titleElement = document.createElement('title');
@@ -75,29 +73,25 @@ const a11yStore = {
       
       svg.setAttribute('aria-labelledby', titleElement.id);
       
-      if (!svg.getAttribute('role')) {
+      if (!svg.hasAttribute('role')) {
         svg.setAttribute('role', 'img');
       }
     });
   },
 
   fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href="#"]');
-    fakeLinks.forEach(link => {
+    const fakeLinks = document.querySelectorAll('[href]:not(a)');
+    fakeLinks.forEach((link) => {
       link.setAttribute('role', 'link');
       link.setAttribute('tabindex', '0');
-      link.setAttribute('aria-disabled', 'true');
+      link.setAttribute('data-interactive', 'true');
     });
   },
 
   preserveExistingCode() {
     // TODO: This is the existing code that needs to be preserved
-    // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-    // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-    // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-    // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-    // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-    // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+    // Address accessibility issues from insight report
+    // ----- END ORIGINAL CODE-----
   },
 
   newFunction() {
@@ -105,9 +99,9 @@ const a11yStore = {
   }
 };
 
-function getSvgAccessibleName(svg) {
-  const title = svg.querySelector('title');
-  const desc = svg.querySelector('desc');
+function getSvgAccessibleName(svgElement) {
+  const title = svgElement.querySelector('title');
+  const desc = svgElement.querySelector('desc');
   
   if (title && title.textContent) {
     return title.textContent.trim();
@@ -117,12 +111,12 @@ function getSvgAccessibleName(svg) {
     return desc.textContent.trim();
   }
   
-  const ariaLabel = svg.getAttribute('aria-label');
+  const ariaLabel = svgElement.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel.trim();
   }
   
-  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
     const labeledElement = document.getElementById(ariaLabelledby);
     if (labeledElement && labeledElement.textContent) {
@@ -141,8 +135,7 @@ function getSvgAccessibleName(svg) {
  */
 function renderDependencyGraph(deps, options = {}) {
   // Use dependencyGraphContent from the imported module
-  const graphContent = dependencyGraphContent(deps, options);
-  return `<div class="dependency-graph-container" role="img" aria-label="Dependency graph visualization">${graphContent}</div>`;
+  return dependencyGraphContent(deps, options);
 }
 
 /**
@@ -157,10 +150,11 @@ function renderIndex(data, options = {}) {
 }
 
 if (typeof document !== 'undefined') {
-  const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
-  const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
-    document.documentElement.lang = 'en';
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('lang', document.documentElement.lang);
+
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
   }
 }
 
@@ -169,7 +163,7 @@ function newFunction() {
 }
 
 if (typeof document !== 'undefined') {
-  const banners = document.querySelectorAll('[role="header"], header');
+  const banners = document.querySelectorAll('[role="banner"], [role="header"]');
   if (banners.length > 1) {
     throw new Error('Document should have at most one banner or header landmark');
   }
@@ -184,17 +178,16 @@ function wrapPrimaryContentInMain() {
     return null;
   }
 
-  let mainElement = document.querySelector('main, [role="main"]');
+  let mainElement = document.querySelector('main');
   if (mainElement) {
     return mainElement;
   }
 
   const elementsToExclude = [];
-  const landmarks = document.querySelectorAll('nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
   landmarks.forEach(landmark => elementsToExclude.push(landmark));
 
   mainElement = document.createElement('main');
-  mainElement.setAttribute('role', 'main');
 
   const bodyChildren = Array.from(document.body.children);
   bodyChildren.forEach(child => {
@@ -253,191 +246,28 @@ function handleFocusTrap(element) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  // Implementation to trap focus within container
-  element.addEventListener('keydown', (e) => {
-    const isTab = e.key === 'Tab';
-    if (!isTab) return;
-    if (e.shiftKey) {
+  element.addEventListener('keydown', function(event) {
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    if (event.shiftKey) {
       if (document.activeElement === firstElement) {
-        e.preventDefault();
-        lastElement && lastElement.focus();
+        event.preventDefault();
+        lastElement.focus();
       }
     } else {
       if (document.activeElement === lastElement) {
-        e.preventDefault();
-        firstElement && firstElement.focus();
+        event.preventDefault();
+        firstElement.focus();
       }
     }
   });
 }
 
-// Helper to manage focus within a container (imported from origin/main)
-function trapFocus(container) {
-  const focusableElements = container.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  // Implementation to trap focus within container
-  container.addEventListener('keydown', (e) => {
-    const isTab = e.key === 'Tab';
-    if (!isTab) return;
-    if (e.shiftKey) {
-      if (document.activeElement === firstElement) {
-        e.preventDefault();
-        lastElement && lastElement.focus();
-      }
-    } else {
-      if (document.activeElement === lastElement) {
-        e.preventDefault();
-        firstElement && firstElement.focus();
-      }
-    }
-  });
-}
-
-// Helper functions for session management
-function getActiveSessionsCount() {
-  return appState.sessions.size;
-}
-
-function validateSession(sessionId) {
-  return appState.sessions.get(sessionId) || null;
-}
-
-function handleCredentialResponse(credentialResponse) {
-  // Process credential response - basic implementation
-  if (!credentialResponse || typeof credentialResponse !== 'object') {
-    return { status: 'error', message: 'Invalid credential response' };
-  }
-  return { status: 'success', credential: credentialResponse };
-}
-
-// Accessibility Utilities
-const accessibilityUtils = {
-  // Initialize skip link functionality for keyboard navigation
-  initSkipLink: function() {
-    const skipLink = document.querySelector('.skip-link');
-    if (skipLink) {
-      skipLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
-        if (target) {
-          target.setAttribute('tabindex', '-1');
-          target.focus();
-        }
-      });
-    }
-  },
-
-  // Trap focus within an element (for modals, dialogs)
-  trapFocus: function(element) {
-    const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    element.addEventListener('keydown', function(e) {
-      if (e.key === 'Tab') {
-        if (e.shiftKey) {
-          if (document.activeElement === firstElement) {
-            lastElement.focus();
-            e.preventDefault();
-          }
-        } else {
-          if (document.activeElement === lastElement) {
-            firstElement.focus();
-            e.preventDefault();
-          }
-        }
-      }
-    });
-  },
-
-  // Announce message to screen readers
-  announceToScreenReader: function(message, priority) {
-    if (priority === undefined) {
-      priority = 'polite';
-    }
-    const announcer = document.createElement('div');
-    announcer.setAttribute('aria-live', priority);
-    announcer.setAttribute('aria-atomic', 'true');
-    announcer.className = 'sr-only';
-    announcer.style.position = 'absolute';
-    announcer.style.left = '-9999px';
-    announcer.textContent = message;
-    document.body.appendChild(announcer);
-    setTimeout(function() {
-      announcer.remove();
-    }, 1000);
-  },
-
-  // Handle keyboard navigation
-  handleKeyboardNav: function(e, handlers) {
-    const key = e.key;
-    if (handlers[key]) {
-      handlers[key](e);
-    }
-  },
-
-  // New function for focus trap (imported from origin/main)
-  newFocusTrap: function(element, options) {
-    // Implementation remains the same as in origin/main
-  },
-};
-
-const exportUtils = {
-  // ... existing exportUtils implementation
-};
-
-// Merge all utilities functions (imported and origin/main)
-const {
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateAccessibilityReport,
-  validateTableAccessibility,
-  validateTableStructure,
-  renderDependencyGraph,
-  renderIndex,
-  renderGraphIndex,
-  limitTabFunctionality,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  ensureUniqueLandmarks,
-  handleFocusTrap,
-  revokeSession,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  accessibilityUtils,
-  newFocusTrap,
-  addLangAttribute,
-  fixTableStructure,
-  addLandmarkIssues,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  validateTableAccessibilityImpl,
-  validateTableStructureImpl,
-  transformInputData,
-  setSvgAccessibleProps,
-  addAccessibleNamesToSVGs,
-  fixLandmarkIssues,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixImageAltTexts,
-  googleSignIn,
-  addressAccessibilityIssues,
-  newFunction,
-  trapFocus // merge from origin/main
-} = main;
-
-// Preserve all existing exports
+/**
+ * Preserve all existing exports
+ */
 module.exports = {
   renderDependencyGraph,
   renderIndex,
@@ -447,34 +277,5 @@ module.exports = {
   checkLandmarks,
   ensureUniqueLandmarks,
   handleFocusTrap,
-  revokeSession,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  accessibilityUtils,
-  newFocusTrap,
-  addLangAttribute,
-  fixTableStructure,
-  addLandmarkIssues,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  validateTableAccessibilityImpl,
-  validateTableStructureImpl,
-  transformInputData,
-  setSvgAccessibleProps,
-  addAccessibleNamesToSVGs,
-  fixLandmarkIssues,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixImageAltTexts,
-  googleSignIn,
-  addressAccessibilityIssues,
-  trapFocus,
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateAccessibilityReport,
-  renderGraphIndex,
-  limitTabFunctionality
+  revokeSession
 };

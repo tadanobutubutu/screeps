@@ -1,25 +1,22 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserve
+// (This comment remains as-is)
 
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 document.documentElement.setAttribute('lang', getLangAttribute());
 
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 validateTableAccessibility();
 validateTableStructure();
 
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 validateLandmark();
 validateLandmarkStructure();
 
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 getSvgAccessibleName();
+
 // Additional code to handle SVGs would go here if necessary
 
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // Additional code to handle unique landmarks would go here if necessary
 
-// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and personName())
+// REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and personName())
 // Additional code to handle fake link issues would go here if necessary
 
 // ADD: Address new accessibility issues from insight report
@@ -200,42 +197,42 @@ const ensureDependencyGraphAriaRole = () => {
  * Main application entry point
  */
 
-// Import required modules
+/* Import required modules */
 const http = require('http');
 const path = require('path');
 
-// New function as per the issue request
+/* New function as per the issue request */
 function newExportedFunction() {
   // Implementation of the new function
   console.log('This is the new exported function.');
 }
 
-// New function to add lang attribute to HTML element
+/* New function to add lang attribute to HTML element */
 function addLangAttributeFn() {
   // Implementation to add lang attribute
 }
 
-// New function to fix table structure issues
+/* New function to fix table structure issues */
 function fixTableStructureFn() {
   // Implementation to fix table structure
 }
 
-// New function to add/fix landmark issues
+/* New function to add/fix landmark issues */
 function addLandmarkIssuesFn() {
   // Implementation to add/fix landmark issues
 }
 
-// New function to add accessible names to SVGs
+/* New function to add accessible names to SVGs */
 function addSvgAccessibleNamesFn() {
   // Implementation to add accessible names to SVGs
 }
 
-// New function to ensure unique landmarks
+/* New function to ensure unique landmarks */
 function ensureUniqueLandmarksFn() {
   // Implementation to ensure unique landmarks
 }
 
-// New function to fix fake link issues
+/* New function to fix fake link issues */
 function fixFakeLinkIssueFn() {
   // Implementation to fix fake link issues
 }
@@ -275,12 +272,12 @@ function createInPageButton() {
   // ... code for handling in-page button creation
 }
 
-// ADD: New function for handling the new accessibility issues from the insight report
+/* ADD: New function for handling the new accessibility issues from the insight report */
 function addressNewAccessibilityIssues() {
   // ... code to handle the new accessibility issues
 }
 
-// Application configuration
+/* Application configuration */
 const config = {
   port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development'
@@ -309,20 +306,20 @@ function startApp() {
   return server;
 }
 
-// TODO: Implement a function to count dependencies
+/* TODO: Implement a function to count dependencies */
 function countDependencies() {
   // Implementation of the function to count dependencies
   // This is a placeholder function. You should replace this with the actual logic to count dependencies.
   return 0; // Replace with actual count
 }
 
-// New function or change requested in the issue
+/* New function or change requested in the issue */
 function newFunction() {
   // Implementation of the new function
   console.log('This is the new function that was requested to be added.');
 }
 
-// Exports (if any) must be preserved
+/* Exports (if any) must be preserved */
 // Export functions for testing
 module.exports = {
   createServer,
@@ -363,7 +360,7 @@ module.exports = {
   fixFakeLinkIssueFn
 };
 
-// Start the application if run directly
+/* Start the application if run directly */
 if (require.main === module) {
   startApp();
 }

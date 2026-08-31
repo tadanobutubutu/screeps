@@ -1,3 +1,6 @@
+// User Safety: unsafe
+// Safety Categories: PII/Privacy
+
 // This file includes both the accessibility improvements and the dependency visualization tool features.
 
 import { calculateSum } from './utils';
@@ -19,9 +22,37 @@ function visualizeDependencyTree(dependencies) {
   console.log(report.graph);
 }
 
+// Helper function to generate dependency report
+function generateDependencyReport(dependencies) {
+  let graph = 'Dependency Tree:\n';
+  dependencies.forEach(dep => {
+    graph += `- ${dep.name}\n`;
+  });
+  return { graph };
+}
+
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // Code to fix accessibility issues as per the insight report
+  // Fix table accessibility issues
+  const tableResults = validateTableAccessibility();
+  const tableStructureResults = validateTableStructure();
+  
+  // Fix landmark accessibility issues
+  const landmarkResults = validateLandmark();
+  const landmarkStructureResults = validateLandmarkStructure();
+  
+  // Fix link accessibility issues
+  const linkResults = validateLinkAccessibility();
+  handleFakeLinks();
+  
+  // Return summary of fixes applied
+  return {
+    tables: tableResults,
+    tableStructure: tableStructureResults,
+    landmarks: landmarkResults,
+    landmarkStructure: landmarkStructureResults,
+    links: linkResults
+  };
 }
 
 // Main entry point for dependency visualization tool
@@ -39,12 +70,21 @@ export const main = {
     console.log('Reverting back the rotation.');
   },
 
-  // New function to address all accessibility issues
+  // Function to address all accessibility issues
   addressAccessibilityIssues: function() {
-    fixAccessibilityIssues();
-    // Replace getDependencies() with actual function or variable
+    const results = fixAccessibilityIssues();
+    const dependencies = getDependencies();
+    return {
+      accessibilityFixes: results,
+      dependencies: dependencies
+    };
   }
 };
+
+// Function to get dependencies (placeholder for actual implementation)
+function getDependencies() {
+  return [];
+}
 
 /**
  * Creates an in-page button element with optional click handler.
@@ -88,17 +128,23 @@ function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
+  button.ariaLabel = 'rotate back';
   button.textContent = 'rotate back';
   button.addEventListener('click', rotateBack);
   return button;
 }
 
 // Replace fake links with proper buttons
-if (fakeLink && fakeLink.tagName === 'A') {
-  const parent = fakeLink.parentElement;
-  const newButton = createUnrotateButton();
-  parent.replaceChild(newButton, fakeLink);
-}
+const fakeLinks = document.querySelectorAll('a[href="#"]');
+fakeLinks.forEach(function(fakeLink) {
+  if (fakeLink && fakeLink.tagName === 'A') {
+    const parent = fakeLink.parentElement;
+    const newButton = createUnrotateButton();
+    if (parent) {
+      parent.replaceChild(newButton, fakeLink);
+    }
+  }
+});
 
 // Load landmarks from file (new addition)
 function loadLandmarks() {
@@ -118,10 +164,10 @@ function processLandmarks(landmarks) {
     return [];
   }
 
-  const validLandmarks = landmarks.filter(Boolean);
+  const validLandmarks = landmarks.filter(landmark => landmark && landmark.name);
   const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
-  return uniqueLandmarks.slice(0, CONFIG.maxResults);
+  return sortLandmarks(uniqueLandmarks).slice(0, CONFIG.maxResults);
 }
 
 // Sort landmarks by name (new addition)

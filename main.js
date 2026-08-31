@@ -13,7 +13,8 @@ const accessibilityUtils = {
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const targetId = skipLink.getAttribute('href');
+        const target = document.querySelector(targetId);
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -25,12 +26,12 @@ const accessibilityUtils = {
   // Trap focus within an element (for modals, dialogs)
   trapFocus: (element) => {
     const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
     );
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
 
-    element.addEventListener('keydown', (e) => {
+    const handleTabKey = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
           lastElement.focus();
@@ -40,7 +41,8 @@ const accessibilityUtils = {
           e.preventDefault();
         }
       }
-    });
+    };
+    return handleTabKey;
   },
 
   // Announce message to screen readers
@@ -70,7 +72,8 @@ const accessibilityUtils = {
 
 const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const timestamp = Date.now();
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element;
 };
@@ -103,12 +106,12 @@ const renderDependencyGraph = (data) => {
 
 function newFocusTrap(element) {
   const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
   );
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  element.addEventListener('keydown', (e) => {
+  const handleTabKey = (e) => {
     if (e.key === 'Tab') {
       if (e.shiftKey && document.activeElement === firstElement) {
         lastElement.focus();
@@ -118,7 +121,13 @@ function newFocusTrap(element) {
         e.preventDefault();
       }
     }
-  });
+  };
+  
+  element.addEventListener('keydown', handleTabKey);
+  
+  return () => {
+    element.removeEventListener('keydown', handleTabKey);
+  };
 }
 
 // Add back any required exports that might have been removed.
@@ -149,7 +158,7 @@ async function handleCredentialResponse(response) {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`${timestamp} [${level.toUpperCase()}] ${message}`);
+  console.log(`[${timestamp}] [${level}] ${message}`);
 }
 
 // Accessibility utilities and functions
@@ -187,7 +196,7 @@ function transformInputData(inputData, options = {}) {
     return inputData.map(item => {
       const newItem = {};
       for (const key in item) {
-        if (Object.prototype.hasOwnProperty.call(item, key)) {
+        if (item.hasOwnProperty(key)) {
           newItem[key] = transformValue(item[key]);
         }
       }
@@ -198,11 +207,79 @@ function transformInputData(inputData, options = {}) {
   // plain object
   const result = {};
   for (const key in inputData) {
-    if (Object.prototype.hasOwnProperty.call(inputData, key)) {
+    if (inputData.hasOwnProperty(key)) {
       result[key] = transformValue(inputData[key]);
     }
   }
   return result;
+}
+
+// Export utilities
+const exportUtils = {
+  formatDate: (date) => {
+    if (!(date instanceof Date)) {
+      date = new Date(date);
+    }
+    return date.toISOString().split('T')[0];
+  },
+  
+  validateEmail: (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  },
+  
+  capitalize: (str) => {
+    if (typeof str !== 'string') return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+};
+
+// Initialize accessibility
+function initAccessibility() {
+  if (typeof document !== 'undefined') {
+    accessibilityUtils.initSkipLink();
+  }
+}
+
+// File utilities
+function sanitizeFilename(filename) {
+  return filename.replace(/[^a-z0-9.-]/gi, '_').toLowerCase();
+}
+
+function readFileSafe(filePath, defaultValue = null) {
+  try {
+    const fs = require('fs');
+    if (fs.existsSync(filePath)) {
+      return fs.readFileSync(filePath, 'utf8');
+    }
+    return defaultValue;
+  } catch (error) {
+    return defaultValue;
+  }
+}
+
+// Data processing utilities
+function processData(data, transformers = []) {
+  let result = data;
+  for (const transformer of transformers) {
+    result = transformer(result);
+  }
+  return result;
+}
+
+function filterValidItems(items, validator = (item) => Boolean(item)) {
+  return items.filter(validator);
+}
+
+function groupByCategory(items, getCategory) {
+  return items.reduce((groups, item) => {
+    const category = getCategory(item);
+    if (!groups[category]) {
+      groups[category] = [];
+    }
+    groups[category].push(item);
+    return groups;
+  }, {});
 }
 
 // Initialize on DOM ready
@@ -230,5 +307,6 @@ module.exports = {
   readFileSafe,
   processData,
   filterValidItems,
-  groupByCategory
+  groupByCategory,
+  log
 };

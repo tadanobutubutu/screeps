@@ -1,7 +1,7 @@
 // Dependency imports
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
 const { spawn } = require('child_process');
+const { dependencyGraphContent } = require('./dependencyGraph');
+const { indexContent } = require('./index');
 
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report:
@@ -44,7 +44,7 @@ const accessibilityUtils = {
 // (Previously existing code that needs to be preserved)
 const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `elem-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element;
 };
@@ -110,7 +110,7 @@ function validateTableAccessibility() {
     
     // Add lang attribute to HTML element
     if (document.documentElement.lang === undefined) {
-      document.documentElement.setAttribute('lang', 'en');
+      document.documentElement.lang = 'en';
     }
     
     // Add landmark roles and fix landmark issues
@@ -119,7 +119,7 @@ function validateTableAccessibility() {
     }
     
     // Add accessible names to 2 SVGs
-    const svgElements = table.querySelectorAll('svg');
+    const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
       if (svg.getAttribute('aria-label') === null) {
         svg.setAttribute('aria-label', 'SVG description');
@@ -130,9 +130,9 @@ function validateTableAccessibility() {
     const landmarks = ['navigation', 'search', 'main', 'contentinfo', 'complementary', 'form'];
     let uniqueLandmarks = new Set();
     landmarks.forEach(landmark => {
-      const elements = document.querySelectorAll(`[role="${landmark}"]`);
+      const elements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`);
       elements.forEach(element => {
-        uniqueLandmarks.add(element);
+        uniqueLandmarks.add(landmark);
       });
     });
     if (uniqueLandmarks.size !== landmarks.length) {
@@ -143,7 +143,7 @@ function validateTableAccessibility() {
     }
     
     // Fix 1 fake link issue
-    const links = table.querySelectorAll('a');
+    const links = document.querySelectorAll('a');
     links.forEach(link => {
       if (link.href === '#') {
         link.style.display = 'none';
@@ -222,7 +222,7 @@ function focusTrap(element) {
   if (!element) return;
 
   const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], button:not([disabled]), button:not([hidden]), :not([tabindex="-1"]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])'
   );
 
   if (focusableElements.length === 0) return;
@@ -242,7 +242,7 @@ function focusTrap(element) {
     }
   });
 
-  firstElement.focus();
+  return { firstElement, lastElement };
 }
 
 function newFocusTrap() {
@@ -283,6 +283,7 @@ const exportUtils = {
     link.href = url;
     link.download = filename;
     link.setAttribute('aria-label', `Download ${filename}`);
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -318,12 +319,12 @@ const exportUtils = {
 };
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9_.-]/g, '_');
+  return filename.replace(/[^a-z0-9.-]/gi, '_');
 }
 
 function readFileSafe(filePath) {
   try {
-    return fs.readFileSync(filePath, 'utf8');
+    return require('fs').readFileSync(filePath, 'utf8');
   } catch (error) {
     log(`Error reading file ${filePath}: ${error.message}`, 'error');
     return null;
@@ -333,7 +334,7 @@ function readFileSafe(filePath) {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`${timestamp} [${level.toUpperCase()}] ${message}`);
+  console[level](`[${timestamp}] [${level.toUpperCase()}] ${message}`);
 }
 
 module.exports = {

@@ -20,6 +20,12 @@ const config = {
  */
 function createServer() {
   const server = http.createServer((req, res) => {
+    // TODO: Address accessibility issues from insight report
+    // For example, we can add appropriate headers for CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'ok', config }));
   });

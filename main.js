@@ -1,6 +1,50 @@
-import './styles.css';
+// main.js
+
+// Find the primary content element in the DOM
+const primaryContent = document.querySelector('.primary-content') ||
+                        document.querySelector('[role="main"]') ||
+                        document.getElementById('main-content') ||
+                        document.querySelector('#content');
+
+// If primary content exists and is not already inside a <main> element
+if (primaryContent && !primaryContent.closest('main')) {
+  // Create a new <main> element
+  const mainElement = document.createElement('main');
+
+  // Insert the <main> element before the primary content in the DOM
+  primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+
+  // Move the primary content inside the <main> element
+  mainElement.appendChild(primaryContent);
+
+  return mainElement;
+}
+
+// Import necessary dependencies
+import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
+import { isSecureContext } from './utils.js';
+import fs from 'fs';
+import './styles.css';
+import './styles.less';
+import { calculateSum } from './utils';
+import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+import { CONFIG } from './utils/constants';
+import App from './App';
+import { helper, formatDate } from './utils';
+import { someFunction } from './utils/someFunction';
+import express from 'express';
+import path from 'path';
+import { fetchUser, clearCache } from './utils/user';
 
 // Landmark data structure
 const landmarks = [];
@@ -14,6 +58,14 @@ const appData = {
 let icons = {};
 
 // Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -94,7 +146,6 @@ function ensureUniqueLandmarks(landmarksArray) {
   const seen = new Set();
   return landmarksArray.filter(landmark => {
     const key = landmark.name + '_' + (landmark.role || 'default');
-    // Merge both approaches for checking uniqueness
     if (seen.has(key)) {
         return false;
     }
@@ -103,11 +154,34 @@ function ensureUniqueLandmarks(landmarksArray) {
   });
 }
 
+// New function for creating in-page buttons
+function createInPageButtons(buttonsData) {
+  const buttonsContainer = document.getElementById('in-page-buttons-container');
+
+  if (!buttonsContainer) {
+    console.error('In-page buttons container not found');
+    return;
+  }
+
+  buttonsData.forEach(buttonData => {
+    const button = document.createElement('button');
+    button.id = buttonData.id;
+    button.textContent = buttonData.text;
+    button.setAttribute('data-role', buttonData.role);
+
+    button.addEventListener('click', () => {
+      location.hash = buttonData.href;
+    });
+
+    buttonsContainer.appendChild(button);
+  });
+}
+
 // ... (previous and updated code remains as it is)
 
 // Updated function: ensures landmarks uniqueness when there's an array structure
 function ensureLandmarkUniqueness(elements) {
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const landmarkTypes = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
 
   const elementsById = {};
 
@@ -115,10 +189,9 @@ function ensureLandmarkUniqueness(elements) {
     for (const landmark of elements) {
       if (landmark.id) {
         if (elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
-        } else {
-          elementsById[landmark.id] = false;
           landmark.id += '_duplicate';
+        } else {
+          elementsById[landmark.id] = true;
         }
       }
     }
@@ -177,4 +250,63 @@ function fixFakeLinks(links) {
 }
 
 function isSecureContext() {
-  return window.isSecureContext === true || window.location.protocol === 'https:' || window.location.hostname === 'localhost
+  return window.isSecureContext === true || window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+}
+
+// Updated function using the new functions for rendering graph/index
+function renderDependencyGraphContent() {
+  const container = document.getElementById('dependencyGraph');
+  if (!container) {
+    return;
+  }
+
+  // Use the new functions for rendering
+  renderDependencyGraph(container);
+  renderIndexView(container);
+}
+
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = {
+    'react': true,
+    'react-redux': true,
+    'antd': true
+  };
+  return Object.keys(dependencies).length;
+}
+
+// Exporting module objects
+export {
+  wrapPrimaryContentInMain,
+  initializeApp,
+  handleUserInteraction,
+  cleanup,
+  initApp,
+  processData,
+  fetchUser,
+  clearCache,
+  VisualizeDependencyTree,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  landmarkStructureCheck,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  isSecureContext,
+  landmarks,
+  appData,
+  icons,
+  validateLandmark,
+  ensureFocusableElements,
+  renderDependencyGraphContent,
+  ensureLandmarkUniqueness,
+  validateSvgAccessibility,
+  processUniqueElements,
+  addressInsightIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  addProperLandmarkRegions,
+  countDependencies,
+  createInPageButtons // Added new export
+};

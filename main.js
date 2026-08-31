@@ -1,3 +1,8 @@
+// User Safety: unsafe
+// Safety Categories: PII/Privacy
+
+// This file includes both the accessibility improvements and the dependency visualization tool features.
+
 import { calculateSum } from './utils';
 import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
@@ -6,12 +11,25 @@ import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibility
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
 import { CONFIG } from './utils/constants';
-import './styles.css';
-import react from 'react';
-import path from 'path';
-import fs from 'fs';
 
-// This is the existing code that needs to be preserved
+// Node.js functions for dependency visualization tool
+const fs = require('fs');
+const path = require('path');
+
+// New function to visualize the dependency tree
+function visualizeDependencyTree(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
+}
+
+// Helper function to generate dependency report
+function generateDependencyReport(dependencies) {
+  let graph = 'Dependency Tree:\n';
+  dependencies.forEach(dep => {
+    graph += `- ${dep.name}\n`;
+  });
+  return { graph };
+}
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
@@ -35,27 +53,6 @@ function fixAccessibilityIssues() {
     landmarkStructure: landmarkStructureResults,
     links: linkResults
   };
-}
-
-// Configuration
-const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: 5000
-};
-
-// Initialize function
-function initialize() {
-  // ... (existing initialization code)
-}
-
-// Initialize app function
-function initializeApp() {
-  initialize();
-  setLanguageAttribute(); // Default to 'en'
-  addLandmarkRoles();
-  ensureUniqueLandmarks(landmarks);
-
-  // ... (existing code for adding accessible names to SVGs, fixing fake links, etc.)
 }
 
 // Main entry point for dependency visualization tool
@@ -83,6 +80,21 @@ export const main = {
     };
   }
 };
+
+// Initialize function
+function initialize() {
+  // ... (existing initialization code)
+}
+
+// Initialize app function
+function initializeApp() {
+  initialize();
+  setLanguageAttribute(); // Default to 'en'
+  addLandmarkRoles();
+  ensureUniqueLandmarks(landmarks);
+
+  // ... (existing code for adding accessible names to SVGs, fixing fake links, etc.)
+}
 
 // Function to generate dependency report
 function generateDependencyReport(dependencies) {
@@ -256,7 +268,7 @@ function handleIssue(issue) {
   }
 }
 
-// Load landmarks from file
+// Load landmarks from file (new addition)
 function loadLandmarks() {
   try {
       const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
@@ -268,7 +280,7 @@ function loadLandmarks() {
   }
 }
 
-// Process and filter landmarks
+// Process and filter landmarks (new addition)
 function processLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
         return [];
@@ -282,7 +294,7 @@ function processLandmarks(landmarks) {
     return sortLandmarks(uniqueLandmarks).slice(0, CONFIG.maxResults);
 }
 
-// Sort landmarks by name
+// Sort landmarks by name (new addition)
 function sortLandmarks(landmarks, ascending = true) {
     return landmarks.slice().sort(function(a, b) {
         const nameA = (a.name || '').toLowerCase();
@@ -295,12 +307,12 @@ function sortLandmarks(landmarks, ascending = true) {
     });
 }
 
-// Get landmark by ID
+// Get landmark by ID (new addition)
 function getLandmarkById(landmarks, id) {
     return landmarks.find(function(landmark) { return landmark.id === id; }) || null;
 }
 
-// Ensure unique landmarks by ID
+// Ensure unique landmarks by ID (new addition)
 function ensureUniqueLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
         return [];
@@ -326,19 +338,10 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
-// Export functions for testing
+// Export functions for testing (new addition)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-      loadLandmarks,
-      processLandmarks,
-      sortLandmarks,
-      getLandmarkById,
-      ensureUniqueLandmarks,
-      addressAccessibilityIssues,
-      processAccessibilityIssues,
-      handleIssue,
-      rotateBack,
-      main,
-      fixAccessibilityIssues
+      loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks,
+      addressAccessibilityIssues, processAccessibilityIssues, handleIssue, rotateBack, main, fixAccessibilityIssues
     };
 }

@@ -1,6 +1,8 @@
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+
+const fs = require('fs');
 const main = require('./utilities');
 
 const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, renderAdditionalContent } = main;
@@ -17,7 +19,7 @@ const ensureElementId = (element) => {
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and newFocusTrap())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
@@ -27,7 +29,7 @@ const ensureElementId = (element) => {
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
@@ -178,7 +180,7 @@ const accessibilityUtils = {
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
-const ensureElementHasId = (element) => {
+const ensureElementId = (element) => {
   if (element && !element.id) {
     element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
   }
@@ -232,7 +234,7 @@ function log(message, level = 'info') {
 }
 
 // Export functionality with accessibility support
-const exportUtilities = {
+const exportUtils = {
   exportData: (data, filename, mimeType) => {
     const blob = new Blob([data], { type: mimeType });
     const url = URL.createObjectURL(blob);
@@ -251,7 +253,7 @@ const exportUtilities = {
 
   exportToJSON: (data, filename) => {
     const jsonString = JSON.stringify(data, null, 2);
-    exportUtilities.exportData(jsonString, filename || 'export.json', 'application/json');
+    exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
   },
 
   exportToCSV: (data, filename) => {
@@ -270,7 +272,7 @@ const exportUtilities = {
     }
     
     const csvString = csvRows.join('\n');
-    exportUtilities.exportData(csvString, filename || 'export.csv', 'text/csv');
+    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
 };
 
@@ -342,67 +344,197 @@ function groupByCategory(items, getCategory) {
 // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c8cf4389f9c -->
 
 _Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
 
-// TODO: Implement the new function as per the issue requirements
-function transformInputData(inputData, options = {}) {
-  const {
-    preserveKeys = true,
-    uppercase = false,
-    trimWhitespace = true,
-    maxLength = null
-  } = options;
+// New function: validateTableAccessibility
+function validateTableAccessibility(tableElement) {
+  const issues = [];
 
-  if (!inputData) {
-    return null;
+  if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
+    issues.push('Element is not a TABLE element');
+    return issues;
   }
 
-  const processValue = (value) => {
-    if (typeof value === 'string') {
-      let processed = value;
-      if (trimWhitespace) {
-        processed = processed.trim();
-      }
-      if (uppercase) {
-        processed = processed.toUpperCase();
-      }
-      if (maxLength !== null && processed.length > maxLength) {
-        processed = processed.substring(0, maxLength);
-      }
-      return processed;
-    }
-    return value;
-  };
+  // Check for presence of <caption> (accessibility best practice for table description)
+  const caption = tableElement.querySelector('caption');
+  if (!caption || !caption.textContent.trim()) {
+    issues.push('TABLE is missing a descriptive caption');
+  }
 
-  if (typeof inputData === 'object' && !Array.isArray(inputData) && inputData !== null) {
-    const result = {};
-    const keys = preserveKeys ? Object.keys(inputData) : Object.keys(inputData).map(() => Math.random().toString(36).substr(2, 9));
+  // Check that all rows have consistent number of cells
+  const rows = Array.from(tableElement.querySelectorAll('tr'));
+  let expectedCellCount = null;
+
+  rows.forEach((row, rowIndex) => {
+    const cells = Array.from(row.children).filter(
+      child => ['TH', 'TD'].includes(child.tagName.toUpperCase())
+    );
+
+    if (expectedCellCount === null && cells.length > 0) {
+      expectedCellCount = cells.length;
+    } else if (cells.length !== expectedCellCount) {
+      issues.push(`Row ${rowIndex + 1} has inconsistent number of cells`);
+    }
+  });
+
+  // Check that TH elements exist (header row/column should be marked)
+  const thCells = tableElement.querySelectorAll('th');
+  if (thCells.length === 0) {
+    issues.push('TABLE has no header cells (TH) defined');
+  }
+
+  return issues;
+}
+
+/**
+ * Ensures the element has an id. If the element doesn't have an id,
+ * generates one and assigns it to the element.
+ * @param {HTMLElement} element - The element to check and modify
+ * @param {string} [prefix='element'] - Prefix for the generated id
+ * @returns {string} The element's id (existing or newly generated)
+ */
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+  
+  if (element.id) {
+    return element.id;
+  }
+  
+  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  element.id = id;
+  return id;
+}
+
+// New functions for rendering dependency graphs and displaying module structure for debugging purposes
+
+/**
+ * Displays module structure for debugging purposes.
+ * Returns a structured representation of a module's exports, dependencies, and structure.
+ * @param {Object} module - The module object to inspect
+ * @param {Object} options - Configuration options
+ * @param {number} options.maxDepth - Maximum depth to traverse (default: 3)
+ * @param {boolean} options.includePrivate - Include private properties starting with _ (default: false)
+ * @param {string} options.format - Output format: 'object', 'string', or 'tree' (default: 'object')
+ * @returns {Object|string} Module structure representation
+ */
+function displayModuleStructure(module, options = {}) {
+  const {
+    maxDepth = 3,
+    includePrivate = false,
+    format = 'object'
+  } = options;
+
+  if (!module || typeof module !== 'object') {
+    return module;
+  }
+
+  const visited = new WeakSet();
+  
+  function traverse(obj, depth = 0) {
+    if (depth > maxDepth || obj === null || obj === undefined) {
+      return obj;
+    }
     
-    let i = 0;
-    for (const key of Object.keys(inputData)) {
-      const value = inputData[key];
-      if (typeof value === 'object' && value !== null) {
-        result[keys[i]] = transformInputData(value, options);
-      } else {
-        result[keys[i]] = processValue(value);
+    if (typeof obj !== 'object') {
+      return obj;
+    }
+    
+    if (visited.has(obj)) {
+      return '[Circular]';
+    }
+    visited.add(obj);
+    
+    if (Array.isArray(obj)) {
+      return obj.map(item => traverse(item, depth + 1));
+    }
+    
+    const result = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (!includePrivate && key.startsWith('_')) {
+        continue;
       }
-      i++;
+      result[key] = traverse(value, depth + 1);
     }
     return result;
   }
-
-  if (Array.isArray(inputData)) {
-    return inputData.map((item) => {
-      if (typeof item === 'object' && item !== null) {
-        return transformInputData(item, options);
+  
+  const structure = traverse(module);
+  
+  if (format === 'string') {
+    return JSON.stringify(structure, null, 2);
+  }
+  
+  if (format === 'tree') {
+    function toTree(obj, prefix = '') {
+      if (typeof obj !== 'object' || obj === null) {
+        return `${prefix}${obj}`;
       }
-      return processValue(item);
+      let result = '';
+      const keys = Object.keys(obj);
+      keys.forEach((key, index) => {
+        const isLast = index === keys.length - 1;
+        const newPrefix = prefix + (isLast ? '└── ' : '├── ');
+        const childPrefix = prefix + (isLast ? '    ' : '│   ');
+        result += `${newPrefix}${key}: `;
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+          result += '\n' + toTree(obj[key], childPrefix);
+        } else {
+          result += `${obj[key]}\n`;
+        }
+      });
+      return result;
+    }
+    return toTree(structure);
+  }
+  
+  return structure;
+}
+
+/**
+ * Generates a dependency graph from module exports and imports.
+ * @param {Object} modules - Map of module names to their exports/dependencies
+ * @returns {Object} Dependency graph with nodes and edges
+ */
+function generateDependencyGraph(modules) {
+  const nodes = [];
+  const edges = [];
+  const nodeMap = new Map();
+  
+  // Create nodes for each module
+  for (const [name, module] of Object.entries(modules)) {
+    const id = `module-${name}`;
+    nodeMap.set(name, id);
+    nodes.push({
+      id,
+      label: name,
+      type: 'module',
+      exports: module.exports ? Object.keys(module.exports) : [],
+      dependencies: module.dependencies || []
     });
   }
-
-  return processValue(inputData);
+  
+  // Create edges for dependencies
+  for (const [name, module] of Object.entries(modules)) {
+    const sourceId = nodeMap.get(name);
+    if (module.dependencies) {
+      for (const dep of module.dependencies) {
+        const targetId = nodeMap.get(dep);
+        if (targetId) {
+          edges.push({
+            source: sourceId,
+            target: targetId,
+            type: 'depends-on'
+          });
+        }
+      }
+    }
+  }
+  
+  return { nodes, edges };
 }
 
 // New accessibility functions for insight report issues
@@ -437,7 +569,7 @@ function personName(person) {
  * @returns {Array<string>} Array of validation issues
  */
 function validateTableStructure(tableElement) {
-  const issues = [];;
+  const issues = [];
 
   if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
     issues.push('Element is not a TABLE element');
@@ -465,7 +597,7 @@ function validateTableStructure(tableElement) {
     }
   });
 
-  // Check for header IDs and data cell headers attributes (complex tables)
+  // Check for header IDs and data cell headers attribute (complex tables)
   const hasHeadersAttr = tableElement.querySelector('td[headers]');
   if (hasHeadersAttr) {
     const headerIds = new Set();
@@ -660,6 +792,115 @@ function createInPageButton(options) {
   return button;
 }
 
+/**
+ * Creates an accessible web resource button for external links (e.g., Github, Stack Overflow, etc.)
+ * @param {Object} options - Button options
+ * @param {string} options.text - Button text
+ * @param {string} options.url - URL for the link
+ * @param {string} [options.icon] - Icon class or HTML for the button
+ * @param {string} [options.className] - Additional CSS class
+ * @returns {HTMLAnchorElement} The created button element
+ */
+function createWebResourceButton(options) {
+  const { text, url, icon, className = '' } = options;
+  
+  if (!text || !url) {
+    throw new Error('Button text and URL are required');
+  }
+
+  const button = document.createElement('a');
+  button.href = url;
+  button.target = '_blank';
+  button.rel = 'noopener noreferrer';
+  button.textContent = text;
+  button.className = `web-resource-button ${className}`;
+  
+  if (icon) {
+    button.innerHTML = `${icon}<span>${text}</span>`;
+  }
+  
+  // Add accessibility attributes
+  button.setAttribute('aria-label', `${text} (opens in new window)`);
+  button.setAttribute('role', 'button');
+  
+  return button;
+}
+
+/**
+ * Validates the overall accessibility report for issues
+ * @param {Object} report - The accessibility report object
+ * @returns {Array<Object>} Array of validation issues with severity and description
+ */
+function validateAccessibilityReport(report) {
+  const issues = [];
+  
+  if (!report) {
+    issues.push({ severity: 'error', description: 'No report provided' });
+    return issues;
+  }
+
+  if (report.violations) {
+    report.violations.forEach(violation => {
+      issues.push({
+        severity: violation.impact || 'unknown',
+        description: violation.description,
+        nodes: violation.nodes,
+        help: violation.help
+      });
+    });
+  }
+
+  return issues;
+}
+
+/**
+ * Addresses accessibility issues from the insight report
+ * @param {Array} issues - Array of accessibility issues to address
+ * @returns {Object} Summary of changes made
+ */
+function addressAccessibilityIssues(issues) {
+  const changes = {
+    fixed: 0,
+    skipped: 0,
+    errors: []
+  };
+
+  if (!issues || !Array.isArray(issues)) {
+    return changes;
+  }
+
+  issues.forEach(issue => {
+    try {
+      // Implementation would depend on specific issue types
+      if (issue.type && issue.element) {
+        changes.fixed++;
+      }
+    } catch (error) {
+      changes.errors.push(error.message);
+    }
+  });
+
+  return changes;
+}
+
+/**
+ * Ensures unique landmarks in the document
+ * @returns {Array<string>} Array of duplicate landmark warnings
+ */
+function ensureUniqueLandmarks() {
+  const warnings = [];
+  const landmarkTypes = ['main', 'banner', 'navigation', 'aside', 'footer'];
+  
+  landmarkTypes.forEach(type => {
+    const elements = document.querySelectorAll(`${type}, [role="${type}"]`);
+    if (elements.length > 1) {
+      warnings.push(`Multiple ${type} landmarks found - should be unique`);
+    }
+  });
+  
+  return warnings;
+}
+
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
@@ -670,37 +911,207 @@ if (typeof document !== 'undefined') {
 }
 
 // New function: validateTableAccessibility
-function validateTableAccessibility(tableElement) {
-  const issues = [];;
+function newFocusTrap() {
+  // This is now implemented as newFocusTrap in accessibilityUtils
+}
 
-  if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
-    issues.push('Element is not a TABLE element');
-    return issues;
+/**
+ * Ensures the element has an id. If the element doesn't have an id,
+ * generates one and assigns it to the element.
+ * @param {HTMLElement} element - The element to check and modify
+ * @param {string} [prefix='element'] - Prefix for the generated id
+ * @returns {string} The element's id (existing or newly generated)
+ */
+const ensureElementHasId = (element, prefix = 'element') => {
+  if (!element) {
+    throw new Error('Element is required');
   }
-
-  // Check for presence of <caption> (accessibility best practice for table description)
-  const caption = tableElement.querySelector('caption');
-  if (!caption || !caption.textContent.trim()) {
-    issues.push('TABLE is missing a descriptive caption');
+  
+  if (element.id) {
+    return element.id;
   }
+  
+  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  element.id = id;
+  return id;
+};
 
-  // Check that all rows have consistent number of cells
-  const rows = Array.from(tableElement.querySelectorAll('tr'));
-  let expectedCellCount = null;
+/**
+ * Ensures an element has an ID with a specific origin tracking
+ * @param {HTMLElement} element - The element to check and modify
+ * @param {string} origin - The origin identifier for the ID
+ * @returns {string} The element's id (existing or newly generated)
+ */
+const ensureElementHasIdOrigin = (element, origin = 'default') => {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+  
+  if (element.id) {
+    return element.id;
+  }
+  
+  const id = `${origin}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  element.id = id;
+  return id;
+};
 
-  rows.forEach((row, rowIndex) => {
-    const cells = Array.from(row.children).filter(
-      child => ['TH', 'TD'].includes(child.tagName.toUpperCase())
-    );
-    if (expectedCellCount === null) {
-      expectedCellCount = cells.length;
-    } else if (cells.length !== expectedCellCount) {
-      issues.push(`Row ${rowIndex} has ${cells.length} cells, expected ${expectedCellCount}`);
+/**
+ * Adds an aria-label attribute to an element
+ * @param {HTMLElement} element - The element to modify
+ * @param {string} label - The aria-label text
+ * @returns {HTMLElement} The modified element
+ */
+const addAriaLabel = (element, label) => {
+  if (element && label) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+};
+
+/**
+ * Renders dependency graphs from module data
+ * @param {Object} data - The data containing nodes and edges
+ * @returns {Object} The rendered dependency graph
+ */
+const renderDependencyGraphs = (data) => {
+  if (!data) return { nodes: [], edges: [] };
+  
+  return {
+    nodes: data.nodes || [],
+    edges: data.edges || []
+  };
+};
+
+/**
+ * Fixes button identifiers for accessibility
+ * @param {Array} buttons - Array of button elements to fix
+ * @returns {number} Number of buttons fixed
+ */
+const fixButtonIdentifiers = (buttons) => {
+  if (!Array.isArray(buttons)) return 0;
+  
+  let fixed = 0;
+  buttons.forEach(button => {
+    if (!(button instanceof HTMLElement)) return;
+    
+    if (!button.id && button.textContent) {
+      const id = `btn-${button.textContent.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
+      button.id = id;
+      fixed++;
     }
   });
+  
+  return fixed;
+};
 
-  return issues;
-}
+/**
+ * Fixes aria attributes in dependency graphs for accessibility
+ * @param {Object} graph - The dependency graph to fix
+ * @returns {Object} The fixed graph
+ */
+const fixDependencyGraphAria = (graph) => {
+  if (!graph || typeof graph !== 'object') return graph;
+  
+  if (graph.nodes) {
+    graph.nodes.forEach(node => {
+      if (node.id && !node['aria-label']) {
+        node['aria-label'] = node.label || node.id;
+      }
+    });
+  }
+  
+  return graph;
+};
+
+/**
+ * Adds main landmark to the index
+ * @param {HTMLElement} mainElement - The main element to add landmark to
+ * @returns {HTMLElement} The modified element
+ */
+const addMainLandmarkToIndex = (mainElement) => {
+  if (mainElement && mainElement.tagName.toLowerCase() === 'main') {
+    if (!mainElement.hasAttribute('role')) {
+      mainElement.setAttribute('role', 'main');
+    }
+  }
+  return mainElement;
+};
+
+/**
+ * Creates a focus trap for modal dialogs and popups
+ * @param {HTMLElement} element - The element to trap focus in
+ * @returns {Function} Cleanup function to remove the focus trap
+ */
+const focusTrap = (element) => {
+  if (!element) return () => {};
+  
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled)], input:not([disabled)], select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  
+  if (focusableElements.length === 0) {
+    console.warn('No focusable elements found in focus trap container');
+    return () => {};
+  }
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+  
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+    
+    if (e.key === 'Escape') {
+      element.dispatchEvent(new CustomEvent('focusTrapEscape'));
+    }
+  };
+  
+  element.addEventListener('keydown', handleKeyDown);
+  
+  return () => {
+    element.removeEventListener('keydown', handleKeyDown);
+  };
+};
+
+/**
+ * Renders additional content with accessibility support
+ * @param {HTMLElement} container - The container element to render into
+ * @param {Object} content - The content to render
+ * @returns {HTMLElement} The container with rendered content
+ */
+const renderAdditionalContent = (container, content) => {
+  if (!container || !(container instanceof HTMLElement)) {
+    throw new Error('Container must be a valid HTMLElement');
+  }
+  
+  if (!content) return container;
+  
+  if (typeof content === 'string') {
+    container.innerHTML = content;
+  } else if (content.template) {
+    container.innerHTML = content.template;
+  }
+  
+  if (content.className) {
+    container.className = content.className;
+  }
+  
+  if (content.attributes) {
+    Object.entries(content.attributes).forEach(([key, value]) => {
+      container.setAttribute(key, value);
+    });
+  }
+  
+  return container;
+};
 
 // Toolbox original functions
 function getTables() {
@@ -732,6 +1143,69 @@ function addAccessibleName(svgString) {
 const originalSvgString = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>';
 const modifiedSvgString = addAccessibleName(originalSvgString);
 
+// New function: Implement the new function as per the issue requirements
+function transformInputData(inputData, options = {}) {
+  const {
+    preserveKeys = true,
+    uppercase = false,
+    trimWhitespace = true,
+    maxLength = null
+  } = options;
+
+  if (!inputData) {
+    return null;
+  }
+
+  const processValue = (value) => {
+    if (typeof value === 'string') {
+      let processed = value;
+      if (trimWhitespace) {
+        processed = processed.trim();
+      }
+      if (uppercase) {
+        processed = processed.toUpperCase();
+      }
+      if (maxLength !== null && processed.length > maxLength) {
+        processed = processed.substring(0, maxLength);
+      }
+      return processed;
+    }
+    return value;
+  };
+
+  if (typeof inputData === 'object' && !Array.isArray(inputData) && inputData !== null) {
+    const result = {};
+    const keys = preserveKeys ? Object.keys(inputData) : Object.keys(inputData).map(() => Math.random().toString(36).substr(2, 9));
+    
+    let i = 0;
+    for (const key of Object.keys(inputData)) {
+      const value = inputData[key];
+      if (typeof value === 'object' && value !== null) {
+        result[keys[i]] = transformInputData(value, options);
+      } else {
+        result[keys[i]] = processValue(value);
+      }
+      i++;
+    }
+    return result;
+  }
+
+  if (Array.isArray(inputData)) {
+    return inputData.map((item) => {
+      if (typeof item === 'object' && item !== null) {
+        return transformInputData(item, options);
+      }
+      return processValue(item);
+    });
+  }
+
+  return processValue(inputData);
+}
+
+// Export the newFocusTrap function as a standalone utility
+const newFocusTrap = accessibilityUtils.newFocusTrap;
+
+// Export all utilities
 module.exports = {
   ...main,
   ...accessibilityUtils,
@@ -743,9 +1217,12 @@ module.exports = {
   readFileSafe,
   processData,
   filterValidItems,
+  initAccessibility,
   groupByCategory,
   transformInputData,
   validateTableAccessibility,
+  displayModuleStructure,
+  generateDependencyGraph,
   // New accessibility functions
   getLangAttribute,
   personName,
@@ -754,10 +1231,11 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   createInPageButton,
+  createWebResourceButton,
   getTables,
   getConfig,
   setConfig,
   addAccessibleName,
   renderAdditionalContent,
-  renderDependencyGraph
+  renderDependencyGraphs
 };

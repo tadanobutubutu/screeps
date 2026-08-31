@@ -48,3 +48,22 @@ module.exports = {
 if (require.main === module) {
   startApp();
 }
+
+// Address accessibility issues from insight report:
+// - NEW: Add aria-label to elements as necessary
+function addAriaLabel(element) {
+  element.setAttribute('aria-label', 'Accessible name for element');
+}
+
+// - NEW: Ensure element has an id
+function ensureElementHasId(element) {
+  if (!element.id) {
+    element.id = `unique-id-${Math.random().toString(36).substr(2, 9)}`;
+  }
+}
+
+// Example usage of the new functions
+// Assuming there is an HTML element with id 'myElement' that needs aria-label and id
+const myElement = document.getElementById('myElement');
+addAriaLabel(myElement);
+ensureElementHasId(myElement);

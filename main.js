@@ -1,3 +1,9 @@
+// Before:
+document.documentElement.lang = '';
+
+// After:
+document.documentElement.lang = 'en'; // Replace 'en' with the appropriate language code
+
 const someFunction = () => {
   // some existing implementation
 };
@@ -38,5 +44,8 @@ const handleFakeLinks = (link) => {
 
 module.exports = {
   someFunction: someFunction,
+  createInPageButton: createInPageButton,
+  validateLinkAccessibility: validateLinkAccessibility,
+  handleFakeLinks: handleFakeLinks,
   // continue with other exports here...
 };

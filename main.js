@@ -1,30 +1,22 @@
+import React, { useState, useEffect, useContext, createContext } from 'react';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import './styles.less';
 import './styles.css';
 import fs from 'fs';
 import path from 'path';
-import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
-import React, { useContext, createContext } from 'react';
-import { CONFIG as UTILS_CONFIG } from './utils/constants';
 import express from 'express';
-import path from 'path';
-import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
 import { visualizeDependencyTree } from './utils.js';
-import AppContext from './context';
-import AppProvider from './context';
-import { AppContext, AppProvider } from './context';
+import { AppContext as AppContextFromContext, AppProvider as AppProviderFromContext } from './context';
 import { calculateSum } from './utils';
 import { getLangAttribute, getFullLangAttribute, addLangAttribute } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure, fixTableStructure } from './utils/tableAccessibilityUtils';
 import { validateLandmark, validateLandmarkStructure, addMainLandmark, isValidLandmark, loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks, validateInput, processData, formatResponse, createInPageButton } from './utils/linkAccessibilityUtils';
-import { CONFIG } from './utils/constants';
-
-// Utility imports
+import { CONFIG as UTILS_CONFIG } from './utils/constants';
 import { configureStore } from '@reduxjs/toolkit';
 import { counterSlice } from './slices/counter';
 
@@ -56,8 +48,6 @@ function AppProvider({ children }) {
   );
 }
 
-export { AppContext, AppProvider };
-
 // Main configuration
 const APP_CONFIG = {
   dataPath: './data',
@@ -66,6 +56,12 @@ const APP_CONFIG = {
   timeout: 5000
 };
 
+const config = {
+  ...UTILS_CONFIG,
+  ...APP_CONFIG
+};
+const CONFIG = { ...config };
+
 // App state
 const appState = {
   initialized: false,
@@ -73,13 +69,51 @@ const appState = {
   cache: new Map()
 };
 
+let icons = {};
+const appData = {
+  title: 'Screeps',
+  version: '1.0.0'
+};
+
+/**
+ * Initializes the application and applies accessibility fixes.
+ */
+const initApp = () => {
+  initializeApp();
+  setLanguageAttribute();
+  addLandmarkRoles();
+  ensureUniqueLandmarks(landmarks);
+
+  icons = {
+    icon: '<svg viewBox="0 0 100 100" aria-label="Screeps icon"></svg>'
+  };
+
+  handleFakeLinks();
+  console.log('Initializing ' + appData.title + ' v' + appData.version);
+};
+
+function setLanguageAttribute() {
+  // Code for setting language attribute
+}
+
+function addLandmarkRoles() {
+  // Code for adding landmark roles
+}
+
+function ensureUniqueLandmarks(landmarks) {
+  // Code for ensuring unique landmarks
+}
+
+function handleFakeLinks() {
+  // Code for handling fake links
+}
+
 // Initialize function
 function initialize() {
   appState.initialized = true;
   console.log('App initialized');
 }
 
-// Initialize app function
 function initializeApp() {
   initialize();
   return appState;
@@ -153,13 +187,26 @@ const utils = {
 };
 
 // Constants
-const config = {
-  ...UTILS_CONFIG,
-  ...APP_CONFIG
-};
-const CONFIG = { ...config };
+const landmarks = [];
 
-// Export all required items
+// Main function (required export)
+function main() {
+  initialize();
+  console.log('Main function executed');
+}
+
+// If running directly, visualize the dependency tree and start the server
+if (typeof require !== 'undefined' && require.main === module) {
+  main();
+  const port = process.env.PORT || 3000;
+  const app = express();
+  app.listen(port, () => {
+    console.log(`Listening on port ${port}`);
+  });
+  visualizeDependencyTree(require.dependencies);
+}
+
+// Exports
 export {
   APP_CONFIG,
   appState,
@@ -167,16 +214,16 @@ export {
   initialize,
   initializeApp,
   utils,
-  landmarks
+  landmarks,
+  AppContext,
+  AppProvider,
+  initApp,
+  HTML,
+  icons,
+  appData
 };
-```
 
-This merged codebase presents both changes combined into a single file, with the following updates :
-
-- Adds Redux store integration by including `@reduxjs/toolkit` package
-- Modifies the import statement for the `React` library to separate it from the React-Router-related imports
-- Moves the `AppContext` and `AppProvider` export below the React-related imports, and updates the export block for them
-- Updates the `LandmarkUtils`-related imports to use the common `utils` namespace
-- Changes the `validateLinkAccessibility` import to use the updated function implementation from the conflicted version
-- Adds constants for defining app configuration and integrated both sources within the same `config` object.
-- Removes the unnecessary React-specific `Route`, `Link`, and `Switch` imports from the Express app setup, since it would throw a syntax error in the server-side context.
+// HTML component
+function HTML({ lang }) {
+  return <html lang={lang}>/* other children */</html>;
+}

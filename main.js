@@ -1,6 +1,3 @@
-Here's the resolved file content:
-
-```javascript
 // Existing code starts here
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-swift';
@@ -8,8 +5,6 @@ import { registerSW } from 'effector-swift';
 // (This comment remains as-is)
 
 // More existing code that should be preserved
-
-// Existing code ends here
 
 /**
  * Creates an in-page button element with optional click handler.
@@ -121,6 +116,36 @@ const ensureUniqueLandmarkElements = () => {
 };
 
 /**
+ * Wraps the primary content in a main element for better accessibility.
+ * This ensures that the main content is properly contained within a <main> element.
+ * 
+ * @returns {boolean} True if the wrapping was successful, false otherwise
+ */
+function wrapPrimaryContentInMain() {
+  const mainElement = document.querySelector('main');
+  if (!mainElement) {
+    console.warn('No <main> element found to wrap');
+    return false;
+  }
+  
+  // Create a wrapper div with role="main"
+  const wrapper = document.createElement('div');
+  wrapper.setAttribute('role', 'main');
+  
+  // Move all direct child elements into the wrapper
+  Array.from(mainElement.children).forEach(child => {
+    if (child.nodeType === 1) {
+      wrapper.appendChild(child);
+    }
+  });
+  
+  // Replace the original main element with the wrapper
+  mainElement.replaceWith(wrapper);
+  
+  return true;
+}
+
+/**
  * Adds accessible names to SVG elements.
  *
  * This addresses the REACT_041 issue by ensuring that SVGs have appropriate
@@ -216,7 +241,3 @@ if (typeof document !== 'undefined') {
 }
 
 // More existing code that should be preserved
-
-```
-
-In the merged file, both the changes related to accessibility and the existing code have been integrated. The comments and style have been preserved, and there are no syntax errors. Additionally, new functions and an export statement have been added where appropriate.

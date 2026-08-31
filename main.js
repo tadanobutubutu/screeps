@@ -34,14 +34,38 @@ function startApp() {
   server.listen(config.port, () => {
     console.log(`Server running on port ${config.port}`);
   });
+  // Add the new function here
+  function newFunction() {
+    console.log("New function is called!");
+  }
   return server;
+}
+
+/**
+ * Adds a new route to the server
+ * @param {http.Server} server The server instance
+ * @param {string} path The route path
+ * @param {function} handler The route handler function
+ */
+function addRoute(server, path, handler) {
+  server.on('request', (req, res) => {
+    if (req.url === path) {
+      req.url = '/';
+      require('./router').handleRequest(req, res);
+      req.url = path;
+      handler(req, res);
+    } else {
+      require('./router').handleRequest(req, res);
+    }
+  });
 }
 
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  addRoute // Add the new function to exports
 };
 
 // Start the application if run directly

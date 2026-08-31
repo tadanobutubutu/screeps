@@ -90,6 +90,14 @@ const renderDependencyGraph = (data) => {
   };
 };
 
+// Ensure dependencyGraph container has proper ARIA role
+const ensureDependencyGraphAriaRole = (container) => {
+  if (container && typeof container.setAttribute === 'function' && !container.getAttribute('role')) {
+    container.setAttribute('role', 'application');
+  }
+  return container;
+};
+
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
@@ -345,6 +353,7 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
+  ensureDependencyGraphAriaRole,
   calculateSum,
   transformInputData,
   newFocusTrap

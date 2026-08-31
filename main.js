@@ -307,9 +307,23 @@ function checkLinkAccessibility() {
   return validateLinkAccessibility();
 }
 
-// New function to display module structure
+// Function to display module structure - Updated for debugging purposes
 function displayModuleStructure(module) {
-  console.log('Displaying module structure for:', module);
+  console.log('=== Module Structure Debug Info ===');
+  console.log('Module:', module);
+  console.log('Module type:', typeof module);
+  
+  if (module) {
+    console.log('Module keys:', Object.keys(module));
+    console.log('Module exports:', module.exports);
+    console.log('Module filename:', module.filename);
+    console.log('Module loaded:', module.loaded);
+    console.log('Module children:', module.children);
+    console.log('Module parent:', module.parent);
+  }
+  
+  console.log('=== End Module Structure ===');
+  return module;
 }
 
 // DOM-based accessibility code
@@ -374,8 +388,36 @@ function renderAccessibilityPage() {
   renderIndex();
 }
 
+// Function to render dependency graphs - Updated for debugging purposes
 const renderDependencyGraph = (data) => {
-  // Code to render the dependency graph
+  console.log('=== Dependency Graph Debug Info ===');
+  console.log('Rendering dependency graph with data:', data);
+  
+  if (!data) {
+    console.warn('No data provided for dependency graph rendering');
+    return null;
+  }
+  
+  console.log('Data type:', typeof data);
+  console.log('Data structure:', JSON.stringify(data, null, 2));
+  
+  // Log dependency information if available
+  if (data.dependencies) {
+    console.log('Dependencies found:', data.dependencies.length);
+    data.dependencies.forEach((dep, index) => {
+      console.log(`  Dependency ${index + 1}:`, dep);
+    });
+  }
+  
+  if (data.modules) {
+    console.log('Modules found:', data.modules.length);
+    data.modules.forEach((mod, index) => {
+      console.log(`  Module ${index + 1}:`, mod);
+    });
+  }
+  
+  console.log('=== End Dependency Graph ===');
+  return data;
 };
 
 const renderIndex = () => {

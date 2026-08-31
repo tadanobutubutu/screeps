@@ -9,11 +9,12 @@
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: function() {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
     if (skipLink) {
       skipLink.addEventListener('click', function(e) {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const targetId = skipLink.getAttribute('href').substring(1);
+        const target = document.getElementById(targetId);
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -25,7 +26,7 @@ const accessibilityUtils = {
   // Trap focus within an element (for modals, dialogs)
   trapFocus: function(element) {
     const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
     );
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
@@ -33,11 +34,11 @@ const accessibilityUtils = {
     element.addEventListener('keydown', function(e) {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
           e.preventDefault();
+          firstElement.focus();
         }
       }
     });
@@ -49,6 +50,7 @@ const accessibilityUtils = {
       priority = 'polite';
     }
     const announcer = document.createElement('div');
+    announcer.setAttribute('role', 'status');
     announcer.setAttribute('aria-live', priority);
     announcer.setAttribute('aria-atomic', 'true');
     announcer.className = 'sr-only';
@@ -139,12 +141,13 @@ function log(message, level) {
 // Export functionality with accessibility support
 const exportUtils = {
   exportData: function(data, filename, mimeType) {
-    const blob = new Blob([data], { type: mimeType });
+    const blob = new Blob([data], { type: mimeType || 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
     link.setAttribute('aria-label', 'Download ' + filename);
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -156,7 +159,7 @@ const exportUtils = {
 
   exportToJSON: function(data, filename) {
     const jsonString = JSON.stringify(data, null, 2);
-    exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
+    this.exportData(jsonString, filename || 'export.json', 'application/json');
   },
 
   exportToCSV: function(data, filename) {
@@ -171,14 +174,14 @@ const exportUtils = {
     for (let i = 0; i < data.length; i++) {
       const row = data[i];
       const values = headers.map(function(header) {
-        const escaped = ('' + row[header]).replace(/"/g, '\\"');
+        const escaped = ('' + (row[header] || '')).replace(/"/g, '\\"');
         return '"' + escaped + '"';
       });
       csvRows.push(values.join(','));
     }
     
     const csvString = csvRows.join('\n');
-    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
+    this.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
 };
 
@@ -188,6 +191,7 @@ function sanitizeFilename(filename) {
 
 function readFileSafe(filePath) {
   try {
+    const fs = require('fs');
     return fs.readFileSync(filePath, 'utf8');
   } catch (error) {
     log('Error reading file ' + filePath + ': ' + error.message, 'error');
@@ -228,23 +232,23 @@ function initAccessibility() {
   accessibilityUtils.initSkipLink();
   
   // Add keyboard support for all interactive elements
-  const elements = document.querySelectorAll('[data-accessible]');
+  const elements = document.querySelectorAll('button, a, input, select, textarea');
   for (let i = 0; i < elements.length; i++) {
     const element = elements[i];
-    element.addEventListener('keydown', function(e) {
-      accessibilityUtils.handleKeyboardNav(e, {
+    accessibilityUtils.handleKeyboardNav(element, function(e) {
+      const handlers = {
         Enter: function() {
           element.click();
         },
         ' ': function() {
           element.click();
         }
-      });
+      };
     });
   }
 }
 
-function groupByCategory(items, getCategory) {
+function groupBy(items, getCategory) {
   return items.reduce(function(groups, item) {
     const category = getCategory(item);
     if (!groups[category]) {
@@ -259,63 +263,4 @@ function groupByCategory(items, getCategory) {
 // (This comment remains as-is)
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-
-// TODO: Implement the new function as per the issue requirements
-function transformInputData(inputData, options) {
-  if (options === undefined) {
-    options = {};
-  }
-  
-  const preserveKeys = options.preserveKeys !== undefined ? options.preserveKeys : true;
-  const uppercase = options.uppercase === true;
-  const trimWhitespace = options.trimWhitespace !== false;
-  const maxLength = options.maxLength || null;
-
-  if (!inputData) {
-    return null;
-  }
-
-  let result = inputData;
-
-  // Apply trim whitespace if needed
-  if (trimWhitespace && typeof result === 'string') {
-    result = result.trim();
-  }
-
-  // Apply uppercase if needed
-  if (uppercase && typeof result === 'string') {
-    result = result.toUpperCase();
-  }
-
-  // Apply max length if needed
-  if (maxLength && typeof result === 'string' && result.length > maxLength) {
-    result = result.substring(0, maxLength);
-  }
-
-  return result;
-}
-
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAccessibility);
-  } else {
-    initAccessibility();
-  }
-}
-
-// Export all utilities
-module.exports = {
-  accessibilityUtils: accessibilityUtils,
-  exportUtils: exportUtils,
-  initAccessibility: initAccessibility,
-  handleCredentialResponse: handleCredentialResponse,
-  ensureElementId: ensureElementId,
-  addAriaLabel: addAriaLabel,
-  renderDependencyGraph: renderDependencyGraph,
-  calculateSum: calculateSum
-};
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3

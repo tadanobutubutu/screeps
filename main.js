@@ -132,9 +132,60 @@ function addressAccessibilityIssues(insightReport) {
         });
       }
       break;
+    case 'SVG_001': // Ensure dependencyGraph container has proper ARIA role
+      const graphContainers = document.querySelectorAll('.dependency-graph, [data-graph-container]');
+      graphContainers.forEach(container => {
+        if (!container.getAttribute('role')) {
+          container.setAttribute('role', 'region');
+          container.setAttribute('aria-label', 'Dependency Graph');
+        }
+      });
+      break;
     default:
       console.warn(`Unknown accessibility issue type: ${insightReport.issue}`);
   }
+}
+
+/**
+ * Ensures accessibility properties for dependency graph visualizations
+ * @param {Object} options - Configuration options for accessibility
+ * @param {boolean} [options.announceChanges=true] - Whether to announce graph changes
+ * @param {boolean} [options.highlightOnFocus=true] - Whether to highlight focused elements
+ */
+function ensureDependencyGraphAccessibility(options = {}) {
+  const config = {
+    announceChanges: true,
+    highlightOnFocus: true,
+    ...options
+  };
+  
+  // Apply accessibility settings to all existing dependency graphs
+  const graphContainers = document.querySelectorAll('.dependency-graph, [data-graph-container]');
+  
+  graphContainers.forEach(container => {
+    // Ensure container has proper ARIA role
+    if (!container.getAttribute('role')) {
+      container.setAttribute('role', 'region');
+      container.setAttribute('aria-label', 'Dependency Graph');
+    }
+    
+    // Make container focusable if it contains interactive elements
+    if (container.querySelector('button, [tabindex], svg')) {
+      container.setAttribute('tabindex', '0');
+    }
+    
+    // Set up live region for announcing changes if needed
+    if (config.announceChanges) {
+      const announcer = document.querySelector('[aria-live="polite"]');
+      if (!announcer) {
+        const liveRegion = document.createElement('div');
+        liveRegion.setAttribute('aria-live', 'polite');
+        liveRegion.setAttribute('aria-atomic', 'true');
+        liveRegion.className = 'sr-only';
+        document.body.appendChild(liveRegion);
+      }
+    }
+  });
 }
 
 // Initialize accessibility features
@@ -143,6 +194,9 @@ function initializeAccessibility() {
   
   // Ensure all landmarks have unique IDs
   ensureUniqueLandmarks();
+  
+  // Ensure dependency graph accessibility
+  ensureDependencyGraphAccessibility();
   
   // Return the announcer for use in the app
   return {
@@ -235,7 +289,7 @@ function isEmpty(value) {
  */
 function capitalize(str) {
   if (typeof str !== 'string' || str.length === 0) return str;
-  return str.charAt(0).UpperCase() + str.slice(1);
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 /**
@@ -297,6 +351,7 @@ function renderDependencyGraph(dependencies, container, options = {}) {
     nodeTextColor: '#ffffff',
     edgeColor: '#999999',
     animated: true,
+    announceChanges: true,
     ...options
   };
   
@@ -308,6 +363,24 @@ function renderDependencyGraph(dependencies, container, options = {}) {
     throw new Error('Container element not found for dependency graph rendering');
   }
   
+  // Ensure container has proper ARIA attributes for accessibility
+  if (!containerEl.getAttribute('role')) {
+    containerEl.setAttribute('role', 'region');
+    containerEl.setAttribute('aria-label', 'Dependency Graph');
+  }
+  
+  // Add ARIA live region for announcing changes
+  if (defaultOptions.announceChanges) {
+    const liveRegion = document.createElement('div');
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.className = 'sr-only';
+    document.body.appendChild(liveRegion);
+    
+    // Store reference to live region for announcing changes
+    defaultOptions.liveRegion = liveRegion;
+  }
+  
   // Create SVG container
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('width', '100%');
@@ -315,6 +388,16 @@ function renderDependencyGraph(dependencies, container, options = {}) {
   svg.style.position = 'absolute';
   svg.style.top = '0';
   svg.style.left = '0';
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('focusable', 'true');
+  svg.setAttribute('tabindex', '0');
+  
+  // Add accessibility properties to SVG
+  addSvgAccessibilityProps(svg, {
+    label: 'Dependency Graph Visualization',
+    description: 'Interactive visualization of system dependencies',
+    keyboardFocusable: true
+  });
   
   containerEl.style.position = 'relative';
   containerEl.appendChild(svg);
@@ -394,6 +477,11 @@ function renderDependencyGraph(dependencies, container, options = {}) {
         rect.setAttribute('stroke', '#333');
         rect.setAttribute('stroke-width', '1');
         
+        // Add accessibility properties to node
+        rect.setAttribute('role', 'button');
+        rect.setAttribute('tabindex', '0');
+        rect.setAttribute('aria-label', `Node: ${node.label || node.id}`);
+        
         // Node text
         const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         text.setAttribute('x', defaultOptions.nodeWidth / 2);
@@ -413,11 +501,17 @@ function renderDependencyGraph(dependencies, container, options = {}) {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             if (node.onClick) node.onClick(node);
+            if (defaultOptions.liveRegion) {
+              defaultOptions.liveRegion.textContent = `Node selected: ${node.label || node.id}`;
+            }
           }
         });
         
         nodeGroup.addEventListener('click', () => {
           if (node.onClick) node.onClick(node);
+          if (defaultOptions.liveRegion) {
+            defaultOptions.liveRegion.textContent = `Node selected: ${node.label || node.id}`;
+          }
         });
         
         // Set tabindex for keyboard navigation
@@ -439,6 +533,17 @@ function renderDependencyGraph(dependencies, container, options = {}) {
         0% { opacity: 1; }
         50% { opacity: 0.5; }
         100% { opacity: 1; }
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
       }
     `;
     document.head.appendChild(style);
@@ -462,7 +567,8 @@ if (typeof module !== 'undefined' && module.exports) {
     clamp,
     deepClone,
     addressAccessibilityIssues,
-    renderDependencyGraph
+    renderDependencyGraph,
+    ensureDependencyGraphAccessibility
   };
 }
 

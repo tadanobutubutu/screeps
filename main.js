@@ -6,6 +6,17 @@ import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 
+// TODO: Implement calculateDiscount
+function calculateDiscount(originalPrice, discountPercentage) {
+  const discountAmount = originalPrice * (discountPercentage / 100);
+  return originalPrice - discountAmount;
+}
+
+// Example of adding a new function
+function newFunction() {
+  // Function body
+}
+
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;

@@ -181,7 +181,7 @@ function ensureUniqueLandmarks() {
     'main[role="main"]',
     'aside[role="complementary"]',
     'footer[role="contentinfo"]'
-  ].join(', '));
+  ]).join(', '));
 
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence

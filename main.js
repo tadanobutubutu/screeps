@@ -13,6 +13,11 @@ function existingFunction() {
   // existing code
 }
 
+// Example of adding a new function
+function newFunction() {
+  // Function body
+}
+
 // TODO: Add back any required exports that might have been removed
 // For example, if a function called 'someFunction' was required elsewhere
 // function someFunction() {
@@ -37,11 +42,6 @@ function checkLinkAccessibility() {
     }
   });
   return issues;
-}
-
-// Example of adding a new function
-function newFunction() {
-  // Function body
 }
 
 // Don't forget to test your new additions in the test file

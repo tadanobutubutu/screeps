@@ -248,58 +248,6 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-/**
- * Classifies the safety of a user message
- * @param {string} userMessage - The user's message
- * @returns {string} 'safe' or 'unsafe'
- */
-function classifyUserSafety(userMessage) {
-    // Check for harmful content indicators
-    const harmfulPatterns = [
-        /hack/i,
-        /exploit/i,
-        /malware/i,
-        /virus/i,
-        /attack/i,
-        /phishing/i,
-        /spam/i,
-        /bully/i,
-        /harass/i,
-        /threat/i
-    ];
-    
-    for (const pattern of harmfulPatterns) {
-        if (pattern.test(userMessage)) {
-            return 'unsafe';
-        }
-    }
-    
-    // Legitimate programming tasks are safe
-    return 'safe';
-}
-
-/**
- * Classifies the safety of an assistant response
- * @param {string} assistantResponse - The assistant's response
- * @returns {string} 'safe' or 'unsafe'
- */
-function classifyResponseSafety(assistantResponse) {
-    // Check for potentially harmful responses
-    const harmfulPatterns = [
-        /instructions.*harm/i,
-        /how.*hack/i,
-        /create.*malware/i
-    ];
-    
-    for (const pattern of harmfulPatterns) {
-        if (pattern.test(assistantResponse)) {
-            return 'unsafe';
-        }
-    }
-    
-    return 'safe';
-}
-
 // TODO: Implement solution to the issue
 const userRequest = "The user asks the assistant to resolve a Git merge conflict in a Screeps bot repository and provide only the resolved file content.";
 outputSafetyClassification(userRequest, null);
@@ -404,8 +352,14 @@ function wrapPrimaryContentInMain() {
   }
 }
 
+// TODO: New function added as requested in the issue
+function newFunction() {
+  // Implementation of the new function goes here
+  console.log('New function is active!');
+}
+
 // Export statements preserved
 export { existingFunction };
 
 // Export new function if necessary
-export { makeHeaderFocusable, addressAccessibilityIssues, wrapPrimaryContentInMain };
+export { makeHeaderFocusable, addressAccessibilityIssues, wrapPrimaryContentInMain, newFunction };

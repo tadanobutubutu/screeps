@@ -57,6 +57,35 @@ function fixFakeLinkIssue() {
   // Implementation for fixing fake link issue
 }
 
+// New function to create a button with correct accessibility properties for in-page linking
+function createAccessibleButtonForInPageLinking(options) {
+  const { id, text, targetId, className = '' } = options;
+  
+  const button = document.createElement('button');
+  button.id = id || `in-page-link-${Math.random().toString(36).substr(2, 9)}`;
+  button.textContent = text;
+  button.className = className;
+  
+  // Add ARIA attributes for accessibility
+  button.setAttribute('type', 'button');
+  button.setAttribute('aria-label', options.ariaLabel || text);
+  
+  // Handle click for smooth scrolling to target element
+  if (targetId) {
+    button.addEventListener('click', function() {
+      const targetElement = document.getElementById(targetId);
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Set focus on target for accessibility
+        targetElement.setAttribute('tabindex', '-1');
+        targetElement.focus();
+      }
+    });
+  }
+  
+  return button;
+}
+
 // Call the new functions as needed, for example:
 addLangAttribute();
 // fixTableStructure();
@@ -87,5 +116,6 @@ module.exports = {
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   handleCredentialResponse,
+  createAccessibleButtonForInPageLinking,
   // Add any additional exports as required by tests
 };

@@ -36,7 +36,7 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fa5]/.test(content)) {
+    if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
     } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
@@ -44,9 +44,9 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
+    } else if (/[àâçéèêëîïôùûüÿœæ]+/i.test(content)) {
       lang = 'fr'; // French
-    } else if (/[äöüß]/i.test(content)) {
+    } else if (/[äöüß]+/i.test(content)) {
       lang = 'de'; // German
     }
   }
@@ -124,7 +124,7 @@ function validateTableStructure(tableElement) {
       const prevRow = rows[rowIndex - 1];
       const prevCells = prevRow.querySelectorAll('td, th');
       if (cellCount !== prevCells.length) {
-        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
+        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length} in previous row)`);
       }
     }
   });
@@ -145,7 +145,7 @@ function validateLandmark(element) {
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
   
-  if (role && !validLandmarks.includes(role)) {
+  if (role && !validLandmarks.includes(role) && !validLandmarks.includes(role.toLowerCase())) {
     errors.push(`Invalid landmark role: ${role}`);
   }
   
@@ -179,18 +179,18 @@ function validateLandmarkStructure() {
   }
   
   // Check for proper nesting of landmarks
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, [role]');
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
   landmarks.forEach((landmark) => {
     const parent = landmark.parentElement;
     while (parent) {
-      const parentTag = parent.tagName.toLowerCase();
+      const parentTag = parent.tagName ? parent.tagName.toLowerCase() : '';
       const parentRole = parent.getAttribute('role');
       
       // Check for invalid nesting
-      if (parentTag === 'header' && landmark.tagName.toLowerCase() === 'header') {
+      if (parentTag === 'header' && landmark.tagName && landmark.tagName.toLowerCase() === 'header') {
         errors.push('Nested header elements found');
       }
-      if (parentTag === 'footer' && landmark.tagName.toLowerCase() === 'footer') {
+      if (parentTag === 'footer' && landmark.tagName && landmark.tagName.toLowerCase() === 'footer') {
         errors.push('Nested footer elements found');
       }
       
@@ -244,110 +244,4 @@ function validateSvgAccessibility() {
   svgs.forEach((svg, index) => {
     const name = getSvgAccessibleName(svg);
     if (!name) {
-      errors.push(`SVG ${index + 1} is missing an accessible name (aria-label, aria-labelledby, title, or desc)`);
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address REACT_025: Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
-  if (typeof document === 'undefined') {
-    return { valid: false, errors: ['Document not available'] };
-  }
-  
-  const errors = [];
-  const landmarkCounts = {};
-  
-  // Count landmarks by role or tag
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, [role]');
-  landmarks.forEach((landmark) => {
-    const identifier = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    
-    // main landmarks should be unique
-    if (identifier === 'main' || identifier === 'MAIN') {
-      if (landmarkCounts[identifier]) {
-        landmarkCounts[identifier]++;
-        errors.push(`Duplicate main landmark found (${landmarkCounts[identifier]})`);
-      } else {
-        landmarkCounts[identifier] = 1;
-      }
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-/**
- * Gets the accessible name of an element, addressing REACT_036 fake link issues.
- * @param {HTMLElement} element - The element to extract the accessible name from
- * @returns {string|null} The accessible name or null
- */
-function personName(element) {
-  if (typeof document === 'undefined' || !element) {
-    return null;
-  }
-  
-  // Check for aria-label
-  const ariaLabel = element.getAttribute('aria-label');
-  if (ariaLabel) return ariaLabel;
-  
-  // Check for aria-labelledby referencing another element
-  const labelledBy = element.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const labelElement = document.getElementById(labelledBy);
-    if (labelElement) return labelElement.textContent;
-  }
-  
-  // Check for title attribute
-  const title = element.getAttribute('title');
-  if (title) return title;
-  
-  // Fall back to text content
-  const textContent = element.textContent.trim();
-  if (textContent) return textContent;
-  
-  return null;
-}
-
-/**
- * Validates that links and interactive elements have accessible names,
- * addressing REACT_036 fake link issues.
- * @param {HTMLElement} container - Optional container to scan within
- * @returns {object} Validation result with valid flag and errors array
- */
-function validateAccessibleLinks(container) {
-  if (typeof document === 'undefined') {
-    return { valid: true, errors: [] };
-  }
-  
-  const errors = [];
-  const root = container || document;
-  const links = root.querySelectorAll('a, button, [role="link"], [role="button"]');
-  
-  links.forEach((el, index) => {
-    const name = personName(el);
-    if (!name || !name.trim()) {
-      errors.push(`Interactive element ${index + 1} is missing an accessible name`);
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// Export all functions to maintain current exports
-module.exports = {
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateSvgAccessibility,
-  ensureUniqueLandmarks,
-  validateAccessibleLinks
-};
+      errors.push(`SVG ${index + 1} is missing

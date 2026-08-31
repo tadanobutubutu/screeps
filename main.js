@@ -9,6 +9,9 @@ const calculateSum = (a, b) => {
 };
 
 const Main = ({ children, title, lang = 'en' }) => {
+  // Extracted from the conflicting code and added for consistency
+  // ensuring the Main component accepts lang attribute
+
   return (
     <main lang={lang}>
       {title && <h1>{title}</h1>}
@@ -17,13 +20,15 @@ const Main = ({ children, title, lang = 'en' }) => {
   );
 };
 
+// Combined the two exports from both sides of the merge conflict
 Main.propTypes = {
   children: PropTypes.node,
   title: PropTypes.string,
   lang: PropTypes.string,
 };
 
-// Adding the missing required exports
-export { Main, PropTypes, calculateSum };
+// Added the missing required exports
+export { Main, calculateSum };
 
+// Replaced the default export with the combined export
 export default Main;

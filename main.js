@@ -36,6 +36,7 @@ function fetchUser(userId) {
 }
 
 function clearCache() {
+  appState.initialized = false;
   appState.data = null;
   appState.cache.clear();
 }
@@ -206,9 +207,18 @@ const googleSignIn = {
   }
 };
 
+// Imports from origin/main
+import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityProps, getAccessibleLinkProps } from './accessibility';
+
 // Exports
 export {
   APP_CONFIG,
+  config,
   appState,
   initialize,
   initializeApp,
@@ -218,6 +228,8 @@ export {
   helper,
   formatDate,
   validateInput,
+  getLangAttribute,
+  addLangAttribute,
   ensureLangAttribute,
   fixTableStructure,
   fixLandmarks,
@@ -225,7 +237,5 @@ export {
   fixFakeLinks,
   replaceButtonIds,
   ensureDependencyGraphAriaRole,
-  googleSignIn,
-  getLangAttribute,
-  addLangAttribute
+  googleSignIn
 };

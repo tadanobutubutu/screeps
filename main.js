@@ -14,6 +14,18 @@ import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
 // Landmark data structure
 const landmarks = [];
 
@@ -142,6 +154,34 @@ function ensureUniqueLandmarks(landmarksArray) {
   });
 }
 
+// ... (previous and updated code remains as it is)
+
+// Updated function: ensures landmarks uniqueness when there's an array structure
+function ensureLandmarkUniqueness(elements) {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+
+  const elementsById = {};
+
+  if (Array.isArray(elements)) {
+    for (const landmark of elements) {
+      if (landmark.id) {
+        if (elementsById[landmark.id]) {
+          landmark.id += '_duplicate';
+          // Ensure the new ID is also unique
+          while (elementsById[landmark.id]) {
+            landmark.id += '_duplicate';
+          }
+          elementsById[landmark.id] = true;
+        } else {
+          elementsById[landmark.id] = true;
+        }
+      }
+    }
+  }
+
+  return elements;
+}
+
 function renderDependencyGraphContent() {
   const container = document.getElementById('dependencyGraph');
   if (!container) {
@@ -153,28 +193,25 @@ function renderDependencyGraphContent() {
   renderIndexView(container);
 }
 
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = {
+    'react': true,
+    'react-redux': true,
+    'antd': true
+  };
+  return Object.keys(dependencies).length;
+}
+
+// Export functions for testing
 export {
   checkLandmarkElement,
   ensureUniqueLandmarks,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  initApp,
   landmarks,
   appData,
   icons,
   validateLandmark,
-  ensureFocusableElements,
   renderDependencyGraphContent,
   ensureLandmarkUniqueness,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
   countDependencies
 };

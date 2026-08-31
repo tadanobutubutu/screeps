@@ -106,6 +106,11 @@ function countDependencies() {
   return importCount.length;
 }
 
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Original code goes here
+// ----- END ORIGINAL CODE -----
+
 // Render index view content using indexContent
 function renderIndexView() {
   return indexContent;
@@ -198,7 +203,7 @@ const a11yStore = {
         const descriptionElement = document.createElement('desc');
         descriptionElement.id = descriptionId;
         descriptionElement.textContent = titleText;
-        svg.appendChild(descElement);
+        svg.appendChild(descriptionElement);
       }
     });
   },
@@ -391,7 +396,7 @@ const a11yStore = {
         const descriptionElement = document.createElement('desc');
         descriptionElement.id = descriptionId;
         descriptionElement.textContent = titleText;
-        svg.appendChild(descElement);
+        svg.appendChild(descriptionElement);
       }
     });
   },

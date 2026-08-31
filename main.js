@@ -116,19 +116,27 @@ module.exports = {
 
   initialize: function() {
     this.initializeAccessibility();
+  },
+  generateAccessibilityReport: function(issuesData) {
+    const analyzedIssues = analyzeAccessibility(issuesData);
+    let conclusions = '';
+
+    if (Array.isArray(analyzedIssues)) {
+      const count = analyzedIssues.length;
+      if (count > 0) {
+        conclusions = `The accessibility audit identified ${count} issue(s).`;
+      } else {
+        conclusions = 'No accessibility issues were detected.';
+      }
+    } else {
+      conclusions = 'Unable to generate report: invalid or empty data provided.';
+    }
+
+    const report = {
+      introduction: 'Accessibility report for the application',
+      data: analyzedIssues,
+      conclusions: conclusions
+    };
+    return report;
   }
 };
-
-function analyzeAccessibility(issuesData) {
-  return issuesData;
-}
-
-function generateAccessibilityReport(issuesData) {
-  const analyzedIssues = analyzeAccessibility(issuesData);
-  const report = {
-    introduction: 'Accessibility report for the application',
-    data: analyzedIssues,
-    conclusions: ''
-  };
-  return report;
-}

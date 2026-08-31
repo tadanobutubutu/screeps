@@ -66,12 +66,25 @@
       document.body.appendChild(button);
     }
 
+    // New function to extract the accessible name for an SVG from its content
+    function extractSvgAccessibleName(svgContent) {
+      const svgElement = new DOMParser().parseFromString(svgContent, 'image/svg+xml').documentElement;
+      const title = svgElement.querySelector('title');
+      return title ? title.textContent : 'No accessible name found';
+    }
+
     // Function to address accessibility issues
     function addressAccessibilityIssues() {
       // Ensure the root container has an accessible name
       const rootContainer = document.getElementById('root') ? document.getElementById('root').parentElement : null;
       if (rootContainer) {
         rootContainer.setAttribute('role', 'main');
+      }
+
+      // Adding the lang attribute to the HTML element
+      const htmlElement = document.documentElement;
+      if (htmlElement) {
+        htmlElement.setAttribute('lang', getLangAttribute());
       }
 
       // Initialize skip link functionality
@@ -128,12 +141,6 @@
       if (divElement) {
         divElement.setAttribute('role', 'list');
       }
-
-      // Adding the lang attribute to the HTML element
-      const htmlElement = document.documentElement;
-      if (htmlElement) {
-        htmlElement.setAttribute('lang', getLangAttribute());
-      }
     }
 
     // New function to import a module and execute a function
@@ -178,6 +185,7 @@
       addressAccessibilityIssues,
       getLangAttribute,
       createInPageButton,
+      extractSvgAccessibleName,
       a11y,
       scanAccessibility,
       writeReport,

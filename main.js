@@ -1,5 +1,8 @@
-// TODO: Identify and update specific functions that render dependency graphs or
+// Main application entry point
+// This file initializes the application and exports core modules
+
 // TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 const { getDepGraph } = require('./depGraph');
 const {
@@ -477,6 +480,8 @@ function wrapPrimaryContentInMain() {
 }
 
 module.exports = {
+  appName: 'MyApplication',
+  version: '1.0.0',
   renderDependencyGraph,
   updateDependencyGraphRender,
   getAllDependencyNodes,

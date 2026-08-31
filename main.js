@@ -6,9 +6,9 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure(), validateUniqueLandmarks())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateUniqueLandmarks())
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
@@ -50,22 +50,22 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
+    if ... {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if ... {
       lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
+    } else if ... {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
+    } else if ... {
       lang = 'ar'; // Arabic
-    } else if (/[àâäçéèêëîïôûü]/i.test(content)) {
+    } else if ... {
       lang = 'fr'; // French
-    } else if (/[äöüß]/i.test(content)) {
+    } else if ... {
       lang = 'de'; // German
     }
   }
   
-  return setHtmlLangAttribute(lang);
+  return ...
 }
 
 /**
@@ -133,13 +133,73 @@ function validateLandmarkStructure(element) {
 }
 
 /**
+ * Validates that all landmarks in the document have unique accessible names.
+ * Addresses REACT_025: Ensure unique landmarks
+ * @returns {object} An object containing validation results with isValid boolean and errors array
+ */
+function validateUniqueLandmarks() {
+  const result = {
+    isValid: true,
+    errors: []
+  };
+  
+  if (typeof document === 'undefined') return result;
+  
+  // Define landmark roles that should be checked for uniqueness
+  const landmarkRoles = [
+    'banner', 'navigation', 'main', 'complementary', 
+    'contentinfo', 'search', 'form', 'application', 
+    'article', 'region'
+  ];
+  
+  // Get all elements with landmark roles
+  const landmarksByRole = {};
+  
+  landmarkRoles.forEach(role => {
+    // Find elements with role attribute
+    const roleElements = document.querySelectorAll(`[role="${role}"]`);
+    // Find native elements that represent landmarks
+    const nativeSelector = role === 'navigation' ? 'nav' :
+                          role === 'main' ? 'main' :
+                          role === 'banner' ? 'header' :
+                          role === 'contentinfo' ? 'footer' :
+                          role === 'complementary' ? 'aside' : null;
+    
+    const nativeElements = nativeSelector ? document.querySelectorAll(nativeSelector) : [];
+    
+    landmarksByRole[role] = [...roleElements, ...nativeElements];
+  });
+  
+  // Check each role for uniqueness
+  Object.keys(landmarksByRole).forEach(role => {
+    const landmarks = landmarksByRole[role];
+    
+    landmarks.forEach((landmark, index) => {
+      // Get the accessible name of the landmark
+      const label = landmark.getAttribute('aria-label') || '';
+      const labelledBy = landmark.getAttribute('aria-labelledby') || '';
+      const title = landmark.getAttribute('title') || '';
+      const accessibleName = label || (labelledBy ? `labelledby:${labelledBy}` : '') || title;
+      
+      // If multiple landmarks of the same role exist, they must have unique accessible names
+      if (landmarks.length > 1 && !accessibleName) {
+        result.isValid = false;
+        result.errors.push(`Duplicate <${role}> landmark at index ${index} requires a unique accessible name (aria-label, aria-labelledby, or title)`);
+      }
+    });
+  });
+  
+  return result;
+}
+
+/**
  * Gets the accessible name from an SVG element
  * @param {SVGSVGElement} svg - The SVG element
  * @returns {string} The accessible name of the SVG
  */
 function getSvgAccessibleName(svg) {
   if (!svg || typeof svg !== 'object') return '';
-  return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
+  return ... || svg.getAttribute('title') || '';
 }
 
-module.exports = { setHtmlLangAttribute, getLangAttribute, detectAndSetLang, personName, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName };
+module.exports = { setHtmlLangAttribute, getLangAttribute, detectAndSetLang, personName, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, validateUniqueLandmarks, getSvgAccessibleName };

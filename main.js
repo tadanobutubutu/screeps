@@ -13,7 +13,7 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function ensureUniqueLandmarkId(baseName) {
+function createLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
@@ -43,7 +43,7 @@ function uniqueLandmarks(landmarks) {
 
 /**
  * Adds an aria-label attribute to an element if it doesn't already have one.
- * @param {HTMLElement} elementId - The element to add the aria-label to.
+ * @param {HTMLElement|string} elementId - The element or element ID to add the aria-label to.
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(elementId, label) {
@@ -54,168 +54,205 @@ function addAriaLabel(elementId, label) {
 }
 
 // Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', getLangAttribute());
+function applyLangAttribute() {
+    const htmlElement = document.documentElement;
+    const lang = getLangAttribute();
+    if (lang && !htmlElement.hasAttribute('lang')) {
+        htmlElement.setAttribute('lang', lang);
+    }
+}
 
 // Ensure elements have the required IDs
 function ensureElementHasId(elementId) {
-  const element = document.getElementById(elementId);
-  if (element && !element.hasAttribute('id')) {
-    element.setAttribute('id', elementId);
-  }
+    const element = document.getElementById(elementId);
+    if (element && !element.id) {
+        element.setAttribute('id', elementId);
+    }
 }
-
-ensureElementHasId('myTable');
-ensureElementHasId('mySvg');
-ensureElementHasId('inPageButton');
 
 // Add ARIA labels for better screen reader support
 addAriaLabel('myTable', 'Product data table');
 addAriaLabel('myLogo', 'Company logo');
-addAriaLabel('myMenu', 'Accessibility menu');
+addAriaLabel('menuButton', 'Accessibility menu');
 
 // DOM-based accessibility code
 
 function getFullLangAttribute() {
-  // Implementation for getting full lang attribute
-  return 'en-US'; // Example implementation
+    // Implementation for getting full lang attribute
+    return 'en-US'; // Example implementation
 }
 
 function getLangAttribute() {
-  // Implementation for getting lang attribute
-  return getFullLangAttribute();
+    // Implementation for getting lang attribute
+    return getFullLangAttribute();
 }
 
 function personName() {
-  // Existing code...
+    // Existing code...
 }
 
 function validateLandmark() {
-  // Existing code...
+    // Existing code...
 }
 
 function validateLandmarkStructure() {
-  // Existing code...
+    // Existing code...
 }
 
 function validateTableAccessibility(table) {
-  // Implementation for validating table accessibility
-  if (!table) return;
-  // Add accessibility checks for table
+    // Implementation for validating table accessibility
+    if (!table) return;
+    // Add accessibility checks for table
 }
 
 function validateTableStructure(table) {
-  // Implementation for validating table structure
-  if (!table) return;
-  // Add structure validation logic
+    // Implementation for validating table structure
+    if (!table) return;
+    // Add structure validation logic
 }
 
 function ensureElementsHaveIds(elements) {
-  return Array.from(elements).map((element, index) => {
-    if (!element.id) {
-      element.id = `element-${index}`;
-    }
-    return element;
-  });
+    return Array.from(elements).map((element, index) => {
+        if (!element.id) {
+            element.id = `element-${index}`;
+        }
+        return element;
+    });
 }
 
 // Added function to ensure unique landmarks as mentioned in the issue
 function ensureUniqueLandmarks() {
-  // Implementation for ensuring unique landmarks
-  // Remove duplicate landmarks
-  const landmarks = document.querySelectorAll([
-    'header[role="banner"]',
-    'nav[role="navigation"]',
-    'main[role="main"]',
-    'aside[role="complementary"]',
-    'footer[role="contentinfo"]'
-  ].join(', '));
+    // Implementation for ensuring unique landmarks
+    // Remove duplicate landmarks
+    const landmarks = document.querySelectorAll(
+        'header[role="banner"], nav[role="navigation"], main[role="main"], footer[role="contentinfo"]'
+    );
 
-  // Logic to handle duplicate landmarks
-  // For example, remove role attributes from non-unique landmarks except the first occurrence
-  // This is a simplified implementation
+    // Logic to handle duplicate landmarks
+    // For example, remove role attributes from non-unique landmarks except the first occurrence
+    // This is a simplified implementation
+    const seenRoles = {};
+    landmarks.forEach((landmark) => {
+        const role = landmark.getAttribute('role');
+        if (seenRoles[role]) {
+            // Remove duplicate role
+            landmark.removeAttribute('role');
+        } else {
+            seenRoles[role] = true;
+        }
+    });
 }
 
-function getSvgAccessibleName() {
-  // Existing code...
+function getSvgAccessibleName(svg) {
+    // Check if SVG has a title element
+    const title = svg.querySelector('title');
+    if (title && title.textContent.trim()) {
+        return title.textContent.trim();
+    }
+    // Fallback to aria-label
+    return svg.getAttribute('aria-label') || '';
 }
 
 function setSvgAttributes(svg, accessibleName) {
-  // Implementation for setting SVG attributes
-  if (!svg) return;
-  // Add accessible name to SVG
+    // Implementation for setting SVG attributes
+    if (!svg) return;
+    // Add accessible name to SVG
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+        svg.setAttribute('aria-label', accessibleName);
+    }
+    // Ensure the SVG has a role
+    if (!svg.getAttribute('role')) {
+        svg.setAttribute('role', 'img');
+    }
 }
 
 function createInPageButton() {
-  // Implementation for creating in-page button
-  const button = document.createElement('button');
-  button.setAttribute('aria-label', 'Skip to main content');
-  button.textContent = 'Skip to main content';
-  document.body.appendChild(button);
+    // Implementation for creating in-page button
+    const button = document.createElement('button');
+    button.setAttribute('aria-label', 'Skip to main content');
+    button.textContent = 'Skip to main content';
+    return button;
 }
 
 // Added function to create accessible links as mentioned in the issue
 function createAccessibleLink(text, href) {
-  // Implementation for creating accessible link
-  const link = document.createElement('a');
-  link.href = href;
-  link.textContent = text;
-  link.setAttribute('aria-label', text);
-  return link;
+    // Implementation for creating accessible link
+    const link = document.createElement('a');
+    link.href = href;
+    link.textContent = text;
+    link.setAttribute('aria-label', text);
+    return link;
 }
 
 // Added function to handle accessibility issues as mentioned in the issue
 function handleAccessibilityIssues() {
-  // Implementation for handling all accessibility issues
-  // This could coordinate the calling of other accessibility functions
-  ensureUniqueLandmarks();
-  // Add other accessibility issue handling as needed
+    // Implementation for handling all accessibility issues
+    // This could coordinate the calling of other accessibility functions
+    ensureUniqueLandmarks();
+    // Add other accessibility issue handling as needed
 }
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // New code to fix accessibility issues...
+    // New code to fix accessibility issues...
+    applyLangAttribute();
+    ensureUniqueLandmarks();
+    fixFakeLinkIssues();
+    fixSvgAccessibility();
 }
 
 function validateLinkAccessibility() {
-  // Implementation for validating link accessibility
+    // Implementation for validating link accessibility
 }
 
 function handleFakeLinks() {
-  // Implementation for handling fake links
+    // Implementation for handling fake links
+    // Find elements that look like links but are not <a> elements
+    const fakeLinks = document.querySelectorAll('[role="link"], .fake-link, [data-link="true"]');
+    fakeLinks.forEach((link) => {
+        // Convert to proper link or add proper attributes
+        if (!link.tagName.toLowerCase() === 'a') {
+            link.setAttribute('role', 'link');
+            // Ensure it has a tabindex for keyboard navigation
+            if (!link.hasAttribute('tabindex')) {
+                link.setAttribute('tabindex', '0');
+            }
+        }
+    });
 }
 
 // Create in-page button with accessibility considerations
 createInPageButton();
 
 // Ensure button has an id and appropriate ARIA label
-ensureElementHasId('inPageButton');
-addAriaLabel('inPageButton', 'Accessibility menu');
+addAriaLabel('menuButton', 'Accessibility menu');
 
 // Validate table structure and accessibility
 // Ensuring all tables in the document are accessible
 const tables = document.querySelectorAll('table');
-tables.forEach(table => {
-  validateTableAccessibility(table);
-  validateTableStructure(table);
+tables.forEach((table) => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
 });
 
 // New function to address REACT_036: Fix 1 fake link issue
 function fixFakeLinkIssues() {
     // Fix fake link issues
+    handleFakeLinks();
 }
 
 // Google sign-in accessibility
 // Ensuring Google sign-in button has proper accessible name and role
 function googleSignIn() {
-  const googleButton = document.querySelector('[data-google-signin]');
-  if (googleButton) {
-    googleButton.setAttribute('aria-label', 'Sign in with Google');
-    googleButton.setAttribute('role', 'button');
-  }
+    const googleButton = document.querySelector('.google-sign-in, [data-google-signin]');
+    if (googleButton) {
+        googleButton.setAttribute('aria-label', 'Sign in with Google');
+        googleButton.setAttribute('role', 'button');
+    }
 }
 
 // Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', getLangAttribute());
+applyLangAttribute();
 
 // Add/fix landmark issues
 validateLandmark();
@@ -223,9 +260,14 @@ validateLandmarkStructure();
 ensureUniqueLandmarks();
 
 // Add accessible names to SVGs
-const svg = document.getElementById('mySvg');
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
+function fixSvgAccessibility() {
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach((svg) => {
+        const accessibleName = getSvgAccessibleName(svg);
+        setSvgAttributes(svg, accessibleName);
+    });
+}
+fixSvgAccessibility();
 
 // Validate link accessibility
 validateLinkAccessibility();
@@ -234,38 +276,38 @@ handleFakeLinks();
 // Fix button identifiers
 // Ensuring all buttons have proper accessible identifiers
 document.addEventListener('DOMContentLoaded', () => {
-  // Fix fake link issues
-  // Converting buttons styled as links to proper accessible buttons
-  handleFakeLinks();
+    // Fix fake link issues
+    // Converting buttons styled as links to proper accessible buttons
+    handleFakeLinks();
 
-  // Fix button identifiers
-  // Ensuring all buttons have proper accessible identifiers
-  const buttons = document.querySelectorAll('[role="button"]');
-  buttons.forEach((button, index) => {
-    if (!button.id) {
-      button.id = `button-${index}`;
+    // Fix button identifiers
+    // Ensuring all buttons have proper accessible identifiers
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach((button, index) => {
+        if (!button.id) {
+            button.id = `button-${index}`;
+        }
+    });
+
+    // Use the new function to add aria-labels to the appropriate elements
+    const myButton = document.getElementById('myButton');
+    const myIcon = document.getElementById('myIcon');
+
+    if (myButton) {
+        addAriaLabel(myButton, 'My Button');
     }
-  });
 
-  // Use the new function to add aria-labels to the appropriate elements
-  const myButton = document.querySelector('.my-button');
-  const myIcon = document.querySelector('.my-icon');
+    if (myIcon) {
+        addAriaLabel(myIcon, 'My Icon');
+    }
 
-  if (myButton) {
-    addAriaLabel(myButton, 'My Button');
-  }
-
-  if (myIcon) {
-    addAriaLabel(myIcon, 'My Icon');
-  }
-
-  // Google sign-in accessibility
-  // Ensuring Google sign-in button has proper accessible name and role
-  const googleButton = document.querySelector('.google-sign-in, [data-provider="google"]');
-  if (googleButton) {
-    addAriaLabel(googleButton, 'Sign in with Google');
-    googleButton.setAttribute('role', 'button');
-  }
+    // Google sign-in accessibility
+    // Ensuring Google sign-in button has proper accessible name and role
+    const googleButton = document.querySelector('.google-sign-in, [data-google-signin]');
+    if (googleButton) {
+        googleButton.setAttribute('aria-label', 'Sign in with Google');
+        googleButton.setAttribute('role', 'button');
+    }
 });
 
 // REACT_015: lang attribute added to HTML element
@@ -294,316 +336,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateTableStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
-// Main game loop
-module.exports = function() {
-    // Initialize accessibility features
-    const langAttr = getLangAttribute();
-    const primaryContent = wrapPrimaryContentInMain();
-
-    // Validate accessibility
-    validateTableAccessibility();
-    validateTableStructure();
-    validateLandmark();
-    validateLandmarkStructure();
-    addFixLandmarkIssues();
-
-    // SVG accessibility
-    const svgName = getSvgAccessibleName();
-    addAriaToFormControls();
-
-    // Unique landmarks and fake link fixes
-    ensureUniqueLandmarks();
-    fixFakeLinkIssues();
-    createAccessibleLink();
-
-    // Harvest and upgrade logic
-    harvestAndUpgradeLogic();
-
-    // Your existing Screeps logic here
-    // ...
-};
-
-// Harvest and upgrade logic function
-function harvestAndUpgradeLogic() {
-    // Implement harvest and upgrade logic
-    // Example:
-    for (let creep of Game.creeps) {
-        if (creep.memory.working) {
-            if (creep.store.getFreeCapacity() > 0) {
-                let source = creep.pos.findClosestByRange(FIND_SOURCES);
-                if (source) {
-                    creep.harvest(source);
-                }
-            } else {
-                let target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                    filter: (structure) => {
-                        return structure.structureType === STRUCTURE_EXTENSION ||
-                               structure.structureType === STRUCTURE_SPAWN ||
-                               structure.structureType === STRUCTURE_TOWER;
-                    }
-                });
-                if (target) {
-                    creep.upgradeStructure(target);
-                }
-            }
-        } else {
-            let target = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
-            if (target) {
-                creep.build(target);
-            } else {
-                let target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-                if (target) {
-                    creep.attack(target);
-                } else {
-                    creep.moveTo(Game.flags.Worker);
-                }
-            }
-        }
-    }
-}
-
-// Harvest and upgrade logic functions
-function harvest(creep, source) {
-    if (!source) return;
-    if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(source);
-    }
-}
-
-function upgradeController(creep, controller) {
-    if (!controller) return;
-    if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(controller);
-    }
-}
-
-// New function to render dependency graphs or display module structure
-function renderDependencyGraph(module) {
-  // Implementation to render the dependency graph for a given module
-  console.log('Rendering dependency graph for:', module);
-  // Return the rendered graph data
-  return {
-    module: module,
-    dependencies: [],
-    rendered: true
-  };
-}
-
-// New function to display module structure
-function displayModuleStructure(module) {
-  // Implementation to display the module structure for a given module
-  console.log('Displaying module structure for:', module);
-  // Return the module structure data
-  return {
-    module: module,
-    structure: {},
-    displayed: true
-  };
-}
-
-// New function to check link accessibility
-function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function validates the accessibility of links in the document
-  const links = document.querySelectorAll('a');
-  const results = [];
-
-  links.forEach((link, index) => {
-    const hasText = link.textContent.trim().length > 0;
-    const hasAriaLabel = link.hasAttribute('aria-label');
-    const hasTitle = link.hasAttribute('title');
-
-    results.push({
-      index: index,
-      href: link.href,
-      accessible: hasText || hasAriaLabel || hasTitle
-    });
-  });
-
-  return results;
-}
-
-// State management
-const state = {
-  currentModule: null,
-  dependencyGraph: null,
-  moduleStructure: null
-};
-
-// Placeholder for dependency graph content
-const dependencyGraphContent = {};
-
-// Placeholder for index content
-const indexContent = {};
-
-// React / UI related functions
-
-// TODO: Add these imported modules to the relevant rendering functions
-
-function formatProductName(product) {
-  return `${product.name} - ${formatCurrency(product.price)}`;
-}
-
-/**
- * Spawns a new entity or process based on the provided configuration.
- * @param {Object} config - The configuration object for spawning.
- * @param {string} config.type - The type of entity to spawn.
- * @param {Object} [config.options] - Additional options for the spawn operation.
- * @returns {Object|null} The spawned entity, or null if spawning failed.
- */
-function spawn(config) {
-    if (!config || typeof config !== 'object') {
-        console.error('Invalid spawn configuration');
-        return null;
-    }
-
-    const { type, options = {} } = config;
-
-    if (!type) {
-        console.error('Spawn configuration must include a type');
-        return null;
-    }
-
-    // Default spawn options
-    const spawnOptions = {
-        detached: false,
-        stdio: 'inherit',
-        ...options
-    };
-
-    try {
-        const entity = {
-            type,
-            id: `entity-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-            options: spawnOptions,
-            spawnedAt: new Date().toISOString()
-        };
-
-        console.log(`Spawning entity of type: ${type}`, entity);
-        return entity;
-    } catch (error) {
-        console.error('Error during spawn operation:', error);
-        return null;
-    }
-}
-
-function renderProductList(products) {
-  const container = document.getElementById('product-list');
-  container.innerHTML = products.map(renderProductCard).join('');
-  return container;
-}
-
-function calculateTotalPrice(cart) {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = calculateDiscount(subtotal);
-  return subtotal - discount;
-}
-
-function renderCart(cart) {
-  const total = calculateTotalPrice(cart);
-  return `
-    <div class="cart">
-      <h2>Shopping Cart</h2>
-      <p>Total: ${formatCurrency(total)}</p>
-      <p>Date: ${formatDate(new Date())}</p>
-    </div>
-  `;
-}
-
-function validateAndRender(input) {
-  if (validateInput(input)) {
-    return renderProductList(input.products);
-  }
-}
-
-const renderIndex = () => {
-  // Code to render the index view
-};
-
-// TODO: add the new functions or changes requested in the issue
-// Here's a sample implementation for a new function named 'myNewFunction'
-function myNewFunction(arg1, arg2) {
-  // Your implementation of the function goes here.
-  // For example, let's just return the product of the inputs.
-  return arg1 * arg2;
-}
-
-// Placeholder renderPage function
-function renderPage() {
-  // Implementation to render the page
-}
-
-// Export accessibility utility functions
-export { makeHeaderFocusable };
-
-// Export UI / product functions
-export {
-  checkLinkAccessibility,
-  displayModuleStructure
-};
-
-// Export accessibility functions
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  fixFakeLinkIssues
-};
-
-// Export component functions
-export {
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput
-};
-
-// Export utility functions
-export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage
-};
-
-// Export state
-export {
-  state,
-  updateState
-};
-
-// Export UI / product functions
-export {
-  renderHeader,
-  renderFooter,
-  renderProductCard
-};
-
-// Exporting other functions
-export {
-  renderDependencyGraph,
-  spawn,
-  myNewFunction,
-  renderIndex
-};
-
-// Exporting for CommonJS compatibility
-const moduleExports = {
-  specificFunctionThatRendersGraphOrIndex: renderDependencyGraph,
-  renderIndex,
-  // ... other exports ...
-};
-
-// CommonJS compatibility for non-ESM contexts
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = moduleExports;
-}
+// Make header focusable for keyboard navigation
+function makeHeaderFocusable() {
+    const header = document.querySelector('header');
+    if (header) {
+        header.setAttribute('tabindex', '-1');
+        header.addEventListener('focus', () => {
+            header.style.outline = '2px solid #006

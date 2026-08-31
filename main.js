@@ -12,6 +12,9 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
+// Store credentials received from the response
+let storedCredentials = null;
+
 /**
  * Creates and starts the HTTP server
  * @returns {http.Server} The created server instance
@@ -34,15 +37,6 @@ function startApp() {
   });
   return server;
 }
-
-// Export functions for testing
-module.exports = {
-  createServer,
-  startApp,
-  config
-};
-
-// New functions
 
 // New function to handle logging
 function logMessage(message) {
@@ -70,9 +64,36 @@ function addLangAttribute(element, lang) {
 
 // TODO: Implement the logic to handle the credential response
 function handleCredentialResponse(response) {
-  // Logic to handle the credential response
-  // This is a placeholder for the actual implementation
-  console.log('Handling credential response:', response);
+  // Accept a JSON string or an already parsed object
+  let data;
+  if (typeof response === 'string') {
+    try {
+      data = JSON.parse(response);
+    } catch (e) {
+      console.error('[ERROR] Failed to parse credential response JSON:', e);
+      return;
+    }
+  } else if (typeof response === 'object') {
+    data = response;
+  } else {
+    console.error('[ERROR] Credential response must be a string or object');
+    return;
+  }
+
+  // Basic validation – ensure required fields exist and have correct types
+  if (!data || typeof data.token !== 'string' || typeof data.expiration !== 'number') {
+    console.error('[ERROR] Credential response is missing required fields (token, expiration)');
+    return;
+  }
+
+  // Store the validated credentials
+  storedCredentials = data;
+  logMessage('Credential response received, parsed, validated and stored');
+}
+
+// Helper to retrieve stored credentials (useful for tests)
+function getStoredCredentials() {
+  return storedCredentials;
 }
 
 // Add accessibility function to handle the lang attribute for the entire HTML document
@@ -82,5 +103,12 @@ function handleAddLangAttribute(htmlDocument, lang) {
   addLangAttribute(htmlElement, lang);
 }
 
-// Add export for handleAddLangAttribute
-module.exports.handleAddLangAttribute = handleAddLangAttribute;
+// Export functions for testing
+module.exports = {
+  createServer,
+  startApp,
+  config,
+  handleCredentialResponse,
+  getStoredCredentials,
+  handleAddLangAttribute
+};

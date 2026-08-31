@@ -1,6 +1,18 @@
-// TODO: This is the existing code that needs to be preserve
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
+
+<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
+
+// _Commit: 8adaba45ab4da0660dd63012cea4a0963c92ac7c_
+
+<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
 const fs = require('fs');
 
@@ -248,67 +260,21 @@ function groupByCategory(items, getCategory) {
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 
-_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
-
-<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
-
-// TODO: Implement the new function as per the issue requirements
-function transformInputData(inputData, options = {}) {
-  const {
-    preserveKeys = true,
-    uppercase = false,
-    trimWhitespace = true,
-    maxLength = null
-  } = options;
-
-  if (!inputData) {
+// New function: Ensure dependencyGraph container has proper ARIA role
+function ensureDependencyGraphAriaRole(containerElement) {
+  if (!containerElement) {
     return null;
   }
-
-  const processValue = (value) => {
-    if (typeof value === 'string') {
-      let processed = value;
-      if (trimWhitespace) {
-        processed = processed.trim();
-      }
-      if (uppercase) {
-        processed = processed.toUpperCase();
-      }
-      if (maxLength !== null && processed.length > maxLength) {
-        processed = processed.substring(0, maxLength);
-      }
-      return processed;
-    }
-    return value;
-  };
-
-  if (typeof inputData === 'object' && !Array.isArray(inputData) && inputData !== null) {
-    const result = {};
-    const keys = preserveKeys ? Object.keys(inputData) : Object.keys(inputData).map(() => Math.random().toString(36).substr(2, 9));
-    
-    let i = 0;
-    for (const key of Object.keys(inputData)) {
-      const value = inputData[key];
-      if (typeof value === 'object' && value !== null) {
-        result[keys[i]] = transformInputData(value, options);
-      } else {
-        result[keys[i]] = processValue(value);
-      }
-      i++;
-    }
-    return result;
+  
+  // Set ARIA role to 'region' for landmark navigation
+  containerElement.setAttribute('role', 'region');
+  
+  // Add aria-label if not present
+  if (!containerElement.hasAttribute('aria-label')) {
+    containerElement.setAttribute('aria-label', 'Dependency Graph');
   }
-
-  if (Array.isArray(inputData)) {
-    return inputData.map((item) => {
-      if (typeof item === 'object' && item !== null) {
-        return transformInputData(item, options);
-      }
-      return processValue(item);
-    });
-  }
-
-  return processValue(inputData);
+  
+  return containerElement;
 }
 
 // Initialize on DOM ready
@@ -386,6 +352,74 @@ function ensureElementHasId(element, prefix = 'element') {
 // Export the newFocusTrap function as a standalone utility
 const newFocusTrap = accessibilityUtils.newFocusTrap;
 
+// New function: transformInputData
+function transformInputData(inputData, options = {}) {
+  const {
+    preserveKeys = true,
+    uppercase = false,
+    trimWhitespace = true,
+    maxLength = null
+  } = options;
+
+  if (!inputData) {
+    return null;
+  }
+
+  const processValue = (value) => {
+    if (typeof value === 'string') {
+      let processed = value;
+      if (trimWhitespace) {
+        processed = processed.trim();
+      }
+      if (uppercase) {
+        processed = processed.toUpperCase();
+      }
+      if (maxLength !== null && processed.length > maxLength) {
+        processed = processed.substring(0, maxLength);
+      }
+      return processed;
+    }
+    return value;
+  };
+
+  if (typeof inputData === 'object' && !Array.isArray(inputData) && inputData !== null) {
+    const result = {};
+    const keys = preserveKeys ? Object.keys(inputData) : Object.keys(inputData).map(() => Math.random().toString(36).substr(2, 9));
+    
+    let i = 0;
+    for (const key of Object.keys(inputData)) {
+      const value = inputData[key];
+      if (typeof value === 'object' && value !== null) {
+        result[keys[i]] = transformInputData(value, options);
+      } else {
+        result[keys[i]] = processValue(value);
+      }
+      i++;
+    }
+    return result;
+  }
+
+  if (Array.isArray(inputData)) {
+    return inputData.map((item) => {
+      if (typeof item === 'object' && item !== null) {
+        return transformInputData(item, options);
+      }
+      return processValue(item);
+    });
+  }
+
+  return processValue(inputData);
+}
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAccessibility);
+  } else {
+    initAccessibility();
+  }
+}
+
 // Export all utilities
 module.exports = {
   accessibilityUtils,
@@ -406,5 +440,6 @@ module.exports = {
   groupByCategory,
   transformInputData,
   validateTableAccessibility,
-  ensureElementHasId
+  ensureElementHasId,
+  ensureDependencyGraphAriaRole
 };

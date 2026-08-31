@@ -55,4 +55,5 @@ export {
   validateLinkAccessibility,
   handleFakeLinks,
   checkLinkAccessibility,
+  newFunction, // Assuming newFunction is the change requested
 };

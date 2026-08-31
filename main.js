@@ -15,7 +15,7 @@ import { registerSW } from 'effector-swift';
  * @returns {HTMLElement} The created button element
  */
 function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
+  const element = ...
   return element !== null;
 }
 
@@ -23,7 +23,7 @@ function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
   if (onClickHandler && typeof onClickHandler === 'function') {
-    button.addEventListener('click', onClickHandler);
+    ... onClickHandler);
   }
   return button;
 }
@@ -68,7 +68,7 @@ const isSecureContext = () => {
 const setLanguageAttribute = (lang = 'en') => {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    htmlElement.setAttribute('lang', lang);
+    ... lang);
   }
 };
 
@@ -80,25 +80,25 @@ const setLanguageAttribute = (lang = 'en') => {
  */
 const addLandmarkRoles = () => {
   // Navigation landmark
-  const navElement = document.querySelector('nav');
-  if (navElement && !navElement.getAttribute('role')) {
-    navElement.setAttribute('role', 'navigation');
+  const navElement = ...
+  if (navElement && ... {
+    ... 'navigation');
   }
 
   // Main content landmark
-  const mainElement = document.querySelector('main');
-  if (mainElement && !mainElement.getAttribute('role')) {
+  const mainElement = ...
+  if (mainElement && ... {
     mainElement.setAttribute('role', 'main');
   }
 
   // Header landmark (banner)
-  const headerElement = document.querySelector('header');
-  if (headerElement && !headerElement.getAttribute('role')) {
-    headerElement.setAttribute('role', 'banner');
+  const headerElement = ...
+  if (headerElement && ... {
+    ... 'banner');
   }
 
   // Footer landmark (contentinfo)
-  const footerElement = document.querySelector('footer');
+  const footerElement = ...
   if (footerElement && !footerElement.getAttribute('role')) {
     footerElement.setAttribute('role', 'contentinfo');
   }
@@ -112,9 +112,9 @@ const addLandmarkRoles = () => {
  */
 const ensureUniqueLandmarkElements = () => {
   // Navigation landmark uniqueness
-  const navElements = document.querySelectorAll('[role="navigation"]');
+  const navElements = ...
   if (navElements.length > 1) {
-    navElements.forEach((nav, index) => {
+    ... index) => {
       if (index > 0) {
         nav.setAttribute('aria-label', `Navigation ${index + 1}`);
       }
@@ -122,9 +122,9 @@ const ensureUniqueLandmarkElements = () => {
   }
 
   // Main content landmark uniqueness
-  const mainElements = document.querySelectorAll('[role="main"]');
+  const mainElements = ...
   if (mainElements.length > 1) {
-    mainElements.forEach((main, index) => {
+    ... index) => {
       if (index > 0) {
         main.setAttribute('aria-label', `Main content ${index + 1}`);
       }
@@ -142,10 +142,10 @@ const ensureUniqueLandmarkElements = () => {
  * @param {string} accessibleName - The accessible name to set.
  */
 const addSVGAccessibleName = (svgSelector, accessibleName) => {
-  const svgs = document.querySelectorAll(svgSelector);
+  const svgs = ...
   svgs.forEach((svg) => {
     // Check if the SVG already has a title element
-    let titleElement = svg.querySelector('title');
+    let titleElement = ...
     if (!titleElement) {
       titleElement = document.createElement('title');
       svg.insertBefore(titleElement, svg.firstChild);
@@ -167,16 +167,16 @@ function createUnrotateButton() {
   button.setAttribute('role', 'button');
   button.ariaLabel = 'rotate back';
   button.textContent = 'rotate back';
-  button.addEventListener('click', rotateBack);
+  ... rotateBack);
   return button;
 }
 
 function replaceFakeLinks() {
-  const fakeLink = document.getElementById('unrotate');
+  const fakeLink = ...
   if (fakeLink && fakeLink.tagName === 'A') {
     const parent = fakeLink.parentElement;
     const newButton = createUnrotateButton();
-    parent.replaceChild(newButton, fakeLink);
+    ... fakeLink);
   }
 }
 
@@ -187,7 +187,7 @@ export function newFunction() {
   const button = createInPageButton('New Function', function() {
     console.log('New Function clicked!');
   });
-  document.body.appendChild(button);
+  ...
 }
 
 // ... (other code in main.js)

@@ -1,4 +1,6 @@
 const main = require('./utilities');
+const { requireDir } = require('require-dir');
+requireDir(require.resolve('./utilities'));
 
 const accessibilityUtils = {
   // ... existing accessibilityUtils implementation
@@ -8,6 +10,7 @@ const exportUtils = {
   // ... existing exportUtils implementation
 };
 
+// Import all utilities functions for convenience (merged from both branches)
 const {
   createInPageButton,
   createWebResourceButton,
@@ -15,16 +18,36 @@ const {
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
+  validateAccessibilityReport,
   getSvgAccessibleName,
   getLangAttribute,
   handleCredentialResponse,
   ensureElementId,
   addAriaLabel,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addMainLandmark,
+  addLangAttribute,
+  fixTableStructureIssues,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  renderGraphIndex,
   renderDependencyGraph,
+  renderDependencyGraphAria,
+  addMainLandmarkToIndex,
+  addressAccessibilityIssues,
   // New function to handle focus trap
   newFocusTrap: newMainFocusTrap,
   // New functions to address new accessibility issues from insight report
-  addressAccessibilityIssues: newAddressAccessibilityIssues
+  newAddressAccessibilityIssues: addressAccessibilityIssues
 } = main;
 
 const a11yStore = {
@@ -142,6 +165,19 @@ function renderDependencyGraph(deps, options = {}) {
   return dependencyGraphContent(deps, options);
 }
 
+// Accessibility function (merged from both branches)
+function setSvgAccessibleProps(svg) {
+  addSvgAccessibleNames(svg); // From branch origin/main
+  validateLandmarkStructure(svg); // From branch origin/main
+  const titleElement = main.getSvgAccessibleName(svg);
+  if (titleElement) {
+    svg.setAttribute('aria-labelledby', titleElement.id);
+  }
+  if (!svg.getAttribute('role')) {
+    svg.setAttribute('role', 'img');
+  }
+}
+
 module.exports = {
   // ... existing exports, updated to use new functions (accessibilityUtils, newFocusTrap)
   a11yStore,
@@ -149,7 +185,10 @@ module.exports = {
   handleCredentialResponse,
   ensureElementId,
   addAriaLabel,
+  ensureElementAccessibility,
   renderGraphIndex,
   renderDependencyGraph,
+  setSvgAccessibleProps,
+  ...main,
   // ... additional exports (if any)
 };

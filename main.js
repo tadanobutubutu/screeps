@@ -1,7 +1,7 @@
 // Resolved main.js
 // Merged version combining accessibility features and application initialization
 
-import './styles.css';
+import './styles.less';
 import react from 'react';
 
 import { initializeApp } from './app.js';
@@ -20,7 +20,7 @@ let appState = {};
 
 // Initialize function
 function initialize() {
-  config = { apiUrl: process.env.API_URL || 'https://api.example.com', timeout: 5000 };
+  config = { apiUrl: process.env.API_URL || 'default', timeout: 5000 };
   appState = { initialized: true };
 }
 
@@ -51,7 +51,7 @@ function main() {
 }
 
 // Run if executed directly
-if (require.main === module) {
+if (typeof require !== 'undefined' && require.main === module) {
   main();
 }
 
@@ -97,7 +97,7 @@ const landmarkStructureCheck = (landmark) => {
  * Sets the language attribute on the HTML element.
  */
 function setLanguageAttribute() {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
@@ -105,7 +105,7 @@ function setLanguageAttribute() {
 
 function getLangAttribute() {
   // Code for getting the language attribute
-  return document.querySelector('html')?.getAttribute('lang') || null;
+  return document.documentElement.getAttribute('lang') || null;
 }
 
 function addLangAttribute(element) {
@@ -152,7 +152,7 @@ function validateLandmarkAttributes(landmark) {
  * Adds landmark roles to elements.
  */
 function addLandmarkRoles() {
-  const landmarkElements = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+  const landmarkElements = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"]');
   landmarkElements.forEach((element, index) => {
     if (!element.id) {
       element.id = 'landmark-' + index;
@@ -190,7 +190,7 @@ function validateTableStructure(table) {
 
   const rows = table.querySelectorAll('tr');
   rows.forEach(row => {
-    const cells = row.querySelectorAll('th, td');
+    const cells = row.querySelectorAll('td, th');
     cells.forEach(cell => {
       if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
         cell.setAttribute('scope', 'col');
@@ -233,7 +233,7 @@ function getSvgAccessibleName(svg) {
 function setSvgAttributes(svg, name) {
   if (!svg) return;
 
-  if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+  if (name && !svg.hasAttribute('aria-label')) {
     svg.setAttribute('aria-label', name);
   }
 }
@@ -265,7 +265,7 @@ function validateLinkAccessibility(link) {
 
   const href = link.getAttribute('href');
   const hasProperHref = href && href.length > 0 && href !== '#';
-  const hasAccessibleText = link.textContent.trim().length > 0 || link.hasAttribute('aria-label');
+  const hasAccessibleText = link.textContent.trim().length > 0 || link.getAttribute('aria-label');
 
   return hasProperHref || hasAccessibleText;
 }
@@ -274,9 +274,9 @@ function validateLinkAccessibility(link) {
  * Handles fake links by converting them to proper buttons or adding accessibility attributes.
  */
 function handleFakeLinks() {
-  const links = document.querySelectorAll('a[href="#"], a:not([href])');
+  const links = document.querySelectorAll('a:not([href])');
   links.forEach(link => {
-    if (link.getAttribute('href') === '#' || !link.hasAttribute('href')) {
+    if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
       link.setAttribute('role', 'button');
       link.setAttribute('tabindex', '0');
     }
@@ -292,14 +292,29 @@ function fixFakeLinks() {
 
 function addLandmarkRegions() {
   // Code for adding proper landmark regions
-  addProperLandmarkRegions();
+  const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
+  if (mainElement && !mainElement.id) {
+    mainElement.id = 'main-content';
+  }
+
+  const navElements = document.querySelectorAll('nav');
+  navElements.forEach((nav, index) => {
+    if (!nav.id) {
+      nav.id = 'navigation-' + index;
+    }
+  });
+
+  const footerElement = document.querySelector('footer') || document.querySelector('[role="contentinfo"]');
+  if (footerElement && !footerElement.id) {
+    footerElement.id = 'footer';
+  }
 }
 
 /**
  * REACT_037: Add proper landmark regions
  * Ensures proper landmark regions are added to the document.
  */
-function addProperLandmarkRegions() {
+function ensureLandmarkRegions() {
   const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
   if (mainElement && !mainElement.id) {
     mainElement.id = 'main-content';
@@ -345,146 +360,4 @@ function processAccessibilityReport(report) {
 }
 
 function addressAccessibilityIssues(insightReport) {
-  // Implementation of the function to address accessibility issues
-  // This addresses issues from the insight report:
-  // - REACT_015: Add lang attribute to HTML element
-  // - REACT_027: Fix 26 table structure issues
-  // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs
-  // - REACT_025: Ensure unique landmarks (2 issues)
-  // - REACT_036: Fix 1 fake link issue
-
-  if (!insightReport || !insightReport.issues) {
-    return;
-  }
-
-  // Address accessibility issues from insight report
-  insightReport.issues.forEach((issue) => {
-    switch (issue.type) {
-      case 'REACT_015':
-        // Add lang attribute to HTML element
-        if (issue.element) {
-          addLangAttribute(issue.element);
-        }
-        break;
-      case 'REACT_027':
-        // Fix table structure issues
-        if (issue.table) {
-          validateTableStructure(issue.table);
-          fixTableStructure();
-        } else {
-          validateTableAccessibility();
-        }
-        break;
-      case 'REACT_017':
-        // Add/fix landmark issues
-        if (issue.landmark) {
-          validateLandmarkStructure(issue.landmark);
-        } else {
-          validateLandmark();
-        }
-        addLandmarkRegions();
-        break;
-      case 'REACT_041':
-        // Add accessible names to SVGs
-        if (issue.svg) {
-          const accessibleName = getSvgAccessibleName(issue.svg);
-          setSvgAttributes(issue.svg, accessibleName);
-        }
-        break;
-      case 'REACT_025':
-        // Ensure unique landmarks
-        ensureUniqueLandmarks(landmarks);
-        break;
-      case 'REACT_036':
-        // Fix fake link issues
-        handleFakeLinks();
-        createInPageButton('Click me', () => {});
-        break;
-      default:
-        // Handle unknown issue types
-        break;
-    }
-  });
-}
-
-/**
- * Initializes the application and applies accessibility fixes.
- */
-const initApp = () => {
-  // Initialize the main application
-  initializeApp();
-
-  // Apply accessibility fixes
-  setLanguageAttribute(); // Default to 'en'
-  addLandmarkRoles();
-  ensureUniqueLandmarks(landmarks);
-
-  // Add accessible names to SVGs (example selectors and names)
-  const icons = {
-    icon: '<svg viewBox="0 0 100 100" aria-label="Screeps icon"></svg>'
-  };
-
-  // Fix fake links
-  fixFakeLinks();
-
-  // Initialize the application data
-  console.log('Initializing ' + appData.title + ' v' + appData.version);
-};
-
-// Check if the environment is secure before initializing
-if (isSecureContext()) {
-  initApp();
-} else {
-  console.warn('Application is not running in a secure context. Some features may not be available.');
-}
-
-// Register the service worker
-registerSW();
-
-// Add back removed exports
-module.exports = {
-  config,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  processAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  // Added from origin/main
-  someFunction: function() {
-    return 'some value';
-  },
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
-  helper: function(input) {
-    return input ? input.toUpperCase() : '';
-  },
-  formatDate: function(date) {
-    if (!(date instanceof Date)) {
-      date = new Date(date);
-    }
-    return date.toISOString().split('T')[0];
-  }
-};
+  // Implementation of

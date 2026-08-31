@@ -17,7 +17,7 @@ function getLangAttribute() {
 }
 
 // Function to ensure ARIA attributes are properly set for the dependency graph
-function ensureDependencyGraphARIA() {
+function ensureAccessibilityAttributes() {
   // Ensure the document has proper lang attribute for accessibility
   const lang = getLangAttribute();
   
@@ -49,10 +49,10 @@ function generateKey(book) {
   return book.id;
 }
 
-// Function to render a single book item
+// Function to render a single book item with accessibility attributes
 function BookItem(book) {
   return (
-    <List.Item key={generateKey(book)}>
+    <List.Item key={generateKey(book)} role="listitem">
       <List.Item.Meta
         title={book.title}
         description={book.author}
@@ -61,7 +61,7 @@ function BookItem(book) {
   );
 }
 
-// Function to create a new book entry in the Redux store
+// Function to create a new book entry in the Redux store with accessibility support
 function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
@@ -71,21 +71,21 @@ function addBook(book) {
 }
 
 // Ensure accessibility attributes are set when adding a book
-ensureDependencyGraphARIA();
+ensureAccessibilityAttributes();
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
+  const sortedList = getBooksList.slice().sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+  const sortedList = getBooksList.slice().sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
@@ -114,10 +114,26 @@ function Main() {
 
   // Render the list of book items and sorting controls
   return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />
+    <div role="region" aria-label="Book list with sorting controls">
+      <button 
+        onClick={() => setSorting(sortByTitle)} 
+        aria-label="Sort books by title in ascending order"
+      >
+        Sort by Title
+      </button>
+      <button 
+        onClick={() => setSorting(sortByAuthor)} 
+        aria-label="Sort books by author in descending order"
+      >
+        Sort by Author
+      </button>
+      <List 
+        itemLayout="vertical" 
+        dataSource={getBooksList} 
+        renderItem={book => BookItem(book)} 
+        role="list"
+        aria-label="List of books"
+      />
       {/* Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
     </div>

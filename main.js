@@ -27,12 +27,12 @@ function existingFunction() {
 function checkLinkAccessibility() {
   // Implementation for checking link accessibility
   // This function will be used to validate the accessibility of links
-  const links = document.querySelectorAll('a');
+  const links = document.querySelectorAll('a[href]');
   const issues = [];
   links.forEach(link => {
     const href = link.getAttribute('href');
     const text = link.textContent.trim();
-    if (!text && !link.getAttribute('aria-label')) {
+    if (!text) {
       issues.push(`Link with href "${href}" has no accessible text`);
     }
   });
@@ -55,4 +55,6 @@ export {
   validateLinkAccessibility,
   handleFakeLinks,
   checkLinkAccessibility,
+  existingFunction,
+  newFunction,
 };

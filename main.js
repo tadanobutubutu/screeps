@@ -37,11 +37,22 @@ function startApp() {
   return server;
 }
 
+/**
+ * Function for creating in-page buttons
+ * @param {string} id - The ID of the button
+ * @param {string} text - The text to display on the button
+ * @returns {string} The HTML string for the button
+ */
+function createButton(id, text) {
+  return `<button id="${id}">${text}</button>`;
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  createButton
 };
 
 // Start the application if run directly

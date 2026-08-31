@@ -595,6 +595,32 @@ function preserveExistingCode() {
   a11yStore.preserveExistingCode();
 }
 
+// Added missing exports as per the issue
+// Export additional a11yStore utility functions
+function announce(message, priority = 'polite') {
+  a11yStore.announce(message, priority);
+}
+
+function getAnnouncements() {
+  return a11yStore.getAnnouncements();
+}
+
+function clearAnnouncements() {
+  a11yStore.clearAnnouncements();
+}
+
+function prefersReducedMotion() {
+  return a11yStore.prefersReducedMotion();
+}
+
+function prefersHighContrast() {
+  return a11yStore.prefersHighContrast();
+}
+
+function setSvgAttributes(svg) {
+  a11yStore.setSvgAttributes(svg);
+}
+
 module.exports = {
   checkLandmarkElements,
   createInPageButton,
@@ -615,5 +641,12 @@ module.exports = {
   getSvgAccessibleName,
   ensureUniqueLandmarks,
   checkLandmarkElementsInDom,
-  renderIndexView
+  renderIndexView,
+  // Added missing exports
+  announce,
+  getAnnouncements,
+  clearAnnouncements,
+  prefersReducedMotion,
+  prefersHighContrast,
+  setSvgAttributes
 };

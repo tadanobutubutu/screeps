@@ -114,7 +114,7 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (!elementsById[landmark.id]) {
+        if (elementsById[landmark.id]) {
           elementsById[landmark.id] = true;
         } else {
           landmark.id += '_duplicate';
@@ -124,6 +124,18 @@ function ensureLandmarkUniqueness(elements) {
   }
 
   return elements;
+}
+
+// Updated function using the new functions for rendering graph/index
+function renderDependencyGraphContent() {
+  const container = document.getElementById('dependencyGraph');
+  if (!container) {
+    return;
+  }
+  
+  // Use the new functions for rendering
+  renderDependencyGraph(container);
+  renderIndexView(container);
 }
 
 // Export functions for testing

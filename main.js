@@ -25,8 +25,9 @@ const config = {
  * @param {boolean} [options.verbose=false] - Whether to log detailed information
  * @returns {Object} A report of addressed issues
  */
-function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
-    const { autoFix = false, verbose = false } = options;
+function addressAccessibilityIssuesFromInsight(insightReport, options) {
+    const autoFix = options && options.autoFix === true;
+    const verbose = options && options.verbose === true;
 
     const result = {
         totalIssues: 0,
@@ -37,10 +38,7 @@ function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
     };
 
     if (!insightReport) {
-        console.error({
-            type: 'error',
-            message: 'No insight report provided'
-        });
+        console.error('No insight report provided');
         return result;
     }
 
@@ -51,13 +49,13 @@ function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
 
     result.totalIssues = issues.length;
 
-    issues.forEach((issue, index) => {
+    issues.forEach(function (issue, index) {
         if (!issue || typeof issue !== 'object') {
             return;
         }
 
         const addressed = {
-            index,
+            index: index,
             type: issue.type || 'unknown',
             severity: issue.severity || 'warning',
             message: issue.message || 'No message provided',
@@ -79,7 +77,7 @@ function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
         }
 
         if (verbose) {
-            console.log(`[Accessibility] ${addressed.action}: ${addressed.message}`);
+            console.log('[Accessibility] ' + addressed.action + ': ' + addressed.message);
         }
 
         result.details.push(addressed);
@@ -93,6 +91,19 @@ function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
 
     return result;
 }
+
+// Default options object for addressAccessibilityIssuesFromInsight
+const defaultAccessibilityOptions = { autoFix: false, verbose: false };
+
+// Wrap the function to apply defaults
+const _originalAddressAccessibilityIssuesFromInsight = addressAccessibilityIssuesFromInsight;
+function addressAccessibilityIssuesFromInsightWrapped(insightReport, options) {
+    const mergedOptions = Object.assign({}, defaultAccessibilityOptions, options || {});
+    return _originalAddressAccessibilityIssuesFromInsight(insightReport, mergedOptions);
+}
+
+// Re-assign to keep the same name available for exports
+addressAccessibilityIssuesFromInsight = addressAccessibilityIssuesFromInsightWrapped;
 
 /**
  * Gets the current lang attribute value from the document's <html> tag

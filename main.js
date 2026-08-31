@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report — FIXED
+// TODO: Address accessibility issues from insight report — CONTINUING
 // REACT_015: Add lang attribute
 // REACT_027: Fix 26 table structure issues
 // REACT_017: Add/fix 4 landmark issues

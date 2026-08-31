@@ -44,14 +44,48 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâäçéèêëîïôûü]/i.test(content)) {
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }
 
-  return setHtmlLangAttribute(lang);
+  return lang;
+}
+
+/**
+ * Gets the current lang attribute from the document's <html> tag
+ * @returns {string} The current lang attribute value, defaults to 'en'
+ */
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.lang || 'en';
+  }
+  return 'en';
+}
+
+/**
+ * Creates a person name element with proper accessibility attributes
+ * @param {Object} options - Options for creating the person name element
+ * @param {string} options.firstName - The person's first name
+ * @param {string} options.lastName - The person's last name
+ * @param {HTMLElement} options.container - Optional container element to append to
+ * @returns {HTMLElement} The created element with accessible naming
+ */
+function personName(options = {}) {
+  const { firstName = '', lastName = '', container = null } = options;
+  const fullName = `${firstName} ${lastName}`.trim();
+  
+  const element = document.createElement('span');
+  element.setAttribute('aria-label', fullName);
+  element.textContent = fullName;
+  
+  if (container) {
+    container.appendChild(element);
+  }
+  
+  return element;
 }
 
 /**
@@ -93,14 +127,86 @@ function getSvgAccessibleName() {
   // Implementation for getting SVG accessible name
 }
 
+/**
+ * Creates a focus trap for keyboard navigation within a given container element.
+ * Prevents focus from leaving the container when Tab key is pressed.
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @returns {Object} An object with a detach method to remove the focus trap
+ */
+function newFocusTrap(container) {
+  if (!container || typeof document === 'undefined') {
+    return { detach: () => {} };
+  }
+
+  const focusableSelectors = [
+    'button:not([disabled])',
+    'a[href]',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(', ');
+
+  let previousActiveElement = document.activeElement;
+
+  const handleKeyDown = (event) => {
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    const focusableElements = Array.from(
+      container.querySelectorAll(focusableSelectors)
+    ).filter(el => el.offsetParent !== null);
+
+    if (focusableElements.length === 0) {
+      event.preventDefault();
+      return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  };
+
+  container.addEventListener('keydown', handleKeyDown);
+
+  // Optionally focus the first focusable element in the trap
+  const focusableElements = Array.from(
+    container.querySelectorAll(focusableSelectors)
+  ).filter(el => el.offsetParent !== null);
+  
+  if (focusableElements.length > 0) {
+    focusableElements[0].focus();
+  }
+
+  return {
+    detach: () => {
+      container.removeEventListener('keydown', handleKeyDown);
+      if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
+        previousActiveElement.focus();
+      }
+    }
+  };
+}
+
 // Export the new functions
 module.exports = {
   setHtmlLangAttribute,
   detectAndSetLang,
+  getLangAttribute,
+  personName,
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-  getSvgAccessibleName
+  getSvgAccessibleName,
+  newFocusTrap
 };

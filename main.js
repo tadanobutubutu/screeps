@@ -78,9 +78,48 @@ function calculateProduct(a, b) {
   return a * b;
 }
 
+// Function to ensure the dependencyGraph container has a proper ARIA role
+function ensureDependencyGraphARIARole() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'graph');
+  }
+}
+
+// Function to ensure all landmark elements have unique ids
+function ensureLandmarkElementIds() {
+  const landmarks = document.querySelectorAll('main, nav, section, article, aside, footer');
+  landmarks.forEach((landmark, index) => {
+    if (!landmark.id) {
+      landmark.id = `landmark-${index}`;
+    }
+  });
+}
+
+// Function to fix table structure issues
+function fixTableStructure() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table) => {
+    // Assuming the table needs to have a caption for accessibility
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table data';
+      table.insertBefore(caption, table.firstChild);
+    }
+  });
+}
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct };
+  module.exports = {
+    checkLinkAndButtonAccessibility: checkLinkAndButtonAccessibility,
+    addressAccessibilityIssues: addressAccessibilityIssues,
+    calculateSum: calculateSum,
+    calculateProduct: calculateProduct,
+    ensureDependencyGraphARIARole: ensureDependencyGraphARIARole,
+    ensureLandmarkElementIds: ensureLandmarkElementIds,
+    fixTableStructure: fixTableStructure
+  };
 }
 
 // If running in browser context
@@ -89,4 +128,7 @@ if (typeof window !== 'undefined') {
   window.addressAccessibilityIssues = addressAccessibilityIssues;
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;
+  window.ensureDependencyGraphARIARole = ensureDependencyGraphARIARole;
+  window.ensureLandmarkElementIds = ensureLandmarkElementIds;
+  window.fixTableStructure = fixTableStructure;
 }

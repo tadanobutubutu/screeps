@@ -48,3 +48,14 @@ module.exports = {
 if (require.main === module) {
   startApp();
 }
+
+// TODO: Address accessibility issues from insight report:
+// Example: Add 'aria-live' attribute to console log output for screen readers
+function logWithAccessibility(message) {
+  const accessibilityLog = document.createElement('div');
+  accessibilityLog.setAttribute('aria-live', 'polite');
+  accessibilityLog.textContent = message;
+  document.body.appendChild(accessibilityLog);
+}
+
+// Example usage: logWithAccessibility(`Server running on port ${config.port}`);

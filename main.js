@@ -1,15 +1,29 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+const main = require('./utilities');
+const { requireDir } = require('require-dir');
+requireDir(require.resolve('./utilities'));
 
-_Commit: ed84da6285858c44e6ce69abc4ede58473f14c66_
+// Import all utilities functions for convenience
+const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport,
+  addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderGraphIndex, renderDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
 
-<!-- todo-hash: 80400eaa42e89d9aa96a737ac2a438654c1f794d -->
+const http = require('http');
+
+// Accessibility function (merged from both branches)
+function setSvgAccessibleProps(svg) {
+  addSvgAccessibleNames(svg); // From branch HEAD
+  validateLandmarkStructure(svg); // From branch origin/main
+  const titleElement = main.getSvgAccessibleName(svg);
+  if (titleElement) {
+    svg.setAttribute('aria-labelledby', titleElement.id);
+  }
+  if (!svg.getAttribute('role')) {
+    svg.setAttribute('role', 'img');
+  }
+}
+
+// Exporting merged code
+module.exports = {
+  ...main,
+  setSvgAccessibleProps,
+  renderGraphIndex // Replace renderDependencyGraphs with renderGraphIndex
+};

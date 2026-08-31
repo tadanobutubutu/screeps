@@ -3,6 +3,10 @@
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
 
+const AddressabilityIssues = {
+  ...
+};
+
 /**
  * Main application entry point with accessibility features
  */
@@ -24,86 +28,36 @@ function addSvgAccessibilityProps() {
   });
 }
 
-const checkTableStructure = /* existing code */
-
-const sampleInsightReport = {
-  title: 'Quarterly Performance Report',
-  sections: [
-    {
-      heading: 'Sales Overview',
-      content: 'Total sales increased by 15% compared to last quarter.'
-    },
-    {
-      heading: 'Customer Satisfaction',
-      content: 'Average satisfaction score: 4.2 out of 5.'
-    }
-  ]
-};
-
-// Implement function for addressing accessibility issues from insight report
-// TODO: Implement a function to count dependencies
-function countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-
-    return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '';
 }
 
-/**
- * Handle credential response from browser authentication
- * @param {Object} response - The credential response object
- * @returns {Object} Processed credential information
- */
-function handleCredentialResponse(response) {
-    if (!response) {
-        return { success: false, error: 'No credential response provided' };
-    }
+function setSvgAttributes(svg) {
+  if (!svg) return;
+  if (!svg.hasAttribute('width') && svg.hasAttribute('viewBox')) {
+    svg.setAttribute('width', '24');
+  }
+  if (!svg.hasAttribute('height') && svg.hasAttribute('viewBox')) {
+    svg.setAttribute('height', '24');
+  }
+}
 
-    // Check if response contains expected credential data
-    const hasCredential = response.credential || response.token || response.id;
-    
-    if (!hasCredential) {
-        return { success: false, error: 'Invalid credential response format' };
-    }
+function checkTableStructure(table) {
+  if (!table) {
+    return { valid: false, error: 'Table element is required' };
+  }
 
-    // Process credential information
-    const processedCredential = {
-        id: response.id || null,
-        token: response.token || response.credential || null,
-        name: response.name || 'Anonymous User',
-        email: response.email || null,
-        success: true
-    };
+  const hasHeader = table.querySelector('thead') !== null || table.querySelector('th') !== null;
+  const hasBody = table.querySelector('tbody') !== null;
+  const hasCaption = table.querySelector('caption') !== null;
 
-    // Handle different types of credential responses
-    if (response.credential) {
-        // Google Sign-In response
-        try {
-            // Credential is a base64-encoded JWT
-            const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            processedCredential.id = payload.sub || processedCredential.id;
-            processedCredential.email = payload.email || processedCredential.email;
-            processedCredential.name = payload.name || processedCredential.name;
-        } catch (error) {
-            console.warn('Failed to parse credential response:', error);
-        }
-    }
-
-    // Announce success to screen readers
-    if (typeof announceToScreenReader === 'function') {
-        announceToScreenReader('User successfully authenticated');
-    }
-
-    return processedCredential;
+  return {
+    valid: true,
+    hasHeader,
+    hasBody,
+    hasCaption
+  };
 }
 
 // Ensure DOM is fully loaded before executing scripts
@@ -140,13 +94,6 @@ if (typeof module !== 'undefined' && module.exports) {
     MyComponent,
     AddressabilityIssues
   };
-} else {
-  // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
 }
 
 function init() {
@@ -358,4 +305,20 @@ const AddressabilityIssues = {
 
     let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
 
-    if (!landmarkRole
+    if (!landmarkRole) {
+      if (implicitLandmarks[tagName]) {
+        landmarkRole = implicitLandmarks[tagName];
+      } else {
+        return { valid: false, error: 'No landmark role found' };
+      }
+    }
+
+    if (!landmarkRoles.includes(landmarkRole)) {
+      return { valid: false, error: `Invalid landmark role: ${landmarkRole}` };
+    }
+
+    return { valid: true, role: landmarkRole };
+  }
+};
+
+// ... (other functions and comments preserved)

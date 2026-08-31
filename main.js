@@ -5,7 +5,7 @@
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
@@ -259,3 +259,98 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
   // Accessibility-related functions
   getLangAttribute = getLangAttributeImpl || function() { return getLangAttributeImpl. call(this); },
   createInPageButton = createInPageButtonImpl || function() { return createInPageButtonImpl. call(this); },
+
+  // Main logic from the original implementation
+  if (container) {
+    // Add lang attribute if missing
+    const htmlElement = container || document.documentElement;
+    const langAttr = getLangAttribute(htmlElement);
+    if (!langAttr) {
+      addLangAttribute(htmlElement, 'en');
+      fixes.langAdded = true;
+    }
+
+    // Add main landmark if missing
+    const mainElement = container.querySelector('main') || container.querySelector('[role="main"]');
+    if (!mainElement) {
+      const body = container.querySelector('body');
+      if (body) {
+        const newMain = document.createElement('main');
+        while (body.firstChild) {
+          newMain.appendChild(body.firstChild);
+        }
+        body.insertBefore(newMain, body.firstChild);
+        fixes.mainLandmarkAdded = true;
+      }
+    }
+
+    // Fix landmark issues
+    const landmarkFixes = validateLandmark(container);
+    if (landmarkFixes && landmarkFixes.length > 0) {
+      fixes.landmarksFixed = landmarkFixes.length;
+    }
+    const landmarkStructureFixes = validateLandmarkStructure(container);
+    if (landmarkStructureFixes && landmarkStructureFixes.length > 0) {
+      fixes.landmarksFixed += landmarkStructureFixes.length;
+    }
+
+    // Fix SVG accessible names
+    const svgElements = container.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      const accessibleName = getSvgAccessibleName(svg);
+      if (accessibleName && accessibleName.trim()) {
+        setSvgAccessibilityProps(svg, accessibleName);
+        fixes.svgNamesAdded++;
+      }
+    });
+
+    // Fix fake link issues
+    const fakeLinks = container.querySelectorAll('[role="link"], a:not([href])');
+    fakeLinks.forEach(link => {
+      const style = window.getComputedStyle(link);
+      if (style.cursor === 'pointer' || link.hasAttribute('onclick')) {
+        link.setAttribute('role', 'link');
+        link.setAttribute('tabindex', '0');
+        fixes.fakeLinksFixed++;
+      }
+    });
+
+    // Validate accessibility report
+    const report = validateAccessibilityReport(container);
+    if (report && report.length > 0) {
+      log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
+    }
+
+    if (fixes.langAdded) {
+      log('Lang attribute added to HTML element', 'info');
+    }
+
+    if (fixes.mainLandmarkAdded) {
+      log('Main landmark added', 'info');
+    }
+
+    const landmarkFixesCount = fixes.landmarksFixed || 0;
+    if (landmarkFixesCount > 0) {
+      log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
+    }
+
+    const svgFixes = fixes.svgNamesAdded || 0;
+    if (svgFixes > 0) {
+      log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
+    }
+
+    const fakeLinkFixes = fixes.fakeLinksFixed || 0;
+    if (fakeLinkFixes > 0) {
+      log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
+    }
+
+    return fixes;
+}
+
+// Existing function
+function existingFunction() {
+  // Function implementation
+}
+
+// Export existing function
+export { existingFunction };

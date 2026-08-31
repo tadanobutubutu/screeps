@@ -170,8 +170,6 @@ function ensureDependencyGraphARIA() {
   };
 }
 
-// TODO: add the new functions or changes requested in the issue
-
 // New utility functions
 
 /**
@@ -265,54 +263,122 @@ function isInViewport(element) {
   );
 }
 
-// Function to handle getLangAttribute for REACT_015
-function getLangAttribute(htmlElement) {
-  // Implement the logic to set the lang attribute based on the preferred language or localization
+// Function to handle getLangAttribute for REACT_015 (overload taking htmlElement)
+function getLangAttributeFromElement(htmlElement) {
+  if (!htmlElement) return null;
+  return htmlElement.getAttribute('lang');
 }
 
 // Function to createInPageButton for REACT_015, REACT_036
-function createInPageButton(options) {
-  // Implement the logic to create a proper in-page link button
+function createInPageButton(options = {}) {
+  const { text = 'In-page link', targetId = '', className = '' } = options;
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = text;
+  if (targetId) {
+    button.dataset.targetId = targetId;
+  }
+  if (className) {
+    button.className = className;
+  }
+  return button;
 }
 
 // Function to validateTableAccessibility for REACT_027
 function validateTableAccessibility(table) {
-  // Implement the logic to check for table accessibility issues and return a list of issues
+  const issues = [];
+  if (!table) return issues;
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) {
+    issues.push('Table has no rows');
+  }
+  if (!table.querySelector('th')) {
+    issues.push('Table is missing header cells');
+  }
+  return issues;
 }
 
 // Function to validateTableStructure for REACT_027
 function validateTableStructure(table) {
-  // Implement the logic to check for table structure issues and return a list of issues
+  const issues = [];
+  if (!table) return issues;
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    issues.push('Table is missing a caption');
+  }
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    issues.push('Table has no header cells');
+  }
+  return issues;
 }
 
 // Function to validateLandmark for REACT_017
 function validateLandmark(element) {
-  // Implement the logic to check for landmark presence and proper use
+  const issues = [];
+  if (!element) return issues;
+  const role = element.getAttribute('role');
+  if (!role) {
+    issues.push('Landmark is missing a role attribute');
+  }
+  return issues;
 }
 
 // Function to validateLandmarkStructure for REACT_017
 function validateLandmarkStructure(element) {
-  // Implement the logic to check for landmark structure compliance
+  const issues = [];
+  if (!element) return issues;
+  if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+    issues.push('Landmark is missing an accessible name');
+  }
+  return issues;
 }
 
 // Function to ensureUniqueLandmarks for REACT_017, REACT_025
 function ensureUniqueLandmarks() {
-  // Implement the logic to check for and handle duplicate landmarks
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]');
+  const seen = {};
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (seen[role]) {
+      landmark.setAttribute('role', `${role}-duplicate`);
+    } else {
+      seen[role] = true;
+    }
+  });
 }
 
 // Function to getSvgAccessibleName for REACT_041
 function getSvgAccessibleName(svg) {
-  // Implement the logic to generate an accessible name for SVG elements
+  if (!svg) return '';
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  const labelledBy = svg.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const labelEl = document.getElementById(labelledBy);
+    if (labelEl) return labelEl.textContent;
+  }
+  const title = svg.querySelector('title');
+  if (title) return title.textContent;
+  return '';
 }
 
 // Function to setSvgAttributes for REACT_041
-function setSvgAttributes(svg, attributes) {
-  // Implement the logic to set specified attributes on SVG elements
+function setSvgAttributes(svg, attributes = {}) {
+  if (!svg || !attributes) return svg;
+  Object.keys(attributes).forEach(key => {
+    svg.setAttribute(key, attributes[key]);
+  });
+  return svg;
 }
 
 // Function to handleFakeLinks for REACT_036
 function handleFakeLinks(links) {
-  // Implement the logic to handle fake links within the app
+  if (!links) return;
+  links.forEach(link => {
+    link.setAttribute('role', 'button');
+    link.setAttribute('tabindex', '0');
+  });
 }
 
 // Export for use in other modules
@@ -337,7 +403,7 @@ if (typeof module !== 'undefined' && module.exports) {
     safeJsonParse,
     addAccessibleNamesToSvg,
     isInViewport,
-    getLangAttribute,
+    getLangAttributeFromElement,
     createInPageButton,
     validateTableAccessibility,
     validateTableStructure,

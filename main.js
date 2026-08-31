@@ -283,6 +283,69 @@ function transformInputData(inputData, options = {}) {
   }
 }
 
+// Additional accessibility functions to address insight report items
+function getLangAttribute() {
+  const html = document.documentElement;
+  if (!html.getAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+  }
+  return html.getAttribute('lang');
+}
+
+function personName() {
+  const person = document.querySelector('[data-person]');
+  return person ? (person.getAttribute('data-name') || person.textContent.trim()) : '';
+}
+
+function validateTableAccessibility(table) {
+  if (!table) return;
+  const hasCaption = !!table.querySelector('caption');
+  const hasAriaLabel = table.hasAttribute('aria-label');
+  if (!hasCaption && !hasAriaLabel) {
+    console.warn('Table accessibility: missing caption or aria-label');
+  }
+}
+
+function validateTableStructure(table) {
+  if (!table) return;
+  const rows = table.querySelectorAll('tr');
+  const firstRow = rows[0];
+  if (firstRow && !firstRow.querySelectorAll('th').length) {
+    console.warn('Table structure: first row should contain th elements');
+  }
+}
+
+function validateLandmark(element) {
+  if (!element) return;
+  const role = element.getAttribute('role');
+  const allowed = ['banner', 'main', 'navigation', 'search', 'complementary', 'contentinfo', 'region'];
+  if (!role || !allowed.includes(role)) {
+    console.warn('Landmark: missing or invalid role');
+  }
+}
+
+function validateLandmarkStructure() {
+  const mainLandmarks = document.querySelectorAll('[role="main"]');
+  if (mainLandmarks.length > 1) {
+    console.warn('Landmark structure: multiple main landmarks');
+  }
+}
+
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
+}
+
+function createInPageButton(config) {
+  const button = document.createElement('button');
+  button.textContent = config.label || '';
+  button.setAttribute('aria-label', config.ariaLabel || config.label || '');
+  if (config.onClick) {
+    button.addEventListener('click', config.onClick);
+  }
+  return button;
+}
+
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
@@ -308,5 +371,13 @@ module.exports = {
   readFileSafe,
   processData,
   filterValidItems,
-  groupByCategory
+  groupByCategory,
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton
 };

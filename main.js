@@ -571,7 +571,71 @@ function addLangAttribute() {
 }
 
 function fixTableStructure() {
-  // Implementation for fixing table structure
+  // Validate and fix table structure for accessibility
+  const tables = document.querySelectorAll('table');
+  
+  tables.forEach(table => {
+    // Check for missing headers
+    const hasHeaderCells = table.querySelectorAll('th').length > 0;
+    if (!hasHeaderCells) {
+      console.warn('Table missing header cells (th).', table);
+      // Attempt to fix: convert first row cells to th if they seem like headers
+      const firstRow = table.querySelector('tr');
+      if (firstRow && firstRow.children.length > 0) {
+        // Only if not already th
+        if (!firstRow.querySelector('th')) {
+          const cells = firstRow.children;
+          for (let i = 0; i < cells.length; i++) {
+            const newTh = document.createElement('th');
+            newTh.textContent = cells[i].textContent;
+            newTh.setAttribute('scope', 'col');
+            cells[i].replaceWith(newTh);
+          }
+          // Wrap first row in thead if not already
+          if (!table.querySelector('thead')) {
+            const thead = document.createElement('thead');
+            firstRow.parentNode.insertBefore(thead, firstRow);
+            thead.appendChild(firstRow);
+          }
+        }
+      }
+    }
+
+    // Ensure proper use of thead and tbody
+    const rows = Array.from(table.rows);
+    const firstRow = rows[0];
+    if (firstRow && firstRow.querySelector('th') && !table.querySelector('thead')) {
+      const thead = document.createElement('thead');
+      table.insertBefore(thead, firstRow);
+      thead.appendChild(firstRow);
+    }
+
+    // Add scope attributes to th elements
+    const thElements = table.querySelectorAll('th');
+    thElements.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        // Determine appropriate scope
+        const parent = th.parentElement;
+        if (parent && parent.tagName === 'TR') {
+          const grandparent = parent.parentElement;
+          if (grandparent && grandparent.tagName === 'THEAD') {
+            th.setAttribute('scope', 'col');
+          } else if (th.tagName === 'TH') {
+            // If it's in a row that is itself a header row (like in tbody for row headers)
+            th.setAttribute('scope', 'row');
+          } else {
+            th.setAttribute('scope', 'col');
+          }
+        }
+      }
+    });
+
+    // Ensure table has an accessible name (caption or aria-label)
+    if (!table.querySelector('caption') && !table.hasAttribute('aria-label') && !table.hasAttribute('aria-labelledby')) {
+      // Optionally add a caption if we can infer one, but for now just warn
+      console.warn('Table missing accessible name (caption or aria-label).', table);
+    }
+  });
 }
 
 function addMainLandmark() {

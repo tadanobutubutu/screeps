@@ -126,7 +126,11 @@ const app = express();
 
 // Endpoint for getting landmarks
 app.get('/landmarks', (req, res) => {
-  // Your code for handling the request and response logic goes here
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+  const sorted = sortLandmarks(processed);
+  
+  res.json(sorted);
 });
 
 // Export new necessary functions

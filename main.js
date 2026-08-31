@@ -489,13 +489,17 @@ export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, 
 // Export utility functions
 export {
   getLangAttribute,
+  getFullLangAttribute,
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
+  ensureUniqueLandmarks,
   getSvgAccessibleName,
   setSvgAttributes,
+  createAccessibleLink,
+  handleAccessibilityIssues,
   validateLinkAccessibility,
   handleFakeLinks
 };

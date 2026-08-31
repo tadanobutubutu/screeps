@@ -1,4 +1,4 @@
-// Import necessary dependencies
+// Updated: Identified Main as index view and added dependency graph rendering
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
@@ -96,7 +96,22 @@ function countDependencies() {
   return dependencies.length;
 }
 
-// Render the main component containing the book list and sorting controls
+// Dependency graph rendering function
+function renderDependencyGraph() {
+  const dependencies = ['react', 'react-redux', 'antd'];
+  return (
+    <div>
+      <h3>Dependencies</h3>
+      <ul>
+        {dependencies.map((dep, index) => (
+          <li key={index}>{dep}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// Index view: renders list of books and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
 
@@ -115,6 +130,7 @@ function Main() {
   // Render the list of book items and sorting controls
   return (
     <div>
+      {renderDependencyGraph()}
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />

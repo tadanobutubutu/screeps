@@ -175,3 +175,35 @@ if (typeof module !== 'undefined' && module.exports) {
       loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks
     };
 }
+
+// TODO: Add any other missing exports that might have been?
+// Added missing exports as per the issue
+// ==============================================================================
+// Resolved Merge Conflict
+// Combined HEAD and origin/main changes while preserving all functionality
+// ==============================================================================
+
+// Additional missing exports as per the issue
+export {
+  calculateSum,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  checkLinkAccessibility,
+  visualizeDependencyTree,
+  fixAccessibilityIssues,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  createUnrotateButton
+};

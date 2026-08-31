@@ -1,4 +1,4 @@
-// TODO: Implement this function for adding SVG accessibility props
+// TODO: This is the existing code that needs to be preserved
 
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';

@@ -78,21 +78,26 @@ const accessibilityUtils = {
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
-function ensureElementId(element) {
+// Import required modules
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+
+function ensureElementId(element, fs = fs, path = path) {
   if (element && !element.id) {
     element.id = 'element-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
   }
   return element;
 }
 
-function addAriaLabel(element, label) {
+function addAriaLabel(element, label, fs = fs, path = path) {
   if (element) {
     element.setAttribute('aria-label', label);
   }
   return element;
 }
 
-function renderDependencyGraph(data) {
+function renderDependencyGraph(data, fs = fs, path = path, crypto = crypto) {
   // Implementation for rendering dependency graphs
   return {
     nodes: data.nodes || [],

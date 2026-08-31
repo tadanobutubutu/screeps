@@ -1155,15 +1155,3 @@ if (typeof window !== 'undefined') {
 }
 
 document.documentElement.lang = getLangAttribute();  // Set the document language
-
-// Standard Screeps game loop
-function loop() {
-  // Clean up memory of dead creeps
-  for (var name in Memory.creeps) {
-    if (!Game.creeps[name]) {
-      delete Memory.creeps[name];
-    }
-  }
-
-  // Your game logic here
-}`;

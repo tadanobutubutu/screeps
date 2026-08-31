@@ -1,10 +1,7 @@
-Here is the resolved file content:
-
-```javascript
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// TODO: Address any missing required exports
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // REACT_015: Add lang attribute
 
 const Main = ({ children, title, lang = 'en' }) => {
@@ -30,11 +27,5 @@ const updateTitle = (newTitle) => {
   // For example, this could be a method that sets a state or a prop that controls the title.
 };
 
-// Adding the missing required export
-export { Main, PropTypes };
-
+export { Main, PropTypes, updateTitle };
 export default Main;
-export { Main, updateTitle };
-```
-
-This resolved file retains and integrates both changes. It includes the new `updateTitle` function and exports it, as well as exports the `PropTypes` to ensure all required exports are present in the library.

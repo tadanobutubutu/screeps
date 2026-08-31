@@ -1,3 +1,33 @@
+// main.js - Combined utility and accessibility features
+
+// TODO: Address accessibility issues from insight report:
+// - REACT_025: Ensure unique landmarks
+
+// Accessibility helper function for keyboard navigation
+function setupKeyboardNavigation(element, options = {}) {
+  const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
+  
+  element.addEventListener('keydown', (event) => {
+    switch (event.key) {
+      case 'Enter':
+        if (onEnter) onEnter(event);
+        break;
+      case 'Escape':
+        if (onEscape) onEscape(event);
+        break;
+      case 'ArrowUp':
+        if (onArrowUp) {
+          event.preventDefault();
+          onArrowUp(event);
+        }
+        break;
+      case 'ArrowDown':
+        if (onArrowDown) {
+          event.preventDefault();
+          onArrowDown(event);
+        }
+        break;
+=======
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report
 
@@ -201,85 +231,17 @@ module.exports = {
     if (report) {
       return implementAccessibilityFixesFromReport(container, report);
     }
-
-    const fixes = {
-      langAdded: false,
-      mainLandmarkAdded: false,
-      landmarksFixed: 0,
-      svgNamesAdded: 0,
-      fakeLinksFixed: 0
-    };
-
-    // Add lang attribute to HTML element if missing
-    const htmlElement = container.querySelector('html') || container.ownerDocument?.querySelector('html');
-    if (htmlElement && !htmlElement.hasAttribute('lang')) {
-      htmlElement.setAttribute('lang', 'en');
-      fixes.langAdded = true;
-    }
-
-    // Add main landmark if missing
-    const mainElement = container.querySelector('main');
-    if (!mainElement) {
-      const body = container.querySelector('body');
-      if (body) {
-        const newMain = document.createElement('main');
-        while (body.firstChild) {
-          newMain.appendChild(body.firstChild);
-        }
-        body.appendChild(newMain);
-        fixes.mainLandmarkAdded = true;
-      }
-    }
-
-    // Fix SVG accessible names
-    const svgElements = container.querySelectorAll('svg');
-    svgElements.forEach(svg => {
-      const accessibleName = getSvgAccessibleName(svg);
-      if (accessibleName && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-        svg.setAttribute('aria-label', accessibleName);
-        fixes.svgNamesAdded++;
-      }
-    });
-
-    // Validate accessibility report
-    const validationResult = validateAccessibilityReport(container);
-    if (validationResult && validationResult.length > 0) {
-      console.warn(`Accessibility report contains ${validationResult.length} remaining issues`);
-    }
-
-    if (fixes.langAdded) {
-      console.info('Lang attribute added to HTML element');
-    }
-
-    if (fixes.mainLandmarkAdded) {
-      console.info('Main landmark added');
-    }
-
-    const landmarkFixesCount = fixes.landmarksFixed || 0;
-    if (landmarkFixesCount > 0) {
-      console.info(`Fixed ${landmarkFixesCount} unique landmarks`);
-    }
-
-    const svgFixes = fixes.svgNamesAdded || 0;
-    if (svgFixes > 0) {
-      console.info(`Fixed accessible names for ${svgFixes} SVGs`);
-    }
-
-    const fakeLinkFixes = fixes.fakeLinksFixed || 0;
-    if (fakeLinkFixes > 0) {
-      console.info(`Fixed fake link issues for ${fakeLinkFixes} elements`);
-    }
-
-    return fixes;
   },
-
-  implementAccessibilityFixesFromReport,
-
-  focusTrap,
-
+  trapFocus,
+  ensureUniqueLandmarks,
+  createAnnouncer,
+  prefersReducedMotion,
+  isEmpty,
+  capitalize,
+  getRandomInt,
+  clamp,
+  deepClone,
   newExportedFunction,
-
   myAccessibleFunction,
-
   logMessage
 };

@@ -127,20 +127,10 @@
       }
     }
 
-    // Export the report generation function
-    module.exports = {
-      generateAccessibilityReport: async function () {
-        const report = await scanAccessibility();
-        writeReport(report);
-      },
-      addressAccessibilityIssues,
-      getLangAttribute,
-      createInPageButton,
-      a11y,
-      scanAccessibility,
-      writeReport,
-      initialize
-    };
+    // New function to import a module and execute a function
+    function importAndExecute(modulePath, functionName, callback) {
+      require(modulePath)[functionName](callback);
+    }
 
     // Initialize the application with accessibility improvements
     function initialize() {
@@ -169,6 +159,22 @@
             a11y.init();
         }
     }
+
+    // Export the report generation function
+    module.exports = {
+      generateAccessibilityReport: async function () {
+        const report = await scanAccessibility();
+        writeReport(report);
+      },
+      addressAccessibilityIssues,
+      getLangAttribute,
+      createInPageButton,
+      a11y,
+      scanAccessibility,
+      writeReport,
+      importAndExecute,
+      initialize
+    };
 
     // Initialize on DOM ready
     if (typeof document !== 'undefined') {

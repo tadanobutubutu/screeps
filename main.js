@@ -105,6 +105,9 @@ function renderAccessibilityGraph(issues, container) {
 
   const graphContainer = document.createElement('div');
   graphContainer.className = 'accessibility-graph';
+  // Ensure the dependencyGraph container has a proper ARIA role
+  graphContainer.setAttribute('role', 'region');
+  graphContainer.setAttribute('aria-label', 'Accessibility issues graph');
   graphContainer.innerHTML = `
     <h3>Accessibility Issues Graph</h3>
     <div class="graph-content">

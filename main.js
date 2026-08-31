@@ -15,9 +15,8 @@ function fixTableStructureIssues(document) {
       const ths = firstRow.querySelectorAll('th');
       if (ths.length > 0) {
         const thead = document.createElement('thead');
-        thead.appendChild(firstRow.cloneNode(true));
+        thead.appendChild(firstRow);
         table.insertBefore(thead, table.firstChild);
-        firstRow.remove();
       }
     }
     
@@ -53,7 +52,7 @@ function fixTableStructureIssues(document) {
 
 // REACT_017: Add/fix landmark issues - Add main landmark
 function addMainLandmark(document) {
-  const mainElements = document.querySelectorAll('main');
+  const mainElements = document.querySelectorAll('main, [role="main"]');
   
   if (mainElements.length === 0) {
     // Find the main content area and wrap it with <main>
@@ -68,12 +67,12 @@ function addMainLandmark(document) {
     body.appendChild(main);
   } else if (mainElements.length === 1) {
     const main = mainElements[0];
-    if (!main.hasAttribute('role')) {
+    if (main.tagName !== 'MAIN') {
       main.setAttribute('role', 'main');
     }
   }
   
-  return document.querySelectorAll('main').length;
+  return mainElements.length;
 }
 
 // REACT_041: Add accessible names to SVGs
@@ -82,12 +81,12 @@ function addSvgAccessibleNames(document) {
   let count = 0;
   
   svgs.forEach((svg, index) => {
-    const existingLabel = svg.getAttribute('aria-label') || 
-                          svg.querySelector('title') ||
-                          svg.getAttribute('aria-labelledby');
+    const existingLabel = svg.querySelector('title') || 
+                          svg.getAttribute('aria-labelledby') ||
+                          svg.getAttribute('aria-label');
     
     if (!existingLabel) {
-      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      const title = document.createElement('title');
       title.textContent = `Icon ${index + 1}`;
       svg.insertBefore(title, svg.firstChild);
       
@@ -104,7 +103,7 @@ function addSvgAccessibleNames(document) {
 // REACT_025: Ensure unique landmarks
 function ensureUniqueLandmarks(document) {
   // Ensure only one main landmark
-  const mains = document.querySelectorAll('main, [role="main"]');
+  const mains = document.querySelectorAll('[role="main"], main');
   
   if (mains.length > 1) {
     // Keep the first main, remove role="main" from others or convert them
@@ -120,14 +119,14 @@ function ensureUniqueLandmarks(document) {
   }
   
   // Ensure unique IDs for landmarks with labels
-  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="contentinfo"]');
   const seenIds = new Set();
   
   landmarks.forEach(landmark => {
     const id = landmark.id;
     if (id) {
       if (seenIds.has(id)) {
-        landmark.id = `${id}-unique-${Math.random().toString(36).substr(2, 9)}`;
+        landmark.id = `${id}-${Math.random().toString(36).substr(2, 9)}`;
       }
       seenIds.add(landmark.id);
     }
@@ -139,7 +138,7 @@ function ensureUniqueLandmarks(document) {
 // REACT_036: Fix fake link issue
 function fixFakeLinkIssue(document) {
   // Find elements that look like links but aren't <a> tags
-  const clickableElements = document.querySelectorAll('[role="link"]:not(a), [onclick]');
+  const clickableElements = document.querySelectorAll('[onclick], [role="link"]');
   let count = 0;
   
   clickableElements.forEach(element => {
@@ -149,9 +148,9 @@ function fixFakeLinkIssue(document) {
     if (tagName !== 'a' && !hasHref) {
       // Check if it should be a real link
       const isInteractive = element.getAttribute('role') === 'link' || 
-                           (element.hasAttribute('onclick') && element.onclick.toString().includes('window.location'));
+                           (tagName === 'span' && element.style.cursor === 'pointer');
       
-      if (isInteractive && !element.hasAttribute('aria-label')) {
+      if (isInteractive && tagName !== 'a') {
         // Add accessible name
         const text = element.textContent.trim();
         if (text) {
@@ -166,7 +165,7 @@ function fixFakeLinkIssue(document) {
 }
 
 // TODO: Implement this function for checking link and button accessibility
-function checkLinkAndButtonAccessibility(document) {
+function checkLinksAndButtons(document) {
   const links = document.querySelectorAll('a, button, [role="button"]');
   const issues = {
     linksWithoutText: [],
@@ -214,24 +213,23 @@ function applyAccessibilityFixes(document, options = {}) {
   const lang = options.lang || 'en';
   
   return {
-    langAdded: addLangAttribute(document, lang),
     tablesFixed: fixTableStructureIssues(document),
     mainsAdded: addMainLandmark(document),
     svgsFixed: addSvgAccessibleNames(document),
     landmarksEnsured: ensureUniqueLandmarks(document),
-    linksFixed: fixFakeLinkIssue(document)
+    linksFixed: fixFakeLinkIssue(document),
+    buttonsAndLinksChecked: checkLinksAndButtons(document),
   };
 }
 
 // Export all functions
 module.exports = {
   myFunction,
-  addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  checkLinkAndButtonAccessibility,
+  checkLinksAndButtons,
   applyAccessibilityFixes
 };

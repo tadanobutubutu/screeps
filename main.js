@@ -78,6 +78,8 @@ function calculateProduct(a, b) {
   return a * b;
 }
 
+// TODO: This is the existing code that needs to be preserved
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct };

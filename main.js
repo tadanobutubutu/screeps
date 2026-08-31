@@ -7,6 +7,7 @@ const http = require('http');
 const path = require('path');
 
 // TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 // Application configuration
 const config = {
@@ -37,11 +38,23 @@ function startApp() {
   return server;
 }
 
+/**
+ * Adds a new function to the module
+ * This is a placeholder for the new function added based on the issue
+ * @param {Object} data - The data object to process
+ * @returns {String} The processed data
+ */
+function processData(data) {
+  // Placeholder for data processing logic
+  return 'Processed data';
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  processData // Added new export
 };
 
 // Start the application if run directly

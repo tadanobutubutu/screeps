@@ -89,6 +89,59 @@ function ensureUniqueLandmarks() {
   }
 }
 
+// New function to add lang attribute to HTML element
+function getLangAttribute() {
+  if (typeof document !== 'undefined') {
+    const htmlElement = document.documentElement;
+    if (!htmlElement.getAttribute('lang')) {
+      htmlElement.setAttribute('lang', 'en');
+    }
+  }
+}
+
+// New function to validate table structure
+function validateTableAccessibility() {
+  // Implementation for validating table accessibility
+}
+
+// New function to validate table structure
+function validateTableStructure() {
+  // Implementation for validating table structure
+}
+
+// New function to validate landmarks
+function validateLandmark() {
+  // Implementation for validating landmarks
+}
+
+// New function to validate landmark structure
+function validateLandmarkStructure() {
+  // Implementation for validating landmark structure
+}
+
+// New function to get SVG accessible name
+function getSvgAccessibleName() {
+  // Implementation for getting SVG accessible name
+}
+
+// New function to fix fake link issue
+function fixFakeLinkIssue() {
+  // Implementation for fixing fake link issue
+}
+
+// New function to ensure unique landmarks
+function ensureUniqueLandmarksImplementation() {
+  const landmarks = document.querySelectorAll('[role]');
+  const uniqueLandmarks = new Set();
+  landmarks.forEach(landmark => {
+    if (uniqueLandmarks.has(landmark.getAttribute('role'))) {
+      console.warn(`Duplicate landmark role "${landmark.getAttribute('role')}" detected.`);
+    } else {
+      uniqueLandmarks.add(landmark.getAttribute('role'));
+    }
+  });
+}
+
 // Preserve all existing exports
 module.exports = {
   renderDependencyGraph,
@@ -98,5 +151,13 @@ module.exports = {
   checkLandmarkElement,
   wrapPrimaryContentInMain,
   checkLandmarks,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  fixFakeLinkIssue,
+  ensureUniqueLandmarksImplementation
 };

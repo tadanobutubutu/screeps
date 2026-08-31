@@ -91,16 +91,7 @@ const renderDependencyGraph = (data) => {
 };
 
 // Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
-
+// TODO: Implement the new function as per the issue requirements
 function newFocusTrap(element) {
   const focusableElements = element.querySelectorAll(
     'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -154,56 +145,6 @@ function log(message, level = 'info') {
 
 // Accessibility utilities and functions
 // TODO: Implement the new function as per the issue requirements
-function transformInputData(inputData, options = {}) {
-  const {
-    preserveKeys = true,
-    uppercase = false,
-    trimWhitespace = true,
-    maxLength = null
-  } = options;
-
-  if (!inputData) {
-    return null;
-  }
-
-  const transformValue = (value) => {
-    if (typeof value === 'string') {
-      let result = value;
-      if (trimWhitespace) {
-        result = result.trim();
-      }
-      if (uppercase) {
-        result = result.toUpperCase();
-      }
-      if (maxLength !== null) {
-        result = result.slice(0, maxLength);
-      }
-      return result;
-    }
-    return value;
-  };
-
-  if (Array.isArray(inputData)) {
-    return inputData.map(item => {
-      const newItem = {};
-      for (const key in item) {
-        if (Object.prototype.hasOwnProperty.call(item, key)) {
-          newItem[key] = transformValue(item[key]);
-        }
-      }
-      return newItem;
-    });
-  }
-
-  // plain object
-  const result = {};
-  for (const key in inputData) {
-    if (Object.prototype.hasOwnProperty.call(inputData, key)) {
-      result[key] = transformValue(inputData[key]);
-    }
-  }
-  return result;
-}
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {

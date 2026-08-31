@@ -678,6 +678,7 @@ module.exports = {
     getTableHeaders,
     getTableRows,
     config,
+    greeting,
     countDependencies,
     someFunction,
     renderDependencyGraph,

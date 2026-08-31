@@ -65,6 +65,7 @@ function wrapPrimaryContentInMain() {
   landmarks.forEach(landmark => elementsToExclude.push(landmark));
 
   mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main'); // Adding ARIA role to the main element
 
   const bodyChildren = Array.from(document.body.children);
   bodyChildren.forEach(child => {

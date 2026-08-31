@@ -140,6 +140,16 @@ function renderDependencyGraphContent() {
   renderIndexView(container);
 }
 
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = {
+    'react': true,
+    'react-redux': true,
+    'antd': true
+  };
+  return Object.keys(dependencies).length;
+}
+
 // Export functions for testing
 export {
   checkLandmarkElement,

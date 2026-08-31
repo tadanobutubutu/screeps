@@ -265,11 +265,6 @@ function isInViewport(element) {
   );
 }
 
-// Function to handle getLangAttribute for REACT_015
-function getLangAttribute(htmlElement) {
-  // Implement the logic to set the lang attribute based on the preferred language or localization
-}
-
 // Function to createInPageButton for REACT_015, REACT_036
 function createInPageButton(options) {
   // Implement the logic to create a proper in-page link button
@@ -337,7 +332,6 @@ if (typeof module !== 'undefined' && module.exports) {
     safeJsonParse,
     addAccessibleNamesToSvg,
     isInViewport,
-    getLangAttribute,
     createInPageButton,
     validateTableAccessibility,
     validateTableStructure,

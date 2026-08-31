@@ -1,4 +1,4 @@
-// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+// Functions to ensure the element has an id, add aria-label, and render dependency graphs
 
 // Helper to manage focus within a container
 function trapFocus(container) {
@@ -22,7 +22,7 @@ function trapFocus(container) {
   });
 }
 
-// TODO: This is the existing code that needs to be preserved
+// This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
 // Accessibility helper function for keyboard navigation

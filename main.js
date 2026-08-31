@@ -1,19 +1,18 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views to import and use dependencyGraphContent/indexContent from the
-// appropriate modules.
-// Updated: imported and used dependencyGraphContent and indexContent in the
-// relevant rendering functions.
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-// For example, if the page is in English, set lang to 'en'
+// This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+
+// This is the code that needs to be preserved and is common between both branches
+// ...
+
+// TODO: New code that was added to the branch
+// New function that does something different
+
+// This is the existing code that needs to be preserved
+// ...
+
+// New code that was added to the branch, but should not overwrite the preserved code
+// ...
 const https = require('https');
 const http = require('http');
 const React = require('react');

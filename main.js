@@ -37,10 +37,24 @@ function startApp() {
   return server;
 }
 
+/**
+ * Adds a new middleware function to the server
+ * @param {Function} middleware The middleware function to add
+ */
+function addMiddleware(middleware) {
+  const server = createServer();
+  server.on('request', middleware);
+  server.listen(config.port, () => {
+    console.log(`Server running on port ${config.port}`);
+  });
+  return server;
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
+  addMiddleware,
   config
 };
 

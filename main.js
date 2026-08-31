@@ -6,7 +6,7 @@ document.documentElement.lang = 'en';
 
 // REACT_025: Add other accessibility changes as per the insight report
 // Focus management for accessibility
-const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+const focusableElements = 'button, [href], input, select, textarea, ...';
 
 // Function to handle focus trapping (useful for modals/dialogs)
 function trapFocus(element) {
@@ -37,7 +37,7 @@ function initSkipLink() {
   if (skipLink) {
     skipLink.addEventListener('click', function (e) {
       e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href'));
+      const target = document.querySelector(skipLink.getAttribute('href'));
       if (target) {
         target.setAttribute('tabindex', '-1');
         target.focus();
@@ -73,6 +73,28 @@ function initAccessibility() {
 // New function or change requested in the issue
 export function newExportedFunction() {
   // Implementation of the new function
+}
+
+// Function to count dependencies
+// Counts dependencies from various input formats: package.json dependencies object, array of dependencies, or a single count
+function countDependencies(deps) {
+  if (!deps) {
+    return 0;
+  }
+  
+  if (typeof deps === 'number') {
+    return deps;
+  }
+  
+  if (Array.isArray(deps)) {
+    return deps.length;
+  }
+  
+  if (typeof deps === 'object') {
+    return Object.keys(deps).length;
+  }
+  
+  return 0;
 }
 
 // Export accessibility utilities for use elsewhere

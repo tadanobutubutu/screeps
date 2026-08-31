@@ -82,7 +82,7 @@ function addLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
-function addressAccessibilityIssues(insightReport) {
+function addressAccessibilityIssues(report) {
   // Implementation of the function to address accessibility issues
   // This addresses issues from the insight report:
   // - REACT_015: Add lang attribute to HTML element
@@ -92,12 +92,12 @@ function addressAccessibilityIssues(insightReport) {
   // - REACT_025: Ensure unique landmarks (2 issues)
   // - REACT_036: Fix 1 fake link issue
 
-  if (!insightReport || !insightReport.issues) {
+  if (!report || !report.issues) {
     return;
   }
 
   // Address accessibility issues from insight report
-  insightReport.issues.forEach(issue => {
+  report.issues.forEach(issue => {
     switch (issue.type) {
       case 'REACT_015':
         // Add lang attribute to HTML element
@@ -107,7 +107,7 @@ function addressAccessibilityIssues(insightReport) {
         break;
       case 'REACT_027':
         // Fix table structure issues
-        if (issue.type === 'structure') {
+        if (issue.subtype === 'structure') {
           validateTableStructure();
           fixTableStructure();
         } else {
@@ -122,12 +122,13 @@ function addressAccessibilityIssues(insightReport) {
         } else {
           validateLandmark();
         }
+        validateLandmarkAttributes();
         addLandmarkRegions();
         break;
       case 'REACT_041':
         // Add accessible names to SVGs
         if (issue.svg) {
-          const accessibleName = getSvgAccessibleName(issue.svg);
+          const accessibleName = getSvgAccessibleName();
           setSvgAttributes(issue.svg, accessibleName);
         }
         break;
@@ -363,11 +364,11 @@ function processAccessibilityReport(report) {
 
   if (report) {
     if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027.count || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
+    if (report.REACT_027) findings.tableIssues = report.REACT_027.length || 0;
+    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.length || 0;
+    if (report.REACT_041) findings.svgIssues = report.REACT_041.length || 0;
+    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.length || 0;
+    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.length || 0;
   }
 
   return findings;
@@ -375,53 +376,3 @@ function processAccessibilityReport(report) {
 
 // Example usage of the new function (if applicable)
 // const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
-
-// Add back removed exports
-module.exports = {
-  config,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  processAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  getInsightReport,
-  // Added from origin/main
-  someFunction: function() {
-    return 'some value';
-  },
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
-  helper: function(input) {
-    return input ? input.toUpperCase() : '';
-  },
-  formatDate: function(date) {
-    if (!(date instanceof Date)) {
-      date = new Date(date);
-    }
-    return date.toISOString().split('T')[0];
-  }
-};
-// ----- END ORIGINAL CODE (unchanged) -----

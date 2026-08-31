@@ -361,6 +361,7 @@ export function addAriaLabel(element, label) {
 /**
  * NEW: Render dependency graphs
  */
+// TODO: Update the existing function using the new functions for rendering graph/index
 export function renderDependencyGraphs(container, dependencies = []) {
   if (!container) return null;
   
@@ -373,3 +374,27 @@ export function renderDependencyGraphs(container, dependencies = []) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', '100%');
+  
+  // Use new accessibility functions
+  addSvgAccessibleNames(svg, 'Dependency graph');
+  ensureElementHasId(svg, 'dependency-graph-svg');
+  addAriaLabel(graphContainer, 'Dependency graph visualization');
+  
+  // Create graph nodes (example)
+  dependencies.forEach((dep, index) => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', 50 + index * 100);
+    circle.setAttribute('cy', 50);
+    circle.setAttribute('r', 20);
+    circle.setAttribute('fill', 'blue');
+    svg.appendChild(circle);
+  });
+  
+  // Append SVG to graph container
+  graphContainer.appendChild(svg);
+  
+  // Append graph container to provided container
+  container.appendChild(graphContainer);
+  
+  return graphContainer;
+}

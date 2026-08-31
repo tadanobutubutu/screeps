@@ -172,12 +172,12 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function createUniqueLandmarkId(baseName) {
+function createLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
         const suffix = Math.floor(Math.random() * 900) + 100;
-        candidate = `${baseName}-${suffix}`;
+        candidate = baseName + '-' + suffix;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -280,7 +280,6 @@ validateTableStructure(table);
 
 // Add/fix landmark issues
 validateLandmark();
-validateLandmarkStructure();
 ensureUniqueLandmarks();
 
 // Add accessible names to SVGs
@@ -305,8 +304,8 @@ function formatProductName(product) {
 }
 
 function renderProductList(products) {
-  const container = document.getElementById('product-container');
-  container.innerHTML = products.map(p => `<div class="product">${formatProductName(p)}</div>`).join('');
+  const container = document.createElement('div');
+  container.innerHTML = products.map(p => `<div class="product">${p.name}</div>`).join('');
   return container;
 }
 
@@ -336,7 +335,7 @@ function validateAndRender(input) {
 
 function renderPage(data) {
   const header = renderHeader(data.title);
-  const content = `<main>${data.content}</main>`;
+  const content = data.content;
   const footer = renderFooter();
   return `${header}${content}${footer}`;
 }
@@ -357,7 +356,7 @@ function checkLandmarkElements() {
         const role = element.getAttribute('role') || (['nav', 'main', 'header', 'footer', 'aside', 'section', 'article'].includes(tagName) ? tagName : null);
 
         return {
-            id: element.id || `landmark-${index}`,
+            id: element.id || 'landmark-' + index,
             element: element,
             role: role,
             label: element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || '',
@@ -366,290 +365,4 @@ function checkLandmarkElements() {
     });
 
     // Get unique landmarks to avoid duplicate validation
-    const uniqueLandmarkList = uniqueLandmarks(landmarks);
-
-    // Validate landmark accessibility using the imported utility
-    const validationResult = validateLandmark(uniqueLandmarkList);
-
-    // Validate landmark structure (hierarchical relationships)
-    const structureValidation = validateLandmarkStructure(uniqueLandmarkList);
-
-    // Combine validation results
-    const allErrors = [
-        ...(validationResult.errors || []),
-        ...(structureValidation.errors || [])
-    ];
-
-    return {
-        landmarks: uniqueLandmarkList,
-        totalCount: landmarks.length,
-        uniqueCount: uniqueLandmarkList.length,
-        isValid: validationResult.isValid && structureValidation.isValid,
-        validationErrors: allErrors
-    };
-}
-
-// New function or change requested in the issue
-function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  const links = document.querySelectorAll('a[href], area[href]');
-  const results = [];
-  
-  links.forEach((link, index) => {
-    const href = link.getAttribute('href');
-    const isAccessible = validateLinkAccessibility(link);
-    const hasText = link.textContent.trim().length > 0 || link.getAttribute('aria-label');
-    const hasUniqueText = checkUniqueLinkText(link);
-    
-    results.push({
-      index,
-      url: href,
-      isAccessible,
-      hasText,
-      hasUniqueText,
-      element: link
-    });
-  });
-  
-  handleFakeLinks(results);
-  
-  return results;
-}
-
-/**
- * Checks if link text is unique among sibling links
- * @param {HTMLAnchorElement} link - The link element to check
- * @returns {boolean} True if link text is unique
- */
-function checkUniqueLinkText(link) {
-  const siblings = link.parentElement ? link.parentElement.querySelectorAll('a') : [];
-  const linkText = link.textContent.trim().toLowerCase();
-  
-  let count = 0;
-  siblings.forEach(sibling => {
-    if (sibling.textContent.trim().toLowerCase() === linkText) {
-      count++;
-    }
-  });
-  
-  return count === 1;
-}
-
-// Export utility functions
-module.exports = {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  checkLinkAccessibility,
-};
-
-// Export utility functions
-module.exports = {
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput
-};
-
-// Export component functions
-module.exports = {
-  renderHeader,
-  renderFooter,
-  renderProductCard
-};
-
-// Export state
-module.exports = {
-  state,
-  updateState
-};
-
-// Export UI / product functions
-module.exports = {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage
-};
-
-// Export the new function
-module.exports = { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, checkLandmarkElements };
-
-// ... other exports ...
-
-// Function to add a landmark, using the following order: validate and add to storage
-function addLandmark(landmark) {
-  if (validateLandmark(landmark)) {
-    landmarks.push(landmark);
-    return true;
-  }
-  return false;
-}
-
-// Function to get all landmarks
-function getLandmarks() {
-  return [...landmarks];
-}
-
-// Function to remove a landmark by ID
-function removeLandmark(id) {
-  const index = landmarks.findIndex(landmark => landmark.id === id);
-  if (index !== -1) {
-    landmarks.splice(index, 1);
-    return true;
-  }
-  return false;
-}
-
-function isLatitudeValid(lat) {
-  return typeof lat === 'number' && lat >= -90 && lat <= 90;
-}
-
-function isLongitudeValid(lng) {
-  return typeof lng === 'number' && lng >= -180 && lng <= 180;
-}
-
-// Add new function
-function newFunction() {
-  // Function body
-}
-
-// Function to ensure unique landmarks
-function ensureUniqueLandmarks(landmarksList) {
-  const landmarkNames = new Map();
-  const uniqueLandmarks = [];
-
-  for (let landmark of landmarksList) {
-    if (!validateLandmark(landmark)) {
-      continue;
-    }
-
-    const name = landmark.name;
-    if (!landmarkNames.has(name)) {
-      landmarkNames.set(name, []);
-      uniqueLandmarks.push(landmark);
-    }
-  }
-
-  return uniqueLandmarks;
-}
-
-// New function to render dependency graphs or display module structure
-function renderDependencyGraph(module) {
-  // Implementation to render the dependency graph for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Rendering dependency graph for:', module);
-  // Example output: 'Rendering dependency graph for: ModuleName'
-}
-
-// New function to display module structure
-function displayModuleStructure(module) {
-  // Implementation to display the module structure for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Displaying module structure for:', module);
-  // Example output: 'Displaying module structure for: ModuleName'
-}
-
-function handleFakeLinks(links) {
-  const fixedLinks = [];
-  
-  for (let link of links) {
-    if (!validateLinkAccessibility(link)) {
-      link.setAttribute('href', '#');
-      link.setAttribute('role', 'button');
-      link.style.pointerEvents = 'none';
-      fixedLinks.push(link);
-    } else {
-      fixedLinks.push(link);
-    }
-  }
-  
-  return fixedLinks;
-}
-
-// REACT_037: Add proper landmark regions
-function addProperLandmarkRegions(element) {
-  if (!element || element.nodeType !== Node.ELEMENT_NODE) {
-    return;
-  }
-  
-  const validLandmarkRegions = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
-  const currentRole = element.getAttribute('role');
-  
-  if (!currentRole && validLandmarkRegions.includes(element.tagName.toLowerCase())) {
-    element.setAttribute('role', element.tagName.toLowerCase());
-  }
-}
-
-/**
- * Displays module structure for debugging purposes.
- * @param {Array} modules - Array of module objects
- * @returns {string} Formatted module structure display
- */
-function displayModuleStructure(modules) {
-  if (!Array.isArray(modules)) {
-    return 'Error: modules must be an array';
-  }
-  
-  let output = 'Module Structure:\n';
-  output += '==================\n\n';
-  
-  modules.forEach((mod, index) => {
-    const name = mod.name || mod.id || `Module ${index + 1}`;
-    output += `${index + 1}. ${name}\n`;
-    
-    if (mod.dependencies && Array.isArray(mod.dependencies)) {
-      output += `   Dependencies: ${mod.dependencies.join(', ')}\n`;
-    }
-    
-    if (mod.path) {
-      output += `   Path: ${mod.path}\n`;
-    }
-    
-    output += '\n';
-  });
-  
-  return output;
-}
-
-// Additional exports requested
-function calculateSum(a, b) {
-  return a + b;
-}
-
-module.exports = {
-  main,
-  getDependencyDepth,
-  generateDependencyReport,
-  countDependencies,
-  renderDependencyGraph,
-  newFunction,
-  newAccessibleFunction,
-  addLandmark,
-  getLandmarks,
-  removeLandmark,
-  ensureUniqueLandmarks,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  displayModuleStructure,
-  checkLandmarkElements,
-  checkLinkAccessibility,
-  addAriaLabel,
-  calculateSum
-};
-
-// Run if executed directly
-if (require.main === module) {
-  main.init();
-}
+    const uniqueLandmarkList = uniqueLandmarks(landmarks

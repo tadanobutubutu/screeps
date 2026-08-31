@@ -336,6 +336,9 @@ function validateAccessibleLinks(container) {
   return { valid: errors.length === 0, errors };
 }
 
+const functionA = { X: 1, Y: 2, Z: 3 };
+const functionB = { X: 4, Y: 5, Z: 6 };
+
 // Export all functions to maintain current exports
 module.exports = {
   setHtmlLangAttribute,
@@ -349,5 +352,7 @@ module.exports = {
   getSvgAccessibleName,
   validateSvgAccessibility,
   ensureUniqueLandmarks,
-  validateAccessibleLinks
+  validateAccessibleLinks,
+  functionA,
+  functionB
 };

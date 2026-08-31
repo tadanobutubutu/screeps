@@ -180,6 +180,73 @@ function replaceFakeLinks() {
   }
 }
 
+/**
+ * Fixes table structure accessibility issues.
+ *
+ * This addresses the REACT_027 issue by ensuring tables have proper
+ * accessibility attributes including headers, captions, and scope attributes.
+ */
+const fixTableStructureIssues = () => {
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, tableIndex) => {
+    // Add caption if missing
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = `Table ${tableIndex + 1}`;
+      caption.style.cssText = 'position: absolute; left: -9999px;'; // Visually hidden but accessible
+      table.insertBefore(caption, table.firstChild);
+    }
+
+    // Ensure header cells have scope attributes
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach((th) => {
+      if (!th.getAttribute('scope')) {
+        // Determine scope based on position
+        const parentRow = th.closest('tr');
+        const isFirstCell = parentRow && parentRow.cells[0] === th;
+        const isHeaderRow = parentRow && parentRow.parentElement &&
+          (parentRow.parentElement.tagName === 'THEAD' || parentRow.rowIndex === 0);
+        th.setAttribute('scope', isHeaderRow ? 'col' : 'row');
+      }
+    });
+
+    // Associate data cells with headers for complex tables
+    const dataCells = table.querySelectorAll('td');
+    const hasHeaders = table.querySelectorAll('th[id]').length > 0;
+    if (hasHeaders) {
+      dataCells.forEach((td) => {
+        if (!td.getAttribute('headers')) {
+          const cellIndex = td.cellIndex;
+          const row = td.closest('tr');
+          const tableSection = row ? row.parentElement : null;
+          const headerRow = tableSection && tableSection.tagName === 'THEAD'
+            ? tableSection.rows[0]
+            : (table.tHead ? table.tHead.rows[0] : table.rows[0]);
+          if (headerRow && headerRow.cells[cellIndex]) {
+            const headerCell = headerRow.cells[cellIndex];
+            if (headerCell.id) {
+              td.setAttribute('headers', headerCell.id);
+            } else {
+              headerCell.id = `th-${tableIndex}-${cellIndex}`;
+              td.setAttribute('headers', headerCell.id);
+            }
+          }
+        }
+      });
+    }
+
+    // Ensure table has proper structure (thead, tbody, tfoot)
+    if (!table.tHead && table.rows.length > 0) {
+      const thead = document.createElement('thead');
+      const firstRow = table.rows[0];
+      if (firstRow.cells.length > 0 && firstRow.cells[0].tagName === 'TH') {
+        thead.appendChild(firstRow.cloneNode(true));
+        firstRow.parentNode.replaceChild(thead, firstRow);
+      }
+    }
+  });
+};
+
 // ... (other code in main.js)
 
 // Additional function

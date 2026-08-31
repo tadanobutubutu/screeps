@@ -416,10 +416,10 @@ const AddressabilityIssues = {
 function MyComponent() {
   // Existing code that needs to be updated
   const langAttr = getLangAttribute();
-  return (
-    <div lang={langAttr}>
-      {/* Content */}
-    </div>
+  return React.createElement(
+    'div',
+    { lang: langAttr },
+    'Content'
   );
 }
 

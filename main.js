@@ -11,9 +11,16 @@ function validateInput(input) {
 }
 
 // TODO: Add necessary exports for new functions
-// The following new functions were added but lacked exports
-
 export { getUser, validateInput };
 
-// Additional new functions (if any)
-// export { newFeatureA, newFeatureB };
+// Additional new functions (if any) from both branches
+export {
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph,
+  ensureLandmarkRoles,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  ensureLangAttribute
+};

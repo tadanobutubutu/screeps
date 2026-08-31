@@ -75,7 +75,37 @@ const accessibilityUtils = {
 
   // New focus trap function for keyboard navigation
   newFocusTrap: () => {
-    // New function implementation
+    // Find a suitable container for the focus trap
+    const container = document.getElementById('focus-trap-container') || document.body;
+    
+    if (!container) {
+      console.warn('Focus trap container not found');
+      return;
+    }
+    
+    const focusableElements = container.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    
+    if (focusableElements.length === 0) {
+      console.warn('No focusable elements found in container');
+      return;
+    }
+    
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
+    container.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    });
   }
 };
 
@@ -249,8 +279,6 @@ function groupByCategory(items, getCategory) {
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 
 _Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
-
-<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
 
 // TODO: Implement the new function as per the issue requirements
 function transformInputData(inputData, options = {}) {

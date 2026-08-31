@@ -1,12 +1,12 @@
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by personName() and ...)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
@@ -57,6 +57,80 @@ function detectAndSetLang(content) {
 // New function to address REACT_015: Add lang attribute to HTML element
 function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
+}
+
+/**
+ * Gets the full language attribute including region code (e.g., 'en-US', 'zh-CN')
+ * Addresses REACT_015: Add lang attribute to HTML element
+ * @returns {string} The full lang attribute value (language-region format)
+ */
+function getFullLangAttribute() {
+  if (typeof document === 'undefined' || !document.documentElement) {
+    return 'en-US';
+  }
+  
+  const lang = document.documentElement.lang || 'en';
+  
+  // If already has region code, return as-is
+  if (lang.includes('-')) {
+    return lang;
+  }
+  
+  // Map language codes to likely region codes
+  const regionMap = {
+    'en': 'US',
+    'zh': 'CN',
+    'ja': 'JP',
+    'ko': 'KR',
+    'fr': 'FR',
+    'de': 'DE',
+    'es': 'ES',
+    'it': 'IT',
+    'pt': 'BR',
+    'ru': 'RU',
+    'ar': 'SA',
+    'hi': 'IN',
+    'nl': 'NL',
+    'pl': 'PL',
+    'tr': 'TR',
+    'sv': 'SE',
+    'da': 'DK',
+    'no': 'NO',
+    'fi': 'FI',
+    'cs': 'CZ',
+    'hu': 'HU',
+    'ro': 'RO',
+    'sk': 'SK',
+    'bg': 'BG',
+    'hr': 'HR',
+    'sr': 'RS',
+    'sl': 'SI',
+    'et': 'EE',
+    'lv': 'LV',
+    'lt': 'LT',
+    'uk': 'UA',
+    'be': 'BY',
+    'mk': 'MK',
+    'sq': 'AL',
+    'mt': 'MT',
+    'ga': 'IE',
+    'cy': 'GB',
+    'eu': 'ES',
+    'ca': 'ES',
+    'gl': 'ES',
+    'is': 'IS',
+    'fo': 'FO',
+    'kl': 'GL',
+    'sm': 'WS',
+    'to': 'TO',
+    'fj': 'FJ',
+    'mi': 'NZ',
+    'haw': 'US',
+    'tlh': 'AA'
+  };
+  
+  const region = regionMap[lang] || 'US';
+  return `${lang}-${region}`;
 }
 
 // New function to address REACT_027: Fix 26 table structure issues
@@ -309,6 +383,73 @@ function personName(element) {
   if (textContent) return textContent;
   
   return null;
+}
+
+/**
+ * Creates an accessible in-page button element to replace fake links
+ * Addresses REACT_036: Fix fake link issues
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - Button text content
+ * @param {string} options.id - Optional button ID
+ * @param {string} options.className - Optional CSS class name
+ * @param {Function} options.onClick - Click handler
+ * @param {string} options.ariaLabel - Optional aria-label for accessibility
+ * @param {string} options.ariaControls - Optional ID of element controlled by this button
+ * @param {boolean} options.ariaExpanded - Optional expanded state for toggle buttons
+ * @param {string} options.type - Button type (button, submit, reset)
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(options = {}) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  
+  const {
+    text = '',
+    id = '',
+    className = '',
+    onClick = null,
+    ariaLabel = '',
+    ariaControls = '',
+    ariaExpanded = null,
+    type = 'button'
+  } = options;
+  
+  const button = document.createElement('button');
+  button.type = type;
+  button.textContent = text;
+  
+  if (id) {
+    button.id = id;
+  }
+  
+  if (className) {
+    button.className = className;
+  }
+  
+  if (onClick && typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  
+  // Accessibility attributes
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+  
+  if (ariaControls) {
+    button.setAttribute('aria-controls', ariaControls);
+  }
+  
+  if (ariaExpanded !== null) {
+    button.setAttribute('aria-expanded', ariaExpanded.toString());
+  }
+  
+  // Ensure button has accessible name
+  if (!ariaLabel && !text.trim()) {
+    console.warn('createInPageButton: Button created without accessible name. Provide ariaLabel or text content.');
+  }
+  
+  return button;
 }
 
 /**

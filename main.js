@@ -1,3 +1,35 @@
+import React from 'react';
+import { useState, useEffect } from 'react';
+import express from 'express';
+import path from 'path';
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import { isSecureContext } from './utils.js';
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+import './styles.less';
+import './styles.css';
+import fs from 'fs';
+import path from 'path';
+import { CONFIG, CONFIG as UTILS_CONFIG } from './utils/constants';
+import { calculateSum } from './utils';
+import { getLangAttribute, getFullLangAttribute, addLangAttribute } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure, fixTableStructure } from './utils/tableAccessibilityUtils';
+import { validateLandmark, validateLandmarkStructure, addMainLandmark, isValidLandmark, loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById } from './utils/landmarkUtils';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks, validateInput, processData as processDataUtil, formatResponse, createInPageButton } from './utils/linkAccessibilityUtils';
+
+// Configuration and state
+const appConfig = {
+  ...UTILS_CONFIG,
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
 // Existing code preserved
 module.exports = {
   userSafety: 'unsafe',
@@ -291,6 +323,13 @@ function main() {
 // Export all functions and utilities
 module.exports = {
   ...module.exports,
+  main,
+  generateAccessibilityReport,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
   addressAccessibilityIssues,
   spawnProcess,
   ensureLangAttribute,

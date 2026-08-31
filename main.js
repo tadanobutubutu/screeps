@@ -368,7 +368,7 @@ function newExportedFunction() {
     // Implementation of the new function
 }
 
-module.exports = {
+export {
   getLang,
   setLang,
   supportedLangs,

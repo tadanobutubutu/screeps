@@ -5,6 +5,80 @@ function calculateSum(a, b) {
 }
 
 /**
+ * Checks links and buttons in the document for missing accessible names
+ * @returns {Array} - Array of accessibility issues found
+ */
+function checkLinkAndButtonAccessibility() {
+  const issues = [];
+  const elements = document.querySelectorAll('a, button');
+
+  elements.forEach((element, index) => {
+    const hasAccessibleName = checkAccessibleName(element);
+    if (!hasAccessibleName) {
+      issues.push({
+        type: element.tagName.toLowerCase() === 'a' ? 'link' : 'button',
+        element: element,
+        index: index,
+        parentNode: element.parentNode
+      });
+    }
+  });
+
+  return issues;
+}
+
+/**
+ * Determines whether an element has an accessible name
+ * @param {HTMLElement} element - The element to check
+ * @returns {boolean} - Whether the element has an accessible name
+ */
+function checkAccessibleName(element) {
+  // Check for aria-label
+  const ariaLabel = element.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim() !== '') {
+    return true;
+  }
+
+  // Check for aria-labelledby
+  const labelledBy = element.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const labelElement = document.getElementById(labelledBy);
+    if (labelElement && labelElement.textContent.trim() !== '') {
+      return true;
+    }
+  }
+
+  // Check for visible text content
+  if (element.textContent.trim() !== '') {
+    return true;
+  }
+
+  // Check for child img with alt text
+  const img = element.querySelector('img[alt]');
+  if (img && img.getAttribute('alt') && img.getAttribute('alt').trim() !== '') {
+    return true;
+  }
+
+  // Check for title attribute
+  const title = element.getAttribute('title');
+  if (title && title.trim() !== '') {
+    return true;
+  }
+
+  // Check for input with alt or aria-label (for embedded controls)
+  const input = element.querySelector('input[type="image"][alt], input[type="image"][aria-label]');
+  if (input) {
+    const alt = input.getAttribute('alt');
+    const inputAriaLabel = input.getAttribute('aria-label');
+    if ((alt && alt.trim() !== '') || (inputAriaLabel && inputAriaLabel.trim() !== '')) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * Addresses accessibility issues from an insight report by applying fixes
  * @param {Array} issues - Array of accessibility issues to address
  * @param {Object} options - Options for how to address the issues

@@ -766,3 +766,39 @@ export { addLangAttribute };
 
 // Export the internal set for tracking used landmark IDs
 export { _usedLandmarkIds };
+
+// New function to handle focus trap for keyboard navigation
+/**
+ * Implements a focus trap for keyboard navigation within a given container.
+ * When the container is focused, pressing Tab cycles focus within the container.
+ * @param {HTMLElement} container - The element to apply the focus trap to.
+ */
+function newFocusTrap(container) {
+    if (!container) return;
+    const focusableElements = container.querySelectorAll(
+        'a[href], button, [tabindex]:not([tabindex="-1"]), input, select, textarea, [role="button"], [role="link"], [role="checkbox"], [role="radio"], [role="switch"]'
+    );
+    if (focusableElements.length === 0) return;
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+
+    function handleKeyDown(e) {
+        if (e.key !== 'Tab') return;
+        if (e.shiftKey) {
+            if (document.activeElement === firstFocusable) {
+                e.preventDefault();
+                lastFocusable.focus();
+            }
+        } else {
+            if (document.activeElement === lastFocusable) {
+                e.preventDefault();
+                firstFocusable.focus();
+            }
+        }
+    }
+
+    container.addEventListener('keydown', handleKeyDown);
+}
+
+// Export the new focus trap function
+export { newFocusTrap };

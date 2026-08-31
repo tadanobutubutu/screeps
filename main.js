@@ -1,6 +1,12 @@
 // TODO: This is the existing code that needs to be preserved
 /* Your new code, functions, or changes can be added after this comment */
 
+// TODO: Implement calculateDiscount
+function calculateDiscount(originalPrice, discountPercentage) {
+  const discountAmount = originalPrice * (discountPercentage / 100);
+  return originalPrice - discountAmount;
+}
+
 // Example of adding a new function
 function newFunction() {
   // Function body

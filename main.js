@@ -17,13 +17,13 @@ const appData = {
  * @param {string} id - The ID of the landmark element.
  * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
+export function checkLandmarkElement(id) {
+  const element = ...
   return element !== null;
 }
 
 // Ensure unique landmarks by filtering duplicates
-function ensureUniqueLandmarks(landmarks) {
+export function ensureUniqueLandmarks(landmarks) {
     const seen = new Set();
     return landmarks.filter(landmark => {
         const key = landmark.name + '_' + (landmark.role || 'default');
@@ -37,7 +37,7 @@ function ensureUniqueLandmarks(landmarks) {
 
 // Testing the checkLandmarkElement function:
 // To test this function, we could create a test file with the following content:
-const landmarkStructureCheck = (landmark) => {
+export const landmarkStructureCheck = (landmark) => {
   if (!landmark.name || !landmark.coordinates) {
     return false;
   }
@@ -48,10 +48,10 @@ const landmarkStructureCheck = (landmark) => {
  * REACT_015: Add lang attribute to HTML element
  * Sets the language attribute on the HTML element.
  */
-function setLanguageAttribute() {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
+export function setLanguageAttribute() {
+  const htmlElement = ...
+  if (htmlElement && ... {
+    ... 'en');
   }
 }
 
@@ -59,7 +59,7 @@ function setLanguageAttribute() {
  * REACT_017: Add/fix 2 landmark issues
  * Validates landmark elements for proper structure and accessibility.
  */
-function validateLandmark(landmark) {
+export function validateLandmark(landmark) {
   if (!landmark || !landmark.role) {
     return false;
   }
@@ -71,7 +71,7 @@ function validateLandmark(landmark) {
  * @param {Object} landmark - The landmark object to validate.
  * @returns {boolean} Returns true if the landmark structure is valid.
  */
-function validateLandmarkStructure(landmark) {
+export function validateLandmarkStructure(landmark) {
   if (!landmark.name || !landmark.coordinates) {
     return false;
   }
@@ -81,9 +81,9 @@ function validateLandmarkStructure(landmark) {
 /**
  * Adds landmark roles to elements.
  */
-function addLandmarkRoles() {
-  const landmarkElements = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
-  landmarkElements.forEach((element, index) => {
+export function addLandmarkRoles() {
+  const landmarkElements = ... [role="navigation"], [role="main"], [role="contentinfo"], ...
+  ... index) => {
     if (!element.id) {
       element.id = 'landmark-' + index;
     }
@@ -96,12 +96,12 @@ function addLandmarkRoles() {
  * @param {HTMLTableElement} table - The table element to validate.
  * @returns {boolean} Returns true if the table is accessible.
  */
-function validateTableAccessibility(table) {
+export function validateTableAccessibility(table) {
   if (!table) return false;
   
-  const headers = table.querySelectorAll('th');
+  const headers = ...
   const hasHeaders = headers.length > 0;
-  const hasCaption = table.querySelector('caption') !== null;
+  const hasCaption = ... !== null;
   
   return hasHeaders && hasCaption;
 }
@@ -111,14 +111,14 @@ function validateTableAccessibility(table) {
  * @param {HTMLTableElement} table - The table element to validate.
  * @returns {boolean} Returns true if the table structure is valid.
  */
-function validateTableStructure(table) {
+export function validateTableStructure(table) {
   if (!table) return false;
   
-  const rows = table.querySelectorAll('tr');
+  const rows = ...
   rows.forEach(row => {
-    const cells = row.querySelectorAll('th, td');
+    const cells = ... td');
     cells.forEach(cell => {
-      if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
+      if (cell.tagName === 'TH' && ... {
         cell.setAttribute('scope', 'col');
       }
     });
@@ -133,12 +133,12 @@ function validateTableStructure(table) {
  * @param {SVGElement} svg - The SVG element.
  * @returns {string|null} Returns the accessible name or null.
  */
-function getSvgAccessibleName(svg) {
+export function getSvgAccessibleName(svg) {
   if (!svg) return null;
   
-  return svg.getAttribute('aria-label') || 
-         svg.getAttribute('aria-labelledby') || 
-         svg.querySelector('title')?.textContent || 
+  return ... || 
+         ... || 
+         ... || 
          null;
 }
 
@@ -147,11 +147,11 @@ function getSvgAccessibleName(svg) {
  * @param {SVGElement} svg - The SVG element.
  * @param {string} name - The accessible name to set.
  */
-function setSvgAttributes(svg, name) {
+export function setSvgAttributes(svg, name) {
   if (!svg) return;
   
-  if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
-    svg.setAttribute('aria-label', name);
+  if ... && ... {
+    ... name);
   }
 }
 
@@ -162,12 +162,12 @@ function setSvgAttributes(svg, name) {
  * @param {Function} onClick - The click handler.
  * @returns {HTMLButtonElement} The created button element.
  */
-function createInPageButton(text, onClick) {
+export function createInPageButton(text, onClick) {
   const button = document.createElement('button');
   button.textContent = text;
   button.setAttribute('type', 'button');
   if (onClick) {
-    button.addEventListener('click', onClick);
+    ... onClick);
   }
   return button;
 }
@@ -177,12 +177,12 @@ function createInPageButton(text, onClick) {
  * @param {HTMLAnchorElement} link - The link element to validate.
  * @returns {boolean} Returns true if the link is accessible.
  */
-function validateLinkAccessibility(link) {
+export function validateLinkAccessibility(link) {
   if (!link) return false;
   
-  const href = link.getAttribute('href');
+  const href = ...
   const hasProperHref = href && href.length > 0 && href !== '#';
-  const hasAccessibleText = link.textContent.trim().length > 0 || link.hasAttribute('aria-label');
+  const hasAccessibleText = link.textContent.trim().length > 0 || ...
   
   return hasProperHref || hasAccessibleText;
 }
@@ -190,12 +190,12 @@ function validateLinkAccessibility(link) {
 /**
  * Handles fake links by converting them to proper buttons or adding accessibility attributes.
  */
-function handleFakeLinks() {
-  const links = document.querySelectorAll('a[href="#"], a:not([href])');
+export function handleFakeLinks() {
+  const links = ... a:not([href])');
   links.forEach(link => {
-    if (link.getAttribute('href') === '#' || !link.hasAttribute('href')) {
+    if ... === '#' || ... {
       link.setAttribute('role', 'button');
-      link.setAttribute('tabindex', '0');
+      ... '0');
     }
   });
 }
@@ -203,7 +203,7 @@ function handleFakeLinks() {
 /**
  * Fixes fake links that don't have proper href attributes.
  */
-function fixFakeLinks() {
+export function fixFakeLinks() {
   handleFakeLinks();
 }
 
@@ -211,20 +211,20 @@ function fixFakeLinks() {
  * REACT_037: Add proper landmark regions
  * Ensures proper landmark regions are added to the document.
  */
-function addProperLandmarkRegions() {
-  const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
+export function ensureProperLandmarkRegions() {
+  const mainElement = ... || ...
   if (mainElement && !mainElement.id) {
     mainElement.id = 'main-content';
   }
   
-  const navElements = document.querySelectorAll('nav');
-  navElements.forEach((nav, index) => {
+  const navElements = ...
+  ... index) => {
     if (!nav.id) {
       nav.id = 'navigation-' + index;
     }
   });
   
-  const footerElement = document.querySelector('footer') || document.querySelector('[role="contentinfo"]');
+  const footerElement = ... || ...
   if (footerElement && !footerElement.id) {
     footerElement.id = 'footer';
   }

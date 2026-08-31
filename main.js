@@ -18,6 +18,8 @@ function generateKey(book) {
   return book.id || `${book.title}-${book.author}`;
 }
 
+// TODO: Identify and update specific functions that render dependency graphs or mark as N/A if none exist in this file
+
 // Function to render a single book item
 function BookItem({ book }) {
   return (

@@ -1,8 +1,5 @@
 // main.js - Accessibility-focused implementation
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
-
 /**
  * Main application entry point with accessibility features
  */
@@ -23,8 +20,6 @@ function addSvgAccessibilityProps() {
     setSvgAttributes(svg);
   });
 }
-
-const checkTableStructure = /* existing code */
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -412,6 +407,131 @@ const AddressabilityIssues = {
     };
   }
 };
+
+function trapFocus(event) {
+  if (event.key !== 'Tab') {
+    return;
+  }
+
+  const focusableElements = event.currentTarget.querySelectorAll(
+    'button, a, input, select, textarea, [tabindex]'
+  );
+  
+  if (focusableElements.length === 0) {
+    return;
+  }
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  if (event.shiftKey) {
+    if (document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+    }
+  } else {
+    if (document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  }
+}
+
+function handleKeyNavigation(event) {
+  const key = event.key;
+  const target = event.target;
+  
+  switch (key) {
+    case 'Escape':
+      closeOpenDialogs();
+      break;
+    case 'ArrowUp':
+    case 'ArrowDown':
+      handleArrowNavigation(event);
+      break;
+    case 'Home':
+      event.preventDefault();
+      const firstFocusable = target.closest('dialog') 
+        ? target.closest('dialog').querySelector('button, a, input, select, textarea, [tabindex]')
+        : document.querySelector('button, a, input, select, textarea, [tabindex]');
+      if (firstFocusable) {
+        firstFocusable.focus();
+      }
+      break;
+    case 'End':
+      event.preventDefault();
+      const dialog = target.closest('dialog');
+      const focusableElements = dialog 
+        ? Array.from(dialog.querySelectorAll('button, a, input, select, textarea, [tabindex]'))
+        : Array.from(document.querySelectorAll('button, a, input, select, textarea, [tabindex]'));
+      if (focusableElements.length > 0) {
+        focusableElements[focusableElements.length - 1].focus();
+      }
+      break;
+    default:
+      break;
+  }
+}
+
+function getSvgAccessibleName(svg) {
+  const title = svg.querySelector('title');
+  if (title) {
+    return title.textContent;
+  }
+  
+  const desc = svg.querySelector('desc');
+  if (desc) {
+    return desc.textContent;
+  }
+  
+  return null;
+}
+
+function setSvgAttributes(svg) {
+  if (!svg.hasAttribute('focusable')) {
+    svg.setAttribute('focusable', 'false');
+  }
+  
+  if (!svg.hasAttribute('aria-hidden')) {
+    svg.setAttribute('aria-hidden', 'false');
+  }
+}
+
+function getVersion() {
+  return '1.0.0';
+}
+
+function getConfig() {
+  return {
+    theme: 'light',
+    announcePolicy: true,
+    focusManagement: true,
+    semanticMarkup: true
+  };
+}
+
+function getLangAttribute() {
+  return document.documentElement.getAttribute('lang') || 'en';
+}
+
+function handleArrowNavigation(event) {
+  const target = event.target;
+  const direction = event.key === 'ArrowUp' ? -1 : 1;
+  
+  const focusableElements = Array.from(
+    target.closest('dialog') 
+      ? target.closest('dialog').querySelectorAll('button, a, input, select, textarea, [tabindex]')
+      : document.querySelectorAll('button, a, input, select, textarea, [tabindex]')
+  );
+  
+  const currentIndex = focusableElements.indexOf(target);
+  const nextIndex = currentIndex + direction;
+  
+  if (nextIndex >= 0 && nextIndex < focusableElements.length) {
+    event.preventDefault();
+    focusableElements[nextIndex].focus();
+  }
+}
 
 function MyComponent() {
   // Existing code that needs to be updated

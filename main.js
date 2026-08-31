@@ -1,22 +1,6 @@
-// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+// TODO: This is the existing code that needs to be preserved
 
-// TODO: Add back any required exports that might have been removed.
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
-
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-// _Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
-
-<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
-
-// Preserve existing functionality
-
-// Importing the necessary functions (for illustration purposes)
+// Import the necessary functions (for illustration purposes)
 import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
@@ -418,126 +402,6 @@ function specificFunctionThatRendersGraphOrIndex() {
   renderIndex();
 }
 
-// Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
-
-// Export utility functions
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  // Newly added accessibility functions
-  getFullLangAttribute,
-  addAriaLabel,
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  ensureUniqueLandmarks,
-  createAccessibleLink,
-  handleAccessibilityIssues,
-  addLangAttribute
-};
-
-// Export component functions
-export {
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput
-};
-
-// Export UI / product functions
-export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage,
-  dependencyGraphContent,
-  indexContent
-};
-
-// New function or change requested in the issue
-function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility();
-}
-
-// Function to render dependency graphs or display module structure
-function renderDependencyGraph(module) {
-  // Implementation to render the dependency graph for a given module
-  // Builds a graph representation of the module's dependencies
-  const nodes = [];
-  const edges = [];
-  if (module && module.dependencies) {
-    nodes.push({ id: module.name || 'root', label: module.name || 'root' });
-    for (const dep of module.dependencies) {
-      const depName = typeof dep === 'string' ? dep : dep.name;
-      nodes.push({ id: depName, label: depName });
-      edges.push({ from: module.name || 'root', to: depName });
-    }
-  }
-  console.log('Rendering dependency graph for:', module, { nodes, edges });
-  return { nodes, edges };
-}
-
-// Function to display module structure
-function displayModuleStructure(module) {
-  // Implementation to display the module structure for a given module
-  // Returns a structured representation of the module
-  if (!module) {
-    return null;
-  }
-  const structure = {
-    name: module.name || 'unnamed',
-    exports: module.exports || [],
-    imports: module.imports || [],
-    dependencies: module.dependencies || []
-  };
-  console.log('Displaying module structure for:', module, structure);
-  return structure;
-}
-
-// Export state
-export {
-  state,
-  updateState
-};
-
-// Export internal functions for accessibility
-export {
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  addAriaLabel,
-  addLangAttribute
-};
-
-// ... other exports ...
-
-// Export UI / product functions
-export {
-  renderHeader,
-  renderFooter,
-  renderProductCard
-};
-
-// Exporting for CommonJS compatibility
-module.exports = {
-  specificFunctionThatRendersGraphOrIndex
-};
-
-// Export additional required functions
-export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute };
-
-// Report generation logic
 /**
  * Generates an accessibility report based on the current document state.
  * @returns {Object} An object containing the accessibility report data.
@@ -745,24 +609,51 @@ function generateAndDisplayReport() {
     return report;
 }
 
+// Export accessibility utility functions
+export {
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  getFullLangAttribute,
+  addAriaLabel,
+  ensureUniqueLandmarkId,
+  uniqueLandmarks,
+  ensureUniqueLandmarks,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  addLangAttribute
+};
+
+// Export component functions
+export {
+  formatCurrency,
+  formatDate,
+  calculateDiscount,
+  validateInput
+};
+
+// Export UI / product functions
+export {
+  formatProductName,
+  renderProductList,
+  calculateTotalPrice,
+  renderCart,
+  validateAndRender,
+  renderPage,
+  dependencyGraphContent,
+  indexContent
+};
+
 // Export report generation functions
 export {
   generateAccessibilityReport,
   renderAccessibilityReportHtml,
   generateAndDisplayReport
 };
-
-// Export ensureUniqueLandmarkId for ensuring unique landmark IDs
-export { ensureUniqueLandmarkId };
-
-// Export uniqueLandmarks for getting unique landmarks from a list
-export { uniqueLandmarks };
-
-// Export addAriaLabel for adding aria-label attributes to elements
-export { addAriaLabel };
-
-// Export addLangAttribute for adding lang attributes to elements
-export { addLangAttribute };
-
-// Export the internal set for tracking used landmark IDs
-export { _usedLandmarkIds };

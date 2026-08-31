@@ -1,1 +1,24 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js
+
+function wrapPrimaryContentInMain() {
+  const primaryContent = document.getElementById('primary-content') || 
+                         document.querySelector('.primary-content');
+  
+  if (!primaryContent) {
+    return;
+  }
+  
+  const mainElement = document.createElement('main');
+  
+  while (primaryContent.firstChild) {
+    mainElement.appendChild(primaryContent.firstChild);
+  }
+  
+  primaryContent.appendChild(mainElement);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  wrapPrimaryContentInMain();
+});
+
+module.exports = { wrapPrimaryContentInMain };

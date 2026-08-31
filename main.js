@@ -96,6 +96,18 @@ function scanAccessibility() {
   };
 }
 
+// Function to get the language attribute value
+function getLangAttribute() {
+  return document.documentElement.getAttribute('lang') || 'en';
+}
+
+// Function to create an in-page button and add the lang attribute
+function createInPageButton() {
+  const button = document.createElement('button');
+  button.setAttribute('lang', getLangAttribute());
+  return button;
+}
+
 // TODO: Implement function for generating a report based on accessibility issues (Resolved conflict: Placeholder removed and replaced with full implementation)
 function generateAccessibilityReport() {
   const report = scanAccessibility();
@@ -156,6 +168,8 @@ const processData = (data) => {
 
 // Export new necessary functions
 module.exports = {
+    getLangAttribute,
+    createInPageButton,
     accessibilityUtils,
     validateInput,
     processData,
@@ -256,17 +270,15 @@ if (require.main === module) {
 
     // Render dependency graph for landmarks (Merged functionality)
     renderDependencyGraph(landmarks);
+
+    // Start server
+    app.listen(PORT, () => {
+      console.log(`Server running on http://${HOST}:${PORT}`);
+    });
 }
 
 // New function to render dependency graph (Preserved)
 module.exports.renderDependencyGraph = renderDependencyGraph;
-
-// Start server
-if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server running on http://${HOST}:${PORT}`);
-  });
-}
 
 /**
  * REACT_015: Add lang attribute to HTML element

@@ -1,4 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 // main.js - Accessibility-focused implementation
 
@@ -25,6 +26,17 @@ function addAriaLabel(element, label) {
     if (!element.getAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
+}
+
+/**
+ * Adds a new function to the module
+ * This is a placeholder for the new function added based on the issue
+ * @param {Object} data - The data object to process
+ * @returns {String} The processed data
+ */
+function processData(data) {
+  // Placeholder for data processing logic
+  return 'Processed data';
 }
 
 /**
@@ -175,7 +187,8 @@ if (typeof module !== 'undefined' && module.exports) {
     ensureId,
     addAriaLabel,
     getSvgAccessibleName,
-    setSvgAttributes
+    setSvgAttributes,
+    processData
   };
 } else {
   // Browser environment - wait for DOM

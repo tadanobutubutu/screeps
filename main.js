@@ -42,9 +42,8 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
-function function3({ onAdd }) {
+// TODO: This is the existing code that needs to be preserved
+function AddBook({ onAdd }) {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [error, setError] = useState('');
@@ -80,6 +79,7 @@ function function3({ onAdd }) {
             onChange={(e) => setTitle(e.target.value)}
             aria-required="true"
             aria-invalid={!!error}
+            aria-describedby={error ? 'book-title-error' : undefined}
             placeholder="Enter book title"
           />
         </div>
@@ -92,15 +92,16 @@ function function3({ onAdd }) {
             onChange={(e) => setAuthor(e.target.value)}
             aria-required="true"
             aria-invalid={!!error}
+            aria-describedby={error ? 'book-author-error' : undefined}
             placeholder="Enter author name"
           />
         </div>
         {error && (
-          <div role="alert" aria-live="polite">
+          <div role="alert" aria-live="polite" id="book-title-error">
             {error}
           </div>
         )}
-        <button type="submit">Add Book</button>
+        <button type="submit" aria-label="Submit new book">Add Book</button>
       </div>
     </form>
   );
@@ -145,8 +146,7 @@ function Main() {
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List dataSource={getBooksList} renderItem={(book) => BookItem(book)} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      <AddBook onAdd={addBook} />
     </div>
   );
 }

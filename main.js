@@ -73,7 +73,7 @@ function checkLandmarkElements() {
   checkLandmarkElement('[role="contentinfo"], footer', 'contentinfo');
   checkLandmarkElement('[role="complementary"], aside', 'complementary');
   checkLandmarkElement('[role="search"], [role="form"], form', 'form');
-}
+};
 
 function getLangAttribute() {
   const lang = localStorage.getItem('userLanguage') || navigator.language || navigator.userLanguage;

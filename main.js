@@ -86,23 +86,24 @@ function validateInput(input) {
     return false;
   }
   return true;
-}
+};
 
-// Language attribute functions
-function getLangAttribute() {
-  return 'en';
-}
-
-function addLangAttribute(element) {
-  if (element && typeof element === 'object') {
-    element.lang = getLangAttribute();
-  }
-  return element;
-}
-
-// Function to set language attribute on the document
+/**
+ * REACT_015: Add lang attribute to HTML element
+ * Sets the language attribute on the HTML element.
+ */
 function setLanguageAttribute() {
-  document.documentElement.lang = 'en';
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+function getLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    return htmlElement.lang;
+  }
 }
 
 // Function to add landmark roles to main containers
@@ -184,9 +185,19 @@ function setSvgAttributes(svg, accessibleName) {
 }
 
 // Unique landmarks function
-function ensureUniqueLandmarks() {
-  console.log('Ensuring unique landmarks');
-  return [];
+function ensureUniqueLandmarks(landmarks) {
+  const seen = new Set();
+  if (!landmarks || !Array.isArray(landmarks)) {
+    return [];
+  }
+  return landmarks.filter(landmark => {
+    const key = landmark.name + '_' + (landmark.role || 'default');
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
 }
 
 // Button creation function
@@ -316,7 +327,7 @@ function addressAccessibilityIssues(insightReport) {
         break;
       case 'REACT_025':
         // Ensure unique landmarks
-        ensureUniqueLandmarks();
+        ensureUniqueLandmarks(landmarks);
         break;
       case 'REACT_036':
         // Fix fake link issue
@@ -409,3 +420,35 @@ function getInsightReport() {
       issues.push({
         type: 'REACT_017',
         description: issue.description
+      });
+    });
+  }
+  
+  // Check SVG accessibility
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(function(svg) {
+    if (!getSvgAccessibleName(svg)) {
+      issues.push({
+        type: 'REACT_041',
+        description: 'SVG missing accessible name',
+        severity: 'medium',
+        element: svg
+      });
+    }
+  });
+  
+  // Check fake links
+  const fakeLinkElements = document.querySelectorAll('a:not([href])');
+  fakeLinkElements.forEach(function(link) {
+    issues.push({
+      type: 'REACT_036',
+      description: 'Fake link without href',
+      severity: 'high',
+      element: link
+    });
+  });
+  
+  return {
+    issues: issues
+  };
+}

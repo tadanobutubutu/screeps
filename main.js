@@ -57,6 +57,46 @@ function addLandmarkRoles(container = document) {
 }
 
 /**
+ * REACT_043: Wrap primary content in a main element
+ * Ensures primary content is wrapped in a <main> element with proper attributes
+ */
+function wrapPrimaryContentInMain() {
+  const primaryContent = document.querySelector('main') || document.querySelector('[role="main"]');
+
+  if (!primaryContent) {
+    // Create a new main element and wrap the primary content
+    const newMain = document.createElement('main');
+    newMain.setAttribute('role', 'main');
+    newMain.id = 'main-content';
+
+    // Move all top-level body children (excluding existing mains, headers, footers, etc.) into the new main
+    const bodyChildren = document.body.children;
+    const elementsToMove = [];
+    for (let i = 0; i < bodyChildren.length; i++) {
+      const child = bodyChildren[i];
+      const tagName = child.tagName.toLowerCase();
+      if (!['header', 'footer', 'nav', 'main', 'aside'].includes(tagName)) {
+        elementsToMove.push(child);
+      }
+    }
+
+    elementsToMove.forEach((element) => {
+      newMain.appendChild(element);
+    });
+
+    document.body.appendChild(newMain);
+  } else {
+    // Ensure main has proper attributes
+    if (!primaryContent.hasAttribute('role')) {
+      primaryContent.setAttribute('role', 'main');
+    }
+    if (!primaryContent.id) {
+      primaryContent.id = 'main-content';
+    }
+  }
+}
+
+/**
  * REACT_025: Ensure unique landmarks (2 issues)
  * Makes landmark values unique by adding or updating IDs
  * @param {HTMLElement} container - The container element to process
@@ -161,6 +201,9 @@ function applyAllAccessibilityFixes(insightReport) {
 
   // REACT_017: Add landmark roles
   addLandmarkRoles();
+
+  // REACT_043: Wrap primary content in main
+  wrapPrimaryContentInMain();
 
   // REACT_025: Ensure unique landmarks
   ensureUniqueLandmarks();
@@ -292,6 +335,7 @@ export { makeHeaderFocusable };
 export {
   addLangAttributeToHtml,
   addLandmarkRoles,
+  wrapPrimaryContentInMain,
   ensureUniqueLandmarks,
   addAccessibleNamesToSVGs,
   fixFakeLinks,

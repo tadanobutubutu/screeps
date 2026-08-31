@@ -4,6 +4,34 @@ function calculateSum(a, b) {
   return a + b;
 }
 
+function checkLinkAndButtonAccessibility() {
+  const issues = [];
+
+  const links = document.querySelectorAll('a');
+  links.forEach((link, index) => {
+    const hasAccessibleName =
+      link.textContent.trim() !== '' ||
+      link.getAttribute('aria-label') !== null ||
+      link.getAttribute('aria-labelledby') !== null;
+    if (!hasAccessibleName) {
+      issues.push({ type: 'link', element: link, index });
+    }
+  });
+
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    const hasAccessibleName =
+      button.textContent.trim() !== '' ||
+      button.getAttribute('aria-label') !== null ||
+      button.getAttribute('aria-labelledby') !== null;
+    if (!hasAccessibleName) {
+      issues.push({ type: 'button', element: button, index });
+    }
+  });
+
+  return issues;
+}
+
 /**
  * Addresses accessibility issues from an insight report by applying fixes
  * @param {Array} issues - Array of accessibility issues to address

@@ -641,5 +641,26 @@ module.exports = {
     return date.toISOString().split('T')[0];
   },
   // Accessibility Functions
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  // Additional exports that might be required
+  checkLandmarkElement,
+  addLandmarkRoles,
+  fixTableStructure,
+  addStandardLandmarks: function() {
+    const result = addProperLandmarkRegions();
+    return result;
+  },
+  addAccessibleNames: function(svgElement, name) {
+    return setSvgAttributes(svgElement, name);
+  },
+  fixTables: function() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      validateTableStructure(table);
+    });
+  },
+  fixLandmarks: function() {
+    addLandmarkRegions();
+    ensureUniqueLandmarks(landmarks);
+  }
 };

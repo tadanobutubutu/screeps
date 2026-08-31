@@ -1,8 +1,8 @@
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure() and fixTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -277,6 +277,11 @@ function Main() {
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
     // Initial sort
+  }, []);
+
+  // Add implementation details: Initialize landmark regions on mount
+  useEffect(() => {
+    addProperLandmarkRegions();
   }, []);
 
   // Render the list of book items and sorting controls

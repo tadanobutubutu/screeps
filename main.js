@@ -668,7 +668,7 @@ const a11yStore = {
     const lastElement = focusableElements[focusableElements.length - 1];
 
     container.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
+      if (e === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
           e.preventDefault();
           lastElement.focus();
@@ -821,7 +821,7 @@ const a11yStore = {
     // Setup keyboard navigation logic
     document.addEventListener('keydown', (e) => {
       // Handle Escape key to close modals/dialogs
-      if (e.key === 'Escape') {
+      if (e === 'Escape') {
         const dialogs = document.querySelectorAll('[role="dialog"][aria-modal="true"]');
         dialogs.forEach(dialog => {
           const closeButton = dialog.querySelector('button');
@@ -832,7 +832,7 @@ const a11yStore = {
       }
       
       // Handle arrow keys for focus management
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (e === 'ArrowDown' || e === 'ArrowUp') {
         const focused = document.activeElement;
         if (focused && focused.hasAttribute('role') && focused.getAttribute('role') === 'menuitem') {
           e.preventDefault();
@@ -840,7 +840,7 @@ const a11yStore = {
           const currentIndex = menuItems.indexOf(focused);
           let nextIndex;
           
-          if (e.key === 'ArrowDown') {
+          if (e === 'ArrowDown') {
             nextIndex = (currentIndex + 1) % menuItems.length;
           } else {
             nextIndex = (currentIndex - 1 + menuItems.length) % menuItems.length;
@@ -858,7 +858,7 @@ const a11yStore = {
     let isTabPressed = false;
     
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
+      if (e === 'Tab') {
         isTabPressed = true;
         document.body.classList.add('user-is-tabbing');
       }
@@ -873,7 +873,7 @@ const a11yStore = {
     const focusableElements = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
     
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab' && e.target.closest('[role="dialog"]')) {
+      if (e === 'Tab' && e.target.closest('[role="dialog"]')) {
         const dialog = e.target.closest('[role="dialog"]');
         const focusables = dialog.querySelectorAll(focusableElements);
         const firstFocusable = focusables[0];
@@ -1056,7 +1056,7 @@ const a11yStore = {
       
       // Add keyboard support
       anchor.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
+        if (e === 'Enter') {
           e.preventDefault();
           element.click();
         }
@@ -1139,6 +1139,10 @@ module.exports = {
 
   a11yStore,
   ...a11yStore,
+
+  // Added missing exports as per the issue
+  rotateBack,
+  validateLandmarkElements,
 };
 if (typeof window !== 'undefined') {
   window.addressAccessibilityIssues = addressAccessibilityIssues; // Adjusted to include new addressAccessibilityIssues function

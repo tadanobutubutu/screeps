@@ -1,4 +1,4 @@
-// main.js
+main.js
 
 // TODO: Address accessibility issues from insight report:
 

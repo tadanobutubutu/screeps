@@ -317,5 +317,12 @@ module.exports = {
   ensureElementId: ensureElementId,
   addAriaLabel: addAriaLabel,
   renderDependencyGraph: renderDependencyGraph,
-  calculateSum: calculateSum
+  calculateSum: calculateSum,
+  log: log,
+  sanitizeFilename: sanitizeFilename,
+  readFileSafe: readFileSafe,
+  processData: processData,
+  filterValidItems: filterValidItems,
+  groupByCategory: groupByCategory,
+  transformInputData: transformInputData
 };

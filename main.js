@@ -41,7 +41,9 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  http,
+  path
 };
 
 // Start the application if run directly

@@ -7,6 +7,8 @@
 
 // Existing code ends here
 
+// wrapPrimaryContentInMain function implemented at the bottom of the file
+
 // TODO: This is the existing code that needs to be preserved
 // (This should be preserved)
 // Addressed accessibility issues from insight report

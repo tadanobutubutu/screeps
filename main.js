@@ -335,3 +335,120 @@ function validateAccessibleLinks(container) {
   
   return { valid: errors.length === 0, errors };
 }
+
+// New function to handle focus trap for keyboard navigation
+/**
+ * Creates a focus trap within a container element for keyboard navigation.
+ * Cycles focus between the first and last focusable elements when Tab is pressed.
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @returns {object} An object with an activate method, deactivate method, and isActive flag
+ */
+function createFocusTrap(container) {
+  if (typeof document === 'undefined' || !container) {
+    return {
+      activate: () => {},
+      deactivate: () => {},
+      isActive: false
+    };
+  }
+  
+  const FOCUSABLE_SELECTORS = [
+    'a[href]',
+    'button:not([disabled])',
+    'textarea:not([disabled])',
+    'input:not([disabled]):not([type="hidden"])',
+    'select:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])',
+    '[contenteditable="true"]'
+  ].join(',');
+  
+  let isActive = false;
+  let previouslyFocusedElement = null;
+  
+  const getFocusableElements = () => {
+    return Array.from(container.querySelectorAll(FOCUSABLE_SELECTORS))
+      .filter((el) => {
+        // Filter out elements that are not visible
+        const style = typeof window !== 'undefined' && window.getComputedStyle ? window.getComputedStyle(el) : null;
+        if (style && (style.visibility === 'hidden' || style.display === 'none')) {
+          return false;
+        }
+        return true;
+      });
+  };
+  
+  const handleKeyDown = (event) => {
+    if (!isActive || event.key !== 'Tab') {
+      return;
+    }
+    
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length === 0) {
+      event.preventDefault();
+      return;
+    }
+    
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    const activeElement = document.activeElement;
+    
+    if (event.shiftKey) {
+      // Shift + Tab: if on first element, wrap to last
+      if (activeElement === firstElement || !container.contains(activeElement)) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      // Tab: if on last element, wrap to first
+      if (activeElement === lastElement || !container.contains(activeElement)) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+  };
+  
+  return {
+    /**
+     * Activates the focus trap, adding event listeners and saving previous focus.
+     */
+    activate() {
+      if (isActive) return;
+      isActive = true;
+      previouslyFocusedElement = document.activeElement;
+      
+      if (typeof container.addEventListener === 'function') {
+        container.addEventListener('keydown', handleKeyDown);
+      } else if (typeof document.addEventListener === 'function') {
+        document.addEventListener('keydown', handleKeyDown);
+      }
+      
+      // Focus the first focusable element in the container
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length > 0) {
+        focusableElements[0].focus();
+      }
+    },
+    /**
+     * Deactivates the focus trap, removing event listeners and restoring previous focus.
+     */
+    deactivate() {
+      if (!isActive) return;
+      isActive = false;
+      
+      if (typeof container.removeEventListener === 'function') {
+        container.removeEventListener('keydown', handleKeyDown);
+      } else if (typeof document.removeEventListener === 'function') {
+        document.removeEventListener('keydown', handleKeyDown);
+      }
+      
+      // Restore focus to the previously focused element
+      if (previouslyFocusedElement && typeof previouslyFocusedElement.focus === 'function') {
+        previouslyFocusedElement.focus();
+      }
+      previouslyFocusedElement = null;
+    },
+    get isActive() {
+      return isActive;
+    }
+  };
+}

@@ -7,6 +7,7 @@ const _utils = require('./utils');
 const someFunction = _utils.default || _utils.someFunction || _utils;
 
 // TODO: Address accessibility issues from insight report:
+// - REACT_025: Ensure unique landmarks
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
 // - REACT_017: Add/fix 4 landmark issues (DONE: addLandmarkIssues)
@@ -206,19 +207,6 @@ function detectAndSetLang(content) {
 
   setHtmlLangAttribute(lang);
   return lang;
-}
-
-/**
- * Sets the lang attribute on the HTML element
- * @param {string} lang - The language code to set
- * @returns {boolean} True if successfully set
- */
-function setHtmlLangAttribute(lang) {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.lang = lang;
-    return true;
-  }
-  return false;
 }
 
 /**
@@ -818,6 +806,18 @@ function getAllTables() {
 function getFullLangAttribute(el) {
     const element = typeof el === 'string' ? document.querySelector(el) : (el || (typeof document !== 'undefined' ? document.documentElement : null));
     return element ? (element.lang || element.getAttribute('lang') || '') : '';
+}
+
+/**
+ * Addresses accessibility issues from an insight report
+ * @param {Object|Array} insightReport - The insight report containing accessibility issues
+ * @param {Object} [options] - Options for handling the issues
+ * @param {boolean} autoFix - Whether to attempt automatic fixes
+ * @param {boolean} verbose - Whether to log detailed information
+ * @returns {Object} A report of addressed issues
+ */
+function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
+    return addressAccessibilityIssues(insightReport, options);
 }
 
 module.exports = {

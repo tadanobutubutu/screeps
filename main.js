@@ -205,6 +205,114 @@ function transformInputData(inputData, options = {}) {
   return result;
 }
 
+const exportUtils = {};
+
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.getAttribute('lang') || 'en';
+  }
+  return 'en';
+}
+
+function personName(name) {
+  if (!name) return '';
+  const lang = getLangAttribute();
+  return typeof name === 'string' ? `<span lang="${lang}">${name}</span>` : name;
+}
+
+function validateTableAccessibility(element) {
+  if (!element || element.tagName !== 'TABLE') return false;
+  return !!element.querySelector('caption') || element.querySelectorAll('th').length > 0;
+}
+
+function validateTableStructure(element) {
+  if (!element || element.tagName !== 'TABLE') return false;
+  return element.querySelectorAll('tr').length > 0;
+}
+
+function validateLandmark(element) {
+  if (!element) return false;
+  const role = element.getAttribute ? element.getAttribute('role') : null;
+  const validLandmarks = ['banner', 'navigation', 'main', 'region', 'contentinfo', 'form', 'search', 'application', 'complementary'];
+  return validLandmarks.includes(role);
+}
+
+function validateLandmarkStructure(element) {
+  if (!element) return false;
+  return !!(element.children && element.children.length >= 0);
+}
+
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  if (svg.querySelector) {
+    const title = svg.querySelector('title');
+    if (title && title.textContent) return title.textContent.trim();
+  }
+  return (svg.getAttribute ? (svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '') : '');
+}
+
+function createInPageButton(element) {
+  if (!element) return element;
+  if (element.tagName === 'A') {
+    const href = element.getAttribute ? element.getAttribute('href') : '';
+    if (href === '#' || href === 'javascript:void(0)') {
+      try {
+        const button = typeof document !== 'undefined' ? document.createElement('button') : {};
+        button.innerHTML = element.innerHTML;
+        button.className = element.className;
+        if (element.attributes) {
+          for (let i = 0; i < element.attributes.length; i++) {
+            const attr = element.attributes[i];
+            if (attr.name !== 'href') button.setAttribute(attr.name, attr.value);
+          }
+        }
+        if (element.parentNode && element.parentNode.replaceChild) {
+          element.parentNode.replaceChild(button, element);
+        }
+        return button;
+      } catch (e) {
+        return element;
+      }
+    }
+  }
+  return element;
+}
+
+function initAccessibility() {
+  if (typeof document !== 'undefined' && accessibilityUtils && typeof accessibilityUtils.initSkipLink === 'function') {
+    accessibilityUtils.initSkipLink();
+  }
+}
+
+function sanitizeFilename(filename) {
+  if (typeof filename !== 'string') return '';
+  return filename.replace(/[^a-zA-Z0-9_.-]/g, '_');
+}
+
+function readFileSafe(path) {
+  return null;
+}
+
+function processData(data) {
+  return data;
+}
+
+function filterValidItems(items) {
+  if (!Array.isArray(items)) return [];
+  return items.filter(i => i !== null && i !== undefined);
+}
+
+function groupByCategory(items) {
+  const result = {};
+  if (!Array.isArray(items)) return result;
+  for (const item of items) {
+    const cat = item && item.category ? item.category : 'uncategorized';
+    if (!result[cat]) result[cat] = [];
+    result[cat].push(item);
+  }
+  return result;
+}
+
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {

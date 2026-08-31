@@ -1,8 +1,5 @@
 // main.js - Accessibility-focused implementation
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
-
 /**
  * Main application entry point with accessibility features
  */
@@ -58,6 +55,46 @@ function countDependencies() {
     };
 }
 
+function addressAccessibilityIssues(insightReport) {
+  if (!insightReport || !insightReport.sections) {
+    return [];
+  }
+
+  const issues = [];
+
+  insightReport.sections.forEach(section => {
+    if (section.heading && typeof section.heading !== 'string') {
+      issues.push({
+        type: 'invalid-heading',
+        severity: 'error',
+        message: `Invalid heading in section: ${section.heading}`,
+        fixApplied: 'skip'
+      });
+    }
+
+    if (section.content && section.content.length < 10) {
+      issues.push({
+        type: 'short-content',
+        severity: 'warning',
+        message: `Short content found in section`,
+        fixApplied: 'none'
+      });
+    }
+
+    if (section.heading && section.heading.toLowerCase().includes('click') || 
+        section.content && section.content.toLowerCase().includes('click here')) {
+      issues.push({
+        type: 'inaccessible-link-text',
+        severity: 'warning',
+        message: 'Potential inaccessible link text found',
+        fixApplied: 'recommended'
+      });
+    }
+  });
+
+  return issues;
+}
+
 /**
  * Handle credential response from browser authentication
  * @param {Object} response - The credential response object
@@ -70,7 +107,7 @@ function handleCredentialResponse(response) {
 
     // Check if response contains expected credential data
     const hasCredential = response.credential || response.token || response.id;
-    
+
     if (!hasCredential) {
         return { success: false, error: 'Invalid credential response format' };
     }
@@ -269,7 +306,43 @@ const hello = () => {
 // Utilities for addressing accessibility issues
 const AddressabilityIssues = {
   addressAccessibilityIssues(insightReport) {
-    /* existing code */
+    if (!insightReport || !insightReport.sections) {
+      return [];
+    }
+
+    const issues = [];
+
+    insightReport.sections.forEach(section => {
+      if (section.heading && typeof section.heading !== 'string') {
+        issues.push({
+          type: 'invalid-heading',
+          severity: 'error',
+          message: `Invalid heading in section`,
+          fixApplied: 'skip'
+        });
+      }
+
+      if (section.content && section.content.length < 10) {
+        issues.push({
+          type: 'short-content',
+          severity: 'warning',
+          message: 'Short content found in section',
+          fixApplied: 'none'
+        });
+      }
+
+      if (section.heading && section.heading.toLowerCase().includes('click') ||
+          section.content && section.content.toLowerCase().includes('click here')) {
+        issues.push({
+          type: 'inaccessible-link-text',
+          severity: 'warning',
+          message: 'Potential inaccessible link text found',
+          fixApplied: 'recommended'
+        });
+      }
+    });
+
+    return issues;
   },
 
   generateAccessibilityReport(accessibilityReport) {

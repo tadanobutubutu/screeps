@@ -147,6 +147,54 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
+// Spawning logic implementation
+function spawning(options = {}) {
+  const {
+    count = 1,
+    interval = 0,
+    args = [],
+    onSpawn,
+    onError
+  } = options;
+
+  const spawned = [];
+
+  for (let i = 0; i < count; i++) {
+    try {
+      const child = {
+        id: i + 1,
+        args: args.slice(),
+        spawnedAt: new Date().toISOString(),
+        status: 'active'
+      };
+
+      if (interval > 0 && i < count - 1) {
+        // Mark for staggered spawn
+        child.staggered = true;
+      }
+
+      spawned.push(child);
+
+      if (typeof onSpawn === 'function') {
+        onSpawn(child, i);
+      }
+    } catch (err) {
+      if (typeof onError === 'function') {
+        onError(err, i);
+      } else {
+        // Log error but continue spawning
+        console.error('Spawning error at index', i, err);
+      }
+    }
+  }
+
+  return {
+    spawned,
+    total: spawned.length,
+    timestamp: new Date().toISOString()
+  };
+}
+
 // Configuration
 const config = {
   // Configuration options
@@ -389,6 +437,7 @@ module.exports = {
   validateInput,
   addressAccessibilityIssues,
   processAccessibilityReport,
+  spawning,
   getLangAttribute,
   addLangAttribute,
   validateTableAccessibility,

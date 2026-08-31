@@ -45,15 +45,71 @@ let personName;
 // Renders the dependency graph view.
 // Updated to use dependencyGraphContent.
 export function renderDependencyGraph() {
+  // Use uuidv4 to generate unique IDs for elements in the graph
+  const graphId = uuidv4();
+  const nodeId = uuidv4();
+  
   // Example usage: replace with actual rendering logic
   console.log('Rendering dependency graph:', dependencyGraphContent);
+  
+  // Create accessible elements using createElement
+  const graphContainer = createElement('div', {
+    id: `dependency-graph-${graphId}`,
+    'data-node-id': nodeId,
+    role: 'region',
+    'aria-label': 'Dependency Graph'
+  });
+  
+  // Apply accessibility attributes using imported utilities
+  const langAttr = getLangAttribute();
+  if (langAttr) {
+    document.documentElement.setAttribute('lang', langAttr);
+  }
+  
+  // Create in-page button for accessibility
+  createInPageButton();
+  
+  return graphContainer;
 }
 
 // Renders the index view.
 // Updated to use indexContent.
 export function renderIndex() {
+  // Use uuidv4 to generate unique IDs
+  const indexId = uuidv4();
+  const sectionId = uuidv4();
+  
   // Example usage: replace with actual rendering logic
   console.log('Rendering index view:', indexContent);
+  
+  // Create accessible elements using createElement
+  const indexContainer = createElement('div', {
+    id: `index-${indexId}`,
+    'data-section-id': sectionId,
+    role: 'main',
+    'aria-label': 'Index View'
+  });
+  
+  // Apply accessibility attributes
+  const langAttr = getLangAttribute();
+  const fullLangAttr = getFullLangAttribute ? getFullLangAttribute() : langAttr;
+  if (langAttr) {
+    document.documentElement.setAttribute('lang', fullLangAttr || langAttr);
+  }
+  
+  // Handle accessibility issues for the index
+  handleAccessibilityIssues(indexContent);
+  
+  // Create accessible links for navigation
+  createAccessibleLink();
+  
+  // Trigger accessibility mode
+  triggerAccessibilityMode();
+  
+  // Ensure unique landmarks on the page
+  ensureUniqueLandmarks();
+  
+  return indexContainer;
 }
 
 // Placeholder functions for format/product utilities
@@ -314,8 +370,6 @@ export {
 
 export { ensureElementId };
 export { addAriaLabel };
-export { renderDependencyGraph };
-export { renderIndex };
 export { dependencyGraphContainer };
 export { fixAccessibilityIssues };
 export { wrapPrimaryContentInMain };
@@ -349,45 +403,6 @@ export {
   renderDependencyGraph,
   renderIndex
 };
-
-// Exporting for CommonJS compatibility
-module.exports = {
-  // All existing exports from main.js go here
-  dependencyGraphContent,
-  indexContent,
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput,
-  renderHeader,
-  renderFooter,
-  renderProductCard,
-  state,
-  updateState,
-  personName,
-  fixAccessibilityIssues,
-  renderDependencyGraph,
-  renderIndex,
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage,
-  someFunction
-};
-
-// ... other exports ...
 
 // Existing code preserved
 function existingFunction() {
@@ -431,13 +446,3 @@ function checkTableAccessibility(table) {
 export { checkTableAccessibility };
 
 // ----- END OF ORIGINAL CODE -----
-
-// TODO: Update the existing function using the new functions for rendering graph/index
-// Assuming newFunction is meant to be used to update the rendering of graph/index
-function updateGraphRendering() {
-  // Use newFunction to update the rendering of graph/index
-  newFunction();
-}
-
-// Export the new updateGraphRendering function if necessary
-export { updateGraphRendering };

@@ -1,6 +1,15 @@
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+
+_Commit: ae5bdde1d7ee6ea81be6283c1855c64b5902f776_
+
+<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
 
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
@@ -396,10 +405,6 @@ function personName(name, options = {}) {
   return nameElement;
 }
 
-function newFocusTrap() {
-  // New function implementation
-}
-
 // Advanced focus trap implementation for keyboard navigation
 function newFocusTrap(container, options = {}) {
   const {
@@ -654,6 +659,37 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
+
+  if (typeof inputData === 'string') {
+    let result = inputData;
+    if (trimWhitespace) {
+      result = result.trim();
+    }
+    if (uppercase) {
+      result = result.toUpperCase();
+    }
+    if (maxLength && result.length > maxLength) {
+      result = result.substring(0, maxLength);
+    }
+    return result;
+  }
+
+  if (typeof inputData === 'object' && inputData !== null) {
+    if (Array.isArray(inputData)) {
+      return inputData.map(item => transformInputData(item, options));
+    }
+    
+    const result = {};
+    for (const key in inputData) {
+      if (inputData.hasOwnProperty(key)) {
+        const newKey = preserveKeys ? key : String(key);
+        result[newKey] = transformInputData(inputData[key], options);
+      }
+    }
+    return result;
+  }
+
+  return inputData;
 }
 
 // Initialize on DOM ready
@@ -689,5 +725,6 @@ module.exports = {
   fixFakeLink,
   createInPageButton,
   personName,
-  newFocusTrap
+  newFocusTrap,
+  transformInputData
 };

@@ -129,8 +129,70 @@ function displayModuleStructure() {
   // Example placeholder for actual implementation
 }
 
+// Implementation of the new function
 function newFunction() {
-  // Implementation of the new function
+  // Accessibility check function for common issues
+  const accessibilityIssues = [];
+  
+  // Check for images without alt text
+  const images = document.getElementsByTagName('img');
+  for (let img of images) {
+    if (!img.hasAttribute('alt')) {
+      accessibilityIssues.push({
+        element: img,
+        issue: 'Image missing alt attribute',
+        selector: img.id ? `#${img.id}` : img.className ? `.${img.className}` : '<img>'
+      });
+    }
+  }
+  
+  // Check for buttons without accessible text
+  const buttons = document.getElementsByTagName('button');
+  for (let btn of buttons) {
+    if (!btn.textContent.trim() && !btn.getAttribute('aria-label') && !btn.getAttribute('aria-labelledby')) {
+      accessibilityIssues.push({
+        element: btn,
+        issue: 'Button missing accessible text',
+        selector: btn.id ? `#${btn.id}` : '<button>'
+      });
+    }
+  }
+  
+  // Check for links without accessible text
+  const links = document.getElementsByTagName('a');
+  for (let link of links) {
+    if (!link.textContent.trim() && !link.getAttribute('aria-label') && !link.getAttribute('aria-labelledby')) {
+      accessibilityIssues.push({
+        element: link,
+        issue: 'Link missing accessible text',
+        selector: link.id ? `#${link.id}` : '<a>'
+      });
+    }
+  }
+  
+  // Check for form inputs without labels
+  const inputs = document.getElementsByTagName('input');
+  for (let input of inputs) {
+    const type = input.getAttribute('type');
+    if (type !== 'hidden' && type !== 'submit' && type !== 'button' && type !== 'reset') {
+      const hasLabel = input.getAttribute('aria-label') || 
+                       input.getAttribute('aria-labelledby') || 
+                       document.querySelector(`label[for="${input.id}"]`);
+      if (!hasLabel) {
+        accessibilityIssues.push({
+          element: input,
+          issue: 'Input missing associated label',
+          selector: input.id ? `#${input.id}` : '<input>'
+        });
+      }
+    }
+  }
+  
+  return {
+    hasIssues: accessibilityIssues.length > 0,
+    issues: accessibilityIssues,
+    count: accessibilityIssues.length
+  };
 }
 
 // ... Rest of the code remains unchanged ...

@@ -50,7 +50,7 @@ function logMessage(message) {
 }
 
 // New function to handle graceful shutdown
-function gracefulShutdown(server) {
+function handleGracefulShutdown(server) {
   server.close(() => {
     console.log('Server closed gracefully');
     process.exit(0);
@@ -58,13 +58,14 @@ function gracefulShutdown(server) {
 
   // Forcibly close server after 5 seconds
   setTimeout(() => {
-    server.kill('SIGKILL');
+    console.error('Forcibly closing server after timeout');
+    process.exit(1);
   }, 5000);
 }
 
 // New function to add lang attribute to HTML element
-function addLangAttribute(htmlElement) {
-  htmlElement.setAttribute('lang', 'en');
+function addLangAttribute(element, lang) {
+  element.setAttribute('lang', lang);
 }
 
 // TODO: Implement the logic to handle the credential response
@@ -75,10 +76,10 @@ function handleCredentialResponse(response) {
 }
 
 // Add accessibility function to handle the lang attribute for the entire HTML document
-function handleAddLangAttribute(htmlDocument) {
+function handleAddLangAttribute(htmlDocument, lang) {
   // Get the html element and call addLangAttribute
   const htmlElement = htmlDocument.documentElement;
-  addLangAttribute(htmlElement);
+  addLangAttribute(htmlElement, lang);
 }
 
 // Add export for handleAddLangAttribute

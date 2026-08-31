@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report
+
 // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
 
 // Helper to manage focus within a container

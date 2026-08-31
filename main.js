@@ -269,6 +269,38 @@ function addressNewAccessibilityIssues() {
   fixFakeLinkIssue();
   fixButtonIdentifiers();
   ensureDependencyGraphAriaRole();
+  newFocusTrap(); // Added newFocusTrap function call
+}
+
+// Implement newFocusTrap function for keyboard navigation
+function newFocusTrap() {
+  if (typeof document !== 'undefined') {
+    const focusableElements = document.querySelectorAll('[tabindex] > *:not([tabindex="-1"])');
+    
+    const originalFocus = () => document.activeElement;
+    
+    const trapFocus = (e) => {
+      if (e.key === 'Escape') {
+        // Find the last focused element outside the trap
+        const lastFocused = document.querySelector('.lastFocused');
+        if (lastFocused) {
+          lastFocused.focus();
+        }
+      }
+    };
+    
+    // Track the last focused element outside the trap
+    let lastFocused = null;
+    
+    // Set up keydown listener
+    document.addEventListener('keydown', trapFocus);
+    
+    // Focus the first focusable element
+    const firstFocusable = focusableElements[0];
+    if (firstFocusable) {
+      firstFocusable.focus();
+    }
+  }
 }
 
 // Application configuration

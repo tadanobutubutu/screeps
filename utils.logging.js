@@ -12,6 +12,14 @@ const LEVELS = {
     trace: 4,
 };
 
+const LOG_LEVEL = {
+    ERROR: 0,
+    WARN: 1,
+    INFO: 2,
+    DEBUG: 3,
+    TRACE: 4,
+};
+
 // Security: Use a safe emoji lookup map to prevent prototype pollution
 const LOG_EMOJIS = Object.assign(Object.create(null), {
     error: '\u274c', // ❌
@@ -29,8 +37,17 @@ const history = [];
 function setLevel(level) {
     if (typeof level === 'number' && level >= 0 && level <= 4) {
         currentLevel = level;
-    } else if (typeof level === 'string' && LEVELS[level] !== undefined) {
-        currentLevel = LEVELS[level];
+    } else if (typeof level === 'string') {
+        if (LEVELS[level] !== undefined) {
+            currentLevel = LEVELS[level];
+        } else {
+            const parsed = parseInt(level, 10);
+            if (!isNaN(parsed) && parsed >= 0 && parsed <= 4) {
+                currentLevel = parsed;
+            } else {
+                currentLevel = LEVELS.info;
+            }
+        }
     } else {
         currentLevel = LEVELS.info;
     }
@@ -116,7 +133,11 @@ function log(arg1, arg2) {
     if (LEVELS[level] !== undefined && LEVELS[level] > currentLevel) return;
 
     if (typeof message !== 'string') {
-        message = String(message || '');
+        try {
+            message = typeof message === 'function' ? '[Function]' : String(message || '');
+        } catch (e) {
+            message = '[Unserializable Object]';
+        }
     }
     const truncated = message.substring(0, MAX_LOG_MESSAGE_LENGTH);
     const redacted = _redactPaths(truncated);
@@ -161,7 +182,8 @@ function trace(msg) {
 function getSafeStack(stack, maxLines = 5) {
     if (stack === undefined || stack === null) return '';
     const truncatedStack = String(stack).substring(0, MAX_STACK_TRACE_LENGTH);
-    const redacted = _redactPaths(truncatedStack);
+    const sanitizedStack = truncatedStack.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*\//g, '');
+    const redacted = _redactPaths(sanitizedStack);
     const lines = redacted.split('\n');
     return lines
         .slice(0, maxLines)
@@ -237,6 +259,7 @@ module.exports = {
     clear,
     init,
     LEVELS,
+    LOG_LEVEL,
     setLevel,
     getLevel,
     log,
@@ -248,4 +271,5 @@ module.exports = {
     getSafeStack,
     getStats,
     _redactPaths,
+    _escapeHTML,
 };

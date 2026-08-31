@@ -100,6 +100,7 @@ const a11yStore = {
 
   newFunction() {
     // New function implementation from origin/main
+    console.log('New accessibility function implemented');
   }
 };
 

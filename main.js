@@ -23,6 +23,8 @@ import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUti
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 
+// TODO: Implement harvest and upgrade logic
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())

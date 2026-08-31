@@ -1,14 +1,6 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-
-import './styles.css';
 import react from 'react';
+import React from 'react';
+// Existing code starts here
 
 // This is the existing code that needs to be preserved
 // (This comment remains as-is)
@@ -266,19 +258,19 @@ function ensureRootContainerAccessible(rootElement) {
 
 // Address accessibility issues from insight report
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: getSvgAccessibleName)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 function addressAccessibilityIssues(insightReport) {
   // This addresses issues from the insight report:
   // - REACT_015: Add lang attribute to HTML element
-  // - REACT_027: Fix 26 table structure issues
-  // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs
+  // - REACT_027: Fix table structure issues
+  // - REACT_017: Add/fix landmark issues
+  // - REACT_041: Add accessible names to SVGs
   // - REACT_025: Ensure unique landmarks (2 issues)
-  // - REACT_036: Fix 1 fake link issue
+  // - REACT_036: Fix fake link issue
 
   if (!insightReport || !insightReport.issues) {
     return;
@@ -313,7 +305,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_041':
         // Add accessible names to SVGs
         if (issue.element) {
-          setSvgAttributes(issue.element, issue.accessibleName);
+          setSvgAttributes(issue.element, issue.accessibleName || getSvgAccessibleName());
         }
         break;
       case 'REACT_025':
@@ -419,9 +411,7 @@ function getInsightReport() {
   }
   
   // Check SVG accessibility
-  const svgAccessibleNames = [];
-  if (svgAccessibleNames && svgAccessibleNames.length > 0) {
-    svgAccessibleNames.forEach((svg) => {
-      issues.push({
-        type: 'REACT_041',
-        description: '
+  const svgAccessibleNames = getSvgAccessibleName();
+
+  return issues;
+}

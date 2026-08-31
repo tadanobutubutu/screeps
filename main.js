@@ -152,4 +152,17 @@ function Main() {
 }
 
 // Export the Main component
+export {
+  sortByTitle,
+  sortByAuthor,
+  generateKey,
+  BookItem,
+  addBook,
+  function3,
+  defaultSorting,
+  onTitleSort,
+  onAuthorSort,
+  Main,
+};
+
 export default Main;

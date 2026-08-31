@@ -5,6 +5,7 @@
 // Import required modules
 const http = require('http');
 const path = require('path');
+const fs = require('fs');
 
 // TODO: This is the existing code that needs to be preserved
 
@@ -13,6 +14,24 @@ const config = {
   port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development'
 };
+
+/**
+ * Counts the dependencies in package.json
+ * @returns {number} The total number of dependencies (dependencies + devDependencies)
+ */
+function countDependencies() {
+  try {
+    const packagePath = path.join(__dirname, 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+    const dependencies = Object.keys(packageJson.dependencies || {}).length;
+    const devDependencies = Object.keys(packageJson.devDependencies || {}).length;
+    return dependencies + devDependencies;
+  } catch (error) {
+    return 0;
+  }
+}
+
+// TODO: Implement a function to count dependencies
 
 /**
  * Creates and starts the HTTP server
@@ -41,6 +60,7 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
+  countDependencies,
   config
 };
 

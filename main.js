@@ -13,33 +13,34 @@ module.exports = {
   },
 
   addSvgAccessibleNames: function() {
-    const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+    const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
       const title = svg.querySelector('title');
       if (title && title.textContent.trim()) {
+        svg.setAttribute('role', 'img');
         svg.setAttribute('aria-label', title.textContent.trim());
       }
     });
   },
 
   ensureUniqueLandmarks: function() {
-    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"], main, nav, aside, header, footer');
+    const landmarks = document.querySelectorAll('[role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"], main, nav, aside, header, footer');
     const seen = new Map();
     landmarks.forEach(landmark => {
       const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
       const count = (seen.get(role) || 0) + 1;
       seen.set(role, count);
-      if (count > 1 && !landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+      if (count > 1 && landmark.textContent.trim() === '') {
         landmark.setAttribute('aria-label', `${role} ${count}`);
       }
     });
   },
 
   fixFakeLink: function() {
-    const fakeLinks = document.querySelectorAll('[role="link"]:not(a), [onclick]:not(a):not(button):not([role])');
+    const fakeLinks = document.querySelectorAll('[data-fake-link]');
     fakeLinks.forEach(el => {
-      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
-      if (!el.hasAttribute('role')) el.setAttribute('role', 'link');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('role', 'link');
       el.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -47,6 +48,12 @@ module.exports = {
         }
       });
     });
+  },
+
+  addLangAttribute: function() {
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = 'en';
+    }
   },
 
   trapFocus: function(element) {
@@ -72,7 +79,6 @@ module.exports = {
     }
 
     element.addEventListener('keydown', handleTab);
-    firstElement?.focus();
 
     return () => element.removeEventListener('keydown', handleTab);
   },
@@ -109,8 +115,9 @@ module.exports = {
   rotateBack: function() {},
 
   initializeAccessibility: function() {
-    this.addSvgAccessibleNames();
+    this.addLangAttribute();
     this.ensureUniqueLandmarks();
+    this.addSvgAccessibleNames();
     this.fixFakeLink();
   },
 

@@ -331,3 +331,37 @@ function Main() {
 
 // Export the Main component
 export default Main;
+
+// Export accessibility helper functions
+export {
+  getLangAttribute,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  addProperLandmarkRegions,
+  handleAccessibilityForAddBookForm,
+};
+
+// Export sorting and data manipulation functions
+export {
+  sortByTitle,
+  sortByAuthor,
+  generateKey,
+  countDependencies,
+  BookItem,
+  addBook,
+  onTitleSort,
+  onAuthorSort,
+  defaultSorting,
+};
+
+// Export view rendering functions
+export {
+  renderDependencyGraph,
+  renderIndexView,
+};

@@ -255,6 +255,56 @@ function addLangAttribute() {
     }
 }
 
+/**
+ * TODO: Add the implementation of this function
+ * Validates the accessibility of all links in the document.
+ * Iterates over all anchor tags and applies the link accessibility validation.
+ * @param {Document|HTMLElement} [root=document] - The root element to scan.
+ * @returns {Object} A report describing the link accessibility validation results.
+ */
+function validateAllLinks(root = (typeof document !== 'undefined' ? document : null)) {
+    const report = {
+        totalLinks: 0,
+        validLinks: 0,
+        invalidLinks: 0,
+        issues: []
+    };
+
+    if (!root || typeof root.querySelectorAll !== 'function') {
+        return report;
+    }
+
+    const links = Array.from(root.querySelectorAll('a'));
+    report.totalLinks = links.length;
+
+    for (const link of links) {
+        try {
+            if (typeof validateLinkAccessibility === 'function') {
+                const result = validateLinkAccessibility(link);
+                if (result === false) {
+                    report.invalidLinks += 1;
+                    report.issues.push({
+                        element: link,
+                        reason: 'Failed validation'
+                    });
+                } else {
+                    report.validLinks += 1;
+                }
+            } else {
+                report.validLinks += 1;
+            }
+        } catch (e) {
+            report.invalidLinks += 1;
+            report.issues.push({
+                element: link,
+                reason: e && e.message ? e.message : 'Unknown error'
+            });
+        }
+    }
+
+    return report;
+}
+
 // ... other fixes ...
 
 // New helper functions to address the additional accessibility requirements
@@ -441,7 +491,9 @@ export {
   ensureUniqueLandmarks,
   createAccessibleLink,
   handleAccessibilityIssues,
-  addLangAttribute
+  addLangAttribute,
+  // Newly implemented function for validating all links
+  validateAllLinks
 };
 
 // Export component functions

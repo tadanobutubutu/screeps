@@ -305,12 +305,12 @@ function trapFocus(container) {
     if (e.shiftKey) {
       if (document.activeElement === firstElement) {
         e.preventDefault();
-        lastElement && lastElement.focus();
+        lastElement.focus();
       }
     } else {
       if (document.activeElement === lastElement) {
         e.preventDefault();
-        firstElement && firstElement.focus();
+        firstElement.focus();
       }
     }
   });
@@ -569,11 +569,18 @@ function validateSession(sessionId) {
 // Accessibility Utilities
 const accessibilityUtils = {
   initSkipLink: function() {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = document.querySelector('#skip-link');
+=======
+const accessibilityUtils = {
+  // Utility functions for accessibility
+  initSkipLink: () => {
+    const skipLink = document.querySelector('#skip-link');
+>>>>>>> origin/main
     if (skipLink) {
-      skipLink.addEventListener('click', function(e) {
+      skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const targetId = skipLink.getAttribute('href');
+        const target = document.querySelector(targetId);
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -581,12 +588,13 @@ const accessibilityUtils = {
       });
     }
   },
-  
+=======
   announceToScreenReader: function(message, priority) {
     if (priority === undefined) {
       priority = 'polite';
     }
     
+>>>>>>> origin/main
     const announcer = document.createElement('div');
     announcer.setAttribute('aria-live', priority);
     announcer.setAttribute('aria-atomic', 'true');
@@ -629,429 +637,4 @@ function setupKeyboardNavigation(element, options = {}) {
   });
 }
 
-// Preserved existing function from origin/main
-function myAccessibleFunction() {
-  const accessibilityElement = document.createElement('div');
-  accessibilityElement.setAttribute('aria-label', 'Accessible description of the element');
-  return accessibilityElement;
-}
-
-// Check if user prefers reduced motion
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-// Function to render dependency graph
-function renderDependencyGraph(element) {
-  console.log('Rendering dependency graph for element:', element);
-}
-
-// Function to render a simple dependency graph
-function renderSimpleDependencyGraph(element) {
-  console.log('Rendering simple dependency graph for element:', element);
-}
-
-// Initialize accessibility features
-function initializeAccessibility() {
-  const announcer = createAnnouncer();
-  
-  ensureUniqueLandmarks();
-  
-  return {
-    announce: announcer.announce,
-    setupKeyboardNavigation,
-    trapFocus,
-    createAnnouncer,
-    prefersReducedMotion,
-    renderDependencyGraph,
-    renderSimpleDependencyGraph
-  };
-}
-
-/**
- * Checks if a value is an empty string, null, or undefined
- * @param {*} value - The value to check
- * @returns {boolean} - True if the value is empty
- */
-function isEmpty(value) {
-  return value === null || value === undefined || value === '';
-}
-
-/**
- * Capitalizes the first letter of a string
- * @param {string} str - The string to capitalize
- * @returns {string} - The capitalized string
- */
-function capitalize(str) {
-  if (typeof str !== 'string' || str.length === 0) return str;
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-/**
- * Generates a random integer between min and max (inclusive)
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Random integer
- */
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-/**
- * Clamps a number between min and max values
- * @param {number} num - Number to clamp
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Clamped number
- */
-function clamp(num, min, max) {
-  return Math.min(Math.max(num, min), max);
-}
-
-/**
- * Deep clones an object
- * @param {*} obj - Object to clone
- * @returns {*} - Cloned object
- */
-function deepClone(obj) {
-  if (obj === null || typeof obj !== 'object') return obj;
-  if (obj instanceof Date) return new Date(obj.getTime());
-  if (obj instanceof Array) return obj.map(item => deepClone(item));
-  if (obj instanceof Object) {
-    const cloned = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        cloned[key] = deepClone(obj[key]);
-      }
-    }
-    return cloned;
-  }
-}
-
-// New function as per the issue request
-function logMessage(message) {
-  console.log(message);
-}
-
-// Implement the function for addressing accessibility issues from insight report
-function implementAccessibilityFixesFromReport(container, report) {
-  const fixes = {
-    langAdded: false,
-    mainLandmarkAdded: false,
-    landmarksFixed: 0,
-    svgNamesAdded: 0,
-    fakeLinksFixed: 0
-  };
-
-  if (!report || !report.issues) {
-    return fixes;
-  }
-
-  if (report.issues.missingLang) {
-    const htmlElement = container.querySelector('html') || container.ownerDocument?.querySelector('html');
-    if (htmlElement && !htmlElement.hasAttribute('lang')) {
-      htmlElement.setAttribute('lang', 'en');
-      fixes.langAdded = true;
-    }
-  }
-
-  if (report.issues.missingMainLandmark) {
-    const mainElements = container.querySelectorAll('main, [role="main"]');
-    if (mainElements.length === 0) {
-      const firstSection = container.querySelector('section');
-      if (firstSection) {
-        const mainElement = container.ownerDocument.createElement('main');
-        while (firstSection.firstChild) {
-          mainElement.appendChild(firstSection.firstChild);
-        }
-        firstSection.parentNode.insertBefore(mainElement, firstSection);
-        firstSection.remove();
-        fixes.mainLandmarkAdded = true;
-      }
-    }
-  }
-
-  if (report.issues.landmarkIssues && Array.isArray(report.issues.landmarkIssues)) {
-    const uniqueLandmarksFixed = new Set();
-    
-    report.issues.landmarkIssues.forEach(issue => {
-      if (issue.selector && !uniqueLandmarksFixed.has(issue.selector)) {
-        const element = container.querySelector(issue.selector);
-        if (element) {
-          if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
-            const role = element.getAttribute('role') || element.tagName.toLowerCase();
-            
-            const previousSibling = element.previousElementSibling;
-            if (previousSibling && previousSibling.textContent.trim()) {
-              const labelId = `landmark-label-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-              const labelSpan = container.ownerDocument.createElement('span');
-              labelSpan.id = labelId;
-              labelSpan.textContent = previousSibling.textContent.trim();
-              labelSpan.style.display = 'none';
-              element.parentNode.insertBefore(labelSpan, element);
-              element.setAttribute('aria-labelledby', labelId);
-            } else {
-              const roleLabel = role.charAt(0).toUpperCase() + role.slice(1).replace(/[^a-zA-Z]/g, ' ');
-              element.setAttribute('aria-label', roleLabel);
-            }
-            uniqueLandmarksFixed.add(issue.selector);
-            fixes.landmarksFixed++;
-          }
-        }
-      }
-    });
-  }
-
-  if (report.issues.svgIssues && Array.isArray(report.issues.svgIssues)) {
-    report.issues.svgIssues.forEach(issue => {
-      const svg = container.querySelector(issue.selector);
-      if (svg && svg.tagName.toLowerCase() === 'svg') {
-        if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-          let titleElement = svg.querySelector('title');
-          
-          if (!titleElement) {
-            titleElement = container.ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'title');
-            const titleId = `svg-title-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-            titleElement.id = titleId;
-            titleElement.textContent = issue.suggestedName || 'Decorative SVG';
-            
-            if (svg.firstChild) {
-              svg.insertBefore(titleElement, svg.firstChild);
-            } else {
-              svg.appendChild(titleElement);
-            }
-            
-            svg.setAttribute('aria-labelledby', titleId);
-            fixes.svgNamesAdded++;
-          }
-        }
-      }
-    });
-  }
-
-  if (report.issues.fakeLinkIssues && Array.isArray(report.issues.fakeLinkIssues)) {
-    const uniqueFakeLinksFixed = new Set();
-    
-    report.issues.fakeLinkIssues.forEach(issue => {
-      if (issue.selector && !uniqueFakeLinksFixed.has(issue.selector)) {
-        const element = container.querySelector(issue.selector);
-        if (element) {
-          const isNavigation = element.closest('nav') !== null;
-          
-          if (isNavigation || element.tagName.toLowerCase() === 'a') {
-            if (!element.hasAttribute('href')) {
-              element.setAttribute('href', '#' + (element.id || `link-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`));
-              element.setAttribute('role', 'link');
-              uniqueFakeLinksFixed.add(issue.selector);
-              fixes.fakeLinksFixed++;
-            }
-          } else {
-            element.setAttribute('role', 'button');
-            if (!element.hasAttribute('tabindex')) {
-              element.setAttribute('tabindex', '0');
-            }
-            uniqueFakeLinksFixed.add(issue.selector);
-            fixes.fakeLinksFixed++;
-          }
-        }
-      }
-    });
-  }
-
-  return fixes;
-}
-
-// Function to create an announcer for screen readers
-function createAnnouncer() {
-  return {
-    announce: (message, priority = 'polite') => {
-      const announcer = document.createElement('div');
-      announcer.setAttribute('aria-live', priority);
-      announcer.setAttribute('aria-atomic', 'true');
-      announcer.className = 'sr-only';
-      announcer.style.position = 'absolute';
-      announcer.style.left = '-9999px';
-      announcer.textContent = message;
-      document.body.appendChild(announcer);
-      setTimeout(() => announcer.remove(), 1000);
-    }
-  };
-}
-
-// Get accessible name for SVG
-function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
-  
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-  
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
-  
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
-  
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
-    if (labeledElement && labeledElement.textContent) {
-      return labeledElement.textContent.trim();
-    }
-  }
-  
-  return 'SVG graphic';
-}
-
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    initializeAccessibility,
-    setupKeyboardNavigation,
-    trapFocus,
-    createAnnouncer,
-    prefersReducedMotion,
-    renderDependencyGraph,
-    renderSimpleDependencyGraph,
-    isEmpty,
-    capitalize,
-    getRandomInt,
-    clamp,
-    deepClone,
-    myAccessibleFunction,
-    logMessage
-  };
-}
-
-// New function to be exported
-function newExportedFunction() {
-}
-
-// Preserved functions from utilities module
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap } = main;
-
-// New function to be exported
-function newExportedFunction() {
-}
-
-// Export all utility functions when in ES module environment
-if (typeof require !== 'undefined' && typeof module !== 'undefined') {
-  module.exports = {
-    addLangAttribute,
-    fixTableStructure,
-    fixLandmarkIssues,
-    addMainLandmark,
-    addLandmarkRegions,
-    ensureUniqueLandmarks,
-    uniqueLandmarks,
-    addSvgAccessibleNames,
-    addAccessibleNamesToSVGs,
-    fixFakeLinkIssue,
-    fixFakeLinkIssues,
-    accessibilityUtils,
-    trapFocus,
-    setupKeyboardNavigation,
-    implementAccessibilityFixesFromReport,
-    renderGraphIndex,
-    newExportedFunction,
-    myAccessibleFunction,
-    logMessage,
-    createInPageButton,
-    createWebResourceButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    getLangAttribute,
-    validateAccessibilityReport,
-    exportUtils,
-    addressAccessibilityIssues,
-    ensureElementHasId,
-    ensureElementHasIdOrigin,
-    addAriaLabel,
-    renderDependencyGraphs,
-    fixButtonIdentifiers,
-    fixDependencyGraphAria,
-    addMainLandmarkToIndex,
-    focusTrap,
-    createAnnouncer,
-    prefersReducedMotion,
-    isEmpty,
-    capitalize,
-    getRandomInt,
-    clamp,
-    deepClone,
-    handleCredentialResponse,
-    log,
-    sanitizeFilename,
-    readFileSafe,
-    processData,
-    filterValidItems,
-    calculateSum,
-    a11yStore
-  };
-}
-
-export {
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  accessibilityUtils,
-  trapFocus,
-  setupKeyboardNavigation,
-  implementAccessibilityFixesFromReport,
-  renderGraphIndex,
-  newExportedFunction,
-  myAccessibleFunction,
-  logMessage,
-  createInPageButton,
-  createWebResourceButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraph,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  createAnnouncer,
-  prefersReducedMotion,
-  isEmpty,
-  capitalize,
-  getRandomInt,
-  clamp,
-  deepClone,
-  handleCredentialResponse,
-  log,
-  sanitizeFilename,
-  readFileSafe,
-  processData,
-  filterValidItems,
-  calculateSum,
-  a11yStore
-};
+// Preserved existing

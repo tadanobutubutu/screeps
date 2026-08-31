@@ -127,7 +127,11 @@ const app = express();
 
 // Endpoint for getting landmarks
 app.get('/landmarks', (req, res) => {
-  // Your code for handling the request and response logic goes here
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+  const sorted = sortLandmarks(processed);
+  
+  res.json(sorted);
 });
 
 // Export new necessary functions
@@ -135,7 +139,7 @@ module.exports = {
   validateInput,
   processData,
   formatResponse,
-  config,
+  config: CONFIG,
   // landmark functions
   isValidLandmark,
   loadLandmarks,
@@ -143,7 +147,8 @@ module.exports = {
   sortLandmarks,
   getLandmarkById,
   ensureUniqueLandmarks,
-  landmarkConfig
+  landmarkConfig: CONFIG,
+  generateAccessibilityReport // Add the new function to the exports
 };
 
 // Main execution when run directly

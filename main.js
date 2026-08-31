@@ -32,6 +32,11 @@ function newFunction() {
   // Function body
 }
 
+// TODO: This is the new function request
+function newRequestedFunction() {
+  // New function body
+}
+
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;
@@ -341,7 +346,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
 // Don't forget to test your new additions in the test file
 
 // Export the function for testing and external use
-module.exports = { newFunction };
+module.exports = { newFunction, newRequestedFunction };
 
 // Export accessibility utility functions
 export {
@@ -353,6 +358,7 @@ export {
   handleFakeLinks,
   checkLinkAccessibility,
   newFunction,
+  newRequestedFunction,
   addressAccessibilityIssues,
   addLangAttribute,
   fixTableStructure,

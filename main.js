@@ -1,130 +1,106 @@
-// Import necessary dependencies
+// main.js
+
 import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import { initializeApp } from './app.js';
+import { isSecureContext } from './utils.js';
+import { calculateSum } from './utils';
+import { getLangAttribute } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+import { fetchUser, clearCache } from './utils/user';
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
+// Find the primary content element in the DOM
+const primaryContent = document.querySelector('.primary-content') ||
+                        document.querySelector('[role="main"]') ||
+                        document.getElementById('main-content') ||
+                        document.querySelector('#content');
 
-// Function to get the language attribute value for accessibility
-function getLangAttribute() {
-  // Return the language code from the document's HTML element
-  // This helps screen readers pronounce content correctly
-  if (typeof document !== 'undefined' && document.documentElement) {
-    return document.documentElement.lang || 'en';
+// Function to wrap primary content in a <main> element
+function wrapPrimaryContentInMain() {
+  // If primary content exists and is not already inside a <main> element
+  if (primaryContent && !primaryContent.closest('main')) {
+    // Create a new <main> element
+    const mainElement = document.createElement('main');
+
+    // Insert the <main> element before the primary content in the DOM
+    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+
+    // Move the primary content inside the <main> element
+    mainElement.appendChild(primaryContent);
+
+    return mainElement;
   }
-  return 'en';
+  return null;
 }
 
-// Function to ensure ARIA attributes are properly set for the dependency graph
-function ensureAriaAttributes() {
-  // Ensure the document has proper lang attribute for accessibility
-  const lang = getLangAttribute();
-  
-  // Set lang attribute on document root if not already set
-  if (typeof document !== 'undefined' && document.documentElement) {
-    if (!document.documentElement.lang) {
-      document.documentElement.lang = lang;
-    }
+// New function for creating in-page buttons
+function createInPageButtons(buttonsData) {
+  const buttonsContainer = document.getElementById('in-page-buttons-container');
+
+  if (!buttonsContainer) {
+    console.error('In-page buttons container not found');
+    return;
   }
-  
-  return {
-    lang: lang,
-    accessible: true
+
+  buttonsData.forEach(buttonData => {
+    const button = document.createElement('button');
+    button.id = buttonData.id;
+    button.textContent = buttonData.text;
+    button.setAttribute('data-role', buttonData.role);
+
+    button.addEventListener('click', () => {
+      location.hash = buttonData.href;
+    });
+
+    buttonsContainer.appendChild(button);
+  });
+}
+
+// Function to set language attribute
+function setLanguageAttribute(document, lang) {
+  if (document.documentElement) {
+    document.documentElement.lang = lang || 'en';
+  }
+}
+
+// Function to add landmark roles
+function addLandmarkRoles(container) {
+  if (!container) return;
+
+  const possibleLandmarks = {
+    'nav': 'navigation',
+    'aside': 'complementary',
+    'section': 'region',
+    'form': 'form'
   };
-}
 
-// Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
-}
-
-// Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
-}
-
-// Function to generate a key for each book item
-function generateKey(book) {
-  return book.id;
-}
-
-// Function to render a single book item
-function BookItem(book) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-      />
-    </List.Item>
-  );
-}
-
-// Function to create a new book entry in the Redux store
-function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
-
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
-}
-
-// Ensure accessibility attributes are set when adding a book
-export function ensureAriaOnAddBook(book) {
-  const ariaAttributes = ensureAriaAttributes();
-  addBook(book);
-  return ariaAttributes;
-}
-
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
-
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
-}
-
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-}
-
-// Render the main component containing the book list and sorting controls
-function Main() {
-  const [sorting, setSorting] = useState(defaultSorting);
-  const dispatch = useDispatch();
-  const booksList = useSelector(state => state.books.list);
-
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
+  const sections = container.querySelectorAll('nav, aside, section, form');
+  sections.forEach(section => {
+    if (!section.getAttribute('role') && possibleLandmarks[section.tagName.toLowerCase()]) {
+      section.setAttribute('role', possibleLandmarks[section.tagName.toLowerCase()]);
     }
-  }, [sorting]);
-
-  // Map the book list to the BookItem function to create book items
-  const bookItems = booksList.map(book => BookItem(book));
-
-  // Render the list of book items and sorting controls
-  return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List itemLayout="vertical" dataSource={booksList} renderItem={book => BookItem(book)} />
-      {/* Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
-    </div>
-  );
+  });
 }
 
-// Export the Main component
-export default Main;
+// Function to fix fake links
+function fixFakeLinks(container) {
+  if (!container) return;
 
-// Export helper functions and utilities
-export { getLangAttribute, ensureAriaAttributes, sortByTitle, sortByAuthor, generateKey, BookItem, addBook };
+  const fakeLinks = container.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
+  fakeLinks.forEach(link => {
+    if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
+      link.setAttribute('role', 'button');
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Handle as button click
+      });
+    }
+  });
+}
+
+// ... Export the rest of the code here as needed

@@ -1,41 +1,69 @@
-// TODO: This is the existing code that needs to be preserved
-
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
 
-// Function to add SVG accessibility props
-function addSvgAccessibilityProps(props = {}) {
-  return {
-    ...props,
+// TODO: This is the existing code that needs to be preserved
+
+// REACT_015: Helper to provide the lang attribute for the HTML element.
+// Returns an object containing props to spread onto the root <html> element.
+function getRootHtmlAccessibilityProps(lang = 'en') {
+  return { lang };
+};
+
+// REACT_017 / REACT_025: Helper to build landmark region props with a unique
+// label so each landmark has a distinct accessible name (fixes duplicate
+// landmarks and ensures proper landmark roles are used).
+function getLandmarkProps(role, label, id) {
+  const props = {
+    role,
+    'aria-label': label,
+  };
+  if (id) {
+    props.id = id;
+  }
+  return props;
+};
+
+// REACT_041: Helper to return props that provide an accessible name for an
+// <svg> element (via aria-label) so screen readers can announce it.
+function getSvgAccessibilityProps(label, labelledById) {
+  const props = {
     role: 'img',
-    'aria-hidden': props['aria-hidden'] !== undefined ? props['aria-hidden'] : false,
     focusable: 'false',
   };
-}
+  if (label) {
+    props['aria-label'] = label;
+  } else if (labelledById) {
+    props['aria-labelledby'] = labelledById;
+  } else {
+    // Fallback so the SVG is still considered decorative but explicitly marked.
+    props['aria-hidden'] = 'true';
+  }
+  return props;
+};
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
+// REACT_036: Helper that returns props for converting a non-semantic element
+// that is being used as a link into a real, accessible anchor.
+function getAccessibleLinkProps(href, label) {
+  return {
+    href,
+    role: 'link',
+    'aria-label': label,
+  };
+};
 
-// Function for creating in-page buttons
-function createButton(label, onClick, className = '', disabled = false) {
-  return (
-    <button onClick={onClick} className={className} disabled={disabled}>
-      {label}
-    </button>
-  );
-}
-
-// Function to handle sorting books by title (ascending)
-export function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
-}
-
-// Function to handle sorting books by author (descending)
-export function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
-}
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = {
+    'react': true,
+    'react-redux': true,
+    'antd': true
+  };
+  return Object.keys(dependencies).length;
+};
 
 // Function to generate a key for each book item
 export function generateKey(book) {
@@ -59,99 +87,93 @@ export function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
+  // Dispatch an action to update the book's dependencies in the Redux store
+  dispatch(setDependencyGraph({ bookId, dependencies: newDependencies }));
+};
+
+// Function to fetch book dependencies and update the Redux store
+async function fetchBookDependencies(bookId) {
+  try {
+    const response = await fetch(`https://api.example.com/books/${bookId}/dependencies`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const dependencies = await response.json();
+    dispatch(setDependencyGraph({ bookId, dependencies }));
+  } catch (error) {
+    console.error('Error fetching book dependencies:', error);
+  }
 }
 
-// Function to get the language attribute value
-function getLangAttribute() {
-  // Implementation for getting the language attribute
-  return 'en';
-}
+// Accessibility: AddBookForm component with proper labels and ARIA attributes
+function AddBookForm({ onAdd }) {
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
 
-// Function to add the language attribute to the HTML element
-function addLangAttribute() {
-  // Implementation for adding the language attribute
-}
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (title.trim() && author.trim()) {
+      onAdd({ title: title.trim(), author: author.trim() });
+      setTitle('');
+      setAuthor('');
+    }
+  };
 
-// Function to validate table structure accessibility
-function validateTableAccessibility() {
-  // Implementation for validating table accessibility
-}
+  return (
+    <form onSubmit={handleSubmit} aria-label="Add new book">
+      <div>
+        <label htmlFor="book-title" aria-required="true">Book Title:</label>
+        <input
+          id="book-title"
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Enter book title"
+        />
+      </div>
+      <div>
+        <label htmlFor="book-author" aria-required="true">Author:</label>
+        <input
+          id="book-author"
+          type="text"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          placeholder="Enter author name"
+        />
+      </div>
+      <button type="submit">Add Book</button>
+    </form>
+  );
+};
 
-// Function to fix table structure issues
-function fixTableStructure() {
-  // Implementation for fixing table structure issues
-}
-
-// Function to validate landmark structure
-function validateLandmarkStructure() {
-  // Implementation for validating landmark structure
-}
-
-// Function to validate landmark attributes
-function validateLandmarkAttributes() {
-  // Implementation for validating landmark attributes
-}
-
-// Function to add a main landmark
-function addMainLandmark() {
-  // Implementation for adding a main landmark
-}
-
-// Function to get an accessible name for an SVG
-function getSvgAccessibleName() {
-  // Implementation for getting an accessible name for an SVG
-}
-
-// Function to set SVG attributes for accessibility
-function setSvgAttributes() {
-  // Implementation for setting SVG attributes for accessibility
-}
-
-// Function to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // Implementation for ensuring unique landmarks
-}
-
-// Function to fix fake link issues
-function handleFakeLinks() {
-  // Implementation for fixing fake link issues
-}
-
-// Function to add proper landmark regions
-function addLandmarkRegions() {
-  // Implementation for adding proper landmark regions
-}
-
-// Function to create an in-page button
-function createInPageButton() {
-  // Implementation for creating an in-page button
-}
-
-// Function to validate link accessibility
-function validateLinkAccessibility() {
-  // Implementation for validating link accessibility
-}
+// Default sorting function for the book list
+const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 export function onTitleSort() {
   const sortedList = [...getBooksList].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
-}
+};
 
 // Function to handle sorting the book list by author (descending)
-export function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+function onAuthorSort() {
+  const sortedList = getBooksList.sort(sortByAuthor).reverse();
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-}
+};
 
 // Render the main component containing the book list and sorting controls
 function Main() {
+  const [sorting, setSorting] = useState(() => {
+    const sortFunction = addBook.length > 0 ? sortByTitle : sortByTitle; // Use sortByTitle if the 'addBook' function is present, otherwise use default
+    return sortFunction;
+  });
   const dispatch = useDispatch();
-  const [sorting, setSorting] = useState(sortByTitle);
+  const booksList = useSelector(state => state.books.list);
+  const [newBookTitle, setNewBookTitle] = useState('');
+  const [newBookAuthor, setNewBookAuthor] = useState('');
+  const addBookInputRef = React.useRef(null);
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -163,21 +185,83 @@ function Main() {
   }, [sorting]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map((book, index) => BookItem(book));
+  const bookItems = booksList.map(book => BookItem(book));
+
+  const handleAddBook = (e) => {
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
+    // Implement the accessibility improvements
+    if (typeof enhanceAccessibilityForAddBook === 'function') {
+      enhanceAccessibilityForAddBook();
+    }
+    // Add the new book using the form values if provided
+    if (newBookTitle.trim() && newBookAuthor.trim()) {
+      addBook({ title: newBookTitle.trim(), author: newBookAuthor.trim() });
+      setNewBookTitle('');
+      setNewBookAuthor('');
+    } else {
+      // Add the new book as before
+      addBook();
+    }
+  };
+
+  const handleSort = (sortFunction) => () => {
+    const sortedList = [...booksList].sort(sortFunction);
+    // Dispatch an action to update the sorted book list in the Redux store
+    dispatch({ type: 'SORT_BOOKS', payload: sortedList });
+    setSorting(sortFunction);
+  };
 
   // Render the list of book items and sorting controls
   return (
-    <main>
+    <main {...getLandmarkProps('main', 'Main content')}>
       <header>
-        <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-        <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+        <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
+        <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
       </header>
-      <List dataSource={bookItems} renderItem={(book) => BookItem(book)} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      <List
+        itemLayout="vertical"
+        dataSource={booksList}
+        renderItem={book => (
+          <List.Item key={generateKey(book)}>
+            <BookItem book={book} />
+          </List.Item>
+        )}
+      />
+      {/* Accessible form for adding a new book */}
+      <form onSubmit={handleAddBook} aria-label="Add new book">
+        <div>
+          <label htmlFor="book-title">Book Title:</label>
+          <input
+            id="book-title"
+            type="text"
+            value={newBookTitle}
+            onChange={(e) => setNewBookTitle(e.target.value)}
+            ref={addBookInputRef}
+            required
+            aria-required="true"
+          />
+        </div>
+        <div>
+          <label htmlFor="book-author">Author:</label>
+          <input
+            id="book-author"
+            type="text"
+            value={newBookAuthor}
+            onChange={(e) => setNewBookAuthor(e.target.value)}
+            required
+            aria-required="true"
+          />
+        </div>
+        <button type="submit">
+          {typeof enhanceAccessibilityForAddBook === 'function' ? 'Add Book (Experimental Accessibility Improvements)' : 'Add Book'}
+        </button>
+      </form>
+      <button onClick={enhanceAccessibilityForAddBook} aria-label="Enhance accessibility for adding a new book">Enhance Accessibility</button>
     </main>
   );
-}
+};
 
 // Export the Main component
 export default Main;

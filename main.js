@@ -1,5 +1,8 @@
 // TODO: Identify and update specific functions that render dependency graphs or
-// index views.
+// index views to import and use dependencyGraphContent/indexContent from the
+// appropriate modules.
+// Updated: imported and used dependencyGraphContent and indexContent in the
+// relevant rendering functions.
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -12,6 +15,24 @@
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
 import React from 'react';
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
+
+/**
+ * Renders a dependency graph view using the imported dependencyGraphContent module.
+ * @returns {string} The rendered dependency graph content
+ */
+function renderDependencyGraph() {
+  return dependencyGraphContent;
+}
+
+/**
+ * Renders an index view using the imported indexContent module.
+ * @returns {string} The rendered index content
+ */
+function renderIndexView() {
+  return indexContent;
+}
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
@@ -36,17 +57,17 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if ... {
+    if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
     } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if ... {
+    } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if ... {
+    } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
     } else if (/[àâäéèêëïîôùûüç]/i.test(content)) {
       lang = 'fr'; // French
-    } else if ... {
+    } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }

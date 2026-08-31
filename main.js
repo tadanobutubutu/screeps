@@ -1,5 +1,3 @@
-// main.js - Accessibility Checker Module
-
 const { createElement, setAttributes, escapeHtml } = require('./utils');
 const { CLASS_NAMES, CONFIG } = require('./constants');
 
@@ -50,15 +48,11 @@ function checkAccessibility(container) {
 }
 
 /**
- * Renders a graph visualization for accessibility issues
+ * Renders an accessibility issues graph
  * @param {Array} issues - Array of accessibility issues to render
  * @param {HTMLElement} container - The container element to render the graph into
  */
 function renderAccessibilityGraph(issues, container) {
-  if (!container || !issues || issues.length === 0) {
-    return;
-  }
-
   const graphContainer = createElement('div');
   graphContainer.className = CLASS_NAMES.GRAPH;
   graphContainer.innerHTML = `

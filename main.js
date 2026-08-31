@@ -11,6 +11,331 @@ function newFunction() {
   // New function implementation
 }
 
+/**
+ * Render a dependency graph visualization
+ * @param {Object} dependencies - The dependency data structure (key = module, value = array of dependencies)
+ * @param {Object} options - Rendering options
+ * @returns {Element} The rendered graph container element
+ */
+function renderDependencyGraph(dependencies, options = {}) {
+  const {
+    containerId = 'dependencyGraph',
+    format = 'text'
+  } = options;
+
+  let container = document.getElementById(containerId);
+  if (!container) {
+    container = document.createElement('div');
+    container.id = containerId;
+    container.className = 'dependency-graph';
+    document.body.appendChild(container);
+  } else {
+    container.innerHTML = '';
+  }
+
+  // Ensure accessibility
+  ensureDependencyGraphAriaRole(document);
+
+  if (!dependencies || typeof dependencies !== 'object') {
+    const emptyMsg = document.createElement('p');
+    emptyMsg.textContent = 'No dependency data available';
+    container.appendChild(emptyMsg);
+    return container;
+  }
+
+  if (format === 'html') {
+    return renderDependencyGraphHTML(dependencies, container);
+  }
+
+  return renderDependencyGraphText(dependencies, container);
+}
+
+/**
+ * Render dependency graph as text tree
+ * @param {Object} dependencies - Dependency data
+ * @param {Element} container - Container element
+ * @returns {Element} The container element
+ */
+function renderDependencyGraphText(dependencies, container) {
+  const doc = document;
+  
+  const header = doc.createElement('h3');
+  header.textContent = 'Dependency Graph';
+  header.className = 'dep-graph-title';
+  container.appendChild(header);
+
+  const graphContainer = doc.createElement('div');
+  graphContainer.className = 'dep-graph-tree';
+  container.appendChild(graphContainer);
+
+  const entries = Object.entries(dependencies);
+  
+  entries.forEach(([module, deps], index) => {
+    const moduleLine = doc.createElement('div');
+    moduleLine.className = 'dep-module';
+    
+    const prefix = index === entries.length - 1 ? '└── ' : '├── ';
+    moduleLine.textContent = `${prefix}${module}`;
+    
+    if (deps && deps.length > 0) {
+      const depsLine = doc.createElement('div');
+      depsLine.className = 'dep-list';
+      depsLine.textContent = `    └── dependencies: ${deps.join(', ')}`;
+      graphContainer.appendChild(moduleLine);
+      graphContainer.appendChild(depsLine);
+    } else {
+      graphContainer.appendChild(moduleLine);
+    }
+  });
+
+  return container;
+}
+
+/**
+ * Render dependency graph as HTML tree
+ * @param {Object} dependencies - Dependency data
+ * @param {Element} container - Container element
+ * @returns {Element} The container element
+ */
+function renderDependencyGraphHTML(dependencies, container) {
+  const doc = document;
+
+  const header = doc.createElement('h3');
+  header.textContent = 'Dependency Graph';
+  header.className = 'dep-graph-title';
+  container.appendChild(header);
+
+  const tree = doc.createElement('ul');
+  tree.className = 'dep-tree';
+  container.appendChild(tree);
+
+  for (const [module, deps] of Object.entries(dependencies)) {
+    const moduleItem = doc.createElement('li');
+    moduleItem.className = 'dep-node';
+    
+    const moduleName = doc.createElement('span');
+    moduleName.className = 'dep-name';
+    moduleName.textContent = module;
+    moduleItem.appendChild(moduleName);
+
+    if (deps && deps.length > 0) {
+      const depsList = doc.createElement('ul');
+      depsList.className = 'dep-children';
+      
+      deps.forEach(dep => {
+        const depItem = doc.createElement('li');
+        depItem.className = 'dep-child';
+        depItem.textContent = dep;
+        depsList.appendChild(depItem);
+      });
+      
+      moduleItem.appendChild(depsList);
+    }
+
+    tree.appendChild(moduleItem);
+  }
+
+  return container;
+}
+
+/**
+ * Display module structure for debugging purposes
+ * @param {Object|Array} moduleInfo - Module information to display
+ * @param {Object} options - Display options
+ * @param {string} options.containerId - ID for the container element
+ * @param {boolean} options.includeSource - Whether to include raw source data
+ * @param {string} options.format - Output format ('text' or 'html')
+ * @returns {Element} The rendered container element
+ */
+function displayModuleStructure(moduleInfo, options = {}) {
+  const {
+    containerId = 'moduleStructure',
+    includeSource = false,
+    format = 'text'
+  } = options;
+
+  let container = document.getElementById(containerId);
+  if (!container) {
+    container = document.createElement('div');
+    container.id = containerId;
+    container.className = 'module-structure';
+    document.body.appendChild(container);
+  } else {
+    container.innerHTML = '';
+  }
+
+  const header = document.createElement('h3');
+  header.textContent = 'Module Structure';
+  container.appendChild(header);
+
+  if (!moduleInfo) {
+    const emptyMsg = document.createElement('p');
+    emptyMsg.textContent = 'No module information available';
+    container.appendChild(emptyMsg);
+    return container;
+  }
+
+  if (format === 'html') {
+    return displayModuleStructureHTML(moduleInfo, container, includeSource);
+  }
+
+  return displayModuleStructureText(moduleInfo, container, includeSource);
+}
+
+/**
+ * Display module structure as text tree
+ * @param {Object|Array} moduleInfo - Module information
+ * @param {Element} container - Container element
+ * @param {boolean} includeSource - Include raw source
+ * @returns {Element} The container element
+ */
+function displayModuleStructureText(moduleInfo, container, includeSource) {
+  const structure = document.createElement('pre');
+  structure.className = 'structure-tree';
+  container.appendChild(structure);
+
+  function formatModule(mod, depth = 0) {
+    const indent = '  '.repeat(depth);
+    const prefix = depth > 0 ? '├─ ' : '';
+    let line = `${indent}${prefix}${mod.name || 'unnamed'}`;
+    
+    if (mod.type) line += ` [${mod.type}]`;
+    if (mod.path) line += ` → ${mod.path}`;
+    
+    return line;
+  }
+
+  function renderModule(mod, depth = 0, lines = []) {
+    lines.push(formatModule(mod, depth));
+    
+    if (mod.children && mod.children.length > 0) {
+      mod.children.forEach(child => renderModule(child, depth + 1, lines));
+    }
+    
+    if (mod.exports && Array.isArray(mod.exports)) {
+      mod.exports.forEach(exp => {
+        lines.push(`${'  '.repeat(depth + 1)}└─ exports: ${exp}`);
+      });
+    }
+  }
+
+  const lines = [];
+  if (Array.isArray(moduleInfo)) {
+    moduleInfo.forEach(mod => renderModule(mod, 0, lines));
+  } else {
+    renderModule(moduleInfo, 0, lines);
+  }
+
+  structure.textContent = lines.join('\n');
+
+  if (includeSource) {
+    const sourceSection = document.createElement('div');
+    sourceSection.className = 'source-code';
+    
+    const sourceHeader = document.createElement('h4');
+    sourceHeader.textContent = 'Raw Module Data';
+    sourceSection.appendChild(sourceHeader);
+    
+    const pre = document.createElement('pre');
+    pre.textContent = JSON.stringify(moduleInfo, null, 2);
+    sourceSection.appendChild(pre);
+    
+    container.appendChild(sourceSection);
+  }
+
+  return container;
+}
+
+/**
+ * Display module structure as HTML tree
+ * @param {Object|Array} moduleInfo - Module information
+ * @param {Element} container - Container element
+ * @param {boolean} includeSource - Include raw source
+ * @returns {Element} The container element
+ */
+function displayModuleStructureHTML(moduleInfo, container, includeSource) {
+  const tree = document.createElement('ul');
+  tree.className = 'module-tree';
+  container.appendChild(tree);
+
+  function createModuleElement(mod) {
+    const li = document.createElement('li');
+    li.className = 'module-item';
+    
+    const header = document.createElement('div');
+    header.className = 'module-header';
+    
+    const name = document.createElement('span');
+    name.className = 'module-name';
+    name.textContent = mod.name || 'unnamed';
+    header.appendChild(name);
+    
+    if (mod.type) {
+      const type = document.createElement('span');
+      type.className = 'module-type';
+      type.textContent = `[${mod.type}]`;
+      header.appendChild(type);
+    }
+    
+    if (mod.path) {
+      const path = document.createElement('span');
+      path.className = 'module-path';
+      path.textContent = mod.path;
+      header.appendChild(path);
+    }
+    
+    li.appendChild(header);
+
+    if (mod.children && mod.children.length > 0) {
+      const childList = document.createElement('ul');
+      childList.className = 'module-children';
+      mod.children.forEach(child => {
+        childList.appendChild(createModuleElement(child));
+      });
+      li.appendChild(childList);
+    }
+
+    if (mod.exports && Array.isArray(mod.exports)) {
+      const exportsList = document.createElement('ul');
+      exportsList.className = 'module-exports';
+      mod.exports.forEach(exp => {
+        const expItem = document.createElement('li');
+        expItem.className = 'export-item';
+        expItem.textContent = exp;
+        exportsList.appendChild(expItem);
+      });
+      li.appendChild(exportsList);
+    }
+
+    return li;
+  }
+
+  if (Array.isArray(moduleInfo)) {
+    moduleInfo.forEach(mod => {
+      tree.appendChild(createModuleElement(mod));
+    });
+  } else {
+    tree.appendChild(createModuleElement(moduleInfo));
+  }
+
+  if (includeSource) {
+    const sourceSection = document.createElement('div');
+    sourceSection.className = 'source-code';
+    
+    const sourceHeader = document.createElement('h4');
+    sourceHeader.textContent = 'Raw Module Data';
+    sourceSection.appendChild(sourceHeader);
+    
+    const pre = document.createElement('pre');
+    pre.textContent = JSON.stringify(moduleInfo, null, 2);
+    sourceSection.appendChild(pre);
+    
+    container.appendChild(sourceSection);
+  }
+
+  return container;
+}
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -290,5 +615,11 @@ export {
   googleSignIn,
   fixButtonIdentifiers,
   ensureDependencyGraphAriaRole,
-  newFunction
+  newFunction,
+  renderDependencyGraph,
+  renderDependencyGraphText,
+  renderDependencyGraphHTML,
+  displayModuleStructure,
+  displayModuleStructureText,
+  displayModuleStructureHTML
 };

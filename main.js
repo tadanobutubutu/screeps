@@ -126,17 +126,73 @@ function Main() {
   );
 }
 
+// Function to render dependency graphs for debugging purposes
+export function renderDependencyGraph(dependencies) {
+  const graph = {
+    nodes: [],
+    edges: []
+  };
+  
+  if (dependencies && typeof dependencies === 'object') {
+    Object.keys(dependencies).forEach((key, index) => {
+      graph.nodes.push({ id: index, label: key });
+      const deps = dependencies[key];
+      if (Array.isArray(deps)) {
+        deps.forEach((dep, depIndex) => {
+          graph.edges.push({ from: index, to: depIndex });
+        });
+      }
+    });
+  }
+  
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Dependency Graph:', JSON.stringify(graph, null, 2));
+  }
+  
+  return graph;
+}
+
+// Function to display module structure for debugging purposes
+export function displayModuleStructure(moduleInfo) {
+  const structure = {
+    name: moduleInfo?.name || 'Unknown Module',
+    type: moduleInfo?.type || 'unknown',
+    children: moduleInfo?.children || [],
+    metadata: {
+      timestamp: new Date().toISOString(),
+      version: '1.0.0'
+    }
+  };
+  
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Module Structure:', structure);
+    console.table(structure);
+  }
+  
+  return structure;
+}
+
 // Export the required functionA and functionB as objects with properties X, Y, and Z
 export const functionA = {
-  X: null,
-  Y: null,
-  Z: null
+  X: renderDependencyGraph,
+  Y: displayModuleStructure,
+  Z: (data) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Debug info:', data);
+    }
+    return data;
+  }
 };
 
 export const functionB = {
-  X: null,
-  Y: null,
-  Z: null
+  X: (module) => displayModuleStructure({ ...module, type: 'component' }),
+  Y: (deps) => renderDependencyGraph(deps),
+  Z: (state) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('State inspection:', state);
+    }
+    return state;
+  }
 };
 
 // Export the Main component

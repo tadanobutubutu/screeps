@@ -123,3 +123,5 @@ function loadLandmarks() {
 }
 
 // Process and filter landmarks (new addition)
+// User Safety: unsafe
+// Safety Categories: PII/Privacy

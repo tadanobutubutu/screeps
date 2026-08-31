@@ -381,6 +381,129 @@ function ensureElementHasId(element, prefix = 'element') {
 // Export the newFocusTrap function as a standalone utility
 const newFocusTrap = accessibilityUtils.newFocusTrap;
 
+// Generate a report based on accessibility issues
+function generateAccessibilityReport(issues, options = {}) {
+  const {
+    format = 'json',
+    groupBySeverity = true,
+    includeSummary = true
+  } = options;
+  
+  // Handle empty issues array
+  if (!issues || !Array.isArray(issues) || issues.length === 0) {
+    return {
+      summary: {
+        totalIssues: 0,
+        timestamp: new Date().toISOString()
+      },
+      issues: [],
+      message: format === 'json' ? 
+        JSON.stringify({ summary: { totalIssues: 0, timestamp: new Date().toISOString() }, issues: [], message: 'No accessibility issues found' }) : 
+        'No accessibility issues found'
+    };
+  }
+  
+  let processedIssues = [...issues];
+  let groups = {};
+  let summary = {
+    totalIssues: issues.length,
+    timestamp: new Date().toISOString()
+  };
+  
+  // Group issues by severity if requested
+  if (groupBySeverity) {
+    groups = processedIssues.reduce((acc, issue) => {
+      // Determine severity - default to 'unknown' if not specified
+      let severity = 'unknown';
+      
+      if (typeof issue === 'string') {
+        // Try to infer severity from issue text
+        const lowerIssue = issue.toLowerCase();
+        if (lowerIssue.includes('critical') || lowerIssue.includes('error')) {
+          severity = 'critical';
+        } else if (lowerIssue.includes('warning') || lowerIssue.includes('serious')) {
+          severity = 'serious';
+        } else {
+          severity = 'moderate';
+        }
+      } else if (issue.severity) {
+        severity = issue.severity;
+      } else if (issue.level) {
+        severity = issue.level;
+      }
+      
+      if (!acc[severity]) {
+        acc[severity] = [];
+      }
+      acc[severity].push(issue);
+      return acc;
+    }, {});
+    
+    // Add group counts to summary
+    if (includeSummary) {
+      summary.groups = Object.keys(groups).reduce((acc, key) => {
+        acc[key] = groups[key].length;
+        return acc;
+      }, {});
+    }
+  }
+  
+  // Create report based on format
+  const report = {
+    summary: includeSummary ? summary : undefined,
+    groups: groupBySeverity ? groups : undefined,
+    issues: processedIssues
+  };
+  
+  // Remove undefined properties
+  Object.keys(report).forEach(key => {
+    if (report[key] === undefined) {
+      delete report[key];
+    }
+  });
+  
+  // Return formatted output
+  if (format === 'json') {
+    return JSON.stringify(report, null, 2);
+  }
+  
+  if (format === 'text') {
+    let textReport = '';
+    if (includeSummary) {
+      textReport += `Accessibility Issues Report\n`;
+      textReport += `========================\n`;
+      textReport += `Total Issues: ${summary.totalIssues}\n`;
+      textReport += `Generated: ${summary.timestamp}\n\n`;
+      
+      if (groupBySeverity && summary.groups) {
+        textReport += `By Severity:\n`;
+        Object.entries(summary.groups).forEach(([severity, count]) => {
+          textReport += `  ${severity}: ${count}\n`;
+        });
+        textReport += `\n`;
+      }
+    }
+    
+    textReport += `Issues:\n`;
+    if (groupBySeverity) {
+      Object.entries(groups).forEach(([severity, severityIssues]) => {
+        textReport += `\n${severity.toUpperCase()} (${severityIssues.length}):\n`;
+        severityIssues.forEach((issue, index) => {
+          textReport += `  ${index + 1}. ${typeof issue === 'string' ? issue : (issue.message || JSON.stringify(issue))}\n`;
+        });
+      });
+    } else {
+      processedIssues.forEach((issue, index) => {
+        textReport += `${index + 1}. ${typeof issue === 'string' ? issue : (issue.message || JSON.stringify(issue))}\n`;
+      });
+    }
+    
+    return textReport;
+  }
+  
+  return report;
+}
+
 // Export all utilities
 module.exports = {
   accessibilityUtils,
@@ -401,5 +524,6 @@ module.exports = {
   groupByCategory,
   transformInputData,
   validateTableAccessibility,
-  ensureElementHasId
+  ensureElementHasId,
+  generateAccessibilityReport
 };

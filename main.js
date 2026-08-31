@@ -227,7 +227,8 @@ if (typeof module !== 'undefined' && module.exports) {
     capitalize,
     getRandomInt,
     clamp,
-    deepClone
+    deepClone,
+    ensureUniqueLandmarks
   };
 }
 

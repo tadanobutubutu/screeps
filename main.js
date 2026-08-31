@@ -84,13 +84,21 @@ function addressAccessibilityIssues() {
   if (htmlElement) {
     htmlElement.setAttribute('lang', getLangAttribute());
   }
+
+  // New function to extract the accessible name for an SVG from its content
+  function extractSvgAccessibleName(svgContent) {
+    const svgElement = new DOMParser().parseFromString(svgContent, 'image/svg+xml').documentElement;
+    const title = svgElement.querySelector('title');
+    return title ? title.textContent : 'No accessible name found';
+  }
 }
 
 export {
   addressAccessibilityIssues,
   a11y,
   getLangAttribute,
-  createInPageButton
+  createInPageButton,
+  extractSvgAccessibleName
 };
 
 root.render(

@@ -19,8 +19,6 @@ import { state, updateState } from './state.js';
 // REACT_027: 26 table structure issues fixed
 // Related commit or original table issues have been addressed
 
-// ... other fixes ...
-
 // DOM-based accessibility code
 
 // Internal set to track used landmark IDs
@@ -31,7 +29,7 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function ensureUniqueLandmarkId(baseName) {
+function createUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
@@ -75,487 +73,217 @@ function addAriaLabel(elementId, label) {
  * Adds lang attribute as per the issue requirement
  */
 function addLangAttribute() {
-  // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('some-selector');
-  if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en'); // Example: English
-  }
-}
-
-// ... other fixes ...
-
-// New helper functions to address the additional accessibility requirements
-function ensureElementHasId(elementId) {
-  const element = document.getElementById(elementId);
-  if (element && !element.hasAttribute('id')) {
-    element.setAttribute('id', elementId);
-  }
-}
-
-// Ensure elements have the required IDs
-ensureElementHasId('myTable');
-ensureElementHasId('mySvg');
-ensureElementHasId('inPageButton');
-
-// Add ARIA labels for better screen reader support
-addAriaLabel('myTable', 'Product data table');
-addAriaLabel('myLogo', 'Company logo');
-addAriaLabel('myMenu', 'Accessibility menu');
-
-// DOM-based accessibility code
-
-// Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', getLangAttribute());
-
-// TODO: add the new functions or changes requested in the issue
-// Here's a sample implementation for a new function named 'myNewFunction'
-function myNewFunction(arg1, arg2) {
-  // Your implementation of the function goes here.
-  // For example, let's just return the product of the inputs.
-  return arg1 * arg2;
-}
-
-// Added function to handle full lang attribute as mentioned in the issue
-function getFullLangAttribute() {
-  // Implementation for getting full lang attribute
-  return 'en-US'; // Example implementation
-}
-
-function getLangAttribute() {
-  // Implementation for getting lang attribute
-  return getFullLangAttribute();
-}
-
-function personName() {
-  // Existing code...
-}
-
-function validateLandmark() {
-  // Existing code...
-}
-
-function validateLandmarkStructure() {
-  // Existing code...
-}
-
-function validateTableAccessibility(table) {
-  // Implementation for validating table accessibility
-  if (!table) return;
-  // Add accessibility checks for table
-}
-
-function validateTableStructure(table) {
-  // Implementation for validating table structure
-  if (!table) return;
-  // Add structure validation logic
-}
-
-function ensureElementsHaveIds(elements) {
-  return Array.from(elements).map((element, index) => {
-    if (!element.id) {
-      element.id = `element-${index}`;
-    }
-    return element;
-  });
-}
-
-// Added function to ensure unique landmarks as mentioned in the issue
-function ensureUniqueLandmarks() {
-  // Implementation for ensuring unique landmarks
-  // Remove duplicate landmarks
-  const landmarks = document.querySelectorAll([
-    'header[role="banner"]',
-    'nav[role="navigation"]',
-    'main[role="main"]',
-    'aside[role="complementary"]',
-    'footer[role="contentinfo"]'
-  ].join(', '));
-  
-  // Logic to handle duplicate landmarks
-  // For example, remove role attributes from non-unique landmarks except the first occurrence
-  // This is a simplified implementation
-}
-
-function getSvgAccessibleName() {
-  // Existing code...
-}
-
-function setSvgAttributes(svg, accessibleName) {
-  // Implementation for setting SVG attributes
-  if (!svg) return;
-  // Add accessible name to SVG
-}
-
-function createInPageButton() {
-  // Implementation for creating in-page button
-  const button = document.createElement('button');
-  button.setAttribute('aria-label', 'Skip to main content');
-  button.textContent = 'Skip to main content';
-  document.body.appendChild(button);
-}
-
-// Added function to create accessible links as mentioned in the issue
-function createAccessibleLink(text, href) {
-  // Implementation for creating accessible link
-  const link = document.createElement('a');
-  link.href = href;
-  link.textContent = text;
-  link.setAttribute('aria-label', text);
-  return link;
-}
-
-// Added function to handle accessibility issues as mentioned in the issue
-function handleAccessibilityIssues() {
-  // Implementation for handling all accessibility issues
-  // This could coordinate the calling of other accessibility functions
-  ensureUniqueLandmarks();
-  // Add other accessibility issue handling as needed
-}
-
-// New function to fix accessibility issues as per the insight report
-function fixAccessibilityIssues() {
-  // New code to fix accessibility issues...
-}
-
-// New function to calculate the sum of two numbers
-function calculateSum(a, b) {
-  return a + b;
-}
-
-// Ensure elements have the required IDs
-...
-...
-...
-
-// Add ARIA labels for better screen reader support
-function addAriaLabel(elementId, label) {
-  const element = typeof elementId === 'string' ? document.getElementById(elementId) : elementId;
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-}
-
-addAriaLabel('myTable', 'Product data table');
-addAriaLabel('myLogo', 'Company logo');
-addAriaLabel('myMenu', 'Accessibility menu');
-
-// DOM-based accessibility code
-
-// Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', getLangAttribute());
-
-// Create in-page button with accessibility considerations
-createInPageButton();
-
-// Ensure button has an id and appropriate ARIA label
-ensureElementHasId('inPageButton');
-addAriaLabel('inPageButton', 'Accessibility menu');
-
-// Validate table structure and accessibility
-// Ensuring all tables in the document are accessible
-const tables = document.querySelectorAll('table');
-tables.forEach(table => {
-  validateTableAccessibility(table);
-  validateTableStructure(table);
-});
-
-// - REACT_017: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
-
-function validateLinkAccessibility() {
-  // Implementation for validating link accessibility
-}
-
-function handleFakeLinks() {
-  // Implementation for handling fake links
-}
-
-// Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', getLangAttribute());
-
-// Create in-page button with accessibility considerations
-createInPageButton();
-
-// Validate table structure and accessibility
-const table = document.getElementById('myTable');
-validateTableAccessibility(table);
-validateTableStructure(table);
-
-// Add/fix landmark issues
-validateLandmark();
-validateLandmarkStructure();
-ensureUniqueLandmarks();
-
-// Add accessible names to SVGs
-const svg = document.getElementById('mySvg');
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
-
-// Ensure unique landmarks
-// Ensuring all landmarks have unique identifiers
-const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
-const landmarkIds = new Set();
-landmarks.forEach(landmark => {
-  if (landmark.id) {
-    if (landmarkIds.has(landmark.id)) {
-      landmark.removeAttribute('id');
-    } else {
-      landmarkIds.add(landmark.id);
-    }
-  }
-});
-
-// Validate link accessibility
-validateLinkAccessibility();
-handleFakeLinks();
-
-// Fix button identifiers
-// Ensuring all buttons have proper accessible identifiers
-document.addEventListener('DOMContentLoaded', () => {
-  // Fix fake link issues
-  // Converting buttons styled as links to proper accessible buttons
-  handleFakeLinks();
-
-  // Fix button identifiers
-  // Ensuring all buttons have proper accessible identifiers
-  const buttons = document.querySelectorAll('[role="button"]');
-  buttons.forEach((button, index) => {
-    if (!button.id) {
-      button.id = `button-${index}`;
-    }
-  });
-
-  // Use the new function to add aria-labels to the appropriate elements
-  const myButton = document.querySelector('.my-button');
-  const myIcon = document.querySelector('.my-icon');
-
-  if (myButton) {
-    addAriaLabel(myButton, 'My Button');
-  }
-
-  if (myIcon) {
-    addAriaLabel(myIcon, 'My Icon');
-  }
-
-  // Google sign-in accessibility
-  // Ensuring Google sign-in button has proper accessible name and role
-  const googleButton = document.querySelector('.google-sign-in, [data-provider="google"]');
-  if (googleButton) {
-    addAriaLabel(googleButton, 'Sign in with Google');
-    googleButton.setAttribute('role', 'button');
-  }
-});
-
-// Google sign-in accessibility
-// Ensuring Google sign-in button has proper accessible name and role
-function googleSignIn() {
-  const googleButton = document.querySelector('[data-google-signin]');
-  if (googleButton) {
-    googleButton.setAttribute('aria-label', 'Sign in with Google');
-    googleButton.setAttribute('role', 'button');
-  }
-}
-
-// New function to render dependency graphs or display module structure
-function renderDependencyGraph(module) {
-  // Implementation to render the dependency graph for a given module
-  console.log('Rendering dependency graph for:', module);
-  // Return the rendered graph data
-  return {
-    module: module,
-    dependencies: [],
-    rendered: true
-  };
-}
-
-// New function to display module structure
-function displayModuleStructure(module) {
-  // Implementation to display the module structure for a given module
-  console.log('Displaying module structure for:', module);
-  // Return the module structure data
-  return {
-    module: module,
-    structure: {},
-    displayed: true
-  };
-}
-
-// New function to check link accessibility
-function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function validates the accessibility of links in the document
-  const links = document.querySelectorAll('a');
-  const results = [];
-  
-  links.forEach((link, index) => {
-    const hasText = link.textContent.trim().length > 0;
-    const hasAriaLabel = link.hasAttribute('aria-label');
-    const hasTitle = link.hasAttribute('title');
-    
-    results.push({
-      index: index,
-      href: link.href,
-      accessible: hasText || hasAriaLabel || hasTitle
-    });
-  });
-  
-  return results;
-}
-
-// State management
-const state = {
-  currentModule: null,
-  dependencyGraph: null,
-  moduleStructure: null
-};
-
-// Placeholder for dependency graph content
-const dependencyGraphContent = {};
-
-// Placeholder for index content
-const indexContent = {};
-
-// React / UI related functions
-
-// TODO: Add these imported modules to the relevant rendering functions
-
-function formatProductName(product) {
-  return `${product.name} - ${formatCurrency(product.price)}`;
-}
-
-function renderDependencyGraph(module) {
-  // Implementation to render the dependency graph for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Rendering dependency graph for:', module);
-  // Example output: 'Rendering dependency graph for: ModuleName'
+    document.documentElement.lang = getLangAttribute();
 }
 
 /**
- * Spawns a new entity or process based on the provided configuration.
- * @param {Object} config - The configuration object for spawning.
- * @param {string} config.type - The type of entity to spawn.
- * @param {Object} [config.options] - Additional options for the spawn operation.
- * @returns {Object|null} The spawned entity, or null if spawning failed.
+ * Gets the full lang attribute value
+ * @returns {string} The full language tag (e.g., 'en-US')
  */
-function spawn(config) {
-    if (!config || typeof config !== 'object') {
-        console.error('Invalid spawn configuration');
-        return null;
-    }
+function getFullLangAttribute() {
+    return document.documentElement.lang || 'en';
+}
 
-    const { type, options = {} } = config;
+/**
+ * Gets the lang attribute value
+ * @returns {string} The language tag
+ */
+function getLangAttribute() {
+    return getFullLangAttribute();
+}
 
-    if (!type) {
-        console.error('Spawn configuration must include a type');
-        return null;
-    }
+// New helper functions to address the additional accessibility requirements
 
-    // Default spawn options
-    const spawnOptions = {
-        detached: false,
-        stdio: 'inherit',
-        ...options
-    };
-
-    try {
-        const entity = {
-            type,
-            id: `entity-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-            options: spawnOptions,
-            spawnedAt: new Date().toISOString()
-        };
-
-        console.log(`Spawning entity of type: ${type}`, entity);
-        return entity;
-    } catch (error) {
-        console.error('Error during spawn operation:', error);
-        return null;
+/**
+ * Ensures an element has an id attribute, adding one if missing
+ * @param {string} elementId - The element id or element to check
+ */
+function ensureElementHasId(elementId) {
+    const element = document.getElementById(elementId);
+    if (element && !element.id) {
+        element.id = elementId;
     }
 }
+
+/**
+ * Ensures multiple elements have IDs, generating them if missing
+ * @param {NodeList|Array} elements - The elements to ensure have IDs
+ * @returns {Array} Array of elements with IDs
+ */
+function ensureElementsHaveIds(elements) {
+    return Array.from(elements).map((element, index) => {
+        if (!element.id) {
+            element.id = `element-${index}`;
+        }
+        return element;
+    });
+}
+
+// Add ARIA labels for better screen reader support
+addAriaLabel('myTable', 'Product data table');
+addAriaLabel('myLogo', 'Company logo');
+addAriaLabel('menuBtn', 'Accessibility menu');
+
+// DOM-based accessibility code
+
+// Add lang attribute to HTML element
+addLangAttribute();
 
 // TODO: add the new functions or changes requested in the issue
 // Here's a sample implementation for a new function named 'myNewFunction'
 function myNewFunction(arg1, arg2) {
-  // Your implementation of the function goes here.
-  // For example, let's just return the product of the inputs.
-  return arg1 * arg2;
+    // Your implementation of the function goes here.
+    // For example, let's just return the product of the inputs.
+    return arg1 * arg2;
 }
 
-const renderIndex = () => {
-  // Code to render the index view
-};
+// Added function to handle full lang attribute as mentioned in the issue
 
-// Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, spawn, myNewFunction };
-
-// Export utility functions
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks
-};
-
-// Export component functions
-export {
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput
-};
-
-// Export utility functions
-export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage
-};
-
-// New function or change requested in the issue
-function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility();
+function personName() {
+    // Existing code...
 }
 
-// Export state
-export {
-  state,
-  updateState
-};
-
-// Export UI / product functions
-export {
-  renderHeader,
-  renderFooter,
-  renderProductCard
-};
-
-// Exporting if necessary (no exports were requested to be removed)
-export function someFunction() {
-  // ... implementation ...
+function validateLandmark() {
+    // Validate that landmarks have proper roles and IDs
+    const landmarkSelectors = [
+        'header[role="banner"]',
+        'nav[role="navigation"]',
+        'main[role="main"]',
+        'footer[role="contentinfo"]',
+        '[role="banner"]',
+        '[role="navigation"]',
+        '[role="main"]',
+        '[role="contentinfo"]',
+        '[role="complementary"]',
+        '[role="region"]'
+    ];
+    
+    const landmarks = document.querySelectorAll(landmarkSelectors.join(', '));
+    
+    landmarks.forEach(landmark => {
+        // Ensure landmark has an accessible name
+        const hasLabel = landmark.getAttribute('aria-label') || 
+                        landmark.getAttribute('aria-labelledby') ||
+                        landmark.title;
+        
+        if (!hasLabel && landmark.tagName !== 'MAIN') {
+            // Add generic labels for landmarks that need them
+            if (landmark.getAttribute('role') === 'navigation') {
+                landmark.setAttribute('aria-label', 'Site navigation');
+            } else if (landmark.getAttribute('role') === 'complementary') {
+                landmark.setAttribute('aria-label', 'Supplementary content');
+            }
+        }
+    });
 }
 
-// Exporting for CommonJS compatibility
-const moduleExports = {
-  specificFunctionThatRendersGraphOrIndex,
-  renderIndex,
-  // ... other exports ...
-};
-
-// CommonJS compatibility for non-ESM contexts
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = moduleExports;
+function validateLandmarkStructure() {
+    // Validate landmark structure and ensure uniqueness
+    const landmarkRoles = ['banner', 'navigation', 'main', 'contentinfo', 'complementary'];
+    const seenRoles = {};
+    
+    landmarkRoles.forEach(role => {
+        const landmarks = document.querySelectorAll(`[role="${role}"]`);
+        if (landmarks.length > 1) {
+            // Keep only the first occurrence for unique roles
+            for (let i = 1; i < landmarks.length; i++) {
+                landmarks[i].removeAttribute('role');
+            }
+        }
+    });
 }
 
-// ... (excluding the conflict markers) existing code from main.js
+function validateTableAccessibility(table) {
+    // Implementation for validating table accessibility
+    if (!table) return;
+    // Add accessibility checks for table
+    
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+        // Ensure th elements have scope attribute
+        if (!th.hasAttribute('scope')) {
+            const row = th.closest('tr');
+            const isFirstCell = row && row.cells[0] === th;
+            th.setAttribute('scope', isFirstCell ? 'row' : 'col');
+        }
+    });
+}
+
+function validateTableStructure(table) {
+    // Implementation for validating table structure
+    if (!table) return;
+    // Add structure validation logic
+    
+    // Ensure tables have proper caption or aria-label
+    if (!table.caption && !table.getAttribute('aria-label') && !table.getAttribute('aria-labelledby')) {
+        table.setAttribute('aria-label', 'Data table');
+    }
+}
+
+/**
+ * Gets an accessible name for an SVG element
+ * @param {SVGElement} svg - The SVG element
+ * @returns {string} The accessible name
+ */
+function getSvgAccessibleName(svg) {
+    if (!svg) return '';
+    
+    // Check for aria-label
+    let label = svg.getAttribute('aria-label');
+    if (label) return label;
+    
+    // Check for aria-labelledby
+    const labelledById = svg.getAttribute('aria-labelledby');
+    if (labelledById) {
+        const labelElement = document.getElementById(labelledById);
+        if (labelElement) return labelElement.textContent;
+    }
+    
+    // Check for title element within SVG
+    const title = svg.querySelector('title');
+    if (title) return title.textContent;
+    
+    // Check for adjacent title or description
+    const id = svg.id;
+    if (id) {
+        const describedBy = svg.getAttribute('aria-describedby');
+        if (describedBy) {
+            const descElement = document.getElementById(describedBy);
+            if (descElement) return descElement.textContent;
+        }
+    }
+    
+    // Return generic accessible name based on context
+    const parent = svg.closest('[role="button"], a, button');
+    if (parent) {
+        return parent.getAttribute('aria-label') || parent.textContent || 'Icon';
+    }
+    
+    return 'Decorative graphic';
+}
+
+/**
+ * Sets accessibility attributes on an SVG element
+ * @param {SVGElement} svg - The SVG element
+ * @param {string} accessibleName - The accessible name to set
+ */
+function setSvgAttributes(svg, accessibleName) {
+    if (!svg) return;
+    // Add accessible name to SVG
+    
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+        // If no accessible name exists, either:
+        // 1. Add a title element if appropriate
+        // 2. Add aria-label for screen readers
+        if (accessibleName && accessibleName !== 'Decorative graphic') {
+            svg.setAttribute('aria-label', accessibleName);
+        }
+    }
+}
+
+/**
+ * Creates an in-page skip link button for keyboard accessibility
+ * @returns {HTMLButtonElement} The created skip link button
+ */
+function createInPageButton() {
+    const button = document.createElement

@@ -22,7 +22,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return ...
+  return book.id || `${book.title}-${book.author}`;
 }
 
 // Accessibility helper function to get language attribute
@@ -155,7 +155,9 @@ function setSvgAttributes(svgElement, accessibleName) {
   svgElement.setAttribute('role', 'img');
   
   // Set aria-label if not already set
-  if (!svgElement.getAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
+  const existingLabel = svgElement.getAttribute('aria-label');
+  const existingLabelledBy = svgElement.getAttribute('aria-labelledby');
+  if (!existingLabel && !existingLabelledBy && accessibleName) {
     svgElement.setAttribute('aria-label', accessibleName);
   }
   
@@ -174,10 +176,10 @@ function ensureUniqueLandmarks(container) {
   const issues = [];
   
   // Find all landmark elements
-  const banner = container.querySelector('[role="banner"]');
-  const navigation = container.querySelector('[role="navigation"]');
-  const main = container.querySelector('[role="main"]');
-  const contentinfo = container.querySelector('[role="contentinfo"]');
+  const banner = container.querySelector('header');
+  const navigation = container.querySelectorAll('nav');
+  const main = container.querySelector('main');
+  const contentinfo = container.querySelector('footer');
   const complementary = container.querySelectorAll('[role="complementary"]');
   const search = container.querySelectorAll('[role="search"]');
   
@@ -212,7 +214,7 @@ function addProperLandmarkRegions(container) {
   }
   
   // Ensure unique IDs for landmarks
-  const landmarks = container.querySelectorAll('header, nav, main, footer, [role]');
+  const landmarks = container.querySelectorAll('nav, main, footer, [role]');
   const usedIds = new Set();
   
   landmarks.forEach(landmark => {
@@ -231,7 +233,7 @@ function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        ...
+        description={book.author}
       />
     </List.Item>
   );
@@ -244,6 +246,95 @@ function addBook(book) {
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
+}
+
+// Accessibility helper function to manage focus for new content
+function announceToScreenReader(message) {
+  const announcement = document.createElement('div');
+  announcement.setAttribute('role', 'status');
+  announcement.setAttribute('aria-live', 'polite');
+  announcement.setAttribute('aria-atomic', 'true');
+  announcement.className = 'sr-only';
+  announcement.textContent = message;
+  document.body.appendChild(announcement);
+  setTimeout(() => {
+    document.body.removeChild(announcement);
+  }, 1000);
+}
+
+// Function to handle form submission with accessibility improvements
+function handleAddBookSubmit(event, dispatch, setIsAddingBook) {
+  event.preventDefault();
+  const form = event.target;
+  const formData = new FormData(form);
+  const newBook = {
+    title: formData.get('title'),
+    author: formData.get('author'),
+    id: Date.now().toString()
+  };
+  
+  // Validate the book data
+  if (!newBook.title || !newBook.author) {
+    // Announce validation error to screen readers
+    announceToScreenReader('Error: Please fill in all required fields');
+    return;
+  }
+  
+  // Dispatch the action to add the book
+  dispatch({ type: 'ADD_BOOK', payload: newBook });
+  
+  // Reset the form
+  form.reset();
+  setIsAddingBook(false);
+  
+  // Announce success to screen readers
+  announceToScreenReader(`Book "${newBook.title}" has been added successfully`);
+}
+
+// Function to render add book form with accessibility
+function AddBookForm({ onSubmit, onCancel }) {
+  return (
+    <form 
+      onSubmit={onSubmit}
+      aria-labelledby="add-book-heading"
+    >
+      <h2 id="add-book-heading">Add New Book</h2>
+      <div>
+        <label htmlFor="book-title">Book Title (required):</label>
+        <input
+          type="text"
+          id="book-title"
+          name="title"
+          required
+          aria-required="true"
+          aria-describedby="title-help"
+        />
+        <span id="title-help" className="sr-only">
+          Enter the title of the book you want to add
+        </span>
+      </div>
+      <div>
+        <label htmlFor="book-author">Author (required):</label>
+        <input
+          type="text"
+          id="book-author"
+          name="author"
+          required
+          aria-required="true"
+          aria-describedby="author-help"
+        />
+        <span id="author-help" className="sr-only">
+          Enter the author's name of the book
+        </span>
+      </div>
+      <div>
+        <button type="submit">Add Book</button>
+        <button type="button" onClick={onCancel} aria-label="Cancel adding book">
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
 }
 
 // Function to render the dependency graph view
@@ -261,51 +352,22 @@ const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = ...
+  const sortedList = [...getBooksList].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = ...
+  const sortedList = [...getBooksList].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
 // Render the main component containing the book list and sorting controls
 function Main() {
+  const dispatch = useDispatch();
+  const booksList = useSelector(state => state.books.list);
   const [sorting, setSorting] = useState(defaultSorting);
   const [view, setView] = useState('books');
-
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
-    }
-  }, [sorting]);
-
-  // Map the book list to the BookItem function to create book items
-  const bookItems = ...
-
-  // Render the list of book items and sorting controls
-  return (
-    <div>
-      <button onClick={() => setView('books')}>Books</button>
-      <button onClick={() => setView('index')}>Index View</button>
-      <button onClick={() => setView('dependencyGraph')}>Dependency Graph</button>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      {view === 'books' && <List ... />}
-      {view === 'index' && renderIndexView()}
-      {view === 'dependencyGraph' && renderDependencyGraph()}
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
-    </div>
-  );
-}
-
-// Export the Main component
-export default Main;
+  const [isAddingBook, setIsAddingBook] = useState(false

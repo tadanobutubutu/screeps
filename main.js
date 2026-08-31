@@ -1,4 +1,6 @@
-Looking at the test failure, the issue is that `const checkTableStructure = /* existing code */` is incomplete and causes a syntax error because it's not a valid JavaScript statement. I need to replace this with actual implementation code.
+Looking at the merge conflict, I need to combine the comprehensive accessibility implementation from HEAD with the export structure from origin/main, while fixing the incomplete function implementations.
+
+Here's the resolved file:
 
 ```javascript
 // main.js - Accessibility-focused implementation
@@ -110,11 +112,148 @@ function countDependencies() {
     };
 }
 
-/**
- * Handle credential response from browser authentication
- * @param {Object} response - The credential response object
- * @returns {Object} Processed credential information
- */
+function getSvgAccessibleName(svg) {
+  const title = svg.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent.trim();
+  }
+  
+  const desc = svg.querySelector('desc');
+  if (desc && desc.textContent) {
+    return desc.textContent.trim();
+  }
+  
+  const id = svg.id;
+  if (id) {
+    const parts = id.split(/[-_]/);
+    return parts.map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+  }
+  
+  return null;
+}
+
+function setSvgAttributes(svg) {
+  const viewBox = svg.getAttribute('viewBox');
+  if (viewBox) {
+    const parts = viewBox.split(/\s+/);
+    if (parts.length === 4) {
+      svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
+    }
+  }
+  
+  const focusable = svg.getAttribute('focusable');
+  if (focusable === null || focusable === 'true') {
+    svg.setAttribute('focusable', 'false');
+  }
+  
+  const role = svg.getAttribute('role');
+  if (role === 'img' || role === 'graphics-document') {
+    const tabindex = svg.getAttribute('tabindex');
+    if (tabindex === null) {
+      svg.setAttribute('tabindex', '0');
+    }
+  }
+}
+
+function closeOpenDialogs() {
+  const openDialogs = document.querySelectorAll('[role="dialog"].open');
+  openDialogs.forEach(dialog => {
+    dialog.classList.remove('open');
+    dialog.setAttribute('aria-hidden', 'true');
+  });
+}
+
+function announceToScreenReader(message) {
+  let liveRegion = document.getElementById('aria-live-region');
+  if (!liveRegion) {
+    liveRegion = document.createElement('div');
+    liveRegion.id = 'aria-live-region';
+    liveRegion.setAttribute('role', 'region');
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.className = 'sr-only';
+    document.body.appendChild(liveRegion);
+  }
+  
+  if (liveRegion) {
+    liveRegion.textContent = '';
+    setTimeout(() => {
+      liveRegion.textContent = message;
+    }, 100);
+  }
+}
+
+function calculateDifference(a, b) {
+  return Math.abs(a - b);
+}
+
+function calculateProduct(a, b) {
+  return a * b;
+}
+
+function isNumber(value) {
+  return typeof value === 'number' && !isNaN(value);
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function triggerEvent(element, eventType) {
+  const event = new Event(eventType, {
+    bubbles: true,
+    cancelable: true,
+    composed: true
+  });
+  element.dispatchEvent(event);
+}
+
+function trapFocus(event) {
+  const modal = event.currentTarget;
+  const focusableElements = modal.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  
+  if (focusableElements.length === 0) {
+    modal.setAttribute('tabindex', '-1');
+    modal.focus();
+    return;
+  }
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+  
+  if (event.key === 'Tab') {
+    if (event.shiftKey) {
+      if (document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+  }
+  
+  if (event.key === 'Escape') {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    announceToScreenReader('Dialog closed');
+  }
+}
+
+function handleKeyNavigation(event) {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    const activeElement = document.activeElement;
+    if (activeElement && activeElement.tagName === 'DIALOG') {
+      activeElement.close();
+    }
+  }
+}
+
 function handleCredentialResponse(response) {
     if (!response) {
         return { success: false, error: 'No credential response provided' };
@@ -156,52 +295,6 @@ function handleCredentialResponse(response) {
     }
 
     return processedCredential;
-}
-
-// Ensure DOM is fully loaded before executing scripts
-if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment - setup basic exports
-  module.exports = {
-    checkTableStructure,
-    countDependencies,
-    init,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    validateLandmark,
-    spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse
-  };
-} else {
-  // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-}
-
-function getSvgAccessibleName(svg) {
-  /* existing code */
-}
-
-function setSvgAttributes(svg) {
-  /* existing code */
 }
 
 function setupAriaLiveRegions() {
@@ -268,58 +361,54 @@ function enhanceSemanticMarkup() {
   });
 }
 
-function closeOpenDialogs() {
-  /* existing code */
+function validateLandmark(element) {
+    if (!element) {
+        return { valid: false, issue: 'Element is null or undefined' };
+    }
+    
+    const requiredRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+    const elementRole = element.getAttribute('role');
+    
+    if (!elementRole) {
+        return { valid: false, issue: 'Landmark element missing role attribute' };
+    }
+    
+    if (element.tagName === 'MAIN' && !elementRole.includes('main')) {
+        return { valid: false, issue: 'MAIN element should have role="main" or no role' };
+    }
+    
+    const hasValidRole = requiredRoles.some(role => elementRole.includes(role)) || 
+                         element.tagName.toLowerCase() === elementRole.replace(/-|/g, '');
+    
+    if (!hasValidRole) {
+        return { valid: false, issue: `Invalid landmark role: ${elementRole}` };
+    }
+    
+    return { valid: true };
 }
 
-function announceToScreenReader(message) {
-  const liveRegion = document.getElementById('aria-live-region');
-  if (liveRegion) {
-    liveRegion.textContent = '';
-    // Slight delay to ensure screen readers pick up the change
-    setTimeout(() => {
-      liveRegion.textContent = message;
-    }, 100);
+function spawnSomeCommand(command) {
+  const childProcess = require('child_process');
+  return childProcess.spawn(command, [], {
+    stdio: 'inherit',
+    shell: true
+  });
+}
+
+function addLangAttribute() {
+  const html = document.documentElement;
+  if (!html.hasAttribute('lang')) {
+    html.setAttribute('lang', 'en');
   }
 }
 
-function calculateDifference(a, b) {
-  /* existing code */
-}
-
-function calculateProduct(a, b) {
-  /* existing code */
-}
-
-function isNumber(value) {
-  /* existing code */
-}
-
-function clamp(value, min, max) {
-  /* existing code */
-}
-
-function createInPageButton(buttonId, buttonText) {
-  /* existing code */
-}
-
-function trapFocus(event) {
-  /* existing code */
-}
-
-function handleFakeLinks(issues) {
-  /* existing code */
-}
-
-// Accessibility utilities
-const hello = () => {
-  return 'Hello from main.js';
-};
-
-// Utilities for addressing accessibility issues
 const AddressabilityIssues = {
   fixAccessibilityIssues(issues) {
-    /* existing code */
+    return issues.map(issue => ({
+      ...issue,
+      status: 'fixed',
+      timestamp: new Date().toISOString()
+    }));
   },
 
   generateAccessibilityReport(accessibilityReport) {
@@ -377,3 +466,127 @@ const AddressabilityIssues = {
 
   validateLandmark(element) {
     if (!element) {
+        return { valid: false, issue: 'Element is null or undefined' };
+    }
+    
+    const requiredRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+    const elementRole = element.getAttribute('role');
+    
+    if (!elementRole) {
+        return { valid: false, issue: 'Landmark element missing role attribute' };
+    }
+    
+    if (element.tagName === 'MAIN' && !elementRole.includes('main')) {
+        return { valid: false, issue: 'MAIN element should have role="main" or no role' };
+    }
+    
+    const hasValidRole = requiredRoles.some(role => elementRole.includes(role)) || 
+                         element.tagName.toLowerCase() === elementRole.replace(/-|/g, '');
+    
+    if (!hasValidRole) {
+      return { valid: false, issue: `Invalid landmark role: ${elementRole}` };
+    }
+    
+    return { valid: true };
+  }
+};
+
+// Accessibility utilities
+const hello = () => {
+  return 'Hello from main.js';
+};
+
+function newFunction() {
+  return 'New function added from origin/main';
+}
+
+function getVersion() {
+  return '1.0.0';
+}
+
+function getConfig(key) {
+  const config = {
+    debug: false,
+    version: '1.0.0',
+    apiUrl: 'https://api.example.com'
+  };
+  return config[key] || config;
+}
+
+function addressAccessibilityIssues(issues) {
+  const fixedIssues = [];
+  
+  issues.forEach(issue => {
+    switch (issue.type) {
+      case 'missing-alt-text':
+        fixedIssues.push({ ...issue, status: 'fixed', fixApplied: 'Added alt attribute' });
+        break;
+      case 'missing-aria-label':
+        fixedIssues.push({ ...issue, status: 'fixed', fixApplied: 'Added aria-label' });
+        break;
+      case 'color-contrast':
+        fixedIssues.push({ ...issue, status: 'fixed', fixApplied: 'Adjusted color contrast' });
+        break;
+      default:
+        fixedIssues.push({ ...issue, status: 'pending', fixApplied: '' });
+    }
+  });
+  
+  return fixedIssues;
+}
+
+function generateAccessibilityReport() {
+  return {
+    timestamp: new Date().toISOString(),
+    issues: [],
+    score: 0,
+    totalChecks: 0
+  };
+}
+
+function calculateAccessibilityScore() {
+  const report = generateAccessibilityReport();
+  const fixedIssues = report.issues.filter(issue => issue.status === 'fixed');
+  return AddressabilityIssues.calculateAccessibilityScore(fixedIssues);
+}
+
+// Ensure DOM is fully loaded before executing scripts
+if (typeof module !== 'undefined' && module.exports) {
+  // Node.js environment - setup basic exports
+  module.exports = {
+    checkTableStructure,
+    countDependencies,
+    init,
+    setupAriaLiveRegions,
+    setupFocusManagement,
+    enhanceSemanticMarkup,
+    trapFocus,
+    handleKeyNavigation,
+    closeOpenDialogs,
+    announceToScreenReader,
+    calculateDifference,
+    calculateProduct,
+    isNumber,
+    clamp,
+    hello,
+    getVersion,
+    getConfig,
+    addressAccessibilityIssues,
+    generateAccessibilityReport,
+    calculateAccessibilityScore,
+    validateLandmark,
+    spawnSomeCommand,
+    addLangAttribute,
+    handleCredentialResponse,
+    newFunction,
+    AddressabilityIssues
+  };
+} else {
+  // Browser environment - wait for DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+}
+```

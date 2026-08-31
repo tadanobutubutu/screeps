@@ -23,6 +23,32 @@ function addSvgAccessibilityProps() {
   });
 }
 
+<<<<<<< HEAD
+// Existing exports and functions must be preserved
+// Example:
+// export function someExistingFunction() {
+//   // Existing function implementation
+// }
+
+// REACT_015: Returns the appropriate lang attribute value based on the current language setting
+function getLangAttribute() {
+  // TODO: Implement logic to retrieve the current language setting
+  // and return the corresponding lang attribute value
+  // For now, returning a default value
+  return 'en';
+}
+
+// REACT_015: Creates and inserts an in-page button element into the DOM
+function createInPageButton() {
+  // TODO: Implement logic to create an in-page button element
+  // and insert it into the DOM at an appropriate location
+  const lang = getLangAttribute();
+  const button = document.createElement('button');
+  button.setAttribute('lang', lang);
+  button.textContent = 'Click me';
+  document.body.appendChild(button);
+  return button;
+=======
 function getSvgAccessibleName(svg) {
   const title = svg.querySelector('title');
   if (title) {
@@ -545,4 +571,28 @@ function spawnSomeCommand(callback) {
 
 function addLangAttribute(element, lang) {
   element.setAttribute('lang', lang);
+}
+
+function getSvgAccessibleName(svg) {
+  const title = svg.querySelector('title');
+  if (title) {
+    return title.textContent;
+  }
+  const desc = svg.querySelector('desc');
+  if (desc) {
+    return desc.textContent;
+  }
+  return null;
+}
+
+function setSvgAttributes(svg) {
+  if (!svg.hasAttribute('aria-labelledby') && !svg.hasAttribute('aria-label')) {
+    const title = svg.querySelector('title');
+    if (title) {
+      const id = svg.id || `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+      svg.id = id;
+      title.id = `${id}-title`;
+      svg.setAttribute('aria-labelledby', `${id}-title`);
+    }
+  }
 }

@@ -32,6 +32,20 @@ if (htmlElement) {
   htmlElement.setAttribute('lang', getLangAttribute());
 }
 
+// Function to add modules to relevant rendering functions
+function addModulesToRenderingFunctions() {
+  // Assuming the functions that need modules are defined below
+  // Add the required modules to these functions as needed
+  // Example:
+  // function renderSomething() {
+  //   // Code that requires a module
+  //   require('some-module');
+  // }
+}
+
+// Call the function to add modules to rendering functions
+addModulesToRenderingFunctions();
+
 module.exports = {
   // Your exported functions and modules here...
 };

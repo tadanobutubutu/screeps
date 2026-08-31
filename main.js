@@ -282,67 +282,6 @@ function add(a, b) {
   return a + b;
 }
 
-// Export existing functionality and new functions
-export { 
-  initialize, 
-  getConfig, 
-  setupSkipLinks, 
-  setupButtonAccessibility, 
-  createInPageButton, 
-  performTask, 
-  handleEvent, 
-  greet, 
-  add, 
-  calculateDiscount, 
-  newFunction 
-};
-
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initialize);
-  } else {
-    initialize();
-  }
-}
-
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-document.documentElement.lang = 'en';
-
-reportWebVitals();
-
-const VERSION = '1.0.0';
-
-const CONFIG = {
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  env: process.env.NODE_ENV || 'development'
-};
-
-function initialize() {
-  console.log('Application initialized');
-  return true;
-}
-
-function getConfig() {
-  return CONFIG;
-}
-
-function getVersion() {
-  return VERSION;
-}
-
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 function addressAccessibilityIssues() {
@@ -470,21 +409,59 @@ function generateAccessibilityReport() {
   };
 }
 
-// Export the new function
-export {
-  VERSION,
-  CONFIG,
-  initialize,
-  getConfig,
-  getVersion,
-  addressAccessibilityIssues,
-  root,
-  validateTableAccessibility,
-  validateTableStructure,
-  generateAccessibilityReport
+const VERSION = '1.0.0';
+
+const CONFIG = {
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  env: process.env.NODE_ENV || 'development'
 };
 
-// Add the new function to the default export
+function getVersion() {
+  return VERSION;
+}
+
+// Export existing functionality and new functions
+export { 
+  initialize, 
+  getConfig, 
+  setupSkipLinks, 
+  setupButtonAccessibility, 
+  createInPageButton, 
+  performTask, 
+  handleEvent, 
+  greet, 
+  add, 
+  calculateDiscount, 
+  newFunction,
+  VERSION,
+  CONFIG,
+  getVersion,
+  addressAccessibilityIssues,
+  validateTableAccessibility,
+  validateTableStructure,
+  generateAccessibilityReport,
+  rotateBack,
+  initializeAccessibility,
+  createUnrotateButton,
+  addLandmarkRoles,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLink
+};
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
+}
+
+document.documentElement.lang = 'en';
+
+reportWebVitals();
+
 export default {
   VERSION,
   CONFIG,
@@ -492,8 +469,27 @@ export default {
   getConfig,
   getVersion,
   addressAccessibilityIssues,
-  root,
   validateTableAccessibility,
   validateTableStructure,
-  generateAccessibilityReport
+  generateAccessibilityReport,
+  rotateBack,
+  initializeAccessibility,
+  createUnrotateButton,
+  addLandmarkRoles,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLink
 };
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);

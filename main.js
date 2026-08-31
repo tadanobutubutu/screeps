@@ -59,6 +59,20 @@ function addressAccessibilityIssues(issues, options = {}) {
           index: issue.index,
           action: 'Added accessible name'
         });
+      } else if (issue.type === 'svg') {
+        // Extract the accessible name for an SVG from its content
+        const svgContent = issue.element.innerHTML;
+        const svgName = /<title>(.*?)<\/title>/gi.exec(svgContent);
+        if (svgName && svgName.length > 1) {
+          issue.element.setAttribute('aria-label', svgName[1]);
+        } else {
+          issue.element.setAttribute('aria-label', defaultText);
+        }
+        summary.fixes.push({
+          type: 'svg',
+          index: issue.index,
+          action: 'Extracted accessible name'
+        });
       }
     } catch (error) {
       summary.skipped++;

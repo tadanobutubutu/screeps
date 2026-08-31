@@ -176,8 +176,49 @@ function ensureUniqueLandmarks() {
   // This is a simplified implementation
 }
 
-function getSvgAccessibleName() {
-  // Existing code...
+/**
+ * Extracts the accessible name for an SVG from its content.
+ * The accessible name is determined in the following order:
+ * 1. aria-label attribute on the SVG element
+ * 2. aria-labelledby attribute on the SVG element (references an element by ID)
+ * 3. title element inside the SVG
+ * 4. If no accessible name is found, returns null
+ * @param {SVGElement} svg - The SVG element to extract the accessible name from.
+ * @returns {string|null} The accessible name, or null if not found.
+ */
+function getSvgAccessibleName(svg) {
+    if (!svg) {
+        return null;
+    }
+
+    // Check if the SVG has an aria-label attribute
+    if (svg.hasAttribute('aria-label')) {
+        return svg.getAttribute('aria-label');
+    }
+
+    // Check if the SVG has an aria-labelledby attribute
+    if (svg.hasAttribute('aria-labelledby')) {
+        const labelledById = svg.getAttribute('aria-labelledby');
+        // Handle multiple IDs (space-separated)
+        const ids = labelledById.split(/\s+/).filter(id => id.trim());
+        if (ids.length > 0) {
+            // Get the first referenced element's text content
+            const firstId = ids[0];
+            const labelElement = document.getElementById(firstId);
+            if (labelElement) {
+                return labelElement.textContent;
+            }
+        }
+    }
+
+    // Check for a <title> element inside the SVG
+    const titleElement = svg.querySelector('title');
+    if (titleElement && titleElement.textContent) {
+        return titleElement.textContent.trim();
+    }
+
+    // No accessible name found
+    return null;
 }
 
 function setSvgAttributes(svg, accessibleName) {

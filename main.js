@@ -18,9 +18,28 @@ function visualizeDependencyTree(dependencies) {
   console.log(report.graph);
 }
 
-// New function to fix accessibility issues as per the insight report
+// Function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // Code to fix accessibility issues as per the insight report
+  // Fix table accessibility issues
+  const tableResults = validateTableAccessibility();
+  const tableStructureResults = validateTableStructure();
+  
+  // Fix landmark accessibility issues
+  const landmarkResults = validateLandmark();
+  const landmarkStructureResults = validateLandmarkStructure();
+  
+  // Fix link accessibility issues
+  const linkResults = validateLinkAccessibility();
+  handleFakeLinks();
+  
+  // Return summary of fixes applied
+  return {
+    tables: tableResults,
+    tableStructure: tableStructureResults,
+    landmarks: landmarkResults,
+    landmarkStructure: landmarkStructureResults,
+    links: linkResults
+  };
 }
 
 // Main entry point for dependency visualization tool
@@ -38,12 +57,29 @@ export const main = {
     console.log('Reverting back the rotation.');
   },
 
-  // New function to address all accessibility issues
+  // Function to address all accessibility issues
   addressAccessibilityIssues: function() {
-    fixAccessibilityIssues();
-    visualizeDependencyTree(getDependencies()); // Replace getDependencies() with actual function or variable
+    const results = fixAccessibilityIssues();
+    const dependencies = getDependencies();
+    return {
+      accessibilityFixes: results,
+      dependencies: dependencies
+    };
   }
 };
+
+// Function to generate dependency report
+function generateDependencyReport(dependencies) {
+  return {
+    graph: dependencies,
+    summary: `Found ${dependencies.length} dependencies`
+  };
+}
+
+// Function to get dependencies (placeholder for actual implementation)
+function getDependencies() {
+  return [];
+}
 
 /**
  * Creates an in-page button element with optional click handler.
@@ -94,18 +130,22 @@ function createUnrotateButton() {
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.querySelector('a[href="#"]');
-if (fakeLink && fakeLink.tagName === 'A') {
-  const parent = fakeLink.parentElement;
-  const newButton = createUnrotateButton();
-  parent.replaceChild(newButton, fakeLink);
-}
+const fakeLinks = document.querySelectorAll('a[href="#"]');
+fakeLinks.forEach(function(fakeLink) {
+  if (fakeLink && fakeLink.tagName === 'A') {
+    const parent = fakeLink.parentElement;
+    const newButton = createUnrotateButton();
+    if (parent) {
+      parent.replaceChild(newButton, fakeLink);
+    }
+  }
+});
 
 // Load landmarks from file (new addition)
 import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
-      const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+      const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
       const data = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(data);
   } catch (error) {
@@ -120,15 +160,17 @@ function processLandmarks(landmarks) {
         return [];
     }
 
-    const validLandmarks = landmarks.filter(isValidLandmark);
+    const validLandmarks = landmarks.filter(function(landmark) {
+      return landmark && landmark.name;
+    });
     const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
+    return sortLandmarks(uniqueLandmarks).slice(0, CONFIG.maxResults);
 }
 
 // Sort landmarks by name (new addition)
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
+    return landmarks.slice().sort(function(a, b) {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
 
@@ -141,7 +183,7 @@ function sortLandmarks(landmarks, ascending = true) {
 
 // Get landmark by ID (new addition)
 function getLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
+    return landmarks.find(function(landmark) { return landmark.id === id; }) || null;
 }
 
 // Ensure unique landmarks by ID (new addition)
@@ -153,7 +195,8 @@ function ensureUniqueLandmarks(landmarks) {
     const seen = new Set();
     const uniqueLandmarks = [];
 
-    for (const landmark of landmarks) {
+    for (let i = 0; i < landmarks.length; i++) {
+        const landmark = landmarks[i];
         if (!landmark || typeof landmark.id === 'undefined') {
             continue;
         }

@@ -37,11 +37,18 @@ function startApp() {
   return server;
 }
 
+// TODO: Implement this function for checking landmark elements
+function checkLandmarkElements() {
+  // Returns true if at least one element with class 'landmark' exists in the document
+  return !!document.querySelector('.landmark');
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  checkLandmarkElements
 };
 
 // Start the application if run directly

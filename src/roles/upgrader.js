@@ -15,6 +15,9 @@ const roleUtils = require('../utils/roleUtils');
 const logger = require('../utils/logger');
 const { MEMORY_KEYS } = require('../constants');
 
+// ⚡ PERFORMANCE OPTIMIZATION: Hoist target memory key constant to module scope
+const TARGET_KEY = MEMORY_KEYS.TARGET_ID || 'targetId';
+
 // ============================================================
 // タスク定義
 // ============================================================
@@ -53,18 +56,17 @@ function run(creep) {
 function _updateWorkingState(creep) {
     const energy = creep.store[RESOURCE_ENERGY];
     const capacity = creep.store.getCapacity(RESOURCE_ENERGY);
-    const targetKey = MEMORY_KEYS.TARGET_ID || 'targetId';
 
     if (creep.memory[MEMORY_KEYS.WORKING] && energy === 0) {
         creep.memory[MEMORY_KEYS.WORKING] = false;
         creep.say('⚡ 補充');
-        delete creep.memory[targetKey];
+        delete creep.memory[TARGET_KEY];
     }
 
     if (!creep.memory[MEMORY_KEYS.WORKING] && energy === capacity) {
         creep.memory[MEMORY_KEYS.WORKING] = true;
         creep.say('🔋 強化');
-        delete creep.memory[targetKey];
+        delete creep.memory[TARGET_KEY];
     }
 }
 
@@ -79,10 +81,9 @@ function _updateWorkingState(creep) {
  */
 function _getEnergy(creep) {
     const room = creep.room;
-    const targetKey = MEMORY_KEYS.TARGET_ID || 'targetId';
 
     // ⚡ PERFORMANCE OPTIMIZATION: Check if cached energy target is still valid to avoid per-tick scans
-    const targetId = creep.memory[targetKey];
+    const targetId = creep.memory[TARGET_KEY];
     if (targetId) {
         const target = Game.getObjectById(targetId);
         if (target) {
@@ -120,10 +121,10 @@ function _getEnergy(creep) {
                 return;
             }
         }
-        delete creep.memory[targetKey];
+        delete creep.memory[TARGET_KEY];
     }
 
-    if (roleUtils.getEnergyFromStorage(creep, room, 1000, MEMORY_KEYS.TARGET_ID || 'targetId')) return;
+    if (roleUtils.getEnergyFromStorage(creep, room, 1000, TARGET_KEY)) return;
     if (_getEnergyFromLink(creep, room)) return;
     if (_getEnergyFromContainer(creep, room)) return;
     if (_getEnergyFromDropped(creep, room)) return;
@@ -140,7 +141,6 @@ function _getEnergy(creep) {
  */
 function _getEnergyFromLink(creep, room) {
     const links = cache.getLinks(room);
-    const targetKey = MEMORY_KEYS.TARGET_ID || 'targetId';
     // ⚡ PERFORMANCE: Use single-pass for loop to avoid filter array allocation and find closest.
     let bestLink = null;
     let minDistance = Infinity;
@@ -157,7 +157,7 @@ function _getEnergyFromLink(creep, room) {
         }
     }
     if (bestLink) {
-        creep.memory[targetKey] = bestLink.id;
+        creep.memory[TARGET_KEY] = bestLink.id;
         if (creep.withdraw(bestLink, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, bestLink, { range: 1 });
         }
@@ -175,7 +175,6 @@ function _getEnergyFromLink(creep, room) {
 function _getEnergyFromContainer(creep, room) {
     const containers = cache.getContainers(room);
     const controller = room.controller;
-    const targetKey = MEMORY_KEYS.TARGET_ID || 'targetId';
     if (controller) {
         // ⚡ PERFORMANCE: Use single-pass for loop to avoid filter array allocation and find closest.
         let bestContainer = null;
@@ -196,7 +195,7 @@ function _getEnergyFromContainer(creep, room) {
             }
         }
         if (bestContainer) {
-            creep.memory[targetKey] = bestContainer.id;
+            creep.memory[TARGET_KEY] = bestContainer.id;
             if (creep.withdraw(bestContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                 pathfinder.moveTo(creep, bestContainer, { range: 1 });
             }
@@ -214,7 +213,6 @@ function _getEnergyFromContainer(creep, room) {
  */
 function _getEnergyFromDropped(creep, room) {
     const dropped = cache.getDroppedResources(room);
-    const targetKey = MEMORY_KEYS.TARGET_ID || 'targetId';
     // ⚡ PERFORMANCE: Use single-pass for loop to avoid filter array allocation and find closest.
     let bestDrop = null;
     let minDistance = Infinity;
@@ -231,7 +229,7 @@ function _getEnergyFromDropped(creep, room) {
         }
     }
     if (bestDrop) {
-        creep.memory[targetKey] = bestDrop.id;
+        creep.memory[TARGET_KEY] = bestDrop.id;
         if (creep.pickup(bestDrop) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, bestDrop, { range: 1 });
         }
@@ -248,9 +246,8 @@ function _getEnergyFromDropped(creep, room) {
  */
 function _getEnergyFromSource(creep, room) {
     const source = cache.assignSource(creep, room);
-    const targetKey = MEMORY_KEYS.TARGET_ID || 'targetId';
     if (source) {
-        creep.memory[targetKey] = source.id;
+        creep.memory[TARGET_KEY] = source.id;
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, source, { range: 1 });
         }
@@ -278,8 +275,8 @@ function _upgrade(creep) {
     if (result === ERR_NOT_IN_RANGE) {
         pathfinder.moveTo(creep, controller, { range: 3 });
     } else if (result === OK) {
-        // RCL8（最大レベル）の場合に表示
-        if (controller.level === 8) {
+        // ⚡ PERFORMANCE OPTIMIZATION: Throttle non-critical creep.say intent to run once every 10 ticks for RCL8 controllers
+        if (controller.level === 8 && ((Game.time || 0) % 10 === 0)) {
             creep.say('✨ MAX');
         }
     }

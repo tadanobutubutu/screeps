@@ -249,6 +249,13 @@ const dependencyGraphContainer = getDocument().createElement('div');
 dependencyGraphContainer.id = 'dependencyGraph';
 dependencyGraphContainer.setAttribute('role', 'region');
 dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
 // React / UI related functions
 
@@ -431,6 +438,8 @@ function checkTableAccessibility(table) {
 export { checkTableAccessibility };
 
 // ----- END OF ORIGINAL CODE -----
+_Commit: fa9b7e33f0cdeb6096b301e6b8bb56dc7873f56e_
+<!-- todo-hash: 3eddfd1e15d7d6ffc2416c3cad0dbbe05524d4ed -->
 
 // TODO: Update the existing function using the new functions for rendering graph/index
 // Assuming newFunction is meant to be used to update the rendering of graph/index

@@ -6,10 +6,15 @@ import express from 'express';
 import path from 'path';
 import './styles.css';
 import './styles.less';
+import fs from 'fs';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { CONFIG as UTILS_CONFIG } from './utils/constants';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
-import fs from 'fs';
+
+// Utility imports
 import { calculateSum } from './utils';
 import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
@@ -18,7 +23,14 @@ import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibility
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 import { CONFIG } from './utils/constants';
 
-const expressApp = express();
+// Core configuration
+const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
+let config = {};
+let appState = {};
 
 const CONFIG = {
   dataPath: './data',
@@ -26,6 +38,11 @@ const CONFIG = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: 5000
 };
+
+function initialize() {
+  config = { apiUrl: process.env.API_URL || 'default', timeout: 5000 };
+  appState = { initialized: true };
+}
 
 function initializeApp() {
   // ... (Existing initialization logic)
@@ -41,6 +58,7 @@ function fetchUser(userId) {
 
 function clearCache() {
   // ... (Existing clear cache logic)
+  appState
 }
 
 // Helper functions

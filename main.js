@@ -243,7 +243,7 @@ const initApp = () => {
   ensureUniqueLandmarks(landmarks);
   
   // Add accessible names to SVGs (example selectors and names)
-  icons = {
+  const icons = {
     icon: '<svg viewBox="0 0 100 100" aria-label="Screps icon"></svg>'
   };
 

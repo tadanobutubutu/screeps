@@ -63,11 +63,11 @@ function validateLandmark(landmark) {
 
   // Check for updated validation changes from another branch that also checks for array composition
   if (Array.isArray(landmark)) {
-    landmark.forEach(innerLandmark => {
+    for (const innerLandmark of landmark) {
       if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
         errors.push('Landmark array must have valid names');
       }
-    });
+    }
   }
 
   return {
@@ -82,7 +82,7 @@ function validateLandmark(landmark) {
  * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
-  const element = ...
+  const element = document.getElementById(id);
   return element !== null;
 }
 
@@ -103,8 +103,6 @@ function ensureUniqueLandmarks(landmarksArray) {
   });
 }
 
-// ... (previous and updated code remains as it is)
-
 // Updated function: ensures landmarks uniqueness when there's an array structure
 function ensureLandmarkUniqueness(elements) {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -114,9 +112,10 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if ... {
-          ... = true;
+        if (elementsById[landmark.id]) {
+          elementsById[landmark.id] = true;
         } else {
+          elementsById[landmark.id] = true;
           landmark.id += '_duplicate';
         }
       }

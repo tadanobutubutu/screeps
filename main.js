@@ -414,6 +414,11 @@ function personName() {
   return 'Person Name';
 }
 
+// Main function - required export
+function main() {
+  mainExecution();
+}
+
 // Main execution
 function mainExecution() {
   initialize();

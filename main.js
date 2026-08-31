@@ -245,6 +245,8 @@ function main() {
   console.log('Depth:', getDependencyDepth(sampleDependencies));
 }
 
+// TODO: Re-add the required exports for functionA and functionB
+
 module.exports = {
   getLangAttribute,
   createInPageButton,

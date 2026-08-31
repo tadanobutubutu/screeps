@@ -1,197 +1,28 @@
-Here is the resolved file content:
+import React from 'react';
+import express from 'express';
+import path from 'path';
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import { isSecureContext } from './utils.js';
+import fs from 'fs';
 
-```javascript
-import react from 'react';
+import './styles.less';
+import { calculateSum } from './utils';
+import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+import { CONFIG } from './utils/constants';
 
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const fastMap = require('fast-map');
-const path = require('path');
-
-// Configuration
-const CONFIG = {
-    dataPath: './data',
-    maxResults: 100
+// Local configuration for demo purposes
+const localConfig = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
 };
 
-// Helper function to validate landmark structure
-function isValidLandmark(landmark) {
-    return landmark &&
-           typeof landmark.id !== 'undefined' &&
-           landmark.id !== null;
-}
-
-// Load landmarks from file
-function loadLandmarks() {
-    try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error loading landmarks:', error.message);
-        return [];
-    }
-}
-
-// Function to get the language attribute value
-function getLangAttribute() {
-  return document.documentElement.getAttribute('lang') || 'en';
-}
-
-// Process and filter landmarks
-function processLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
-
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
-}
-
-// Sort landmarks by name
-function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
-
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(nameA);
-    });
-}
-
-// Get landmark by ID
-function getLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
-}
-
-// Function to validate table accessibility
-function validateTableAccessibility() {
-  // Implementation of validateTableAccessibility function
-  // ...
-}
-
-// Function to validate table structure
-function validateTableStructure() {
-  // Implementation of validateTableStructure function
-  // ...
-}
-
-// Function to fix table structure issues
-function fixTableStructure() {
-  // Implementation of fixTableStructure function
-  // ...
-}
-
-// Function to add main landmark
-function addMainLandmark() {
-  // Implementation of addMainLandmark function
-  // ...
-}
-
-// Function to validate landmark
-function validateLandmark() {
-  // Implementation of validateLandmark function
-  // ...
-}
-
-// Function to validate landmark structure
-function validateLandmarkStructure() {
-  // Implementation of validateLandmarkStructure function
-  // ...
-}
-
-// Function to get SVG accessible name
-function getSvgAccessibleName() {
-  // Implementation of getSvgAccessibleName function
-  // ...
-}
-
-// Function to set SVG attributes
-function setSvgAttributes() {
-  // Implementation of setSvgAttributes function
-  // ...
-}
-
-// Function to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // Implementation of ensureUniqueLandmarks function
-  // ...
-}
-
-// Function to create an accessible in-page button
-function createInPageButton() {
-  const button = document.createElement('button');
-  button.setAttribute('lang', getLangAttribute());
-  return button;
-}
-
-// Function to validate link accessibility
-function validateLinkAccessibility() {
-  // Implementation of validateLinkAccessibility function
-  // ...
-}
-
-// Function to handle fake links
-function handleFakeLinks() {
-  // Implementation of handleFakeLinks function
-  // ...
-}
-
-// Function to add proper landmark regions
-function addProperLandmarkRegions() {
-  // Implementation of addProperLandmarkRegions function
-  // ...
-}
-
-// Ensure unique landmarks by ID
-function ensureUniqueLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
-
-    const seen = new Set();
-    const uniqueLandmarks = [];
-
-    for (const landmark of landmarks) {
-        if (!landmark || typeof landmark.id === 'undefined') {
-            continue;
-        }
-
-        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-        if (!seen.has(landmarkId)) {
-            seen.add(landmarkId);
-            uniqueLandmarks.push(landmark);
-        }
-    }
-
-    return uniqueLandmarks;
-}
-
-// Function to write the generated report to a file
-function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
-  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const options = {
-    rules: [{ id: 'color-contrast' }, { id: 'aria-roles' }], // Customize allowed or ignored rules here
-  };
-
-  const report = axe.auditWebpage(document.body, options);
-  writeReport(report);
-  return report;
-}
-
-// Function to wrap primary content in main element for accessibility
+// Wrapper for main element to enhance accessibility
 function wrapPrimaryContentInMain(parent) {
   if (!parent || typeof parent.nodeType !== 'number') {
     throw new Error('Invalid parent element');
@@ -208,33 +39,173 @@ function wrapPrimaryContentInMain(parent) {
   return mainElement;
 }
 
-// Existing utility function
+// Landmark processing functions
+function isValidLandmark(landmark) {
+  return landmark &&
+         typeof landmark.id !== 'undefined' &&
+         landmark.id !== null;
+}
+
+function loadLandmarks() {
+  try {
+    const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error loading landmarks:', error.message);
+    return [];
+  }
+}
+
+function processLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const validLandmarks = landmarks.filter(isValidLandmark);
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+  return uniqueLandmarks.slice(0, CONFIG.maxResults);
+}
+
+function sortLandmarks(landmarks, ascending = true) {
+  return landmarks.slice().sort((a, b) => {
+    const nameA = (a.name || '').toLowerCase();
+    const nameB = (b.name || '').toLowerCase();
+
+    if (ascending) {
+      return nameA.localeCompare(nameB);
+    }
+    return nameB.localeCompare(nameA);
+  });
+}
+
+function getLandmarkById(landmarks, id) {
+  return landmarks.find(landmark => landmark.id === id) || null;
+}
+
+function addMainLandmark() {
+  // Implementation of addMainLandmark function
+  // ...
+}
+
+function validateLandmark() {
+  // Implementation of validateLandmark function
+  // ...
+}
+
+function validateLandmarkStructure() {
+  // Implementation of validateLandmarkStructure function
+  // ...
+}
+
+function getSvgAccessibleName() {
+  // Implementation of getSvgAccessibleName function
+  // ...
+}
+
+function setSvgAttributes() {
+  // Implementation of setSvgAttributes function
+  // ...
+}
+
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const seen = new Set();
+  const uniqueLandmarks = [];
+
+  for (const landmark of landmarks) {
+    if (!landmark || typeof landmark.id === 'undefined') {
+      continue;
+    }
+
+    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+
+    if (!seen.has(landmarkId)) {
+      seen.add(landmarkId);
+      uniqueLandmarks.push(landmark);
+    }
+  }
+
+  return uniqueLandmarks;
+}
+
+// Accessibility validation functions
+function validateTableAccessibility() {
+  // Implementation of validateTableAccessibility function
+  // ...
+}
+
+function validateTableStructure() {
+  // Implementation of validateTableStructure function
+  // ...
+}
+
+function fixTableStructure() {
+  // Implementation of fixTableStructure function
+  // ...
+}
+
+function addProperLandmarkRegions() {
+  // Implementation of addProperLandmarkRegions function
+  // ...
+}
+
+// Generate accessibility report using axe-core
+function generateAccessibilityReport() {
+  const options = {
+    rules: [{ id: 'color-contrast' }, { id: 'aria-roles' }],
+  };
+
+  const report = axe.auditWebpage(document.body, options);
+  writeReport(report);
+  return report;
+}
+
+// Wrap primary content in main element for accessibility
+function wrapPrimaryContentInMain(parent) {
+  if (!parent || typeof parent.nodeType !== 'number') {
+    throw new Error('Invalid parent element');
+  }
+
+  if (parent.tagName?.toLowerCase() === 'main') {
+    return parent;
+  }
+
+  const mainElement = document.createElement('main');
+  mainElement.appendChild(parent);
+
+  return mainElement;
+}
+
+// Utility function
 const formatResponse = (data) => {
   return JSON.stringify(data, null, 2);
 };
 
-// Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
+// Import required modules and export the new necessary function(s) here in main.js
 const { validateInput } = require('./utils/validators');
 const { processData } = require('./utils/processor');
 
 // Application main entry point
 const app = express();
 
-// TODO: add the new functions or changes requested in the issue
 // Endpoint for generating an accessibility report
 app.get('/accessibility-report', (req, res) => {
   const report = generateAccessibilityReport();
   res.json(report);
 });
 
-// Now let's integrate the changes requested in the new branch
-// Add wrapper for main element to enhance accessibility
+// Middleware to wrap response in main element
 app.use('/', (req, res, next) => {
   wrapPrimaryContentInMain(res.locals.main || res.locals.content);
   next();
 });
 
-// Handles the endpoint for getting landmarks while also considering the new branch changes
+// Handles the endpoint for getting landmarks
 app.get('/landmarks', (req, res) => {
   const landmarks = loadLandmarks();
   const processed = processLandmarks(landmarks);
@@ -257,10 +228,7 @@ app.get('/landmarks', (req, res) => {
 });
 
 // Import the functions that were moved/added in the new branch
-const { createInPageButton } = require('./utils/helpers'); // Assuming this is the correct path for the new functions
-
-// Modify createInPageButton()'s implementation as necessary
-// ...
+const { createInPageButton } = require('./utils/helpers');
 
 // Main execution when run directly
 if (require.main === module) {
@@ -300,12 +268,3 @@ module.exports = {
   getLandmarkById,
   generateAccessibilityReport
 };
-
-// Main JavaScript file
-// This file handles the main application logic
-
-// ...
-
-```
-
-I've integrated the changes from both branches, preserving the existing functionality and adding the new changes. The merged file includes improvements for accessibility and better handling of landmarks, tables, and SVGs, as requested in the checklist.

@@ -373,3 +373,50 @@ export function renderDependencyGraphs(container, dependencies = []) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', '100%');
+  
+  // Draw dependencies as nodes and edges
+  dependencies.forEach((dep, index) => {
+    const x = 50 + index * 100;
+    const y = 50;
+    
+    // Create node circle
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', x);
+    circle.setAttribute('cy', y);
+    circle.setAttribute('r', 20);
+    circle.setAttribute('fill', '#4CAF50');
+    circle.setAttribute('stroke', '#2E7D32');
+    circle.setAttribute('stroke-width', '2');
+    
+    // Create node label
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', x);
+    text.setAttribute('y', y + 5);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', 'white');
+    text.setAttribute('font-size', '12');
+    text.textContent = dep.name || `Dep ${index + 1}`;
+    
+    svg.appendChild(circle);
+    svg.appendChild(text);
+    
+    // Draw edges to previous dependencies
+    if (dep.dependencies && dep.dependencies.length > 0) {
+      dep.dependencies.forEach(depIndex => {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', 50 + depIndex * 100);
+        line.setAttribute('y1', y);
+        line.setAttribute('x2', x);
+        line.setAttribute('y2', y);
+        line.setAttribute('stroke', '#666');
+        line.setAttribute('stroke-width', '2');
+        svg.appendChild(line);
+      });
+    }
+  });
+  
+  graphContainer.appendChild(svg);
+  container.appendChild(graphContainer);
+  
+  return graphContainer;
+}

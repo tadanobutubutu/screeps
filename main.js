@@ -2,7 +2,6 @@
 // Merged version combining accessibility features and application initialization
 
 import './styles.css';
-import react from 'react';
 
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
@@ -22,7 +21,7 @@ import { isSecureContext } from './utils.js';
 
 // Application data structure
 const appData = {
-  title: 'Frontend Application',
+  title: 'Screeps',
   version: '1.0.0'
 };
 
@@ -72,13 +71,6 @@ function main() {
   initialize();
   console.log('Main function executed');
 }
-
-// Run if executed directly
-if (require.main === module) {
-  main();
-}
-
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
 // Landmark data structure
 const landmarks = [];
@@ -621,71 +613,99 @@ if (isSecureContext()) {
 // Register the service worker
 registerSW();
 
-module.exports = {
-  config,
-  appState,
+// Export functions for testing
+export { 
+  ensureUniqueLandmarks, 
+  initApp, 
+  setLanguageAttribute, 
+  addLandmarkRoles, 
+  fixFakeLinks, 
+  landmarks, 
+  appData, 
+  addressAccessibilityIssues, 
+  processAccessibilityReport, 
+  getLangAttribute, 
+  addLangAttribute, 
+  validateTableAccessibility, 
+  validateTableStructure, 
+  fixTableStructure, 
+  addMainLandmark, 
+  validateLandmark, 
+  validateLandmarkStructure, 
+  validateLandmarkAttributes, 
+  getSvgAccessibleName, 
+  setSvgAttributes, 
+  createInPageButton, 
+  validateLinkAccessibility, 
+  handleFakeLinks, 
+  addLandmarkRegions, 
+  addProperLandmarkRegions,
+  checkLandmarkElement,
+  CONFIG,
+  VERSION,
+  initialize,
   initializeApp,
   processData,
   fetchUser,
   clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  processAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  // Added from origin/main
-  someFunction: function() {
-    return 'some value';
-  },
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
-  helper: function(input) {
-    return input ? input.toUpperCase() : '';
-  },
-  formatDate: function(date) {
-    if (!(date instanceof Date)) {
-      date = new Date(date);
-    }
-    return date.toISOString().split('T')[0];
-  },
-  // Accessibility Functions
-  addProperLandmarkRegions,
-  // Additional exports that might be required
-  checkLandmarkElement,
-  addLandmarkRoles,
-  fixTableStructure,
-  addStandardLandmarks: function() {
-    const result = addProperLandmarkRegions();
-    return result;
-  },
-  addAccessibleNames: function(svgElement, name) {
-    return setSvgAttributes(svgElement, name);
-  },
-  fixTables: function() {
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-      validateTableStructure(table);
-    });
-  },
-  fixLandmarks: function() {
-    addLandmarkRegions();
-    ensureUniqueLandmarks(landmarks);
-  }
+  validateInput
 };
+
+// Additional helper functions that might be needed
+function someFunction() {
+  return 'some value';
+}
+
+function helper(input) {
+  return input ? input.toUpperCase() : '';
+}
+
+function formatDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.toISOString().split('T')[0];
+}
+
+function getInsightReport() {
+  // Return mock insight report
+  return {
+    issues: [
+      { type: 'REACT_015', element: document.querySelector('html') },
+      { type: 'REACT_027', table: document.querySelector('table') },
+      { type: 'REACT_017', landmark: null },
+      { type: 'REACT_041', svg: document.querySelector('svg') },
+      { type: 'REACT_025' },
+      { type: 'REACT_036' }
+    ]
+  };
+}
+
+function addStandardLandmarks() {
+  const result = addProperLandmarkRegions();
+  return result;
+}
+
+function addAccessibleNames(svgElement, name) {
+  return setSvgAttributes(svgElement, name);
+}
+
+function fixTables() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableStructure(table);
+  });
+}
+
+function fixLandmarks() {
+  addLandmarkRegions();
+  ensureUniqueLandmarks(landmarks);
+}
+
+// Constants for exports
+const CONFIG = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
+const VERSION = '1.0.0';

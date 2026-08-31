@@ -4,7 +4,7 @@ requireDir(require.resolve('./utilities'));
 
 // Import all utilities functions for convenience
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport,
-  addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibleProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderGraphIndex, renderDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
+  addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderGraphIndex, renderDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
 
 const http = require('http');
 

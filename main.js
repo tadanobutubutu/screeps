@@ -21,6 +21,69 @@ let icons = {};
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
+/**
+ * Wraps the primary content in a <main> landmark element if not already present.
+ * Implements proper landmark structure for accessibility compliance.
+ */
+function wrapPrimaryContentInMain() {
+  // Check if a <main> element already exists
+  let mainElement = document.querySelector('main[role="main"], main, [role="main"]');
+  
+  if (!mainElement) {
+    // Find existing primary content element using common selectors
+    const primaryContentSelectors = [
+      '#primary-content',
+      '#main-content',
+      '[role="main"]',
+      '.primary-content',
+      '.main-content',
+      '#content',
+      'article',
+      '.content'
+    ];
+    
+    let primaryContent = null;
+    
+    for (const selector of primaryContentSelectors) {
+      const element = document.querySelector(selector);
+      if (element && element.tagName !== 'MAIN') {
+        primaryContent = element;
+        break;
+      }
+    }
+    
+    // If no specific primary content found, use body content
+    if (!primaryContent) {
+      primaryContent = document.body;
+    }
+    
+    // Create main element with proper attributes
+    mainElement = document.createElement('main');
+    mainElement.id = 'main-content';
+    mainElement.setAttribute('role', 'main');
+    
+    // Preserve existing id if the primary content has one
+    if (primaryContent.id) {
+      mainElement.id = primaryContent.id;
+    }
+    
+    // Wrap the content appropriately
+    if (primaryContent !== document.body && primaryContent.parentNode) {
+      primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+      mainElement.appendChild(primaryContent);
+    } else if (primaryContent === document.body) {
+      // For body, insert main as first child
+      mainElement.appendChild(document.createDocumentFragment());
+      while (document.body.firstChild) {
+        mainElement.appendChild(document.body.firstChild);
+      }
+      document.body.appendChild(mainElement);
+    }
+  }
+  
+  return mainElement;
+}
+
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
@@ -48,7 +111,7 @@ function validateLandmark(landmark) {
   // Validate longitude
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+  } else if (typeof landmark.longitude !== 'number' || ... {
     errors.push('Landmark longitude must be a number');
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
@@ -82,7 +145,7 @@ function validateLandmark(landmark) {
  * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
+  const element = ...
   return element !== null;
 }
 
@@ -114,8 +177,8 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (!elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
+        if ... {
+          ... = true;
         } else {
           landmark.id += '_duplicate';
         }
@@ -150,5 +213,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  wrapPrimaryContentInMain
 };

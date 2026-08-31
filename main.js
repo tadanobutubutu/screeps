@@ -1,10 +1,142 @@
-import React, { useState, useEffect } from 'react';
-import { List, Button } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
-import { setDependencyGraph } from './actions/dependencyGraph';
-import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook, AddBookForm } from './bookFunctions';
-import { useLandmark, getFullLangAttribute, addLangAttribute } from './utils';
-import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityProps, getAccessibleLinkProps } from './accessibility';
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+
+// Landmark data structure
+const landmarks = [];
+
+// Application data structure
+const appData = {
+    title: 'Frontend Application',
+    version: '1.0.0'
+};
+
+let icons = {};
+
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+
+// Implemented validateLandmark functionality
+function validateLandmark(landmark) {
+  const errors = [];
+
+  // Check if landmark exists
+  if (!landmark) {
+    errors.push('Landmark is required');
+    return { valid: false, errors };
+  }
+
+  // Validate name
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
+  }
+
+  // Validate latitude
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+
+  // Validate longitude
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+
+  // Additional validation changes from the other branch
+  if (Array.isArray(landmark) && landmark.length > 0) {
+    if (!landmark[0].name || typeof landmark[0].name !== 'string' || landmark[0].name.trim() === '') {
+      errors.push('Landmark array must have a name');
+    }
+  }
+
+  // Check for updated validation changes from another branch that also checks for array composition
+  if (Array.isArray(landmark)) {
+    landmark.forEach(innerLandmark => {
+      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+        errors.push('Landmark array must have valid names');
+      }
+    });
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Function to check if the specified landmark element is in the document.
+ * @param {string} id - The ID of the landmark element.
+ * @returns {boolean} Returns true if the element exists; otherwise, false.
+ */
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  return element !== null;
+}
+
+// Ensure unique landmarks by filtering duplicates
+function ensureUniqueLandmarks(landmarksArray) {
+  if (!landmarksArray || landmarksArray.length === 0) {
+      return {};
+  }
+  const seen = new Set();
+  return landmarksArray.filter(landmark => {
+    const key = landmark.name + '_' + (landmark.role || 'default');
+    // Merge both approaches for checking uniqueness
+    if (seen.has(key)) {
+        return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+// ... (previous and updated code remains as it is)
+
+// Updated function: ensures landmarks uniqueness when there's an array structure
+function ensureLandmarkUniqueness(elements) {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+
+  const elementsById = {};
+
+  if (Array.isArray(elements)) {
+    for (const landmark of elements) {
+      if (landmark.id) {
+        if (elementsById[landmark.id]) {
+          elementsById[landmark.id] = true;
+        } else {
+          landmark.id += '_duplicate';
+        }
+      }
+    }
+  }
+
+  return elements;
+}
+
+// Updated function using the new functions for rendering graph/index
+function renderDependencyGraphContent() {
+  const container = document.getElementById('dependencyGraph');
+  if (!container) {
+    return;
+  }
+  
+  // Use the new functions for rendering
+  renderDependencyGraph(container);
+  renderIndexView(container);
+}
 
 // Function to count dependencies
 function countDependencies() {
@@ -14,163 +146,31 @@ function countDependencies() {
     'antd': true
   };
   return Object.keys(dependencies).length;
+}
+
+// Export functions for testing
+export {
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  landmarkStructureCheck,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  isSecureContext,
+  initApp,
+  landmarks,
+  appData,
+  icons,
+  validateLandmark,
+  ensureFocusableElements,
+  renderDependencyGraphContent,
+  ensureLandmarkUniqueness,
+  validateSvgAccessibility,
+  processUniqueElements,
+  addressInsightIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  addProperLandmarkRegions,
+  countDependencies
 };
-
-// Function to fetch book dependencies and update the Redux store
-async function fetchBookDependencies(bookId) {
-  // Fetch dependencies for the specified book
-  // ... (Assuming you have an API endpoint to fetch book dependencies or implementing this logic)
-
-  // Dispatch an action to update the book's dependencies in the Redux store
-  dispatch(setDependencyGraph({ bookId, dependencies: /* The fetched dependencies */ }));
-};
-
-// Function to handle updating book dependencies
-function updateBookDependencies(bookId, newDependencies) {
-  // Perform any necessary validation or processing before updating the book's dependencies
-  // ...
-
-  // Dispatch an action to update the book's dependencies in the Redux store
-  dispatch(setDependencyGraph({ bookId, dependencies: newDependencies }));
-};
-
-const Main = () => {
-  const [sorting, setSorting] = useState(sortByTitle);
-  const dispatch = useDispatch();
-  const booksList = useSelector(state => state.books.list);
-  const [newBookTitle, setNewBookTitle] = useState('');
-  const [newBookAuthor, setNewBookAuthor] = useState('');
-  const [error, setError] = useState(null);
-  const addBookInputRef = React.useRef(null);
-
-  // Sorting functions from both branches (they complement each other)
-  function sortByTitle(a, b) {
-    return a.title.localeCompare(b.title);
-  }
-
-  function sortByAuthor(a, b) {
-    return b.author.localeCompare(a.author);
-  }
-
-  function generateKey(book) {
-    return book.id ? `book-${book.id}` : `book-${book.title}-${book.author}`;
-  }
-
-  const handleAddBook = (book) => {
-    // Implement the accessibility improvements
-    enhanceAccessibilityForAddBook();
-    // Add the new book as before
-    addBook(book);
-  };
-
-  const defaultSorting = sortByTitle;
-
-  function onTitleSort() {
-    const sortedList = [...booksList].sort(sortByTitle);
-    // Dispatch an action to update the sorted book list in the Redux store
-    dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
-  }
-
-  function onAuthorSort() {
-    const sortedList = [...booksList].sort(sortByAuthor);
-    // Dispatch an action to update the sorted book list in the Redux store
-    dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-  }
-
-  function BookItem(book) {
-    return (
-      <List.Item key={generateKey(book)}>
-        <List.Item.Meta
-          title={book.title}
-          description={book.author}
-        />
-      </List.Item>
-    );
-  }
-
-  // AddBook component modified to accept title and author as props
-  function AddBook({ onAdd, title, author }) {
-    const [titleForm, setTitleForm] = useState(title);
-    const [authorForm, setAuthorForm] = useState(author);
-
-    const handleSubmit = (event) => {
-      event.preventDefault();
-      setTitleForm('');
-      setAuthorForm('');
-      
-      if (titleForm.trim() && authorForm.trim()) {
-        addBook({ title: titleForm.trim(), author: authorForm.trim() });
-      } else {
-        // Fallback to simple addBook call if needed
-        addBook();
-      }
-    };
-
-    return (
-      <form onSubmit={handleSubmit} aria-label="Add new book">
-        <div>
-          <label htmlFor="book-title-input">Book Title:</label>
-          <input
-            id="book-title-input"
-            type="text"
-            value={titleForm}
-            onChange={(e) => setTitleForm(e.target.value)}
-            ref={addBookInputRef}
-            required
-            aria-required="true"
-            aria-invalid={!!error}
-            aria-describedby={error ? 'book-title-error' : undefined}
-            placeholder="Enter book title"
-          />
-        </div>
-        <div>
-          <label htmlFor="book-author-input">Book Author:</label>
-          <input
-            id="book-author-input"
-            type="text"
-            value={authorForm}
-            onChange={(e) => setAuthorForm(e.target.value)}
-            required
-            aria-required="true"
-            aria-invalid={!!error}
-            aria-describedby={error ? 'book-author-error' : undefined}
-            placeholder="Enter author name"
-          />
-        </div>
-        {error && (
-          <div role="alert" aria-live="polite" id="book-title-error">
-            {error}
-          </div>
-        )}
-        <button type="submit" aria-label="Submit new book">Add Book</button>
-      </form>
-    );
-  }
-
-  // Render the list of book items and sorting controls
-  const listItems = booksList.map(book => BookItem(book));
-
-  return (
-    <main {...getLandmarkProps('main', 'Main content')}>
-      <AddBook onAdd={addBook} title={newBookTitle} author={newBookAuthor} />
-      <AddBookForm onAdd={handleAddBook} />
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List
-        itemLayout="vertical"
-        dataSource={booksList}
-        renderItem={book => (
-          <List.Item key={generateKey(book)}>
-            <BookItem book={book} />
-          </List.Item>
-        )}
-      />
-      <Button onClick={handleAddBook}>
-        {typeof enhanceAccessibilityForAddBook === 'function' ? 'Add Book (Experimental Accessibility Improvements)' : 'Add Book'}
-      </Button>
-      <button onClick={enhanceAccessibilityForAddBook} aria-label="Enhance accessibility for adding a new book">Enhance Accessibility</button>
-    </main>
-  );
-};
-
-export default Main;

@@ -2,9 +2,9 @@
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_025: Ensure unique landmarks (handled by ensureUniqueLandmarks())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
@@ -88,7 +88,7 @@ function addLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
-function addProperLandmarkRegions() {
+function processAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
   // This addresses issues from the insight report:
   // - REACT_015: Add lang attribute to HTML element
@@ -103,7 +103,7 @@ function addProperLandmarkRegions() {
   }
 
   // Address accessibility issues from insight report
-  insightReport.issues.forEach(issue => {
+  insightReport.issues.forEach((issue) => {
     switch (issue.type) {
       case 'REACT_015':
         // Add lang attribute to HTML element
@@ -123,17 +123,17 @@ function addProperLandmarkRegions() {
       case 'REACT_017':
         // Add/fix landmark issues
         if (issue.structure) {
-          validateLandmarkStructure();
           addMainLandmark();
+          addLandmarkRegions();
         } else {
           validateLandmark();
         }
-        addLandmarkRegions();
+        validateLandmarkAttributes();
         break;
       case 'REACT_041':
         // Add accessible names to SVGs
         if (issue.svg) {
-          const accessibleName = getSvgAccessibleName(issue.svg);
+          const accessibleName = getSvgAccessibleName();
           setSvgAttributes(issue.svg, accessibleName);
         }
         break;
@@ -170,15 +170,17 @@ function fixTableStructure() {
       if (firstRow) {
         const thead = document.createElement('thead');
         const headerRow = document.createElement('tr');
-        const cells = firstRow.querySelectorAll('td');
+        const cells = firstRow.querySelectorAll('th, td');
         cells.forEach(cell => {
           const newTh = document.createElement('th');
           newTh.textContent = cell.textContent;
-          if (cell.hasAttribute('scope')) {
-            newTh.setAttribute('scope', 'col');
-          } else {
-            newTh.setAttribute('scope', 'col');
+          if (cell.hasAttribute('colspan')) {
+            newTh.setAttribute('colspan', cell.getAttribute('colspan'));
           }
+          if (cell.hasAttribute('rowspan')) {
+            newTh.setAttribute('rowspan', cell.getAttribute('rowspan'));
+          }
+          newTh.setAttribute('scope', 'col');
           headerRow.appendChild(newTh);
         });
         thead.appendChild(headerRow);
@@ -206,9 +208,9 @@ function addMainLandmark() {
   if (!mainElement) {
     mainElement = document.createElement('main');
     mainElement.id = 'main-content';
-    const existingContent = document.querySelector('div#content');
+    const existingContent = document.body.firstElementChild;
     if (existingContent) {
-      mainElement.appendChild(existingContent);
+      document.body.insertBefore(mainElement, existingContent);
     } else {
       document.body.appendChild(mainElement);
     }
@@ -216,7 +218,7 @@ function addMainLandmark() {
     if (!mainElement.id) {
       mainElement.id = 'main-content';
     }
-    if (!mainElement.getAttribute('role') || mainElement.getAttribute('role') !== 'main') {
+    if (!mainElement.hasAttribute('role') || mainElement.getAttribute('role') !== 'main') {
       mainElement.setAttribute('role', 'main');
     }
   }
@@ -250,7 +252,7 @@ function addSvgAccessibleNames() {
       title.id = titleId;
       svg.setAttribute('aria-labelledby', titleId);
     } else {
-      const fallbackId = `svg-title-${index}`;
+      const fallbackId = `svg-fallback-title-${index}`;
       const newTitle = document.createElement('title');
       newTitle.id = fallbackId;
       newTitle.textContent = `SVG image ${index + 1}`;
@@ -265,7 +267,7 @@ function fixFakeLinkIssue() {
   const anchors = document.querySelectorAll('a');
   anchors.forEach(anchor => {
     if (!anchor.href || anchor.href === '#' || anchor.href === '' || anchor.href === 'javascript:;') {
-      if (anchor.getAttribute('onclick')) {
+      if (!anchor.href || anchor.href === '#' || anchor.href === '' || anchor.href === 'javascript:;') {
         const text = anchor.textContent.trim();
         const button = document.createElement('button');
         button.textContent = text;
@@ -323,4 +325,33 @@ function validateInput(input) {
 // Main execution
 function main() {
   initialize();
-  console.log('Main
+  console.log('Main function executed');
+}
+
+// Export all functions
+export {
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addLandmarkRegions,
+  processAccessibilityIssues,
+  initialize,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  validateInput,
+  main
+};

@@ -244,4 +244,74 @@ function validateSvgAccessibility() {
   svgs.forEach((svg, index) => {
     const name = getSvgAccessibleName(svg);
     if (!name) {
-      errors.push(`SVG ${index + 1} is missing
+      errors.push(`SVG ${index + 1} is missing accessible name`);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// Function to address REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') {
+    return { valid: true, errors: [] };
+  }
+  
+  const errors = [];
+  const landmarkRoles = ['main', 'banner', 'navigation', 'search', 'contentinfo', 'complementary', 'form'];
+  
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
+    if (elements.length > 1) {
+      errors.push(`Multiple landmarks with role '${role}' found (${elements.length}). Only one should exist.`);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// Function to address REACT_036: Fix fake link issues
+function personName() {
+  // This would typically return a person's name for use in creating accessible links
+  return 'John Doe'; // Placeholder
+}
+
+function createInPageButton(text, ariaLabel) {
+  if (typeof document === 'undefined') return null;
+  
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.setAttribute('aria-label', ariaLabel || text);
+  return button;
+}
+
+// Dependency graph rendering function
+function renderDependencyGraph(data = []) {
+  // Extract unique identifiers from input data
+  const nodes = data.map(item => item.id || item.label);
+  // Build edges connecting sequential items as a simple chain
+  const edges = [];
+  for (let i = 0; i < data.length - 1; i++) {
+    edges.push({
+      source: data[i].id || data[i].label,
+      target: data[i + 1].id || data[i + 1].label
+    });
+  }
+  return { nodes, edges };
+}
+
+export { 
+  renderDependencyGraph,
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  personName,
+  createInPageButton
+};

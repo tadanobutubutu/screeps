@@ -38,15 +38,15 @@ function addSvgAccessibilityProps(props) {
 // (This comment remains as-is)
 // TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)
 
-const { 
-  createInPageButton, 
-  createWebResourceButton, 
-  validateTableAccessibility, 
-  validateTableStructure, 
-  validateLandmark, 
-  validateLandmarkStructure, 
-  getSvgAccessibleName, 
-  getLangAttribute, 
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
   validateAccessibilityReport,
   addMainLandmark,
   ensureUniqueLandmarks,
@@ -191,11 +191,11 @@ function ensureElementHasId(element, prefix = 'element') {
   if (!element) {
     throw new Error('Element is required');
   }
-  
+
   if (element.id) {
     return element.id;
   }
-  
+
   const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = id;
   return id;
@@ -211,15 +211,15 @@ function addAriaLabel(element, label) {
   if (!element) {
     throw new Error('Element is required');
   }
-  
+
   if (!label) {
     throw new Error('Label is required');
   }
-  
+
   if (element.getAttribute('aria-label')) {
     return false;
   }
-  
+
   element.setAttribute('aria-label', label);
   return true;
 }
@@ -235,17 +235,17 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
   if (!container) {
     throw new Error('Container element is required');
   }
-  
+
   if (!dependencies) {
     throw new Error('Dependencies data is required');
   }
-  
+
   // Ensure container has an id for graph references
   const containerId = ensureElementHasId(container, 'graph-container');
-  
+
   // Add accessibility label if not present
   const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
-  
+
   // Placeholder for graph rendering logic
   // Actual implementation would use a library like D3.js or similar
   const graphData = {
@@ -255,9 +255,9 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
     rendered: true,
     timestamp: new Date().toISOString()
   };
-  
+
   console.log('Rendering dependency graphs:', graphData);
-  
+
   return graphData;
 }
 
@@ -281,7 +281,10 @@ async function handleCredentialResponse(response) {
   throw new Error('Invalid credential response');
 }
 
-// TODO: Implement a new function to handle focus trap for keyboard navigation
+/**
+ * Implements a focus trap for keyboard navigation within the given element.
+ * @param {HTMLElement} element - The container element to trap focus within
+ */
 const focusTrap = (element) => {
   const focusableElements = element.querySelectorAll(
     'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -350,35 +353,41 @@ const focusTrap = (element) => {
   });
 };
 
-// TODO: Address accessibility issues from insight report
-const addressAccessibilityIssues = (container) => {
-  const fixes = implementAccessibilityFixesFromReport(container, validateAccessibilityReport(container));
+/**
+ * Addresses accessibility issues identified in an insight report for the given container.
+ * Iterates over the report and applies the relevant fixes using the utility helpers.
+ * @param {HTMLElement} container - The container element to apply accessibility fixes to
+ * @returns {Object} A summary of fixes that were applied
+ */
+function addressAccessibilityIssues(container) {
+  const report = validateAccessibilityReport(container);
+  const fixes = implementAccessibilityFixesFromReport(container, report);
 
-  if (fixes.langAdded) {
+  if (fixes && fixes.langAdded) {
     log('Lang attribute added to HTML element', 'info');
   }
 
-  if (fixes.mainLandmarkAdded) {
+  if (fixes && fixes.mainLandmarkAdded) {
     log('Main landmark added', 'info');
   }
 
-  const landmarkFixes = fixes.landmarksFixed || 0;
+  const landmarkFixes = (fixes && fixes.landmarksFixed) || 0;
   if (landmarkFixes > 0) {
     log(`Fixed ${landmarkFixes} unique landmarks`, 'info');
   }
 
-  const svgFixes = fixes.svgNamesAdded || 0;
+  const svgFixes = (fixes && fixes.svgNamesAdded) || 0;
   if (svgFixes > 0) {
     log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
   }
 
-  const fakeLinkFixes = fixes.fakeLinksFixed || 0;
+  const fakeLinkFixes = (fixes && fixes.fakeLinksFixed) || 0;
   if (fakeLinkFixes > 0) {
     log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
   }
 
-  return fixes;
-};
+  return fixes || {};
+}
 
 function harvest(input) {
   if (Array.isArray(input)) {

@@ -24,6 +24,8 @@ function log(message) {
 
 // TODO: This is the existing code that needs to be preserved
 
+// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
+
 // (This comment remains as-is)
 
 // New function added based on the issue request

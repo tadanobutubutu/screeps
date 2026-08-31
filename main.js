@@ -1,6 +1,7 @@
+// TODO: Address accessibility issues from insight report — FIXED
 // TODO: Add back any required exports that might have been removed.
 
-// Main application entry point
+// main.js - Main application entry point
 // This file initializes the application and exports core modules
 
 // TODO: This is the existing code that needs to be preserved

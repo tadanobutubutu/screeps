@@ -1,6 +1,3 @@
-Here is the resolved file content, integrating both changes:
-
-```javascript
 // This file includes both the accessibility improvements and the dependency visualization tool features.
 
 const { app, game, rooms } = require('screeps/dist');
@@ -12,62 +9,52 @@ const ReactDOM = require('react-dom/client');
 import './index.css';
 import App from './App';
 import reportWebVitals from 'node-libs-react/report-validator';
+
+// Utility imports
 import { CONFIG } from './utils/constants';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-import { isSecureContext } from './utils.js';
-import a11y from './AccessibilityUtilities';
+import { calculateSum } from './utils';
+import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
 
-// Load landmarks from file
-function loadLandmarks() {
-  try {
-    const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error loading landmarks:', error.message);
-    return [];
-  }
-}
-
-// Ensure unique landmarks
-function ensureUniqueLandmarks(landmarks) {
-  const seen = new Set();
-  return landmarks.filter(landmark => {
-    const key = landmark.name + '_' + (landmark.role || 'default');
-    if (seen.has(key)) {
-      return false;
-    }
-    seen.add(key);
-    return true;
-  });
-}
-
-// Process and filter landmarks
-
-// Visualize the dependency tree
-let dependencies = [ game ]; // seed dependencies
-function visualizeDependencyTree(dependency) {
+// Dependency visualization helpers
+const visualizeDependencyTree = (dependency) => {
   if (Array.isArray(dependency)) {
     dependency.forEach(dep => visualizeDependencyTree(dep));
-  } else if (screep => screep.hasModule(dependency)) {
+  } else if (game && game.hasModule(dependency)) {
     console.log(`- ${dependency.name}`);
-    let module = game.getObjectById(dependency.id);
-    dependencies = module.modules.flatMap(m => visualizeDependencyTree(m.name));
+    const module = game.getObjectById(dependency.id);
+    visualizeDependencyTree(module.modules.flatMap(m => m.name));
   }
-}
+};
 
-// Helper function to generate dependency report
-function generateDependencyReport(dependencies) {
+const generateDependencyReport = (dependencies) => {
   let graph = 'Dependency Tree:\n';
   dependencies.forEach(dep => {
     graph += `- ${dep.name}\n`;
   });
   return { graph };
-}
+};
 
-// Main entry point for dependency visualization tool
-export const main = {
+const loadLandmarks = () => {
+  // Placeholder for actual landmark loading logic
+  return [];
+};
+
+const ensureUniqueLandmarks = (landmarks) => {
+  // Deduplicate landmarks based on id or name
+  const seen = new Set();
+  return landmarks.filter((l, i) => {
+    if (seen.has(l.id || l.name)) return false;
+    seen.add(l.id || l.name);
+    return true;
+  });
+};
+
+const main = {
   init: function() {
     console.log('Application initialized');
   },
@@ -88,8 +75,8 @@ export const main = {
 
   visualizeDependencies: function() {
     visualizeDependencyTree(game);
-    console.log(generateDependencyReport(dependencies).graph);
-  }
+    console.log(generateDependencyReport([game]));
+  },
 };
 
 function App() {
@@ -108,28 +95,24 @@ function App() {
   }, [initialized]);
 
   React.useEffect(() => {
-    main.visualizeDependencies();
-  }, [initialized]);
+    const loadProgramData = async () => {
+      const filePath = path.join(CONFIG.dataPath, 'program.json');
+      try {
+        const data = await fs.promises.readFile(filePath, 'utf8');
+        const parsedData = JSON.parse(data);
+        setProgramData(parsedData);
+      } catch (error) {
+        console.error('Error loading program data:', error);
+      }
+    };
+    loadProgramData();
+  }, []);
 
   return (
-    <React.StrictMode>
-      <App />
-      {reportWebVitals()}
-      <footer id="footer">
-        <p>
-          Built with love by the Screeps team. Powered by{' '}
-          <a href="https://screeps.com/">Screeps</a>.
-        </p>
-      </footer>
-    </React.StrictMode>
+    <Router>
+      // ... Your accessible React Router setup ...
+    </Router>
   );
 }
 
-App.propTypes = {
-  // Do not modify this line
-};
-
 export default App;
-```
-
-This resolved file keeps both changes by adding a new `visualizeDependencies` function in the main object to handle the dependency visualization tool features, and by integrating the accessibility improvements. Additionally, it processes and filters the landmarks data.

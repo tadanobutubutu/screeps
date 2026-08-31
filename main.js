@@ -143,7 +143,7 @@ function AddBookForm({ onAddBook }) {
   return (
     <form 
       ref={formRef}
-      onSubmit={handleSubmit} 
+      onSubmit={handleSubmit}
       aria-label="Add new book form"
       style={{ marginBottom: '16px' }}
     >
@@ -232,8 +232,8 @@ function Main() {
       <h2 id="add-book-heading">Add a New Book</h2>
       <AddBookForm onAddBook={handleAddBook} />
       
-      <h2 id="books-list-heading">Books List</h2>
-      <div role="group" aria-labelledby="books-list-heading">
+      <h2>Book List</h2>
+      <div role="group" aria-label="Sorting controls">
         <button 
           onClick={() => setSorting(sortByTitle)}
           aria-pressed={sorting === sortByTitle}
@@ -251,6 +251,7 @@ function Main() {
       <List 
         aria-label="Books collection"
         dataSource={bookItems}
+        renderItem={(item) => item}
       />
     </div>
   );

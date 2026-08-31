@@ -94,7 +94,7 @@ function validateLandmark(landmark) {
  * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
+  const element = ...
   return element !== null;
 }
 

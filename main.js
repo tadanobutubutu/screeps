@@ -248,9 +248,8 @@ function groupByCategory(items, getCategory) {
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 
-_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
-
-<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
+// _Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
+// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
 
 // TODO: Implement the new function as per the issue requirements
 function transformInputData(inputData, options = {}) {
@@ -284,10 +283,11 @@ function transformInputData(inputData, options = {}) {
 
   if (typeof inputData === 'object' && !Array.isArray(inputData) && inputData !== null) {
     const result = {};
-    const keys = preserveKeys ? Object.keys(inputData) : Object.keys(inputData).map(() => Math.random().toString(36).substr(2, 9));
+    const originalKeys = Object.keys(inputData);
+    const keys = preserveKeys ? originalKeys : originalKeys.map(() => Math.random().toString(36).substring(2, 11));
     
     let i = 0;
-    for (const key of Object.keys(inputData)) {
+    for (const key of originalKeys) {
       const value = inputData[key];
       if (typeof value === 'object' && value !== null) {
         result[keys[i]] = transformInputData(value, options);
@@ -373,7 +373,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
   
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  const id = `${prefix}-${Math.random().toString(36).substring(2, 11)}`;
   element.id = id;
   return id;
 }

@@ -1,3 +1,5 @@
+import { JSDOM } from 'jsdom';
+
 // TODO: This is the existing code that needs to be preserved
 
 // main.js - Accessibility-focused implementation

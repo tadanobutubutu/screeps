@@ -211,7 +211,7 @@ function filterValidItems(items, validator) {
       return false;
     }
   });
-}
+};
 
 // Initialize accessibility features
 const initAccessibility = () => {

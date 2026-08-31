@@ -93,6 +93,17 @@ function getSvgAccessibleName() {
   // Implementation for getting SVG accessible name
 }
 
+// New function to create a web resource button suitable for accessibility
+function createWebResourceButton(url, text, parent = document.body) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.setAttribute('role', 'button');
+  a.setAttribute('aria-label', text);
+  a.textContent = text;
+  parent.appendChild(a);
+  return a;
+}
+
 // Export the new functions
 module.exports = {
   setHtmlLangAttribute,
@@ -102,5 +113,6 @@ module.exports = {
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-  getSvgAccessibleName
+  getSvgAccessibleName,
+  createWebResourceButton
 };

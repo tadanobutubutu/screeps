@@ -1,7 +1,6 @@
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report
-
-// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+// Import necessary dependencies
+import React from 'react';
+import { render } from 'react-dom';
 
 const main = require('./utilities');
 
@@ -48,10 +47,10 @@ function trapFocus(container) {
  * REACT_015: Add lang attribute to HTML element
  * Ensures the HTML element has a proper lang attribute for screen readers
  */
-export function addLangAttribute(element, lang = 'en') {
-  let htmlElement = element || document.documentElement;
+export function addLangAttribute(container, lang = 'en') {
+  let htmlElement = container.querySelector('html') || document.documentElement;
   if (!htmlElement) {
-    htmlElement = document.getElementsByTagName('html')[0];
+    htmlElement = document.querySelector('html');
   }
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', lang);
@@ -96,7 +95,7 @@ export function fixLandmarkIssues(container) {
   // Ensure main content is wrapped in main landmark
   const mainElement = container.querySelector('main') || container.querySelector('[role="main"]');
   if (!mainElement) {
-    const existingMain = container.querySelector('[role="main"]');
+    const existingMain = container.getElementsByTagName('main')[0];
     if (existingMain) {
       existingMain.setAttribute('role', 'main');
     }
@@ -374,6 +373,41 @@ function setupKeyboardNavigation(element, options = {}) {
   });
 }
 
+// Helper to decode JWT
+function decodeJwtResponse(token) {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace('-', '+').replace('_', '/');
+  const jsonPayload = decodeURIComponent(
+    atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
+  );
+  return JSON.parse(jsonPayload);
+}
+
+/**
+ * REACT_040: Fix button identifiers
+ */
+export function fixButtonIdentifiers(container) {
+  if (!container) return null;
+  
+  const buttons = container.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    // Generate unique id if missing
+    if (!button.id) {
+      const existingId = button.getAttribute('data-testid') || button.getAttribute('aria-label');
+      if (existingId) {
+        button.id = existingId.replace(/\s+/g, '-').toLowerCase();
+      } else {
+        button.id = `button-${index + 1}`;
+      }
+    }
+    
+    // Remove generic placeholder ids
+    if (button.id === 'my-button' || button.id === 'button') {
+      button.id = `button-${index + 1}`;
+    }
+  });
+}
+
 // Existing rendering functions (preserving existing exports and functions)
 const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap } = main;
 
@@ -393,106 +427,8 @@ function implementAccessibilityFixesFromReport(container, report) {
     fakeLinksFixed: 0
   };
 
-<<<<<<< HEAD
-// Check if user prefers reduced motion
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-// Function to render dependency graph
-function renderDependencyGraph(element) {
-  // Example: Use a third-party library or custom logic to render a graph
-  console.log('Rendering dependency graph for element:', element);
-}
-
-// Function to render a simple dependency graph
-function renderSimpleDependencyGraph(element) {
-  // Simple rendering logic (to be replaced with actual graph rendering logic)
-  console.log('Rendering simple dependency graph for element:', element);
-}
-
-// Initialize accessibility features
-function initializeAccessibility() {
-  const announcer = createAnnouncer();
-  
-  // Ensure all landmarks have unique IDs
-  ensureUniqueLandmarks();
-  
-  // Return the announcer for use in the app
-  return {
-    announce: announcer.announce,
-    setupKeyboardNavigation,
-    trapFocus,
-    createAnnouncer,
-    prefersReducedMotion,
-    renderDependencyGraph,
-    renderSimpleDependencyGraph
-  };
-}
-
-/**
- * Checks if a value is an empty string, null, or undefined
- * @param {*} value - The value to check
- * @returns {boolean} - True if the value is empty
- */
-function isEmpty(value) {
-  return value === null || value === undefined || value === '';
-}
-
-/**
- * Capitalizes the first letter of a string
- * @param {string} str - The string to capitalize
- * @returns {string} - The capitalized string
- */
-function capitalize(str) {
-  if (typeof str !== 'string' || str.length === 0) return str;
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-/**
- * Generates a random integer between min and max (inclusive)
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Random integer
- */
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-/**
- * Clamps a number between min and max values
- * @param {number} num - Number to clamp
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Clamped number
- */
-function clamp(num, min, max) {
-  return Math.min(Math.max(num, min), max);
-}
-
-/**
- * Deep clones an object
- * @param {*} obj - Object to clone
- * @returns {*} - Cloned object
- */
-function deepClone(obj) {
-  if (obj === null || typeof obj !== 'object') return obj;
-  if (obj instanceof Date) return new Date(obj.getTime());
-  if (obj instanceof Array) return obj.map(item => deepClone(item));
-  if (obj instanceof Object) {
-    const cloned = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        cloned[key] = deepClone(obj[key]);
-      }
-    }
-    return cloned;
-=======
   if (!report || !report.issues) {
     return fixes;
->>>>>>> origin/main
   }
 
   // Fix lang attribute on HTML element
@@ -626,7 +562,154 @@ function deepClone(obj) {
   return fixes;
 }
 
-<<<<<<< HEAD
+// Check if user prefers reduced motion
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Function to render dependency graph
+function renderDependencyGraph(element) {
+  // Example: Use a third-party library or custom logic to render a graph
+  console.log('Rendering dependency graph for element:', element);
+}
+
+// Function to render a simple dependency graph
+function renderSimpleDependencyGraph(element) {
+  // Simple rendering logic (to be replaced with actual graph rendering logic)
+  console.log('Rendering simple dependency graph for element:', element);
+}
+
+// Initialize accessibility features
+function initializeAccessibility() {
+  const announcer = createAnnouncer();
+  
+  // Ensure all landmarks have unique IDs
+  ensureUniqueLandmarks();
+  
+  // Return the announcer for use in the app
+  return {
+    announce: announcer.announce,
+    setupKeyboardNavigation,
+    trapFocus,
+    createAnnouncer,
+    prefersReducedMotion,
+    renderDependencyGraph,
+    renderSimpleDependencyGraph
+  };
+}
+
+/**
+ * Checks if a value is an empty string, null, or undefined
+ * @param {*} value - The value to check
+ * @returns {boolean} - True if the value is empty
+ */
+function isEmpty(value) {
+  return value === null || value === undefined || value === '';
+}
+
+/**
+ * Capitalizes the first letter of a string
+ * @param {string} str - The string to capitalize
+ * @returns {string} - The capitalized string
+ */
+function capitalize(str) {
+  if (typeof str !== 'string' || str.length === 0) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Generates a random integer between min and max (inclusive)
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} - Random integer
+ */
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Clamps a number between min and max values
+ * @param {number} num - Number to clamp
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} - Clamped number
+ */
+function clamp(num, min, max) {
+  return Math.min(Math.max(num, min), max);
+}
+
+/**
+ * Deep clones an object
+ * @param {*} obj - Object to clone
+ * @returns {*} - Cloned object
+ */
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof Date) return new Date(obj.getTime());
+  if (obj instanceof Array) return obj.map(item => deepClone(item));
+  if (obj instanceof Object) {
+    const cloned = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        cloned[key] = deepClone(obj[key]);
+      }
+    }
+    return cloned;
+  }
+}
+
+/**
+ * NEW: Add aria-label to element
+ */
+export function addAriaLabel(element, label) {
+  if (!element) return null;
+  
+  if (!element.getAttribute('aria-label') && label) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+/**
+ * NEW: Ensure element has an id
+ */
+export function ensureElementHasId(element, prefix = 'element') {
+  if (!element) return null;
+  
+  if (!element.id) {
+    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  
+  return element;
+}
+
+// Preserved existing function from origin/main
+function myAccessibleFunction() {
+  const accessibilityElement = document.createElement('div');
+  accessibilityElement.setAttribute('aria-label', 'Accessible description of the element');
+  // Existing function code...
+  return accessibilityElement;
+}
+
+// New function as per the issue request
+/**
+ * Example new function
+ * @param {string} message - Message to log
+ */
+export function renderDependencyGraphs(container, dependencies = []) {
+  if (!container) return null;
+  
+  dependencies.forEach(dep => {
+    const element = container.querySelector(dep.selector);
+    if (element) {
+      renderSimpleDependencyGraph(element);
+    }
+  });
+  
+  return container;
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -643,23 +726,6 @@ if (typeof module !== 'undefined' && module.exports) {
     clamp,
     deepClone
   };
-=======
-// Preserved existing function from origin/main
-function myAccessibleFunction() {
-  const accessibilityElement = document.createElement('div');
-  accessibilityElement.setAttribute('aria-label', 'Accessible description of the element');
-  // Existing function code...
-  return accessibilityElement;
->>>>>>> origin/main
-}
-
-// New function as per the issue request
-/**
- * Example new function
- * @param {string} message - Message to log
- */
-function logMessage(message) {
-  console.log(message);
 }
 
 // Export all utility functions
@@ -682,7 +748,6 @@ export {
   renderGraphIndex,
   newExportedFunction,
   myAccessibleFunction,
-  logMessage,
   createInPageButton,
   createWebResourceButton,
   validateTableAccessibility,

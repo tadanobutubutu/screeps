@@ -26,9 +26,31 @@ function renderIndex(data, options = {}) {
   return indexContent(data, options);
 }
 
+/**
+ * Validates table accessibility
+ * @param {Array} tableData - Table data to validate
+ * @returns {boolean} True if table is accessible, false otherwise
+ */
+function validateTableAccessibility(tableData) {
+  // Implementation placeholder - function to be implemented
+  return true;
+}
+
+/**
+ * Validates table structure
+ * @param {Array} tableData - Table data to validate
+ * @returns {boolean} True if table structure is valid, false otherwise
+ */
+function validateTableStructure(tableData) {
+  // Implementation placeholder - function to be implemented
+  return true;
+}
+
 // Preserve all existing exports
 module.exports = {
   renderDependencyGraph,
   renderIndex,
+  validateTableAccessibility,
+  validateTableStructure,
   // Preserve any other existing exports here
 };

@@ -89,7 +89,7 @@ function checkLandmarkElement(id) {
 // Ensure unique landmarks by filtering duplicates
 function ensureUniqueLandmarks(landmarksArray) {
   if (!landmarksArray || landmarksArray.length === 0) {
-      return {};
+      return [];
   }
   const seen = new Set();
   return landmarksArray.filter(landmark => {
@@ -114,7 +114,7 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (!elementsById[landmark.id]) {
+        if (elementsById[landmark.id]) {
           elementsById[landmark.id] = true;
         } else {
           landmark.id += '_duplicate';

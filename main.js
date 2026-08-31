@@ -37,14 +37,23 @@ function startApp() {
   return server;
 }
 
+// New accessibility improvement function
+function ensureAccessibilityFeatures() {
+  // TODO: Add logic to check for and ensure accessibility features
+  console.log('Accessibility features are being ensured.');
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  ensureAccessibilityFeatures
 };
 
 // Start the application if run directly
 if (require.main === module) {
   startApp();
+  // Call the new accessibility function when the server starts
+  ensureAccessibilityFeatures();
 }

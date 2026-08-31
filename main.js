@@ -654,6 +654,40 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
+
+  let result;
+
+  if (typeof inputData === 'string') {
+    let value = inputData;
+    if (trimWhitespace) {
+      value = value.trim();
+    }
+    if (uppercase) {
+      value = value.toUpperCase();
+    }
+    if (maxLength !== null && value.length > maxLength) {
+      value = value.substring(0, maxLength);
+    }
+    result = value;
+  } else if (Array.isArray(inputData)) {
+    result = inputData.map(item => transformInputData(item, options));
+  } else if (typeof inputData === 'object') {
+    result = preserveKeys ? {} : [];
+    for (const key in inputData) {
+      if (Object.prototype.hasOwnProperty.call(inputData, key)) {
+        const transformedValue = transformInputData(inputData[key], options);
+        if (preserveKeys) {
+          result[key] = transformedValue;
+        } else {
+          result.push(transformedValue);
+        }
+      }
+    }
+  } else {
+    result = inputData;
+  }
+
+  return result;
 }
 
 // Initialize on DOM ready
@@ -689,5 +723,6 @@ module.exports = {
   fixFakeLink,
   createInPageButton,
   personName,
-  newFocusTrap
+  newFocusTrap,
+  transformInputData
 };

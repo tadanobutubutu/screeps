@@ -766,3 +766,17 @@ export { addLangAttribute };
 
 // Export the internal set for tracking used landmark IDs
 export { _usedLandmarkIds };
+
+// New exports added back as required by the issue
+export { calculateSum };
+export { dependencyGraphContent, indexContent };
+
+/**
+ * Calculates the sum of two numbers.
+ * @param {number} a - The first number.
+ * @param {number} b - The second number.
+ * @returns {number} The sum of a and b.
+ */
+function calculateSum(a, b) {
+  return a + b;
+}

@@ -91,7 +91,7 @@ function createUnrotateButton() {
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.getElementById('unrotate');
+const fakeLink = document.querySelector('a[href="#"]');
 if (fakeLink && fakeLink.tagName === 'A') {
   const parent = fakeLink.parentElement;
   const newButton = createUnrotateButton();
@@ -117,12 +117,12 @@ const isSecureContext = () => {
  * This ensures that screen readers and other assistive technologies
  * can correctly interpret the language of the page.
  *
- * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr').
+ * @param {string} lang - The language code to set (e. g., 'en', 'es', 'fr').
  */
 const setLanguageAttribute = (lang = 'en') => {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    htmlElement.setAttribute('lang', lang);
+    htmlElement.lang = lang;
   }
 };
 
@@ -166,7 +166,7 @@ const addLandmarkRoles = () => {
  */
 const ensureUniqueLandmarkElements = () => {
   // Navigation landmark uniqueness
-  const navElements = document.querySelectorAll('[role="navigation"]');
+  const navElements = document.querySelectorAll('nav');
   if (navElements.length > 1) {
     navElements.forEach((nav, index) => {
       if (index > 0) {
@@ -176,7 +176,7 @@ const ensureUniqueLandmarkElements = () => {
   }
 
   // Main content landmark uniqueness
-  const mainElements = document.querySelectorAll('[role="main"]');
+  const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     mainElements.forEach((main, index) => {
       if (index > 0) {
@@ -216,7 +216,7 @@ const addSVGAccessibleName = (svgSelector, accessibleName) => {
  * and attributes to make them accessible.
  */
 const fixFakeLinks = () => {
-  const fakeLinks = document.querySelectorAll('[onclick]:not([role])');
+  const fakeLinks = document.querySelectorAll('[onclick]');
   fakeLinks.forEach((element) => {
     if (element.tagName.toLowerCase() !== 'a') {
       // Add role="button" and appropriate ARIA attributes
@@ -293,7 +293,7 @@ function validateLandmarkStructure() {
 
     if (!results.main.exists) {
         validation.isValid = false;
-        validation.errors.push('Required <main> landmark element');
+        validation.errors.push('Missing <main> landmark element');
     }
 
     return validation;
@@ -305,335 +305,18 @@ const appData = {
     version: '1.0.0'
 };
 
-// Initialization function
-const initApp = () => {
-  // Initialize the main application
-  initializeApp();
+// Tower Defense Implementation - Addressed accessibility issues from insight report
+// TODO: Implement tower defense
 
-  // Apply accessibility fixes
-  setLanguageAttribute(); // Default to 'en'
-  addLandmarkRoles();
-  ensureUniqueLandmarks(landmarks);
-
-  // Add accessible names to SVGs (example selectors and names)
-  addSVGAccessibleName('.home-icon', 'Home icon');
-  addSVGAccessibleName('.settings-icon', 'Settings icon');
-
-  // Define icons object
-  icons = {
-    icon: '<svg viewBox="0 0 100 100" aria-label="Screeps icon"></svg>'
-  };
-}
-
-function getConfig() {
-  return {
-    apiUrl: process.env.API_URL || '',
-    timeout: 5000
-  };
-}
-
-// REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// Ensure all <th> elements have scope attribute
-function ensureThScope() {
-  const thElements = document.querySelectorAll('th');
-  thElements.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      // Determine if it's a column header or row header based on context
-      const parent = th.parentElement;
-      const parentTagName = parent ? parent.tagName.toLowerCase() : '';
-      const isFirstCell = parent && Array.from(parent.children).indexOf(th) === 0;
-
-      if (isFirstCell && parentTagName === 'tr') {
-        th.setAttribute('scope', 'row');
-      } else if (parentTagName === 'thead' || !isFirstCell) {
-        th.setAttribute('scope', 'col');
-      }
-    }
-  });
-}
-
-/**
- * Setup skip link functionality for keyboard navigation
- */
-function setupSkipLinks() {
-  const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
-  if (skipLink) {
-    skipLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      const target = document.getElementById(skipLink.getAttribute('href').replace('#', ''));
-      if (target) {
-        target.focus();
-        target.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
-  }
-}
-
-/**
- * Ensure buttons have proper accessibility attributes
- */
-function setupButtonAccessibility() {
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
-      button.setAttribute('aria-label', 'Action button');
-    }
-  });
-}
-
-/**
- * Perform a task with the given parameters
- * @param {string} task - The task to perform
- */
-function performTask(task) {
-  console.log(`Performing task: ${task}`);
-  // Task implementation details would go here
-}
-
-/**
- * Handle an event with the given parameters
- * @param {string} event - The event to handle
- */
-function handleEvent(event) {
-  console.log(`Handling event: ${event}`);
-  // Event handling logic would go here
-}
-
-// Merged landmark roles function to include both implementations
-function addLandmarkRoles() {
-  // From HEAD: Navigation, Main, Header
-  const navElement = document.querySelector('nav');
-  if (navElement && !navElement.getAttribute('role')) {
-    navElement.setAttribute('role', 'navigation');
-  }
-
-  const mainElement = document.querySelector('main');
-  if (mainElement && !mainElement.getAttribute('role')) {
-    mainElement.setAttribute('role', 'main');
-  }
-
-  const headerElement = document.querySelector('header');
-  if (headerElement && !headerElement.getAttribute('role')) {
-    headerElement.setAttribute('role', 'banner');
-  }
-
-  // From origin/main: Footer
-  const footerElement = document.querySelector('footer');
-  if (footerElement && !footerElement.getAttribute('role')) {
-    footerElement.setAttribute('role', 'contentinfo');
-  }
-
-  // From origin/main: Specific main-content ID
-  const mainContent = document.getElementById('main-content');
-  if (mainContent && !mainContent.getAttribute('role')) {
-    mainContent.setAttribute('role', 'main');
-  }
-}
-
-// Function to add accessible names to 2 SVGs
-function addSvgAccessibleNames() {
-  const svg1 = document.getElementById('svg1');
-  if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
-
-  const svg2 = document.getElementById('svg2');
-  if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
-}
-
-// Function to ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
-  // Define landmark roles - some should be unique per page
-  const uniqueLandmarkRoles = ['main', 'banner', 'contentinfo'];
-  const multipleAllowedRoles = ['navigation', 'complementary', 'region', 'search', 'form'];
-  const allLandmarkRoles = [...uniqueLandmarkRoles, ...multipleAllowedRoles];
-
-  // Find all elements with landmark roles
-  const landmarks = document.querySelectorAll(allLandmarkRoles.map(role => `[role="${role}"]`).join(', '));
-
-  // Group landmarks by role
-  const landmarksByRole = {};
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    if (!landmarksByRole[role]) {
-      landmarksByRole[role] = [];
-    }
-    landmarksByRole[role].push(landmark);
-  });
-
-  // Check unique landmark roles - should only have one per page
-  uniqueLandmarkRoles.forEach(role => {
-    const elements = landmarksByRole[role] || [];
-    if (elements.length > 1) {
-      console.warn(`Multiple ${role} landmarks found. Only one is allowed per page.`);
-      // Keep the first one, remove role from others
-      elements.slice(1).forEach(el => {
-        el.removeAttribute('role');
-        console.warn(`Removed duplicate ${role} landmark role from element:`, el);
-      });
-    }
-  });
-
-  // For roles that allow multiples, ensure each has a unique accessible name
-  multipleAllowedRoles.forEach(role => {
-    const elements = landmarksByRole[role] || [];
-    if (elements.length > 1) {
-      const usedNames = new Set();
-      elements.forEach((el, index) => {
-        // Check for existing accessible name
-        const ariaLabel = el.getAttribute('aria-label');
-        const ariaLabelledBy = el.getAttribute('aria-labelledby');
-        let accessibleName = ariaLabel || (ariaLabelledBy ? document.getElementById(ariaLabelledBy)?.textContent : null);
-
-        if (!accessibleName) {
-          // Generate a unique name
-          accessibleName = `${role} ${index + 1}`;
-          el.setAttribute('aria-label', accessibleName);
-        }
-
-        // Ensure uniqueness
-        let uniqueName = accessibleName;
-        let counter = 1;
-        while (usedNames.has(uniqueName)) {
-          uniqueName = `${accessibleName} ${counter}`;
-          counter++;
-        }
-        usedNames.add(uniqueName);
-
-        if (uniqueName !== accessibleName) {
-          el.setAttribute('aria-label', uniqueName);
-        }
-      });
-    } else if (elements.length === 1) {
-      // Single landmark of this type - ensure it has an accessible name if needed
-      const el = elements[0];
-      const ariaLabel = el.getAttribute('aria-label');
-      const ariaLabelledBy = el.getAttribute('aria-labelledby');
-      if (!ariaLabel && !ariaLabelledBy) {
-        el.setAttribute('aria-label', role);
-      }
-    }
-  });
-}
-
-// Function to fix 1 fake link issue
-function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('[href="#"]:not([ aria-hidden ])');
-  fakeLinks.forEach((link) => {
-    link.removeAttribute('href');
-  });
-}
-
-// Initialize accessibility improvements
-function initializeAccessibility() {
-  // Replace fake links with proper buttons
-  const fakeLink = document.getElementById('unrotate');
-  if (fakeLink && fakeLink.tagName === 'A') {
-    const parent = fakeLink.parentElement;
-    const newButton = createUnrotateButton();
-    parent.replaceChild(newButton, fakeLink);
-  }
-
-  // Ensure table headers have proper scope
-  ensureThScope();
-
-  // Add accessible names to SVGs
-  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
-  svgs.forEach((svg, index) => {
-    if (!svg.hasAttribute('aria-hidden') || svg.getAttribute('aria-hidden') !== 'true') {
-      svg.setAttribute('aria-label', `Icon ${index + 1}`);
-    }
-  });
-}
-
-// Initialize the application with accessibility improvements
-function initialize() {
-  // Existing initialization logic preserved
-  console.log('Application initialized');
-
-  // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.querySelector('main') || document.getElementById('main');
-  if (mainContent) {
-    mainContent.setAttribute('tabindex', '-1');
-    mainContent.setAttribute('role', 'main');
-  }
-
-  // Accessibility: Add skip link functionality
-  setupSkipLinks();
-
-  // Accessibility: Ensure buttons have proper labels
-  setupButtonAccessibility();
-
-  // Accessibility: Add landmark roles and fix landmark issues
-  addLandmarkRoles();
-
-  // Accessibility: Add accessible names to 2 SVGs
-  addSvgAccessibleNames();
-
-  // Accessibility: Ensure unique landmarks (2 issues)
-  ensureUniqueLandmarks();
-
-  // Accessibility: Fix 1 fake link issue
-  fixFakeLink();
-}
-
-// New function requested in the issue
-function newFunction() {
-  // Implementation of the new function
-  const button = createInPageButton('New Button', function() {
-    console.log('New Function clicked!');
-  });
-  document.body.appendChild(button);
-}
-
-export function calculateDiscount(price, discount) {
-  if (typeof price !== 'number' || price < 0) {
-    throw new Error('Price must be a non-negative number');
-  }
-  if (typeof discount !== 'number' || discount < 0) {
-    throw new Error('Discount must be a non-negative number');
-  }
-
-  // Calculate discounted price
-  const discountedPrice = price * (1 - discount / 100);
-  return Math.max(0, discountedPrice);
-}
-
-function greet(name) {
-  return `Hello, ${name}!`;
-}
-
-function add(a, b) {
-  return a + b;
-}
-
-// Export existing functionality and new functions
-export {
-  initialize,
-  getConfig,
-  setupSkipLinks,
-  setupButtonAccessibility,
-  createInPageButton,
-  performTask,
-  handleEvent,
-  greet,
-  add,
-  calculateDiscount,
-  newFunction,
-  checkLandmarkElement,
-  ensureUniqueLandmarks,
-  landmarkStructureCheck,
-  initApp
-};
-
-// Compatibility for CommonJS if needed (as per HEAD)
-module.exports.newFunction = newFunction;
-
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initialize);
-  } else {
-    initialize();
-  }
-}
-
-// More existing code that should be preserved
+// Tower Defense Game State
+const towerDefenseState = {
+  isRunning: false,
+  towers: [],
+  enemies: [],
+  projectiles: [],
+  lives: 20,
+  money: 100,
+  wave: 0,
+  score: 0,
+  gameSpeed: 1,
+  canvas

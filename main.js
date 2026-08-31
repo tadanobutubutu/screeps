@@ -8,11 +8,13 @@
 // (Added functions for REACT_017 and new REACT_025)
 
 import React, { useState, useEffect } from 'react';
-import express from 'express';
-import path from 'path';
-import fs from 'fs';
-import './styles.css';
 import './styles.less';
+import './styles.css';
+import fs from 'fs';
+import path from 'path';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import { CONFIG, CONFIG as UTILS_CONFIG } from './utils/constants';
+import express from 'express';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
@@ -21,8 +23,7 @@ import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUti
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { CONFIG } from './utils/constants';
+import { validateLinkAccessibility, handleFakeLinks, validateInput, processData, formatResponse, createInPageButton } from './utils/linkAccessibilityUtils';
 
 const expressApp = express();
 

@@ -32,6 +32,41 @@ if (htmlElement) {
   htmlElement.setAttribute('lang', getLangAttribute());
 }
 
+// New function to address accessibility issues from insight report
+function addressAccessibilityIssues(insightReport) {
+  if (!insightReport || !Array.isArray(insightReport)) {
+    console.error('Invalid insight report provided');
+    return;
+  }
+
+  insightReport.forEach(issue => {
+    switch (issue.type) {
+      case 'alt-text':
+        const image = document.getElementById(issue.id);
+        if (image) {
+          image.setAttribute('alt', issue.description);
+        }
+        break;
+      case 'aria-role':
+        const element = document.getElementById(issue.id);
+        if (element) {
+          element.setAttribute('role', issue.role);
+        }
+        break;
+      case 'lang-attribute':
+        const html = document.documentElement;
+        if (html) {
+          html.setAttribute('lang', issue.lang);
+        }
+        break;
+      default:
+        console.warn('Unsupported issue type:', issue.type);
+        break;
+    }
+  });
+}
+
 module.exports = {
   // Your exported functions and modules here...
+  addressAccessibilityIssues
 };

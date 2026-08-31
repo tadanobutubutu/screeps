@@ -1,4 +1,5 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views.
 
 // REACT_015: Add lang attribute
 // Set the document's language attribute for accessibility
@@ -37,7 +38,8 @@ function initSkipLink() {
   if (skipLink) {
     skipLink.addEventListener('click', function (e) {
       e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href'));
+      const targetId = skipLink.getAttribute('href').substring(1);
+      const target = document.getElementById(targetId);
       if (target) {
         target.setAttribute('tabindex', '-1');
         target.focus();
@@ -49,9 +51,10 @@ function initSkipLink() {
 // Accessibility announcement for screen readers
 function announceToScreenReader(message, priority = 'polite') {
   const announcement = document.createElement('div');
+  announcement.setAttribute('role', 'status');
   announcement.setAttribute('aria-live', priority);
   announcement.setAttribute('aria-atomic', 'true');
-  announcement.setAttribute('class', 'sr-only');
+  announcement.className = 'sr-only';
   announcement.textContent = message;
   document.body.appendChild(announcement);
   setTimeout(() => announcement.remove(), 1000);

@@ -112,7 +112,7 @@ const addLandmarkRoles = () => {
  */
 const ensureUniqueLandmarkElements = () => {
   // Navigation landmark uniqueness
-  const navElements = document.querySelectorAll('[role="navigation"]');
+  const navElements = document.querySelectorAll('nav');
   if (navElements.length > 1) {
     navElements.forEach((nav, index) => {
       if (index > 0) {
@@ -122,7 +122,7 @@ const ensureUniqueLandmarkElements = () => {
   }
 
   // Main content landmark uniqueness
-  const mainElements = document.querySelectorAll('[role="main"]');
+  const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     mainElements.forEach((main, index) => {
       if (index > 0) {
@@ -145,49 +145,4 @@ const addSVGAccessibleName = (svgSelector, accessibleName) => {
   const svgs = document.querySelectorAll(svgSelector);
   svgs.forEach((svg) => {
     // Check if the SVG already has a title element
-    let titleElement = svg.querySelector('title');
-    if (!titleElement) {
-      titleElement = document.createElement('title');
-      svg.insertBefore(titleElement, svg.firstChild);
-    }
-    titleElement.textContent = accessibleName;
-  });
-};
-
-/**
- * Fixes fake links (elements that look like links but are not semantic <a> tags).
- *
- * This addresses the REACT_036 issue by identifying elements that have
- * click handlers but are not <a> tags and adding appropriate ARIA roles
- * and attributes to make them accessible.
- */
-function createUnrotateButton() {
-  const button = document.createElement('button');
-  button.id = 'unrotate';
-  button.setAttribute('role', 'button');
-  button.ariaLabel = 'rotate back';
-  button.textContent = 'rotate back';
-  button.addEventListener('click', rotateBack);
-  return button;
-}
-
-function replaceFakeLinks() {
-  const fakeLink = document.getElementById('unrotate');
-  if (fakeLink && fakeLink.tagName === 'A') {
-    const parent = fakeLink.parentElement;
-    const newButton = createUnrotateButton();
-    parent.replaceChild(newButton, fakeLink);
-  }
-}
-
-// ... (other code in main.js)
-
-// Additional function
-export function newFunction() {
-  const button = createInPageButton('New Function', function() {
-    console.log('New Function clicked!');
-  });
-  document.body.appendChild(button);
-}
-
-// ... (other code in main.js)
+    let titleElement = svg.querySelector('title

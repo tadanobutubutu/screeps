@@ -105,6 +105,13 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// New function to implement the requested logic after existing code
+function customLogicAfterExistingCode() {
+  // Implement your logic here
+  // For example, a simple console log
+  console.log('Custom logic implemented after existing code');
+}
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
@@ -128,6 +135,8 @@ function Main() {
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List dataSource={bookItems} />
       <BookForm />
+      {/* Call the new function after existing code */}
+      {customLogicAfterExistingCode()}
     </div>
   );
 }

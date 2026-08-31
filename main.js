@@ -40,7 +40,7 @@ function addLandmarkRoles() {
  * Ensures each landmark has a unique label via aria-label or aria-labelledby
  */
 function ensureUniqueLandmarks() {
-    const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+    const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
     const labelCounts = {};
 
     landmarks.forEach((landmark) => {
@@ -48,8 +48,8 @@ function ensureUniqueLandmarks() {
         labelCounts[tag] = (labelCounts[tag] || 0) + 1;
 
         if (labelCounts[tag] > 1) {
-            if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-                landmark.setAttribute('aria-label', tag.charAt(0).toUpperCase() + tag.slice(1) + ' ' + labelCounts[tag]);
+            if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+                landmark.setAttribute('aria-label', landmark.tagName.charAt(0).toUpperCase() + landmark.tagName.charAt(1).toLowerCase() + tag.slice(1) + ' ' + labelCounts[tag]);
             }
         }
     });
@@ -61,7 +61,7 @@ function ensureUniqueLandmarks() {
 function addAccessibleNamesToSVGs() {
     const svgs = document.querySelectorAll('svg');
     svgs.forEach((svg, index) => {
-        if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby') && !svg.hasAttribute('title')) {
+        if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
             const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
             title.textContent = 'Graphic ' + (index + 1);
             svg.insertBefore(title, svg.firstChild);
@@ -75,7 +75,7 @@ function addAccessibleNamesToSVGs() {
  * Replaces <div> or <span> elements with click handlers that act as links with proper anchor tags
  */
 function fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[onclick], [data-href]');
+    const fakeLinks = document.querySelectorAll('[data-href]');
     fakeLinks.forEach((element) => {
         if (element.tagName.toLowerCase() !== 'a' && element.tagName.toLowerCase() !== 'button') {
             const href = element.getAttribute('data-href') || '#';
@@ -96,7 +96,7 @@ function addScopeToTableHeaders() {
     const thElements = document.querySelectorAll('th');
     thElements.forEach((th) => {
         if (!th.hasAttribute('scope')) {
-            const isInHead = th.closest('thead') || th.parentNode.parentNode.tagName.toLowerCase() === 'thead';
+            const isInHead = th.closest('thead') || th.parent.tagName.toLowerCase() === 'thead';
             th.setAttribute('scope', isInHead ? 'col' : 'row');
         }
     });
@@ -116,7 +116,7 @@ function ensureElementHasId(element) {
     return element.id;
   }
   
-  const id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const id = 'element-' + Math.random().toString(36).substring(2, 9);
   element.id = id;
   return id;
 }
@@ -198,8 +198,7 @@ function renderDependencyGraph(data, container) {
   }
   
   graphContainer.appendChild(svg);
-  ensureElementHasId(graphContainer);
-  addAriaLabel(graphContainer, 'Dependency graph visualization');
+  svg.setAttribute('aria-label', 'Dependency graph visualization');
   
   return graphContainer;
 }

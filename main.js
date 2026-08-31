@@ -29,6 +29,16 @@ function addAriaLabel(element, label) {
 }
 
 /**
+ * New function example, this is a placeholder for the actual implementation
+ * @param {string} input - The input parameter for the new function
+ * @returns {string} The output result of the new function
+ */
+function newFunction(input) {
+  // Placeholder logic, replace with actual implementation
+  return `Processed: ${input}`;
+}
+
+/**
  * Adds a new function to the module
  * This is a placeholder for the new function added based on the issue
  * @param {Object} data - The data object to process
@@ -198,7 +208,8 @@ if (typeof module !== 'undefined' && module.exports) {
     addAriaLabel,
     getSvgAccessibleName,
     setSvgAttributes,
-    processData
+    processData,
+    newFunction
   };
 } else {
   // Browser environment - wait for DOM

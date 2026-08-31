@@ -1,4 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 function newFunction() {
   // Implementation of the new function

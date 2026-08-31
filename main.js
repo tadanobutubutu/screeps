@@ -17,7 +17,7 @@ function getLangAttribute() {
 }
 
 // Function to ensure ARIA attributes are properly set for the dependency graph
-function ensureDependencyGraphARIA() {
+function ensureAriaAttributes() {
   // Ensure the document has proper lang attribute for accessibility
   const lang = getLangAttribute();
   
@@ -55,7 +55,6 @@ function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        description={book.author}
       />
     </List.Item>
   );
@@ -71,7 +70,11 @@ function addBook(book) {
 }
 
 // Ensure accessibility attributes are set when adding a book
-ensureDependencyGraphARIA();
+export function ensureAriaOnAddBook(book) {
+  const ariaAttributes = ensureAriaAttributes();
+  addBook(book);
+  return ariaAttributes;
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
@@ -93,6 +96,8 @@ function onAuthorSort() {
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const dispatch = useDispatch();
+  const booksList = useSelector(state => state.books.list);
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -104,14 +109,14 @@ function Main() {
   }, [sorting]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(book => BookItem(book));
+  const bookItems = booksList.map(book => BookItem(book));
 
   // Render the list of book items and sorting controls
   return (
     <div>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />
+      <List itemLayout="vertical" dataSource={booksList} renderItem={book => BookItem(book)} />
       {/* Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
     </div>
@@ -120,3 +125,6 @@ function Main() {
 
 // Export the Main component
 export default Main;
+
+// Export helper functions and utilities
+export { getLangAttribute, ensureAriaAttributes, sortByTitle, sortByAuthor, generateKey, BookItem, addBook };

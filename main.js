@@ -4,6 +4,58 @@ import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 
+// Function to create in-page buttons
+function createInPageButtons(config) {
+  const buttons = [];
+
+  if (!config || typeof config !== 'object') {
+    return buttons;
+  }
+
+  const { items = [], containerId = 'in-page-buttons', className = 'in-page-button' } = config;
+
+  // Validate container exists or create one
+  let container = document.getElementById(containerId);
+  if (!container) {
+    container = document.createElement('div');
+    container.id = containerId;
+    document.body.appendChild(container);
+  }
+
+  items.forEach((item, index) => {
+    if (!item || typeof item !== 'object') {
+      return;
+    }
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = className;
+    button.textContent = item.label || `Button ${index + 1}`;
+    button.setAttribute('data-button-id', item.id || `button-${index}`);
+
+    if (item.ariaLabel) {
+      button.setAttribute('aria-label', item.ariaLabel);
+    }
+
+    if (item.disabled) {
+      button.disabled = true;
+    }
+
+    if (typeof item.onClick === 'function') {
+      button.addEventListener('click', item.onClick);
+    }
+
+    if (item.href) {
+      button.setAttribute('data-href', item.href);
+    }
+
+    container.appendChild(button);
+    buttons.push(button);
+  });
+
+  return buttons;
+}
+
 // Landmark data structure
 const landmarks = [];
 
@@ -153,5 +205,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  createInPageButtons
 };

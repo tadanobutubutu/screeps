@@ -3,6 +3,8 @@
 // (Previously existing code that needs to be preserved)
 
 // This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserved
+// ----- END ORIGINAL CODE (unchanged) -----
 // (This comment remains as-is)
 
 // More existing code that should be preserved
@@ -39,7 +41,7 @@ function createUnrotateButton() {
 function replaceFakeLinks() {
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach((link) => {
-    if (link.getAttribute('aria-hidden') === 'true') {
+    if (link.dataset.fake === 'true') {
       const parent = link.parentElement;
       const newButton = createUnrotateButton();
       parent.replaceChild(newButton, link);
@@ -109,7 +111,7 @@ function ensureThScope() {
  * Setup skip link functionality for keyboard navigation
  */
 function setupSkipLinks() {
-  const skipLink = document.getElementById('skip-link') || document.querySelector('.skip-link');
+  const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
@@ -128,7 +130,7 @@ function setupSkipLinks() {
 function setupButtonAccessibility() {
   const buttons = document.querySelectorAll('button');
   buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+    if (!button.textContent.trim() && !button.getAttribute('aria-label')) {
       button.setAttribute('aria-label', 'Action button');
     }
   });
@@ -165,16 +167,16 @@ function addLandmarkRoles() {
 
 // Function to add accessible names to 2 SVGs
 function addSvgAccessibleNames() {
-  const svg1 = document.querySelector('.svg-1');
+  const svg1 = document.querySelector('.svg-icon-1');
   if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
 
-  const svg2 = document.querySelector('.svg-2');
+  const svg2 = document.querySelector('.svg-icon-2');
   if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
 }
 
 // Function to ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"]');
+  const landmarks = document.querySelectorAll('[role="banner"], [role="main"], [role="contentinfo"]');
   const landmarkIds = new Set();
 
   landmarks.forEach((landmark) => {
@@ -205,7 +207,7 @@ function initialize() {
   console.log('Application initialized');
 
   // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.querySelector('main') || document.getElementById('main-content');
+  const mainContent = document.querySelector('main') || document.getElementById('main');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
     mainContent.setAttribute('role', 'main');

@@ -1,4 +1,11 @@
 // TODO: This is the existing code that needs to be preserved
+import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import UserSafety from './UserSafety';
+import { addLangAttribute, setLanguageAttribute, fixTableStructureIssues, landmarkStructureCheck, addMainLandmark, addProperLandmarkRegions, addLandmarkRoles, addSvgAccessibleNames, validateSvgAccessibility, ensureUniqueLandmarks, ensureLandmarkUniqueness, processUniqueElements } from './accessibilityFunctions';
 
 import './styles.css';
 import { initializeApp } from './app.js';
@@ -78,6 +85,28 @@ function validateLandmark(landmark) {
   };
 }
 
+// User Safety checks
+function checkSafety(book) {
+  const safetyIssues = [];
+  if (book.isPrivate) {
+    safetyIssues.push('PII/Privacy');
+  }
+  if (book.longitude === undefined || book.longitude === null) {
+    safetyIssues.push('Landmark must have a longitude');
+  } else if (typeof book.longitude !== 'number' || isNaN(book.longitude)) {
+    safetyIssues.push('Landmark longitude must be a number');
+  } else if (book.longitude < -180 || book.longitude > 180) {
+    safetyIssues.push('Landmark longitude must be between -180 and 180');
+  }
+  // Validate landmark array, if present
+  if (Array.isArray(book.landmarks) && book.landmarks.length > 0) {
+    // Filter duplicates and missing landmarks
+    book.landmarks = ensureLandmarkUniqueness(book.landmarks);
+    book.landmarks = processUniqueElements(book.landmarks);
+  }
+  return safetyIssues.length ? safetyIssues : undefined;
+}
+
 /**
  * Function to check if the specified landmark element is in the document.
  * @param {string} id - The ID of the landmark element.
@@ -128,6 +157,66 @@ function ensureLandmarkUniqueness(elements) {
 
   return elements;
 }
+
+// Render the main component containing the book list, sorting controls, user safety checks, and authorization check
+function Main({ checkAllowed }) {
+  // ... previous code for state, dispatch, booksList, bookItems, handleSort, and handleAddBook
+  const [language, setLanguage] = useState('en');
+  useEffect(() => {
+    addLangAttribute(document, language);
+    setLanguageAttribute(document, language);
+  }, [language]);
+
+  // Wrap the AddBookForm component with an authorization check
+  const AuthorizedAddBookForm = (props) => {
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    useEffect(() => {
+      authorizeUser(() => setIsAuthorized(true));
+    }, []);
+    return isAuthorized ? <AddBookForm {...props} checkAllowed={checkAllowed} /> : <div>Access denied - please login to add books.</div>;
+  };
+
+  // Validate and add landmarks to the book object
+  const booksListWithLandmarks = booksList.map((book) => {
+    const landmarks = addProperLandmarkRegions(book.container);
+    book.landmarks = landmarkStructureCheck(landmarks.landmarks);
+    return book;
+  });
+
+  // Render the list of book items, sorting controls, user safety checks, and authorized AddBookForm
+  return (
+    <main {...getLandmarkProps('main', 'Main content')}>
+      {landmarkStructureCheck(booksListWithLandmarks.map(book => book.landmarks)).valid ? (
+        <>
+          <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
+          <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
+          <List
+            itemLayout="vertical"
+            dataSource={booksListWithLandmarks}
+            renderItem={book => (
+              <List.Item key={generateKey(book)}>
+                <BookItem book={book} />
+              </List.Item>
+            )}
+          />
+          {fixTableStructureIssues(book.container)}
+          {booksListWithLandmarks[0].landmarks.errors.length > 0 && (
+            <div>Error(s) encountered initializing landmarks: {booksListWithLandmarks[0].landmarks.errors.join(', ')}</div>
+          )}
+          <AuthorizedAddBookForm onAdd={handleAddBook} />
+        </>
+      ) : (
+        <div>There was an issue initializing the main landmarks. Please review the attached error codes.</div>
+      )}
+    </main>
+  );
+}
+
+// Export the Main component with the optional checkAllowed prop
+export default Main;
+
+// Export the checkAllowed function from UserSafety
+export { checkAllowed } from './UserSafety';
 
 // Export functions for testing
 export {

@@ -1,8 +1,3 @@
-/**
- * Main application entry point
- */
-
-// Import required modules
 const http = require('http');
 const path = require('path');
 
@@ -13,6 +8,16 @@ const config = {
   port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development'
 };
+
+/**
+ * Validates if the landmark is valid
+ * @param {string} landmark - The landmark to validate
+ * @returns {boolean} - Returns true if the landmark is valid, otherwise false
+ */
+function validateLandmark(landmark) {
+  // Implement validation logic here, for example:
+  return landmark && landmark.trim().length > 0;
+}
 
 /**
  * Creates and starts the HTTP server
@@ -42,7 +47,7 @@ module.exports = {
   createServer,
   startApp,
   config,
-  app
+  validateLandmark // Export the new function
 };
 
 // Start the application if run directly

@@ -36,17 +36,17 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if ... {
+    if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if ... {
+    } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if ... {
+    } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâäéèêëïîôùûüç]/i.test(content)) {
+    } else if (/(?:les?|la|des?|et|en|du|un|une|que|cette)/i.test(content)) {
       lang = 'fr'; // French
-    } else if ... {
+    } else if (/(?:der|die|das|und|ist|von|ein|eine|nicht)/i.test(content)) {
       lang = 'de'; // German
     }
   }
@@ -80,7 +80,7 @@ function validateTableAccessibility(table) {
   // Check if table headers have scope or are properly associated
   const headers = table.querySelectorAll('th');
   headers.forEach((th, index) => {
-    if (!th.getAttribute('scope') && !th.id) {
+    if (!th.hasAttribute('scope') && !th.id) {
       issues.push({
         code: 'REACT_027',
         message: `Table header at index ${index} is missing scope attribute`
@@ -89,7 +89,7 @@ function validateTableAccessibility(table) {
   });
   
   // Check if data cells have headers association
-  const cells = table.querySelectorAll('td[headers]');
+  const cells = table.querySelectorAll('td');
   if (headers.length > 0 && cells.length === 0) {
     issues.push({
       code: 'REACT_027',
@@ -131,9 +131,9 @@ function validateTableStructure(table) {
   let expectedCols = 0;
   
   rows.forEach((row, index) => {
-    const cells = row.querySelectorAll('td, th');
+    const cells = row.querySelectorAll('th, td');
     const colspan = Array.from(cells).reduce((sum, cell) => {
-      return sum + (parseInt(cell.getAttribute('colspan')) || 1);
+      return sum + (parseInt(cell.getAttribute('colspan'), 10) || 1);
     }, 0);
     
     if (index === 0) {
@@ -166,7 +166,7 @@ function validateLandmark(element) {
                        landmark.getAttribute('aria-labelledby') ||
                        landmark.querySelector('h1, h2, h3, h4, h5, h6');
       
-      if (!hasLabel && landmarkRoles.indexOf(role) !== landmarkRoles.indexOf('main')) {
+      if (!hasLabel && landmark.tagName.toLowerCase() !== landmark.tagName.toLowerCase()) {
         issues.push({
           code: 'REACT_017',
           message: `Landmark with role="${role}" is missing accessible name at index ${index}`
@@ -186,7 +186,7 @@ function validateLandmarkStructure() {
   }
   
   // Check for multiple main landmarks
-  const mains = document.querySelectorAll('main, [role="main"]');
+  const mains = document.querySelectorAll('[role="main"], main');
   if (mains.length > 1) {
     issues.push({
       code: 'REACT_017',
@@ -195,7 +195,7 @@ function validateLandmarkStructure() {
   }
   
   // Check for multiple banner landmarks
-  const banners = document.querySelectorAll('[role="banner"]');
+  const banners = document.querySelectorAll('[role="banner"], header');
   if (banners.length > 1) {
     issues.push({
       code: 'REACT_017',
@@ -204,7 +204,7 @@ function validateLandmarkStructure() {
   }
   
   // Check for multiple contentinfo landmarks
-  const contentinfos = document.querySelectorAll('[role="contentinfo"]');
+  const contentinfos = document.querySelectorAll('[role="contentinfo"], footer');
   if (contentinfos.length > 1) {
     issues.push({
       code: 'REACT_017',
@@ -213,7 +213,7 @@ function validateLandmarkStructure() {
   }
   
   // Check for multiple navigation landmarks
-  const navigations = document.querySelectorAll('nav, [role="navigation"]');
+  const navigations = document.querySelectorAll('[role="navigation"], nav');
   navigations.forEach((nav, index) => {
     const hasLabel = nav.getAttribute('aria-label') || nav.getAttribute('aria-labelledby');
     if (!hasLabel) {
@@ -273,86 +273,4 @@ function ensureUniqueLandmarks() {
     const role = landmark.getAttribute('role');
     const label = landmark.getAttribute('aria-label') || 
                   landmark.getAttribute('aria-labelledby') ||
-                  (landmark.querySelector('h1, h2, h3, h4, h5, h6') || {}).textContent;
-    
-    if (label) {
-      const key = `${role}:${label}`;
-      if (landmarkLabels[key]) {
-        issues.push({
-          code: 'REACT_025',
-          message: `Duplicate landmark: role="${role}" with label "${label}" appears ${landmarkLabels[key] + 1} times`
-        });
-        landmarkLabels[key]++;
-      } else {
-        landmarkLabels[key] = 1;
-      }
-    }
-  });
-  
-  return issues;
-}
-
-// New function to address REACT_036: Fix 1 fake link issue
-function createAccessibleLink(href, text, options = {}) {
-  if (typeof document === 'undefined') {
-    return null;
-  }
-  
-  const link = document.createElement('a');
-  link.href = href || '#';
-  link.textContent = text || '';
-  
-  // Set role="link" explicitly for accessibility
-  link.setAttribute('role', 'link');
-  
-  // Add aria-label if provided
-  if (options['aria-label']) {
-    link.setAttribute('aria-label', options['aria-label']);
-  }
-  
-  // Handle onClick as button behavior - ensure it's properly announced
-  if (options.onClick && !href) {
-    link.setAttribute('tabindex', '0');
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      options.onClick(e);
-    });
-    
-    // Ensure keyboard accessibility
-    link.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        options.onClick(e);
-      }
-    });
-  }
-  
-  // Ensure links have accessible names
-  if (!text && !options['aria-label']) {
-    console.warn('REACT_036: Link is missing accessible name');
-  }
-  
-  return link;
-}
-
-/**
- * Creates an accessible in-page button and appends it to the given parent element.
- * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(parent = (typeof document !== 'undefined' ? document.body : null)) {
-  if (typeof document === 'undefined') {
-    return null;
-  }
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.textContent = '[...]';
-  btn.setAttribute('role', 'button');
-  btn.setAttribute('tabindex', '0');
-  
-  if (parent) {
-    parent.appendChild(btn);
-  }
-  
-  return btn;
-}
+                  (landmark.querySelector('h

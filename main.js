@@ -381,18 +381,18 @@ function generateAccessibilityReport() {
 
 // Function to check link accessibility
 function checkLinkAccessibility() {
-  var doc = getDocument();
-  if (doc) {
-    var links = doc.querySelectorAll('a');
-    var issues = [];
-    links.forEach(function(link) {
-      if (!link.textContent && !link.getAttribute('aria-label')) {
-        issues.push('Link missing accessible name');
-      }
-    });
-    return issues.length === 0;
-  }
-  return true;
+    var doc = getDocument();
+    if (doc) {
+        var links = doc.querySelectorAll('a');
+        var issues = [];
+        links.forEach(function(link) {
+            if (!link.textContent && !link.getAttribute('aria-label')) {
+                issues.push('Link missing accessible name');
+            }
+        });
+        return issues.length === 0;
+    }
+    return true;
 }
 
 // Placeholder for validateLinkAccessibility (referenced by checkLinkAccessibility)
@@ -420,8 +420,9 @@ function addressAccessibilityIssues(doc) {
     }
 
     // Add lang attribute
-    const html = doc.documentElement;
-    html.setAttribute('lang', langAttr);
+    var langAttr = getLangAttribute();
+    var html = doc.documentElement;
+    html.setAttribute('lang', langAttr || 'en');
 
     // Fix 26 table structure issues
     // ... existing code ...
@@ -542,7 +543,7 @@ function initializeAccessibility() {
 }
 
 // Screeps game loop
-module.exports = function() {
+var gameLoop = function() {
     // Initialize accessibility features
     var langAttr = getLangAttribute();
     var primaryContent = wrapPrimaryContentInMain();
@@ -586,6 +587,7 @@ module.exports = function() {
 };
 
 // Export for use in other modules (CommonJS)
+module.exports = gameLoop;
 module.exports.debounce = debounce;
 module.exports.throttle = throttle;
 module.exports.isEmpty = isEmpty;

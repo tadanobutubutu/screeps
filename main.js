@@ -35,23 +35,39 @@ function initialize() {
     console.log('App initialized');
 }
 
-// Initialize app function
-function initializeApp() {
-    initialize();
-    return appState;
-}
-
-// Main function (required export)
-function main() {
-    initialize();
-    initializeApp();
-    console.log('Main function executed');
-    return { executed: true };
+/**
+ * Function to check if the specified landmark element is in the document.
+ * @param {string} id - The ID of the landmark element.
+ * @returns {boolean} Returns true if the element exists; otherwise, false.
+ */
+function checkLandmarkElement(id) {
+    const element = document ? document.getElementById(id) : null;
+    return element !== null;
 }
 
 // Landmark validation function with merged logic from both branches
 function validateLandmark(landmark) {
     const errors = [];
+
+    // Check if landmark exists
+    if (!landmark) {
+        errors.push('Landmark is required');
+        return { valid: false, errors };
+    }
+
+    // Validate name
+    if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+        errors.push('Landmark must have a valid name');
+    }
+
+    // Validate latitude
+    if (landmark.latitude === undefined || landmark.latitude === null) {
+        errors.push('Landmark must have a latitude');
+    } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+        errors.push('Landmark latitude must be a number');
+    } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+        errors.push('Landmark latitude must be between -90 and 90');
+    }
 
     // Validate longitude
     if (landmark.longitude === undefined || landmark.longitude === null) {
@@ -71,7 +87,84 @@ function validateLandmark(landmark) {
         });
     }
 
-    return errors;
+    return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Wraps the primary content in a <main> landmark element if not already present.
+ * Implements proper landmark structure for accessibility compliance.
+ */
+function wrapPrimaryContentInMain() {
+  // Check if a <main> element already exists
+  let mainElement = document.querySelector('main[role="main"], main, [role="main"]');
+  
+  if (!mainElement) {
+    // Find existing primary content element using common selectors
+    const primaryContentSelectors = [
+      '#primary-content',
+      '#main-content',
+      '[role="main"]',
+      '.primary-content',
+      '.main-content',
+      '#content',
+      'article',
+      '.content'
+    ];
+    
+    let primaryContent = null;
+    
+    for (const selector of primaryContentSelectors) {
+      const element = document.querySelector(selector);
+      if (element && element.tagName !== 'MAIN') {
+        primaryContent = element;
+        break;
+      }
+    }
+    
+    // If no specific primary content found, use body content
+    if (!primaryContent) {
+      primaryContent = document.body;
+    }
+    
+    // Create main element with proper attributes
+    mainElement = document.createElement('main');
+    mainElement.id = 'main-content';
+    mainElement.setAttribute('role', 'main');
+    
+    // Preserve existing id if the primary content has one
+    if (primaryContent.id) {
+      mainElement.id = primaryContent.id;
+    }
+    
+    // Wrap the content appropriately
+    if (primaryContent !== document.body && primaryContent.parentNode) {
+      primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+      mainElement.appendChild(primaryContent);
+    } else if (primaryContent === document.body) {
+      // For body, insert main as first child
+      mainElement.appendChild(document.createDocumentFragment());
+      while (document.body.firstChild) {
+        mainElement.appendChild(document.body.firstChild);
+      }
+      document.body.appendChild(mainElement);
+    }
+  }
+  
+  return mainElement;
+}
+
+// Initialize app function
+function initializeApp() {
+    initialize();
+    return appState;
+}
+
+// Main function (required export)
+function main() {
+    initialize();
+    initializeApp();
+    console.log('Main function executed');
+    return { executed: true };
 }
 
 // Accessibility helper function to validate table accessibility
@@ -117,41 +210,6 @@ function validateTableStructure(table) {
     });
     
     return issues;
-}
-
-// Main execution when run directly
-if (require.main === module) {
-    // Start server
-    const app = express();
-    const PORT = process.env.PORT || 3000;
-    const HOST = process.env.HOST || 'localhost';
-    
-    app.listen(PORT, () => {
-        console.log(`Server running on http://${HOST}:${PORT}`);
-    });
-
-    // Visualize dependency tree when running directly
-    visualizeDependencyTree(require.dependencies);
-
-    // Run accessibility check and fix issues if any
-    const insightReport = getInsightReport();
-    if (insightReport.length > 0) {
-        console.log('Accessibility issues found:');
-        insightReport.forEach((issue) => {
-            console.log(`${issue.type}: ${issue.description}`);
-        });
-        addressAccessibilityIssues(insightReport);
-    }
-}
-
-/**
- * Function to check if the specified landmark element is in the document.
- * @param {string} id - The ID of the landmark element.
- * @returns {boolean} Returns true if the element exists; otherwise, false.
- */
-function checkLandmarkElement(id) {
-    const element = document ? document.getElementById(id) : null;
-    return element !== null;
 }
 
 // Table accessibility functions (merged from both branches)
@@ -304,16 +362,6 @@ function processData(data) {
     return data;
 }
 
-/**
- * Function to check if the specified landmark element is in the document.
- * @param {string} id - The ID of the landmark element.
- * @returns {boolean} Returns true if the element exists; otherwise, false.
- */
-function checkLandmarkElement(id) {
-    const element = document ? document.getElementById(id) : null;
-    return element !== null;
-}
-
 function ensureUniqueLandmarks(landmarksArray) {
     if (!landmarksArray || landmarksArray.length === 0) {
         return [];
@@ -436,6 +484,32 @@ function processUniqueElements(elements) {
     seen.add(key);
     return true;
   });
+}
+
+// Function to check if the specified landmark element is in the document.
+function checkLandmarkElement(id) {
+    const element = document ? document.getElementById(id) : null;
+    return element !== null;
+}
+
+// Ensure landmarks uniqueness when there's an array structure
+function ensureLandmarkUniqueness(elements) {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+
+  const elementsById = {};
+
+  if (Array.isArray(elements)) {
+    for (const landmark of elements) {
+      if (landmark.id) {
+        if (elementsById[landmark.id]) {
+          elementsById[landmark.id] = true;
+        } else {
+          landmark.id += '_duplicate';
+        }
+      }
+    }
+  }
+  return elements;
 }
 
 function addressInsightIssues(insights) {

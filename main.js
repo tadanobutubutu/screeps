@@ -11,6 +11,16 @@ const appState = {
   cache: new Map()
 };
 
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+// TODO: This is the existing code that needs to be preserved
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+
+// Implemented validateLandmark functionality
 function validateLandmarkObject(landmark) {
   const errors = [];
 
@@ -22,6 +32,35 @@ function validateLandmarkObject(landmark) {
   if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
     errors.push('Landmark must have a valid name');
   }
+
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+
+  if (Array.isArray(landmark)) {
+    landmark.forEach((innerLandmark, index) => {
+      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+        errors.push(`Landmark at index ${index} must have a valid name`);
+      }
+    });
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
 }
 
 // TODO: Identify and update specific functions that render dependency graphs or mark as N/A if none exist in this file
@@ -114,38 +153,7 @@ function validateTableAccessibility(tableElement) {
   }
   if (!hasHeaders) {
     issues.push('Table is missing header cells (th)');
-=======
-
-  if (!landmark) {
-    errors.push('Landmark is required');
-    return { valid: false, errors };
   }
-
-  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
-    errors.push('Landmark must have a valid name');
-  }
-
-  if (landmark.latitude === undefined || landmark.latitude === null) {
-    errors.push('Landmark must have a latitude');
-  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
-    errors.push('Landmark latitude must be a number');
-  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
-    errors.push('Landmark latitude must be between -90 and 90');
-  }
-
-  if (landmark.longitude === undefined || landmark.longitude === null) {
-    errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
-    errors.push('Landmark longitude must be a number');
-  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
-    errors.push('Landmark longitude must be between -180 and 180');
-  }
-
-  if (Array.isArray(landmark)) {
-    landmark.forEach((innerLandmark, index) => {
-      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
-        errors.push(`Landmark at index ${index} must have a valid name`);
-=======
 
   return issues;
 }
@@ -317,34 +325,51 @@ function AddBookForm({ onAddBook }) {
       setError('Title is required');
       if (titleInputRef.current) {
         titleInputRef.current.focus();
-=======
+      }
+      return;
+    }
 
-  if (landmark.latitude === undefined || landmark.latitude === null) {
-    errors.push('Landmark must have a latitude');
-  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
-    errors.push('Landmark latitude must be a number');
-  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
-    errors.push('Landmark latitude must be between -90 and 90');
-  }
+    if (!author.trim()) {
+      setError('Author is required');
+      return;
+    }
 
-  if (landmark.longitude === undefined || landmark.longitude === null) {
-    errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
-    errors.push('Landmark longitude must be a number');
-  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
-    errors.push('Landmark longitude must be between -180 and 180');
-  }
-
-  if (Array.isArray(landmark)) {
-    landmark.forEach((innerLandmark, index) => {
-      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
-        errors.push(`Landmark at index ${index} must have a valid name`);
-=======
-
-  return {
-    valid: errors.length === 0,
-    errors
+    onAddBook({ title: title.trim(), author: author.trim() });
+    setTitle('');
+    setAuthor('');
   };
+
+  return (
+    <form ref={formRef} onSubmit={handleSubmit} aria-label="Add new book">
+      <div>
+        <label htmlFor="new-book-title">Book Title:</label>
+        <input
+          ref={titleInputRef}
+          id="new-book-title"
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          aria-invalid={!!error}
+          aria-describedby={error ? 'book-form-error' : undefined}
+        />
+      </div>
+      <div>
+        <label htmlFor="new-book-author">Author:</label>
+        <input
+          id="new-book-author"
+          type="text"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+        />
+      </div>
+      {error && (
+        <div id="book-form-error" role="alert" aria-live="polite">
+          {error}
+        </div>
+      )}
+      <button type="submit">Add Book</button>
+    </form>
+  );
 }
 
 function ensureLandmarkUniqueness(elements) {

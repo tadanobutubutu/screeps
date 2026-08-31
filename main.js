@@ -135,7 +135,8 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
-    handleCredentialResponse
+    handleCredentialResponse,
+    generateAccessibilityReport
   };
 } else {
   // Browser environment - wait for DOM
@@ -413,6 +414,15 @@ const AddressabilityIssues = {
   }
 };
 
+// New function to generate a report based on accessibility issues
+function generateAccessibilityReport(insightReport) {
+  if (!insightReport || typeof insightReport !== 'object' || !Array.isArray(insightReport.issues)) {
+    return [];
+  }
+  // Leverage the existing utility to map issues into the desired format
+  return AddressabilityIssues.generateAccessibilityReport(insightReport);
+}
+
 function MyComponent() {
   // Existing code that needs to be updated
   const langAttr = getLangAttribute();
@@ -426,4 +436,5 @@ function MyComponent() {
 export {
   MyComponent,
   AddressabilityIssues,
+  generateAccessibilityReport
 };

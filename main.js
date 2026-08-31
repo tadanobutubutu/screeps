@@ -289,7 +289,7 @@ function validateLandmarkStructure(container) {
 
   const issues = [];
   const roleCounts = {};
-  const labelledRoles = {};
+  const labelledRoles = {}; // Maps role -> Set of labels
 
   landmarks.forEach((landmark, index) => {
     const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
@@ -302,25 +302,37 @@ function validateLandmarkStructure(container) {
 
     // Track labelled roles for uniqueness check
     if (label) {
-      if (!labelledRoles[role]) labelledRoles[role] = [];
-      labelledRoles[role].push(label);
-    }
-
-    // Check for duplicate unlabelled landmarks of same type
-    if (!label && roleCounts[role] > 1) {
-      issues.push({
-        type: 'duplicate_unlabelled_landmark',
-        element: landmark,
-        role,
-        message: `Multiple <${role}> landmarks without unique labels`
-      });
+      if (!labelledRoles[role]) labelledRoles[role] = new Set();
+      labelledRoles[role].add(label);
+      
+      // Check for duplicate labels within the same role
+      if (labelledRoles[role].has(label)) {
+        issues.push({
+          type: 'duplicate_labeled_landmark',
+          element: landmark,
+          role,
+          message: `Duplicate label "${label}" for landmark with role "${role}"`
+        });
+      } else {
+        labelledRoles[role].add(label);
+      }
+    } else {
+      // Unlabelled landmarks - check for duplicates
+      if (roleCounts[role] > 1) {
+        issues.push({
+          type: 'duplicate_unlabelled_landmark',
+          element: landmark,
+          role,
+          message: `Multiple <${role}> landmarks without unique labels`
+        });
+      }
     }
   });
 
   // Check for required landmarks
   const requiredRoles = ['main'];
   requiredRoles.forEach(role => {
-    if (!roleCounts[role] && !roleCounts[role === 'main' ? 'main' : role]) {
+    if (!roleCounts[role]) {
       issues.push({
         type: 'missing_required_landmark',
         role,

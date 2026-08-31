@@ -392,18 +392,251 @@ function towerDefense() {
   };
 }
 
+// Add back missing functions from TODO comments
+
+/**
+ * Function to fix table structure issues (REACT_027)
+ * @param {HTMLTableElement} table - The table element to fix
+ * @returns {Object} Result object with valid status and any errors
+ */
+function fixTableStructure(table) {
+  const result = { valid: true, errors: [] };
+  
+  if (!table) {
+    return { valid: false, errors: ['Table element is required'] };
+  }
+  
+  // Fix missing thead
+  const thead = table.querySelector('thead');
+  if (!thead) {
+    const newThead = document.createElement('thead');
+    const firstRow = table.querySelector('tr');
+    if (firstRow) {
+      newThead.appendChild(firstRow.cloneNode(true));
+      table.insertBefore(newThead, table.firstChild);
+    }
+  }
+  
+  // Fix missing tbody
+  if (!table.querySelector('tbody')) {
+    const tbody = document.createElement('tbody');
+    const rows = Array.from(table.querySelectorAll('tr'));
+    if (rows.length > 0 && table.querySelector('thead')) {
+      const theadRows = table.querySelectorAll('thead tr');
+      const dataRows = rows.slice(theadRows.length);
+      dataRows.forEach(row => tbody.appendChild(row));
+    }
+    table.appendChild(tbody);
+  }
+  
+  // Fix inconsistent column counts
+  const allRows = table.querySelectorAll('tr');
+  const columnCounts = Array.from(allRows).map(row => row.querySelectorAll('td, th').length);
+  const uniqueCounts = [...new Set(columnCounts)];
+  if (uniqueCounts.length > 1) {
+    // Use the most common column count
+    const countCounts = {};
+    columnCounts.forEach(count => {
+      countCounts[count] = (countCounts[count] || 0) + 1;
+    });
+    const mostCommonCount = Object.entries(countCounts).sort((a, b) => b[1] - a[1])[0][0];
+    
+    allRows.forEach((row, rowIndex) => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length !== mostCommonCount) {
+        // Add or remove cells to match the most common count
+        while (cells.length < mostCommonCount) {
+          const cell = document.createElement(cells.length % 2 === 0 ? 'td' : 'th');
+          row.appendChild(cell);
+        }
+        while (cells.length > mostCommonCount) {
+          row.removeChild(row.lastChild);
+        }
+        result.errors.push(`Fixed inconsistent cell count in row ${rowIndex}: set to ${mostCommonCount}`);
+      }
+    });
+    result.valid = result.errors.length === 0;
+  }
+  
+  return result;
+}
+
+/**
+ * Function to add landmark issues (REACT_017)
+ * @param {HTMLElement} element - The landmark element to process
+ * @returns {Object} Result object with valid status and any errors
+ */
+function addLandmarkIssues(element) {
+  const errors = [];
+  
+  if (!element) {
+    return { valid: false, errors: ['Element is required'] };
+  }
+  
+  // Check if element has role attribute
+  const role = element.getAttribute('role');
+  if (!role) {
+    // Try to infer role from tag name
+    const tagName = element.tagName.toLowerCase();
+    if (tagName === 'header') {
+      element.setAttribute('role', 'banner');
+      errors.push('Added role="banner" to header element');
+    } else if (tagName === 'nav') {
+      element.setAttribute('role', 'navigation');
+      errors.push('Added role="navigation" to nav element');
+    } else if (tagName === 'main') {
+      element.setAttribute('role', 'main');
+      errors.push('Added role="main" to main element');
+    } else if (tagName === 'aside') {
+      element.setAttribute('role', 'complementary');
+      errors.push('Added role="complementary" to aside element');
+    } else if (tagName === 'footer') {
+      element.setAttribute('role', 'contentinfo');
+      errors.push('Added role="contentinfo" to footer element');
+    }
+  }
+  
+  // Check for required accessible names
+  const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary'];
+  if (role && landmarksNeedingNames.includes(role)) {
+    const hasLabel = element.getAttribute('aria-label') || 
+                     element.getAttribute('aria-labelledby') ||
+                     element.querySelector('h1, h2, h3, h4, h5, h6');
+    if (!hasLabel) {
+      errors.push(`Landmark role "${role}" is missing accessible name`);
+    }
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Function to add accessible names to SVGs (REACT_041)
+ * @param {SVGElement} svg - The SVG element to process
+ * @param {string} accessibleName - The accessible name to add
+ * @returns {Object} Result object with valid status and any errors
+ */
+function addSvgAccessibleNames(svg, accessibleName) {
+  const result = { valid: true, errors: [] };
+  
+  if (!svg) {
+    return { valid: false, errors: ['SVG element is required'] };
+  }
+  
+  if (!accessibleName) {
+    result.errors.push('Accessible name is required');
+    result.valid = false;
+    return result;
+  }
+  
+  // Check if SVG already has an accessible name
+  const hasAriaLabel = svg.getAttribute('aria-label');
+  const hasTitle = svg.querySelector('title');
+  const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
+  
+  if (hasAriaLabel || hasTitle || hasAriaLabelledby) {
+    result.errors.push('SVG already has an accessible name');
+    result.valid = false;
+    return result;
+  }
+  
+  // Add aria-label to SVG
+  svg.setAttribute('aria-label', accessibleName);
+  
+  return result;
+}
+
+/**
+ * Function to fix fake link issues (REACT_036)
+ * @param {HTMLElement} element - The element to check/fix
+ * @returns {Object} Result object with valid status and any errors
+ */
+function fixFakeLinkIssue(element) {
+  const result = { valid: true, errors: [] };
+  
+  if (!element) {
+    return { valid: false, errors: ['Element is required'] };
+  }
+  
+  // Check if element is a fake link
+  if (element.tagName.toLowerCase() === 'a') {
+    const href = element.getAttribute('href');
+    if (!href || href === '#' || href === '') {
+      // This is a fake link, convert to button
+      const button = document.createElement('button');
+      button.textContent = element.textContent;
+      button.setAttribute('role', 'button');
+      
+      const ariaLabel = element.getAttribute('aria-label');
+      if (ariaLabel) {
+        button.setAttribute('aria-label', ariaLabel);
+      }
+      
+      const className = element.getAttribute('class');
+      if (className) {
+        button.className = className;
+      }
+      
+      element.replaceWith(button);
+      result.errors.push('Converted fake link to button');
+    }
+  }
+  
+  return result;
+}
+
+/**
+ * Function to get person's name (REACT_015 and REACT_036)
+ * @param {string} person - The person's identifier or object
+ * @returns {string} The person's name
+ */
+function personName(person) {
+  // Simple implementation - could be expanded based on requirements
+  if (!person) {
+    return '';
+  }
+  
+  // If person is an object with a name property
+  if (typeof person === 'object' && person.name) {
+    return person.name;
+  }
+  
+  // If person is a string, return it as the name
+  if (typeof person === 'string') {
+    return person;
+  }
+  
+  // Default case
+  return String(person);
+}
+
+/**
+ * Function to add lang attribute to HTML element (REACT_015)
+ * @param {string} lang - The language code to set
+ * @returns {string} The language code that was set
+ */
+function addLangAttribute(lang) {
+  return setHtmlLangAttribute(lang);
+}
+
 // Export all functions to maintain current exports
 module.exports = {
   setHtmlLangAttribute,
   detectAndSetLang,
   getLangAttribute,
+  addLangAttribute, // Add back addLangAttribute export
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
+  fixTableStructure, // Add back fixTableStructure export
   validateLandmark,
   validateLandmarkStructure,
+  addLandmarkIssues, // Add back addLandmarkIssues export
   getSvgAccessibleName,
+  addSvgAccessibleNames, // Add back addSvgAccessibleNames export
   ensureUniqueLandmarks,
   createAccessibleLink,
-  towerDefense
+  fixFakeLinkIssue, // Add back fixFakeLinkIssue export
+  towerDefense,
+  personName // Add back personName export
 };

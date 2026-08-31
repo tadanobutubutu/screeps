@@ -1,6 +1,8 @@
-const main = require('./utilities');
+// Your new function or changes requested in the issue go here
 
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
+// Do not remove these lines, they are used by GitHub for tracking the changes
+// _Commit: <Your commit hash>
+// <!-- todo-hash: <Your todo hash> -->
 
 const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
 
@@ -203,8 +205,5 @@ module.exports = {
   },
 
   // Export functionality with accessibility support
-  exportUtils,
-
-  // New focus trap functionality for keyboard navigation
-  focusTrap
+  exportUtils
 };

@@ -43,7 +43,7 @@ function detectAndSetLang(content) {
     } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
-      lang = 'de'; // German
+      lang = 'de'; // German;
     }
   }
 

@@ -323,4 +323,37 @@ function validateInput(input) {
 // Main execution
 function main() {
   initialize();
-  console.log('Main
+  console.log('Main');
+}
+
+// Export all functions and utilities
+module.exports = {
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addLandmarkRegions,
+  addProperLandmarkRegions,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  config,
+  appState,
+  initialize,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  validateInput,
+  main
+};

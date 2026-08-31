@@ -1,38 +1,29 @@
-/**
- * Adds SVG accessibility props to the given props object
- * Ensures SVGs are properly accessible by adding role, aria-label, etc.
- * @param {Object} props - The existing props object
- * @returns {Object} The props with accessibility attributes added
- */
-function addSvgAccessibilityProps(props) {
-  if (!props) {
-    return { role: 'img' };
-  }
+const accessibilityUtils = {
+  // Utility functions for accessibility
+  initSkipLink: () => {},
+  trapFocus: (element) => {},
+  announceToScreenReader: (message, priority = 'polite') => {},
+  handleKeyboardNav: (e, handlers) => {},
 
-  const {
-    role = 'img',
-    ariaLabel,
-    ariaLabelledby,
-    ariaDescribedby,
-    ariaHidden,
-    focusable = false,
-    ...rest
-  } = props;
+  // Functions provided in both branches (merge)
+  ensureElementId: ensureElementId,
+  addAriaLabel: addAriaLabel,
+  renderDependencyGraph: renderDependencyGraph,
 
-  const accessibilityProps = {
-    role,
-    ...(ariaLabel && { 'aria-label': ariaLabel }),
-    ...(ariaLabelledby && { 'aria-labelledby': ariaLabelledby }),
-    ...(ariaDescribedby && { 'aria-describedby': ariaDescribedby }),
-    ...(ariaHidden === true && { 'aria-hidden': 'true' }),
-    focusable,
-  };
+  // Functions from the 'HEAD' branch
+  newFocusTrap: newFocusTrap,
+  addLangAttribute: addLangAttribute,
+  fixTableStructure: fixTableStructure,
+  addLandmarkIssues: addLandmarkIssues,
+  addSvgAccessibleNames: addSvgAccessibleNames,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  fixFakeLinkIssue: fixFakeLinkIssue,
 
-  return {
-    ...rest,
-    ...accessibilityProps,
-  };
-}
+  // Functions from the 'origin/main' branch
+  validateTableAccessibility: validateTableAccessibilityImpl,
+  validateTableStructure: validateTableStructureImpl,
+  transformInputData: transformInputData,
+};
 
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
@@ -187,7 +178,7 @@ function calculateSum(numbers) {
  * @param {string} [prefix='element'] - Prefix for the generated id
  * @returns {string} The element's id (existing or newly generated)
  */
-function ensureElementHasId(element, prefix = 'element') {
+function ensureElementId(element, prefix = 'element') {
   if (!element) {
     throw new Error('Element is required');
   }
@@ -316,151 +307,4 @@ const focusTrap = (element) => {
   }
 
   function moveFocusToFirst() {
-    setActiveElement(0);
-  }
-
-  function moveFocusToLast() {
-    setActiveElement(focusableElements.length - 1);
-  }
-
-  element.addEventListener('keydown', (e) => {
-    switch (e.key) {
-      case 'Tab':
-        if (e.shiftKey) {
-          prevFocusableElement();
-        } else {
-          nextFocusableElement();
-        }
-        e.preventDefault();
-        break;
-      case 'ArrowLeft':
-        prevFocusableElement();
-        e.preventDefault();
-        break;
-      case 'ArrowRight':
-        nextFocusableElement();
-        e.preventDefault();
-        break;
-      case 'Home':
-        moveFocusToFirst();
-        e.preventDefault();
-        break;
-      case 'End':
-        moveFocusToLast();
-        e.preventDefault();
-        break;
-    }
-  });
-};
-
-/**
- * Addresses accessibility issues identified in an insight report for the given container.
- * Iterates over the report and applies the relevant fixes using the utility helpers.
- * @param {HTMLElement} container - The container element to apply accessibility fixes to
- * @returns {Object} A summary of fixes that were applied
- */
-function addressAccessibilityIssues(container) {
-  const report = validateAccessibilityReport(container);
-  const fixes = implementAccessibilityFixesFromReport(container, report);
-
-  if (fixes && fixes.langAdded) {
-    log('Lang attribute added to HTML element', 'info');
-  }
-
-  if (fixes && fixes.mainLandmarkAdded) {
-    log('Main landmark added', 'info');
-  }
-
-  const landmarkFixes = (fixes && fixes.landmarksFixed) || 0;
-  if (landmarkFixes > 0) {
-    log(`Fixed ${landmarkFixes} unique landmarks`, 'info');
-  }
-
-  const svgFixes = (fixes && fixes.svgNamesAdded) || 0;
-  if (svgFixes > 0) {
-    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
-  }
-
-  const fakeLinkFixes = (fixes && fixes.fakeLinksFixed) || 0;
-  if (fakeLinkFixes > 0) {
-    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
-  }
-
-  return fixes || {};
-}
-
-function harvest(input) {
-  if (Array.isArray(input)) {
-    return input.reduce((sum, item) => {
-      if (typeof item === 'number') {
-        return sum + item;
-      }
-      return sum + (item && typeof item.value === 'number' ? item.value : 0);
-    }, 0);
-  }
-  return typeof input === 'number' ? input : 0;
-}
-
-function upgrade(item) {
-  if (item && typeof item === 'object') {
-    return {
-      ...item,
-      level: (item.level || 0) + 1,
-      upgraded: true
-    };
-  }
-  if (typeof item === 'number') {
-    return item + 1;
-  }
-  return item;
-}
-
-// Export all functions
-module.exports = {
-  addSvgAccessibilityProps,
-
-  CONFIG,
-  log,
-  validateInput,
-  parseJSONsafe,
-  formatResponse,
-  delay,
-  retryOperation,
-  sanitizeFilename,
-  readFileSafe,
-  processData,
-  filterValidItems,
-  groupByCategory,
-  myNewFunction,
-  calculateSum,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  handleCredentialResponse,
-  focusTrap,
-  addressAccessibilityIssues,
-  harvest,
-  upgrade,
-
-  // Re-export from utilities
-  createInPageButton,
-  createWebResourceButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addAltAttribute,
-  replaceButtonId,
-  addLangAttribute,
-  fixTableStructure,
-  addSvgAccessibleName,
-  fixFakeLinkIssue,
-  addAriaAttribute,
-
-  renderDependencyGraph: renderDependencyGraphs
-};
+    set

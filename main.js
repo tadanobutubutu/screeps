@@ -2,12 +2,12 @@ const main = require('./utilities');
 
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues, validateTableAccessibility, validateTableStructure, getSvgAccessibleName, getLangAttribute, exportUtils } = main;
 
 module.exports = {
   ...main,
 
-  // TODO: Address accessibility issues from insight report
+  // Address accessibility issues from insight report
   addressAccessibilityIssues: (container) => {
     const fixes = {
       langAdded: false,
@@ -18,17 +18,17 @@ module.exports = {
     };
 
     // Add lang attribute to HTML element if missing
-    const htmlElement = container.querySelector('html') || document.documentElement;
+    const htmlElement = document.querySelector('html') || document.documentElement;
     const langAttr = getLangAttribute(htmlElement);
     if (!langAttr) {
-      htmlElement.setAttribute('lang', 'en');
+      addLangAttribute(htmlElement, 'en');
       fixes.langAdded = true;
     }
 
     // Add main landmark if missing
-    const mainElement = container.querySelector('main');
+    const mainElement = document.querySelector('main');
     if (!mainElement) {
-      const body = container.querySelector('body');
+      const body = document.querySelector('body');
       if (body) {
         const newMain = document.createElement('main');
         while (body.firstChild) {
@@ -50,7 +50,7 @@ module.exports = {
     }
 
     // Fix SVG accessible names
-    const svgElements = container.querySelectorAll('svg');
+    const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
       const accessibleName = getSvgAccessibleName(svg);
       if (accessibleName && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
@@ -60,10 +60,10 @@ module.exports = {
     });
 
     // Fix fake link issues (elements that look like links but are missing href)
-    const fakeLinks = container.querySelectorAll('a:not([href])');
+    const fakeLinks = document.querySelectorAll('a:not([href])');
     fakeLinks.forEach(link => {
       const style = window.getComputedStyle(link);
-      if (style.cursor === 'pointer' || link.hasAttribute('onclick')) {
+      if (style.cursor === 'pointer' || link.getAttribute('role') === 'button') {
         link.setAttribute('role', 'link');
         link.setAttribute('tabindex', '0');
         fixes.fakeLinksFixed++;
@@ -102,7 +102,7 @@ module.exports = {
     return fixes;
   },
 
-  // TODO: Implement a new function to handle focus trap for keyboard navigation
+  // Focus trap for keyboard navigation
   focusTrap: (element) => {
     const focusableElements = element.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -119,7 +119,7 @@ module.exports = {
       if (focusableElements[index]) {
         focusableElements[index].focus();
       } else {
-        focusableElements[0].focus();
+        element.focus();
       }
       activeElementIndex = index;
     }
@@ -140,7 +140,7 @@ module.exports = {
       setActiveElement(focusableElements.length - 1);
     }
 
-    element.addEventListener('keydown', (e) => {
+    function handleKeyDown(e) {
       switch (e.key) {
         case 'Tab':
           if (e.shiftKey) {
@@ -167,33 +167,38 @@ module.exports = {
           e.preventDefault();
           break;
       }
-    });
+    }
+
+    element.addEventListener('keydown', handleKeyDown);
+    return {
+      destroy: () => element.removeEventListener('keydown', handleKeyDown)
+    };
   },
 
-  // TODO: Import the new function to create a button with correct accessibility properties for in-page linking
+  // Import the new function to create a button with correct accessibility properties for in-page linking
   createInPageButton: createInPageButton,
 
-  // TODO: Create a utility function to create a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
+  // Create a utility function to create a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
   createWebResourceButton: createWebResourceButton,
 
-  // TODO: Validate the table structure for accessibility issues
+  // Validate the table structure for accessibility issues
   validateTableAccessibility,
   validateTableStructure,
 
-  // TODO: Validate the landmark structure for accessibility issues
+  // Validate the landmark structure for accessibility issues
   validateLandmark,
   validateLandmarkStructure,
 
-  // TODO: Extract the accessible name for an SVG from its content
+  // Extract the accessible name for an SVG from its content
   getSvgAccessibleName,
 
-  // TODO: Add a language attribute to the HTML element
+  // Add a language attribute to the HTML element
   getLangAttribute,
 
-  // TODO: Validate the accessibility report for issues
+  // Validate the accessibility report for issues
   validateAccessibilityReport,
 
-  // TODO: Address new accessibility issues from insight report ( implement new functions and fixes as needed)
+  // Address new accessibility issues from insight report ( implement new functions and fixes as needed)
 
   // Credential response handling
   async handleCredentialResponse(response) {
@@ -219,12 +224,12 @@ module.exports = {
   // Existing utility functions
   log: (message, level = 'info') => {
     const timestamp = new Date().toISOString();
-    console.log(`${timestamp} [${level}] ${message}`);
+    console.log(`[${timestamp}] [${level}] ${message}`);
   },
 
   // Export functionality with accessibility support
   exportUtils,
 
-  // New focus trap functionality for keyboard navigation
+  // Focus trap functionality for keyboard navigation
   focusTrap
 };

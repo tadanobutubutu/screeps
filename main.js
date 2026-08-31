@@ -486,12 +486,6 @@ function processUniqueElements(elements) {
   });
 }
 
-// Function to check if the specified landmark element is in the document.
-function checkLandmarkElement(id) {
-    const element = document ? document.getElementById(id) : null;
-    return element !== null;
-}
-
 // Ensure landmarks uniqueness when there's an array structure
 function ensureLandmarkUniqueness(elements) {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -510,6 +504,15 @@ function ensureLandmarkUniqueness(elements) {
     }
   }
   return elements;
+}
+
+// Merged countDependencies function from both branches
+/**
+ * Counts the number of dependencies (landmarks) in the application.
+ * @returns {number} The count of dependencies.
+ */
+function countDependencies() {
+  return landmarks.length;
 }
 
 function addressInsightIssues(insights) {
@@ -577,17 +580,7 @@ function createInPageButtons(buttonsData) {
     });
 }
 
-// Function to count dependencies (migrated from the other branch)
-function countDependencies() {
-    const dependencies = {
-        'react': true,
-        'react-redux': true,
-        'antd': true
-    };
-    return Object.keys(dependencies).length;
-}
-
-// Accessibility issue handlers
+// Merged accessibility issue handlers from both branches
 function addressAccessibilityIssues(insightReport) {
     if (!Array.isArray(insightReport)) {
         return [];

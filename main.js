@@ -192,11 +192,6 @@ function addMainLandmark() {
   // ...
 }
 
-function ensureUniqueLandmarks() {
-  // Implementation for REACT_025: Ensure unique landmarks
-  // ...
-}
-
 function addAltAttribute() {
   // Implementation for adding alt attributes
   // ...

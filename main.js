@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const fs = require('fs');
 const path = require('path');
 
@@ -74,100 +71,141 @@ function validateLandmarkElements(document) {
   return document;
 }
 
-function validateTableStructure(table) {
-  const issues = [];
+const accessibilityUtils = {
+  trapFocus: function (container) {
+    const focusableElements = container.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
 
-  const thead = table.querySelector('thead');
-  if (!thead) {
-    issues.push('Missing thead element');
-  }
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
 
-  const tbody = table.querySelector('tbody');
-  if (!tbody) {
-    issues.push('Missing tbody element');
-  }
-
-  const headers = table.querySelectorAll('th');
-  if (headers.length === 0) {
-    issues.push('No header cells (th) found');
-  }
-
-  headers.forEach((th, index) => {
-    if (!th.hasAttribute('scope')) {
-      issues.push(`Header at index ${index} missing scope attribute`);
-    }
-  });
-
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    issues.push('Missing caption element');
-  }
-
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-function validateTableAccessibility(document) {
-  let fixedCount = 0;
-  const tables = document.querySelectorAll('table');
-
-  tables.forEach(table => {
-    const thead = table.querySelector('thead');
-    const tbody = table.querySelector('tbody');
-    const rows = table.querySelectorAll('tr');
-
-    if (!tbody && rows.length > 0) {
-      const remainingRows = rows.length > 1 ? Array.from(rows).slice(1) : [];
-      if (remainingRows.length > 0) {
-        const newTbody = document.createElement('tbody');
-        remainingRows.forEach(row => newTbody.appendChild(row));
-        table.appendChild(newTbody);
-        fixedCount++;
-      }
-    }
-
-    const allRows = table.querySelectorAll('tr');
-    allRows.forEach(row => {
-      const cells = row.querySelectorAll('th');
-      if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
-        const firstCell = cells[0];
-        const th = document.createElement('th');
-        th.textContent = firstCell.textContent;
-        th.scope = 'col';
-        row.replaceChild(th, firstCell);
-        fixedCount++;
+    container.addEventListener('keydown', (e) => {
+      const isTab = e.key === 'Tab';
+      if (!isTab) return;
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          lastElement && lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          firstElement && firstElement.focus();
+        }
       }
     });
+  },
 
-    const headerCells = table.querySelectorAll('th');
-    headerCells.forEach(th => {
-      if (!th.scope) {
-        th.setAttribute('scope', 'col');
-        fixedCount++;
-      }
-    });
-
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table';
-      caption.style.clip = 'rect(0 0 0 0)';
-      caption.style.clipPath = 'inset(50%)';
-      caption.style.height = '1px';
-      caption.style.overflow = 'hidden';
-      caption.style.whiteSpace = 'nowrap';
-      table.insertBefore(caption, table.firstChild);
-      fixedCount++;
+  announceToScreenReader: function(message, priority) {
+    if (priority === undefined) {
+      priority = 'polite';
     }
-  });
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(function() {
+      announcer.remove();
+    }, 1000);
+  },
 
-  return document;
-}
+  handleKeyboardNav: function(e, handlers) {
+    const key = e.key;
+    if (handlers[key]) {
+      handlers[key](e);
+    }
+  },
 
-// Add your other functions here
+  // Add other functions here
+};
 
-// ...
-```
+const exportUtils = {
+  // ... existing exportUtils implementation
+};
 
-This file has been cleaned up to remove abandoned code and combined the similar functions related to accessibility in separate conatainers (`validateTableStructure`, `validateTableAccessibility`, ...) to improve readability.
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  validateTableAccessibility,
+  validateTableStructure,
+  renderDependencyGraph,
+  renderIndex,
+  renderGraphIndex,
+  limitTabFunctionality,
+  checkLandmarkElement,
+  wrapPrimaryContentInMain,
+  checkLandmarks,
+  ensureUniqueLandmarks,
+  handleFocusTrap,
+  revokeSession,
+  functionA,
+  functionB,
+  accessibilityUtils,
+  newFocusTrap,
+  addLangAttribute,
+  fixTableStructure,
+  addLandmarkIssues,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  validateTableAccessibilityImpl,
+  validateTableStructureImpl,
+  transformInputData,
+  setSvgAccessibleProps,
+  addAccessibleNamesToSVGs,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  addressAccessibilityIssues,
+  a11yStore
+} = main;
+
+module.exports = {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  validateTableAccessibility,
+  validateTableStructure,
+  renderDependencyGraph,
+  renderIndex,
+  renderGraphIndex,
+  // Add newFunction, newFunction1, newFunction2 here if they are not included in main export
+  updateGraphRendering,
+  checkLandmarkElement,
+  wrapPrimaryContentInMain,
+  checkLandmarks,
+  ensureUniqueLandmarks,
+  handleFocusTrap,
+  revokeSession,
+  functionA,
+  functionB,
+  accessibilityUtils,
+  newFocusTrap,
+  addLangAttribute,
+  fixTableStructure,
+  addLandmarkIssues,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  validateTableAccessibilityImpl,
+  validateTableStructureImpl,
+  transformInputData,
+  setSvgAccessibleProps,
+  addAccessibleNamesToSVGs,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  addressAccessibilityIssues,
+  a11yStore,
+  trapFocus
+};

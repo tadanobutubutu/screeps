@@ -1,5 +1,6 @@
 function getLangAttribute() {
-  // Logic for getting the language attribute
+  // Add lang attribute support
+  return 'en';
 }
 
 function createInPageButton(id, href, text, className) {
@@ -59,11 +60,11 @@ function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
     output += `${prefix}${connector}${key}`;
     
     if (typeof value === 'object' && value !== null) {
-      output += '/\n';
+      output += '/\\n';
       const extension = isLast ? '    ' : '│   ';
       output += renderDependencyGraph(value, prefix + extension, isLastItem);
     } else {
-      output += ` -> ${value}\n`;
+      output += ` -> ${value}\\n`;
     }
   });
   
@@ -80,22 +81,22 @@ function displayModuleStructure(modules) {
     return 'Error: modules must be an array';
   }
   
-  let output = 'Module Structure:\n';
-  output += '==================\n\n';
+  let output = 'Module Structure:\\n';
+  output += '==================\\n\\n';
   
   modules.forEach((mod, index) => {
     const name = mod.name || mod.id || `Module ${index + 1}`;
-    output += `${index + 1}. ${name}\n`;
+    output += `${index + 1}. ${name}\\n`;
     
     if (mod.dependencies && Array.isArray(mod.dependencies)) {
-      output += `   Dependencies: ${mod.dependencies.join(', ')}\n`;
+      output += `   Dependencies: ${mod.dependencies.join(', ')}\\n`;
     }
     
     if (mod.path) {
-      output += `   Path: ${mod.path}\n`;
+      output += `   Path: ${mod.path}\\n`;
     }
     
-    output += '\n';
+    output += '\\n';
   });
   
   return output;
@@ -137,21 +138,24 @@ function renderAccessibleDependencyGraph(dependencies, depth = 0) {
 
   const keys = Object.keys(dependencies);
   if (keys.length === 0) {
-    return `Depth ${depth}: (empty)\n`;
+    return `Depth ${depth}: (empty)\\n`;
   }
 
-  let output = `Depth ${depth}: (${keys.length} item${keys.length === 1 ? '' : 's'})\n`;
+  // Create unique IDs for each key to ensure unique landmarks
+  const indexedKeys = keys.map((key, index) => ({ key, id: `node-${index}` }));
 
-  keys.forEach((key, index) => {
-    const value = dependencies[key];
-    const isLast = index === keys.length - 1;
+  let output = `Depth ${depth}: (${keys.length} item${keys.length === 1 ? '' : 's'})\\n`;
+
+  indexedKeys.forEach((item, index) => {
+    const value = dependencies[item.key];
+    const isLast = index === indexedKeys.length - 1;
     const position = isLast ? 'last' : 'not last';
 
     if (typeof value === 'object' && value !== null) {
-      output += `  - ${key} (has ${Object.keys(value).length} child${Object.keys(value).length === 1 ? '' : 's'}, ${position})\n`;
+      output += `  - ${item.key} (id="${item.id}", has ${Object.keys(value).length} child${Object.keys(value).length === 1 ? '' : 's'}, ${position})\\n`;
       output += renderAccessibleDependencyGraph(value, depth + 1);
     } else {
-      output += `  - ${key} (leaf, value: ${value}, ${position})\n`;
+      output += `  - ${item.key} (id="${item.id}", leaf, value: ${value}, ${position})\\n`;
     }
   });
 

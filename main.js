@@ -5,6 +5,7 @@
 // Import required modules
 const http = require('http');
 const path = require('path');
+const fs = require('fs');
 
 // TODO: This is the existing code that needs to be preserved
 
@@ -13,6 +14,16 @@ const config = {
   port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development'
 };
+
+/**
+ * Loads configuration from a JSON file.
+ * @param {string} filePath - Path to the JSON config file.
+ * @returns {Object} Parsed configuration object.
+ */
+function loadConfigFromFile(filePath) {
+  const data = fs.readFileSync(filePath, 'utf8');
+  return JSON.parse(data);
+}
 
 /**
  * Creates and starts the HTTP server
@@ -41,7 +52,8 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  loadConfigFromFile
 };
 
 // Start the application if run directly

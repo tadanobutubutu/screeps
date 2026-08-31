@@ -125,6 +125,36 @@ function personName(name, isLink) {
   }
 }
 
+/**
+ * Creates an accessible web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
+ * @param {string} text - The button label text
+ * @param {string} [url] - The URL to navigate to (optional)
+ * @param {string} [icon] - Optional icon identifier
+ * @param {string} [className] - Optional CSS class
+ * @returns {HTMLElement} An accessible button element
+ */
+function createAccessibleButton(text, url = '', icon = '', className = '') {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = text;
+  
+  if (url) {
+    btn.href = url;
+    btn.target = '_blank';
+    btn.rel = 'noopener noreferrer';
+  }
+  
+  if (icon) {
+    // Placeholder for icon implementation - could use an SVG or image
+  }
+  
+  if (className) {
+    btn.className = className;
+  }
+  
+  return btn;
+}
+
 // Main validation function for web accessibility
 function validateWebAccessibility(url) {
     if (!url) {
@@ -443,6 +473,7 @@ module.exports = {
     getLangAttribute,
     getFullLangAttribute,
     addressAccessibilityIssuesFromInsight,
+    createAccessibleButton,
     sayHello,
     sayGoodbye,
     getDate,

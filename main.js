@@ -17,13 +17,20 @@ if (divElement) {
 // Function to get the language attribute value
 function getLangAttribute() {
   // Implementation of getLangAttribute function
-  // ...
+  // Example implementation:
+  // Returns the default language for the site or an empty string if not defined.
+  return document.documentElement.lang || '';
 }
 
 // Function to create an in-page button and add the lang attribute
 function createInPageButton() {
   // Implementation of createInPageButton function
-  // ...
+  // Example implementation:
+  // Creates a button, sets the lang attribute, and appends it to the body of the document.
+  const button = document.createElement('button');
+  button.textContent = 'Click me';
+  button.setAttribute('lang', getLangAttribute());
+  document.body.appendChild(button);
 }
 
 // Adding the lang attribute to the HTML element
@@ -32,6 +39,8 @@ if (htmlElement) {
   htmlElement.setAttribute('lang', getLangAttribute());
 }
 
+// Exporting the new function createInPageButton
 module.exports = {
   // Your exported functions and modules here...
+  createInPageButton: createInPageButton,
 };

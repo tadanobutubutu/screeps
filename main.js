@@ -3,7 +3,7 @@ import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { setDependencyGraph } from './actions/dependencyGraph';
 import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
-import UserSafety from './UserSafety'; // Import the UserSafety module
+import UserSafety from './UserSafety';
 
 // ... previous code
 
@@ -109,18 +109,10 @@ function Main({ checkAllowed }) {
       <AuthorizedAddBookForm onAdd={handleAddBook} />
     </main>
   );
-};
+}
 
 // Export the Main component with the optional checkAllowed prop
 export default Main;
 
 // Export the checkAllowed function from UserSafety
 export { checkAllowed } from './UserSafety';
-```
-
-This code resolves the conflict between the Git branches by combining both changes:
-
-1. Imported the UserSafety module and added User Safety checks to the AddBookForm.
-2. Wrapped the AddBookForm with an authorization check using the `authorizeUser` function and the `AuthorizedAddBookForm` component.
-
-The rest of the code remains mostly unchanged. This version compiles, satisfies both needs, and avoids syntax errors. Preserves comments and style as much as possible.

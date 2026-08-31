@@ -35,3 +35,7 @@ function generateAccessibilityReport(issuesData) {
   // Return the final report
   return report;
 }
+
+// TODO: Add back any required exports that might have been removed
+// (Assuming that 'generateAccessibilityReport' function should be exported)
+export { generateAccessibilityReport };

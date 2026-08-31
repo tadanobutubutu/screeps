@@ -49,6 +49,37 @@ export class ExistingClass {
     }
 }
 
+// New function for focus trap
+function focusTrap() {
+    const focusableElementsString = 'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable]';
+    const focusableElements = document.querySelectorAll(focusableElementsString);
+    let firstFocusableElement = focusableElements[0];
+    let lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+    function trapFocus(event) {
+        let isTabPressed = event.key === 'Tab';
+
+        if (isTabPressed) {
+            if (event.shiftKey) {
+                // If shift key is pressed for shift + tab
+                if (document.activeElement === firstFocusableElement) {
+                    lastFocusableElement.focus(); // Focus on the last focusable element
+                    event.preventDefault();
+                }
+            } else {
+                // If tab key is pressed for tab
+                if (document.activeElement === lastFocusableElement) {
+                    firstFocusableElement.focus(); // Focus on the first focusable element
+                    event.preventDefault();
+                }
+            }
+        }
+    }
+
+    document.addEventListener('keydown', trapFocus);
+}
+
 // Export all functions
 export { newFunction };
 export { someFunction };
+export { focusTrap };

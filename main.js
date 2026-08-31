@@ -15,7 +15,7 @@ import { registerSW } from 'effector-swift';
  * @returns {HTMLElement} The created button element
  */
 function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
+  const element = ...
   return element !== null;
 }
 
@@ -23,7 +23,7 @@ function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
   if (onClickHandler && typeof onClickHandler === 'function') {
-    button.addEventListener('click', onClickHandler);
+    ... onClickHandler);
   }
   return button;
 }
@@ -68,7 +68,7 @@ const isSecureContext = () => {
 const setLanguageAttribute = (lang = 'en') => {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    htmlElement.setAttribute('lang', lang);
+    ... lang);
   }
 };
 
@@ -80,25 +80,25 @@ const setLanguageAttribute = (lang = 'en') => {
  */
 const addLandmarkRoles = () => {
   // Navigation landmark
-  const navElement = document.querySelector('nav');
-  if (navElement && !navElement.getAttribute('role')) {
-    navElement.setAttribute('role', 'navigation');
+  const navElement = ...
+  if (navElement && ... {
+    ... 'navigation');
   }
 
   // Main content landmark
-  const mainElement = document.querySelector('main');
-  if (mainElement && !mainElement.getAttribute('role')) {
+  const mainElement = ...
+  if (mainElement && ... {
     mainElement.setAttribute('role', 'main');
   }
 
   // Header landmark (banner)
-  const headerElement = document.querySelector('header');
-  if (headerElement && !headerElement.getAttribute('role')) {
-    headerElement.setAttribute('role', 'banner');
+  const headerElement = ...
+  if (headerElement && ... {
+    ... 'banner');
   }
 
   // Footer landmark (contentinfo)
-  const footerElement = document.querySelector('footer');
+  const footerElement = ...
   if (footerElement && !footerElement.getAttribute('role')) {
     footerElement.setAttribute('role', 'contentinfo');
   }
@@ -112,9 +112,9 @@ const addLandmarkRoles = () => {
  */
 const ensureUniqueLandmarkElements = () => {
   // Navigation landmark uniqueness
-  const navElements = document.querySelectorAll('[role="navigation"]');
+  const navElements = ...
   if (navElements.length > 1) {
-    navElements.forEach((nav, index) => {
+    ... index) => {
       if (index > 0) {
         nav.setAttribute('aria-label', `Navigation ${index + 1}`);
       }
@@ -122,9 +122,9 @@ const ensureUniqueLandmarkElements = () => {
   }
 
   // Main content landmark uniqueness
-  const mainElements = document.querySelectorAll('[role="main"]');
+  const mainElements = ...
   if (mainElements.length > 1) {
-    mainElements.forEach((main, index) => {
+    ... index) => {
       if (index > 0) {
         main.setAttribute('aria-label', `Main content ${index + 1}`);
       }
@@ -142,10 +142,10 @@ const ensureUniqueLandmarkElements = () => {
  * @param {string} accessibleName - The accessible name to set.
  */
 const addSVGAccessibleName = (svgSelector, accessibleName) => {
-  const svgs = document.querySelectorAll(svgSelector);
+  const svgs = ...
   svgs.forEach((svg) => {
     // Check if the SVG already has a title element
-    let titleElement = svg.querySelector('title');
+    let titleElement = ...
     if (!titleElement) {
       titleElement = document.createElement('title');
       svg.insertBefore(titleElement, svg.firstChild);
@@ -167,27 +167,80 @@ function createUnrotateButton() {
   button.setAttribute('role', 'button');
   button.ariaLabel = 'rotate back';
   button.textContent = 'rotate back';
-  button.addEventListener('click', rotateBack);
+  ... rotateBack);
   return button;
 }
 
 function replaceFakeLinks() {
-  const fakeLink = document.getElementById('unrotate');
+  const fakeLink = ...
   if (fakeLink && fakeLink.tagName === 'A') {
     const parent = fakeLink.parentElement;
     const newButton = createUnrotateButton();
-    parent.replaceChild(newButton, fakeLink);
+    ... fakeLink);
   }
 }
 
 // ... (other code in main.js)
+
+// Updated function using new rendering functions for graph/index
+function renderGraphIndex(containerId, graphData, options = {}) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container with id "${containerId}" not found`);
+    return;
+  }
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Process graph data using ensureUniqueLandmarks
+  const landmarks = graphData.landmarks || [];
+  const uniqueLandmarks = ensureUniqueLandmarks(landmarks);
+
+  // Create navigation buttons for each unique landmark
+  const navContainer = document.createElement('div');
+  navContainer.setAttribute('role', 'navigation');
+  navContainer.setAttribute('aria-label', 'Graph navigation');
+
+  uniqueLandmarks.forEach((landmark, index) => {
+    const button = createInPageButton(
+      landmark.name || `Landmark ${index + 1}`,
+      () => {
+        // Navigate to landmark
+        if (options.onNavigate) {
+          options.onNavigate(landmark, index);
+        }
+      }
+    );
+    button.setAttribute('aria-label', `${landmark.name || 'Landmark'} - ${landmark.role || 'region'}`);
+    navContainer.appendChild(button);
+  });
+
+  container.appendChild(navContainer);
+
+  // Render main content area
+  const mainContent = document.createElement('main');
+  mainContent.setAttribute('role', 'main');
+  mainContent.setAttribute('aria-label', 'Graph content');
+
+  // Add graph visualization
+  const graphCanvas = document.createElement('div');
+  graphCanvas.id = 'graph-canvas';
+  mainContent.appendChild(graphCanvas);
+
+  container.appendChild(mainContent);
+
+  // Apply accessibility improvements
+  addLandmarkRoles();
+  ensureUniqueLandmarkElements();
+}
 
 // Additional function
 export function newFunction() {
   const button = createInPageButton('New Function', function() {
     console.log('New Function clicked!');
   });
-  document.body.appendChild(button);
+  ...
 }
 
 // ... (other code in main.js)

@@ -16,7 +16,12 @@ import { registerSW } from 'effector-swift';
  */
 function checkLandmarkElement(id) {
   const element = document.getElementById(id);
-  return element !== null;
+  if (!element) {
+    return false;
+  }
+  const role = element.getAttribute('role');
+  const landmarkRoles = ['navigation', 'main', 'banner', 'contentinfo', 'complementary', 'search', 'form', 'region'];
+  return role && landmarkRoles.includes(role);
 }
 
 function createInPageButton(buttonText, onClickHandler) {

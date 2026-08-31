@@ -7,8 +7,6 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 
-// TODO: This is the existing code that needs to be preserved
-
 // Application configuration
 const config = {
   port: process.env.PORT || 3000,
@@ -31,7 +29,20 @@ function countDependencies() {
   }
 }
 
-// TODO: Implement a function to count dependencies
+/**
+ * Added function to count only the production dependencies
+ * @returns {number} The total number of production dependencies (dependencies)
+ */
+function countProductionDependencies() {
+  try {
+    const packagePath = path.join(__dirname, 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+    const dependencies = Object.keys(packageJson.dependencies || {}).length;
+    return dependencies;
+  } catch (error) {
+    return 0;
+  }
+}
 
 /**
  * Creates and starts the HTTP server
@@ -61,6 +72,7 @@ module.exports = {
   createServer,
   startApp,
   countDependencies,
+  countProductionDependencies,
   config
 };
 
@@ -68,3 +80,6 @@ module.exports = {
 if (require.main === module) {
   startApp();
 }
+```
+
+This solution includes both changes: it preserves the existing function that counts all dependencies, and adds a new function to count only the production dependencies.

@@ -1,5 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-
 // New utility function to create a web resource button suitable for accessibility
 function createAccessibleWebResourceButton(url, text) {
   const button = document.createElement('button');
@@ -114,7 +112,6 @@ function createInPageButton(options) {
   return button;
 }
 
-// TODO: This is the existing code that needs to be preserved
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
@@ -229,8 +226,6 @@ function newFunction() {
   // Placeholder for new accessibility issue fixes
   // Implement specific fixes based on insight report when available
 }
-
-// TODO: This is the existing code that needs to be preserved
 
 // ADD YOUR CODE HERE if any other issues need to be addressed
 // Example of addressing REACT_015: Add lang attribute to HTML element

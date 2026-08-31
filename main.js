@@ -92,7 +92,7 @@ function addressAccessibilityIssues(insightReport) {
   }
 
   // Address accessibility issues from insight report
-  insightReport.issues.forEach(issue => {
+  insightReport.issues.forEach((issue) => {
     switch (issue.type) {
       case 'REACT_015':
         // Add lang attribute to HTML element
@@ -213,11 +213,11 @@ function processAccessibilityReport(report) {
 
   if (report) {
     if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027.count || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
+    if (report.REACT_027) findings.tableIssues = report.REACT_027 || 0;
+    if (report.REACT_017) findings.landmarkIssues = report.REACT_017 || 0;
+    if (report.REACT_041) findings.svgIssues = report.REACT_041 || 0;
+    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025 || 0;
+    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036 || 0;
   }
 
   return findings;
@@ -261,7 +261,7 @@ module.exports = {
     return 'some value';
   },
   CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
+    apiUrl: process.env.API_URL || 'http://localhost:3000',
     timeout: 5000
   },
   helper: function(input) {

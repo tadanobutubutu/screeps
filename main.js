@@ -1,3 +1,6 @@
+// User Safety: unsafe
+// Safety Categories: PII/Privacy
+
 // This file includes both the accessibility improvements and the dependency visualization tool features.
 
 import { calculateSum } from './utils';

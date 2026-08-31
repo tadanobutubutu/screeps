@@ -267,52 +267,223 @@ function isInViewport(element) {
 
 // Function to handle getLangAttribute for REACT_015
 function getLangAttribute(htmlElement) {
-  // Implement the logic to set the lang attribute based on the preferred language or localization
+  if (htmlElement) {
+    return htmlElement.getAttribute('lang');
+  }
+  const html = document.querySelector('html');
+  return html ? html.getAttribute('lang') : null;
 }
 
 // Function to createInPageButton for REACT_015, REACT_036
-function createInPageButton(options) {
-  // Implement the logic to create a proper in-page link button
+function createInPageButton(options = {}) {
+  const {
+    text = '',
+    href = '#',
+    ariaLabel = '',
+    className = '',
+    onClick = () => {}
+  } = options;
+
+  let element;
+  if (href) {
+    element = document.createElement('a');
+    element.href = href;
+    element.setAttribute('role', 'button');
+    element.setAttribute('tabindex', '0');
+  } else {
+    element = document.createElement('button');
+    element.setAttribute('type', 'button');
+  }
+  element.textContent = text;
+  if (ariaLabel) element.setAttribute('aria-label', ariaLabel);
+  if (className) element.className = className;
+  element.addEventListener('click', onClick);
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick(e);
+    }
+  });
+  return element;
 }
 
 // Function to validateTableAccessibility for REACT_027
 function validateTableAccessibility(table) {
-  // Implement the logic to check for table accessibility issues and return a list of issues
+  const issues = [];
+  if (!table) return issues;
+
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    issues.push('Table is missing a <caption> element.');
+  }
+
+  // Check for header cells
+  const ths = table.querySelectorAll('th');
+  if (ths.length === 0) {
+    issues.push('Table has no <th> elements.');
+  } else {
+    ths.forEach((th, i) => {
+      if (!th.getAttribute('scope')) {
+        issues.push(`Header cell ${i + 1} missing 'scope' attribute.`);
+      }
+      if (!th.getAttribute('aria-label') && !th.textContent.trim()) {
+        issues.push(`Header cell ${i + 1} has no text content or aria-label.`);
+      }
+    });
+  }
+
+  return issues;
 }
 
 // Function to validateTableStructure for REACT_027
 function validateTableStructure(table) {
-  // Implement the logic to check for table structure issues and return a list of issues
+  const issues = [];
+  if (!table) return issues;
+
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  const tfoot = table.querySelector('tfoot');
+
+  // Check for thead and tbody
+  if (!thead && table.rows.length > 0) {
+    issues.push('Table should include a <thead> element.');
+  }
+  if (!tbody && table.rows.length > (thead ? thead.rows.length : 0)) {
+    issues.push('Table should include a <tbody> element.');
+  }
+
+  // Ensure rows are inside thead/tbody/tfoot
+  const rows = table.rows;
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const parent = row.parentElement;
+    if (parent && !['THEAD', 'TBODY', 'TFOOT'].includes(parent.tagName)) {
+      issues.push(`Row ${i + 1} is not inside a <thead>, <tbody>, or <tfoot> element.`);
+    }
+  }
+
+  // First row should contain th elements
+  const firstRow = table.rows[0];
+  if (firstRow) {
+    const cells = firstRow.cells;
+    for (let i = 0; i < cells.length; i++) {
+      if (cells[i].tagName !== 'TH') {
+        issues.push(`First row cell ${i + 1} should be a <th> element.`);
+      }
+    }
+  }
+
+  return issues;
 }
 
 // Function to validateLandmark for REACT_017
 function validateLandmark(element) {
-  // Implement the logic to check for landmark presence and proper use
+  const issues = [];
+  if (!element) return issues;
+
+  const role = element.getAttribute('role');
+  const landmarkRoles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'];
+  const hasLandmarkRole = role && landmarkRoles.includes(role);
+  const hasAriaLabel = element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby');
+
+  if (!hasLandmarkRole) {
+    issues.push('Element does not have a landmark role.');
+  } else if (!hasAriaLabel) {
+    issues.push('Landmark element should have an accessible name (aria-label or aria-labelledby).');
+  }
+
+  return issues;
 }
 
 // Function to validateLandmarkStructure for REACT_017
 function validateLandmarkStructure(element) {
-  // Implement the logic to check for landmark structure compliance
+  const issues = [];
+  if (!element) return issues;
+
+  const role = element.getAttribute('role');
+  const landmarkRoles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'];
+  if (!landmarkRoles.includes(role)) {
+    return issues;
+  }
+
+  // Check for nested landmarks of the same type
+  const descendants = element.querySelectorAll(`[role="${role}"]`);
+  if (descendants.length > 1) {
+    issues.push(`Duplicate landmark role "${role}" found within the same landmark.`);
+  }
+
+  // Main landmark should contain at least one heading
+  if (role === 'main') {
+    const headings = element.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    if (headings.length === 0) {
+      issues.push('Main landmark should contain at least one heading.');
+    }
+  }
+
+  return issues;
 }
 
 // Function to ensureUniqueLandmarks for REACT_017, REACT_025
 function ensureUniqueLandmarks() {
-  // Implement the logic to check for and handle duplicate landmarks
+  const issues = [];
+  const landmarks = document.querySelectorAll('[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], [role="main"], [role="navigation"], [role="search"]');
+  const seen = new Set();
+  landmarks.forEach((landmark) => {
+    const role = landmark.getAttribute('role');
+    if (seen.has(role)) {
+      issues.push(`Duplicate landmark role "${role}" found.`);
+    } else {
+      seen.add(role);
+    }
+  });
+  return issues;
 }
 
 // Function to getSvgAccessibleName for REACT_041
 function getSvgAccessibleName(svg) {
-  // Implement the logic to generate an accessible name for SVG elements
+  if (!svg) return '';
+  // Check for title element
+  const title = svg.querySelector('title');
+  if (title && title.textContent.trim()) {
+    return title.textContent.trim();
+  }
+  // Check for aria-label
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  // Check for aria-labelledby
+  const ariaLabelledBy = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledBy) {
+    const label = document.getElementById(ariaLabelledBy);
+    if (label) return label.textContent.trim();
+  }
+  // Fallback
+  return 'SVG element';
 }
 
 // Function to setSvgAttributes for REACT_041
-function setSvgAttributes(svg, attributes) {
-  // Implement the logic to set specified attributes on SVG elements
+function setSvgAttributes(svg, attributes = {}) {
+  if (!svg) return;
+  Object.keys(attributes).forEach((key) => {
+    svg.setAttribute(key, attributes[key]);
+  });
 }
 
 // Function to handleFakeLinks for REACT_036
 function handleFakeLinks(links) {
-  // Implement the logic to handle fake links within the app
+  if (!links) return;
+  links.forEach((link) => {
+    // Make elements with role="link" focusable and keyboard accessible
+    if (link.tagName !== 'A' && link.getAttribute('role') === 'link') {
+      if (!link.hasAttribute('tabindex')) link.setAttribute('tabindex', '0');
+      link.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          link.click();
+        }
+      });
+    }
+  });
 }
 
 // Export for use in other modules

@@ -12,9 +12,6 @@ const { createInPageButton, createWebResourceButton, validateLandmark, validateL
 const { main } = require('./utilities');
 const { functionA, functionB } = require('./functionModule');
 
-const { http } = require('http');
-const url = require('url');
-
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
   const issues = [];
@@ -127,13 +124,22 @@ function handleCredentialResponse(credentialResponse) {
   if (!credentialResponse || typeof credentialResponse !== 'object') {
     return { status: 'error', message: 'Invalid credential response' };
   }
-  return { status: 'success', credential: credentialResponse };
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = '[...]';
+  btn.setAttribute('role', 'button');
+  btn.setAttribute('tabindex', '0');
+  
+  if (parent) {
+    parent.appendChild(btn);
+  }
+  
+  return btn;
 }
 
 const a11yStore = {
   // ... existing methods ...
-};
-
+  
   prefersReducedMotion() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
@@ -150,13 +156,18 @@ const a11yStore = {
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark) => {
+      const landmarks = document.querySelectorAll(element);
+      landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
           landmark.setAttribute('id', `${element}-${index}`);
         }
 
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria
-```
+            landmark.setAttribute('aria-label', `${element} section ${index + 1}`);
+          }
+        }
+      });
+    });
+  }
+};

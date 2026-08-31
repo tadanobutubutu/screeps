@@ -18,23 +18,23 @@ module.exports = {
     };
 
     // Add lang attribute to HTML element if missing
-    const htmlElement = container.querySelector('html') || document.documentElement;
+    const htmlElement = document.documentElement;
     const langAttr = getLangAttribute(htmlElement);
     if (!langAttr) {
-      htmlElement.setAttribute('lang', 'en');
+      htmlElement.lang = 'en';
       fixes.langAdded = true;
     }
 
     // Add main landmark if missing
-    const mainElement = container.querySelector('main');
+    const mainElement = document.querySelector('main');
     if (!mainElement) {
-      const body = container.querySelector('body');
+      const body = document.body;
       if (body) {
         const newMain = document.createElement('main');
         while (body.firstChild) {
           newMain.appendChild(body.firstChild);
         }
-        body.appendChild(newMain);
+        body.insertBefore(newMain, body.firstChild);
         fixes.mainLandmarkAdded = true;
       }
     }
@@ -53,17 +53,17 @@ module.exports = {
     const svgElements = container.querySelectorAll('svg');
     svgElements.forEach(svg => {
       const accessibleName = getSvgAccessibleName(svg);
-      if (accessibleName && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-        svg.setAttribute('aria-label', accessibleName);
+      if (accessibleName && accessibleName.length > 0) {
+        setSvgAccessibilityProps(svg, accessibleName);
         fixes.svgNamesAdded++;
       }
     });
 
     // Fix fake link issues (elements that look like links but are missing href)
-    const fakeLinks = container.querySelectorAll('a:not([href])');
+    const fakeLinks = container.querySelectorAll('[style*="cursor: pointer"]');
     fakeLinks.forEach(link => {
       const style = window.getComputedStyle(link);
-      if (style.cursor === 'pointer' || link.hasAttribute('onclick')) {
+      if (style.cursor === 'pointer' || link.style.cursor === 'pointer') {
         link.setAttribute('role', 'link');
         link.setAttribute('tabindex', '0');
         fixes.fakeLinksFixed++;
@@ -128,7 +128,7 @@ module.exports = {
       setActiveElement(activeElementIndex + 1);
     }
 
-    function previousFocusableElement() {
+    function prevFocusableElement() {
       setActiveElement(activeElementIndex - 1);
     }
 
@@ -144,14 +144,14 @@ module.exports = {
       switch (e.key) {
         case 'Tab':
           if (e.shiftKey) {
-            previousFocusableElement();
+            prevFocusableElement();
           } else {
             nextFocusableElement();
           }
           e.preventDefault();
           break;
         case 'ArrowLeft':
-          previousFocusableElement();
+          prevFocusableElement();
           e.preventDefault();
           break;
         case 'ArrowRight':
@@ -219,7 +219,7 @@ module.exports = {
   // Existing utility functions
   log: (message, level = 'info') => {
     const timestamp = new Date().toISOString();
-    console.log(`${timestamp} [${level}] ${message}`);
+    console.log(`[${timestamp}] [${level}] ${message}`);
   },
 
   // Export functionality with accessibility support

@@ -2,6 +2,7 @@ import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 
+
 // Landmark data structure
 const landmarks = [];
 
@@ -48,7 +49,7 @@ function validateLandmark(landmark) {
   // Validate longitude
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+  } else if (typeof landmark.longitude !== 'number' || ... {
     errors.push('Landmark longitude must be a number');
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
@@ -82,7 +83,7 @@ function validateLandmark(landmark) {
  * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
+  const element = ...
   return element !== null;
 }
 
@@ -114,8 +115,8 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (!elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
+        if ... {
+          ... = true;
         } else {
           landmark.id += '_duplicate';
         }
@@ -124,6 +125,64 @@ function ensureLandmarkUniqueness(elements) {
   }
 
   return elements;
+}
+
+// Function to render dependency graph with proper accessibility
+function renderDependencyGraph(containerId, data) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.warn(`Dependency graph container with id "${containerId}" not found`);
+    return;
+  }
+  
+  // Ensure container has proper ARIA role for accessibility
+  if (!container.getAttribute('role')) {
+    container.setAttribute('role', 'region');
+  }
+  if (!container.getAttribute('aria-label')) {
+    container.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+  
+  // Render the dependency graph content
+  renderDependencyGraphContent(container, data);
+}
+
+// Helper function to render dependency graph content
+function renderDependencyGraphContent(container, data) {
+  // Existing implementation for rendering graph content
+  if (data && data.dependencies) {
+    container.innerHTML = data.dependencies.map(dep => `<div class="dependency-item">${dep}</div>`).join('');
+  }
+}
+
+// Function to address accessibility issues from insight report
+function addressInsightIssues() {
+  const dependencyGraphContainer = document.getElementById('dependencyGraph');
+  if (dependencyGraphContainer) {
+    // Ensure the dependencyGraph container has proper ARIA role
+    if (!dependencyGraphContainer.hasAttribute('role')) {
+      dependencyGraphContainer.setAttribute('role', 'region');
+    }
+    
+    // Add aria-label if not present for better screen reader experience
+    if (!dependencyGraphContainer.hasAttribute('aria-label')) {
+      dependencyGraphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+    }
+    
+    // Ensure the container is properly structured for accessibility
+    if (!dependencyGraphContainer.hasAttribute('aria-roledescription')) {
+      dependencyGraphContainer.setAttribute('aria-roledescription', 'dependency visualization');
+    }
+  }
+}
+
+// Initialize and address accessibility issues when DOM is ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addressInsightIssues);
+  } else {
+    addressInsightIssues();
+  }
 }
 
 // Export functions for testing

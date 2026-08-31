@@ -21,7 +21,8 @@ let icons = {};
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
-// Implemented validateLandmark functionality
+// Ensure the dependencyGraph container has a proper ARIA role
+// by adding role="group" to identify it as a group of related items for screen readers
 function validateLandmark(landmark) {
   const errors = [];
 

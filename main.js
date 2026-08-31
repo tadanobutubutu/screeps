@@ -559,6 +559,27 @@ function addressAccessibilityIssues(insightReport) {
     // Implementation to address accessibility issues
 }
 
+// Updated function: ensures landmarks uniqueness when there's an array structure
+function ensureLandmarkUniqueness(elements) {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+
+  const elementsById = {};
+
+  if (Array.isArray(elements)) {
+    for (const landmark of elements) {
+      if (landmark.id) {
+        if (elementsById[landmark.id]) {
+          elementsById[landmark.id] = true;
+        } else {
+          landmark.id += '_duplicate';
+        }
+      }
+    }
+  }
+  
+  return elements;
+}
+
 function getInsightReport() {
     // Implementation to retrieve insight report
     return [];

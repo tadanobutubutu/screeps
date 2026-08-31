@@ -91,11 +91,8 @@ function addressAccessibilityIssues(issues, options = {}) {
   // ... (Function added from second branch)
 }
 
-// ... (Functions that were unique in each branch)
-
-<<<<<<< HEAD
 // Function to add lang attribute to HTML element (REACT_015)
-function addLangAttribute(document) {
+function addLangAttributeToDocument(document) {
   if (!document.documentElement.hasAttribute('lang')) {
     const lang = getLangAttribute();
     document.documentElement.setAttribute('lang', lang);
@@ -425,7 +422,6 @@ function validateLandmark(landmark) {
 }
 
 // Function to fix table structure issues
-=======
 function fixTableStructureIssues(document) {
   let fixedCount = 0;
   const tables = document.querySelectorAll('table');
@@ -470,11 +466,6 @@ function fixTableStructureIssues(document) {
   return fixedCount;
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { addressAccessibilityIssues }; // Adjusted exports to include addressAccessibilityIssues from the second branch
-}
-
->>>>>>> origin/main
 function uniqueLandmarks(document) {
   // Implementation for ensuring unique landmarks
 }
@@ -680,7 +671,7 @@ function addMainLandmarkToIndex() {
 
 // Integrated REACT_036 changes and merged accessibility fixes
 function addressAccessibilityIssues(document) {
-  document = addLangAttribute(document);
+  document = addLangAttributeToDocument(document);
   document = fixTableStructureIssues(document);
   document = fixLandmarkIssues(document);
   document = addMainLandmark(document);
@@ -878,7 +869,7 @@ const a11yStore = {
   handleAccessibilityIssues() {
     // Implement the function logic to handle accessibility issues
     const results = {
-      lang: addLangAttribute(document),
+      lang: addLangAttributeToDocument(document),
       images: fixImageAltTexts(document),
       tables: fixTableStructureIssues(document),
       landmarks: ensureUniqueLandmarks(document),
@@ -1219,5 +1210,5 @@ module.exports = {
   ...a11yStore,
 };
 if (typeof window !== 'undefined') {
-  window.addressAccessibilityIssues = addressAccessibilityIssues; // Adjusted to include new addressAccessibilityIssues function
+  window.addressAccessibilityIssues = addressAccessibilityIssues;
 }

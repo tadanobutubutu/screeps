@@ -4,6 +4,9 @@
 // TODO: This is the existing code that needs to be preserved
 module.exports = {
   // Existing exports preserved
+  createInPageButton,
+  analyzeAccessibility,
+  generateAccessibilityReport,
 };
 
 /**
@@ -23,7 +26,7 @@ function createInPageButton(buttonText, onClickHandler) {
 
 // Example usage (if needed):
 // const btn = createInPageButton('Click Me', () => console.log('Clicked'));
-// document.body.appendChild(btn);
+// ...
 
 export { createInPageButton };
 

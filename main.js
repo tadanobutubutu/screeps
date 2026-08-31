@@ -6,8 +6,6 @@
 const http = require('http');
 const path = require('path');
 
-// TODO: This is the existing code that needs to be preserved
-
 // Application configuration
 const config = {
   port: process.env.PORT || 3000,
@@ -37,12 +35,26 @@ function startApp() {
   return server;
 }
 
-// Export functions for testing
+/**
+ * The new function that should be added without paths overwriting and preserving the existing export structure
+ */
+function newFunction() {
+  // Your implementation goes here
+}
+
+/**
+ * Export functions for testing
+ */
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  // Add your new export if needed
+  // e.g., module.exports.newFunction = newFunction;
 };
+
+// Export the new function directly for easier testing. This step is optional and can be removed if you prefer not to export it this way.
+exports.newFunction = newFunction;
 
 // Start the application if run directly
 if (require.main === module) {

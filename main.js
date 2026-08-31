@@ -1,6 +1,7 @@
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
+// TODO: Address accessibility issues from insight report:
 // TODO: This is the existing code that needs to be preserved
 module.exports = {
   // Existing exports preserved
@@ -14,6 +15,7 @@ module.exports = {
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
+  button.type = 'button';
   button.addEventListener('click', onClickHandler);
   return button;
 }
@@ -22,8 +24,8 @@ function createInPageButton(buttonText, onClickHandler) {
 // (Now implemented)
 
 // Example usage (if needed):
-// const btn = createInPageButton('Click Me', () => console.log('Clicked'));
-// document.body.appendChild(btn);
+// const btn = createInPageButton('Say Hello', () => console.log('Clicked'));
+// ...
 
 export { createInPageButton };
 

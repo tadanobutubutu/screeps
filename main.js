@@ -274,6 +274,167 @@ function ensureDependencyGraphAriaRole(doc) {
   return container;
 }
 
+/**
+ * Handle focus trap for keyboard navigation
+ * Traps keyboard focus within a container element for accessibility
+ * @param {Element} container - The container element to trap focus within
+ * @param {Object} options - Options for the focus trap
+ * @param {boolean} options.returnFocus - Whether to return focus to the previously focused element when deactivated (default: true)
+ * @param {boolean} options.escapeKey - Whether Escape key triggers deactivation callback (default: true)
+ * @param {Function} options.onEscape - Callback function called when Escape is pressed
+ * @param {boolean} options.initialFocus - Whether to set initial focus to first focusable element (default: true)
+ * @param {boolean} options.autoActivate - Whether to automatically activate the trap on creation (default: false)
+ * @returns {Object} Object with activate, deactivate, and state methods
+ */
+function focusTrap(container, options = {}) {
+  const {
+    returnFocus = true,
+    escapeKey = true,
+    onEscape = null,
+    initialFocus = true,
+    autoActivate = false
+  } = options;
+
+  let previousActiveElement = null;
+  let active = false;
+
+  /**
+   * Get all focusable elements within a container
+   * @param {Element} element - The container element
+   * @returns {Array} Array of focusable elements
+   */
+  const getFocusableElements = (element) => {
+    const focusableSelectors = [
+      'button:not([disabled])',
+      'a[href]',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+      'details > summary'
+    ];
+
+    const focusableElements = Array.from(element.querySelectorAll(focusableSelectors.join(',')));
+    
+    // Filter to only visible elements
+    return focusableElements.filter((el) => {
+      return el.offsetParent !== null && getComputedStyle(el).visibility !== 'hidden';
+    });
+  };
+
+  /**
+   * Handle keydown events to trap focus
+   * @param {KeyboardEvent} event - The keyboard event
+   */
+  const handleKeyDown = (event) => {
+    if (event.key === 'Tab') {
+      const focusableElements = getFocusableElements(container);
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      const activeElement = document.activeElement;
+
+      if (event.shiftKey) {
+        // Shift + Tab: move backwards
+        if (activeElement === firstElement || !container.contains(activeElement)) {
+          event.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        // Tab: move forwards
+        if (activeElement === lastElement || !container.contains(activeElement)) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
+    } else if (event.key === 'Escape' && escapeKey) {
+      if (onEscape && typeof onEscape === 'function') {
+        onEscape(event);
+      }
+    }
+  };
+
+  /**
+   * Activate the focus trap
+   * @param {FocusableElement} initialFocusElement - Optional element to focus first
+   */
+  const activate = (initialFocusElement = null) => {
+    if (active) return;
+
+    previousActiveElement = document.activeElement;
+    active = true;
+    container.addEventListener('keydown', handleKeyDown);
+
+    // Ensure container can receive focus if no focusable elements
+    if (!container.hasAttribute('tabindex')) {
+      container.setAttribute('tabindex', '-1');
+    }
+
+    // Set initial focus
+    if (initialFocus) {
+      const focusableElements = getFocusableElements(container);
+      
+      if (initialFocusElement && container.contains(initialFocusElement)) {
+        initialFocusElement.focus();
+      } else if (focusableElements.length > 0) {
+        focusableElements[0].focus();
+      } else {
+        container.focus();
+      }
+    }
+  };
+
+  /**
+   * Deactivate the focus trap and optionally return focus
+   */
+  const deactivate = () => {
+    if (!active) return;
+
+    active = false;
+    container.removeEventListener('keydown', handleKeyDown);
+
+    // Return focus to the previously focused element
+    if (returnFocus && previousActiveElement && previousActiveElement.focus) {
+      try {
+        previousActiveElement.focus();
+      } catch (e) {
+        // Element may no longer be in DOM, silently fail
+      }
+    }
+  };
+
+  /**
+   * Check if the focus trap is currently active
+   * @returns {boolean} Whether the trap is active
+   */
+  const isActive = () => active;
+
+  /**
+   * Update options for the focus trap
+   * @param {Object} newOptions - New options to merge
+   */
+  const updateOptions = (newOptions) => {
+    Object.assign(options, newOptions);
+  };
+
+  // Auto-activate if option is set
+  if (autoActivate) {
+    activate();
+  }
+
+  return {
+    activate,
+    deactivate,
+    isActive,
+    updateOptions,
+    getFocusableElements: () => getFocusableElements(container)
+  };
+}
+
 // Export all functions
 export {
   addLangAttribute,
@@ -290,5 +451,6 @@ export {
   googleSignIn,
   fixButtonIdentifiers,
   ensureDependencyGraphAriaRole,
-  newFunction
+  newFunction,
+  focusTrap
 };

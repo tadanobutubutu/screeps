@@ -8,7 +8,7 @@ function newFunction() {
 }
 
 // Implement the function for addressing accessibility issues from insight report
-function implementAccessibilityFixesFromReport(container, report) {
+function implementAccessibilityFixesFromReport(container, containerReport) {
   const fixes = {
     langAdded: false,
     mainLandmarkAdded: false,
@@ -17,7 +17,7 @@ function implementAccessibilityFixesFromReport(container, report) {
     fakeLinksFixed: 0
   };
 
-  if (!report || !report.issues) {
+  if (!containerReport || !containerReport.issues) {
     return fixes;
   }
 
@@ -71,9 +71,9 @@ function implementAccessibilityFixesFromReport(container, report) {
   });
 
   // Validate accessibility report
-  const report = validateAccessibilityReport(container);
-  if (report && report.length > 0) {
-    log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
+  const accessibilityReport = validateAccessibilityReport(container);
+  if (accessibilityReport && accessibilityReport.length > 0) {
+    log(`Accessibility report contains ${accessibilityReport.length} remaining issues`, 'warn');
   }
 
   // Implement focus trap for keyboard navigation

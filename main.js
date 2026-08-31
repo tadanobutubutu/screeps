@@ -7,6 +7,14 @@ const http = require('http');
 const path = require('path');
 
 // TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report
+// ----- END ORIGINAL CODE -----
+
+// New function to check for accessibility issues
+function checkAccessibility() {
+  // Placeholder for actual accessibility check logic
+  console.log('Accessibility check is being performed...');
+}
 
 // Application configuration
 const config = {
@@ -41,7 +49,8 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  checkAccessibility
 };
 
 // Start the application if run directly

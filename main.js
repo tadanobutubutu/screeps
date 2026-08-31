@@ -1,4 +1,4 @@
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+// Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
 import { calculateSum } from './utils';
 
@@ -6,8 +6,6 @@ import { calculateSum } from './utils';
 
 // Existing code ends here
 
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
 // Addressed accessibility issues from insight report
 
 // ... (other code in main.js)

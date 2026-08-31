@@ -24,6 +24,8 @@ function validateLandmarkObject(landmark) {
   }
 }
 
+// TODO: Identify and update specific functions that render dependency graphs or mark as N/A if none exist in this file
+
 // Function to render a single book item
 function BookItem({ book }) {
   return (

@@ -103,6 +103,12 @@ function handleAddLangAttribute(htmlDocument, lang) {
   addLangAttribute(htmlElement, lang);
 }
 
+// New function to handle the new functionalities
+function newFunctionality() {
+  // Example functionality to demonstrate changes
+  console.log('New functionality has been added.');
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
@@ -110,5 +116,6 @@ module.exports = {
   config,
   handleCredentialResponse,
   getStoredCredentials,
-  handleAddLangAttribute
+  handleAddLangAttribute,
+  newFunctionality
 };

@@ -78,15 +78,79 @@ function calculateProduct(a, b) {
   return a * b;
 }
 
+/**
+ * Ensures the dependencyGraph container has a proper ARIA role
+ * @param {string} containerId - The ID of the dependencyGraph container
+ * @returns {Object} - Summary of the role assignment
+ */
+function ensureDependencyGraphRole(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    return { success: false, message: 'Container not found' };
+  }
+
+  const summary = {
+    containerId,
+    previousRole: container.getAttribute('role') || 'none',
+    newRole: 'application',
+    success: true
+  };
+
+  container.setAttribute('role', 'application');
+  return summary;
+}
+
+/**
+ * Ensures all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
+ * @param {string} scopeSelector - Optional selector to scope the search (defaults to document)
+ * @returns {Object} - Summary of ids assigned to landmark elements
+ */
+function ensureLandmarkIds(scopeSelector) {
+  const scope = scopeSelector ? document.querySelector(scopeSelector) : document;
+  const landmarkElements = scope.querySelectorAll('header, nav, main, aside, section, footer');
+
+  const summary = {
+    totalLandmarks: landmarkElements.length,
+    assignedIds: [],
+    existingIds: [],
+    fixes: []
+  };
+
+  let idCounter = 0;
+
+  landmarkElements.forEach((landmark, index) => {
+    if (landmark.id) {
+      summary.existingIds.push(landmark.id);
+      summary.fixes.push({
+        tag: landmark.tagName.toLowerCase(),
+        action: 'Existing id preserved',
+        id: landmark.id
+      });
+    } else {
+      const generatedId = `landmark-${idCounter++}`;
+      landmark.id = generatedId;
+      summary.assignedIds.push(generatedId);
+      summary.fixes.push({
+        tag: landmark.tagName.toLowerCase(),
+        action: 'Generated id',
+        id: generatedId
+      });
+    }
+  });
+
+  return summary;
+}
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct };
+  module.exports = { ...module.exports, addressAccessibilityIssues, ensureDependencyGraphRole, ensureLandmarkIds, calculateSum, calculateProduct };
 }
 
 // If running in browser context
 if (typeof window !== 'undefined') {
-  window.checkLinkAndButtonAccessibility = checkLinkAndButtonAccessibility;
   window.addressAccessibilityIssues = addressAccessibilityIssues;
+  window.ensureDependencyGraphRole = ensureDependencyGraphRole;
+  window.ensureLandmarkIds = ensureLandmarkIds;
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;
 }

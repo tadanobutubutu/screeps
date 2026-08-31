@@ -17,8 +17,21 @@ function makeHeaderFocusable() {
   }
 }
 
+// Add new function to address the accessibility issue REACT_015: Add lang attribute to HTML element
+function setHtmlLangAttribute(lang) {
+  // code to add the lang attribute to the HTML element for proper accessibility
+  // The lang attribute helps screen readers and search engines identify the language of the page
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
 // Add export statement of the new function
 export { makeHeaderFocusable };
+
+// Add export statement for the new REACT_015 function
+export { setHtmlLangAttribute };
 
 // Export statements preserved
 export { existingFunction };

@@ -37,11 +37,18 @@ function startApp() {
   return server;
 }
 
+// New function to implement logic after the existing code
+function newFunction() {
+  // TODO: Implement your logic here
+  console.log('New function logic executed');
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config
+  config,
+  newFunction // Add new function to exports
 };
 
 // Start the application if run directly

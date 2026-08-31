@@ -78,6 +78,12 @@ function calculateProduct(a, b) {
   return a * b;
 }
 
+// New function as per the issue
+function checkLinkAndButtonAccessibility(issues, options = {}) {
+  const summary = addressAccessibilityIssues(issues, options);
+  return summary;
+}
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct };

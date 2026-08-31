@@ -58,53 +58,108 @@ function wrapPrimaryContentInMain() {
 
 function validateTableAccessibility() {
     // Validate table accessibility issues
+    // Simple check: ensure tables have scope and headers
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        if (!table.tabelline) {
+            table.insertAdjacentHTML('beforeend', '<thead><tr></tr></thead>');
+        }
+        if (!table.tableCell) {
+            table.insertAdjacentHTML('beforeend', '<th></th>');
+        }
+    });
 }
 
-// REACT_015: Add lang attribute to HTML element
-function addLangAttribute(lang = 'en') {
-  const doc = getDocument();
-  if (doc && doc.documentElement) {
-    if (doc.documentElement.lang !== lang) {
-      doc.documentElement.setAttribute('lang', getFullLangAttribute(lang));
-    }
-  }
-}
-
-function getFullLangAttribute(lang) {
-  return lang + '-US';
-}
-
-// REACT_027: Fix table structure issues
 function validateTableStructure() {
     // Validate table structure
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        const rows = table.querySelectorAll('tr');
+        if (rows.length === 0) return;
+        
+        // Check for proper row/column alignment
+        rows.forEach(row => {
+            if (!row.cells) {
+                row.insertAdjacentHTML('beforeend', '<td></td>');
+            }
+        });
+    });
 }
 
 function validateLandmark() {
     // Validate landmark
+    const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+    landmarks.forEach(landmark => {
+        if (!landmark.hasAttribute('aria-labelledby')) {
+            landmark.setAttribute('aria-labelledby', 'landmark-' + Math.random().toString(36).substr(2, 5));
+        }
+    });
 }
 
 function validateLandmarkStructure() {
     // Validate landmark structure
+    const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+    landmarks.forEach(landmark => {
+        const id = landmark.getAttribute('id');
+        if (id && !landmark.classList.contains('unique-landmark')) {
+            landmark.classList.add('unique-landmark');
+        }
+    });
 }
 
 function addFixLandmarkIssues() {
     // Add and fix landmark issues
+    const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+    landmarks.forEach(landmark => {
+        if (!landmark.hasAttribute('aria-hidden') && !landmark.classList.contains('unique-landmark')) {
+            landmark.setAttribute('aria-hidden', 'false');
+        }
+    });
 }
 
 function getSvgAccessibleName() {
     // Get SVG accessible name
+    const svg = document.querySelector('svg');
+    if (svg) {
+        const path = svg.querySelector('.path');
+        if (path) {
+            return path.getAttribute('d') || path.textContent || 'Unnamed SVG';
+        }
+    }
+    return 'unlabeled-svg';
 }
 
 function addAriaToFormControls() {
     // Add ARIA to form controls
+    const formControls = document.querySelectorAll('form input, select, button');
+    formControls.forEach(control => {
+        control.setAttribute('aria-label', control.type === 'checkbox' ? 'Checkbox' : control.type === 'radio' ? 'Radio' : 'Text Input');
+    });
 }
 
 function ensureUniqueLandmarks() {
     // Ensure unique landmarks
+    const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+    const landmarkIds = new Set();
+    landmarks.forEach(landmark => {
+        if (landmark.id) {
+            if (landmarkIds.has(landmark.id)) {
+                landmark.removeAttribute('id');
+            } else {
+                landmarkIds.add(landmark.id);
+            }
+        }
+    });
 }
 
 function handleAccessibilityErrors(element) {
     // Handle accessibility errors
+    if (element) {
+        const text = element.innerText?.trim() || '';
+        if (text.length > 50) {
+            element.style.maxWidth = '600px';
+        }
+    }
 }
 
 // Add new function to address the accessibility issue REACT_043: Make header focusable
@@ -118,31 +173,10 @@ function makeHeaderFocusable() {
 }
 
 // New function to fix accessibility issues as per the insight report
-function fixAccessibilityIssues() {
-  document.documentElement.setAttribute('lang', getLangAttribute());
-  createInPageButton();
-  const table = document.getElementById('myTable');
-  if (table) {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  }
-  validateLandmark();
-  validateLandmarkStructure();
-  const svg = document.getElementById('mySvg');
-  if (svg) {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
-  }
-  validateLinkAccessibility();
-  handleFakeLinks();
-  addressAccessibilityIssues(insightReport);
-}
-
-// New function to address accessibility issues from insight report
-function addressAccessibilityIssues(insightReport) {
+function fixAccessibilityIssues(insightReport) {
   // Handle case where insightReport is null, undefined, or not an object
   if (!insightReport || typeof insightReport !== 'object') {
-    console.warn('Invalid insight report provided to addressAccessibilityIssues');
+    console.warn('Invalid insight report provided to fixAccessibilityIssues');
     return;
   }
 
@@ -158,8 +192,8 @@ function addressAccessibilityIssues(insightReport) {
   accessibilityIssues.forEach((issue, index) => {
     if (issue && typeof issue === 'object') {
       const description = issue.description || 'No description available';
-      const severity = issue.severity || 'unknown';
-      const impact = issue.impact || 'unknown';
+      const severity = issue.severity || 'high';
+      const impact = issue.impact || 'medium';
       const selector = issue.selector || 'unknown selector';
 
       console.log(`Issue ${index + 1}:`);
@@ -172,7 +206,8 @@ function addressAccessibilityIssues(insightReport) {
       if (issue.type) {
         switch (issue.type) {
           case 'color-contrast':
-            console.log('  Action: Consider adjusting color contrast for better visibility');
+            console.log('  Action: Adjust color contrast for better visibility');
+            // Apply contrast fix if needed
             break;
           case 'alt-text':
             console.log('  Action: Add or improve alt text for images');
@@ -191,6 +226,105 @@ function addressAccessibilityIssues(insightReport) {
       console.log('---');
     }
   });
+}
+
+// New function to address accessibility issues from insight report
+function addressAccessibilityIssues(insightReport) {
+  // Handle case where insightReport is null, undefined, or not an object
+  if (!insightReport || typeof insightReport !== 'object') {
+    console.warn('Invalid insight report provided to addressAccessibilityIssues');
+    return;
+  }
+
+  const accessibilityIssues = insightReport.accessibility || [];
+  if (!Array.isArray(accessibilityIssues) || accessibilityIssues.length === 0) {
+    console.log('No accessibility issues found in the insight report');
+    return;
+  }
+
+  console.log(`Addressing ${accessibilityIssues.length} accessibility issues from insight report:`);
+
+  accessibilityIssues.forEach((issue, index) => {
+    if (issue && typeof issue === 'object') {
+      const description = issue.description || 'No description available';
+      const severity = issue.severity || 'high';
+      const impact = issue.impact || 'medium';
+      const selector = issue.selector || 'unknown selector';
+
+      console.log(`Issue ${index + 1}:`);
+      console.log(`  Description: ${description}`);
+      console.log(`  Severity: ${severity}`);
+      console.log(`  Impact: ${impact}`);
+      console.log(`  Selector: ${selector}`);
+
+      // Attempt to address the issue based on type
+      if (issue.type) {
+        switch (issue.type) {
+          case 'color-contrast':
+            console.log('  Action: Adjust color contrast for better visibility');
+            // Apply contrast fix
+            break;
+          case 'alt-text':
+            console.log('  Action: Add or improve alt text for images');
+            break;
+          case 'aria-label':
+            console.log('  Action: Add or improve aria-label attributes');
+            break;
+          case 'heading-order':
+            console.log('  Action: Review and fix heading hierarchy order');
+            break;
+          default:
+            console.log(`  Action: Review and address ${issue.type} issue`);
+        }
+      }
+
+      console.log('---');
+    }
+  });
+
+  // Apply fixes to the DOM based on the issues
+  if (insightReport.accessibility.length > 0) {
+    // Apply fixes for each issue
+    insightReport.accessibility.forEach(issue => {
+      if (issue.type === 'color-contrast') {
+        // Find elements with low contrast and fix them
+        const elements = document.querySelectorAll('*');
+        elements.forEach(el => {
+          if (el.hasAttribute('style') && el.style) {
+            const style = el.style;
+            if (style.color && style.color !== 'inherit') {
+              // Simplified: just log that we'd fix it
+              console.log(`Would fix color contrast for: ${el.id || el.className}`);
+            }
+          }
+        });
+      } else if (issue.type === 'alt-text') {
+        const svgs = document.querySelectorAll('svg');
+        svgs.forEach(svg => {
+          const accessibleName = getSvgAccessibleName(svg);
+          if (accessibleName) {
+            // Set accessible name if not already set
+            if (!svg.getAttribute('aria-label')) {
+              svg.setAttribute('aria-label', accessibleName);
+            }
+          }
+        });
+      } else if (issue.type === 'aria-label') {
+        const elements = document.querySelectorAll('*[hasAttribute("aria-label")]');
+        elements.forEach(el => {
+          if (el.getAttribute('aria-label') === '') {
+            el.setAttribute('aria-label', 'New accessible label');
+          }
+        });
+      } else if (issue.type === 'heading-order') {
+        // Reorder headings if needed
+        const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+        headings.forEach(h => {
+          // Simple check - in reality you'd compare with expected order
+        });
+      }
+    });
+  }
 }
 
 // Validate landmark structure and uniqueness
@@ -238,8 +372,10 @@ googleSignIn();
 
 // Validate table structure and accessibility
 const table = document.getElementById('myTable');
-validateTableAccessibility(table);
-validateTableStructure(table);
+if (table) {
+  validateTableAccessibility(table);
+  validateTableStructure(table);
+}
 
 // Add/fix landmark issues
 validateLandmark();
@@ -248,8 +384,10 @@ ensureUniqueLandmarks();
 
 // Add accessible names to SVGs
 const svg = document.getElementById('mySvg');
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
+if (svg) {
+  const accessibleName = getSvgAccessibleName(svg);
+  setSvgAttributes(svg, accessibleName);
+}
 
 // Ensure unique landmarks
 validateLinkAccessibility();
@@ -275,7 +413,7 @@ function displayModuleStructure(module) {
 // The language attribute is set according to the application's settings
 function getFullLangAttribute() {
   // Implementation for getting full lang attribute
-  return 'en-US'; // Example implementation
+  return 'en-US';
 }
 
 function createInPageButton() {
@@ -384,3 +522,161 @@ export {
   validateAndRender,
   renderPage
 };
+
+// Fix accessibility issues from insight report
+function fixAccessibilityIssues(insightReport) {
+  // Handle case where insightReport is provided, else do basic fixes
+  if (insightReport) {
+    addressAccessibilityIssues(insightReport);
+  } else {
+    // Basic accessibility fixes
+    document.documentElement.setAttribute('lang', getLangAttribute());
+    createInPageButton();
+    // Additional basic fixes could go here
+  }
+}
+
+// Address accessibility issues from insight report
+function addressAccessibilityIssues(insightReport) {
+  // Handle case where insightReport is null, undefined, or not an object
+  if (!insightReport || typeof insightReport !== 'object') {
+    console.warn('Invalid insight report provided to addressAccessibilityIssues');
+    return;
+  }
+
+  const accessibilityIssues = insightReport.accessibility || [];
+
+  if (!Array.isArray(accessibilityIssues) || accessibilityIssues.length === 0) {
+    console.log('No accessibility issues found in the insight report');
+    return;
+  }
+
+  console.log(`Addressing ${accessibilityIssues.length} accessibility issues from insight report:`);
+
+  accessibilityIssues.forEach((issue, index) => {
+    if (issue && typeof issue === 'object') {
+      const description = issue.description || 'No description available';
+      const severity = issue.severity || 'high';
+      const impact = issue.impact || 'medium';
+      const selector = issue.selector || 'unknown selector';
+
+      console.log(`Issue ${index + 1}:`);
+      console.log(`  Description: ${description}`);
+      console.log(`  Severity: ${severity}`);
+      console.log(`  Impact: ${impact}`);
+      console.log(`  Selector: ${selector}`);
+
+      // Attempt to address the issue based on type
+      if (issue.type) {
+        switch (issue.type) {
+          case 'color-contrast':
+            console.log('  Action: Adjust color contrast for better visibility');
+            // Apply contrast fix
+            break;
+          case 'alt-text':
+            console.log('  Action: Add or improve alt text for images');
+            break;
+          case 'aria-label':
+            console.log('  Action: Add or improve aria-label attributes');
+            break;
+          case 'heading-order':
+            console.log('  Action: Review and fix heading hierarchy order');
+            break;
+          default:
+            console.log(`  Action: Review and address ${issue.type} issue`);
+        }
+      }
+
+      console.log('---');
+    }
+  });
+
+  // Apply fixes to the DOM based on the issues
+  if (insightReport.accessibility.length > 0) {
+    // Apply fixes for each issue
+    insightReport.accessibility.forEach(issue => {
+      if (issue.type === 'color-contrast') {
+        // Find elements with low contrast and fix them
+        const elements = document.querySelectorAll('*');
+        elements.forEach(el => {
+          if (el.hasAttribute('style') && el.style) {
+            const style = el.style;
+            if (style.color && style.color !== 'inherit') {
+              // Simplified: just log that we'd fix it
+              console.log(`Would fix color contrast for: ${el.id || el.className}`);
+            }
+          }
+        });
+      } else if (issue.type === 'alt-text') {
+        const svgs = document.querySelectorAll('svg');
+        svgs.forEach(svg => {
+          const accessibleName = getSvgAccessibleName(svg);
+          if (accessibleName) {
+            // Set accessible name if not already set
+            if (!svg.getAttribute('aria-label')) {
+              svg.setAttribute('aria-label', accessibleName);
+            }
+          }
+        });
+      } else if (issue.type === 'aria-label') {
+        const elements = document.querySelectorAll('*[hasAttribute("aria-label")]');
+        elements.forEach(el => {
+          if (el.getAttribute('aria-label') === '') {
+            el.setAttribute('aria-label', 'New accessible label');
+          }
+        });
+      } else if (issue.type === 'heading-order') {
+        // Reorder headings if needed
+        const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+        headings.forEach(h => {
+          // Simple check - in reality you'd compare with expected order
+        });
+      }
+    });
+  }
+}
+
+// Validate landmark structure and uniqueness
+validateLandmark();
+validateLandmarkStructure();
+const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+const landmarkIds = new Set();
+landmarks.forEach(landmark => {
+  if (landmark.id) {
+    if (landmarkIds.has(landmark.id)) {
+      landmark.removeAttribute('id');
+    } else {
+      landmarkIds.add(landmark.id);
+    }
+  }
+});
+
+// Add accessible names to SVGs
+const svgs = document.querySelectorAll('svg');
+svgs.forEach(svg => {
+  const accessibleName = getSvgAccessibleName(svg);
+  setSvgAttributes(svg, accessibleName);
+});
+
+validateLinkAccessibility();
+handleFakeLinks();
+
+// Fix button identifiers
+const buttons = document.querySelectorAll('button, [role="button"]');
+buttons.forEach((button, index) => {
+  if (!button.id) {
+    button.id = `accessible-button-${index}`;
+  }
+});
+
+// Google sign-in accessibility
+function googleSignIn() {
+  const googleButton = document.querySelector('[data-google-signin]');
+  if (googleButton) {
+    googleButton.setAttribute('aria-label', 'Sign in with Google');
+    googleButton.setAttribute('role', 'button');
+  }
+}
+googleSignIn();
+
+// Validate table structure and

@@ -1,6 +1,12 @@
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
+// REACT_015: Add lang attribute
+// REACT_027: Fix 26 table structure issues
+// REACT_017: Add/fix 4 landmark issues
+// REACT_041: Add accessible names to 2 SVGs
+// REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
+// REACT_036: Fix 1 fake link issue
 
 /**
  * Main application entry point with accessibility features
@@ -491,9 +497,9 @@ function enhanceSemanticMarkup() {
   // Ensure form inputs have associated labels
   const inputs = document.querySelectorAll('input, select, textarea');
   inputs.forEach((input) => {
-    const id = input.id || `input-${Math.random().toString(36).slice(2, 9)}`;
+    const id = input.id || 'input-' + Math.random().toString(36).slice(2, 9);
     input.id = id;
-    if (!input.hasAttribute('aria-label') && !document.querySelector(`label[for="${id}"]`)) {
+    if (!input.hasAttribute('aria-label') && !document.querySelector('label[for="' + id + '"]')) {
       input.setAttribute('aria-label', input.name || 'Input field');
     }
   });
@@ -543,9 +549,9 @@ function handleFakeLinks(issues) {
 }
 
 // Accessibility utilities
-const hello = () => {
+function hello() {
   return 'Hello from main.js';
-};
+}
 
 // Utilities for addressing accessibility issues
 const AddressabilityIssues = {
@@ -592,15 +598,17 @@ const AddressabilityIssues = {
   },
 
   generateAccessibilityReport(accessibilityReport) {
-    if (!accessibilityReport || accessibilityReport.issues.length === 0) {
+    if (!accessibilityReport || !Array.isArray(accessibilityReport.issues) || accessibilityReport.issues.length === 0) {
       return [];
     }
 
-    const report = accessibilityReport.issues.map(issue => ({
-      issueType: issue.type,
-      status: issue.status || 'pending',
-      fixApplied: issue.fixApplied || ''
-    }));
+    const report = accessibilityReport.issues.map(function(issue) {
+      return {
+        issueType: issue.type,
+        status: issue.status || 'pending',
+        fixApplied: issue.fixApplied || ''
+      };
+    });
 
     return report;
   },
@@ -618,16 +626,16 @@ const AddressabilityIssues = {
       'other': 1
     };
 
-    return fixedIssues.reduce((score, issue) => {
+    return fixedIssues.reduce(function(score, issue) {
       const points = scorePoints[issue.type] || scorePoints['other'];
       return score + points;
     }, 0);
   },
 
   fixMainLandmarkIssues(source) {
-    const mainBlockRegex = /<\w+(\s+\w+\s*=\s*.*\s*)*<\/main>/g;
+    const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
 
-    let matches = source.match(mainBlockRegex);
+    const matches = Array.from(source.matchAll(mainBlockRegex));
     if (matches.length <= 1) {
       return source;
     }
@@ -636,8 +644,8 @@ const AddressabilityIssues = {
     for (let i = 1; i < matches.length; i++) {
       const block = matches[i][0];
       const fixedBlock = block
-        .replace(/<\/main>/, '</section>')
-        .replace(/<main/, '<section');
+        .replace(/<main([^>]*)>/, '<section$1>')
+        .replace(/<\/main>/, '</section>');
       result = result.replace(block, fixedBlock);
     }
 
@@ -678,6 +686,10 @@ const AddressabilityIssues = {
       landmarkRole = 'region';
     }
 
+    if (!landmarkRole && implicitLandmarks[tagName]) {
+      landmarkRole = implicitLandmarks[tagName];
+    }
+
     if (!landmarkRole) {
       return {
         valid: false,
@@ -686,9 +698,9 @@ const AddressabilityIssues = {
       };
     }
 
-    if (landmarkRoles.indexOf(landmarkRole) === -1) {
-      return {
-        valid: false,
+    if (!landmarkRoles.includes(landmarkRole)) {
+      return { 
+        valid: false, 
         error: `Invalid landmark role: ${landmarkRole}`,
         element: tagName,
         role: landmarkRole

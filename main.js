@@ -2,6 +2,20 @@
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
 
+// New rendering function (DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW)
+
+/**
+ * New function for rendering the graph/index
+ * @param {Object} content - The content to render
+ * @param {Object} options - Rendering options
+ * @returns {string} Rendered HTML
+ */
+function renderGraphIndex(content, options = {}) {
+  // Implementation of the new function
+  // This is a placeholder for the actual rendering logic
+  return content; // Simplified return for demonstration
+}
+
 // Existing rendering functions (preserving existing exports and functions)
 
 /**
@@ -30,5 +44,6 @@ function renderIndex(data, options = {}) {
 module.exports = {
   renderDependencyGraph,
   renderIndex,
+  renderGraphIndex, // Add the new function to the exports
   // Preserve any other existing exports here
 };

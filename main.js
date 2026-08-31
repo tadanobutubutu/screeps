@@ -13,6 +13,26 @@ let icons = {};
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 
+/**
+ * Address accessibility issues from insight report
+ * Ensures the dependencyGraph container has a proper ARIA role
+ */
+function addressInsightIssues() {
+  const dependencyGraphContainer = document.getElementById('dependencyGraph');
+  
+  if (dependencyGraphContainer) {
+    // Ensure the dependencyGraph container has a proper ARIA role
+    if (!dependencyGraphContainer.getAttribute('role')) {
+      dependencyGraphContainer.setAttribute('role', 'region');
+    }
+    
+    // Ensure it has an accessible name
+    if (!dependencyGraphContainer.getAttribute('aria-label') && !dependencyGraphContainer.getAttribute('aria-labelledby')) {
+      dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
+}
+
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
@@ -40,7 +60,7 @@ function validateLandmark(landmark) {
   // Validate longitude
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+  } else if (typeof landmark.longitude !== 'number' || ... {
     errors.push('Landmark longitude must be a number');
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
@@ -74,7 +94,7 @@ function validateLandmark(landmark) {
  * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
+  const element = ...
   return element !== null;
 }
 
@@ -106,8 +126,8 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (!elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
+        if ... {
+          ... = true;
         } else {
           landmark.id += '_duplicate';
         }

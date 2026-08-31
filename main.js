@@ -216,6 +216,8 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// TODO: Re-add the required exports for functionA and functionB
+
 module.exports = {
     addLangAttribute,
     fixTableStructure,

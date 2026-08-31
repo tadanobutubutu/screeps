@@ -235,7 +235,7 @@ function isEmpty(value) {
  */
 function capitalize(str) {
   if (typeof str !== 'string' || str.length === 0) return str;
-  return str.charAt(0).UpperCase() + str.slice(1);
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 /**
@@ -315,6 +315,14 @@ function renderDependencyGraph(dependencies, container, options = {}) {
   svg.style.position = 'absolute';
   svg.style.top = '0';
   svg.style.left = '0';
+
+  // Apply accessibility properties to the SVG element
+  addSvgAccessibilityProps(svg, {
+    role: 'img',
+    label: 'Dependency graph visualization',
+    description: 'A graphical representation of dependencies between modules',
+    keyboardFocusable: true
+  });
   
   containerEl.style.position = 'relative';
   containerEl.appendChild(svg);

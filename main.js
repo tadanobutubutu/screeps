@@ -1,21 +1,41 @@
-// This file includes both the accessibility improvements and the dependency visualization tool features.
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from 'node-libs-react/report-validator';
 
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
+import { CONFIG } from './utils/constants';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import { isSecureContext } from './utils.js';
+import a11y from './AccessibilityUtilities';
 
-// Node.js functions for dependency visualization tool
-const fs = require('fs');
-const path = require('path');
+// Load landmarks from file
+function loadLandmarks() {
+  try {
+    const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error loading landmarks:', error.message);
+    return [];
+  }
+}
 
-// New function to visualize the dependency tree
+// Visualize the dependency tree
 function visualizeDependencyTree(dependencies) {
   const report = generateDependencyReport(dependencies);
   console.log(report.graph);
+}
+
+// Helper function to generate dependency report
+function generateDependencyReport(dependencies) {
+  let graph = 'Dependency Tree:\n';
+  dependencies.forEach(dep => {
+    graph += `- ${dep.name}\n`;
+  });
+  return { graph };
 }
 
 // New function to fix accessibility issues as per the insight report
@@ -96,38 +116,46 @@ export const main = {
     return `Hello, ${name}!`;
   },
 
-  // New function for rotating back
   rotateBack: function() {
+    // Your code to rotate back
     console.log('Reverting back the rotation.');
   },
 
-  // New function to address all accessibility issues
   addressAccessibilityIssues: function() {
     fixAccessibilityIssues();
+    a11y.validateAccessibility();
   }
 };
 
-/**
- * Creates an in-page button element with optional click handler.
- * @param {string} buttonText - The label text for the button
- * @param {Function} onClickHandler - Callback function triggered when the button is clicked
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(buttonText, onClickHandler) {
-  const button = document.createElement('button');
-  button.textContent = buttonText;
-  if (onClickHandler && typeof onClickHandler === 'function') {
-    button.addEventListener('click', onClickHandler);
-  }
-  return button;
+function App() {
+  const [initialized, setInitialized] = React.useState(main.init());
+
+  React.useEffect(() => {
+    main.init();
+    setInitialized(main.init());
+  }, []);
+
+  React.useEffect(() => {
+    main.addressAccessibilityIssues();
+  }, [initialized]);
+
+  return (
+    <React.StrictMode>
+      <App />
+      {reportWebVitals()}
+      <footer id="footer">
+        <p>
+          Built with love by the Screeps team. Powered by{' '}
+          <a href="https://screeps.com/">Screeps</a>.
+        </p>
+      </footer>
+    </React.StrictMode>
+  );
 }
 
-// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
-// If not, define it here:
-export function rotateBack() {
-  // Your code to rotate back
-  console.log('Reverting back the rotation.');
-}
+App.propTypes = {
+  // Do not modify this line
+};
 
 // Additional accessibility-related code changes:
 // Ensure that all interactive elements have appropriate keyboard support
@@ -166,19 +194,6 @@ fakeLinks.forEach(fakeLink => {
     }
   }
 });
-
-// Load landmarks from file (new addition)
-import {CONFIG} from './utils/constants';
-function loadLandmarks() {
-  try {
-      const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
-      const data = fs.readFileSync(filePath, 'utf8');
-      return JSON.parse(data);
-  } catch (error) {
-      console.error('Error loading landmarks:', error.message);
-      return [];
-  }
-}
 
 // Process and filter landmarks (new addition)
 function processLandmarks(landmarks) {
@@ -242,3 +257,5 @@ if (typeof module !== 'undefined' && module.exports) {
       loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks, fixAccessibilityIssues
     };
 }
+
+export default App;

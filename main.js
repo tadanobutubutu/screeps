@@ -25,7 +25,7 @@ function checkLinkAccessibility() {
   links.forEach(link => {
     const href = link.getAttribute('href');
     const text = link.textContent.trim();
-    if (!text && !link.getAttribute('aria-label')) {
+    if (!text) {
       issues.push(`Link with href "${href}" has no accessible text`);
     }
   });

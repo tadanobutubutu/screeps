@@ -137,9 +137,10 @@ const accessibilityUtils = {
     const focusableElements = element.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
-    
+
     if (focusableElements.length === 0) {
-      return () => {};
+      console.warn('No focusable elements found in container');
+      return;
     }
 
     const firstElement = focusableElements[0];
@@ -148,14 +149,14 @@ const accessibilityUtils = {
     const handleKeyDown = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
           lastElement.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
           e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
           firstElement.focus();
+          e.preventDefault();
         }
       }
-      
+
       if (e.key === 'Escape') {
         element.dispatchEvent(new CustomEvent('focusTrapEscape'));
       }
@@ -208,11 +209,11 @@ async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received');
   }
-  
+
   if (response.error) {
     throw new Error(response.error);
   }
-  
+
   if (response.token) {
     return {
       success: true,
@@ -220,7 +221,7 @@ async function handleCredentialResponse(response) {
       expiresIn: response.expiresIn || 3600
     };
   }
-  
+
   throw new Error('Invalid credential response');
 }
 
@@ -345,8 +346,6 @@ function groupByCategory(items, getCategory) {
 
 _Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
 
-<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
-
 // TODO: Implement the new function as per the issue requirements
 function transformInputData(inputData, options = {}) {
   const {
@@ -438,7 +437,7 @@ function personName(person) {
  * @returns {Array<string>} Array of validation issues
  */
 function validateTableStructure(tableElement) {
-  const issues = [];
+  const issues = [];;
 
   if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
     issues.push('Element is not a TABLE element');
@@ -672,7 +671,7 @@ if (typeof document !== 'undefined') {
 
 // New function: validateTableAccessibility
 function validateTableAccessibility(tableElement) {
-  const issues = [];
+  const issues = [];;
 
   if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
     issues.push('Element is not a TABLE element');
@@ -762,4 +761,3 @@ module.exports = {
   renderAdditionalContent,
   renderDependencyGraph
 };
-// Here, the functions `getTables` and `setConfig` have been moved into the main export from the conflicting changes with the `main` object, and the `renderDependencyGraph` function has been moved back as well. The new function `renderAdditionalContent` has also been added to the exports. All the functions related to accessibility improvements are kept in the `accessibilityUtils` object. This should resolve the Git merge conflict in a meaningful and logical manner.

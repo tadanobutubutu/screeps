@@ -1,3 +1,16 @@
+Looking at this complex merge conflict, I need to carefully integrate both sides while resolving conflicts and fixing syntax errors.
+
+Let me analyze:
+1. **Imports section**: Merge both - keep the imports from HEAD (React, express, etc.) and the imports from origin/main (utils, accessibility, etc.)
+2. **Main body**: Combine both implementations - integrate the accessibility functions from origin/main with the React app, helper functions, and accessibility functions from origin/main
+3. **Fix syntax errors**: The origin/main side has an incomplete `formatDate` function (truncated) that needs fixing
+4. **Deduplicate**: Avoid duplicate declarations like `fixTableStructure`, `addMainLandmark`, etc.
+5. **Fix typos**: `validateTableStructureIssues` should be `fixTableStructureIssues`
+
+Here's my resolution:
+
+// User Safety: unsafe
+// Safety Categories: PII/Privacy
 import './styles.css';
 import React, { useState, useEffect } from 'react';
 import express from 'express';
@@ -5,9 +18,6 @@ import path from 'path';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
-
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
 import './styles.less';
 import fs from 'fs';
 import { CONFIG, CONFIG as UTILS_CONFIG } from './utils/constants';
@@ -146,7 +156,6 @@ function setSvgAttributes(svg, accessibleName) {
   return svg;
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
 /**
  * Addresses accessibility issues from an insight report by generating fixes.
  * @param {Object} insightReport - The insight report containing accessibility issues.
@@ -332,7 +341,7 @@ function fixTableStructure() {
     }
     
     const headers = table.querySelectorAll('th');
-    const cells = table.querySelectorAll('td, th');
+    const cells = document.querySelectorAll('td, th');
     
     cells.forEach(cell => {
       if (!cell.hasAttribute('scope') && !cell.hasAttribute('headers')) {
@@ -593,6 +602,190 @@ if (typeof isSecureContext === 'function' && isSecureContext()) {
   console.warn('Application is not running in a secure context. Some features may not be available.');
 }
 
+// Validate input
+function validateInput(input) {
+  // Validate input
+}
+
+function getInsightReport() {
+  const issues = [];
+  
+  // Check for lang attribute on HTML element
+  const langAttribute = getLangAttribute();
+  if (!langAttribute) {
+    issues.push({
+      type: 'REACT_015',
+      description: 'HTML element is missing lang attribute',
+      severity: 'critical',
+      element: 'html'
+    });
+  }
+  
+  // Check table accessibility
+  const tableAccessibilityIssues = validateTableAccessibility();
+  if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
+    tableAccessibilityIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_027',
+        subtype: 'accessibility',
+        description: issue.description || 'Table accessibility issue',
+        severity: issue.severity || 'high',
+        element: issue.element,
+        table: issue.table
+      });
+    });
+  }
+  
+  // Check table structure
+  const tableStructureIssues = validateTableStructure();
+  if (tableStructureIssues && tableStructureIssues.length > 0) {
+    tableStructureIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_027',
+        subtype: 'structure',
+        description: issue.description || 'Table structure issue',
+        severity: issue.severity || 'high',
+        element: issue.element,
+        table: issue.table
+      });
+    });
+  }
+  
+  // Check landmark issues
+  const landmarkIssues = validateLandmark();
+  if (landmarkIssues && landmarkIssues.length > 0) {
+    landmarkIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_017',
+        description: issue.description || 'Landmark issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+  
+  // Check landmark structure
+  const landmarkStructureIssues = validateLandmarkStructure();
+  if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
+    landmarkStructureIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_017',
+        structure: true,
+        description: issue.description || 'Landmark structure issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+  
+  // Check landmark attributes
+  const landmarkAttributeIssues = validateLandmarkAttributes();
+  if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
+    landmarkAttributeIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_017',
+        description: issue.description || 'Landmark attribute issue',
+        severity: issue.severity || 'low',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+  
+  // Check SVG accessibility
+  const svgAccessibleNames = getSvgAccessibleName();
+  if (svgAccessibleNames && svgAccessibleNames.length > 0) {
+    svgAccessibleNames.forEach(svg => {
+      issues.push({
+        type: 'REACT_041',
+        description: 'SVG is missing accessible name',
+        severity: 'medium',
+        svg: svg.element,
+        svgId: svg.id
+      });
+    });
+  }
+  
+  // Check for unique landmarks
+  const uniqueLandmarkIssues = ensureUniqueLandmarks();
+  if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
+    uniqueLandmarkIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_025',
+        description: issue.description || 'Duplicate or missing landmark',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+  
+  // Check link accessibility
+  const linkIssues = validateLinkAccessibility();
+  if (linkIssues && linkIssues.length > 0) {
+    linkIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_036',
+        description: issue.description || 'Link accessibility issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        link: issue.link
+      });
+    });
+  }
+  
+  // Generate the report
+  const report = {
+    issues: issues,
+    summary: {
+      totalIssues: issues.length,
+      langAttribute: issues.filter(i => i.type === 'REACT_015').length,
+      tableIssues: issues.filter(i => i.type === 'REACT_027').length,
+      landmarkIssues: issues.filter(i => i.type === 'REACT_017').length,
+      svgIssues: issues.filter(i => i.type === 'REACT_041').length,
+      uniqueLandmarkIssues: issues.filter(i => i.type === 'REACT_025').length,
+      linkIssues: issues.filter(i => i.type === 'REACT_036').length,
+      critical: issues.filter(i => i.severity === 'critical').length,
+      high: issues.filter(i => i.severity === 'high').length,
+      medium: issues.filter(i => i.severity === 'medium').length,
+      low: issues.filter(i => i.severity === 'low').length
+    },
+    timestamp: new Date().toISOString(),
+    generatedAt: new Date().toLocaleString()
+  };
+  
+  return report;
+}
+
+function processAccessibilityReport(report) {
+  // Process accessibility report and return findings
+  const findings = {
+    langAttribute: false,
+    tableIssues: 0,
+    landmarkIssues: 0,
+    svgIssues: 0,
+    uniqueLandmarkIssues: 0,
+    fakeLinkIssues: 0
+  };
+
+  if (report) {
+    if (report.REACT_015) findings.langAttribute = true;
+    if (report.REACT_027) findings.tableIssues = report.REACT_027 || 0;
+    if (report.REACT_017) findings.landmarkIssues = report.REACT_017 || 0;
+    if (report.REACT_041) findings.svgIssues = report.REACT_041 || 0;
+    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025 || 0;
+    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036 || 0;
+  }
+
+  return findings;
+}
+
+// Example usage of the new function (if applicable)
+// const report = getInsightReport();
+// addressAccessibilityIssues(report);
+
 // Exporting module
 module.exports = {
   userSafety: 'unsafe',
@@ -639,5 +832,26 @@ module.exports = {
   clearCache,
   validateInput,
   landmarkConfig: CONFIG,
-  main
+  main,
+  config,
+  appState,
+  initialize,
+  processAccessibilityReport,
+  getInsightReport,
+  validateLandmarkAttributes,
+  fixTableStructureIssues,
+  createInPageButton,
+  addLandmarkRegions,
+  someFunction: function() {
+    return 'some value';
+  },
+  helper: function(input) {
+    return input ? input.toUpperCase() : '';
+  },
+  formatDate: function(date) {
+    if (!(date instanceof Date)) {
+      date = new Date(date);
+    }
+    return date.toISOString();
+  }
 };

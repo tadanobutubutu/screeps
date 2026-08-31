@@ -1,4 +1,3 @@
-// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // Main entry point for dependency visualization tool
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
@@ -40,9 +39,9 @@ function checkLinkAccessibility() {
   return issues;
 }
 
-// Example of adding a new function
+// A new function has been added
 function newFunction() {
-  // Function body
+  // Function body for new function
 }
 
 // Don't forget to test your new additions in the test file
@@ -56,4 +55,5 @@ export {
   validateLinkAccessibility,
   handleFakeLinks,
   checkLinkAccessibility,
+  newFunction, // New function added to the exports
 };

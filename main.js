@@ -223,26 +223,6 @@ function deepClone(obj) {
   return obj;
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    main,
-    exampleFunction,
-    processData,
-    initializeAccessibility,
-    handleKeyboardNavigation,
-    trapFocus,
-    createAnnouncer,
-    prefersReducedMotion,
-    isEmpty,
-    capitalize,
-    getRandomInt,
-    clamp,
-    deepClone,
-    addAccessibleNamesToSvg
-  };
-}
-
 // New accessibility functions added to address insight report
 
 function getLangAttribute() {
@@ -294,9 +274,13 @@ function handleFakeLinks() {
   });
 }
 
-function validateLinkAccessibility(link) {
+function isLinkAccessible(link) {
   const text = link.textContent.trim();
   return text.length > 0;
+}
+
+function validateLinkAccessibility(link) {
+  return isLinkAccessible(link);
 }
 
 function getSvgAccessibleName(svg) {
@@ -309,19 +293,36 @@ function setSvgAttributes(svg, attributes) {
   }
 }
 
-// Extend exports with new functions
+// Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports.getLangAttribute = getLangAttribute;
-  module.exports.createInPageButton = createInPageButton;
-  module.exports.validateTableAccessibility = validateTableAccessibility;
-  module.exports.validateTableStructure = validateTableStructure;
-  module.exports.validateLandmark = validateLandmark;
-  module.exports.validateLandmarkStructure = validateLandmarkStructure;
-  module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
-  module.exports.handleFakeLinks = handleFakeLinks;
-  module.exports.validateLinkAccessibility = validateLinkAccessibility;
-  module.exports.getSvgAccessibleName = getSvgAccessibleName;
-  module.exports.setSvgAttributes = setSvgAttributes;
+  module.exports = {
+    main,
+    exampleFunction,
+    processData,
+    initializeAccessibility,
+    handleKeyboardNavigation,
+    trapFocus,
+    createAnnouncer,
+    prefersReducedMotion,
+    isEmpty,
+    capitalize,
+    getRandomInt,
+    clamp,
+    deepClone,
+    addAccessibleNamesToSvg,
+    getLangAttribute,
+    createInPageButton,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    ensureUniqueLandmarks,
+    handleFakeLinks,
+    isLinkAccessible,
+    validateLinkAccessibility,
+    getSvgAccessibleName,
+    setSvgAttributes
+  };
 }
 
 // Auto-initialize when DOM is ready

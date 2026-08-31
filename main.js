@@ -105,6 +105,17 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// Function to count dependencies
+function countDependencies() {
+  // Assuming that the dependencies are defined in a global variable called 'dependencies'
+  const dependencies = window.dependencies;
+  if (!dependencies) {
+    console.error('Dependencies object not found.');
+    return 0;
+  }
+  return Object.keys(dependencies).length;
+}
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
@@ -134,4 +145,4 @@ function Main() {
 
 // Export the Main component and the BookForm component
 export default Main;
-export { BookForm };
+export { BookForm, countDependencies };

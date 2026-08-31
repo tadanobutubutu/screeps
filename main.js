@@ -5,6 +5,9 @@
 const express = require('express');
 const path = require('path');
 import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import { isSecureContext } from './utils.js';
 
 const app = express();
 
@@ -70,13 +73,6 @@ module.exports = {
   }
 };
 
-// Accessibility and Landmark Functions
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-import { isSecureContext } from './utils.js';
-
-// wrapPrimaryContentInMain function implemented at the bottom of the file
-
 // Application data structure
 const appData = {
   title: 'Screeps',
@@ -97,10 +93,6 @@ function initializeApp() {
   initialize();
 }
 
-function processData(data) {
-  return data;
-}
-
 function fetchUser(userId) {
   return { id: userId, name: 'User' };
 }
@@ -109,25 +101,13 @@ function clearCache() {
   appState = {};
 }
 
-function validateInput(input) {
-  return input && input.length > 0;
-}
-
 // Main function (required export)
 function main() {
-  mainExecution();
-  return { executed: true };
-}
-
-// Main function - required export
-function main() {
-  mainExecution();
-}
-
-// Main execution
-function main() {
   initialize();
+  initializeApp();
+  mainExecution();
   console.log('Main function executed');
+  return { executed: true };
 }
 
 // Landmark data structure
@@ -172,4 +152,7 @@ const landmarkStructureCheck = (landmark) => {
 function setLanguageAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang
+    htmlElement.setAttribute('lang', 'en');
+  }
+  return htmlElement ? htmlElement.getAttribute('lang') : null;
+}

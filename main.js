@@ -68,7 +68,7 @@ function addLangAttribute(htmlElement) {
 }
 
 // TODO: Any additional changes requested in the issue should be added after this function
-// Line 108: preserved from commit eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2
+// Line 96: preserved from commit eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 // preserved from commit f8051b788bad4952d8493f08d3c7d22a06ff80d3
 // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->

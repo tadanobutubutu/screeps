@@ -5,12 +5,32 @@
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-// Assuming 'addLangAttribute' is a function that has already been implemented
-addLangAttribute();
-
-// Existing code from main.js continues here
 const fs = require('fs');
 const path = require('path');
+
+// Assuming 'addLangAttribute' is a function that has already been implemented
+function addLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    getLangAttribute();
+  }
+}
+addLangAttribute();
+
+function getLangAttribute() {
+  const htmlElement = document.documentElement;
+  let lang = htmlElement.getAttribute('lang');
+
+  if (!lang) {
+    lang = htmlElement.getAttribute('xml:lang');
+  }
+
+  if (!lang) {
+    lang = 'en';
+    htmlElement.setAttribute('lang', lang);
+  }
+
+  return lang;
+}
 
 function isLinkAccessible(link) {
   if (!link) {
@@ -160,15 +180,52 @@ function personName() {
     return 'New function result';
 }
 
-// TODO: Implement this function for creating in-page buttons
-function createInPageButton(buttonId, buttonText, buttonClass) {
-    // Create a new button element
-    const button = document.createElement('button');
+function createInPageButton(options) {
+  const {
+    id,
+    text,
+    className = 'in-page-button',
+    onClick,
+    ariaLabel,
+    lang
+  } = options || {};
 
-    // Set the button's ID, text content, and class
-    button.id = buttonId;
-    button.textContent = buttonText;
-    button.className = buttonClass;
+  if (!id || !text) {
+    throw new Error('createInPageButton: "id" and "text" are required options.');
+  }
 
-    // Append the button to the body or a specific container
-    document.body.appendChild(button);
+  const button = document.createElement('button');
+  button.id = id;
+  button.type = 'button';
+  button.className = className;
+  button.textContent = text;
+
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  } else {
+    button.setAttribute('aria-label', text);
+  }
+
+  if (lang) {
+    button.setAttribute('lang', lang);
+  }
+
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+
+  return button;
+}
+
+module.exports = {
+  // Existing exports
+  getLangAttribute,
+  createInPageButton,
+  addLangAttribute,
+  isLinkAccessible,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph,
+  existingFunction,
+  personName,
+};

@@ -1,6 +1,4 @@
 // main.js - Application entry point
-// TODO: Address accessibility issues from insight report
-
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
@@ -140,3 +138,13 @@ if (require.main === module) {
     console.log('First landmark:', sorted[0]);
   }
 }
+
+// New function to render dependency graph
+function renderDependencyGraph(landmarks) {
+    // Implementation to render the dependency graph
+    // Placeholder: Replace with actual implementation
+    console.log('Rendering dependency graph for landmarks...');
+}
+
+// Export the new function
+module.exports.renderDependencyGraph = renderDependencyGraph;

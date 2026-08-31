@@ -1,6 +1,24 @@
 // main.js - Accessibility-focused implementation
 
+// Import required modules
+const http = require('http');
+const path = require('path');
+
+// Application configuration
+const config = {
+  port: process.env.PORT || 3000,
+  env: process.env.NODE_ENV || 'development'
+};
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
+function renderDependencyGraphs(svgElements) {
+  const accessibleName = getSvgAccessibleName(svgElements);
+  if (accessibleName) {
+    // Use accessibleName
+    svgElements.setAttribute('aria-label', accessibleName);
+  }
+  setSvgAttributes(svgElements);
+}
 
 /**
  * Main application entry point with accessibility features
@@ -57,6 +75,33 @@ function addressAccessibilityIssuesFromReport(insightReport) {
   return issues;
 }
 
+// Stop the application server
+function stopApp(server, callback) {
+  if (!server) {
+    throw new Error('A server instance is required to stop the application');
+  }
+  server.close(() => {
+    if (typeof callback === 'function') {
+      callback();
+    }
+  });
+  return server;
+}
+
+// Handles health check requests
+function handleHealthCheck(req, res) {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ status: 'healthy', timestamp: new Date().toISOString() }));
+}
+
+// Restarts the application
+function restartApp(server) {
+  if (server) {
+    server.close();
+  }
+  return startApp();
+}
+
 function generateAccessibilityReportFromInsight(insightReport) {
   const issues = addressAccessibilityIssuesFromReport(insightReport);
   return {
@@ -111,6 +156,19 @@ function countDependencies() {
     total: Object.keys(dependencies).length + Object.keys(devDependencies).length
   };
 }
+
+// Export functions for testing
+module.exports = {
+  createServer,
+  startApp,
+  stopApp,
+  handleHealthCheck,
+  restartApp,
+  config
+};
+
+// Sample insight report
+export { checkLandmarkElements, sampleInsightReport };
 
 /**
  * Harvest function - collects data for accessibility insights

@@ -228,10 +228,65 @@ const ensureDependencyGraphAriaRole = () => {
 const http = require('http');
 const path = require('path');
 
-// New function as per the issue request
-function newExportedFunction() {
-  // Implementation of the new function
-  console.log('This is the new exported function.');
+// New function implemented as per issue requirements
+/**
+ * Validates and analyzes dependency data structure
+ * This function processes dependency information and returns structured analysis
+ * 
+ * @param {Object|Array} dependencyData - The dependency data to validate
+ * @returns {Object} Analysis result with validation status and metadata
+ */
+function newFunction(dependencyData) {
+  // Validate input parameter
+  if (dependencyData === null || dependencyData === undefined) {
+    console.warn('newFunction: No dependency data provided');
+    return {
+      isValid: false,
+      error: 'No dependency data provided',
+      dependencyCount: 0,
+      dependencies: []
+    };
+  }
+
+  // Normalize input to array format
+  const dependencies = Array.isArray(dependencyData) 
+    ? dependencyData 
+    : [dependencyData];
+
+  // Analyze dependencies
+  const analysis = {
+    isValid: true,
+    dependencyCount: dependencies.length,
+    dependencies: dependencies,
+    timestamps: {
+      analyzedAt: new Date().toISOString()
+    }
+  };
+
+  // Process each dependency
+  dependencies.forEach((dep, index) => {
+    if (typeof dep === 'object' && dep !== null) {
+      // Validate individual dependency structure
+      if (!dep.name) {
+        console.warn(`newFunction: Dependency at index ${index} missing 'name' property`);
+      }
+    } else {
+      // Convert primitive dependencies to object format
+      dependencies[index] = {
+        name: String(dep),
+        type: typeof dep,
+        value: dep
+      };
+    }
+  });
+
+  // Log analysis result
+  console.log('newFunction: Dependency analysis completed:', {
+    count: analysis.dependencyCount,
+    valid: analysis.isValid
+  });
+
+  return analysis;
 }
 
 function getLangAttribute() {

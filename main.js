@@ -1,22 +1,13 @@
-We need to resolve conflict. Let's parse.
-
-The conflict appears in several places.
-
-First part: imports. HEAD has:
-
-<<<<<<< HEAD
 // TODO: This is the existing code that needs to be preserve
 // (This comment remains as-is)
 
-=======
-// Import the new modules (from HEAD)
+// Import the new modules
 import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { WindowContext } from 'react-open-window';
 
-// CommonJS requires (from origin/main)
->>>>>>> origin/main
+// CommonJS requires
 const main = require('./utilities');
 const { requireDir } = require('require-dir');
 requireDir(require.resolve('./utilities'));
@@ -31,7 +22,6 @@ const { createInPageButton, createWebResourceButton, validateLandmark, validateL
 
 const http = require('http');
 
-<<<<<<< HEAD
 // Import all utilities functions for convenience (merged from both branches)
 const {
   createInPageButton,
@@ -143,30 +133,27 @@ function addAriaLabel(element, label) {
 
   element.setAttribute('aria-label', label);
   return element;
-=======
-// Find the relevant rendering functions, that's where we might add the new modules.
-// We'll assume there are two relevant functions, `renderMyComponent` and `renderAnotherComponent`.
-
-// original code for renderMyComponent before the line 70 comment
-// ...
+}
 
 // Add the new module usage to renderMyComponent
 function renderMyComponent(props) {
   // use the imported React module here and other necessary work
-  // ...
->>>>>>> origin/main
+  return (
+    <WindowContext.Provider value={{ window: window }}>
+      <div>{props.content}</div>
+    </WindowContext.Provider>
+  );
 }
-
-// original code for renderAnotherComponent before the line 70 comment
-// ...
 
 // Add the new module usage to renderAnotherComponent
 function renderAnotherComponent(props) {
   // use the imported React module, Testing Library, and WindowContext here and other necessary work
-  // ...
-
-<<<<<<< HEAD
-  return id;
+  const { container } = render(
+    <WindowContext.Provider value={{ window: window }}>
+      <div>{props.content}</div>
+    </WindowContext.Provider>
+  );
+  return container;
 }
 
 /**
@@ -190,4 +177,3 @@ function renderDependencyGraph(deps, options = {}) {
   // Note: dependencyGraphContent should be provided by the utilities module
   return dependencyGraphContent(deps, options);
 }
-=========================================

@@ -416,12 +416,11 @@ const AddressabilityIssues = {
 
 function MyComponent() {
   // Existing code that needs to be updated
-  const langAttr = getLangAttribute();
-  return (
-    <div lang={langAttr}>
-      {/* Content */}
-    </div>
-  );
+  const langAttr = typeof getLangAttribute === 'function' ? getLangAttribute() : 'en';
+  const element = document.createElement('div');
+  element.lang = langAttr;
+  // Content placeholder
+  return element;
 }
 
 export {

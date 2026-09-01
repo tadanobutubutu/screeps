@@ -1,38 +1,15 @@
-We need to resolve conflict. Let's parse.
-
-The conflict appears in several places.
-
-First part: imports. HEAD has:
-
-<<<<<<< HEAD
-// TODO: This is the existing code that needs to be preserve
-// (This comment remains as-is)
-
-=======
-// Import the new modules (from HEAD)
+// Import the new modules
 import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { WindowContext } from 'react-open-window';
 
-// CommonJS requires (from origin/main)
->>>>>>> origin/main
+// CommonJS requires
 const main = require('./utilities');
 const { requireDir } = require('require-dir');
 requireDir(require.resolve('./utilities'));
 
 // Import all utilities functions for convenience
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport,
-  addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderGraphIndex, renderDependencyGraphAria, addMainLandmarkToIndex, // New function to handle focus trap
-  newFocusTrap: newMainFocusTrap,
-  // New functions to address new accessibility issues from insight report
-  newAddressAccessibilityIssues: addressAccessibilityIssues
-} = main;
-
-const http = require('http');
-
-<<<<<<< HEAD
-// Import all utilities functions for convenience (merged from both branches)
 const {
   createInPageButton,
   createWebResourceButton,
@@ -66,6 +43,8 @@ const {
   // New functions to address new accessibility issues from insight report
   newAddressAccessibilityIssues: addressAccessibilityIssues
 } = main;
+
+const http = require('http');
 
 const a11yStore = {
   prefersReducedMotion() {
@@ -143,30 +122,18 @@ function addAriaLabel(element, label) {
 
   element.setAttribute('aria-label', label);
   return element;
-=======
-// Find the relevant rendering functions, that's where we might add the new modules.
-// We'll assume there are two relevant functions, `renderMyComponent` and `renderAnotherComponent`.
-
-// original code for renderMyComponent before the line 70 comment
-// ...
+}
 
 // Add the new module usage to renderMyComponent
 function renderMyComponent(props) {
   // use the imported React module here and other necessary work
   // ...
->>>>>>> origin/main
 }
-
-// original code for renderAnotherComponent before the line 70 comment
-// ...
 
 // Add the new module usage to renderAnotherComponent
 function renderAnotherComponent(props) {
   // use the imported React module, Testing Library, and WindowContext here and other necessary work
   // ...
-
-<<<<<<< HEAD
-  return id;
 }
 
 /**
@@ -190,4 +157,45 @@ function renderDependencyGraph(deps, options = {}) {
   // Note: dependencyGraphContent should be provided by the utilities module
   return dependencyGraphContent(deps, options);
 }
-=========================================
+
+// Export all functions that need to be available externally
+module.exports = {
+  createInPageButton,
+  createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  getSvgAccessibleName,
+  getLangAttribute,
+  ensureElementId,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addMainLandmark,
+  addLangAttribute,
+  fixTableStructureIssues,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  renderDependencyGraphAria,
+  addMainLandmarkToIndex,
+  newMainFocusTrap,
+  addressAccessibilityIssues,
+  addAriaLabel,
+  renderGraphIndex,
+  renderDependencyGraph,
+  renderMyComponent,
+  renderAnotherComponent,
+  // Export the new modules and functions
+  React,
+  render,
+  WindowContext
+};

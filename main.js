@@ -1,7 +1,5 @@
-/**
- * Main entry point for the application
- */
-
+// Main JavaScript file
+// This file handles the main application logic
 (function() {
     'use strict';
 
@@ -16,7 +14,6 @@ function createInPageButton(buttonText, onClickHandler) {
 // Example usage (if needed):
 // const btn = createInPageButton('Click Me', () => console.log('Clicked'));
 // ...
-
 function analyzeAccessibility(issuesData) {
   // Implementation of accessibility analysis
   // placeholder implementation
@@ -386,14 +383,14 @@ function spawnProcess(command, args, options) {
 
 // Call the function to address accessibility issues
 addressAccessibilityIssues();
-createInPageButtonDOM();
+createInPageButton();
 function3();
 // reportWebVitals(); // Commented out as not defined
 
 // Initialize on DOM ready
 function initialize() {
     // Ensure the dependencyGraph container has a proper ARIA role
-    if (typeof dependencyGraph !== 'undefined' && dependencyGraph) {
+    if (dependencyGraph) {
         if (!dependencyGraph.id) {
             dependencyGraph.id = 'dependencyGraph';
         }
@@ -409,7 +406,7 @@ function initialize() {
     addressAccessibilityIssues();
 
     // Create the in-page button
-    createInPageButtonDOM();
+    createInPageButton();
 
     // Add accessible names to 2 SVGs
     setSvgAccessibleNames('svg1Id', 'svg2Id', 'aria-label for SVG1', 'aria-label for SVG2');
@@ -459,8 +456,3 @@ if (typeof module !== 'undefined' && module.exports) {
     };
 }
 })();
-
-// Preserving accessibility enhancements from original commitment
-// Version 1 implementation (HEAD branch) - accessibility features integrated
-//_Commit: 0cc7acc93dade1532e36e2e26adc7bd895ef60df_
-//<!-- todo-hash: 398424c02b2e0

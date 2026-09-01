@@ -132,10 +132,44 @@ function renderDependencyGraphContent() {
   if (!container) {
     return;
   }
-  
+
   // Use the new functions for rendering
   renderDependencyGraph(container);
   renderIndexView(container);
+}
+
+/**
+ * Adds accessibility properties to SVG elements to ensure proper accessibility.
+ * @param {SVGElement} svgElement - The SVG element to enhance with accessibility properties.
+ * @param {Object} props - Accessibility properties to add (aria-label, role, etc.)
+ * @returns {SVGElement} The enhanced SVG element with accessibility properties.
+ */
+function addSvgAccessibilityProps(svgElement, props = {}) {
+  if (!svgElement || !(svgElement instanceof SVGElement)) {
+    console.warn('Invalid SVG element provided');
+    return svgElement;
+  }
+
+  // Set default ARIA role if not specified
+  if (!props.role) {
+    props.role = 'img';
+  }
+
+  // Apply all provided properties
+  for (const [key, value] of Object.entries(props)) {
+    if (key.startsWith('aria-') || key === 'role') {
+      svgElement.setAttribute(key, value);
+    }
+  }
+
+  // Ensure the SVG has a title or description if it's decorative
+  if (props.role === 'img' && !svgElement.querySelector('title, desc')) {
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = props['aria-label'] || 'SVG graphic';
+    svgElement.insertBefore(title, svgElement.firstChild);
+  }
+
+  return svgElement;
 }
 
 // Export functions for testing
@@ -162,5 +196,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  addSvgAccessibilityProps
 };

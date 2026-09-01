@@ -86,13 +86,13 @@ function validateLandmark(landmark) {
 // Accessibility helper function to validate table accessibility
 function validateTableAccessibility(table) {
     const issues = [];
-    
+
     // Check for caption
     const caption = table.querySelector('caption');
     if (!caption) {
         issues.push('Table missing caption');
     }
-    
+
     // Check for th elements with scope or headers
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
@@ -100,7 +100,7 @@ function validateTableAccessibility(table) {
             issues.push('TH element missing scope or headers attribute');
         }
     });
-    
+
     return issues;
 }
 
@@ -110,7 +110,7 @@ if (require.main === module) {
     const app = express();
     const PORT = process.env.PORT || 3000;
     const HOST = process.env.HOST || 'localhost';
-    
+
     app.listen(PORT, () => {
         console.log(`Server running on http://${HOST}:${PORT}`);
     });
@@ -132,7 +132,7 @@ if (require.main === module) {
 // Accessibility helper function to validate table structure
 function validateTableStructure(table) {
     const issues = [];
-    
+
     // Check for proper table structure (thead, tbody, tfoot)
     if (!table.querySelector('thead')) {
         issues.push('Table missing thead');
@@ -140,7 +140,7 @@ function validateTableStructure(table) {
     if (!table.querySelector('tbody')) {
         issues.push('Table missing tbody');
     }
-    
+
     // Check for proper row structure
     const rows = table.querySelectorAll('tr');
     rows.forEach((row, index) => {
@@ -149,7 +149,7 @@ function validateTableStructure(table) {
             issues.push(`Row ${index} has no cells`);
         }
     });
-    
+
     return issues;
 }
 
@@ -201,7 +201,7 @@ function ensureLandmarkUniqueness(elements) {
 function getSvgAccessibleName(svgElement) {
     // Check for aria-label
     let label = svgElement.getAttribute('aria-label');
-    
+
     // Check for aria-labelledby
     const labelledBy = svgElement.getAttribute('aria-labelledby');
     if (labelledBy) {
@@ -210,7 +210,7 @@ function getSvgAccessibleName(svgElement) {
             label = labelElement.textContent;
         }
     }
-    
+
     // Check for title element inside SVG
     if (!label) {
         const title = svgElement.querySelector('title');
@@ -218,7 +218,7 @@ function getSvgAccessibleName(svgElement) {
             label = title.textContent;
         }
     }
-    
+
     return label || '';
 }
 
@@ -226,12 +226,12 @@ function getSvgAccessibleName(svgElement) {
 function setSvgAttributes(svgElement, accessibleName) {
     // Ensure SVG has role="img"
     svgElement.setAttribute('role', 'img');
-    
+
     // Set aria-label if not already set
     if (!svgElement.getAttribute('aria-label') && accessibleName) {
         svgElement.setAttribute('aria-label', accessibleName);
     }
-    
+
     // Add title element if missing
     const existingTitle = svgElement.querySelector('title');
     if (!existingTitle && accessibleName) {
@@ -245,7 +245,7 @@ function setSvgAttributes(svgElement, accessibleName) {
 function ensureUniqueLandmarks() {
     const landmarks = {};
     const issues = [];
-    
+
     // Find all landmark elements
     const banner = document.querySelectorAll('[role="banner"], .banner');
     const navigation = document.querySelectorAll('[role="navigation"], .navigation');
@@ -253,20 +253,20 @@ function ensureUniqueLandmarks() {
     const contentinfo = document.querySelectorAll('[role="contentinfo"], .contentinfo');
     const complementary = document.querySelectorAll('[role="complementary"], .complementary');
     const search = document.querySelectorAll('[role="search"], .search');
-    
+
     // Check for duplicate landmarks
     if (banner.length > 1) landmarks.banner = banner;
     if (main.length > 1) landmarks.main = main;
     if (contentinfo.length > 1) landmarks.contentinfo = contentinfo;
-    
+
     if (complementary.length > 1) {
         issues.push(`Found ${complementary.length} complementary landmarks, should have at most 1`);
     }
-    
+
     if (search.length > 1) {
         issues.push(`Found ${search.length} search landmarks, should have at most 1`);
     }
-    
+
     return { landmarks, issues };
 }
 
@@ -284,18 +284,18 @@ function addLandmarkRegions() {
         main.setAttribute('id', 'main-content');
         // Content would need to be moved into main here
     }
-    
+
     // Ensure unique IDs for landmarks
     const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="search"], [role="region"]');
     const usedIds = new Set();
-    
+
     landmarks.forEach(landmark => {
         const existingId = landmark.id;
         if (existingId) {
             usedIds.add(existingId);
         }
     });
-    
+
     return { main, usedIds };
 }
 
@@ -564,6 +564,61 @@ function getInsightReport() {
     return [];
 }
 
+// New function to render dependency graph visualization
+function renderDependencyGraphVisualization(graphData) {
+    if (!graphData || !graphData.nodes || !graphData.edges) {
+        console.error('Invalid graph data provided');
+        return null;
+    }
+
+    // Create a visualization container
+    const container = document.createElement('div');
+    container.className = 'dependency-graph-visualization';
+
+    // Create nodes visualization
+    const nodesContainer = document.createElement('div');
+    nodesContainer.className = 'graph-nodes';
+    graphData.nodes.forEach(node => {
+        const nodeElement = document.createElement('div');
+        nodeElement.className = 'graph-node';
+        nodeElement.textContent = node.id;
+        nodesContainer.appendChild(nodeElement);
+    });
+
+    // Create edges visualization
+    const edgesContainer = document.createElement('div');
+    edgesContainer.className = 'graph-edges';
+    graphData.edges.forEach(edge => {
+        const edgeElement = document.createElement('div');
+        edgeElement.className = 'graph-edge';
+        edgeElement.textContent = `${edge.source} -> ${edge.target}`;
+        edgesContainer.appendChild(edgeElement);
+    });
+
+    // Add to container
+    container.appendChild(nodesContainer);
+    container.appendChild(edgesContainer);
+
+    return container;
+}
+
+// New function to update dependency graph visualization
+function updateDependencyGraphVisualization(container, graphData) {
+    if (!container || !graphData) {
+        console.error('Invalid container or graph data');
+        return;
+    }
+
+    // Clear existing content
+    container.innerHTML = '';
+
+    // Re-render the graph
+    const newVisualization = renderDependencyGraphVisualization(graphData);
+    if (newVisualization) {
+        container.appendChild(newVisualization);
+    }
+}
+
 // Export functions for testing
 module.exports = {
     User,
@@ -607,6 +662,10 @@ module.exports = {
     calculateSum,
     addProperLandmarkRegions,
     countGraphDependencies,
+
+    // New dependency graph visualization functions
+    renderDependencyGraphVisualization,
+    updateDependencyGraphVisualization,
 
     // Landmarks array and app state
     landmarks,

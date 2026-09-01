@@ -171,27 +171,152 @@ module.exports = {
   },
 
   // TODO: Import the new function to create a button with correct accessibility properties for in-page linking
-  createInPageButton: createInPageButton,
+  createInPageButton: (text, targetId, options = {}) => {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.setAttribute('aria-label', options.ariaLabel || `Link to ${text}`);
+    button.setAttribute('role', 'link');
+    button.setAttribute('tabindex', '0');
+
+    button.addEventListener('click', () => {
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+        target.focus();
+      }
+    });
+
+    button.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const target = document.getElementById(targetId);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+          target.focus();
+        }
+      }
+    });
+
+    return button;
+  },
 
   // TODO: Create a utility function to create a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
-  createWebResourceButton: createWebResourceButton,
+  createWebResourceButton: (text, url, options = {}) => {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.setAttribute('aria-label', options.ariaLabel || `Open ${text} in new tab`);
+    button.setAttribute('role', 'link');
+    button.setAttribute('tabindex', '0');
+
+    button.addEventListener('click', () => {
+      window.open(url, '_blank');
+    });
+
+    button.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        window.open(url, '_blank');
+      }
+    });
+
+    return button;
+  },
 
   // TODO: Validate the table structure for accessibility issues
-  validateTableAccessibility,
-  validateTableStructure,
+  validateTableAccessibility: (table) => {
+    const issues = [];
+    const caption = table.querySelector('caption');
+    if (!caption) {
+      issues.push('Table is missing a caption');
+    }
+
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      issues.push('Table is missing header cells');
+    }
+
+    const rows = table.querySelectorAll('tr');
+    rows.forEach((row, index) => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length === 0) {
+        issues.push(`Row ${index + 1} is empty`);
+      }
+    });
+
+    return issues;
+  },
+
+  validateTableStructure: (table) => {
+    const issues = [];
+    const rows = table.querySelectorAll('tr');
+
+    // Check if table has at least one row
+    if (rows.length === 0) {
+      issues.push('Table has no rows');
+      return issues;
+    }
+
+    // Check if first row contains only th elements (header row)
+    const firstRowCells = rows[0].querySelectorAll('td, th');
+    const hasOnlyTh = Array.from(firstRowCells).every(cell => cell.tagName === 'TH');
+    if (!hasOnlyTh) {
+      issues.push('First row should contain only th elements for proper table headers');
+    }
+
+    // Check if all rows have the same number of cells
+    const cellCount = firstRowCells.length;
+    rows.forEach((row, index) => {
+      const rowCells = row.querySelectorAll('td, th');
+      if (rowCells.length !== cellCount) {
+        issues.push(`Row ${index + 1} has ${rowCells.length} cells, expected ${cellCount}`);
+      }
+    });
+
+    return issues;
+  },
 
   // TODO: Validate the landmark structure for accessibility issues
-  validateLandmark,
-  validateLandmarkStructure,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
 
   // TODO: Extract the accessible name for an SVG from its content
-  getSvgAccessibleName,
+  getSvgAccessibleName: (svg) => {
+    // Check for aria-label
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (ariaLabel) return ariaLabel;
+
+    // Check for aria-labelledby
+    const labelledById = svg.getAttribute('aria-labelledby');
+    if (labelledById) {
+      const labelledByElement = document.getElementById(labelledById);
+      if (labelledByElement) return labelledByElement.textContent.trim();
+    }
+
+    // Check for title element
+    const title = svg.querySelector('title');
+    if (title) return title.textContent.trim();
+
+    // Check for desc element
+    const desc = svg.querySelector('desc');
+    if (desc) return desc.textContent.trim();
+
+    // Check for figcaption if SVG is in a figure
+    const figure = svg.closest('figure');
+    if (figure) {
+      const figcaption = figure.querySelector('figcaption');
+      if (figcaption) return figcaption.textContent.trim();
+    }
+
+    return '';
+  },
 
   // TODO: Add a language attribute to the HTML element
-  getLangAttribute,
+  getLangAttribute: (element) => {
+    return element.getAttribute('lang') || element.getAttribute('xml:lang');
+  },
 
   // TODO: Validate the accessibility report for issues
-  validateAccessibilityReport,
+  validateAccessibilityReport: validateAccessibilityReport,
 
   // TODO: Address new accessibility issues from insight report ( implement new functions and fixes as needed)
 

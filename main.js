@@ -57,19 +57,63 @@ import effectorSW from 'effector-sw';
 // Ensure accessibility attributes are set when adding a book
 ensureAccessibilityAttributesForAddBook();
 
-// Export all functions
-export {
+function initializeApp() {
+  appState.initialized = true;
+  console.log('Initializing application...');
+  return true;
+}
+
+function setupHandlers() {
+  console.log('Setting up event handlers...');
+}
+
+function validateInput(input) {
+  return input !== null && input !== undefined;
+}
+
+function processData(data) {
+  if (!validateInput(data)) {
+    throw new Error('Invalid input data');
+  }
+  return {
+    processed: true,
+    data: data,
+    timestamp: Date.now()
+  };
+}
+
+function finalizeResolvedFile(fileContent) {
+  // Implementation for finalizing the resolved file
+  // This is a placeholder for the actual implementation
+  return fileContent;
+}
+
+function renderDependencyGraph(dependencies) {
+  // Implementation for rendering dependency graphs
+  // This is a placeholder for the actual implementation
+  return dependencies;
+}
+
+function main() {
+  initializeApp();
+  setupHandlers();
+  return processData;
+}
+
+if (require.main === module) {
+  main();
+  console.log('Main function executed');
+}
+
+module.exports = {
+  config,
+  appState,
   getLangAttribute,
   addLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
   fixTableStructure,
   addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
   ensureUniqueLandmarks,
   createInPageButton,
   validateLinkAccessibility,
@@ -79,17 +123,15 @@ export {
   initialize,
   initializeApp,
   processData,
-  fetchUser,
-  clearCache,
-  validateInput,
   main,
+  finalizeResolvedFile,
+  renderDependencyGraph,
   wrapPrimaryContentInMain,
   handleUserInteraction,
   cleanup,
   initApp,
   VisualizeDependencyTree,
   checkLandmarkElement,
-  ensureUniqueLandmarks,
   ensureLandmarkUniqueness,
   validateLandmark,
   renderDependencyGraphContent,
@@ -114,7 +156,6 @@ export {
   validateSvgAccessibility,
   processUniqueElements,
   addressInsightIssues,
-  renderDependencyGraph,
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
@@ -126,6 +167,3 @@ export {
   generateDependencyString,
   effector
 };
-
-// Link effector-sw with the service worker registration
-registerSW(effectorSW);

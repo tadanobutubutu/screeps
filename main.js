@@ -54,7 +54,7 @@ function AddBookForm({ onAdd, checkAllowed }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (title.trim() && author.trim()) {
-      const book = { title: title.trim(), author: author.trim(), isPrivate: false, adviceUnauthorized: false, activityIllegal: false }; // Initial book properties (assuming no private, unauthorized advice, or illegal activity by default)
+      const book = { title: title.trim(), author: title.trim(), isPrivate: false, adviceUnauthorized: false, activityIllegal: false }; // Initial book properties (assuming no private, unauthorized advice, or illegal activity by default)
       const safetyCheck = checkSafety(book);
       if (safetyCheck) {
         alert(`Safety concerns: ${safetyCheck.join(', ')}`); // Warning message for potential safety issues
@@ -78,6 +78,9 @@ function authorizeUser(callback) {
   // Implement user authorization logic here
   callback();
 }
+
+// TODO: Preserve existing code
+// ... your existing code ...
 
 // Render the main component containing the book list, sorting controls, and authorization check
 function Main({ checkAllowed }) {

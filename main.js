@@ -29,17 +29,19 @@ const accessibilityUtils = {
     }
 };
 
-const express = require('express');
+// Import required modules
+const utils = require('./utils');
 const axe = require('axe-core');
+const express = require('express');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
 
-import './styles.css';
-import { someFunction } from './otherFile';
-
-// Configuration - merged
+// Configuration
 const CONFIG = {
+    name: 'MyApp',
+    version: '1.0.0',
+    debug: false,
     dataPath: './data',
     maxResults: 100,
     apiUrl: process.env.API_URL || 'https://example.com',
@@ -58,7 +60,7 @@ const appState = {
   initialized: false,
   data: null,
   cache: new Map(),
-  lang: 'en' // Added lang property
+  lang: 'en'
 };
 
 // Utilities
@@ -66,7 +68,20 @@ const { validateInput, processData } = require('./utils/validators');
 const { formatResponse } = require('./utils/processor');
 
 // Helper functions moved to a separate file
-const { fixTableStructureIssues, fixTableHeaderCellScope, addMainLandmark, addSvgAccessibleNames, fixFakeLinks, ensureUniqueLandmarks, addLandmarkRoles, generateAccessibilityReport, addressAccessibilityIssues, renderDependencyGraphContent, createInPageButtons, fixUniqueLandmarks } = require('./accessibility-improvements');
+const { 
+  fixTableStructureIssues, 
+  fixTableHeaderCellScope, 
+  addMainLandmark, 
+  addSvgAccessibleNames, 
+  fixFakeLinks, 
+  ensureUniqueLandmarks, 
+  addLandmarkRoles, 
+  generateAccessibilityReport, 
+  addressAccessibilityIssues, 
+  renderDependencyGraphContent, 
+  createInPageButtons, 
+  fixUniqueLandmarks 
+} = require('./accessibility-improvements');
 
 // Helper for input transformation
 function helper(input) {
@@ -96,6 +111,12 @@ function processData(data) {
 function initialize() {
   appState.initialized = true;
   console.log('App initialized');
+  
+  // Load landmarks for accessibility processing
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+  
+  return true;
 }
 
 // Initialize app function
@@ -114,13 +135,7 @@ function clearCache() {
   appState.cache.clear();
 }
 
-// Helper function for input transformation
-function helper(input) {
-  return input ? input.toUpperCase() : '';
-}
-
 // Address accessibility issues from insight report
-// Ensure the dependencyGraph container has a proper ARIA role
 function addressAccessibilityIssues(insightReport) {
   // This addresses issues from the insight report:
   // - REACT_015: Add lang attribute to HTML element
@@ -141,8 +156,26 @@ function addressAccessibilityIssues(insightReport) {
   console.log(report);
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
+// Accessibility scanning function using axe-core library
+async function scanAccessibility(filePaths) {
+  const issues = [];
+
+  for (const filePath of filePaths) {
+    const fileEmitted = path.join(process.cwd(), filePath);
+    const { violations } = await axe.analyze(fileEmitted);
+
+    if (violations.length > 0) {
+      issues.push({
+        file: filePath,
+        issues: violations,
+      });
+    }
+  }
+
+  return issues;
+}
+
+// Function to generate a report based on accessibility issues
 function generateAccessibilityReport(options = {}) {
   const report = scanAccessibility();
   writeReport(report);
@@ -153,14 +186,6 @@ function generateAccessibilityReport(options = {}) {
 function writeReport(report) {
   const reportFile = path.join(__dirname, 'accessibility_report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
-async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
-    return {
-      timestamp: new Date().toISOString(),
-      issues: []
-    };
 }
 
 function loadLandmarks() {
@@ -205,6 +230,20 @@ function isValidLandmark(landmark) {
   return landmark &&
          typeof landmark.id !== 'undefined' &&
          landmark.id !== null;
+}
+
+function ensureUniqueLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+    const seen = new Set();
+    return landmarks.filter(landmark => {
+        if (seen.has(landmark.id)) {
+            return false;
+        }
+        seen.add(landmark.id);
+        return true;
+    });
 }
 
 // Improve accessibility
@@ -316,20 +355,12 @@ if (require.main === module) {
   }
 }
 
-// Check if the environment is secure before initializing
-if (typeof isSecureContext === 'function' && isSecureContext()) {
-  initApp();
-} else {
-  console.warn('Application is not running in a secure context. Some features may not be available.');
-}
-
 // Export all functions for use elsewhere in the repository
 module.exports = {
   initializeApp,
   processData,
   fetchUser,
   clearCache,
-  someFunction,
   helper,
   formatDate,
   validateInput,
@@ -341,6 +372,24 @@ module.exports = {
   generateAccessibilityReport,
   config: CONFIG,
   appState,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  CONFIG,
+  isValidLandmark,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  ensureUniqueLandmarks,
+  addLandmarkRoles,
+  setLanguageAttribute,
+  fixUniqueLandmarks,
+  improveAccessibility,
+  scanAccessibility,
+  writeReport,
+  accessibilityUtils,
   validateTableAccessibility,
   validateTableStructure,
   fixTableStructure,
@@ -360,25 +409,6 @@ module.exports = {
   addSvgAccessibility,
   createAccessibleLinks,
   formatResponse,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  CONFIG,
-  isValidLandmark,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  ensureUniqueLandmarks,
-  addLandmarkRoles,
-  setLanguageAttribute,
-  fixUniqueLandmarks,
-  processAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  improveAccessibility,
-  scanAccessibility,
-  writeReport,
-  accessibilityUtils
+  checkLinkAccessibility,
+  analyzeAccessibility
 };

@@ -8,3 +8,11 @@ function functionB() {
 
 // Exporting functions
 export { functionA, functionB };
+
+// TODO: New code that was added to the branch
+// New function that does something different
+function functionC() {
+  // Function C implementation
+}
+
+export { functionC };

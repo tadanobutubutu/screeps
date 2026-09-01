@@ -68,15 +68,15 @@ function divide(dividend, divisor) {
   if (typeof dividend !== 'number' || typeof divisor !== 'number') {
     throw new Error('Both arguments must be numbers');
   }
-  
+
   if (isNaN(dividend) || isNaN(divisor)) {
     throw new Error('Both arguments must be valid numbers');
   }
-  
+
   if (divisor === 0) {
     throw new Error('Division by zero is not allowed');
   }
-  
+
   return dividend / divisor;
 }
 
@@ -156,17 +156,54 @@ function checkLinkAccessibility() {
   // This function will be used to validate the accessibility of links
   const links = document.querySelectorAll('a[href]');
   const issues = [];
-  
+
   links.forEach(link => {
     const href = link.getAttribute('href');
     const text = link.textContent.trim();
-    
+
     if (!text) {
       issues.push(`Link with href "${href}" has no accessible text`);
     }
   });
-  
+
   return issues;
+}
+
+// TODO: Implement the logic to handle the credential response
+/**
+ * Handles the credential response from an authentication provider
+ * @param {Object} credentialResponse - The credential response object from the authentication provider
+ * @returns {Object} An object containing the processed credential data
+ * @throws {Error} If the credential response is invalid or missing required fields
+ */
+function handleCredentialResponse(credentialResponse) {
+    if (!credentialResponse) {
+        throw new Error('Credential response is required');
+    }
+
+    if (typeof credentialResponse !== 'object') {
+        throw new Error('Credential response must be an object');
+    }
+
+    // Validate required fields in the credential response
+    const requiredFields = ['credential', 'clientId', 'select_by'];
+    for (const field of requiredFields) {
+        if (!credentialResponse[field]) {
+            throw new Error(`Credential response is missing required field: ${field}`);
+        }
+    }
+
+    // Process the credential data
+    const processedCredential = {
+        idToken: credentialResponse.credential,
+        clientId: credentialResponse.clientId,
+        selectedAccount: credentialResponse.select_by,
+        timestamp: new Date().toISOString()
+    };
+
+    // Additional processing can be added here as needed
+
+    return processedCredential;
 }
 
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic
@@ -178,29 +215,29 @@ function checkLinkAccessibility() {
  */
 function wrapPrimaryContentInMain() {
   const body = document.body;
-  
+
   // Return null if body element is not available
   if (!body) {
     return null;
   }
-  
+
   // Check if a <main> element already exists to avoid duplication
   const existingMain = document.querySelector('main');
   if (existingMain) {
     return existingMain;
   }
-  
+
   // Create a new <main> element
   const main = document.createElement('main');
-  
+
   // Move all existing body children into the <main> element
   while (body.firstChild) {
     main.appendChild(body.firstChild);
   }
-  
+
   // Append the <main> element to the body
   body.appendChild(main);
-  
+
   return main;
 }
 
@@ -307,7 +344,8 @@ module.exports = {
     createInPageButton,
     divide,
     checkLinkAccessibility,
-    wrapPrimaryContentInMain
+    wrapPrimaryContentInMain,
+    handleCredentialResponse
 };
 
 // Run if executed directly

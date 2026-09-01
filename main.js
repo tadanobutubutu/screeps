@@ -54,6 +54,8 @@
       const button = document.createElement('button');
       button.textContent = 'Accessibility Info';
       button.setAttribute('aria-label', 'Show accessibility information');
+      button.setAttribute('role', 'button');
+      button.setAttribute('tabindex', '0');
       document.body.appendChild(button);
     }
 
@@ -170,5 +172,92 @@
         } else {
             initialize();
         }
+    }
+
+    // New function to handle keyboard navigation
+    function handleKeyboardNavigation() {
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+          document.body.classList.add('keyboard-nav');
+        }
+      });
+
+      document.addEventListener('mousedown', function() {
+        document.body.classList.remove('keyboard-nav');
+      });
+    }
+
+    // New function to add ARIA labels to interactive elements
+    function addARIALabels() {
+      const interactiveElements = document.querySelectorAll('[role="button"], [role="link"], [role="menuitem"]');
+      interactiveElements.forEach(element => {
+        if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+          const textContent = element.textContent.trim();
+          if (textContent) {
+            element.setAttribute('aria-label', textContent);
+          }
+        }
+      });
+    }
+
+    // New function to add screen reader announcements
+    function addScreenReaderAnnouncements() {
+      const liveRegion = document.createElement('div');
+      liveRegion.setAttribute('aria-live', 'polite');
+      liveRegion.setAttribute('aria-atomic', 'true');
+      liveRegion.setAttribute('class', 'sr-only');
+      document.body.appendChild(liveRegion);
+
+      // Example usage
+      if (a11y && a11y.announce) {
+        a11y.announce('Accessibility features initialized', 'polite');
+      }
+    }
+
+    // New function to trap focus in modals
+    function trapModalFocus(modal) {
+      if (!modal) return;
+
+      const focusableElements = modal.querySelectorAll(
+        'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
+
+      modal.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+          if (e.shiftKey) {
+            if (document.activeElement === firstFocusable) {
+              e.preventDefault();
+              lastFocusable.focus();
+            }
+          } else {
+            if (document.activeElement === lastFocusable) {
+              e.preventDefault();
+              firstFocusable.focus();
+            }
+          }
+        }
+      });
+
+      // Focus the first element when modal opens
+      if (firstFocusable) {
+        firstFocusable.focus();
+      }
+    }
+
+    // Initialize all accessibility improvements
+    function initialize() {
+      addressAccessibilityIssues();
+      handleKeyboardNavigation();
+      addARIALabels();
+      addScreenReaderAnnouncements();
+      createInPageButton();
+
+      // Example of trapping focus in a modal
+      const modal = document.getElementById('modal');
+      if (modal) {
+        trapModalFocus(modal);
+      }
     }
 })();

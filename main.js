@@ -112,7 +112,7 @@ module.exports = {
   validateInput,
   processData,
   formatResponse,
-  config,
+  config: CONFIG,
   // landmark functions
   isValidLandmark,
   loadLandmarks,
@@ -120,7 +120,7 @@ module.exports = {
   sortLandmarks,
   getLandmarkById,
   ensureUniqueLandmarks,
-  landmarkConfig
+  landmarkConfig: CONFIG
 };
 
 // Main execution when run directly
@@ -171,3 +171,6 @@ module.exports.addLandmarkRegions = addLandmarkRegions;
 
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)

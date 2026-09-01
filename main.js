@@ -87,20 +87,20 @@ function detectAndSetLang(content) {
 function personName(options = {}) {
   const { firstName = '', lastName = '', lang = 'en', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
-  
+
   if (typeof document !== 'undefined') {
     const nameElement = document.createElement('span');
     nameElement.setAttribute('lang', lang);
     nameElement.setAttribute('aria-label', fullName);
     nameElement.textContent = fullName || 'Unknown';
-    
+
     if (container) {
       container.appendChild(nameElement);
     }
-    
+
     return nameElement;
   }
-  
+
   return fullName || 'Unknown';
 }
 
@@ -203,7 +203,7 @@ function newFocusTrap(container) {
   const focusableElements = Array.from(
     container.querySelectorAll(focusableSelectors)
   ).filter(el => el.offsetParent !== null);
-  
+
   if (focusableElements.length > 0) {
     focusableElements[0].focus();
   }
@@ -216,6 +216,82 @@ function newFocusTrap(container) {
       }
     }
   };
+}
+
+/**
+ * Ensures an element has a unique ID attribute
+ * @param {HTMLElement} element - The element to check/modify
+ * @param {string} [baseId] - Optional base ID to use (defaults to 'element-')
+ * @returns {string} The ID that was set or found
+ */
+function ensureElementHasId(element, baseId = 'element-') {
+  if (!element || typeof document === 'undefined') {
+    return '';
+  }
+
+  if (!element.id) {
+    // Generate a unique ID if none exists
+    let id = baseId;
+    let counter = 1;
+
+    // Find a unique ID by appending numbers if needed
+    while (document.getElementById(id)) {
+      id = `${baseId}${counter++}`;
+    }
+
+    element.id = id;
+  }
+
+  return element.id;
+}
+
+/**
+ * Adds an aria-label to an element if it doesn't already have one
+ * @param {HTMLElement} element - The element to add aria-label to
+ * @param {string} label - The label text to use
+ * @returns {string} The aria-label that was set or found
+ */
+function addAriaLabel(element, label) {
+  if (!element || typeof document === 'undefined') {
+    return '';
+  }
+
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', label);
+  }
+
+  return element.getAttribute('aria-label');
+}
+
+/**
+ * Renders a dependency graph visualization
+ * @param {HTMLElement} container - The container element to render the graph in
+ * @param {Object} data - The data to visualize in the graph
+ * @returns {HTMLElement} The created graph element
+ */
+function renderDependencyGraph(container, data) {
+  if (!container || typeof document === 'undefined') {
+    return null;
+  }
+
+  // Create a container for the graph
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'dependency-graph';
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+
+  // Add the graph visualization (implementation would depend on your graph library)
+  // This is a placeholder for the actual implementation
+  if (data && data.nodes && data.edges) {
+    // Here you would typically use a graph visualization library
+    // For example: D3.js, Vis.js, or a custom implementation
+    graphContainer.textContent = 'Dependency graph visualization would be rendered here';
+  } else {
+    graphContainer.textContent = 'No data available for dependency graph';
+  }
+
+  container.appendChild(graphContainer);
+  return graphContainer;
 }
 
 // Export the new functions
@@ -231,5 +307,8 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   validateUniqueLandmarks,
-  newFocusTrap
+  newFocusTrap,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph
 };

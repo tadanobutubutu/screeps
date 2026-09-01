@@ -10,7 +10,7 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
@@ -73,6 +73,24 @@ function renderGraphIndex(content, options = {}) {
   return container;
 }
 
+// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+function ensureAccessibility(container) {
+  // Ensure all SVGs in the container have accessible names
+  addAccessibleNamesToSVGs(container);
+
+  // Ensure all buttons have proper identifiers
+  fixButtonIdentifiers(container);
+
+  // Ensure all elements with ARIA roles have proper labels
+  addAriaLabel(container);
+
+  // Ensure proper landmark structure
+  ensureUniqueLandmarks(container);
+
+  // Add focus trap for modal dialogs if needed
+  focusTrap(container);
+}
+
 module.exports = {
   VERSION,
   hello,
@@ -88,5 +106,7 @@ module.exports = {
   isEmpty,
   getRandomInt,
   clamp,
-  deepClone
+  deepClone,
+  ensureAccessibility,
+  addAccessibleName
 };

@@ -1,10 +1,55 @@
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, checkAccessibility } = main;
+const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, checkAccessibility } = main;
 
-// Implement the function for addressing accessibility issues from insight report
-function newFunction() {
-    // TODO: Implement the new function as per the issue requirements
+// Utility function to create a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
+function createWebResourceButton(options = {}) {
+    const {
+        label,
+        url,
+        icon = null,
+        iconAltText = '',
+        ariaLabel = null,
+        className = 'web-resource-btn',
+        target = '_blank',
+        rel = 'noopener noreferrer'
+    } = options;
+
+    const button = document.createElement('a');
+    button.href = url;
+    button.className = className;
+    button.target = target;
+    button.rel = rel;
+    
+    // Set accessible name - prefer explicit ariaLabel, fallback to label
+    const accessibleName = ariaLabel || label;
+    button.setAttribute('aria-label', accessibleName);
+    
+    // Add text content
+    if (label) {
+        button.textContent = label;
+    }
+    
+    // Handle icon accessibility
+    if (icon) {
+        if (typeof icon === 'string') {
+            // If icon is an SVG string
+            button.insertAdjacentHTML('afterbegin', icon);
+            const svg = button.querySelector('svg');
+            if (svg) {
+                svg.setAttribute('aria-hidden', 'true');
+                if (iconAltText) {
+                    svg.setAttribute('aria-label', iconAltText);
+                }
+            }
+        } else if (icon instanceof HTMLElement) {
+            // If icon is already an DOM element
+            icon.setAttribute('aria-hidden', 'true');
+            button.insertBefore(icon, button.firstChild);
+        }
+    }
+    
+    return button;
 }
 
 // Implement the function for addressing accessibility issues from insight report

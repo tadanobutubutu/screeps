@@ -527,4 +527,68 @@ function handleFakeLinks(container) {
     }
 
     if (tagName === 'button' && element.querySelector('a')) {
-      issues.push(`Button at
+      issues.push(`Button at index ${index} contains an anchor element`);
+    }
+  });
+
+  return issues;
+}
+
+/**
+ * Generates an accessibility report based on axe-core scanning results
+ * @param {Object} axeResults - Results from axe-core scan
+ * @returns {string} Formatted accessibility report
+ */
+function generateAccessibilityReport(axeResults) {
+  if (!axeResults || !axeResults.violations) {
+    return 'No accessibility issues found or invalid results format';
+  }
+
+  let report = `Accessibility Report\n`;
+  report += `====================\n\n`;
+  report += `Total violations: ${axeResults.violations.length}\n\n`;
+
+  axeResults.violations.forEach((violation, index) => {
+    report += `Violation ${index + 1}: ${violation.id}\n`;
+    report += `Description: ${violation.description}\n`;
+    report += `Impact: ${violation.impact}\n`;
+    report += `Elements affected: ${violation.nodes.length}\n`;
+
+    if (violation.nodes.length > 0) {
+      report += `Sample affected elements:\n`;
+      violation.nodes.slice(0, 3).forEach(node => {
+        report += `- ${node.target.join(' > ')}\n`;
+      });
+
+      if (violation.nodes.length > 3) {
+        report += `- ...and ${violation.nodes.length - 3} more\n`;
+      }
+    }
+
+    report += `Help: ${violation.help}\n`;
+    report += `Help URL: ${violation.helpUrl}\n\n`;
+  });
+
+  return report;
+}
+
+/**
+ * Writes accessibility report to a file
+ * @param {string} report - The accessibility report content
+ * @param {string} filePath - Path to save the report
+ */
+function writeAccessibilityReport(report, filePath = 'accessibility-report.txt') {
+  try {
+    fs.writeFileSync(filePath, report, 'utf8');
+    console.log(`Accessibility report successfully written to ${filePath}`);
+  } catch (error) {
+    console.error('Error writing accessibility report:', error.message);
+  }
+}
+
+// Export all functions that need to be available
+export {
+  generateAccessibilityReport,
+  writeAccessibilityReport,
+  // ... other existing exports
+};

@@ -136,6 +136,58 @@ function handleIssue(issue) {
   }
 }
 
+// New function to enhance accessibility for the addBook function or form
+function enhanceAddBookAccessibility(formElement) {
+  if (!formElement) return;
+
+  // Ensure form has a proper role
+  formElement.setAttribute('role', 'form');
+
+  // Add ARIA labels to form fields if they don't exist
+  const fields = formElement.querySelectorAll('input, textarea, select');
+  fields.forEach(field => {
+    if (!field.getAttribute('aria-label') && !field.getAttribute('aria-labelledby')) {
+      const label = document.querySelector(`label[for="${field.id}"]`);
+      if (label) {
+        field.setAttribute('aria-labelledby', label.id);
+      } else if (field.placeholder) {
+        field.setAttribute('aria-label', field.placeholder);
+      }
+    }
+  });
+
+  // Add submit button if missing
+  if (!formElement.querySelector('button[type="submit"]')) {
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    submitButton.textContent = 'Add Book';
+    submitButton.setAttribute('aria-label', 'Submit form to add a new book');
+    formElement.appendChild(submitButton);
+  }
+
+  // Add error handling for required fields
+  const requiredFields = formElement.querySelectorAll('[required]');
+  requiredFields.forEach(field => {
+    field.addEventListener('invalid', (e) => {
+      e.preventDefault();
+      field.setAttribute('aria-invalid', 'true');
+      const errorMessage = document.createElement('div');
+      errorMessage.className = 'error-message';
+      errorMessage.textContent = `${field.name} is required`;
+      errorMessage.setAttribute('role', 'alert');
+      field.parentNode.insertBefore(errorMessage, field.nextSibling);
+    });
+
+    field.addEventListener('input', () => {
+      field.removeAttribute('aria-invalid');
+      const errorMessage = field.parentNode.querySelector('.error-message');
+      if (errorMessage) {
+        errorMessage.remove();
+      }
+    });
+  });
+}
+
 // ... (existing code for loading, processing, and sorting landmarks)
 
 // Export functions for testing
@@ -146,6 +198,7 @@ if (typeof module !== 'undefined' && module.exports) {
     sortLandmarks,
     getLandmarkById,
     ensureUniqueLandmarks,
-    addressAccessibilityIssues
+    addressAccessibilityIssues,
+    enhanceAddBookAccessibility // New export for the accessibility enhancement function
   };
 }

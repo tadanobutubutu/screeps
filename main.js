@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+// TODO: Address accessibility issues from insight report — FIXED
+
 // Import test helper function
 const { updateThScopeAttribute } = require('./testHelper');
 

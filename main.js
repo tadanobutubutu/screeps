@@ -249,6 +249,36 @@ function addressAccessibilityIssues() {
   }
 }
 
+// Function to validate table structure
+function validateTableStructure() {
+  // Implementation of validateTableStructure function
+  // ...
+}
+
+// Function to set SVG attributes
+function setSvgAttributes() {
+  // Implementation of setSvgAttributes function
+  // ...
+}
+
+// Function to validate link accessibility
+function validateLinkAccessibility() {
+  // Implementation of validateLinkAccessibility function
+  // ...
+}
+
+// Function to handle fake links
+function handleFakeLinks() {
+  // Implementation of handleFakeLinks function
+  // ...
+}
+
+// Function to add proper landmark regions
+function addProperLandmarkRegions() {
+  // Implementation of addProperLandmarkRegions function
+  // ...
+}
+
 export {
   getLangAttribute,
   createInPageButton,
@@ -261,7 +291,12 @@ export {
   addressNewAccessibilityIssues,
   addressAccessibilityIssues,
   generateAccessibilityReport,
-  a11y
+  a11y,
+  validateTableStructure,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions
 };
 
 root.render(

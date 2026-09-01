@@ -527,4 +527,227 @@ function handleFakeLinks(container) {
     }
 
     if (tagName === 'button' && element.querySelector('a')) {
-      issues.push(`Button at
+      issues.push(`Button at index ${index} contains an anchor element`);
+    }
+  });
+
+  return { valid: issues.length === 0, issues };
+}
+
+// New function to ensure element has an ID
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element.id) {
+    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element.id;
+}
+
+// New function to add aria-label to an element
+function addAriaLabel(element, label) {
+  if (element && label) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+}
+
+// New function to render dependency graph
+function renderDependencyGraph(dependencies) {
+  const container = document.createElement('div');
+  container.className = 'dependency-graph';
+
+  dependencies.forEach(dep => {
+    const depElement = document.createElement('div');
+    depElement.textContent = dep.name;
+    depElement.className = 'dependency-item';
+    container.appendChild(depElement);
+  });
+
+  return container;
+}
+
+// New function to ensure proper landmark regions
+function addProperLandmarkRegions() {
+  const mainContent = document.querySelector('main');
+  if (mainContent && !mainContent.getAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
+
+  const navElements = document.querySelectorAll('nav');
+  navElements.forEach(nav => {
+    if (!nav.getAttribute('role')) {
+      nav.setAttribute('role', 'navigation');
+    }
+  });
+}
+
+// New function to fix fake links in the document
+function fixFakeLinksInDocument() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    const parent = link.parentElement;
+    const buttonText = link.textContent.trim() || 'Skip to content';
+    const newButton = createInPageButton('main', buttonText);
+    parent.replaceChild(newButton, link);
+  });
+}
+
+// New function to ensure all interactive elements have keyboard support
+function ensureKeyboardSupport() {
+  const interactiveElements = document.querySelectorAll('button, [role="button"], a, input, select, textarea');
+
+  interactiveElements.forEach(element => {
+    if (!element.getAttribute('tabindex') && element.getAttribute('role') !== 'presentation') {
+      element.setAttribute('tabindex', '0');
+    }
+  });
+}
+
+// New function to check and fix ARIA attributes
+function checkAndFixAriaAttributes() {
+  const elementsWithAria = document.querySelectorAll('[aria-*]');
+
+  elementsWithAria.forEach(element => {
+    const ariaAttributes = Array.from(element.attributes)
+      .filter(attr => attr.name.startsWith('aria-'));
+
+    ariaAttributes.forEach(attr => {
+      if (attr.value === '') {
+        element.removeAttribute(attr.name);
+      }
+    });
+  });
+}
+
+// New function to ensure unique landmarks
+function ensureUniqueLandmarksInDocument() {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
+  const seenRoles = {};
+
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        if (index > 0) {
+          element.removeAttribute('role');
+          console.warn(`Removed duplicate role "${role}" from element`);
+        }
+      });
+    }
+  });
+}
+
+// New function to add missing ARIA attributes to SVGs
+function addMissingAriaToSvgs() {
+  const svgs = document.querySelectorAll('svg');
+
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (!accessibleName) {
+      setSvgAttributes(svg, 'Graphic element');
+    }
+  });
+}
+
+// New function to ensure all tables are accessible
+function ensureTablesAccessible() {
+  const tables = document.querySelectorAll('table');
+
+  tables.forEach(table => {
+    const { valid, issues } = validateTableAccessibility(table);
+    if (!valid) {
+      console.warn('Table accessibility issues:', issues);
+      fixTableStructure(table);
+    }
+  });
+}
+
+// New function to ensure proper landmark structure
+function ensureProperLandmarkStructure() {
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+
+  landmarks.forEach(landmark => {
+    if (!landmark.id) {
+      ensureElementHasId(landmark, 'landmark');
+    }
+  });
+}
+
+// New function to ensure all links are accessible
+function ensureLinksAccessible() {
+  const links = document.querySelectorAll('a[href]');
+
+  links.forEach(link => {
+    const { valid, issues } = validateLinkAccessibility(link);
+    if (!valid) {
+      console.warn('Link accessibility issues:', issues);
+      if (!link.getAttribute('aria-label') && !link.textContent.trim()) {
+        addAriaLabel(link, 'Link to ' + link.href);
+      }
+    }
+  });
+}
+
+// New function to ensure all interactive elements have proper labels
+function ensureProperLabels() {
+  const interactiveElements = document.querySelectorAll('button, [role="button"], input, select, textarea');
+
+  interactiveElements.forEach(element => {
+    if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby') && !element.querySelector('label')) {
+      console.warn('Interactive element missing label:', element);
+    }
+  });
+}
+
+// New function to ensure proper document structure
+function ensureProperDocumentStructure() {
+  // Ensure lang attribute is set
+  setLanguageAttribute();
+
+  // Ensure proper landmark regions
+  addProperLandmarkRegions();
+
+  // Ensure unique landmarks
+  ensureUniqueLandmarksInDocument();
+
+  // Ensure proper landmark structure
+  ensureProperLandmarkStructure();
+
+  // Ensure keyboard support
+  ensureKeyboardSupport();
+
+  // Ensure ARIA attributes are properly set
+  checkAndFixAriaAttributes();
+
+  // Ensure tables are accessible
+  ensureTablesAccessible();
+
+  // Ensure links are accessible
+  ensureLinksAccessible();
+
+  // Ensure interactive elements have proper labels
+  ensureProperLabels();
+
+  // Fix fake links
+  fixFakeLinksInDocument();
+
+  // Add missing ARIA to SVGs
+  addMissingAriaToSvgs();
+}
+
+// Export all new functions
+export {
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph,
+  addProperLandmarkRegions,
+  fixFakeLinksInDocument,
+  ensureKeyboardSupport,
+  checkAndFixAriaAttributes,
+  ensureUniqueLandmarksInDocument,
+  addMissingAriaToSvgs,
+  ensureTablesAccessible,
+  ensureProperLandmarkStructure,
+  ensureLinksAccessible,
+  ensureProperLabels,
+  ensureProperDocumentStructure
+};

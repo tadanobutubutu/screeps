@@ -415,4 +415,344 @@ function calculateAccessibilityScore(fixedIssues) {
     'other': 1
   };
 
-  return fixedIssues.reduce((
+  return fixedIssues.reduce((score, issue) => {
+    score += scorePoints[issue.type] || scorePoints.other;
+    return score;
+  }, 0);
+}
+
+/**
+ * Validate table accessibility
+ * @param {Array} tables - Array of table elements
+ * @returns {Array} Array of validation results
+ */
+function validateTableAccessibility(tables) {
+  const results = [];
+  
+  tables.forEach(table => {
+    const tableResult = {
+      element: table,
+      issues: [],
+      status: 'passed'
+    };
+    
+    // Check for proper table structure
+    if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+      tableResult.issues.push('Table missing proper structure (thead/tbody)');
+      tableResult.status = 'failed';
+    }
+    
+    // Check for proper headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      tableResult.issues.push('Table has no headers');
+      tableResult.status = 'failed';
+    }
+    
+    // Check for semantic table elements
+    const caption = table.querySelector('caption');
+    if (!caption) {
+      tableResult.issues.push('Table missing caption');
+      tableResult.status = 'failed';
+    }
+    
+    results.push(tableResult);
+  });
+  
+  return results;
+}
+
+/**
+ * Validate table structure
+ * @param {string} tableName - Name of the table
+ * @param {number} expectedColumns - Expected number of columns
+ * @returns {Object} Validation result
+ */
+function validateTableStructure(tableName, expectedColumns) {
+  const table = document.querySelector(`table[data-table-name="${tableName}"]`);
+  
+  if (!table) {
+    return {
+      tableName,
+      status: 'failed',
+      issues: ['Table not found'],
+      expectedColumns,
+      actualColumns: 0
+    };
+  }
+  
+  const columns = table.querySelectorAll('th, td').length;
+  
+  const result = {
+    tableName,
+    status: columns === expectedColumns ? 'passed' : 'failed',
+    issues: columns === expectedColumns ? [] : [`Expected ${expectedColumns} columns, found ${columns}`],
+    expectedColumns,
+    actualColumns: columns
+  };
+  
+  return result;
+}
+
+/**
+ * Validate landmark elements
+ * @param {Array} landmarks - Array of landmark elements
+ * @returns {Array} Array of validation results
+ */
+function validateLandmark(landmarks) {
+  const results = [];
+  
+  landmarks.forEach(landmark => {
+    const landmarkResult = {
+      element: landmark,
+      issues: [],
+      status: 'passed'
+    };
+    
+    // Check for proper landmark role
+    const role = landmark.getAttribute('role');
+    const ariaLabel = landmark.getAttribute('aria-label');
+    
+    const validRoles = ['banner', 'navigation', 'main', 'aside', 'footer', 'header', 'complementary', 'region'];
+    
+    if (!role || !validRoles.includes(role)) {
+      landmarkResult.issues.push('Invalid or missing landmark role');
+      landmarkResult.status = 'failed';
+    }
+    
+    // Check for accessible name
+    if (!ariaLabel && !landmark.textContent.trim()) {
+      landmarkResult.issues.push('Landmark missing accessible name');
+      landmarkResult.status = 'failed';
+    }
+    
+    results.push(landmarkResult);
+  });
+  
+  return results;
+}
+
+/**
+ * Validate landmark structure
+ * @param {Array} landmarks - Array of landmark elements
+ * @returns {Array} Array of validation results
+ */
+function validateLandmarkStructure(landmarks) {
+  const results = [];
+  const roles = {};
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    const result = {
+      element: landmark,
+      issues: [],
+      status: 'passed'
+    };
+    
+    // Check for duplicate landmarks with same role
+    if (role) {
+      if (!roles[role]) {
+        roles[role] = [];
+      }
+      roles[role].push(landmark);
+    }
+    
+    // Check for proper hierarchy
+    if (role === 'region') {
+      const heading = landmark.querySelector('h1, h2, h3, h4, h5, h6');
+      if (!heading) {
+        result.issues.push('Region landmark should have heading');
+        result.status = 'failed';
+      }
+    }
+    
+    results.push(result);
+  });
+  
+  // Check for duplicate landmarks
+  Object.keys(roles).forEach(role => {
+    if (roles[role].length > 1) {
+      results.forEach(result => {
+        if (roles[role].includes(result.element)) {
+          result.issues.push(`Duplicate ${role} landmark found`);
+          result.status = 'failed';
+        }
+      });
+    }
+  });
+  
+  return results;
+}
+
+/**
+ * Get SVG accessible name
+ * @param {SVGElement} svg - SVG element
+ * @returns {string} Accessible name for SVG
+ */
+function getSvgAccessibleName(svg) {
+  // Try to get title element first
+  const title = svg.querySelector('title');
+  if (title) {
+    return title.textContent;
+  }
+  
+  // Try to get aria-label attribute
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  // Try to use alt text (for img/svg elements)
+  const alt = svg.getAttribute('alt');
+  if (alt) {
+    return alt;
+  }
+  
+  // Try to get text content from SVG
+  const textContent = svg.textContent.trim();
+  if (textContent) {
+    return textContent;
+  }
+  
+  // Default fallback
+  return svg.getAttribute('id') || 'SVG element';
+}
+
+/**
+ * Ensure unique landmarks
+ * @param {Array} landmarks - Array of landmark elements
+ * @returns {Array} Array of validation results
+ */
+function ensureUniqueLandmarks(landmarks) {
+  const results = [];
+  const roles = {};
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    const result = {
+      element: landmark,
+      issues: [],
+      status: 'passed'
+    };
+    
+    if (role) {
+      if (!roles[role]) {
+        roles[role] = [];
+      }
+      roles[role].push(landmark);
+    }
+  });
+  
+  // Check for duplicates
+  Object.keys(roles).forEach(role => {
+    if (roles[role].length > 1) {
+      roles[role].forEach((landmark, index) => {
+        if (index > 0) {
+          results.push({
+            element: landmark,
+            issues: [`Duplicate ${role} landmark - there are ${roles[role].length} landmarks with this role`],
+            status: 'failed'
+          });
+        }
+      });
+    }
+  });
+  
+  return results;
+}
+
+/**
+ * Handle person name processing
+ * @param {Object} personData - Person data object
+ * @returns {Object} Processed person information
+ */
+function personName(personData) {
+  const result = {
+    originalName: personData.name || '',
+    processedName: '',
+    isFakeLink: false,
+    issues: []
+  };
+  
+  // Check if it's a fake link
+  if (personData.name && personData.name.toLowerCase().includes('click here') || 
+      personData.name.toLowerCase().includes('read more') ||
+      personData.name.toLowerCase().includes('more info')) {
+    result.isFakeLink = true;
+    result.issues.push('Name contains generic clickbait text');
+  }
+  
+  // Process the name
+  if (personData.name) {
+    result.processedName = personData.name
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  }
+  
+  return result;
+}
+
+/**
+ * Create in-page navigation button
+ * @param {string} targetId - Target element ID
+ * @param {string} buttonText - Button text
+ * @returns {HTMLElement} Created button element
+ */
+function createInPageButton(targetId, buttonText) {
+  const button = document.createElement('button');
+  button.textContent = buttonText;
+  button.setAttribute('aria-label', `${buttonText} - skip to ${targetId}`);
+  button.className = 'in-page-button';
+  button.setAttribute('role', 'button');
+  button.setAttribute('tabindex', '0');
+  
+  button.addEventListener('click', () => {
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.focus();
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+  
+  return button;
+}
+
+/**
+ * Get language attribute for HTML element
+ * @param {string} lang - Language code
+ * @returns {Object} Language attribute information
+ */
+function getLangAttribute(lang) {
+  return {
+    lang: lang || 'en',
+    fullLanguage: lang || 'en-US',
+    isValid: !!lang,
+    region: lang ? lang.split('-')[1] || '' : ''
+  };
+}
+
+/**
+ * Spawn some command (placeholder implementation)
+ * @param {string} command - Command to execute
+ * @returns {Object} Command execution result
+ */
+function spawnSomeCommand(command) {
+  return {
+    command,
+    executed: false,
+    result: null,
+    error: 'Not implemented'
+  };
+}
+
+/**
+ * Add language attribute to HTML element
+ * @param {string} lang - Language code
+ */
+function addLangAttribute(lang) {
+  const html = document.querySelector('html');
+  if (html) {
+    html.setAttribute('lang', lang || 'en');
+  }
+}

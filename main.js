@@ -193,7 +193,7 @@ const a11yStore = {
         if (landmark.id === '') {
           landmark.setAttribute('id', `${element}-${index}`);
         }
-        
+
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
             landmark.setAttribute('aria-label', `${element} ${index + 1}`);
@@ -212,13 +212,13 @@ const a11yStore = {
         titleElement.textContent = 'Image';
         svg.insertBefore(titleElement, svg.firstChild);
       }
-      
+
       if (!titleElement.id) {
         titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
       }
-      
+
       svg.setAttribute('aria-labelledby', titleElement.id);
-      
+
       if (!svg.hasAttribute('role')) {
         svg.setAttribute('role', 'img');
       }
@@ -267,10 +267,10 @@ class ScreepsBot {
   async start() {
     // Initialize network connection
     await this.network.connect();
-    
+
     // Load initial data
     await this.loadData();
-    
+
     console.log('Screenspider bot started');
   }
 
@@ -424,7 +424,7 @@ function ensureUniqueLandmarks() {
   if (typeof document === 'undefined') return;
   const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
   const idCounts = {};
-  
+
   landmarks.forEach((landmark) => {
     const tag = landmark.tagName.toLowerCase();
     idCounts[tag] = (idCounts[tag] || 0) + 1;
@@ -442,10 +442,10 @@ function handleFocusTrap(container) {
   if (typeof document === 'undefined' || !container) return;
   const focusableElements = container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
   if (focusableElements.length === 0) return;
-  
+
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
-  
+
   container.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
       if (e.shiftKey && document.activeElement === firstElement) {
@@ -489,19 +489,19 @@ function addProperLandmarkRegions() {
  */
 function isLandmarkElement(element) {
   const landmarkTags = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form', 'search'];
-  
+
   if (!element) {
     return false;
   }
-  
+
   if (typeof element === 'string') {
     return landmarkTags.includes(element.toLowerCase());
   }
-  
+
   if (element.tagName) {
     return landmarkTags.includes(element.tagName.toLowerCase());
   }
-  
+
   return false;
 }
 
@@ -565,15 +565,15 @@ function processData(items) {
  */
 function handleCredentialResponse(credentialResponse) {
     const parsedResponse = parseCredentialResponse(credentialResponse);
-    
+
     if (!parsedResponse) {
         return { status: 'error', message: 'Failed to parse credential response' };
     }
-    
+
     if (parsedResponse.success === false) {
         return { status: 'error', message: parsedResponse.error };
     }
-    
+
     return {
         status: 'success',
         credential: parsedResponse
@@ -587,29 +587,29 @@ function handleCredentialResponse(credentialResponse) {
  */
 function validateTableStructure(table) {
   if (!table || table.tagName !== 'TABLE') return false;
-  
+
   // Check for table header
   const hasHeader = table.querySelector('thead') !== null;
   const headerCells = table.querySelectorAll('th').length;
-  
+
   // Check for proper caption
   const hasCaption = table.querySelector('caption') !== null;
-  
+
   // Check for scope attributes on header cells
   const headersWithScope = table.querySelectorAll('th[scope]').length;
-  
+
   return hasHeader && headerCells > 0 && (hasCaption || headersWithScope > 0);
 }
 
 // HTTP Server setup
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
-    
+
     // CORS headers for credential responses
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    
+
     if (req.method === 'OPTIONS') {
         res.writeHead(200);
         res.end();
@@ -626,16 +626,16 @@ const server = http.createServer((req, res) => {
     // Credential response endpoint
     if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
         let body = '';
-        
+
         req.on('data', chunk => {
             body += chunk.toString();
         });
-        
+
         req.on('end', () => {
             try {
                 const credentialResponse = JSON.parse(body);
                 const result = handleCredentialResponse(credentialResponse);
-                
+
                 res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(result));
             } catch (error) {
@@ -649,7 +649,7 @@ const server = http.createServer((req, res) => {
     // Session validation endpoint
     if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
         const sessionId = parsedUrl.query.sessionId;
-        
+
         if (!sessionId) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
@@ -657,7 +657,7 @@ const server = http.createServer((req, res) => {
         }
 
         const session = validateSession(sessionId);
-        
+
         if (session) {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'valid', user: session.user }));
@@ -671,16 +671,16 @@ const server = http.createServer((req, res) => {
     // Session revocation endpoint
     if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
         let body = '';
-        
+
         req.on('data', chunk => {
             body += chunk.toString();
         });
-        
+
         req.on('end', () => {
             try {
                 const { sessionId } = JSON.parse(body);
                 const revoked = revokeSession(sessionId);
-                
+
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
             } catch (error) {

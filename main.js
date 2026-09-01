@@ -7,3 +7,59 @@ function newFunction() {
   // Implementation of the new function goes here
   console.log('New function is active!');
 }
+
+// Accessibility improvements for addBook function/form
+function addBook(title, author, isbn) {
+  // Ensure form elements have proper labels and ARIA attributes
+  const bookForm = document.getElementById('book-form');
+  if (bookForm) {
+    bookForm.setAttribute('aria-labelledby', 'add-book-heading');
+    bookForm.setAttribute('role', 'form');
+
+    // Add labels to form fields if they don't exist
+    const titleInput = document.getElementById('title');
+    if (titleInput && !titleInput.getAttribute('aria-label')) {
+      titleInput.setAttribute('aria-label', 'Book title');
+    }
+
+    const authorInput = document.getElementById('author');
+    if (authorInput && !authorInput.getAttribute('aria-label')) {
+      authorInput.setAttribute('aria-label', 'Author name');
+    }
+
+    const isbnInput = document.getElementById('isbn');
+    if (isbnInput && !isbnInput.getAttribute('aria-label')) {
+      isbnInput.setAttribute('aria-label', 'ISBN number');
+    }
+  }
+
+  // Create and return the book object
+  return {
+    title,
+    author,
+    isbn,
+    id: Date.now().toString()
+  };
+}
+
+// Add event listener for form submission if the form exists
+document.addEventListener('DOMContentLoaded', () => {
+  const bookForm = document.getElementById('book-form');
+  if (bookForm) {
+    bookForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('title').value;
+      const author = document.getElementById('author').value;
+      const isbn = document.getElementById('isbn').value;
+
+      if (title && author && isbn) {
+        const book = addBook(title, author, isbn);
+        // Here you would typically add the book to your data store
+        console.log('Book added:', book);
+        bookForm.reset();
+      } else {
+        alert('Please fill in all fields');
+      }
+    });
+  }
+});

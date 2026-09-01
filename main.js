@@ -111,10 +111,10 @@ addLangAttribute();
 function outputSafetyClassification(userMessage, assistantResponse) {
     // Classify user safety
     const userSafety = classifyUserSafety(userMessage);
-    
+
     // Output user safety
     console.log(`User Safety: ${userSafety}`);
-    
+
     // Output response safety only if assistant response is present
     if (assistantResponse) {
         const responseSafety = classifyResponseSafety(assistantResponse);
@@ -141,13 +141,13 @@ function classifyUserSafety(userMessage) {
         /harass/i,
         /threat/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(userMessage)) {
             return 'unsafe';
         }
     }
-    
+
     // Legitimate programming tasks are safe
     return 'safe';
 }
@@ -164,13 +164,13 @@ function classifyResponseSafety(assistantResponse) {
         /how.*hack/i,
         /create.*malware/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(assistantResponse)) {
             return 'unsafe';
         }
     }
-    
+
     return 'safe';
 }
 
@@ -229,7 +229,7 @@ function ensureUniqueLandmarks() {
   const landmarks = ... [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"],
   'footer[role="contentinfo"]'
   .join(', ')
-  
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation
@@ -273,6 +273,41 @@ function handleAccessibilityIssues() {
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
   // New code to fix accessibility issues...
+  // 1. Ensure all landmarks are unique
+  ensureUniqueLandmarks();
+
+  // 2. Add proper IDs to elements that need them
+  ensureElementHasId('myTable');
+  ensureElementHasId('myLogo');
+  ensureElementHasId('myMenu');
+
+  // 3. Add ARIA labels where needed
+  addAriaLabel('myTable', 'Product data table');
+  addAriaLabel('myLogo', 'Company logo');
+  addAriaLabel('myMenu', 'Accessibility menu');
+
+  // 4. Validate table accessibility
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
+
+  // 5. Add lang attribute to HTML element
+  addLangAttribute();
+
+  // 6. Ensure SVGs have accessible names
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  });
+
+  // 7. Validate link accessibility
+  validateLinkAccessibility();
+
+  // 8. Handle fake links
+  handleFakeLinks();
 }
 
 // New function to calculate the sum of two numbers
@@ -306,10 +341,25 @@ tables.forEach(table => {
 
 function validateLinkAccessibility() {
   // Implementation for validating link accessibility
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (!link.getAttribute('aria-label') && !link.textContent.trim()) {
+      link.setAttribute('aria-label', 'Link');
+    }
+  });
 }
 
 function handleFakeLinks() {
   // Implementation for handling fake links
+  const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
+  fakeLinks.forEach(link => {
+    if (!link.getAttribute('tabindex')) {
+      link.setAttribute('tabindex', '0');
+    }
+    if (!link.getAttribute('aria-label')) {
+      link.setAttribute('aria-label', 'Link');
+    }
+  });
 }
 
 // Add lang attribute to HTML element
@@ -359,6 +409,9 @@ buttons.forEach((button, index) => {
 });
 
 // Use the new function to add aria-labels to the appropriate elements
-... 
+...
+
+// Execute the fixAccessibilityIssues function when the DOM is loaded
+document.addEventListener('DOMContentLoaded', fixAccessibilityIssues);
 
 // End of file

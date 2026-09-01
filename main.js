@@ -100,20 +100,20 @@ function detectAndSetLang(content) {
 function personName(options = {}) {
   const { firstName = '', lastName = '', lang = 'en', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
-  
+
   if (typeof document !== 'undefined') {
     const nameElement = document.createElement('span');
     nameElement.setAttribute('lang', lang);
     nameElement.setAttribute('aria-label', fullName);
     nameElement.textContent = fullName || 'Unknown';
-    
+
     if (container) {
       container.appendChild(nameElement);
     }
-    
+
     return nameElement;
   }
-  
+
   return fullName || 'Unknown';
 }
 
@@ -133,27 +133,180 @@ function createInPageButton(parent = document.body) {
 
 // New function to validate table accessibility
 function validateTableAccessibility() {
-  // Implementation for table accessibility validation
+  if (typeof document === 'undefined') return [];
+
+  const tables = document.querySelectorAll('table');
+  const issues = [];
+
+  tables.forEach((table, index) => {
+    // Check for missing captions
+    if (!table.querySelector('caption')) {
+      issues.push(`Table ${index + 1} is missing a caption`);
+    }
+
+    // Check for proper table structure
+    const rows = table.querySelectorAll('tr');
+    if (rows.length === 0) {
+      issues.push(`Table ${index + 1} has no rows`);
+    }
+
+    // Check for proper headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      issues.push(`Table ${index + 1} has no header cells`);
+    }
+
+    // Check for scope attributes on headers
+    headers.forEach((header, hIndex) => {
+      if (!header.hasAttribute('scope')) {
+        issues.push(`Header ${hIndex + 1} in table ${index + 1} is missing scope attribute`);
+      }
+    });
+  });
+
+  return issues;
 }
 
 // New function to validate table structure
 function validateTableStructure() {
-  // Implementation for table structure validation
+  if (typeof document === 'undefined') return [];
+
+  const tables = document.querySelectorAll('table');
+  const issues = [];
+
+  tables.forEach((table, index) => {
+    // Check for proper table structure
+    const rows = table.querySelectorAll('tr');
+    if (rows.length === 0) {
+      issues.push(`Table ${index + 1} has no rows`);
+    }
+
+    // Check for proper headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      issues.push(`Table ${index + 1} has no header cells`);
+    }
+
+    // Check for proper data cells
+    const dataCells = table.querySelectorAll('td');
+    if (dataCells.length === 0) {
+      issues.push(`Table ${index + 1} has no data cells`);
+    }
+
+    // Check for proper nesting of table elements
+    const invalidElements = table.querySelectorAll('table table, div table, p table');
+    if (invalidElements.length > 0) {
+      issues.push(`Table ${index + 1} contains invalid nested table elements`);
+    }
+  });
+
+  return issues;
 }
 
 // New function to validate landmarks
 function validateLandmark() {
-  // Implementation for landmark validation
+  if (typeof document === 'undefined') return [];
+
+  const landmarks = [
+    'header', 'nav', 'main', 'footer',
+    '[role="banner"]', '[role="navigation"]',
+    '[role="main"]', '[role="contentinfo"]'
+  ];
+
+  const issues = [];
+  const foundLandmarks = {};
+
+  landmarks.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 0) {
+      foundLandmarks[selector] = elements.length;
+    }
+  });
+
+  // Check for required landmarks
+  if (!foundLandmarks['header'] && !foundLandmarks['[role="banner"]']) {
+    issues.push('Missing header or banner landmark');
+  }
+
+  if (!foundLandmarks['nav'] && !foundLandmarks['[role="navigation"]']) {
+    issues.push('Missing navigation landmark');
+  }
+
+  if (!foundLandmarks['main'] && !foundLandmarks['[role="main"]']) {
+    issues.push('Missing main content landmark');
+  }
+
+  if (!foundLandmarks['footer'] && !foundLandmarks['[role="contentinfo"]']) {
+    issues.push('Missing footer or contentinfo landmark');
+  }
+
+  return issues;
 }
 
 // New function to validate landmark structure
 function validateLandmarkStructure() {
-  // Implementation for landmark structure validation
+  if (typeof document === 'undefined') return [];
+
+  const issues = [];
+
+  // Check for proper landmark nesting
+  const main = document.querySelector('main, [role="main"]');
+  if (main) {
+    const invalidChildren = main.querySelectorAll('header, footer, nav');
+    if (invalidChildren.length > 0) {
+      issues.push('Main landmark contains invalid child landmarks');
+    }
+  }
+
+  // Check for proper landmark hierarchy
+  const headers = document.querySelectorAll('header, [role="banner"]');
+  headers.forEach((header, index) => {
+    const navs = header.querySelectorAll('nav, [role="navigation"]');
+    if (navs.length > 0) {
+      issues.push(`Header ${index + 1} contains navigation landmark`);
+    }
+  });
+
+  return issues;
 }
 
 // New function to get SVG accessible name
-function getSvgAccessibleName() {
-  // Implementation for getting SVG accessible name
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement || typeof document === 'undefined') return '';
+
+  // Check for aria-label
+  if (svgElement.hasAttribute('aria-label')) {
+    return svgElement.getAttribute('aria-label');
+  }
+
+  // Check for aria-labelledby
+  if (svgElement.hasAttribute('aria-labelledby')) {
+    const id = svgElement.getAttribute('aria-labelledby');
+    const labelElement = document.getElementById(id);
+    if (labelElement) {
+      return labelElement.textContent.trim();
+    }
+  }
+
+  // Check for title element
+  const title = svgElement.querySelector('title');
+  if (title) {
+    return title.textContent.trim();
+  }
+
+  // Check for desc element
+  const desc = svgElement.querySelector('desc');
+  if (desc) {
+    return desc.textContent.trim();
+  }
+
+  // Check for text content
+  const text = svgElement.textContent.trim();
+  if (text) {
+    return text;
+  }
+
+  return 'SVG without accessible name';
 }
 
 // New function to create a web resource button suitable for accessibility
@@ -169,8 +322,47 @@ function createWebResourceButton(url, text, parent = document.body) {
 
 // New function to validate unique landmarks
 function validateUniqueLandmarks() {
-  // Implementation for validating unique landmark roles
-  // Ensures each landmark has a unique identifier for accessibility
+  if (typeof document === 'undefined') return [];
+
+  const issues = [];
+  const landmarkRoles = [
+    'banner', 'navigation', 'main', 'contentinfo',
+    'complementary', 'search', 'form', 'region'
+  ];
+
+  // Check for duplicate landmarks
+  landmarkRoles.forEach(role => {
+    const selectors = [
+      `[role="${role}"]`,
+      role === 'banner' ? 'header' : '',
+      role === 'navigation' ? 'nav' : '',
+      role === 'main' ? 'main' : '',
+      role === 'contentinfo' ? 'footer' : ''
+    ].filter(s => s).join(', ');
+
+    const elements = document.querySelectorAll(selectors);
+    if (elements.length > 1) {
+      issues.push(`Multiple ${role} landmarks found`);
+    }
+  });
+
+  // Check for missing landmarks
+  const requiredLandmarks = ['banner', 'navigation', 'main', 'contentinfo'];
+  requiredLandmarks.forEach(role => {
+    const selectors = [
+      `[role="${role}"]`,
+      role === 'banner' ? 'header' : '',
+      role === 'navigation' ? 'nav' : '',
+      role === 'main' ? 'main' : '',
+      role === 'contentinfo' ? 'footer' : ''
+    ].filter(s => s).join(', ');
+
+    if (document.querySelectorAll(selectors).length === 0) {
+      issues.push(`Missing required ${role} landmark`);
+    }
+  });
+
+  return issues;
 }
 
 /**
@@ -227,7 +419,7 @@ function newFocusTrap(container) {
   const focusableElements = Array.from(
     container.querySelectorAll(focusableSelectors)
   ).filter(el => el.offsetParent !== null);
-  
+
   if (focusableElements.length > 0) {
     focusableElements[0].focus();
   }

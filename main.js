@@ -12,7 +12,6 @@ const {
     validateAccessibilityReport,
     exportUtils,
     addressAccessibilityIssues,
-    handleCredentialResponse,
     ensureElementHasId,
     ensureElementHasIdOrigin,
     addAriaLabel,
@@ -22,6 +21,8 @@ const {
     addMainLandmarkToIndex,
     focusTrap,
     checkAccessibility,
+    createAccessibleInPageButton,
+    newFunction,
 } = main;
 
 // Implement the function for addressing accessibility issues from insight report
@@ -213,6 +214,23 @@ function personName(name) {
 }
 
 /**
+ * Creates an accessible in-page button with correct accessibility properties
+ * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
+ * @param {string} label - The accessible label for the button
+ * @param {string} [ariaLabel] - Optional ARIA label (defaults to label)
+ * @returns {HTMLElement} The created button element
+ */
+function createAccessibleInPageButton(parent = document.body, label, ariaLabel = label) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.setAttribute('role', 'button');
+  btn.setAttribute('aria-label', ariaLabel);
+  btn.textContent = label;
+  parent.appendChild(btn);
+  return btn;
+}
+
+/**
  * Creates an accessible in- page button and appends it to the given parent element.
  * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
  * @returns {HTMLElement} The created button element
@@ -333,12 +351,20 @@ module.exports = {
   getLangAttribute,
   detectAndSetLang,
   personName,
+<<<<<<< HEAD
+  createAccessibleInPageButton,
+=======
+>>>>>>> origin/main
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
+<<<<<<< HEAD
+  getSvgAccessibleName
+=======
   getSvgAccessibleName,
   createWebResourceButton,
   newFunction,
+>>>>>>> origin/main
 };

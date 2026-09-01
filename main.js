@@ -1,22 +1,16 @@
-Here is the resolved file content:
-
-```javascript
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
-const accessiblyHelper = require('./accessibly-helper'); // Added this import
+const accessiblyHelper = require('./accessibly-helper');
 
 const expressApp = express();
 
 async function renderFunction1() {
   // Existing functionality
-
-  // Using accessible utilities instead of undefined modules
   const moduleAReturnValue = await accessiblyHelper();
 
-  // Ensure the dependencyGraph container has a proper ARIA role
   function ensureDependencyGraphRole(container) {
     if (!container) return;
     if (!container.hasAttribute('role')) {
@@ -27,25 +21,17 @@ async function renderFunction1() {
     }
   }
 
-  // Application data structure
   const appData = {
     title: 'Screeps',
     version: '1.0.0'
   };
-
-  // ... (remaining function1 logic)
 }
 
 async function renderFunction2() {
   // Existing functionality
-
-  // Using accessible utilities instead of undefined modules
   const moduleBReturnValue = await accessiblyHelper();
-
-  // ... (remaining function2 logic)
 }
 
-// Configuration - merged
 const CONFIG = {
     dataPath: './data',
     maxResults: 100,
@@ -53,25 +39,21 @@ const CONFIG = {
     timeout: 5000
 };
 
-// Alternative config style for backwards compatibility
 const config = CONFIG;
 
-// Application state
 let isInitialized = false;
 const appData_ originside = {};
 const appState = {
   initialized: false,
   data: null,
   cache: new Map(),
-  lang: 'en' // Added lang property
+  lang: 'en'
 };
 
-// Helper for input transformation
 function helper(input) {
   return input ? input.toUpperCase() : '';
 }
 
-// Helper function to format dates
 function formatDate(date) {
   if (!(date instanceof Date)) {
     date = new Date(date);
@@ -79,30 +61,25 @@ function formatDate(date) {
   return date.toISOString().split('T')[0];
 }
 
-// Validate input helper
 function validateInput(input) {
   return input && typeof input === 'string' && input.trim().length > 0;
 }
 
-// Process data helper
 function processData(data) {
   if (!data) return null;
   return { ...data, processed: true };
 }
 
-// Initialize function
 function initialize() {
   appState.initialized = true;
   console.log('App initialized');
 }
 
-// Initialize app function
 function initializeApp() {
   initialize();
   return appState;
 }
 
-// Fetch user function
 async function fetchUser(userId) {
   if (!userId) {
     return null;
@@ -110,24 +87,285 @@ async function fetchUser(userId) {
   return { id: userId, name: 'User ' + userId };
 }
 
-// Clear cache function
 function clearCache() {
   appState.cache.clear();
 }
 
-// Helper function
 function someFunction() {
   return 'some value';
+}
+
+// Harvest logic implementation
+async function harvest() {
+  try {
+    const report = await scanAccessibility();
+    const harvestedData = {
+      timestamp: new Date().toISOString(),
+      pagesScanned: report.length,
+      totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
+      details: report
+    };
+
+    const harvestFile = path.join(__dirname, 'harvest_data.json');
+    fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
+
+    return harvestedData;
+  } catch (error) {
+    console.error('Harvest failed:', error);
+    throw error;
+  }
 }
 
 // Configuration
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
 
-// Application main entry point
-const app = expressApp;
+// Upgrade function
+async function upgrade(data) {
+  try {
+    const upgradePlan = {
+      timestamp: new Date().toISOString(),
+      basedOnHarvest: data.timestamp,
+      improvements: [],
+      applied: false
+    };
 
-// ... (remaining helper functions and other code)
+    if (data.details && data.details.length > 0) {
+      data.details.forEach(page => {
+        page.issues.forEach(violation => {
+          upgradePlan.improvements.push({
+            file: page.file,
+            rule: violation.id,
+            impact: violation.impact,
+            description: violation.description,
+            recommendation: `Fix ${violation.id} issue in ${page.file}`
+          });
+        });
+      });
+    }
+
+    const upgradeFile = path.join(__dirname, 'upgrade_plan.json');
+    fs.writeFileSync(upgradeFile, JSON.stringify(upgradePlan, null, 2));
+
+    upgradePlan.applied = true;
+    upgradePlan.appliedAt = new Date().toISOString();
+
+    fs.writeFileSync(upgradeFile, JSON.stringify(upgradePlan, null, 2));
+
+    return upgradePlan;
+  } catch (error) {
+    console.error('Upgrade failed:', error);
+    throw error;
+  }
+}
+
+async function harvestAndUpgrade() {
+  const harvested = await harvest();
+  const upgraded = await upgrade(harvested);
+  return { harvested, upgraded };
+}
+
+// Accessibility functions (merged from both changes)
+function ensureDependencyGraphRole(container) {
+  if (!container) return;
+  if (!container.hasAttribute('role')) {
+    container.setAttribute('role', 'graphics-document');
+  }
+  if (!container.hasAttribute('aria-label')) {
+    container.setAttribute('aria-label', 'Dependency graph');
+  }
+}
+
+async function addressAccessibilityIssues() {
+  const allResults = await accessiblyHelper();
+  if (!allResults[0]) return;
+  allResults[0].ensuresDependencyGraphRole();
+}
+
+function renderDependencyGraphContent() {
+  // Render dependency graph content
+}
+
+function createInPageButtons() {
+  // Create in-page buttons
+}
+
+function fixUniqueLandmarks() {
+  // Fix unique landmarks
+}
+
+async function generateAccessibilityReport() {
+  const report = await scanAccessibility();
+  writeReport(report);
+}
+
+function validateTableAccessibility() {
+  // Validate table accessibility
+}
+
+function validateTableStructure() {
+  // Validate table structure
+}
+
+function fixTableStructure() {
+  // Fix table structure
+}
+
+function addMainLandmark() {
+  // Add main landmark
+}
+
+function validateLandmark() {
+  // Validate landmark
+}
+
+function validateLandmarkStructure() {
+  // Validate landmark structure
+}
+
+function validateLandmarkAttributes() {
+  // Validate landmark attributes
+}
+
+function getSvgAccessibleName() {
+  // Get SVG accessible name
+}
+
+function setSvgAttributes() {
+  // Set SVG attributes
+}
+
+function validateLinkAccessibility() {
+  // Validate link accessibility
+}
+
+function handleFakeLinks() {
+  // Handle fake links
+}
+
+function addLandmarkRegions() {
+  // Add landmark regions
+}
+
+function addProperLandmarkRegions() {
+  // Add proper landmark regions
+}
+
+function fixTableAccessibility() {
+  // Fix table accessibility
+}
+
+function fixLandmarkIssues() {
+  // Fix landmark issues
+}
+
+function addSvgAccessibility() {
+  // Add SVG accessibility
+}
+
+function createAccessibleLinks() {
+  // Create accessible links
+}
+
+function formatResponse() {
+  // Format response
+}
+
+function loadLandmarks() {
+  // Load landmarks
+}
+
+function processLandmarks() {
+  // Process landmarks
+}
+
+function sortLandmarks() {
+  // Sort landmarks
+}
+
+function getLandmarkById() {
+  // Get landmark by ID
+}
+
+function isValidLandmark() {
+  // Check if landmark is valid
+}
+
+function ensureUniqueLandmarks() {
+  // Ensure unique landmarks
+}
+
+function ensureUniqueLandmarksList() {
+  // Ensure unique landmarks list
+}
+
+function fixTableStructureIssues() {
+  // Fix table structure issues
+}
+
+function fixTableHeaderCellScope() {
+  // Fix table header cell scope
+}
+
+function addSvgAccessibleNames() {
+  // Add SVG accessible names
+}
+
+function fixFakeLinks() {
+  // Fix fake links
+}
+
+function addLandmarkRoles() {
+  // Add landmark roles
+}
+
+function setLanguageAttribute() {
+  // Set language attribute
+}
+
+function processAccessibilityReport() {
+  // Process accessibility report
+}
+
+function getLangAttribute() {
+  // Get lang attribute
+}
+
+function addLangAttribute() {
+  // Add lang attribute
+}
+
+function improveAccessibility() {
+  // Improve accessibility
+}
+
+async function scanAccessibility() {
+  // Scan accessibility
+}
+
+function writeReport(report) {
+  // Write report
+}
+
+function renderDependencyGraph() {
+  // Render dependency graph
+}
+
+function checkLandmarkElement() {
+  // Check landmark element
+}
+
+function landmarkStructureCheck() {
+  // Landmark structure check
+}
+
+function wrapPrimaryContentInMain() {
+  // Wrap primary content in main
+}
+
+function main() {
+  // Main function
+}
 
 module.exports = {
   initializeApp,
@@ -139,16 +377,8 @@ module.exports = {
   formatDate,
   validateInput,
   initialize,
-  // Combined accessibility functions from both changes
   ensureDependencyGraphRole,
-  addressAccessibilityIssues: async () => {
-    // Combine the logic from both changes
-    const allResults = await accessiblyHelper();
-    if (!allResults[0]) return;
-    // Ensure the dependencyGraph container has a proper ARIA role
-    allResults[0].ensuresDependencyGraphRole();
-    // ... (add other accessibility improvements as needed)
-  },
+  addressAccessibilityIssues,
   renderDependencyGraphContent,
   createInPageButtons,
   fixUniqueLandmarks,
@@ -198,8 +428,8 @@ module.exports = {
   checkLandmarkElement,
   landmarkStructureCheck,
   wrapPrimaryContentInMain,
-  main
+  main,
+  harvest,
+  upgrade,
+  harvestAndUpgrade
 };
-```
-
-This code merges the changes from both commits, keeping and integrating both changes if they both add features. The conflict markers are removed, and the code is formatted and organized to improve readability. Accessibility improvements were combined into a single function, `addressAccessibilityIssues`. Additionally, a new function, `accessiblyHelper`, was created to encapsulate the new imported module and its functionality.

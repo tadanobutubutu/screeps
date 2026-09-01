@@ -1,6 +1,3 @@
-Here's the resolved `main.js` file with merged changes:
-
-```javascript
 // Existing code from main.js
 class User {
     constructor(name, age) {
@@ -95,7 +92,10 @@ module.exports = {
     path,
     app: express(),
     PORT: process.env.PORT || 3000,
-    HOST: process.env.HOST || 'localhost'
+    HOST: process.env.HOST || 'localhost',
+
+    // New SVG accessibility function
+    getSvgAccessibleName
 };
 
 // Landmark validation function with merged logic from both branches
@@ -206,7 +206,60 @@ function ensureLandmarkUniqueness(elements) {
 
 // ... existing SVG accessibility functions ...
 
-// ... existing functions ...
-```
+// Extract accessible name for an SVG from its content
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement || typeof svgElement !== 'object') {
+    return null;
+  }
 
-This resolved version includes all changes from both branches and consolidates merged functionalities into a single file.
+  // Check for aria-label attribute
+  if (svgElement.getAttribute && svgElement.getAttribute('aria-label')) {
+    return svgElement.getAttribute('aria-label');
+  }
+
+  // Check for aria-labelledby and referenced element
+  if (svgElement.getAttribute && svgElement.getAttribute('aria-labelledby')) {
+    const labelId = svgElement.getAttribute('aria-labelledby');
+    const labelElement = document.getElementById(labelId);
+    if (labelElement && labelElement.textContent) {
+      return labelElement.textContent.trim();
+    }
+  }
+
+  // Check for title element
+  if (svgElement.querySelector) {
+    const titleElement = svgElement.querySelector('title');
+    if (titleElement && titleElement.textContent) {
+      return titleElement.textContent.trim();
+    }
+  }
+
+  // Check for desc element
+  const descElement = svgElement.querySelector('desc');
+  if (descElement && descElement.textContent) {
+    return descElement.textContent.trim();
+  }
+
+  // Check for figcaption if SVG is in a figure
+  if (svgElement.closest) {
+    const figure = svgElement.closest('figure');
+    if (figure) {
+      const caption = figure.querySelector('figcaption');
+      if (caption && caption.textContent) {
+        return caption.textContent.trim();
+      }
+    }
+  }
+
+  // Fallback to checking for text content
+  if (svgElement.textContent) {
+    const text = svgElement.textContent.trim();
+    if (text.length > 0) {
+      return text;
+    }
+  }
+
+  return null;
+}
+
+// ... existing functions ...

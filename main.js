@@ -26,7 +26,6 @@ const {
   revokeSession,
   functionA,
   functionB,
-  accessibilityUtils,
   newFocusTrap,
   addLangAttribute,
   fixTableStructure,
@@ -56,6 +55,27 @@ const a11yStore = {
 
 // Import all utilities functions for convenience (merged from both branches)
 
+// New functions to ensure element has an id and add aria-label
+function ensureElementHasId(element) {
+  if (!element.id) {
+    element.id = `generated-id-${Date.now()}`;
+  }
+  return element;
+}
+
+function addAriaLabel(element, label) {
+  element.setAttribute('aria-label', label);
+  return element;
+}
+
+// Function to render dependency graphs
+function renderDependencyGraphs(data) {
+  // Implementation for rendering dependency graphs
+  console.log('Rendering dependency graphs with data:', data);
+  // Actual implementation would go here
+}
+
+// Export all functions including the new ones
 module.exports = {
   createInPageButton,
   createWebResourceButton,
@@ -97,5 +117,8 @@ module.exports = {
   fixImageAltTexts,
   googleSignIn,
   addressAccessibilityIssues,
-  a11yStore
+  a11yStore,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs
 };

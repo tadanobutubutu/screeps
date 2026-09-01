@@ -30,15 +30,15 @@ function getFullLangAttribute() {
  */
 function validateTableAccessibility(table) {
   const issues = [];
-  
+
   if (!table.headers) {
     issues.push('Missing headers attribute');
   }
-  
+
   if (!table.scope) {
     issues.push('Missing scope attribute');
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -52,7 +52,7 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(tables) {
   const allIssues = [];
-  
+
   tables.forEach((table, index) => {
     const result = validateTableAccessibility(table);
     if (!result.success) {
@@ -62,7 +62,7 @@ function validateTableStructure(tables) {
       });
     }
   });
-  
+
   return {
     success: allIssues.length === 0,
     issues: allIssues
@@ -77,13 +77,13 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  
+
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -97,7 +97,7 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure(landmarks) {
   const issues = [];
-  
+
   landmarks.forEach((landmark, index) => {
     const result = validateLandmark(landmark);
     if (!result.success) {
@@ -107,7 +107,7 @@ function validateLandmarkStructure(landmarks) {
       });
     }
   });
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -122,7 +122,7 @@ function validateLandmarkStructure(landmarks) {
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
-  
+
   landmarks.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
@@ -131,7 +131,7 @@ function ensureUniqueLandmarks(landmarks) {
       names.push(name);
     }
   });
-  
+
   return {
     success: duplicates.length === 0,
     duplicates
@@ -200,7 +200,7 @@ function createAccessibleLink(options) {
 function handleAccessibilityIssues(issues) {
   const handled = [];
   const unhandled = [];
-  
+
   issues.forEach(issue => {
     if (issue.fixable) {
       handled.push(issue);
@@ -208,13 +208,243 @@ function handleAccessibilityIssues(issues) {
       unhandled.push(issue);
     }
   });
-  
+
   return {
     total: issues.length,
     handled: handled.length,
     unhandled: unhandled.length,
     unhandledIssues: unhandled
   };
+}
+
+/**
+ * Represents a tower in the tower defense game
+ */
+class Tower {
+  /**
+   * Create a tower
+   * @param {number} x - X coordinate
+   * @param {number} y - Y coordinate
+   * @param {number} range - Attack range
+   * @param {number} damage - Damage per attack
+   * @param {number} cooldown - Attack cooldown in milliseconds
+   */
+  constructor(x, y, range, damage, cooldown) {
+    this.x = x;
+    this.y = y;
+    this.range = range;
+    this.damage = damage;
+    this.cooldown = cooldown;
+    this.lastAttackTime = 0;
+  }
+
+  /**
+   * Check if the tower can attack an enemy
+   * @param {Enemy} enemy - The enemy to check
+   * @returns {boolean} True if the enemy is in range and cooldown is over
+   */
+  canAttack(enemy) {
+    const distance = Math.sqrt(Math.pow(this.x - enemy.x, 2) + Math.pow(this.y - enemy.y, 2));
+    const currentTime = Date.now();
+    return distance <= this.range && (currentTime - this.lastAttackTime) >= this.cooldown;
+  }
+
+  /**
+   * Attack an enemy
+   * @param {Enemy} enemy - The enemy to attack
+   * @returns {number} Damage dealt
+   */
+  attack(enemy) {
+    if (this.canAttack(enemy)) {
+      this.lastAttackTime = Date.now();
+      enemy.takeDamage(this.damage);
+      return this.damage;
+    }
+    return 0;
+  }
+}
+
+/**
+ * Represents an enemy in the tower defense game
+ */
+class Enemy {
+  /**
+   * Create an enemy
+   * @param {number} x - X coordinate
+   * @param {number} y - Y coordinate
+   * @param {number} health - Starting health
+   * @param {number} speed - Movement speed
+   * @param {Array} path - Path coordinates to follow
+   */
+  constructor(x, y, health, speed, path) {
+    this.x = x;
+    this.y = y;
+    this.health = health;
+    this.speed = speed;
+    this.path = path;
+    this.currentPathIndex = 0;
+    this.isAlive = true;
+  }
+
+  /**
+   * Move the enemy along its path
+   * @param {number} deltaTime - Time since last update in milliseconds
+   */
+  move(deltaTime) {
+    if (!this.isAlive || this.currentPathIndex >= this.path.length) return;
+
+    const target = this.path[this.currentPathIndex];
+    const dx = target.x - this.x;
+    const dy = target.y - this.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance < this.speed * deltaTime / 1000) {
+      this.x = target.x;
+      this.y = target.y;
+      this.currentPathIndex++;
+    } else {
+      const moveFactor = (this.speed * deltaTime / 1000) / distance;
+      this.x += dx * moveFactor;
+      this.y += dy * moveFactor;
+    }
+  }
+
+  /**
+   * Take damage from a tower
+   * @param {number} damage - Amount of damage to take
+   */
+  takeDamage(damage) {
+    this.health -= damage;
+    if (this.health <= 0) {
+      this.isAlive = false;
+    }
+  }
+
+  /**
+   * Check if the enemy has reached the end of its path
+   * @returns {boolean} True if the enemy has reached the end
+   */
+  hasReachedEnd() {
+    return this.currentPathIndex >= this.path.length;
+  }
+}
+
+/**
+ * Represents a tower defense game
+ */
+class TowerDefenseGame {
+  /**
+   * Create a new tower defense game
+   */
+  constructor() {
+    this.towers = [];
+    this.enemies = [];
+    this.gameOver = false;
+    this.score = 0;
+    this.wave = 0;
+    this.lastEnemySpawnTime = 0;
+    this.enemySpawnInterval = 3000;
+    this.path = this.generatePath();
+  }
+
+  /**
+   * Generate a path for enemies to follow
+   * @returns {Array} Array of path coordinates
+   */
+  generatePath() {
+    // Simple path from left to right
+    return [
+      { x: 0, y: 100 },
+      { x: 200, y: 100 },
+      { x: 200, y: 300 },
+      { x: 400, y: 300 },
+      { x: 400, y: 100 },
+      { x: 600, y: 100 }
+    ];
+  }
+
+  /**
+   * Add a tower to the game
+   * @param {number} x - X coordinate
+   * @param {number} y - Y coordinate
+   * @param {number} range - Attack range
+   * @param {number} damage - Damage per attack
+   * @param {number} cooldown - Attack cooldown in milliseconds
+   */
+  addTower(x, y, range, damage, cooldown) {
+    this.towers.push(new Tower(x, y, range, damage, cooldown));
+  }
+
+  /**
+   * Spawn a new enemy
+   */
+  spawnEnemy() {
+    const start = this.path[0];
+    const health = 100 + this.wave * 20;
+    const speed = 50 + this.wave * 10;
+    this.enemies.push(new Enemy(start.x, start.y, health, speed, this.path));
+    this.lastEnemySpawnTime = Date.now();
+  }
+
+  /**
+   * Update the game state
+   * @param {number} deltaTime - Time since last update in milliseconds
+   */
+  update(deltaTime) {
+    if (this.gameOver) return;
+
+    // Spawn enemies periodically
+    const currentTime = Date.now();
+    if (currentTime - this.lastEnemySpawnTime >= this.enemySpawnInterval) {
+      this.spawnEnemy();
+    }
+
+    // Update enemies
+    this.enemies.forEach(enemy => {
+      enemy.move(deltaTime);
+
+      if (enemy.hasReachedEnd()) {
+        this.gameOver = true;
+      }
+    });
+
+    // Remove dead enemies
+    this.enemies = this.enemies.filter(enemy => enemy.isAlive);
+
+    // Tower attacks
+    this.towers.forEach(tower => {
+      const targetEnemy = this.enemies.find(enemy =>
+        tower.canAttack(enemy) && enemy.isAlive
+      );
+
+      if (targetEnemy) {
+        const damageDealt = tower.attack(targetEnemy);
+        if (damageDealt > 0 && !targetEnemy.isAlive) {
+          this.score += 10;
+        }
+      }
+    });
+
+    // Check if all enemies are dead to start next wave
+    if (this.enemies.length === 0 && currentTime - this.lastEnemySpawnTime > this.enemySpawnInterval * 2) {
+      this.wave++;
+      this.enemySpawnInterval = Math.max(1000, this.enemySpawnInterval - 200);
+    }
+  }
+
+  /**
+   * Get the current game state
+   * @returns {Object} Game state information
+   */
+  getGameState() {
+    return {
+      towers: this.towers,
+      enemies: this.enemies,
+      gameOver: this.gameOver,
+      score: this.score,
+      wave: this.wave
+    };
+  }
 }
 
 // Export all functions for testing and external use
@@ -229,5 +459,8 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  Tower,
+  Enemy,
+  TowerDefenseGame
 };

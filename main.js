@@ -998,6 +998,118 @@ function generateAccessibilityReport() {
   };
 }
 
+/**
+ * Creates a form for adding a new book with proper accessibility features
+ * @param {HTMLElement} container - The container element to append the form to
+ * @param {Function} onSubmit - Callback function when the form is submitted
+ */
+function createAddBookForm(container, onSubmit) {
+  // Create form element with proper ARIA attributes
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', 'add-book-form-title');
+  form.className = 'add-book-form';
+
+  // Create form title
+  const title = document.createElement('h2');
+  title.id = 'add-book-form-title';
+  title.textContent = 'Add New Book';
+  form.appendChild(title);
+
+  // Create form fields with proper labels and ARIA attributes
+  const fields = [
+    { id: 'book-title', label: 'Title', type: 'text', required: true },
+    { id: 'book-author', label: 'Author', type: 'text', required: true },
+    { id: 'book-isbn', label: 'ISBN', type: 'text', required: true },
+    { id: 'book-pages', label: 'Number of Pages', type: 'number', required: true },
+    { id: 'book-published', label: 'Publication Date', type: 'date', required: true }
+  ];
+
+  fields.forEach(field => {
+    const fieldContainer = document.createElement('div');
+    fieldContainer.className = 'form-field';
+
+    const label = document.createElement('label');
+    label.htmlFor = field.id;
+    label.textContent = field.label;
+    fieldContainer.appendChild(label);
+
+    const input = document.createElement('input');
+    input.id = field.id;
+    input.type = field.type;
+    input.required = field.required;
+    input.setAttribute('aria-required', field.required.toString());
+    fieldContainer.appendChild(input);
+
+    form.appendChild(fieldContainer);
+  });
+
+  // Create submit button with proper ARIA attributes
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Book';
+  submitButton.setAttribute('aria-label', 'Submit new book information');
+  form.appendChild(submitButton);
+
+  // Add form submission handler
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Validate form inputs
+    const titleInput = document.getElementById('book-title');
+    const authorInput = document.getElementById('book-author');
+    const isbnInput = document.getElementById('book-isbn');
+    const pagesInput = document.getElementById('book-pages');
+    const publishedInput = document.getElementById('book-published');
+
+    if (!titleInput.value.trim() || !authorInput.value.trim() || !isbnInput.value.trim()) {
+      // Announce validation error
+      announceAccessibilityMessage('Please fill in all required fields');
+      return;
+    }
+
+    // Create book object from form data
+    const newBook = {
+      title: titleInput.value.trim(),
+      author: authorInput.value.trim(),
+      isbn: isbnInput.value.trim(),
+      pages: parseInt(pagesInput.value) || 0,
+      published: publishedInput.value
+    };
+
+    // Call the onSubmit callback with the new book data
+    if (typeof onSubmit === 'function') {
+      onSubmit(newBook);
+    }
+
+    // Reset the form after submission
+    form.reset();
+
+    // Announce successful submission
+    announceAccessibilityMessage('New book added successfully');
+  });
+
+  // Append the form to the container
+  container.appendChild(form);
+
+  // Focus the first input field for better accessibility
+  const firstInput = form.querySelector('input');
+  if (firstInput) {
+    firstInput.focus();
+  }
+}
+
+/**
+ * Announces a message to screen readers
+ * @param {string} message - The message to announce
+ */
+function announceAccessibilityMessage(message) {
+  const announcement = document.getElementById('accessibility-announcement');
+  if (announcement) {
+    announcement.textContent = message;
+  }
+}
+
 // Export existing functionality and new functions
 export {
   initialize,
@@ -1040,6 +1152,7 @@ export {
   validateTableStructure,
   generateAccessibilityReport,
   createUnrotateButton,
+  createAddBookForm,
   initGraphContainer,
   renderGraph
 };
@@ -1052,7 +1165,8 @@ export {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLink,
-  initializeAccessibility
+  initializeAccessibility,
+  createAddBookForm
 };
 
 // Add the new function to the default export
@@ -1067,6 +1181,7 @@ export default {
   validateTableAccessibility,
   validateTableStructure,
   generateAccessibilityReport,
+  createAddBookForm,
   initGraphContainer,
   renderGraph
 };
@@ -1074,6 +1189,7 @@ export default {
 // Compatibility for CommonJS if needed (as per HEAD)
 if (typeof module !== 'undefined' && module.exports) {
   module.exports.newFunction = newFunction;
+  module.exports.createAddBookForm = createAddBookForm;
   module.exports.initGraphContainer = initGraphContainer;
   module.exports.renderGraph = renderGraph;
 }

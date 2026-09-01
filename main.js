@@ -399,4 +399,8 @@ function calculateAccessibilityScore(fixedIssues) {
     'other': 1
   };
 
-  return fixedIssues.reduce((
+  return fixedIssues.reduce((sum, issue) => {
+    const points = scorePoints[issue.type] || scorePoints.other;
+    return sum + points;
+  }, 0);
+}

@@ -52,7 +52,6 @@ import { someFunction } from './utils/someFunction';
 import express from 'express';
 import path from 'path';
 import { fetchUser, clearCache } from './utils/user';
-import effectorSW from 'effector-sw';
 
 // Ensure accessibility attributes are set when adding a book
 ensureAccessibilityAttributesForAddBook();

@@ -265,6 +265,9 @@ function log(message, level = 'info') {
   console[level === 'error' ? 'error' : 'log'](`[${timestamp}] [${level}] ${message}`);
 }
 
+// TODO: Create or update the affected functions to be accessible
+// The functions below have been created to match the exported names
+
 module.exports = {
   accessibilityUtils,
   exportUtils,
@@ -277,5 +280,8 @@ module.exports = {
   renderDependencyGraphs,
   spawnProcess,
   focusTrap,
-  newFocusTrap
+  newFocusTrap,
+  sanitizeFilename,
+  readFileSafe,
+  log
 };

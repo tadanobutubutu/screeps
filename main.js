@@ -156,7 +156,7 @@ function spawnLandmark(landmarkData) {
 // Manages the spawning logic for landmarks based on configuration
 function handleSpawningLogic(maxLandmarks = 100, landmarkConfigs = []) {
   const spawnedLandmarks = [];
-  
+
   landmarkConfigs.forEach(config => {
     if (landmarks.length < maxLandmarks) {
       const spawned = spawnLandmark(config);
@@ -251,12 +251,12 @@ function addLandmarkRoles() {
   if (mainElement) {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   const navElement = document.querySelector('nav');
   if (navElement) {
     navElement.setAttribute('role', 'navigation');
   }
-  
+
   const landmarkElements = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"]');
   landmarkElements.forEach((element, index) => {
     if (!element.id) {
@@ -273,7 +273,7 @@ function fixFakeLinks() {
       link.setAttribute('role', 'button');
     }
   });
-  
+
   const links = document.querySelectorAll('a:not([href])');
   links.forEach(link => {
     const href = link.getAttribute('href');
@@ -290,7 +290,7 @@ let icons = {};
 // Table accessibility functions
 function validateTableAccessibility(table) {
   console.log('Validating table accessibility');
-  
+
   if (!table) return false;
 
   const headers = table.querySelectorAll('th');
@@ -334,7 +334,7 @@ function validateTableAccessibilityEnhanced(table) {
 
 function validateTableStructure(table) {
   console.log('Validating table structure');
-  
+
   if (!table) return false;
 
   const rows = table.querySelectorAll('tr');
@@ -358,7 +358,7 @@ function fixTableStructure() {
 
 function addLandmarkRegions() {
   console.log('Adding landmark regions');
-  
+
   const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
   if (mainElement && !mainElement.id) {
     mainElement.id = 'main-content';
@@ -425,7 +425,7 @@ function createInPageButtonDefault() {
 // Link accessibility functions
 function validateLinkAccessibility(link) {
   console.log('Validating link accessibility');
-  
+
   if (!link) return false;
 
   const href = link.getAttribute('href');
@@ -437,7 +437,7 @@ function validateLinkAccessibility(link) {
 
 function handleFakeLinks() {
   console.log('Handling fake links');
-  
+
   const links = document.querySelectorAll('a:not([href])');
   links.forEach(link => {
     const href = link.getAttribute('href');
@@ -596,7 +596,7 @@ export const main = {
 
 function getInsightReport() {
   const issues = [];
-  
+
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
     issues.push({
@@ -606,7 +606,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
     tableAccessibilityIssues.forEach(function(issue) {
@@ -620,7 +620,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
     tableStructureIssues.forEach(function(issue) {
@@ -634,7 +634,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
     landmarkIssues.forEach(function(issue) {
@@ -647,7 +647,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
     landmarkStructureIssues.forEach(function(issue) {
@@ -661,7 +661,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
     landmarkAttributeIssues.forEach(function(issue) {
@@ -671,7 +671,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   return { issues };
 }
 

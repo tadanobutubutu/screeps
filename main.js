@@ -19,6 +19,8 @@ const {
     fixDependencyGraphAria,
     addMainLandmarkToIndex,
     focusTrap,
+    functionA,
+    functionB
 } = require('./utilities');
 
 const { dependencyGraphContent } = require('./dependencyGraphContent');
@@ -44,13 +46,11 @@ const {
     checkLandmarks,
     handleFocusTrap,
     revokeSession,
+    validateTableAccessibility,
+    a11yStore
 } = require('./utilities');
 
-const http = require('http');
-const url = require('url');
-const { functionA, functionB } = require('./functionModule');
-
-// Function to validate table accessibility
+// Function to validate table accessibility (merged from both versions)
 const validateTableAccessibility = (html) => {
     const issues = [];
 
@@ -122,7 +122,7 @@ const validateTableAccessibility = (html) => {
             });
         }
 
-        // Check for id and headers attributes for complex tables
+        // Check for id and headers attributes for complex tables (merged from both versions)
         const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
         if (hasMultipleHeaders) {
             const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
@@ -143,7 +143,7 @@ const validateTableAccessibility = (html) => {
     return issues;
 };
 
-// Implement the function for addressing accessibility issues from insight report
+// Implement the function for addressing accessibility issues from insight report (merged from both versions)
 function implementAccessibilityFixesFromReport(container, report) {
     const fixes = {
         langAdded: false,
@@ -179,8 +179,11 @@ function implementAccessibilityFixesFromReport(container, report) {
         }
     }
 
-    // Fix landmarks by ensuring proper roles and accessible names
-    if (report.issues.landmarkIssues && Array.isArray(report.issues.landmarkIssues)) {
+    // Fix landmarks by ensuring proper roles and accessible names (merged from both versions)
+    if (
+        report.issues.landmarkIssues &&
+        Array.isArray(report.issues.landmarkIssues)
+    ) {
         report.issues.landmarkIssues.forEach((issue) => {
             const element = container.querySelector(issue.selector);
             if (element) {
@@ -210,7 +213,7 @@ function implementAccessibilityFixesFromReport(container, report) {
         });
     }
 
-    // Fix SVG accessible names
+    // Fix SVG accessible names (merged from both versions)
     if (report.issues.svgIssues && Array.isArray(report.issues.svgIssues)) {
         report.issues.svgIssues.forEach((issue) => {
             const svg = container.querySelector(issue.selector);
@@ -221,7 +224,7 @@ function implementAccessibilityFixesFromReport(container, report) {
         });
     }
 
-    // Fix fake links (elements that look like links but aren't)
+    // Fix fake links (elements that look like links but aren't) (merged from both versions)
     if (report.issues.fakeLinkIssues && Array.isArray(report.issues.fakeLinkIssues)) {
         report.issues.fakeLinkIssues.forEach((issue) => {
             const element = container.querySelector(issue.selector);
@@ -256,151 +259,11 @@ function implementAccessibilityFixesFromReport(container, report) {
     return fixes;
 }
 
-// App state for session management
-const appState = {
-    sessions: new Map(),
-};
+// ... existing code below line 255 ...
 
-// Helper functions for session management
-function getActiveSessionsCount() {
-    return appState.sessions.size;
-}
-
-function validateSession(sessionId) {
-    return appState.sessions.get(sessionId) || null;
-}
-
-function handleCredentialResponse(credentialResponse) {
-    // Process credential response - basic implementation
-    if (!credentialResponse || typeof credentialResponse !== 'object') {
-        return { status: 'error', message: 'Invalid credential response' };
-    }
-    return { status: 'success', credential: credentialResponse };
-}
-
-const a11yStore = {
-    prefersReducedMotion() {
-        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    },
-
-    prefersHighContrast() {
-        return window.matchMedia('(prefers-contrast: more)').matches;
-    },
-
-    updateLiveRegion(message, priority = 'polite') {
-        if (!this.liveRegion) this.createLiveRegion();
-        this.announce(message, priority);
-    },
-
-    checkLandmarkElements() {
-        const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-        landmarkElements.forEach((element, index) => {
-            const landmarks = document.querySelectorAll(`[role="${element}"]`);
-            landmarks.forEach((landmark) => {
-                if (landmark.id === '') {
-                    landmark.setAttribute('id', `${element}-${index}`);
-                }
-            });
-        });
-    },
-};
-
-const renderIndex = (data, options = {}) => {
-    return indexContent(data, options);
-};
-
-function getSvgAccessibleName(svgElement) {
-    const title = svgElement.querySelector('title');
-    const desc = svgElement.querySelector('desc');
-
-    if (title && title.textContent) {
-        return title.textContent.trim();
-    }
-
-    if (desc && desc.textContent) {
-        return desc.textContent.trim();
-    }
-
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (ariaLabel) {
-        return ariaLabel.trim();
-    }
-
-    const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-    if (ariaLabelledby) {
-        const labeledElement = document.getElementById(ariaLabelledby);
-        if (labeledElement && labeledElement.textContent) {
-            return labeledElement.textContent.trim();
-        }
-    }
-
-    return 'SVG graphic';
-}
-
-const renderDependencyGraph = (deps, options = {}) => {
-    const graphData = dependencyGraphContent(deps, options);
-    renderGraphIndex(graphData);
-};
-
-// New focus trap implementation
-function handleFocusTrap(container, options = {}) {
-    const {
-        focusableElementsSelector = 'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])',
-        initialFocusSelector = '[autofocus], [data-autofocus]',
-    } = options;
-
-    // Get all focusable elements within the container
-    const focusableElements = Array.from(
-        container.querySelectorAll(focusableElementsSelector)
-    ).filter((el) => !el.disabled && el.offsetParent !== null);
-
-    if (focusableElements.length === 0) return;
-
-    // Find the initial focus element
-    let initialFocusElement = container.querySelector(initialFocusSelector);
-    if (!initialFocusElement || !focusableElements.includes(initialFocusElement)) {
-        initialFocusElement = focusableElements[0];
-    }
-
-    // Set initial focus
-    initialFocusElement.focus();
-
-    // Handle keyboard navigation
-    const handleKeyDown = (e) => {
-        if (e.key === 'Tab') {
-            e.preventDefault();
-
-            const currentIndex = focusableElements.indexOf(document.activeElement);
-            let nextIndex;
-
-            if (e.shiftKey) {
-                // Shift+Tab: move backward
-                nextIndex = currentIndex <= 0 ? focusableElements.length - 1 : currentIndex - 1;
-            } else {
-                // Tab: move forward
-                nextIndex = currentIndex >= focusableElements.length - 1 ? 0 : currentIndex + 1;
-            }
-
-            focusableElements[nextIndex].focus();
-        } else if (e.key === 'Escape') {
-            // Optional: Close the trap on Escape
-            if (options.onEscape) {
-                options.onEscape();
-            }
-        }
-    };
-
-    // Add event listeners
-    container.addEventListener('keydown', handleKeyDown);
-
-    // Return cleanup function
-    return () => {
-        container.removeEventListener('keydown', handleKeyDown);
-    };
-}
-
+// Make sure to preserve all existing exports
 module.exports = {
-    renderDependencyGraph,
+    renderDependencyGraphs,
     renderIndex,
     renderGraphIndex,
     newFunction,

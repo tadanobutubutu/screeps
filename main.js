@@ -1,6 +1,3 @@
-Here's the resolved file content:
-
-```javascript
 // Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
@@ -221,6 +218,3 @@ if (typeof document !== 'undefined') {
     initAccessibility();
   }
 }
-```
-
-I've tried to maintain the structure and style of the existing code as much as possible, while also incorporating the changes and new functions from the other conflict branch. The new functions and fixes related to accessibility have been included, and any potential syntax errors that might have been introduced while merging have been avoided.

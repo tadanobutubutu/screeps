@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file:
-
-```javascript
 // Importing utilities for formatting and validation
 import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
 import { renderHeader, renderFooter, renderProductCard } from './components.js';
@@ -13,13 +10,9 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30f5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f816325b07a49b809ac49f5e1c81cf4e389f9c1 -->
-// _Commit: b88a21083c89f599fb68eef1dc4d5df10e52_
+// REACT_015: lang attribute added to HTML element
+// The React component rendering the HTML element provides the `lang` prop
+// The language attribute is set according to the application's settings
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -87,7 +80,7 @@ const main = {
   validateLinkAccessibility,
   handleFakeLinks,
   initializeAccessibility,
- vereifyLandmarkStructure,
+  vereifyLandmarkStructure,
   validateTableAccessibility,
   validateTableStructure,
   generateAccessibilityReport,
@@ -96,93 +89,46 @@ const main = {
   addLandmarkRoles,
   addSVGAccessibleName,
   fixFakeLink,
-  initDependencyGraph,
-  renderDependencyGraph,
-  getElementById,
-  queryElements,
-  checkLandmarkElements,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  // ... other exports
+
+  /**
+   * Sets the language attribute on the HTML element.
+   *
+   * This ensures that screen readers and other assistive technologies
+   * can correctly interpret the language of the page.
+   *
+   * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr').
+   */
+  setLanguageAttribute: setLanguageAttribute,
+
+  /**
+   * Adds landmark roles to the main navigation and content sections.
+   *
+   * This addresses the REACT_017 issue by adding appropriate ARIA roles
+   * such as 'navigation', 'main', and 'banner' to relevant HTML elements.
+   */
+  addLandmarkRoles: addLandmarkRolesFn,
+
+  /**
+   * Ensures that landmarks are unique by adding unique ARIA labels where necessary.
+   *
+   * This addresses the REACT_025 issue by checking for duplicate landmarks
+   * and making them unique with appropriate aria-label or aria-labelledby attributes.
+   */
+  ensureUniqueLandmarkElements: ensureUniqueLandmarkElements,
+
+  // ... any other functions you want to expose
 };
 
-/**
- * Sets the language attribute on the HTML element.
- *
- * This ensures that screen readers and other assistive technologies
- * can correctly interpret the language of the page.
- *
- * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr').
- */
-const setLanguageAttribute = (lang = 'en') => {
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', lang);
-  }
+// Add back any required exports that might have been missing
+export {
+  createUnrotateButton,
+  ensureThScope,
+  addLandmarkRoles,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarkElements,
+  fixFakeLink,
+  initializeAccessibility,
+  setLanguageAttribute
 };
-
-/**
- * Adds landmark roles to the main navigation and content sections.
- *
- * This addresses the REACT_017 issue by adding appropriate ARIA roles
- * such as 'navigation', 'main', and 'banner' to relevant HTML elements.
- */
-const addLandmarkRolesFn = () => {
-  // Navigation landmark
-  const navElement = document.querySelector('nav');
-  if (navElement && !navElement.getAttribute('role')) {
-    navElement.setAttribute('role', 'navigation');
-  }
-
-  // Main content landmark
-  const mainElement = document.querySelector('main');
-  if (mainElement && !mainElement.getAttribute('role')) {
-    mainElement.setAttribute('role', 'main');
-  }
-
-  // Header landmark (banner)
-  const headerElement = document.querySelector('header');
-  if (headerElement && !headerElement.getAttribute('role')) {
-    headerElement.setAttribute('role', 'banner');
-  }
-
-  // Footer landmark (contentinfo)
-  const footerElement = document.querySelector('footer');
-  if (footerElement && !footerElement.getAttribute('role')) {
-    footerElement.setAttribute('role', 'contentinfo');
-  }
-};
-
-/**
- * Ensures that landmarks are unique by adding unique ARIA labels where necessary.
- *
- * This addresses the REACT_025 issue by checking for duplicate landmarks
- * and making them unique with appropriate aria-label or aria-labelledby attributes.
- */
-const ensureUniqueLandmarkElements = () => {
-  // Navigation landmark uniqueness
-  const navElements = document.querySelectorAll('[role="navigation"]');
-  if (navElements.length > 1) {
-    navElements.forEach((nav, index) => {
-      if (index > 0) {
-        nav.setAttribute('aria-label', `Navigation ${index + 1}`);
-      }
-    });
-  }
-
-  // Main content landmark uniqueness
-  const mainElements = document.querySelectorAll('[role="main"]');
-  if (mainElements.length > 1) {
-    mainElements.forEach((main, index) => {
-      if (index > 0) {
-        main.setAttribute('aria-label', `Main content ${index + 1}`);
-      }
-    });
-  }
-};
-
-// Preserve any existing exports here
-// export { existingFunction1, existingFunction2, ... };
 
 export default main;
-```

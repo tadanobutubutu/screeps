@@ -133,7 +133,7 @@ function addLangAttribute() {
  * @param {string} label - The label text to set
  * @returns {HTMLElement} The element with the aria-label added
  */
-function addAriaLabel(element, label) {
+function addAriaLabelImpl(element, label) {
   if (!element) {
     return null;
   }
@@ -159,13 +159,13 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
   }
   
   const id = ensureElementHasId(element, idPrefix);
-  addAriaLabel(element, ariaLabel);
+  addAriaLabelImpl(element, ariaLabel);
   
   return id;
 }
 
 // Sample main.js with dependencyGraph container
-function renderDependencyGraph() {
+function renderDependencyGraphDOM() {
   const container = document.getElementById('dependency-graph');
 
   if (container) {

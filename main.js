@@ -57,6 +57,11 @@ function addressAccessibilityIssues(insightReport) {
   // Implement function to address the reported accessibility issues
 }
 
+/**
+ * Generates a report based on the accessibilityReport passed.
+ * @param {Object} accessibilityReport - Object containing accessibility issues.
+ * @returns {Array} An array of formatted issue objects.
+ */
 function generateAccessibilityReport(accessibilityReport) {
   if (!accessibilityReport || !Array.isArray(accessibilityReport.issues)) {
     return [];
@@ -71,6 +76,11 @@ function generateAccessibilityReport(accessibilityReport) {
   return report;
 }
 
+/**
+ * Calculates an accessibility score based on fixed issues.
+ * @param {Array} fixedIssues - Array of fixed accessibility issues.
+ * @returns {number} The total score.
+ */
 function calculateAccessibilityScore(fixedIssues) {
   if (!Array.isArray(fixedIssues)) {
     return 0;
@@ -90,6 +100,12 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
+/**
+ * Ensures that <main> elements are unique in the HTML source by converting duplicates
+ * to <section> elements with the same attributes.
+ * @param {string} source - HTML source as a string.
+ * @returns {string} Modified HTML source with unique <main> tags.
+ */
 function ensureUniqueLandmarksFromString(source) {
   const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
 
@@ -110,6 +126,11 @@ function ensureUniqueLandmarksFromString(source) {
   return result;
 }
 
+/**
+ * Validates that an element has an appropriate landmark role.
+ * @param {Element} element - DOM element to validate.
+ * @returns {Object} Validation result with 'valid' boolean and 'role' or 'error' message.
+ */
 function validateLandmark(element) {
   if (!element) {
     return { valid: false, error: 'Element is required' };
@@ -155,6 +176,75 @@ function validateLandmark(element) {
   return { valid: true, role: landmarkRole };
 }
 
+/**
+ * Handles the form submission for adding a new book.
+ * Ensures accessibility by setting proper ARIA attributes and keyboard navigation.
+ *
+ * @param {HTMLFormElement} form - The form element to which the event listener is attached.
+ * @param {Function} onSuccess - Callback invoked when a book is successfully added.
+ * @param {Function} onError - Callback invoked if adding a book fails.
+ */
+function addBook(form, onSuccess, onError) {
+  if (!(form instanceof HTMLFormElement)) {
+    const error = new Error('Invalid form element provided');
+    if (typeof onError === 'function') onError(error);
+    return;
+  }
+
+  // Set form attributes for accessibility
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-label', 'Add new book');
+
+  const titleInput = form.querySelector('#title');
+  const authorInput = form.querySelector('#author');
+
+  // Ensure required fields have proper labeling
+  if (titleInput) {
+    titleInput.setAttribute('aria-required', 'true');
+    titleInput.setAttribute('aria-label', 'Book title');
+    if (!titleInput.id) titleInput.id = 'title';
+  }
+  if (authorInput) {
+    authorInput.setAttribute('aria-required', 'true');
+    authorInput.setAttribute('aria-label', 'Book author');
+    if (!authorInput.id) authorInput.id = 'author';
+  }
+
+  // Add submit event listener
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const title = titleInput ? titleInput.value.trim() : '';
+    const author = authorInput ? authorInput.value.trim() : '';
+
+    if (!title || !author) {
+      const error = new Error('Both title and author are required');
+      if (typeof onError === 'function') onError(error);
+      return;
+    }
+
+    // Simulate asynchronous addition
+    const book = { title, author };
+    if (typeof onSuccess === 'function') {
+      onSuccess(book);
+    }
+
+    // Reset form
+    form.reset();
+    // Optionally clear aria-invalid states if any
+    if (titleInput) titleInput.removeAttribute('aria-invalid');
+    if (authorInput) authorInput.removeAttribute('aria-invalid');
+  });
+
+  // Enhance keyboard accessibility: allow adding a book with Ctrl+Enter
+  form.addEventListener('keydown', function(event) {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+      const submitEvent = new Event('submit');
+      form.dispatchEvent(submitEvent);
+    }
+  });
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
@@ -165,5 +255,6 @@ module.exports = {
   generateAccessibilityReport,
   calculateAccessibilityScore,
   ensureUniqueLandmarksFromString,
-  validateLandmark
+  validateLandmark,
+  addBook
 };

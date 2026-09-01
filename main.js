@@ -3,7 +3,7 @@
 
 // Add only the required exports here
 // Example:
-export function newRequiredFunction() {
+export function newRequiredFunction () {
   // Implementation
 }
 

@@ -4,14 +4,27 @@ function greet (name) {
 }
 
 // New function to calculate the average of two numbers
-export function calculateAverage (a, b) {
+module.exports.calculateAverage = function (a, b) {
   return (a + b) / 2
 }
 
 // Exported functions
-export function calculateSum (a, b) {
+module.exports.calculateSum = function (a, b) {
   return a + b
 }
-export function calculateProduct (a, b) {
+module.exports.calculateProduct = function (a, b) {
   return a * b
 }
+
+// Line 156 (updated)
+module.exports.functionA = functionA;
+module.exports.functionB = functionB;
+
+// New function exampleFunction, as per the issue's request
+function exampleFunction() {
+    // Function implementation
+    console.log("This is the new function exampleFunction");
+}
+
+// Add the new function to the exports
+module.exports.exampleFunction = exampleFunction;

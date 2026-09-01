@@ -30,15 +30,15 @@ function getFullLangAttribute() {
  */
 function validateTableAccessibility(table) {
   const issues = [];
-  
+
   if (!table.headers) {
     issues.push('Missing headers attribute');
   }
-  
+
   if (!table.scope) {
     issues.push('Missing scope attribute');
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -52,7 +52,7 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(tables) {
   const allIssues = [];
-  
+
   tables.forEach((table, index) => {
     const result = validateTableAccessibility(table);
     if (!result.success) {
@@ -62,7 +62,7 @@ function validateTableStructure(tables) {
       });
     }
   });
-  
+
   return {
     success: allIssues.length === 0,
     issues: allIssues
@@ -77,13 +77,13 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  
+
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -97,7 +97,7 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure(landmarks) {
   const issues = [];
-  
+
   landmarks.forEach((landmark, index) => {
     const result = validateLandmark(landmark);
     if (!result.success) {
@@ -107,7 +107,7 @@ function validateLandmarkStructure(landmarks) {
       });
     }
   });
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -122,7 +122,7 @@ function validateLandmarkStructure(landmarks) {
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
-  
+
   landmarks.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
@@ -131,7 +131,7 @@ function ensureUniqueLandmarks(landmarks) {
       names.push(name);
     }
   });
-  
+
   return {
     success: duplicates.length === 0,
     duplicates
@@ -200,7 +200,7 @@ function createAccessibleLink(options) {
 function handleAccessibilityIssues(issues) {
   const handled = [];
   const unhandled = [];
-  
+
   issues.forEach(issue => {
     if (issue.fixable) {
       handled.push(issue);
@@ -208,12 +208,96 @@ function handleAccessibilityIssues(issues) {
       unhandled.push(issue);
     }
   });
-  
+
   return {
     total: issues.length,
     handled: handled.length,
     unhandled: unhandled.length,
     unhandledIssues: unhandled
+  };
+}
+
+/**
+ * Creates an accessible form for adding a new book
+ * @param {Object} options - Form options
+ * @param {Function} options.onSubmit - Submit handler
+ * @returns {Object} Form element object with accessibility attributes
+ */
+function createAddBookForm(options) {
+  return {
+    type: 'form',
+    role: 'form',
+    ariaLabel: 'Add New Book Form',
+    onSubmit: options.onSubmit,
+    fields: [
+      {
+        type: 'text',
+        id: 'book-title',
+        name: 'title',
+        label: 'Book Title',
+        required: true,
+        ariaRequired: true
+      },
+      {
+        type: 'text',
+        id: 'book-author',
+        name: 'author',
+        label: 'Author',
+        required: true,
+        ariaRequired: true
+      },
+      {
+        type: 'number',
+        id: 'book-pages',
+        name: 'pages',
+        label: 'Number of Pages',
+        min: 1,
+        ariaLabel: 'Number of pages in the book'
+      },
+      {
+        type: 'checkbox',
+        id: 'book-read',
+        name: 'read',
+        label: 'Have you read this book?',
+        ariaLabel: 'Check if you have read this book'
+      }
+    ],
+    submitButton: {
+      type: 'submit',
+      text: 'Add Book',
+      ariaLabel: 'Submit form to add new book'
+    }
+  };
+}
+
+/**
+ * Validates a book form for accessibility compliance
+ * @param {Object} form - The form object to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateBookFormAccessibility(form) {
+  const issues = [];
+
+  if (!form.role) {
+    issues.push('Missing role attribute for form');
+  }
+
+  if (!form.ariaLabel) {
+    issues.push('Missing aria-label for form');
+  }
+
+  form.fields.forEach(field => {
+    if (field.required && !field.ariaRequired) {
+      issues.push(`Field ${field.name} is required but missing aria-required`);
+    }
+    if (!field.label && !field.ariaLabel) {
+      issues.push(`Field ${field.name} is missing both label and aria-label`);
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
   };
 }
 
@@ -229,5 +313,7 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  createAddBookForm,
+  validateBookFormAccessibility
 };

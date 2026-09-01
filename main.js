@@ -1,6 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
+// TODO: This is the existing code that needs to be preserve
+// Addressed accessibility issues from insight report
+
 // TODO: Address accessibility issues from insight report
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_027: Fix 26 table structure issues

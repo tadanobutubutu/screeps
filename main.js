@@ -20,11 +20,11 @@ function ensureElementHasId(element, prefix = 'element') {
   if (!element) {
     return null;
   }
-  
+
   if (!element.id) {
     element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   }
-  
+
   return element.id;
 }
 
@@ -38,11 +38,11 @@ function addAriaLabel(element, label) {
   if (!element) {
     return null;
   }
-  
+
   if (typeof label !== 'string' || label.trim() === '') {
     return element;
   }
-  
+
   element.setAttribute('aria-label', label);
   return element;
 }
@@ -58,10 +58,10 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
   if (!element) {
     return null;
   }
-  
+
   const id = ensureElementHasId(element, idPrefix);
   addAriaLabel(element, ariaLabel);
-  
+
   return id;
 }
 
@@ -72,7 +72,7 @@ function renderDependencyGraph() {
   if (container) {
     container.setAttribute('role', 'region');
     container.setAttribute('aria-label', 'Dependency graph visualization');
-    
+
     // Ensure the container has an id for accessibility
     ensureElementHasId(container, 'dep-graph');
   }
@@ -82,7 +82,7 @@ function renderDependencyGraph() {
 
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, checkAccessibility, getLangAttribute: getLangAttributeImpl, createInPageButton: createInPageButtonImpl, validateTableAccessibility: validateTableAccessibilityImpl, validateTableStructure: validateTableStructureImpl, getSvgAccessibleName: getSvgAccessibleNameImpl, setSvgAttributes: setSvgAttributesImpl, ensureUniqueLandmarks: ensureUniqueLandmarksImpl, validateLinkAccessibility: validateLinkAccessibilityImpl, handleFakeLinks: handleFakeLinksImpl, addProperLandmarkRegions: addProperLandmarkRegionsImpl, checkFocusOrder: checkFocusOrderImpl, enhanceTableNavigation: enhanceTableNavigationImpl, improveContrast: improveContrastImpl, newFunction } = main;
+const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId: ensureElementHasIdOrigin, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, checkAccessibility, getLangAttribute: getLangAttributeImpl, createInPageButton: createInPageButtonImpl, validateTableAccessibility: validateTableAccessibilityImpl, validateTableStructure: validateTableStructureImpl, getSvgAccessibleName: getSvgAccessibleNameImpl, setSvgAttributes: setSvgAttributesImpl, ensureUniqueLandmarks: ensureUniqueLandmarksImpl, validateLinkAccessibility: validateLinkAccessibilityImpl, handleFakeLinks: handleFakeLinksImpl, addProperLandmarkRegions: addProperLandmarkRegionsImpl, checkFocusOrder: checkFocusOrderImpl, enhanceTableNavigation: enhanceTableNavigationImpl, improveContrast: improveContrastImpl, newFunction } = main;
 
 // Implement the function for addressing accessibility issues from insight report
 function newFunction() {
@@ -100,19 +100,19 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
   };
 
   // Accessibility-related functions
-  getLangAttribute = getLangAttributeImpl || function() { return getLangAttributeImpl. call(this); },
-  createInPageButton = createInPageButtonImpl || function() { return createInPageButtonImpl. call(this); },
-  validateTableAccessibility = validateTableAccessibilityImpl || function() { return validateTableAccessibilityImpl. call(this); },
-  validateTableStructure = validateTableStructureImpl || function() { return validateTableStructureImpl. call(this); },
-  getSvgAccessibleName = getSvgAccessibleNameImpl || function(svg) { return getSvgAccessibleNameImpl. call(this, svg); },
-  setSvgAttributes = setSvgAttributesImpl || function(svg) { return setSvgAttributesImpl. call(this, svg); },
-  ensureUniqueLandmarks = ensureUniqueLandmarksImpl || function() { return ensureUniqueLandmarksImpl. call(this); },
-  validateLinkAccessibility = validateLinkAccessibilityImpl || function() { return validateLinkAccessibilityImpl. call(this); },
-  handleFakeLinks = handleFakeLinksImpl || function() { return handleFakeLinksImpl. call(this); },
-  addProperLandmarkRegions = addProperLandmarkRegionsImpl || function() { return addProperLandmarkRegionsImpl. call(this); },
-  checkFocusOrder = checkFocusOrderImpl || function() { return checkFocusOrderImpl. call(this); },
-  enhanceTableNavigation = enhanceTableNavigationImpl || function() { return enhanceTableNavigationImpl. call(this); },
-  improveContrast = improveContrastImpl || function() { return improveContrastImpl. call(this); },
+  const getLangAttribute = getLangAttributeImpl || function() { return getLangAttributeImpl.call(this); };
+  const createInPageButton = createInPageButtonImpl || function() { return createInPageButtonImpl.call(this); };
+  const validateTableAccessibility = validateTableAccessibilityImpl || function() { return validateTableAccessibilityImpl.call(this); };
+  const validateTableStructure = validateTableStructureImpl || function() { return validateTableStructureImpl.call(this); };
+  const getSvgAccessibleName = getSvgAccessibleNameImpl || function(svg) { return getSvgAccessibleNameImpl.call(this, svg); };
+  const setSvgAttributes = setSvgAttributesImpl || function(svg) { return setSvgAttributesImpl.call(this, svg); };
+  const ensureUniqueLandmarks = ensureUniqueLandmarksImpl || function() { return ensureUniqueLandmarksImpl.call(this); };
+  const validateLinkAccessibility = validateLinkAccessibilityImpl || function() { return validateLinkAccessibilityImpl.call(this); };
+  const handleFakeLinks = handleFakeLinksImpl || function() { return handleFakeLinksImpl.call(this); };
+  const addProperLandmarkRegions = addProperLandmarkRegionsImpl || function() { return addProperLandmarkRegionsImpl.call(this); };
+  const checkFocusOrder = checkFocusOrderImpl || function() { return checkFocusOrderImpl.call(this); };
+  const enhanceTableNavigation = enhanceTableNavigationImpl || function() { return enhanceTableNavigationImpl.call(this); };
+  const improveContrast = improveContrastImpl || function() { return improveContrastImpl.call(this); };
 
   // ... (The rest of the implementation from the 'origin/main' branch, including comments, remains unchanged.)
 
@@ -240,10 +240,10 @@ class ScreepsBot {
   async start() {
     // Initialize network connection
     await this.network.connect();
-    
+
     // Load initial data
     await this.loadData();
-    
+
     console.log('Screenspider bot started');
   }
 

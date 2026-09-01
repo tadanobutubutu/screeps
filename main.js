@@ -5,7 +5,41 @@ import { setDependencyGraph } from './actions/dependencyGraph';
 import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
 import UserSafety from './UserSafety';
 
-// ... previous code
+// Function to address accessibility issues from insight report
+function addressAccessibilityIssues(element) {
+  // Add ARIA attributes for better screen reader support
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', element.textContent || 'Interactive element');
+  }
+
+  // Ensure proper contrast ratios
+  const style = window.getComputedStyle(element);
+  const bgColor = style.backgroundColor;
+  const textColor = style.color;
+
+  // Simple contrast check (in a real app, use a proper contrast ratio calculator)
+  if (bgColor && textColor) {
+    // This is a simplified example - real implementation would need proper color parsing
+    if (bgColor === 'rgb(255, 255, 255)' && textColor === 'rgb(0, 0, 0)') {
+      element.style.color = '#333333'; // Darker text for better contrast
+    }
+  }
+
+  // Add keyboard navigation support
+  element.setAttribute('tabIndex', '0');
+
+  // Add focus styles for keyboard users
+  const focusStyle = document.createElement('style');
+  focusStyle.textContent = `
+    [tabindex="0"]:focus {
+      outline: 2px solid #0066cc;
+      outline-offset: 2px;
+    }
+  `;
+  document.head.appendChild(focusStyle);
+
+  return element;
+}
 
 // Function to fetch book dependencies and update the Redux store
 async function fetchBookDependencies(bookId) {

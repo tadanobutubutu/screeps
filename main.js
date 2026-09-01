@@ -415,6 +415,142 @@ function createInPageButton(parent = document.body) {
   return btn;
 }
 
+// New function to address ADD: Address new accessibility issues from insight report
+function validateFormAccessibility(form) {
+  // This function validates the accessibility of forms
+  const errors = [];
+
+  if (!form) {
+    return { valid: false, errors: ['Form element is required'] };
+  }
+
+  // Check for proper form labels
+  const inputs = form.querySelectorAll('input, textarea, select');
+  inputs.forEach((input, index) => {
+    const id = input.getAttribute('id');
+    const label = form.querySelector(`label[for="${id}"]`);
+
+    if (!id || !label) {
+      errors.push(`Input at index ${index} is missing proper label association`);
+    }
+
+    // Check for placeholder text that duplicates labels
+    const placeholder = input.getAttribute('placeholder');
+    const labelText = label ? label.textContent.trim() : '';
+    if (placeholder && labelText && placeholder === labelText) {
+      errors.push(`Input at index ${index} has placeholder text that duplicates label text`);
+    }
+  });
+
+  // Check for form submission button
+  const submitButtons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+  if (submitButtons.length === 0) {
+    errors.push('Form is missing a submit button');
+  }
+
+  // Check for form title or heading
+  const formTitle = form.querySelector('h1, h2, h3, h4, h5, h6');
+  if (!formTitle) {
+    errors.push('Form is missing a title or heading');
+  }
+
+  // Check for error message structure
+  const errorMessages = form.querySelectorAll('.error-message, [role="alert"]');
+  errorMessages.forEach((error, index) => {
+    if (!error.getAttribute('aria-live') && error.getAttribute('role') !== 'alert') {
+      errors.push(`Error message at index ${index} should have aria-live or role="alert"`);
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address ADD: Address new accessibility issues from insight report
+function validateImageAccessibility(img) {
+  // This function validates the accessibility of images
+  const errors = [];
+
+  if (!img) {
+    return { valid: false, errors: ['Image element is required'] };
+  }
+
+  // Check for alt text
+  const alt = img.getAttribute('alt');
+  if (!alt) {
+    errors.push('Image is missing alt attribute');
+  } else if (alt === '') {
+    errors.push('Image has empty alt attribute');
+  } else if (alt.toLowerCase().includes('image') || alt.toLowerCase().includes('picture')) {
+    errors.push('Image alt text is too generic');
+  }
+
+  // Check for decorative images
+  const role = img.getAttribute('role');
+  if (role === 'presentation' && alt !== '') {
+    errors.push('Decorative image should have empty alt text');
+  }
+
+  // Check for SVG images
+  if (img.tagName === 'svg') {
+    const title = img.querySelector('title');
+    if (!title || !title.textContent.trim()) {
+      errors.push('SVG image is missing title element');
+    }
+  }
+
+  // Check for background images
+  if (img.tagName !== 'img' && !img.querySelector('img')) {
+    const ariaLabel = img.getAttribute('aria-label');
+    if (!ariaLabel) {
+      errors.push('Background image container is missing aria-label');
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address ADD: Address new accessibility issues from insight report
+function validateButtonAccessibility(button) {
+  // This function validates the accessibility of buttons
+  const errors = [];
+
+  if (!button) {
+    return { valid: false, errors: ['Button element is required'] };
+  }
+
+  // Check for proper button role
+  const role = button.getAttribute('role');
+  if (role && role !== 'button') {
+    errors.push(`Button has invalid role: ${role}`);
+  }
+
+  // Check for accessible name
+  const textContent = button.textContent ? button.textContent.trim() : '';
+  const ariaLabel = button.getAttribute('aria-label');
+  const ariaLabelledby = button.getAttribute('aria-labelledby');
+  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
+
+  if (!hasAccessibleName) {
+    errors.push('Button is missing accessible name (text content, aria-label, or aria-labelledby)');
+  }
+
+  // Check for redundant title attribute
+  const title = button.getAttribute('title');
+  if (title && title === textContent) {
+    errors.push('Button title attribute duplicates button text');
+  }
+
+  // Check for disabled state
+  if (button.hasAttribute('disabled')) {
+    const ariaDisabled = button.getAttribute('aria-disabled');
+    if (ariaDisabled !== 'true') {
+      errors.push('Disabled button should have aria-disabled="true"');
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
 // New function to render dependency graphs
 function renderDependencyGraph(rootNode) {
   // Renders a dependency graph visualization
@@ -622,6 +758,9 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
+  validateFormAccessibility,
+  validateImageAccessibility,
+  validateButtonAccessibility,
   renderDependencyGraph,
   renderIndexView,
   checkAccessibilityNew,

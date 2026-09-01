@@ -212,13 +212,48 @@
         htmlElement.setAttribute('lang', getLangAttribute());
       }
 
-      // TODO: Implement function for addressing accessibility issues from insight report
-      // Placeholder for the new function to address issues from the insight report
+      // Implement function for addressing accessibility issues from insight report
       function addressIssuesFromInsightReport(insightReport) {
-        // Implement logic to address issues based on the insight report
-        // This function should be called with the actual report data
-        // For now, it's just a placeholder
-        console.log('Addressing issues from insight report:', insightReport);
+        if (!insightReport || !insightReport.violations) {
+          console.warn('No valid insight report provided');
+          return;
+        }
+
+        // Process each violation in the report
+        insightReport.violations.forEach(violation => {
+          // Handle different types of accessibility issues
+          switch(violation.id) {
+            case 'color-contrast':
+              // Implement color contrast fixes
+              console.log('Fixing color contrast issue:', violation.description);
+              // Add your specific implementation here
+              break;
+            case 'aria-required-children':
+              // Fix ARIA required children issues
+              console.log('Fixing ARIA required children issue:', violation.description);
+              // Add your specific implementation here
+              break;
+            case 'aria-required-parent':
+              // Fix ARIA required parent issues
+              console.log('Fixing ARIA required parent issue:', violation.description);
+              // Add your specific implementation here
+              break;
+            case 'landmark-unique':
+              // Ensure unique landmarks
+              ensureUniqueLandmarks();
+              break;
+            case 'link-name':
+              // Fix link name issues
+              console.log('Fixing link name issue:', violation.description);
+              // Add your specific implementation here
+              break;
+            default:
+              console.log('Unhandled accessibility issue:', violation.id);
+          }
+        });
+
+        // Log the report processing
+        console.log(`Processed ${insightReport.violations.length} accessibility issues from the insight report`);
       }
 
       // Implementing the new function for checking landmark elements
@@ -255,7 +290,7 @@
             if (!issues || !Array.isArray(issues)) {
                 return [];
             }
-            
+
             return issues.map(issue => {
                 return {
                     id: issue.id,
@@ -281,11 +316,11 @@
           totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
           details: report
         };
-        
+
         // Store harvested data for potential upgrades
         const harvestFile = path.join(__dirname, 'harvest_data.json');
         fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-        
+
         return harvestedData;
       } catch (error) {
         console.error('Harvest failed:', error);

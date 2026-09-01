@@ -1,11 +1,6 @@
-Here's the resolved file content:
-
-```javascript
-// TODO: This is the modified and merged code
-// This is the existing code that needs to be preserved in main.js
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report
-// ----- END ORIGINAL CODE-----
+// Dependency imports
+const { dependencyGraphContent } = require('./dependencyGraphContent')
+const { indexContent } = require('./indexContent')
 
 /**
  * Main entry point for the Screeps bot.
@@ -134,26 +129,29 @@ class ScreepsBot {
       }
     });
   }
-
-  // New function for focus trap (imported from origin/main)
-  newFocusTrap(element, options) {
-    // Implementation remains the same as in origin/main
-  }
 }
 
-// Helper function for UI updates with accessibility
-function updateUI(elementId, text) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.textContent = text;
-    element.setAttribute('aria-live', 'polite');
-  }
+function getSvgAccessibleName(svg) {
+  // TODO: Implement SVG accessible name generation
+}
+
+function renderDependencyGraph(deps, options = {}) {
+  // Use dependencyGraphContent from the imported module
+  const graphContent = dependencyGraphContent(deps, options)
+  return `<div class="dependency-graph-container" role="img" aria-label="Dependency graph visualization">${graphContent}</div>`
+}
+
+function renderIndex(data, options = {}) {
+  // Use indexContent from the imported module
+  return indexContent(data, options)
 }
 
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ScreepsBot, updateUI };
+  module.exports = {
+    ScreepsBot,
+    renderDependencyGraph,
+    renderIndex
+  };
 }
 ```
-
-In this resolved file, I've integrated both changes by preserving the existing functionality (priority-based task scheduling, accessibility updates) and including the imported function `trapFocus` from the `origin/main` branch. Additionally, I've removed the duplicated export of `newFocusTrap`.

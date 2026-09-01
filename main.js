@@ -123,7 +123,21 @@ module.exports = {
   helperFunction: utils.helper,
   function1,
   function2,
-  function3
+  function3,
+  getLangAttribute,
+  createInPageButton,
+  accessibilityUtils,
+  validateInput,
+  processData,
+  formatDate,
+  generateAccessibilityReport,
+  getInsightReport,
+  writeReport,
+  addMainLandmark,
+  app,
+  PORT,
+  HOST,
+  renderDependencyGraph
 };
 
 // Table accessibility functions
@@ -210,65 +224,65 @@ function handleFakeLinks() {
 // Graph rendering functions
 function renderGraph(container, options = {}) {
   const { width = 800, height = 600, data = null } = options;
-  
+
   if (!container) {
     console.error('Graph container not provided');
     return null;
   }
-  
-  const graphContainer = typeof container === 'string' 
-    ? document.querySelector(container) 
+
+  const graphContainer = typeof container === 'string'
+    ? document.querySelector(container)
     : container;
-  
+
   if (!graphContainer) {
     console.error('Graph container element not found');
     return null;
   }
-  
+
   const graphElement = document.createElement('div');
   graphElement.className = 'graph-renderer';
   graphElement.setAttribute('role', 'img');
   graphElement.setAttribute('aria-label', options.title || 'Data visualization graph');
-  
+
   graphElement.style.width = `${width}px`;
   graphElement.style.height = `${height}px`;
-  
+
   if (data) {
     graphElement.setAttribute('data-graph-data', JSON.stringify(data));
   }
-  
+
   graphContainer.appendChild(graphElement);
-  
+
   console.log('Graph rendered with options:', options);
-  
+
   return graphElement;
 }
 
 function renderIndex(container, options = {}) {
   const { items = [], columns = 3 } = options;
-  
+
   if (!container) {
     console.error('Index container not provided');
     return null;
   }
-  
-  const indexContainer = typeof container === 'string' 
-    ? document.querySelector(container) 
+
+  const indexContainer = typeof container === 'string'
+    ? document.querySelector(container)
     : container;
-  
+
   if (!indexContainer) {
     console.error('Index container element not found');
     return null;
   }
-  
+
   const indexElement = document.createElement('div');
   indexElement.className = 'index-renderer';
   indexElement.setAttribute('role', 'list');
   indexElement.setAttribute('aria-label', options.title || 'Index listing');
-  
+
   indexElement.style.display = 'grid';
   indexElement.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
-  
+
   items.forEach((item, index) => {
     const itemElement = document.createElement('div');
     itemElement.className = 'index-item';
@@ -276,11 +290,11 @@ function renderIndex(container, options = {}) {
     itemElement.textContent = item.label || item.name || `Item ${index + 1}`;
     indexElement.appendChild(itemElement);
   });
-  
+
   indexContainer.appendChild(indexElement);
-  
+
   console.log('Index rendered with', items.length, 'items');
-  
+
   return indexElement;
 }
 
@@ -289,11 +303,11 @@ function updateGraph(element, newData) {
     console.error('Graph element not provided for update');
     return false;
   }
-  
+
   if (newData) {
     element.setAttribute('data-graph-data', JSON.stringify(newData));
   }
-  
+
   console.log('Graph updated with new data');
   return true;
 }
@@ -303,17 +317,17 @@ function updateIndex(element, newItems) {
     console.error('Index element not provided for update');
     return false;
   }
-  
+
   if (!Array.isArray(newItems)) {
     console.error('Invalid items provided for index update');
     return false;
   }
-  
+
   // Clear existing items
   while (element.firstChild) {
     element.removeChild(element.firstChild);
   }
-  
+
   // Add new items
   newItems.forEach((item, index) => {
     const itemElement = document.createElement('div');
@@ -322,7 +336,7 @@ function updateIndex(element, newItems) {
     itemElement.textContent = item.label || item.name || `Item ${index + 1}`;
     element.appendChild(itemElement);
   });
-  
+
   console.log('Index updated with', newItems.length, 'items');
   return true;
 }
@@ -437,7 +451,7 @@ function addressAccessibilityIssues(insightReport) {
 
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -448,7 +462,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -463,7 +477,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -478,7 +492,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -492,7 +506,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -507,7 +521,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
@@ -521,7 +535,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check SVG accessibility
   const svgAccessibleNames = [];
   if (svgAccessibleNames && svgAccessibleNames.length > 0) {
@@ -534,7 +548,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   return { issues };
 }
 
@@ -563,26 +577,6 @@ function generateAccessibilityReport() {
 
 // ... (Preserve the existing express server setup, routes, and error handling middleware.)
 
-module.exports = {
-  getLangAttribute,
-  createInPageButton,
-  accessibilityUtils,
-  validateInput,
-  processData,
-  formatDate,
-  // landmark functions
-  generateAccessibilityReport,
-  getInsightReport,
-  writeReport,
-  addMainLandmark,
-  app,
-  PORT,
-  HOST,
-  renderDependencyGraph
-};
-
-// ... (Preserve anything that hasn't been addressed in this answer.)
-
 // Main function (required export)
 function main() {
   initialize();
@@ -601,4 +595,49 @@ if (require.main === module) {
   });
 }
 
-module.exports.main = main;
+module.exports = {
+  config,
+  initialize,
+  initializeApp,
+  main,
+  helperFunction: utils.helper,
+  function1,
+  function2,
+  function3,
+  getLangAttribute,
+  createInPageButton,
+  accessibilityUtils,
+  validateInput,
+  processData,
+  formatDate,
+  generateAccessibilityReport,
+  getInsightReport,
+  writeReport,
+  addMainLandmark,
+  app,
+  PORT,
+  HOST,
+  renderDependencyGraph,
+  helper,
+  someFunction,
+  clearCache,
+  fetchUser,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  addLandmarkRegions,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  renderGraph,
+  renderIndex,
+  updateGraph,
+  updateIndex,
+  addressAccessibilityIssues,
+  scanAccessibility
+};

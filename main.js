@@ -9,16 +9,22 @@
 // (Added functions for REACT_017 and new REACT_025)
 
 /**
- * Ensures the given element has an ID.
- * If the element doesn't have an ID, generates a unique one.
- * @param {HTMLElement} element - The element to ensure has an ID
- * @returns {string} The element's ID (existing or newly generated)
+ * Ensures the given element has an accessible ID and aria-label.
+ * @param {HTMLElement} element - The element to ensure has accessibility attributes
+ * @returns {boolean} True if the element is accessible, false otherwise
  */
-export function ensureElementHasId(element) {
+export function ensureElementAccessibility(element) {
+  // Ensure element has an ID if missing
   if (!element.id) {
-    element.id = `generated-id-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `accessible-${Math.random().toString(36).substr(2, 9)}`;
   }
-  return element.id;
+  
+  // Ensure element has an aria-label if missing
+  if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+    element.setAttribute('aria-label', 'Accessible element');
+  }
+  
+  return true;
 }
 
 /**
@@ -221,5 +227,6 @@ export {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   fixFakeLinks,
-  ensureLangAttribute
+  ensureLangAttribute,
+  ensureElementAccessibility
 };

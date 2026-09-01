@@ -38,100 +38,139 @@ function fixTableStructure() {
 }
 
 // Fix landmark issues
-function fixLandmarkIssues() {
-  // Implementation would fix landmark issues
-  console.log('Fixing landmark issues');
-}
+=======
+// main.js - Application entry point
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure(), and fixTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure(), and ...)
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility(), and handleFakeLinks())
 
-// Add main landmark
-function addMainLandmark() {
-  // Implementation would add main landmark
-  console.log('Adding main landmark');
-}
+const express = require('express');
+const axe = require('axe-core');
+const fs = require('fs');
+const fastMap = require('fast-map');
+const path = require('path');
 
-// Add landmark regions
-function addLandmarkRegions() {
-  // Implementation would add landmark regions
-  console.log('Adding landmark regions');
-}
-
-// Ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // Implementation would ensure unique landmarks
-  console.log('Ensuring unique landmarks');
-}
-
-// Add accessible names to SVGs
-function addSvgAccessibleNames() {
-  // Implementation would add accessible names to SVGs
-  console.log('Adding accessible names to SVGs');
-}
-
-// Fix fake link issues
-function fixFakeLinkIssue() {
-  // Implementation would fix fake link issues
-  console.log('Fixing fake link issues');
-}
-
-// Google sign-in logic
-function googleSignIn() {
-  // Implementation would handle Google sign-in
-  console.log('Handling Google sign-in');
-}
-
-// Fix button identifiers
-function fixButtonIdentifiers() {
-  // Implementation would fix button identifiers
-  console.log('Fixing button identifiers');
-}
-
-// Ensure element has an id
-function ensureElementHasId() {
-  // Implementation would ensure element has an id
-  console.log('Ensuring element has an id');
-}
-
-// Add aria-label
-function addAriaLabel() {
-  // Implementation would add aria-label
-  console.log('Adding aria-label');
-}
-
-// Render dependency graphs
-function renderDependencyGraphs() {
-  // Implementation would render dependency graphs
-  console.log('Rendering dependency graphs');
-}
-
-module.exports = {
-  renderDependencyGraph,
-  displayModuleStructure,
-  countDependencies,
-  loop: function () {
-    // Resolve merged bot logic for Screeps
-    for (let name in Game.creeps) {
-      let creep = Game.creeps[name];
-      if (creep.memory.role === 'harvester') {
-        if (creep.store.getFreeCapacity() > 0) {
-          let source = creep.pos.findClosestByPath(FIND_SOURCES);
-          if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(source);
-          }
-        }
-      }
-    }
-  },
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  googleSignIn,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs
+// Configuration - merged
+const CONFIG = {
+    dataPath: './data',
+    maxResults: 100,
+    apiUrl: process.env.API_URL || 'https://example.com',
+    timeout: 5000
 };
+
+// Alternative config style for backwards compatibility
+const config = CONFIG;
+
+// Application state
+let isInitialized = false;
+const appData = {};
+
+// App state with accessibility updates
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map(),
+  lang: 'en' // Added lang property
+};
+
+// Helper for input transformation
+function helper(input) {
+  return input ? input.toUpperCase() : '';
+}
+
+// Helper function to format dates
+function formatDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.toISOString().split('T')[0];
+}
+
+// Validate input helper
+function validateInput(input) {
+  return input && typeof input === 'string' && input.trim().length > 0;
+}
+
+// Process data helper
+function processData(data) {
+  if (!data) return null;
+  return { ...data, processed: true };
+}
+
+// Initialize function
+function initialize() {
+  appState.initialized = true;
+  console.log('App initialized');
+}
+
+// Initialize app function
+function initializeApp() {
+  initialize();
+  return appState;
+}
+
+// Fetch user function
+async function fetchUser(userId) {
+  if (!userId) {
+    return null;
+  }
+  return { id: userId, name: 'User ' + userId };
+}
+
+// Clear cache function
+function clearCache() {
+  appState.cache.clear();
+}
+
+// Helper function
+function someFunction() {
+  return 'some value';
+}
+
+// Configuration
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || 'localhost';
+
+// Application main entry point
+const app = express();
+
+// Helper functions moved to a separate file (preserved references)
+const {
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  ensureUniqueLandmarks,
+  addLandmarkRoles,
+  renderDependencyGraphContent,
+  createInPageButtons,
+  fixUniqueLandmarks,
+  processAccessibilityReport
+} = require('./accessibility-improvements');
+
+// Helper function to validate landmark structure
+function isValidLandmark(landmark) {
+    return landmark &&
+           typeof landmark.id !== 'undefined' &&
+           landmark.id !== null;
+}
+
+// Load landmarks from file
+function loadLandmarks() {
+    try {
+        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error loading landmarks:', error.message);
+        return [];
+    }
+}
+
+// Function to get the language attribute value
+function getLangAttribute() {

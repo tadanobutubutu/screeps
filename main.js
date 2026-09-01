@@ -44,7 +44,7 @@ function spawnLandmark(landmarkData) {
 // Manages the spawning logic for landmarks based on configuration
 function handleSpawningLogic(maxLandmarks = 100, landmarkConfigs = []) {
     const spawnedLandmarks = [];
-    
+
     landmarkConfigs.forEach(config => {
         if (landmarks.length < maxLandmarks) {
             const spawned = spawnLandmark(config);
@@ -183,8 +183,6 @@ App.propTypes = {
   // Do not modify this line
 };
 
-export default App;
-
 // Application data structure
 const appData = {
   title: 'Screeps',
@@ -204,6 +202,10 @@ function initialize() {
 function initializeApp() {
   initialize();
 }
+
+// TODO: This is the existing code that needs to be preserved
+// ----- END ORIGINAL CODE (unchanged) -----
+// (This comment remains as-is)
 
 function fetchUser(userId) {
   return { id: userId, name: 'User' };

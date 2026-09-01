@@ -173,7 +173,10 @@
       addressAccessibilityIssues,
       getLangAttribute,
       createInPageButton,
-      a11y
+      a11y,
+      axe,
+      fs,
+      path
     };
 
     // Initialize on DOM ready

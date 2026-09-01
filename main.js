@@ -1,4 +1,7 @@
-Here's a thinking process:
+// TODO: Any additional changes requested in the issue
 
-1.  **Analyze the Request:**
-(main content omitted)
+const exampleFunction = () => {
+  return "Hello, World!";
+};
+
+module.exports = { exampleFunction };

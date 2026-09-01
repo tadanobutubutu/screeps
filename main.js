@@ -161,6 +161,24 @@ function focusTrap(element) {
 
 function newFocusTrap() {
   // New function implementation
+  return {
+    activate: (element) => {
+      if (!element) return null;
+      const focusableElements = element.querySelectorAll(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusableElements.length === 0) return null;
+      return {
+        element,
+        focusableElements,
+        firstElement: focusableElements[0],
+        lastElement: focusableElements[focusableElements.length - 1]
+      };
+    },
+    deactivate: () => {
+      return true;
+    }
+  };
 }
 
 /**

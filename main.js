@@ -216,6 +216,112 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// TODO: Update the existing function using the new functions for rendering graph/index
+function renderGraph(data, containerId) {
+    // Get the container element
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`Container with ID ${containerId} not found`);
+        return;
+    }
+
+    // Clear any existing content
+    container.innerHTML = '';
+
+    // Create SVG element
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+    // Add accessible title
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = 'Data Visualization Graph';
+    svg.appendChild(title);
+
+    // Add description for screen readers
+    const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+    desc.textContent = 'This graph displays the provided data in a visual format.';
+    svg.appendChild(desc);
+
+    // Calculate max value for scaling
+    const maxValue = Math.max(...data.map(item => item.value));
+
+    // Create bars for each data point
+    data.forEach((item, index) => {
+        const barHeight = (item.value / maxValue) * 80;
+        const barY = 100 - barHeight;
+
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', `${index * 20 + 10}`);
+        rect.setAttribute('y', `${barY}`);
+        rect.setAttribute('width', '10');
+        rect.setAttribute('height', `${barHeight}`);
+        rect.setAttribute('fill', '#4CAF50');
+        rect.setAttribute('aria-label', `Value: ${item.value}, Label: ${item.label}`);
+
+        // Add hover effect
+        rect.addEventListener('mouseenter', () => {
+            rect.setAttribute('fill', '#45a049');
+        });
+        rect.addEventListener('mouseleave', () => {
+            rect.setAttribute('fill', '#4CAF50');
+        });
+
+        svg.appendChild(rect);
+
+        // Add label
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', `${index * 20 + 15}`);
+        text.setAttribute('y', '95');
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-size', '3');
+        text.textContent = item.label;
+        svg.appendChild(text);
+    });
+
+    container.appendChild(svg);
+}
+
+function renderIndex(data, containerId) {
+    // Get the container element
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`Container with ID ${containerId} not found`);
+        return;
+    }
+
+    // Clear any existing content
+    container.innerHTML = '';
+
+    // Create a list element
+    const list = document.createElement('ul');
+    list.setAttribute('role', 'list');
+    list.setAttribute('aria-label', 'Data Index');
+
+    // Add each data item to the list
+    data.forEach((item, index) => {
+        const listItem = document.createElement('li');
+        listItem.setAttribute('role', 'listitem');
+        listItem.setAttribute('aria-label', `Item ${index + 1}: ${item.label}, Value: ${item.value}`);
+
+        const label = document.createElement('span');
+        label.textContent = item.label;
+        label.style.fontWeight = 'bold';
+
+        const value = document.createElement('span');
+        value.textContent = `: ${item.value}`;
+        value.style.marginLeft = '5px';
+
+        listItem.appendChild(label);
+        listItem.appendChild(value);
+        list.appendChild(listItem);
+    });
+
+    container.appendChild(list);
+}
+
 module.exports = {
     addLangAttribute,
     fixTableStructure,
@@ -225,5 +331,7 @@ module.exports = {
     fixFakeLinks,
     applyAccessibilityFixes,
     addressAccessibilityIssues,
-    createInPageButton
+    createInPageButton,
+    renderGraph,
+    renderIndex
 };

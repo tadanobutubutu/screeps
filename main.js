@@ -45,6 +45,93 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  /**
+   * Set up keyboard navigation for an element
+   * @param {HTMLElement} element - The element to set up keyboard navigation for
+   * @param {Object} handlers - The handler functions for different keys
+   */
+  setupKeyboardNav: (element, handlers) => {
+    if (!element || !handlers) return;
+
+    element.addEventListener('keydown', (e) => {
+      accessibilityUtils.handleKeyboardNav(e, handlers);
+    });
+  },
+
+  /**
+   * Create a focus trap for modal dialogs
+   * @param {HTMLElement} element - The modal element to trap focus within
+   * @param {HTMLElement} [initialFocus] - The element to focus initially
+   * @returns {Object} Object with methods to manage the focus trap
+   */
+  createFocusTrap: (element, initialFocus = null) => {
+    if (!element) return;
+
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length === 0) return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    // Set initial focus
+    if (initialFocus && element.contains(initialFocus)) {
+      initialFocus.focus();
+    } else {
+      firstElement.focus();
+    }
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      } else if (e.key === 'Escape') {
+        // Handle escape key for modal closing
+        const closeButton = element.querySelector('[data-close-modal]');
+        if (closeButton) {
+          closeButton.click();
+        }
+      }
+    };
+
+    element.addEventListener('keydown', handleKeyDown);
+
+    return {
+      activate: () => {
+        if (initialFocus && element.contains(initialFocus)) {
+          initialFocus.focus();
+        } else {
+          firstElement.focus();
+        }
+      },
+      deactivate: () => {
+        element.removeEventListener('keydown', handleKeyDown);
+      }
+    };
+  },
+
+  /**
+   * Add ARIA attributes to an element
+   * @param {HTMLElement} element - The element to add ARIA attributes to
+   * @param {Object} attributes - Object of ARIA attributes to add
+   */
+  addAriaAttributes: (element, attributes) => {
+    if (!element || !attributes) return;
+
+    Object.entries(attributes).forEach(([key, value]) => {
+      if (key.startsWith('aria-')) {
+        element.setAttribute(key, value);
+      }
+    });
   }
 };
 
@@ -56,6 +143,19 @@ function initAccessibility() {
   if (typeof window !== 'undefined') {
     // Ensure screen reader support is available
     document.body.setAttribute('role', 'application');
+
+    // Add global keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Skip to content shortcut (Shift+Alt+1)
+      if (e.shiftKey && e.altKey && e.key === '1') {
+        const mainContent = document.querySelector('main');
+        if (mainContent) {
+          mainContent.setAttribute('tabindex', '-1');
+          mainContent.focus();
+          e.preventDefault();
+        }
+      }
+    });
   }
   return accessibilityUtils;
 }
@@ -117,6 +217,12 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
 
   // Add accessibility label if not present
   const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
+
+  // Add ARIA attributes for better screen reader support
+  accessibilityUtils.addAriaAttributes(container, {
+    'aria-roledescription': 'dependency visualization',
+    'aria-busy': 'false'
+  });
 
   return {
     containerId,

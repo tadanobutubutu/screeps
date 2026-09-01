@@ -169,8 +169,7 @@ function addLandmarkRegions(landmarks, regions) {
 // Export the new function
 module.exports.addLandmarkRegions = addLandmarkRegions;
 
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
-
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// This is the existing code that needs to be preserved
+// Version 1 implementation (HEAD branch)
+// Code for version 1 implementation goes here.

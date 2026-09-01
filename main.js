@@ -60,6 +60,25 @@ function fixTableStructure (html) {
   return html
 }
 
+// New function to analyze module dependencies and return a report
+function analyzeModuleDependencies(modules) {
+  const report = {
+    totalModules: modules.length,
+    dependencyCount: 0,
+    moduleNames: modules.map(m => m.name),
+    dependencies: {}
+  };
+
+  modules.forEach(module => {
+    if (module.dependencies) {
+      report.dependencyCount += module.dependencies.length;
+      report.dependencies[module.name] = module.dependencies;
+    }
+  });
+
+  return report;
+}
+
 /**
  * Divides two number with proper error handling
  * @param {number} dividend - The number to be divided
@@ -320,7 +339,8 @@ module.exports = {
   divide,
   addSvgAccessibilityProps,
   checkLinkAccessibility,
-  wrapPrimaryContentInMain
+  wrapPrimaryContentInMain,
+  analyzeModuleDependencies
 }
 
 // Run if executed directly

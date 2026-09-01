@@ -363,4 +363,8 @@ function initializeAccessibility() {
 function addAriaLabel(element) {
   // Combined and reconciled code from both branches
   if (!element.getAttribute('aria-label')) {
-    element.setAttribute('aria
+    element.setAttribute('aria-label', element.getAttribute('alt') || element.id || element.name || '');
+  }
+}
+
+// TODO: add the new functions or changes requested in the issue

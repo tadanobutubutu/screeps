@@ -205,7 +205,7 @@ function validateTableAccessibility(table) {
 
   const headers = Array.from(table.querySelectorAll('th'));
   const hasHeaders = headers.length > 0;
-  
+
   const caption = table.querySelector('caption');
   const hasCaption = caption !== null;
 
@@ -388,6 +388,20 @@ function processAccessibilityReport(report) {
   return findings;
 }
 
+// TODO: Add your code here
+function getAccessibilityStats() {
+  const stats = {
+    totalElements: document.querySelectorAll('*').length,
+    landmarkElements: document.querySelectorAll('[role]').length,
+    tableElements: document.querySelectorAll('table').length,
+    svgElements: document.querySelectorAll('svg').length,
+    linkElements: document.querySelectorAll('a').length,
+    buttonElements: document.querySelectorAll('button').length
+  };
+
+  return stats;
+}
+
 function App() {
   const [programData, setProgramData] = useState(null);
 
@@ -438,5 +452,6 @@ module.exports = {
   landmarkConfig: appConfig,
   initialize,
   initializeApp,
-  clearCache
+  clearCache,
+  getAccessibilityStats
 };

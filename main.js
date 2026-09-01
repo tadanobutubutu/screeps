@@ -34,4 +34,12 @@ function main() {
   return processData;
 }
 
-module.exports = { main, processData, validateInput, initializeApp, setupHandlers };
+// New function added after existing code
+function logProcessedData(result) {
+  if (config.debug) {
+    console.log('Processed data:', result);
+  }
+  return result;
+}
+
+module.exports = { main, processData, validateInput, initializeApp, setupHandlers, logProcessedData };

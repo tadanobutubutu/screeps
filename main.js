@@ -93,5 +93,22 @@ module.exports = {
   createInPageButton,
   formatVersion,
   sanitizeHtml,
-  addAccessibleName
+  addAccessibleName,
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  uniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  googleSignIn,
+  decodeJwtResponse,
+  fixButtonIdentifiers,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs
 };

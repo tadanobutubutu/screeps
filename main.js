@@ -1,3 +1,16 @@
+// main.js - Application entry point
+const express = require('express');
+const axe = require('axe-core');
+const fs = require('fs');
+const fastMap = require('fast-map');
+const path = require('path');
+
+// Configuration
+const CONFIG = {
+    dataPath: './data',
+    maxResults: 100
+};
+
 // Helper function to validate landmark structure
 function isValidLandmark(landmark) {
     return landmark &&
@@ -5,7 +18,19 @@ function isValidLandmark(landmark) {
            landmark.id !== null;
 }
 
-// Function to process and filter landmarks
+// Load landmarks from file
+function loadLandmarks() {
+    try {
+        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error loading landmarks:', error.message);
+        return [];
+    }
+}
+
+// Process and filter landmarks
 function processLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
         return [];
@@ -17,7 +42,7 @@ function processLandmarks(landmarks) {
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
-// Function to sort landmarks by name
+// Sort landmarks by name
 function sortLandmarks(landmarks, ascending = true) {
     return landmarks.slice().sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
@@ -28,6 +53,11 @@ function sortLandmarks(landmarks, ascending = true) {
         }
         return nameB.localeCompare(nameA);
     });
+}
+
+// Get landmark by ID
+function getLandmarkById(landmarks, id) {
+    return landmarks.find(landmark => landmark.id === id) || null;
 }
 
 // Ensure unique landmarks by ID
@@ -53,6 +83,44 @@ function ensureUniqueLandmarks(landmarks) {
     }
 
     return uniqueLandmarks;
+}
+
+// Function to write the generated report to a file
+function writeReport(report) {
+  const reportFile = path.join(__dirname, 'accessibility_report.json');
+  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+}
+
+// TODO: Implement function for generating a report based on accessibility issues
+// Replaced placeholder with full implementation using axe-core scanning and report writing
+function generateAccessibilityReport() {
+  const report = scanAccessibility();
+  writeReport(report);
+  return report;
+}
+
+// Existing utility function
+const formatResponse = (data) => {
+  return JSON.stringify(data, null, 2);
+};
+
+// Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
+const { validateInput } = require('./utils/validators');
+const { processData } = require('./utils/processor');
+
+// Main execution when run directly
+if (require.main === module) {
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+  const sorted = sortLandmarks(processed);
+
+  console.log(`Loaded ${landmarks.length} landmarks`);
+  console.log(`Processed to ${processed.length} unique landmarks`);
+  console.log(`Sorted ${sorted.length} landmarks`);
+
+  if (sorted.length > 0) {
+    console.log('First landmark:', sorted[0]);
+  }
 }
 
 // Function to scan accessibility using axe-core
@@ -83,49 +151,10 @@ function scanAccessibility() {
 }
 
 // Function to generate an accessibility report
-function generateAccessibilityReport() {
+function generateAccessibilityReportReport() {
   const report = scanAccessibility();
   writeReport(report);
   return report;
-}
-
-// Utility functions
-const validateInput = require('./validateInput');
-const processData = require('./processData');
-const formatResponse = require('./formatResponse');
-
-// Export new necessary functions
-module.exports = {
-  validateInput,
-  processData,
-  formatResponse,
-  config: CONFIG,
-  // landmark functions
-  isValidLandmark,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  ensureUniqueLandmarks,
-  landmarkConfig: CONFIG,
-  generateAccessibilityReport,
-  scanAccessibility,
-  writeReport
-};
-
-// Main execution when run directly
-if (require.main === module) {
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-  const sorted = sortLandmarks(processed);
-
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
-
-  if (sorted.length > 0) {
-    console.log('First landmark:', sorted[0]);
-  }
 }
 
 // Accessibility-related functions
@@ -142,7 +171,7 @@ function addLangAttribute (html, lang = 'en') {
   })
 }
 
-// REACT_027: Fix table structure issues (add thead, tbody, th scope, caption)
+// REACT_027: Fix table structure issues
 function fixTableStructure (html) {
   if (typeof html !== 'string') return html
 
@@ -708,13 +737,35 @@ async function harvestAndUpgrade() {
 
 // Don't forget to test your new additions in the test file
 
-// Export accessibility utility functions
+// New function to render dependency graph
+function renderDependencyGraph(landmarks) {
+    // Implementation to render the dependency graph
+    // Placeholder: Replace with actual implementation
+    console.log('Rendering dependency graph for landmarks...');
+}
+
+// Export new necessary functions
 module.exports = {
+  validateInput,
+  processData,
+  formatResponse,
+  config: CONFIG,
+  // landmark functions
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  ensureUniqueLandmarks,
+  landmarkConfig: CONFIG,
+  generateAccessibilityReport,
+  scanAccessibility,
+  writeReport,
+  renderDependencyGraph,
   addLangAttribute,
   fixTableStructure,
   fixLandmarks,
   addSvgAccessibleNames,
-  ensureUniqueLandmarks,
   ensureUniqueLandmarksString,
   fixFakeLinks,
   applyAccessibilityFixes,
@@ -733,20 +784,13 @@ module.exports = {
   upgrade,
   harvestAndUpgrade,
   countDependencies,
-  ...accessibilityUtils,
-  validateInput,
-  processData,
-  formatResponse,
-  config: CONFIG,
-  landmarkConfig: CONFIG,
-  generateAccessibilityReport,
-  scanAccessibility,
-  writeReport
-}
+  ...accessibilityUtils
+};
 
 // Initialize accessibility features when DOM is ready
 function initializeAccessibility() {
     // Ensure the dependencyGraph container has a proper ARIA role
+    const dependencyGraph = document.getElementById('dependencyGraph');
     if (dependencyGraph) {
         if (!dependencyGraph.id) {
             dependencyGraph.id = 'dependencyGraph';
@@ -763,10 +807,10 @@ function initializeAccessibility() {
     addressAccessibilityIssuesDOM();
 
     // Create the in-page button
-    createInPageButton();
+    createInPageButton('action-button', 'Click me', 'btn btn-primary');
 
     // Add accessible names to 2 SVGs
-    setSvgAccessibleNames('svg1Id', 'svg2Id', ' aria-label for SVG1', ' aria-label for SVG2');
+    setSvgAccessibleNames('svg1Id', 'svg2Id', 'aria-label for SVG1', 'aria-label for SVG2');
 
     // Ensure unique landmarks (2 issues)
     ensureUniqueLandmarksDOM();
@@ -791,5 +835,15 @@ if (typeof document !== 'undefined') {
 
 // Run if executed directly
 if (require.main === module) {
-  main()
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+  const sorted = sortLandmarks(processed);
+
+  console.log(`Loaded ${landmarks.length} landmarks`);
+  console.log(`Processed to ${processed.length} unique landmarks`);
+  console.log(`Sorted ${sorted.length} landmarks`);
+
+  if (sorted.length > 0) {
+    console.log('First landmark:', sorted[0]);
+  }
 }

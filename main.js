@@ -52,7 +52,9 @@ function processAccessibilityIssues(insightReport) {
   export { newFunctionToImplement };
 
   // If any other exports were previously in main.js, they should be preserved and added here
-  export { otherExport1, otherExport2 };
+  // Note: otherExport1 and otherExport2 are referenced but not defined in the provided snippets
+  // These references have been removed to prevent runtime errors
+  export { addressAccessibilityIssues, processAccessibilityIssues };
 }
 
 // Existng exports that must be preserved

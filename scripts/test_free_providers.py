@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """GitHub Actions 用 — 登録済みシークレットのプロバイダー接続テスト。"""
+
 import os
 import sys
-
-sys.path.insert(0, os.path.dirname(__file__))
 
 from ai_providers import (
     call_cerebras,
@@ -14,6 +13,8 @@ from ai_providers import (
     call_pollinations_get,
     call_zhipu,
 )
+
+sys.path.insert(0, os.path.dirname(__file__))
 
 PROMPT = "Reply with exactly: OK"
 

@@ -1,12 +1,12 @@
-const crypto = require('crypto');
-const fs = require('fs');
+const crypto = require('crypto')
+const fs = require('fs')
 
 // 作成可能なロールのテンプレート
 const roleTemplates = [
-    {
-        name: 'defender',
-        description: '部屋を防衛する戦闘クリープ',
-        body: `const roleDefender = {
+  {
+    name: 'defender',
+    description: '部屋を防衛する戦闘クリープ',
+    body: `const roleDefender = {
     run: function(creep) {
         // 敵を探す
         const hostiles = creep.room.find(FIND_HOSTILE_CREEPS);
@@ -29,12 +29,12 @@ const roleTemplates = [
     }
 };
 
-module.exports = roleDefender;`,
-    },
-    {
-        name: 'miner',
-        description: 'ソースの隣に固定して採掘する効率的なハーベスター',
-        body: `const roleMiner = {
+module.exports = roleDefender;`
+  },
+  {
+    name: 'miner',
+    description: 'ソースの隣に固定して採掘する効率的なハーベスター',
+    body: `const roleMiner = {
     run: function(creep) {
         // 担当ソースが未設定なら割り当て
         if (!creep.memory.sourceId) {
@@ -64,12 +64,12 @@ module.exports = roleDefender;`,
     }
 };
 
-module.exports = roleMiner;`,
-    },
-    {
-        name: 'claimer',
-        description: '新しい部屋をクレームして領土を拡大',
-        body: `const roleClaimer = {
+module.exports = roleMiner;`
+  },
+  {
+    name: 'claimer',
+    description: '新しい部屋をクレームして領土を拡大',
+    body: `const roleClaimer = {
     run: function(creep) {
         // ターゲットルームが未設定なら終了
         if (!creep.memory.targetRoom) {
@@ -94,12 +94,12 @@ module.exports = roleMiner;`,
     }
 };
 
-module.exports = roleClaimer;`,
-    },
-    {
-        name: 'remoteHarvester',
-        description: '隣の部屋からエネルギーを持ち帰る',
-        body: `const roleRemoteHarvester = {
+module.exports = roleClaimer;`
+  },
+  {
+    name: 'remoteHarvester',
+    description: '隣の部屋からエネルギーを持ち帰る',
+    body: `const roleRemoteHarvester = {
     run: function(creep) {
         // ターゲットルームが未設定なら終了
         if (!creep.memory.targetRoom) {
@@ -135,12 +135,12 @@ module.exports = roleClaimer;`,
     }
 };
 
-module.exports = roleRemoteHarvester;`,
-    },
-    {
-        name: 'healer',
-        description: '傷ついたクリープを回復する',
-        body: `const roleHealer = {
+module.exports = roleRemoteHarvester;`
+  },
+  {
+    name: 'healer',
+    description: '傷ついたクリープを回復する',
+    body: `const roleHealer = {
     run: function(creep) {
         // 傷ついた味方クリープを探す
         const damagedCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
@@ -172,12 +172,12 @@ module.exports = roleRemoteHarvester;`,
     }
 };
 
-module.exports = roleHealer;`,
-    },
-    {
-        name: 'scout',
-        description: '周辺の部屋を探索してマップする（改良版）',
-        body: `const roleScout = {
+module.exports = roleHealer;`
+  },
+  {
+    name: 'scout',
+    description: '周辺の部屋を探索してマップする（改良版）',
+    body: `const roleScout = {
     run: function(creep) {
         // 探索済み部屋リストを初期化
         if (!Memory.scoutedRooms) {
@@ -234,12 +234,12 @@ module.exports = roleHealer;`,
     }
 };
 
-module.exports = roleScout;`,
-    },
-    {
-        name: 'powerHarvester',
-        description: 'Power Bankを攻撃してパワーを回収',
-        body: `const rolePowerHarvester = {
+module.exports = roleScout;`
+  },
+  {
+    name: 'powerHarvester',
+    description: 'Power Bankを攻撃してパワーを回収',
+    body: `const rolePowerHarvester = {
     run: function(creep) {
         // Power Bankのある部屋が未設定なら探す
         if (!creep.memory.powerBankRoom) {
@@ -285,58 +285,58 @@ module.exports = roleScout;`,
     }
 };
 
-module.exports = rolePowerHarvester;`,
-    },
-];
+module.exports = rolePowerHarvester;`
+  }
+]
 
 // 既存のロールファイルを確認
 const existingRoles = fs
-    .readdirSync('.')
-    .filter((f) => f.startsWith('role.') && f.endsWith('.js'))
-    .map((f) => f.replace('role.', '').replace('.js', ''));
+  .readdirSync('.')
+  .filter((f) => f.startsWith('role.') && f.endsWith('.js'))
+  .map((f) => f.replace('role.', '').replace('.js', ''))
 
-console.log('📋 Existing roles:', existingRoles.join(', '));
+console.log('📋 Existing roles:', existingRoles.join(', '))
 
 // まだ作成されていないロールを探す
-const availableTemplates = roleTemplates.filter((t) => !existingRoles.includes(t.name));
+const availableTemplates = roleTemplates.filter((t) => !existingRoles.includes(t.name))
 
 if (availableTemplates.length === 0) {
-    console.log('✅ All role templates already exist!');
-    fs.writeFileSync(
-        'last-role-creation.json',
-        JSON.stringify(
-            {
-                role: null,
-                description: 'All templates exist',
-                timestamp: new Date().toISOString(),
-                remaining: 0,
-            },
-            null,
-            2
-        )
-    );
-    process.exit(0);
+  console.log('✅ All role templates already exist!')
+  fs.writeFileSync(
+    'last-role-creation.json',
+    JSON.stringify(
+      {
+        role: null,
+        description: 'All templates exist',
+        timestamp: new Date().toISOString(),
+        remaining: 0
+      },
+      null,
+      2
+    )
+  )
+  process.exit(0)
 }
 
 // ランダムに1つ選択
-const selected = availableTemplates[crypto.randomInt(availableTemplates.length)];
+const selected = availableTemplates[crypto.randomInt(availableTemplates.length)]
 
-console.log(`🆕 Creating new role: ${selected.name}`);
-console.log(`📝 Description: ${selected.description}`);
+console.log(`🆕 Creating new role: ${selected.name}`)
+console.log(`📝 Description: ${selected.description}`)
 
 // ファイル作成
-const filename = `role.${selected.name}.js`;
-fs.writeFileSync(filename, selected.body);
+const filename = `role.${selected.name}.js`
+fs.writeFileSync(filename, selected.body)
 
 // レポート作成
 const report = {
-    role: selected.name,
-    description: selected.description,
-    filename: filename,
-    timestamp: new Date().toISOString(),
-    remaining: availableTemplates.length - 1,
-};
-fs.writeFileSync('last-role-creation.json', JSON.stringify(report, null, 2));
+  role: selected.name,
+  description: selected.description,
+  filename,
+  timestamp: new Date().toISOString(),
+  remaining: availableTemplates.length - 1
+}
+fs.writeFileSync('last-role-creation.json', JSON.stringify(report, null, 2))
 
-console.log(`✅ Created: ${filename}`);
-console.log(`📊 Remaining templates: ${report.remaining}`);
+console.log(`✅ Created: ${filename}`)
+console.log(`📊 Remaining templates: ${report.remaining}`)

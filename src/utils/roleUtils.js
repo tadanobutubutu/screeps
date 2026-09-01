@@ -1,9 +1,8 @@
+'use strict'
 
-'use strict';
-
-const cache = require('./cache');
-const pathfinder = require('./pathfinder');
-const { MEMORY_KEYS } = require('../constants');
+const cache = require('./cache')
+const pathfinder = require('./pathfinder')
+const { MEMORY_KEYS } = require('../constants')
 
 /**
  * Common storage energy retrieval logic
@@ -13,18 +12,18 @@ const { MEMORY_KEYS } = require('../constants');
  * @param {string} targetKey Memory key to store the target ID
  * @returns {boolean}
  */
-function getEnergyFromStorage(creep, room, minEnergy = 500, targetKey = MEMORY_KEYS.TARGET_ID) {
-    const storage = cache.getStorage(room);
-    if (storage && storage.store[RESOURCE_ENERGY] >= minEnergy) {
-        creep.memory[targetKey] = storage.id;
-        if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            pathfinder.moveTo(creep, storage, { range: 1 });
-        }
-        return true;
+function getEnergyFromStorage (creep, room, minEnergy = 500, targetKey = MEMORY_KEYS.TARGET_ID) {
+  const storage = cache.getStorage(room)
+  if (storage && storage.store[RESOURCE_ENERGY] >= minEnergy) {
+    creep.memory[targetKey] = storage.id
+    if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+      pathfinder.moveTo(creep, storage, { range: 1 })
     }
-    return false;
+    return true
+  }
+  return false
 }
 
 module.exports = {
-    getEnergyFromStorage
-};
+  getEnergyFromStorage
+}

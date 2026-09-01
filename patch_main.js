@@ -1,10 +1,10 @@
-const fs = require('fs');
+const fs = require('fs')
 
-function runPatch() {
-    const file = 'main.js';
-    let content = fs.readFileSync(file, 'utf8') || '';
+function runPatch () {
+  const file = 'main.js'
+  let content = fs.readFileSync(file, 'utf8') || ''
 
-    const oldCategorizeRoomStructures = `function categorizeRoomStructures(room, allStructures) {
+  const oldCategorizeRoomStructures = `function categorizeRoomStructures(room, allStructures) {
         // 3. 構造物の分類（1パスで実行）
         const myStructures = [];
         const deliveryTargets = [];
@@ -113,9 +113,9 @@ function runPatch() {
         room._spawnsTick = Game.time;
         room._freeSpawns = freeSpawns;
         room._freeSpawnsTick = Game.time;
-    }`;
+    }`
 
-    const newCategorizeRoomStructures = `function _categorizeMyStructure(s, type, state) {
+  const newCategorizeRoomStructures = `function _categorizeMyStructure(s, type, state) {
         state.myStructures.push(s);
 
         if (
@@ -237,16 +237,16 @@ function runPatch() {
         room._spawnsTick = Game.time;
         room._freeSpawns = state.freeSpawns;
         room._freeSpawnsTick = Game.time;
-    }`;
+    }`
 
-    if (content) {
-        content = content.replace(oldCategorizeRoomStructures, newCategorizeRoomStructures);
-        fs.writeFileSync(file, content, 'utf8');
-    }
+  if (content) {
+    content = content.replace(oldCategorizeRoomStructures, newCategorizeRoomStructures)
+    fs.writeFileSync(file, content, 'utf8')
+  }
 }
 
 if (require.main === module) {
-    runPatch();
+  runPatch()
 }
 
-module.exports = runPatch;
+module.exports = runPatch

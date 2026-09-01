@@ -5,36 +5,36 @@
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
  * Screeps memory is limited to 2MB; unbounded objects can crash the AI.
  */
-const MAX_KEY_LENGTH = 256;
-const MAX_CACHE_ENTRIES = 50;
+const MAX_KEY_LENGTH = 256
+const MAX_CACHE_ENTRIES = 50
 
 /**
  * ⚡ PERFORMANCE: Track cache size and order in module-level variables
  * to make capacity check and FIFO eviction O(1).
  */
-let _cacheSize = -1;
-let _lastCacheRef = null;
-const _cacheOrder = new Map();
+let _cacheSize = -1
+let _lastCacheRef = null
+const _cacheOrder = new Map()
 
 /**
  * ⚡ PERFORMANCE OPTIMIZATION: Hoist dangerous keys list to a Set to avoid per-call
  * array allocation and to enable O(1) lookups in the high-frequency isSafeKey function.
  */
 const DANGEROUS_KEYS = new Set([
-    '__proto__',
-    'constructor',
-    'prototype',
-    '__defineGetter__',
-    '__defineSetter__',
-    '__lookupGetter__',
-    '__lookupSetter__',
-    'toString',
-    'valueOf',
-    'hasOwnProperty',
-    'toLocaleString',
-    'isPrototypeOf',
-    'propertyIsEnumerable',
-]);
+  '__proto__',
+  'constructor',
+  'prototype',
+  '__defineGetter__',
+  '__defineSetter__',
+  '__lookupGetter__',
+  '__lookupSetter__',
+  'toString',
+  'valueOf',
+  'hasOwnProperty',
+  'toLocaleString',
+  'isPrototypeOf',
+  'propertyIsEnumerable'
+])
 
 /**
  * Security: Validates that a key is safe to use for object access.
@@ -43,224 +43,224 @@ const DANGEROUS_KEYS = new Set([
  * Defined as a local constant to avoid 'this' context issues during destructuring.
  */
 const isSafeKey = (key) => {
-    // ⚡ PERFORMANCE: Restore early return for numeric keys to maintain support
-    // and avoid unnecessary string/Set checks.
-    if (typeof key === 'number') return true;
-    // Only allow safe strings and block dangerous properties
-    return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !DANGEROUS_KEYS.has(key);
-};
+  // ⚡ PERFORMANCE: Restore early return for numeric keys to maintain support
+  // and avoid unnecessary string/Set checks.
+  if (typeof key === 'number') return true
+  // Only allow safe strings and block dangerous properties
+  return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !DANGEROUS_KEYS.has(key)
+}
 
 module.exports = {
-    // Clean up memory of dead creeps
-    cleanMemory: function () {
-        if (!Memory.creeps) return 0;
-        let cleaned = 0;
-        // ⚡ PERFORMANCE: Use for...in to avoid O(N) Object.keys() array allocation.
-        for (const name in Memory.creeps) {
-            // Security: isSafeKey checks are still required, and we use hasOwnProperty for for...in safety.
-            if (
-                Object.prototype.hasOwnProperty.call(Memory.creeps, name) &&
+  // Clean up memory of dead creeps
+  cleanMemory: function () {
+    if (!Memory.creeps) return 0
+    let cleaned = 0
+    // ⚡ PERFORMANCE: Use for...in to avoid O(N) Object.keys() array allocation.
+    for (const name in Memory.creeps) {
+      // Security: isSafeKey checks are still required, and we use hasOwnProperty for for...in safety.
+      if (
+        Object.prototype.hasOwnProperty.call(Memory.creeps, name) &&
                 isSafeKey(name) &&
                 !Game.creeps[name]
-            ) {
-                delete Memory.creeps[name];
-                cleaned++;
-            }
-        }
-        return cleaned;
-    },
+      ) {
+        delete Memory.creeps[name]
+        cleaned++
+      }
+    }
+    return cleaned
+  },
 
-    // Exported version of isSafeKey
-    isSafeKey,
+  // Exported version of isSafeKey
+  isSafeKey,
 
-    // Safe memory access with default values
-    getRoomMemory: function (roomName, key, defaultValue) {
-        // Security: Validate roomName and key to prevent prototype pollution
-        if (!isSafeKey(roomName) || !isSafeKey(key)) {
-            return defaultValue;
-        }
+  // Safe memory access with default values
+  getRoomMemory: function (roomName, key, defaultValue) {
+    // Security: Validate roomName and key to prevent prototype pollution
+    if (!isSafeKey(roomName) || !isSafeKey(key)) {
+      return defaultValue
+    }
 
-        if (!Memory.rooms) {
-            Memory.rooms = {};
-        }
+    if (!Memory.rooms) {
+      Memory.rooms = {}
+    }
 
-        if (!Memory.rooms[roomName]) {
-            Memory.rooms[roomName] = {};
-        }
+    if (!Memory.rooms[roomName]) {
+      Memory.rooms[roomName] = {}
+    }
 
-        if (Memory.rooms[roomName][key] === undefined) {
-            Memory.rooms[roomName][key] = defaultValue;
-        }
+    if (Memory.rooms[roomName][key] === undefined) {
+      Memory.rooms[roomName][key] = defaultValue
+    }
 
-        return Memory.rooms[roomName][key];
-    },
+    return Memory.rooms[roomName][key]
+  },
 
-    setRoomMemory: function (roomName, key, value) {
-        // Security: Validate roomName and key to prevent prototype pollution
-        if (!isSafeKey(roomName) || !isSafeKey(key)) {
-            return;
-        }
+  setRoomMemory: function (roomName, key, value) {
+    // Security: Validate roomName and key to prevent prototype pollution
+    if (!isSafeKey(roomName) || !isSafeKey(key)) {
+      return
+    }
 
-        if (!Memory.rooms) {
-            Memory.rooms = {};
-        }
+    if (!Memory.rooms) {
+      Memory.rooms = {}
+    }
 
-        if (!Memory.rooms[roomName]) {
-            Memory.rooms[roomName] = {};
-        }
-        Memory.rooms[roomName][key] = value;
-    },
+    if (!Memory.rooms[roomName]) {
+      Memory.rooms[roomName] = {}
+    }
+    Memory.rooms[roomName][key] = value
+  },
 
-    clearRoomMemory: function (roomName, key) {
-        // Security: Validate roomName and key to prevent prototype pollution
-        if (!isSafeKey(roomName) || !isSafeKey(key)) {
-            return;
-        }
+  clearRoomMemory: function (roomName, key) {
+    // Security: Validate roomName and key to prevent prototype pollution
+    if (!isSafeKey(roomName) || !isSafeKey(key)) {
+      return
+    }
 
-        if (!Memory.rooms) {
-            return;
-        }
+    if (!Memory.rooms) {
+      return
+    }
 
-        if (Memory.rooms[roomName]) {
-            delete Memory.rooms[roomName][key];
-        }
-    },
+    if (Memory.rooms[roomName]) {
+      delete Memory.rooms[roomName][key]
+    }
+  },
 
-    /**
+  /**
      * ⚡ PERFORMANCE: Sync local tracking with global.cache reference.
      */
-    _syncCacheState: function () {
-        if (Memory.cache !== _lastCacheRef) {
-            _lastCacheRef = Memory.cache;
-            _cacheOrder.clear();
-            if (Memory.cache === undefined || Memory.cache === null) {
-                _lastCacheRef = Memory.cache = {};
-                _cacheSize = 0;
-            } else {
-                const keys = Object.keys(_lastCacheRef);
-                _cacheSize = keys.length;
-                for (let i = 0; i < keys.length; i++) {
-                    _cacheOrder.set(keys[i], true);
-                }
-            }
+  _syncCacheState: function () {
+    if (Memory.cache !== _lastCacheRef) {
+      _lastCacheRef = Memory.cache
+      _cacheOrder.clear()
+      if (Memory.cache === undefined || Memory.cache === null) {
+        _lastCacheRef = Memory.cache = {}
+        _cacheSize = 0
+      } else {
+        const keys = Object.keys(_lastCacheRef)
+        _cacheSize = keys.length
+        for (let i = 0; i < keys.length; i++) {
+          _cacheOrder.set(keys[i], true)
         }
-    },
+      }
+    }
+  },
 
-    // Memoization helper for expensive calculations
-    memoize: function (fn, cacheKey, ttl = 100) {
-        // Security: Validate cacheKey to prevent prototype pollution
-        if (!isSafeKey(cacheKey)) {
-            return fn();
+  // Memoization helper for expensive calculations
+  memoize: function (fn, cacheKey, ttl = 100) {
+    // Security: Validate cacheKey to prevent prototype pollution
+    if (!isSafeKey(cacheKey)) {
+      return fn()
+    }
+
+    this._syncCacheState()
+
+    const cached = Memory.cache[cacheKey]
+    if (cached && Game.time - cached.timestamp < ttl) {
+      // Update eviction order (Move to end)
+      _cacheOrder.delete(cacheKey)
+      _cacheOrder.set(cacheKey, true)
+      return cached.value
+    }
+
+    if (Memory.cache[cacheKey] === undefined || Memory.cache[cacheKey] === null) {
+      // Capacity check before adding a new entry
+      if (_cacheSize >= MAX_CACHE_ENTRIES) {
+        this.cleanCache()
+        if (_cacheSize >= MAX_CACHE_ENTRIES) {
+          // ⚡ PERFORMANCE: O(1) FIFO eviction using Map insertion order.
+          const oldestKey = _cacheOrder.keys().next().value
+          if (oldestKey !== undefined) {
+            delete Memory.cache[oldestKey]
+            _cacheOrder.delete(oldestKey)
+            _cacheSize--
+          }
         }
+      }
+      _cacheSize++
+    }
 
-        this._syncCacheState();
+    const result = fn()
+    Memory.cache[cacheKey] = {
+      value: result,
+      timestamp: Game.time
+    }
 
-        const cached = Memory.cache[cacheKey];
-        if (cached && Game.time - cached.timestamp < ttl) {
-            // Update eviction order (Move to end)
-            _cacheOrder.delete(cacheKey);
-            _cacheOrder.set(cacheKey, true);
-            return cached.value;
+    // Update eviction order
+    _cacheOrder.delete(cacheKey)
+    _cacheOrder.set(cacheKey, true)
+
+    return result
+  },
+
+  // Clean up old cache entries
+  cleanCache: function (maxAge = 500) {
+    this._syncCacheState()
+    if (!Memory.cache) {
+      return
+    }
+
+    // ⚡ PERFORMANCE: Use for...in to avoid O(N) Object.keys() array allocation.
+    for (const key in Memory.cache) {
+      if (!Object.prototype.hasOwnProperty.call(Memory.cache, key)) continue
+
+      // Security: isSafeKey checks are required for robustness
+      if (!isSafeKey(key)) {
+        delete Memory.cache[key]
+        _cacheOrder.delete(key)
+        _cacheSize--
+        continue
+      }
+
+      const entry = Memory.cache[key]
+      if (entry && typeof entry.timestamp === 'number') {
+        if (Game.time - entry.timestamp > maxAge) {
+          delete Memory.cache[key]
+          _cacheOrder.delete(key)
+          _cacheSize--
         }
+      } else {
+        delete Memory.cache[key]
+        _cacheOrder.delete(key)
+        _cacheSize--
+      }
+    }
+  },
 
-        if (Memory.cache[cacheKey] === undefined || Memory.cache[cacheKey] === null) {
-            // Capacity check before adding a new entry
-            if (_cacheSize >= MAX_CACHE_ENTRIES) {
-                this.cleanCache();
-                if (_cacheSize >= MAX_CACHE_ENTRIES) {
-                    // ⚡ PERFORMANCE: O(1) FIFO eviction using Map insertion order.
-                    const oldestKey = _cacheOrder.keys().next().value;
-                    if (oldestKey !== undefined) {
-                        delete Memory.cache[oldestKey];
-                        _cacheOrder.delete(oldestKey);
-                        _cacheSize--;
-                    }
-                }
-            }
-            _cacheSize++;
-        }
+  // Initialize creep memory with role defaults
+  initCreepMemory: function (creep, role, extraData = {}) {
+    if (!creep.memory.role) {
+      creep.memory.role = role
+    }
 
-        const result = fn();
-        Memory.cache[cacheKey] = {
-            value: result,
-            timestamp: Game.time,
-        };
+    if (!creep.memory.working) {
+      creep.memory.working = false
+    }
 
-        // Update eviction order
-        _cacheOrder.delete(cacheKey);
-        _cacheOrder.set(cacheKey, true);
-
-        return result;
-    },
-
-    // Clean up old cache entries
-    cleanCache: function (maxAge = 500) {
-        this._syncCacheState();
-        if (!Memory.cache) {
-            return;
-        }
-
-        // ⚡ PERFORMANCE: Use for...in to avoid O(N) Object.keys() array allocation.
-        for (const key in Memory.cache) {
-            if (!Object.prototype.hasOwnProperty.call(Memory.cache, key)) continue;
-
-            // Security: isSafeKey checks are required for robustness
-            if (!isSafeKey(key)) {
-                delete Memory.cache[key];
-                _cacheOrder.delete(key);
-                _cacheSize--;
-                continue;
-            }
-
-            const entry = Memory.cache[key];
-            if (entry && typeof entry.timestamp === 'number') {
-                if (Game.time - entry.timestamp > maxAge) {
-                    delete Memory.cache[key];
-                    _cacheOrder.delete(key);
-                    _cacheSize--;
-                }
-            } else {
-                delete Memory.cache[key];
-                _cacheOrder.delete(key);
-                _cacheSize--;
-            }
-        }
-    },
-
-    // Initialize creep memory with role defaults
-    initCreepMemory: function (creep, role, extraData = {}) {
-        if (!creep.memory.role) {
-            creep.memory.role = role;
-        }
-
-        if (!creep.memory.working) {
-            creep.memory.working = false;
-        }
-
-        for (const key in extraData) {
-            // Security: Use isSafeKey and hasOwnProperty when merging extraData
-            if (
-                isSafeKey(key) &&
+    for (const key in extraData) {
+      // Security: Use isSafeKey and hasOwnProperty when merging extraData
+      if (
+        isSafeKey(key) &&
                 Object.prototype.hasOwnProperty.call(extraData, key) &&
                 creep.memory[key] === undefined
-            ) {
-                creep.memory[key] = extraData[key];
-            }
-        }
-    },
+      ) {
+        creep.memory[key] = extraData[key]
+      }
+    }
+  },
 
-    // Get creep working state
-    updateWorkingState: function (creep) {
-        if (!creep.memory.working && creep.store.getFreeCapacity() === 0) {
-            creep.memory.working = true;
-            return true;
-        }
+  // Get creep working state
+  updateWorkingState: function (creep) {
+    if (!creep.memory.working && creep.store.getFreeCapacity() === 0) {
+      creep.memory.working = true
+      return true
+    }
 
-        if (creep.memory.working && creep.store.getUsedCapacity() === 0) {
-            creep.memory.working = false;
-            return false;
-        }
+    if (creep.memory.working && creep.store.getUsedCapacity() === 0) {
+      creep.memory.working = false
+      return false
+    }
 
-        return creep.memory.working;
-    },
-};
+    return creep.memory.working
+  }
+}

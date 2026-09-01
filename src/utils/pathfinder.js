@@ -7,17 +7,17 @@
  * パス結果はキャッシュに格納してCPU使用量を削減する。
  */
 
-'use strict';
+'use strict'
 
-const { PATHFINDER_DEFAULTS, CACHE_TTL } = require('../constants');
-const cacheUtils = require('./cache');
+const { PATHFINDER_DEFAULTS, CACHE_TTL } = require('../constants')
+const cacheUtils = require('./cache')
 
 // ============================================================
 // グローバルキャッシュキー
 // ============================================================
 
-const PATH_CACHE_PREFIX = 'path_';
-const COST_MATRIX_CACHE_PREFIX = 'cm_';
+const PATH_CACHE_PREFIX = 'path_'
+const COST_MATRIX_CACHE_PREFIX = 'cm_'
 
 // ============================================================
 // コストマトリクス構築
@@ -28,33 +28,33 @@ const COST_MATRIX_CACHE_PREFIX = 'cm_';
  * @param {PathFinder.CostMatrix} costs
  * @param {Room} room
  */
-function _applyStructureCosts(costs, room) {
-    const structures = cacheUtils.getStructures(room);
-    for (let i = 0; i < structures.length; i++) {
-        const struct = structures[i];
-        switch (struct.structureType) {
-            case STRUCTURE_ROAD:
-                costs.set(struct.pos.x, struct.pos.y, PATHFINDER_DEFAULTS.ROAD_COST);
-                break;
-            case STRUCTURE_WALL:
-                costs.set(struct.pos.x, struct.pos.y, 255);
-                break;
-            case STRUCTURE_RAMPART:
-                if (!struct.my && !struct.isPublic) {
-                    costs.set(struct.pos.x, struct.pos.y, 255);
-                }
-                break;
-            default:
-                if (
-                    struct.structureType !== STRUCTURE_CONTAINER &&
+function _applyStructureCosts (costs, room) {
+  const structures = cacheUtils.getStructures(room)
+  for (let i = 0; i < structures.length; i++) {
+    const struct = structures[i]
+    switch (struct.structureType) {
+      case STRUCTURE_ROAD:
+        costs.set(struct.pos.x, struct.pos.y, PATHFINDER_DEFAULTS.ROAD_COST)
+        break
+      case STRUCTURE_WALL:
+        costs.set(struct.pos.x, struct.pos.y, 255)
+        break
+      case STRUCTURE_RAMPART:
+        if (!struct.my && !struct.isPublic) {
+          costs.set(struct.pos.x, struct.pos.y, 255)
+        }
+        break
+      default:
+        if (
+          struct.structureType !== STRUCTURE_CONTAINER &&
                     struct.structureType !== STRUCTURE_LINK
-                ) {
-                    if (!struct.my) {
-                        costs.set(struct.pos.x, struct.pos.y, 255);
-                    }
-                }
+        ) {
+          if (!struct.my) {
+            costs.set(struct.pos.x, struct.pos.y, 255)
+          }
         }
     }
+  }
 }
 
 /**
@@ -62,18 +62,18 @@ function _applyStructureCosts(costs, room) {
  * @param {PathFinder.CostMatrix} costs
  * @param {Room} room
  */
-function _applyConstructionSiteCosts(costs, room) {
-    const sites = cacheUtils.getConstructionSites(room);
-    for (let i = 0; i < sites.length; i++) {
-        const site = sites[i];
-        if (
-            site.structureType !== STRUCTURE_ROAD &&
+function _applyConstructionSiteCosts (costs, room) {
+  const sites = cacheUtils.getConstructionSites(room)
+  for (let i = 0; i < sites.length; i++) {
+    const site = sites[i]
+    if (
+      site.structureType !== STRUCTURE_ROAD &&
             site.structureType !== STRUCTURE_RAMPART &&
             site.structureType !== STRUCTURE_CONTAINER
-        ) {
-            costs.set(site.pos.x, site.pos.y, 3);
-        }
+    ) {
+      costs.set(site.pos.x, site.pos.y, 3)
     }
+  }
 }
 
 /**
@@ -81,56 +81,56 @@ function _applyConstructionSiteCosts(costs, room) {
  * @param {PathFinder.CostMatrix} costs
  * @param {Room} room
  */
-function _applyCreepCosts(costs, room) {
-    if (!room._allCreeps || room._allCreepsTick !== Game.time) {
-        room._allCreeps = room.find(FIND_CREEPS);
-        room._allCreepsTick = Game.time;
-    }
+function _applyCreepCosts (costs, room) {
+  if (!room._allCreeps || room._allCreepsTick !== Game.time) {
+    room._allCreeps = room.find(FIND_CREEPS)
+    room._allCreepsTick = Game.time
+  }
 
-    // ⚡ PERFORMANCE OPTIMIZATION: Hoist array reference and length to avoid repeated property lookups
-    const creeps = room._allCreeps;
-    const len = creeps.length;
-    for (let i = 0; i < len; i++) {
-        const pos = creeps[i].pos;
-        costs.set(pos.x, pos.y, 255);
-    }
+  // ⚡ PERFORMANCE OPTIMIZATION: Hoist array reference and length to avoid repeated property lookups
+  const creeps = room._allCreeps
+  const len = creeps.length
+  for (let i = 0; i < len; i++) {
+    const pos = creeps[i].pos
+    costs.set(pos.x, pos.y, 255)
+  }
 }
 
 /**
  * ルーム用のカスタムコストマトリクスを構築する
  */
-function buildCostMatrix(roomName, options) {
-    if (!cacheUtils.isSafeKey(roomName)) {
-        return new PathFinder.CostMatrix();
-    }
+function buildCostMatrix (roomName, options) {
+  if (!cacheUtils.isSafeKey(roomName)) {
+    return new PathFinder.CostMatrix()
+  }
 
-    const opts = Object.assign({ avoidCreeps: false, useCache: true }, options);
-    const cacheKey = `${COST_MATRIX_CACHE_PREFIX}${roomName}_${opts.avoidCreeps ? 1 : 0}`;
+  const opts = Object.assign({ avoidCreeps: false, useCache: true }, options)
+  const cacheKey = `${COST_MATRIX_CACHE_PREFIX}${roomName}_${opts.avoidCreeps ? 1 : 0}`
 
-    if (opts.useCache) {
-        return cacheUtils.get(
-            cacheKey,
-            () => _buildCostMatrixInternal(roomName, opts),
-            CACHE_TTL.PATH
-        );
-    }
+  if (opts.useCache) {
+    return cacheUtils.get(
+      cacheKey,
+      () => _buildCostMatrixInternal(roomName, opts),
+      CACHE_TTL.PATH
+    )
+  }
 
-    return _buildCostMatrixInternal(roomName, opts);
+  return _buildCostMatrixInternal(roomName, opts)
 }
 
-function _buildCostMatrixInternal(roomName, opts) {
-    const room = Game.rooms[roomName];
-    const costs = new PathFinder.CostMatrix();
+function _buildCostMatrixInternal (roomName, opts) {
+  const room = Game.rooms[roomName]
+  const costs = new PathFinder.CostMatrix()
 
-    if (!room) return costs;
+  if (!room) return costs
 
-    _applyStructureCosts(costs, room);
-    _applyConstructionSiteCosts(costs, room);
-    if (opts.avoidCreeps) {
-        _applyCreepCosts(costs, room);
-    }
+  _applyStructureCosts(costs, room)
+  _applyConstructionSiteCosts(costs, room)
+  if (opts.avoidCreeps) {
+    _applyCreepCosts(costs, room)
+  }
 
-    return costs;
+  return costs
 }
 
 // ============================================================
@@ -140,25 +140,25 @@ function _buildCostMatrixInternal(roomName, opts) {
 /**
  * PathFinder を使って creep からターゲットへの経路を計算する
  */
-function findPath(origin, goal, options) {
-    const opts = Object.assign(
-        {
-            avoidCreeps: false,
-            maxRooms: PATHFINDER_DEFAULTS.MAX_ROOMS,
-            plainCost: PATHFINDER_DEFAULTS.PLAIN_COST,
-            swampCost: PATHFINDER_DEFAULTS.SWAMP_COST,
-        },
-        options
-    );
+function findPath (origin, goal, options) {
+  const opts = Object.assign(
+    {
+      avoidCreeps: false,
+      maxRooms: PATHFINDER_DEFAULTS.MAX_ROOMS,
+      plainCost: PATHFINDER_DEFAULTS.PLAIN_COST,
+      swampCost: PATHFINDER_DEFAULTS.SWAMP_COST
+    },
+    options
+  )
 
-    const pfGoal = goal.pos ? { pos: goal.pos, range: goal.range || 1 } : { pos: goal, range: 1 };
+  const pfGoal = goal.pos ? { pos: goal.pos, range: goal.range || 1 } : { pos: goal, range: 1 }
 
-    return PathFinder.search(origin, pfGoal, {
-        plainCost: opts.plainCost,
-        swampCost: opts.swampCost,
-        maxRooms: opts.maxRooms,
-        roomCallback: (roomName) => buildCostMatrix(roomName, { avoidCreeps: opts.avoidCreeps }),
-    });
+  return PathFinder.search(origin, pfGoal, {
+    plainCost: opts.plainCost,
+    swampCost: opts.swampCost,
+    maxRooms: opts.maxRooms,
+    roomCallback: (roomName) => buildCostMatrix(roomName, { avoidCreeps: opts.avoidCreeps })
+  })
 }
 
 // ============================================================
@@ -168,123 +168,123 @@ function findPath(origin, goal, options) {
 /**
  * クリープをターゲットへ移動させる
  */
-function moveTo(creep, target, options) {
-    const opts = Object.assign(
-        {
-            range: 1,
-            avoidCreeps: false,
-            visualizePath: true,
-            reusePath: PATHFINDER_DEFAULTS.REUSE_PATH,
-        },
-        options
-    );
+function moveTo (creep, target, options) {
+  const opts = Object.assign(
+    {
+      range: 1,
+      avoidCreeps: false,
+      visualizePath: true,
+      reusePath: PATHFINDER_DEFAULTS.REUSE_PATH
+    },
+    options
+  )
 
-    const moveOptions = {
-        reusePath: opts.reusePath,
-        maxRooms: opts.avoidCreeps ? 1 : PATHFINDER_DEFAULTS.MAX_ROOMS,
-        costCallback: (roomName) => {
-            return buildCostMatrix(roomName, {
-                avoidCreeps: opts.avoidCreeps,
-                useCache: true,
-            });
-        },
-    };
-
-    if (opts.visualizePath) {
-        moveOptions.visualizePathStyle = {
-            fill: 'transparent',
-            stroke: '#00bfff',
-            lineStyle: 'dashed',
-            strokeWidth: 0.15,
-            opacity: 0.3,
-        };
+  const moveOptions = {
+    reusePath: opts.reusePath,
+    maxRooms: opts.avoidCreeps ? 1 : PATHFINDER_DEFAULTS.MAX_ROOMS,
+    costCallback: (roomName) => {
+      return buildCostMatrix(roomName, {
+        avoidCreeps: opts.avoidCreeps,
+        useCache: true
+      })
     }
+  }
 
-    return creep.moveTo(target, moveOptions);
+  if (opts.visualizePath) {
+    moveOptions.visualizePathStyle = {
+      fill: 'transparent',
+      stroke: '#00bfff',
+      lineStyle: 'dashed',
+      strokeWidth: 0.15,
+      opacity: 0.3
+    }
+  }
+
+  return creep.moveTo(target, moveOptions)
 }
 
 // ============================================================
 // 距離・位置ユーティリティ
 // ============================================================
 
-function chebyshev(a, b) {
-    return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
+function chebyshev (a, b) {
+  return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y))
 }
 
-function manhattan(a, b) {
-    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+function manhattan (a, b) {
+  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
 }
 
-function sortByDistance(origin, objects) {
-    return objects.slice().sort((a, b) => {
-        const da = origin.getRangeTo(a);
-        const db = origin.getRangeTo(b);
-        return da - db;
-    });
+function sortByDistance (origin, objects) {
+  return objects.slice().sort((a, b) => {
+    const da = origin.getRangeTo(a)
+    const db = origin.getRangeTo(b)
+    return da - db
+  })
 }
 
-function closest(origin, objects) {
-    if (!objects || objects.length === 0) return null;
-    let best = null;
-    let bestDist = Infinity;
-    for (let i = 0; i < objects.length; i++) {
-        const obj = objects[i];
-        const d = origin.getRangeTo(obj);
-        if (d < bestDist) {
-            bestDist = d;
-            best = obj;
-        }
+function closest (origin, objects) {
+  if (!objects || objects.length === 0) return null
+  let best = null
+  let bestDist = Infinity
+  for (let i = 0; i < objects.length; i++) {
+    const obj = objects[i]
+    const d = origin.getRangeTo(obj)
+    if (d < bestDist) {
+      bestDist = d
+      best = obj
     }
-    return best;
+  }
+  return best
 }
 
-function findNearestOpenTile(pos, range) {
-    const r = Math.min(range || 3, PATHFINDER_DEFAULTS.MAX_SEARCH_RANGE);
-    const room = Game.rooms[pos.roomName];
-    if (!room) return null;
+function findNearestOpenTile (pos, range) {
+  const r = Math.min(range || 3, PATHFINDER_DEFAULTS.MAX_SEARCH_RANGE)
+  const room = Game.rooms[pos.roomName]
+  if (!room) return null
 
-    const top = Math.max(1, pos.y - r);
-    const left = Math.max(1, pos.x - r);
-    const bottom = Math.min(48, pos.y + r);
-    const right = Math.min(48, pos.x + r);
+  const top = Math.max(1, pos.y - r)
+  const left = Math.max(1, pos.x - r)
+  const bottom = Math.min(48, pos.y + r)
+  const right = Math.min(48, pos.x + r)
 
-    const lookData = room.lookAtArea(top, left, bottom, right, true);
-    const blockedTiles = new Set();
+  const lookData = room.lookAtArea(top, left, bottom, right, true)
+  const blockedTiles = new Set()
 
-    for (let i = 0; i < lookData.length; i++) {
-        const item = lookData[i];
-        if (item.type === 'structure' || item.type === 'creep') {
-            blockedTiles.add(`${item.x},${item.y}`);
-        }
+  for (let i = 0; i < lookData.length; i++) {
+    const item = lookData[i]
+    if (item.type === 'structure' || item.type === 'creep') {
+      blockedTiles.add(`${item.x},${item.y}`)
     }
+  }
 
-    const terrain = room.getTerrain();
+  const terrain = room.getTerrain()
 
-    for (let dx = -r; dx <= r; dx++) {
-        for (let dy = -r; dy <= r; dy++) {
-            const x = pos.x + dx;
-            const y = pos.y + dy;
-            if (x < 1 || x > 48 || y < 1 || y > 48) continue;
-            if (terrain.get(x, y) === TERRAIN_MASK_WALL) continue;
-            if (blockedTiles.has(`${x},${y}`)) continue;
-            return new RoomPosition(x, y, pos.roomName);
-        }
+  for (let dx = -r; dx <= r; dx++) {
+    for (let dy = -r; dy <= r; dy++) {
+      const x = pos.x + dx
+      const y = pos.y + dy
+      if (x < 1 || x > 48 || y < 1 || y > 48) continue
+      if (terrain.get(x, y) === TERRAIN_MASK_WALL) continue
+      if (blockedTiles.has(`${x},${y}`)) continue
+      return new RoomPosition(x, y, pos.roomName)
     }
-    return null;
+  }
+  return null
 }
 
-function getRoadPositions(room) {
-    // ⚡ PERFORMANCE OPTIMIZATION: Single-pass for loop to collect road positions.
-    // Avoids intermediate array allocations and closure callback overhead from filter & map.
-    const structures = cacheUtils.getStructures(room);
-    const positions = [];
-    for (let i = 0; i < structures.length; i++) {
-        const struct = structures[i];
-        if (struct.structureType === STRUCTURE_ROAD) {
-            positions.push(struct.pos);
-        }
+function getRoadPositions (room) {
+  // ⚡ PERFORMANCE OPTIMIZATION: Single-pass for loop to collect road positions.
+  // Avoids intermediate array allocations and closure callback overhead from filter & map.
+  const structures = cacheUtils.getStructures(room)
+  const positions = []
+  for (let i = 0; i < structures.length; i++) {
+    const struct = structures[i]
+    if (struct.structureType === STRUCTURE_ROAD) {
+      positions.push(struct.pos)
     }
-    return positions;
+  }
+  return positions
 }
 
 // ============================================================
@@ -294,38 +294,38 @@ function getRoadPositions(room) {
 /**
  * 2地点間の実際の歩数（道路考慮）を推定する
  */
-function estimateDistance(origin, goal) {
-    if (
-        !origin ||
+function estimateDistance (origin, goal) {
+  if (
+    !origin ||
         !goal ||
         !cacheUtils.isSafeKey(origin.roomName) ||
         !cacheUtils.isSafeKey(goal.roomName)
-    ) {
-        return Infinity;
-    }
+  ) {
+    return Infinity
+  }
 
-    const key = `${PATH_CACHE_PREFIX}${origin.roomName}_${origin.x}_${origin.y}_${goal.roomName}_${goal.x}_${goal.y}`;
+  const key = `${PATH_CACHE_PREFIX}${origin.roomName}_${origin.x}_${origin.y}_${goal.roomName}_${goal.x}_${goal.y}`
 
-    return cacheUtils.get(
-        key,
-        () => {
-            const result = findPath(origin, goal);
-            return result.incomplete ? Infinity : result.path.length;
-        },
-        CACHE_TTL.PATH
-    );
+  return cacheUtils.get(
+    key,
+    () => {
+      const result = findPath(origin, goal)
+      return result.incomplete ? Infinity : result.path.length
+    },
+    CACHE_TTL.PATH
+  )
 }
 
 module.exports = {
-    buildCostMatrix,
-    findPath,
-    moveTo,
-    chebyshev,
-    manhattan,
-    sortByDistance,
-    closest,
-    findNearestOpenTile,
-    getRoadPositions,
-    estimateDistance,
-    isSafeKey: (key) => cacheUtils.isSafeKey(key),
-};
+  buildCostMatrix,
+  findPath,
+  moveTo,
+  chebyshev,
+  manhattan,
+  sortByDistance,
+  closest,
+  findNearestOpenTile,
+  getRoadPositions,
+  estimateDistance,
+  isSafeKey: (key) => cacheUtils.isSafeKey(key)
+}

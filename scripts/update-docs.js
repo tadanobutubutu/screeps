@@ -1,64 +1,64 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
-console.log('📊 Analyzing repository...');
+console.log('📊 Analyzing repository...')
 
-const rootDir = process.cwd();
-const workflowDir = path.join(rootDir, '.github', 'workflows');
-const readFile = (filePath) => fs.readFileSync(path.join(rootDir, filePath), 'utf8');
-const writeFile = (filePath, content) => fs.writeFileSync(path.join(rootDir, filePath), content);
-const today = new Date().toISOString().split('T')[0];
-const now = new Date().toISOString();
+const rootDir = process.cwd()
+const workflowDir = path.join(rootDir, '.github', 'workflows')
+const readFile = (filePath) => fs.readFileSync(path.join(rootDir, filePath), 'utf8')
+const writeFile = (filePath, content) => fs.writeFileSync(path.join(rootDir, filePath), content)
+const today = new Date().toISOString().split('T')[0]
+const now = new Date().toISOString()
 
-const countLines = (content) => content.split('\n').length;
+const countLines = (content) => content.split('\n').length
 const extractWorkflowName = (content, fallback) => {
-    const nameMatch = content.match(/^name:\s*(.+)$/m);
-    return nameMatch ? nameMatch[1].trim().replace(/^['"]|['"]$/g, '') : fallback;
-};
-const hasScheduledTrigger = (content) => /(^|\n)\s*schedule:\s*$/m.test(content);
+  const nameMatch = content.match(/^name:\s*(.+)$/m)
+  return nameMatch ? nameMatch[1].trim().replace(/^['"]|['"]$/g, '') : fallback
+}
+const hasScheduledTrigger = (content) => /(^|\n)\s*schedule:\s*$/m.test(content)
 
 // ワークフローファイルを取得
 const workflowFiles = fs
-    .readdirSync(workflowDir)
-    .filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'))
-    .map((f) => {
-        try {
-            const content = readFile(path.join('.github', 'workflows', f));
-            return {
-                file: f,
-                name: extractWorkflowName(content, f),
-                hasSchedule: hasScheduledTrigger(content),
-            };
-        } catch (e) {
-            return {
-                file: f,
-                name: f,
-                hasSchedule: false,
-            };
-        }
-    });
+  .readdirSync(workflowDir)
+  .filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'))
+  .map((f) => {
+    try {
+      const content = readFile(path.join('.github', 'workflows', f))
+      return {
+        file: f,
+        name: extractWorkflowName(content, f),
+        hasSchedule: hasScheduledTrigger(content)
+      }
+    } catch (e) {
+      return {
+        file: f,
+        name: f,
+        hasSchedule: false
+      }
+    }
+  })
 
-console.log(`✅ Found ${workflowFiles.length} workflows`);
+console.log(`✅ Found ${workflowFiles.length} workflows`)
 
 // ロールファイルを取得
 const roleFiles = fs
-    .readdirSync(rootDir)
-    .filter((f) => f.startsWith('role.') && f.endsWith('.js'))
-    .map((f) => f.replace('role.', '').replace('.js', ''));
+  .readdirSync(rootDir)
+  .filter((f) => f.startsWith('role.') && f.endsWith('.js'))
+  .map((f) => f.replace('role.', '').replace('.js', ''))
 
-console.log(`✅ Found ${roleFiles.length} role files`);
+console.log(`✅ Found ${roleFiles.length} role files`)
 
 // JSファイルを取得（統計用）
 const jsFiles = fs
-    .readdirSync(rootDir)
-    .filter((f) => f.endsWith('.js') && !f.startsWith('node_modules'));
+  .readdirSync(rootDir)
+  .filter((f) => f.endsWith('.js') && !f.startsWith('node_modules'))
 
 const totalLines = jsFiles.reduce((sum, file) => {
-    const content = readFile(file);
-    return sum + countLines(content);
-}, 0);
+  const content = readFile(file)
+  return sum + countLines(content)
+}, 0)
 
-console.log(`✅ Total ${jsFiles.length} JS files with ${totalLines} lines`);
+console.log(`✅ Total ${jsFiles.length} JS files with ${totalLines} lines`)
 
 // README.md を更新
 const readme = `# 🎮 Screeps AI - 完全自動化リポジトリ
@@ -91,7 +91,7 @@ const readme = `# 🎮 Screeps AI - 完全自動化リポジトリ
 
 ### 📋 稼働中のワークフロー (${workflowFiles.length}個)
 
-${workflowFiles.map((wf) => `- **${wf.name}** (\`${wf.file}\`)${wf.hasSchedule ? ` - 定期実行` : ` - イベント駆動`}`).join('\n')}
+${workflowFiles.map((wf) => `- **${wf.name}** (\`${wf.file}\`)${wf.hasSchedule ? ' - 定期実行' : ' - イベント駆動'}`).join('\n')}
 
 詳しくは [\`WORKFLOWS.md\`](./WORKFLOWS.md) を参照してください。
 
@@ -181,45 +181,45 @@ MIT License
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
 *このREADMEは自動更新されます - 最終更新: ${now}*
-`;
+`
 
-writeFile('README.md', readme);
-console.log('✅ README.md updated!');
+writeFile('README.md', readme)
+console.log('✅ README.md updated!')
 
 // WORKFLOWS.mdのヘッダーを更新
 if (fs.existsSync(path.join(rootDir, 'WORKFLOWS.md'))) {
-    let workflows = readFile('WORKFLOWS.md');
+  let workflows = readFile('WORKFLOWS.md')
 
-    // 統計情報を挿入
-    const statsSection = `\n> 📊 **統計**: ${workflowFiles.length}個 of workflows | 最終更新: ${today}\n\n`;
+  // 統計情報を挿入
+  const statsSection = `\n> 📊 **統計**: ${workflowFiles.length}個 of workflows | 最終更新: ${today}\n\n`
 
-    if (!workflows.includes('📊 **統計**')) {
-        workflows = workflows.replace('# 🤖', `# 🤖${statsSection}`);
-        writeFile('WORKFLOWS.md', workflows);
-        console.log('✅ WORKFLOWS.md updated!');
-    }
+  if (!workflows.includes('📊 **統計**')) {
+    workflows = workflows.replace('# 🤖', `# 🤖${statsSection}`)
+    writeFile('WORKFLOWS.md', workflows)
+    console.log('✅ WORKFLOWS.md updated!')
+  }
 }
 
 // 統計ファイル作成
 const stats = {
-    updated: new Date().toISOString(),
-    workflows: workflowFiles.length,
-    roles: roleFiles.length,
-    jsFiles: jsFiles.length,
-    totalLines: totalLines,
-    workflowList: workflowFiles.map((wf) => ({
-        name: wf.name,
-        file: wf.file,
-        scheduled: wf.hasSchedule,
-    })),
-    roleList: roleFiles,
-};
+  updated: new Date().toISOString(),
+  workflows: workflowFiles.length,
+  roles: roleFiles.length,
+  jsFiles: jsFiles.length,
+  totalLines,
+  workflowList: workflowFiles.map((wf) => ({
+    name: wf.name,
+    file: wf.file,
+    scheduled: wf.hasSchedule
+  })),
+  roleList: roleFiles
+}
 
-writeFile('repo-stats.json', JSON.stringify(stats, null, 2));
-console.log('✅ repo-stats.json created!');
+writeFile('repo-stats.json', JSON.stringify(stats, null, 2))
+console.log('✅ repo-stats.json created!')
 
-console.log('\n📈 Summary:');
-console.log(`  Workflows: ${workflowFiles.length}`);
-console.log(`  Roles: ${roleFiles.length}`);
-console.log(`  JS Files: ${jsFiles.length}`);
-console.log(`  Total Lines: ${totalLines}`);
+console.log('\n📈 Summary:')
+console.log(`  Workflows: ${workflowFiles.length}`)
+console.log(`  Roles: ${roleFiles.length}`)
+console.log(`  JS Files: ${jsFiles.length}`)
+console.log(`  Total Lines: ${totalLines}`)

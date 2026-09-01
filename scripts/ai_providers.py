@@ -450,7 +450,9 @@ def call_cerebras(prompt):
     for model in CEREBRAS_MODELS:
         try:
             print(f"Trying Cerebras ({model})...")
-            result = _openai_chat(CEREBRAS_BASE, model, prompt, headers=headers, timeout=90)
+            result = _openai_chat(
+                CEREBRAS_BASE, model, prompt, headers=headers, timeout=90
+            )
             if result:
                 return result
         except Exception as exc:
@@ -467,7 +469,9 @@ def call_mistral(prompt):
     for model in MISTRAL_MODELS:
         try:
             print(f"Trying Mistral ({model})...")
-            result = _openai_chat(MISTRAL_BASE, model, prompt, headers=headers, timeout=90)
+            result = _openai_chat(
+                MISTRAL_BASE, model, prompt, headers=headers, timeout=90
+            )
             if result:
                 return result
         except Exception as exc:
@@ -516,7 +520,9 @@ def call_zhipu(prompt):
     for model in ZHIPU_MODELS:
         try:
             print(f"Trying Zhipu GLM ({model})...")
-            result = _openai_chat(ZHIPU_BASE, model, prompt, headers=headers, timeout=90)
+            result = _openai_chat(
+                ZHIPU_BASE, model, prompt, headers=headers, timeout=90
+            )
             if result:
                 return result
         except Exception as exc:
@@ -549,7 +555,9 @@ def call_cohere(prompt):
                 message = data.get("message", {})
                 content = message.get("content", [])
                 if content and isinstance(content, list):
-                    parts = [p.get("text", "") for p in content if p.get("type") == "text"]
+                    parts = [
+                        p.get("text", "") for p in content if p.get("type") == "text"
+                    ]
                     text = "".join(parts).strip()
                     if text:
                         return text

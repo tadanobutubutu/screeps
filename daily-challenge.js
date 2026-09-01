@@ -5,124 +5,124 @@
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
  * Screeps memory is limited to 2MB; unbounded strings can crash the AI.
  */
-const MAX_METRIC_LENGTH = 32;
-const MAX_NAME_LENGTH = 100;
+const MAX_METRIC_LENGTH = 32
+const MAX_NAME_LENGTH = 100
 
 // ⚡ PERFORMANCE: Hoist challenges array to module scope to avoid re-allocation.
 const CHALLENGES = [
-    {
-        emoji: '🚀',
-        name: 'Speed Demon',
-        desc: 'Move 500 tiles',
-        metric: 'moves',
-        target: 500,
-    },
-    {
-        emoji: '⛏️',
-        name: 'Mining Master',
-        desc: 'Harvest 5000 energy',
-        metric: 'harvested',
-        target: 5000,
-    },
-    {
-        emoji: '🏭',
-        name: 'Architect',
-        desc: 'Build 10 structures',
-        metric: 'built',
-        target: 10,
-    },
-    {
-        emoji: '🔧',
-        name: 'Repairman',
-        desc: 'Repair 3000 HP',
-        metric: 'repaired',
-        target: 3000,
-    },
-    {
-        emoji: '🌟',
-        name: 'Controller King',
-        desc: 'Upgrade 50 times',
-        metric: 'upgrades',
-        target: 50,
-    },
-];
+  {
+    emoji: '🚀',
+    name: 'Speed Demon',
+    desc: 'Move 500 tiles',
+    metric: 'moves',
+    target: 500
+  },
+  {
+    emoji: '⛏️',
+    name: 'Mining Master',
+    desc: 'Harvest 5000 energy',
+    metric: 'harvested',
+    target: 5000
+  },
+  {
+    emoji: '🏭',
+    name: 'Architect',
+    desc: 'Build 10 structures',
+    metric: 'built',
+    target: 10
+  },
+  {
+    emoji: '🔧',
+    name: 'Repairman',
+    desc: 'Repair 3000 HP',
+    metric: 'repaired',
+    target: 3000
+  },
+  {
+    emoji: '🌟',
+    name: 'Controller King',
+    desc: 'Upgrade 50 times',
+    metric: 'upgrades',
+    target: 50
+  }
+]
 
-let _cachedChallenge = null;
-let _cachedTick = -1;
+let _cachedChallenge = null
+let _cachedTick = -1
 
 module.exports = {
-    getChallenge: function () {
-        // ⚡ PERFORMANCE: Use per-tick cache to avoid redundant Date operations and Memory lookups.
-        if (typeof Game !== 'undefined' && Game.time === _cachedTick && _cachedChallenge) {
-            return _cachedChallenge;
-        }
+  getChallenge: function () {
+    // ⚡ PERFORMANCE: Use per-tick cache to avoid redundant Date operations and Memory lookups.
+    if (typeof Game !== 'undefined' && Game.time === _cachedTick && _cachedChallenge) {
+      return _cachedChallenge
+    }
 
-        const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0]
 
-        if (!Memory.dailyChallenge || Memory.dailyChallenge.date !== today) {
-            const dayOfYear = Math.floor(
-                (new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000
-            );
-            const challenge = CHALLENGES[dayOfYear % CHALLENGES.length];
+    if (!Memory.dailyChallenge || Memory.dailyChallenge.date !== today) {
+      const dayOfYear = Math.floor(
+        (new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000
+      )
+      const challenge = CHALLENGES[dayOfYear % CHALLENGES.length]
 
-            // Security: Sanitize challenge configuration (Defense in Depth)
-            const sanitizedChallenge = {
-                emoji: String(challenge.emoji || '🎯').substring(0, 10),
-                name: String(challenge.name || 'Challenge').substring(0, MAX_NAME_LENGTH),
-                desc: String(challenge.desc || '').substring(0, 200),
-                metric: String(challenge.metric || '').substring(0, MAX_METRIC_LENGTH),
-                target: Number.isFinite(challenge.target) ? Math.max(1, challenge.target) : 100,
-            };
+      // Security: Sanitize challenge configuration (Defense in Depth)
+      const sanitizedChallenge = {
+        emoji: String(challenge.emoji || '🎯').substring(0, 10),
+        name: String(challenge.name || 'Challenge').substring(0, MAX_NAME_LENGTH),
+        desc: String(challenge.desc || '').substring(0, 200),
+        metric: String(challenge.metric || '').substring(0, MAX_METRIC_LENGTH),
+        target: Number.isFinite(challenge.target) ? Math.max(1, challenge.target) : 100
+      }
 
-            Memory.dailyChallenge = {
-                date: today,
-                challenge: sanitizedChallenge,
-                progress: 0,
-                completed: false,
-            };
-        }
+      Memory.dailyChallenge = {
+        date: today,
+        challenge: sanitizedChallenge,
+        progress: 0,
+        completed: false
+      }
+    }
 
-        // ⚡ PERFORMANCE: Update per-tick cache.
-        _cachedChallenge = Memory.dailyChallenge;
-        _cachedTick = typeof Game !== 'undefined' ? Game.time : -1;
+    // ⚡ PERFORMANCE: Update per-tick cache.
+    _cachedChallenge = Memory.dailyChallenge
+    _cachedTick = typeof Game !== 'undefined' ? Game.time : -1
 
-        return _cachedChallenge;
-    },
+    return _cachedChallenge
+  },
 
-    updateProgress: function (metric, amount) {
-        const challenge = this.getChallenge();
+  updateProgress: function (metric, amount) {
+    const challenge = this.getChallenge()
 
-        if (challenge.completed) {
-            return;
-        }
+    if (challenge.completed) {
+      return
+    }
 
-        // Security: Validate amount to prevent corruption or DoS via massive/invalid values
-        const numericAmount = Number(amount);
-        if (!Number.isFinite(numericAmount) || numericAmount < 0) {
-            return;
-        }
+    // Security: Validate amount to prevent corruption or DoS via massive/invalid values
+    const numericAmount = Number(amount)
+    if (!Number.isFinite(numericAmount) || numericAmount < 0) {
+      return
+    }
 
-        // Security: Validate metric to prevent potential issues
-        const sanitizedMetric = String(metric || '').substring(0, MAX_METRIC_LENGTH);
+    // Security: Validate metric to prevent potential issues
+    const sanitizedMetric = String(metric || '').substring(0, MAX_METRIC_LENGTH)
 
-        if (challenge.challenge.metric === sanitizedMetric && !challenge.completed) {
-            challenge.progress += numericAmount;
+    if (challenge.challenge.metric === sanitizedMetric && !challenge.completed) {
+      challenge.progress += numericAmount
 
-            if (challenge.progress >= challenge.challenge.target) {
-                challenge.completed = true;
-            }
-        }
-    },
+      if (challenge.progress >= challenge.challenge.target) {
+        challenge.completed = true
+      }
+    }
+  },
 
-    displayChallenge: function () {
-        const challenge = this.getChallenge();
-        const c = challenge.challenge;
-        const percent = Math.min(100, Math.floor((challenge.progress / c.target) * 100));
+  displayChallenge: function () {
+    const challenge = this.getChallenge()
+    const c = challenge.challenge
+    const percent = Math.min(100, Math.floor((challenge.progress / c.target) * 100))
 
-        // Redacted due to AI maintenance console.log removal.
+    // Redacted due to AI maintenance console.log removal.
 
-        if (challenge.completed) {
-            // Add completed display logic here if needed.
-        }
-    },
-};
+    if (challenge.completed) {
+      // Add completed display logic here if needed.
+    }
+  }
+}

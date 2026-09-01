@@ -148,9 +148,7 @@ export default function Dashboard() {
                     setAutoRefresh((prev) => {
                         const nextState = !prev;
                         showToast(
-                            nextState
-                                ? '自動更新を有効にしました'
-                                : '自動更新を無効にしました'
+                            nextState ? '自動更新を有効にしました' : '自動更新を無効にしました'
                         );
                         return nextState;
                     });
@@ -252,7 +250,11 @@ export default function Dashboard() {
         );
     if (error)
         return (
-            <main role="alert" aria-live="assertive" style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <main
+                role="alert"
+                aria-live="assertive"
+                style={{ padding: '2rem', fontFamily: 'monospace' }}
+            >
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                 <pre
                     tabIndex={0}
@@ -331,7 +333,9 @@ export default function Dashboard() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <h1 style={{ color: '#004b73', margin: 0 }}>🐛 Screeps ダッシュボード</h1>
                     {stats && (
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <div
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                        >
                             <kbd
                                 aria-label="キーボードショートカット Alt + C キーでステータスのサマリーをコピーできます"
                                 title="Alt + C キーでサマリーをコピーできます"
@@ -764,27 +768,32 @@ export default function Dashboard() {
                             style={{
                                 fontSize: '0.75rem',
                                 padding: '0.1rem 0.4rem',
-                                backgroundColor: filteredRooms.length === 0
-                                    ? '#edf2f7'
-                                    : copiedAllRooms
-                                      ? '#c6f6d5'
-                                      : copyAllHover
-                                        ? '#e2e8f0'
-                                        : '#edf2f7',
+                                backgroundColor:
+                                    filteredRooms.length === 0
+                                        ? '#edf2f7'
+                                        : copiedAllRooms
+                                          ? '#c6f6d5'
+                                          : copyAllHover
+                                            ? '#e2e8f0'
+                                            : '#edf2f7',
                                 border: '1px solid #cbd5e0',
                                 borderRadius: '4px',
-                                color: filteredRooms.length === 0
-                                    ? '#a0aec0'
-                                    : copiedAllRooms
-                                      ? '#22543d'
-                                      : '#4a5568',
+                                color:
+                                    filteredRooms.length === 0
+                                        ? '#a0aec0'
+                                        : copiedAllRooms
+                                          ? '#22543d'
+                                          : '#4a5568',
                                 cursor: filteredRooms.length === 0 ? 'not-allowed' : 'pointer',
                                 opacity: filteredRooms.length === 0 ? 0.6 : 1,
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: '0.2rem',
                                 transition: 'all 0.2s ease-in-out',
-                                transform: copyAllHover && filteredRooms.length > 0 ? 'scale(1.05)' : 'scale(1)',
+                                transform:
+                                    copyAllHover && filteredRooms.length > 0
+                                        ? 'scale(1.05)'
+                                        : 'scale(1)',
                             }}
                         >
                             {copiedAllRooms
@@ -989,7 +998,11 @@ export default function Dashboard() {
                                   role="status"
                                   aria-live="polite"
                                   aria-label="アクティブな部屋はありません"
-                                  style={{ color: '#a0aec0', fontStyle: 'italic', fontSize: '0.75rem' }}
+                                  style={{
+                                      color: '#a0aec0',
+                                      fontStyle: 'italic',
+                                      fontSize: '0.75rem',
+                                  }}
                               >
                                   なし
                               </span>
@@ -1043,7 +1056,10 @@ export default function Dashboard() {
                                 : '生データを表示します (Alt + D)'
                         }
                         style={{
-                            color: summaryDetailsHover || summaryDetailsFocused ? '#004b73' : '#4a5568',
+                            color:
+                                summaryDetailsHover || summaryDetailsFocused
+                                    ? '#004b73'
+                                    : '#4a5568',
                             padding: '0.2rem 0.4rem',
                             borderRadius: '4px',
                             cursor: 'pointer',

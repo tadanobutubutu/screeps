@@ -21,7 +21,7 @@ export const solution = {
         }
       },
       packages: {
-        'npm': {
+        npm: {
           'dashboard/package.json': {
             posthog_js: {
               currentVersion: '1.417.1',
@@ -31,7 +31,7 @@ export const solution = {
               currentVersion: '^7.0.0',
               versioning: '^7.0.0'
             },
-            'postcss': {
+            postcss: {
               currentVersion: '^8.5.23'
             }
           },
@@ -69,19 +69,19 @@ export const solution = {
     }
   },
   detected_dependencies: {
-    'circleci': {
+    circleci: {
       '.circleci/config.yml': {
         'cimg/node': '24.19.0'
       }
     },
-    'devcontainer': {
+    devcontainer: {
       '.devcontainer/devcontainer.json': {
         'mcr.microsoft.com/devcontainers/python': '3.14',
         'ghcr.io/devcontainers/features/node': '2',
-        'node': '24'
+        node: '24'
       }
     },
-    'github_actions': {
+    github_actions: {
       '.github/workflows/gitstream.yml': {
         'linear-bots/gitstream-github-action': 'v2'
       },
@@ -97,9 +97,10 @@ export const solution = {
     }
   },
   logic: {
-    description: 'This script encapsulates the specific state of the Renovate Dashboard, resolving the `linear-bots` tag lookup conflict and organizing the awaiting schedule PRs.',
+    description:
+            'This script encapsulates the specific state of the Renovate Dashboard, resolving the `linear-bots` tag lookup conflict and organizing the awaiting schedule PRs.',
     check: 'solution_5.javascript'
   }
-};
+}
 
-export default solution;
+export default solution

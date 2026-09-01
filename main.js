@@ -63,7 +63,7 @@ function getLangAttribute() {
 function detectAndSetLang(content) {
   // Simple language detection based on common patterns
   let lang = 'en'; // Default to English
-  
+
   if (content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
@@ -80,7 +80,7 @@ function detectAndSetLang(content) {
       lang = 'de'; // German;
     }
   }
-  
+
   return lang;
 }
 
@@ -115,7 +115,15 @@ function createInPageButton(parent = document.body) {
  */
 function validateTableAccessibility(table) {
   if (!table || typeof table !== 'object') return true;
-  return true;
+
+  // Check for basic table accessibility requirements
+  const hasCaption = table.querySelector('caption') !== null;
+  const hasHeaders = table.querySelector('th') !== null;
+  const hasScopeAttributes = Array.from(table.querySelectorAll('th')).every(th =>
+    th.hasAttribute('scope') || th.hasAttribute('id')
+  );
+
+  return hasCaption && (hasHeaders || hasScopeAttributes);
 }
 
 /**
@@ -125,7 +133,17 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(table) {
   if (!table || typeof table !== 'object') return true;
-  return true;
+
+  // Check for proper table structure
+  const hasThead = table.querySelector('thead') !== null;
+  const hasTbody = table.querySelector('tbody') !== null;
+  const hasTfoot = table.querySelector('tfoot') !== null;
+
+  // Check for proper nesting of table elements
+  const invalidElements = table.querySelectorAll('table table, div table, p table');
+  const hasInvalidNesting = invalidElements.length > 0;
+
+  return (hasThead || hasTbody || hasTfoot) && !hasInvalidNesting;
 }
 
 /**
@@ -135,7 +153,19 @@ function validateTableStructure(table) {
  */
 function validateLandmark(element) {
   if (!element || typeof element !== 'object') return true;
-  return true;
+
+  const role = element.getAttribute('role');
+  const ariaLabel = element.getAttribute('aria-label');
+  const ariaLabelledby = element.getAttribute('aria-labelledby');
+
+  // Check for proper landmark roles
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+  const isValidRole = validRoles.includes(role);
+
+  // Check for accessible name
+  const hasAccessibleName = ariaLabel || ariaLabelledby || element.textContent.trim() !== '';
+
+  return isValidRole && hasAccessibleName;
 }
 
 /**
@@ -145,7 +175,19 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure(element) {
   if (!element || typeof element !== 'object') return true;
-  return true;
+
+  // Check for proper landmark nesting
+  const parent = element.parentElement;
+  if (!parent) return true;
+
+  const parentRole = parent.getAttribute('role');
+  const elementRole = element.getAttribute('role');
+
+  // Check for invalid nesting (e.g., landmark inside another landmark)
+  const invalidNesting = (parentRole && elementRole) ||
+                        (parentRole === 'main' && elementRole === 'main');
+
+  return !invalidNesting;
 }
 
 /**
@@ -155,7 +197,20 @@ function validateLandmarkStructure(element) {
  */
 function getSvgAccessibleName(svg) {
   if (!svg || typeof svg !== 'object') return '';
-  return ... || svg.getAttribute('title') || '';
+
+  // Check for accessible name in order of priority
+  const title = svg.querySelector('title');
+  const ariaLabel = svg.getAttribute('aria-label');
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+
+  if (title) return title.textContent.trim();
+  if (ariaLabel) return ariaLabel;
+  if (ariaLabelledby) {
+    const labelledbyElement = document.getElementById(ariaLabelledby);
+    if (labelledbyElement) return labelledbyElement.textContent.trim();
+  }
+
+  return svg.getAttribute('title') || '';
 }
 
 // REACT_015: Add lang attribute to HTML element
@@ -164,15 +219,15 @@ if (typeof document !== 'undefined' && document.documentElement) {
   detectAndSetLang();
 }
 
-module.exports = { 
-  setHtmlLangAttribute, 
-  getLangAttribute, 
-  detectAndSetLang, 
-  personName, 
-  createInPageButton, 
-  validateTableAccessibility, 
-  validateTableStructure, 
-  validateLandmark, 
-  validateLandmarkStructure, 
-  getSvgAccessibleName 
+module.exports = {
+  setHtmlLangAttribute,
+  getLangAttribute,
+  detectAndSetLang,
+  personName,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName
 };

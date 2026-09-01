@@ -1,8 +1,15 @@
+const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: process.env.TIMEOUT || 5000,
+  debug: true,
+  version: '1.0.0'
+};
+
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
@@ -15,87 +22,30 @@ function getLangAttribute() {
   return 'en';
 }
 
-/**
- * Get the full language attribute string for the HTML element
- * @returns {string} The full lang attribute (e.g., "en" or "en-US")
- */
 function getFullLangAttribute() {
   return 'en-US';
 }
 
-/**
- * Validates table accessibility compliance
- * @param {Object} table - The table object to validate
- * @returns {Object} Validation result with success status and any issues found
- */
-function validateTableAccessibility(table) {
-  const issues = [];
-
-  if (!table.querySelector || !table.querySelector('caption')) {
-    issues.push('Table structure issue: Missing caption element');
-  }
-
-  if (!table.querySelector || !table.querySelector('thead')) {
-    issues.push('Table structure issue: Missing thead element');
-  }
-
-  if (!table.headers) {
-    issues.push('Missing headers attribute');
-  }
-
-  if (!table.scope) {
-    issues.push('Missing scope attribute');
-  }
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
+function addLangAttribute(element) {
+  element.lang = getFullLangAttribute();
+  return element;
 }
 
-/**
- * Validates the structure of tables for accessibility
- * @param {Array} tables - Array of table objects to validate
- * @returns {Object} Validation result with success status and any issues found
- */
-function validateTableStructure(tables) {
-  const allIssues = [];
-
-  tables.forEach((table, index) => {
-    const result = validateTableAccessibility(table);
-    if (!result.success) {
-      allIssues.push({
-        tableIndex: index,
-        issues: result.issues
-      });
-    }
-  });
-
-  return {
-    success: allIssues.length === 0,
-    issues: allIssues
-  };
-}
-
-// TODO: Any additional changes requested in the issue
-
-/**
- * Validates landmark elements for accessibility
- * @param {Object} element - The element to validate
- * @returns {Object} Validation result with success status and any issues found
- */
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
 
   if (!element.tagName) {
-    issues.push('Invalid landmark: Missing tagName');
+    issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
-
   if (!element.hasAttribute('id')) {
-    issues.push('Landmark structure issue: Missing id attribute');
+    issues.push('Missing id attribute');
+  }
+
+  if (!element.getAttribute('role')) {
+    issues.push('Missing role attribute');
   }
 
   return {

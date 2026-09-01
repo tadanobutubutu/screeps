@@ -300,8 +300,19 @@ function renderDependencyGraph(data = []) {
   return { nodes, edges };
 }
 
+// Index view rendering function
+function renderIndexView(data = []) {
+  // Generate an index view mapping each item to its position
+  const indexView = data.map((item, index) => ({
+    index,
+    ...item
+  }));
+  return indexView;
+}
+
 export { 
   renderDependencyGraph,
+  renderIndexView,
   setHtmlLangAttribute,
   detectAndSetLang,
   getLangAttribute,

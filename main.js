@@ -5,6 +5,13 @@ const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
 
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Implemented validateLandmark functionality
+
+// TODO: Address accessibility issues from insight report:
+// ... (Removed hashes for ease of reading)
+
 // Configuration
 const CONFIG = {
     dataPath: './data',

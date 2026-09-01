@@ -119,6 +119,8 @@ function fixFakeLink() {
   });
 }
 
+// TODO: Any additional changes requested in the issue
+
 /**
  * Starts the application
  */

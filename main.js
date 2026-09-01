@@ -80,10 +80,10 @@ function setConfig(config) {
 function validateTableAccessibility() {
   const errors = [];
   const tables = getTables();
-  
+
   for (let i = 0; i < tables.length; i++) {
     const table = tables[i];
-    
+
     // Check if table has headers
     if (!table.headers || !Array.isArray(table.headers) || table.headers.length === 0) {
       errors.push({
@@ -91,7 +91,7 @@ function validateTableAccessibility() {
         error: 'Table must have headers defined'
       });
     }
-    
+
     // Check if table has proper structure
     if (!table.rows || !Array.isArray(table.rows)) {
       errors.push({
@@ -99,7 +99,7 @@ function validateTableAccessibility() {
         error: 'Table must have rows array defined'
       });
     }
-    
+
     // Check for proper ARIA attributes (placeholder implementation)
     if (table.ariaLabel === undefined && table.caption === undefined) {
       errors.push({
@@ -107,17 +107,17 @@ function validateTableAccessibility() {
         error: 'Table should have aria-label or caption for accessibility'
       });
     }
-    
+
     // Add lang attribute to HTML element
     if (document.documentElement.lang === undefined) {
       document.documentElement.lang = 'en';
     }
-    
+
     // Add landmark roles and fix landmark issues
     if (table.role === undefined) {
       table.role = 'table';
     }
-    
+
     // Add accessible names to 2 SVGs
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
@@ -125,7 +125,7 @@ function validateTableAccessibility() {
         svg.setAttribute('aria-label', 'SVG description');
       }
     });
-    
+
     // Ensure unique landmarks (2 issues)
     const landmarks = ['navigation', 'search', 'main', 'contentinfo', 'complementary', 'form'];
     let uniqueLandmarks = new Set();
@@ -141,7 +141,7 @@ function validateTableAccessibility() {
         error: 'Landmarks are not unique'
       });
     }
-    
+
     // Fix 1 fake link issue
     const links = document.querySelectorAll('a');
     links.forEach(link => {
@@ -150,7 +150,7 @@ function validateTableAccessibility() {
       }
     });
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors: errors
@@ -335,6 +335,68 @@ function readFileSafe(filePath) {
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
   console[level](`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+}
+
+// New function to initialize accessibility features
+function initAccessibility() {
+  // Set language attribute if not present
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = 'en';
+  }
+
+  // Add ARIA attributes to SVGs if missing
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
+      svg.setAttribute('aria-hidden', 'true');
+    }
+  });
+
+  // Ensure main content has proper landmark
+  const mainContent = document.querySelector('main');
+  if (mainContent && !mainContent.getAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
+
+  // Add skip link for keyboard users
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.className = 'skip-link';
+  skipLink.textContent = 'Skip to main content';
+  skipLink.style.position = 'absolute';
+  skipLink.style.left = '-9999px';
+  skipLink.style.top = '0';
+  skipLink.style.zIndex = '1000';
+  skipLink.addEventListener('focus', () => {
+    skipLink.style.left = '0';
+  });
+  skipLink.addEventListener('blur', () => {
+    skipLink.style.left = '-9999px';
+  });
+  document.body.insertBefore(skipLink, document.body.firstChild);
+
+  // Add focus styles for keyboard navigation
+  const style = document.createElement('style');
+  style.textContent = `
+    :focus:not(.focus-visible) {
+      outline: none;
+    }
+    .focus-visible {
+      outline: 2px solid #4D90FE;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Handle focus visibility
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      document.body.classList.add('keyboard-navigation');
+    }
+  });
+
+  document.addEventListener('mousedown', () => {
+    document.body.classList.remove('keyboard-navigation');
+  });
 }
 
 module.exports = {

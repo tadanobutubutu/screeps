@@ -40,6 +40,40 @@ const handleFakeLinks = (link) => {
   });
 };
 
+// New function to validate table accessibility
+const validateTableAccessibility = () => {
+  const tables = document.getElementsByTagName('table');
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+    // Perform accessibility checks on the table
+    // ...
+  }
+};
+
+// New function to validate landmark accessibility
+const validateLandmark = () => {
+  // Perform landmark accessibility checks
+  // ...
+};
+
+// New function to validate landmark structure
+const validateLandmarkStructure = () => {
+  // Perform landmark structure checks
+  // ...
+};
+
+// New function to get SVG accessible name
+const getSvgAccessibleName = (svgElement) => {
+  // Set accessible name for SVG element
+  // ...
+};
+
+// New function to handle focus trap for keyboard navigation
+const newFocusTrap = () => {
+  // Implement focus trap logic
+  // ...
+};
+
 // Continue with the rest of your existing code here...
 
 module.exports = {
@@ -47,5 +81,10 @@ module.exports = {
   createInPageButton: createInPageButton,
   validateLinkAccessibility: validateLinkAccessibility,
   handleFakeLinks: handleFakeLinks,
+  validateTableAccessibility: validateTableAccessibility,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
+  getSvgAccessibleName: getSvgAccessibleName,
+  newFocusTrap: newFocusTrap,
   // continue with other exports here...
 };

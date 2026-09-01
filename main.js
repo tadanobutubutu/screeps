@@ -134,8 +134,10 @@ if (typeof module !== 'undefined' && module.exports) {
     calculateAccessibilityScore,
     validateLandmark,
     spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse
+    createInPageButton,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    countDependencies
   };
 } else {
   // Browser environment - wait for DOM
@@ -150,10 +152,6 @@ function init() {
   setupAriaLiveRegions();
   setupFocusManagement();
   enhanceSemanticMarkup();
-}
-
-function setupAriaLiveRegions() {
-  /* existing code */
 }
 
 function setupAriaLiveRegions() {
@@ -389,4 +387,31 @@ const AddressabilityIssues = {
     child_process.spawn('someCommand', [], {
       stdio: 'inherit',
     }).on('exit', (code, signal) => {
-      if
+      if (code === 0) {
+        callback(null, 'Successfully executed someCommand');
+      } else {
+        callback(new Error(`someCommand failed with code ${code}`));
+      }
+    });
+  },
+
+  addLangAttribute(element, lang) {
+    element.setAttribute('lang', lang);
+  },
+
+  countDependencies() {
+    const path = require('path');
+    const fs = require('fs');
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+
+    return {
+      dependencies: Object.keys(dependencies).length,
+      devDependencies: Object.keys(devDependencies).length,
+      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+    };
+  }
+};

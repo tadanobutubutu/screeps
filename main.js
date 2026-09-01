@@ -104,13 +104,6 @@ function createAccessibleWebResourceButton(url, text) {
     return button;
 }
 
-// Import dependency graph and index content modules
-const dependencyGraphContent = require('./dependencyGraphContent');
-const indexContent = require('./indexContent');
-
-// Landmark elements that should be checked for proper usage
-const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
-
 /**
  * Counts the number of dependencies in the code.
  * If both implementations are present, use the new implementation.
@@ -119,18 +112,18 @@ function countDependencies() {
     // Existing function implementation (preserved for now)
 
     // New implementation to count dependencies using dependencyGraphContent and regex
-    const importStatementRegExp = /require|import/g;
-    const imports = (dependencyGraphContent || '').match(importStatementRegExp) || [];
-    return imports.length;
+    const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`][^'"]*/g;
+    const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
+    return importCount.length;
 }
-
-// Import a11y store configuration
-const a11yStore = require('./a11yStore');
 
 // Render index view content using indexContent
 function renderIndexView() {
     return indexContent;
 }
+
+// Import a11y store configuration
+const a11yStore = require('./a11yStore');
 
 // New function to handle adding landmark regions
 function addLandmarkRegions() {

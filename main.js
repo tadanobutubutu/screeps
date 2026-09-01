@@ -50,6 +50,8 @@ import express from 'express';
 import path from 'path';
 import { fetchUser, clearCache } from './utils/user';
 
+// TODO: This is the existing code that needs to be preserved
+
 // Landmark data structure
 const landmarks = [];
 

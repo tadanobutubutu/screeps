@@ -57,13 +57,86 @@ const accessibilityUtils = {
   // New function for addressing accessibility issues from insight report
   newFocusTrap: newFocusTrap(),
 
-  // Accessibility functions to address new issues (TODO: Implement)
-  // - REACT_015: Add lang attribute to HTML element
-  // - REACT_027: Fix 26 table structure issues
-  // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs
-  // - REACT_025: Ensure unique landmarks
-  // - REACT_036: Fix 1 fake link issue
+  // Accessibility functions to address new issues
+  addLangAttribute: () => {
+    const htmlElement = document.querySelector('html');
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+      htmlElement.setAttribute('lang', 'en');
+    }
+  },
+
+  fixTableStructure: (tables) => {
+    tables.forEach(table => {
+      if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+        const thead = document.createElement('thead');
+        const tbody = document.createElement('tbody');
+        const rows = table.querySelectorAll('tr');
+
+        if (rows.length > 0) {
+          thead.appendChild(rows[0]);
+          rows.forEach((row, index) => {
+            if (index > 0) tbody.appendChild(row);
+          });
+          table.insertBefore(thead, table.firstChild);
+          table.appendChild(tbody);
+        }
+      }
+    });
+  },
+
+  addLandmarks: () => {
+    const main = document.querySelector('main');
+    if (main && !main.hasAttribute('role')) {
+      main.setAttribute('role', 'main');
+    }
+
+    const nav = document.querySelector('nav');
+    if (nav && !nav.hasAttribute('role')) {
+      nav.setAttribute('role', 'navigation');
+    }
+
+    const header = document.querySelector('header');
+    if (header && !header.hasAttribute('role')) {
+      header.setAttribute('role', 'banner');
+    }
+
+    const footer = document.querySelector('footer');
+    if (footer && !footer.hasAttribute('role')) {
+      footer.setAttribute('role', 'contentinfo');
+    }
+  },
+
+  addSvgAccessibleNames: (svgs) => {
+    svgs.forEach(svg => {
+      if (!svg.hasAttribute('aria-label') && !svg.querySelector('title, desc')) {
+        const title = document.createElement('title');
+        title.textContent = 'Graphic element';
+        svg.insertBefore(title, svg.firstChild);
+      }
+    });
+  },
+
+  ensureUniqueLandmarks: () => {
+    const landmarks = ['main', 'navigation', 'banner', 'contentinfo'];
+    landmarks.forEach(role => {
+      const elements = document.querySelectorAll(`[role="${role}"]`);
+      if (elements.length > 1) {
+        elements.forEach((el, index) => {
+          if (index > 0) {
+            el.removeAttribute('role');
+          }
+        });
+      }
+    });
+  },
+
+  fixFakeLinks: (links) => {
+    links.forEach(link => {
+      if (link.getAttribute('href') === '#' && !link.hasAttribute('role')) {
+        link.setAttribute('role', 'button');
+      }
+    });
+  }
 };
 
 // Functions already existing in the file to preserve

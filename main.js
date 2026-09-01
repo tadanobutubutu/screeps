@@ -12,14 +12,19 @@ function addBook() {
 
   // Add ARIA roles and labels to improve accessibility
   const addBookForm = document.getElementById('addBookForm');
-  addBookForm.setAttribute('role', 'form');
-  addBookForm.setAttribute('aria-labelledby', 'addBookLabel');
+  if (addBookForm) {
+    addBookForm.setAttribute('role', 'form');
+    addBookForm.setAttribute('aria-labelledby', 'addBookLabel');
 
-  const addBookLabel = document.createElement('label');
-  addBookLabel.id = 'addBookLabel';
-  addBookLabel.htmlFor = 'addBookForm';
-  addBookLabel.textContent = 'Add a new book';
-  addBookForm.insertBefore(addBookLabel, addBookForm.firstChild);
+    const addBookLabel = document.createElement('label');
+    addBookLabel.id = 'addBookLabel';
+    addBookLabel.htmlFor = 'addBookForm';
+    addBookLabel.textContent = 'Add a new book';
+    addBookForm.insertBefore(addBookLabel, addBookForm.firstChild);
+  }
 }
+
+// Add the function to the global scope to make it accessible
+window.addBook = addBook;
 
 // ... (rest of the existing code from main.js)

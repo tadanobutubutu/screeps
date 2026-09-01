@@ -62,6 +62,36 @@ function setSvgAccessibleProps(svg) {
   }
 }
 
+// New accessibility function to address issues from insight report
+function addressAccessibilityIssues(element) {
+  // Ensure all images have alt text
+  fixImageAltTexts(element);
+
+  // Ensure proper landmark structure
+  fixLandmarkIssues(element);
+
+  // Ensure unique landmarks
+  ensureUniqueLandmarks(element);
+
+  // Fix fake link issues
+  fixFakeLinkIssues(element);
+
+  // Add accessible names to SVGs
+  addAccessibleNamesToSVGs(element);
+
+  // Add ARIA labels where needed
+  addAriaLabel(element);
+
+  // Ensure proper table structure
+  fixTableStructureIssues(element);
+
+  // Add lang attribute if missing
+  addLangAttribute(element);
+
+  // Validate accessibility report
+  validateAccessibilityReport(element);
+}
+
 // Other exports or functions in main.js might be unaffected
 
 // Export the new rendering functions
@@ -71,5 +101,6 @@ export { renderMyComponent, renderAnotherComponent };
 module.exports = {
   ...main,
   setSvgAccessibleProps,
-  renderGraphIndex // Replace renderDependencyGraphs with renderGraphIndex
+  renderGraphIndex, // Replace renderDependencyGraphs with renderGraphIndex
+  addressAccessibilityIssues // Add the new accessibility function to exports
 };

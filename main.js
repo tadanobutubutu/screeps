@@ -270,6 +270,51 @@ function createAccessibleLink(options) {
 }
 
 /**
+ * Checks accessibility of links and buttons
+ * @param {Array} elements - Array of elements to check
+ * @returns {Object} Accessibility check result with success status and any issues found
+ */
+function checkLinkAndButtonAccessibility(elements) {
+  const issues = [];
+
+  elements.forEach((element, index) => {
+    const elementIssues = [];
+
+    // Check for required attributes
+    if (element.type === 'a' && !element.href) {
+      elementIssues.push('Link missing href attribute');
+    }
+
+    if ((element.type === 'a' || element.type === 'button') && !element.ariaLabel && !element.text) {
+      elementIssues.push('Element missing accessible name (aria-label or text content)');
+    }
+
+    // Check for fake links
+    if (element.type === 'a' && element.href === '#' && !element.onClick) {
+      elementIssues.push('Fake link detected (href="#" without click handler)');
+    }
+
+    // Check for proper button roles
+    if (element.type === 'button' && !element.onClick) {
+      elementIssues.push('Button missing click handler');
+    }
+
+    if (elementIssues.length > 0) {
+      issues.push({
+        elementIndex: index,
+        type: element.type,
+        issues: elementIssues
+      });
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
  * Validates link accessibility compliance
  * @param {Object} link - The link object to validate
  * @returns {Object} Validation result with success status and any issues found
@@ -439,6 +484,7 @@ module.exports = {
   setSvgAttributes,
   createInPageButton,
   createAccessibleLink,
+  checkLinkAndButtonAccessibility,
   validateLinkAccessibility,
   handleFakeLinks,
   handleAccessibilityIssues,

@@ -129,6 +129,75 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
+// TODO: Implement the required changes to improve accessibility for the addBook function or form
+/**
+ * Adds a book to the collection with accessibility enhancements
+ * @param {Object} book - The book object to add
+ * @param {string} book.title - The title of the book
+ * @param {string} book.author - The author of the book
+ * @param {string} book.isbn - The ISBN of the book
+ * @param {string} [book.description] - Optional description of the book
+ * @returns {boolean} True if the book was added successfully
+ */
+function addBook(book) {
+  // Validate book object
+  if (!book || typeof book !== 'object') {
+    console.error('Invalid book object provided');
+    return false;
+  }
+
+  // Validate required fields
+  const requiredFields = ['title', 'author', 'isbn'];
+  for (const field of requiredFields) {
+    if (!book[field] || typeof book[field] !== 'string' || book[field].trim() === '') {
+      console.error(`Book must have a valid ${field}`);
+      return false;
+    }
+  }
+
+  // Create accessible book element
+  const bookElement = document.createElement('div');
+  bookElement.className = 'book-item';
+  bookElement.setAttribute('role', 'article');
+  bookElement.setAttribute('aria-label', `Book: ${book.title} by ${book.author}`);
+
+  // Add accessible title
+  const titleElement = document.createElement('h3');
+  titleElement.textContent = book.title;
+  titleElement.setAttribute('aria-label', `Title: ${book.title}`);
+  bookElement.appendChild(titleElement);
+
+  // Add accessible author
+  const authorElement = document.createElement('p');
+  authorElement.textContent = `By ${book.author}`;
+  authorElement.setAttribute('aria-label', `Author: ${book.author}`);
+  bookElement.appendChild(authorElement);
+
+  // Add accessible ISBN
+  const isbnElement = document.createElement('p');
+  isbnElement.textContent = `ISBN: ${book.isbn}`;
+  isbnElement.setAttribute('aria-label', `ISBN: ${book.isbn}`);
+  bookElement.appendChild(isbnElement);
+
+  // Add description if available
+  if (book.description && typeof book.description === 'string' && book.description.trim() !== '') {
+    const descElement = document.createElement('p');
+    descElement.textContent = book.description;
+    descElement.setAttribute('aria-label', `Description: ${book.description}`);
+    bookElement.appendChild(descElement);
+  }
+
+  // Add to the DOM
+  const bookContainer = document.getElementById('book-container');
+  if (bookContainer) {
+    bookContainer.appendChild(bookElement);
+    return true;
+  }
+
+  console.error('Book container not found in the DOM');
+  return false;
+}
+
 // Export functions for testing
 export {
   checkLandmarkElement,
@@ -153,5 +222,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  addBook
 };

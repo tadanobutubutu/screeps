@@ -4,62 +4,62 @@
 // ... existing code ...
 
 // Line 74 - Implement this function for creating in-page buttons
-function createInPageButton(options) {
-    const defaults = {
-        text: 'Button',
-        className: 'in-page-button',
-        container: document.body,
-        id: null,
-        title: '',
-        disabled: false
-    };
+function createInPageButton (options) {
+  const defaults = {
+    text: 'Button',
+    className: 'in-page-button',
+    container: document.body,
+    id: null,
+    title: '',
+    disabled: false
+  }
 
-    const settings = Object.assign({}, defaults, options);
+  const settings = Object.assign({}, defaults, options)
 
-    const button = document.createElement('button');
-    button.textContent = settings.text;
-    button.className = settings.className;
-    button.setAttribute('title', settings.title);
-    button.disabled = settings.disabled;
+  const button = document.createElement('button')
+  button.textContent = settings.text
+  button.className = settings.className
+  button.setAttribute('title', settings.title)
+  button.disabled = settings.disabled
 
-    if (settings.id) {
-        button.id = settings.id;
+  if (settings.id) {
+    button.id = settings.id
+  }
+
+  if (settings.style) {
+    Object.assign(button.style, settings.style)
+  }
+
+  if (settings.onClick) {
+    button.addEventListener('click', settings.onClick)
+  }
+
+  if (typeof settings.container === 'string') {
+    const containerElement = document.querySelector(settings.container)
+    if (containerElement) {
+      containerElement.appendChild(button)
     }
+  } else {
+    settings.container.appendChild(button)
+  }
 
-    if (settings.style) {
-        Object.assign(button.style, settings.style);
-    }
-
-    if (settings.onClick) {
-        button.addEventListener('click', settings.onClick);
-    }
-
-    if (typeof settings.container === 'string') {
-        const containerElement = document.querySelector(settings.container);
-        if (containerElement) {
-            containerElement.appendChild(button);
-        }
-    } else {
-        settings.container.appendChild(button);
-    }
-
-    return button;
+  return button
 }
 
 // Example functionA
-function functionA() {
-    return 'functionA result';
+function functionA () {
+  return 'functionA result'
 }
 
 // Example functionB
-function functionB() {
-    return 'functionB result';
+function functionB () {
+  return 'functionB result'
 }
 
 // Line 156 (updated)
-module.exports.functionA = functionA;
-module.exports.functionB = functionB;
-module.exports.createInPageButton = createInPageButton;
+module.exports.functionA = functionA
+module.exports.functionB = functionB
+module.exports.createInPageButton = createInPageButton
 
 // TODO: This is the existing code that needs to be preserved
 // TODO: add the new functions or changes requested in the issue
@@ -80,24 +80,35 @@ function updateAccessibleElements () {
 // Call the new function or add it to an existing lifecycle method, event listener, etc.
 updateAccessibleElements()
 
-// Export any new functions if necessary (not provided in the issue, so assuming no new exports)
-// export { updateAccessibleElements };
+// TODO: Any additional changes requested in the issue should be added after this function
 
-// TODO: Implement a function to count dependencies
-function countDependencies() {
-  // Existing function implementation
+/**
+ * Counts the number of dependencies
+ * @param {Object|Array|string[]|number} dependencies - The dependencies to count
+ * @returns {number} The count of dependencies
+ */
+function countDependencies (dependencies) {
+  if (!dependencies) {
+    return 0
+  }
 
-  // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/;
-  const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
-  return importCount.length;
+  if (Array.isArray(dependencies)) {
+    return dependencies.length
+  }
+
+  if (typeof dependencies === 'object') {
+    return Object.keys(dependencies).length
+  }
+
+  return 0
 }
 
 // New function exampleFunction, as per the issue's request
-function exampleFunction() {
-    // Function implementation
-    console.log("This is the new function exampleFunction");
+function exampleFunction () {
+  // Function implementation
+  console.log('This is the new function exampleFunction')
 }
 
 // Add the new function to the exports
-module.exports.exampleFunction = exampleFunction;
+module.exports.exampleFunction = exampleFunction
+module.exports.countDependencies = countDependencies

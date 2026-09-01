@@ -20,6 +20,7 @@ const accessibilityUtils = {
       if (!targetId) return
       const target = document.getElementById(targetId)
       if (target) {
+        target.setAttribute('tabindex', '-1')
         target.focus()
         e.preventDefault()
       }
@@ -28,7 +29,7 @@ const accessibilityUtils = {
 
   /**
      * Adds a focus trap to the given element.
-     * Tab‑presses are confined to the element’s focusable descendants.
+     * Tab‑presses are confined to the element's focusable descendants.
      *
      * @param {HTMLElement} element - The container element.
      */
@@ -111,6 +112,26 @@ const accessibilityUtils = {
   },
 
   /**
+     * Announce message to screen readers
+     *
+     * @param {string} message - The message to announce.
+     * @param {string} [priority='polite'] - The aria-live priority ('polite' or 'assertive').
+     */
+  announceToScreenReader (message, priority = 'polite') {
+    const announcer = document.createElement('div')
+    announcer.setAttribute('aria-live', priority)
+    announcer.setAttribute('aria-atomic', 'true')
+    announcer.className = 'sr-only'
+    announcer.style.position = 'absolute'
+    announcer.style.left = '-9999px'
+    announcer.textContent = message
+    document.body.appendChild(announcer)
+    setTimeout(() => {
+      announcer.remove()
+    }, 1000)
+  },
+
+  /**
      * Triggers a file download of the given data as JSON and announces the action
      * to screen readers.
      *
@@ -181,20 +202,16 @@ const accessibilityUtils = {
   },
 
   /**
-     * Announces a message to screen readers using an aria‑live region.
+     * Handle keyboard navigation by dispatching to a handler based on the key pressed.
      *
-     * @param {string} message - The message to announce.
+     * @param {KeyboardEvent} e - The keyboard event.
+     * @param {Object} handlers - An object mapping key names to handler functions.
      */
-  announceToScreenReader (message) {
-    const announcement = document.createElement('div')
-    announcement.setAttribute('aria-live', 'assertive')
-    announcement.setAttribute('aria-atomic', 'true')
-    announcement.className = 'sr-only'
-    announcement.textContent = message
-    document.body.appendChild(announcement)
-    setTimeout(() => {
-      document.body.removeChild(announcement)
-    }, 1000)
+  handleKeyboardNav (e, handlers) {
+    const key = e.key
+    if (handlers[key]) {
+      handlers[key](e)
+    }
   }
 }
 
@@ -260,7 +277,7 @@ function renderDependencyGraphs (container, dependencies, options = {}) {
   const containerId = ensureElementHasId(container, 'graph-container')
 
   // Add accessibility label if not present
-  const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`)
+  addAriaLabel(container, `Dependency graph: ${containerId}`)
 
   // Render logic placeholder
   container.innerHTML = `<div id="${containerId}">Graph not implemented</div>`
@@ -318,7 +335,6 @@ function validateTableStructure () {
     // Ensure data cells have proper headers (simple check)
     const firstRow = rows[0]
     if (firstRow) {
-      const headerCellsCount = table.querySelectorAll('th').length
       rows.forEach((row, rowIndex) => {
         if (rowIndex === 0) return // skip header row
         const cells = row.querySelectorAll('td')
@@ -382,7 +398,7 @@ function validateTableStructureComprehensive () {
     // Check row consistency
     const rows = table.querySelectorAll('tr')
     const cellCounts = new Set()
-    rows.forEach((row, rowIndex) => {
+    rows.forEach((row) => {
       cellCounts.add(row.children.length)
     })
 
@@ -432,6 +448,8 @@ module.exports = {
   trapFocus: accessibilityUtils.trapFocus,
   newFocusTrap: accessibilityUtils.newFocusTrap,
   initAccessibility: accessibilityUtils.initAccessibility,
+  announceToScreenReader: accessibilityUtils.announceToScreenReader,
+  handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
   exportData: accessibilityUtils.exportData,
   addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
   ensureElementHasId,

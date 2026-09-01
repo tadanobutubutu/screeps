@@ -38,8 +38,8 @@ function trapFocus(element) {
 }
 
 // Handle keyboard navigation for custom components
-function setupKeyboardNavigation(selector, options = {}) {
-  const items = document.querySelectorAll(selector);
+function handleKeyboardNavigation(container, options = {}) {
+  const items = container.querySelectorAll(options.selector || '[role="option"], [role="treeitem"]');
   items.forEach((item, index) => {
     item.setAttribute('tabindex', index === 0 ? '0' : '-1');
     item.addEventListener('keydown', (e) => {
@@ -55,7 +55,8 @@ function setupKeyboardNavigation(selector, options = {}) {
       }
       if (newIndex !== undefined) {
         items[newIndex].focus();
-        items[newIndex].click();
+        items[newIndex].setAttribute('tabindex', '0');
+        items[index].setAttribute('tabindex', '-1');
         e.preventDefault();
       }
     });
@@ -69,7 +70,7 @@ function prefersReducedMotion() {
 
 // Skip link functionality
 function initSkipLinks() {
-  const skipLink = document.querySelector('.skip-link');
+  const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       const target = document.querySelector(skipLink.getAttribute('href'));
@@ -89,7 +90,7 @@ const setLangAttribute = (element, lang) => {
   }
 
   // Validate lang attribute format (BCP 47 compliance)
-  const validLangPattern = /^[a-z]{2,3}(-[A-Z]{2})?$/;
+  const validLangPattern = /^[a-z]{2,3}(-[A-Z]{2})?$/i;
   if (!validLangPattern.test(lang)) {
     return false;
   }
@@ -139,12 +140,48 @@ const ensureAccessibility = (element, options = {}) => {
   return success;
 };
 
+// New function: ensureUniqueLandmarks
+function ensureUniqueLandmarks(container) {
+  const landmarks = container.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"]');
+  const landmarkCounts = {};
+
+  landmarks.forEach((landmark) => {
+    const role = landmark.getAttribute('role');
+    landmarkCounts[role] = (landmarkCounts[role] || 0) + 1;
+  });
+
+  let hasDuplicates = false;
+  Object.values(landmarkCounts).forEach((count) => {
+    if (count > 1) {
+      hasDuplicates = true;
+    }
+  });
+
+  if (hasDuplicates) {
+    landmarks.forEach((landmark) => {
+      const role = landmark.getAttribute('role');
+      if (landmarkCounts[role] > 1) {
+        if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+          const label = landmark.tagName.toLowerCase();
+          landmark.setAttribute('aria-label', label);
+        }
+      }
+    });
+    return false;
+  }
+
+  return true;
+}
+
 // New function: ensureDependencyGraphARIA
-function ensureDependencyGraphARIA() {
-  const graph = document.querySelector('[data-dependency-graph]') || document.querySelector('.dependency-graph');
+function ensureDependencyGraphARIA(container) {
+  const graph = container.querySelector('[role="img"]') || container.querySelector('.dependency-graph');
   if (graph) {
-    if (!graph.hasAttribute('aria-label')) {
+    if (!graph.getAttribute('aria-label')) {
       graph.setAttribute('aria-label', 'Dependency graph');
+    }
+    if (!graph.getAttribute('role') || graph.getAttribute('role') === 'img') {
+      graph.setAttribute('role', 'img');
     }
   }
 }
@@ -152,11 +189,12 @@ function ensureDependencyGraphARIA() {
 module.exports = {
   announceToScreenReader,
   trapFocus,
-  setupKeyboardNavigation,
+  handleKeyboardNavigation,
   prefersReducedMotion,
   initSkipLinks,
   setLangAttribute,
   checkAccessibilityAttributes,
   ensureAccessibility,
+  ensureUniqueLandmarks,
   ensureDependencyGraphARIA
 };

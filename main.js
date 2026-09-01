@@ -3,10 +3,10 @@ function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
-  
+
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
-  
+
   // Implementation to trap focus within container
   container.addEventListener('keydown', (e) => {
     const isTab = e.key === 'Tab';
@@ -98,9 +98,9 @@ const accessibilityUtils = {
     }
 
     const config = options || {};
-    const focusableSelector = config.focusableSelector || 
+    const focusableSelector = config.focusableSelector ||
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
-    
+
     let active = true;
     let focusableElements = [];
 
@@ -117,7 +117,7 @@ const accessibilityUtils = {
 
       if (e.key === 'Tab') {
         focusableElements = getFocusableElements();
-        
+
         if (focusableElements.length === 0) return;
 
         const firstElement = focusableElements[0];
@@ -166,7 +166,7 @@ const accessibilityUtils = {
 
     // Initialize the trap
     element.addEventListener('keydown', handleTrapKeydown);
-    
+
     // Focus first focusable element on init (if configured)
     if (config.autoFocus !== false) {
       focusableElements = getFocusableElements();
@@ -189,8 +189,53 @@ const accessibilityUtils = {
         return focusableElements;
       }
     };
+  },
+
+  // Function to address accessibility issues from insight report
+  addressAccessibilityIssues: function(issues) {
+    if (!issues || !Array.isArray(issues)) return;
+
+    issues.forEach(issue => {
+      try {
+        switch(issue.type) {
+          case 'missing-alt':
+            if (issue.element) {
+              issue.element.setAttribute('alt', issue.suggestedText || '');
+            }
+            break;
+          case 'empty-link':
+            if (issue.element) {
+              issue.element.textContent = issue.suggestedText || 'Link';
+            }
+            break;
+          case 'low-contrast':
+            if (issue.element) {
+              issue.element.style.color = issue.suggestedColor || '#000000';
+            }
+            break;
+          case 'missing-label':
+            if (issue.element) {
+              const label = document.createElement('label');
+              label.textContent = issue.suggestedText || 'Label';
+              label.setAttribute('for', issue.element.id || '');
+              issue.element.parentNode.insertBefore(label, issue.element);
+            }
+            break;
+          case 'aria-role':
+            if (issue.element) {
+              issue.element.setAttribute('role', issue.suggestedRole || 'button');
+            }
+            break;
+          default:
+            console.warn('Unknown accessibility issue type:', issue.type);
+        }
+      } catch (error) {
+        console.error('Error addressing accessibility issue:', error);
+      }
+    });
   }
 };
+
 const exportUtils = {
   // ... existing exportUtils implementation
 };
@@ -215,7 +260,6 @@ const {
   revokeSession,
   functionA,
   functionB,
-  accessibilityUtils,
   newFocusTrap,
   addLangAttribute,
   fixTableStructure,

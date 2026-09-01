@@ -109,11 +109,23 @@ function addLangAttribute(htmlElement) {
 // You can implement them as needed, or omit them if they are not relevant to your issue.
 
 function validateTableAccessibility(table, index) {
-  // TODO: Implement validation logic here
+  // Implement validation logic here
+  // Example: Check if table has a caption, all rows have headers, etc.
+  if (!table.caption) {
+    console.error(`Table at index ${index} is missing a caption.`);
+  }
+  const rows = table.rows;
+  for (let i = 0; i < rows.length; i++) {
+    const headers = rows[i].cells;
+    if (headers.length === 0) {
+      console.error(`Row ${i} in table at index ${index} is missing cells.`);
+    }
+  }
 }
 
 function validateTableStructure() {
-  // TODO: Implement validation logic here
+  // Implement validation logic here
+  // Example: Check if all tables have a caption, all headers are present, etc.
 }
 
 function validateLandmark(element) {
@@ -121,7 +133,7 @@ function validateLandmark(element) {
 }
 
 function addressNewAccessibilityIssues(insightReport) {
-  // TODO: Implement function to handle new accessibility issues
+  // Implement function to handle new accessibility issues
 }
 
 function implementAccessibilitySolutions(insightReport) {

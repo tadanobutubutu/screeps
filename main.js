@@ -102,6 +102,64 @@ function addLangAttribute() {
   }
 }
 
+// Function to ensure landmark has a unique ID
+function ensureUniqueLandmarkId(element, landmarkType) {
+  if (!element || !landmarkType) return false;
+
+  const id = element.id || `${landmarkType}-${generateId()}`;
+  if (!element.id) {
+    element.setAttribute('id', id);
+  }
+
+  // Ensure the landmark has the correct role
+  if (!element.hasAttribute('role')) {
+    element.setAttribute('role', landmarkType);
+  }
+
+  return true;
+}
+
+// Function to ensure all landmarks are unique
+function uniqueLandmarks(root = document) {
+  if (!root) return false;
+
+  const landmarks = ['main', 'nav', 'header', 'footer', 'aside', 'section'];
+  let allUnique = true;
+
+  landmarks.forEach(landmark => {
+    const elements = root.querySelectorAll(`[role="${landmark}"]`);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0) {
+          const newId = `${landmark}-${generateId()}`;
+          el.setAttribute('id', newId);
+        }
+      });
+    }
+  });
+
+  return allUnique;
+}
+
+// Function to ensure all landmarks are properly structured
+function ensureUniqueLandmarks(root = document) {
+  if (!root) return false;
+
+  const landmarks = ['main', 'nav', 'header', 'footer', 'aside', 'section'];
+  let allValid = true;
+
+  landmarks.forEach(landmark => {
+    const elements = root.querySelectorAll(`[role="${landmark}"]`);
+    elements.forEach(el => {
+      if (!el.id) {
+        el.setAttribute('id', `${landmark}-${generateId()}`);
+      }
+    });
+  });
+
+  return allValid;
+}
+
 // ... other new functions ...
 
 // Exports

@@ -160,6 +160,19 @@
           }
         });
       });
+
+      // Ensure the dependencyGraph container has a proper ARIA role
+      if (dependencyGraph) {
+        if (!dependencyGraph.id) {
+          dependencyGraph.id = 'dependencyGraph';
+        }
+        if (!dependencyGraph.hasAttribute('role')) {
+          dependencyGraph.setAttribute('role', 'region');
+        }
+        if (!dependencyGraph.hasAttribute('aria-label')) {
+          dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
+        }
+      }
     }
 
     // Function to ensure unique landmarks (2 issues)
@@ -246,7 +259,7 @@
             if (!issues || !Array.isArray(issues)) {
                 return [];
             }
-            
+
             return issues.map(issue => {
                 return {
                     id: issue.id,
@@ -272,11 +285,11 @@
           totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
           details: report
         };
-        
+
         // Store harvested data for potential upgrades
         const harvestFile = path.join(__dirname, 'harvest_data.json');
         fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-        
+
         return harvestedData;
       } catch (error) {
         console.error('Harvest failed:', error);

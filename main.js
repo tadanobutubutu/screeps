@@ -107,6 +107,47 @@ addAriaLabel('myLogo', 'Company logo');
 // Add lang attribute to HTML element
 ... getLangAttribute());
 
+// TODO: Implement spawning logic
+/**
+ * Spawns a new entity with given properties
+ * @param {Object} properties - Properties for the new entity
+ * @param {string} properties.type - Type of entity to spawn
+ * @param {number} properties.x - X coordinate
+ * @param {number} properties.y - Y coordinate
+ * @param {Object} [properties.options] - Additional options
+ * @returns {Object} The spawned entity
+ */
+function spawnEntity(properties) {
+  const { type, x, y, options = {} } = properties;
+
+  // Validate required properties
+  if (!type || x === undefined || y === undefined) {
+    throw new Error('Missing required properties for spawning entity');
+  }
+
+  // Create base entity
+  const entity = {
+    id: generateUniqueId(),
+    type,
+    position: { x, y },
+    createdAt: new Date(),
+    ...options
+  };
+
+  // Add to game state
+  updateState(prevState => ({
+    ...prevState,
+    entities: [...(prevState.entities || []), entity]
+  }));
+
+  return entity;
+}
+
+// Helper function to generate unique IDs
+function generateUniqueId() {
+  return Math.random().toString(36).substring(2, 9);
+}
+
 // TODO: add the new functions or changes requested in the issue
 // Here's a sample implementation for a new function named 'myNewFunction'
 function myNewFunction(arg1, arg2) {
@@ -170,7 +211,7 @@ function ensureUniqueLandmarks() {
     ...
     'footer[role="contentinfo"]'
   ].join(', '));
-  
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation

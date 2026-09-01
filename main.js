@@ -248,3 +248,291 @@ module.exports = {
   ensureUniqueLandmarks,
   fixUniqueLandmarks
 };
+
+// New function from origin/main branch
+function addBookWithAccessibility(title, author, isbn) {
+  // Create form elements with proper ARIA attributes
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-label', 'Add new book form');
+
+  // Title input
+  const titleLabel = document.createElement('label');
+  titleLabel.setAttribute('for', 'book-title');
+  titleLabel.textContent = 'Book Title:';
+  const titleInput = document.createElement('input');
+  titleInput.id = 'book-title';
+  titleInput.type = 'text';
+  titleInput.required = true;
+  titleInput.setAttribute('aria-required', 'true');
+  titleInput.setAttribute('aria-label', 'Enter the title of the book');
+
+  // Author input
+  const authorLabel = document.createElement('label');
+  authorLabel.setAttribute('for', 'book-author');
+  authorLabel.textContent = 'Author:';
+  const authorInput = document.createElement('input');
+  authorInput.id = 'book-author';
+  authorInput.type = 'text';
+  authorInput.required = true;
+  authorInput.setAttribute('aria-required', 'true');
+  authorInput.setAttribute('aria-label', 'Enter the author of the book');
+
+  // ISBN input
+  const isbnLabel = document.createElement('label');
+  isbnLabel.setAttribute('for', 'book-isbn');
+  isbnLabel.textContent = 'ISBN:';
+  const isbnInput = document.createElement('input');
+  isbnInput.id = 'book-isbn';
+  isbnInput.type = 'text';
+  isbnInput.required = true;
+  isbnInput.setAttribute('aria-required', 'true');
+  isbnInput.setAttribute('aria-label', 'Enter the ISBN of the book');
+
+  // Submit button
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Book';
+  submitButton.setAttribute('aria-label', 'Submit the form to add a new book');
+
+  // Error message area
+  const errorArea = document.createElement('div');
+  errorArea.id = 'book-form-error';
+  errorArea.setAttribute('role', 'alert');
+  errorArea.setAttribute('aria-live', 'assertive');
+  errorArea.style.color = 'red';
+
+  // Success message area
+  const successArea = document.createElement('div');
+  successArea.id = 'book-form-success';
+  successArea.setAttribute('role', 'status');
+  successArea.setAttribute('aria-live', 'polite');
+  successArea.style.color = 'green';
+
+  // Append all elements to the form
+  form.appendChild(titleLabel);
+  form.appendChild(titleInput);
+  form.appendChild(authorLabel);
+  form.appendChild(authorInput);
+  form.appendChild(isbnLabel);
+  form.appendChild(isbnInput);
+  form.appendChild(submitButton);
+  form.appendChild(errorArea);
+  form.appendChild(successArea);
+
+  // Form submission handler
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Clear previous messages
+    errorArea.textContent = '';
+    successArea.textContent = '';
+
+    // Validate inputs
+    if (!titleInput.value.trim()) {
+      errorArea.textContent = 'Please enter a book title';
+      titleInput.focus();
+      return;
+    }
+
+    if (!authorInput.value.trim()) {
+      errorArea.textContent = 'Please enter an author name';
+      authorInput.focus();
+      return;
+    }
+
+    if (!isbnInput.value.trim()) {
+      errorArea.textContent = 'Please enter an ISBN';
+      isbnInput.focus();
+      return;
+    }
+
+    // If validation passes, show success message
+    successArea.textContent = `Book "${titleInput.value}" by ${authorInput.value} added successfully!`;
+
+    // Reset form after a delay
+    setTimeout(() => {
+      form.reset();
+      successArea.textContent = '';
+    }, 3000);
+  });
+
+  // Add keyboard navigation support
+  form.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      form.reset();
+      errorArea.textContent = '';
+      successArea.textContent = '';
+    }
+  });
+
+  // Return the form element
+  return form;
+}
+
+// Additional functions from origin/main branch
+function renderDependencyGraph(container, dependencies = [], options = {}) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+
+  const {
+    width = 600,
+    height = 400,
+    nodeRadius = 20,
+    showLabels = true
+  } = options;
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Dependency graph visualization');
+
+  // Render nodes
+  dependencies.forEach((dep, index) => {
+    const node = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    const cx = width / 2 + (index - dependencies.length / 2) * 80;
+    const cy = height / 2;
+
+    node.setAttribute('cx', cx);
+    node.setAttribute('cy', cy);
+    node.setAttribute('r', nodeRadius);
+    node.setAttribute('fill', '#4A90E2');
+    node.setAttribute('class', 'dependency-node');
+
+    if (showLabels && dep.name) {
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', cx);
+      text.setAttribute('y', cy + nodeRadius + 20);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('class', 'dependency-label');
+      text.textContent = dep.name;
+      svg.appendChild(text);
+    }
+
+    svg.appendChild(node);
+  });
+
+  container.appendChild(svg);
+  return svg;
+}
+
+function getDependencies(root) {
+  const deps = [];
+
+  function traverse(obj) {
+    if (!obj || typeof obj !== 'object') return;
+
+    if (obj.dependencies) {
+      deps.push(...obj.dependencies);
+    }
+
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        traverse(obj[key]);
+      }
+    }
+  }
+
+  traverse(root);
+  return deps;
+}
+
+function countDependencies() {
+  // Implementation of countDependencies function
+  // Placeholder implementation for demonstration purposes
+  console.log('Counting dependencies...');
+  // You would implement the actual dependency counting logic here
+  return 0;
+}
+
+// Export the report generation function
+module.exports = {
+  validateInput,
+  processData,
+  formatResponse,
+  config,
+  // landmark functions
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  ensureUniqueLandmarks,
+  landmarkConfig: CONFIG,
+  generateAccessibilityReport: async function () {
+    const report = await scanAccessibility();
+    writeReport(report);
+  },
+  addressAccessibilityIssues,
+  getLangAttribute,
+  createInPageButton,
+  countDependencies,
+  function3,
+  a11y,
+  setSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLink,
+  harvest,
+  upgrade,
+  harvestAndUpgrade,
+  checkLinkAccessibility,
+  writeReport,
+  scanAccessibility,
+  addBookWithAccessibility,
+  // New function from origin/main branch
+  renderDependencyGraph,
+  getDependencies
+};
+
+// Initialize on DOM ready
+function initialize() {
+  // Ensure the dependencyGraph container has a proper ARIA role
+  if (dependencyGraph) {
+    if (!dependencyGraph.id) {
+      dependencyGraph.id = 'dependencyGraph';
+    }
+    if (!dependencyGraph.hasAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+    if (!dependencyGraph.hasAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
+    }
+  }
+
+  // Address accessibility issues
+  addressAccessibilityIssues();
+
+  // Create the in-page button
+  createInPageButton();
+
+  // Add accessible names to 2 SVGs
+  setSvgAccessibleNames('svg1Id', 'svg2Id', ' aria-label for SVG1', ' aria-label for SVG2');
+
+  // Ensure unique landmarks (2 issues)
+  ensureUniqueLandmarks();
+
+  // Fix 1 fake link issue
+  fixFakeLink();
+
+  // Initialize accessibility features from a11y utilities
+  if (a11y && a11y.init) {
+    a11y.init();
+  }
+
+  // Add the book form to the page
+  const bookForm = addBookWithAccessibility();
+  const container = document.getElementById('book-form-container') || document.body;
+  container.appendChild(bookForm);
+}
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
+}
+//

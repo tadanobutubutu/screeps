@@ -10,7 +10,6 @@ const AddressabilityIssues = {
 /**
  * Main application entry point with accessibility features
  */
-
 function main() {
   const svgElements = []; // Placeholder
 

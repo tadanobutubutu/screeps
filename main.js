@@ -322,6 +322,115 @@ function newFocusTrap(containerSelector) {
 }
 
 /**
+ * Implements a focus trap for keyboard navigation within a modal.
+ * Traps focus inside the modal and supports Escape key to close.
+ * @param {string} modalSelector - CSS selector for the modal container.
+ * @param {Function} onClose - Optional callback invoked when Escape is pressed.
+ */
+function trapFocusInModal(modalSelector, onClose) {
+  const modal = document.querySelector(modalSelector);
+  if (!modal) return;
+  const focusableElements = modal.querySelectorAll('a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])');
+  if (focusableElements.length === 0) return;
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  modal.focus();
+  firstElement.focus();
+
+  modal.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    } else if (e.key === 'Escape') {
+      if (typeof onClose === 'function') {
+        onClose();
+      }
+    }
+  });
+}
+
+/**
+ * Adds keyboard navigation support to interactive elements within a container.
+ * Handles Enter and Space key presses for elements with role="button".
+ * @param {string} containerSelector - CSS selector for the container.
+ */
+function addKeyboardNavigationSupport(containerSelector) {
+  const container = document.querySelector(containerSelector);
+  if (!container) return;
+  const interactiveElements = container.querySelectorAll('[role="button"], [role="link"], [role="menuitem"], [role="tab"]');
+  interactiveElements.forEach((el) => {
+    if (!el.hasAttribute('tabindex')) {
+      el.setAttribute('tabindex', '0');
+    }
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+        e.preventDefault();
+        el.click();
+      }
+    });
+  });
+}
+
+/**
+ * Adds ARIA labels to interactive elements that are missing accessible names.
+ * @param {string} containerSelector - CSS selector for the container to scope the search.
+ */
+function addAriaLabelsToInteractiveElements(containerSelector) {
+  const container = document.querySelector(containerSelector) || document;
+  const interactiveElements = container.querySelectorAll('button, a[href], input, textarea, select, [role="button"]');
+  interactiveElements.forEach((el) => {
+    const existingLabel = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby');
+    const textContent = (el.textContent || '').trim();
+    const title = el.getAttribute('title');
+    if (!existingLabel && !textContent && !title) {
+      el.setAttribute('aria-label', 'Interactive element');
+    } else if (!existingLabel && title) {
+      el.setAttribute('aria-label', title);
+    }
+  });
+}
+
+/**
+ * Announces a message to screen readers using an ARIA live region.
+ * Creates a live region if one does not already exist.
+ * @param {string} message - The message to announce.
+ * @param {string} [politeness='polite'] - The ARIA live region politeness setting.
+ */
+function announceToScreenReader(message, politeness = 'polite') {
+  if (typeof document === 'undefined') return;
+  let liveRegion = document.getElementById('sr-live-region');
+  if (!liveRegion) {
+    liveRegion = document.createElement('div');
+    liveRegion.id = 'sr-live-region';
+    liveRegion.setAttribute('role', 'status');
+    liveRegion.setAttribute('aria-live', politeness);
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.style.position = 'absolute';
+    liveRegion.style.left = '-9999px';
+    liveRegion.style.width = '1px';
+    liveRegion.style.height = '1px';
+    liveRegion.style.overflow = 'hidden';
+    document.body.appendChild(liveRegion);
+  } else {
+    liveRegion.setAttribute('aria-live', politeness);
+  }
+  liveRegion.textContent = '';
+  setTimeout(() => {
+    liveRegion.textContent = message;
+  }, 50);
+}
+
+/**
  * Addresses new accessibility issues from insight report.
  * Placeholder for additional fixes.
  */
@@ -673,6 +782,10 @@ module.exports = {
   addressNewAccessibilityIssues,
   personName,
   newFocusTrap,
+  trapFocusInModal,
+  addKeyboardNavigationSupport,
+  addAriaLabelsToInteractiveElements,
+  announceToScreenReader,
   getInsightReport,
   processAccessibilityReport,
   calculateSum,

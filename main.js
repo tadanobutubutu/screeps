@@ -25,10 +25,10 @@ function fixTableStructure() {
       caption.textContent = `Table ${index + 1}`;
       table.insertBefore(caption, table.firstChild);
     }
-    
+
     const headers = table.querySelectorAll('th');
     const cells = table.querySelectorAll('td, th');
-    
+
     cells.forEach(cell => {
       if (!cell.hasAttribute('scope') && !cell.hasAttribute('headers')) {
         const isHeader = cell.tagName === 'TH';
@@ -44,14 +44,14 @@ function fixTableStructure() {
 function fixLandmarks() {
   const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
   const landmarkCounts = {};
-  
+
   landmarkSelectors.forEach(selector => {
     landmarkCounts[selector] = 0;
   });
-  
+
   document.querySelectorAll(landmarkSelectors.join(', ')).forEach(element => {
     const tagName = element.tagName.toLowerCase();
-    
+
     if (landmarkCounts[tagName] > 0 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
       landmarkCounts[tagName]++;
       element.setAttribute('aria-label', `${tagName}-${landmarkCounts[tagName]}`);
@@ -59,6 +59,46 @@ function fixLandmarks() {
       landmarkCounts[tagName]++;
     }
   });
+}
+
+// REACT_017: Implement this function for checking landmark elements
+function checkLandmarkElements() {
+  const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
+  const landmarks = document.querySelectorAll(landmarkSelectors.join(', '));
+  const results = {
+    totalLandmarks: landmarks.length,
+    landmarksByType: {},
+    issues: []
+  };
+
+  // Count landmarks by type
+  landmarks.forEach(element => {
+    const tagName = element.tagName.toLowerCase();
+    results.landmarksByType[tagName] = (results.landmarksByType[tagName] || 0) + 1;
+
+    // Check for accessibility issues
+    if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      results.issues.push({
+        element: tagName,
+        issue: 'Missing aria-label or aria-labelledby',
+        id: element.id || 'no-id'
+      });
+    }
+  });
+
+  // Check for required landmarks
+  const requiredLandmarks = ['header', 'nav', 'main', 'footer'];
+  requiredLandmarks.forEach(landmark => {
+    if (!results.landmarksByType[landmark]) {
+      results.issues.push({
+        element: landmark,
+        issue: 'Missing required landmark',
+        id: 'none'
+      });
+    }
+  });
+
+  return results;
 }
 
 // REACT_041: Add accessible names to SVGs
@@ -130,7 +170,7 @@ const googleSignIn = {
     }
     return false;
   },
-  
+
   renderButton: function(elementId) {
     const element = document.getElementById(elementId);
     if (element && typeof google !== 'undefined' && google.accounts) {
@@ -143,7 +183,7 @@ const googleSignIn = {
     }
     return false;
   },
-  
+
   handleCredentialResponse: function(response) {
     console.log('Google Sign-In successful');
     return response;
@@ -173,6 +213,7 @@ module.exports = {
   ensureLangAttribute,
   fixTableStructure,
   fixLandmarks,
+  checkLandmarkElements,
   addSvgAccessibleNames,
   fixFakeLinks,
   replaceButtonIds,

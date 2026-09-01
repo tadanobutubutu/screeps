@@ -141,6 +141,79 @@
       require(modulePath)[functionName](callback);
     }
 
+    // New function to handle spawning logic
+    function spawnEntity(entityType, options = {}) {
+      // Default options
+      const defaultOptions = {
+        position: { x: 0, y: 0 },
+        velocity: { x: 0, y: 0 },
+        health: 100,
+        ...options
+      };
+
+      // Create the entity based on type
+      let entity;
+      switch (entityType.toLowerCase()) {
+        case 'player':
+          entity = createPlayer(defaultOptions);
+          break;
+        case 'enemy':
+          entity = createEnemy(defaultOptions);
+          break;
+        case 'item':
+          entity = createItem(defaultOptions);
+          break;
+        default:
+          throw new Error(`Unknown entity type: ${entityType}`);
+      }
+
+      // Add the entity to the game world
+      addEntityToWorld(entity);
+
+      return entity;
+    }
+
+    // Helper function to create a player entity
+    function createPlayer(options) {
+      return {
+        type: 'player',
+        ...options,
+        isPlayer: true,
+        inventory: []
+      };
+    }
+
+    // Helper function to create an enemy entity
+    function createEnemy(options) {
+      return {
+        type: 'enemy',
+        ...options,
+        isEnemy: true,
+        attackPower: options.attackPower || 10
+      };
+    }
+
+    // Helper function to create an item entity
+    function createItem(options) {
+      return {
+        type: 'item',
+        ...options,
+        isItem: true,
+        collectible: options.collectible !== false
+      };
+    }
+
+    // Helper function to add an entity to the game world
+    function addEntityToWorld(entity) {
+      // Implementation would depend on your game engine
+      // This is a placeholder for the actual implementation
+      console.log(`Entity added to world:`, entity);
+      // In a real implementation, you might:
+      // - Add to a game state object
+      // - Render the entity
+      // - Add to a physics system
+    }
+
     // Initialize the application with accessibility improvements
     function initialize() {
         // Ensure the dependencyGraph container has a proper ARIA role
@@ -182,7 +255,8 @@
       scanAccessibility,
       writeReport,
       importAndExecute,
-      initialize
+      initialize,
+      spawnEntity
     };
 
     // Initialize on DOM ready

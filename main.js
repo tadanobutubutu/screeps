@@ -1,4 +1,3 @@
-// Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
 
@@ -29,206 +28,23 @@ function renderIndex(data, options = {}) {
 // Add lang attribute to HTML element
 function getLangAttribute() {
     // Implementation to add lang attribute
+    return document.documentElement.lang || navigator.language || 'en';
 }
 
-// Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+// Import accessibility utilities from the other conflict branch
+const accessibilityUtils = require('./accessibility').accessibilityUtils;
 
-// Utility functions for accessibility
-const accessibilityUtils = {
-    // Initialize skip link functionality for keyboard navigation
-    initSkipLink: function () {
-        const skipLink = document.querySelector('.skip-link');
-        if (skipLink) {
-            skipLink.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(skipLink.getAttribute('href'));
-                if (target) {
-                    target.setAttribute('tabindex', '-1');
-                    target.focus();
-                }
-            });
-        }
-    },
+// Persist any new functions from the other conflict branch
+const { newFocusTrap, transformInputData, validateTableAccessibility, ensureElementHasId, generateAccessibilityReport, getSvgAccessibleName, createAccessibleLink, handleAccessibilityErrors, handleAccessibilityIssues, createInPageButton } = require('./accessibility');
 
-    // Trap focus within an element (for modals, dialogs)
-    trapFocus: function (element) {
-        const focusableElements = element.querySelectorAll(
-            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        );
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        element.addEventListener('keydown', function (e) {
-            if (e.key === 'Tab') {
-                if (e.shiftKey && document.activeElement === firstElement) {
-                    lastElement.focus();
-                    e.preventDefault();
-                } else if (!e.shiftKey && document.activeElement === lastElement) {
-                    firstElement.focus();
-                    e.preventDefault();
-                }
-            }
-        });
-    },
-
-    // New function for focus trap
-    newFocusTrap: function (element) {
-        const focusableElements = element.querySelectorAll(
-            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        );
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        element.addEventListener('keydown', function (e) {
-            if (e.key === 'Tab') {
-                if (e.shiftKey && document.activeElement === firstElement) {
-                    lastElement.focus();
-                    e.preventDefault();
-                } else if (!e.shiftKey && document.activeElement === lastElement) {
-                    firstElement.focus();
-                    e.preventDefault();
-                }
-            }
-        });
-    },
-
-    // Announce message to screen readers
-    announceToScreenReader: function (message, priority) {
-        if (priority === undefined) {
-            priority = 'polite';
-        }
-        const announcer = document.createElement('div');
-        announcer.setAttribute('aria-live', priority);
-        announcer.setAttribute('aria-atomic', 'true');
-        announcer.className = 'sr-only';
-        announcer.style.position = 'absolute';
-        announcer.style.left = '-9999px';
-        announcer.textContent = message;
-        document.body.appendChild(announcer);
-        setTimeout(function () {
-            announcer.remove();
-        }, 1000);
-    },
-
-    // Handle keyboard navigation
-    handleKeyboardNav: function (e, handlers) {
-        const key = e.key;
-        if (handlers[key]) {
-            handlers[key](e);
-        }
-    },
-
-    // Function to ensure the element has an id, add aria-label, render dependency graphs
-    ensureElementAccessibility: function (element, options) {
-        // Implementation to ensure element accessibility
-    },
-
-    // Function to fix table structure and accessibility issues
-    validateAndFixTableStructure: function (table) {
-        // Implementation to validate and fix table structure and accessibility
-    },
-
-    // Function to fix landmark structure and accessibility issues
-    validateAndFixLandmark: function (landmark) {
-        // Implementation to validate and fix landmark structure and accessibility
-    },
-
-    // Function to improve SVG accessibility
-    improveSvgAccessibility: function (svg) {
-        // Implementation to improve SVG accessibility
-    },
-
-    // Function to create an in-page button with accessible link
-    createAccessibleInPageButton: function (options) {
-        // Implementation to create a accessible in-page button
-    },
-
-    // Function to handle accessibility issues
-    handleAccessibilityIssues: function (container, report) {
-        // Implementation to handle accessibility issues
-    },
-};
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs, address accessibility issues from insight report
-function ensureElementId(element) {
-    if (element && !element.id) {
-        element.id = 'element-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-    }
-    return element;
-}
-
-function addAriaLabel(element, label) {
-    if (element) {
-        element.setAttribute('aria-label', label);
-    }
-    return element;
-}
-
-function renderDependencyGraph(data) {
-    // Implementation for rendering dependency graphs
-    return {
-        nodes: data.nodes || [],
-        edges: data.edges || [],
-    };
-}
-
-function implementAccessibilityFixesFromReport(container, report) {
-    // Implementation to address accessibility issues from the insight report
-}
-
-// Initialize accessibility features
-function initAccessibility() {
-    accessibilityUtils.initSkipLink();
-
-    // Add keyboard support for all interactive elements
-    const elements = document.querySelectorAll('[data-accessible]');
-    for (let i = 0; i < elements.length; i++) {
-        const element = elements[i];
-        element.addEventListener('keydown', function (e) {
-            accessibilityUtils.handleKeyboardNav(e, {
-                Enter: function () {
-                    element.click();
-                },
-                ' ': function () {
-                    element.click();
-                },
-            });
-        });
-    }
-}
-
-// Export all utilities
-module.exports = {
-    accessibilityUtils: accessibilityUtils,
-    implementAccessibilityFixesFromReport: implementAccessibilityFixesFromReport,
-    initAccessibility: initAccessibility,
-    handleCredentialResponse: handleCredentialResponse,
-    ensureElementId: ensureElementId,
-    addAriaLabel: addAriaLabel,
-    renderDependencyGraph: renderDependencyGraph,
-    calculateSum: calculateSum,
-    processData: processData,
-    filterValidItems: filterValidItems,
-    groupByCategory: groupByCategory,
-    validateTableAccessibility: validateTableAccessibility,
-    validateTableStructure: validateTableStructure,
-    ensureUniqueLandmarks: ensureUniqueLandmarks,
-    getSvgAccessibleName: getSvgAccessibleName,
-    createInPageButton: createInPageButton,
-    handleAccessibilityIssues: handleAccessibilityIssues,
-};
-
-// Persist any new functions or fixes from the other conflict branch
-function newExportedFunction() {
-    // Implementation of the new function from the other conflict branch
-}
-
-// Init on DOM ready
-if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initAccessibility);
-    } else {
-        initAccessibility();
-    }
-}
+// Preserve any new functions from the other conflict branch as part of the main module
+exports.newFocusTrap = newFocusTrap;
+exports.transformInputData = transformInputData;
+exports.validateTableAccessibility = validateTableAccessibility;
+exports.ensureElementHasId = ensureElementHasId;
+exports.generateAccessibilityReport = generateAccessibilityReport;
+exports.getSvgAccessibleName = getSvgAccessibleName;
+exports.createAccessibleLink = createAccessibleLink;
+exports.handleAccessibilityErrors = handleAccessibilityErrors;
+exports.handleAccessibilityIssues = handleAccessibilityIssues;
+exports.createInPageButton = createInPageButton;

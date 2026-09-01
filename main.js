@@ -82,6 +82,99 @@ const accessibilityUtils = {
     };
 
     document.addEventListener('keydown', handleKeyDown);
+  },
+
+  // New function for addressing accessibility issues from insight report
+  addressAccessibilityIssues: (issues, options = {}) => {
+    const {
+      autoFix = false,
+      reportOnly = false,
+      priority = 'moderate'
+    } = options;
+
+    if (!issues || !Array.isArray(issues)) {
+      throw new Error('Invalid issues array provided');
+    }
+
+    const results = {
+      fixed: [],
+      skipped: [],
+      errors: [],
+      report: []
+    };
+
+    issues.forEach((issue, index) => {
+      try {
+        if (typeof issue !== 'object' || !issue.message) {
+          throw new Error(`Invalid issue format at index ${index}`);
+        }
+
+        const { message, element, severity = 'moderate', fix } = issue;
+
+        // Add to report
+        results.report.push({
+          index,
+          message,
+          severity,
+          status: 'pending'
+        });
+
+        // Skip if not auto-fixing and not reporting only
+        if (!autoFix && !reportOnly) {
+          results.skipped.push({
+            index,
+            message,
+            reason: 'Auto-fix disabled'
+          });
+          return;
+        }
+
+        // Attempt to fix if possible
+        if (autoFix && fix && typeof fix === 'function') {
+          try {
+            const fixResult = fix(element);
+            results.fixed.push({
+              index,
+              message,
+              result: fixResult
+            });
+            results.report[index].status = 'fixed';
+          } catch (fixError) {
+            results.errors.push({
+              index,
+              message,
+              error: fixError.message
+            });
+            results.report[index].status = 'error';
+          }
+        } else if (reportOnly) {
+          results.report[index].status = 'reported';
+        }
+      } catch (error) {
+        results.errors.push({
+          index,
+          message: `Error processing issue at index ${index}: ${error.message}`,
+          error: error.message
+        });
+      }
+    });
+
+    // Generate summary
+    results.summary = {
+      totalIssues: issues.length,
+      fixed: results.fixed.length,
+      skipped: results.skipped.length,
+      errors: results.errors.length,
+      timestamp: new Date().toISOString()
+    };
+
+    // Announce results to screen readers if priority is high
+    if (priority === 'critical' || priority === 'serious') {
+      const announcement = `Accessibility issues report: ${results.summary.fixed} fixed, ${results.summary.errors} errors`;
+      accessibilityUtils.announceToScreenReader(announcement, 'assertive');
+    }
+
+    return results;
   }
 };
 

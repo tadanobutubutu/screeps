@@ -17,6 +17,24 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// New function to check link accessibility
+function checkLinkAccessibility(linkElement) {
+    // Basic accessibility check for links
+    if (!linkElement.getAttribute('href')) {
+        return { isAccessible: false, reason: 'Missing href attribute' };
+    }
+
+    if (!linkElement.textContent.trim()) {
+        return { isAccessible: false, reason: 'Empty link text' };
+    }
+
+    if (!linkElement.getAttribute('aria-label') && linkElement.textContent.trim().length < 2) {
+        return { isAccessible: false, reason: 'Link text too short and no aria-label' };
+    }
+
+    return { isAccessible: true, reason: 'Link appears accessible' };
+}
+
 // Preserve any existing exports here
 // export { addressAccessibilityIssues, createInPageButton, existingFunction };
 // Assuming existingFunction is the name of another export in the codebase (you should replace this with its actual name)

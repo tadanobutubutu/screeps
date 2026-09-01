@@ -14,6 +14,15 @@ const Main = () => {
   const [newBookAuthor, setNewBookAuthor] = useState('');
   const addBookInputRef = React.useRef(null);
 
+  // Add landmark roles and fix landmark issues
+  const landmarkProps = getLandmarkProps('main');
+
+  // Add accessible names to SVGs
+  const svgAccessibilityProps = getSvgAccessibilityProps();
+
+  // Fix fake link issue
+  const accessibleLinkProps = getAccessibleLinkProps();
+
   const handleAddBook = (e) => {
     if (e && typeof e.preventDefault === 'function') {
       e.preventDefault();
@@ -43,7 +52,7 @@ const Main = () => {
   // Render the list of book items and sorting controls
   const listItems = booksList.map(book => BookItem(book));
   return (
-    <main id="main" lang="en" {...useLandmark('main')}>
+    <main id="main" lang="en" {...useLandmark('main')} {...landmarkProps}>
       <div {...addLangAttribute('main')}>
         <div>
           <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
@@ -91,5 +100,3 @@ const Main = () => {
 };
 
 export default Main;
-```javascript
-// The rest of the file remains as merged from both branches, integrating accessibility utilities from both modules.

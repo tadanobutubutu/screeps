@@ -70,13 +70,10 @@ function main() {
 }
 
 function init() {
-  const svgElements = [];
-
-  svgElements.forEach((svg) => {
-    if (!svg.getAttribute('role')) {
-      svg.setAttribute('role', 'img');
-    }
-  });
+  main();
+  setupAriaLiveRegions();
+  setupFocusManagement();
+  enhanceSemanticMarkup();
 }
 
 const checkTableStructure = function(table) {
@@ -172,59 +169,6 @@ function handleCredentialResponse(response) {
     }
 
     return processedCredential;
-}
-
-// Ensure DOM is fully loaded before executing scripts
-if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment - setup basic exports
-  module.exports = {
-    checkTableStructure,
-    countDependencies,
-    init,
-    main,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    fixMainLandmarks,
-    validateLandmark,
-    spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse,
-    ensureId,
-    addAriaLabel,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    processData,
-    newFunction
-  };
-} else {
-  // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-}
-
-function init() {
-  main();
-  setupAriaLiveRegions();
-  setupFocusManagement();
-  enhanceSemanticMarkup();
 }
 
 function getSvgAccessibleName(svg) {
@@ -391,4 +335,50 @@ function handleKeyNavigation(event, currentIndex, items) {
         return prevIndex;
     }
     return currentIndex;
+}
+
+// Ensure DOM is fully loaded before executing scripts
+if (typeof module !== 'undefined' && module.exports) {
+  // Node.js environment - setup basic exports
+  module.exports = {
+    checkTableStructure,
+    countDependencies,
+    init,
+    main,
+    setupAriaLiveRegions,
+    setupFocusManagement,
+    enhanceSemanticMarkup,
+    trapFocus,
+    handleKeyNavigation,
+    closeOpenDialogs,
+    announceToScreenReader,
+    calculateDifference,
+    calculateProduct,
+    isNumber,
+    clamp,
+    hello,
+    getVersion,
+    getConfig,
+    addressAccessibilityIssues,
+    generateAccessibilityReport,
+    calculateAccessibilityScore,
+    fixMainLandmarks,
+    validateLandmark,
+    spawnSomeCommand,
+    addLangAttribute,
+    handleCredentialResponse,
+    ensureId,
+    addAriaLabel,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    processData,
+    newFunction
+  };
+} else {
+  // Browser environment - wait for DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 }

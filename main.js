@@ -14,3 +14,12 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
 
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };
+
+// TODO: Any additional changes requested in the issue
+// Added function to handle button click events
+function handleButtonClick(buttonId, callback) {
+    const button = document.getElementById(buttonId);
+    if (button) {
+        button.addEventListener('click', callback);
+    }
+}

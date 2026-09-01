@@ -162,6 +162,32 @@ function checkLandmarkElement(id) {
   return element !== null;
 }
 
+/**
+ * Function to check for landmark elements in the document.
+ * @param {string[]} landmarkRoles - Array of landmark roles to check for.
+ * @returns {Object} An object with landmark roles as keys and boolean values indicating existence.
+ */
+function checkLandmarkElements(landmarkRoles) {
+  const results = {};
+
+  landmarkRoles.forEach(role => {
+    // Check for elements with the role attribute
+    const roleElements = document.querySelectorAll(`[role="${role}"]`);
+    // Check for semantic HTML elements that imply the role
+    const semanticElements = document.querySelectorAll(role === 'main' ? 'main' :
+                                  role === 'navigation' ? 'nav' :
+                                  role === 'complementary' ? 'aside' :
+                                  role === 'search' ? '[role="search"]' :
+                                  role === 'contentinfo' ? 'footer' :
+                                  role === 'form' ? 'form' :
+                                  role === 'region' ? 'section' : '');
+
+    results[role] = roleElements.length > 0 || semanticElements.length > 0;
+  });
+
+  return results;
+}
+
 // Ensure unique landmarks by filtering duplicates
 function ensureUniqueLandmarks(landmarksArray) {
   if (!landmarksArray || landmarksArray.length === 0) {
@@ -528,6 +554,7 @@ export {
   clearCache,
   VisualizeDependencyTree,
   checkLandmarkElement,
+  checkLandmarkElements,
   ensureUniqueLandmarks,
   ensureLandmarkUniqueness,
   validateLandmark,

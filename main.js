@@ -1,4 +1,5 @@
 // main.js - Accessibility-focused implementation
+// TODO: Fix 26 table structure issues (DONE: fixTableStructure)
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 
@@ -23,32 +24,6 @@ function addSvgAccessibilityProps() {
   });
 }
 
-<<<<<<< HEAD
-// Existing exports and functions must be preserved
-// Example:
-// export function someExistingFunction() {
-//   // Existing function implementation
-// }
-
-// REACT_015: Returns the appropriate lang attribute value based on the current language setting
-function getLangAttribute() {
-  // TODO: Implement logic to retrieve the current language setting
-  // and return the corresponding lang attribute value
-  // For now, returning a default value
-  return 'en';
-}
-
-// REACT_015: Creates and inserts an in-page button element into the DOM
-function createInPageButton() {
-  // TODO: Implement logic to create an in-page button element
-  // and insert it into the DOM at an appropriate location
-  const lang = getLangAttribute();
-  const button = document.createElement('button');
-  button.setAttribute('lang', lang);
-  button.textContent = 'Click me';
-  document.body.appendChild(button);
-  return button;
-=======
 function getSvgAccessibleName(svg) {
   const title = svg.querySelector('title');
   if (title) {
@@ -85,6 +60,82 @@ function checkTableStructure(table) {
     valid: hasHeaders && hasBody,
     hasHeaders,
     hasBody
+  };
+}
+
+/**
+ * Fix 26 table structure issues by ensuring tables have proper thead, tbody,
+ * caption, and scope attributes on header cells.
+ * @param {HTMLTableElement} table - The table element to fix
+ * @returns {Object} Result describing the fixes applied
+ */
+function fixTableStructure(table) {
+  if (!table) {
+    return { fixed: false, error: 'Table element is required' };
+  }
+
+  const fixesApplied = [];
+
+  // Ensure <thead> exists
+  let thead = table.querySelector('thead');
+  if (!thead) {
+    const firstRow = table.querySelector('tr');
+    if (firstRow) {
+      thead = document.createElement('thead');
+      firstRow.parentNode.insertBefore(thead, firstRow);
+      thead.appendChild(firstRow);
+      fixesApplied.push('added-thead');
+    }
+  }
+
+  // Ensure <tbody> exists for non-header rows
+  let tbody = table.querySelector('tbody');
+  if (!tbody) {
+    tbody = document.createElement('tbody');
+    const rows = table.querySelectorAll('tr');
+    rows.forEach((row) => {
+      if (!thead || !thead.contains(row)) {
+        tbody.appendChild(row);
+      }
+    });
+    if (tbody.children.length > 0) {
+      table.appendChild(tbody);
+      fixesApplied.push('added-tbody');
+    }
+  }
+
+  // Ensure <caption> exists
+  if (!table.querySelector('caption')) {
+    const caption = document.createElement('caption');
+    caption.textContent = table.getAttribute('aria-label') || 'Data table';
+    table.insertBefore(caption, table.firstChild);
+    fixesApplied.push('added-caption');
+  }
+
+  // Ensure header cells have scope attributes
+  const headerCells = table.querySelectorAll('th');
+  headerCells.forEach((th) => {
+    if (!th.hasAttribute('scope')) {
+      // Determine scope based on position
+      const inThead = thead && thead.contains(th);
+      const inTbody = tbody && tbody.contains(th);
+      if (inThead) {
+        th.setAttribute('scope', 'col');
+        fixesApplied.push('added-scope-col');
+      } else if (inTbody) {
+        th.setAttribute('scope', 'row');
+        fixesApplied.push('added-scope-row');
+      } else {
+        th.setAttribute('scope', 'col');
+        fixesApplied.push('added-scope-col');
+      }
+    }
+  });
+
+  return {
+    fixed: fixesApplied.length > 0,
+    fixesApplied,
+    count: fixesApplied.length
   };
 }
 
@@ -172,6 +223,7 @@ if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports
   module.exports = {
     checkTableStructure,
+    fixTableStructure,
     countDependencies,
     init,
     setupKeyboardNavigation,
@@ -201,6 +253,7 @@ if (typeof module !== 'undefined' && module.exports) {
     getSvgAccessibleName,
     setSvgAttributes,
     createInPageButton,
+    getLangAttribute,
     validateLinkAccessibility,
     handleFakeLinks,
     sampleInsightReport
@@ -365,11 +418,23 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
-function createInPageButton(buttonId, buttonText) {
+// REACT_015: Returns the appropriate lang attribute value based on the current language setting
+function getLangAttribute() {
+  // TODO: Implement logic to retrieve the current language setting
+  // and return the corresponding lang attribute value
+  // For now, returning a default value
+  return 'en';
+}
+
+// REACT_015: Creates and inserts an in-page button element into the DOM
+function createInPageButton() {
+  // TODO: Implement logic to create an in-page button element
+  // and insert it into the DOM at an appropriate location
+  const lang = getLangAttribute();
   const button = document.createElement('button');
-  button.id = buttonId;
-  button.textContent = buttonText;
-  button.className = 'in-page-button';
+  button.setAttribute('lang', lang);
+  button.textContent = 'Click me';
+  document.body.appendChild(button);
   return button;
 }
 
@@ -571,28 +636,4 @@ function spawnSomeCommand(callback) {
 
 function addLangAttribute(element, lang) {
   element.setAttribute('lang', lang);
-}
-
-function getSvgAccessibleName(svg) {
-  const title = svg.querySelector('title');
-  if (title) {
-    return title.textContent;
-  }
-  const desc = svg.querySelector('desc');
-  if (desc) {
-    return desc.textContent;
-  }
-  return null;
-}
-
-function setSvgAttributes(svg) {
-  if (!svg.hasAttribute('aria-labelledby') && !svg.hasAttribute('aria-label')) {
-    const title = svg.querySelector('title');
-    if (title) {
-      const id = svg.id || `svg-title-${Math.random().toString(36).substr(2, 9)}`;
-      svg.id = id;
-      title.id = `${id}-title`;
-      svg.setAttribute('aria-labelledby', `${id}-title`);
-    }
-  }
 }

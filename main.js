@@ -37,8 +37,7 @@ function ensureUniqueLandmarks(landmarksArray) {
   return uniqueLandmarks;
 }
 
-// Apply uniqueness to the landmarks
-const uniqueLandmarks = ensureUniqueLandmarks(landmarks);
+// TODO: add the new functions or changes requested in the issue
 
 module.exports = {
   ensureUniqueLandmarks,

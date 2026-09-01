@@ -111,10 +111,10 @@ addLangAttribute();
 function outputSafetyClassification(userMessage, assistantResponse) {
     // Classify user safety
     const userSafety = classifyUserSafety(userMessage);
-    
+
     // Output user safety
     console.log(`User Safety: ${userSafety}`);
-    
+
     // Output response safety only if assistant response is present
     if (assistantResponse) {
         const responseSafety = classifyResponseSafety(assistantResponse);
@@ -141,13 +141,13 @@ function classifyUserSafety(userMessage) {
         /harass/i,
         /threat/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(userMessage)) {
             return 'unsafe';
         }
     }
-    
+
     // Legitimate programming tasks are safe
     return 'safe';
 }
@@ -164,13 +164,13 @@ function classifyResponseSafety(assistantResponse) {
         /how.*hack/i,
         /create.*malware/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(assistantResponse)) {
             return 'unsafe';
         }
     }
-    
+
     return 'safe';
 }
 
@@ -229,7 +229,7 @@ function ensureUniqueLandmarks() {
   const landmarks = ... [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"],
   'footer[role="contentinfo"]'
   .join(', ')
-  
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation
@@ -362,3 +362,8 @@ buttons.forEach((button, index) => {
 ... 
 
 // End of file
+
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// _Commit: ec56c28dafbd3fb2078fbae75354cf99a4fb9f89_

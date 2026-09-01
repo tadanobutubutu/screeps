@@ -6,6 +6,8 @@
 // REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
 // REACT_036: Fix 1 fake link issue
 
+// TODO: This is the existing code that needs to be preserved
+
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html) {
     if (typeof html !== 'string') return html;

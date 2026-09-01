@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
@@ -58,7 +55,7 @@ const config = CONFIG;
 
 // Application state
 let isInitialized = false;
-const appData_ originside = {};
+const appData_originside = {};
 const appState = {
   initialized: false,
   data: null,
@@ -120,86 +117,69 @@ function someFunction() {
   return 'some value';
 }
 
-// Configuration
-const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || 'localhost';
+// Accessibility function for book form
+function makeAddBookFormAccessible() {
+  const form = document.querySelector('#addBookForm');
+  if (!form) return;
 
-// Application main entry point
-const app = expressApp;
+  // Add ARIA attributes to the form
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', 'addBookFormTitle');
+
+  // Add labels to form fields
+  const titleInput = form.querySelector('#bookTitle');
+  if (titleInput) {
+    titleInput.setAttribute('aria-label', 'Book Title');
+    titleInput.setAttribute('required', 'true');
+  }
+
+  const authorInput = form.querySelector('#bookAuthor');
+  if (authorInput) {
+    authorInput.setAttribute('aria-label', 'Book Author');
+    authorInput.setAttribute('required', 'true');
+  }
+
+  const submitButton = form.querySelector('button[type="submit"]');
+  if (submitButton) {
+    submitButton.setAttribute('aria-label', 'Add Book to Collection');
+  }
+
+  // Make sure all form fields are focusable
+  const inputs = form.querySelectorAll('input, textarea, select, button');
+  inputs.forEach(input => {
+    if (!input.hasAttribute('tabindex')) {
+      input.setAttribute('tabindex', '0');
+    }
+  });
+}
+
+// Call the accessibility function when the DOM is loaded
+document.addEventListener('DOMContentLoaded', makeAddBookFormAccessible);
+
+// Address accessibility issues using the shared helper
+async function addressAccessibilityIssues() {
+  // Combine the logic from both changes
+  const allResults = await accessiblyHelper();
+  if (!allResults[0]) return;
+  // Ensure the dependencyGraph container has a proper ARIA role
+  allResults[0].ensuresDependencyGraphRole();
+  // ... (add other accessibility improvements as needed)
+}
 
 // ... (remaining helper functions and other code)
 
-module.exports = {
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  someFunction,
-  helper,
-  formatDate,
-  validateInput,
-  initialize,
-  // Combined accessibility functions from both changes
-  ensureDependencyGraphRole,
-  addressAccessibilityIssues: async () => {
-    // Combine the logic from both changes
-    const allResults = await accessiblyHelper();
-    if (!allResults[0]) return;
-    // Ensure the dependencyGraph container has a proper ARIA role
-    allResults[0].ensuresDependencyGraphRole();
-    // ... (add other accessibility improvements as needed)
-  },
-  renderDependencyGraphContent,
-  createInPageButtons,
-  fixUniqueLandmarks,
-  generateAccessibilityReport,
-  config: CONFIG,
-  appState,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  addProperLandmarkRegions,
-  fixTableAccessibility,
-  fixLandmarkIssues,
-  addSvgAccessibility,
-  createAccessibleLinks,
-  formatResponse,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  CONFIG,
-  isValidLandmark,
-  ensureUniqueLandmarks,
-  ensureUniqueLandmarksList,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  addLandmarkRoles,
-  setLanguageAttribute,
-  processAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  improveAccessibility,
-  scanAccessibility,
-  writeReport,
-  renderDependencyGraph,
-  checkLandmarkElement,
-  landmarkStructureCheck,
-  wrapPrimaryContentInMain,
-  main
-};
-```
+// Main application entry point
+const app = expressApp;
 
-This code merges the changes from both commits, keeping and integrating both changes if they both add features. The conflict markers are removed, and the code is formatted and organized to improve readability. Accessibility improvements were combined into a single function, `addressAccessibilityIssues`. Additionally, a new function, `accessiblyHelper`, was created to encapsulate the new imported module and its functionality.
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    loadLandmarks,
+    processLandmarks,
+    sortLandmarks,
+    getLandmarkById,
+    ensureUniqueLandmarks,
+    addressAccessibilityIssues,
+    makeAddBookFormAccessible
+  };
+}

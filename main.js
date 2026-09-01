@@ -3,10 +3,10 @@ function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
-  
+
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
-  
+
   // Implementation to trap focus within container
   container.addEventListener('keydown', (e) => {
     const isTab = e.key === 'Tab';
@@ -98,9 +98,9 @@ const accessibilityUtils = {
     }
 
     const config = options || {};
-    const focusableSelector = config.focusableSelector || 
+    const focusableSelector = config.focusableSelector ||
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
-    
+
     let active = true;
     let focusableElements = [];
 
@@ -117,7 +117,7 @@ const accessibilityUtils = {
 
       if (e.key === 'Tab') {
         focusableElements = getFocusableElements();
-        
+
         if (focusableElements.length === 0) return;
 
         const firstElement = focusableElements[0];
@@ -166,7 +166,7 @@ const accessibilityUtils = {
 
     // Initialize the trap
     element.addEventListener('keydown', handleTrapKeydown);
-    
+
     // Focus first focusable element on init (if configured)
     if (config.autoFocus !== false) {
       focusableElements = getFocusableElements();
@@ -215,7 +215,6 @@ const {
   revokeSession,
   functionA,
   functionB,
-  accessibilityUtils,
   newFocusTrap,
   addLangAttribute,
   fixTableStructure,

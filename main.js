@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -64,7 +61,7 @@ const sampleInsightReport = {
 };
 
 const AddressabilityIssues = {
-  addressAccessibilityIssues(insightReport) {
+  addressAccessibilityIsses(insightReport) {
     if (!insightReport || !insightReport.sections) {
       return [];
     }
@@ -239,6 +236,3 @@ const AddressabilityIssues = {
     };
   }
 };
-
-// ... (other functions and comments preserved)
-```

@@ -245,6 +245,71 @@ function addressAccessibilityIssues() {
   }
 }
 
+// Function to address accessibility issues from the insight report
+function addressAccessibilityIssuesFromReport(report) {
+  if (!report || !report.issues || !Array.isArray(report.issues)) {
+    console.warn('Invalid accessibility report provided');
+    return;
+  }
+
+  report.issues.forEach(issue => {
+    try {
+      switch (issue.type) {
+        case 'missing-alt':
+          // Add alt attribute to images
+          const imgElements = document.querySelectorAll('img');
+          if (imgElements[issue.index]) {
+            imgElements[issue.index].setAttribute('alt', 'Image description');
+          }
+          break;
+
+        case 'missing-name':
+          // Add accessible name to buttons or links
+          const elements = document.querySelectorAll(issue.element);
+          if (elements[issue.index]) {
+            const element = elements[issue.index];
+            if (element.tagName.toLowerCase() === 'button') {
+              element.setAttribute('aria-label', 'Button');
+            } else if (element.tagName.toLowerCase() === 'a') {
+              element.setAttribute('aria-label', 'Link');
+            }
+          }
+          break;
+
+        case 'missing-label':
+          // Add label to form inputs
+          const inputElements = document.querySelectorAll('input');
+          if (inputElements[issue.index]) {
+            const input = inputElements[issue.index];
+            if (!input.id) {
+              input.id = `input-${issue.index}`;
+            }
+            const label = document.createElement('label');
+            label.setAttribute('for', input.id);
+            label.textContent = 'Input label';
+            input.parentNode.insertBefore(label, input);
+          }
+          break;
+
+        case 'empty-heading':
+          // Add content to empty headings
+          const headingElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+          if (headingElements[issue.index]) {
+            headingElements[issue.index].textContent = 'Heading text';
+          }
+          break;
+
+        default:
+          console.warn(`Unknown issue type: ${issue.type}`);
+      }
+    } catch (error) {
+      console.error(`Error addressing issue ${issue.type} at index ${issue.index}:`, error);
+    }
+  });
+
+  console.log('Accessibility issues addressed based on report');
+}
+
 // Import required modules
 const utils = require('./utils');
 
@@ -265,20 +330,20 @@ function initialize() {
 const initializeApp = () => {
   // Main initialization function
   console.log('Application initialized');
-  
+
   // Ensure the app is accessible
   const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
   if (mainContent) {
     mainContent.setAttribute('aria-label', 'Main content area');
   }
-  
+
   // Set up keyboard navigation
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Tab') {
       document.body.classList.add('keyboard-nav');
     }
   });
-  
+
   document.addEventListener('mousedown', () => {
     document.body.classList.remove('keyboard-nav');
   });
@@ -314,6 +379,7 @@ module.exports = {
   addressNewAccessibilityIssues,
   addressAccessibilityIssues,
   generateAccessibilityReport,
+  addressAccessibilityIssuesFromReport, // Added new function to exports
   renderGraphIndex,
   a11y: utils.a11y
 };

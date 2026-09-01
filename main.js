@@ -61,6 +61,124 @@ function setSvgAttributes(svg) {
   }
 }
 
+function checkLandmarkElements() {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
+  const implicitRole = {
+    header: 'banner',
+    nav: 'navigation',
+    main: 'main',
+    aside: 'complementary',
+    footer: 'contentinfo'
+  };
+  
+  const checkLandmarkElement = (selector, role, implicitRole) => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach((element) => {
+      const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+      const landmarkRole = role || implicitRole[tagName];
+
+      if (!landmarkRole) {
+        console.warn(`Missing landmark role for ${tagName}`);
+        return;
+      }
+
+      if (!landmarkRoles.includes(landmarkRole)) {
+        console.warn(`Invalid landmark role: ${landmarkRole} for ${tagName}`);
+      }
+    });
+  };
+
+  // Check common landmark elements
+  checkLandmarkElement('header:not(nav header):not(main header)', 'banner');
+  checkLandmarkElement('nav', 'navigation');
+  checkLandmarkElement('main', 'main');
+  checkLandmarkElement('aside', 'complementary');
+  checkLandmarkElement('footer:not(nav footer):not(main footer)', 'contentinfo');
+}
+
+function validateTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const caption = table.querySelector('caption');
+    const headers = table.querySelectorAll('th');
+    const scopeAttrs = table.querySelectorAll('th[scope]');
+    
+    if (!caption) {
+      console.warn('Table missing caption');
+    }
+    if (headers.length === 0) {
+      console.warn('Table has no header cells');
+    }
+    if (scopeAttrs.length === 0 && headers.length > 0) {
+      console.warn('Table headers missing scope attribute');
+    }
+  });
+}
+
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll('[role], header, nav, main, aside, footer');
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
+  
+  landmarks.forEach(landmark => {
+    const tagName = landmark.tagName ? landmark.tagName.toLowerCase() : '';
+    const role = landmark.getAttribute('role');
+    const implicitRole = {
+      header: 'banner',
+      nav: 'navigation',
+      main: 'main',
+      aside: 'complementary',
+      footer: 'contentinfo'
+    };
+    
+    if (!role && !implicitRole[tagName]) {
+      console.warn(`Missing landmark role for ${tagName}`);
+    }
+    if (role && !landmarkRoles.includes(role)) {
+      console.warn(`Invalid landmark role: ${role} for ${tagName}`);
+    }
+  });
+}
+
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+  const seenLandmarks = {};
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (seenLandmarks[role]) {
+      console.warn(`Duplicate landmark role: ${role}`);
+    } else {
+      seenLandmarks[role] = true;
+    }
+  });
+}
+
+function createInPageButton() {
+  const button = document.createElement('button');
+  button.textContent = 'In-Page Action';
+  button.setAttribute('role', 'button');
+  button.setAttribute('aria-label', 'Perform in-page action');
+  return button;
+}
+
+function createAccessibleLink(href, text) {
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  link.setAttribute('role', 'link');
+  return link;
+}
+
+function handleAccessibilityIssues() {
+  // Fix fake links (buttons styled as links)
+  const fakeLinks = document.querySelectorAll('a[href="#"], a[role="button"]');
+  fakeLinks.forEach(link => {
+    const text = link.textContent;
+    link.setAttribute('role', 'button');
+    link.setAttribute('aria-label', text || 'Button');
+  });
+}
+
 // Check table structure function
 const checkTableStructure = function(tableElement) {
   if (!tableElement) {
@@ -80,6 +198,3 @@ const checkTableStructure = function(tableElement) {
 };
 
 // ... (rest of the code preserved with minor adjustments)
-```
-
-This resolution addresses the security concern raised in the user safety category by adding a check for the screen reader detection before setting the `aria-label` attribute for SVG elements. Additionally, it adds a message to the screen reader to alert developers to verify the accessibility properties of the SVG if `announceToScreenReader` is present.

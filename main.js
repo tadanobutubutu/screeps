@@ -19,6 +19,27 @@ const CONFIG = {
   maxResults: 100
 };
 
+// New function to count dependencies
+function countDependencies() {
+  const dependencies = {
+    express: express ? 'installed' : 'not installed',
+    'axe-core': axe ? 'installed' : 'not installed',
+    fs: fs ? 'installed' : 'not installed',
+    'fast-map': fastMap ? 'installed' : 'not installed',
+    path: path ? 'installed' : 'not installed',
+    react: React ? 'installed' : 'not installed',
+    './utils': true, // Assuming these are local files
+    './utils/accessibilityUtils': true,
+    './utils/tableAccessibilityUtils': true,
+    './utils/landmarkUtils': true,
+    './utils/svgAccessibilityUtils': true,
+    './utils/linkAccessibilityUtils': true,
+    './utils/constants': true
+  };
+
+  return dependencies;
+}
+
 // New function to generate a report based on accessibility issues
 function generateAccessibilityReport() {
   const options = {
@@ -123,8 +144,6 @@ module.exports = {
   landmarkConfig: CONFIG,
   generateAccessibilityReport,
   wrapPrimaryContentInMain,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  countDependencies // Add the new function to exports
 };
-```
-
-This merged file now contains both changes: the existing Node.js code and the React set-up from the new branch. The code is now compilable and functional, with no syntax errors. The comments and style have been preserved as much as possible.

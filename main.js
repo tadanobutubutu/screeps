@@ -215,6 +215,24 @@ function ensureLangAttribute(document) {
   return html.getAttribute('lang');
 }
 
+/**
+ * Creates an in-page button with accessibility attributes.
+ * @param {string} label - The visible label/text for the button
+ * @param {HTMLElement} [container] - Optional container to append the button into
+ * @returns {HTMLButtonElement} The created button element
+ */
+export function createInPageButton(label, container) {
+  const button = document.createElement('button');
+  button.textContent = label || '';
+  button.setAttribute('type', 'button');
+  ensureElementHasId(button);
+  addAriaLabel(button, label || '');
+  if (container && typeof container.appendChild === 'function') {
+    container.appendChild(button);
+  }
+  return button;
+}
+
 // Export all functions for testing
 export {
   ensureLandmarkRoles,

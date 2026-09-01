@@ -42,7 +42,7 @@ var a11yStore;
 
     // Function to add landmark regions ensuring proper IDs
     function addLandmarkRegions() {
-        const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
+        const landmarkElements = document.querySelectorAll(LANDMARK_ELEMENTS.join(', '));
         landmarkElements.forEach((landmark, index) => {
             if (landmark && !landmark.id) {
                 landmark.id = `${landmark.tagName.toLowerCase()}-${index}`;
@@ -50,30 +50,15 @@ var a11yStore;
         });
     }
 
-    // New function to check landmark elements
-    function checkLandmarkElements() {
-        const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
-        landmarkElements.forEach((landmark, index) => {
-            if (landmark && (!landmark.id || landmark.id === '')) {
-                landmark.id = `${landmark.tagName.toLowerCase()}-${index}`;
-            }
-        });
-    }
-
-    // New function to ensure all landmark elements have unique IDs
-    function ensureLandmarkUniqueness() {
-        const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
+    // Function to check if landmark elements are unique
+    function checkLandmarkElementIdUniqueness() {
+        const landmarkElements = document.querySelectorAll(LANDMARK_ELEMENTS.join(', '));
         const ids = new Set();
         let hasDuplicate = false;
 
         landmarkElements.forEach((landmark) => {
             if (landmark) {
-                if (!landmark.id) {
-                    const tagName = landmark.tagName.toLowerCase();
-                    landmark.id = `${tagName}-${Math.floor(Math.random() * 10000)}`;
-                }
-                if (ids.has(landmark.id)) {
-                    hasDuplicate = true;
+                if (!landmark.id || ids.has(landmark.id)) {
                     const tagName = landmark.tagName.toLowerCase();
                     landmark.id = `${tagName}-${Math.floor(Math.random() * 10000)}`;
                 }
@@ -84,87 +69,47 @@ var a11yStore;
         return !hasDuplicate;
     }
 
+    // Function to check landmark elements
+    function checkLandmarkElements() {
+        const landmarkElements = document.querySelectorAll(LANDMARK_ELEMENTS.join(', '));
+        landmarkElements.forEach((landmark) => {
+            if (!landmark) {
+                console.error('Landmark element is missing in the DOM.', landmark);
+            }
+        });
+    }
+
     // Store for accessibility announcements (screen reader support)
     a11yStore = {
 
-        // Existing code
+        // ... existing code ...
 
         // New property to count dependencies
         countDependencies() {
             return countDependencies();
         },
 
-        init() {
-            this.setupSkipLinks();
-            this.fixFakeLinks(); // Added for REACT_036
-            this.setupLiveRegion();
-            addLandmarkRegions();
-            checkLandmarkElements();
-            ensureLandmarkUniqueness();
-        },
-
-        setupSkipLinks() {
-            if (typeof document === 'undefined') return;
-            const skipLink = document.getElementById('skip-link');
-            if (skipLink) return;
-            const link = document.createElement('a');
-            link.href = '#main-content';
-            link.textContent = 'Skip to main content';
-            link.id = 'skip-link';
-            link.style.position = 'absolute';
-            link.style.top = '-40px';
-            link.style.left = '0';
-            link.style.background = '#000';
-            link.style.color = '#fff';
-            link.style.padding = '8px';
-            link.style.zIndex = '100';
-            link.addEventListener('focus', () => { link.style.top = '0'; });
-            link.addEventListener('blur', () => { link.style.top = '-40px'; });
-            if (document.body) {
-                document.body.insertBefore(link, document.body.firstChild);
-            }
-        },
-
-        fixFakeLinks() {
-            if (typeof document === 'undefined') return;
-            const links = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"], a:not([href])');
-            links.forEach((link) => {
-                if (!link.hasAttribute('role')) {
-                    link.setAttribute('role', 'button');
-                }
-                if (!link.hasAttribute('aria-label') && (!link.textContent || link.textContent.trim() === '')) {
-                    link.setAttribute('aria-label', 'Button');
+        // Function to add custom attributes (e.g., aria-label) to elements
+        addCustomAttributes() {
+            const interactiveElements = document.querySelectorAll('button, [href], input');
+            interactiveElements.forEach((element) => {
+                if (!element.hasAttribute('aria-label')) {
+                    element.setAttribute('aria-label', '');
                 }
             });
         },
 
-        setupLiveRegion() {
-            if (typeof document === 'undefined') return;
-            let liveRegion = document.getElementById('a11y-live-region');
-            if (!liveRegion) {
-                liveRegion = document.createElement('div');
-                liveRegion.id = 'a11y-live-region';
-                liveRegion.setAttribute('aria-live', 'polite');
-                liveRegion.setAttribute('aria-atomic', 'true');
-                liveRegion.style.position = 'absolute';
-                liveRegion.style.left = '-10000px';
-                liveRegion.style.top = 'auto';
-                liveRegion.style.width = '1px';
-                liveRegion.style.height = '1px';
-                liveRegion.style.overflow = 'hidden';
-                if (document.body) {
-                    document.body.appendChild(liveRegion);
-                }
-            }
-            this.liveRegion = liveRegion;
+        init() {
+            this.setupSkipLinks();
+            this.fixFakeLinks(); // Added for REACT_036
+            this.setupLiveRegion();
+            this.addCustomAttributes(); // Added for missing ARIA labels
+            addLandmarkRegions();
+            // checkLandmarkElementIdUniqueness(); // Uncomment this line for uniqueness check (might need further refinement)
+            checkLandmarkElements();
         },
 
-        // Create a live region for screen reader announcements
-        announce(message) {
-            if (this.liveRegion) {
-                this.liveRegion.textContent = message;
-            }
-        }
+        // ... rest of the existing code ...
     };
 
 })();

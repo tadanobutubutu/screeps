@@ -21,7 +21,7 @@ const {
   validateAccessibilityReport,
   getSvgAccessibleName,
   getLangAttribute,
-  handleCredentialResponse,
+  handleCredentialResponse: handleCredentialResponseOriginal,
   ensureElementId,
   addAriaLabel,
   ensureElementHasId,
@@ -43,11 +43,11 @@ const {
   renderDependencyGraph,
   renderDependencyGraphAria,
   addMainLandmarkToIndex,
-  addressAccessibilityIssues,
+  addressAccessibilityIssues: addressAccessibilityIssuesOriginal,
   // New function to handle focus trap
   newFocusTrap: newMainFocusTrap,
   // New functions to address new accessibility issues from insight report
-  newAddressAccessibilityIssues: addressAccessibilityIssues
+  newAddressAccessibilityIssues: newAddressAccessibilityIssuesOriginal
 } = main;
 
 const a11yStore = {

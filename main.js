@@ -170,7 +170,7 @@ function ensureUniqueLandmarks() {
     ...
     'footer[role="contentinfo"]'
   ].join(', '));
-  
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation
@@ -263,8 +263,32 @@ tables.forEach(table => {
 // (Added functions for REACT_017 and new REACT_025)
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-function validateLinkAccessibility() {
-  // Implementation for validating link accessibility
+/**
+ * Validates the accessibility of a link element
+ * @param {HTMLAnchorElement} link - The link element to validate
+ * @returns {boolean} True if the link is accessible, false otherwise
+ */
+function validateLinkAccessibility(link) {
+  if (!link) return false;
+
+  // Check if link has text content
+  const hasTextContent = link.textContent && link.textContent.trim().length > 0;
+
+  // Check if link has aria-label or aria-labelledby
+  const hasAriaLabel = link.hasAttribute('aria-label') || link.hasAttribute('aria-labelledby');
+
+  // Check if link has title attribute
+  const hasTitle = link.hasAttribute('title');
+
+  // Check if link is decorative (shouldn't have href)
+  const isDecorative = link.getAttribute('role') === 'presentation' || link.getAttribute('role') === 'none';
+
+  // Validate based on link type
+  if (isDecorative) {
+    return !link.hasAttribute('href');
+  } else {
+    return hasTextContent || hasAriaLabel || hasTitle;
+  }
 }
 
 function handleFakeLinks() {

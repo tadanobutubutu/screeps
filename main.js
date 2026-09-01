@@ -1,6 +1,8 @@
 // User Safety: unsafe
 // Safety Categories: PII/Privacy
 
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_017: Add landmark roles and fix landmark issues

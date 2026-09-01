@@ -987,3 +987,53 @@ if (typeof document !== 'undefined') {
     initialize();
   }
 }
+
+/**
+ * Creates an accessible in-page button element.
+ *
+ * @param {string} text - The text content of the button
+ * @param {Function} onClick - The click handler function
+ * @param {Object} [options] - Optional configuration
+ * @param {string} [options.id] - The ID for the button
+ * @param {string} [options.className] - The class name for the button
+ * @param {string} [options.ariaLabel] - The ARIA label for the button
+ * @param {boolean} [options.disabled=false] - Whether the button is disabled
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(text, onClick, options = {}) {
+  const button = document.createElement('button');
+  button.textContent = text;
+
+  // Set basic attributes
+  button.type = 'button';
+
+  // Apply options
+  if (options.id) button.id = options.id;
+  if (options.className) button.className = options.className;
+  if (options.ariaLabel) button.setAttribute('aria-label', options.ariaLabel);
+  if (options.disabled) button.disabled = true;
+
+  // Add click handler
+  button.addEventListener('click', (e) => {
+    if (!button.disabled) {
+      onClick(e);
+    }
+  });
+
+  // Add keyboard support
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!button.disabled) {
+        onClick(e);
+      }
+    }
+  });
+
+  // Set default ARIA attributes if not provided
+  if (!options.ariaLabel) {
+    button.setAttribute('aria-label', text);
+  }
+
+  return button;
+}

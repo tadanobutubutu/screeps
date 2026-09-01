@@ -55,15 +55,106 @@ const accessibilityUtils = {
   },
 
   // New function for addressing accessibility issues from insight report
-  newFocusTrap: newFocusTrap(),
+  newFocusTrap: newFocusTrap,
 
-  // Accessibility functions to address new issues (TODO: Implement)
-  // - REACT_015: Add lang attribute to HTML element
-  // - REACT_027: Fix 26 table structure issues
-  // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs
-  // - REACT_025: Ensure unique landmarks
-  // - REACT_036: Fix 1 fake link issue
+  // Accessibility functions to address new issues
+  setHtmlLangAttribute: (lang = 'en') => {
+    const htmlElement = document.querySelector('html');
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+      htmlElement.setAttribute('lang', lang);
+    }
+  },
+
+  // Function to fix table structure issues
+  fixTableStructure: (table) => {
+    if (!table) return;
+
+    // Ensure table has proper structure
+    const caption = table.querySelector('caption');
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+
+    if (!caption) {
+      const newCaption = document.createElement('caption');
+      newCaption.textContent = 'Table caption';
+      table.insertBefore(newCaption, table.firstChild);
+    }
+
+    if (!thead) {
+      const newThead = document.createElement('thead');
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        newThead.appendChild(firstRow);
+        table.insertBefore(newThead, table.firstChild.nextSibling);
+      }
+    }
+
+    if (!tbody) {
+      const newTbody = document.createElement('tbody');
+      const rows = table.querySelectorAll('tr');
+      rows.forEach(row => {
+        if (!row.parentElement.matches('thead, tfoot')) {
+          newTbody.appendChild(row);
+        }
+      });
+      table.appendChild(newTbody);
+    }
+  },
+
+  // Function to add landmark roles
+  addLandmarkRoles: () => {
+    const main = document.querySelector('main');
+    if (main && !main.hasAttribute('role')) {
+      main.setAttribute('role', 'main');
+    }
+
+    const nav = document.querySelector('nav');
+    if (nav && !nav.hasAttribute('role')) {
+      nav.setAttribute('role', 'navigation');
+    }
+
+    const header = document.querySelector('header');
+    if (header && !header.hasAttribute('role')) {
+      header.setAttribute('role', 'banner');
+    }
+
+    const footer = document.querySelector('footer');
+    if (footer && !footer.hasAttribute('role')) {
+      footer.setAttribute('role', 'contentinfo');
+    }
+  },
+
+  // Function to add accessible names to SVGs
+  addSvgAccessibleNames: (svg, name) => {
+    if (svg && !svg.hasAttribute('aria-label') && !svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = name;
+      svg.insertBefore(title, svg.firstChild);
+    }
+  },
+
+  // Function to ensure unique landmarks
+  ensureUniqueLandmarks: () => {
+    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
+    const landmarkTypes = new Set();
+
+    landmarks.forEach(landmark => {
+      const role = landmark.getAttribute('role');
+      if (landmarkTypes.has(role)) {
+        landmark.removeAttribute('role');
+      } else {
+        landmarkTypes.add(role);
+      }
+    });
+  },
+
+  // Function to fix fake links
+  fixFakeLinks: (element) => {
+    if (element && element.tagName === 'A' && !element.hasAttribute('href')) {
+      element.setAttribute('role', 'button');
+      element.setAttribute('tabindex', '0');
+    }
+  }
 };
 
 // Functions already existing in the file to preserve
@@ -92,7 +183,7 @@ const renderDependencyGraph = (data) => {
 };
 
 // Function for trap focus implementation (merged with newFocusTrap)
-function newFunction(element) {
+function newFocusTrap(element) {
   if (!element) return;
   const focusable = element.querySelectorAll(
     'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'

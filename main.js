@@ -160,6 +160,7 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 function init() {
+  addLangAttribute();
   setupAriaLiveRegions();
   enhanceSemanticMarkup();
   setupFocusManagement();
@@ -332,6 +333,10 @@ function handleFakeLinks(issues) {
 function getLangAttribute() {
   // Implementation for getting language attribute
   return document.documentElement.lang || 'en';
+}
+
+function addLangAttribute() {
+  document.documentElement.lang = getLangAttribute();
 }
 
 function addressAccessibilityIssues(insightReport) {

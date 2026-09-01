@@ -672,7 +672,7 @@ function renderAccessibilityReportHtml(report) {
     let html = `<div class="accessibility-report">
         <h1>Accessibility Report</h1>
         <p>Generated: ${report.timestamp}</p>
-        
+
         <div class="summary">
             <h2>Summary</h2>
             <ul>
@@ -682,10 +682,10 @@ function renderAccessibilityReportHtml(report) {
                 <li>Passed: ${report.summary.passed}</li>
             </ul>
         </div>
-        
+
         <div class="issues">
             <h2>Issues Found</h2>`;
-    
+
     if (report.issues.length === 0) {
         html += '<p>No issues found!</p>';
     } else {
@@ -695,12 +695,12 @@ function renderAccessibilityReportHtml(report) {
             </div>`;
         });
     }
-    
+
     html += `</div>
-        
+
         <div class="passed">
             <h2>Passed Checks</h2>`;
-    
+
     if (report.passed.length === 0) {
         html += '<p>No checks passed yet.</p>';
     } else {
@@ -710,9 +710,9 @@ function renderAccessibilityReportHtml(report) {
             </div>`;
         });
     }
-    
+
     html += '</div></div>';
-    
+
     return html;
 }
 
@@ -722,28 +722,28 @@ function renderAccessibilityReportHtml(report) {
  */
 function generateAndDisplayReport() {
     const report = generateAccessibilityReport();
-    
+
     console.log('=== Accessibility Report ===');
     console.log(`Generated: ${report.timestamp}`);
     console.log(`Total Issues: ${report.summary.totalIssues}`);
     console.log(`Critical: ${report.summary.critical}`);
     console.log(`Moderate: ${report.summary.moderate}`);
     console.log(`Passed: ${report.summary.passed}`);
-    
+
     if (report.issues.length > 0) {
         console.log('\n--- Issues ---');
         report.issues.forEach(issue => {
             console.log(`[${issue.status.toUpperCase()}] ${issue.category}: ${issue.message}`);
         });
     }
-    
+
     if (report.passed.length > 0) {
         console.log('\n--- Passed Checks ---');
         report.passed.forEach(item => {
             console.log(`[PASS] ${item.category}: ${item.message}`);
         });
     }
-    
+
     return report;
 }
 
@@ -821,4 +821,98 @@ export {
   generateAndDisplayReport,
   _usedLandmarkIds,
   anyAdditionalChanges
+};
+
+// New accessibility functions added for keyboard navigation and focus management
+
+/**
+ * Adds keyboard navigation support to interactive elements.
+ * @param {HTMLElement} element - The element to add keyboard support to.
+ * @param {Object} options - Configuration options.
+ * @param {Function} [options.onEnter] - Callback for Enter key.
+ * @param {Function} [options.onSpace] - Callback for Space key.
+ * @param {Function} [options.onEscape] - Callback for Escape key.
+ */
+function addKeyboardNavigation(element, options = {}) {
+    if (!element) return;
+
+    element.setAttribute('tabindex', '0');
+    element.addEventListener('keydown', (e) => {
+        switch (e.key) {
+            case 'Enter':
+                if (options.onEnter) options.onEnter(e);
+                break;
+            case ' ':
+                if (options.onSpace) options.onSpace(e);
+                e.preventDefault(); // Prevent page scroll
+                break;
+            case 'Escape':
+                if (options.onEscape) options.onEscape(e);
+                break;
+        }
+    });
+}
+
+/**
+ * Traps focus within a modal dialog.
+ * @param {HTMLElement} modal - The modal element.
+ */
+function trapFocus(modal) {
+    if (!modal) return;
+
+    const focusableElements = modal.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (!firstElement) return;
+
+    // Set initial focus
+    firstElement.focus();
+
+    // Handle tab key navigation
+    modal.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            if (e.shiftKey) {
+                // Shift+Tab: move to previous element
+                if (document.activeElement === firstElement) {
+                    lastElement.focus();
+                    e.preventDefault();
+                }
+            } else {
+                // Tab: move to next element
+                if (document.activeElement === lastElement) {
+                    firstElement.focus();
+                    e.preventDefault();
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Announces a message to screen readers.
+ * @param {string} message - The message to announce.
+ * @param {string} [ariaLive='polite'] - ARIA live region type ('polite' or 'assertive').
+ */
+function announceToScreenReader(message, ariaLive = 'polite') {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', ariaLive);
+    announcer.className = 'sr-only';
+    announcer.textContent = message;
+
+    document.body.appendChild(announcer);
+
+    // Remove after announcement is complete
+    setTimeout(() => {
+        document.body.removeChild(announcer);
+    }, 1000);
+}
+
+// Export new accessibility functions
+export {
+    addKeyboardNavigation,
+    trapFocus,
+    announceToScreenReader
 };

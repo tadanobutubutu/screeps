@@ -139,47 +139,69 @@ const ensureUniqueLandmarks = (landmarks) => {
   });
 };
 
-const addressAccessibilityIssues = () => {
-  // Address accessibility issues
+// Validation functions
+const validateLandmarkStructure = (landmarks) => {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+
+  landmarks.forEach((element, index) => {
+    const tagName = element.tagName.toLowerCase();
+    const role = element.getAttribute('role');
+
+    if (role && !validLandmarks.includes(role)) {
+      issues.push(`Element at index ${index} has invalid role "${role}"`);
+    }
+  });
+
+  return { valid: issues.length === 0, issues };
 };
 
-const createInPageButton = () => {
-  // Create the in-page button
+const validateLandmarkAttributes = (landmark) => {
+  if (!landmark || !landmark.attributes) {
+    return false;
+  }
+  return true;
 };
 
-const setSvgAccessibleNames = (id1, id2, label1, label2) => {
-  // Add accessible names to 2 SVGs
+const addMainLandmark = () => {
+  // Code for adding main landmark
 };
 
-const fixFakeLink = () => {
-  // Fix 1 fake link issue
+// Additional utility functions
+const renderDependencyGraphContent = () => {
+  // Render dependency graph content
 };
 
-// Accessibility scanning function using axe-core library
-async function scanAccessibility(filePaths) {
-  // ... implementation
-}
+const createInPageButtons = () => {
+  // Create multiple in-page buttons
+};
 
-// Function to generate a report based on accessibility issues
-function generateAccessibilityReport(issuesData) {
-  // ... implementation
-}
+const scanAccessibility = (filePaths) => {
+  // Scan accessibility issues
+  // Implementation would go here
+};
+
+const generateAccessibilityReport = (issuesData) => {
+  // Generate accessibility report
+  // Implementation would go here
+};
 
 // Application state
 const appState = {
   initialized: false,
   data: null,
   cache: new Map(),
-  lang: 'en' // Added lang property
+  lang: 'en'
 };
 
 // Helper functions moved to a separate file
 const { fixTableStructureIssues, fixTableHeaderCellScope, addMainLandmark, addSvgAccessibleNames, fixFakeLinks, ensureUniqueLandmarks, addLandmarkRoles, fixUniqueLandmarks, generateAccessibilityReport, addressAccessibilityIssues, renderDependencyGraphContent, createInPageButtons } = require('./accessibility-improvements');
 
+// Export the main entry point
 module.exports = {
   appState,
   initialize,
   scanAccessibility,
   generateAccessibilityReport,
-  // ... add other exported functions here
+  // ... other exports
 };

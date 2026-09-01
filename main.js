@@ -30,7 +30,7 @@ const config = {
  */
 function addBook(bookData) {
   const errors = [];
-  
+
   // Validate book data exists
   if (!bookData || typeof bookData !== 'object') {
     return {
@@ -39,17 +39,17 @@ function addBook(bookData) {
       accessibleError: 'Error: Book information is missing. Please provide valid book details.'
     };
   }
-  
+
   // Validate title (required field)
   if (!bookData.title || typeof bookData.title !== 'string' || bookData.title.trim() === '') {
     errors.push('Title is required');
   }
-  
+
   // Validate author (required field)
   if (!bookData.author || typeof bookData.author !== 'string' || bookData.author.trim() === '') {
     errors.push('Author is required');
   }
-  
+
   // Return errors if validation failed
   if (errors.length > 0) {
     return {
@@ -58,7 +58,7 @@ function addBook(bookData) {
       accessibleError: `Error: ${errors.join('. ')}. Please fill in all required fields.`
     };
   }
-  
+
   // Create the book object with sanitized data
   const book = {
     id: Date.now(),
@@ -68,12 +68,12 @@ function addBook(bookData) {
     description: bookData.description ? bookData.description.trim() : null,
     createdAt: new Date().toISOString()
   };
-  
+
   return {
     success: true,
     book: book,
     message: 'Book added successfully',
-    accessibleMessage: `Success: "${book.title}" by ${book.author} has been added to your collection.`;
+    accessibleMessage: `Success: "${book.title}" by ${book.author} has been added to your collection.`
   };
 }
 
@@ -201,7 +201,7 @@ function handleCredentialResponse(response) {
 
     // Check if response contains expected credential data
     const hasCredential = response.credential || response.token || response.id;
-    
+
     if (!hasCredential) {
         return { success: false, error: 'Invalid credential response format' };
     }

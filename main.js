@@ -261,10 +261,8 @@
 
     // Harvest logic implementation
     async function harvest() {
-      // TODO: Implement harvest logic
-      // This function should collect resources or data from available sources
       try {
-        // Example: Harvest accessibility data from scanned pages
+        // Harvest accessibility data from scanned pages
         const report = await scanAccessibility();
         const harvestedData = {
           timestamp: new Date().toISOString(),
@@ -286,8 +284,6 @@
 
     // Upgrade logic implementation
     async function upgrade(harvestedData) {
-      // TODO: Implement upgrade logic
-      // This function should use harvested data to improve the system
       try {
         const data = harvestedData || (() => {
           const harvestFile = path.join(__dirname, 'harvest_data.json');
@@ -301,7 +297,7 @@
           throw new Error('No harvested data available for upgrade');
         }
 
-        // Example: Generate improved accessibility configurations based on harvested issues
+        // Generate improved accessibility configurations based on harvested issues
         const upgradePlan = {
           timestamp: new Date().toISOString(),
           basedOnHarvest: data.timestamp,
@@ -343,7 +339,6 @@
 
     // Combined harvest and upgrade workflow
     async function harvestAndUpgrade() {
-      // TODO: Implement harvest and upgrade logic
       const harvested = await harvest();
       const upgraded = await upgrade(harvested);
       return { harvested, upgraded };

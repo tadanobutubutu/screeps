@@ -64,7 +64,7 @@ function validateLandmark(landmark) {
     if (landmark.latitude === undefined || landmark.latitude === null) {
         errors.push('Landmark must have a latitude');
     } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
-        errors.push('Landmark latitude must be a number');
+        errors.push('Landmark longitude must be a number');
     } else if (landmark.latitude < -90 || landmark.latitude > 90) {
         errors.push('Landmark latitude must be between -90 and 90');
     }
@@ -97,7 +97,7 @@ function validateLandmark(landmark) {
 function wrapPrimaryContentInMain() {
   // Check if a <main> element already exists
   let mainElement = document.querySelector('main[role="main"], main, [role="main"]');
-  
+
   if (!mainElement) {
     // Find existing primary content element using common selectors
     const primaryContentSelectors = [
@@ -110,9 +110,9 @@ function wrapPrimaryContentInMain() {
       'article',
       '.content'
     ];
-    
+
     let primaryContent = null;
-    
+
     for (const selector of primaryContentSelectors) {
       const element = document.querySelector(selector);
       if (element && element.tagName !== 'MAIN') {
@@ -120,22 +120,22 @@ function wrapPrimaryContentInMain() {
         break;
       }
     }
-    
+
     // If no specific primary content found, use body content
     if (!primaryContent) {
       primaryContent = document.body;
     }
-    
+
     // Create main element with proper attributes
     mainElement = document.createElement('main');
     mainElement.id = 'main-content';
     mainElement.setAttribute('role', 'main');
-    
+
     // Preserve existing id if the primary content has one
     if (primaryContent.id) {
       mainElement.id = primaryContent.id;
     }
-    
+
     // Wrap the content appropriately
     if (primaryContent !== document.body && primaryContent.parentNode) {
       primaryContent.parentNode.insertBefore(mainElement, primaryContent);
@@ -149,7 +149,7 @@ function wrapPrimaryContentInMain() {
       document.body.appendChild(mainElement);
     }
   }
-  
+
   return mainElement;
 }
 
@@ -170,13 +170,13 @@ function main() {
 // Accessibility helper function to validate table accessibility
 function validateTableAccessibility(table) {
     const issues = [];
-    
+
     // Check for caption
     const caption = table.querySelector('caption');
     if (!caption) {
         issues.push('Table missing caption');
     }
-    
+
     // Check for th elements with scope or headers
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
@@ -184,14 +184,14 @@ function validateTableAccessibility(table) {
             issues.push('TH element missing scope or headers attribute');
         }
     });
-    
+
     return issues;
 }
 
 // Accessibility helper function to validate table structure
 function validateTableStructure(table) {
     const issues = [];
-    
+
     // Check for proper table structure (thead, tbody, tfoot)
     if (!table.querySelector('thead')) {
         issues.push('Table missing thead');
@@ -199,7 +199,7 @@ function validateTableStructure(table) {
     if (!table.querySelector('tbody')) {
         issues.push('Table missing tbody');
     }
-    
+
     // Check for proper row structure
     const rows = table.querySelectorAll('tr');
     rows.forEach((row, index) => {
@@ -208,7 +208,7 @@ function validateTableStructure(table) {
             issues.push(`Row ${index} has no cells`);
         }
     });
-    
+
     return issues;
 }
 
@@ -249,7 +249,7 @@ function ensureLandmarkUniqueness(elements) {
 function getSvgAccessibleName(svgElement) {
     // Check for aria-label
     let label = svgElement.getAttribute('aria-label');
-    
+
     // Check for aria-labelledby
     const labelledBy = svgElement.getAttribute('aria-labelledby');
     if (labelledBy) {
@@ -258,7 +258,7 @@ function getSvgAccessibleName(svgElement) {
             label = labelElement.textContent;
         }
     }
-    
+
     // Check for title element inside SVG
     if (!label) {
         const title = svgElement.querySelector('title');
@@ -266,7 +266,7 @@ function getSvgAccessibleName(svgElement) {
             label = title.textContent;
         }
     }
-    
+
     return label || '';
 }
 
@@ -274,12 +274,12 @@ function getSvgAccessibleName(svgElement) {
 function setSvgAttributes(svgElement, accessibleName) {
     // Ensure SVG has role="img"
     svgElement.setAttribute('role', 'img');
-    
+
     // Set aria-label if not already set
     if (!svgElement.getAttribute('aria-label') && accessibleName) {
         svgElement.setAttribute('aria-label', accessibleName);
     }
-    
+
     // Add title element if missing
     const existingTitle = svgElement.querySelector('title');
     if (!existingTitle && accessibleName) {
@@ -293,7 +293,7 @@ function setSvgAttributes(svgElement, accessibleName) {
 function ensureUniqueLandmarks() {
     const landmarks = {};
     const issues = [];
-    
+
     // Find all landmark elements
     const banner = document.querySelectorAll('[role="banner"], .banner');
     const navigation = document.querySelectorAll('[role="navigation"], .navigation');
@@ -301,20 +301,20 @@ function ensureUniqueLandmarks() {
     const contentinfo = document.querySelectorAll('[role="contentinfo"], .contentinfo');
     const complementary = document.querySelectorAll('[role="complementary"], .complementary');
     const search = document.querySelectorAll('[role="search"], .search');
-    
+
     // Check for duplicate landmarks
     if (banner.length > 1) landmarks.banner = banner;
     if (main.length > 1) landmarks.main = main;
     if (contentinfo.length > 1) landmarks.contentinfo = contentinfo;
-    
+
     if (complementary.length > 1) {
         issues.push(`Found ${complementary.length} complementary landmarks, should have at most 1`);
     }
-    
+
     if (search.length > 1) {
         issues.push(`Found ${search.length} search landmarks, should have at most 1`);
     }
-    
+
     return { landmarks, issues };
 }
 
@@ -332,18 +332,18 @@ function addLandmarkRegions() {
         main.setAttribute('id', 'main-content');
         // Content would need to be moved into main here
     }
-    
+
     // Ensure unique IDs for landmarks
     const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="search"], [role="region"]');
     const usedIds = new Set();
-    
+
     landmarks.forEach(landmark => {
         const existingId = landmark.id;
         if (existingId) {
             usedIds.add(existingId);
         }
     });
-    
+
     return { main, usedIds };
 }
 
@@ -380,7 +380,7 @@ function ensureUniqueLandmarks(landmarksArray) {
 // NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 function newFocusTrap(focusableElements, onEscape) {
   const initialFocus = null;
-  
+
   function trapFocus(event) {
     if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
       const focusable = Array.from(focusableElements).filter(el => el.offsetWidth > 0 && el.offsetHeight > 0);
@@ -395,9 +395,9 @@ function newFocusTrap(focusableElements, onEscape) {
       console.log('Focus trap triggered, returning focus');
     }
   }
-  
+
   document.addEventListener('keydown', trapFocus);
-  
+
   return () => {
     document.removeEventListener('keydown', trapFocus);
   };

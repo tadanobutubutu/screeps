@@ -5,7 +5,7 @@ const accessibilityUtils = {
         if (!issues || !Array.isArray(issues)) {
             return [];
         }
-        
+
         return issues.map(issue => {
             return {
                 id: issue.id,
@@ -75,11 +75,11 @@ if (require.main === module) {
   const landmarks = loadLandmarks();
   const processed = processLandmarks(landmarks);
   const sorted = sortLandmarks(processed);
-  
+
   console.log(`Loaded ${landmarks.length} landmarks`);
   console.log(`Processed to ${processed.length} unique landmarks`);
   console.log(`Sorted ${sorted.length} landmarks`);
-  
+
   if (sorted.length > 0) {
     console.log('First landmark:', sorted[0]);
   }

@@ -2,11 +2,11 @@ import React from 'react';
 
 // Configuration
 const CONFIG = {
-  port: process.env.PORT || 3000,
-  host: process.env.HOST || 'localhost',
-  maxRetries: 3,
-  timeout: 5000
-}
+    port: process.env.PORT || 3000,
+    host: process.env.HOST || 'localhost',
+    maxRetries: 3,
+    timeout: 5000,
+};
 
 // Accessibility utilities and functions
 const accessibilityUtils = {
@@ -89,7 +89,7 @@ const accessibilityUtils = {
 
     validateLandmark: () => {
         const landmarks = ['header', 'nav', 'main', 'footer'];
-        landmarks.forEach(landmark => {
+        landmarks.forEach((landmark) => {
             const elements = document.querySelectorAll(landmark);
             if (elements.length > 1) {
                 console.warn(`Multiple ${landmark} elements found`);
@@ -155,9 +155,9 @@ const accessibilityUtils = {
         return {
             destroy: () => {
                 element.removeEventListener('keydown', handleKeyDown);
-            }
+            },
         };
-    }
+    },
 };
 
 // Screeps Bot class
@@ -209,31 +209,31 @@ class ScreepsBot {
 }
 
 // Existing utility functions
-function log (message, level = 'info') {
-  const timestamp = new Date().toISOString()
-  console.log(`${timestamp} [${level.toUpperCase()}]: ${message}`)
+function log(message, level = 'info') {
+    const timestamp = new Date().toISOString();
+    console.log(`${timestamp} [${level.toUpperCase()}]: ${message}`);
 }
 
 // Module-level function definitions
-function affectedFunction () {
-  // Function implementation
-  return 'affected function result'
+function affectedFunction() {
+    // Function implementation
+    return 'affected function result';
 }
 
-function updateFunction () {
-  // Function implementation
-  return 'update function result'
+function updateFunction() {
+    // Function implementation
+    return 'update function result';
 }
 
-function accessibleFunction () {
-  // Function implementation
-  return 'accessible function result'
+function accessibleFunction() {
+    // Function implementation
+    return 'accessible function result';
 }
 
 // Main entry point
-function main () {
-  // Application initialization
-  return 'main function executed'
+function main() {
+    // Application initialization
+    return 'main function executed';
 }
 
 // Implement the function for addressing accessibility issues from insight report
@@ -280,7 +280,14 @@ const {
 } = utilsModule;
 
 // Link accessibility checking functions
-const { validateLinks, checkLinkAccessibility, fixLinkAccessibility, addLinkAccessibleNames, ensureLinksHaveText, validateLinkTargets } = require('./utilities');
+const {
+    validateLinks,
+    checkLinkAccessibility,
+    fixLinkAccessibility,
+    addLinkAccessibleNames,
+    ensureLinksHaveText,
+    validateLinkTargets,
+} = require('./utilities');
 
 const http = require('http');
 const fs = require('fs');
@@ -296,16 +303,56 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
         fakeLinksFixed: 0,
     };
 
-    const getLangAttribute = getLangAttributeImpl || function() { return getLangAttributeImpl.call(this); };
-    const createInPageButton = createInPageButtonImpl || function() { return createInPageButtonImpl.call(this); };
-    const validateTableAccessibility = validateTableAccessibilityImpl || function() { return validateTableAccessibilityImpl.call(this); };
-    const validateTableStructure = validateTableStructureImpl || function() { return validateTableStructureImpl.call(this); };
-    const getSvgAccessibleName = getSvgAccessibleNameImpl || function(svg) { return getSvgAccessibleNameImpl.call(this, svg); };
-    const setSvgAttributes = setSvgAttributesImpl || function(svg) { return setSvgAttributesImpl.call(this, svg); };
-    const ensureUniqueLandmarks = ensureUniqueLandmarksImpl || function() { return ensureUniqueLandmarksImpl.call(this); };
-    const validateLinkAccessibility = validateLinkAccessibilityImpl || function() { return validateLinkAccessibilityImpl.call(this); };
-    const handleFakeLinks = handleFakeLinksImpl || function() { return handleFakeLinksImpl.call(this); };
-    const addProperLandmarkRegions = addProperLandmarkRegionsImpl || function() { return addProperLandmarkRegionsImpl.call(this); };
+    const getLangAttribute =
+        getLangAttributeImpl ||
+        function () {
+            return getLangAttributeImpl.call(this);
+        };
+    const createInPageButton =
+        createInPageButtonImpl ||
+        function () {
+            return createInPageButtonImpl.call(this);
+        };
+    const validateTableAccessibility =
+        validateTableAccessibilityImpl ||
+        function () {
+            return validateTableAccessibilityImpl.call(this);
+        };
+    const validateTableStructure =
+        validateTableStructureImpl ||
+        function () {
+            return validateTableStructureImpl.call(this);
+        };
+    const getSvgAccessibleName =
+        getSvgAccessibleNameImpl ||
+        function (svg) {
+            return getSvgAccessibleNameImpl.call(this, svg);
+        };
+    const setSvgAttributes =
+        setSvgAttributesImpl ||
+        function (svg) {
+            return setSvgAttributesImpl.call(this, svg);
+        };
+    const ensureUniqueLandmarks =
+        ensureUniqueLandmarksImpl ||
+        function () {
+            return ensureUniqueLandmarksImpl.call(this);
+        };
+    const validateLinkAccessibility =
+        validateLinkAccessibilityImpl ||
+        function () {
+            return validateLinkAccessibilityImpl.call(this);
+        };
+    const handleFakeLinks =
+        handleFakeLinksImpl ||
+        function () {
+            return handleFakeLinksImpl.call(this);
+        };
+    const addProperLandmarkRegions =
+        addProperLandmarkRegionsImpl ||
+        function () {
+            return addProperLandmarkRegionsImpl.call(this);
+        };
 
     // Apply all fixes and return the fixes object
     return fixes;
@@ -316,29 +363,29 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
 
 // Export functions to make them accessible
 module.exports = {
-  affectedFunction,
-  updateFunction,
-  accessibleFunction,
-  main,
-  createWebResourceButton,
-  validateAccessibilityReport,
-  accessibilityUtils,
-  log,
-  CONFIG,
-  ScreepsBot,
-  newFunction,
-  implementAccessibilityFixesFromReport,
-}
+    affectedFunction,
+    updateFunction,
+    accessibleFunction,
+    main,
+    createWebResourceButton,
+    validateAccessibilityReport,
+    accessibilityUtils,
+    log,
+    CONFIG,
+    ScreepsBot,
+    newFunction,
+    implementAccessibilityFixesFromReport,
+};
 
 // Also attach to global scope for browser/standalone access
 if (typeof window !== 'undefined') {
-  window.affectedFunction = affectedFunction
-  window.updateFunction = updateFunction
-  window.accessibleFunction = accessibleFunction
-  window.main = main
-  window.createWebResourceButton = createWebResourceButton
-  window.validateAccessibilityReport = validateAccessibilityReport
-  window.accessibilityUtils = accessibilityUtils
-  window.log = log
-  window.CONFIG = CONFIG
+    window.affectedFunction = affectedFunction;
+    window.updateFunction = updateFunction;
+    window.accessibleFunction = accessibleFunction;
+    window.main = main;
+    window.createWebResourceButton = createWebResourceButton;
+    window.validateAccessibilityReport = validateAccessibilityReport;
+    window.accessibilityUtils = accessibilityUtils;
+    window.log = log;
+    window.CONFIG = CONFIG;
 }

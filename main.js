@@ -276,6 +276,37 @@ function getSvgAccessibleName(svg) {
   return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.getAttribute('title') || '';
 }
 
+/**
+ * Creates an accessible web resource button for platforms like GitHub, Stack Overflow, etc.
+ * @param {Object} options - Configuration options for the button
+ * @param {string} options.platform - The platform name (e.g., 'GitHub', 'Stack Overflow')
+ * @param {string} options.url - The URL to link to
+ * @param {HTMLElement} [options.parent=document.body] - The parent element to append the button to
+ * @param {string} [options.ariaLabel] - Custom aria-label for the button
+ * @returns {HTMLElement} The created button element
+ */
+function createWebResourceButton({ platform, url, parent = document.body, ariaLabel }) {
+  if (!platform || !url) {
+    throw new Error('Platform and URL are required to create a web resource button');
+  }
+
+  const btn = document.createElement('a');
+  btn.href = url;
+  btn.target = '_blank';
+  btn.rel = 'noopener noreferrer';
+  btn.className = 'web-resource-button';
+  btn.setAttribute('role', 'button');
+  btn.setAttribute('aria-label', ariaLabel || `Link to ${platform}`);
+  btn.textContent = platform;
+
+  // Add platform-specific styling class
+  const platformClass = platform.toLowerCase().replace(/\s+/g, '-');
+  btn.classList.add(`platform-${platformClass}`);
+
+  parent.appendChild(btn);
+  return btn;
+}
+
 // TODO: New code that was added to the branch
 // New function that does something different
 /**
@@ -308,5 +339,6 @@ module.exports = {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
+  createWebResourceButton,
   newFunction,
 };

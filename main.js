@@ -129,7 +129,7 @@ function addLandmarkRoles() {
   if (mainElement) {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   const navElement = document.querySelector('nav');
   if (navElement) {
     navElement.setAttribute('role', 'navigation');
@@ -232,25 +232,25 @@ function handleFakeLinks() {
 // Graph rendering functions
 function renderGraph(container, options = {}) {
   const { width = 800, height = 600, data = null } = options;
-  
+
   if (!container) {
     console.error('Graph container not provided');
     return null;
   }
-  
-  const graphContainer = typeof container === 'string' 
-    ? document.querySelector(container) 
+
+  const graphContainer = typeof container === 'string'
+    ? document.querySelector(container)
     : container;
-  
+
   if (!graphContainer) {
     console.error('Graph container element not found');
     return null;
   }
-  
+
   const graphElement = document.createElement('div');
   graphElement.className = 'graph-renderer';
   graphElement.setAttribute('role', 'img');
-  
+
   return graphElement;
 }
 
@@ -429,7 +429,7 @@ function validateTableAccessibility(table) {
 
   const headers = Array.from(table.querySelectorAll('th'));
   const hasHeaders = headers.length > 0;
-  
+
   const caption = table.querySelector('caption');
   const hasCaption = caption !== null;
 
@@ -660,6 +660,35 @@ module.exports = {
   sortLandmarks,
   getLandmarkById,
   landmarkConfig: appConfig,
+  initialize,
+  initializeApp,
+  clearCache,
+  // Added back the missing exports
+  getFullLangAttribute,
+  calculateSum,
+  processDataUtil,
+  setAndGetImageAlt,
+  checkLandmarkElement,
+  landmarkStructureCheck,
+  processAccessibilityReport,
+  renderGraph,
+  fixFakeLinks,
+  addLandmarkRegions,
+  validateLandmarkAttributes,
+  setLanguageAttribute,
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  validateInput,
+  processData,
+  formatResponse,
   initialize,
   initializeApp,
   clearCache

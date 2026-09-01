@@ -31,11 +31,19 @@ function getFullLangAttribute() {
 function validateTableAccessibility(table) {
   const issues = [];
 
-  if (!table.querySelector || !table.querySelector('caption')) {
+  if (!table) {
+    issues.push('Table is null or undefined');
+  }
+
+  if (!table.querySelector) {
+    issues.push('Table structure issue: Missing querySelector method');
+  }
+
+  if (!table.querySelector('caption')) {
     issues.push('Table structure issue: Missing caption element');
   }
 
-  if (!table.querySelector || !table.querySelector('thead')) {
+  if (!table.querySelector('thead')) {
     issues.push('Table structure issue: Missing thead element');
   }
 
@@ -258,6 +266,71 @@ function handleAccessibilityIssues(issues) {
   };
 }
 
+/**
+ * Validates link accessibility compliance
+ * @param {Object} link - The link object to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLinkAccessibility(link) {
+  const issues = [];
+
+  if (!link.href) {
+    issues.push('Missing href attribute');
+  }
+
+  if (!link.text && !link.ariaLabel) {
+    issues.push('Missing both text and aria-label');
+  }
+
+  if (link.isFake) {
+    issues.push('Fake link detected');
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Sets SVG attributes to ensure accessibility
+ * @param {Object} svg - The SVG element
+ * @param {Object} attributes - Attributes to set
+ * @returns {Object} The updated SVG element
+ */
+function setSvgAttributes(svg, attributes) {
+  return {
+    ...svg,
+    ...attributes,
+    accessibleName: getSvgAccessibleName(svg)
+  };
+}
+
+/**
+ * Adds proper landmark regions to the document
+ * @param {Array} landmarks - Array of landmark elements to add
+ * @returns {Object} Result with success status and any issues found
+ */
+function addProperLandmarkRegions(landmarks) {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+
+  landmarks.forEach((landmark, index) => {
+    if (!validLandmarks.includes(landmark.tagName.toLowerCase())) {
+      issues.push({
+        landmarkIndex: index,
+        issue: `Invalid landmark: ${landmark.tagName}`
+      });
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+// Export all functions for testing and external use
 module.exports = {
   getLangAttribute,
   getFullLangAttribute,
@@ -270,5 +343,8 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  validateLinkAccessibility,
+  setSvgAttributes,
+  addProperLandmarkRegions
 };

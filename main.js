@@ -527,4 +527,125 @@ function handleFakeLinks(container) {
     }
 
     if (tagName === 'button' && element.querySelector('a')) {
-      issues.push(`Button at
+      issues.push(`Button at index ${index} contains an anchor element`);
+    }
+  });
+
+  return { valid: issues.length === 0, issues };
+}
+
+/**
+ * Adds proper landmark regions to the document.
+ */
+function addProperLandmarkRegions() {
+  const regions = [
+    { role: 'banner', selector: 'header', label: 'Site header' },
+    { role: 'navigation', selector: 'nav', label: 'Main navigation' },
+    { role: 'main', selector: 'main', label: 'Main content' },
+    { role: 'complementary', selector: 'aside', label: 'Additional information' },
+    { role: 'contentinfo', selector: 'footer', label: 'Footer content' }
+  ];
+
+  regions.forEach(region => {
+    const elements = document.querySelectorAll(region.selector);
+    elements.forEach((element, index) => {
+      if (!element.getAttribute('role')) {
+        element.setAttribute('role', region.role);
+      }
+      if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+        element.setAttribute('aria-label', `${region.label} ${index + 1}`);
+      }
+    });
+  });
+}
+
+/**
+ * Ensures all interactive elements have proper keyboard support.
+ */
+function ensureKeyboardSupport() {
+  const interactiveElements = document.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+
+  interactiveElements.forEach(element => {
+    if (!element.hasAttribute('tabindex')) {
+      element.setAttribute('tabindex', '0');
+    }
+
+    if (element.tagName === 'A' && !element.hasAttribute('href')) {
+      element.setAttribute('role', 'button');
+    }
+  });
+}
+
+/**
+ * Renders a dependency graph visualization.
+ * @param {Array} dependencies - Array of dependency objects.
+ */
+function renderDependencyGraph(dependencies) {
+  if (!dependencies || !Array.isArray(dependencies)) {
+    console.error('Invalid dependencies array');
+    return;
+  }
+
+  const container = document.createElement('div');
+  container.className = 'dependency-graph';
+
+  dependencies.forEach(dep => {
+    const depElement = document.createElement('div');
+    depElement.className = 'dependency-item';
+    depElement.textContent = dep.name;
+
+    if (dep.dependencies && dep.dependencies.length > 0) {
+      const subGraph = document.createElement('div');
+      subGraph.className = 'dependency-subgraph';
+      dep.dependencies.forEach(subDep => {
+        const subDepElement = document.createElement('div');
+        subDepElement.className = 'dependency-subitem';
+        subDepElement.textContent = subDep;
+        subGraph.appendChild(subDepElement);
+      });
+      depElement.appendChild(subGraph);
+    }
+
+    container.appendChild(depElement);
+  });
+
+  document.body.appendChild(container);
+}
+
+/**
+ * Ensures an element has a unique ID.
+ * @param {HTMLElement} element - The element to check.
+ * @param {string} baseId - The base ID to use if none exists.
+ * @returns {string} The element's ID.
+ */
+function ensureElementId(element, baseId) {
+  if (!element) return '';
+
+  if (!element.id) {
+    let id = baseId || 'element';
+    let counter = 1;
+    let newId = id;
+
+    while (document.getElementById(newId)) {
+      newId = `${id}-${counter}`;
+      counter++;
+    }
+
+    element.id = newId;
+  }
+
+  return element.id;
+}
+
+/**
+ * Adds an aria-label to an element if it doesn't have one.
+ * @param {HTMLElement} element - The element to check.
+ * @param {string} label - The label to add.
+ */
+function addAriaLabel(element, label) {
+  if (!element || !label) return;
+
+  if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+    element.setAttribute('aria-label', label);
+  }
+}

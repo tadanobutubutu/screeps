@@ -678,7 +678,7 @@ function renderAccessibilityReportHtml(report) {
     let html = `<div class="accessibility-report">
         <h1>Accessibility Report</h1>
         <p>Generated: ${report.timestamp}</p>
-        
+
         <div class="summary">
             <h2>Summary</h2>
             <ul>
@@ -688,10 +688,10 @@ function renderAccessibilityReportHtml(report) {
                 <li>Passed: ${report.summary.passed}</li>
             </ul>
         </div>
-        
+
         <div class="issues">
             <h2>Issues Found</h2>`;
-    
+
     if (report.issues.length === 0) {
         html += '<p>No issues found!</p>';
     } else {
@@ -701,12 +701,12 @@ function renderAccessibilityReportHtml(report) {
             </div>`;
         });
     }
-    
+
     html += `</div>
-        
+
         <div class="passed">
             <h2>Passed Checks</h2>`;
-    
+
     if (report.passed.length === 0) {
         html += '<p>No checks passed yet.</p>';
     } else {
@@ -716,9 +716,9 @@ function renderAccessibilityReportHtml(report) {
             </div>`;
         });
     }
-    
+
     html += '</div></div>';
-    
+
     return html;
 }
 
@@ -728,22 +728,34 @@ function renderAccessibilityReportHtml(report) {
  */
 function generateAndDisplayReport() {
     const report = generateAccessibilityReport();
-    
+
     console.log('=== Accessibility Report ===');
     console.log(`Generated: ${report.timestamp}`);
     console.log(`Total Issues: ${report.summary.totalIssues}`);
     console.log(`Critical: ${report.summary.critical}`);
     console.log(`Moderate: ${report.summary.moderate}`);
     console.log(`Passed: ${report.summary.passed}`);
-    
+
     if (report.issues.length > 0) {
         console.log('\n--- Issues ---');
         report.issues.forEach(issue => {
             console.log(`[${issue.status.toUpperCase()}] ${issue.category}: ${issue.message}`);
         });
     }
-    
+
     if (report.passed.length > 0) {
         console.log('\n--- Passed Checks ---');
         report.passed.forEach(item => {
-            console.log(`[PASS
+            console.log(`[PASSED] ${item.category}: ${item.message}`);
+        });
+    }
+
+    return report;
+}
+
+// Export the report generation functions
+export {
+  generateAccessibilityReport,
+  renderAccessibilityReportHtml,
+  generateAndDisplayReport
+};

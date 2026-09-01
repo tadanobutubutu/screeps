@@ -137,7 +137,7 @@ const accessibilityUtils = {
     const focusableElements = element.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
-    
+
     if (focusableElements.length === 0) {
       return () => {};
     }
@@ -155,7 +155,7 @@ const accessibilityUtils = {
           firstElement.focus();
         }
       }
-      
+
       if (e.key === 'Escape') {
         element.dispatchEvent(new CustomEvent('focusTrapEscape'));
       }
@@ -208,11 +208,11 @@ async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received');
   }
-  
+
   if (response.error) {
     throw new Error(response.error);
   }
-  
+
   if (response.token) {
     return {
       success: true,
@@ -220,7 +220,7 @@ async function handleCredentialResponse(response) {
       expiresIn: response.expiresIn || 3600
     };
   }
-  
+
   throw new Error('Invalid credential response');
 }
 
@@ -243,7 +243,7 @@ const exportUtilities = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
   },
@@ -255,11 +255,11 @@ const exportUtilities = {
 
   exportToCSV: (data, filename) => {
     if (!data || data.length === 0) return;
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (const row of data) {
       const values = headers.map(header => {
         const escaped = ('' + row[header]).replace(/"/g, '\\"');
@@ -267,7 +267,7 @@ const exportUtilities = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtilities.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -311,7 +311,7 @@ function filterValidItems(items, validator) {
 // Initialize accessibility features
 const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
-  
+
   // Add keyboard support for all interactive elements
   document.querySelectorAll('[data-accessible]').forEach(element => {
     element.addEventListener('keydown', (e) => {
@@ -380,7 +380,7 @@ function transformInputData(inputData, options = {}) {
   if (typeof inputData === 'object' && !Array.isArray(inputData) && inputData !== null) {
     const result = {};
     const keys = preserveKeys ? Object.keys(inputData) : Object.keys(inputData).map(() => Math.random().toString(36).substr(2, 9));
-    
+
     let i = 0;
     for (const key of Object.keys(inputData)) {
       const value = inputData[key];
@@ -471,7 +471,7 @@ function validateTableStructure(tableElement) {
   if (hasHeadersAttr) {
     const headerIds = new Set();
     tableElement.querySelectorAll('th[id]').forEach(th => headerIds.add(th.id));
-    
+
     tableElement.querySelectorAll('td[headers]').forEach(td => {
       const headersList = td.getAttribute('headers').split(/\s+/);
       headersList.forEach(id => {
@@ -492,28 +492,28 @@ function validateTableStructure(tableElement) {
  */
 function validateLandmark(element) {
   const issues = [];
-  
+
   if (!element) {
     issues.push('Element is required');
     return issues;
   }
 
   const landmarkRoles = [
-    'banner', 'complementary', 'contentinfo', 'form', 
+    'banner', 'complementary', 'contentinfo', 'form',
     'main', 'navigation', 'region', 'search'
   ];
 
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
-  
+
   // Check if element is a landmark
-  const isLandmark = landmarkRoles.includes(role) || 
-    (tagName === 'main') || 
-    (tagName === 'nav') || 
-    (tagName === 'aside') || 
-    (tagName === 'header') || 
-    (tagName === 'footer') || 
-    (tagName === 'form') || 
+  const isLandmark = landmarkRoles.includes(role) ||
+    (tagName === 'main') ||
+    (tagName === 'nav') ||
+    (tagName === 'aside') ||
+    (tagName === 'header') ||
+    (tagName === 'footer') ||
+    (tagName === 'form') ||
     (tagName === 'section' && element.hasAttribute('aria-label')) ||
     (tagName === 'section' && element.hasAttribute('aria-labelledby'));
 
@@ -546,7 +546,7 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure() {
   const issues = [];
-  
+
   // Check for main landmark
   const mainLandmarks = document.querySelectorAll('main, [role="main"]');
   if (mainLandmarks.length === 0) {
@@ -634,7 +634,7 @@ function getSvgAccessibleName(svgElement) {
  */
 function createInPageButton(options) {
   const { text, onClick, ariaLabel, className = '' } = options;
-  
+
   if (!text || typeof onClick !== 'function') {
     throw new Error('Button text and onClick handler are required');
   }
@@ -643,13 +643,13 @@ function createInPageButton(options) {
   button.type = 'button';
   button.textContent = text;
   button.className = className;
-  
+
   if (ariaLabel) {
     button.setAttribute('aria-label', ariaLabel);
   }
-  
+
   button.addEventListener('click', onClick);
-  
+
   // Add keyboard support
   button.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -657,7 +657,7 @@ function createInPageButton(options) {
       onClick(e);
     }
   });
-  
+
   return button;
 }
 

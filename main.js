@@ -128,10 +128,10 @@ addLangAttribute();
 function outputSafetyClassification(userMessage, assistantResponse) {
     // Classify user safety
     const userSafety = classifyUserSafety(userMessage);
-    
+
     // Output user safety
     console.log(`User Safety: ${userSafety}`);
-    
+
     // Output response safety only if assistant response is present
     if (assistantResponse) {
         const responseSafety = classifyResponseSafety(assistantResponse);
@@ -158,13 +158,13 @@ function classifyUserSafety(userMessage) {
         /harass/i,
         /threat/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(userMessage)) {
             return 'unsafe';
         }
     }
-    
+
     // Legitimate programming tasks are safe
     return 'safe';
 }
@@ -181,13 +181,13 @@ function classifyResponseSafety(assistantResponse) {
         /how.*hack/i,
         /create.*malware/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(assistantResponse)) {
             return 'unsafe';
         }
     }
-    
+
     return 'safe';
 }
 
@@ -249,7 +249,7 @@ function ensureUniqueLandmarks() {
     'main[role="main"]',
     'footer[role="contentinfo"]'
   ].join(', '));
-  
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation
@@ -265,11 +265,32 @@ function setSvgAttributes(svg, accessibleName) {
   // Add accessible name to SVG
 }
 
-function createInPageButton() {
-  // Implementation for creating in-page button
+/**
+ * Creates an in-page button with accessibility attributes
+ * @param {string} text - The button text content
+ * @param {string} ariaLabel - The ARIA label for accessibility
+ * @param {string} [id] - Optional ID for the button
+ * @param {string} [className] - Optional class name for styling
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(text, ariaLabel, id, className) {
   const button = document.createElement('button');
-  button.setAttribute('aria-label', 'Skip to main content');
-  button.textContent = 'Skip to main content';
+  button.textContent = text;
+  button.setAttribute('aria-label', ariaLabel);
+
+  if (id) {
+    button.id = id;
+  }
+
+  if (className) {
+    button.className = className;
+  }
+
+  // Add basic styling for visibility
+  button.style.padding = '8px 16px';
+  button.style.margin = '4px';
+  button.style.cursor = 'pointer';
+
   return button;
 }
 
@@ -279,4 +300,5 @@ function createAccessibleLink(text, href) {
   const link = document.createElement('a');
   link.href = href;
   link.textContent = text;
-  link.setAttribute('aria-label', text
+  link.setAttribute('aria-label', text);
+}

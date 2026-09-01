@@ -15,26 +15,19 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
-// main.js - Accessibility-focused implementation
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
-
-/**
- * Main application entry point with accessibility features
- */
+// Main application entry point with accessibility features
 
 function ... {
   const svgElements = ...
 
-  ... => {
-    if ... {
+  svgElements.forEach(svg => {
+    if (svg) {
       svg.setAttribute('role', 'img');
     }
 
     const accessibleName = getSvgAccessibleName(svg);
     if (accessibleName) {
-      ... accessibleName);
+      svg.setAttribute('aria-label', accessibleName);
     }
 
     setSvgAttributes(svg);
@@ -62,16 +55,16 @@ const sampleInsightReport = {
 function countDependencies() {
     const path = require('path');
     const fs = require('fs');
-    const packageJsonPath = ... 'package.json');
-    const packageJson = ... 'utf8'));
+    const packageJsonPath = path.join(__dirname, 'package.json');
+    const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
 
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
+    const dependencies = JSON.parse(packageJson).dependencies || {};
+    const devDependencies = JSON.parse(packageJson).devDependencies || {};
 
     return {
-        dependencies: ...
-        devDependencies: ...
-        total: ... + ...
+        dependencies: Object.keys(dependencies).length,
+        devDependencies: Object.keys(devDependencies).length,
+        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
 }
 
@@ -106,7 +99,7 @@ function handleCredentialResponse(response) {
         // Google Sign-In response
         try {
             // Credential is a base64-encoded JWT
-            const payload = ...
+            const payload = JSON.parse(atob(response.credential));
             processedCredential.id = payload.sub || processedCredential.id;
             processedCredential.email = payload.email || processedCredential.email;
             processedCredential.name = payload.name || processedCredential.name;
@@ -157,7 +150,8 @@ if (typeof module !== 'undefined' && module.exports) {
 } else {
   // Browser environment - wait for DOM
   if (document.readyState === 'loading') {
-    ... init);
+    ...
+    init();
   } else {
     init();
   }
@@ -179,8 +173,8 @@ function ... {
   if (!liveRegion) {
     const region = ...
     region.id = 'aria-live-region';
-    ... 'polite');
-    ... 'true');
+    region.setAttribute('aria-live', 'polite');
+    region.setAttribute('aria-atomic', 'true');
     region.className = 'sr-only';
     ...
   }
@@ -190,15 +184,16 @@ function setupFocusManagement() {
   // Trap focus within modal dialogs
   const modals = ...
   modals.forEach((modal) => {
-    ... trapFocus);
+    ...
+    trapFocus(modal);
   });
 
   // Ensure all interactive elements are keyboard accessible
   const interactiveElements = document.querySelectorAll(
     'button, a, input, select, textarea, [tabindex]'
   );
-  ... => {
-    if ... {
+  interactiveElements.forEach(element => {
+    if (element) {
       element.setAttribute('tabindex', '0');
     }
   });
@@ -212,13 +207,13 @@ function enhanceSemanticMarkup() {
     skipLink.href = '#main-content';
     skipLink.textContent = 'Skip to main content';
     skipLink.className = 'skip-link';
-    ... ...
+    ...
   }
 
   // Ensure images have alt attributes
   const images = ...
   images.forEach((img) => {
-    if ... {
+    if (img) {
       img.setAttribute('alt', '');
       img.setAttribute('role', 'presentation');
     }
@@ -226,11 +221,14 @@ function enhanceSemanticMarkup() {
 
   // Ensure form inputs have associated labels
   const inputs = ... select, textarea');
-  ... => {
-    const id = input.id || ... 9)}`;
+  inputs.forEach(input => {
+    const id = input.id || `input-${Math.floor(Math.random() * 1000)}`;
     input.id = id;
-    if ... && ... {
-      input.setAttribute('aria-label', input.name || 'Input field');
+    if (input.name && !input.labels.length) {
+      const label = document.createElement('label');
+      label.htmlFor = id;
+      label.textContent = input.name || 'Input field';
+      input.parentNode.insertBefore(label, input);
     }
   });
 }

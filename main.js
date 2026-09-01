@@ -5,7 +5,7 @@
 // (This comment remains as-is)
 // TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)
 
-const { 
+const {
   createInPageButton: importedCreateInPageButton,
   createWebResourceButton: importedCreateWebResourceButton,
   validateTableAccessibility: importedValidateTableAccessibility,
@@ -34,11 +34,11 @@ const CONFIG = {
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: () => {
-    const skipLink = ...
+    const skipLink = document.querySelector('[data-skip-link]');
     if (skipLink) {
-      ... (e) => {
+      skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = ...
+        const target = document.querySelector(skipLink.getAttribute('href'));
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -50,18 +50,18 @@ const accessibilityUtils = {
   // Trap focus within an element (for modals, dialogs)
   trapFocus: (element) => {
     const focusableElements = element.querySelectorAll(
-      'a[href], ... ... ... ... ...
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
-    const firstElement = ...
+    const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
 
-    ... (e) => {
+    element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
-          ...
+          lastElement.focus();
           e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          ...
+          firstElement.focus();
           e.preventDefault();
         }
       }
@@ -70,14 +70,14 @@ const accessibilityUtils = {
 
   // Announce message to screen readers
   announceToScreenReader: (message, priority = 'polite') => {
-    const announcer = ...
-    ... priority);
-    ... 'true');
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
     announcer.className = 'sr-only';
     announcer.style.position = 'absolute';
     announcer.style.left = '-9999px';
     announcer.textContent = message;
-    ...
+    document.body.appendChild(announcer);
     setTimeout(() => announcer.remove(), 1000);
   },
 
@@ -93,7 +93,7 @@ const accessibilityUtils = {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  ... ... ${message}`);
+  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
 }
 
 function validateInput(input) {
@@ -103,9 +103,9 @@ function validateInput(input) {
   return input.length > 0 && input.length <= 1000;
 }
 
-function ... {
+function parseJSONsafe(jsonString) {
   try {
-    return ...
+    return JSON.parse(jsonString);
   } catch (error) {
     return null;
   }
@@ -140,12 +140,12 @@ async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
 }
 
 function sanitizeFilename(filename) {
-  return ... '_');
+  return filename.replace(/[^a-z0-9\.\-]/gi, '_');
 }
 
 function readFileSafe(filePath) {
   try {
-    return ... 'utf8');
+    return fs.readFileSync(filePath, 'utf8');
   } catch (error) {
     log(`Error reading file ${filePath}: ${error.message}`, 'error');
     return null;
@@ -174,13 +174,13 @@ function filterValidItems(items, validator) {
   });
 }
 
-function ... getCategory) {
+function groupByCategory(items, getCategory) {
   return items.reduce((groups, item) => {
     const category = getCategory(item);
     if (!groups[category]) {
       groups[category] = [];
     }
-    ...
+    groups[category].push(item);
     return groups;
   }, {});
 }
@@ -268,12 +268,12 @@ function ensureElementHasId(element, prefix = 'element') {
   if (!element) {
     throw new Error('Element is required');
   }
-  
+
   if (element.id) {
     return element.id;
   }
-  
-  const id = ... 9)}`;
+
+  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = id;
   return id;
 }
@@ -288,15 +288,15 @@ function addAriaLabel(element, label) {
   if (!element) {
     throw new Error('Element is required');
   }
-  
+
   if (!label) {
     throw new Error('Label is required');
   }
-  
+
   if (element.getAttribute('aria-label')) {
     return false;
   }
-  
+
   element.setAttribute('aria-label', label);
   return true;
 }
@@ -383,11 +383,11 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
   if (!container) {
     throw new Error('Container element is required');
   }
-  
+
   if (!dependencies) {
     throw new Error('Dependencies data is required');
   }
-  
+
   // Ensure container has an id for graph references
   const containerId = ensureElementHasId(container, 'graph-container');
 
@@ -396,10 +396,10 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
   // Ensure all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
   // (Preserve existing function for control)
   ensureDependencyGraphAccessibility(container);
-  
+
   // Add accessibility label if not present
   const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
-  
+
   // Placeholder for graph rendering logic
   // Actual implementation would use a library like D3.js or similar
   const graphData = {
@@ -409,9 +409,9 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
     rendered: true,
     timestamp: new Date().toISOString()
   };
-  
+
   console.log('Rendering dependency graphs:', graphData);
-  
+
   return graphData;
 }
 
@@ -435,73 +435,45 @@ async function handleCredentialResponse(response) {
   throw new Error('Invalid credential response');
 }
 
-// TODO: Implement a new function to handle focus trap for keyboard navigation
-const focusTrap = (element) => {
+// New function to handle focus trap for keyboard navigation
+function createFocusTrap(element) {
+  if (!element) {
+    throw new Error('Element is required for focus trap');
+  }
+
   const focusableElements = element.querySelectorAll(
-    'a[href], button, input, select, textarea, ...
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
   );
-  let activeElementIndex = focusableElements.length - 1;
 
-  function setActiveElement(index) {
-    if (index < 0) {
-      index = focusableElements.length - 1;
-    } else if (index >= focusableElements.length) {
-      index = 0;
+  if (focusableElements.length === 0) {
+    throw new Error('No focusable elements found in the container');
+  }
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  // Focus the first element when trap is activated
+  firstElement.focus();
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
     }
+  };
 
-    if ... {
-      ...
-    } else {
-      element.focus();
-    }
-    activeElementIndex = index;
-  }
+  element.addEventListener('keydown', handleKeyDown);
 
-  function nextFocusableElement() {
-    setActiveElement(activeElementIndex + 1);
-  }
-
-  function ... {
-    setActiveElement(activeElementIndex - 1);
-  }
-
-  function moveFocusToFirst() {
-    setActiveElement(0);
-  }
-
-  function moveFocusToLast() {
-    ... - 1);
-  }
-
-  element.addEventListener('keydown', (e) => {
-    switch (e.key) {
-      case 'Tab':
-        if (e.shiftKey) {
-          ...
-        } else {
-          ...
-        }
-        e.preventDefault();
-        break;
-      case 'ArrowLeft':
-        ...
-        e.preventDefault();
-        break;
-      case 'ArrowRight':
-        ...
-        e.preventDefault();
-        break;
-      case 'Home':
-        moveFocusToFirst();
-        e.preventDefault();
-        break;
-      case 'End':
-        moveFocusToLast();
-        e.preventDefault();
-        break;
-    }
-  });
-};
+  // Return a function to remove the event listener when trap is deactivated
+  return () => {
+    element.removeEventListener('keydown', handleKeyDown);
+  };
+}
 
 // TODO: Address accessibility issues from insight report
 const addressAccessibilityIssues = (container) => {
@@ -580,34 +552,34 @@ function personName(name) {
 
 function validateTableAccessibility(table) {
   if (!table) return false;
-  
+
   const hasCaption = table.querySelector('caption') !== null;
   const hasHeaders = table.querySelector('thead') !== null;
   const rows = table.querySelectorAll('tr');
-  
+
   let isValid = hasCaption && hasHeaders;
-  
+
   if (rows.length > 0) {
     const firstRowCells = rows[0].querySelectorAll('th, td');
-    const hasScope = Array.from(firstRowCells).some(cell => 
+    const hasScope = Array.from(firstRowCells).some(cell =>
       cell.hasAttribute('scope')
     );
     isValid = isValid && hasScope;
   }
-  
+
   return isValid;
 }
 
 function validateTableStructure(table) {
   if (!table) return false;
-  
+
   const rows = table.querySelectorAll('tr');
   let isValid = true;
-  
+
   rows.forEach((row, index) => {
     const cells = row.querySelectorAll('td, th');
     if (index === 0) {
-      const hasHeaderCells = Array.from(cells).some(cell => 
+      const hasHeaderCells = Array.from(cells).some(cell =>
         cell.tagName.toLowerCase() === 'th'
       );
       isValid = isValid && hasHeaderCells;
@@ -617,36 +589,36 @@ function validateTableStructure(table) {
       }
     }
   });
-  
+
   return isValid;
 }
 
 function validateLandmark(element) {
   if (!element) return false;
-  
+
   const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
-  
+
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'form', 'section'];
   if (landmarks.includes(tagName)) {
     return true;
   }
-  
+
   if (role && landmarkRoles.includes(role)) {
     return true;
   }
-  
+
   return false;
 }
 
 function validateLandmarkStructure(element) {
   if (!element) return false;
-  
+
   const landmarks = element.querySelectorAll(
     'header, nav, main, aside, footer, form[role="search"], section[aria-label], div[role="banner"], div[role="navigation"], div[role="main"], div[role="complementary"], div[role="contentinfo"]'
   );
-  
+
   return landmarks.length > 0;
 }
 
@@ -670,14 +642,14 @@ function ensureUniqueLandmarks() {
   const landmarks = document.querySelectorAll(
     'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]'
   );
-  
+
   const landmarkTypes = {};
-  
+
   landmarks.forEach((landmark, index) => {
     const tagName = landmark.tagName.toLowerCase();
     const role = landmark.getAttribute('role');
     const identifier = role || tagName;
-    
+
     if (!landmarkTypes[identifier]) {
       landmarkTypes[identifier] = 0;
     } else {
@@ -691,16 +663,16 @@ function ensureUniqueLandmarks() {
 
 function newFocusTrap(element) {
   if (!element) return;
-  
+
   const focusableElements = element.querySelectorAll(
     'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
   );
-  
+
   if (focusableElements.length === 0) return;
-  
+
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
-  
+
   element.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
       if (e.shiftKey && document.activeElement === firstElement) {
@@ -712,7 +684,7 @@ function newFocusTrap(element) {
       }
     }
   });
-  
+
   firstElement.focus();
 }
 
@@ -727,28 +699,28 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
-  
+
   if (typeof inputData === 'string') {
     let result = inputData;
-    
+
     if (trimWhitespace) {
       result = result.trim();
     }
-    
+
     if (uppercase) {
       result = result.toUpperCase();
     }
-    
+
     if (maxLength && result.length > maxLength) {
       result = result.substring(0, maxLength);
     }
-    
+
     return result;
   }
-  
+
   if (typeof inputData === 'object' && !Array.isArray(inputData)) {
     const result = {};
-    
+
     for (const key in inputData) {
       if (inputData.hasOwnProperty(key)) {
         if (preserveKeys || !key.startsWith('_')) {
@@ -756,14 +728,14 @@ function transformInputData(inputData, options = {}) {
         }
       }
     }
-    
+
     return result;
   }
-  
+
   if (Array.isArray(inputData)) {
     return inputData.map(item => transformInputData(item, options));
   }
-  
+
   return inputData;
 }
 
@@ -780,7 +752,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
   },
 
@@ -791,11 +763,11 @@ const exportUtils = {
 
   exportToCSV: (data, filename) => {
     if (!data || data.length === 0) return;
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (const row of data) {
       const values = headers.map(header => {
         const escaped = ('' + row[header]).replace(/"/g, '\\"');
@@ -803,7 +775,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -812,7 +784,7 @@ const exportUtils = {
 // Initialize accessibility features
 const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
-  
+
   document.querySelectorAll('[data-accessible]').forEach(element => {
     element.addEventListener('keydown', (e) => {
       accessibilityUtils.handleKeyboardNav(e, {
@@ -855,7 +827,7 @@ module.exports = {
   ensureDependencyGraphAccessibility,
   renderDependencyGraphs,
   handleCredentialResponse,
-  focusTrap,
+  createFocusTrap,
   addressAccessibilityIssues,
   createInPageButton,
   createWebResourceButton,

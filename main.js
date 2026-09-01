@@ -6,3 +6,28 @@
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+
+// TODO: Implement the required changes to improve accessibility for the addBook function or form
+
+const addBookButton = document.createElement('button');
+addBookButton.id = 'addBook';
+addBookButton.setAttribute('aria-label', 'Add a new book');
+addBookButton.type = 'button';
+
+function addBook() {
+  const bookTitleInput = document.getElementById('bookTitle');
+  const bookAuthorInput = document.getElementById('bookAuthor');
+  
+  if (bookTitleInput && bookAuthorInput) {
+    if (bookTitleInput.value.trim() === '') {
+      bookTitleInput.setAttribute('aria-invalid', 'true');
+      bookTitleInput.setAttribute('aria-describedby', 'bookTitleError');
+    }
+    if (bookAuthorInput.value.trim() === '') {
+      bookAuthorInput.setAttribute('aria-invalid', 'true');
+      bookAuthorInput.setAttribute('aria-describedby', 'bookAuthorError');
+    }
+  }
+}
+
+export { addBook, addBookButton };

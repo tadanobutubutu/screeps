@@ -511,3 +511,34 @@ if (dependencyGraphContainer) {
 }
 
 export { dependencyGraphContainer };
+
+// TODO: Add these imported modules to the relevant rendering functions
+// Using the imported modules in the relevant rendering functions
+function renderWithImports(data) {
+  // Using formatCurrency, formatDate, calculateDiscount, validateInput
+  const formattedData = {
+    price: formatCurrency(data.price),
+    date: formatDate(data.date),
+    discount: calculateDiscount(data.price, data.discountRate),
+    isValid: validateInput(data.input)
+  };
+
+  // Using renderHeader, renderFooter, renderProductCard
+  const header = renderHeader(data.title);
+  const footer = renderFooter(data.footerText);
+  const productCard = renderProductCard(data.product);
+
+  // Using state and updateState
+  updateState('renderedData', formattedData);
+
+  return {
+    header,
+    productCard,
+    footer,
+    formattedData,
+    currentState: state
+  };
+}
+
+// Export the new rendering function
+export { renderWithImports };

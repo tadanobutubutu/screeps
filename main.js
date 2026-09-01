@@ -3,7 +3,7 @@
 // (Previously existing code that needs to be preserved)
 
 // New function or changes requested in the issue
-function newFunction() {
+function newFunction () {
   // Implementation of the new function
 }
 
@@ -16,20 +16,20 @@ function newFunction() {
 // changes needed are related to adding ARIA roles and labels to improve accessibility.
 
 // Example of adding ARIA roles and labels for an addBook form element
-function addBook() {
+function addBook () {
   // ... (existing addBook function code)
 
   // Add ARIA roles and labels to improve accessibility
-  const addBookForm = document.getElementById('addBookForm');
+  const addBookForm = document.getElementById('addBookForm')
   if (addBookForm) {
-    addBookForm.setAttribute('role', 'form');
-    addBookForm.setAttribute('aria-labelledby', 'addBookLabel');
+    addBookForm.setAttribute('role', 'form')
+    addBookForm.setAttribute('aria-labelledby', 'addBookLabel')
 
-    const addBookLabel = document.createElement('label');
-    addBookLabel.id = 'addBookLabel';
-    addBookLabel.htmlFor = 'addBookForm';
-    addBookLabel.textContent = 'Add a new book';
-    addBookForm.insertBefore(addBookLabel, addBookForm.firstChild);
+    const addBookLabel = document.createElement('label')
+    addBookLabel.id = 'addBookLabel'
+    addBookLabel.htmlFor = 'addBookForm'
+    addBookLabel.textContent = 'Add a new book'
+    addBookForm.insertBefore(addBookLabel, addBookForm.firstChild)
   }
 }
 
@@ -39,5 +39,5 @@ module.exports = {
   // Existing exports
   // ...
   newFunction, // Export the new function
-  addBook, // Export the addBook function
-};
+  addBook // Export the addBook function
+}

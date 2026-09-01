@@ -63,3 +63,26 @@ export const existingConstant = 'someConstantValue';
 
 // Start the processing of accessibility issues from the insight report
 processAccessibilityIssues(insightReport);
+
+// New functions added for the issue
+function addLangAttributeToHtml() {
+  // Implementation to add lang attribute to HTML element
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+// Helper function to validate and set lang attribute
+function ensureHtmlLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang') || htmlElement.getAttribute('lang').trim() === '') {
+    htmlElement.setAttribute('lang', 'en');
+    console.log('Added lang attribute to HTML element');
+    return true;
+  }
+  return false;
+}
+
+// Export the new functions
+export { addLangAttributeToHtml, ensureHtmlLangAttribute };

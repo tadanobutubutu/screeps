@@ -35,7 +35,7 @@ const accessibilityUtils = {
   },
 
   addressAccessibilityIssues: function() {
-    accessibilityUtils.addressNewAccessibilityIssues(); // Calls existing implementation
+    accessibilityUtils.addressNewAccessibilityIssues();
 
     // Add new accessibility improvements
     accessibilityUtils.addressAccessibilityIssuesForNewImplementation();
@@ -131,7 +131,7 @@ function processLandmarks(landmarks) {
   }
 
   const validLandmarks = landmarks.filter(utils.isValidLandmark);
-  const uniqueLandmarks = accessibilityUtils.ensureUniqueLandmarks(validLandmarks);
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
   return uniqueLandmarks.slice(0, config.maxResults);
 }

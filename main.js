@@ -5,8 +5,27 @@ const {
   createWebResourceButton,
   validateLandmark,
   validateLandmarkStructure,
-  validateAccessibilityReport
-} = require('./utilities')
+  validateAccessibilityReport,
+  getSvgAccessibleName,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  ensureUniqueLandmarks,
+  addAccessibleName,
+  handleAccessibilityIssues
+} = main
+
+const {
+  dependencyGraphContent,
+  indexContent,
+  renderDependencyGraph,
+  renderIndex,
+  renderIndexView,
+  ...remainingDependencyAndIndexFunctions
+} = require('./dependency-graph')
+
+const { indexContent: indexTemplateContent } = require('./index-template')
 
 const {
   addLangAttribute,
@@ -18,6 +37,7 @@ const {
   addAccessibleNamesToSVGs,
   fixFakeLinkIssue,
   fixFakeLinkIssues,
+  fixFakeLinks,
   fixLandmarkIssues,
   addLandmarkRegions,
   uniqueLandmarks,
@@ -34,8 +54,18 @@ const {
   addressAccessibilityIssues
 } = main
 
+const {
+  log,
+  exportUtils,
+  focusTrap,
+  enhanceAddBookFormAccessibility,
+  newFocusTrap,
+  ...remainingMainFunctions
+} = main
+
 module.exports = {
-  ...main,
+  ...remainingMainFunctions,
+  ...remainingDependencyAndIndexFunctions,
 
   // TODO: Address accessibility issues from insight report
   addressAccessibilityIssues: (container) => {
@@ -219,11 +249,13 @@ module.exports = {
 
   // TODO: Add a language attribute to the HTML element
   getLangAttribute,
+  getFullLangAttribute,
 
   // TODO: Validate the accessibility report for issues
   validateAccessibilityReport,
 
   // TODO: Address new accessibility issues from insight report ( implement new functions and fixes as needed)
+  handleAccessibilityIssues,
 
   // Credential response handling
   async handleCredentialResponse (response) {
@@ -257,6 +289,7 @@ module.exports = {
 
   // New focus trap functionality for keyboard navigation
   focusTrap,
+  newFocusTrap,
 
   // New function to improve accessibility for addBook form
   enhanceAddBookFormAccessibility: (formElement) => {
@@ -318,5 +351,38 @@ module.exports = {
       }
     `
     document.head.appendChild(style)
-  }
+  },
+
+  // Dependency graph and index template related exports
+  dependencyGraphContent,
+  indexContent,
+  renderDependencyGraph,
+  renderIndex,
+  renderIndexView,
+  indexTemplateContent,
+
+  // Accessibility related exports from main
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  setSvgAccessibilityProps,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixFakeLinks,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  addAccessibleName
 }

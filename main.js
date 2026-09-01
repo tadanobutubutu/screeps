@@ -34,4 +34,4 @@ function main() {
   return processData;
 }
 
-module.exports = { main, processData, validateInput, initializeApp, setupHandlers };
+module.exports = { main, processData, validateInput, initializeApp, setupHandlers, config };

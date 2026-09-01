@@ -170,7 +170,7 @@ function ensureUniqueLandmarks() {
     ...
     'footer[role="contentinfo"]'
   ].join(', '));
-  
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation
@@ -291,3 +291,84 @@ ensureUniqueLandmarks();
 const svg = ...
 const accessibleName = getSvgAccessibleName(svg);
 set
+
+/**
+ * Creates an accessible form for adding a new book
+ * @param {HTMLElement} formContainer - The container element for the form
+ */
+function createAccessibleBookForm(formContainer) {
+  if (!formContainer) return;
+
+  // Create form element with proper attributes
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', 'add-book-form-title');
+
+  // Add form title
+  const title = document.createElement('h2');
+  title.id = 'add-book-form-title';
+  title.textContent = 'Add New Book';
+  form.appendChild(title);
+
+  // Create accessible form fields
+  const fields = [
+    { id: 'book-title', label: 'Title', type: 'text', required: true },
+    { id: 'book-author', label: 'Author', type: 'text', required: true },
+    { id: 'book-isbn', label: 'ISBN', type: 'text', required: true },
+    { id: 'book-price', label: 'Price', type: 'number', required: true },
+    { id: 'book-description', label: 'Description', type: 'textarea' }
+  ];
+
+  fields.forEach(field => {
+    const fieldContainer = document.createElement('div');
+    fieldContainer.className = 'form-field';
+
+    const label = document.createElement('label');
+    label.htmlFor = field.id;
+    label.textContent = field.label;
+    fieldContainer.appendChild(label);
+
+    let input;
+    if (field.type === 'textarea') {
+      input = document.createElement('textarea');
+    } else {
+      input = document.createElement('input');
+      input.type = field.type;
+    }
+
+    input.id = field.id;
+    input.name = field.id;
+    if (field.required) {
+      input.required = true;
+      input.setAttribute('aria-required', 'true');
+    }
+
+    fieldContainer.appendChild(input);
+    form.appendChild(fieldContainer);
+  });
+
+  // Add submit button
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Book';
+  submitButton.setAttribute('aria-label', 'Submit new book form');
+  form.appendChild(submitButton);
+
+  // Add form to container
+  formContainer.appendChild(form);
+
+  // Add event listener for form submission
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    // Handle form submission logic here
+    console.log('Form submitted');
+  });
+}
+
+// Add the new book form to the page when the DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  const formContainer = document.getElementById('book-form-container');
+  if (formContainer) {
+    createAccessibleBookForm(formContainer);
+  }
+});

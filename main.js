@@ -14,11 +14,11 @@
  * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
  * @returns {string} The lang attribute value that was set
  */
-function setHtmlLangAttribute(lang) {
+function setHtmlLangAttribute (lang) {
   if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.lang = lang || 'en';
+    document.documentElement.lang = lang || 'en'
   }
-  return lang || 'en';
+  return lang || 'en'
 }
 
 /**
@@ -26,292 +26,301 @@ function setHtmlLangAttribute(lang) {
  * @param {string} content - The text content to analyze
  * @returns {string} The detected language code
  */
-function detectAndSetLang(content) {
+function detectAndSetLang (content) {
   // Simple language detection based on common patterns
-  let lang = 'en'; // Default to English
+  let lang = 'en' // Default to English
 
   if (content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
-      lang = 'zh'; // Chinese
+      lang = 'zh' // Chinese
     } else if (/[\u3040-\u30ff]/.test(content)) {
-      lang = 'ja'; // Japanese
+      lang = 'ja' // Japanese
     } else if (/[\u0400-\u04ff]/.test(content)) {
-      lang = 'ru'; // Russian/Cyrillic
+      lang = 'ru' // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
-      lang = 'ar'; // Arabic
+      lang = 'ar' // Arabic
     } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
-      lang = 'fr'; // French
+      lang = 'fr' // French
     } else if (/[äöüß]/i.test(content)) {
-      lang = 'de'; // German
+      lang = 'de' // German
     }
   }
 
-  return setHtmlLangAttribute(lang);
+  return setHtmlLangAttribute(lang)
 }
 
 // New function to address REACT_015: Add lang attribute to HTML element
-function getLangAttribute() {
-  return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
+function getLangAttribute () {
+  return typeof document !== 'undefined' && document.documentElement
+    ? document.documentElement.lang
+    : 'en'
 }
 
 // New function to address REACT_027: Fix 26 table structure issues
-function validateTableAccessibility(table) {
+function validateTableAccessibility (table) {
   // This function validates the accessibility of tables
   // Check for proper table headers with scope attributes
-  const errors = [];
+  const errors = []
 
   if (!table) {
-    return { valid: false, errors: ['Table element is required'] };
+    return { valid: false, errors: ['Table element is required'] }
   }
 
-  const headers = table.querySelectorAll('th');
+  const headers = table.querySelectorAll('th')
   headers.forEach((th, index) => {
     if (!th.hasAttribute('scope')) {
-      errors.push(`Table header at index ${index} is missing scope attribute`);
+      errors.push(`Table header at index ${index} is missing scope attribute`)
     }
-  });
+  })
 
   // Check if table has a caption or is properly described
-  const hasCaption = table.querySelector('caption');
-  const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby');
+  const hasCaption = table.querySelector('caption')
+  const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby')
 
   if (!hasCaption && !hasAriaLabel) {
-    errors.push('Table is missing a caption or aria-label/aria-labelledby');
+    errors.push('Table is missing a caption or aria-label/aria-labelledby')
   }
 
-  return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors }
 }
 
-function validateTableStructure(table) {
+function validateTableStructure (table) {
   // This function validates the structure of tables
-  const errors = [];
+  const errors = []
 
   if (!table) {
-    return { valid: false, errors: ['Table element is required'] };
+    return { valid: false, errors: ['Table element is required'] }
   }
 
   // Check for proper table structure
-  const tbody = table.querySelector('tbody');
-  const thead = table.querySelector('thead');
-  const tfoot = table.querySelector('tfoot');
+  const tbody = table.querySelector('tbody')
+  const thead = table.querySelector('thead')
+  const tfoot = table.querySelector('tfoot')
 
   // Check for thead and tbody presence
   if (!thead) {
-    errors.push('Table is missing thead element');
+    errors.push('Table is missing thead element')
   }
   if (!tbody) {
-    errors.push('Table is missing tbody element');
+    errors.push('Table is missing tbody element')
   }
 
   // Check for consistent column counts in tbody
-  const rows = table.querySelectorAll('tbody tr');
-  let expectedCols = null;
+  const rows = table.querySelectorAll('tbody tr')
+  let expectedCols = null
   rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td, th');
+    const cells = row.querySelectorAll('td, th')
     if (expectedCols === null) {
-      expectedCols = cells.length;
+      expectedCols = cells.length
     } else if (cells.length !== expectedCols) {
-      errors.push(`Row ${rowIndex} has inconsistent cell count: expected ${expectedCols}, got ${cells.length}`);
+      errors.push(
+                `Row ${rowIndex} has inconsistent cell count: expected ${expectedCols}, got ${cells.length}`
+      )
     }
-  });
+  })
 
-  return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors }
 }
 
 // New function to address REACT_017: Add/fix 4 landmark issues
-function validateLandmark(element) {
+function validateLandmark (element) {
   // This function validates landmarks
-  const errors = [];
-  const allowedLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+  const errors = []
+  const allowedLandmarks = [
+    'banner',
+    'navigation',
+    'main',
+    'complementary',
+    'contentinfo',
+    'search',
+    'form',
+    'region'
+  ]
 
   if (!element) {
-    return { valid: false, errors: ['Element is required'] };
+    return { valid: false, errors: ['Element is required'] }
   }
 
-  const role = element.getAttribute('role');
-  const tagName = element.tagName.toLowerCase();
+  const role = element.getAttribute('role')
+  const tagName = element.tagName.toLowerCase()
 
   // Check if element has valid landmark role
   if (role && !allowedLandmarks.includes(role)) {
-    errors.push(`Invalid landmark role: ${role}`);
+    errors.push(`Invalid landmark role: ${role}`)
   }
 
   // Check if landmark has accessible name when required
-  const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary'];
+  const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary']
   if (role && landmarksNeedingNames.includes(role)) {
-    const hasLabel = element.getAttribute('aria-label') ||
-                     element.getAttribute('aria-labelledby') ||
-                     element.querySelector('h1, h2, h3, h4, h5, h6');
+    const hasLabel =
+            element.getAttribute('aria-label') ||
+            element.getAttribute('aria-labelledby') ||
+            element.querySelector('h1, h2, h3, h4, h5, h6')
     if (!hasLabel) {
-      errors.push(`Landmark role "${role}" is missing accessible name`);
+      errors.push(`Landmark role "${role}" is missing accessible name`)
     }
   }
 
-  return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors }
 }
 
-function validateLandmarkStructure() {
+function validateLandmarkStructure () {
   // This function validates the structure of landmarks
-  const errors = [];
+  const errors = []
 
   if (typeof document === 'undefined') {
-    return { valid: false, errors: ['Document not available'] };
+    return { valid: false, errors: ['Document not available'] }
   }
 
   // Check for multiple main landmarks
-  const mainLandmarks = document.querySelectorAll('[role="main"], main');
+  const mainLandmarks = document.querySelectorAll('[role="main"], main')
   if (mainLandmarks.length > 1) {
-    errors.push(`Found ${mainLandmarks.length} main landmarks, should have only 1`);
+    errors.push(`Found ${mainLandmarks.length} main landmarks, should have only 1`)
   }
 
   // Check for multiple banner landmarks
-  const bannerLandmarks = document.querySelectorAll('[role="banner"], header');
+  const bannerLandmarks = document.querySelectorAll('[role="banner"], header')
   if (bannerLandmarks.length > 1) {
-    errors.push(`Found ${bannerLandmarks.length} banner landmarks, should have only 1`);
+    errors.push(`Found ${bannerLandmarks.length} banner landmarks, should have only 1`)
   }
 
   // Check for contentinfo (footer) landmarks
-  const footerLandmarks = document.querySelectorAll('[role="contentinfo"], footer');
+  const footerLandmarks = document.querySelectorAll('[role="contentinfo"], footer')
   if (footerLandmarks.length > 1) {
-    errors.push(`Found ${footerLandmarks.length} contentinfo landmarks, should have only 1`);
+    errors.push(`Found ${footerLandmarks.length} contentinfo landmarks, should have only 1`)
   }
 
-  return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors }
 }
 
 // New function to address REACT_041: Add accessible names to 2 SVGs
-function getSvgAccessibleName(svg) {
+function getSvgAccessibleName (svg) {
   // This function returns the accessible name for an SVG
   if (!svg) {
-    return '';
+    return ''
   }
 
   // Check for aria-label attribute
-  const ariaLabel = svg.getAttribute('aria-label');
+  const ariaLabel = svg.getAttribute('aria-label')
   if (ariaLabel) {
-    return ariaLabel;
+    return ariaLabel
   }
 
   // Check for aria-labelledby reference
-  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  const ariaLabelledby = svg.getAttribute('aria-labelledby')
   if (ariaLabelledby) {
-    const labelElement = document.getElementById(ariaLabelledby);
+    const labelElement = document.getElementById(ariaLabelledby)
     if (labelElement) {
-      return labelElement.textContent || '';
+      return labelElement.textContent || ''
     }
   }
 
   // Check for title element inside SVG
-  const title = svg.querySelector('title');
+  const title = svg.querySelector('title')
   if (title) {
-    return title.textContent || '';
+    return title.textContent || ''
   }
 
   // Check for adjacent description
-  const id = svg.getAttribute('id');
+  const id = svg.getAttribute('id')
   if (id) {
-    const describedBy = document.querySelector(`[id="${id}-desc"]`);
+    const describedBy = document.querySelector(`[id="${id}-desc"]`)
     if (describedBy) {
-      return describedBy.textContent || '';
+      return describedBy.textContent || ''
     }
   }
 
-  return '';
+  return ''
 }
 
 // New function to address REACT_025: Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
+function ensureUniqueLandmarks () {
   // This function ensures that landmarks are unique
-  const errors = [];
+  const errors = []
 
   if (typeof document === 'undefined') {
-    return { valid: false, errors: ['Document not available'] };
+    return { valid: false, errors: ['Document not available'] }
   }
 
   // Define unique landmarks that should only appear once
-  const uniqueLandmarks = ['main', 'banner', 'contentinfo'];
-  const uniqueRoleSelectors = ['[role="main"]', '[role="banner"]', '[role="contentinfo"]'];
+  const uniqueLandmarks = ['main', 'banner', 'contentinfo']
+  const uniqueRoleSelectors = ['[role="main"]', '[role="banner"]', '[role="contentinfo"]']
 
   uniqueLandmarks.forEach((landmark, index) => {
-    const elements = document.querySelectorAll(uniqueRoleSelectors[index]);
-    const tagElements = document.querySelectorAll(landmark);
-    const totalCount = elements.length + tagElements.length;
+    const elements = document.querySelectorAll(uniqueRoleSelectors[index])
+    const tagElements = document.querySelectorAll(landmark)
+    const totalCount = elements.length + tagElements.length
 
     if (totalCount > 1) {
-      errors.push(`Found ${totalCount} instances of "${landmark}" landmark, should have only 1`);
+      errors.push(
+                `Found ${totalCount} instances of "${landmark}" landmark, should have only 1`
+      )
     }
-  });
+  })
 
   // Check for landmark IDs that should be unique
-  const landmarksWithIds = document.querySelectorAll('[role][id]');
-  const ids = new Set();
-  landmarksWithIds.forEach(el => {
-    const id = el.getAttribute('id');
+  const landmarksWithIds = document.querySelectorAll('[role][id]')
+  const ids = new Set()
+  landmarksWithIds.forEach((el) => {
+    const id = el.getAttribute('id')
     if (ids.has(id)) {
-      errors.push(`Duplicate landmark id found: ${id}`);
+      errors.push(`Duplicate landmark id found: ${id}`)
     }
-    ids.add(id);
-  });
+    ids.add(id)
+  })
 
-  return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors }
 }
 
 // New function to address REACT_036: Fix 1 fake link issue
-function createAccessibleLink(href, text, options = {}) {
+function createAccessibleLink (href, text, options = {}) {
   // This function creates an accessible link
-  const {
-    onClick,
-    role = 'link',
-    ariaLabel,
-    className,
-    target,
-    rel
-  } = options;
+  const { onClick, role = 'link', ariaLabel, className, target, rel } = options
 
   if (!href && !onClick) {
-    return null;
+    return null
   }
 
-  const link = document.createElement('a');
-  link.textContent = text;
+  const link = document.createElement('a')
+  link.textContent = text
 
   if (href) {
-    link.href = href;
+    link.href = href
     // Add rel="noopener noreferrer" for external links
     if (target === '_blank' && !rel) {
-      link.rel = 'noopener noreferrer';
+      link.rel = 'noopener noreferrer'
     } else if (rel) {
-      link.rel = rel;
+      link.rel = rel
     }
   } else {
     // If no href, it's a button disguised as a link
-    link.href = '#';
+    link.href = '#'
     link.addEventListener('click', (e) => {
-      e.preventDefault();
+      e.preventDefault()
       if (onClick) {
-        onClick(e);
+        onClick(e)
       }
-    });
+    })
   }
 
   if (target) {
-    link.target = target;
+    link.target = target
   }
 
   if (className) {
-    link.className = className;
+    link.className = className
   }
 
   if (ariaLabel) {
-    link.setAttribute('aria-label', ariaLabel);
+    link.setAttribute('aria-label', ariaLabel)
   }
 
   if (role && role !== 'link') {
-    link.setAttribute('role', role);
+    link.setAttribute('role', role)
   }
 
-  return link;
+  return link
 }
 
 /**
@@ -319,13 +328,13 @@ function createAccessibleLink(href, text, options = {}) {
  * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
  * @returns {HTMLElement} The created button element
  */
-function createInPageButton(parent = document.body) {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.setAttribute('role', 'button');
-  btn.setAttribute('aria-label', 'Open modal');
-  parent.appendChild(btn);
-  return btn;
+function createInPageButton (parent = document.body) {
+  const btn = document.createElement('button')
+  btn.type = 'button'
+  btn.setAttribute('role', 'button')
+  btn.setAttribute('aria-label', 'Open modal')
+  parent.appendChild(btn)
+  return btn
 }
 
 /**
@@ -334,63 +343,63 @@ function createInPageButton(parent = document.body) {
  * @param {string} label - The accessible label/description of the button
  * @returns {HTMLElement} The created button element
  */
-function createWebResourceButton(parent = document.body, label = 'Open Resource') {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.setAttribute('role', 'button');
-  btn.setAttribute('aria-label', label);
-  parent.appendChild(btn);
-  return btn;
+function createWebResourceButton (parent = document.body, label = 'Open Resource') {
+  const btn = document.createElement('button')
+  btn.type = 'button'
+  btn.setAttribute('role', 'button')
+  btn.setAttribute('aria-label', label)
+  parent.appendChild(btn)
+  return btn
 }
 
 // TODO: Implement tower defense
-function towerDefense() {
+function towerDefense () {
   // A simple tower defense game implementation
   // Define towers, enemies, waves, and game loop
-  const towers = [];
-  const enemies = [];
-  let wave = 1;
+  const towers = []
+  const enemies = []
+  const wave = 1
 
   // Example: Tower constructor
-  function Tower(x, y, range, damage, rate) {
-    this.x = x;
-    this.y = y;
-    this.range = range;
-    this.damage = damage;
-    this.rate = rate;
-    this.lastShot = 0;
+  function Tower (x, y, range, damage, rate) {
+    this.x = x
+    this.y = y
+    this.range = range
+    this.damage = damage
+    this.rate = rate
+    this.lastShot = 0
   }
 
   // Example: Enemy constructor
-  function Enemy(x, y, health, speed) {
-    this.x = x;
-    this.y = y;
-    this.health = health;
-    this.speed = speed;
+  function Enemy (x, y, health, speed) {
+    this.x = x
+    this.y = y
+    this.health = health
+    this.speed = speed
   }
 
   // Add a tower
-  function addTower(x, y, range, damage, rate) {
-    towers.push(new Tower(x, y, range, damage, rate));
+  function addTower (x, y, range, damage, rate) {
+    towers.push(new Tower(x, y, range, damage, rate))
   }
 
   // Add an enemy
-  function addEnemy(x, y, health, speed) {
-    enemies.push(new Enemy(x, y, health, speed));
+  function addEnemy (x, y, health, speed) {
+    enemies.push(new Enemy(x, y, health, speed))
   }
 
   // Update game state (simplified)
-  function update() {
+  function update () {
     // Logic for enemy movement, tower shooting, etc.
-    console.log(`Wave ${wave} - updating game state`);
+    console.log(`Wave ${wave} - updating game state`)
   }
 
   // Start the game
-  function start() {
-    console.log('Tower defense game started');
+  function start () {
+    console.log('Tower defense game started')
     // Add initial towers and enemies
-    addTower(100, 100, 200, 10, 1000);
-    addEnemy(0, 50, 100, 2);
+    addTower(100, 100, 200, 10, 1000)
+    addEnemy(0, 50, 100, 2)
     // Game loop would be here
   }
 
@@ -401,7 +410,7 @@ function towerDefense() {
     addEnemy,
     update,
     getWave: () => wave
-  };
+  }
 }
 
 // Add back missing functions from TODO comments
@@ -411,66 +420,68 @@ function towerDefense() {
  * @param {HTMLTableElement} table - The table element to fix
  * @returns {Object} Result object with valid status and any errors
  */
-function fixTableStructure(table) {
-  const result = { valid: true, errors: [] };
+function fixTableStructure (table) {
+  const result = { valid: true, errors: [] }
 
   if (!table) {
-    return { valid: false, errors: ['Table element is required'] };
+    return { valid: false, errors: ['Table element is required'] }
   }
 
   // Fix missing thead
-  const thead = table.querySelector('thead');
+  const thead = table.querySelector('thead')
   if (!thead) {
-    const newThead = document.createElement('thead');
-    const firstRow = table.querySelector('tr');
+    const newThead = document.createElement('thead')
+    const firstRow = table.querySelector('tr')
     if (firstRow) {
-      newThead.appendChild(firstRow.cloneNode(true));
-      table.insertBefore(newThead, table.firstChild);
+      newThead.appendChild(firstRow.cloneNode(true))
+      table.insertBefore(newThead, table.firstChild)
     }
   }
 
   // Fix missing tbody
   if (!table.querySelector('tbody')) {
-    const tbody = document.createElement('tbody');
-    const rows = Array.from(table.querySelectorAll('tr'));
+    const tbody = document.createElement('tbody')
+    const rows = Array.from(table.querySelectorAll('tr'))
     if (rows.length > 0 && table.querySelector('thead')) {
-      const theadRows = table.querySelectorAll('thead tr');
-      const dataRows = rows.slice(theadRows.length);
-      dataRows.forEach(row => tbody.appendChild(row));
+      const theadRows = table.querySelectorAll('thead tr')
+      const dataRows = rows.slice(theadRows.length)
+      dataRows.forEach((row) => tbody.appendChild(row))
     }
-    table.appendChild(tbody);
+    table.appendChild(tbody)
   }
 
   // Fix inconsistent column counts
-  const allRows = table.querySelectorAll('tr');
-  const columnCounts = Array.from(allRows).map(row => row.querySelectorAll('td, th').length);
-  const uniqueCounts = [...new Set(columnCounts)];
+  const allRows = table.querySelectorAll('tr')
+  const columnCounts = Array.from(allRows).map((row) => row.querySelectorAll('td, th').length)
+  const uniqueCounts = [...new Set(columnCounts)]
   if (uniqueCounts.length > 1) {
     // Use the most common column count
-    const countCounts = {};
-    columnCounts.forEach(count => {
-      countCounts[count] = (countCounts[count] || 0) + 1;
-    });
-    const mostCommonCount = Object.entries(countCounts).sort((a, b) => b[1] - a[1])[0][0];
+    const countCounts = {}
+    columnCounts.forEach((count) => {
+      countCounts[count] = (countCounts[count] || 0) + 1
+    })
+    const mostCommonCount = Object.entries(countCounts).sort((a, b) => b[1] - a[1])[0][0]
 
     allRows.forEach((row, rowIndex) => {
-      const cells = row.querySelectorAll('td, th');
+      const cells = row.querySelectorAll('td, th')
       if (cells.length !== mostCommonCount) {
         // Add or remove cells to match the most common count
         while (cells.length < mostCommonCount) {
-          const cell = document.createElement(cells.length % 2 === 0 ? 'td' : 'th');
-          row.appendChild(cell);
+          const cell = document.createElement(cells.length % 2 === 0 ? 'td' : 'th')
+          row.appendChild(cell)
         }
         while (cells.length > mostCommonCount) {
-          row.removeChild(row.lastChild);
+          row.removeChild(row.lastChild)
         }
-        result.errors.push(`Fixed inconsistent cell count in row ${rowIndex}: set to ${mostCommonCount}`);
+        result.errors.push(
+                    `Fixed inconsistent cell count in row ${rowIndex}: set to ${mostCommonCount}`
+        )
       }
-    });
-    result.valid = result.errors.length === 0;
+    })
+    result.valid = result.errors.length === 0
   }
 
-  return result;
+  return result
 }
 
 /**
@@ -478,48 +489,49 @@ function fixTableStructure(table) {
  * @param {HTMLElement} element - The landmark element to process
  * @returns {Object} Result object with valid status and any errors
  */
-function addLandmarkIssues(element) {
-  const errors = [];
+function addLandmarkIssues (element) {
+  const errors = []
 
   if (!element) {
-    return { valid: false, errors: ['Element is required'] };
+    return { valid: false, errors: ['Element is required'] }
   }
 
   // Check if element has role attribute
-  const role = element.getAttribute('role');
+  const role = element.getAttribute('role')
   if (!role) {
     // Try to infer role from tag name
-    const tagName = element.tagName.toLowerCase();
+    const tagName = element.tagName.toLowerCase()
     if (tagName === 'header') {
-      element.setAttribute('role', 'banner');
-      errors.push('Added role="banner" to header element');
+      element.setAttribute('role', 'banner')
+      errors.push('Added role="banner" to header element')
     } else if (tagName === 'nav') {
-      element.setAttribute('role', 'navigation');
-      errors.push('Added role="navigation" to nav element');
+      element.setAttribute('role', 'navigation')
+      errors.push('Added role="navigation" to nav element')
     } else if (tagName === 'main') {
-      element.setAttribute('role', 'main');
-      errors.push('Added role="main" to main element');
+      element.setAttribute('role', 'main')
+      errors.push('Added role="main" to main element')
     } else if (tagName === 'aside') {
-      element.setAttribute('role', 'complementary');
-      errors.push('Added role="complementary" to aside element');
+      element.setAttribute('role', 'complementary')
+      errors.push('Added role="complementary" to aside element')
     } else if (tagName === 'footer') {
-      element.setAttribute('role', 'contentinfo');
-      errors.push('Added role="contentinfo" to footer element');
+      element.setAttribute('role', 'contentinfo')
+      errors.push('Added role="contentinfo" to footer element')
     }
   }
 
   // Check for required accessible names
-  const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary'];
+  const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary']
   if (role && landmarksNeedingNames.includes(role)) {
-    const hasLabel = element.getAttribute('aria-label') ||
-                     element.getAttribute('aria-labelledby') ||
-                     element.querySelector('h1, h2, h3, h4, h5, h6');
+    const hasLabel =
+            element.getAttribute('aria-label') ||
+            element.getAttribute('aria-labelledby') ||
+            element.querySelector('h1, h2, h3, h4, h5, h6')
     if (!hasLabel) {
-      errors.push(`Landmark role "${role}" is missing accessible name`);
+      errors.push(`Landmark role "${role}" is missing accessible name`)
     }
   }
 
-  return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors }
 }
 
 /**
@@ -528,34 +540,34 @@ function addLandmarkIssues(element) {
  * @param {string} accessibleName - The accessible name to add
  * @returns {Object} Result object with valid status and any errors
  */
-function addSvgAccessibleNames(svg, accessibleName) {
-  const result = { valid: true, errors: [] };
+function addSvgAccessibleNames (svg, accessibleName) {
+  const result = { valid: true, errors: [] }
 
   if (!svg) {
-    return { valid: false, errors: ['SVG element is required'] };
+    return { valid: false, errors: ['SVG element is required'] }
   }
 
   if (!accessibleName) {
-    result.errors.push('Accessible name is required');
-    result.valid = false;
-    return result;
+    result.errors.push('Accessible name is required')
+    result.valid = false
+    return result
   }
 
   // Check if SVG already has an accessible name
-  const hasAriaLabel = svg.getAttribute('aria-label');
-  const hasTitle = svg.querySelector('title');
-  const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
+  const hasAriaLabel = svg.getAttribute('aria-label')
+  const hasTitle = svg.querySelector('title')
+  const hasAriaLabelledby = svg.getAttribute('aria-labelledby')
 
   if (hasAriaLabel || hasTitle || hasAriaLabelledby) {
-    result.errors.push('SVG already has an accessible name');
-    result.valid = false;
-    return result;
+    result.errors.push('SVG already has an accessible name')
+    result.valid = false
+    return result
   }
 
   // Add aria-label to SVG
-  svg.setAttribute('aria-label', accessibleName);
+  svg.setAttribute('aria-label', accessibleName)
 
-  return result;
+  return result
 }
 
 /**
@@ -563,38 +575,38 @@ function addSvgAccessibleNames(svg, accessibleName) {
  * @param {HTMLElement} element - The element to check/fix
  * @returns {Object} Result object with valid status and any errors
  */
-function fixFakeLinkIssue(element) {
-  const result = { valid: true, errors: [] };
+function fixFakeLinkIssue (element) {
+  const result = { valid: true, errors: [] }
 
   if (!element) {
-    return { valid: false, errors: ['Element is required'] };
+    return { valid: false, errors: ['Element is required'] }
   }
 
   // Check if element is a fake link
   if (element.tagName.toLowerCase() === 'a') {
-    const href = element.getAttribute('href');
+    const href = element.getAttribute('href')
     if (!href || href === '#' || href === '') {
       // This is a fake link, convert to button
-      const button = document.createElement('button');
-      button.textContent = element.textContent;
-      button.setAttribute('role', 'button');
+      const button = document.createElement('button')
+      button.textContent = element.textContent
+      button.setAttribute('role', 'button')
 
-      const ariaLabel = element.getAttribute('aria-label');
+      const ariaLabel = element.getAttribute('aria-label')
       if (ariaLabel) {
-        button.setAttribute('aria-label', ariaLabel);
+        button.setAttribute('aria-label', ariaLabel)
       }
 
-      const className = element.getAttribute('class');
+      const className = element.getAttribute('class')
       if (className) {
-        button.className = className;
+        button.className = className
       }
 
-      element.replaceWith(button);
-      result.errors.push('Converted fake link to button');
+      element.replaceWith(button)
+      result.errors.push('Converted fake link to button')
     }
   }
 
-  return result;
+  return result
 }
 
 /**
@@ -602,24 +614,24 @@ function fixFakeLinkIssue(element) {
  * @param {string} person - The person's identifier or object
  * @returns {string} The person's name
  */
-function personName(person) {
+function personName (person) {
   // Simple implementation - could be expanded based on requirements
   if (!person) {
-    return '';
+    return ''
   }
 
   // If person is an object with a name property
   if (typeof person === 'object' && person.name) {
-    return person.name;
+    return person.name
   }
 
   // If person is a string, return it as the name
   if (typeof person === 'string') {
-    return person;
+    return person
   }
 
   // Default case
-  return String(person);
+  return String(person)
 }
 
 /**
@@ -627,118 +639,118 @@ function personName(person) {
  * @param {string} lang - The language code to set
  * @returns {string} The language code that was set
  */
-function addLangAttribute(lang) {
-  return setHtmlLangAttribute(lang);
+function addLangAttribute (lang) {
+  return setHtmlLangAttribute(lang)
 }
 
 // New function to ensure element has an id
-function ensureElementHasId(element, idPrefix = 'element') {
+function ensureElementHasId (element, idPrefix = 'element') {
   if (!element) {
-    return { valid: false, error: 'Element is required' };
+    return { valid: false, error: 'Element is required' }
   }
 
   // If element already has an id, return it
   if (element.id) {
-    return { valid: true, id: element.id };
+    return { valid: true, id: element.id }
   }
 
   // Generate a unique id
-  let id = idPrefix;
-  let counter = 1;
+  let id = idPrefix
+  let counter = 1
 
   // Find a unique id that doesn't already exist in the document
   while (document.getElementById(id)) {
-    id = `${idPrefix}-${counter}`;
-    counter++;
+    id = `${idPrefix}-${counter}`
+    counter++
   }
 
-  element.id = id;
-  return { valid: true, id };
+  element.id = id
+  return { valid: true, id }
 }
 
 // New function to add aria-label to an element
-function addAriaLabel(element, label) {
+function addAriaLabel (element, label) {
   if (!element) {
-    return { valid: false, error: 'Element is required' };
+    return { valid: false, error: 'Element is required' }
   }
 
   if (!label) {
-    return { valid: false, error: 'Label is required' };
+    return { valid: false, error: 'Label is required' }
   }
 
-  element.setAttribute('aria-label', label);
-  return { valid: true, label };
+  element.setAttribute('aria-label', label)
+  return { valid: true, label }
 }
 
 // New function to render dependency graphs
-function renderDependencyGraph(container, data) {
+function renderDependencyGraph (container, data) {
   if (!container) {
-    return { valid: false, error: 'Container element is required' };
+    return { valid: false, error: 'Container element is required' }
   }
 
   if (!data || !Array.isArray(data)) {
-    return { valid: false, error: 'Data must be an array of dependencies' };
+    return { valid: false, error: 'Data must be an array of dependencies' }
   }
 
   // Clear the container
-  container.innerHTML = '';
+  container.innerHTML = ''
 
   // Create a graph container
-  const graphContainer = document.createElement('div');
-  graphContainer.className = 'dependency-graph';
-  container.appendChild(graphContainer);
+  const graphContainer = document.createElement('div')
+  graphContainer.className = 'dependency-graph'
+  container.appendChild(graphContainer)
 
   // Create nodes for each dependency
-  const nodes = {};
+  const nodes = {}
   data.forEach((dep, index) => {
-    const node = document.createElement('div');
-    node.className = 'dependency-node';
-    node.textContent = dep.name || `Dependency ${index + 1}`;
+    const node = document.createElement('div')
+    node.className = 'dependency-node'
+    node.textContent = dep.name || `Dependency ${index + 1}`
 
     // Add unique id to each node
-    ensureElementHasId(node, 'dep-node');
+    ensureElementHasId(node, 'dep-node')
 
     // Add aria-label for accessibility
-    addAriaLabel(node, `Dependency: ${dep.name || `Dependency ${index + 1}`}`);
+    addAriaLabel(node, `Dependency: ${dep.name || `Dependency ${index + 1}`}`)
 
-    graphContainer.appendChild(node);
-    nodes[dep.name || index] = node;
-  });
+    graphContainer.appendChild(node)
+    nodes[dep.name || index] = node
+  })
 
   // Create connections between dependencies
-  data.forEach(dep => {
+  data.forEach((dep) => {
     if (dep.dependencies && Array.isArray(dep.dependencies)) {
-      dep.dependencies.forEach(depName => {
+      dep.dependencies.forEach((depName) => {
         if (nodes[depName]) {
-          const sourceNode = nodes[dep.name || dep.id];
-          const targetNode = nodes[depName];
+          const sourceNode = nodes[dep.name || dep.id]
+          const targetNode = nodes[depName]
 
           if (sourceNode && targetNode) {
             // Create a connection line between nodes
-            const connection = document.createElement('div');
-            connection.className = 'dependency-connection';
+            const connection = document.createElement('div')
+            connection.className = 'dependency-connection'
 
             // Position the connection (simplified - in a real implementation you'd use a proper graph library)
-            const sourceRect = sourceNode.getBoundingClientRect();
-            const targetRect = targetNode.getBoundingClientRect();
+            const sourceRect = sourceNode.getBoundingClientRect()
+            const targetRect = targetNode.getBoundingClientRect()
 
             // This is a simplified approach - a real implementation would need more sophisticated positioning
-            connection.style.position = 'absolute';
-            connection.style.left = `${sourceRect.left + sourceRect.width}px`;
-            connection.style.top = `${sourceRect.top + sourceRect.height / 2}px`;
-            connection.style.width = `${targetRect.left - (sourceRect.left + sourceRect.width)}px`;
-            connection.style.height = '2px';
-            connection.style.backgroundColor = '#666';
-            connection.style.transform = 'translateY(-50%)';
+            connection.style.position = 'absolute'
+            connection.style.left = `${sourceRect.left + sourceRect.width}px`
+            connection.style.top = `${sourceRect.top + sourceRect.height / 2}px`
+            connection.style.width = `${targetRect.left - (sourceRect.left + sourceRect.width)}px`
+            connection.style.height = '2px'
+            connection.style.backgroundColor = '#666'
+            connection.style.transform = 'translateY(-50%)'
 
-            graphContainer.appendChild(connection);
+            graphContainer.appendChild(connection)
           }
         }
-      });
+      })
     }
-  });
+  })
 
-  return { valid: true, graph: graphContainer };
+  return { valid: true, graph: graphContainer }
 }
 
 // Export all functions to maintain current exports
@@ -765,4 +777,4 @@ module.exports = {
   ensureElementHasId, // New export
   addAriaLabel, // New export
   renderDependencyGraph // New export
-};
+}

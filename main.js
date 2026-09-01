@@ -8,7 +8,7 @@ const { indexContent } = require('./index-template');
 // Import necessary dependencies
 import React from 'react';
 import { render } from 'react-dom';
-import { addLangAttribute, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, uniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, googleSignIn, decodeJwtResponse, fixButtonIdentifiers, ensureElementHasId, addAriaLabel, renderDependencyGraphs } from './AccessibilityHelpers';
+import { addLangAttribute, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, uniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, googleSignIn, decodeJwtResponse, fixButtonIdentifiers, ensureElementHasId, addAriaLabel, renderDependencyGraphs, createAccessibleButton } from './AccessibilityHelpers';
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph');
@@ -19,7 +19,7 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
@@ -100,5 +100,6 @@ module.exports = {
   sanitizeHtml,
   validateTableAccessibility,
   validateTableStructure,
-  renderAdditionalContent
+  renderAdditionalContent,
+  createAccessibleButton
 };

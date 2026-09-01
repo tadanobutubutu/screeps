@@ -13,7 +13,7 @@
     // (This comment remains as-is)
     //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
     //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-    //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+    //_Commit: f8051b788bad4952d3c3f08d3c7d22a06ff80d3_
     //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
     //_Commit: 5cb26805d1cf9dc1c3c0bd9f2923ab16e34f825e _
     //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
@@ -165,7 +165,7 @@
             if (!issues || !Array.isArray(issues)) {
                 return [];
             }
-            
+
             return issues.map(issue => {
                 return {
                     id: issue.id,
@@ -191,11 +191,11 @@
           totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
           details: report
         };
-        
+
         // Store harvested data for potential upgrades
         const harvestFile = path.join(__dirname, 'harvest_data.json');
         fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-        
+
         return harvestedData;
       } catch (error) {
         console.error('Harvest failed:', error);
@@ -298,6 +298,12 @@
             if (!dependencyGraph.hasAttribute('aria-label')) {
                 dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
             }
+        }
+
+        // Add lang attribute to HTML element
+        const htmlElement = document.documentElement;
+        if (htmlElement && !htmlElement.hasAttribute('lang')) {
+            htmlElement.setAttribute('lang', getLangAttribute());
         }
     }
 

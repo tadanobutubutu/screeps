@@ -1,3 +1,4 @@
+javascript
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -344,6 +345,26 @@ function validateLinks(container) {
   return { valid: errors.length === 0, errors };
 }
 
+function createInPageButton(targetId, label) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  button.textContent = label || 'In-page navigation';
+
+  button.addEventListener('click', () => {
+    const target = typeof targetId === 'string' ? document.getElementById(targetId) : null;
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (target.focus) target.focus();
+    }
+  });
+
+  return button;
+}
+
 // TODO: Implement a new function to handle focus trap for keyboard navigation
 /**
  * Creates a focus trap within a container element for keyboard navigation.
@@ -413,6 +434,7 @@ function createFocusTrap(container, options = {}) {
   const activate = () => {
     if (active) return;
     active = true;
+    deactivateHandler = document.activeElement;
     document.addEventListener('keydown', handleKeyDown);
     if (config.onActivate) config.onActivate();
   };
@@ -438,3 +460,127 @@ function createFocusTrap(container, options = {}) {
     destroy: deactivate
   };
 }
+
+/**
+ * Renders a dependency graph visualization component
+ * @param {Object} dependencies - Object containing dependency relationships
+ * @param {Object} options - Configuration options for the graph rendering
+ * @returns {Object} Rendered dependency graph element
+ */
+function renderDependencyGraph(dependencies, options = {}) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const container = document.createElement('div');
+  container.className = 'dependency-graph';
+  container.setAttribute('role', 'img');
+  container.setAttribute('aria-label', 'Dependency graph visualization');
+  
+  if (dependencies && typeof dependencies === 'object') {
+    const dependencyList = document.createElement('ul');
+    dependencyList.className = 'dependency-list';
+    
+    Object.keys(dependencies).forEach((dep) => {
+      const listItem = document.createElement('li');
+      listItem.textContent = dep;
+      
+      if (dependencies[dep] && dependencies[dep].length > 0) {
+        const subList = renderDependencyGraph(dependencies[dep], options);
+        if (subList) {
+          listItem.appendChild(subList);
+        }
+      }
+      
+      dependencyList.appendChild(listItem);
+    });
+    
+    container.appendChild(dependencyList);
+  }
+  
+  return container;
+}
+
+/**
+ * Renders an index view component with proper accessibility features
+ * @param {Array} items - Array of items to display in the index
+ * @param {Object} options - Configuration options for the index view
+ * @returns {Object} Rendered index view element
+ */
+function renderIndexView(items = [], options = {}) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const container = document.createElement('div');
+  container.className = 'index-view';
+  
+  if (items.length > 0) {
+    const navElement = document.createElement('nav');
+    navElement.setAttribute('aria-label', options.navLabel || 'Index navigation');
+    
+    const list = document.createElement('ul');
+    
+    items.forEach((item, index) => {
+      const listItem = document.createElement('li');
+      
+      if (typeof item === 'object' && item !== null) {
+        const link = document.createElement('a');
+        link.href = item.href || '#';
+        link.textContent = item.label || item.text || `Item ${index + 1}`;
+        link.setAttribute('aria-current', item.current ? 'page' : 'false');
+        
+        listItem.appendChild(link);
+      } else {
+        listItem.textContent = String(item);
+      }
+      
+      list.appendChild(listItem);
+    });
+    
+    navElement.appendChild(list);
+    container.appendChild(navElement);
+  }
+  
+  return container;
+}
+
+// New function to address additional landmark validation
+function checkLandmarkElements(container) {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+
+  const errors = [];
+  const root = container || document;
+  const landmarks = root.querySelectorAll('header, nav, main, aside, footer, section, article, [role="header"], [role="nav"], [role="main"], [role="aside"], [role="footer"], [role="section"], [role="article"], [role="search"]');
+
+  landmarks.forEach((landmark, index) => {
+    const result = validateLandmark(landmark);
+    if (!result.valid) {
+      errors.push(`Landmark ${index + 1}: ${result.errors.join(', ')}`);
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+// Export all functions for testing
+export {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  personName,
+  validateLinks,
+  createFocusTrap,
+  renderDependencyGraph,
+  renderIndexView,
+  checkLandmarkElements
+};

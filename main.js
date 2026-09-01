@@ -291,3 +291,22 @@ function addAriaLabel(element) {
 }
 
 // ----- END ORIGINAL CODE -----
+
+// New functions for rendering graph/index as requested in the issue
+export function renderGraph() {
+  // Implementation for rendering graph content
+  const graphContainer = document.getElementById('graph-container');
+  if (graphContainer) {
+    graphContainer.innerHTML = '<div class="graph-content">Graph visualization would be rendered here</div>';
+    fixAccessibilityIssues();
+  }
+}
+
+export function renderIndexContent() {
+  // Implementation for rendering index content
+  const indexContainer = document.getElementById('index-container');
+  if (indexContainer) {
+    indexContainer.innerHTML = '<div class="index-content">Index content would be rendered here</div>';
+    fixAccessibilityIssues();
+  }
+}

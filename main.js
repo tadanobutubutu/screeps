@@ -47,6 +47,66 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  /**
+   * Validate table structure for accessibility issues
+   * @param {HTMLTableElement} table - The table element to validate
+   * @returns {Object} Validation results with issues and suggestions
+   */
+  validateTableAccessibility: (table) => {
+    if (!table || table.tagName !== 'TABLE') {
+      throw new Error('Invalid table element provided');
+    }
+
+    const results = {
+      isAccessible: true,
+      issues: [],
+      suggestions: []
+    };
+
+    // Check for missing table caption
+    if (!table.querySelector('caption')) {
+      results.isAccessible = false;
+      results.issues.push('Table is missing a caption');
+      results.suggestions.push('Add a <caption> element to describe the table purpose');
+    }
+
+    // Check for missing table headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      results.isAccessible = false;
+      results.issues.push('Table is missing header cells (th elements)');
+      results.suggestions.push('Add th elements to define column headers');
+    }
+
+    // Check for scope attributes on headers
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        results.isAccessible = false;
+        results.issues.push('Header cell is missing scope attribute');
+        results.suggestions.push('Add scope="col" or scope="row" to header cells');
+      }
+    });
+
+    // Check for missing ARIA attributes
+    if (!table.hasAttribute('role')) {
+      results.isAccessible = false;
+      results.issues.push('Table is missing role attribute');
+      results.suggestions.push('Add role="table" to the table element');
+    }
+
+    // Check for data cells with headers
+    const dataCells = table.querySelectorAll('td');
+    dataCells.forEach(cell => {
+      if (!cell.hasAttribute('headers') && headers.length > 0) {
+        results.isAccessible = false;
+        results.issues.push('Data cell is missing headers attribute');
+        results.suggestions.push('Add headers attribute pointing to header IDs');
+      }
+    });
+
+    return results;
   }
 };
 

@@ -525,7 +525,29 @@ if (typeof document !== 'undefined') {
 }
 
 function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
+  // Validate that the element has a valid role attribute
+  if (!element.hasAttribute('role')) {
+    console.warn(`Landmark element of type ${element.nodeName} is missing a role attribute`);
+  } else {
+    const elementRole = element.getAttribute('role');
+    if (elementRole !== role) {
+      console.warn(`Landmark element role mismatch: expected ${role}, found ${elementRole}`);
+    }
+  }
+  
+  // Check for accessibility attributes based on role
+  const ariaLabel = element.getAttribute('aria-label');
+  const ariaLabelledby = element.getAttribute('aria-labelledby');
+  
+  if (!ariaLabel && !ariaLabelledby) {
+    // Check for text content as fallback
+    const textContent = element.textContent.trim();
+    if (!textContent) {
+      console.warn(`Landmark element with role ${role} is missing accessible name (no aria-label, aria-labelledby, or text content)`);
+    }
+  }
+  
+  return true;
 }
 
 function wrapPrimaryContentInMain() {
@@ -557,7 +579,45 @@ function wrapPrimaryContentInMain() {
 }
 
 function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
+  // Check for landmark roles and ensure accessibility
+  const landmarkRoles = [
+    'banner',
+    'navigation',
+    'main',
+    'complementary',
+    'contentinfo',
+    'search',
+    'form',
+    'region'
+  ];
+  
+  landmarkRoles.forEach(role => {
+    const elements = container.querySelectorAll(`[role="${role}"]`);
+    elements.forEach(element => {
+      checkLandmarkElement(role, element);
+    });
+    
+    // Also check native HTML elements
+    const nativeSelectors = {
+      'banner': element => element.nodeName.toLowerCase() === 'header',
+      'navigation': element => element.nodeName.toLowerCase() === 'nav',
+      'main': element => element.nodeName.toLowerCase() === 'main',
+      'complementary': element => element.nodeName.toLowerCase() === 'aside',
+      'contentinfo': element => element.nodeName.toLowerCase() === 'footer',
+      'search': element => element.querySelector('form[role="search"], [role="search"]')
+    };
+    
+    if (nativeSelectors[role]) {
+      const allElements = container.querySelectorAll('*');
+      allElements.forEach(element => {
+        if (nativeSelectors[role](element) && !element.hasAttribute('role')) {
+          checkLandmarkElement(role, element);
+        }
+      });
+    }
+  });
+  
+  return true;
 }
 
 /**

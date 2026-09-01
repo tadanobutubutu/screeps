@@ -19,7 +19,7 @@ function addressAccessibilityIssues(insightReport) {
 }
 
 // Import accessibility utility functions
-import { getLangAttribute as getLangAttrUtils, createInPageButton as createInPageBtnUtils } from './utils/accessibilityUtils';
+import { getLangAttribute as getLangAttrUtils, createInPageButton } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
 import { validateLandmark as validateLandmarkUtils, validateLandmarkStructure as validateLandmarkStructUtils } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
@@ -123,3 +123,6 @@ export {
   addProperLandmarkRegions,
   handleFakeLinks
 };
+
+// Add back any required exports that might have been removed
+export { addressAccessibilityIssues, processAccessibilityIssues };

@@ -144,11 +144,11 @@ async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received');
   }
-  
+
   if (response.error) {
     throw new Error(response.error);
   }
-  
+
   if (response.token) {
     return {
       success: true,
@@ -156,7 +156,7 @@ async function handleCredentialResponse(response) {
       expiresIn: response.expiresIn || 36000
     };
   }
-  
+
   throw new Error('Invalid credential response');
 }
 
@@ -318,7 +318,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
   },
@@ -330,11 +330,11 @@ const exportUtils = {
 
   exportToCSV: (data, filename) => {
     if (!data || data.length === 0) return;
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (const row of data) {
       const values = headers.map(header => {
         const escaped = ('' + row[header]).replace(/"/g, '\\"');
@@ -342,7 +342,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -365,7 +365,7 @@ function readFileSafe(filePath) {
 // Initialize accessibility features
 const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
-  
+
   // Add keyboard support for navigation
   document.addEventListener('keydown', (e) => {
     accessibilityUtils.handleKeyboardNav(e, {

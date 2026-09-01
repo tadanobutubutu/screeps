@@ -20,7 +20,9 @@
 function processSvgElements() {
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach(svg => {
-    svg.setAttribute('role', 'img');
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
     const accessibleName = getSvgAccessibleName(svg);
     if (accessibleName) {
       svg.setAttribute('aria-label', accessibleName);
@@ -29,13 +31,56 @@ function processSvgElements() {
   });
 }
 
-// Placeholder for getSvgAccessibleName
+const sampleInsightReport = {
+  title: 'Quarterly Performance Report',
+  sections: [
+    {
+      heading: 'Sales Overview',
+      content: 'Total sales increased by 15% compared to last quarter.'
+    },
+    {
+      heading: 'Customer Satisfaction',
+      content: 'Average satisfaction score: 4.2 out of 5.'
+    }
+  ]
+};
+
+// Implement function for addressing accessibility issues from insight report
+// TODO: Implement a function to count dependencies
+function addressAccessibilityIssues(insightReport) {
+  // Add aria-labels to sections based on heading
+  if (!insightReport || !Array.isArray(insightReport.sections)) {
+    return insightReport;
+  }
+  insightReport.sections.forEach(section => {
+    if (!section.ariaLabel) {
+      section.ariaLabel = section.heading || 'Untitled section';
+    }
+  });
+  return insightReport;
+}
+
+function countDependencies() {
+    const path = require('path');
+    const fs = require('fs');
+    const packageJsonPath = path.join(__dirname, 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+
+    return {
+        dependencies: Object.keys(dependencies),
+        devDependencies: Object.keys(devDependencies),
+        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+    };
+}
+
 function getSvgAccessibleName(svg) {
   if (!svg) return '';
   return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.getAttribute('title') || '';
 }
 
-// Placeholder for setSvgAttributes
 function setSvgAttributes(svg) {
   if (!svg) return;
   // Set necessary attributes for accessibility
@@ -67,38 +112,6 @@ const checkTableStructure = function(tableElement) {
     hasCaption
   };
 };
-
-const sampleInsightReport = {
-  title: 'Quarterly Performance Report',
-  sections: [
-    {
-      heading: 'Sales Overview',
-      content: 'Total sales increased by 15% compared to last quarter.'
-    },
-    {
-      heading: 'Customer Satisfaction',
-      content: 'Average satisfaction score: 4.2 out of 5.'
-    }
-  ]
-};
-
-// Implement function for addressing accessibility issues from insight report
-// TODO: Implement a function to count dependencies
-function countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(__dirname, 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-
-    return {
-        dependencies: Object.keys(dependencies),
-        devDependencies: Object.keys(devDependencies),
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
-}
 
 /**
  * Handle credential response from browser authentication
@@ -235,6 +248,146 @@ function createResourceButton() {
   console.log('Creating resource button...');
 }
 
+/**
+ * Spawn a child process to run some command with proper error handling.
+ * @param {Function} callback - Invoked with (err, result) when the command exits.
+ */
+function spawnSomeCommand(callback) {
+    const child_process = require('child_process');
+    const child = child_process.spawn('someCommand', [], {
+        stdio: 'inherit',
+    });
+    child.on('exit', (code, signal) => {
+        if (code === 0) {
+            callback(null, 'Successfully executed someCommand');
+        } else {
+            callback(new Error(`someCommand failed with code ${code}`));
+        }
+    });
+}
+
+// Utilities for addressing accessibility issues
+const AddressabilityIssues = {
+  addressAccessibilityIssues,
+
+  generateAccessibilityReport(accessibilityReport) {
+    if (!accessibilityReport || !Array.isArray(accessibilityReport.issues)) {
+      return [];
+    }
+
+    const report = accessibilityReport.issues.map(issue => ({
+      issueType: issue.type,
+      status: issue.status || 'pending',
+      fixApplied: issue.fixApplied || ''
+    }));
+
+    return report;
+  },
+
+  calculateAccessibilityScore(fixedIssues) {
+    if (!Array.isArray(fixedIssues)) {
+      return 0;
+    }
+
+    const scorePoints = {
+      'color-contrast': 5,
+      'missing-alt-text': 3,
+      'missing-aria-label': 5,
+      'heading-order': 2,
+      'other': 1
+    };
+
+    return fixedIssues.reduce((score, issue) => {
+      const points = scorePoints[issue.type] || scorePoints['other'];
+      return score + points;
+    }, 0);
+  },
+
+  ensureUniqueLandmarksFromString(source) {
+    const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+
+    const matches = Array.from(source.matchAll(mainBlockRegex));
+    if (matches.length <= 1) {
+      return source;
+    }
+
+    let result = source;
+    for (let i = 1; i < matches.length; i++) {
+      const block = matches[i][0];
+      const fixedBlock = block
+        .replace(/<main([^>]*)>/, '<section$1>')
+        .replace(/<\/main>/, '</section>');
+      result = result.replace(block, fixedBlock);
+    }
+
+    return result;
+  },
+
+  validateLandmark(element) {
+    if (!element) {
+      return { valid: false, error: 'Element is required' };
+    }
+
+    const landmarkRoles = [
+      'banner',
+      'main',
+      'navigation',
+      'search',
+      'contentinfo',
+      'complementary',
+      'region',
+      'form'
+    ];
+
+    const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
+
+    const implicitLandmarks = {
+      'header': 'banner',
+      'main': 'main',
+      'nav': 'navigation',
+      'aside': 'complementary',
+      'footer': 'contentinfo',
+      'section': 'region',
+      'form': 'form'
+    };
+
+    let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
+
+    if (!landmarkRole) {
+      if (implicitLandmarks[tagName]) {
+        landmarkRole = implicitLandmarks[tagName];
+      } else {
+        return { valid: false, error: 'No landmark role found' };
+      }
+    }
+
+    if (!landmarkRoles.includes(landmarkRole)) {
+      return { valid: false, error: `Invalid landmark role: ${landmarkRole}` };
+    }
+
+    return { valid: true, role: landmarkRole };
+  },
+
+  fixMainLandmarkIssues(source) {
+    const mainBlockRegex = /<main\b[^>]*>([\s\S]*?)<\/main>/g;
+    const matches = source.match(mainBlockRegex);
+    if (!matches || matches.length <= 1) {
+      return source;
+    }
+
+    let result = source;
+    for (let i = 1; i < matches.length; i++) {
+      const block = matches[i];
+      const fixedBlock = block
+        .replace(/<main\b([^>]*)>/, '<section$1>')
+        .replace(/<\/main>/, '</section>');
+      result = result.replace(block, fixedBlock);
+    }
+
+    return result;
+  }
+};
+
 // Ensure DOM is fully loaded before executing scripts
 if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports
@@ -263,6 +416,9 @@ if (typeof module !== 'undefined' && module.exports) {
     calculateAccessibilityScore,
     validateLandmark,
     spawnSomeCommand,
+    createInPageButton,
+    validateLinkAccessibility,
+    handleFakeLinks,
     addLangAttribute,
     addDocumentLangAttribute,
     handleCredentialResponse,
@@ -430,11 +586,6 @@ function getConfig() {
   };
 }
 
-function addressAccessibilityIssues(issues) {
-  // Placeholder for addressing accessibility issues
-  console.log('Addressing accessibility issues:', issues);
-}
-
 function trapFocus(event) {
   // Placeholder for focus trap logic
   console.log('Trapping focus', event);
@@ -444,126 +595,3 @@ function handleKeyNavigation(event) {
   // Placeholder for keyboard navigation handling
   console.log('Handling key navigation', event);
 }
-
-function spawnSomeCommand(callback) {
-    const child_process = require('child_process');
-    const child = child_process.spawn('someCommand', [], {
-        stdio: 'inherit',
-    });
-    child.on('exit', (code, signal) => {
-      if (code === 0) {
-        callback(null, 'Successfully executed someCommand');
-      } else {
-        callback(new Error(`someCommand failed with code ${code}`));
-      }
-    });
-}
-
-// Utilities for addressing accessibility issues
-const AddressabilityIssues = {
-  generateAccessibilityReport(accessibilityReport) {
-    if (!accessibilityReport || !accessibilityReport.issues) {
-      return [];
-    }
-
-    const report = accessibilityReport.issues.map(issue => ({
-      issueType: issue.type,
-      status: issue.status || 'pending',
-      fixApplied: issue.fixApplied || ''
-    }));
-
-    return report;
-  },
-
-  calculateAccessibilityScore(fixedIssues) {
-    if (!Array.isArray(fixedIssues)) {
-      return 0;
-    }
-
-    const scorePoints = {
-      'color-contrast': 5,
-      'missing-alt-text': 3,
-      'missing-aria-label': 5,
-      'heading-order': 2,
-      'other': 1
-    };
-
-    return fixedIssues.reduce((score, issue) => {
-      const points = scorePoints[issue.type] || scorePoints['other'];
-      return score + points;
-    }, 0);
-  },
-
-  fixMainLandmarkIssues(source) {
-    const mainBlockRegex = /<main\b[^>]*>([\s\S]*?)<\/main>/g;
-    const matches = source.match(mainBlockRegex);
-    if (!matches || matches.length <= 1) {
-      return source;
-    }
-
-    let result = source;
-    for (let i = 1; i < matches.length; i++) {
-      const block = matches[i];
-      const fixedBlock = block
-        .replace(/<main\b([^>]*)>/, '<section$1>')
-        .replace(/<\/main>/, '</section>');
-      result = result.replace(block, fixedBlock);
-    }
-
-    return result;
-  },
-
-  validateLandmark(element) {
-    if (!element) {
-      return { valid: false, error: 'Element is required' };
-    }
-
-    const landmarkRoles = [
-      'banner',
-      'main',
-      'navigation',
-      'search',
-      'contentinfo',
-      'complementary',
-      'region',
-      'form'
-    ];
-
-    const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
-
-    const implicitLandmarks = {
-      'header': 'banner',
-      'main': 'main',
-      'nav': 'navigation',
-      'aside': 'complementary',
-      'footer': 'contentinfo',
-      'section': 'region',
-      'form': 'form'
-    };
-
-    let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
-
-    if (!landmarkRole && implicitLandmarks[tagName]) {
-      landmarkRole = implicitLandmarks[tagName];
-    }
-
-    if (!landmarkRole) {
-      return { 
-        valid: false, 
-        error: 'Element does not have a valid landmark role',
-        element: tagName
-      };
-    }
-
-    if (!landmarkRoles.includes(landmarkRole)) {
-      return { 
-        valid: false, 
-        error: `Invalid landmark role: ${landmarkRole}`,
-        element: tagName,
-        role: landmarkRole
-      };
-    }
-
-    return { valid: true, element: tagName, role: landmarkRole };
-  }
-};

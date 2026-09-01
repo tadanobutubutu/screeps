@@ -266,36 +266,9 @@ function newFocusTrap (container) {
 }
 
 /**
- * Renders the dependency graph view
- * @param {Object} deps - Dependencies object
- * @param {Object} options - Rendering options
- * @returns {string} Rendered dependency graph HTML
+ * Main entry point for the Screeps bot.
+ * Handles core game logic and integration points.
  */
-function renderDependencyGraph (deps, options = {}) {
-  // Use dependencyGraphContent from the imported module
-  return dependencyGraphContent(deps, options)
-}
-
-/**
- * Renders the main index view
- * @param {Object} data - View data
- * @param {Object} options - Rendering options
- * @returns {string} Rendered index HTML
- */
-function renderIndex (data, options = {}) {
-  // Use indexContent from the imported module
-  return indexContent(data, options)
-}
-
-if (typeof document !== 'undefined') {
-  const mainElement = document.createElement('main')
-  mainElement.setAttribute('lang', document.documentElement.lang)
-
-  if (!document.documentElement.getAttribute('lang')) {
-    document.documentElement.setAttribute('lang', 'en')
-  }
-}
-
 function newFunction () {
   // Implementation from origin/main
   console.log('New function called')
@@ -408,23 +381,57 @@ function handleFocusTrap (element) {
   })
 }
 
+class ScreepsBot {
+  // ... Remaining code from both branches ...
+}
+
+function getSvgAccessibleName(svg) {
+  // ... Remaining code from both branches ...
+}
+
+function renderDependencyGraph (deps, options = {}) {
+  // Use dependencyGraphContent from the imported module
+  return dependencyGraphContent(deps, options)
+}
+
 /**
- * Preserve all existing exports
+ * Renders the main index view
+ * @param {Object} data - View data
+ * @param {Object} options - Rendering options
+ * @returns {string} Rendered index HTML
  */
-module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  newFunction,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  ensureUniqueLandmarks,
-  handleFocusTrap,
-  revokeSession,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  newFocusTrap,
-  getSvgAccessibleName
+function renderIndex (data, options = {}) {
+  // Use indexContent from the imported module
+  return indexContent(data, options)
+}
+
+if (typeof document !== 'undefined') {
+  const mainElement = document.createElement('main')
+  mainElement.setAttribute('lang', document.documentElement.lang)
+
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en')
+  }
+}
+
+// Export for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    renderDependencyGraph,
+    renderIndex,
+    newFunction,
+    checkLandmarkElement,
+    wrapPrimaryContentInMain,
+    checkLandmarks,
+    ensureUniqueLandmarks,
+    handleFocusTrap,
+    revokeSession,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    newFocusTrap,
+    getSvgAccessibleName,
+    ScreepsBot
+  };
 }

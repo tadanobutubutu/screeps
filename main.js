@@ -20,11 +20,11 @@ function ensureElementHasId(element, prefix = 'element') {
   if (!element) {
     return null;
   }
-  
+
   if (!element.id) {
     element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   }
-  
+
   return element.id;
 }
 
@@ -38,11 +38,11 @@ function addAriaLabel(element, label) {
   if (!element) {
     return null;
   }
-  
+
   if (typeof label !== 'string' || label.trim() === '') {
     return element;
   }
-  
+
   element.setAttribute('aria-label', label);
   return element;
 }
@@ -58,10 +58,10 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
   if (!element) {
     return null;
   }
-  
+
   const id = ensureElementHasId(element, idPrefix);
   addAriaLabel(element, ariaLabel);
-  
+
   return id;
 }
 
@@ -72,7 +72,7 @@ function renderDependencyGraph() {
   if (container) {
     container.setAttribute('role', 'region');
     container.setAttribute('aria-label', 'Dependency graph visualization');
-    
+
     // Ensure the container has an id for accessibility
     ensureElementHasId(container, 'dep-graph');
   }
@@ -171,7 +171,7 @@ function addressAccessibilityIssues(container) {
   }
 
   return fixes;
-},
+}
 
 // New feature: Priority-based task scheduling
 class ScreepsBot {
@@ -184,10 +184,10 @@ class ScreepsBot {
   async start() {
     // Initialize network connection
     await this.network.connect();
-    
+
     // Load initial data
     await this.loadData();
-    
+
     console.log('Screenspider bot started');
   }
 
@@ -257,8 +257,8 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
   };
 
   // Accessibility-related functions
-  getLangAttribute = getLangAttributeImpl || function() { return getLangAttributeImpl. call(this); },
-  createInPageButton = createInPageButtonImpl || function() { return createInPageButtonImpl. call(this); },
+  getLangAttribute = getLangAttributeImpl || function() { return getLangAttributeImpl.call(this); },
+  createInPageButton = createInPageButtonImpl || function() { return createInPageButtonImpl.call(this); },
 
   // Main logic from the original implementation
   if (container) {
@@ -345,6 +345,7 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
     }
 
     return fixes;
+  }
 }
 
 // Existing function

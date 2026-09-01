@@ -113,11 +113,11 @@ async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received');
   }
-  
+
   if (response.error) {
     throw new Error(response.error);
   }
-  
+
   if (response.token) {
     return {
       success: true,
@@ -125,7 +125,7 @@ async function handleCredentialResponse(response) {
       expiresIn: response.expiresIn || 3600
     };
   }
-  
+
   throw new Error('Invalid credential response');
 }
 
@@ -151,7 +151,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader('Download of ' + filename + ' started');
   },
@@ -165,11 +165,11 @@ const exportUtils = {
     if (!data || data.length === 0) {
       return;
     }
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (let i = 0; i < data.length; i++) {
       const row = data[i];
       const values = headers.map(function(header) {
@@ -178,7 +178,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -228,7 +228,7 @@ function filterValidItems(items, validator) {
 // Initialize accessibility features
 function initAccessibility() {
   accessibilityUtils.initSkipLink();
-  
+
   // Add keyboard support for all interactive elements
   const elements = document.querySelectorAll('button, a, input, select, textarea');
   for (let i = 0; i < elements.length; i++) {
@@ -271,7 +271,7 @@ function transformInputData(inputData, options) {
   if (options === undefined) {
     options = {};
   }
-  
+
   const preserveKeys = options.preserveKeys !== undefined ? options.preserveKeys : true;
   const uppercase = options.uppercase === true;
   const trimWhitespace = options.trimWhitespace !== false;
@@ -301,6 +301,175 @@ function transformInputData(inputData, options) {
   return result;
 }
 
+// New functions for rendering graph/index
+function renderGraph(data, options) {
+  if (!data || !data.nodes || !data.edges) {
+    throw new Error('Invalid graph data: must contain nodes and edges');
+  }
+
+  const defaultOptions = {
+    container: document.body,
+    width: 800,
+    height: 600,
+    nodeColor: '#4CAF50',
+    edgeColor: '#2196F3',
+    showLabels: true
+  };
+
+  const config = { ...defaultOptions, ...options };
+
+  // Create container if it doesn't exist
+  let container = config.container;
+  if (typeof container === 'string') {
+    container = document.getElementById(container);
+    if (!container) {
+      container = document.createElement('div');
+      container.id = config.container;
+      document.body.appendChild(container);
+    }
+  }
+
+  // Clear previous content
+  container.innerHTML = '';
+
+  // Create SVG element
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', config.width);
+  svg.setAttribute('height', config.height);
+  svg.setAttribute('viewBox', `0 0 ${config.width} ${config.height}`);
+  svg.setAttribute('aria-label', 'Dependency graph visualization');
+  container.appendChild(svg);
+
+  // Render nodes
+  data.nodes.forEach(node => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', node.x || Math.random() * config.width);
+    circle.setAttribute('cy', node.y || Math.random() * config.height);
+    circle.setAttribute('r', node.size || 10);
+    circle.setAttribute('fill', config.nodeColor);
+    circle.setAttribute('aria-label', `Node ${node.id || ''}`);
+    svg.appendChild(circle);
+
+    if (config.showLabels && node.label) {
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', node.x || Math.random() * config.width);
+      text.setAttribute('y', (node.y || Math.random() * config.height) - 15);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('fill', '#333');
+      text.textContent = node.label;
+      svg.appendChild(text);
+    }
+  });
+
+  // Render edges
+  data.edges.forEach(edge => {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    const sourceNode = data.nodes.find(n => n.id === edge.source);
+    const targetNode = data.nodes.find(n => n.id === edge.target);
+
+    if (sourceNode && targetNode) {
+      line.setAttribute('x1', sourceNode.x || Math.random() * config.width);
+      line.setAttribute('y1', sourceNode.y || Math.random() * config.height);
+      line.setAttribute('x2', targetNode.x || Math.random() * config.width);
+      line.setAttribute('y2', targetNode.y || Math.random() * config.height);
+      line.setAttribute('stroke', config.edgeColor);
+      line.setAttribute('stroke-width', edge.width || 1);
+      line.setAttribute('aria-label', `Edge from ${edge.source} to ${edge.target}`);
+      svg.appendChild(line);
+    }
+  });
+
+  return {
+    container,
+    svg,
+    update: function(newData) {
+      // Function to update the graph with new data
+      if (newData) {
+        container.innerHTML = '';
+        renderGraph(newData, config);
+      }
+    }
+  };
+}
+
+function renderIndex(data, options) {
+  if (!data || !Array.isArray(data)) {
+    throw new Error('Invalid index data: must be an array');
+  }
+
+  const defaultOptions = {
+    container: document.body,
+    title: 'Index',
+    showCounts: true,
+    itemClass: 'index-item'
+  };
+
+  const config = { ...defaultOptions, ...options };
+
+  // Create container if it doesn't exist
+  let container = config.container;
+  if (typeof container === 'string') {
+    container = document.getElementById(container);
+    if (!container) {
+      container = document.createElement('div');
+      container.id = config.container;
+      document.body.appendChild(container);
+    }
+  }
+
+  // Clear previous content
+  container.innerHTML = '';
+
+  // Create index container
+  const indexContainer = document.createElement('div');
+  indexContainer.className = 'index-container';
+  indexContainer.setAttribute('role', 'navigation');
+  indexContainer.setAttribute('aria-label', config.title);
+  container.appendChild(indexContainer);
+
+  // Add title
+  const title = document.createElement('h2');
+  title.textContent = config.title;
+  indexContainer.appendChild(title);
+
+  // Create list
+  const list = document.createElement('ul');
+  list.className = 'index-list';
+  indexContainer.appendChild(list);
+
+  // Add items
+  data.forEach((item, index) => {
+    const listItem = document.createElement('li');
+    listItem.className = config.itemClass;
+
+    const link = document.createElement('a');
+    link.href = item.url || '#';
+    link.textContent = item.label || `Item ${index + 1}`;
+    link.setAttribute('aria-label', item.label || `Item ${index + 1}`);
+
+    if (config.showCounts && item.count !== undefined) {
+      const countSpan = document.createElement('span');
+      countSpan.className = 'index-count';
+      countSpan.textContent = ` (${item.count})`;
+      link.appendChild(countSpan);
+    }
+
+    listItem.appendChild(link);
+    list.appendChild(listItem);
+  });
+
+  return {
+    container: indexContainer,
+    update: function(newData) {
+      // Function to update the index with new data
+      if (newData && Array.isArray(newData)) {
+        container.innerHTML = '';
+        renderIndex(newData, config);
+      }
+    }
+  };
+}
+
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
@@ -320,5 +489,7 @@ module.exports = {
   addAriaLabel: addAriaLabel,
   renderDependencyGraph: renderDependencyGraph,
   calculateSum: calculateSum,
-  existingFunction: existingFunction
+  existingFunction: existingFunction,
+  renderGraph: renderGraph,
+  renderIndex: renderIndex
 };

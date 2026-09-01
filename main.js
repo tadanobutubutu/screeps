@@ -1,38 +1,112 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-//<!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-// existing code...
+const express = require('express');
+const axe = require('axe-core');
+const fs = require('fs');
+const fastMap = require('fast-map');
+const path = require('path');
 
-// TODO: Identify and update specific functions that render dependency graphs or
-// display module structure for debugging purposes.
+// Configuration - merged
+const CONFIG = {
+    dataPath: './data',
+    maxResults: 100,
+    apiUrl: process.env.API_URL || 'https://example.com',
+    timeout: 5000
+};
 
-// Placeholder for dependency graph rendering utility.
-// This function can be expanded to visualize how modules depend on each other.
-function renderDependencyGraph(modules) {
-  // Future implementation could traverse and log module dependencies
-  console.log('Rendering dependency graph for modules:', modules);
-  return {};
+// Alternative config style for backwards compatibility
+const config = CONFIG;
+
+// Application state
+let isInitialized = false;
+const appData = {};
+
+// App state with accessibility updates
+const appState = {
+  initialized: false,
+  data: null,
+  cache: {},
+  lang: 'en'
+};
+
+// Helper for input transformation
+function helper(input) {
+  return input ? input.toUpperCase() : '';
 }
 
-// Placeholder for module structure display utility.
-// Helps developers understand the current structure of loaded modules.
-function displayModuleStructure(modules) {
-  // Future implementation could format and print module hierarchy
-  console.log('Displaying module structure for modules:', modules);
-  return {};
+// Helper function to format dates
+function formatDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.toISOString().split('T')[0];
 }
 
-// Placeholder for dependency counting utility.
-// Counts the number of dependencies in a given module set.
-function countDependencies(modules) {
-  // Future implementation could traverse and count module dependencies
-  console.log('Counting dependencies for modules:', modules);
-  return 0;
+// Validate input helper
+function validateInput(input) {
+  return input && typeof input === 'string' && input.trim().length > 0;
+}
+
+// Process data helper
+function processData(data) {
+  if (!data) return null;
+  return { ...data, processed: true };
+}
+
+// Initialize function
+function initialize() {
+  appState.initialized = true;
+  console.log('App initialized');
+}
+
+// Initialize app function
+function initializeApp() {
+  initialize();
+  return appState;
+}
+
+// Fetch user function
+async function fetchUser(userId) {
+  if (!userId) {
+    return null;
+  }
+  return { id: userId, name: 'User ' + userId };
+}
+
+// Clear cache function
+function clearCache() {
+  appState.cache.clear();
+}
+
+// Helper function
+function someFunction() {
+  return 'some value';
+}
+
+// Configuration
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || 'localhost';
+
+// Application main entry point
+const app = express();
+
+// Helper functions moved to a separate file (preserved references)
+const {
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  ensureUniqueLandmarks,
+  addLandmarkRoles,
+  renderDependencyGraph,
+  displayModuleStructure,
+  countDependencies,
+  analyzeModuleDependencies,
+  visualizeModuleRelationships
+} = require('./accessibility-improvements');
+
+// Helper function to validate landmark structure
+function getLangAttribute() {
+  return document.documentElement.getAttribute('lang');
 }
 
 // New function to analyze module dependencies
@@ -61,6 +135,11 @@ function helper(input) {
   return input ? input.toUpperCase() : '';
 }
 
+// Helper function to format dates
+function formatDate(date) {
+  return new Date(date).toISOString();
+}
+
 // Validate input helper
 function validateInputFn(input) {
   return input && typeof input === 'string' && input.trim().length > 0;
@@ -72,149 +151,72 @@ function processDataFn(data) {
   return { ...data, processed: true };
 }
 
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const fastMap = require('fast-map');
-const path = require('path');
-
-// Configuration - merged
-const CONFIG = {
-    dataPath: './data',
-    maxResults: 100
-};
-
-// Application state
-const appState = {
-    initialized: false,
-    data: null,
-    cache: {}
-};
-
-// Initialize application
-function initializeApp(config) {
-    appState.initialized = true;
-    appState.data = config || {};
-    return appState;
-}
-
-// Fetch user data
-function fetchUser(userId) {
-    return { id: userId, name: 'Test User' };
-}
-
-// Clear cache
-function clearCache() {
-    appState.cache = {};
-}
-
-// Initialize
-function initialize() {
-    return initializeApp(CONFIG);
-}
-
-// Format response
-function formatResponse(data) {
-    return {
-        success: true,
-        data: data,
-        timestamp: new Date().toISOString()
-    };
-}
-
-// Format date
-function formatDate(date) {
-    return new Date(date).toISOString();
-}
-
-// Process data
-function processData(data) {
-    if (!data) return null;
-    return { ...data, processed: true };
-}
-
 // Some function
 function someFunction() {
-    return 'some function';
+  return 'some function';
 }
 
-function isValidLandmark(landmark) {
-    return landmark &&
-           typeof landmark.id !== 'undefined' &&
-           landmark.id !== null;
-}
-
-function loadLandmarks() {
-    try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error loading landmarks:', error.message);
-        return [];
-    }
-}
-
+// Landmark processing functions
 function processLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
 
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+  const validLandmarks = landmarks.filter(isValidLandmark);
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
+  return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
+  return landmarks.slice().sort((a, b) => {
+    const nameA = (a.name || '').toLowerCase();
+    const nameB = (b.name || '').toLowerCase();
 
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(nameA);
-    });
+    if (ascending) {
+      return nameA.localeCompare(nameB);
+    }
+    return nameB.localeCompare(nameA);
+  });
 }
 
 function getLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
+  return landmarks.find(landmark => landmark.id === id) || null;
 }
 
 function ensureUniqueLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const seen = new Set();
+  const uniqueLandmarks = [];
+
+  for (const landmark of landmarks) {
+    if (!landmark || typeof landmark.id === 'undefined') {
+      continue;
     }
 
-    const seen = new Set();
-    const uniqueLandmarks = [];
+    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
 
-    for (const landmark of landmarks) {
-        if (!landmark || typeof landmark.id === 'undefined') {
-            continue;
-        }
-
-        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-        if (!seen.has(landmarkId)) {
-            seen.add(landmarkId);
-            uniqueLandmarks.push(landmark);
-        }
+    if (!seen.has(landmarkId)) {
+      seen.add(landmarkId);
+      uniqueLandmarks.push(landmark);
     }
+  }
 
-    return uniqueLandmarks;
+  return uniqueLandmarks;
 }
 
 // Write report to file
 function writeReport(report) {
-    const reportPath = path.join(__dirname, CONFIG.dataPath, 'accessibility-report.json');
-    try {
-        fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');
-        console.log('Report written to', reportPath);
-    } catch (error) {
-        console.error('Error writing report:', error.message);
-    }
+  const reportPath = path.join(__dirname, CONFIG.dataPath, 'accessibility-report.json');
+  try {
+    fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');
+    console.log('Report written to', reportPath);
+  } catch (error) {
+    console.error('Error writing report:', error.message);
+  }
 }
 
 // TODO: Implement function for generating a report based on accessibility issues
@@ -226,11 +228,11 @@ function generateAccessibilityReport() {
 }
 
 async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
-    return {
-      timestamp: new Date().toISOString(),
-      issues: []
-    };
+  // ... Scanning and reporting accessibility issues using axe-core ...
+  return {
+    timestamp: new Date().toISOString(),
+    issues: []
+  };
 }
 
 // Accessibility functions
@@ -283,215 +285,3 @@ function improveAccessibility() {
   fixTableHeaderCellScope();
   addMainLandmark();
   addSvgAccessibleNames();
-  fixTableAccessibility();
-  fixFakeLinks();
-  ensureUniqueLandmarks();
-  addLandmarkRoles();
-  addKeyboardNavigation();
-  addAriaLabels();
-  addScreenReaderAnnouncements();
-}
-
-function fixTableStructureIssues() {
-  // Implementation for fixing table structure issues
-}
-
-function fixTableHeaderCellScope() {
-  // Implementation for fixing table header cell scope
-}
-
-function addSvgAccessibleNames() {
-  // Implementation for adding SVG accessible names
-}
-
-function fixFakeLinks() {
-  // Implementation for fixing fake links
-}
-
-function addLandmarkRoles() {
-  // Implementation for adding landmark roles
-}
-
-/**
- * REACT_036: Create accessible links
- * Creates properly accessible links and buttons
- */
-function createAccessibleLinks() {
-  // Create skip to content link
-  const skipLink = createInPageButton('main-content', 'Skip to main content');
-  document.body.insertBefore(skipLink, document.body.firstChild);
-
-  // Validate existing links
-  const links = document.querySelectorAll('a');
-  links.forEach(link => {
-    const validation = validateLinkAccessibility(link);
-    if (!validation.valid) {
-      console.warn('Link validation issues:', validation.issues);
-    }
-  });
-}
-
-// Fix table accessibility
-function fixTableAccessibility() {
-  // Implementation for fixing table accessibility
-}
-
-// Fix landmark issues
-function fixLandmarkIssues() {
-  // Implementation for fixing landmark issues
-}
-
-// Add SVG accessibility
-function addSvgAccessibility() {
-  // Implementation for adding SVG accessibility
-}
-
-// Additional utility functions for accessibility
-function validateTableStructure(table) {
-  // Implementation for table structure validation
-}
-
-function validateTableAccessibility() {
-  // Implementation for table accessibility validation
-}
-
-function addMainLandmark() {
-  // Implementation for adding main landmark
-}
-
-function validateLandmark() {
-  return { valid: true, issues: [] };
-}
-
-function validateLandmarkStructure() {
-  // Implementation for landmark structure validation
-}
-
-function validateLandmarkAttributes() {
-  // Implementation for landmark attributes validation
-}
-
-function getSvgAccessibleName(svg) {
-  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '';
-}
-
-function setSvgAttributes(svg, name) {
-  svg.setAttribute('aria-label', name);
-}
-
-function createInPageButton(targetId, label) {
-  const button = document.createElement('a');
-  button.href = '#' + targetId;
-  button.textContent = label;
-  button.className = 'skip-link';
-  return button;
-}
-
-function validateLinkAccessibility(link) {
-  return { valid: true, issues: [] };
-}
-
-function handleFakeLinks() {
-  // Implementation for handling fake links
-}
-
-function addLandmarkRegions() {
-  // Implementation for adding landmark regions
-}
-
-function addProperLandmarkRegions() {
-  // Implementation for adding proper landmark regions
-}
-
-function fixTableStructure() {
-  // Implementation for fixing table structure
-}
-
-function addressAccessibilityIssues() {
-  // Implementation for addressing accessibility issues
-}
-
-function processAccessibilityReport() {
-  // Implementation for processing accessibility report
-}
-
-function getLangAttribute() {
-  return document.documentElement.getAttribute('lang');
-}
-
-function addLangAttribute() {
-  // Implementation for adding lang attribute
-}
-
-module.exports = {
-  // Screeps bot exports
-  renderDependencyGraph,
-  displayModuleStructure,
-  countDependencies,
-  analyzeModuleDependencies,
-  visualizeModuleRelationships,
-  loop: function () {
-    // Resolve merged bot logic for Screeps
-    for (let name in Game.creeps) {
-      let creep = Game.creeps[name];
-      if (creep.memory.role === 'harvester') {
-        if (creep.store.getFreeCapacity() > 0) {
-          let source = creep.pos.findClosestByPath(FIND_SOURCES);
-          if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(source);
-          }
-        }
-      }
-    }
-  },
-  // Accessibility and landmark exports
-  config: CONFIG,
-  appState,
-  initializeApp,
-  processData: processDataFn,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput: validateInputFn,
-  addressAccessibilityIssues,
-  processAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  addProperLandmarkRegions,
-  fixTableAccessibility,
-  fixLandmarkIssues,
-  addSvgAccessibility,
-  createAccessibleLinks,
-  formatResponse,
-  generateAccessibilityReport,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  CONFIG,
-  isValidLandmark,
-  writeReport,
-  scanAccessibility,
-  addKeyboardNavigation,
-  addAriaLabels,
-  addScreenReaderAnnouncements,
-  addFocusTrap,
-  improveAccessibility,
-  helper,
-  formatDate,
-  someFunction
-};

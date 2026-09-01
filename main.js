@@ -13,8 +13,8 @@ const CONFIG = {
 
 // Helper function to validate landmark structure
 function isValidLandmark(landmark) {
-    return landmark && 
-           typeof landmark.id !== 'undefined' && 
+    return landmark &&
+           typeof landmark.id !== 'undefined' &&
            landmark.id !== null;
 }
 
@@ -35,10 +35,10 @@ function processLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
         return [];
     }
-    
+
     const validLandmarks = landmarks.filter(isValidLandmark);
     const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-    
+
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
@@ -47,7 +47,7 @@ function sortLandmarks(landmarks, ascending = true) {
     return landmarks.slice().sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
-        
+
         if (ascending) {
             return nameA.localeCompare(nameB);
         }
@@ -65,23 +65,23 @@ function ensureUniqueLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
         return [];
     }
-    
+
     const seen = new Set();
     const uniqueLandmarks = [];
-    
+
     for (const landmark of landmarks) {
         if (!landmark || typeof landmark.id === 'undefined') {
             continue;
         }
-        
+
         const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-        
+
         if (!seen.has(landmarkId)) {
             seen.add(landmarkId);
             uniqueLandmarks.push(landmark);
         }
     }
-    
+
     return uniqueLandmarks;
 }
 
@@ -91,7 +91,6 @@ function writeReport(report) {
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
 // Replaced placeholder with full implementation using axe-core scanning and report writing
 function generateAccessibilityReport() {
   const report = scanAccessibility();
@@ -129,11 +128,11 @@ if (require.main === module) {
   const landmarks = loadLandmarks();
   const processed = processLandmarks(landmarks);
   const sorted = sortLandmarks(processed);
-  
+
   console.log(`Loaded ${landmarks.length} landmarks`);
   console.log(`Processed to ${processed.length} unique landmarks`);
   console.log(`Sorted ${sorted.length} landmarks`);
-  
+
   if (sorted.length > 0) {
     console.log('First landmark:', sorted[0]);
   }
@@ -148,6 +147,27 @@ function renderDependencyGraph(landmarks) {
 
 // Export the new function
 module.exports.renderDependencyGraph = renderDependencyGraph;
+
+// New function to add proper landmark regions
+function addLandmarkRegions(landmarks, regions) {
+    if (!Array.isArray(landmarks) || !Array.isArray(regions)) {
+        throw new Error('Both landmarks and regions must be arrays');
+    }
+
+    return landmarks.map(landmark => {
+        const matchingRegions = regions.filter(region =>
+            region.landmarkId === landmark.id
+        );
+
+        return {
+            ...landmark,
+            regions: matchingRegions
+        };
+    });
+}
+
+// Export the new function
+module.exports.addLandmarkRegions = addLandmarkRegions;
 
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice

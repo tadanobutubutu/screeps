@@ -30,15 +30,15 @@ function getFullLangAttribute() {
  */
 function validateTableAccessibility(table) {
   const issues = [];
-  
+
   if (!table.headers) {
     issues.push('Missing headers attribute');
   }
-  
+
   if (!table.scope) {
     issues.push('Missing scope attribute');
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -52,7 +52,7 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(tables) {
   const allIssues = [];
-  
+
   tables.forEach((table, index) => {
     const result = validateTableAccessibility(table);
     if (!result.success) {
@@ -62,7 +62,7 @@ function validateTableStructure(tables) {
       });
     }
   });
-  
+
   return {
     success: allIssues.length === 0,
     issues: allIssues
@@ -77,13 +77,13 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  
+
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -97,7 +97,7 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure(landmarks) {
   const issues = [];
-  
+
   landmarks.forEach((landmark, index) => {
     const result = validateLandmark(landmark);
     if (!result.success) {
@@ -107,7 +107,7 @@ function validateLandmarkStructure(landmarks) {
       });
     }
   });
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -122,7 +122,7 @@ function validateLandmarkStructure(landmarks) {
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
-  
+
   landmarks.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
@@ -131,7 +131,7 @@ function ensureUniqueLandmarks(landmarks) {
       names.push(name);
     }
   });
-  
+
   return {
     success: duplicates.length === 0,
     duplicates
@@ -200,7 +200,7 @@ function createAccessibleLink(options) {
 function handleAccessibilityIssues(issues) {
   const handled = [];
   const unhandled = [];
-  
+
   issues.forEach(issue => {
     if (issue.fixable) {
       handled.push(issue);
@@ -208,12 +208,78 @@ function handleAccessibilityIssues(issues) {
       unhandled.push(issue);
     }
   });
-  
+
   return {
     total: issues.length,
     handled: handled.length,
     unhandled: unhandled.length,
     unhandledIssues: unhandled
+  };
+}
+
+/**
+ * Creates an accessible form for adding books
+ * @param {Object} options - Form options
+ * @param {string} options.title - Form title
+ * @param {string} options.submitText - Submit button text
+ * @param {Function} options.onSubmit - Submit handler
+ * @returns {Object} Form element object with accessibility attributes
+ */
+function createAccessibleBookForm(options) {
+  return {
+    type: 'form',
+    role: 'form',
+    ariaLabel: options.title || 'Add Book Form',
+    fields: [
+      {
+        type: 'text',
+        id: 'book-title',
+        label: 'Book Title',
+        required: true,
+        ariaRequired: true
+      },
+      {
+        type: 'text',
+        id: 'book-author',
+        label: 'Author',
+        required: true,
+        ariaRequired: true
+      },
+      {
+        type: 'number',
+        id: 'book-pages',
+        label: 'Number of Pages',
+        min: 1,
+        ariaDescribedby: 'pages-help',
+        helpText: 'Enter the total number of pages in the book'
+      }
+    ],
+    submitButton: createInPageButton({
+      text: options.submitText || 'Add Book',
+      ariaLabel: options.submitText || 'Submit book information',
+      onClick: options.onSubmit
+    }),
+    errorSummary: {
+      role: 'alert',
+      ariaLive: 'polite'
+    }
+  };
+}
+
+/**
+ * Adds accessibility attributes to a book element
+ * @param {Object} book - Book object
+ * @returns {Object} Book element with accessibility attributes
+ */
+function addBookAccessibility(book) {
+  return {
+    ...book,
+    role: 'article',
+    ariaLabel: `Book: ${book.title} by ${book.author}`,
+    attributes: {
+      'data-testid': 'book-item',
+      'aria-describedby': `book-${book.id}-description`
+    }
   };
 }
 
@@ -229,5 +295,7 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  createAccessibleBookForm,
+  addBookAccessibility
 };

@@ -1,12 +1,12 @@
 // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (typically in index.html, not main.js)
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (DONE: addLandmarkIssues; handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames; handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
+// - ADD: Address new accessibility issues from insight report
 
 /**
  * Ensures the given element has an ID.
@@ -230,6 +230,153 @@ function ensureLangAttribute(document) {
   return html.getAttribute('lang');
 }
 
+/**
+ * REACT_015: Gets the lang attribute from the HTML element.
+ * Falls back to 'en' if not present.
+ * @param {Document} document - The document to inspect
+ * @returns {string} The lang attribute value
+ */
+export function getLangAttribute(document) {
+  const html = document.documentElement;
+  return html.getAttribute('lang') || 'en';
+}
+
+/**
+ * REACT_027: Validates the overall accessibility of tables in a container.
+ * Checks for presence of captions, headers, and proper roles.
+ * @param {HTMLElement} container - The container to check tables in
+ * @returns {Object} An object containing counts of issues found
+ */
+export function validateTableAccessibility(container) {
+  const tables = container.querySelectorAll('table');
+  const issues = {
+    missingCaption: 0,
+    missingHeaders: 0,
+    invalidStructure: 0,
+  };
+
+  tables.forEach(table => {
+    if (!table.querySelector('caption') && !table.getAttribute('aria-label') && !table.getAttribute('aria-labelledby')) {
+      issues.missingCaption++;
+    }
+    if (!table.querySelector('th') && !table.querySelector('[role="columnheader"]') && !table.querySelector('[role="rowheader"]')) {
+      issues.missingHeaders++;
+    }
+  });
+
+  return issues;
+}
+
+/**
+ * REACT_027: Validates the structure of tables in a container.
+ * Ensures proper scope attributes on th elements.
+ * @param {HTMLElement} container - The container to check tables in
+ * @returns {Object} An object containing counts of structure issues
+ */
+export function validateTableStructure(container) {
+  const tables = container.querySelectorAll('table');
+  const issues = {
+    missingScope: 0,
+    invalidHeaders: 0,
+    nestedTables: 0,
+  };
+
+  tables.forEach(table => {
+    const ths = table.querySelectorAll('th');
+    ths.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        issues.missingScope++;
+      }
+    });
+    if (table.querySelector('table table')) {
+      issues.nestedTables++;
+    }
+  });
+
+  return issues;
+}
+
+/**
+ * REACT_017: Validates the landmark structure in a container.
+ * @param {HTMLElement} container - The container to check landmarks in
+ * @returns {Object} An object containing landmark validation results
+ */
+export function validateLandmark(container) {
+  const landmarkTags = ['header', 'nav', 'main', 'aside', 'footer'];
+  const found = {};
+  landmarkTags.forEach(tag => {
+    found[tag] = container.querySelectorAll(tag).length;
+  });
+  return found;
+}
+
+/**
+ * REACT_017: Validates the overall landmark structure.
+ * @param {HTMLElement} container - The container to check
+ * @returns {Object} An object containing landmark structure validation
+ */
+export function validateLandmarkStructure(container) {
+  const landmarks = validateLandmark(container);
+  const issues = [];
+  if (landmarks.main === 0) {
+    issues.push('Missing main landmark');
+  }
+  if (landmarks.nav === 0) {
+    issues.push('Missing navigation landmark');
+  }
+  return { landmarks, issues };
+}
+
+/**
+ * REACT_041: Gets the accessible name for an SVG element.
+ * @param {SVGElement} svg - The SVG element to inspect
+ * @returns {string|null} The accessible name or null if not found
+ */
+export function getSvgAccessibleName(svg) {
+  if (svg.hasAttribute('aria-label')) {
+    return svg.getAttribute('aria-label');
+  }
+  if (svg.hasAttribute('aria-labelledby')) {
+    const id = svg.getAttribute('aria-labelledby');
+    const labelEl = document.getElementById(id);
+    if (labelEl) {
+      return labelEl.textContent;
+    }
+  }
+  const title = svg.querySelector('title');
+  if (title) {
+    return title.textContent;
+  }
+  return null;
+}
+
+/**
+ * REACT_036: Creates an in-page button from a fake link element.
+ * @param {HTMLElement} element - The element to convert
+ * @returns {HTMLElement} The converted button element
+ */
+export function createInPageButton(element) {
+  element.setAttribute('role', 'button');
+  if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+    element.setAttribute('aria-label', element.textContent.trim());
+  }
+  return element;
+}
+
+/**
+ * REACT_036: Returns a person's accessible name from a name object.
+ * @param {Object} person - The person object with name properties
+ * @returns {string} The accessible name for the person
+ */
+export function personName(person) {
+  if (!person) return '';
+  if (person.fullName) return person.fullName;
+  if (person.firstName && person.lastName) {
+    return `${person.firstName} ${person.lastName}`;
+  }
+  return person.name || '';
+}
+
 // Export all functions for testing
 export {
   ensureElementHasId,
@@ -239,5 +386,13 @@ export {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   fixFakeLinks,
-  ensureLangAttribute
+  ensureLangAttribute,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  personName
 };

@@ -237,6 +237,8 @@ function checkLinkAccessibility() {
   return issues;
 }
 
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic
 /**
  * Wraps the primary content of the page in a <main> element for improved accessibility.

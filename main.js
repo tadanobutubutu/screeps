@@ -111,6 +111,43 @@ const a11yStore = {
     });
   },
 
+  /**
+   * Ensure all interactive elements have proper ARIA roles
+   */
+  ensureInteractiveRoles() {
+    const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
+    interactiveElements.forEach((element) => {
+      if (!element.hasAttribute('role')) {
+        element.setAttribute('role', 'button');
+      }
+    });
+  },
+
+  /**
+   * Add ARIA labels to form controls if missing
+   */
+  addFormControlLabels() {
+    const formControls = document.querySelectorAll('input, select, textarea, button');
+    formControls.forEach((control) => {
+      if (!control.hasAttribute('aria-label') && !control.hasAttribute('aria-labelledby') && !control.hasAttribute('title')) {
+        const id = control.id || `form-control-${Math.floor(Math.random() * 10000)}`;
+        control.setAttribute('aria-label', id);
+      }
+    });
+  },
+
+  /**
+   * Ensure all images have alt text or ARIA attributes
+   */
+  ensureImageAccessibility() {
+    const images = document.querySelectorAll('img');
+    images.forEach((img) => {
+      if (!img.hasAttribute('alt') && !img.hasAttribute('aria-hidden') && !img.hasAttribute('role')) {
+        img.setAttribute('alt', '');
+      }
+    });
+  },
+
   preserveExistingCode() {
     // TODO: This is the existing code that needs to be preserved
     // _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
@@ -772,7 +809,7 @@ module.exports = {
   ensureUniqueLandmarks,
   handleFocusTrap,
   revokeSession,
-  addSvgAccessibilityProps,
+  addSVGAccessibilityProps,
   isLandmarkElement,
   handleCredentialResponse,
   parseCredentialResponse,
@@ -788,5 +825,8 @@ module.exports = {
   getActiveSessionsCount,
   server,
   sanitizeFilename,
-  processData
+  processData,
+  ensureInteractiveRoles: a11yStore.ensureInteractiveRoles,
+  addFormControlLabels: a11yStore.addFormControlLabels,
+  ensureImageAccessibility: a11yStore.ensureImageAccessibility
 };

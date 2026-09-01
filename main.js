@@ -24,8 +24,11 @@ function addressAccessibilityIssues(insightReport) {
   }
 
   // Handle REACT_027: Fix table structure issues
-  validateTableAccessibility();
-  validateTableStructure();
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
 
   // Handle REACT_017: Add/fix landmark issues
   validateLandmarkHelpers();
@@ -99,6 +102,25 @@ function validateLandmarkStructure(element) {
   return true;
 }
 
+function validateLandmarkHelpers() {
+  // Implementation to validate landmark helpers
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="contentinfo"], [role="complementary"], [role="region"], header, nav, main, footer, aside, section');
+  landmarks.forEach(landmark => {
+    validateLandmark(landmark);
+    validateLandmarkStructure(landmark);
+  });
+}
+
+function validateLandmarkStructHelpers() {
+  // Implementation to validate landmark structure helpers
+  const landmarks = document.querySelectorAll('[role="region"]');
+  landmarks.forEach(landmark => {
+    if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+      console.warn('Landmark region missing accessible name');
+    }
+  });
+}
+
 function ensureUniqueLandmarks() {
   // Implementation to ensure unique landmarks
   const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="contentinfo"], [role="complementary"], [role="region"]');
@@ -113,15 +135,30 @@ function ensureUniqueLandmarks() {
   });
 }
 
-function getSvgAccessibleName(svgElement) {
-  // Implementation to get accessible name for SVG
-  const title = svgElement.querySelector('title');
-  const ariaLabel = svgElement.getAttribute('aria-label');
-
-  if (title) return title.textContent;
+/**
+ * Returns an accessible name for an SVG element.
+ * @param {SVGElement} svg - The SVG element.
+ * @returns {string} The accessible name.
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const ariaLabel = svg.getAttribute('aria-label');
   if (ariaLabel) return ariaLabel;
-  console.warn('SVG missing accessible name');
-  return null;
+  const title = svg.querySelector('title');
+  if (title && title.textContent) return title.textContent;
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    if (labelElement) return labelElement.textContent;
+  }
+  return 'SVG';
+}
+
+function setSvgAttributes(svgElement, attributes) {
+  // Implementation to set SVG attributes
+  Object.entries(attributes).forEach(([key, value]) => {
+    svgElement.setAttribute(key, value);
+  });
 }
 
 function createInPageButton(text, onClick) {
@@ -133,17 +170,23 @@ function createInPageButton(text, onClick) {
   return button;
 }
 
+/**
+ * Creates an accessible link element.
+ * @param {string} text - The text content of the link.
+ * @param {string} href - The URL the link points to.
+ * @returns {HTMLElement} The created link element.
+ */
 function createAccessibleLink(text, href) {
-  // Implementation to create accessible link
   const link = document.createElement('a');
   link.textContent = text;
   link.href = href;
-  link.setAttribute('aria-label', text);
+  link.setAttribute('role', 'link');
+  link.setAttribute('tabindex', '0');
   return link;
 }
 
-function handleAccessibilityIssues() {
-  // Implementation to handle accessibility issues
+function handleFakeLinks() {
+  // Implementation to handle fake links
   const fakeLinks = document.querySelectorAll('a[href="javascript:void(0)"]');
   fakeLinks.forEach(link => {
     console.warn('Fake link found, please replace with proper link or button');
@@ -286,40 +329,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/**
- * Returns an accessible name for an SVG element.
- * @param {SVGElement} svg - The SVG element.
- * @returns {string} The accessible name.
- */
-function getSvgAccessibleName(svg) {
-  if (!svg) return '';
-  const ariaLabel = svg.getAttribute('aria-label');
-  if (ariaLabel) return ariaLabel;
-  const title = svg.querySelector('title');
-  if (title && title.textContent) return title.textContent;
-  const aria-labelledby = svg.getAttribute('aria-labelledby');
-  if (aria-labelledby) {
-    const labelElement = document.getElementById(aria-labelledby);
-    if (labelElement) return labelElement.textContent;
-  }
-  return 'SVG';
-}
-
-/**
- * Creates an accessible link element.
- * @param {string} text - The text content of the link.
- * @param {string} href - The URL the link points to.
- * @returns {HTMLElement} The created link element.
- */
-function createAccessibleLink(text, href) {
-  const link = document.createElement('a');
-  link.textContent = text;
-  link.href = href;
-  link.setAttribute('role', 'link');
-  link.setAttribute('tabindex', '0');
-  return link;
-}
-
 // Export existing functionality and new functions
 export {
   initialize,
@@ -364,6 +373,6 @@ export {
   createUnrotateButton,
   getSvgAccessibleName,
   createAccessibleLink,
-  getElementById, // Added back
-  queryElements // Added back
+  getElementById,
+  queryElements
 };

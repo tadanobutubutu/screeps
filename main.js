@@ -28,9 +28,33 @@ const renderGraphIndex = (graphData) => {
   renderDependencyGraphs(graphData);
 }
 
-const renderGraphIndexAlt = (graphData) => {
-  addressAccessibilityIssues();
-  renderDependencyGraphs(graphData);
+/**
+ * Detects the language of the given content and sets the HTML lang attribute
+ * @param {string} content - The text content to analyze
+ * @returns {string} The detected language code
+ */
+function detectAndSetLang(content) {
+  // Simple language detection based on common patterns
+  let lang = 'en'; // Default to English
+  
+  if (content) {
+    // Check for common non-ASCII characters to help detect language
+    if (/[\u4e00-\u9fff]/.test(content)) {
+      lang = 'zh'; // Chinese
+    } else if (/[\u3040-\u30ff]/.test(content)) {
+      lang = 'ja'; // Japanese
+    } else if (/[\u0400-\u04ff]/.test(content)) {
+      lang = 'ru'; // Russian/Cyrillic
+    } else if (/[\u0600-\u06ff]/.test(content)) {
+      lang = 'ar'; // Arabic
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
+      lang = 'fr'; // French
+    } else if (/[äöüß]/i.test(content)) {
+      lang = 'de'; // German
+    }
+  }
+  
+  return lang;
 }
 
 // TODO: Update the existing function using the new functions for rendering graph/index
@@ -277,6 +301,76 @@ function validateTableStructure(table) {
     return true;
 }
 
+// New function to address REACT_017: Add/fix 4 landmark issues
+function validateLandmark(element) {
+  if (typeof document === 'undefined' || !element) {
+    return { valid: false, errors: ['Element not found'] };
+  }
+  
+  const errors = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article', 'search'];
+  
+  // Check if element is a valid landmark
+  const role = element.getAttribute('role');
+  const tagName = element.tagName.toLowerCase();
+  
+  if (role && !validLandmarks.includes(role) && !role.includes('landmark')) {
+    errors.push(`Invalid landmark role: ${role}`);
+  }
+  
+  if (!role && !validLandmarks.includes(tagName)) {
+    errors.push(`Element is not a valid landmark: ${tagName}`);
+  }
+  
+  // Check for accessible name
+  const hasLabel = element.getAttribute('aria-label') || 
+                   element.getAttribute('aria-labelledby') ||
+                   element.querySelector('h1, h2, h3, h4, h5, h6');
+  
+  if (!hasLabel) {
+    errors.push('Landmark is missing accessible name (aria-label, aria-labelledby, or heading)');
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
+function validateLandmarkStructure() {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+  
+  const errors = [];
+  
+  // Check for multiple main landmarks
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length > 1) {
+    errors.push(`Multiple main landmarks found (${mainElements.length}). Only one main landmark should exist.`);
+  }
+  
+  // Check for proper nesting of landmarks
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
+  landmarks.forEach((landmark) => {
+    const parent = landmark.parentElement;
+    while (parent) {
+      const parentTag = parent.tagName ? parent.tagName.toLowerCase() : '';
+      const parentRole = parent.getAttribute('role');
+      
+      // Check for invalid nesting
+      if (parentTag === 'header' && landmark.tagName && landmark.tagName.toLowerCase() === 'header') {
+        errors.push('Nested header elements found');
+      }
+      if (parentTag === 'footer' && landmark.tagName && landmark.tagName.toLowerCase() === 'footer') {
+        errors.push('Nested footer elements found');
+      }
+      
+      parent = parent.parentElement;
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_041: Add accessible names to 2 SVGs
 function getSvgAccessibleName(svgElement) {
   const title = svgElement.querySelector('title');
   const desc = svgElement.querySelector('desc');

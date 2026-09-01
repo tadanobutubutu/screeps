@@ -133,6 +133,74 @@ function addSvgAccessibleNames(html) {
     return html;
 }
 
+function checkLinkAccessibility() {
+  // Implementation for checking link accessibility
+  const links = document.querySelectorAll('a[href]');
+  const issues = [];
+
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    const text = link.textContent.trim();
+
+    // Check for empty link text
+    if (!text) {
+      issues.push(`Link with href "${href}" has no accessible text`);
+    }
+
+    // Check for aria-label or aria-labelledby if link text is empty
+    if (!text && !link.hasAttribute('aria-label') && !link.hasAttribute('aria-labelledby')) {
+      issues.push(`Link with href "${href}" has no accessible name (missing aria-label or aria-labelledby)`);
+    }
+
+    // Check for decorative links that should be buttons
+    if (href === '#' && !link.hasAttribute('role') && !link.hasAttribute('aria-hidden')) {
+      issues.push(`Link with href="#" should be a button or have role="button" or aria-hidden="true"`);
+    }
+
+    // Check for links with title but no visible text
+    if (link.hasAttribute('title') && !text) {
+      issues.push(`Link with href "${href}" has title but no visible text`);
+    }
+  });
+
+  return issues;
+}
+
+// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+/**
+ * Wraps the primary content of the page in a <main> element for improved accessibility.
+ * This function checks if a <main> element already exists; if not, it creates one
+ * and moves all body content into it.
+ * @returns {Element|null} The <main> element if successfully created/wrapped, or null if body is not available
+ */
+function wrapPrimaryContentInMain() {
+  const body = document.body;
+
+  // Return null if body element is not available
+  if (!body) {
+    return null;
+  }
+
+  // Check if a <main> element already exists to avoid duplication
+  const existingMain = document.querySelector('main');
+  if (existingMain) {
+    return existingMain;
+  }
+
+  // Create a new <main> element
+  const main = document.createElement('main');
+
+  // Move all existing body children into the <main> element
+  while (body.firstChild) {
+    main.appendChild(body.firstChild);
+  }
+
+  // Append the <main> element to the body
+  body.appendChild(main);
+
+  return main;
+}
+
 // REACT_025: Ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks(html) {
     if (typeof html !== 'string') return html;

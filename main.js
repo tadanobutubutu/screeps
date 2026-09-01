@@ -94,7 +94,6 @@ const {
   revokeSession,
   functionA,
   functionB,
-  accessibilityUtils,
   newFocusTrap,
   addLangAttribute,
   fixTableStructure,

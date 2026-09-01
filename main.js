@@ -100,20 +100,20 @@ function detectAndSetLang(content) {
 function personName(options = {}) {
   const { firstName = '', lastName = '', lang = 'en', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
-  
+
   if (typeof document !== 'undefined') {
     const nameElement = document.createElement('span');
     nameElement.setAttribute('lang', lang);
     nameElement.setAttribute('aria-label', fullName);
     nameElement.textContent = fullName || 'Unknown';
-    
+
     if (container) {
       container.appendChild(nameElement);
     }
-    
+
     return nameElement;
   }
-  
+
   return fullName || 'Unknown';
 }
 
@@ -227,7 +227,7 @@ function newFocusTrap(container) {
   const focusableElements = Array.from(
     container.querySelectorAll(focusableSelectors)
   ).filter(el => el.offsetParent !== null);
-  
+
   if (focusableElements.length > 0) {
     focusableElements[0].focus();
   }
@@ -240,6 +240,64 @@ function newFocusTrap(container) {
       }
     }
   };
+}
+
+// TODO: Implement the new function as per the issue requirements
+/**
+ * Validates the structure of a table element for accessibility compliance
+ * @param {HTMLElement} tableElement - The table element to validate
+ * @returns {Object} Validation results with issues found and suggestions
+ */
+function validateTableStructure(tableElement) {
+  const results = {
+    issues: [],
+    suggestions: []
+  };
+
+  if (!tableElement || tableElement.tagName !== 'TABLE') {
+    results.issues.push('Invalid table element provided');
+    return results;
+  }
+
+  // Check for missing caption
+  if (!tableElement.querySelector('caption')) {
+    results.issues.push('Table is missing a caption element');
+    results.suggestions.push('Add a descriptive caption element to the table');
+  }
+
+  // Check for proper table structure
+  const rows = tableElement.querySelectorAll('tr');
+  if (rows.length === 0) {
+    results.issues.push('Table has no rows');
+    return results;
+  }
+
+  // Check for proper header structure
+  const headers = tableElement.querySelectorAll('th');
+  if (headers.length === 0) {
+    results.issues.push('Table has no header cells (th elements)');
+    results.suggestions.push('Add header cells to describe columns');
+  }
+
+  // Check for scope attributes on headers
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      results.suggestions.push('Add scope attribute to header cells for better accessibility');
+    }
+  });
+
+  // Check for proper data cell structure
+  const dataCells = tableElement.querySelectorAll('td');
+  if (dataCells.length === 0) {
+    results.issues.push('Table has no data cells (td elements)');
+  }
+
+  // Check for proper table layout
+  if (tableElement.getAttribute('role') === 'presentation') {
+    results.suggestions.push('Consider adding proper table structure if not using role="presentation"');
+  }
+
+  return results;
 }
 
 // Preserve all existing exports

@@ -208,6 +208,8 @@ function addressAccessibilityIssues(insightReport) {
   console.log('Addressing accessibility issues from insight report:', insightReport);
 }
 
+// TODO: Implement this function for creating in-page buttons
+// (Now implemented)
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
     button.id = buttonId;

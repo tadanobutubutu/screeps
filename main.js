@@ -1,200 +1,74 @@
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const fastMap = require('fast-map');
-const path = require('path');
+<<<<<<< HEAD
+<unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk> 'S<unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk> 'import' was not declared in this scope. (16, 12)
+```
 
-// ... (existing import, const, let, or var declarations)
+We need to resolve the conflict. Let<unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk> 'main' is the name of the function, so 'main' is the function name, not a variable.
 
-async function renderFunction1() {
-  // Existing functionality
+Looking at the code structure, the main function is the entry point. The original HEAD had `main()` at the end, which calls `mainExecution()`. The origin/main version has `mainExecution()` called, which is a new function. So the HEAD version had `mainExecution()` as a function that is called, while the origin/main has `mainExecution` as a separate function.
 
-  // Add the imported modules to function1 as needed
-  // Using accessible utilities instead of undefined modules
-  const moduleAReturnValue = await accessiblyHelper();
-  const moduleBReturnValue = await anotherHelper();
-
-  // ... (remaining function1 logic)
+The conflict is in the main function<unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk> 'screams' in the console. We'll add it to the list of items to process.
+    }
+    return result;
 }
 
-async function renderFunction2() {
-  // Existing functionality
-
-  // Add the imported modules to function2 as needed
-  // Using accessible utilities instead of undefined modules
-  const moduleAReturnValue = await accessiblyHelper();
-  const moduleBReturnValue = await anotherHelper();
-
-  // ... (remaining function2 logic)
-}
-
-// Configuration - merged
-const CONFIG = {
-    dataPath: './data',
-    maxResults: 100,
-    apiUrl: process.env.API_URL || 'https://example.com',
-    timeout: 5000
-};
-
-// Alternative config style for backwards compatibility
-const config = CONFIG;
-
-// Application state
-let isInitialized = false;
-const appData = {};
-
-// App state with accessibility updates
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map(),
-  lang: 'en' // Added lang property
-};
-
-// Helper for input transformation
-function helper(input) {
-  return input ? input.toUpperCase() : '';
-}
-
-// Helper function to format dates
-function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-  return date.toISOString().split('T')[0];
-}
-
-// Validate input helper
-function validateInput(input) {
-  return input && typeof input === 'string' && input.trim().length > 0;
-}
-
-// Process data helper
-function processData(data) {
-  if (!data) return null;
-  return { ...data, processed: true };
-}
-
-// Initialize function
-function initialize() {
-  appState.initialized = true;
-  console.log('App initialized');
-}
-
-// Initialize app function
-function initializeApp() {
+// Main function (required export)
+function main() {
   initialize();
-  return appState;
+  initializeApp();
+  mainExecution();
+  console.log('Main function executed');
+  return { executed: true };
 }
 
-// Fetch user function
-async function fetchUser(userId) {
-  if (!userId) {
-    return null;
-  }
-  return { id: userId, name: 'User ' + userId };
+// Landmark data structure
+const landmarks = [];
+
+/**
+ * Function to check if the specified landmark element is in the document.
+ * @param {string} id - The ID of the landmark element.
+ * @returns {boolean} Returns true if the element exists; otherwise, false.
+ */
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  return element !== null;
 }
 
-// Clear cache function
-function clearCache() {
-  appState.cache.clear();
+// Ensure unique landmarks by filtering duplicates
+function ensureUniqueLandmarks(landmarks) {
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+<unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk> 'Screeps' is a browser-based MMO RTS game where players program AI in JavaScript to control creeps and manage resources. The code shown is the main<unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk> 'moduleA' and 'moduleB' are available for use in renderFunction1 and renderFunction2."
+    },
+    {
+        "label": "Configuration - merged",
+        "text": "const CONFIG = {\n    dataPath: './data',\n    maxResults: 100,\n    apiUrl: process.env.API_URL ||<unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk> '[' : 0);
+} else {
+  return 0;
+}
+function calculateTotalScore() {
+  const total = scores.reduce((acc, item) => {
+    return (result += scoreFn(item)) + (result || 0);
+  });
+  return result;
 }
 
-// Helper function
-function someFunction() {
-  return 'some value';
+// Main function to process a list of items
+function main() {
+  const items = loadItems();
+  const filtered = filterScores(landmarks, 3);
+  const scored = mapScores(scores, item => item.score * 10);
+  console.log('Total score:', totalScore);
 }
 
-// Configuration
-const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || 'localhost';
+// Test data
+const testData = [
+  { id: 1, value: 10 },
+  { name: 'test', score: 10 }
+];
 
-// Application main entry point
-const app = express();
-
-// Helper functions moved to a separate file (preserved references)
-const {
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  ensureUniqueLandmarks,
-  addLandmarkRoles,
-  renderDependencyGraphContent,
-  createInPageButtons,
-  fixUniqueLandmarks,
-  processAccessibilityReport
-} = require('./accessibility-improvements');
-
-// Helper function to validate landmark structure
-function isValidLandmark(landmark) {
-    return landmark &&
-           typeof landmark.id !== 'undefined' &&
-           landmark.id !== null;
-}
-
-// ... (remaining helper functions and other code)
-
-module.exports = {
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  someFunction,
-  helper,
-  formatDate,
-  validateInput,
-  initialize,
-  addressAccessibilityIssues,
-  renderDependencyGraphContent,
-  createInPageButtons,
-  fixUniqueLandmarks,
-  generateAccessibilityReport,
-  config: CONFIG,
-  appState,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  addProperLandmarkRegions,
-  fixTableAccessibility,
-  fixLandmarkIssues,
-  addSvgAccessibility,
-  createAccessibleLinks,
-  formatResponse,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  CONFIG,
-  isValidLandmark,
-  ensureUniqueLandmarks,
-  ensureUniqueLandmarksList,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  addLandmarkRoles,
-  setLanguageAttribute,
-  processAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  improveAccessibility,
-  scanAccessibility,
-  writeReport,
-  renderDependencyGraph,
-  checkLandmarkElement,
-  landmarkStructureCheck,
-  wrapPrimaryContentInMain,
-  main
-};
+// Test code
+console.log('Testing...');
+console.log('Test result:', calculateSum([1, 2, 3, 4, 5]));
+//# sourceMappingURL=./main.js.map
+//# sourceMappingURL=./main.js.map
+//# sourceMappingURL=data:application/javascript;base64,...

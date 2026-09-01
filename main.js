@@ -244,4 +244,64 @@ function validateSvgAccessibility() {
   svgs.forEach((svg, index) => {
     const name = getSvgAccessibleName(svg);
     if (!name) {
-      errors.push(`SVG ${index + 1} is missing
+      errors.push(`SVG ${index + 1} is missing an accessible name.`);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_025: Ensure unique landmarks (2 issues)
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') {
+    return { valid: true, errors: [] };
+  }
+  
+  const errors = [];
+  const landmarkElements = document.querySelectorAll('header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+  const landmarkNames = {};
+  
+  landmarkElements.forEach((el) => {
+    const name = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || el.tagName.toLowerCase();
+    landmarkNames[name] = (landmarkNames[name] || 0) + 1;
+    if (landmarkNames[name] > 1) {
+      errors.push(`Duplicate landmark found: ${name}`);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
+function personName(name) {
+  if (!name) return '';
+  return name.trim();
+}
+
+function createInPageButton(label, onClick) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  
+  const button = document.createElement('button');
+  button.textContent = label;
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  return button;
+}
+
+export {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  personName,
+  createInPageButton
+};

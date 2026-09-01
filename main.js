@@ -86,13 +86,13 @@ function validateLandmark(landmark) {
 // Accessibility helper function to validate table accessibility
 function validateTableAccessibility(table) {
     const issues = [];
-    
+
     // Check for caption
     const caption = table.querySelector('caption');
     if (!caption) {
         issues.push('Table missing caption');
     }
-    
+
     // Check for th elements with scope or headers
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
@@ -100,7 +100,7 @@ function validateTableAccessibility(table) {
             issues.push('TH element missing scope or headers attribute');
         }
     });
-    
+
     return issues;
 }
 
@@ -110,7 +110,7 @@ if (require.main === module) {
     const app = express();
     const PORT = process.env.PORT || 3000;
     const HOST = process.env.HOST || 'localhost';
-    
+
     app.listen(PORT, () => {
         console.log(`Server running on http://${HOST}:${PORT}`);
     });
@@ -132,7 +132,7 @@ if (require.main === module) {
 // Accessibility helper function to validate table structure
 function validateTableStructure(table) {
     const issues = [];
-    
+
     // Check for proper table structure (thead, tbody, tfoot)
     if (!table.querySelector('thead')) {
         issues.push('Table missing thead');
@@ -140,7 +140,7 @@ function validateTableStructure(table) {
     if (!table.querySelector('tbody')) {
         issues.push('Table missing tbody');
     }
-    
+
     // Check for proper row structure
     const rows = table.querySelectorAll('tr');
     rows.forEach((row, index) => {
@@ -149,7 +149,7 @@ function validateTableStructure(table) {
             issues.push(`Row ${index} has no cells`);
         }
     });
-    
+
     return issues;
 }
 
@@ -201,7 +201,7 @@ function ensureLandmarkUniqueness(elements) {
 function getSvgAccessibleName(svgElement) {
     // Check for aria-label
     let label = svgElement.getAttribute('aria-label');
-    
+
     // Check for aria-labelledby
     const labelledBy = svgElement.getAttribute('aria-labelledby');
     if (labelledBy) {
@@ -210,7 +210,7 @@ function getSvgAccessibleName(svgElement) {
             label = labelElement.textContent;
         }
     }
-    
+
     // Check for title element inside SVG
     if (!label) {
         const title = svgElement.querySelector('title');
@@ -218,7 +218,7 @@ function getSvgAccessibleName(svgElement) {
             label = title.textContent;
         }
     }
-    
+
     return label || '';
 }
 
@@ -226,12 +226,12 @@ function getSvgAccessibleName(svgElement) {
 function setSvgAttributes(svgElement, accessibleName) {
     // Ensure SVG has role="img"
     svgElement.setAttribute('role', 'img');
-    
+
     // Set aria-label if not already set
     if (!svgElement.getAttribute('aria-label') && accessibleName) {
         svgElement.setAttribute('aria-label', accessibleName);
     }
-    
+
     // Add title element if missing
     const existingTitle = svgElement.querySelector('title');
     if (!existingTitle && accessibleName) {
@@ -245,7 +245,7 @@ function setSvgAttributes(svgElement, accessibleName) {
 function ensureUniqueLandmarks() {
     const landmarks = {};
     const issues = [];
-    
+
     // Find all landmark elements
     const banner = document.querySelectorAll('[role="banner"], .banner');
     const navigation = document.querySelectorAll('[role="navigation"], .navigation');
@@ -253,20 +253,20 @@ function ensureUniqueLandmarks() {
     const contentinfo = document.querySelectorAll('[role="contentinfo"], .contentinfo');
     const complementary = document.querySelectorAll('[role="complementary"], .complementary');
     const search = document.querySelectorAll('[role="search"], .search');
-    
+
     // Check for duplicate landmarks
     if (banner.length > 1) landmarks.banner = banner;
     if (main.length > 1) landmarks.main = main;
     if (contentinfo.length > 1) landmarks.contentinfo = contentinfo;
-    
+
     if (complementary.length > 1) {
         issues.push(`Found ${complementary.length} complementary landmarks, should have at most 1`);
     }
-    
+
     if (search.length > 1) {
         issues.push(`Found ${search.length} search landmarks, should have at most 1`);
     }
-    
+
     return { landmarks, issues };
 }
 
@@ -284,18 +284,18 @@ function addLandmarkRegions() {
         main.setAttribute('id', 'main-content');
         // Content would need to be moved into main here
     }
-    
+
     // Ensure unique IDs for landmarks
     const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="search"], [role="region"]');
     const usedIds = new Set();
-    
+
     landmarks.forEach(landmark => {
         const existingId = landmark.id;
         if (existingId) {
             usedIds.add(existingId);
         }
     });
-    
+
     return { main, usedIds };
 }
 
@@ -564,6 +564,175 @@ function getInsightReport() {
     return [];
 }
 
+// New accessibility functions added to address the issue
+
+/**
+ * Function to check if an element has proper ARIA attributes
+ * @param {HTMLElement} element - The element to check
+ * @returns {Array} Array of issues found
+ */
+function checkAriaAttributes(element) {
+    const issues = [];
+
+    if (!element) {
+        issues.push('Element is null or undefined');
+        return issues;
+    }
+
+    // Check for required ARIA attributes based on role
+    const role = element.getAttribute('role');
+    if (role) {
+        switch (role) {
+            case 'button':
+                if (!element.getAttribute('aria-pressed') && !element.getAttribute('aria-expanded')) {
+                    issues.push('Button role should have aria-pressed or aria-expanded');
+                }
+                break;
+            case 'checkbox':
+            case 'switch':
+                if (!element.getAttribute('aria-checked')) {
+                    issues.push(`${role} role should have aria-checked`);
+                }
+                break;
+            case 'menuitem':
+            case 'menuitemcheckbox':
+            case 'menuitemradio':
+                if (!element.getAttribute('aria-checked')) {
+                    issues.push(`${role} role should have aria-checked`);
+                }
+                break;
+            case 'radio':
+                if (!element.getAttribute('aria-checked')) {
+                    issues.push('Radio role should have aria-checked');
+                }
+                break;
+            case 'slider':
+            case 'spinbutton':
+                if (!element.getAttribute('aria-valuenow')) {
+                    issues.push(`${role} role should have aria-valuenow`);
+                }
+                if (!element.getAttribute('aria-valuemin')) {
+                    issues.push(`${role} role should have aria-valuemin`);
+                }
+                if (!element.getAttribute('aria-valuemax')) {
+                    issues.push(`${role} role should have aria-valuemax`);
+                }
+                break;
+            case 'progressbar':
+                if (!element.getAttribute('aria-valuenow')) {
+                    issues.push('Progressbar role should have aria-valuenow');
+                }
+                break;
+        }
+    }
+
+    // Check for aria-hidden conflicts
+    if (element.getAttribute('aria-hidden') === 'true' && element.getAttribute('aria-label')) {
+        issues.push('Element with aria-hidden="true" should not have aria-label');
+    }
+
+    return issues;
+}
+
+/**
+ * Function to fix common accessibility issues in the DOM
+ */
+function fixCommonAccessibilityIssues() {
+    if (typeof document === 'undefined') return;
+
+    // Fix missing alt attributes on images
+    document.querySelectorAll('img:not([alt])').forEach(img => {
+        img.setAttribute('alt', '');
+    });
+
+    // Fix missing labels on form elements
+    document.querySelectorAll('input:not([type="hidden"]):not([aria-hidden="true"])').forEach(input => {
+        if (!input.id) {
+            input.id = `input-${Math.random().toString(36).substr(2, 9)}`;
+        }
+        if (!document.querySelector(`label[for="${input.id}"]`)) {
+            const label = document.createElement('label');
+            label.setAttribute('for', input.id);
+            label.textContent = input.placeholder || 'Input field';
+            input.parentNode.insertBefore(label, input);
+        }
+    });
+
+    // Fix color contrast issues (simplified example)
+    document.querySelectorAll('*').forEach(element => {
+        const style = window.getComputedStyle(element);
+        const bgColor = style.backgroundColor;
+        const textColor = style.color;
+
+        // This is a simplified check - in a real implementation you'd need a proper contrast ratio calculation
+        if (bgColor && textColor && bgColor !== 'rgba(0, 0, 0, 0)' && textColor !== 'rgba(0, 0, 0, 0)') {
+            // You would implement actual contrast checking here
+            // For now, just ensure there's some contrast
+            if (bgColor === textColor) {
+                element.style.color = 'black';
+            }
+        }
+    });
+}
+
+/**
+ * Function to check keyboard navigation accessibility
+ * @returns {Array} Array of keyboard navigation issues found
+ */
+function checkKeyboardNavigation() {
+    if (typeof document === 'undefined') return [];
+
+    const issues = [];
+
+    // Check if all interactive elements are keyboard accessible
+    const interactiveElements = document.querySelectorAll(
+        'a[href], button, input, select, textarea, [tabindex], [contenteditable]'
+    );
+
+    interactiveElements.forEach(element => {
+        const tabIndex = element.getAttribute('tabindex');
+        if (tabIndex === '-1') {
+            // Element is intentionally not keyboard accessible
+            return;
+        }
+
+        // Check if element is visible and not hidden
+        const style = window.getComputedStyle(element);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+            issues.push(`Interactive element ${element.tagName} is not visible`);
+        }
+
+        // Check if element is focusable
+        if (element.tagName === 'A' && !element.getAttribute('href')) {
+            issues.push(`Anchor element without href is not keyboard accessible`);
+        }
+    });
+
+    // Check for focus traps
+    const focusableElements = document.querySelectorAll(
+        'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length > 0) {
+        // Check if the first and last focusable elements can be focused in sequence
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        // This is a simplified check - in a real implementation you'd need to simulate tabbing
+        if (firstElement && lastElement) {
+            // Check if the elements are in the same container
+            const firstContainer = firstElement.closest('[role="dialog"], [role="alertdialog"], [role="menu"]');
+            const lastContainer = lastElement.closest('[role="dialog"], [role="alertdialog"], [role="menu"]');
+
+            if (firstContainer && lastContainer && firstContainer !== lastContainer) {
+                issues.push('Potential focus trap detected - elements are in different containers');
+            }
+        }
+    }
+
+    return issues;
+}
+
 // Export functions for testing
 module.exports = {
     User,
@@ -608,6 +777,11 @@ module.exports = {
     addProperLandmarkRegions,
     countGraphDependencies,
 
+    // New accessibility functions
+    checkAriaAttributes,
+    fixCommonAccessibilityIssues,
+    checkKeyboardNavigation,
+
     // Landmarks array and app state
     landmarks,
     appState,
@@ -638,5 +812,15 @@ if (require.main === module) {
             console.log(`${issue.type}: ${issue.description}`);
         });
         addressAccessibilityIssues(insightReport);
+    }
+
+    // Run additional accessibility checks
+    if (typeof document !== 'undefined') {
+        fixCommonAccessibilityIssues();
+        const keyboardIssues = checkKeyboardNavigation();
+        if (keyboardIssues.length > 0) {
+            console.log('Keyboard navigation issues found:');
+            keyboardIssues.forEach(issue => console.log(issue));
+        }
     }
 }

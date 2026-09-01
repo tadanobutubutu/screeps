@@ -63,7 +63,7 @@ function getLangAttribute() {
 function detectAndSetLang(content) {
   // Simple language detection based on common patterns
   let lang = 'en'; // Default to English
-  
+
   if (content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
@@ -80,7 +80,7 @@ function detectAndSetLang(content) {
       lang = 'de'; // German;
     }
   }
-  
+
   return lang;
 }
 
@@ -92,6 +92,23 @@ function detectAndSetLang(content) {
 function personName(name) {
   if (!name) return '';
   return String(name).trim();
+}
+
+/**
+ * Creates an accessible in-page button with correct accessibility properties
+ * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
+ * @param {string} label - The accessible label for the button
+ * @param {string} [ariaLabel] - Optional ARIA label (defaults to label)
+ * @returns {HTMLElement} The created button element
+ */
+function createAccessibleInPageButton(parent = document.body, label, ariaLabel = label) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.setAttribute('role', 'button');
+  btn.setAttribute('aria-label', ariaLabel);
+  btn.textContent = label;
+  parent.appendChild(btn);
+  return btn;
 }
 
 /**
@@ -164,15 +181,16 @@ if (typeof document !== 'undefined' && document.documentElement) {
   detectAndSetLang();
 }
 
-module.exports = { 
-  setHtmlLangAttribute, 
-  getLangAttribute, 
-  detectAndSetLang, 
-  personName, 
-  createInPageButton, 
-  validateTableAccessibility, 
-  validateTableStructure, 
-  validateLandmark, 
-  validateLandmarkStructure, 
-  getSvgAccessibleName 
+module.exports = {
+  setHtmlLangAttribute,
+  getLangAttribute,
+  detectAndSetLang,
+  personName,
+  createAccessibleInPageButton,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName
 };

@@ -1,6 +1,7 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_017: Add landmark roles and fix landmark issues
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
@@ -181,7 +182,9 @@ const AccessibilityDemo = () => {
 // Import required module(s)
 const missingModule = require('./missingModule');
 
-// Existing code...
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
 
 const accessibilityUtils = {
   // Trap focus within an element (for modals, dialogs)
@@ -509,7 +512,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
   },
@@ -521,11 +524,11 @@ const exportUtils = {
 
   exportToCSV: (data, filename) => {
     if (!data || data.length === 0) return;
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (const row of data) {
       const values = headers.map(header => {
         const escaped = ('' + row[header]).replace(/"/g, '\\"');
@@ -533,7 +536,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }

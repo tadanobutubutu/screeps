@@ -1,3 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs,
@@ -67,13 +71,26 @@ function addressNewAccessibilityIssues() {
   }
 }
 
+function ensureDependencyGraphAccessible() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph && typeof dependencyGraph !== 'undefined') {
+    if (!dependencyGraph.hasAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+    if (!dependencyGraph.hasAttribute('aria-label') && !dependencyGraph.hasAttribute('aria-labelledby')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
+}
+
 // Export functions for both browser and Node.js environments
 if (typeof window !== 'undefined') {
   // Browser environment - expose functions to window
   const functionsToExpose = [
     'getLangAttribute', 'personName', 'validateTableAccessibility',
     'validateTableStructure', 'validateLandmark', 'validateLandmarkStructure',
-    'getSvgAccessibleName', 'createInPageButton', 'addressNewAccessibilityIssues'
+    'getSvgAccessibleName', 'createInPageButton', 'addressNewAccessibilityIssues',
+    'ensureDependencyGraphAccessible'
   ];
   functionsToExpose.forEach(functionName => {
     window[functionName] = window[functionName] || eval(functionName);
@@ -333,5 +350,6 @@ module.exports = {
   calculateAccessibilityScore,
   ensureUniqueLandmarksFromString,
   validateLandmark,
-  createInPageButton
+  createInPageButton,
+  ensureDependencyGraphAccessible
 };

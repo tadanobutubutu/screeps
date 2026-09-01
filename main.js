@@ -1,7 +1,3 @@
-User Safety: unsafe
-Response Safety: safe
-Safety Categories: Unauthorized Advice
-=======
 const http = require('http');
 const path = require('path');
 
@@ -46,6 +42,8 @@ function startApp() {
   return server;
 }
 
+// TODO: Any additional changes requested in the issue should be added after this function
+
 // Export functions for testing
 module.exports = {
   createServer,
@@ -58,4 +56,3 @@ module.exports = {
 if (require.main === module) {
   startApp();
 }
->>>>>>> origin/main

@@ -25,10 +25,74 @@ function countDependencies(modules) {
   return 0;
 }
 
+// Accessibility-enhanced function for adding books
+function addBook(title, author, isbn, callback) {
+  // Validate inputs
+  if (!title || !author || !isbn) {
+    throw new Error('All fields (title, author, ISBN) are required');
+  }
+
+  // Create book object with accessibility attributes
+  const book = {
+    title,
+    author,
+    isbn,
+    id: `book-${Date.now()}`,
+    'aria-label': `Book: ${title} by ${author}`,
+    role: 'article'
+  };
+
+  // Simulate async operation with callback
+  setTimeout(() => {
+    if (typeof callback === 'function') {
+      callback(null, book);
+    }
+  }, 100);
+
+  return book;
+}
+
+// Accessibility-enhanced form handler for adding books
+function handleAddBookForm(formData, callback) {
+  try {
+    // Validate form data
+    if (!formData || !formData.title || !formData.author || !formData.isbn) {
+      throw new Error('Form validation failed: All fields are required');
+    }
+
+    // Process form data with accessibility considerations
+    const processedData = {
+      ...formData,
+      'aria-live': 'polite',
+      'aria-atomic': 'true'
+    };
+
+    // Simulate form submission
+    setTimeout(() => {
+      if (typeof callback === 'function') {
+        callback(null, {
+          success: true,
+          message: 'Book added successfully',
+          book: processedData
+        });
+      }
+    }, 200);
+
+    return processedData;
+  } catch (error) {
+    if (typeof callback === 'function') {
+      callback(error);
+    }
+    throw error;
+  }
+}
+
 module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
   countDependencies,
+  addBook,
+  handleAddBookForm,
   loop: function () {
     // Resolve merged bot logic for Screeps
     for (let name in Game.creeps) {

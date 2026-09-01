@@ -42,7 +42,6 @@ function createSampleInsightReport() {
 }
 
 // Implement function for addressing accessibility issues from insight report
-// TODO: Implement a function to count dependencies
 function countDependencies() {
     const path = require('path');
     const fs = require('fs');

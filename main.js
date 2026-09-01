@@ -19,7 +19,7 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
@@ -37,6 +37,41 @@ function addAccessibleName(svgString) {
     svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
   }
   return new XMLSerializer().serializeToString(svg);
+}
+
+// New function to extract accessible name from SVG content
+function getSvgAccessibleName(svgString) {
+  // Extracts the accessible name from SVG content by looking for:
+  // 1. aria-label attribute
+  // 2. aria-labelledby attribute and referenced element
+  // 3. <title> element
+  // 4. <desc> element
+  // 5. text content if no other accessible name is found
+
+  const svg = new DOMParser().parseFromString(svgString, "image/svg+xml");
+  const svgElement = svg.documentElement;
+
+  // Check for aria-label
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+
+  // Check for aria-labelledby
+  const labelledById = svgElement.getAttribute('aria-labelledby');
+  if (labelledById) {
+    const labelledElement = svg.getElementById(labelledById);
+    if (labelledElement) return labelledElement.textContent.trim();
+  }
+
+  // Check for <title> element
+  const titleElement = svg.querySelector('title');
+  if (titleElement) return titleElement.textContent.trim();
+
+  // Check for <desc> element
+  const descElement = svg.querySelector('desc');
+  if (descElement) return descElement.textContent.trim();
+
+  // Fallback to text content if no accessible name found
+  return svgElement.textContent.trim() || 'SVG graphic';
 }
 
 // Example usage of the function

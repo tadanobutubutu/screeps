@@ -1,6 +1,3 @@
-Here is the resolved version of the file 'main.js' with the merge conflict:
-
-```javascript
 const fs = require('fs');
 const path = require('path');
 
@@ -101,9 +98,7 @@ function createInPageButton(options) {
 
 // TODO: This is the existing code that needs to be preserved
 
-<<<<<<< HEAD
 // TODO: Implement a function to count dependencies
-=======
 function countDependencies() {
   // Implement new and existing function to count dependencies
   const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`][^'"]*/g;
@@ -210,6 +205,105 @@ function newFunction() {
   // Implement specific fixes based on insight report when available
 }
 
+/**
+ * Generates a comprehensive report based on accessibility issues
+ * @param {Object} [htmlContent] - Optional HTML content to analyze. If not provided, uses DOM checks.
+ * @returns {Object} - Report object containing accessibility findings and recommendations
+ */
+function generateAccessibilityReport(htmlContent) {
+  const report = {
+    timestamp: new Date().toISOString(),
+    issues: [],
+    warnings: [],
+    recommendations: [],
+    summary: {
+      totalIssues: 0,
+      criticalIssues: 0,
+      landmarkIssues: 0,
+      tableIssues: 0
+    }
+  };
+
+  try {
+    // Check landmark elements if HTML content is provided
+    if (htmlContent && typeof htmlContent === 'string') {
+      try {
+        const landmarkResults = checkLandmarkElements(htmlContent);
+        report.landmarkAnalysis = landmarkResults;
+        
+        // Add landmark warnings to report
+        if (landmarkResults.warnings && landmarkResults.warnings.length > 0) {
+          report.warnings.push(...landmarkResults.warnings);
+          report.summary.landmarkIssues = landmarkResults.warnings.length;
+        }
+        
+        // Add recommendations based on landmark findings
+        landmarkResults.warnings.forEach(warning => {
+          if (warning.includes('main landmark')) {
+            report.recommendations.push({
+              type: 'landmark',
+              severity: 'critical',
+              message: 'Add a <main> landmark element to identify the primary content region',
+              code: '<main>...</main>'
+            });
+          } else if (warning.includes('Multiple')) {
+            report.recommendations.push({
+              type: 'landmark',
+              severity: 'warning',
+              message: `Ensure only one ${warning.split(' ')[1]} landmark for proper navigation`,
+            });
+          }
+        });
+      } catch (landmarkError) {
+        report.issues.push({
+          type: 'landmark-analysis-error',
+          severity: 'error',
+          message: landmarkError.message
+        });
+      }
+    }
+
+    // Add general accessibility recommendations
+    report.recommendations.push(
+      {
+        type: 'general',
+        severity: 'info',
+        message: 'Ensure all images have appropriate alt text',
+        code: '<img src="..." alt="description">'
+      },
+      {
+        type: 'general',
+        severity: 'info',
+        message: 'Use semantic HTML elements where appropriate',
+        code: '<header>, <nav>, <main>, <article>, <section>, <aside>, <footer>'
+      },
+      {
+        type: 'general',
+        severity: 'info',
+        message: 'Ensure sufficient color contrast for text elements',
+        code: 'Contrast ratio should be at least 4.5:1 for normal text'
+      }
+    );
+
+    // Calculate summary statistics
+    report.summary.totalIssues = 
+      report.issues.length + 
+      report.warnings.length + 
+      (report.landmarkAnalysis ? report.landmarkAnalysis.warnings.length : 0);
+    
+    report.summary.criticalIssues = report.issues.filter(i => i.severity === 'critical').length;
+
+  } catch (error) {
+    report.issues.push({
+      type: 'report-generation-error',
+      severity: 'error',
+      message: error.message
+    });
+  }
+
+  return report;
+}
+
 module.exports = {
   checkLandmarkElements,
   createInPageButton,
@@ -231,9 +325,6 @@ module.exports = {
   ensureUniqueLandmarks,
   checkLandmarkElementsInDom,
   renderIndexView,
-  newFunction
+  newFunction,
+  generateAccessibilityReport
 };
-=========================================
-```
-
-This merged file now contains both the initial implementation and the added functionalities for counting dependencies and adding new functions like `updateLiveRegion`, `checkLandmarkElementsInDom`, `addSVGAccessibilityProps`, and `newFunction`. Make sure to adjust the contents of the new functions according to your needs.

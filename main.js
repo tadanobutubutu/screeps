@@ -79,7 +79,7 @@ const addAriaLabel = (element, label) => {
   return element;
 };
 
-const renderDependencyGraph = (data) => {
+const renderDependencyGraphOriginal = (data) => {
   // Implementation for rendering dependency graphs
   return {
     nodes: data.nodes || [],
@@ -137,11 +137,11 @@ function addAriaLabel(element, label) {
   if (!element) {
     return null;
   }
-  
+
   if (typeof label !== 'string' || label.trim() === '') {
     return element;
   }
-  
+
   element.setAttribute('aria-label', label);
   return element;
 }
@@ -157,10 +157,10 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
   if (!element) {
     return null;
   }
-  
+
   const id = ensureElementHasId(element, idPrefix);
   addAriaLabel(element, ariaLabel);
-  
+
   return id;
 }
 
@@ -171,7 +171,7 @@ function renderDependencyGraph() {
   if (container) {
     container.setAttribute('role', 'region');
     container.setAttribute('aria-label', 'Dependency graph visualization');
-    
+
     // Ensure the container has an id for accessibility
     ensureElementHasId(container, 'dep-graph');
   }
@@ -416,7 +416,7 @@ module.exports = {
   handleCredentialResponse,
   ensureElementId,
   addAriaLabel,
-  renderDependencyGraph,
+  renderDependencyGraphOriginal,
   calculateSum,
   getLangAttribute,
   personName,

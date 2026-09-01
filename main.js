@@ -6,7 +6,7 @@
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 // Importing the necessary functions (for illustration purposes)
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
+import { getLangAttribute, createInPageButton, checkLinkAccessibility } from './utils/accessibilityUtils';
 import {
     validateTableAccessibility,
     validateTableStructure,
@@ -66,6 +66,22 @@ function calculateDiscount(originalPrice, discountPercentage) {
 function newFunction() {
   // Function body
 }
+
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+// main.js - Accessibility improvements implementation
+// main.js - Combined utility and accessibility features
+
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
+
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Original code goes here
+// ----- END ORIGINAL CODE -----
+
+// TODO: This is the existing code that needs to be preserved
 
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
@@ -179,6 +195,102 @@ function wrapPrimaryContentInMain() {
     return main;
 }
 
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks(html) {
+    if (typeof html !== 'string') return html;
+
+    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
+
+    landmarkRoles.forEach(role => {
+        const pattern = new RegExp(`role=["']${role}["']`, 'gi');
+        const matches = html.match(pattern);
+        if (matches && matches.length > 1) {
+            // Keep first occurrence, change subsequent ones
+            let count = 0;
+            html = html.replace(pattern, (match) => {
+                count++;
+                if (count === 1) return match;
+                return `role="region"`;
+            });
+        }
+    });
+
+    // Also check for duplicate HTML5 landmark elements (header, nav, main, aside, footer)
+    const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+    html5Landmarks.forEach(tag => {
+        const pattern = new RegExp(`<${tag}[^>]*>`, 'gi');
+        const matches = html.match(pattern);
+        if (matches && matches.length > 1) {
+            // Keep first, add role="region" to others
+            let count = 0;
+            html = html.replace(pattern, (match) => {
+                count++;
+                if (count === 1) return match;
+                return match.replace(new RegExp(`<${tag}`, 'i'), `<${tag} role="region"`);
+            });
+        }
+    });
+
+    return html;
+}
+
+// REACT_036: Fix fake link issues
+function fixFakeLinks(html) {
+    if (typeof html !== 'string') return html;
+
+    // Find spans or divs with onclick that act as links and convert to <a>
+    html = html.replace(
+        /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi,
+        (match, before, onclick, after) => {
+            const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/);
+            if (hrefMatch) {
+                return `<a href="${hrefMatch[1]}"${before}${after}>`;
+            }
+            return match;
+        }
+    );
+
+    html = html.replace(/<\/span>/gi, '</a>');
+
+    return html;
+}
+
+// Main function that applies all accessibility fixes
+function applyAccessibilityFixes(html) {
+    let result = html;
+    result = addLangAttribute(result);
+    result = fixTableStructure(result);
+    result = ensureUniqueLandmarks(result);
+    result = fixFakeLinks(result);
+    return result;
+}
+
+function addressAccessibilityIssues(insightReport) {
+  // Apply accessibility fixes to HTML content based on insight report
+  if (insightReport && insightReport.html) {
+    insightReport.html = applyAccessibilityFixes(insightReport.html);
+  }
+  console.log('Addressing accessibility issues from insight report:', insightReport);
+}
+
+/**
+ * Creates an in-page button element with the specified ID, text, and class
+ * @param {string} buttonId - The ID to assign to the button
+ * @param {string} buttonText - The text content of the button
+ * @param {string} buttonClass - The CSS class to assign to the button
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    button.setAttribute('aria-label', buttonText); // Added for accessibility
+    button.setAttribute('role', 'button'); // Added for accessibility
+    document.body.appendChild(button);
+    return button;
+}
+
 // New function to address accessibility issues
 function addressAccessibilityIssues() {
     // Implement the changes required to address accessibility issues from the insight report
@@ -213,6 +325,11 @@ export {
     divide,
     spawnEntity,
     wrapPrimaryContentInMain,
+    ensureUniqueLandmarks,
+    fixFakeLinks,
+    applyAccessibilityFixes,
+    addLangAttribute,
+    fixTableStructure,
     addressAccessibilityIssues
 };
 

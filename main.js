@@ -21,7 +21,7 @@ const {
   validateAccessibilityReport,
   getSvgAccessibleName,
   getLangAttribute,
-  handleCredentialResponse,
+  handleCredentialResponse: handleCredentialResponseUtil,
   ensureElementId,
   addAriaLabel,
   ensureElementHasId,
@@ -167,14 +167,30 @@ function renderDependencyGraph(deps, options = {}) {
 
 // Accessibility function (merged from both branches)
 function setSvgAccessibleProps(svg) {
-  addSvgAccessibleNames(svg); // From branch origin/main
-  validateLandmarkStructure(svg); // From branch origin/main
+  if (!svg) return;
+
+  // Add accessible names to SVG
+  addSvgAccessibleNames(svg);
+
+  // Validate landmark structure
+  validateLandmarkStructure(svg);
+
+  // Get or create accessible name
   const titleElement = main.getSvgAccessibleName(svg);
   if (titleElement) {
     svg.setAttribute('aria-labelledby', titleElement.id);
   }
+
+  // Ensure SVG has proper role
   if (!svg.getAttribute('role')) {
     svg.setAttribute('role', 'img');
+  }
+
+  // Add fallback for browsers that don't support aria-labelledby
+  if (!svg.querySelector('title, desc')) {
+    const fallbackTitle = document.createElement('title');
+    fallbackTitle.textContent = svg.getAttribute('aria-label') || 'SVG graphic';
+    svg.prepend(fallbackTitle);
   }
 }
 

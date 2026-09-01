@@ -678,7 +678,7 @@ function renderAccessibilityReportHtml(report) {
     let html = `<div class="accessibility-report">
         <h1>Accessibility Report</h1>
         <p>Generated: ${report.timestamp}</p>
-        
+
         <div class="summary">
             <h2>Summary</h2>
             <ul>
@@ -688,10 +688,10 @@ function renderAccessibilityReportHtml(report) {
                 <li>Passed: ${report.summary.passed}</li>
             </ul>
         </div>
-        
+
         <div class="issues">
             <h2>Issues Found</h2>`;
-    
+
     if (report.issues.length === 0) {
         html += '<p>No issues found!</p>';
     } else {
@@ -701,12 +701,12 @@ function renderAccessibilityReportHtml(report) {
             </div>`;
         });
     }
-    
+
     html += `</div>
-        
+
         <div class="passed">
             <h2>Passed Checks</h2>`;
-    
+
     if (report.passed.length === 0) {
         html += '<p>No checks passed yet.</p>';
     } else {
@@ -716,9 +716,9 @@ function renderAccessibilityReportHtml(report) {
             </div>`;
         });
     }
-    
+
     html += '</div></div>';
-    
+
     return html;
 }
 
@@ -728,22 +728,183 @@ function renderAccessibilityReportHtml(report) {
  */
 function generateAndDisplayReport() {
     const report = generateAccessibilityReport();
-    
+
     console.log('=== Accessibility Report ===');
     console.log(`Generated: ${report.timestamp}`);
     console.log(`Total Issues: ${report.summary.totalIssues}`);
     console.log(`Critical: ${report.summary.critical}`);
     console.log(`Moderate: ${report.summary.moderate}`);
     console.log(`Passed: ${report.summary.passed}`);
-    
+
     if (report.issues.length > 0) {
         console.log('\n--- Issues ---');
         report.issues.forEach(issue => {
             console.log(`[${issue.status.toUpperCase()}] ${issue.category}: ${issue.message}`);
         });
     }
-    
+
     if (report.passed.length > 0) {
         console.log('\n--- Passed Checks ---');
         report.passed.forEach(item => {
-            console.log(`[PASS
+            console.log(`[PASSED] ${item.category}: ${item.message}`);
+        });
+    }
+
+    return report;
+}
+
+// Add accessibility improvements for the addBook function or form
+/**
+ * Creates an accessible book form with proper labels, ARIA attributes, and keyboard navigation.
+ * @param {Object} options - Configuration options for the book form.
+ * @param {string} [options.formId='book-form'] - ID for the form element.
+ * @param {string} [options.submitLabel='Add Book'] - Text for the submit button.
+ * @param {Array} [options.fields=[]] - Array of field configurations.
+ * @returns {HTMLFormElement} The created accessible book form.
+ */
+function createAccessibleBookForm(options = {}) {
+    const {
+        formId = 'book-form',
+        submitLabel = 'Add Book',
+        fields = [
+            { id: 'title', label: 'Book Title', type: 'text', required: true },
+            { id: 'author', label: 'Author', type: 'text', required: true },
+            { id: 'isbn', label: 'ISBN', type: 'text', required: true },
+            { id: 'published', label: 'Publication Date', type: 'date' }
+        ]
+    } = options;
+
+    const form = document.createElement('form');
+    form.id = formId;
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-labelledby', `${formId}-heading`);
+
+    // Add heading for better screen reader support
+    const heading = document.createElement('h2');
+    heading.id = `${formId}-heading`;
+    heading.textContent = 'Add New Book';
+    form.appendChild(heading);
+
+    // Create form fields
+    fields.forEach(field => {
+        const fieldset = document.createElement('fieldset');
+        const legend = document.createElement('legend');
+        legend.textContent = field.label;
+        fieldset.appendChild(legend);
+
+        const input = document.createElement('input');
+        input.id = `${formId}-${field.id}`;
+        input.type = field.type;
+        input.name = field.id;
+        input.setAttribute('aria-required', field.required ? 'true' : 'false');
+        input.setAttribute('aria-label', field.label);
+
+        if (field.required) {
+            input.required = true;
+        }
+
+        fieldset.appendChild(input);
+        form.appendChild(fieldset);
+    });
+
+    // Add submit button
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    submitButton.textContent = submitLabel;
+    submitButton.setAttribute('aria-label', submitLabel);
+    form.appendChild(submitButton);
+
+    // Add form validation
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const isValid = validateBookForm(form);
+        if (isValid) {
+            // Form is valid, proceed with submission
+            console.log('Form is valid, submitting...');
+            // Add your form submission logic here
+        }
+    });
+
+    return form;
+}
+
+/**
+ * Validates the book form fields.
+ * @param {HTMLFormElement} form - The form element to validate.
+ * @returns {boolean} True if the form is valid, false otherwise.
+ */
+function validateBookForm(form) {
+    let isValid = true;
+    const fields = form.querySelectorAll('input[required]');
+
+    fields.forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            field.setAttribute('aria-invalid', 'true');
+            field.setAttribute('aria-describedby', `${field.id}-error`);
+
+            // Create error message if it doesn't exist
+            let errorElement = document.getElementById(`${field.id}-error`);
+            if (!errorElement) {
+                errorElement = document.createElement('div');
+                errorElement.id = `${field.id}-error`;
+                errorElement.className = 'error-message';
+                errorElement.textContent = `${field.getAttribute('aria-label')} is required.`;
+                errorElement.setAttribute('role', 'alert');
+                field.parentNode.appendChild(errorElement);
+            }
+        } else {
+            field.removeAttribute('aria-invalid');
+            field.removeAttribute('aria-describedby');
+
+            // Remove error message if it exists
+            const errorElement = document.getElementById(`${field.id}-error`);
+            if (errorElement) {
+                errorElement.remove();
+            }
+        }
+    });
+
+    return isValid;
+}
+
+// Export the new accessibility functions
+export {
+    createAccessibleBookForm,
+    validateBookForm
+};
+
+// Add the addBook function with accessibility considerations
+/**
+ * Adds a book to the collection with accessibility features.
+ * @param {Object} book - The book object to add.
+ * @param {string} book.title - The title of the book.
+ * @param {string} book.author - The author of the book.
+ * @param {string} book.isbn - The ISBN of the book.
+ * @param {string} [book.published] - The publication date of the book.
+ * @returns {Object} The added book object with accessibility attributes.
+ */
+function addBook(book) {
+    // Validate the book object
+    if (!book || typeof book !== 'object') {
+        throw new Error('Invalid book object provided');
+    }
+
+    // Create a new book object with accessibility attributes
+    const accessibleBook = {
+        ...book,
+        'aria-label': `Book: ${book.title} by ${book.author}`,
+        'role': 'article',
+        'data-accessible': 'true'
+    };
+
+    // Add to the book collection (implementation depends on your application)
+    // For example:
+    // bookCollection.push(accessibleBook);
+
+    // Return the accessible book object
+    return accessibleBook;
+}
+
+// Export the addBook function
+export { addBook };

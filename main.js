@@ -25,10 +25,10 @@ function fixTableStructure() {
       caption.textContent = `Table ${index + 1}`;
       table.insertBefore(caption, table.firstChild);
     }
-    
+
     const headers = table.querySelectorAll('th');
     const cells = table.querySelectorAll('td, th');
-    
+
     cells.forEach(cell => {
       if (!cell.hasAttribute('scope') && !cell.hasAttribute('headers')) {
         const isHeader = cell.tagName === 'TH';
@@ -44,14 +44,14 @@ function fixTableStructure() {
 function fixLandmarks() {
   const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
   const landmarkCounts = {};
-  
+
   landmarkSelectors.forEach(selector => {
     landmarkCounts[selector] = 0;
   });
-  
+
   document.querySelectorAll(landmarkSelectors.join(', ')).forEach(element => {
     const tagName = element.tagName.toLowerCase();
-    
+
     if (landmarkCounts[tagName] > 0 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
       landmarkCounts[tagName]++;
       element.setAttribute('aria-label', `${tagName}-${landmarkCounts[tagName]}`);
@@ -130,7 +130,7 @@ const googleSignIn = {
     }
     return false;
   },
-  
+
   renderButton: function(elementId) {
     const element = document.getElementById(elementId);
     if (element && typeof google !== 'undefined' && google.accounts) {
@@ -143,7 +143,7 @@ const googleSignIn = {
     }
     return false;
   },
-  
+
   handleCredentialResponse: function(response) {
     console.log('Google Sign-In successful');
     return response;

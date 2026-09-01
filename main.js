@@ -156,8 +156,48 @@ function focusTrap(element) {
   return element;
 }
 
-function newFocusTrap() {
-  // New function implementation
+function newFocusTrap(element, options = {}) {
+  if (!element) return;
+
+  const focusableElements = element.querySelectorAll(
+    options.selector || 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+
+  if (focusableElements.length === 0) return;
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  // Set initial focus if requested
+  if (options.initialFocus) {
+    firstElement.focus();
+  }
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+
+    // Handle escape key if escapeTo option is provided
+    if (e.key === 'Escape' && options.escapeTo) {
+      options.escapeTo.focus();
+      e.preventDefault();
+    }
+  };
+
+  element.addEventListener('keydown', handleKeyDown);
+
+  // Return cleanup function
+  return () => {
+    element.removeEventListener('keydown', handleKeyDown);
+  };
 }
 
 /**

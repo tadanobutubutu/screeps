@@ -56,6 +56,8 @@ function initAccessibility() {
   if (typeof window !== 'undefined') {
     // Ensure screen reader support is available
     document.body.setAttribute('role', 'application');
+    // Add lang attribute to HTML element (REACT_015)
+    document.documentElement.setAttribute('lang', 'en');
   }
   return accessibilityUtils;
 }
@@ -265,6 +267,98 @@ function log(message, level = 'info') {
   console[level === 'error' ? 'error' : 'log'](`[${timestamp}] [${level}] ${message}`);
 }
 
+/**
+ * Add landmark roles to the document structure
+ */
+function addLandmarkRoles() {
+  if (typeof document === 'undefined') return;
+
+  // Add main landmark if not present
+  if (!document.querySelector('main[role="main"]')) {
+    const mainElement = document.querySelector('main') || document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+    if (!document.querySelector('main')) {
+      document.body.appendChild(mainElement);
+    }
+  }
+
+  // Add navigation landmark if not present
+  if (!document.querySelector('nav[role="navigation"]')) {
+    const navElement = document.querySelector('nav') || document.createElement('nav');
+    navElement.setAttribute('role', 'navigation');
+    if (!document.querySelector('nav')) {
+      document.body.appendChild(navElement);
+    }
+  }
+
+  // Add search landmark if not present
+  if (!document.querySelector('[role="search"]')) {
+    const searchElement = document.querySelector('.search') || document.createElement('div');
+    searchElement.setAttribute('role', 'search');
+    if (!document.querySelector('.search')) {
+      document.body.appendChild(searchElement);
+    }
+  }
+}
+
+/**
+ * Add accessible names to SVG elements
+ * @param {HTMLElement} svgElement - The SVG element to add accessible name to
+ * @param {string} name - The accessible name to add
+ */
+function addSvgAccessibleName(svgElement, name) {
+  if (!svgElement || !name) return;
+
+  // Add title element if not present
+  let titleElement = svgElement.querySelector('title');
+  if (!titleElement) {
+    titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    svgElement.insertBefore(titleElement, svgElement.firstChild);
+  }
+  titleElement.textContent = name;
+
+  // Add aria-label as fallback
+  svgElement.setAttribute('aria-label', name);
+}
+
+/**
+ * Fix fake links by converting them to proper buttons or adding proper ARIA attributes
+ * @param {HTMLElement} linkElement - The link element to fix
+ */
+function fixFakeLink(linkElement) {
+  if (!linkElement) return;
+
+  // If it's a fake link (no href or href="javascript:void(0)"), convert to button
+  if (!linkElement.getAttribute('href') || linkElement.getAttribute('href') === 'javascript:void(0)') {
+    const button = document.createElement('button');
+    button.textContent = linkElement.textContent;
+    button.className = linkElement.className;
+    button.setAttribute('aria-label', linkElement.getAttribute('aria-label') || linkElement.textContent);
+
+    // Copy event listeners
+    const clone = linkElement.cloneNode(true);
+    linkElement.parentNode.replaceChild(button, linkElement);
+
+    // Copy event listeners
+    const events = ['click', 'keydown', 'keyup', 'focus', 'blur'];
+    events.forEach(event => {
+      const handler = linkElement[`on${event}`];
+      if (handler) {
+        button[`on${event}`] = handler;
+      }
+    });
+
+    return button;
+  }
+
+  // If it's a real link but missing ARIA attributes
+  if (!linkElement.getAttribute('aria-label') && !linkElement.querySelector('img, svg')) {
+    linkElement.setAttribute('aria-label', linkElement.textContent);
+  }
+
+  return linkElement;
+}
+
 module.exports = {
   accessibilityUtils,
   exportUtils,
@@ -277,5 +371,8 @@ module.exports = {
   renderDependencyGraphs,
   spawnProcess,
   focusTrap,
-  newFocusTrap
+  newFocusTrap,
+  addLandmarkRoles,
+  addSvgAccessibleName,
+  fixFakeLink
 };

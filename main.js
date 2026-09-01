@@ -1,8 +1,3 @@
-Looking at the merge conflict, I need to combine the comprehensive accessibility implementation from HEAD with the export structure from origin/main, while fixing the incomplete function implementations.
-
-Here's the resolved file:
-
-```javascript
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -589,4 +584,3 @@ if (typeof module !== 'undefined' && module.exports) {
     init();
   }
 }
-```

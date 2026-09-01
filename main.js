@@ -5,8 +5,8 @@
 /**
  * Main application entry point with accessibility features
  */
-function renderDependencyGraphs(svgElements) {
-  const accessibleName = getSvgAccessibleName(svgElements);
+function main() {
+  const accessibleName = getAccessibleName();
   if (accessibleName) {
     // Use accessibleName
   }
@@ -26,7 +26,7 @@ function checkLandmarkElements() {
         return;
       }
 
-      if (!landmarkRoles.includes(landmarkRole)) {
+      if (element.getAttribute('role') !== landmarkRole) {
         console.warn(`Invalid landmark role: ${landmarkRole} for ${tagName}`);
       }
     });
@@ -43,7 +43,7 @@ function checkLandmarkElements() {
     'form'
   ];
 
-  checkLandmarkElement('[role="main"], main', 'main', {
+  checkLandmarkElement('main', 'main', {
     'main': 'main',
     'header': 'banner',
     'nav': 'navigation',
@@ -53,15 +53,44 @@ function checkLandmarkElements() {
     'section': 'region'
   });
 
-  checkLandmarkElement('[role="banner"], header', 'banner');
-  checkLandmarkElement('[role="navigation"], nav', 'navigation');
-  checkLandmarkElement('[role="contentinfo"], footer', 'contentinfo');
-  checkLandmarkElement('[role="complementary"], aside', 'complementary');
-  checkLandmarkElement('[role="search"], [role="form"], form', 'form');
+  checkLandmarkElement('header', 'banner');
+  checkLandmarkElement('nav', 'navigation');
+  checkLandmarkElement('footer', 'contentinfo');
+  checkLandmarkElement('aside', 'complementary');
+  checkLandmarkElement('[role="form"]', 'form', 'form');
+}
+
+/**
+ * New function: Ensures the element has an id and adds aria-label if missing
+ * @param {HTMLElement} element - The element to check and update
+ * @returns {boolean} - Returns true if the element is now accessible
+ */
+function ensureElementHasId(element) {
+  if (!element) return false;
+  
+  let hasId = element.id && element.id.trim() !== '';
+  let hasAriaLabel = element.getAttribute('aria-label') !== null;
+  let hasAriaLabelledby = element.getAttribute('aria-labelledby') !== null;
+  
+  if (!hasId) {
+    const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+    element.id = `${tagName}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    hasId = true;
+  }
+  
+  if (!hasAriaLabel && !hasAriaLabelledby) {
+    const accessibleName = getAccessibleName(element);
+    if (accessibleName) {
+      element.setAttribute('aria-label', accessibleName);
+      hasAriaLabel = true;
+    }
+  }
+  
+  return hasId && (hasAriaLabel || hasAriaLabelledby);
 }
 
 function getLangAttribute() {
-  const lang = localStorage.getItem('userLanguage') || navigator.language || navigator.userLanguage;
+  const lang = document.documentElement.lang || navigator.language || navigator.userLanguage;
   return lang;
 }
 
@@ -78,15 +107,11 @@ function validateLandmark(element) {
 }
 
 function addressNewAccessibilityIssues(insightReport) {
-  // TODO: Implement function to handle new accessibility issues
-}
-
-function implementAccessibilitySolutions(insightReport) {
   // Call the necessary functions to address each issue from the insight report
 }
 
 // Export the new function and sampleInsightReport (both versions agreed to do this)
-export { checkLandmarkElements, sampleInsightReport, validateTableAccessibility, validateTableStructure, validateLandmark, addressNewAccessibilityIssues, implementAccessibilitySolutions, getLangAttribute };
+export { checkLandmarkElements, ensureElementHasId, validateTableAccessibility, validateTableStructure, validateLandmark, addressNewAccessibilityIssues, implementAccessibilitySolutions, getLangAttribute };
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',

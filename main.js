@@ -75,7 +75,7 @@ function countDependencies() {
 function ensureUniqueLandmarks() {
   // Landmarks that should be unique on a page
   const primaryLandmarkSelectors = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
-  
+
   primaryLandmarkSelectors.forEach(selector => {
     const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
@@ -84,7 +84,7 @@ function ensureUniqueLandmarks() {
         const existingLabel = element.getAttribute('aria-label');
         const elementTag = element.tagName.toLowerCase();
         const role = element.getAttribute('role') || elementTag;
-        
+
         if (!existingLabel) {
           // Add index-based label for distinction
           element.setAttribute('aria-label', `${role} ${index + 1}`);
@@ -92,17 +92,17 @@ function ensureUniqueLandmarks() {
       });
     }
   });
-  
+
   // Ensure region and navigation landmarks have accessible names when multiple exist
   const sectionLandmarkSelectors = ['nav', '[role="region"]', 'aside'];
-  
+
   sectionLandmarkSelectors.forEach(selector => {
     const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
       elements.forEach((element, index) => {
         const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.id;
         const role = element.getAttribute('role') || element.tagName.toLowerCase();
-        
+
         if (!hasLabel) {
           element.setAttribute('aria-label', `${role} ${index + 1}`);
         }
@@ -117,7 +117,7 @@ function ensureUniqueLandmarks() {
 
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    
+
     // Ensure unique IDs
     if (!landmark.id) {
       let id = role;
@@ -198,13 +198,13 @@ function wrapPrimaryContentInMain(primaryContent) {
   const mainElement = doc.createElement('main');
   mainElement.setAttribute('id', 'main-content');
   mainElement.setAttribute('role', 'main');
-  
+
   if (typeof primaryContent === 'string') {
     mainElement.innerHTML = primaryContent;
   } else if (primaryContent instanceof HTMLElement || (primaryContent && primaryContent.appendChild)) {
     mainElement.appendChild(primaryContent);
   }
-  
+
   return mainElement;
 }
 
@@ -306,3 +306,73 @@ function makeHeaderFocusable() {
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('tabindex',
+}
+
+// NEW FUNCTION ADDED FOR LINK ACCESSIBILITY CHECK
+/**
+ * Validates the accessibility of links in the document
+ * @param {HTMLElement} [container=document] - The container element to check for links
+ * @returns {Object} An object containing accessibility issues found
+ */
+function checkLinkAccessibility(container = document) {
+  const links = container.querySelectorAll('a');
+  const issues = {
+    missingAltText: [],
+    emptyHref: [],
+    invalidHref: [],
+    missingAriaLabel: [],
+    duplicateIds: []
+  };
+
+  // Check for duplicate IDs
+  const allElements = container.querySelectorAll('[id]');
+  const idMap = new Map();
+
+  allElements.forEach(element => {
+    const id = element.id;
+    if (id) {
+      if (idMap.has(id)) {
+        issues.duplicateIds.push({
+          id,
+          elements: [idMap.get(id), element]
+        });
+      } else {
+        idMap.set(id, element);
+      }
+    }
+  });
+
+  // Check links for accessibility issues
+  links.forEach(link => {
+    // Check for empty href
+    if (!link.href || link.href.trim() === '') {
+      issues.emptyHref.push(link);
+    }
+
+    // Check for invalid href (javascript: or #)
+    if (link.href.startsWith('javascript:') || link.href === '#') {
+      issues.invalidHref.push(link);
+    }
+
+    // Check for missing aria-label or aria-labelledby when link text is empty
+    if (!link.textContent.trim() && !link.getAttribute('aria-label') && !link.getAttribute('aria-labelledby')) {
+      issues.missingAriaLabel.push(link);
+    }
+
+    // Check for images in links without alt text
+    const images = link.querySelectorAll('img');
+    images.forEach(img => {
+      if (!img.alt && !img.getAttribute('aria-hidden')) {
+        issues.missingAltText.push({
+          link,
+          image: img
+        });
+      }
+    });
+  });
+
+  return issues;
+}
+
+// Export the new function
+export { checkLinkAccessibility };

@@ -10,7 +10,7 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
@@ -61,4 +61,42 @@ function renderGraphIndex(content, options = {}) {
   return container;
 }
 
-export { renderGraphIndex, prefersReducedMotion, isEmpty, capitalize, getRandomInt, clamp, deepClone };
+// Add function to fix fake link issues
+function fixFakeLinkIssues(container) {
+  const fakeLinks = container.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    if (!link.getAttribute('role')) {
+      link.setAttribute('role', 'button');
+    }
+    if (!link.getAttribute('aria-label')) {
+      link.setAttribute('aria-label', 'Interactive element');
+    }
+  });
+}
+
+// Add function to ensure unique landmarks
+function ensureUniqueLandmarks(container) {
+  const landmarks = ['main', 'nav', 'header', 'footer', 'aside', 'section'];
+  landmarks.forEach(landmark => {
+    const elements = container.querySelectorAll(landmark);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0) {
+          el.setAttribute('aria-label', `${landmark} ${index + 1}`);
+        }
+      });
+    }
+  });
+}
+
+// Add function to add accessible names to SVGs
+function addSvgAccessibleNames(container) {
+  const svgs = container.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title, desc')) {
+      svg.setAttribute('aria-label', 'Graphical element');
+    }
+  });
+}
+
+export { renderGraphIndex, prefersReducedMotion, isEmpty, capitalize, getRandomInt, clamp, deepClone, fixFakeLinkIssues, ensureUniqueLandmarks, addSvgAccessibleNames };

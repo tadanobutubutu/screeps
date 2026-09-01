@@ -1,9 +1,4 @@
-// main.js - Application entry point
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const fastMap = require('fast-map');
-const path = require('path');
+// main.js
 
 // Configuration
 const CONFIG = {
@@ -87,6 +82,41 @@ const renderDependencyGraph = function (landmarks) {
     // Placeholder: Replace with actual implementation
     console.log('Rendering dependency graph for landmarks...');
 };
+
+// Some existing utility functions (from origin/main)
+function greet(name) {
+    return `Hello, ${name}!`;
+}
+
+function add(a, b) {
+    return a + b;
+}
+
+// Existing dependency storage
+let dependencies = [
+    { name: 'lodash', version: '4.17.21' },
+    { name: 'express', version: '4.18.2' },
+    { name: 'react', version: '18.2.0' }
+];
+
+function getDependencies() {
+    return dependencies;
+}
+
+function addDependency(name, version) {
+    dependencies.push({ name, version });
+    return dependencies;
+}
+
+function removeDependency(name) {
+    dependencies = dependencies.filter(dep => dep.name !== name);
+    return dependencies;
+}
+
+// TODO: Implement a function to count dependencies
+function countDependencies() {
+    return dependencies.length;
+}
 
 // Import and initialize required modules
 const app = express();
@@ -175,5 +205,12 @@ module.exports = {
     divide,
     checkLinkAccessibility,
     wrapPrimaryContentInMain,
-    renderDependencyGraph // Exported due to refactoring/extracting a function
+    renderDependencyGraph, // Exported due to refactoring/extracting a function
+    // Utility functions from origin/main
+    greet,
+    add,
+    getDependencies,
+    addDependency,
+    removeDependency,
+    countDependencies
 };

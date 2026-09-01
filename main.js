@@ -20,7 +20,37 @@ function visualizeDependencyTree(dependencies) {
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // Code to fix accessibility issues as per the insight report
+  // Add lang attribute to HTML element
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = getLangAttribute();
+  }
+
+  // Validate and fix table accessibility
+  validateTableAccessibility();
+  validateTableStructure();
+
+  // Add accessible names to SVGs
+  const svg1 = document.querySelector('.svg-1');
+  if (svg1) {
+    svg1.setAttribute('aria-label', getSvgAccessibleName('svg-1'));
+    setSvgAttributes(svg1);
+  }
+
+  const svg2 = document.querySelector('.svg-2');
+  if (svg2) {
+    svg2.setAttribute('aria-label', getSvgAccessibleName('svg-2'));
+    setSvgAttributes(svg2);
+  }
+
+  // Ensure unique landmarks
+  ensureUniqueLandmarks();
+
+  // Fix fake links
+  handleFakeLinks();
+  fixFakeLinkIssues();
+
+  // Add proper landmark regions
+  addLandmarkRoles();
 }
 
 /**
@@ -285,12 +315,12 @@ function validateLandmark(landmark) {
       !['main', 'complementary', 'navigation', 'search'].includes(landmark.getAttribute('role'))) {
     return false;
   }
-  
+
   // Check if landmark has appropriate name
   if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
     return false;
   }
-  
+
   // Additional checks can be added here
   return true;
 }
@@ -301,22 +331,22 @@ function validateLandmark(landmark) {
  */
 function validateLandmarkStructure() {
   const landmarks = document.querySelectorAll('[role="main"], [role="complementary"], [role="navigation"], [role="search"]');
-  
+
   // Count each type of landmark
   const mainCount = landmarks.filter(l => l.getAttribute('role') === 'main').length;
   const complementaryCount = landmarks.filter(l => l.getAttribute('role') === 'complementary').length;
   const navigationCount = landmarks.filter(l => l.getAttribute('role') === 'navigation').length;
   const searchCount = landmarks.filter(l => l.getAttribute('role') === 'search').length;
-  
+
   // Basic validation: ensure at least one main landmark exists
   if (mainCount === 0) {
     console.warn('No main landmark found on the page');
     return false;
   }
-  
+
   // Ensure no duplicate landmark IDs (reusing previous function)
   ensureUniqueLandmarks();
-  
+
   return true;
 }
 
@@ -327,7 +357,7 @@ function validateLandmarkStructure() {
 function addFixLandmarkIssues() {
   // Apply any necessary fixes for landmark accessibility
   // This could include adding missing roles, labels, etc.
-  
+
   // Example: Find all main landmarks and ensure they have proper roles
   const mainLandmarks = document.querySelectorAll('[role="main"]');
   mainLandmarks.forEach(landmark => {
@@ -335,7 +365,7 @@ function addFixLandmarkIssues() {
       landmark.setAttribute('aria-label', 'Main content area');
     }
   });
-  
+
   return true;
 }
 

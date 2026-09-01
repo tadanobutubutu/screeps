@@ -1,6 +1,6 @@
 // ... (existing import, const, let, or var declarations)
 
-function renderFunction1() {
+async function renderFunction1() {
   // Existing functionality
 
   // Add the imported modules to function1 as needed
@@ -11,7 +11,7 @@ function renderFunction1() {
   // ... (remaining function1 logic)
 }
 
-function renderFunction2() {
+async function renderFunction2() {
   // Existing functionality
 
   // Add the imported modules to function2 as needed
@@ -139,13 +139,13 @@ function addMainLandmark() {
 function validateLandmark() {
   const issues = [];
   const landmarkRoles = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search', 'form', 'region'];
-  
+
   if (typeof document !== 'undefined') {
     const landmarks = document.querySelectorAll('[role]');
-    
+
     landmarks.forEach((element) => {
       const role = element.getAttribute('role');
-      
+
       if (!landmarkRoles.includes(role)) {
         issues.push({
           description: `Invalid or non-standard landmark role: ${role}`,
@@ -154,7 +154,7 @@ function validateLandmark() {
           landmark: role
         });
       }
-      
+
       const tagName = element.tagName.toLowerCase();
       if (role === 'main' && tagName !== 'main') {
         issues.push({
@@ -165,7 +165,7 @@ function validateLandmark() {
         });
       }
     });
-    
+
     const mainElements = document.querySelectorAll('main, [role="main"]');
     if (mainElements.length > 1) {
       issues.push({
@@ -175,7 +175,7 @@ function validateLandmark() {
         landmark: 'main'
       });
     }
-    
+
     const bannerElements = document.querySelectorAll('header, [role="banner"]');
     if (bannerElements.length > 1) {
       issues.push({
@@ -185,7 +185,7 @@ function validateLandmark() {
         landmark: 'banner'
       });
     }
-    
+
     const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
     if (footerElements.length > 1) {
       issues.push({
@@ -195,16 +195,16 @@ function validateLandmark() {
         landmark: 'contentinfo'
       });
     }
-    
+
     landmarks.forEach((element) => {
       const role = element.getAttribute('role');
       const needsLabel = ['navigation', 'search', 'form', 'region'];
-      
+
       if (needsLabel.includes(role)) {
-        const hasLabel = element.getAttribute('aria-label') || 
+        const hasLabel = element.getAttribute('aria-label') ||
                         element.getAttribute('aria-labelledby') ||
                         element.id;
-        
+
         if (!hasLabel) {
           issues.push({
             description: `Landmark role "${role}" is missing accessible name (aria-label, aria-labelledby, or id)`,
@@ -216,7 +216,7 @@ function validateLandmark() {
       }
     });
   }
-  
+
   return issues;
 }
 
@@ -381,7 +381,7 @@ function addressAccessibilityIssuesFromInsightReport(insightReport) {
 
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -392,7 +392,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -407,7 +407,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -422,7 +422,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -436,7 +436,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -451,7 +451,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
@@ -465,7 +465,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check SVG accessibility
   const svgAccessibleNames = [getSvgAccessibleName()];
   if (svgAccessibleNames && svgAccessibleNames.length > 0) {
@@ -479,7 +479,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check for unique landmarks
   const uniqueLandmarkIssues = ensureUniqueLandmarks();
   if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
@@ -493,7 +493,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check link accessibility
   const linkIssues = validateLinkAccessibility();
   if (linkIssues && linkIssues.length > 0) {
@@ -507,7 +507,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Generate the report
   var report = {
     issues: issues,
@@ -526,7 +526,7 @@ function getInsightReport() {
     },
     generatedAt: new Date().toISOString()
   };
-  
+
   return report;
 }
 
@@ -742,3 +742,35 @@ function setLanguageAttribute() {
   }
   return 'en';
 }
+
+// New function to add a book with accessibility features
+function addBook(title, author, description) {
+  if (typeof document !== 'undefined') {
+    const bookContainer = document.createElement('div');
+    bookContainer.setAttribute('role', 'article');
+    bookContainer.setAttribute('aria-label', `Book: ${title} by ${author}`);
+
+    const titleElement = document.createElement('h3');
+    titleElement.textContent = title;
+    titleElement.setAttribute('id', `book-title-${Date.now()}`);
+
+    const authorElement = document.createElement('p');
+    authorElement.textContent = `By ${author}`;
+    authorElement.setAttribute('aria-labelledby', titleElement.id);
+
+    const descriptionElement = document.createElement('p');
+    descriptionElement.textContent = description;
+
+    bookContainer.appendChild(titleElement);
+    bookContainer.appendChild(authorElement);
+    bookContainer.appendChild(descriptionElement);
+
+    document.body.appendChild(bookContainer);
+
+    return bookContainer;
+  }
+  return null;
+}
+
+// Add the new function to exports
+module.exports.addBook = addBook;

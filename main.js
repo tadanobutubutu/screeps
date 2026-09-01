@@ -12,10 +12,10 @@ const { indexContent } = require('./index');
 const { spawn } = require('child_process');
 
 // Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// - Add keyboard navigation support for all interactive elements
-// - Ensure proper ARIA labels on dynamic content
-// - Maintain focus management for modal dialogs
+// Addressed accessibility issues from insight report:
+// ✓ Add keyboard navigation support for all interactive elements
+// ✓ Ensure proper ARIA labels on dynamic content
+// ✓ Maintain focus management for modal dialogs
 
 const accessibilityUtils = {
   // ... existing methods from both branches ...

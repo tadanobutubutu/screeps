@@ -34,4 +34,37 @@ function main() {
   return processData;
 }
 
-module.exports = { main, processData, validateInput, initializeApp, setupHandlers };
+// Accessibility improvements
+function getAccessibleDescription(elementId) {
+  const element = document.getElementById(elementId);
+  if (!element) return null;
+
+  const ariaLabel = element.getAttribute('aria-label');
+  const ariaDescribedBy = element.getAttribute('aria-describedby');
+  const title = element.getAttribute('title');
+
+  return ariaLabel || (ariaDescribedBy && document.getElementById(ariaDescribedBy)?.textContent) || title || element.textContent;
+}
+
+function setAccessibleFocus(elementId) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.setAttribute('tabindex', '0');
+    element.setAttribute('role', 'button');
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        element.click();
+      }
+    });
+  }
+}
+
+module.exports = {
+  main,
+  processData,
+  validateInput,
+  initializeApp,
+  setupHandlers,
+  getAccessibleDescription,
+  setAccessibleFocus
+};

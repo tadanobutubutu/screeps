@@ -111,7 +111,7 @@ function addLandmarkRoles() {
   if (mainElement && ... {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   const navElement = ...
   if (navElement && ... {
     ... 'navigation');
@@ -248,30 +248,28 @@ if (typeof isSecureContext === 'function' && isSecureContext()) {
 function addressAccessibilityIssues(insightReport) {
   // This addresses issues from the insight report:
   // - REACT_015: Add lang attribute to HTML element
-  // - REACT_027: Fix 26 table structure issues
-  // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs
-  // - REACT_025: Ensure unique landmarks (2 issues)
-  // - REACT_036: Fix 1 fake link issue
+  // - REACT_027: Fix table structure issues
+  // - REACT_017: Add/fix landmark issues
+  // - REACT_041: Add accessible names to SVGs
+  // - REACT_025: Ensure unique landmarks
+  // - REACT_036: Fix fake link issue
 
   if (!insightReport || !insightReport.issues) {
     return;
   }
 
-  // Address accessibility issues from insight report
-  ... {
+  insightReport.issues.forEach(issue => {
     switch (issue.type) {
       case 'REACT_015':
         // Add lang attribute to HTML element
         if (issue.element) {
-          ...
+          addLangAttribute(document.documentElement);
         }
         break;
       case 'REACT_027':
         // Fix table structure issues
-        if (issue.type === 'structure') {
-          validateTableStructure();
-          ...
+        if (issue.subtype === 'structure') {
+          fixTableStructure();
         } else {
           validateTableAccessibility();
         }
@@ -280,14 +278,14 @@ function addressAccessibilityIssues(insightReport) {
         // Add/fix landmark issues
         addMainLandmark();
         validateLandmark();
-        ...
-        ...
+        validateLandmarkStructure();
+        validateLandmarkAttributes();
         addLandmarkRegions();
         break;
       case 'REACT_041':
         // Add accessible names to SVGs
         if (issue.element) {
-          setSvgAttributes(issue.element, ...
+          setSvgAttributes(issue.element, getSvgAccessibleName());
         }
         break;
       case 'REACT_025':
@@ -297,7 +295,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_036':
         // Fix fake link issue
         handleFakeLinks();
-        ...
+        fixFakeLinks();
         break;
       default:
         console.log('Unknown issue type:', issue.type);
@@ -307,7 +305,7 @@ function addressAccessibilityIssues(insightReport) {
 
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -318,11 +316,11 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
-    ... {
+    tableAccessibilityIssues.forEach(issue => {
       issues.push({
         type: 'REACT_027',
         subtype: 'accessibility',
@@ -333,11 +331,11 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
-    ... {
+    tableStructureIssues.forEach(issue => {
       issues.push({
         type: 'REACT_027',
         subtype: 'structure',
@@ -348,11 +346,11 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
-    ... {
+    landmarkIssues.forEach(issue => {
       issues.push({
         type: 'REACT_017',
         description: issue.description || 'Landmark issue',
@@ -362,12 +360,21 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
-  const landmarkStructureIssues = ...
-  if (landmarkStructureIssues && ... > 0) {
-    ... {
+  const landmarkStructureIssues = validateLandmarkStructure();
+  if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
+    landmarkStructureIssues.forEach(issue => {
       issues.push({
         type: 'REACT_017',
         structure: true,
         description: issue.description || 'Landmark structure issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  return { issues };
+}

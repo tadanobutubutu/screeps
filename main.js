@@ -338,16 +338,21 @@ function getSVGAccessibleName(svgElement) {
 }
 
 function addressAccessibilityIssues(report) {
-    if (!report) return;
-    report.forEach(issue => {
+    if (!report || typeof document === 'undefined') return;
+    const issues = Array.isArray(report) ? report : (report.issues || []);
+    issues.forEach(issue => {
+        if (!issue || !issue.type) return;
         switch (issue.type) {
             case 'missing-lang':
-                if (issue.element) {
+                if (issue.element && typeof issue.element.setAttribute === 'function') {
                     issue.element.setAttribute('lang', 'en');
+                } else if (issue.selector && typeof document.querySelector === 'function') {
+                    const el = document.querySelector(issue.selector);
+                    if (el) el.setAttribute('lang', 'en');
                 }
                 break;
             case 'missing-skip-link':
-                if (issue.element) {
+                if (typeof document !== 'undefined' && document.body) {
                     const skipLink = document.createElement('a');
                     skipLink.className = 'skip-link';
                     skipLink.href = '#main-content';
@@ -357,18 +362,24 @@ function addressAccessibilityIssues(report) {
                 }
                 break;
             case 'missing-alt':
-                document.querySelectorAll('img').forEach(img => {
-                    if (!img.getAttribute('alt')) {
-                        img.setAttribute('alt', 'Image description');
-                    }
-                });
+                if (typeof document !== 'undefined') {
+                    document.querySelectorAll('img').forEach(img => {
+                        if (!img.getAttribute('alt')) {
+                            img.setAttribute('alt', 'Image description');
+                        }
+                    });
+                }
                 break;
             case 'missing-label':
-                document.querySelectorAll('input, select, textarea').forEach(el => {
-                    if (!el.getAttribute('aria-label') && !el.getAttribute('id')) {
-                        el.setAttribute('aria-label', 'Form field');
-                    }
-                });
+                if (typeof document !== 'undefined') {
+                    document.querySelectorAll('input, select, textarea').forEach(el => {
+                        if (!el.getAttribute('aria-label') && !el.getAttribute('id')) {
+                            el.setAttribute('aria-label', 'Form field');
+                        }
+                    });
+                }
+                break;
+            default:
                 break;
         }
     });

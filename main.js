@@ -1,6 +1,3 @@
-Here is the resolved file content, integrating both changes:
-
-```javascript
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs,
@@ -10,6 +7,196 @@ Here is the resolved file content, integrating both changes:
 functions.forEach(functionToSave => {
   window[functionToSave] = window[functionToSave] || module.exports[functionToSave];
 });
+
+// REACT_015: Add lang attribute to HTML element
+function getLangAttribute(document) {
+  if (!document || !document.documentElement) {
+    return 'en';
+  }
+  return document.documentElement.getAttribute('lang') || 'en';
+}
+
+function personName(element) {
+  if (!element) {
+    return '';
+  }
+  return element.getAttribute('aria-label') || 
+         element.getAttribute('name') || 
+         element.textContent || 
+         '';
+}
+
+// REACT_027: Fix table structure issues
+function validateTableAccessibility(table) {
+  if (!table) {
+    return { valid: false, error: 'Table element is required' };
+  }
+
+  const errors = [];
+  const hasCaption = table.querySelector('caption');
+  const hasHeaders = table.querySelector('th');
+
+  if (!hasCaption) {
+    errors.push('Table should have a caption element');
+  }
+
+  if (!hasHeaders) {
+    errors.push('Table should have header cells (th)');
+  }
+
+  const cells = table.querySelectorAll('td, th');
+  cells.forEach((cell, index) => {
+    if (!cell.hasAttribute('scope') && !cell.hasAttribute('headers')) {
+      const isHeader = cell.tagName.toLowerCase() === 'th';
+      if (!isHeader) {
+        errors.push(`Cell at index ${index} should have scope or headers attribute`);
+      }
+    }
+  });
+
+  return {
+    valid: errors.length === 0,
+    errors: errors
+  };
+}
+
+function validateTableStructure(table) {
+  if (!table) {
+    return { valid: false, error: 'Table element is required' };
+  }
+
+  const errors = [];
+  const rows = table.querySelectorAll('tr');
+  
+  if (rows.length === 0) {
+    errors.push('Table must have at least one row');
+    return { valid: false, errors };
+  }
+
+  // Check for proper thead/tbody structure
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  const tfoot = table.querySelector('tfoot');
+
+  // Validate row structure
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('td, th');
+    if (cells.length === 0) {
+      errors.push(`Row ${rowIndex} has no cells`);
+    }
+  });
+
+  // Check for colspan/rowspan validity
+  const cells = table.querySelectorAll('td, th');
+  cells.forEach((cell, index) => {
+    const colspan = parseInt(cell.getAttribute('colspan') || '1', 10);
+    const rowspan = parseInt(cell.getAttribute('rowspan') || '1', 10);
+    
+    if (colspan < 1) {
+      errors.push(`Cell ${index} has invalid colspan`);
+    }
+    if (rowspan < 1) {
+      errors.push(`Cell ${index} has invalid rowspan`);
+    }
+  });
+
+  return {
+    valid: errors.length === 0,
+    errors: errors,
+    rowCount: rows.length
+  };
+}
+
+// REACT_017: Add/fix landmark issues
+function validateLandmarkStructure(container) {
+  if (!container) {
+    return { valid: false, error: 'Container element is required' };
+  }
+
+  const errors = [];
+  const warnings = [];
+
+  // Count landmark elements
+  const mainElements = container.querySelectorAll('main, [role="main"]');
+  const headerElements = container.querySelectorAll('header, [role="banner"]');
+  const footerElements = container.querySelectorAll('footer, [role="contentinfo"]');
+  const navElements = container.querySelectorAll('nav, [role="navigation"]');
+
+  // Each page should have exactly one main landmark
+  if (mainElements.length === 0) {
+    errors.push('Page should have exactly one main landmark');
+  } else if (mainElements.length > 1) {
+    errors.push(`Page has ${mainElements.length} main landmarks (should have exactly 1)`);
+  }
+
+  // Header and footer should appear only once each
+  if (headerElements.length > 1) {
+    warnings.push(`Page has ${headerElements.length} header/banner landmarks`);
+  }
+  if (footerElements.length > 1) {
+    warnings.push(`Page has ${footerElements.length} footer/contentinfo landmarks`);
+  }
+
+  // Check for landmark hierarchy issues
+  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+  landmarks.forEach((landmark, index) => {
+    const parent = landmark.parentElement;
+    if (parent) {
+      const parentRole = parent.getAttribute('role');
+      if (parentRole === 'banner' || parentRole === 'contentinfo') {
+        errors.push(`Landmark ${index} has improper parent landmark`);
+      }
+    }
+  });
+
+  return {
+    valid: errors.length === 0,
+    errors: errors,
+    warnings: warnings,
+    counts: {
+      main: mainElements.length,
+      header: headerElements.length,
+      footer: footerElements.length,
+      navigation: navElements.length
+    }
+  };
+}
+
+// REACT_041: Add accessible names to SVGs
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) {
+    return '';
+  }
+
+  // Check for aria-label
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+
+  // Check for aria-labelledby referencing an existing element
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const referencedElement = document.getElementById(ariaLabelledby);
+    if (referencedElement) {
+      return referencedElement.textContent || '';
+    }
+  }
+
+  // Check for title element inside SVG
+  const title = svgElement.querySelector('title');
+  if (title) {
+    return title.textContent || '';
+  }
+
+  // Check for desc element inside SVG
+  const desc = svgElement.querySelector('desc');
+  if (desc) {
+    return desc.textContent || '';
+  }
+
+  return '';
+}
 
 module.exports = {
   // ... Existing functions
@@ -119,21 +306,37 @@ module.exports = {
     }
 
     return { valid: true, role: landmarkRole };
+  },
+
+  // REACT_015: Functions for lang attribute
+  getLangAttribute,
+  personName,
+
+  // REACT_027: Functions for table accessibility and structure
+  validateTableAccessibility,
+  validateTableStructure,
+
+  // REACT_017: Function for landmark structure validation
+  validateLandmarkStructure,
+
+  // REACT_041: Function for SVG accessible name
+  getSvgAccessibleName,
+
+  // Application configuration
+  config: {
+    port: process.env.PORT || 3000,
+    env: process.env.NODE_ENV || 'development'
+  },
+
+  // Application entry points
+  createServer() {
+    // ... (existing code)
+  },
+
+  startApp() {
+    // ... (existing code)
   }
 };
-
-// Application configuration
-const config = {
-  port: process.env.PORT || 3000,
-  env: process.env.NODE_ENV || 'development'
-};
-
-/**
- * Main application entry point with accessibility features
- */
-function createServer() {
-  // ... (existing code)
-}
 
 // Utility for spawning a command
 function spawnSomeCommand(callback) {
@@ -149,24 +352,3 @@ function spawnSomeCommand(callback) {
         }
     });
 }
-
-/**
- * Spawn a child process to run some command with proper error handling.
- * @param {Function} callback - Invoked with (err, result) when the command exits.
- */
-function startApp() {
-  // ... (existing code)
-}
-
-// Export functions for testing
-module.exports = {
-  createServer,
-  startApp,
-  config,
-  countDependencies, // Export the countDependencies function from both branches
-  addressAccessibilityIssues, // Export the addressAccessibilityIssues function from the additional branch
-  // ... More functions exported as needed
-};
-```
-
-This solution exports both branches' changes when needed, and integrates functions with related functionalities (e.g., accessibility-focused functions) together according to their purpose in the program.

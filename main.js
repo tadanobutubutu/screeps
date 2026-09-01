@@ -100,20 +100,20 @@ function detectAndSetLang(content) {
 function personName(options = {}) {
   const { firstName = '', lastName = '', lang = 'en', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
-  
+
   if (typeof document !== 'undefined') {
     const nameElement = document.createElement('span');
     nameElement.setAttribute('lang', lang);
     nameElement.setAttribute('aria-label', fullName);
     nameElement.textContent = fullName || 'Unknown';
-    
+
     if (container) {
       container.appendChild(nameElement);
     }
-    
+
     return nameElement;
   }
-  
+
   return fullName || 'Unknown';
 }
 
@@ -227,7 +227,7 @@ function newFocusTrap(container) {
   const focusableElements = Array.from(
     container.querySelectorAll(focusableSelectors)
   ).filter(el => el.offsetParent !== null);
-  
+
   if (focusableElements.length > 0) {
     focusableElements[0].focus();
   }
@@ -240,6 +240,75 @@ function newFocusTrap(container) {
       }
     }
   };
+}
+
+// New function to be implemented at line 306
+/**
+ * Creates an accessible modal dialog with proper ARIA attributes
+ * @param {Object} options - Configuration options for the modal
+ * @param {string} options.title - The title of the modal
+ * @param {string} options.content - The content of the modal
+ * @param {HTMLElement} options.parent - The parent element to append the modal to
+ * @returns {HTMLElement} The created modal element
+ */
+function createAccessibleModal(options = {}) {
+  const { title = 'Modal Title', content = '', parent = document.body } = options;
+
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const modal = document.createElement('div');
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-labelledby', 'modal-title');
+  modal.setAttribute('aria-describedby', 'modal-content');
+  modal.className = 'modal';
+
+  const modalTitle = document.createElement('h2');
+  modalTitle.id = 'modal-title';
+  modalTitle.textContent = title;
+
+  const modalContent = document.createElement('div');
+  modalContent.id = 'modal-content';
+  modalContent.textContent = content;
+
+  const closeButton = document.createElement('button');
+  closeButton.type = 'button';
+  closeButton.setAttribute('aria-label', 'Close modal');
+  closeButton.textContent = '×';
+  closeButton.className = 'modal-close';
+
+  modal.appendChild(closeButton);
+  modal.appendChild(modalTitle);
+  modal.appendChild(modalContent);
+
+  if (parent) {
+    parent.appendChild(modal);
+  }
+
+  // Add focus trap to the modal
+  const focusTrap = newFocusTrap(modal);
+
+  // Close modal when clicking the close button
+  closeButton.addEventListener('click', () => {
+    focusTrap.detach();
+    if (parent && parent.contains(modal)) {
+      parent.removeChild(modal);
+    }
+  });
+
+  // Close modal when pressing Escape key
+  modal.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      focusTrap.detach();
+      if (parent && parent.contains(modal)) {
+        parent.removeChild(modal);
+      }
+    }
+  });
+
+  return modal;
 }
 
 // Preserve all existing exports
@@ -257,5 +326,6 @@ module.exports = {
   createWebResourceButton,
   validateUniqueLandmarks,
   newFocusTrap,
-  checkAccessibility // Add the new export
+  checkAccessibility,
+  createAccessibleModal // Add the new export
 };

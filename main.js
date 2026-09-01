@@ -1,69 +1,18 @@
-// Existing code from main.js (to be preserved)
-// ... (existing code) ...
+tsx
+// app/layout.tsx
+import { Metadata } from 'next';
 
-// New functions or changes requested in the issue
-function addLangAttribute() {
-  // Hypothetical code to add lang attribute to the HTML element
-  document.documentElement.setAttribute('lang', 'en');
-}
+export const metadata: Metadata = {
+  icons: {
+    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
+  },
+};
 
-function fixTableStructure() {
-  // Hypothetical code to fix table structure issues
-  // This is a placeholder function
-}
+// dashboard/app/layout.tsx
+import { Metadata } from 'next';
 
-function addMainLandmark() {
-  // Hypothetical code to add a main landmark
-  const mainElement = document.createElement('main');
-  document.body.appendChild(mainElement);
-}
-
-function fixLandmarkIssues() {
-  // Hypothetical code to fix landmark issues
-  // This is a placeholder function
-}
-
-function ensureUniqueLandmarks() {
-  // Hypothetical code to ensure unique landmarks
-  // This is a placeholder function
-}
-
-function addSvgAccessibleNames() {
-  // Hypothetical code to add accessible names to SVGs
-  // This is a placeholder function
-}
-
-function addAccessibleNamesToSVGs() {
-  // Hypothetical code to add accessible names to SVGs
-  // This is a placeholder function
-}
-
-function fixFakeLinkIssue() {
-  // Hypothetical code to fix a fake link issue
-  // This is a placeholder function
-}
-
-function googleSignIn() {
-  // Hypothetical code for Google sign-in logic
-  // This is a placeholder function
-}
-
-function fixButtonIdentifiers() {
-  // Hypothetical code to replace 'my-button' with actual button id for accessibility
-  // This is a placeholder function
-}
-
-// Call the functions to address the accessibility issues
-addLangAttribute();
-fixTableStructure();
-addMainLandmark();
-fixLandmarkIssues();
-ensureUniqueLandmarks();
-addSvgAccessibleNames();
-addAccessibleNamesToSVGs();
-fixFakeLinkIssue();
-googleSignIn();
-fixButtonIdentifiers();
-
-// Existing code from main.js (to be preserved)
-// ... (existing code) ...
+export const metadata: Metadata = {
+  icons: {
+    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
+  },
+};

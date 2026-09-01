@@ -10,7 +10,33 @@ const path = require('path');
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_025: Add other accessibility changes as per the insight report
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+function validateAccessibilityReport(report) {
+  if (!report || typeof report !== 'object' || Array.isArray(report)) {
+    throw new Error('Accessibility report must be a valid object');
+  }
+
+  const issues = [];
+
+  if (report.issues && Array.isArray(report.issues)) {
+    for (const issue of report.issues) {
+      issues.push(issue);
+    }
+  }
+
+  if (report.missingLang) {
+    issues.push({ code: 'REACT_015', message: 'Missing lang attribute on HTML element' });
+  }
+
+  if (report.missingAriaLabels) {
+    issues.push({ code: 'REACT_025', message: 'Elements are missing aria-label attributes' });
+  }
+
+  return {
+    valid: issues.length === 0,
+    issues: issues,
+    count: issues.length
+  };
+}
 
 // Assuming 'addLangAttribute' is a function that has already been implemented
 function addLangAttribute() {
@@ -231,5 +257,6 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraph,
   existingFunction,
-  personName
+  personName,
+  validateAccessibilityReport
 };

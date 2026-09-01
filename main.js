@@ -77,20 +77,20 @@ function detectAndSetLang(content) {
 function personName(options = {}) {
   const { firstName = '', lastName = '', lang = 'en', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
-  
+
   if (typeof document !== 'undefined') {
     const nameElement = document.createElement('span');
     nameElement.setAttribute('lang', lang);
     nameElement.setAttribute('aria-label', fullName);
     nameElement.textContent = fullName || 'Unknown';
-    
+
     if (container) {
       container.appendChild(nameElement);
     }
-    
+
     return nameElement;
   }
-  
+
   return fullName || 'Unknown';
 }
 
@@ -193,7 +193,7 @@ function newFocusTrap(container) {
   const focusableElements = Array.from(
     container.querySelectorAll(focusableSelectors)
   ).filter(el => el.offsetParent !== null);
-  
+
   if (focusableElements.length > 0) {
     focusableElements[0].focus();
   }
@@ -207,6 +207,9 @@ function newFocusTrap(container) {
     }
   };
 }
+
+// TODO: Add back any required exports that might have been?
+// (This comment remains as-is)
 
 // Export the new functions
 module.exports = {

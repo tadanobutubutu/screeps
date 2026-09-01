@@ -20,11 +20,11 @@ function ensureElementHasId(element, prefix = 'element') {
   if (!element) {
     return null;
   }
-  
+
   if (!element.id) {
     element.id = `${prefix}-${Date.now().toString(36).slice(-9)}`;
   }
-  
+
   return element.id;
 }
 
@@ -38,11 +38,11 @@ function addAriaLabel(element, label) {
   if (!element) {
     return null;
   }
-  
+
   if (typeof label !== 'string' || label.trim() === '') {
     return element;
   }
-  
+
   element.setAttribute('aria-label', label);
   return element;
 }
@@ -58,10 +58,10 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
   if (!element) {
     return null;
   }
-  
+
   const id = ensureElementHasId(element, idPrefix);
   addAriaLabel(element, ariaLabel);
-  
+
   return id;
 }
 
@@ -75,13 +75,13 @@ function renderDependencyGraphs(container, options = {}) {
   const { nodes = [], edges = [] } = options;
   const graphContainer = document.createElement('div');
   graphContainer.className = 'dependency-graph';
-  
+
   // Ensure container has an id for accessibility
   const containerId = ensureElementHasId(container, 'graph-container');
-  
+
   // Add aria-label for accessibility
   addAriaLabel(graphContainer, 'Dependency graph visualization');
-  
+
   // Render nodes
   nodes.forEach(node => {
     const nodeElement = document.createElement('div');
@@ -90,19 +90,19 @@ function renderDependencyGraphs(container, options = {}) {
     nodeElement.className = 'graph-node';
     graphContainer.appendChild(nodeElement);
   });
-  
+
   // Render edges (connections between nodes)
   edges.forEach(edge => {
     const sourceId = edge.source?.id || ensureElementHasId({ id: edge.source }, 'node-source');
     const targetId = edge.target?.id || ensureElementHasId({ id: edge.target }, 'node-target');
-    
+
     const edgeElement = document.createElement('div');
     edgeElement.className = 'graph-edge';
     edgeElement.setAttribute('data-source', edge.source);
     edgeElement.setAttribute('data-target', edge.target);
     graphContainer.appendChild(edgeElement);
   });
-  
+
   container.appendChild(graphContainer);
   return graphContainer;
 }
@@ -117,22 +117,22 @@ function renderIndex(container, data = {}) {
   if (!container) {
     throw new Error('Container is required');
   }
-  
+
   const indexContainer = document.createElement('div');
   indexContainer.className = 'index-container';
-  
+
   // Ensure container has an id for accessibility
   ensureElementHasId(indexContainer, 'index');
-  
+
   // Add aria-label for accessibility
   addAriaLabel(indexContainer, 'Dependency index');
-  
+
   // Render the dependency graphs using the new function
   renderDependencyGraphs(indexContainer, {
     nodes: data.nodes || [],
     edges: data.edges || []
   });
-  
+
   container.appendChild(indexContainer);
   return indexContainer;
 }
@@ -146,7 +146,7 @@ function renderDependencyGraph() {
   if (container) {
     container.setAttribute('role', 'region');
     container.setAttribute('aria-label', 'Dependency graph visualization');
-    
+
     // Ensure the container has an id for accessibility
     ensureElementHasId(container, 'dep-graph');
   }
@@ -262,10 +262,10 @@ class ScreepsBot {
   async start() {
     // Initialize network connection
     await this.network.connect();
-    
+
     // Load initial data
     await this.loadData();
-    
+
     console.log('Screenspider bot started');
   }
 

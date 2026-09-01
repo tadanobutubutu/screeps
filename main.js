@@ -177,18 +177,130 @@ module.exports = {
   createWebResourceButton: createWebResourceButton,
 
   // TODO: Validate the table structure for accessibility issues
-  validateTableAccessibility,
-  validateTableStructure,
+  validateTableAccessibility: (table) => {
+    if (!table || !(table instanceof HTMLElement) || table.tagName !== 'TABLE') {
+      throw new Error('Invalid table element provided');
+    }
+
+    const issues = [];
+
+    // Check for missing table headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      issues.push('Table is missing header cells (th elements)');
+    }
+
+    // Check for proper scope attributes on headers
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        issues.push('Header cell is missing scope attribute');
+      }
+    });
+
+    // Check for proper table structure (thead, tbody, tfoot)
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    const tfoot = table.querySelector('tfoot');
+
+    if (!thead) {
+      issues.push('Table is missing thead element');
+    }
+
+    if (!tbody) {
+      issues.push('Table is missing tbody element');
+    }
+
+    // Check for data cells with headers
+    const dataCells = table.querySelectorAll('td');
+    dataCells.forEach(cell => {
+      if (!cell.hasAttribute('headers') && !cell.hasAttribute('aria-describedby')) {
+        issues.push('Data cell is missing headers or aria-describedby attribute');
+      }
+    });
+
+    return issues.length > 0 ? issues : null;
+  },
+
+  validateTableStructure: (table) => {
+    if (!table || !(table instanceof HTMLElement) || table.tagName !== 'TABLE') {
+      throw new Error('Invalid table element provided');
+    }
+
+    const issues = [];
+
+    // Check for proper table structure
+    const rows = table.querySelectorAll('tr');
+    if (rows.length === 0) {
+      issues.push('Table has no rows');
+    }
+
+    // Check for consistent column count
+    let columnCount = -1;
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td, th');
+      if (columnCount === -1) {
+        columnCount = cells.length;
+      } else if (cells.length !== columnCount) {
+        issues.push('Inconsistent number of columns in table rows');
+      }
+    });
+
+    return issues.length > 0 ? issues : null;
+  },
 
   // TODO: Validate the landmark structure for accessibility issues
   validateLandmark,
   validateLandmarkStructure,
 
   // TODO: Extract the accessible name for an SVG from its content
-  getSvgAccessibleName,
+  getSvgAccessibleName: (svg) => {
+    if (!svg || !(svg instanceof HTMLElement) || svg.tagName !== 'SVG') {
+      throw new Error('Invalid SVG element provided');
+    }
+
+    // Check for aria-label
+    if (svg.hasAttribute('aria-label')) {
+      return svg.getAttribute('aria-label');
+    }
+
+    // Check for aria-labelledby
+    if (svg.hasAttribute('aria-labelledby')) {
+      const id = svg.getAttribute('aria-labelledby');
+      const labelElement = document.getElementById(id);
+      if (labelElement) {
+        return labelElement.textContent.trim();
+      }
+    }
+
+    // Check for title element
+    const title = svg.querySelector('title');
+    if (title) {
+      return title.textContent.trim();
+    }
+
+    // Check for desc element
+    const desc = svg.querySelector('desc');
+    if (desc) {
+      return desc.textContent.trim();
+    }
+
+    // Check for text content
+    const textContent = svg.textContent.trim();
+    if (textContent.length > 0) {
+      return textContent;
+    }
+
+    return null;
+  },
 
   // TODO: Add a language attribute to the HTML element
-  getLangAttribute,
+  getLangAttribute: (element) => {
+    if (!element || !(element instanceof HTMLElement)) {
+      throw new Error('Invalid HTML element provided');
+    }
+
+    return element.getAttribute('lang') || element.getAttribute('xml:lang');
+  },
 
   // TODO: Validate the accessibility report for issues
   validateAccessibilityReport,
@@ -226,5 +338,99 @@ module.exports = {
   exportUtils,
 
   // New focus trap functionality for keyboard navigation
-  focusTrap
+  focusTrap,
+
+  // New function to render dependency graphs
+  renderDependencyGraphs: (container, data) => {
+    if (!container || !(container instanceof HTMLElement)) {
+      throw new Error('Invalid container element provided');
+    }
+
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid data provided for dependency graph');
+    }
+
+    // Clear existing content
+    container.innerHTML = '';
+
+    // Create graph container
+    const graphContainer = document.createElement('div');
+    graphContainer.className = 'dependency-graph';
+    graphContainer.setAttribute('role', 'img');
+    graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+
+    // Create nodes
+    const nodes = data.nodes || [];
+    nodes.forEach(node => {
+      const nodeElement = document.createElement('div');
+      nodeElement.className = 'dependency-node';
+      nodeElement.textContent = node.name;
+      nodeElement.setAttribute('data-id', node.id);
+      nodeElement.setAttribute('tabindex', '0');
+      nodeElement.setAttribute('role', 'button');
+      nodeElement.setAttribute('aria-label', `Dependency node: ${node.name}`);
+      graphContainer.appendChild(nodeElement);
+    });
+
+    // Create edges
+    const edges = data.edges || [];
+    edges.forEach(edge => {
+      const edgeElement = document.createElement('div');
+      edgeElement.className = 'dependency-edge';
+      edgeElement.setAttribute('data-from', edge.from);
+      edgeElement.setAttribute('data-to', edge.to);
+      edgeElement.setAttribute('aria-hidden', 'true');
+      graphContainer.appendChild(edgeElement);
+    });
+
+    // Add to container
+    container.appendChild(graphContainer);
+
+    // Add keyboard navigation
+    const nodeElements = graphContainer.querySelectorAll('.dependency-node');
+    let currentNodeIndex = 0;
+
+    function focusNode(index) {
+      if (index < 0) {
+        index = nodeElements.length - 1;
+      } else if (index >= nodeElements.length) {
+        index = 0;
+      }
+
+      if (nodeElements[index]) {
+        nodeElements[index].focus();
+        currentNodeIndex = index;
+      }
+    }
+
+    graphContainer.addEventListener('keydown', (e) => {
+      switch (e.key) {
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          focusNode(currentNodeIndex - 1);
+          e.preventDefault();
+          break;
+        case 'ArrowRight':
+        case 'ArrowDown':
+          focusNode(currentNodeIndex + 1);
+          e.preventDefault();
+          break;
+        case 'Home':
+          focusNode(0);
+          e.preventDefault();
+          break;
+        case 'End':
+          focusNode(nodeElements.length - 1);
+          e.preventDefault();
+          break;
+      }
+    });
+
+    // Focus first node by default
+    if (nodeElements.length > 0) {
+      nodeElements[0].focus();
+    }
+
+    return graphContainer;
+  }
 };

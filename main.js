@@ -424,6 +424,112 @@ function createInPageButton(parent = document.body) {
   return btn;
 }
 
+// New function to address ADD: Address new accessibility issues from insight report
+function validateFormAccessibility(form) {
+  // This function validates the accessibility of forms
+  const errors = [];
+
+  if (!form) {
+    return { valid: false, errors: ['Form element is required'] };
+  }
+
+  // Check if form has a label
+  const hasLabel = form.querySelector('label') || form.getAttribute('aria-label') || form.getAttribute('aria-labelledby');
+  if (!hasLabel) {
+    errors.push('Form is missing a label or aria-label/aria-labelledby');
+  }
+
+  // Check all form controls have labels
+  const inputs = form.querySelectorAll('input, textarea, select');
+  inputs.forEach((input, index) => {
+    const id = input.getAttribute('id');
+    const hasInputLabel = document.querySelector(`label[for="${id}"]`) ||
+                         input.getAttribute('aria-label') ||
+                         input.getAttribute('aria-labelledby') ||
+                         input.getAttribute('placeholder');
+
+    if (!hasInputLabel) {
+      errors.push(`Form control at index ${index} is missing a label`);
+    }
+  });
+
+  // Check for proper error message structure
+  const errorMessages = form.querySelectorAll('[aria-live="assertive"]');
+  errorMessages.forEach((error) => {
+    if (!error.getAttribute('role') || error.getAttribute('role') !== 'alert') {
+      errors.push('Error message is missing role="alert"');
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address ADD: Address new accessibility issues from insight report
+function validateImageAccessibility(img) {
+  // This function validates the accessibility of images
+  const errors = [];
+
+  if (!img) {
+    return { valid: false, errors: ['Image element is required'] };
+  }
+
+  // Check for alt attribute
+  const alt = img.getAttribute('alt');
+  if (!alt) {
+    errors.push('Image is missing alt attribute');
+  } else if (alt === '') {
+    // Check for decorative images
+    const role = img.getAttribute('role');
+    if (role !== 'presentation') {
+      errors.push('Image with empty alt attribute should have role="presentation"');
+    }
+  } else if (alt.length > 125) {
+    errors.push('Image alt text is too long (should be under 125 characters)');
+  }
+
+  // Check for ARIA attributes that might conflict with alt
+  const ariaHidden = img.getAttribute('aria-hidden');
+  if (ariaHidden === 'true' && alt) {
+    errors.push('Image with aria-hidden="true" should not have alt text');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address ADD: Address new accessibility issues from insight report
+function validateButtonAccessibility(button) {
+  // This function validates the accessibility of buttons
+  const errors = [];
+
+  if (!button) {
+    return { valid: false, errors: ['Button element is required'] };
+  }
+
+  // Check for accessible name
+  const textContent = button.textContent ? button.textContent.trim() : '';
+  const ariaLabel = button.getAttribute('aria-label');
+  const ariaLabelledby = button.getAttribute('aria-labelledby');
+  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
+
+  if (!hasAccessibleName) {
+    errors.push('Button is missing accessible name (text content, aria-label, or aria-labelledby)');
+  }
+
+  // Check for proper button type
+  const type = button.getAttribute('type');
+  if (!type || (type !== 'button' && type !== 'submit' && type !== 'reset')) {
+    errors.push('Button should have a valid type attribute (button, submit, or reset)');
+  }
+
+  // Check for redundant title attribute
+  const title = button.getAttribute('title');
+  if (title && title === textContent) {
+    errors.push('Button title attribute duplicates button text');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
 // TODO: Implement a function to count dependencies
 function countDependencies() {
   // Existing function implementation
@@ -442,6 +548,9 @@ function exampleFunction() {
 
 // TODO: Implement actual logic for functionA
 function functionA() {
+
+// TODO: Implement tower defense
+function towerDefense() {
   // A simple tower defense game implementation
   // Define towers, enemies, waves, and game loop
   const towers = [];
@@ -634,6 +743,10 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
+  validateFormAccessibility,
+  validateImageAccessibility,
+  validateButtonAccessibility,
+  towerDefense,
   functionA,
   countDependencies,
   exampleFunction

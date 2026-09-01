@@ -263,4 +263,43 @@ function validateSvgAccessibility() {
   return { valid: errors.length === 0, errors };
 }
 
+// New function to address REACT_027: Apply missing scope to table header cells
+function fixTableHeaderScope(tableElement) {
+  if (typeof document === 'undefined') {
+    return false;
+  }
+  if (!tableElement) {
+    tableElement = document.querySelector('table');
+  }
+  if (!tableElement) {
+    return false;
+  }
+
+  const headers = tableElement.querySelectorAll('th');
+  headers.forEach(function (th) {
+    if (!th.hasAttribute('scope')) {
+      const closestRow = typeof th.closest === 'function' ? th.closest('tr') : null;
+      const inThead = typeof th.closest === 'function' ? !!th.closest('thead') : false;
+      const inTfoot = typeof th.closest === 'function' ? !!th.closest('tfoot') : false;
+
+      if (inThead || inTfoot) {
+        th.setAttribute('scope', 'col');
+      } else if (closestRow && th === closestRow.querySelector('th, td')) {
+        th.setAttribute('scope', 'row');
+      } else {
+        th.setAttribute('scope', 'col');
+      }
+    }
+  });
+  return true;
+}
+
+function applyTableAccessibilityFix() {
+  if (typeof document === 'undefined') return;
+  const tables = document.querySelectorAll('table');
+  tables.forEach(function (table) {
+    fixTableHeaderScope(table);
+  });
+}
+
 // New function to address REACT_

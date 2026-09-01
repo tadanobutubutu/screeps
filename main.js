@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (typically in index.html, not main.js)
@@ -55,7 +56,7 @@ function createInPageButton() {
  * @param {HTMLElement} element - The element to ensure has an ID
  * @returns {string} The element's ID (existing or newly generated)
  */
-export function ensureElementHasId(element) {
+function ensureElementHasId(element) {
   if (!element.id) {
     element.id = `generated-id-${Math.random().toString(36).substr(2, 9)}`;
   }
@@ -68,7 +69,7 @@ export function ensureElementHasId(element) {
  * @param {string} label - The label text
  * @returns {HTMLElement} The element for chaining
  */
-export function addAriaLabel(element, label) {
+function addAriaLabel(element, label) {
   if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
     element.setAttribute('aria-label', label);
   }
@@ -96,7 +97,7 @@ function addARIARole(container, role) {
  * @param {HTMLElement} container - The container element to render into
  * @returns {HTMLElement} The container element
  */
-export function renderDependencyGraph(graphData, container) {
+function renderDependencyGraph(graphData, container) {
   if (!container) {
     throw new Error('Container element is required');
   }

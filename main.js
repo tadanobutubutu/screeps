@@ -102,6 +102,8 @@ function addLangAttribute() {
   }
 }
 
+// TODO: This is the existing code that needs to be preserved
+
 // ... other new functions ...
 
 // Exports

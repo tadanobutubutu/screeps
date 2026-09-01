@@ -12,15 +12,19 @@ const appState = {
 };
 
 function validateLandmark(landmark) {
-  const errors = [];
-  // Existing code that should be preserved
-  // Update landmark validation logic if needed
-  const role = landmark.getAttribute('role');
-  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role');
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+
+  if (!landmark.tagName) {
+    issues.push('Missing tagName');
+  } else if (!validLandmarks.includes(landmark.tagName.toLowerCase())) {
+    issues.push(`Invalid landmark: ${landmark.tagName}`);
   }
-  return errors;
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
 }
 
 const appData = {
@@ -108,27 +112,6 @@ function validateTableStructure(tables) {
   return {
     success: allIssues.length === 0,
     issues: allIssues
-  };
-}
-
-/**
- * Validates landmark elements for accessibility
- * @param {Object} element - The element to validate
- * @returns {Object} Validation result with success status and any issues found
- */
-function validateLandmark(element) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-
-  if (!element.tagName) {
-    issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${element.tagName}`);
-  }
-
-  return {
-    success: issues.length === 0,
-    issues
   };
 }
 

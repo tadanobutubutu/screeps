@@ -170,7 +170,7 @@ function ensureUniqueLandmarks() {
     ...
     'footer[role="contentinfo"]'
   ].join(', '));
-  
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation
@@ -291,3 +291,110 @@ ensureUniqueLandmarks();
 const svg = ...
 const accessibleName = getSvgAccessibleName(svg);
 set
+
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
+// New function to handle SVG accessibility as per REACT_041
+function setSvgAccessibilityProps(svgElement, accessibleName) {
+  if (!svgElement) return;
+
+  // Set ARIA attributes for better accessibility
+  svgElement.setAttribute('role', 'img');
+  svgElement.setAttribute('aria-label', accessibleName);
+
+  // Ensure SVG has a title element for additional accessibility
+  let titleElement = svgElement.querySelector('title');
+  if (!titleElement) {
+    titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    svgElement.insertBefore(titleElement, svgElement.firstChild);
+  }
+  titleElement.textContent = accessibleName;
+}
+
+// New function to add proper landmark regions as per REACT_037
+function addProperLandmarkRegions() {
+  // Ensure main content area has proper landmark
+  const mainContent = document.querySelector('main');
+  if (mainContent && !mainContent.hasAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
+
+  // Ensure navigation has proper landmark
+  const navigation = document.querySelector('nav');
+  if (navigation && !navigation.hasAttribute('role')) {
+    navigation.setAttribute('role', 'navigation');
+  }
+
+  // Ensure footer has proper landmark
+  const footer = document.querySelector('footer');
+  if (footer && !footer.hasAttribute('role')) {
+    footer.setAttribute('role', 'contentinfo');
+  }
+}
+
+// New function to handle fake links as per REACT_036
+function handleFakeLinks() {
+  // Find all elements that look like links but aren't
+  const fakeLinks = document.querySelectorAll('[role="link"], [class*="link"], [id*="link"]');
+
+  fakeLinks.forEach(link => {
+    // If it's not a real link, convert it to a button or add proper ARIA
+    if (link.tagName !== 'A' || !link.hasAttribute('href')) {
+      link.setAttribute('role', 'button');
+      link.setAttribute('tabindex', '0');
+
+      // Add click handler for keyboard accessibility
+      link.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          link.click();
+        }
+      });
+    }
+  });
+}
+
+// Initialize accessibility features when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  // Add lang attribute to HTML element
+  addLangAttribute();
+
+  // Create in-page button with accessibility considerations
+  createInPageButton();
+
+  // Validate table structure and accessibility
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
+
+  // Add/fix landmark issues
+  validateLandmark();
+  validateLandmarkStructure();
+  ensureUniqueLandmarks();
+  addProperLandmarkRegions();
+
+  // Add accessible names to SVGs
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      setSvgAccessibilityProps(svg, accessibleName);
+    }
+  });
+
+  // Handle fake links
+  handleFakeLinks();
+
+  // Handle all accessibility issues
+  handleAccessibilityIssues();
+});

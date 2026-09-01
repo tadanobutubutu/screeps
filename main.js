@@ -2,6 +2,15 @@
 const { dependencyGraphContent } = require('./dependency-graph');
 const { indexContent } = require('./index-template');
 
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+
 // TODO: Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 
@@ -19,7 +28,7 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
@@ -69,11 +78,11 @@ async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received');
   }
-  
+
   if (response.error) {
     throw new Error(response.error);
   }
-  
+
   if (response.token) {
     return {
       success: true,
@@ -81,7 +90,7 @@ async function handleCredentialResponse(response) {
       expiresIn: response.expiresIn || 3600
     };
   }
-  
+
   throw new Error('Invalid credential response');
 }
 
@@ -107,7 +116,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader('Download of ' + filename + ' started');
   },
@@ -121,11 +130,11 @@ const exportUtils = {
     if (!data || data.length === 0) {
       return;
     }
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (let i = 0; i < data.length; i++) {
       const row = data[i];
       const values = headers.map(function(header) {
@@ -134,7 +143,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }

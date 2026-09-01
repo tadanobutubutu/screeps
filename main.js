@@ -11,6 +11,7 @@ class User {
 // Landmark data structure
 const landmarks = [];
 
+// TODO: This is the existing code that needs to be preserved
 // TODO: Implement spawning logic
 function spawnNewUser(name, age) {
     return new User(name, age);

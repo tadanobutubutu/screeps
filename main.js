@@ -231,8 +231,30 @@ function addLangAttribute(element) {
 }
 
 /**
- * Validates link accessibility
- * @param {Object} link - The link element to validate
+ * Sets SVG attributes to ensure accessibility
+ * @param {Object} svg - The SVG element to modify
+ * @param {Object} options - Accessibility options
+ * @param {string} options.ariaLabel - ARIA label for the SVG
+ * @param {string} options.ariaLabelledby - ARIA labelledby reference
+ * @param {string} options.title - Title for the SVG
+ * @returns {Object} Modified SVG element
+ */
+function setSvgAttributes(svg, options) {
+  if (options.ariaLabel) {
+    svg.ariaLabel = options.ariaLabel;
+  }
+  if (options.ariaLabelledby) {
+    svg.ariaLabelledby = options.ariaLabelledby;
+  }
+  if (options.title) {
+    svg.title = options.title;
+  }
+  return svg;
+}
+
+/**
+ * Validates link accessibility compliance
+ * @param {Object} link - The link object to validate
  * @returns {Object} Validation result with success status and any issues found
  */
 function validateLinkAccessibility(link) {
@@ -244,6 +266,10 @@ function validateLinkAccessibility(link) {
 
   if (!link.text && !link.ariaLabel) {
     issues.push('Missing both text content and aria-label');
+  }
+
+  if (link.isFake) {
+    issues.push('Fake link detected');
   }
 
   return {
@@ -263,17 +289,6 @@ function handleFakeLinks(link) {
     ariaLabel: link.ariaLabel,
     onClick: link.onClick
   });
-}
-
-/**
- * Sets SVG attributes for better accessibility
- * @param {Object} svg - The SVG element to modify
- * @returns {Object} The modified SVG element
- */
-function setSvgAttributes(svg) {
-  svg.ariaLabel = getSvgAccessibleName(svg);
-  svg.role = 'img';
-  return svg;
 }
 
 /**
@@ -380,13 +395,13 @@ module.exports = {
   validateLandmarkStructure,
   ensureUniqueLandmarks,
   getSvgAccessibleName,
+  setSvgAttributes,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues,
-  addLangAttribute,
   validateLinkAccessibility,
   handleFakeLinks,
-  setSvgAttributes,
+  handleAccessibilityIssues,
+  addLangAttribute,
   ensureUniqueLandmarksFromString,
   addProperLandmarkRegions,
   countDependencies,

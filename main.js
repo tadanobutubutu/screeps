@@ -1,38 +1,7 @@
 // Existing code preserved
 
-// New function implementation
-function addProperLandmarkRegions() {
-  // Implementation details go here
-  // This is a placeholder for the actual implementation
-  console.log('Adding proper landmark regions...');
-}
-
-// Preserve existing exports
-export function someExistingFunction() {
-  // Existing function code
-}
-
-export function anotherExistingFunction() {
-  // Another existing function code
-}
-
-// Call the new function if needed in the existing code
-// Example usage:
-// addProperLandmarkRegions();
-
-// TODO: This is the existing code that needs to be preserved
-
-// REACT_015: Add lang attribute to the <html> element
-function addLangAttribute(html, lang = 'en') {
-    if (typeof html !== 'string') return html;
-    return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-        if (/\blang=/i.test(match)) return match;
-        return `<html${attrs} lang="${lang}">`;
-    });
-}
-
-// REACT_027: Fix table structure issues (add thead, tbody, th scope, caption)
-function fixTableStructure(html) {
+// New functions implementation (merged with REACT_027: Fix table structure issues)
+function fixTableStructureAndLandmarks(html, nominalBoundary) {
     if (typeof html !== 'string') return html;
 
     // Ensure every table has a caption
@@ -62,7 +31,7 @@ function fixTableStructure(html) {
         tbody = `<tbody>${tbody}</tbody>`;
 
         // Add the new function call for handling landmark regions
-        const properLandmarkRegions = addProperLandmarkRegions();
+        const properLandmarkRegions = handleProperLandmarkRegions(nominalBoundary);
         const tableContent = `<thead>${thead}</thead>${tbody}${properLandmarkRegions}`;
 
         return `<table${attrs}>${tableContent}</table>`;
@@ -77,9 +46,8 @@ function fixTableStructure(html) {
     return html;
 }
 
-// Your additional code for proper landmark regions handling
-function handleProperLandmarkRegions(nom nominalBoundary) {
-    // Implementation for handling proper landmark regions
+// Implementation for handling proper landmark regions
+function handleProperLandmarkRegions(nominalBoundary) {
     const dist = new NomicNominalDistance(nominalBoundary);
     const landmarkRegions = [];
 
@@ -95,12 +63,12 @@ function handleProperLandmarkRegions(nom nominalBoundary) {
 
             const distanceAtCenter = dist.distance(linkPosition, centerPosition);
 
-            if (distanceAtCenter <= nom) {
+            if (distanceAtCenter <= nominalBoundary) {
                 landmarkRegions.push({
                     roomName: room.name,
                     landmark: 'landmark_spawn'
                 });
-            } else if (distanceAtCenter <= 2 * nom) {
+            } else if (distanceAtCenter <= 2 * nominalBoundary) {
                 landmarkRegions.push({
                     roomName: room.name,
                     landmark: 'landmark_outpost'
@@ -116,20 +84,14 @@ function handleProperLandmarkRegions(nom nominalBoundary) {
 }
 
 // Merged function with REACT_027: Fix table structure issues and handle proper landmark regions
-function fixTableStructureAndLandmarks(html, nominalBoundary) {
-    // ... the existing code until the line where thead is declared ...
-
-    // Add the new function call for handling landmark regions
-    const properLandmarkRegions = handleProperLandmarkRegions(nominalBoundary);
-    const tableContent = `<thead>${thead}</thead>${tbody}${properLandmarkRegions}`;
-
-    // ... the remaining code ...
+export function fixTableStructureAndLandmarks(html, nominalBoundary) {
+    return fixTableStructureAndLandmarks(html, nominalBoundary);
 }
 
 // Your additional Setup Function
-function setup() {
+function setup(nominalBoundary) {
     // your setup logic here
-    const nom = 3;
+    const nom = nominalBoundary || 3;
     Nom = nom;
     const landmarkRegionsTableBody = document.querySelector('#landmark-regions table tbody');
 

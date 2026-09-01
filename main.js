@@ -163,21 +163,15 @@ const accessibilityUtils = {
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
-const ensureElementIdOrigin = (element) => {
+// Remove duplicate declaration of addAriaLabel
+const ensureElementId = (element) => {
     if (element && !element.id) {
         element.id = 'element-' + Date.now() + '-' + Math.random().toString(36).slice(2, 11);
     }
     return element;
 };
 
-const addAriaLabelOrigin = (element, label) => {
-    if (element) {
-        element.setAttribute('aria-label', label);
-    }
-    return element;
-};
-
-const renderDependencyGraphOrigin = (data) => {
+const renderDependencyGraph = (data) => {
     // Implementation for rendering dependency graphs
     return {
         nodes: data.nodes || [],
@@ -192,7 +186,7 @@ function calculateSum(a, b) {
 }
 
 // Credential response handling
-async function handleCredentialResponseOrigin(response) {
+async function handleCredentialResponse(response) {
     if (!response) {
         throw new Error('No response received');
     }
@@ -963,96 +957,12 @@ function transformInputData(inputData, options = {}) {
 // Export the newFocusTrap function as a standalone utility
 const newFocusTrap = accessibilityUtils.newFocusTrap;
 
-// New functions for the issue
-/**
- * Ensures an element has an ID, generating one if needed
- * @param {HTMLElement} element - The element to check
- * @param {string} [prefix='element'] - Prefix for generated ID
- * @returns {string} The element's ID
- */
-function ensureElementHasIdNew(element, prefix = 'element') {
-    if (!element) {
-        throw new Error('Element is required');
-    }
-
-    if (element.id) {
-        return element.id;
-    }
-
-    const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-    element.id = id;
-    return id;
-}
-
-/**
- * Adds an aria-label to an element
- * @param {HTMLElement} element - The element to modify
- * @param {string} label - The accessible label
- * @returns {HTMLElement} The modified element
- */
-function addAriaLabelNew(element, label) {
-    if (!element) {
-        throw new Error('Element is required');
-    }
-
-    if (!label || typeof label !== 'string') {
-        throw new Error('Valid label string is required');
-    }
-
-    element.setAttribute('aria-label', label);
-    return element;
-}
-
-/**
- * Renders dependency graphs in the DOM
- * @param {Object} graphData - Data for the dependency graph
- * @param {HTMLElement} container - Container element to render into
- * @returns {HTMLElement} The rendered graph element
- */
-function renderDependencyGraphsNew(graphData, container) {
-    if (!graphData || !container) {
-        throw new Error('Graph data and container are required');
-    }
-
-    // Create graph container
-    const graphContainer = document.createElement('div');
-    graphContainer.className = 'dependency-graph';
-    graphContainer.setAttribute('role', 'region');
-    graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
-
-    // Create nodes
-    if (graphData.nodes) {
-        graphData.nodes.forEach((node) => {
-            const nodeElement = document.createElement('div');
-            nodeElement.className = 'graph-node';
-            nodeElement.id = node.id || `node-${Math.random().toString(36).substr(2, 9)}`;
-            nodeElement.textContent = node.label || 'Unnamed Node';
-            nodeElement.setAttribute('aria-label', `Node: ${node.label || 'Unnamed'}`);
-            graphContainer.appendChild(nodeElement);
-        });
-    }
-
-    // Create edges
-    if (graphData.edges) {
-        graphData.edges.forEach((edge) => {
-            const edgeElement = document.createElement('div');
-            edgeElement.className = 'graph-edge';
-            edgeElement.setAttribute('aria-hidden', 'true');
-            // In a real implementation, you would position these elements to connect nodes
-            graphContainer.appendChild(edgeElement);
-        });
-    }
-
-    container.appendChild(graphContainer);
-    return graphContainer;
-}
-
 // Export all utilities
 module.exports = {
     ...main,
     ...accessibilityUtils,
     ensureElementId,
-    ensureElementHasId: ensureElementHasIdNew,
+    ensureElementHasId,
     newFocusTrap,
     log,
     sanitizeFilename,
@@ -1074,17 +984,10 @@ module.exports = {
     getSvgAccessibleName,
     createInPageButton,
     createWebResourceButton,
-    addAriaLabel: addAriaLabelNew,
-    renderDependencyGraphs: renderDependencyGraphsNew,
-    // Existing functions with renamed versions
-    ensureElementHasIdOrigin,
-    addAriaLabelOrigin,
-    renderDependencyGraphOrigin,
-    handleCredentialResponseOrigin,
-    // Other existing exports
-    calculateSum,
-    exportUtils,
-    ensureUniqueLandmarks,
-    addressAccessibilityIssues,
-    validateAccessibilityReport,
+    getTables,
+    getConfig,
+    setConfig,
+    addAccessibleName,
+    renderAdditionalContent,
+    renderDependencyGraphs,
 };

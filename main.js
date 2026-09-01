@@ -5,7 +5,7 @@
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
@@ -22,7 +22,7 @@ function ensureElementHasId(element, prefix = 'element') {
   }
   
   if (!element.id) {
-    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `${prefix}-${Date.now().toString(36)}`;
   }
   
   return element.id;
@@ -92,14 +92,14 @@ function addressAccessibilityIssues(container) {
   const htmlElement = container || document.documentElement;
   const langAttr = getLangAttribute(htmlElement);
   if (!langAttr) {
-    addLangAttribute(htmlElement, 'en');
+    htmlElement.setAttribute('lang', 'en');
     fixes.langAdded = true;
   }
 
   // Add main landmark if missing
-  const mainElement = container.querySelector('main') || container.querySelector('[role="main"]');
+  const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
   if (!mainElement) {
-    const body = container.querySelector('body');
+    const body = document.body;
     if (body) {
       const newMain = document.createElement('main');
       while (body.firstChild) {
@@ -121,20 +121,20 @@ function addressAccessibilityIssues(container) {
   }
 
   // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg');
+  const svgElements = container ? container.querySelectorAll('svg') : document.querySelectorAll('svg');
   svgElements.forEach(svg => {
     const accessibleName = getSvgAccessibleName(svg);
     if (accessibleName && accessibleName.trim()) {
-      setSvgAccessibilityProps(svg, accessibleName);
+      setSvgAttributes(svg, accessibleName);
       fixes.svgNamesAdded++;
     }
   });
 
   // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('[role="link"], a:not([href])');
+  const fakeLinks = (container || document).querySelectorAll('a:not([href])');
   fakeLinks.forEach(link => {
     const style = window.getComputedStyle(link);
-    if (style.cursor === 'pointer' || link.hasAttribute('onclick')) {
+    if (style.cursor === 'pointer' || link.onclick) {
       link.setAttribute('role', 'link');
       link.setAttribute('tabindex', '0');
       fixes.fakeLinksFixed++;
@@ -171,7 +171,7 @@ function addressAccessibilityIssues(container) {
   }
 
   return fixes;
-},
+}
 
 // New feature: Priority-based task scheduling
 class ScreepsBot {
@@ -206,7 +206,7 @@ class ScreepsBot {
   }
 
   // New feature: Priority-based task scheduling
-  addTaskWithPriority(taskFn, priority = 'medium') {
+  addTask(taskFn, priority = 'medium') {
     this.tasks.push({ task: taskFn, priority });
     this.scheduleTasks();
   }
@@ -247,7 +247,7 @@ function newFunction() {
 }
 
 // Implement the function for addressing accessibility issues from insight report
-function implementAccessibilityFixesFromReport(container, containerReport) {
+function validateAccessibilityReport(containerReport) {
   const fixes = {
     langAdded: false,
     mainLandmarkAdded: false,
@@ -257,23 +257,27 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
   };
 
   // Accessibility-related functions
-  getLangAttribute = getLangAttributeImpl || function() { return getLangAttributeImpl. call(this); },
-  createInPageButton = createInPageButtonImpl || function() { return createInPageButtonImpl. call(this); },
+  const getLangAttribute = function(htmlElement) {
+    return htmlElement.getAttribute('lang');
+  };
+  const createInPageButton = function() {
+    return document.createElement('button');
+  };
 
   // Main logic from the original implementation
-  if (container) {
+  if (containerReport) {
     // Add lang attribute if missing
-    const htmlElement = container || document.documentElement;
+    const htmlElement = containerReport || document.documentElement;
     const langAttr = getLangAttribute(htmlElement);
     if (!langAttr) {
-      addLangAttribute(htmlElement, 'en');
+      htmlElement.setAttribute('lang', 'en');
       fixes.langAdded = true;
     }
 
     // Add main landmark if missing
-    const mainElement = container.querySelector('main') || container.querySelector('[role="main"]');
+    const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
     if (!mainElement) {
-      const body = container.querySelector('body');
+      const body = document.body;
       if (body) {
         const newMain = document.createElement('main');
         while (body.firstChild) {
@@ -285,30 +289,30 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
     }
 
     // Fix landmark issues
-    const landmarkFixes = validateLandmark(container);
+    const landmarkFixes = validateLandmark(containerReport);
     if (landmarkFixes && landmarkFixes.length > 0) {
       fixes.landmarksFixed = landmarkFixes.length;
     }
-    const landmarkStructureFixes = validateLandmarkStructure(container);
+    const landmarkStructureFixes = validateLandmarkStructure(containerReport);
     if (landmarkStructureFixes && landmarkStructureFixes.length > 0) {
       fixes.landmarksFixed += landmarkStructureFixes.length;
     }
 
     // Fix SVG accessible names
-    const svgElements = container.querySelectorAll('svg');
+    const svgElements = containerReport.querySelectorAll('svg');
     svgElements.forEach(svg => {
       const accessibleName = getSvgAccessibleName(svg);
       if (accessibleName && accessibleName.trim()) {
-        setSvgAccessibilityProps(svg, accessibleName);
+        setSvgAttributes(svg, accessibleName);
         fixes.svgNamesAdded++;
       }
     });
 
     // Fix fake link issues
-    const fakeLinks = container.querySelectorAll('[role="link"], a:not([href])');
+    const fakeLinks = containerReport.querySelectorAll('a:not([href])');
     fakeLinks.forEach(link => {
       const style = window.getComputedStyle(link);
-      if (style.cursor === 'pointer' || link.hasAttribute('onclick')) {
+      if (style.cursor === 'pointer' || link.onclick) {
         link.setAttribute('role', 'link');
         link.setAttribute('tabindex', '0');
         fixes.fakeLinksFixed++;
@@ -316,7 +320,7 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
     });
 
     // Validate accessibility report
-    const report = validateAccessibilityReport(container);
+    const report = validateTableAccessibility(containerReport);
     if (report && report.length > 0) {
       log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
     }
@@ -345,6 +349,7 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
     }
 
     return fixes;
+  }
 }
 
 // Existing function

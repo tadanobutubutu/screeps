@@ -1,3 +1,5 @@
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice
 // main.js - Application entry point
 // TODO: Existing main.js content before the merge conflict...
 // TODO: This is the existing code that needs to be preserved

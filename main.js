@@ -29,10 +29,10 @@ const {
  * @returns {string} The current lang attribute value
  */
 function getLangAttribute() {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    return document.documentElement.lang || '';
-  }
-  return '';
+    if (typeof document !== 'undefined' && document.documentElement) {
+        return document.documentElement.lang || '';
+    }
+    return '';
 }
 
 /**
@@ -41,27 +41,27 @@ function getLangAttribute() {
  * @returns {string} The detected language code
  */
 function detectAndSetLang(content) {
-  // Simple language detection based on common patterns
-  let lang = 'en'; // Default to English
+    // Simple language detection based on common patterns
+    let lang = 'en'; // Default to English
 
-  if (content) {
-    // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
-      lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
-      lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
-      lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
-      lang = 'ar'; // Arabic
-    } else if (/[éèêàâïîôùûüç]/i.test(content)) {
-      lang = 'fr'; // French
-    } else if (/[äöüß]/i.test(content)) {
-      lang = 'de'; // German
+    if (content) {
+        // Check for common non-ASCII characters to help detect language
+        if (/[\u4e00-\u9fff]/.test(content)) {
+            lang = 'zh'; // Chinese
+        } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
+            lang = 'ja'; // Japanese
+        } else if (/[\u0400-\u04ff]/.test(content)) {
+            lang = 'ru'; // Russian/Cyrillic
+        } else if (/[\u0600-\u06ff]/.test(content)) {
+            lang = 'ar'; // Arabic
+        } else if (/[éèêàâïîôùûüç]/i.test(content)) {
+            lang = 'fr'; // French
+        } else if (/[äöüß]/i.test(content)) {
+            lang = 'de'; // German
+        }
     }
-  }
 
-  return lang;
+    return lang;
 }
 
 // Implement the function for addressing accessibility issues from insight report
@@ -79,8 +79,7 @@ function addressAccessibilityIssues(container, insightReport) {
     }
 
     // Add lang attribute to HTML element if missing
-    const htmlEl =
-        container.ownerDocument && container.ownerDocument.documentElement;
+    const htmlEl = container.ownerDocument && container.ownerDocument.documentElement;
     if (htmlEl && !htmlEl.lang) {
         htmlEl.setAttribute('lang', 'en');
         fixes.langAdded = true;
@@ -188,8 +187,8 @@ function checkAccessibility(content) {
  * @returns {boolean} Whether the landmark structure is valid
  */
 function validateLandmarkStructure(element) {
-  if (!element || typeof element !== 'object') return true;
-  return true;
+    if (!element || typeof element !== 'object') return true;
+    return true;
 }
 
 /**
@@ -198,8 +197,8 @@ function validateLandmarkStructure(element) {
  * @returns {string} The accessible name of the SVG
  */
 function getSvgAccessibleName(svg) {
-  if (!svg || typeof svg !== 'object') return '';
-  return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
+    if (!svg || typeof svg !== 'object') return '';
+    return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
 }
 
 /**
@@ -208,12 +207,12 @@ function getSvgAccessibleName(svg) {
  * @returns {HTMLElement} The created button element
  */
 function createInPageButton(parent = document.body) {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.setAttribute('role', 'button');
-  btn.setAttribute('aria-label', 'Open modal');
-  parent.appendChild(btn);
-  return btn;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('role', 'button');
+    btn.setAttribute('aria-label', 'Open modal');
+    parent.appendChild(btn);
+    return btn;
 }
 
 /**
@@ -222,8 +221,8 @@ function createInPageButton(parent = document.body) {
  * @returns {boolean} Whether the table is accessible
  */
 function validateTableAccessibility(table) {
-  if (!table || typeof table !== 'object') return true;
-  return true;
+    if (!table || typeof table !== 'object') return true;
+    return true;
 }
 
 /**
@@ -232,8 +231,8 @@ function validateTableAccessibility(table) {
  * @returns {boolean} Whether the table structure is valid
  */
 function validateTableStructure(table) {
-  if (!table || typeof table !== 'object') return true;
-  return true;
+    if (!table || typeof table !== 'object') return true;
+    return true;
 }
 
 /**
@@ -242,8 +241,8 @@ function validateTableStructure(table) {
  * @returns {boolean} Whether the landmark is valid
  */
 function validateLandmark(element) {
-  if (!element || typeof element !== 'object') return true;
-  return true;
+    if (!element || typeof element !== 'object') return true;
+    return true;
 }
 
 /**
@@ -254,80 +253,82 @@ function validateLandmark(element) {
  * @returns {Object} The generated accessibility report
  */
 function generateAccessibilityReport(options = {}) {
-  const report = {
-    timestamp: new Date().toISOString(),
-    tables: [],
-    landmarks: [],
-    svgs: []
-  };
+    const report = {
+        timestamp: new Date().toISOString(),
+        tables: [],
+        landmarks: [],
+        svgs: [],
+    };
 
-  // Check tables if enabled
-  if (options.includeTables && typeof document !== 'undefined') {
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-      report.tables.push({
-        element: table,
-        isAccessible: validateTableAccessibility(table),
-        isValidStructure: validateTableStructure(table)
-      });
-    });
-  }
+    // Check tables if enabled
+    if (options.includeTables && typeof document !== 'undefined') {
+        const tables = document.querySelectorAll('table');
+        tables.forEach((table) => {
+            report.tables.push({
+                element: table,
+                isAccessible: validateTableAccessibility(table),
+                isValidStructure: validateTableStructure(table),
+            });
+        });
+    }
 
-  // Check landmarks if enabled
-  if (options.includeLandmarks && typeof document !== 'undefined') {
-    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
-    landmarks.forEach(landmark => {
-      report.landmarks.push({
-        element: landmark,
-        isValid: validateLandmark(landmark),
-        isValidStructure: validateLandmarkStructure(landmark)
-      });
-    });
-  }
+    // Check landmarks if enabled
+    if (options.includeLandmarks && typeof document !== 'undefined') {
+        const landmarks = document.querySelectorAll(
+            '[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]'
+        );
+        landmarks.forEach((landmark) => {
+            report.landmarks.push({
+                element: landmark,
+                isValid: validateLandmark(landmark),
+                isValidStructure: validateLandmarkStructure(landmark),
+            });
+        });
+    }
 
-  // Check SVGs
-  if (typeof document !== 'undefined') {
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach(svg => {
-      report.svgs.push({
-        element: svg,
-        accessibleName: getSvgAccessibleName(svg)
-      });
-    });
-  }
+    // Check SVGs
+    if (typeof document !== 'undefined') {
+        const svgs = document.querySelectorAll('svg');
+        svgs.forEach((svg) => {
+            report.svgs.push({
+                element: svg,
+                accessibleName: getSvgAccessibleName(svg),
+            });
+        });
+    }
 
-  return report;
+    return report;
 }
 
 // REACT_015: Add lang attribute to HTML element
 // Add the language attribute to the HTML element for proper accessibility
 if (typeof document !== 'undefined' && document.documentElement) {
-  const content = document.body ? document.body.textContent || '' : '';
-  const detectedLang = detectAndSetLang(content);
-  document.documentElement.setAttribute('lang', detectedLang);
+    const content = document.body ? document.body.textContent || '' : '';
+    const detectedLang = detectAndSetLang(content);
+    document.documentElement.setAttribute('lang', detectedLang);
 }
 
 module.exports = {
-  createInPageButton,
-  createWebResourceButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  handleCredentialResponse,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility,
-  generateAccessibilityReport
+    createInPageButton,
+    createWebResourceButton,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    getLangAttribute,
+    validateAccessibilityReport,
+    exportUtils,
+    addressAccessibilityIssues,
+    handleCredentialResponse,
+    ensureElementHasId,
+    ensureElementHasIdOrigin,
+    addAriaLabel,
+    renderDependencyGraphs,
+    fixButtonIdentifiers,
+    fixDependencyGraphAria,
+    addMainLandmarkToIndex,
+    focusTrap,
+    checkAccessibility,
+    generateAccessibilityReport,
 };

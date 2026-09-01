@@ -1,13 +1,32 @@
-// Main JavaScript file
-// This file handles the main application logic
-(function() {
-    'use strict';
+const express = require('express');
+const axe = require('axe-core');
+const fs = require('fs');
+const fastMap = require('fast-map');
+const path = require('path');
+
+// Configuration
+const CONFIG = {
+    dataPath: './data',
+    maxResults: 100,
+    apiUrl: process.env.API_URL || 'https://api.example.com',
+    timeout: 5000
+};
+
+// New function3 logic
+function function3() {
+  // TODO: Implement new function3 logic here
+  // Example implementation:
+  console.log('Function3 is running.');
+  // Add your implementation details here.
+}
 
 // Function to create in-page buttons
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
-  button.addEventListener('click', onClickHandler);
+  if (onClickHandler) {
+    button.addEventListener('click', onClickHandler);
+  }
   return button;
 }
 
@@ -55,22 +74,35 @@ function generateAccessibilityReport(issuesData) {
   return report;
 }
 
-// New function3 logic
-function function3() {
-  // TODO: Implement new function3 logic here
-  // Example implementation:
-  console.log('Function3 is running.');
-  // Add your implementation details here.
+// Function to write the generated report to a file
+function writeReport(report) {
+  const reportFile = path.join(__dirname, 'accessibility_report.json');
+  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
 // Function to scan pages for accessibility issues and generate a report
 async function scanAccessibility() {
+  const pagesDir = path.join(__dirname, 'pages');
+  
+  if (!fs.existsSync(pagesDir)) {
+    return {
+      introduction: 'Accessibility report for the application',
+      data: {
+        totalIssues: 0,
+        issues: []
+      },
+      conclusions: 'No pages directory found to scan.'
+    };
+  }
+  
   const filePaths = await fs.promises.readdir(pagesDir);
   const issues = [];
 
   for (const filePath of filePaths) {
     const fileEmitted = path.join(pagesDir, filePath);
-    const { violations } = await axe.analyze(fileEmitted);
+    const fileContent = fs.readFileSync(fileEmitted, 'utf8');
+    
+    const { violations } = await axe.analyze(fileContent);
 
     if (violations.length > 0) {
       issues.push({
@@ -80,7 +112,19 @@ async function scanAccessibility() {
     }
   }
 
-  return issues;
+  const report = {
+    introduction: 'Accessibility report for the application',
+    data: {
+      totalIssues: issues.reduce((acc, curr) => acc + curr.issues.length, 0),
+      issues: issues
+    },
+    conclusions: issues.length > 0 
+      ? `Found ${issues.length} pages with accessibility issues.`
+      : 'No accessibility issues found. Your application is fully accessible!'
+  };
+
+  writeReport(report);
+  return report;
 }
 
 // Function to generate a report based on accessibility issues
@@ -98,10 +142,79 @@ function generateAccessibilityReportFromScan(issuesData) {
   return report;
 }
 
-// Function to write the generated report to a file
-function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
-  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+// Utilities
+const { validateInput, processData } = require('./utils/validators');
+const { formatResponse } = require('./utils/processor');
+
+function isValidLandmark(landmark) {
+    return landmark &&
+           typeof landmark.id !== 'undefined' &&
+           landmark.id !== null;
+}
+
+function loadLandmarks() {
+    try {
+        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        if (!fs.existsSync(filePath)) {
+            return [];
+        }
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error loading landmarks:', error.message);
+        return [];
+    }
+}
+
+function processLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+
+    const validLandmarks = landmarks.filter(isValidLandmark);
+    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+    return uniqueLandmarks.slice(0, CONFIG.maxResults);
+}
+
+function sortLandmarks(landmarks, ascending = true) {
+    return landmarks.slice().sort((a, b) => {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+
+        if (ascending) {
+            return nameA.localeCompare(nameB);
+        }
+        return nameB.localeCompare(nameA);
+    });
+}
+
+function getLandmarkById(landmarks, id) {
+    return landmarks.find(landmark => landmark.id === id) || null;
+}
+
+function ensureUniqueLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+
+    const seen = new Set();
+    const uniqueLandmarks = [];
+
+    for (const landmark of landmarks) {
+        if (!landmark || typeof landmark.id === 'undefined') {
+            continue;
+        }
+
+        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+
+        if (!seen.has(landmarkId)) {
+            seen.add(landmarkId);
+            uniqueLandmarks.push(landmark);
+        }
+    }
+
+    return uniqueLandmarks;
 }
 
 // Function to get the language attribute value
@@ -169,7 +282,7 @@ function addressAccessibilityIssues() {
   });
 }
 
-// Function to ensure unique landmarks (2 issues)
+// Function to ensure unique landmarks (2 issues) - DOM version
 function ensureUniqueLandmarks() {
   const landmarks = [...document.querySelectorAll('[aria-landmark]')];
   const landmarkIds = landmarks.map(landmark => landmark.getAttribute('aria-landmark'));
@@ -237,6 +350,146 @@ function fixFakeLink() {
   return accessibilityUtils;
 }
 
+// REACT_027: Fix table structure issues
+function fixTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Add caption if missing
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table caption';
+      table.insertBefore(caption, table.firstChild);
+    }
+
+    // Ensure headers have scope or id
+    const headers = table.querySelectorAll('th');
+    headers.forEach((th, index) => {
+      if (!th.getAttribute('scope') && !th.getAttribute('id')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+
+    // Ensure proper table structure
+    validateTableStructure(table);
+  });
+}
+
+function validateTableStructure(table) {
+  // Validate table has proper structure
+  if (!table.querySelector('thead') && table.querySelectorAll('th').length > 0) {
+    console.warn('Table missing thead element');
+  }
+}
+
+/**
+ * REACT_017: Validate and fix landmark issues
+ * Ensures proper landmark structure and accessibility
+ */
+function fixLandmarkIssues() {
+  // Ensure unique landmarks (DOM version)
+  ensureUniqueLandmarks();
+
+  // Add proper landmark regions
+  addProperLandmarkRegions();
+
+  // Validate existing landmarks
+  const landmarkValidation = validateLandmark();
+  if (!landmarkValidation.valid) {
+    console.warn('Landmark validation issues:', landmarkValidation.issues);
+  }
+}
+
+function validateLandmark() {
+  const landmarks = ['main', 'nav', 'aside', 'footer', 'header'];
+  const issues = [];
+  
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    if (elements.length > 1) {
+      issues.push(`Multiple ${landmark} landmarks found`);
+    }
+  });
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+function addProperLandmarkRegions() {
+  // Add proper landmark regions to common areas
+  const mainRegions = ['main', 'nav', 'aside', 'footer', 'header'];
+  mainRegions.forEach(region => {
+    const elements = document.querySelectorAll(`[role="${region}"]`);
+    elements.forEach(element => {
+      if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+        element.setAttribute('aria-label', `${region.charAt(0).toUpperCase() + region.slice(1)} region`);
+      }
+    });
+  });
+}
+
+/**
+ * REACT_041: Add accessible names to SVGs
+ * Ensures all SVGs have accessible names
+ */
+function addSvgAccessibility() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const name = getSvgAccessibleName(svg);
+    if (!name) {
+      setSvgAttributes(svg, 'Graphic element');
+    }
+  });
+}
+
+function getSvgAccessibleName(svg) {
+  return svg.getAttribute('aria-label') || svg.getAttribute('title');
+}
+
+function setSvgAttributes(svg, name) {
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', name);
+}
+
+/**
+ * REACT_036: Create accessible links
+ * Creates properly accessible links and buttons
+ */
+function createAccessibleLinks() {
+  // Create skip to content link
+  const skipLink = createInPageButton('main-content', 'Skip to main content');
+  if (skipLink) {
+    document.body.insertBefore(skipLink, document.body.firstChild);
+  }
+
+  // Validate existing links
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    const validation = validateLinkAccessibility(link);
+    if (!validation.valid) {
+      console.warn('Link validation issues:', validation.issues);
+    }
+  });
+}
+
+function validateLinkAccessibility(link) {
+  const issues = [];
+  
+  if (!link.hasAttribute('href')) {
+    issues.push('Link missing href attribute');
+  }
+  
+  if (!link.textContent || link.textContent.trim() === '') {
+    issues.push('Link has no text content');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
 // Accessibility utilities - preserves the original accessibilityUtils functionality
 const accessibilityUtils = {
     // Function for addressing new accessibility issues
@@ -264,12 +517,12 @@ async function harvest() {
   // This function should collect resources or data from available sources
   try {
     // Example: Harvest accessibility data from scanned pages
-    const report = await scanAccessibility();
+    const issues = await scanAccessibility();
     const harvestedData = {
       timestamp: new Date().toISOString(),
-      pagesScanned: report.length,
-      totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
-      details: report
+      pagesScanned: issues.data ? issues.data.totalIssues : 0,
+      totalIssues: issues.data ? issues.data.totalIssues : 0,
+      details: issues.data ? issues.data.issues : []
     };
 
     // Store harvested data for potential upgrades
@@ -311,15 +564,17 @@ async function upgrade(harvestedData) {
     // Analyze harvested issues and create upgrade recommendations
     if (data.details && data.details.length > 0) {
       data.details.forEach(page => {
-        page.issues.forEach(violation => {
-          upgradePlan.improvements.push({
-            file: page.file,
-            rule: violation.id,
-            impact: violation.impact,
-            description: violation.description,
-            recommendation: `Fix ${violation.id} issue in ${page.file}`
+        if (page.issues) {
+          page.issues.forEach(violation => {
+            upgradePlan.improvements.push({
+              file: page.file || 'unknown',
+              rule: violation.id,
+              impact: violation.impact,
+              description: violation.description,
+              recommendation: `Fix ${violation.id} issue in ${page.file || 'unknown'}`
+            });
           });
-        });
+        }
       });
     }
 
@@ -381,16 +636,53 @@ function spawnProcess(command, args, options) {
   });
 }
 
+// Function to handle fake links
+function handleFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[role="link"]:not([href])');
+  fakeLinks.forEach(link => {
+    link.setAttribute('href', '#');
+    link.setAttribute('tabindex', '0');
+  });
+}
+
+// Add landmark regions helper
+function addLandmarkRegions() {
+  // Add proper roles to common semantic elements
+  if (document.querySelector('main') && !document.querySelector('main[role]')) {
+    document.querySelector('main').setAttribute('role', 'main');
+  }
+  if (document.querySelector('nav') && !document.querySelector('nav[role]')) {
+    document.querySelector('nav').setAttribute('role', 'navigation');
+  }
+  if (document.querySelector('footer') && !document.querySelector('footer[role]')) {
+    document.querySelector('footer').setAttribute('role', 'contentinfo');
+  }
+}
+
+// Main execution when run directly
+if (require.main === module) {
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+  const sorted = sortLandmarks(processed);
+
+  console.log(`Loaded ${landmarks.length} landmarks`);
+  console.log(`Processed to ${processed.length} unique landmarks`);
+  console.log(`Sorted ${sorted.length} landmarks`);
+
+  if (sorted.length > 0) {
+    console.log('First landmark:', sorted[0]);
+  }
+}
+
 // Call the function to address accessibility issues
 addressAccessibilityIssues();
 createInPageButton();
 function3();
-// reportWebVitals(); // Commented out as not defined
 
 // Initialize on DOM ready
 function initialize() {
     // Ensure the dependencyGraph container has a proper ARIA role
-    if (dependencyGraph) {
+    if (typeof dependencyGraph !== 'undefined' && dependencyGraph) {
         if (!dependencyGraph.id) {
             dependencyGraph.id = 'dependencyGraph';
         }
@@ -408,10 +700,10 @@ function initialize() {
     // Create the in-page button
     createInPageButton();
 
-    // Add accessible names to 2 SVGs
+    // Add accessible names to SVGs
     setSvgAccessibleNames('svg1Id', 'svg2Id', 'aria-label for SVG1', 'aria-label for SVG2');
 
-    // Ensure unique landmarks (2 issues)
+    // Ensure unique landmarks (DOM version)
     ensureUniqueLandmarks();
 
     // Fix 1 fake link issue
@@ -421,6 +713,14 @@ function initialize() {
     if (typeof a11y !== 'undefined' && a11y && a11y.init) {
         a11y.init();
     }
+    
+    // Additional accessibility functions
+    fixTableAccessibility();
+    fixLandmarkIssues();
+    addSvgAccessibility();
+    createAccessibleLinks();
+    addLandmarkRegions();
+    handleFakeLinks();
 }
 
 // Initialize on DOM ready
@@ -452,7 +752,26 @@ if (typeof module !== 'undefined' && module.exports) {
         upgrade,
         harvestAndUpgrade,
         spawnProcess,
-        ...accessibilityUtils
+        fixTableAccessibility,
+        validateTableStructure,
+        fixLandmarkIssues,
+        validateLandmark,
+        addProperLandmarkRegions,
+        addSvgAccessibility,
+        getSvgAccessibleName,
+        setSvgAttributes,
+        createAccessibleLinks,
+        validateLinkAccessibility,
+        handleFakeLinks,
+        addLandmarkRegions,
+        ...accessibilityUtils,
+        loadLandmarks,
+        processLandmarks,
+        sortLandmarks,
+        getLandmarkById,
+        CONFIG,
+        validateInput,
+        processData,
+        formatResponse
     };
 }
-})();

@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// main.js - Main application entry point
 // TODO: Address accessibility issues from insight report — FIXED
 // TODO: Add back any required exports that might have been removed.
 
@@ -19,9 +22,7 @@ const { getDepGraph } = require('./depGraph');
 const {
   getLangAttribute,
   getFullLangAttribute,
-  validateTableAccessibility,
   validateTableStructure,
-  createInPageButton,
   createAccessibleLink,
 } = require('./accessibility-helpers');
 

@@ -1,8 +1,7 @@
 // Main application entry point
 // This file initializes the application and exports core modules
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 
 const { getDepGraph } = require('./depGraph');
 const {
@@ -553,14 +552,6 @@ function isLinkAccessibleSync(url) {
   } catch (error) {
     return false;
   }
-}
-
-function createInPageButton(options = {}) {
-  // ... existing code ...
-}
-
-function validateTableAccessibility(table) {
-  // ... existing code ...
 }
 
 function validateTableStructureLocal(table) {

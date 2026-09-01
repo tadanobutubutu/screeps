@@ -63,7 +63,7 @@ function getLangAttribute() {
 function detectAndSetLang(content) {
   // Simple language detection based on common patterns
   let lang = 'en'; // Default to English
-  
+
   if (content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
@@ -80,7 +80,7 @@ function detectAndSetLang(content) {
       lang = 'de'; // German;
     }
   }
-  
+
   return lang;
 }
 
@@ -164,15 +164,105 @@ if (typeof document !== 'undefined' && document.documentElement) {
   detectAndSetLang();
 }
 
-module.exports = { 
-  setHtmlLangAttribute, 
-  getLangAttribute, 
-  detectAndSetLang, 
-  personName, 
-  createInPageButton, 
-  validateTableAccessibility, 
-  validateTableStructure, 
-  validateLandmark, 
-  validateLandmarkStructure, 
-  getSvgAccessibleName 
+// NEW ACCESSIBILITY FUNCTIONS ADDED BELOW
+
+/**
+ * Adds keyboard navigation support to an element
+ * @param {HTMLElement} element - The element to enhance with keyboard navigation
+ * @param {Object} options - Configuration options
+ * @param {string} options.nextSelector - Selector for next focusable element
+ * @param {string} options.prevSelector - Selector for previous focusable element
+ */
+function addKeyboardNavigation(element, { nextSelector, prevSelector }) {
+  if (!element) return;
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' && nextSelector) {
+      const next = document.querySelector(nextSelector);
+      next?.focus();
+    } else if (e.key === 'ArrowLeft' && prevSelector) {
+      const prev = document.querySelector(prevSelector);
+      prev?.focus();
+    }
+  });
+}
+
+/**
+ * Adds ARIA labels to interactive elements
+ * @param {HTMLElement} element - The element to add ARIA labels to
+ * @param {string} label - The ARIA label text
+ */
+function addAriaLabel(element, label) {
+  if (element && label) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+/**
+ * Announces a message to screen readers
+ * @param {string} message - The message to announce
+ */
+function announceToScreenReader(message) {
+  if (!message) return;
+
+  const announcement = document.createElement('div');
+  announcement.setAttribute('aria-live', 'polite');
+  announcement.className = 'sr-only';
+  announcement.textContent = message;
+  document.body.appendChild(announcement);
+
+  // Remove after announcement is complete
+  setTimeout(() => {
+    announcement.remove();
+  }, 1000);
+}
+
+/**
+ * Traps focus within a modal dialog
+ * @param {HTMLElement} modal - The modal element
+ */
+function trapFocus(modal) {
+  if (!modal) return;
+
+  const focusableElements = modal.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  modal.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          lastFocusable.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          firstFocusable.focus();
+          e.preventDefault();
+        }
+      }
+    }
+  });
+
+  // Focus the first element when modal opens
+  firstFocusable?.focus();
+}
+
+module.exports = {
+  setHtmlLangAttribute,
+  getLangAttribute,
+  detectAndSetLang,
+  personName,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  addKeyboardNavigation,
+  addAriaLabel,
+  announceToScreenReader,
+  trapFocus
 };

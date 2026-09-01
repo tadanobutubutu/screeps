@@ -197,29 +197,74 @@ const exportUtils = {
   }
 };
 
+/**
+ * Create an in-page button with accessibility features
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - Button text content
+ * @param {string} [options.id] - Button ID (optional)
+ * @param {string} [options.className] - CSS class name (optional)
+ * @param {string} [options.ariaLabel] - ARIA label (optional)
+ * @param {Function} [options.onClick] - Click handler function (optional)
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton({ text, id, className, ariaLabel, onClick }) {
+  const button = document.createElement('button');
+  button.textContent = text;
+
+  if (id) {
+    button.id = id;
+  } else {
+    button.id = `btn-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  if (className) {
+    button.className = className;
+  }
+
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  } else {
+    button.setAttribute('aria-label', text);
+  }
+
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+
+  // Add keyboard accessibility
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      button.click();
+    }
+  });
+
+  return button;
+}
+
 // Main entry point
-function main() {
+function _main() {
   // Application initialization
   return 'main function executed';
 }
 
 // Import and call the newer functions if they exist and are compatible
 if (acquiredMain) {
-  main = acquiredMain;
+  _main = acquiredMain;
 }
 if (affectedFunction) {
-  main = main.bind(null, affectedFunction);
+  _main = _main.bind(null, affectedFunction);
 }
 if (updateFunction) {
-  main = main.bind(null, updateFunction);
+  _main = _main.bind(null, updateFunction);
 }
 if (accessibleFunction) {
-  main = main.bind(null, accessibleFunction);
+  _main = _main.bind(null, accessibleFunction);
 }
 
 // Export functions to make them accessible
 module.exports = {
-  main,
+  main: _main,
   myNewFunction,
   calculateSum,
   ensureElementHasId,
@@ -257,7 +302,7 @@ module.exports = {
 
 // Also attach to global scope for browser/standalone access
 if (typeof window !== 'undefined') {
-  window.main = main;
+  window.main = _main;
   window.myNewFunction = myNewFunction;
   window.calculateSum = calculateSum;
   window.ensureElementHasId = ensureElementHasId;

@@ -14,6 +14,9 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
+// Application instance
+const app = {};
+
 /**
  * Creates and starts the HTTP server
  * @returns {http.Server} The created server instance

@@ -167,7 +167,7 @@ function renderDependencyGraphContent() {
   if (!container) {
     return;
   }
-  
+
   // Use the new functions for rendering
   renderDependencyGraph(container);
   renderIndexView(container);
@@ -181,6 +181,57 @@ function countDependencies() {
     'antd': true
   };
   return Object.keys(dependencies).length;
+}
+
+// New function to add a book with accessibility features
+function addBookWithAccessibility(bookData) {
+  const booksContainer = document.getElementById('books-container');
+
+  if (!booksContainer) {
+    console.error('Books container not found');
+    return;
+  }
+
+  // Create book element with proper ARIA attributes
+  const bookElement = document.createElement('div');
+  bookElement.className = 'book';
+  bookElement.setAttribute('role', 'article');
+  bookElement.setAttribute('aria-label', `Book: ${bookData.title}`);
+
+  // Create title element with proper heading level
+  const titleElement = document.createElement('h3');
+  titleElement.textContent = bookData.title;
+  titleElement.setAttribute('id', `book-title-${bookData.id}`);
+  bookElement.appendChild(titleElement);
+
+  // Create author element with proper label
+  const authorElement = document.createElement('p');
+  authorElement.textContent = `Author: ${bookData.author}`;
+  authorElement.setAttribute('aria-labelledby', `book-title-${bookData.id}`);
+  bookElement.appendChild(authorElement);
+
+  // Create description element with proper label
+  const descElement = document.createElement('p');
+  descElement.textContent = bookData.description;
+  descElement.setAttribute('aria-describedby', `book-title-${bookData.id}`);
+  bookElement.appendChild(descElement);
+
+  // Add keyboard navigation support
+  bookElement.setAttribute('tabindex', '0');
+  bookElement.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      // Simulate click for keyboard users
+      bookElement.click();
+    }
+  });
+
+  // Add click handler
+  bookElement.addEventListener('click', () => {
+    // Handle book selection
+    console.log(`Book selected: ${bookData.title}`);
+  });
+
+  booksContainer.appendChild(bookElement);
 }
 
 // Export functions for testing
@@ -208,5 +259,6 @@ export {
   calculateSum,
   addProperLandmarkRegions,
   countDependencies,
-  createInPageButtons // Added new export
+  createInPageButtons, // Added new export
+  addBookWithAccessibility // Added new export for accessibility book addition
 };

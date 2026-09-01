@@ -313,6 +313,20 @@ const accessibilityUtils = {
     if (typeof document === 'undefined') return 'en';
     const htmlElement = document.documentElement;
     return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
+  },
+
+  // Get full language attribute (including region if available)
+  getFullLangAttribute: () => {
+    if (typeof document === 'undefined') return 'en-US';
+    const htmlElement = document.documentElement;
+    if (!htmlElement) return 'en-US';
+
+    const lang = htmlElement.getAttribute('lang') || 'en';
+    // If lang is just 'en', add default region
+    if (lang === 'en') {
+      return 'en-US';
+    }
+    return lang;
   }
 };
 
@@ -329,7 +343,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
   },
@@ -341,11 +355,11 @@ const exportUtils = {
 
   exportToCSV: (data, filename) => {
     if (!data || data.length === 0) return;
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (const row of data) {
       const values = headers.map(header => {
         const escaped = ('' + row[header]).replace(/"/g, '\\"');
@@ -353,7 +367,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -466,6 +480,7 @@ module.exports = {
 
   // Accessibility-related functions
   getLangAttribute: accessibilityUtils.getLangAttribute,
+  getFullLangAttribute: accessibilityUtils.getFullLangAttribute,
   createInPageButton: accessibilityUtils.createInPageButton,
   validateTableAccessibility: accessibilityUtils.validateTableAccessibility,
   validateTableStructure: accessibilityUtils.validateTableStructure,

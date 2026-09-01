@@ -1,6 +1,5 @@
 // main.js - Accessibility-focused implementation
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
 /* todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 */
 
 // Check if we're in a Node.js environment
@@ -45,14 +44,9 @@ function renderDependencyGraph(dependencies) {
     return graph;
 }
 
-/**
- * Main application entry point with accessibility features
- */
-function init() {
-    if (typeof document === 'undefined') return;
-    
+// Helper function to process SVG elements
+function processSvgElements() {
     const svgElements = document.querySelectorAll('svg');
-    
     svgElements.forEach(svg => {
         const id = ensureElementHasId(svg, 'svg-element');
         
@@ -71,6 +65,8 @@ function init() {
 
 // Helper function to get accessible name for SVG
 function getSvgAccessibleName(svg) {
+    if (!svg) return '';
+    
     const title = svg.querySelector('title');
     if (title && title.textContent) {
         return title.textContent.trim();
@@ -81,25 +77,61 @@ function getSvgAccessibleName(svg) {
         return desc.textContent.trim();
     }
     
-    return null;
+    return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.getAttribute('title') || '';
 }
 
 // Helper function to set additional SVG attributes
 function setSvgAttributes(svg) {
+    if (!svg) return;
+    
+    // Set necessary attributes for accessibility
     if (!svg.hasAttribute('focusable')) {
         svg.setAttribute('focusable', 'false');
+    }
+    if (!svg.hasAttribute('width') && svg.hasAttribute('viewBox')) {
+        svg.setAttribute('width', '24');
+    }
+    if (!svg.hasAttribute('height') && svg.hasAttribute('viewBox')) {
+        svg.setAttribute('height', '24');
     }
     if (!svg.hasAttribute('aria-hidden')) {
         svg.setAttribute('aria-hidden', 'true');
     }
 }
 
-const checkTableStructure = function(accessibilityReport) {
-    if (!accessibilityReport || !Array.isArray(accessibilityReport.issues)) {
-        return [];
+// Check table structure function
+const checkTableStructure = function(tableElement) {
+    if (!tableElement) {
+        return { valid: false, error: 'Table element is required' };
     }
-    return accessibilityReport.issues;
+
+    const hasHeader = tableElement.querySelector('thead') !== null || tableElement.querySelector('th') !== null;
+    const hasBody = tableElement.querySelector('tbody') !== null;
+    const hasCaption = tableElement.querySelector('caption') !== null;
+
+    return {
+        valid: true,
+        hasHeader,
+        hasBody,
+        hasCaption
+    };
 };
+
+const isNumber = function(value) {
+    return typeof value === 'number' && !isNaN(value);
+};
+
+function calculateDifference(a, b) {
+    return a - b;
+}
+
+function calculateProduct(a, b) {
+    return a * b;
+}
+
+function clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+}
 
 const sampleInsightReport = {
     title: 'Quarterly Performance Report',
@@ -180,54 +212,18 @@ function handleCredentialResponse(response) {
     return processedCredential;
 }
 
-// Ensure DOM is fully loaded before executing scripts
-if (typeof module !== 'undefined' && module.exports) {
-    // Node.js environment - setup basic exports
-    module.exports = {
-        checkTableStructure,
-        sampleInsightReport,
-        countDependencies,
-        init,
-        ensureElementHasId,
-        addAriaLabel,
-        renderDependencyGraph,
-        getSvgAccessibleName,
-        setSvgAttributes,
-        setupAriaLiveRegions,
-        setupFocusManagement,
-        enhanceSemanticMarkup,
-        trapFocus,
-        handleKeyNavigation,
-        closeOpenDialogs,
-        announceToScreenReader,
-        calculateDifference,
-        calculateProduct,
-        isNumber,
-        clamp,
-        hello,
-        getVersion,
-        getConfig,
-        createInPageButton,
-        handleFakeLinks,
-        addressAccessibilityIssues,
-        generateAccessibilityReport,
-        calculateAccessibilityScore,
-        validateLandmark,
-        spawnSomeCommand,
-        addLangAttribute,
-        handleCredentialResponse,
-        getLangAttribute,
-        AddressabilityIssues
-    };
-} else {
-    // Browser environment - wait for DOM
-    if (typeof document !== 'undefined') {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    }
+/**
+ * Main application entry point with accessibility features
+ */
+function init() {
+    if (typeof document === 'undefined') return;
+    
+    console.log('Initializing accessibility features');
+    processSvgElements();
+    setupKeyboardNavigation();
+    setupAriaLiveRegions();
+    setupFocusManagement();
+    enhanceSemanticMarkup();
 }
 
 function setupAriaLiveRegions() {
@@ -318,62 +314,6 @@ function announceToScreenReader(message) {
     }
 }
 
-function calculateDifference(a, b) {
-    return a - b;
-}
-
-function calculateProduct(a, b) {
-    return a * b;
-}
-
-function isNumber(value) {
-    return typeof value === 'number' && !isNaN(value);
-}
-
-function clamp(value, min, max) {
-    return Math.min(Math.max(value, min), max);
-}
-
-function createInPageButton(buttonId, buttonText) {
-    if (typeof document === 'undefined') return null;
-    
-    const button = document.createElement('button');
-    button.id = buttonId;
-    button.textContent = buttonText;
-    button.className = 'in-page-button';
-    return button;
-}
-
-function handleFakeLinks(issues) {
-    if (!Array.isArray(issues)) {
-        return [];
-    }
-    
-    return issues.filter((issue) => {
-        return issue.type === 'fake-link';
-    });
-}
-
-// Accessibility utilities
-const hello = () => {
-    return 'Hello from main.js';
-};
-
-const getVersion = () => {
-    return '1.0.0';
-};
-
-const getConfig = () => {
-    return {
-        theme: 'light',
-        language: 'en',
-        accessibility: {
-            highContrast: false,
-            reduceMotion: false
-        }
-    };
-};
-
 function trapFocus(element) {
     if (typeof document === 'undefined') return;
     
@@ -403,6 +343,11 @@ function handleKeyNavigation(e) {
             target.click();
         }
     }
+}
+
+function setupKeyboardNavigation() {
+    // Set up keyboard navigation handlers
+    document.addEventListener('keydown', handleKeyNavigation);
 }
 
 function getLangAttribute() {
@@ -488,41 +433,10 @@ const AddressabilityIssues = {
         }, 0);
     },
 
-    fixMainLandmarkIssues(source) {
-        const mainBlockRegex = /<main[^>]*>([\s\S]*?)<\/main>/gi;
-        const matches = source.match(mainBlockRegex) || [];
-        
-        if (matches.length <= 1) {
-            return source;
-        }
-
-        let result = source;
-        for (let i = 1; i < matches.length; i++) {
-            const block = matches[i][0];
-            const fixedBlock = block
-                .replace(/<main([^>]*)>/, '<section$1>')
-                .replace(/<\/main>/, '</section>');
-            result = result.replace(block, fixedBlock);
-        }
-
-        return result;
-    },
-
     validateLandmark(element) {
         if (!element) {
             return { valid: false, error: 'Element is required' };
         }
-
-        const landmarkRoles = [
-            'banner',
-            'main',
-            'navigation',
-            'search',
-            'contentinfo',
-            'complementary',
-            'region',
-            'form'
-        ];
 
         const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
 
@@ -538,44 +452,150 @@ const AddressabilityIssues = {
 
         let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
 
-        if (!landmarkRole && implicitLandmarks[tagName]) {
-            landmarkRole = implicitLandmarks[tagName];
+        if (!landmarkRole) {
+            if (implicitLandmarks[tagName]) {
+                landmarkRole = implicitLandmarks[tagName];
+            } else {
+                return { valid: false, error: 'No landmark role found' };
+            }
         }
 
-        if (!landmarkRole) {
-            return { 
-                valid: false, 
-                error: 'Element does not have a valid landmark role',
+        if (!Array.from(document.querySelectorAll(`[role="${landmarkRole}"]`)).includes(element)) {
+            return {
+                valid: false,
+                error: `Landmark with role "${landmarkRole}" should be immediate child of ${tagName}`,
                 element: tagName
             };
         }
 
-        if (!landmarkRoles.includes(landmarkRole)) {
-            return { 
-                valid: false, 
-                error: 'Invalid landmark role: ' + landmarkRole,
-                element: tagName,
-                role: landmarkRole
-            };
+        return { valid: true, role: landmarkRole };
+    },
+
+    fixMainLandmarkIssues(source) {
+        const mainBlockRegex = /<main\b[^>]*>([\s\S]*)<\/main>/g;
+        const matches = source.matchAll(mainBlockRegex);
+        let result = source;
+        for (let match of matches) {
+            const block = match[1];
+            const fixedBlock = block
+                .replace(/<main\b([^>]*)>/, '<section$1>')
+                .replace(/<\/main>/, '</section>');
+            result = result.replace(match[0], fixedBlock);
+        }
+        return result;
+    },
+
+    ensureUniqueLandmarksFromString(source) {
+        const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+
+        const matches = Array.from(source.matchAll(mainBlockRegex));
+        if (matches.length <= 1) {
+            return source;
         }
 
-        return { valid: true, element: tagName, role: landmarkRole };
+        let result = source;
+        for (let i = 1; i < matches.length; i++) {
+            const block = matches[i][0];
+            const fixedBlock = block
+                .replace(/<main([^>]*)>/, '<section$1 id="unique-main-release-' + i + '">')
+                .replace(/<\/main>/, '</section>');
+            result = result.replace(block, fixedBlock);
+        }
+
+        return result;
     },
 
-    spawnSomeCommand(callback) {
-        const child_process = require('child_process');
-        const command = 'someCommand';
-        
-        child_process.exec(command, {
-            stdio: 'inherit'
-        }, function(error, stdout, stderr) {
-            if (error) {
-                callback(error);
+    validateLinkAccessibility(link) {
+        if (!link) {
+            return { valid: false, error: 'Link is required' };
+        }
+
+        const href = link.getAttribute('href') || '';
+        const isFakeLink = href === '#' || href === 'javascript:void(0)' || href === 'javascript:;';
+
+        if (isFakeLink) {
+            return { valid: false, error: 'Fake link detected', isFakeLink: true };
+        }
+
+        return { valid: true, isFakeLink: false };
+    },
+
+    validateTableAccessibility(tableElement) {
+        if (!tableElement) {
+            return { valid: false, error: 'Table element is required' };
+        }
+
+        const structure = checkTableStructure(tableElement);
+        const hasSummary = tableElement.getAttribute('summary') !== null;
+        const hasDescendant = tableElement.querySelector('caption, td, th') !== null;
+
+        return {
+            valid: structure.valid,
+            hasHeader: structure.hasHeader,
+            hasBody: structure.hasBody,
+            hasCaption: structure.hasCaption,
+            hasSummary,
+            hasDescendant,
+            error: structure.error
+        };
+    },
+
+    validateTableStructure: validateTableAccessibility,
+
+    validateLandmarkStructure(element) {
+        return validateLandmark(element);
+    },
+
+    getSvgAccessibleNames() {
+        const svgElements = document.querySelectorAll('svg');
+        return Array.from(svgElements).map(svg => ({
+            element: svg,
+            accessibleName: getSvgAccessibleName(svg)
+        }));
+    },
+
+    checkLandmarkElements() {
+        const landmarkSelectors = [
+            '[role="banner"]', '[role="main"]', '[role="navigation"]',
+            '[role="search"]', '[role="contentinfo"]', '[role="complementary"]',
+            '[role="region"]', '[role="form"]'
+        ];
+
+        const results = {};
+        landmarkSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            if (elements.length > 0) {
+                results[selector] = Array.from(elements).map(el => el.tagName + '#' + (el.id || 'no-id'));
             } else {
-                callback(null, 'Successfully executed someCommand');
+                results[selector] = [];
             }
         });
+
+        return results;
     },
+
+    createResourceButton(href, label) {
+        if (typeof document === 'undefined') return null;
+        
+        const button = document.createElement('button');
+        button.setAttribute('href', href);
+        button.setAttribute('role', 'button');
+        button.textContent = label;
+        
+        return button;
+    },
+
+    renderDependencyGraph: renderDependencyGraph,
+
+    displayModuleStructure(dependencies) {
+        return renderDependencyGraph(dependencies);
+    },
+
+    newFunction() {
+        return 'New function added during merge';
+    },
+
+    countDependencies: countDependencies,
 
     addLangAttribute(element, lang) {
         if (element && lang) {
@@ -583,5 +603,120 @@ const AddressabilityIssues = {
         }
     },
 
-    countDependencies: countDependencies
+    addDocumentLangAttribute(lang) {
+        if (typeof document !== 'undefined') {
+            document.documentElement.setAttribute('lang', lang || 'en');
+        }
+    }
 };
+
+const hello = () => {
+    return 'Hello from main.js';
+};
+
+const getVersion = () => {
+    return '1.0.0';
+};
+
+const getConfig = () => {
+    return {
+        theme: 'light',
+        language: 'en',
+        accessibility: {
+            highContrast: false,
+            reduceMotion: false
+        }
+    };
+};
+
+function clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+}
+
+const validateTableStructure = function(tableElement) {
+    return checkTableStructure(tableElement);
+};
+
+// Ensure DOM is fully loaded before executing scripts
+if (typeof module !== 'undefined' && module.exports) {
+    // Node.js environment - setup basic exports
+    module.exports = {
+        checkTableStructure,
+        countDependencies,
+        init,
+        processSvgElements,
+        setupAriaLiveRegions,
+        setupFocusManagement,
+        enhanceSemanticMarkup,
+        setupKeyboardNavigation,
+        trapFocus,
+        handleKeyNavigation,
+        closeOpenDialogs,
+        announceToScreenReader,
+        calculateDifference,
+        calculateProduct,
+        isNumber,
+        clamp,
+        hello,
+        getVersion,
+        getConfig,
+        addressAccessibilityIssues: AddressabilityIssues.addressAccessibilityIssues,
+        generateAccessibilityReport: AddressabilityIssues.generateAccessibilityReport,
+        calculateAccessibilityScore: AddressabilityIssues.calculateAccessibilityScore,
+        validateLandmark: AddressabilityIssues.validateLandmark,
+        spawnSomeCommand: function(callback) {
+            const child_process = require('child_process');
+            const command = 'someCommand';
+            
+            child_process.exec(command, {
+                stdio: 'inherit'
+            }, function(error, stdout, stderr) {
+                if (error) {
+                    callback(error);
+                } else {
+                    callback(null, 'Successfully executed someCommand');
+                }
+            });
+        },
+        createInPageButton: function(buttonId, buttonText) {
+            if (typeof document === 'undefined') return null;
+            
+            const button = document.createElement('button');
+            button.id = buttonId;
+            button.textContent = buttonText;
+            button.className = 'in-page-button';
+            return button;
+        },
+        validateLinkAccessibility: AddressabilityIssues.validateLinkAccessibility,
+        handleFakeLinks: AddressabilityIssues.validateLinkAccessibility,
+        addLangAttribute: AddressabilityIssues.addLangAttribute,
+        addDocumentLangAttribute: AddressabilityIssues.addDocumentLangAttribute,
+        handleCredentialResponse,
+        getSvgAccessibleName,
+        setSvgAttributes,
+        validateTableAccessibility: AddressabilityIssues.validateTableAccessibility,
+        validateTableStructure,
+        validateLandmarkStructure: AddressabilityIssues.validateLandmarkStructure,
+        getSvgAccessibleNames: AddressabilityIssues.getSvgAccessibleNames,
+        checkLandmarkElements: AddressabilityIssues.checkLandmarkElements,
+        createResourceButton: AddressabilityIssues.createResourceButton,
+        renderDependencyGraph: AddressabilityIssues.renderDependencyGraph,
+        displayModuleStructure: AddressabilityIssues.displayModuleStructure,
+        newFunction: AddressabilityIssues.newFunction,
+        fixMainLandmarkIssues: AddressabilityIssues.fixMainLandmarkIssues,
+        ensureUniqueLandmarksFromString: AddressabilityIssues.ensureUniqueLandmarksFromString,
+        countDependencies: AddressabilityIssues.countDependencies,
+        AddressabilityIssues
+    };
+} else {
+    // Browser environment - wait for DOM
+    if (typeof document !== 'undefined') {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    }
+}
+
+// ... (other functions and comments preserved)

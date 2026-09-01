@@ -33,10 +33,10 @@ const _usedLandmarkIds = new Set();
  */
 function createLandmarkId(baseName) {
     let candidate = baseName;
-    if ... {
+    if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
         const suffix = Math.floor(Math.random() * 9000) + 1000;
-        candidate = ...
+        candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -78,7 +78,7 @@ function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
   const elementToModify = document.documentElement;
   if (elementToModify) {
-    element.setAttribute('lang', 'en');
+    elementToModify.setAttribute('lang', 'en');
   }
 }
 
@@ -100,7 +100,7 @@ ensureElementHasId('myMenu');
 // Add ARIA labels for better screen reader support
 addAriaLabel('myTable', 'Product data table');
 addAriaLabel('myLogo', 'Company logo');
-... 'Accessibility menu');
+addAriaLabel('myMenu', 'Accessibility menu');
 
 // DOM-based accessibility code
 
@@ -111,10 +111,10 @@ addLangAttribute();
 function outputSafetyClassification(userMessage, assistantResponse) {
     // Classify user safety
     const userSafety = classifyUserSafety(userMessage);
-    
+
     // Output user safety
     console.log(`User Safety: ${userSafety}`);
-    
+
     // Output response safety only if assistant response is present
     if (assistantResponse) {
         const responseSafety = classifyResponseSafety(assistantResponse);
@@ -141,13 +141,13 @@ function classifyUserSafety(userMessage) {
         /harass/i,
         /threat/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(userMessage)) {
             return 'unsafe';
         }
     }
-    
+
     // Legitimate programming tasks are safe
     return 'safe';
 }
@@ -164,13 +164,13 @@ function classifyResponseSafety(assistantResponse) {
         /how.*hack/i,
         /create.*malware/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(assistantResponse)) {
             return 'unsafe';
         }
     }
-    
+
     return 'safe';
 }
 
@@ -226,13 +226,49 @@ function ensureElementsHaveIds(elements) {
 function ensureUniqueLandmarks() {
   // Implementation for ensuring unique landmarks
   // Remove duplicate landmarks
-  const landmarks = ... [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"],
-  'footer[role="contentinfo"]'
-  .join(', ')
-  
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], footer[role="contentinfo"]');
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation
+}
+
+// New function to handle focus trap for keyboard navigation
+function newFocusTrap(element) {
+  if (!element) return;
+
+  // Store the current focusable elements
+  const focusableElements = element.querySelectorAll(
+    'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+  );
+
+  // If no focusable elements, return
+  if (focusableElements.length === 0) return;
+
+  // Add event listener for tab key
+  element.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (e.shiftKey) {
+      // Shift + Tab: move focus to last element if at first
+      if (document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      // Tab: move focus to first element if at last
+      if (document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  });
+
+  // Set initial focus to first element
+  firstElement.focus();
 }
 
 function getSvgAccessibleName() {
@@ -273,6 +309,50 @@ function handleAccessibilityIssues() {
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
   // New code to fix accessibility issues...
+  // Add lang attribute
+  addLangAttribute();
+
+  // Validate tables
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
+
+  // Validate landmarks
+  validateLandmark();
+  ensureUniqueLandmarks();
+
+  // Add accessible names to SVGs
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  });
+
+  // Ensure unique landmarks
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"]');
+  const landmarkIds = new Set();
+  landmarks.forEach(landmark => {
+    if (landmark.id) {
+      if (landmarkIds.has(landmark.id)) {
+        // Handle duplicate by adding suffix
+        landmark.id = `${landmark.id}-${Math.floor(Math.random() * 1000)}`;
+      }
+      landmarkIds.add(landmark.id);
+    }
+  });
+
+  // Validate link accessibility
+  validateLinkAccessibility();
+
+  // Fix button identifiers
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    if (!button.id) {
+      button.id = `button-${index}`;
+    }
+  });
 }
 
 // New function to calculate the sum of two numbers
@@ -281,12 +361,14 @@ function calculateSum(a, b) {
 }
 
 // Ensure elements have the required IDs
-... 
+ensureElementHasId('myTable');
+ensureElementHasId('myLogo');
+ensureElementHasId('myMenu');
 
 // Add ARIA labels for better screen reader support
 addAriaLabel('myTable', 'Product data table');
 addAriaLabel('myLogo', 'Company logo');
-... 'Accessibility menu');
+addAriaLabel('myMenu', 'Accessibility menu');
 
 // DOM-based accessibility code
 
@@ -294,7 +376,7 @@ addAriaLabel('myLogo', 'Company logo');
 addLangAttribute();
 
 // Validate table structure and accessibility
-const tables = ...;
+const tables = document.querySelectorAll('table');
 tables.forEach(table => {
   validateTableAccessibility(table);
   validateTableStructure(table);
@@ -306,40 +388,57 @@ tables.forEach(table => {
 
 function validateLinkAccessibility() {
   // Implementation for validating link accessibility
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (!link.getAttribute('aria-label') && !link.textContent.trim()) {
+      link.setAttribute('aria-label', 'Link');
+    }
+  });
 }
 
 function handleFakeLinks() {
   // Implementation for handling fake links
+  const fakeLinks = document.querySelectorAll('[role="link"], [tabindex="0"]');
+  fakeLinks.forEach(link => {
+    if (!link.getAttribute('aria-label')) {
+      link.setAttribute('aria-label', 'Link');
+    }
+  });
 }
 
 // Add lang attribute to HTML element
-... getLangAttribute());
+document.documentElement.setAttribute('lang', getLangAttribute());
 
 // Create in-page button with accessibility considerations
 createInPageButton();
 
 // Validate table structure and accessibility
-const table = ...;
-validateTableAccessibility(table);
-validateTableStructure(table);
+const table = document.querySelector('table');
+if (table) {
+  validateTableAccessibility(table);
+  validateTableStructure(table);
+}
 
 // Add/fix landmark issues
 validateLandmark();
 ensureUniqueLandmarks();
 
 // Add accessible names to SVGs
-const svg = ...;
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
+const svg = document.querySelector('svg');
+if (svg) {
+  const accessibleName = getSvgAccessibleName(svg);
+  setSvgAttributes(svg, accessibleName);
+}
 
 // Ensure unique landmarks
 // Ensuring all landmarks have unique identifiers
-const landmarks = ... [role="navigation"], [role="main"], [role="contentinfo"], ...
+const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"]');
 const landmarkIds = new Set();
 landmarks.forEach(landmark => {
   if (landmark.id) {
     if (landmarkIds.has(landmark.id)) {
       // Handle duplicate
+      landmark.id = `${landmark.id}-${Math.floor(Math.random() * 1000)}`;
     } else {
       landmarkIds.add(landmark.id);
     }
@@ -351,7 +450,7 @@ validateLinkAccessibility();
 
 // Fix button identifiers
 // Ensuring all buttons have proper accessible identifiers
-const buttons = ...;
+const buttons = document.querySelectorAll('button');
 buttons.forEach((button, index) => {
   if (!button.id) {
     button.id = `button-${index}`;
@@ -359,6 +458,8 @@ buttons.forEach((button, index) => {
 });
 
 // Use the new function to add aria-labels to the appropriate elements
-... 
+addAriaLabel('myTable', 'Product data table');
+addAriaLabel('myLogo', 'Company logo');
+addAriaLabel('myMenu', 'Accessibility menu');
 
 // End of file

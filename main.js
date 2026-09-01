@@ -307,4 +307,8 @@ const focusTrap = (element) => {
   }
 
   function moveFocusToFirst() {
-    set
+    setActiveElement(0);
+  }
+
+  // ... rest of the focusTrap implementation
+};

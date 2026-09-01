@@ -2,7 +2,6 @@
 function greet(name) {
   return `Hello, ${name}!`;
 }
-// TODO: Any additional changes requested in the issue should be added after this function
 
 // Exported functions
 export function calculateSum(a, b) {
@@ -10,4 +9,13 @@ export function calculateSum(a, b) {
 }
 export function calculateProduct(a, b) {
   return a * b;
+}
+
+// Address accessibility issues from insight report
+export function getAccessibleGreeting(name) {
+  // Assuming accessibility issue is related to providing a non-empty name
+  if (!name) {
+    throw new Error('Name must be provided to create an accessible greeting.');
+  }
+  return `Hello, ${name}!`;
 }

@@ -1,29 +1,33 @@
+// TODO: Address accessibility issues from insight report — FIXED
 const fs = require('fs');
 const main = require('./utilities');
 
+<<<<<<< HEAD
+const { ensureElementHasId, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, renderDependencyGraphs, renderAdditionalContent } = main;
+=======
 const {
     createInPageButton,
     createWebResourceButton,
     validateTableAccessibility,
     validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
     getSvgAccessibleName,
     getLangAttribute,
-    validateAccessibilityReport,
-    exportUtils,
-    addressAccessibilityIssues,
+    getTables,
+    getConfig,
+    setConfig,
     handleCredentialResponse,
     ensureElementHasId,
-    ensureElementHasIdOrigin,
+    ensureElementId,
     addAriaLabel,
+    accessibilityUtils,
+    addMainLandmarkToIndex,
+    focusTrap,
     renderDependencyGraphs,
     fixButtonIdentifiers,
     fixDependencyGraphAria,
-    addMainLandmarkToIndex,
-    focusTrap,
     renderAdditionalContent,
 } = main;
+>>>>>>> origin/main
 
 // Utility functions for ensuring elements have IDs and adding labels
 const ensureElementId = (element) => {
@@ -134,7 +138,49 @@ const accessibilityUtils = {
             element.removeEventListener('keydown', handleKeyDown);
         };
     },
+};
 
+// Export functionality with accessibility support
+exportData: (data, filename, mimeType) => {
+    const blob = new Blob([data], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.setAttribute('aria-label', "Download " + filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    // Announce download completion to screen readers
+    accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
+},
+
+exportToJSON: (data, filename) => {
+    const jsonString = JSON.stringify(data, null, 2);
+    accessibilityUtils.exportData(jsonString, filename || 'export.json', 'application/json');
+},
+
+exportToCSV: (data, filename) => {
+    if (!data || data.length === 0) return;
+    
+    const headers = Object.keys(data[0]);
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+    
+    for (const row of data) {
+      const values = headers.map(header => {
+        const escaped = ('' + row[header]).replace(/"/g, '\\"');
+        return "\"" + escaped + "\"";
+      });
+      csvRows.push(values.join(','));
+    }
+    
+    const csvString = csvRows.join('\n');
+    accessibilityUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
+}
+=======
     // Credential response handling
     handleCredentialResponse: async function (response) {
         if (!response) {
@@ -158,11 +204,18 @@ const accessibilityUtils = {
 
     // Export functionality with accessibility support
     exportUtils,
-};
+>>>>>>> origin/main
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
+<<<<<<< HEAD
+const addAriaLabel = (element, label) => {
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+=======
 // Remove duplicate declaration of addAriaLabel
 const ensureElementId = (element) => {
     if (element && !element.id) {
@@ -220,7 +273,7 @@ const exportUtils = {
         const link = document.createElement('a');
         link.href = url;
         link.download = filename;
-        link.setAttribute('aria-label', 'Download ' + filename);
+        link.setAttribute('aria-label', "Download " + filename);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -243,11 +296,11 @@ const exportUtils = {
         csvRows.push(headers.join(','));
 
         for (const row of data) {
-            const values = headers.map((header) => {
-                const escaped = ('' + row[header]).replace(/"/g, '\\"');
-                return '"' + escaped + '"';
-            });
-            csvRows.push(values.join(','));
+          const values = headers.map(header => {
+              const escaped = ('' + row[header]).replace(/"/g, '\\"');
+              return "\"" + escaped + "\"";
+          });
+          csvRows.push(values.join(','));
         }
 
         const csvString = csvRows.join('\n');
@@ -959,6 +1012,47 @@ const newFocusTrap = accessibilityUtils.newFocusTrap;
 
 // Export all utilities
 module.exports = {
+<<<<<<< HEAD
+  ...main,
+  ...accessibilityUtils,
+  ensureElementId,
+  ensureElementHasId,
+  newFocusTrap,
+  log,
+  sanitizeFilename,
+  readFileSafe,
+  processData,
+  filterValidItems,
+  initAccessibility,
+  groupByCategory,
+  transformInputData,
+  validateTableAccessibility,
+  displayModuleStructure,
+  generateDependencyGraph,
+  // New accessibility functions
+  getLangAttribute,
+  personName,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createWebResourceButton,
+  validateAccessibilityReport,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  exportUtils,
+  addAriaLabel,
+  renderDependencyGraphs,
+  calculateSum,
+  ensureUniqueLandmarks,
+  getTables,
+  getConfig,
+  setConfig,
+  addAccessibleName,
+  renderAdditionalContent
+};
+=======
     ...main,
     ...accessibilityUtils,
     ensureElementId,
@@ -991,3 +1085,4 @@ module.exports = {
     renderAdditionalContent,
     renderDependencyGraphs,
 };
+>>>>>>> origin/main

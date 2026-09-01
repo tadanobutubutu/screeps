@@ -162,6 +162,32 @@ function checkLandmarkElement(id) {
   return element !== null;
 }
 
+/**
+ * Function to check for landmark elements in the document.
+ * @param {string[]} landmarkRoles - Array of landmark roles to check for.
+ * @returns {Object} An object with landmark roles as keys and boolean values indicating existence.
+ */
+function checkLandmarkElements(landmarkRoles) {
+  const results = {};
+
+  landmarkRoles.forEach(role => {
+    // Check for elements with the role attribute
+    const roleElements = document.querySelectorAll(`[role="${role}"]`);
+    // Check for semantic HTML elements that imply the role
+    const semanticElements = document.querySelectorAll(role === 'main' ? 'main' :
+                                  role === 'navigation' ? 'nav' :
+                                  role === 'complementary' ? 'aside' :
+                                  role === 'search' ? '[role="search"]' :
+                                  role === 'contentinfo' ? 'footer' :
+                                  role === 'form' ? 'form' :
+                                  role === 'region' ? 'section' : '');
+
+    results[role] = roleElements.length > 0 || semanticElements.length > 0;
+  });
+
+  return results;
+}
+
 // Ensure unique landmarks by filtering duplicates
 function ensureUniqueLandmarks(landmarksArray) {
   if (!landmarksArray || landmarksArray.length === 0) {
@@ -449,7 +475,33 @@ export function addBook(book) {
 }
 
 // Ensure accessibility attributes are set when adding a book
-ensureDependencyGraphARIA();
+function enhanceAccessibilityForAddBook() {
+  // Add ARIA attributes to form elements
+  const form = document.querySelector('form');
+  if (form) {
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-label', 'Add new book form');
+
+    // Add ARIA labels to form fields
+    const titleInput = form.querySelector('#title');
+    if (titleInput) {
+      titleInput.setAttribute('aria-required', 'true');
+      titleInput.setAttribute('aria-label', 'Book title');
+    }
+
+    const authorInput = form.querySelector('#author');
+    if (authorInput) {
+      authorInput.setAttribute('aria-required', 'true');
+      authorInput.setAttribute('aria-label', 'Book author');
+    }
+
+    // Add ARIA label to submit button
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.setAttribute('aria-label', 'Add book to collection');
+    }
+  }
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
@@ -469,7 +521,7 @@ function onAuthorSort() {
 }
 
 // Export utility functions
-export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies };
+export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies, enhanceAccessibilityForAddBook };
 
 // Render the main component containing the book list and sorting controls
 function Main() {
@@ -484,6 +536,11 @@ function Main() {
       onAuthorSort();
     }
   }, [sorting]);
+
+  // UseEffect hook to enhance accessibility when component mounts
+  useEffect(() => {
+    enhanceAccessibilityForAddBook();
+  }, []);
 
   // Map the book list to the BookItem function to create book items
   const bookItems = getBooksList.map(book => BookItem(book));
@@ -528,6 +585,7 @@ export {
   clearCache,
   VisualizeDependencyTree,
   checkLandmarkElement,
+  checkLandmarkElements,
   ensureUniqueLandmarks,
   ensureLandmarkUniqueness,
   validateLandmark,
@@ -555,5 +613,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  createInPageButtons
+  createInPageButtons,
+  enhanceAccessibilityForAddBook
 };

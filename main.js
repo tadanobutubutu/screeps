@@ -1,5 +1,7 @@
-// Main JavaScript file
-// This file handles the main application logic
+/**
+ * Main entry point for the application
+ */
+
 (function() {
     'use strict';
 
@@ -19,6 +21,8 @@
     //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
     //_Commit: 5cb26805d1cf9dc1c3c0bd9f2923ab16e34f825e _
     //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+    //_Commit: 0cc7acc93dade1532e36e2e26adc7bd895ef60df_
+    //<!-- todo-hash: 398424c02b2e0 -->
 
     // Helper function to check if a link is accessible
     function checkLinkAccessibility(linkUrl) {

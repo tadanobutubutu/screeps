@@ -1,8 +1,38 @@
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
+const {
+    createInPageButton,
+    createWebResourceButton,
+    validateLandmark,
+    validateLandmarkStructure,
+    validateAccessibilityReport,
+} = require('./utilities');
 
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
+const {
+    addLangAttribute,
+    fixTableStructureIssues,
+    addMainLandmark,
+    ensureUniqueLandmarks,
+    setSvgAccessibilityProps,
+    addSvgAccessibleNames,
+    addAccessibleNamesToSVGs,
+    fixFakeLinkIssue,
+    fixFakeLinkIssues,
+    fixLandmarkIssues,
+    addLandmarkRegions,
+    uniqueLandmarks,
+    fixImageAltTexts,
+    googleSignIn,
+    handleCredentialResponse,
+    ensureElementHasId,
+    ensureElementHasIdOrigin,
+    addAriaLabel,
+    renderDependencyGraphs,
+    fixButtonIdentifiers,
+    fixDependencyGraphAria,
+    addMainLandmarkToIndex,
+    addressAccessibilityIssues,
+} = main;
 
 const http = require('http');
 
@@ -11,44 +41,44 @@ const http = require('http');
 const { functionA, functionB } = require('./functionModule');
 
 const a11yStore = {
-  // ... existing methods ...
+    // ... existing methods ...
 };
 
 // Assuming the new function is called `renderGraphIndex` and it should replace or integrate with the existing `renderDependencyGraphs` function.
 const renderGraphIndex = (graphData) => {
-  // Placeholder for the new rendering logic
-  // This function should use the new functions for rendering the graph/index
-  // For example, it could call `setSvgAccessibilityProps`, `addAccessibleNamesToSVGs`, etc.
-  // Replace this with the actual implementation details
-  renderDependencyGraph(graphData);
+    // Placeholder for the new rendering logic
+    // This function should use the new functions for rendering the graph/index
+    // For example, it could call `setSvgAccessibilityProps`, `addAccessibleNamesToSVGs`, etc.
+    // Replace this with the actual implementation details
+    renderDependencyGraph(graphData);
 };
 
 function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
+    const title = svgElement.querySelector('title');
+    const desc = svgElement.querySelector('desc');
 
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
-
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
-
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
-    if (labeledElement && labeledElement.textContent) {
-      return labeledElement.textContent.trim();
+    if (title && title.textContent) {
+        return title.textContent.trim();
     }
-  }
 
-  return 'SVG graphic';
+    if (desc && desc.textContent) {
+        return desc.textContent.trim();
+    }
+
+    const ariaLabel = svgElement.getAttribute('aria-label');
+    if (ariaLabel) {
+        return ariaLabel.trim();
+    }
+
+    const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+    if (ariaLabelledby) {
+        const labeledElement = document.getElementById(ariaLabelledby);
+        if (labeledElement && labeledElement.textContent) {
+            return labeledElement.textContent.trim();
+        }
+    }
+
+    return 'SVG graphic';
 }
 
 /**
@@ -62,52 +92,52 @@ function getSvgAccessibleName(svgElement) {
  * @returns {HTMLAnchorElement} The created button element
  */
 function createWebResourceButton(url, text, icon, options = {}) {
-  if (typeof document === 'undefined') {
-    throw new Error('Document is not available');
-  }
+    if (typeof document === 'undefined') {
+        throw new Error('Document is not available');
+    }
 
-  const button = document.createElement('a');
-  button.href = url;
-  button.className = 'web-resource-button';
-  button.setAttribute('role', 'button');
-  button.setAttribute('tabindex', '0');
+    const button = document.createElement('a');
+    button.href = url;
+    button.className = 'web-resource-button';
+    button.setAttribute('role', 'button');
+    button.setAttribute('tabindex', '0');
 
-  // Set aria-label if provided, otherwise use the text
-  button.setAttribute('aria-label', options.ariaLabel || text);
+    // Set aria-label if provided, otherwise use the text
+    button.setAttribute('aria-label', options.ariaLabel || text);
 
-  // Set title if provided, otherwise use the text
-  button.title = options.title || text;
+    // Set title if provided, otherwise use the text
+    button.title = options.title || text;
 
-  // Add icon if provided
-  if (icon) {
-    if (icon.startsWith('<') && icon.endsWith('>')) {
-      // Treat as HTML
-      button.innerHTML = icon + text;
+    // Add icon if provided
+    if (icon) {
+        if (icon.startsWith('<') && icon.endsWith('>')) {
+            // Treat as HTML
+            button.innerHTML = icon + text;
+        } else {
+            // Treat as class name
+            const iconElement = document.createElement('i');
+            iconElement.className = icon;
+            button.appendChild(iconElement);
+            button.appendChild(document.createTextNode(text));
+        }
     } else {
-      // Treat as class name
-      const iconElement = document.createElement('i');
-      iconElement.className = icon;
-      button.appendChild(iconElement);
-      button.appendChild(document.createTextNode(text));
+        button.textContent = text;
     }
-  } else {
-    button.textContent = text;
-  }
 
-  // Add keyboard and click event handlers for accessibility
-  button.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      window.location.href = url;
-    }
-  });
+    // Add keyboard and click event handlers for accessibility
+    button.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            window.location.href = url;
+        }
+    });
 
-  button.addEventListener('click', (e) => {
-    e.preventDefault();
-    window.location.href = url;
-  });
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = url;
+    });
 
-  return button;
+    return button;
 }
 
 /**
@@ -117,8 +147,8 @@ function createWebResourceButton(url, text, icon, options = {}) {
  * @returns {string} Rendered dependency graph HTML
  */
 function renderDependencyGraph(deps, options = {}) {
-  // Use dependencyGraphContent from the imported module
-  return dependencyGraphContent(deps, options);
+    // Use dependencyGraphContent from the imported module
+    return dependencyGraphContent(deps, options);
 }
 
 /**
@@ -128,64 +158,66 @@ function renderDependencyGraph(deps, options = {}) {
  * @returns {string} Rendered index HTML
  */
 function renderIndex(data, options = {}) {
-  // Use indexContent from the imported module
-  return indexContent(data, options);
+    // Use indexContent from the imported module
+    return indexContent(data, options);
 }
 
 if (typeof document !== 'undefined') {
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('lang', document.documentElement.lang);
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('lang', document.documentElement.lang);
 
-  if (!document.documentElement.getAttribute('lang')) {
-    document.documentElement.setAttribute('lang', 'en');
-  }
+    if (!document.documentElement.getAttribute('lang')) {
+        document.documentElement.setAttribute('lang', 'en');
+    }
 }
 
 function newFunction() {
-  // Implementation from origin/main
+    // Implementation from origin/main
 }
 
 if (typeof document !== 'undefined') {
-  const banners = document.querySelectorAll('[role="banner"], [role="header"]');
-  if (banners.length > 1) {
-    throw new Error('Document should have at most one banner or header landmark');
-  }
+    const banners = document.querySelectorAll('[role="banner"], [role="header"]');
+    if (banners.length > 1) {
+        throw new Error('Document should have at most one banner or header landmark');
+    }
 }
 
 function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
+    // (code for checkLandmarkElement remains the same)
 }
 
 function wrapPrimaryContentInMain() {
-  if (typeof document === 'undefined' || !document.body) {
-    return null;
-  }
-
-  let mainElement = document.querySelector('main');
-  if (mainElement) {
-    return mainElement;
-  }
-
-  const elementsToExclude = [];
-  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
-  landmarks.forEach(landmark => elementsToExclude.push(landmark));
-
-  mainElement = document.createElement('main');
-
-  const bodyChildren = Array.from(document.body.children);
-  bodyChildren.forEach(child => {
-    if (!elementsToExclude.includes(child)) {
-      mainElement.appendChild(child);
+    if (typeof document === 'undefined' || !document.body) {
+        return null;
     }
-  });
 
-  document.body.appendChild(mainElement);
+    let mainElement = document.querySelector('main');
+    if (mainElement) {
+        return mainElement;
+    }
 
-  return mainElement;
+    const elementsToExclude = [];
+    const landmarks = document.querySelectorAll(
+        'header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]'
+    );
+    landmarks.forEach((landmark) => elementsToExclude.push(landmark));
+
+    mainElement = document.createElement('main');
+
+    const bodyChildren = Array.from(document.body.children);
+    bodyChildren.forEach((child) => {
+        if (!elementsToExclude.includes(child)) {
+            mainElement.appendChild(child);
+        }
+    });
+
+    document.body.appendChild(mainElement);
+
+    return mainElement;
 }
 
 function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
+    // (code for checkLandmarks remains the same)
 }
 
 /**
@@ -193,11 +225,11 @@ function checkLandmarks(container = document) {
  * Logs a warning if multiple main landmarks are detected.
  */
 function ensureUniqueMainLandmarks() {
-  const mains = document.querySelectorAll('main, [role="main"]');
-  if (mains.length > 1) {
-    console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
-    throw new Error('Document should have at most one main landmark');
-  }
+    const mains = document.querySelectorAll('main, [role="main"]');
+    if (mains.length > 1) {
+        console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
+        throw new Error('Document should have at most one main landmark');
+    }
 }
 
 /**
@@ -214,38 +246,40 @@ function revokeSession(sessionId) {
  * @param {Element} element - Element to monitor for focus events
  */
 function handleFocusTrap(element) {
-  if (!element || typeof element.querySelectorAll !== 'function') {
-    return;
-  }
-
-  const focusableElements = Array.from(element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  ));
-
-  if (focusableElements.length === 0) {
-    return;
-  }
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  element.addEventListener('keydown', function(event) {
-    if (event.key !== 'Tab') {
-      return;
+    if (!element || typeof element.querySelectorAll !== 'function') {
+        return;
     }
 
-    if (event.shiftKey) {
-      if (document.activeElement === firstElement) {
-        event.preventDefault();
-        lastElement.focus();
-      }
-    } else {
-      if (document.activeElement === lastElement) {
-        event.preventDefault();
-        firstElement.focus();
-      }
+    const focusableElements = Array.from(
+        element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+    );
+
+    if (focusableElements.length === 0) {
+        return;
     }
-  });
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', function (event) {
+        if (event.key !== 'Tab') {
+            return;
+        }
+
+        if (event.shiftKey) {
+            if (document.activeElement === firstElement) {
+                event.preventDefault();
+                lastElement.focus();
+            }
+        } else {
+            if (document.activeElement === lastElement) {
+                event.preventDefault();
+                firstElement.focus();
+            }
+        }
+    });
 }
 
 // HTTP Server setup
@@ -274,7 +308,7 @@ const server = http.createServer((req, res) => {
     if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
         let body = '';
 
-        req.on('data', chunk => {
+        req.on('data', (chunk) => {
             body += chunk.toString();
         });
 
@@ -283,7 +317,9 @@ const server = http.createServer((req, res) => {
                 const credentialResponse = JSON.parse(body);
                 const result = handleCredentialResponse(credentialResponse);
 
-                res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
+                res.writeHead(result.status === 'success' ? 200 : 400, {
+                    'Content-Type': 'application/json',
+                });
                 res.end(JSON.stringify(result));
             } catch (error) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -319,7 +355,7 @@ const server = http.createServer((req, res) => {
     if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
         let body = '';
 
-        req.on('data', chunk => {
+        req.on('data', (chunk) => {
             body += chunk.toString();
         });
 
@@ -352,17 +388,17 @@ if (require.main === module) {
 
 // Export modules for testing
 module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  renderGraphIndex,
-  newFunction,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  ensureUniqueMainLandmarks,
-  handleFocusTrap,
-  revokeSession,
-  createWebResourceButton,
-  functionA,
-  functionB
+    renderDependencyGraph,
+    renderIndex,
+    renderGraphIndex,
+    newFunction,
+    checkLandmarkElement,
+    wrapPrimaryContentInMain,
+    checkLandmarks,
+    ensureUniqueMainLandmarks,
+    handleFocusTrap,
+    revokeSession,
+    createWebResourceButton,
+    functionA,
+    functionB,
 };

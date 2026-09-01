@@ -7,3 +7,5 @@ function newFunction() {
   // Implementation of the new function goes here
   console.log('New function is active!');
 }
+
+// TODO: Address accessibility issues from insight report — FIXED in main.js

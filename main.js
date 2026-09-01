@@ -131,6 +131,7 @@ function validateLandmark(landmark) {
   const issues = [];
   const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
 
+  // Check for required landmark roles
   landmarkRoles.forEach(role => {
     const elements = document.querySelectorAll(`[role="${role}"]`);
     const tagElements = document.querySelectorAll(role);
@@ -139,6 +140,27 @@ function validateLandmark(landmark) {
 
     if (totalCount > 1) {
       issues.push(`REACT_017: Landmark role "${role}" appears ${totalCount} times, should be unique`);
+    }
+
+    // Check if landmark exists in the document
+    if (totalCount === 0 && role !== 'search') {
+      issues.push(`REACT_017: Missing required landmark role "${role}"`);
+    }
+  });
+
+  // Check for proper landmark structure
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+  document.querySelectorAll('header, nav, main, aside, footer').forEach((element, index) => {
+    const tagName = element.tagName.toLowerCase();
+    const role = element.getAttribute('role');
+
+    if (role && !validLandmarks.includes(role)) {
+      issues.push(`REACT_017: Element at index ${index} has invalid role "${role}"`);
+    }
+
+    // Check for proper landmark hierarchy
+    if (tagName === 'nav' && !element.querySelector('a, button')) {
+      issues.push(`REACT_017: Navigation landmark at index ${index} has no interactive elements`);
     }
   });
 

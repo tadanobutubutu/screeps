@@ -60,22 +60,23 @@ function checkLandmarkElements() {
   checkLandmarkElement('[role="search"], [role="form"], form', 'form');
 }
 
-// Export the new function and sampleInsightReport (both versions agreed to do this)
-export { checkLandmarkElements, sampleInsightReport };
+function ensureElementIdAndAriaLabel(element) {
+  if (!element.id) {
+    element.id = `generated-id-${Date.now()}`;
+  }
+  if (!element.ariaLabel) {
+    element.setAttribute('aria-label', 'default label');
+  }
+}
 
-const sampleInsightReport = {
-  title: 'Quarterly Performance Report',
-  sections: [
-    {
-      heading: 'Sales Overview',
-      content: 'Total sales increased by 15% compared to last quarter.'
-    },
-    {
-      heading: 'Customer Satisfaction',
-      content: 'Average satisfaction score: 4.2 out of 5.'
-    }
-  ]
-};
+function renderDependencyGraphs(svgElements) {
+  const accessibleName = getSvgAccessibleName(svgElements);
+  if (accessibleName) {
+    // Use accessibleName
+  }
+
+  setSvgAttributes(svgElements);
+}
 
 function countDependencies() {
   const fs = require('fs');
@@ -92,7 +93,21 @@ function countDependencies() {
   };
 }
 
-// Rest of the code remains the same
-```
+// Export the new functions and sampleInsightReport (both versions agreed to do this)
+export { checkLandmarkElements, ensureElementIdAndAriaLabel, renderDependencyGraphs, countDependencies, sampleInsightReport };
 
-This resolved the conflict by combining both changes and keeping both features. The `checkLandmarkElements` function now checks for landmark elements and warnings for duplicates, and the `sampleInsightReport` object is exported along with the `checkLandmarkElements` function. The rest of the file remains untouched.
+const sampleInsightReport = {
+  title: 'Quarterly Performance Report',
+  sections: [
+    {
+      heading: 'Sales Overview',
+      content: 'Total sales increased by 15% compared to last quarter.'
+    },
+    {
+      heading: 'Customer Satisfaction',
+      content: 'Average satisfaction score: 4.2 out of 5.'
+    }
+  ]
+};
+
+// Rest of the code remains the same

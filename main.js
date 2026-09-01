@@ -1,68 +1,7 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
-/**
- * Validates and fixes table structure accessibility issues.
- * Handles REACT_027 - Fix 26 table structure issues
- */
-function validateTableStructure () {
-  const tables = document.querySelectorAll('table')
+const { isLandmarkElement, handleFocusTrap, addSvgAccessibilityProps, revokeSession, parseCredentialResponse, decodeJwtToken, generateSessionId, validateTableStructure, validateTableAccessibility, validateLandmark, validateLandmarkStructure, createInPageButton, personName, validateSession, getActiveSessionsCount, server, sanitizeFilename, processData, ensureFormLabels, ensureKeyboardSupport, ensureImageAltText, ensureHeadingHierarchy, ensureTextContrast } = require('./a11yStore')
 
-  tables.forEach((table) => {
-    const rows = table.querySelectorAll('tr')
-    const firstRow = rows[0]
-
-    if (!firstRow) return
-
-    // Get all header cells in the first row to determine column count
-    const firstRowThs = firstRow.querySelectorAll('th')
-    const firstRowTds = firstRow.querySelectorAll('td')
-    const firstRowHeaders = [...firstRowThs, ...firstRowTds]
-    const columnCount = firstRowHeaders.length
-
-    rows.forEach((row, rowIndex) => {
-      const ths = row.querySelectorAll('th')
-      const tds = row.querySelectorAll('td')
-      const allCells = [...ths, ...tds]
-
-      allCells.forEach((cell, cellIndex) => {
-        if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
-          const isFirstRow = rowIndex === 0
-          const isFirstCell = cellIndex === 0
-
-          // First row cells are column headers
-          if (isFirstRow) {
-            cell.setAttribute('scope', 'col')
-          }
-          // First cell in subsequent rows are row headers
-          else if (isFirstCell) {
-            cell.setAttribute('scope', 'row')
-          }
-        }
-      })
-    })
-  })
-}
-
-/**
- * Main entry point for table accessibility validation.
- * Calls validateTableStructure() to fix all table scope attribute issues.
- */
-function validateTableAccessibility () {
-  validateTableStructure()
-}
-
-// TODO: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-
-/**
- * Landmark data structure
- */
 const landmarks = [
   { id: 1, name: 'Eiffel Tower', location: 'Paris' },
   { id: 2, name: 'Statue of Liberty', location: 'New York' },
@@ -126,13 +65,31 @@ function validateLandmarkStructure () {
 }
 
 function getSvgAccessibleName (svgElement) {
-  if (svgElement.hasAttribute('aria-label')) {
-    return svgElement.getAttribute('aria-label')
+  const title = svgElement.querySelector('title')
+  const desc = svgElement.querySelector('desc')
+
+  if (title && title.textContent) {
+    return title.textContent.trim()
   }
-  if (svgElement.hasAttribute('title')) {
-    return svgElement.getAttribute('title')
+
+  if (desc && desc.textContent) {
+    return desc.textContent.trim()
   }
-  return 'graphic'
+
+  const ariaLabel = svgElement.getAttribute('aria-label')
+  if (ariaLabel) {
+    return ariaLabel.trim()
+  }
+
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby')
+  if (ariaLabelledby) {
+    const labeledElement = document.getElementById(ariaLabelledby)
+    if (labeledElement && labeledElement.textContent) {
+      return labeledElement.textContent.trim()
+    }
+  }
+
+  return 'SVG graphic'
 }
 
 function setSvgAttributes (svgElement, name) {
@@ -157,12 +114,40 @@ function handleFakeLinks () {
   })
 }
 
-module.exports = {
+/**
+ * Validates the structure of the table to ensure accessibility.
+ * @param {HTMLElement} table - The table to validate
+ * @returns {boolean} True if the table is accessible, false otherwise
+ */
+function validateTableStructure (table) {
+  if (!table) {
+    throw new Error('Table is required')
+  }
+
+  // Check for table caption (provides context for screen readers)
+  const caption = table.querySelector('caption')
+  if (!caption) {
+    return false
+  }
+
+  // Check for header cells (required for accessible tables)
+  const headers = table.querySelectorAll('th')
+  if (headers.length === 0) {
+    return false
+  }
+
+  // Verify all header cells have scope attribute
+  for (const header of headers) {
+    if (!header.hasAttribute('scope')) {
+      return false
+    }
+  }
+
+  return true
+}
+
+export {
   ensureUniqueLandmarks,
-  landmarks,
-  uniqueLandmarks,
-  validateTableAccessibility,
-  validateTableStructure,
   getLangAttribute,
   createInPageButton,
   validateLandmark,
@@ -170,5 +155,6 @@ module.exports = {
   getSvgAccessibleName,
   setSvgAttributes,
   validateLinkAccessibility,
-  handleFakeLinks
+  handleFakeLinks,
+  validateTableStructure
 }

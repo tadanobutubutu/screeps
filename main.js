@@ -5,7 +5,10 @@ import { setDependencyGraph } from './actions/dependencyGraph';
 import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
 import UserSafety from './UserSafety';
 
-// ... previous code
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Original code goes here
+// ----- END ORIGINAL CODE -----
 
 // Function to fetch book dependencies and update the Redux store
 async function fetchBookDependencies(bookId) {

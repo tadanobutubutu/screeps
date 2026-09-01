@@ -23,7 +23,6 @@ function addSvgAccessibilityProps() {
   });
 }
 
-<<<<<<< HEAD
 // Existing exports and functions must be preserved
 // Example:
 // export function someExistingFunction() {
@@ -48,7 +47,8 @@ function createInPageButton() {
   button.textContent = 'Click me';
   document.body.appendChild(button);
   return button;
-=======
+}
+
 function getSvgAccessibleName(svg) {
   const title = svg.querySelector('title');
   if (title) {
@@ -196,6 +196,7 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
+    getLangAttribute,
     handleCredentialResponse,
     addSvgAccessibilityProps,
     getSvgAccessibleName,

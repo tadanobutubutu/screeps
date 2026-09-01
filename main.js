@@ -15,82 +15,84 @@
  * @param {boolean} [options.returnFocus=true] - Whether to return focus to the element that triggered the trap
  * @returns {Object} An object with methods to activate, deactivate, and destroy the focus trap
  */
-function createFocusTrap(container, options = {}) {
-    const { initialFocus = false, returnFocus = true } = options;
-    let active = false;
-    let previousActiveElement = null;
-    let focusableElements = [];
+function createFocusTrap (container, options = {}) {
+  const { initialFocus = false, returnFocus = true } = options
+  let active = false
+  let previousActiveElement = null
+  let focusableElements = []
 
-    // Get all focusable elements within the container
-    function getFocusableElements() {
-        return Array.from(container.querySelectorAll(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        )).filter(el => !el.hasAttribute('disabled') && el.offsetParent !== null);
+  // Get all focusable elements within the container
+  function getFocusableElements () {
+    return Array.from(
+      container.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null)
+  }
+
+  // Handle keydown events for tab trapping
+  function handleKeyDown (event) {
+    if (event.key !== 'Tab') return
+
+    const elements = getFocusableElements()
+    if (elements.length === 0) return
+
+    const firstElement = elements[0]
+    const lastElement = elements[elements.length - 1]
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      // Shift+Tab from first element should go to last
+      lastElement.focus()
+      event.preventDefault()
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      // Tab from last element should go to first
+      firstElement.focus()
+      event.preventDefault()
+    }
+  }
+
+  // Activate the focus trap
+  function activate () {
+    if (active) return
+
+    previousActiveElement = document.activeElement
+    focusableElements = getFocusableElements()
+
+    if (initialFocus && focusableElements.length > 0) {
+      focusableElements[0].focus()
     }
 
-    // Handle keydown events for tab trapping
-    function handleKeyDown(event) {
-        if (event.key !== 'Tab') return;
+    container.addEventListener('keydown', handleKeyDown)
+    active = true
+  }
 
-        const elements = getFocusableElements();
-        if (elements.length === 0) return;
+  // Deactivate the focus trap
+  function deactivate () {
+    if (!active) return
 
-        const firstElement = elements[0];
-        const lastElement = elements[elements.length - 1];
+    container.removeEventListener('keydown', handleKeyDown)
 
-        if (event.shiftKey && document.activeElement === firstElement) {
-            // Shift+Tab from first element should go to last
-            lastElement.focus();
-            event.preventDefault();
-        } else if (!event.shiftKey && document.activeElement === lastElement) {
-            // Tab from last element should go to first
-            firstElement.focus();
-            event.preventDefault();
-        }
+    if (returnFocus && previousActiveElement) {
+      previousActiveElement.focus()
     }
 
-    // Activate the focus trap
-    function activate() {
-        if (active) return;
+    active = false
+    previousActiveElement = null
+    focusableElements = []
+  }
 
-        previousActiveElement = document.activeElement;
-        focusableElements = getFocusableElements();
+  // Destroy the focus trap completely
+  function destroy () {
+    deactivate()
+    // No need to remove event listeners as they're already removed in deactivate
+  }
 
-        if (initialFocus && focusableElements.length > 0) {
-            focusableElements[0].focus();
-        }
-
-        container.addEventListener('keydown', handleKeyDown);
-        active = true;
-    }
-
-    // Deactivate the focus trap
-    function deactivate() {
-        if (!active) return;
-
-        container.removeEventListener('keydown', handleKeyDown);
-
-        if (returnFocus && previousActiveElement) {
-            previousActiveElement.focus();
-        }
-
-        active = false;
-        previousActiveElement = null;
-        focusableElements = [];
-    }
-
-    // Destroy the focus trap completely
-    function destroy() {
-        deactivate();
-        // No need to remove event listeners as they're already removed in deactivate
-    }
-
-    return {
-        activate,
-        deactivate,
-        destroy
-    };
+  return {
+    activate,
+    deactivate,
+    destroy
+  }
 }
 
 // Export the new function while preserving existing exports
-export { createFocusTrap };
+export { createFocusTrap }

@@ -148,6 +148,7 @@ function renderDependencyGraph(container, dependencies = {}) {
     return graphElement;
 }
 
+// TODO: This is the existing code that needs to be preserved
 // Original content from main.js
 function existingFunction() {
     // existing code
@@ -172,3 +173,6 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
 
     // Append the button to the body or a specific container
     document.body.appendChild(button);
+
+    return button;
+}

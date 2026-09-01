@@ -242,5 +242,18 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  addBook,
+  enhanceAccessibilityForAddBook,
+  sortByTitle,
+  sortByAuthor,
+  generateKey,
+  BookItem,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  initializeApp,
+  registerSW,
+  checkSafety
 };

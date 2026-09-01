@@ -141,6 +141,113 @@
       require(modulePath)[functionName](callback);
     }
 
+    // New function to handle spawning logic
+    function spawnEntity(entityType, options = {}) {
+      // Default options
+      const defaultOptions = {
+        position: { x: 0, y: 0, z: 0 },
+        rotation: { x: 0, y: 0, z: 0 },
+        scale: { x: 1, y: 1, z: 1 },
+        properties: {}
+      };
+
+      // Merge options with defaults
+      const spawnOptions = { ...defaultOptions, ...options };
+
+      // Create entity based on type
+      let entity;
+      switch (entityType.toLowerCase()) {
+        case 'player':
+          entity = createPlayer(spawnOptions);
+          break;
+        case 'npc':
+          entity = createNPC(spawnOptions);
+          break;
+        case 'object':
+          entity = createObject(spawnOptions);
+          break;
+        case 'vehicle':
+          entity = createVehicle(spawnOptions);
+          break;
+        default:
+          throw new Error(`Unknown entity type: ${entityType}`);
+      }
+
+      // Apply additional properties if provided
+      if (spawnOptions.properties) {
+        Object.assign(entity, spawnOptions.properties);
+      }
+
+      // Add to game world
+      addToWorld(entity);
+
+      return entity;
+    }
+
+    // Helper function to create a player entity
+    function createPlayer(options) {
+      return {
+        type: 'player',
+        id: generateUniqueId(),
+        position: options.position,
+        rotation: options.rotation,
+        scale: options.scale,
+        health: 100,
+        inventory: [],
+        isAlive: true
+      };
+    }
+
+    // Helper function to create an NPC entity
+    function createNPC(options) {
+      return {
+        type: 'npc',
+        id: generateUniqueId(),
+        position: options.position,
+        rotation: options.rotation,
+        scale: options.scale,
+        dialogue: [],
+        isHostile: false
+      };
+    }
+
+    // Helper function to create an object entity
+    function createObject(options) {
+      return {
+        type: 'object',
+        id: generateUniqueId(),
+        position: options.position,
+        rotation: options.rotation,
+        scale: options.scale,
+        isInteractive: false
+      };
+    }
+
+    // Helper function to create a vehicle entity
+    function createVehicle(options) {
+      return {
+        type: 'vehicle',
+        id: generateUniqueId(),
+        position: options.position,
+        rotation: options.rotation,
+        scale: options.scale,
+        speed: 0,
+        maxSpeed: 100
+      };
+    }
+
+    // Helper function to generate a unique ID
+    function generateUniqueId() {
+      return Math.random().toString(36).substring(2, 9);
+    }
+
+    // Helper function to add entity to the game world
+    function addToWorld(entity) {
+      // Implementation would depend on the game engine being used
+      console.log(`Adding ${entity.type} to world at position`, entity.position);
+      // In a real implementation, this would add the entity to the game world
+    }
+
     // Initialize the application with accessibility improvements
     function initialize() {
         // Ensure the dependencyGraph container has a proper ARIA role
@@ -182,7 +289,8 @@
       scanAccessibility,
       writeReport,
       importAndExecute,
-      initialize
+      initialize,
+      spawnEntity
     };
 
     // Initialize on DOM ready

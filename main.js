@@ -256,6 +256,8 @@ function addressAccessibilityIssues(insightReport) {
   document.head.appendChild(style);
 }
 
+// TODO: Implement this function for creating in-page buttons
+// (Now implemented)
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
     button.id = buttonId;

@@ -23,3 +23,11 @@ function countDependencies(dependencies) {
   }
   return dependencies.filter(Boolean).length;
 }
+
+// TODO: Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// Example: Assuming there is a container element with the id 'dependencyGraph'
+const dependencyGraphContainer = document.getElementById('dependencyGraph');
+if (dependencyGraphContainer) {
+  dependencyGraphContainer.setAttribute('role', 'graph');
+}

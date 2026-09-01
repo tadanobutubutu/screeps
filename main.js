@@ -378,6 +378,7 @@ function generateAccessibilityReport(issuesData) {
   };
 
   writeReport(report);
+
   return report;
 }
 

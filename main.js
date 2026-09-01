@@ -234,7 +234,10 @@ function countDependencies() {
   const dependencies = {
     'react': true,
     'react-redux': true,
-    'antd': true
+    'antd': true,
+    'effector-sw': true,
+    'express': true,
+    'path': true
   };
   return Object.keys(dependencies).length;
 }

@@ -2,7 +2,7 @@ import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+// Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
@@ -60,7 +60,7 @@ function validateLandmark(landmark) {
   // Validate longitude
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || ... {
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
     errors.push('Landmark longitude must be a number');
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
@@ -94,7 +94,7 @@ function validateLandmark(landmark) {
  * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
-  const element = ...
+  const element = document.getElementById(id);
   return element !== null;
 }
 
@@ -149,8 +149,8 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if ... {
-          ... = true;
+        if (!elementsById[landmark.id]) {
+          elementsById[landmark.id] = true;
         } else {
           landmark.id += '_duplicate';
         }
@@ -167,7 +167,7 @@ function renderDependencyGraphContent() {
   if (!container) {
     return;
   }
-  
+
   // Use the new functions for rendering
   renderDependencyGraph(container);
   renderIndexView(container);
@@ -181,6 +181,261 @@ function countDependencies() {
     'antd': true
   };
   return Object.keys(dependencies).length;
+}
+
+// New function to get language attribute
+function getLangAttribute() {
+  return document.documentElement.getAttribute('lang') || 'en';
+}
+
+// New function to add language attribute
+function addLangAttribute(lang = 'en') {
+  document.documentElement.setAttribute('lang', lang);
+}
+
+// New function to validate table accessibility
+function validateTableAccessibility(table) {
+  if (!table) return false;
+
+  // Check if table has a caption
+  const hasCaption = table.querySelector('caption') !== null;
+
+  // Check if table has proper headers
+  const headers = table.querySelectorAll('th');
+  const hasHeaders = headers.length > 0;
+
+  // Check if table has proper scope attributes for headers
+  let hasScope = true;
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      hasScope = false;
+    }
+  });
+
+  return hasCaption && hasHeaders && hasScope;
+}
+
+// New function to validate table structure
+function validateTableStructure(table) {
+  if (!table) return false;
+
+  // Check if table has proper row structure
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) return false;
+
+  // Check if first row has th elements (header row)
+  const firstRow = rows[0];
+  const headerCells = firstRow.querySelectorAll('th');
+  if (headerCells.length === 0) return false;
+
+  // Check if all rows have proper cell count
+  const cellCount = headerCells.length;
+  let isValid = true;
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('td, th');
+    if (cells.length !== cellCount) {
+      isValid = false;
+    }
+  });
+
+  return isValid;
+}
+
+// New function to fix table structure
+function fixTableStructure(table) {
+  if (!table) return;
+
+  // Add caption if missing
+  if (!table.querySelector('caption')) {
+    const caption = document.createElement('caption');
+    caption.textContent = 'Table caption';
+    table.prepend(caption);
+  }
+
+  // Add scope to headers if missing
+  const headers = table.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+
+  // Ensure all rows have proper cell count
+  const rows = table.querySelectorAll('tr');
+  if (rows.length > 0) {
+    const firstRow = rows[0];
+    const headerCells = firstRow.querySelectorAll('th');
+    const cellCount = headerCells.length;
+
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length < cellCount) {
+        // Add missing cells
+        const missingCount = cellCount - cells.length;
+        for (let i = 0; i < missingCount; i++) {
+          const newCell = document.createElement('td');
+          newCell.textContent = ' ';
+          row.appendChild(newCell);
+        }
+      }
+    });
+  }
+}
+
+// New function to add main landmark
+function addMainLandmark() {
+  const mainElement = document.querySelector('main');
+  if (!mainElement) {
+    const newMain = document.createElement('main');
+    newMain.setAttribute('role', 'main');
+    document.body.prepend(newMain);
+  } else if (!mainElement.hasAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+}
+
+// New function to validate landmark structure
+function validateLandmarkStructure() {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const errors = [];
+
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    if (elements.length > 1) {
+      errors.push(`Multiple ${landmark} landmarks found`);
+    }
+  });
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+// New function to get SVG accessible name
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+
+  // Check for title element
+  const title = svg.querySelector('title');
+  if (title) return title.textContent.trim();
+
+  // Check for aria-label
+  if (svg.hasAttribute('aria-label')) {
+    return svg.getAttribute('aria-label').trim();
+  }
+
+  // Check for aria-labelledby
+  if (svg.hasAttribute('aria-labelledby')) {
+    const id = svg.getAttribute('aria-labelledby');
+    const labelElement = document.getElementById(id);
+    if (labelElement) return labelElement.textContent.trim();
+  }
+
+  return '';
+}
+
+// New function to set SVG attributes
+function setSvgAttributes(svg, name) {
+  if (!svg || !name) return;
+
+  // Set aria-label if not already set
+  if (!svg.hasAttribute('aria-label')) {
+    svg.setAttribute('aria-label', name);
+  }
+
+  // Add title element if not present
+  if (!svg.querySelector('title')) {
+    const title = document.createElement('title');
+    title.textContent = name;
+    svg.prepend(title);
+  }
+}
+
+// New function to validate link accessibility
+function validateLinkAccessibility(link) {
+  if (!link) return false;
+
+  // Check if link has text content
+  const hasText = link.textContent.trim().length > 0;
+
+  // Check if link has aria-label if it's an icon-only link
+  const hasAriaLabel = link.hasAttribute('aria-label') && link.getAttribute('aria-label').trim().length > 0;
+
+  // Check if link has proper href
+  const hasHref = link.hasAttribute('href') && link.getAttribute('href').trim().length > 0;
+
+  return (hasText || hasAriaLabel) && hasHref;
+}
+
+// New function to handle fake links
+function handleFakeLinks() {
+  const links = document.querySelectorAll('a[href="#"]');
+
+  links.forEach(link => {
+    // If link has no click handler, make it a button
+    if (!link.onclick && !link.hasAttribute('onclick')) {
+      const button = document.createElement('button');
+      button.textContent = link.textContent;
+      button.className = link.className;
+      link.replaceWith(button);
+    }
+  });
+}
+
+// New function to add proper landmark regions
+function addProperLandmarkRegions() {
+  // Add main landmark if missing
+  addMainLandmark();
+
+  // Add navigation landmark if missing
+  const navElement = document.querySelector('nav');
+  if (!navElement) {
+    const newNav = document.createElement('nav');
+    newNav.setAttribute('role', 'navigation');
+    document.body.prepend(newNav);
+  } else if (!navElement.hasAttribute('role')) {
+    navElement.setAttribute('role', 'navigation');
+  }
+
+  // Add contentinfo landmark if missing
+  const footerElement = document.querySelector('footer');
+  if (!footerElement) {
+    const newFooter = document.createElement('footer');
+    newFooter.setAttribute('role', 'contentinfo');
+    document.body.appendChild(newFooter);
+  } else if (!footerElement.hasAttribute('role')) {
+    footerElement.setAttribute('role', 'contentinfo');
+  }
+}
+
+// New function to address all insight issues
+function addressInsightIssues() {
+  // Add lang attribute
+  addLangAttribute();
+
+  // Fix table issues
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!validateTableAccessibility(table) || !validateTableStructure(table)) {
+      fixTableStructure(table);
+    }
+  });
+
+  // Add/fix landmarks
+  addProperLandmarkRegions();
+
+  // Add accessible names to SVGs
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const name = getSvgAccessibleName(svg);
+    if (!name) {
+      setSvgAttributes(svg, 'Graphic element');
+    }
+  });
+
+  // Fix fake links
+  handleFakeLinks();
 }
 
 // Export functions for testing
@@ -208,5 +463,16 @@ export {
   calculateSum,
   addProperLandmarkRegions,
   countDependencies,
-  createInPageButtons // Added new export
+  createInPageButtons, // Added new export
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks
 };

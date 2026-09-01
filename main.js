@@ -56,6 +56,8 @@ function initAccessibility() {
   if (typeof window !== 'undefined') {
     // Ensure screen reader support is available
     document.body.setAttribute('role', 'application');
+    // Add lang attribute to HTML element
+    document.documentElement.lang = 'en';
   }
   return accessibilityUtils;
 }
@@ -265,6 +267,74 @@ function log(message, level = 'info') {
   console[level === 'error' ? 'error' : 'log'](`[${timestamp}] [${level}] ${message}`);
 }
 
+/**
+ * Add accessible names to SVG elements
+ * @param {SVGElement} svgElement - The SVG element to add accessible name to
+ * @param {string} name - The accessible name to add
+ */
+function addAccessibleNameToSVG(svgElement, name) {
+  if (!svgElement || !name) return;
+
+  // Add aria-label if not already present
+  if (!svgElement.getAttribute('aria-label')) {
+    svgElement.setAttribute('aria-label', name);
+  }
+
+  // Add title element for additional accessibility
+  let titleElement = svgElement.querySelector('title');
+  if (!titleElement) {
+    titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    svgElement.insertBefore(titleElement, svgElement.firstChild);
+  }
+  titleElement.textContent = name;
+}
+
+/**
+ * Ensure unique landmark roles in the document
+ * @param {HTMLElement} element - The element to check for landmark roles
+ * @param {string} role - The landmark role to ensure uniqueness for
+ */
+function ensureUniqueLandmark(element, role) {
+  if (!element || !role) return;
+
+  // Check if the element already has the role
+  if (element.getAttribute('role') !== role) {
+    element.setAttribute('role', role);
+  }
+
+  // Ensure the landmark is unique by adding an ID if needed
+  if (!element.id) {
+    element.id = `${role}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+}
+
+/**
+ * Fix fake links by converting them to proper buttons or adding proper ARIA attributes
+ * @param {HTMLElement} element - The element to fix
+ */
+function fixFakeLink(element) {
+  if (!element) return;
+
+  // If it's a fake link (span with click handler), convert to button
+  if (element.tagName === 'SPAN' && element.onclick) {
+    const button = document.createElement('button');
+    button.textContent = element.textContent;
+    button.onclick = element.onclick;
+    button.className = element.className;
+    element.parentNode.replaceChild(button, element);
+    return button;
+  }
+
+  // If it's a link without href, add proper ARIA attributes
+  if (element.tagName === 'A' && !element.getAttribute('href')) {
+    element.setAttribute('role', 'button');
+    element.setAttribute('tabindex', '0');
+    element.setAttribute('aria-disabled', 'true');
+  }
+
+  return element;
+}
+
 module.exports = {
   accessibilityUtils,
   exportUtils,
@@ -277,5 +347,8 @@ module.exports = {
   renderDependencyGraphs,
   spawnProcess,
   focusTrap,
-  newFocusTrap
+  newFocusTrap,
+  addAccessibleNameToSVG,
+  ensureUniqueLandmark,
+  fixFakeLink
 };

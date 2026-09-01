@@ -6,8 +6,16 @@ function newFunction() {
   console.log('New function is active!');
 }
 
+// Function to count dependencies (implements the requested feature)
+function countDependencies(dependencies) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0;
+  }
+  return Object.keys(dependencies).length;
+}
+
 // Add back any required exports that might have been removed
-export { newFunction, ...existingExports };
+export { newFunction, countDependencies, ...existingExports };
 
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]

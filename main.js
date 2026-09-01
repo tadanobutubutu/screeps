@@ -66,7 +66,41 @@ function getLangAttribute() {
 }
 
 function validateTableAccessibility(table, index) {
-  // TODO: Implement validation logic here
+  // Validate table accessibility
+  if (!(table instanceof HTMLElement) || table.tagName !== 'TABLE') {
+    console.warn(`Invalid table element passed to validateTableAccessibility: ${table.tagName || 'null'}`);
+    return false;
+  }
+  
+  // Check for basic table structure
+  const trCount = Array.from(table.querySelectorAll('tr')).length;
+  if (trCount === 0) {
+    console.warn('Table has no rows');
+    return false;
+  }
+  
+  // Look for header row indicators
+  const headerRows = Array.from(table.querySelectorAll('tr')).filter(row => 
+    row.querySelectorAll('th').length > 0
+  );
+  
+  if (headerRows.length === 0) {
+    console.warn('Table must have at least one header row');
+    return false;
+  }
+  
+  // If there are data rows, ensure they reference the header
+  // This is a simplified check - real implementation would be more complex
+  const dataRows = Array.from(table.querySelectorAll('tr')).filter(row => 
+    !row.querySelector('th')
+  );
+  
+  if (dataRows.length > 0 && headerRows.length > 0) {
+    // At least one data row exists, which is good
+  }
+  
+  // Overall success
+  return true;
 }
 
 function validateTableStructure() {

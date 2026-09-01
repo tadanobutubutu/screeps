@@ -343,7 +343,7 @@ function addLandmarkRegions() {
 function getSvgAccessibleName(svgElement) {
     // Merged implementation (conflict resolved)
     if (!svgElement) return 'Accessible SVG Icon';
-    
+
     const title = svgElement.querySelector('title');
     const ariaLabel = svgElement.getAttribute('aria-label');
     if (title) return title.textContent;

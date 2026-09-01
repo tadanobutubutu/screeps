@@ -63,7 +63,7 @@ function getLangAttribute() {
 function detectAndSetLang(content) {
   // Simple language detection based on common patterns
   let lang = 'en'; // Default to English
-  
+
   if (content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
@@ -80,7 +80,7 @@ function detectAndSetLang(content) {
       lang = 'de'; // German;
     }
   }
-  
+
   return lang;
 }
 
@@ -158,21 +158,76 @@ function getSvgAccessibleName(svg) {
   return ... || svg.getAttribute('title') || '';
 }
 
+// TODO: Implement the new function as per the issue requirements
+/**
+ * Creates a new accessibility report for the current page
+ * @param {Object} options - Configuration options for the report
+ * @param {boolean} options.includeTables - Whether to include table accessibility checks
+ * @param {boolean} options.includeLandmarks - Whether to include landmark accessibility checks
+ * @returns {Object} The generated accessibility report
+ */
+function generateAccessibilityReport(options = {}) {
+  const report = {
+    timestamp: new Date().toISOString(),
+    tables: [],
+    landmarks: [],
+    svgs: []
+  };
+
+  // Check tables if enabled
+  if (options.includeTables && typeof document !== 'undefined') {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      report.tables.push({
+        element: table,
+        isAccessible: validateTableAccessibility(table),
+        isValidStructure: validateTableStructure(table)
+      });
+    });
+  }
+
+  // Check landmarks if enabled
+  if (options.includeLandmarks && typeof document !== 'undefined') {
+    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
+    landmarks.forEach(landmark => {
+      report.landmarks.push({
+        element: landmark,
+        isValid: validateLandmark(landmark),
+        isValidStructure: validateLandmarkStructure(landmark)
+      });
+    });
+  }
+
+  // Check SVGs
+  if (typeof document !== 'undefined') {
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+      report.svgs.push({
+        element: svg,
+        accessibleName: getSvgAccessibleName(svg)
+      });
+    });
+  }
+
+  return report;
+}
+
 // REACT_015: Add lang attribute to HTML element
 // Add the language attribute to the HTML element for proper accessibility
 if (typeof document !== 'undefined' && document.documentElement) {
   detectAndSetLang();
 }
 
-module.exports = { 
-  setHtmlLangAttribute, 
-  getLangAttribute, 
-  detectAndSetLang, 
-  personName, 
-  createInPageButton, 
-  validateTableAccessibility, 
-  validateTableStructure, 
-  validateLandmark, 
-  validateLandmarkStructure, 
-  getSvgAccessibleName 
+module.exports = {
+  setHtmlLangAttribute,
+  getLangAttribute,
+  detectAndSetLang,
+  personName,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  generateAccessibilityReport
 };

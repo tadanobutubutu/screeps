@@ -177,21 +177,109 @@ module.exports = {
   createWebResourceButton: createWebResourceButton,
 
   // TODO: Validate the table structure for accessibility issues
-  validateTableAccessibility,
-  validateTableStructure,
+  validateTableAccessibility: (table) => {
+    if (!table || !(table instanceof HTMLElement) || table.tagName !== 'TABLE') {
+      return { valid: false, errors: ['Not a valid table element'] };
+    }
+
+    const errors = [];
+    const hasCaption = table.querySelector('caption') !== null;
+    if (!hasCaption) {
+      errors.push('Table is missing a caption');
+    }
+
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      errors.push('Table is missing header cells');
+    }
+
+    const rows = table.querySelectorAll('tr');
+    rows.forEach((row, index) => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length === 0 && index > 0) {
+        errors.push(`Row ${index + 1} has no cells`);
+      }
+    });
+
+    return {
+      valid: errors.length === 0,
+      errors: errors.length > 0 ? errors : null
+    };
+  },
+
+  validateTableStructure: (table) => {
+    if (!table || !(table instanceof HTMLElement) || table.tagName !== 'TABLE') {
+      return { valid: false, errors: ['Not a valid table element'] };
+    }
+
+    const errors = [];
+    const hasThead = table.querySelector('thead') !== null;
+    const hasTbody = table.querySelector('tbody') !== null;
+    const hasTfoot = table.querySelector('tfoot') !== null;
+
+    if (!hasThead && !hasTbody) {
+      errors.push('Table should have at least a thead or tbody section');
+    }
+
+    const rows = table.querySelectorAll('tr');
+    rows.forEach((row, index) => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length === 0 && index > 0) {
+        errors.push(`Row ${index + 1} has no cells`);
+      }
+    });
+
+    return {
+      valid: errors.length === 0,
+      errors: errors.length > 0 ? errors : null
+    };
+  },
 
   // TODO: Validate the landmark structure for accessibility issues
-  validateLandmark,
-  validateLandmarkStructure,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
 
   // TODO: Extract the accessible name for an SVG from its content
-  getSvgAccessibleName,
+  getSvgAccessibleName: (svg) => {
+    if (!svg || !(svg instanceof SVGElement)) {
+      return null;
+    }
+
+    // Check for aria-label or aria-labelledby
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (ariaLabel) return ariaLabel;
+
+    const ariaLabelledBy = svg.getAttribute('aria-labelledby');
+    if (ariaLabelledBy) {
+      const labelledElement = document.getElementById(ariaLabelledBy);
+      if (labelledElement) return labelledElement.textContent.trim();
+    }
+
+    // Check for title element
+    const title = svg.querySelector('title');
+    if (title) return title.textContent.trim();
+
+    // Check for desc element
+    const desc = svg.querySelector('desc');
+    if (desc) return desc.textContent.trim();
+
+    // Check for text content
+    const textContent = svg.textContent.trim();
+    if (textContent.length > 0) return textContent;
+
+    return null;
+  },
 
   // TODO: Add a language attribute to the HTML element
-  getLangAttribute,
+  getLangAttribute: (element) => {
+    if (!element || !(element instanceof HTMLElement)) {
+      return null;
+    }
+    return element.getAttribute('lang') || element.getAttribute('xml:lang');
+  },
 
   // TODO: Validate the accessibility report for issues
-  validateAccessibilityReport,
+  validateAccessibilityReport: validateAccessibilityReport,
 
   // TODO: Address new accessibility issues from insight report ( implement new functions and fixes as needed)
 

@@ -3,6 +3,12 @@
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
 
+// TODO: This is the existing code that needs to be preserved
+// Line 7
+// Line 8
+// Line 9
+// Line 10
+
 /**
  * Main application entry point with accessibility features
  */
@@ -496,9 +502,9 @@ const AddressabilityIssues = {
     const devDependencies = packageJson.devDependencies || {};
 
     return {
-      dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
-      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+        dependencies: Object.keys(dependencies).length,
+        devDependencies: Object.keys(devDependencies).length,
+        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
   }
 };

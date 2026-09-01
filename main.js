@@ -136,6 +136,32 @@ function handleIssue(issue) {
   }
 }
 
+// New function to improve accessibility for adding a new book
+function addBookAccessibility() {
+  const addBookForm = document.getElementById('add-book-form');
+  if (addBookForm) {
+    // Ensure form has proper ARIA attributes
+    addBookForm.setAttribute('role', 'form');
+    addBookForm.setAttribute('aria-labelledby', 'add-book-heading');
+
+    // Add labels to form fields
+    const titleInput = document.getElementById('book-title');
+    if (titleInput) {
+      titleInput.setAttribute('aria-label', 'Book title');
+    }
+
+    const authorInput = document.getElementById('book-author');
+    if (authorInput) {
+      authorInput.setAttribute('aria-label', 'Book author');
+    }
+
+    const submitButton = document.getElementById('add-book-submit');
+    if (submitButton) {
+      submitButton.setAttribute('aria-label', 'Add new book to collection');
+    }
+  }
+}
+
 // ... (existing code for loading, processing, and sorting landmarks)
 
 // Export functions for testing
@@ -146,6 +172,7 @@ if (typeof module !== 'undefined' && module.exports) {
     sortLandmarks,
     getLandmarkById,
     ensureUniqueLandmarks,
-    addressAccessibilityIssues
+    addressAccessibilityIssues,
+    addBookAccessibility // Add the new function to exports
   };
 }

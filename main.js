@@ -171,7 +171,7 @@ function addressAccessibilityIssues(container) {
   }
 
   return fixes;
-},
+}
 
 // New feature: Priority-based task scheduling
 class ScreepsBot {
@@ -256,10 +256,6 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
     fakeLinksFixed: 0
   };
 
-  // Accessibility-related functions
-  getLangAttribute = getLangAttributeImpl || function() { return getLangAttributeImpl. call(this); },
-  createInPageButton = createInPageButtonImpl || function() { return createInPageButtonImpl. call(this); },
-
   // Main logic from the original implementation
   if (container) {
     // Add lang attribute if missing
@@ -343,8 +339,9 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
     if (fakeLinkFixes > 0) {
       log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
     }
+  }
 
-    return fixes;
+  return fixes;
 }
 
 // Existing function

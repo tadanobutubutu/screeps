@@ -1,7 +1,11 @@
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views to import and use dependencyGraphContent/indexContent from the
+// appropriate modules.
+// Updated: imported and used dependencyGraphContent and indexContent in the
+// relevant rendering functions.
 
 /**
  * Main application entry point with accessibility features
@@ -106,6 +110,27 @@ function handleCredentialResponse(response) {
     }
 
     return processedCredential;
+}
+
+/**
+ * Render dependency graph using imported dependencyGraphContent
+ */
+function renderDependencyGraph() {
+  const container = document.getElementById('dependency-graph');
+  if (container && typeof dependencyGraphContent === 'function') {
+    container.innerHTML = dependencyGraphContent();
+    addSvgAccessibilityProps();
+  }
+}
+
+/**
+ * Render index view using imported indexContent
+ */
+function renderIndexView() {
+  const container = document.getElementById('index-view');
+  if (container && typeof indexContent === 'function') {
+    container.innerHTML = indexContent();
+  }
 }
 
 // Ensure DOM is fully loaded before executing scripts
@@ -259,5 +284,9 @@ function ensureUniqueLandmarks() {
     }
   });
 }
+
+// Importing dependencyGraphContent and indexContent from appropriate modules
+import dependencyGraphContent from './dependencyGraphContent';
+import indexContent from './indexContent';
 
 // ... (Existing common functions are omitted for brevity)

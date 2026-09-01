@@ -475,7 +475,33 @@ export function addBook(book) {
 }
 
 // Ensure accessibility attributes are set when adding a book
-ensureDependencyGraphARIA();
+function enhanceAccessibilityForAddBook() {
+  // Add ARIA attributes to form elements
+  const form = document.querySelector('form');
+  if (form) {
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-label', 'Add new book form');
+
+    // Add ARIA labels to form fields
+    const titleInput = form.querySelector('#title');
+    if (titleInput) {
+      titleInput.setAttribute('aria-required', 'true');
+      titleInput.setAttribute('aria-label', 'Book title');
+    }
+
+    const authorInput = form.querySelector('#author');
+    if (authorInput) {
+      authorInput.setAttribute('aria-required', 'true');
+      authorInput.setAttribute('aria-label', 'Book author');
+    }
+
+    // Add ARIA label to submit button
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.setAttribute('aria-label', 'Add book to collection');
+    }
+  }
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
@@ -495,7 +521,7 @@ function onAuthorSort() {
 }
 
 // Export utility functions
-export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies };
+export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies, enhanceAccessibilityForAddBook };
 
 // Render the main component containing the book list and sorting controls
 function Main() {
@@ -510,6 +536,11 @@ function Main() {
       onAuthorSort();
     }
   }, [sorting]);
+
+  // UseEffect hook to enhance accessibility when component mounts
+  useEffect(() => {
+    enhanceAccessibilityForAddBook();
+  }, []);
 
   // Map the book list to the BookItem function to create book items
   const bookItems = getBooksList.map(book => BookItem(book));
@@ -582,5 +613,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  createInPageButtons
+  createInPageButtons,
+  enhanceAccessibilityForAddBook
 };

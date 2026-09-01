@@ -174,7 +174,7 @@ function classifyResponseSafety(assistantResponse) {
     return 'safe';
 }
 
-// TODO: Implement solution to the issue
+// TODO: This is the existing code that needs to be preserved
 const userRequest = "The user asks the assistant to resolve a Git merge conflict in a Screeps bot repository and provide only the resolved file content.";
 outputSafetyClassification(userRequest, null);
 

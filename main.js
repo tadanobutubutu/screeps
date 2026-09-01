@@ -92,7 +92,7 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(tables) {
   const allIssues = [];
-  
+
   // Handle both single table element and array of tables
   const tableArray = Array.isArray(tables) ? tables : [tables];
 
@@ -119,6 +119,27 @@ function validateTableStructure(tables) {
   return {
     success: allIssues.length === 0,
     issues: allIssues
+  };
+}
+
+/**
+ * Validates landmark elements for accessibility
+ * @param {Object} element - The element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLandmark(element) {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+
+  if (!element.tagName) {
+    issues.push('Missing tagName');
+  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
+    issues.push(`Invalid landmark: ${element.tagName}`);
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
   };
 }
 
@@ -320,7 +341,7 @@ function addLandmarkRegions() {
 function getSvgAccessibleName(svgElement) {
     // Merged implementation (conflict resolved)
     if (!svgElement) return 'Accessible SVG Icon';
-    
+
     const title = svgElement.querySelector('title');
     const ariaLabel = svgElement.getAttribute('aria-label');
     if (title) return title.textContent;

@@ -111,6 +111,11 @@ module.exports = {
   updateFunction,
   accessibleFunction,
   main,
+  createWebResourceButton,
+  validateAccessibilityReport,
+  CONFIG,
+  accessibilityUtils,
+  log
 };
 
 // Also attach to global scope for browser/standalone access
@@ -119,4 +124,9 @@ if (typeof window !== 'undefined') {
   window.updateFunction = updateFunction;
   window.accessibleFunction = accessibleFunction;
   window.main = main;
+  window.createWebResourceButton = createWebResourceButton;
+  window.validateAccessibilityReport = validateAccessibilityReport;
+  window.CONFIG = CONFIG;
+  window.accessibilityUtils = accessibilityUtils;
+  window.log = log;
 }

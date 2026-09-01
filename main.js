@@ -146,6 +146,22 @@ if (typeof module !== 'undefined' && module.exports) {
     sortLandmarks,
     getLandmarkById,
     ensureUniqueLandmarks,
-    addressAccessibilityIssues
+    addressAccessibilityIssues,
+    fixAccessibilityIssues,
+    initialize,
+    initializeApp,
+    config,
+    handleIssue,
+    getLangAttribute,
+    getFullLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    checkLinkAccessibility
   };
 }

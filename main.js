@@ -111,7 +111,7 @@ function addLandmarkRoles() {
   if (mainElement && mainElement.setAttribute) {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   const navElement = document.querySelector('nav');
   if (navElement && navElement.setAttribute) {
     navElement.setAttribute('role', 'navigation');
@@ -298,7 +298,7 @@ function addressAccessibilityIssues(insightReport) {
 // Get insight report
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -309,7 +309,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -324,7 +324,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -339,7 +339,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -353,7 +353,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -368,7 +368,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
@@ -382,11 +382,186 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check SVG accessibility
   const svgAccessibleNames = getSvgAccessibleName();
 
   return issues;
+}
+
+// Add book form accessibility improvements
+function addBookFormAccessibility(formElement) {
+  if (!formElement) return;
+
+  // Ensure form has proper ARIA attributes
+  formElement.setAttribute('role', 'form');
+  formElement.setAttribute('aria-labelledby', 'addBookFormTitle');
+
+  // Add accessible labels to form fields
+  const titleInput = formElement.querySelector('#bookTitle');
+  if (titleInput) {
+    titleInput.setAttribute('aria-label', 'Book Title');
+    titleInput.setAttribute('required', 'true');
+  }
+
+  const authorInput = formElement.querySelector('#bookAuthor');
+  if (authorInput) {
+    authorInput.setAttribute('aria-label', 'Book Author');
+    authorInput.setAttribute('required', 'true');
+  }
+
+  const submitButton = formElement.querySelector('button[type="submit"]');
+  if (submitButton) {
+    submitButton.setAttribute('aria-label', 'Add Book');
+  }
+
+  // Add keyboard navigation support
+  formElement.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+      e.preventDefault();
+      const inputs = Array.from(formElement.querySelectorAll('input, button'));
+      const currentIndex = inputs.indexOf(e.target);
+      if (currentIndex < inputs.length - 1) {
+        inputs[currentIndex + 1].focus();
+      }
+    }
+  });
+}
+
+// Add book function with accessibility improvements
+function addBook(bookData) {
+  if (!bookData || !bookData.title || !bookData.author) {
+    console.error('Invalid book data');
+    return false;
+  }
+
+  // Store book data
+  const bookId = Date.now().toString();
+  const book = {
+    id: bookId,
+    title: bookData.title,
+    author: bookData.author,
+    addedAt: new Date().toISOString()
+  };
+
+  // Add to app state
+  if (!appState.books) {
+    appState.books = [];
+  }
+  appState.books.push(book);
+
+  // Update UI if needed
+  if (typeof updateBookList === 'function') {
+    updateBookList();
+  }
+
+  // Announce addition for screen readers
+  if (typeof announceToScreenReader === 'function') {
+    announceToScreenReader(`Book "${book.title}" by ${book.author} has been added.`);
+  }
+
+  return true;
+}
+
+// Helper function to announce messages to screen readers
+function announceToScreenReader(message) {
+  const announcement = document.createElement('div');
+  announcement.setAttribute('aria-live', 'polite');
+  announcement.setAttribute('aria-atomic', 'true');
+  announcement.className = 'sr-only';
+  announcement.textContent = message;
+  document.body.appendChild(announcement);
+
+  // Remove after announcement is complete
+  setTimeout(() => {
+    document.body.removeChild(announcement);
+  }, 1000);
+}
+
+// Helper function to update book list in UI
+function updateBookList() {
+  const bookList = document.getElementById('bookList');
+  if (!bookList) return;
+
+  // Clear existing list
+  bookList.innerHTML = '';
+
+  // Add books to list
+  if (appState.books && appState.books.length > 0) {
+    appState.books.forEach(book => {
+      const bookItem = document.createElement('div');
+      bookItem.className = 'book-item';
+      bookItem.setAttribute('role', 'listitem');
+      bookItem.innerHTML = `
+        <h3>${book.title}</h3>
+        <p>by ${book.author}</p>
+        <button class="remove-book" data-book-id="${book.id}" aria-label="Remove ${book.title}">×</button>
+      `;
+      bookList.appendChild(bookItem);
+    });
+  } else {
+    bookList.innerHTML = '<p>No books added yet.</p>';
+  }
+}
+
+// Initialize book management
+function initBookManagement() {
+  // Add accessibility to book form
+  const bookForm = document.getElementById('addBookForm');
+  if (bookForm) {
+    addBookFormAccessibility(bookForm);
+
+    // Handle form submission
+    bookForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(bookForm);
+      const bookData = {
+        title: formData.get('title'),
+        author: formData.get('author')
+      };
+
+      if (addBook(bookData)) {
+        bookForm.reset();
+      }
+    });
+  }
+
+  // Handle book removal
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('remove-book')) {
+      const bookId = e.target.getAttribute('data-book-id');
+      removeBook(bookId);
+    }
+  });
+}
+
+// Remove book function
+function removeBook(bookId) {
+  if (!bookId || !appState.books) return false;
+
+  const bookIndex = appState.books.findIndex(book => book.id === bookId);
+  if (bookIndex === -1) return false;
+
+  const removedBook = appState.books.splice(bookIndex, 1)[0];
+
+  // Update UI
+  if (typeof updateBookList === 'function') {
+    updateBookList();
+  }
+
+  // Announce removal
+  if (typeof announceToScreenReader === 'function') {
+    announceToScreenReader(`Book "${removedBook.title}" has been removed.`);
+  }
+
+  return true;
+}
+
+// Initialize book management when DOM is loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initBookManagement);
+} else {
+  initBookManagement();
 }
 
 // ... (other code remains the same)

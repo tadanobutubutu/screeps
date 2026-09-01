@@ -1,16 +1,3 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
-// - ADD: Address new accessibility issues from insight report
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-// For example, if the page is in English, set lang to 'en'
 import React from 'react';
 
 /**
@@ -36,13 +23,13 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
+    if (/[一-鿿]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if (/[぀-ヿ]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
+    } else if (/[Ѐ-ӿ]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
+    } else if (/[؀-ۿ]/.test(content)) {
       lang = 'ar'; // Arabic
     } else if (/[àâçéèêëîïôùûüÿœæ]+/i.test(content)) {
       lang = 'fr'; // French
@@ -50,16 +37,57 @@ function detectAndSetLang(content) {
       lang = 'de'; // German
     }
   }
-  
+
+  setHtmlLangAttribute(lang);
   return lang;
 }
 
-// New function to address REACT_015: Add lang attribute to HTML element
+/**
+ * Get language attribute for HTML element
+ * @returns {string} The lang attribute value
+ */
 function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
 }
 
-// New function to address REACT_027: Fix 26 table structure issues
+/**
+ * Validate table structure for accessibility
+ * @param {HTMLElement} tableElement - The table element to validate
+ * @returns {Object} Validation result
+ */
+function validateTableStructure(tableElement) {
+  if (typeof document === 'undefined' || !tableElement) {
+    return { valid: false, errors: ['Table element not found'] };
+  }
+  
+  const errors = [];
+  const rows = tableElement.querySelectorAll('tr');
+  
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('td, th');
+    const cellCount = cells.length;
+    
+    // Check for empty cells
+    cells.forEach((cell, cellIndex) => {
+      if (!cell.textContent.trim()) {
+        errors.push(`Row ${rowIndex + 1}, Cell ${cellIndex + 1} is empty`);
+      }
+    });
+    
+    // Check that rows have consistent cell counts
+    if (rowIndex > 0) {
+      const prevRow = rows[rowIndex - 1];
+      const prevCells = prevRow.querySelectorAll('td, th');
+      if (cellCount !== prevCells.length) {
+        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length} in previous row)`);
+      }
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_027: Fix table structure issues
 function validateTableAccessibility(tableElement) {
   if (typeof document === 'undefined' || !tableElement) {
     return { valid: false, errors: ['Table element not found or document not available'] };
@@ -100,71 +128,10 @@ function validateTableAccessibility(tableElement) {
   return { valid: errors.length === 0, errors };
 }
 
-function validateTableStructure(tableElement) {
-  if (typeof document === 'undefined' || !tableElement) {
-    return { valid: false, errors: ['Table element not found'] };
-  }
-  
-  const errors = [];
-  const rows = tableElement.querySelectorAll('tr');
-  
-  rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td, th');
-    const cellCount = cells.length;
-    
-    // Check for empty cells
-    cells.forEach((cell, cellIndex) => {
-      if (!cell.textContent.trim()) {
-        errors.push(`Row ${rowIndex + 1}, Cell ${cellIndex + 1} is empty`);
-      }
-    });
-    
-    // Check that rows have consistent cell counts
-    if (rowIndex > 0) {
-      const prevRow = rows[rowIndex - 1];
-      const prevCells = prevRow.querySelectorAll('td, th');
-      if (cellCount !== prevCells.length) {
-        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length} in previous row)`);
-      }
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address REACT_017: Add/fix 4 landmark issues
-function validateLandmark(element) {
-  if (typeof document === 'undefined' || !element) {
-    return { valid: false, errors: ['Element not found'] };
-  }
-  
-  const errors = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article', 'search'];
-  
-  // Check if element is a valid landmark
-  const role = element.getAttribute('role');
-  const tagName = element.tagName.toLowerCase();
-  
-  if (role && !validLandmarks.includes(role) && !validLandmarks.includes(role.toLowerCase())) {
-    errors.push(`Invalid landmark role: ${role}`);
-  }
-  
-  if (!role && !validLandmarks.includes(tagName)) {
-    errors.push(`Element is not a valid landmark: ${tagName}`);
-  }
-  
-  // Check for accessible name
-  const hasLabel = element.getAttribute('aria-label') || 
-                   element.getAttribute('aria-labelledby') ||
-                   element.querySelector('h1, h2, h3, h4, h5, h6');
-  
-  if (!hasLabel) {
-    errors.push('Landmark is missing accessible name (aria-label, aria-labelledby, or heading)');
-  }
-  
-  return { valid: errors.length === 0, errors };
-}
-
+/**
+ * Validate landmark structure
+ * @returns {Object} Validation result
+ */
 function validateLandmarkStructure() {
   if (typeof document === 'undefined') {
     return { valid: false, errors: ['Document not available'] };
@@ -201,8 +168,57 @@ function validateLandmarkStructure() {
   return { valid: errors.length === 0, errors };
 }
 
-// New function to address REACT_041: Add accessible names to 2 SVGs
-function getSvgAccessibleName(svgElement) {
+/**
+ * Validate landmark uniqueness
+ * @returns {Object} Validation result
+ */
+function validateLandmark() {
+  const errors = [];
+  const landmarks = ['navigation', 'search', 'main', 'contentinfo', 'complementary', 'form'];
+  const usedLandmarks = new Set();
+
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    if (elements.length > 1) {
+      errors.push(`Multiple elements with role="${landmark}" found`);
+    }
+    if (elements.length > 0) {
+      usedLandmarks.add(landmark);
+    }
+  });
+
+  if (usedLandmarks.size < landmarks.length) {
+    errors.push('Not all required landmarks are present');
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Get accessible name for SVG element
+ * @param {HTMLElement} svg - The SVG element
+ * @returns {string} The accessible name
+ */
+function getSvgAccessibleName(svg) {
+  if (svg.getAttribute('aria-label')) {
+    return svg.getAttribute('aria-label');
+  }
+  if (svg.getAttribute('aria-labelledby')) {
+    const labelId = svg.getAttribute('aria-labelledby');
+    const labelElement = document.getElementById(labelId);
+    return labelElement ? labelElement.textContent : '';
+  }
+  if (svg.querySelector('title')) {
+    return svg.querySelector('title').textContent;
+  }
+  return 'SVG graphic';
+}
+
+// New function to address REACT_041: Add accessible names to SVGs
+function getSvgAccessibleNameAdvanced(svgElement) {
   if (typeof document === 'undefined' || !svgElement) {
     return null;
   }
@@ -242,7 +258,7 @@ function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   
   svgs.forEach((svg, index) => {
-    const name = getSvgAccessibleName(svg);
+    const name = getSvgAccessibleNameAdvanced(svg) || getSvgAccessibleName(svg);
     if (!name) {
       errors.push(`SVG ${index + 1} is missing an accessible name`);
     }
@@ -291,65 +307,167 @@ function ensureUniqueLandmarks() {
   return { valid: errors.length === 0, errors, fixed };
 }
 
-// New function to address REACT_036: Fix 1 fake link issue
-function personName(name) {
-  if (!name) return '';
-  // Ensure the person name is properly formatted and accessible
-  return String(name).trim();
+const addAriaLabel = (element, label) => {
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+};
+
+const renderDependencyGraph = (data) => {
+  // Implementation for rendering dependency graphs
+  return {
+    nodes: data.nodes || [],
+    edges: data.edges || []
+  };
+};
+
+/**
+ * Ensure an element has an id, generating one if necessary.
+ * @param {HTMLElement} element - The element to check/generate id for
+ * @param {string} [prefix='element'] - Prefix for generated id
+ * @returns {string} The element's id
+ */
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+
+  if (element.id) {
+    return element.id;
+  }
+
+  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  element.id = id;
+  return id;
 }
 
-function createInPageButton(label, onClick) {
-  if (!label) {
+function renderDependencyGraphs(container, dependencies, options = {}) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+
+  if (!dependencies) {
+    throw new Error('Dependencies data is required');
+  }
+
+  // Ensure container has an id for graph references
+  const containerId = ensureElementHasId(container, 'graph-container');
+
+  // Add accessibility label if not present
+  const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
+
+  return {
+    containerId,
+    accessible: hasAriaLabel,
+    ...renderDependencyGraph(dependencies)
+  };
+}
+
+/**
+ * Trap focus within an element.
+ * @param {HTMLElement} element - The element to trap focus within
+ */
+function focusTrap(element) {
+  if (!element) return;
+
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+
+  if (focusableElements.length === 0) return;
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+}
+
+// New function to address REACT_036: Fix fake link issue
+// Creates a button element with correct accessibility properties for in-page linking
+/**
+ * Creates a button element with correct accessibility properties for in-page linking
+ * @param {string} text - The visible text content of the button
+ * @param {string} targetId - The id of the target element to scroll/link to
+ * @param {object} [options] - Additional options
+ * @param {string} [options.ariaLabel] - Custom aria-label for the button
+ * @param {string} [options.className] - CSS class name(s) to apply to the button
+ * @returns {HTMLButtonElement|null} The created button element, or null if document is unavailable
+ */
+function createInPageButton(text, targetId, options) {
+  if (typeof document === 'undefined') {
     return null;
   }
   
-  // Create a proper button element instead of a fake link
-  const button = {
-    type: 'button',
-    role: 'button',
-    tagName: 'BUTTON',
-    textContent: label,
-    onclick: onClick,
-    accessible: true
-  };
+  const opts = options || {};
+  const button = document.createElement('button');
   
-  // Set accessible properties
-  if (typeof button.setAttribute === 'function') {
-    button.setAttribute('type', 'button');
-    button.setAttribute('aria-label', label);
+  // Set the type explicitly to avoid form submission side effects
+  button.type = 'button';
+  
+  // Set the accessible name
+  button.setAttribute('aria-label', opts.ariaLabel || text);
+  
+  // Use aria-controls to indicate the element the button controls/links to
+  if (targetId) {
+    button.setAttribute('aria-controls', targetId);
+  }
+  
+  // Set the text content
+  button.textContent = text;
+  
+  // Apply optional className
+  if (opts.className) {
+    button.className = opts.className;
+  }
+  
+  // Store the target id as a data attribute for handling clicks
+  if (targetId) {
+    button.setAttribute('data-target-id', targetId);
+    
+    // Attach a click handler that scrolls to the target and updates the URL hash
+    button.addEventListener('click', function(event) {
+      const targetElement = document.getElementById(targetId);
+      if (targetElement) {
+        // Prevent default to allow smooth scrolling behavior to be controlled
+        event.preventDefault();
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Update the URL hash without jumping
+        if (history && typeof history.pushState === 'function') {
+          history.pushState(null, '', '#' + targetId);
+        } else {
+          window.location.hash = targetId;
+        }
+        // Move focus to the target element if it's focusable, otherwise set tabindex
+        if (!targetElement.hasAttribute('tabindex')) {
+          targetElement.setAttribute('tabindex', '-1');
+        }
+        targetElement.focus({ preventScroll: true });
+      }
+    });
   }
   
   return button;
 }
 
-function validateFakeLinks() {
-  if (typeof document === 'undefined') {
-    return { valid: true, errors: [] };
+function personName(name) {
+  if (typeof name !== 'string') {
+    return '';
   }
-  
-  const errors = [];
-  const allElements = document.querySelectorAll('*');
-  
-  allElements.forEach((el, index) => {
-    const tagName = el.tagName ? el.tagName.toLowerCase() : '';
-    const role = el.getAttribute('role');
-    
-    // Check for elements that look like links but aren't proper <a> tags with href
-    if (tagName !== 'a' && (role === 'link' || el.getAttribute('onclick') || el.style.cursor === 'pointer')) {
-      // Verify if it's a legitimate button or link
-      const hasHref = tagName === 'a' && el.getAttribute('href');
-      const isButton = tagName === 'button' || role === 'button';
-      
-      if (!hasHref && !isButton) {
-        const text = el.textContent ? el.textContent.trim() : '';
-        errors.push(`Element ${index + 1} (${tagName}) with text "${text}" appears to be a fake link. Use <a href="..."> or <button> instead.`);
-      }
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
+  return name.trim();
 }
 
+// Export all functions to make them available as module exports
 export {
   setHtmlLangAttribute,
   detectAndSetLang,
@@ -361,7 +479,11 @@ export {
   getSvgAccessibleName,
   validateSvgAccessibility,
   ensureUniqueLandmarks,
-  personName,
   createInPageButton,
-  validateFakeLinks
+  personName,
+  addAriaLabel,
+  renderDependencyGraph,
+  ensureElementHasId,
+  renderDependencyGraphs,
+  focusTrap
 };

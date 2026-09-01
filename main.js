@@ -249,6 +249,80 @@ function addressAccessibilityIssues() {
   }
 }
 
+// Function to add a book with accessibility considerations
+function addBook(title, author, isbn) {
+  // Create form elements with proper accessibility attributes
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-label', 'Add a new book');
+
+  // Title input with label
+  const titleLabel = document.createElement('label');
+  titleLabel.setAttribute('for', 'book-title');
+  titleLabel.textContent = 'Book Title:';
+  const titleInput = document.createElement('input');
+  titleInput.id = 'book-title';
+  titleInput.type = 'text';
+  titleInput.value = title || '';
+  titleInput.setAttribute('required', 'true');
+  titleInput.setAttribute('aria-required', 'true');
+
+  // Author input with label
+  const authorLabel = document.createElement('label');
+  authorLabel.setAttribute('for', 'book-author');
+  authorLabel.textContent = 'Author:';
+  const authorInput = document.createElement('input');
+  authorInput.id = 'book-author';
+  authorInput.type = 'text';
+  authorInput.value = author || '';
+  authorInput.setAttribute('required', 'true');
+  authorInput.setAttribute('aria-required', 'true');
+
+  // ISBN input with label
+  const isbnLabel = document.createElement('label');
+  isbnLabel.setAttribute('for', 'book-isbn');
+  isbnLabel.textContent = 'ISBN:';
+  const isbnInput = document.createElement('input');
+  isbnInput.id = 'book-isbn';
+  isbnInput.type = 'text';
+  isbnInput.value = isbn || '';
+  isbnInput.setAttribute('required', 'true');
+  isbnInput.setAttribute('aria-required', 'true');
+
+  // Submit button with proper accessibility
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Book';
+  submitButton.setAttribute('aria-label', 'Add this book to the collection');
+
+  // Add all elements to the form
+  form.appendChild(titleLabel);
+  form.appendChild(titleInput);
+  form.appendChild(authorLabel);
+  form.appendChild(authorInput);
+  form.appendChild(isbnLabel);
+  form.appendChild(isbnInput);
+  form.appendChild(submitButton);
+
+  // Add form to the document
+  document.body.appendChild(form);
+
+  // Add event listener for form submission
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    // Here you would typically handle the form submission
+    console.log('Book added:', {
+      title: titleInput.value,
+      author: authorInput.value,
+      isbn: isbnInput.value
+    });
+    // Clear the form after submission
+    form.reset();
+  });
+
+  return form;
+}
+
 export {
   getLangAttribute,
   createInPageButton,
@@ -261,7 +335,8 @@ export {
   addressNewAccessibilityIssues,
   addressAccessibilityIssues,
   generateAccessibilityReport,
-  a11y
+  a11y,
+  addBook
 };
 
 root.render(

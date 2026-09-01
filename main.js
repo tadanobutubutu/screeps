@@ -321,7 +321,10 @@ function AddBookForm({ onAdd }) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter book title"
+          required
+          aria-describedby="title-help"
         />
+        <span id="title-help" className="sr-only">Required field</span>
       </div>
       <div>
         <label htmlFor="book-author" aria-required="true">Author:</label>
@@ -331,11 +334,66 @@ function AddBookForm({ onAdd }) {
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
           placeholder="Enter author name"
+          required
+          aria-describedby="author-help"
         />
+        <span id="author-help" className="sr-only">Required field</span>
       </div>
-      <button type="submit">Add Book</button>
+      <button type="submit" aria-label="Add new book to the collection">Add Book</button>
     </form>
   );
+}
+
+// Function to enhance accessibility for adding a new book
+function enhanceAccessibilityForAddBook() {
+  // Add visual feedback for form submission
+  const form = document.querySelector('form[aria-label="Add new book"]');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const submitButton = form.querySelector('button[type="submit"]');
+      if (submitButton) {
+        submitButton.setAttribute('aria-busy', 'true');
+        submitButton.textContent = 'Adding...';
+
+        // Simulate form submission
+        setTimeout(() => {
+          submitButton.setAttribute('aria-busy', 'false');
+          submitButton.textContent = 'Add Book';
+          // Add success message
+          const successMessage = document.createElement('div');
+          successMessage.setAttribute('role', 'status');
+          successMessage.setAttribute('aria-live', 'polite');
+          successMessage.textContent = 'Book added successfully!';
+          form.appendChild(successMessage);
+
+          // Remove message after a delay
+          setTimeout(() => {
+            form.removeChild(successMessage);
+          }, 3000);
+        }, 1000);
+      }
+    });
+  }
+
+  // Add keyboard navigation support
+  const inputs = document.querySelectorAll('input');
+  inputs.forEach(input => {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const nextInput = input.nextElementSibling;
+        if (nextInput) {
+          nextInput.focus();
+        } else {
+          const submitButton = document.querySelector('button[type="submit"]');
+          if (submitButton) {
+            submitButton.focus();
+          }
+        }
+      }
+    });
+  });
 }
 
 // Default sorting function for the book list

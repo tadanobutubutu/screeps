@@ -3,7 +3,7 @@
 // (Previously existing code that needs to be preserved)
 
 // New function or changes requested in the issue
-function newFunction() {
+function newFunction () {
   // Implementation of the new function
 }
 
@@ -16,19 +16,19 @@ function newFunction() {
 // changes needed are related to adding ARIA roles and labels to improve accessibility.
 
 // Example of adding ARIA roles and labels for an addBook form element
-function addBook() {
+function addBook () {
   // ... (existing addBook function code)
 
   // Add ARIA roles and labels to improve accessibility
-  const addBookForm = document.getElementById('addBookForm');
-  addBookForm.setAttribute('role', 'form');
-  addBookForm.setAttribute('aria-labelledby', 'addBookLabel');
+  const addBookForm = document.getElementById('addBookForm')
+  addBookForm.setAttribute('role', 'form')
+  addBookForm.setAttribute('aria-labelledby', 'addBookLabel')
 
-  const addBookLabel = document.createElement('label');
-  addBookLabel.id = 'addBookLabel';
-  addBookLabel.htmlFor = 'addBookForm';
-  addBookLabel.textContent = 'Add a new book';
-  addBookForm.insertBefore(addBookLabel, addBookForm.firstChild);
+  const addBookLabel = document.createElement('label')
+  addBookLabel.id = 'addBookLabel'
+  addBookLabel.htmlFor = 'addBookForm'
+  addBookLabel.textContent = 'Add a new book'
+  addBookForm.insertBefore(addBookLabel, addBookForm.firstChild)
 }
 
 // ... (rest of the existing code from main.js)
@@ -37,19 +37,19 @@ function addBook() {
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 
 // New functions for rendering graph/index
-function renderGraph() {
+function renderGraph () {
   // Implementation for rendering graph
 }
 
-function renderIndex() {
+function renderIndex () {
   // Implementation for rendering index
 }
 
 // Update existing function to use new rendering functions
-function existingFunction() {
+function existingFunction () {
   // ... (existing implementation)
-  renderGraph();
-  renderIndex();
+  renderGraph()
+  renderIndex()
   // ... (rest of existing implementation)
 }
 
@@ -60,5 +60,5 @@ module.exports = {
   addBook, // Export the addBook function
   renderGraph, // Export the new graph rendering function
   renderIndex, // Export the new index rendering function
-  existingFunction, // Export the updated existing function
-};
+  existingFunction // Export the updated existing function
+}

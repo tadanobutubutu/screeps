@@ -61,12 +61,14 @@ function getFullLangAttribute() {
 function validateTableAccessibility(table) {
   const issues = [];
 
-  // Check for caption (from origin/main)
+  if (!table.headers) {
+    issues.push('Missing headers attribute');
+  }
+
   if (!table.querySelector || !table.querySelector('caption')) {
     issues.push('Missing caption element');
   }
 
-  // Check for headers attribute (from HEAD)
   if (!table.getAttribute('headers')) {
     issues.push('Missing headers attribute');
   }
@@ -93,7 +95,6 @@ function validateTableAccessibility(table) {
 function validateTableStructure(tables) {
   const allIssues = [];
 
-  // Handle both single table element and array of tables
   const tableArray = Array.isArray(tables) ? tables : [tables];
 
   tableArray.forEach((table, index) => {
@@ -151,7 +152,6 @@ function validateLandmark(element) {
 function validateLandmarkStructure(landmarks) {
   const issues = [];
 
-  // If landmarks array is provided, validate each one (from HEAD)
   if (Array.isArray(landmarks)) {
     landmarks.forEach((landmark, index) => {
       const result = validateLandmark(landmark);
@@ -196,6 +196,7 @@ function validateLandmarkStructure(landmarks) {
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
+
   let elementsToCheck = landmarks;
 
   // If no landmarks array provided, query the DOM (from origin/main)
@@ -221,7 +222,6 @@ function ensureUniqueLandmarks(landmarks) {
     if (landmark.id) {
       if (elementsById[landmark.id]) {
         duplicates.push(`Duplicate ID: ${landmark.id}`);
-        landmark.id += '_duplicate';
       } else {
         elementsById[landmark.id] = true;
       }
@@ -290,7 +290,6 @@ function handleAccessibilityIssues(issues = []) {
   const handled = [];
   const unhandled = [];
 
-  // Process provided issues (from HEAD)
   issues.forEach(issue => {
     if (issue.fixable) {
       handled.push(issue);
@@ -544,9 +543,4 @@ module.exports = {
   setSvgAttributes,
   addLangAttribute,
   validateLandmarkAttributes,
-  fixTableStructure,
-  addMainLandmark,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions
-};
+  fix

@@ -2,7 +2,13 @@
 function greet(name) {
   return `Hello, ${name}!`;
 }
-// TODO: Any additional changes requested in the issue should be added after this function
+
+// New function3 logic
+function function3() {
+  // Placeholder logic for function3
+  // Replace with actual implementation as needed
+  return "Function3 executed";
+}
 
 // Exported functions
 export function calculateSum(a, b) {
@@ -10,4 +16,7 @@ export function calculateSum(a, b) {
 }
 export function calculateProduct(a, b) {
   return a * b;
+}
+export function function3Exported() {
+  return function3();
 }

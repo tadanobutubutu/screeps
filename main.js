@@ -103,15 +103,6 @@
       return document.documentElement.lang || 'en';
     }
 
-    // Function to create an in-page button
-    function createInPageButton() {
-      // Implementation of createInPageButton function
-      const button = document.createElement('button');
-      button.textContent = 'Accessibility Info';
-      button.setAttribute('aria-label', 'Show accessibility information');
-      document.body.appendChild(button);
-    }
-
     // Functions to add accessible names to 2 SVGs
     function setSvgAccessibleNames(svgId1, svgId2, accessibleNames1, accessibleNames2) {
       const svg1 = document.getElementById(svgId1);
@@ -184,33 +175,6 @@
         link.removeAttribute('role'); // Remove the role attribute after fixing the issue
         link.setAttribute('href', '#');
       });
-
-      // Trap focus in modal and announce welcome message
-      const modalElement = document.getElementById('modal');
-      if (modalElement && a11y && a11y.trapFocus) {
-        a11y.trapFocus(modalElement);
-      }
-      if (a11y && a11y.announce) {
-        a11y.announce('Welcome to the bot!', 'assertive');
-      }
-
-      // Adding an alt attribute to an image
-      const imageElement = document.getElementById('example-image');
-      if (imageElement) {
-        imageElement.setAttribute('alt', 'A description of the image');
-      }
-
-      // Correcting the ARIA role for a div
-      const divElement = document.getElementById('example-div');
-      if (divElement) {
-        divElement.setAttribute('role', 'list');
-      }
-
-      // Adding the lang attribute to the HTML element
-      const htmlElement = document.documentElement;
-      if (htmlElement) {
-        htmlElement.setAttribute('lang', getLangAttribute());
-      }
 
       // Implementing the new function for checking landmark elements
       function checkLandmarkElements() {

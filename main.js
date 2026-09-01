@@ -12,5 +12,10 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
+//_Commit: 0cc7acc93dade1532e36e2e26adc7bd895ef60df_
+//<!-- todo-hash: 398424c02b2e0a493981d83f7e0c15b42542e233 -->
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

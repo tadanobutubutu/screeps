@@ -527,4 +527,55 @@ function handleFakeLinks(container) {
     }
 
     if (tagName === 'button' && element.querySelector('a')) {
-      issues.push(`Button at
+      issues.push(`Button at index ${index} contains an anchor element`);
+    }
+  });
+
+  return issues;
+}
+
+/**
+ * Ensures an element has a unique ID.
+ * @param {HTMLElement} element - The element to check.
+ * @param {string} baseId - The base ID to use if one doesn't exist.
+ * @returns {string} The ID of the element.
+ */
+function ensureElementHasId(element, baseId) {
+  if (!element.id) {
+    let id = baseId;
+    let counter = 1;
+    while (document.getElementById(id)) {
+      id = `${baseId}-${counter++}`;
+    }
+    element.id = id;
+  }
+  return element.id;
+}
+
+/**
+ * Adds an aria-label to an element if it doesn't have one.
+ * @param {HTMLElement} element - The element to check.
+ * @param {string} label - The aria-label to add.
+ */
+function addAriaLabelIfMissing(element, label) {
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+/**
+ * Renders a dependency graph visualization.
+ * @param {Array} dependencies - The dependencies to visualize.
+ */
+function renderDependencyGraph(dependencies) {
+  const container = document.createElement('div');
+  container.className = 'dependency-graph';
+
+  dependencies.forEach(dep => {
+    const depElement = document.createElement('div');
+    depElement.textContent = dep.name;
+    container.appendChild(depElement);
+  });
+
+  document.body.appendChild(container);
+}

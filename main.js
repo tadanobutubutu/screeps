@@ -34,118 +34,108 @@ const {
   googleSignIn,
   addressAccessibilityIssues: addressedAccessibilityIssues,
   a11yStore,
-  trapFocus,
   newFocusTrap,
   announceToScreenReader,
   handleKeyboardNav,
-  limitTabFunctionality
+  limitTabFunctionality,
+  checkAccessibility: checkAccessibilityInternal,
+  implementAccessibilityFixesFromReport
 } = main
 
 // Implement the function for addressing accessibility issues from insight report
-function implementAccessibilityFixesFromReport (container, report) {
+function implementAccessibilityFixesFromReport(container, report) {
   let fixes = {
     langAdded: false,
     mainLandmarkAdded: false,
     landmarksFixed: 0,
     svgNamesAdded: 0,
     fakeLinksFixed: 0
-  }
-
-  if (!report || !report.issues) {
-    return fixes
-  }
+  };
 
   fixes = addressedAccessibilityIssues(report)
 
-  // Add lang attribute to HTML element if missing
-  const htmlEl = container.querySelector('html') || (container.ownerDocument && container.ownerDocument.querySelector('html'))
-  if (htmlEl && !htmlEl.hasAttribute('lang')) {
-    htmlEl.setAttribute('lang', 'en')
-    fixes.langAdded = true
+  const htmlElement = container || document.documentElement;
+  const langAttr = getLangAttribute(htmlElement);
+  if (!langAttr) {
+    addLangAttribute(htmlElement, 'en');
+    fixes.langAdded = true;
   }
 
-  // Add main landmark if missing
-  const mainElement = container.querySelector('main')
+  const mainElement = container.querySelector('main') || container.querySelector('[role="main"]');
   if (!mainElement) {
-    const body = container.querySelector('body')
+    const body = container.querySelector('body');
     if (body) {
-      const newMain = document.createElement('main')
+      const newMain = document.createElement('main');
       while (body.firstChild) {
-        newMain.appendChild(body.firstChild)
+        newMain.appendChild(body.firstChild);
       }
-      body.appendChild(newMain)
-      fixes.mainLandmarkAdded = true
+      body.insertBefore(newMain, body.firstChild);
+      fixes.mainLandmarkAdded = true;
     }
   }
 
-  // Update the existing function using the new functions for rendering graph/index
-  renderDependencyGraphs(container)
-  fixButtonIdentifiers(container)
-  fixDependencyGraphAria(container)
-  addMainLandmarkToIndex(container)
+  validateLandmark(container);
+  validateLandmarkStructure(container);
 
-  // Fix landmark issues
-  validateLandmark(container)
-  validateLandmarkStructure(container)
-
-  // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg')
-  svgElements.forEach((svg) => {
-    const accessibleName = getSvgAccessibleName(svg)
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName)
-      fixes.svgNamesAdded++
-    }
-  })
-
-  // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('a:not([href])')
-  fakeLinks.forEach((link) => {
-    link.setAttribute('href', '#' + (link.id || `link-${Date.now()}`))
-    link.setAttribute('role', 'link')
-    fixes.fakeLinksFixed++
-  })
-
-  // Validate accessibility report
-  const accessibilityReport = validateAccessibilityReport(container)
-  if (accessibilityReport && accessibilityReport.length > 0) {
-    log(`Accessibility report contains ${accessibilityReport.length} remaining issues`, 'warn')
+  const landmarkFixes = validateLandmark(container);
+  if (landmarkFixes && landmarkFixes.length > 0) {
+    fixes.landmarksFixed = landmarkFixes.length;
+  }
+  const landmarkStructureFixes = validateLandmarkStructure(container);
+  if (landmarkStructureFixes && landmarkStructureFixes.length > 0) {
+    fixes.landmarksFixed += landmarkStructureFixes.length;
   }
 
-  // Implement focus trap for keyboard navigation
-  focusTrap(container)
+  const svgElements = container.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName && accessibleName.trim()) {
+      setSvgAccessibilityProps(svg, accessibleName);
+      fixes.svgNamesAdded++;
+    }
+  });
+
+  const fakeLinks = container.querySelectorAll('[role="link"], a:not([href])');
+  fakeLinks.forEach(link => {
+    const style = window.getComputedStyle(link);
+    if (style.cursor === 'pointer' || link.hasAttribute('onclick')) {
+      link.setAttribute('role', 'link');
+      link.setAttribute('tabindex', '0');
+      fixes.fakeLinksFixed++;
+    }
+  });
+
+  const report = validateAccessibilityReport(container);
+  if (report && report.length > 0) {
+    log('Accessibility report contains remaining issues', 'warn');
+  }
 
   if (fixes.langAdded) {
-    log('Lang attribute added to HTML element', 'info')
+    log('Lang attribute added to HTML element', 'info');
   }
 
   if (fixes.mainLandmarkAdded) {
-    log('Main landmark added', 'info')
+    log('Main landmark added', 'info');
   }
 
-  // Check for new accessibility issues
-  const newAccessibilityIssues = checkAccessibility(container)
-  if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.join(', ')}`, 'error')
-  }
-
-  const landmarkFixesCount = fixes.landmarksFixed || 0
+  const landmarkFixesCount = fixes.landmarksFixed || 0;
   if (landmarkFixesCount > 0) {
-    log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info')
+    log(`${landmarkFixesCount} unique landmarks fixed`, 'info');
   }
 
-  const svgFixes = fixes.svgNamesAdded || 0
+  const svgFixes = fixes.svgNamesAdded || 0;
   if (svgFixes > 0) {
-    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info')
+    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
   }
 
-  const fakeLinkFixes = fixes.fakeLinksFixed || 0
+  const fakeLinkFixes = fixes.fakeLinksFixed || 0;
   if (fakeLinkFixes > 0) {
-    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info')
+    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
   }
 
-  return fixes
+  return fixes;
 }
 
-module.exports.implementAccessibilityFixesFromReport = implementAccessibilityFixesFromReport;
-module.exports.limitTabFunctionality = limitTabFunctionality;
+module.exports = {
+  implementAccessibilityFixesFromReport
+}

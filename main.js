@@ -119,6 +119,27 @@ function validateLandmarkObject(landmark) {
     });
   }
 
+// TODO: Implement this function for adding SVG accessibility props
+// Function to add SVG accessibility props
+function addSvgAccessibilityProps(svgElement, label, labelledById) {
+  if (!svgElement) return;
+
+  const props = getSvgAccessibilityProps(label, labelledById);
+
+  // Apply the accessibility props to the SVG element
+  Object.keys(props).forEach(prop => {
+    svgElement.setAttribute(prop, props[prop]);
+  });
+}
+
+const getAccessibleLinkProps = (href, label) => {
+  return {
+    href,
+    'aria-label': label,
+    role: 'link'
+  };
+};
+
   return {
     valid: errors.length === 0,
     errors

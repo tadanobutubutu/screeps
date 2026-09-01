@@ -162,9 +162,7 @@ function initializeApp() {
 // Main function (required export)
 function main() {
     initialize();
-    initializeApp();
-    console.log('Main function executed');
-    return { executed: true };
+    return appState;
 }
 
 // Accessibility helper function to validate table accessibility
@@ -433,7 +431,7 @@ function checkLandmarkElements(container) {
 // Accessibility helper function to ensure unique landmarks
 function ensureUniqueLandmarks() {
     const landmarks = {};
-    const issues = [];
+    const issues = [];;
 
     // Find all landmark elements
     const banner = document.querySelectorAll('[role="banner"], .banner');
@@ -743,150 +741,51 @@ function addressInsightIssues(insights) {
 
 function renderDependencyGraph(graph) {
   if (!graph) {
-    return null;
+    return { rendered: false, error: 'No graph data provided' };
   }
+  // Create a container for the graph
+  const containerId = 'dependency-graph';
+  let container = document.getElementById(containerId);
+  if (!container) {
+    container = document.createElement('div');
+    container.id = containerId;
+    document.body.appendChild(container);
+  }
+  
+  // Clear previous content
+  container.innerHTML = '';
+  
+  // Render graph data as a list
+  if (Array.isArray(graph)) {
+    const ul = document.createElement('ul');
+    graph.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item;
+      ul.appendChild(li);
+    });
+    container.appendChild(ul);
+  } else {
+    // If graph is an object, convert keys to list items
+    const items = Object.keys(graph);
+    const list = document.createElement('ul');
+    items.forEach(key => {
+      const li = document.createElement('li');
+      li.textContent = key;
+      list.appendChild(li);
+    });
+    container.appendChild(list);
+  }
+  
   return { rendered: true, graph };
 }
 
-function renderIndexView(data) {
+// Process data function
+function processData(data) {
   if (!data) {
     return null;
   }
-  return { rendered: true, data };
+  appState.data = data;
+  return data;
 }
 
-function calculateSum(a, b) {
-  return a + b;
-}
-
-function addProperLandmarkRegions(element) {
-  if (element && !element.getAttribute('role')) {
-    element.setAttribute('role', 'region');
-  }
-  return element;
-}
-
-function countGraphDependencies(graph) {
-  if (!graph || !graph.nodes || !graph.edges) {
-    return 0;
-  }
-  return graph.edges.length;
-}
-
-// New function for creating in-page buttons (from the other branch)
-function createInPageButtons(buttonsData) {
-    const buttonsContainer = document.getElementById('in-page-buttons-container');
-
-    if (!buttonsContainer) {
-        console.error('In-page buttons container not found');
-        return;
-    }
-
-    buttonsData.forEach(buttonData => {
-        const button = document.createElement('button');
-        button.id = buttonData.id;
-        button.textContent = buttonData.text;
-        button.setAttribute('data-role', buttonData.role);
-
-        button.addEventListener('click', () => {
-            location.hash = buttonData.href;
-        });
-
-        buttonsContainer.appendChild(button);
-    });
-}
-
-// Merged accessibility issue handlers from both branches
-function addressAccessibilityIssues(insightReport) {
-    if (!Array.isArray(insightReport)) {
-        return [];
-    }
-    return insightReport.map(issue => ({
-        ...issue,
-        addressed: true
-    }));
-}
-
-function getInsightReport() {
-    // Implementation to retrieve insight report
-    return [];
-}
-
-// Export functions for testing
-module.exports = {
-    User,
-    spawnNewUser,
-    config,
-    initialize,
-    initializeApp,
-    main,
-    visualizeDependencyTree,
-    processData,
-
-    // Merged functions (landmark validation and addressing accessibility issues)
-    validateLandmark,
-    addressAccessibilityIssues,
-    getInsightReport,
-
-    // Landmark helpers
-    checkLandmarkElement,
-    ensureUniqueLandmarks,
-    ensureLandmarkUniqueness,
-    createInPageButtons,
-    createFocusTrap,
-    newFocusTrap,
-    validateTableAccessibility,
-    validateTableStructure,
-    fixTableStructure,
-    countDependencies,
-
-    // Additional functions from HEAD
-    landmarkStructureCheck,
-    setLanguageAttribute,
-    addLandmarkRoles,
-    fixFakeLinks,
-    isSecureContext,
-    initApp,
-    ensureFocusableElements,
-    renderDependencyGraphContent,
-    validateSvgAccessibility,
-    processUniqueElements,
-    addressInsightIssues,
-    renderDependencyGraph,
-    renderIndexView,
-    calculateSum,
-    addProperLandmarkRegions,
-    countGraphDependencies,
-
-    // Landmarks array and app state
-    landmarks,
-    appState,
-
-    // Server setup (incorporated from origin/main)
-    express,
-    path,
-    app: express(),
-    PORT: process.env.PORT || 3000,
-    HOST: process.env.HOST || 'localhost'
-};
-
-// Main execution when run directly
-if (require.main === module) {
-    // Start server
-    module.exports.app.listen(module.exports.PORT, () => {
-        console.log(`Server running on http://${module.exports.HOST}:${module.exports.PORT}`);
-    });
-
-    // Visualize dependency tree when running directly
-    visualizeDependencyTree(require.dependencies);
-
-    // Run accessibility check and fix issues if any
-    const insightReport = getInsightReport();
-    if (insightReport.length > 0) {
-        console.log('Accessibility issues found:');
-        insightReport.forEach((issue) => {
-            console.log(`${issue.type}: ${issue.description}`);
-        });
-        addressAccessibilityIssues(insightReport);
-    }
-};
+// Function to

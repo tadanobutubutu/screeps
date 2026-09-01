@@ -158,6 +158,56 @@ function focusTrap(element) {
 
 function newFocusTrap() {
   // New function implementation
+  let activeTrap = null;
+
+  const createFocusTrap = (element, options = {}) => {
+    if (!element) return null;
+
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length === 0) return null;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      } else if (e.key === 'Escape' && options.onEscape) {
+        options.onEscape();
+      }
+    };
+
+    element.addEventListener('keydown', handleKeyDown);
+
+    // Return an object with methods to activate/deactivate the trap
+    return {
+      activate: () => {
+        if (activeTrap) {
+          activeTrap.deactivate();
+        }
+        activeTrap = this;
+        firstElement.focus();
+      },
+      deactivate: () => {
+        element.removeEventListener('keydown', handleKeyDown);
+        activeTrap = null;
+      }
+    };
+  };
+
+  return {
+    create: createFocusTrap,
+    getActiveTrap: () => activeTrap
+  };
 }
 
 /**

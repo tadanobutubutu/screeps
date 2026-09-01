@@ -111,7 +111,7 @@ function addLandmarkRoles() {
   if (mainElement && ... {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   const navElement = ...
   if (navElement && ... {
     ... 'navigation');
@@ -248,9 +248,9 @@ if (typeof isSecureContext === 'function' && isSecureContext()) {
 function addressAccessibilityIssues(insightReport) {
   // This addresses issues from the insight report:
   // - REACT_015: Add lang attribute to HTML element
-  // - REACT_027: Fix 26 table structure issues
-  // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs
+  // - REACT_027: Fix table structure issues
+  // - REACT_017: Add/fix landmark issues
+  // - REACT_041: Add accessible names to SVGs
   // - REACT_025: Ensure unique landmarks (2 issues)
   // - REACT_036: Fix 1 fake link issue
 
@@ -307,7 +307,7 @@ function addressAccessibilityIssues(insightReport) {
 
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -318,7 +318,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -333,7 +333,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -348,7 +348,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -362,7 +362,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = ...
   if (landmarkStructureIssues && ... > 0) {
@@ -371,3 +371,139 @@ function getInsightReport() {
         type: 'REACT_017',
         structure: true,
         description: issue.description || 'Landmark structure issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check SVG accessibility
+  const svgAccessibilityIssues = validateSvgAccessibility();
+  if (svgAccessibilityIssues && svgAccessibilityIssues.length > 0) {
+    svgAccessibilityIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_041',
+        description: issue.description || 'SVG accessibility issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        svg: issue.svg
+      });
+    });
+  }
+
+  // Check for fake links
+  const fakeLinkIssues = validateFakeLinks();
+  if (fakeLinkIssues && fakeLinkIssues.length > 0) {
+    fakeLinkIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_036',
+        description: issue.description || 'Fake link issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        link: issue.link
+      });
+    });
+  }
+
+  return {
+    issues: issues,
+    summary: {
+      totalIssues: issues.length,
+      critical: issues.filter(i => i.severity === 'critical').length,
+      high: issues.filter(i => i.severity === 'high').length,
+      medium: issues.filter(i => i.severity === 'medium').length,
+      low: issues.filter(i => i.severity === 'low').length
+    }
+  };
+}
+
+// New function to validate SVG accessibility
+function validateSvgAccessibility() {
+  const svgs = document.querySelectorAll('svg');
+  const issues = [];
+
+  svgs.forEach(svg => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      issues.push({
+        description: 'SVG missing accessible name',
+        severity: 'medium',
+        element: svg,
+        svg: svg
+      });
+    }
+  });
+
+  return issues;
+}
+
+// New function to validate fake links
+function validateFakeLinks() {
+  const links = document.querySelectorAll('a');
+  const issues = [];
+
+  links.forEach(link => {
+    if (!link.getAttribute('href') && !link.getAttribute('role')) {
+      issues.push({
+        description: 'Fake link missing role attribute',
+        severity: 'medium',
+        element: link,
+        link: link
+      });
+    }
+  });
+
+  return issues;
+}
+
+// New function to add proper landmark regions
+function addProperLandmarkRegions() {
+  const mainContent = document.querySelector('main');
+  if (mainContent && !mainContent.getAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
+
+  const navigation = document.querySelector('nav');
+  if (navigation && !navigation.getAttribute('role')) {
+    navigation.setAttribute('role', 'navigation');
+  }
+
+  const search = document.querySelector('[role="search"]');
+  if (search && !search.getAttribute('role')) {
+    search.setAttribute('role', 'search');
+  }
+
+  const banner = document.querySelector('[role="banner"]');
+  if (banner && !banner.getAttribute('role')) {
+    banner.setAttribute('role', 'banner');
+  }
+}
+
+// New function to fix table structure issues
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure table has proper structure
+    if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+      console.warn('Table missing thead or tbody elements');
+    }
+
+    // Ensure table cells have proper scope attributes
+    const headers = table.querySelectorAll('th');
+    headers.forEach(header => {
+      if (!header.getAttribute('scope')) {
+        header.setAttribute('scope', 'col');
+      }
+    });
+  });
+}
+
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addProperLandmarkRegions())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)

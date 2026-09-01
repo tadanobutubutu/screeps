@@ -5,15 +5,6 @@ const config = {
   version: '1.0.0'
 };
 
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
 /**
  * Get the language attribute value for the HTML element
  * @returns {string} The language attribute value
@@ -29,6 +20,44 @@ function getFullLangAttribute() {
 function addLangAttribute(element) {
   element.lang = getFullLangAttribute();
   return element;
+}
+
+/**
+ * Validates table accessibility compliance
+ * @param {Object} table - The table object to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableAccessibility(table) {
+  const issues = [];
+
+  if (!table) {
+    issues.push('Table is null or undefined');
+  }
+
+  if (!table.querySelector) {
+    issues.push('Table structure issue: Missing querySelector method');
+  }
+
+  if (!table.querySelector('caption')) {
+    issues.push('Table structure issue: Missing caption element');
+  }
+
+  if (!table.querySelector('thead')) {
+    issues.push('Table structure issue: Missing thead element');
+  }
+
+  if (!table.headers) {
+    issues.push('Missing headers attribute');
+  }
+
+  if (!table.scope) {
+    issues.push('Missing scope attribute');
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
 }
 
 function validateLandmark(element) {
@@ -90,6 +119,14 @@ function validateLandmarkStructure(landmarks) {
       issues.push({
         landmarkIndex: index,
         issues: result.issues
+      });
+    }
+
+    const attrResult = validateLandmarkAttributes(landmark);
+    if (!attrResult.success) {
+      issues.push({
+        landmarkIndex: index,
+        issues: attrResult.issues
       });
     }
   });
@@ -200,9 +237,75 @@ function handleAccessibilityIssues(issues) {
   };
 }
 
+/**
+ * Validates link accessibility compliance
+ * @param {Object} link - The link object to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLinkAccessibility(link) {
+  const issues = [];
+
+  if (!link.href) {
+    issues.push('Missing href attribute');
+  }
+
+  if (!link.text && !link.ariaLabel) {
+    issues.push('Missing both text and aria-label');
+  }
+
+  if (link.isFake) {
+    issues.push('Fake link detected');
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Sets SVG attributes to ensure accessibility
+ * @param {Object} svg - The SVG element
+ * @param {Object} attributes - Attributes to set
+ * @returns {Object} The updated SVG element
+ */
+function setSvgAttributes(svg, attributes) {
+  return {
+    ...svg,
+    ...attributes,
+    accessibleName: getSvgAccessibleName(svg)
+  };
+}
+
+/**
+ * Adds proper landmark regions to the document
+ * @param {Array} landmarks - Array of landmark elements to add
+ * @returns {Object} Result with success status and any issues found
+ */
+function addProperLandmarkRegions(landmarks) {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+
+  landmarks.forEach((landmark, index) => {
+    if (!validLandmarks.includes(landmark.tagName.toLowerCase())) {
+      issues.push({
+        landmarkIndex: index,
+        issue: `Invalid landmark: ${landmark.tagName}`
+      });
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+// Export all functions for testing and external use
 module.exports = {
   getLangAttribute,
   getFullLangAttribute,
+  addLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
@@ -212,5 +315,8 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  validateLinkAccessibility,
+  setSvgAttributes,
+  addProperLandmarkRegions
 };

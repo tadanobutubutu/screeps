@@ -482,7 +482,7 @@ module.exports = {
   getAllDependencyNodes,
   getAllDependencyEdges,
   greet,
-  newFunction,
+  newFeature,
   existingFunction,
   anotherExistingFunction,
   calculateSum,
@@ -551,27 +551,101 @@ function isLinkAccessibleSync(url) {
 }
 
 function createInPageButton(options = {}) {
-  // ... existing code ...
+  const button = document.createElement('button');
+  button.setAttribute('type', options.type || 'button');
+  
+  if (options.text) {
+    button.textContent = options.text;
+  }
+  
+  if (options.ariaLabel) {
+    button.setAttribute('aria-label', options.ariaLabel);
+  }
+  
+  if (options.onclick) {
+    button.addEventListener('click', options.onclick);
+  }
+  
+  if (options.id) {
+    button.id = options.id;
+  }
+  
+  if (options.classes) {
+    button.className = options.classes;
+  }
+  
+  return button;
 }
 
 function validateTableAccessibility(table) {
-  // ... existing code ...
+  const headers = table.querySelectorAll('th');
+  const rows = table.querySelectorAll('tr');
+  const issues = [];
+  
+  if (headers.length === 0) {
+    issues.push('Table has no headers');
+  }
+  
+  rows.forEach((row, index) => {
+    const cells = row.querySelectorAll('td, th');
+    if (cells.length === 0) {
+      issues.push(`Row ${index + 1} has no cells`);
+    }
+  });
+  
+  return issues;
 }
 
 function validateTableStructureLocal(table) {
-  // ... existing code ...
+  const rows = table.querySelectorAll('tr');
+  const headers = table.querySelectorAll('th');
+  const dataCells = table.querySelectorAll('td');
+  
+  if (headers.length === 0) {
+    return false;
+  }
+  
+  return true;
 }
 
 function validateLandmark() {
-  // ... existing code ...
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], main, nav, header, footer, aside');
+  return landmarks.length > 0;
 }
 
 function validateLandmarkStructureLocal() {
-  // ... existing code ...
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"]');
+  const results = {
+    valid: true,
+    landmarks: [],
+    issues: []
+  };
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    const label = landmark.getAttribute('aria-label') || landmark.id || '';
+    
+    results.landmarks.push({ role, label, element: landmark.tagName });
+  });
+  
+  return results;
 }
 
 function validateLandmarkAttributes() {
-  // ... existing code ...
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"]');
+  const results = {
+    valid: true,
+    landmarks: []
+  };
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    const label = landmark.getAttribute('aria-label') || landmark.textContent.substring(0, 50);
+    
+    results.landmarks.push({ role, label, element: landmark.tagName });
+  });
+  
+  return results;
 }
 
 /**

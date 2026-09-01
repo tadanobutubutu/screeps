@@ -61,7 +61,7 @@ function isLinkAccessible(link) {
   // Must have an accessible name
   const hasText = text.trim().length > 0;
   const hasAriaLabel = ariaLabel && ariaLabel.trim().length > 0;
-  const hasAriaLabelledby = link.getAttribute ? !!link.getAttribute('aria-labelledby') : false;
+  const hasAriaLabelledby = link.getAttribute ? link.getAttribute('aria-labelledby') : false;
 
   if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
     return false;
@@ -121,8 +121,8 @@ function renderDependencyGraph(container, dependencies = {}) {
 
     const graphElement = document.createElement('div');
     graphElement.className = 'dependency-graph';
-    graphElement.setAttribute('role', 'img');
-    graphElement.setAttribute('aria-label', 'Dependency graph visualization');
+    const img = document.createElement('img');
+    img.setAttribute('alt', 'Dependency graph visualization');
 
     const nodes = dependencies.nodes || [];
     const edges = dependencies.edges || [];
@@ -131,7 +131,7 @@ function renderDependencyGraph(container, dependencies = {}) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
-    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 
     // Render edges
     edges.forEach((edge, index) => {
@@ -163,6 +163,7 @@ function renderDependencyGraph(container, dependencies = {}) {
         svg.appendChild(circle);
     });
 
+    graphElement.appendChild(img);
     graphElement.appendChild(svg);
     container.appendChild(graphElement);
     return graphElement;

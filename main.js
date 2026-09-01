@@ -40,6 +40,16 @@ const handleFakeLinks = (link) => {
   });
 };
 
+// New function to wrap primary content in a main element
+const wrapPrimaryContentInMain = () => {
+  const primaryContent = document.getElementById('primary-content');
+  if (primaryContent) {
+    const mainElement = document.createElement('main');
+    mainElement.appendChild(primaryContent);
+    document.body.insertBefore(mainElement, document.body.firstChild);
+  }
+};
+
 // Continue with the rest of your existing code here...
 
 module.exports = {
@@ -47,5 +57,6 @@ module.exports = {
   createInPageButton: createInPageButton,
   validateLinkAccessibility: validateLinkAccessibility,
   handleFakeLinks: handleFakeLinks,
+  wrapPrimaryContentInMain: wrapPrimaryContentInMain,
   // continue with other exports here...
 };

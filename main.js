@@ -47,7 +47,9 @@ module.exports = {
   createServer,
   startApp,
   config,
-  validateLandmark // Export the new function
+  validateLandmark, // Export the new function
+  http,
+  path
 };
 
 // Start the application if run directly

@@ -76,3 +76,24 @@ export { newFunctionToImplement };
 
 // If any other exports were previously in main.js, they should be preserved and added here
 export { otherExport1, otherExport2 };
+
+// New function added at line 478 as requested in the issue
+function processAccessibilityReport(insightReport) {
+  if (!insightReport) {
+    throw new Error('Insight report is required');
+  }
+
+  const result = addressAccessibilityIssues(insightReport);
+
+  // Additional processing can be added here
+  console.log(`Processed accessibility report with ${result.summary.total} issues`);
+
+  return {
+    ...result,
+    processedAt: new Date().toISOString(),
+    processorVersion: '1.0.0'
+  };
+}
+
+// Export the new function while preserving all existing exports
+export { processAccessibilityReport };

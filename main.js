@@ -5,8 +5,8 @@
 /**
  * Main application entry point with accessibility features
  */
-function renderDependencyGraphs(svgElements) {
-  const accessibleName = getSvgAccessibleName(svgElements);
+function main() {
+  const accessibleName = '';
   if (accessibleName) {
     // Use accessibleName
   }
@@ -16,7 +16,7 @@ function renderDependencyGraphs(svgElements) {
 
 function checkLandmarkElements() {
   const checkLandmarkElement = (selector, role, implicitRole) => {
-    const elements = document.querySelectorAll(selector);
+    const elements = document.queryAll(selector);
     elements.forEach((element) => {
       const tagName = element.tagName ? element.tagName.toLowerCase() : '';
       const landmarkRole = role || implicitRole[tagName];
@@ -26,7 +26,7 @@ function checkLandmarkElements() {
         return;
       }
 
-      if (!landmarkRoles.includes(landmarkRole)) {
+      if (element.hasAttribute('role') && element.getAttribute('role') !== landmarkRole) {
         console.warn(`Invalid landmark role: ${landmarkRole} for ${tagName}`);
       }
     });
@@ -43,7 +43,7 @@ function checkLandmarkElements() {
     'form'
   ];
 
-  checkLandmarkElement('[role="main"], main', 'main', {
+  checkLandmarkElement('main', 'main', {
     'main': 'main',
     'header': 'banner',
     'nav': 'navigation',
@@ -53,15 +53,12 @@ function checkLandmarkElements() {
     'section': 'region'
   });
 
-  checkLandmarkElement('[role="banner"], header', 'banner');
-  checkLandmarkElement('[role="navigation"], nav', 'navigation');
-  checkLandmarkElement('[role="contentinfo"], footer', 'contentinfo');
-  checkLandmarkElement('[role="complementary"], aside', 'complementary');
-  checkLandmarkElement('[role="search"], [role="form"], form', 'form');
+  checkLandmarkElement('header', 'banner');
+  checkLandmarkElement('nav', 'navigation');
+  checkLandmarkElement('footer', 'contentinfo');
+  checkLandmarkElement('aside', 'complementary');
+  checkLandmarkElement('[role="form"]', 'form', 'form');
 }
-
-// Export the new function and sampleInsightReport (both versions agreed to do this)
-export { checkLandmarkElements, sampleInsightReport };
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -79,20 +76,20 @@ const sampleInsightReport = {
 
 function countDependencies() {
   const fs = require('fs');
-  const packageJsonPath = require('path').join(__dirname, 'package.json');
+  const packageJsonPath = './package.json';
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
   const dependencies = packageJson.dependencies || {};
   const devDependencies = packageJson.devDependencies || {};
 
   return {
-    dependencies: Object.keys(dependencies).length,
-    devDependencies: Object.keys(devDependencies).length,
+    dependencies: Object.keys(dependencies),
+    devDependencies: Object.keys(devDependencies),
     total: Object.keys(dependencies).length + Object.keys(devDependencies).length
   };
 }
 
 // Rest of the code remains the same
-```
 
-This resolved the conflict by combining both changes and keeping both features. The `checkLandmarkElements` function now checks for landmark elements and warnings for duplicates, and the `sampleInsightReport` object is exported along with the `checkLandmarkElements` function. The rest of the file remains untouched.
+// Export the new function and sampleInsightReport (both versions agreed to do this)
+export { checkLandmarkElements, sampleInsightReport };

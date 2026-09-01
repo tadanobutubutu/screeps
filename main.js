@@ -132,10 +132,76 @@ function renderDependencyGraphContent() {
   if (!container) {
     return;
   }
-  
+
   // Use the new functions for rendering
   renderDependencyGraph(container);
   renderIndexView(container);
+}
+
+// Add lang attribute to HTML element
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+// Add main landmark
+function addMainLandmark() {
+  const mainElement = document.querySelector('main');
+  if (mainElement && !mainElement.hasAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+}
+
+// Add accessible names to SVGs
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+  svgs.forEach((svg, index) => {
+    svg.setAttribute('aria-label', `Graphic ${index + 1}`);
+  });
+}
+
+// Fix fake link issue
+function fixFakeLinkIssue() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    link.setAttribute('role', 'button');
+    link.setAttribute('tabindex', '0');
+  });
+}
+
+// Fix table structure issues
+function fixTableStructure() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure table has a caption
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table data';
+      table.prepend(caption);
+    }
+
+    // Ensure table has proper headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length > 0) {
+      headers.forEach(header => {
+        if (!header.hasAttribute('scope')) {
+          header.setAttribute('scope', 'col');
+        }
+      });
+    }
+  });
+}
+
+// Address all accessibility issues
+function addressInsightIssues() {
+  addLangAttribute();
+  addMainLandmark();
+  ensureUniqueLandmarks(landmarks);
+  addSvgAccessibleNames();
+  fixFakeLinkIssue();
+  fixTableStructure();
 }
 
 // Export functions for testing
@@ -162,5 +228,10 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  addLangAttribute,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  fixTableStructure
 };

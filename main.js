@@ -12,5 +12,24 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// Function to validate landmark structure for accessibility issues
+function validateLandmarkStructure() {
+    const requiredLandmarks = ['header', 'main', 'footer'];
+    const missingLandmarks = [];
+
+    requiredLandmarks.forEach(landmark => {
+        if (!document.querySelector(landmark)) {
+            missingLandmarks.push(landmark);
+        }
+    });
+
+    if (missingLandmarks.length > 0) {
+        console.warn(`Accessibility warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+        return false;
+    }
+
+    return true;
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

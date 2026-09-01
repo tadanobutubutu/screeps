@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Add back any required exports that might have been removed
 
 // User Safety: unsafe
@@ -201,6 +198,51 @@ if (fakeLink && fakeLink.tagName === 'A') {
   parent.replaceChild(newButton, fakeLink);
 }
 
+// Function to add SVG accessibility props
+function addSvgAccessibilityProps(svgElement, options = {}) {
+  if (!svgElement || svgElement.tagName !== 'svg') {
+    console.warn('Invalid SVG element provided');
+    return;
+  }
+
+  // Set default accessibility attributes
+  const defaultOptions = {
+    role: 'img',
+    ariaLabel: 'SVG graphic',
+    ariaHidden: false,
+    title: ''
+  };
+
+  // Merge provided options with defaults
+  const finalOptions = { ...defaultOptions, ...options };
+
+  // Apply accessibility attributes
+  svgElement.setAttribute('role', finalOptions.role);
+  svgElement.setAttribute('aria-label', finalOptions.ariaLabel);
+
+  if (finalOptions.ariaHidden) {
+    svgElement.setAttribute('aria-hidden', 'true');
+  }
+
+  if (finalOptions.title) {
+    svgElement.setAttribute('title', finalOptions.title);
+  }
+
+  // If SVG has child elements that might need additional accessibility
+  if (svgElement.children.length > 0) {
+    Array.from(svgElement.children).forEach(child => {
+      if (child.tagName === 'title' || child.tagName === 'desc') {
+        // Ensure title and desc elements are properly structured
+        if (child.tagName === 'title' && !child.textContent.trim()) {
+          child.textContent = finalOptions.title || finalOptions.ariaLabel;
+        }
+      }
+    });
+  }
+
+  return svgElement;
+}
+
 // Export all required items
 module.exports = {
   app,
@@ -221,11 +263,11 @@ module.exports = {
   createInPageButton,
   rotateBack,
   ensureUniqueLandmarks,
-  checkLandmarkElement
+  checkLandmarkElement,
+  addSvgAccessibilityProps
 };
 
 // Run if executed directly
 if (require.main === module) {
   main();
 }
-```

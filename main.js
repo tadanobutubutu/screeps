@@ -171,7 +171,7 @@ function addressAccessibilityIssues(container) {
   }
 
   return fixes;
-},
+}
 
 // New feature: Priority-based task scheduling
 class ScreepsBot {
@@ -257,8 +257,8 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
   };
 
   // Accessibility-related functions
-  getLangAttribute = getLangAttributeImpl || function() { return getLangAttributeImpl. call(this); },
-  createInPageButton = createInPageButtonImpl || function() { return createInPageButtonImpl. call(this); },
+  const getLangAttribute = typeof getLangAttributeImpl !== 'undefined' ? getLangAttributeImpl : function() { return getLangAttributeImpl.call(this); };
+  const createInPageButton = typeof createInPageButtonImpl !== 'undefined' ? createInPageButtonImpl : function() { return createInPageButtonImpl.call(this); };
 
   // Main logic from the original implementation
   if (container) {
@@ -343,8 +343,9 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
     if (fakeLinkFixes > 0) {
       log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
     }
+  }
 
-    return fixes;
+  return fixes;
 }
 
 // Existing function

@@ -6,24 +6,24 @@ const accessibilityUtils = {
   handleKeyboardNav: (e, handlers) => {},
 
   // Functions provided in both branches (merge)
-  ensureElementId: ensureElementId,
-  addAriaLabel: addAriaLabel,
-  renderDependencyGraph: renderDependencyGraph,
+  ensureElementId,
+  addAriaLabel,
+  renderDependencyGraph,
 
   // Functions from the 'HEAD' branch
-  newFocusTrap: newFocusTrap,
-  addLangAttribute: addLangAttribute,
-  fixTableStructure: fixTableStructure,
-  addLandmarkIssues: addLandmarkIssues,
-  addSvgAccessibleNames: addSvgAccessibleNames,
-  ensureUniqueLandmarks: ensureUniqueLandmarks,
-  fixFakeLinkIssue: fixFakeLinkIssue,
+  newFocusTrap,
+  addLangAttribute,
+  fixTableStructure,
+  addLandmarkIssues,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
 
   // Functions from the 'origin/main' branch
   validateTableAccessibility: validateTableAccessibilityImpl,
   validateTableStructure: validateTableStructureImpl,
-  transformInputData: transformInputData,
-};
+  transformInputData
+}
 
 // Import required modules
 const {
@@ -46,11 +46,11 @@ const {
   fixFakeLinkIssue,
   addAriaAttribute,
   implementAccessibilityFixesFromReport
-} = require('./utilities');
+} = require('./utilities')
 
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+const http = require('http')
+const fs = require('fs')
+const path = require('path')
 
 // Configuration
 const CONFIG = {
@@ -58,114 +58,114 @@ const CONFIG = {
   host: process.env.HOST || 'localhost',
   maxRetries: 3,
   timeout: 5000
-};
+}
 
 // Existing utility functions
-function log(message, level = 'info') {
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+function log (message, level = 'info') {
+  const timestamp = new Date().toISOString()
+  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`)
 }
 
-function validateInput(input) {
+function validateInput (input) {
   if (typeof input !== 'string') {
-    return false;
+    return false
   }
-  return input.length > 0 && input.length <= 1000;
+  return input.length > 0 && input.length <= 1000
 }
 
-function parseJSONsafe(jsonString) {
+function parseJSONsafe (jsonString) {
   try {
-    return JSON.parse(jsonString);
+    return JSON.parse(jsonString)
   } catch (error) {
-    return null;
+    return null
   }
 }
 
-function formatResponse(data, statusCode = 200) {
+function formatResponse (data, statusCode = 200) {
   return {
     statusCode,
     data,
     timestamp: new Date().toISOString()
-  };
+  }
 }
 
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+function delay (ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
-  let lastError;
+async function retryOperation (operation, maxRetries = CONFIG.maxRetries) {
+  let lastError
   for (let i = 0; i < maxRetries; i++) {
     try {
-      return await operation();
+      return await operation()
     } catch (error) {
-      lastError = error;
-      log(`Attempt ${i + 1} failed: ${error.message}`, 'warn');
+      lastError = error
+      log(`Attempt ${i + 1} failed: ${error.message}`, 'warn')
       if (i < maxRetries - 1) {
-        await delay(1000 * (i + 1));
+        await delay(1000 * (i + 1))
       }
     }
   }
-  throw lastError;
+  throw lastError
 }
 
-function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+function sanitizeFilename (filename) {
+  return filename.replace(/[^a-zA-Z0-9._-]/g, '_')
 }
 
-function readFileSafe(filePath) {
+function readFileSafe (filePath) {
   try {
-    return fs.readFileSync(filePath, 'utf8');
+    return fs.readFileSync(filePath, 'utf8')
   } catch (error) {
-    log(`Error reading file ${filePath}: ${error.message}`, 'error');
-    return null;
+    log(`Error reading file ${filePath}: ${error.message}`, 'error')
+    return null
   }
 }
 
 // Existing data processing functions
-function processData(items) {
+function processData (items) {
   if (!Array.isArray(items)) {
-    return [];
+    return []
   }
-  return items.map(item => ({
+  return items.map((item) => ({
     ...item,
     processed: true,
     timestamp: Date.now()
-  }));
+  }))
 }
 
-function filterValidItems(items, validator) {
-  return items.filter(item => {
+function filterValidItems (items, validator) {
+  return items.filter((item) => {
     try {
-      return validator(item);
+      return validator(item)
     } catch {
-      return false;
+      return false
     }
-  });
+  })
 }
 
-function groupByCategory(items, getCategory) {
+function groupByCategory (items, getCategory) {
   return items.reduce((groups, item) => {
-    const category = getCategory(item);
+    const category = getCategory(item)
     if (!groups[category]) {
-      groups[category] = [];
+      groups[category] = []
     }
-    groups[category].push(item);
-    return groups;
-  }, {});
+    groups[category].push(item)
+    return groups
+  }, {})
 }
 
 // New function added as per issue
-function myNewFunction(input) {
+function myNewFunction (input) {
   if (typeof input !== 'string') {
-    return input;
+    return input
   }
-  return input.toUpperCase();
+  return input.toUpperCase()
 }
 
 // Calculate sum of numbers array
-function calculateSum(numbers) {
-    return numbers.reduce((sum, num) => sum + num, 0);
+function calculateSum (numbers) {
+  return numbers.reduce((sum, num) => sum + num, 0)
 }
 
 /**
@@ -175,18 +175,18 @@ function calculateSum(numbers) {
  * @param {string} [prefix='element'] - Prefix for the generated id
  * @returns {string} The element's id (existing or newly generated)
  */
-function ensureElementId(element, prefix = 'element') {
+function ensureElementId (element, prefix = 'element') {
   if (!element) {
-    throw new Error('Element is required');
+    throw new Error('Element is required')
   }
 
   if (element.id) {
-    return element.id;
+    return element.id
   }
 
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
+  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`
+  element.id = id
+  return id
 }
 
 /**
@@ -195,21 +195,21 @@ function ensureElementId(element, prefix = 'element') {
  * @param {string} label - The aria-label value to set
  * @returns {boolean} True if label was added, false if element already had one
  */
-function addAriaLabel(element, label) {
+function addAriaLabel (element, label) {
   if (!element) {
-    throw new Error('Element is required');
+    throw new Error('Element is required')
   }
 
   if (!label) {
-    throw new Error('Label is required');
+    throw new Error('Label is required')
   }
 
   if (element.getAttribute('aria-label')) {
-    return false;
+    return false
   }
 
-  element.setAttribute('aria-label', label);
-  return true;
+  element.setAttribute('aria-label', label)
+  return true
 }
 
 /**
@@ -219,43 +219,43 @@ function addAriaLabel(element, label) {
  * @param {Object} [options={}] - Optional rendering configuration
  * @returns {Object} The rendered graph instance
  */
-function renderDependencyGraphs(container, dependencies, options = {}) {
+function renderDependencyGraphs (container, dependencies, options = {}) {
   if (!container) {
-    throw new Error('Container element is required');
+    throw new Error('Container element is required')
   }
 
   if (!dependencies) {
-    throw new Error('Dependencies data is required');
+    throw new Error('Dependencies data is required')
   }
 
   // Ensure container has an id for graph references
-  const containerId = ensureElementHasId(container, 'graph-container');
+  const containerId = ensureElementHasId(container, 'graph-container')
 
   // Add accessibility label if not present
-  const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
+  const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`)
 
   // Placeholder for graph rendering logic
   // Actual implementation would use a library like D3.js or similar
   const graphData = {
     id: containerId,
-    dependencies: dependencies,
-    options: options,
+    dependencies,
+    options,
     rendered: true,
     timestamp: new Date().toISOString()
-  };
+  }
 
-  console.log('Rendering dependency graphs:', graphData);
+  console.log('Rendering dependency graphs:', graphData)
 
-  return graphData;
+  return graphData
 }
 
-async function handleCredentialResponse(response) {
+async function handleCredentialResponse (response) {
   if (!response) {
-    throw new Error('No response received');
+    throw new Error('No response received')
   }
 
   if (response.error) {
-    throw new Error(response.error);
+    throw new Error(response.error)
   }
 
   if (response.token) {
@@ -263,10 +263,10 @@ async function handleCredentialResponse(response) {
       success: true,
       token: response.token,
       expiresIn: response.expiresIn || 3600
-    };
+    }
   }
 
-  throw new Error('Invalid credential response');
+  throw new Error('Invalid credential response')
 }
 
 /**
@@ -276,66 +276,66 @@ async function handleCredentialResponse(response) {
 const focusTrap = (element) => {
   const focusableElements = element.querySelectorAll(
     'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  );
-  let activeElementIndex = focusableElements.length - 1;
+  )
+  let activeElementIndex = focusableElements.length - 1
 
-  function setActiveElement(index) {
+  function setActiveElement (index) {
     if (index < 0) {
-      index = focusableElements.length - 1;
+      index = focusableElements.length - 1
     } else if (index >= focusableElements.length) {
-      index = 0;
+      index = 0
     }
 
     if (focusableElements[index].focus) {
-      focusableElements[index].focus();
+      focusableElements[index].focus()
     } else {
-      ensureElementHasId(focusableElements[index]);
-      focusableElements[index].focus();
+      ensureElementHasId(focusableElements[index])
+      focusableElements[index].focus()
     }
-    activeElementIndex = index;
+    activeElementIndex = index
   }
 
-  function nextFocusableElement() {
-    setActiveElement(activeElementIndex + 1);
+  function nextFocusableElement () {
+    setActiveElement(activeElementIndex + 1)
   }
 
-  function prevFocusableElement() {
-    setActiveElement(activeElementIndex - 1);
+  function prevFocusableElement () {
+    setActiveElement(activeElementIndex - 1)
   }
 
-  function moveFocusToFirst() {
-    setActiveElement(0);
+  function moveFocusToFirst () {
+    setActiveElement(0)
   }
 
-  function moveFocusToLast() {
-    setActiveElement(focusableElements.length - 1);
+  function moveFocusToLast () {
+    setActiveElement(focusableElements.length - 1)
   }
 
   // Handle keyboard events
   element.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
       if (e.shiftKey) {
-        prevFocusableElement();
+        prevFocusableElement()
       } else {
-        nextFocusableElement();
+        nextFocusableElement()
       }
-      e.preventDefault();
+      e.preventDefault()
     } else if (e.key === 'Escape') {
       // Exit focus trap
-      element.removeEventListener('keydown', arguments.callee);
+      element.removeEventListener('keydown', arguments.callee)
     }
-  });
+  })
 
   // Set initial focus
-  moveFocusToFirst();
+  moveFocusToFirst()
 
   return {
     next: nextFocusableElement,
     prev: prevFocusableElement,
     first: moveFocusToFirst,
     last: moveFocusToLast
-  };
-};
+  }
+}
 
 // Export all necessary functions
 module.exports = {
@@ -378,4 +378,4 @@ module.exports = {
   fixFakeLinkIssue,
   addAriaAttribute,
   implementAccessibilityFixesFromReport
-};
+}

@@ -60,8 +60,85 @@ function checkLandmarkElements() {
   checkLandmarkElement('[role="search"], [role="form"], form', 'form');
 }
 
+/**
+ * Generates a report based on accessibility issues
+ * @returns {Object} Report containing accessibility findings
+ */
+function generateAccessibilityReport() {
+  const issues = [];
+  
+  const landmarkRoles = [
+    'banner',
+    'main',
+    'navigation',
+    'search',
+    'contentinfo',
+    'complementary',
+    'region',
+    'form'
+  ];
+
+  const landmarkMappings = {
+    '[role="main"], main': { role: 'main', implicit: { 'main': 'main' } },
+    '[role="banner"], header': { role: 'banner' },
+    '[role="navigation"], nav': { role: 'navigation' },
+    '[role="contentinfo"], footer': { role: 'contentinfo' },
+    '[role="complementary"], aside': { role: 'complementary' },
+    '[role="search"], [role="form"], form': { role: 'form' }
+  };
+
+  const implicitRoleMappings = {
+    'main': 'main',
+    'header': 'banner',
+    'nav': 'navigation',
+    'footer': 'contentinfo',
+    'aside': 'complementary',
+    'form': 'form',
+    'section': 'region'
+  };
+
+  for (const [selector, config] of Object.entries(landmarkMappings)) {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach((element) => {
+      const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+      const expectedRole = config.role || implicitRoleMappings[tagName];
+
+      if (!expectedRole) {
+        issues.push({
+          type: 'missing-landmark',
+          element: tagName,
+          message: `Missing landmark role for ${tagName}`,
+          severity: 'warning'
+        });
+        return;
+      }
+
+      if (!landmarkRoles.includes(expectedRole)) {
+        issues.push({
+          type: 'invalid-landmark',
+          element: tagName,
+          expectedRole: expectedRole,
+          message: `Invalid landmark role: ${expectedRole} for ${tagName}`,
+          severity: 'error'
+        });
+      }
+    });
+  }
+
+  return {
+    title: 'Accessibility Issues Report',
+    generatedAt: new Date().toISOString(),
+    summary: {
+      totalIssues: issues.length,
+      errors: issues.filter(i => i.severity === 'error').length,
+      warnings: issues.filter(i => i.severity === 'warning').length
+    },
+    issues: issues
+  };
+}
+
 // Export the new function and sampleInsightReport (both versions agreed to do this)
-export { checkLandmarkElements, sampleInsightReport };
+export { checkLandmarkElements, sampleInsightReport, generateAccessibilityReport };
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -93,6 +170,3 @@ function countDependencies() {
 }
 
 // Rest of the code remains the same
-```
-
-This resolved the conflict by combining both changes and keeping both features. The `checkLandmarkElements` function now checks for landmark elements and warnings for duplicates, and the `sampleInsightReport` object is exported along with the `checkLandmarkElements` function. The rest of the file remains untouched.

@@ -80,10 +80,10 @@ function setConfig(config) {
 function validateTableAccessibility() {
   const errors = [];
   const tables = getTables();
-  
+
   for (let i = 0; i < tables.length; i++) {
     const table = tables[i];
-    
+
     // Check if table has headers
     if (!table.headers || !Array.isArray(table.headers) || table.headers.length === 0) {
       errors.push({
@@ -91,7 +91,7 @@ function validateTableAccessibility() {
         error: 'Table must have headers defined'
       });
     }
-    
+
     // Check if table has proper structure
     if (!table.rows || !Array.isArray(table.rows)) {
       errors.push({
@@ -99,7 +99,7 @@ function validateTableAccessibility() {
         error: 'Table must have rows array defined'
       });
     }
-    
+
     // Check for proper ARIA attributes (placeholder implementation)
     if (table.ariaLabel === undefined && table.caption === undefined) {
       errors.push({
@@ -107,17 +107,17 @@ function validateTableAccessibility() {
         error: 'Table should have aria-label or caption for accessibility'
       });
     }
-    
+
     // Add lang attribute to HTML element
     if (document.documentElement.lang === undefined) {
       document.documentElement.lang = 'en';
     }
-    
+
     // Add landmark roles and fix landmark issues
     if (table.role === undefined) {
       table.role = 'table';
     }
-    
+
     // Add accessible names to 2 SVGs
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
@@ -125,7 +125,7 @@ function validateTableAccessibility() {
         svg.setAttribute('aria-label', 'SVG description');
       }
     });
-    
+
     // Ensure unique landmarks (2 issues)
     const landmarks = ['navigation', 'search', 'main', 'contentinfo', 'complementary', 'form'];
     let uniqueLandmarks = new Set();
@@ -141,7 +141,7 @@ function validateTableAccessibility() {
         error: 'Landmarks are not unique'
       });
     }
-    
+
     // Fix 1 fake link issue
     const links = document.querySelectorAll('a');
     links.forEach(link => {
@@ -150,7 +150,7 @@ function validateTableAccessibility() {
       }
     });
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors: errors
@@ -274,6 +274,53 @@ async function handleCredentialResponse(response) {
   throw new Error('Invalid credential response');
 }
 
+/**
+ * Creates an accessible button element with optional click handler
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - Button text content
+ * @param {string} [options.id] - Optional button ID
+ * @param {string} [options.className] - Optional CSS class name
+ * @param {string} [options.ariaLabel] - Optional ARIA label for accessibility
+ * @param {Function} [options.onClick] - Click event handler
+ * @param {HTMLElement} [options.parent] - Parent element to append button to
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createButton({
+  text,
+  id,
+  className,
+  ariaLabel,
+  onClick,
+  parent
+}) {
+  const button = document.createElement('button');
+
+  // Set basic properties
+  button.textContent = text;
+  if (id) button.id = id;
+  if (className) button.className = className;
+
+  // Set accessibility attributes
+  button.setAttribute('type', 'button');
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  } else {
+    button.setAttribute('aria-label', text);
+  }
+
+  // Add click handler if provided
+  if (onClick && typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+
+  // Append to parent if provided
+  if (parent && parent instanceof HTMLElement) {
+    parent.appendChild(button);
+  }
+
+  return button;
+}
+
 // Export functionality with accessibility support
 const exportUtils = {
   exportData: (data, filename, mimeType) => {
@@ -349,5 +396,6 @@ module.exports = {
   renderDependencyGraphs,
   spawnProcess,
   focusTrap,
-  newFocusTrap
+  newFocusTrap,
+  createButton
 };

@@ -597,6 +597,248 @@ function generateAccessibilityReport(issues, options = {}) {
   return report;
 }
 
+// New function to get language attribute for HTML element
+function getLangAttribute() {
+  // Try to get language from browser or document
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    return navigator.language;
+  }
+
+  if (typeof document !== 'undefined' && document.documentElement.lang) {
+    return document.documentElement.lang;
+  }
+
+  // Default to English if not detected
+  return 'en';
+}
+
+// New function to handle person name formatting
+function personName(firstName, lastName, options = {}) {
+  const {
+    format = 'full',
+    title = '',
+    suffix = '',
+    separator = ' '
+  } = options;
+
+  let nameParts = [];
+
+  if (title) nameParts.push(title);
+  if (firstName) nameParts.push(firstName);
+  if (lastName) nameParts.push(lastName);
+  if (suffix) nameParts.push(suffix);
+
+  let fullName = nameParts.join(separator);
+
+  switch (format) {
+    case 'full':
+      return fullName;
+    case 'initials':
+      return `${firstName ? firstName[0] : ''}${lastName ? lastName[0] : ''}`.toUpperCase();
+    case 'lastFirst':
+      return `${lastName}${lastName && firstName ? ', ' : ''}${firstName}`;
+    default:
+      return fullName;
+  }
+}
+
+// New function to validate table structure
+function validateTableStructure(tableElement) {
+  const issues = [];
+
+  if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
+    issues.push('Element is not a TABLE element');
+    return issues;
+  }
+
+  // Check for proper table structure
+  const thead = tableElement.querySelector('thead');
+  const tbody = tableElement.querySelector('tbody');
+  const tfoot = tableElement.querySelector('tfoot');
+
+  if (!thead) {
+    issues.push('TABLE is missing required THEAD section');
+  }
+
+  if (!tbody) {
+    issues.push('TABLE is missing required TBODY section');
+  }
+
+  // Check for proper header cells in THEAD
+  if (thead) {
+    const headerRows = thead.querySelectorAll('tr');
+    if (headerRows.length === 0) {
+      issues.push('THEAD section has no rows');
+    } else {
+      const headerCells = headerRows[0].querySelectorAll('th');
+      if (headerCells.length === 0) {
+        issues.push('First row of THEAD has no header cells (TH)');
+      }
+    }
+  }
+
+  // Check for proper data cells in TBODY
+  if (tbody) {
+    const dataRows = tbody.querySelectorAll('tr');
+    if (dataRows.length === 0) {
+      issues.push('TBODY section has no rows');
+    } else {
+      const dataCells = dataRows[0].querySelectorAll('td');
+      if (dataCells.length === 0) {
+        issues.push('First row of TBODY has no data cells (TD)');
+      }
+    }
+  }
+
+  return issues;
+}
+
+// New function to get accessible name for SVG
+function getSvgAccessibleName(svgElement, defaultName = 'graphic') {
+  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
+    return defaultName;
+  }
+
+  // Check for aria-label
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+
+  // Check for aria-labelledby
+  const labelledById = svgElement.getAttribute('aria-labelledby');
+  if (labelledById) {
+    const labelledByElement = document.getElementById(labelledById);
+    if (labelledByElement && labelledByElement.textContent) {
+      return labelledByElement.textContent.trim();
+    }
+  }
+
+  // Check for title element
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent.trim();
+  }
+
+  // Check for desc element
+  const descElement = svgElement.querySelector('desc');
+  if (descElement && descElement.textContent) {
+    return descElement.textContent.trim();
+  }
+
+  // Fallback to default name
+  return defaultName;
+}
+
+// New function to create accessible link
+function createAccessibleLink(href, text, options = {}) {
+  const {
+    ariaLabel = text,
+    target = '_self',
+    rel = target === '_blank' ? 'noopener noreferrer' : undefined,
+    className = '',
+    id = ''
+  } = options;
+
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  link.setAttribute('aria-label', ariaLabel);
+
+  if (target) link.target = target;
+  if (rel) link.rel = rel;
+  if (className) link.className = className;
+  if (id) link.id = id;
+
+  return link;
+}
+
+// New function to handle accessibility errors
+function handleAccessibilityErrors(error) {
+  if (!error) return;
+
+  const errorMessage = typeof error === 'string' ? error : error.message || 'An accessibility error occurred';
+
+  // Log the error
+  log(`Accessibility Error: ${errorMessage}`, 'error');
+
+  // Announce to screen reader
+  accessibilityUtils.announceToScreenReader(`Accessibility error: ${errorMessage}`, 'assertive');
+
+  // Return a user-friendly message
+  return {
+    success: false,
+    message: 'An accessibility issue was encountered. Please try again or contact support.',
+    details: errorMessage
+  };
+}
+
+// New function to handle accessibility issues
+function handleAccessibilityIssues(issues) {
+  if (!issues || issues.length === 0) {
+    return {
+      success: true,
+      message: 'No accessibility issues found'
+    };
+  }
+
+  // Generate report
+  const report = generateAccessibilityReport(issues, {
+    format: 'text',
+    groupBySeverity: true,
+    includeSummary: true
+  });
+
+  // Log the issues
+  log(`Accessibility Issues Report:\n${report}`, 'warn');
+
+  // Announce summary to screen reader
+  const summary = issues.length === 1 ?
+    '1 accessibility issue was found' :
+    `${issues.length} accessibility issues were found`;
+
+  accessibilityUtils.announceToScreenReader(summary, 'polite');
+
+  // Return the report
+  return {
+    success: false,
+    message: 'Accessibility issues were found',
+    report: report
+  };
+}
+
+// New function to create in-page button
+function createInPageButton(text, onClick, options = {}) {
+  const {
+    ariaLabel = text,
+    className = '',
+    id = '',
+    disabled = false,
+    type = 'button'
+  } = options;
+
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.setAttribute('aria-label', ariaLabel);
+  button.type = type;
+
+  if (className) button.className = className;
+  if (id) button.id = id;
+  if (disabled) button.disabled = true;
+
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+
+    // Add keyboard support
+    button.addEventListener('keydown', (e) => {
+      accessibilityUtils.handleKeyboardNav(e, {
+        Enter: () => button.click(),
+        ' ': () => button.click()
+      });
+    });
+  }
+
+  return button;
+}
+
 // Export all utilities
 module.exports = {
   accessibilityUtils,
@@ -618,5 +860,13 @@ module.exports = {
   transformInputData,
   validateTableAccessibility,
   ensureElementHasId,
-  generateAccessibilityReport
+  generateAccessibilityReport,
+  getLangAttribute,
+  personName,
+  validateTableStructure,
+  getSvgAccessibleName,
+  createAccessibleLink,
+  handleAccessibilityErrors,
+  handleAccessibilityIssues,
+  createInPageButton
 };

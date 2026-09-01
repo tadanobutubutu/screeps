@@ -326,6 +326,38 @@ function handleAccessibilityIssues(issues = []) {
 }
 
 /**
+ * Adds accessibility properties to an SVG element
+ * @param {Object} svg - The SVG element to enhance
+ * @param {Object} options - Accessibility options
+ * @param {string} options.ariaLabel - ARIA label for the SVG
+ * @param {string} options.ariaHidden - ARIA hidden state
+ * @param {string} options.role - ARIA role for the SVG
+ * @returns {Object} The enhanced SVG element with accessibility properties
+ */
+function addSvgAccessibilityProps(svg, options = {}) {
+  const enhancedSvg = { ...svg };
+
+  if (options.ariaLabel) {
+    enhancedSvg.ariaLabel = options.ariaLabel;
+  }
+
+  if (options.ariaHidden !== undefined) {
+    enhancedSvg.ariaHidden = options.ariaHidden;
+  }
+
+  if (options.role) {
+    enhancedSvg.role = options.role;
+  }
+
+  // Ensure the SVG has an accessible name
+  if (!enhancedSvg.ariaLabel && !enhancedSvg.ariaLabelledby && !enhancedSvg.title) {
+    enhancedSvg.title = 'SVG graphic';
+  }
+
+  return enhancedSvg;
+}
+
+/**
  * Adds lang attribute to HTML element
  * @param {Object} element - The HTML element to modify
  * @returns {Object} The modified element with lang attribute
@@ -501,6 +533,7 @@ module.exports = {
   createInPageButton,
   createAccessibleLink,
   handleAccessibilityIssues,
+  addSvgAccessibilityProps,
   initializeApp,
   getConfig,
   validateInput,

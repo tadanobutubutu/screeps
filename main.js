@@ -1,6 +1,6 @@
 // ... (existing import, const, let, or var declarations)
 
-function renderFunction1() {
+async function renderFunction1() {
   // Existing functionality
 
   // Add the imported modules to function1 as needed
@@ -11,7 +11,7 @@ function renderFunction1() {
   // ... (remaining function1 logic)
 }
 
-function renderFunction2() {
+async function renderFunction2() {
   // Existing functionality
 
   // Add the imported modules to function2 as needed
@@ -290,4 +290,75 @@ function setLanguageAttribute() {
     htmlElement.setAttribute('lang', 'en');
   }
   return htmlElement ? htmlElement.getAttribute('lang') : null;
+}
+
+// New spawning logic implementation
+function spawnCreep(spawn, creepName, bodyParts, memory) {
+  return new Promise((resolve, reject) => {
+    spawn.spawnCreep(bodyParts, creepName, {
+      memory: memory || {}
+    }, (error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve({ success: true, creepName });
+      }
+    });
+  });
+}
+
+async function spawnCreeps(spawn, creepConfigurations) {
+  const results = [];
+  for (const config of creepConfigurations) {
+    try {
+      const result = await spawnCreep(
+        spawn,
+        config.name,
+        config.body,
+        config.memory
+      );
+      results.push(result);
+    } catch (error) {
+      results.push({
+        success: false,
+        creepName: config.name,
+        error: error.message
+      });
+    }
+  }
+  return results;
+}
+
+// Helper function to get available spawns
+function getAvailableSpawns() {
+  return Object.values(Game.spawns).filter(spawn => !spawn.spawning);
+}
+
+// Main spawning logic function
+async function runSpawningLogic() {
+  const availableSpawns = getAvailableSpawns();
+  if (availableSpawns.length === 0) return;
+
+  const creepConfigurations = [
+    {
+      name: 'Harvester1',
+      body: [WORK, CARRY, MOVE],
+      memory: { role: 'harvester', target: 'source1' }
+    },
+    {
+      name: 'Builder1',
+      body: [WORK, CARRY, MOVE],
+      memory: { role: 'builder' }
+    }
+  ];
+
+  for (const spawn of availableSpawns) {
+    await spawnCreeps(spawn, creepConfigurations);
+  }
+}
+
+// Add spawning logic to main execution
+async function mainExecution() {
+  await runSpawningLogic();
+  // Other main execution logic...
 }

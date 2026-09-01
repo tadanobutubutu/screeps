@@ -36,7 +36,7 @@ function getSvgAccessibleName() {
   // ... code for handling SVG accessible names
 }
 
-function createInPageButton() {
+function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
@@ -67,25 +67,10 @@ function addressNewAccessibilityIssues() {
   }
 }
 
-// Export functions for both browser and Node.js environments
-if (typeof window !== 'undefined') {
-  // Browser environment - expose functions to window
-  const functionsToExpose = [
-    'getLangAttribute', 'personName', 'validateTableAccessibility',
-    'validateTableStructure', 'validateLandmark', 'validateLandmarkStructure',
-    'getSvgAccessibleName', 'createInPageButton', 'addressNewAccessibilityIssues'
-  ];
-  functionsToExpose.forEach(functionName => {
-    window[functionName] = window[functionName] || eval(functionName);
-  });
-}
-
-/**
- * A new function to be added
- * This function does a specific functionality
- */
+// A new function to be added
 function myNewFunction() {
   // Implement your new functionality here
+  console.log('myNewFunction has been called.');
 }
 
 // Application configuration
@@ -191,14 +176,6 @@ function ensureUniqueLandmarksFromString(source) {
   }
 
   return result;
-}
-
-// TODO: Implement this function for creating in-page buttons
-function createInPageButton(buttonId, buttonText) {
-  const button = document.createElement('button');
-  button.id = buttonId;
-  button.textContent = buttonText;
-  return button;
 }
 
 function validateLandmark(element) {

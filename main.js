@@ -67,14 +67,11 @@ function validateLandmarkObject(landmark) {
 
 // Function to render a single book item
 function BookItem({ book }) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        description={`by ${book.author}`}
-      />
-    </List.Item>
-  );
+  return {
+    key: generateKey(book),
+    title: book.title,
+    description: `by ${book.author}`
+  };
 }
 
 // Function to render the form for adding a new book entry
@@ -100,27 +97,33 @@ function BookForm() {
   };
 
   // Render the form
-  return (
-    <form onSubmit={handleSubmit}>
-      <label htmlFor="title">Title:</label>
-      <input
-        type="text"
-        id="title"
-        value={title}
-        onChange={handleTitleChange}
-        aria-label="Book title"
-      />
-      <label htmlFor="author">Author:</label>
-      <input
-        type="text"
-        id="author"
-        value={author}
-        onChange={handleAuthorChange}
-        aria-label="Book author"
-      />
-      <button type="submit">Add Book</button>
-    </form>
-  );
+  return {
+    form: {
+      onSubmit: handleSubmit,
+      fields: [
+        {
+          label: 'Title',
+          type: 'text',
+          id: 'title',
+          value: title,
+          onChange: handleTitleChange,
+          'aria-label': 'Book title'
+        },
+        {
+          label: 'Author',
+          type: 'text',
+          id: 'author',
+          value: author,
+          onChange: handleAuthorChange,
+          'aria-label': 'Book author'
+        }
+      ],
+      submitButton: {
+        type: 'submit',
+        text: 'Add Book'
+      }
+    }
+  };
 }
 
 // Accessibility helper functions
@@ -131,14 +134,12 @@ function getLangAttribute() {
 
 // REACT_015 & REACT_036: Create accessible in-page button
 function createInPageButton(buttonText, onClickHandler) {
-  return (
-    <button 
-      onClick={onClickHandler}
-      lang={getLangAttribute()}
-    >
-      {buttonText}
-    </button>
-  );
+  return {
+    type: 'button',
+    onClick: onClickHandler,
+    lang: getLangAttribute(),
+    text: buttonText
+  };
 }
 
 // REACT_027: Validate table accessibility
@@ -147,7 +148,7 @@ function validateTableAccessibility(tableElement) {
   // Check for proper table structure
   const hasCaption = tableElement.querySelector('caption');
   const hasHeaders = tableElement.querySelector('th');
-  
+
   if (!hasCaption) {
     issues.push('Table is missing a caption');
   }
@@ -164,7 +165,7 @@ function validateLandmarkStructure() {
   const mainElement = document.querySelector('main');
   const headerElement = document.querySelector('header');
   const footerElement = document.querySelector('footer');
-  
+
   if (!mainElement) {
     issues.push('Missing main landmark');
   }
@@ -174,7 +175,7 @@ function validateLandmarkStructure() {
   if (!footerElement) {
     issues.push('Missing footer landmark');
   }
-  
+
   return issues;
 }
 
@@ -185,14 +186,14 @@ function getSvgAccessibleName(svgElement) {
   if (ariaLabel) {
     return ariaLabel;
   }
-  
+
   // Check for aria-labelledby
   const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
     const labelElement = document.getElementById(ariaLabelledby);
     return labelElement ? labelElement.textContent : '';
   }
-  
+
   // Check for title element inside SVG
   const titleElement = svgElement.querySelector('title');
   return titleElement ? titleElement.textContent : '';
@@ -212,14 +213,14 @@ function setSvgAttributes(svgElement, accessibleName) {
 function ensureUniqueLandmarks() {
   const issues = [];
   const landmarkTypes = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-  
+
   landmarkTypes.forEach(type => {
     const landmarks = document.querySelectorAll(`[role="${type}"]`);
     if (landmarks.length > 1) {
       issues.push(`Multiple ${type} landmarks found - should be unique`);
     }
   });
-  
+
   return issues;
 }
 
@@ -227,11 +228,11 @@ function ensureUniqueLandmarks() {
 function addProperLandmarkRegions() {
   const issues = [];
   const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
-  
+
   if (!mainContent) {
     issues.push('Missing main landmark region');
   }
-  
+
   return issues;
 }
 
@@ -241,19 +242,19 @@ function validateLinkAccessibility(linkElement) {
   const href = linkElement.getAttribute('href');
   const text = linkElement.textContent.trim();
   const ariaLabel = linkElement.getAttribute('aria-label');
-  
+
   if (!href || href === '#' || href === '') {
     issues.push('Link has no valid href attribute');
   }
-  
+
   if (!text && !ariaLabel) {
     issues.push('Link has no accessible name');
   }
-  
+
   if (linkElement.getAttribute('role') === 'link' && !href) {
     issues.push('Fake link detected without href');
   }
-  
+
   return issues;
 }
 
@@ -261,19 +262,19 @@ function validateLinkAccessibility(linkElement) {
 function handleFakeLinks() {
   const issues = [];
   const fakeLinks = document.querySelectorAll('[role="link"]');
-  
+
   fakeLinks.forEach((link, index) => {
     const href = link.getAttribute('href');
     if (!href) {
       issues.push(`Fake link ${index} has no href attribute`);
     }
-    
+
     // Convert fake link to accessible button if it's clickable
     if (link.tagName !== 'A' && link.onclick) {
       issues.push(`Consider using <button> instead of fake link ${index}`);
     }
   });
-  
+
   return issues;
 }
 
@@ -283,14 +284,14 @@ function function3(param1, param2) {
   if (!param1 || !param2) {
     return null;
   }
-  
+
   // Process parameters and return result
   const result = {
     combined: `${param1}-${param2}`,
     timestamp: Date.now(),
     validated: true
   };
-  
+
   return result;
 }
 
@@ -339,37 +340,46 @@ function AddBookForm({ onAddBook }) {
     setAuthor('');
   };
 
-  return (
-    <form ref={formRef} onSubmit={handleSubmit} aria-label="Add new book">
-      <div>
-        <label htmlFor="new-book-title">Book Title:</label>
-        <input
-          ref={titleInputRef}
-          id="new-book-title"
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          aria-invalid={!!error}
-          aria-describedby={error ? 'book-form-error' : undefined}
-        />
-      </div>
-      <div>
-        <label htmlFor="new-book-author">Author:</label>
-        <input
-          id="new-book-author"
-          type="text"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-        />
-      </div>
-      {error && (
-        <div id="book-form-error" role="alert" aria-live="polite">
-          {error}
-        </div>
-      )}
-      <button type="submit">Add Book</button>
-    </form>
-  );
+  return {
+    form: {
+      ref: formRef,
+      onSubmit: handleSubmit,
+      'aria-label': 'Add new book',
+      fields: [
+        {
+          label: 'Book Title:',
+          input: {
+            ref: titleInputRef,
+            id: 'new-book-title',
+            type: 'text',
+            value: title,
+            onChange: (e) => setTitle(e.target.value),
+            'aria-invalid': !!error,
+            'aria-describedby': error ? 'book-form-error' : undefined
+          }
+        },
+        {
+          label: 'Author:',
+          input: {
+            id: 'new-book-author',
+            type: 'text',
+            value: author,
+            onChange: (e) => setAuthor(e.target.value)
+          }
+        }
+      ],
+      error: error ? {
+        id: 'book-form-error',
+        role: 'alert',
+        'aria-live': 'polite',
+        text: error
+      } : null,
+      submitButton: {
+        type: 'submit',
+        text: 'Add Book'
+      }
+    }
+  };
 }
 
 function ensureLandmarkUniqueness(elements) {
@@ -426,67 +436,74 @@ function processData(data) {
     processed: true,
     data: data,
     timestamp: Date.now()
+  };
+}
 
-  const validateInput = (input) => input !== null && input !== undefined;
+const validateInput = (input) => input !== null && input !== undefined;
 
-  const BookItem = ({ book }) => {
-    return (
-      <List.Item key={generateKey(book)}>
-        <List.Item.Meta
-          title={book.title}
-          description={`by ${book.author}`}
-        />
-      </List.Item>
-    );
+const BookItem = ({ book }) => {
+  return {
+    key: generateKey(book),
+    title: book.title,
+    description: `by ${book.author}`
+  };
+};
+
+const BookForm = () => {
+  const dispatch = useDispatch();
+
+  // Define state for the form inputs
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+
+  // Handle input changes
+  const handleTitleChange = (e) => setTitle(e.target.value);
+  const handleAuthorChange = (e) => setAuthor(e.target.value);
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Perform any necessary validation or processing before adding the book
+    // ...
+
+    // Dispatch an action to add the book to the books list in the Redux store
+    dispatch({ type: 'ADD_BOOK', payload: { title, author } });
   };
 
-  const BookForm = () => {
-    const dispatch = useDispatch();
-
-    // Define state for the form inputs
-    const [title, setTitle] = useState('');
-    const [author, setAuthor] = useState('');
-
-    // Handle input changes
-    const handleTitleChange = (e) => setTitle(e.target.value);
-    const handleAuthorChange = (e) => setAuthor(e.target.value);
-
-    // Handle form submission
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      // Perform any necessary validation or processing before adding the book
-      // ...
-
-      // Dispatch an action to add the book to the books list in the Redux store
-      dispatch({ type: 'ADD_BOOK', payload: { title, author } });
-    };
-
-    return (
-      <form onSubmit={handleSubmit}>
-        <Form.Item
-          label="Title"
-          required
-          validationRules={[Rules.required]}
-        >
-          <Input value={title} onChange={handleTitleChange}/>
-        </Form.Item>
-        <Form.Item
-          label="Author"
-          required
-          validationRules={[Rules.required]}
-        >
-          <Input value={author} onChange={handleAuthorChange}/>
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
-      </form>
-    );
+  return {
+    form: {
+      onSubmit: handleSubmit,
+      fields: [
+        {
+          label: 'Title',
+          required: true,
+          validationRules: [Rules.required],
+          input: {
+            value: title,
+            onChange: handleTitleChange
+          }
+        },
+        {
+          label: 'Author',
+          required: true,
+          validationRules: [Rules.required],
+          input: {
+            value: author,
+            onChange: handleAuthorChange
+          }
+        }
+      ],
+      submitButton: {
+        type: 'primary',
+        htmlType: 'submit',
+        text: 'Submit'
+      }
+    }
   };
+};
 
-  return { BookForm, BookItem };
+function main() {
+  console.log('Main function executed');
 }
 
 if (require.main === module) {

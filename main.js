@@ -45,6 +45,46 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  /**
+   * Generate an accessibility report based on issues found
+   * @param {Array} issues - Array of accessibility issues
+   * @returns {Object} The generated report with summary and details
+   */
+  generateAccessibilityReport: (issues) => {
+    if (!Array.isArray(issues)) {
+      throw new Error('Issues must be an array');
+    }
+
+    const report = {
+      timestamp: new Date().toISOString(),
+      totalIssues: issues.length,
+      severityCounts: {
+        critical: 0,
+        serious: 0,
+        moderate: 0,
+        minor: 0
+      },
+      issueDetails: []
+    };
+
+    issues.forEach(issue => {
+      if (!issue.severity || !issue.description) {
+        throw new Error('Each issue must have severity and description');
+      }
+
+      report.severityCounts[issue.severity] = (report.severityCounts[issue.severity] || 0) + 1;
+      report.issueDetails.push({
+        id: issue.id || `issue-${Math.random().toString(36).substr(2, 9)}`,
+        description: issue.description,
+        severity: issue.severity,
+        element: issue.element || 'unknown',
+        context: issue.context || 'global'
+      });
+    });
+
+    return report;
   }
 };
 

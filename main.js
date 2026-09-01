@@ -594,6 +594,55 @@ if (isSecureContext()) {
 // Register the service worker
 registerSW();
 
+/**
+ * Checks if a landmark element exists in the document.
+ * @param {string} id - The ID of the landmark element to check.
+ * @returns {boolean} True if the element exists, false otherwise.
+ */
+function checkLandmarkElement(id) {
+  if (!id) return false;
+  const element = document.getElementById(id);
+  return element !== null && element.hasAttribute('role') &&
+         ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'].includes(element.getAttribute('role'));
+}
+
+/**
+ * Checks if a landmark element exists by its role.
+ * @param {string} role - The role of the landmark element to check.
+ * @returns {boolean} True if the element exists, false otherwise.
+ */
+function checkLandmarkByRole(role) {
+  if (!role) return false;
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
+  if (!validRoles.includes(role)) return false;
+
+  const elements = document.querySelectorAll(`[role="${role}"]`);
+  return elements.length > 0;
+}
+
+/**
+ * Gets all landmark elements in the document.
+ * @returns {NodeList} A list of all landmark elements.
+ */
+function getAllLandmarks() {
+  return document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"]');
+}
+
+/**
+ * Checks if all required landmarks are present in the document.
+ * @returns {Object} An object with the status of each required landmark.
+ */
+function checkRequiredLandmarks() {
+  const requiredRoles = ['banner', 'navigation', 'main', 'contentinfo'];
+  const result = {};
+
+  requiredRoles.forEach(role => {
+    result[role] = checkLandmarkByRole(role);
+  });
+
+  return result;
+}
+
 module.exports = {
   config,
   appState,
@@ -639,5 +688,10 @@ module.exports = {
     return date.toISOString().split('T')[0];
   },
   // Accessibility Functions
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  // New landmark checking functions
+  checkLandmarkElement,
+  checkLandmarkByRole,
+  getAllLandmarks,
+  checkRequiredLandmarks
 };

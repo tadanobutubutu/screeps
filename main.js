@@ -1,26 +1,63 @@
-// TODO: Add back any required exports that might have been removed
-// TODO: Identify and update specific functions as needed
 // Main module
 // Dependency imports
 const http = require('http');
 const url = require('url');
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
+const { 
+  dependencyGraphContent, 
+  indexContent, 
+  addLangAttribute, 
+  fixTableStructureIssues, 
+  addMainLandmark, 
+  ensureUniqueLandmarks, 
+  setSvgAccessibilityProps, 
+  addAccessibleNamesToSVGs, 
+  fixFakeLinkIssue, 
+  fixFakeLinkIssues, 
+  fixLandmarkIssues, 
+  addLandmarkRegions, 
+  uniqueLandmarks, 
+  fixImageAltTexts, 
+  googleSignIn, 
+  ensureElementHasId, 
+  ensureElementHasIdOrigin, 
+  addAriaLabel, 
+  renderDependencyGraphs, 
+  fixButtonIdentifiers, 
+  fixDependencyGraphAria, 
+  addMainLandmarkToIndex, 
+  addressAccessibilityIssues 
+} = require('./utilities');
+const { 
+  createInPageButton, 
+  createWebResourceButton, 
+  validateLandmark, 
+  validateLandmarkStructure, 
+  validateAccessibilityReport 
+} = require('./utilities');
 
 const { main } = require('./utilities');
-const { functionA, functionB } = require('./functionModule');
+const { functionA, functionB } = require('./utilities');
 
-const { http } = require('http');
-const url = require('url');
+// App state for session management
+const appState = {
+  sessions: new Map()
+};
+
+// Helper functions for session management
+function getActiveSessionsCount() {
+  return appState.sessions.size;
+}
+
+function validateSession(sessionId) {
+  return appState.sessions.get(sessionId) || null;
+}
 
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
   const issues = [];
   
   // Check if HTML contains tables
-  const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
+  const tableRegex = /<table[^>]*>[\s\S]*?<\/table>/gi;
   let match;
   
   while ((match = tableRegex.exec(html)) !== null) {
@@ -52,7 +89,7 @@ const validateTableAccessibility = (html) => {
     // Check for scope attributes on th elements
     const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
     thMatches.forEach((thTag, index) => {
-      if (!/scope=["'](row|col|rowgroup|colgroup)["']/i.test(thTag)) {
+      if (!thTag.includes('scope=')) {
         issues.push({
           type: 'table',
           severity: 'info',
@@ -85,10 +122,11 @@ const validateTableAccessibility = (html) => {
     }
     
     // Check for id and headers attributes for complex tables
-    const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
+    const thElements = tableContent.match(/<th[^>]*>/gi) || [];
+    const hasMultipleHeaders = thElements.length > 1;
     if (hasMultipleHeaders) {
-      const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
-      const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
+      const hasHeadersAttr = /headers=["'][^"']+["']/i.test(tableContent);
+      const hasIdAttr = /<th[^>]*\sid=["'][^"']+["'][^>]*>/i.test(tableContent) || /<td[^>]*\sid=["'][^"']+["'][^>]*>/i.test(tableContent);
       
       if (!hasIdAttr && !hasHeadersAttr) {
         issues.push({
@@ -106,57 +144,76 @@ const validateTableAccessibility = (html) => {
 
 // Re-add the required exports for functionA and functionB
 // Assuming that they are objects with properties X, Y, and Z
-const { functionA, functionB } = require('./functionModule');
+const { functionA: exportedFunctionA, functionB: exportedFunctionB } = require('./utilities');
 
-// App state for session management
-const appState = {
-  sessions: new Map()
-};
-
-// Helper functions for session management
-function getActiveSessionsCount() {
-  return appState.sessions.size;
-}
-
-function validateSession(sessionId) {
-  return appState.sessions.get(sessionId) || null;
-}
-
-function handleCredentialResponse(credentialResponse) {
-  // Process credential response - basic implementation
-  if (!credentialResponse || typeof credentialResponse !== 'object') {
-    return { status: 'error', message: 'Invalid credential response' };
+// Focus trap function for keyboard navigation
+function trapFocus(containerElement) {
+  if (!containerElement || typeof containerElement !== 'object') {
+    return null;
   }
-  return { status: 'success', credential: credentialResponse };
+
+  const focusableSelectors = [
+    'a[href]',
+    'button:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(',');
+
+  const focusableElements = containerElement.querySelectorAll(focusableSelectors);
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  let previouslyFocused = null;
+
+  function handleKeyDown(event) {
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    if (event.shiftKey) {
+      if (document.activeElement === firstFocusable) {
+        event.preventDefault();
+        lastFocusable.focus();
+      }
+    } else {
+      if (document.activeElement === lastFocusable) {
+        event.preventDefault();
+        firstFocusable.focus();
+      }
+    }
+  }
+
+  function activateTrap() {
+    previouslyFocused = document.activeElement;
+    if (firstFocusable) {
+      firstFocusable.focus();
+    }
+    containerElement.addEventListener('keydown', handleKeyDown);
+  }
+
+  function deactivateTrap() {
+    containerElement.removeEventListener('keydown', handleKeyDown);
+    if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+      previouslyFocused.focus();
+    }
+  }
+
+  return {
+    activate: activateTrap,
+    deactivate: deactivateTrap,
+    getFocusableElements: () => focusableElements
+  };
 }
 
-const a11yStore = {
-  // ... existing methods ...
+// Export for testing
+module.exports = {
+  validateTableAccessibility,
+  trapFocus,
+  getActiveSessionsCount,
+  validateSession,
+  appState,
+  exportedFunctionA,
+  exportedFunctionB
 };
-
-  prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  },
-
-  prefersHighContrast() {
-    return window.matchMedia('(prefers-contrast: more)').matches;
-  },
-
-  updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
-    this.announce(message, priority);
-  },
-
-  checkLandmarkElements() {
-    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark) => {
-        if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
-        }
-
-        if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria
-```

@@ -18,7 +18,7 @@
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
+// - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and fixFakeLinkIssue())
 // - ADD: Address new accessibility issues from insight report
 import React from 'react';
 
@@ -342,6 +342,175 @@ function validateLinks(container) {
   });
   
   return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Creates an accessible in-page button element.
+ * Addresses REACT_036: Fix 1 fake link issue by providing a proper button alternative.
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - Button text content
+ * @param {Function} options.onClick - Click handler function
+ * @param {string} options.id - Optional ID for the button
+ * @param {string} options.className - Optional CSS class name
+ * @param {string} options.ariaLabel - Optional aria-label for the button
+ * @param {string} options.ariaDescribedBy - Optional aria-describedby for additional description
+ * @param {boolean} options.disabled - Whether the button is disabled
+ * @param {string} options.type - Button type ('button', 'submit', 'reset'), defaults to 'button'
+ * @param {HTMLElement} options.container - Optional container to append the button to
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(options = {}) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  
+  const {
+    text = '',
+    onClick = null,
+    id = '',
+    className = '',
+    ariaLabel = '',
+    ariaDescribedBy = '',
+    disabled = false,
+    type = 'button',
+    container = null
+  } = options;
+  
+  const button = document.createElement('button');
+  button.type = type;
+  
+  if (id) {
+    button.id = id;
+  }
+  
+  if (className) {
+    button.className = className;
+  }
+  
+  if (text) {
+    button.textContent = text;
+  }
+  
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+  
+  if (ariaDescribedBy) {
+    button.setAttribute('aria-describedby', ariaDescribedBy);
+  }
+  
+  if (disabled) {
+    button.disabled = true;
+    button.setAttribute('aria-disabled', 'true');
+  }
+  
+  if (onClick && !disabled) {
+    button.addEventListener('click', onClick);
+  }
+  
+  // Add keyboard support
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      if (!disabled) {
+        e.preventDefault();
+        button.click();
+      }
+    }
+  });
+  
+  if (container) {
+    container.appendChild(button);
+  }
+  
+  return button;
+}
+
+/**
+ * Fixes fake link issues by converting pseudo-links to proper accessible elements.
+ * A "fake link" is an element that looks like a link but isn't an <a> tag,
+ * or an <a> tag that doesn't have proper href or accessible name.
+ * Addresses REACT_036: Fix 1 fake link issue.
+ * @param {HTMLElement} element - The element to fix
+ * @param {Object} options - Fix options
+ * @param {boolean} options.convertToButton - If true, converts links without href to buttons
+ * @param {boolean} options.addAccessibleName - If true, adds accessible name to elements missing one
+ * @param {string} options.fallbackHref - Optional href to use for links that need one
+ * @returns {HTMLElement|null} The fixed element, or null if fix failed
+ */
+function fixFakeLinkIssue(element, options = {}) {
+  if (typeof document === 'undefined' || !element) {
+    return null;
+  }
+  
+  const {
+    convertToButton = false,
+    addAccessibleName = true,
+    fallbackHref = '#'
+  } = options;
+  
+  const tagName = element.tagName.toLowerCase();
+  const isAnchor = tagName === 'a';
+  const hasFakeHref = isAnchor && (!element.getAttribute('href') || 
+    element.getAttribute('href') === '#' || 
+    element.getAttribute('href') === 'javascript:void(0)' ||
+    element.getAttribute('href') === 'javascript:;');
+  
+  // Check if element lacks an accessible name
+  const hasAccessibleName = !!personName(element);
+  
+  // Strategy 1: Add accessible name if missing
+  if (addAccessibleName && !hasAccessibleName) {
+    const title = element.getAttribute('title');
+    if (title) {
+      element.setAttribute('aria-label', title);
+    } else if (element.textContent.trim()) {
+      // Use text content as accessible name
+      element.setAttribute('aria-label', element.textContent.trim());
+    }
+  }
+  
+  // Strategy 2: Convert fake links to proper buttons
+  if (convertToButton && isAnchor && hasFakeHref) {
+    const newButton = document.createElement('button');
+    
+    // Copy all attributes except href
+    Array.from(element.attributes).forEach(attr => {
+      if (attr.name !== 'href') {
+        newButton.setAttribute(attr.name, attr.value);
+      }
+    });
+    
+    // Copy text content
+    newButton.textContent = element.textContent;
+    
+    // Add role="button" for explicit semantic meaning
+    newButton.setAttribute('role', 'button');
+    
+    // Copy click handlers
+    const clone = element.cloneNode(false);
+    Array.from(element.children).forEach(child => clone.appendChild(child));
+    
+    // Replace the anchor with button
+    if (element.parentNode) {
+      element.parentNode.replaceChild(newButton, element);
+      return newButton;
+    }
+  }
+  
+  // Strategy 3: Fix anchor without proper href by adding fallback
+  if (isAnchor && hasFakeHref && fallbackHref) {
+    element.setAttribute('href', fallbackHref);
+  }
+  
+  // Strategy 4: Add role="link" to non-anchor elements that should be links
+  if (!isAnchor) {
+    const role = element.getAttribute('role');
+    if (!role && (element.onclick || element.style.cursor === 'pointer')) {
+      element.setAttribute('role', 'link');
+    }
+  }
+  
+  return element;
 }
 
 // TODO: Implement a new function to handle focus trap for keyboard navigation

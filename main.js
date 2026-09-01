@@ -26,20 +26,20 @@ const renderGraphIndex = (graphData) => {
 function getSvgAccessibleName(svgElement) {
   const title = svgElement.querySelector('title');
   const desc = svgElement.querySelector('desc');
-  
+
   if (title && title.textContent) {
     return title.textContent.trim();
   }
-  
+
   if (desc && desc.textContent) {
     return desc.textContent.trim();
   }
-  
+
   const ariaLabel = svgElement.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel.trim();
   }
-  
+
   const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
     const labeledElement = document.getElementById(ariaLabelledby);
@@ -47,8 +47,67 @@ function getSvgAccessibleName(svgElement) {
       return labeledElement.textContent.trim();
     }
   }
-  
+
   return 'SVG graphic';
+}
+
+/**
+ * Creates an accessible web resource button
+ * @param {string} url - The URL the button should link to
+ * @param {string} text - The text to display on the button
+ * @param {string} [icon] - Optional icon class or HTML
+ * @param {Object} [options] - Additional options
+ * @param {string} [options.ariaLabel] - Custom aria-label
+ * @param {string} [options.title] - Custom title attribute
+ * @returns {HTMLAnchorElement} The created button element
+ */
+function createWebResourceButton(url, text, icon, options = {}) {
+  if (typeof document === 'undefined') {
+    throw new Error('Document is not available');
+  }
+
+  const button = document.createElement('a');
+  button.href = url;
+  button.className = 'web-resource-button';
+  button.setAttribute('role', 'button');
+  button.setAttribute('tabindex', '0');
+
+  // Set aria-label if provided, otherwise use the text
+  button.setAttribute('aria-label', options.ariaLabel || text);
+
+  // Set title if provided, otherwise use the text
+  button.title = options.title || text;
+
+  // Add icon if provided
+  if (icon) {
+    if (icon.startsWith('<') && icon.endsWith('>')) {
+      // Treat as HTML
+      button.innerHTML = icon + text;
+    } else {
+      // Treat as class name
+      const iconElement = document.createElement('i');
+      iconElement.className = icon;
+      button.appendChild(iconElement);
+      button.appendChild(document.createTextNode(text));
+    }
+  } else {
+    button.textContent = text;
+  }
+
+  // Add keyboard and click event handlers for accessibility
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      window.location.href = url;
+    }
+  });
+
+  button.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = url;
+  });
+
+  return button;
 }
 
 /**
@@ -133,7 +192,7 @@ function checkLandmarks(container = document) {
  * Ensure unique main landmarks exist in the document.
  * Logs a warning if multiple main landmarks are detected.
  */
-function ensureUniqueLandmarks() {
+function ensureUniqueMainLandmarks() {
   const mains = document.querySelectorAll('main, [role="main"]');
   if (mains.length > 1) {
     console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
@@ -192,12 +251,12 @@ function handleFocusTrap(element) {
 // HTTP Server setup
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
-    
+
     // CORS headers for credential responses
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    
+
     if (req.method === 'OPTIONS') {
         res.writeHead(200);
         res.end();
@@ -214,16 +273,16 @@ const server = http.createServer((req, res) => {
     // Credential response endpoint
     if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
         let body = '';
-        
+
         req.on('data', chunk => {
             body += chunk.toString();
         });
-        
+
         req.on('end', () => {
             try {
                 const credentialResponse = JSON.parse(body);
                 const result = handleCredentialResponse(credentialResponse);
-                
+
                 res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(result));
             } catch (error) {
@@ -237,7 +296,7 @@ const server = http.createServer((req, res) => {
     // Session validation endpoint
     if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
         const sessionId = parsedUrl.query.sessionId;
-        
+
         if (!sessionId) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
@@ -245,7 +304,7 @@ const server = http.createServer((req, res) => {
         }
 
         const session = validateSession(sessionId);
-        
+
         if (session) {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'valid', user: session.user }));
@@ -259,16 +318,16 @@ const server = http.createServer((req, res) => {
     // Session revocation endpoint
     if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
         let body = '';
-        
+
         req.on('data', chunk => {
             body += chunk.toString();
         });
-        
+
         req.on('end', () => {
             try {
                 const { sessionId } = JSON.parse(body);
                 const revoked = revokeSession(sessionId);
-                
+
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
             } catch (error) {
@@ -300,9 +359,10 @@ module.exports = {
   checkLandmarkElement,
   wrapPrimaryContentInMain,
   checkLandmarks,
-  ensureUniqueLandmarks,
+  ensureUniqueMainLandmarks,
   handleFocusTrap,
   revokeSession,
+  createWebResourceButton,
   functionA,
   functionB
 };

@@ -1,5 +1,5 @@
 // TODO: Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
+// Ensure the dependencyGraph container has a proper ARIA role — FIXED
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph');
@@ -10,7 +10,7 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');

@@ -1,4 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
 
 // New function to handle credential response
 function handleCredentialResponse(response) {
@@ -22,4 +24,16 @@ function countDependencies(dependencies) {
     return 0;
   }
   return dependencies.filter(Boolean).length;
+}
+
+// Render the dependency graph
+function renderDependencyGraph() {
+  const graphContent = dependencyGraphContent.render();
+  return `${graphContent} ${indexContent}`;
+}
+
+// Render the index view
+function renderIndexView() {
+  const indexData = indexContent.render();
+  return indexData;
 }

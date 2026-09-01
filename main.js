@@ -3,6 +3,8 @@
 // Import required modules
 const utils = require('./utils');
 
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+
 // Application configuration
 const config = {
   name: 'MyApp',

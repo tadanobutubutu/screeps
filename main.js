@@ -325,10 +325,6 @@ function validateLinkAccessibility(options) {
   /* existing code */
 }
 
-function handleFakeLinks(issues) {
-  /* existing code */
-}
-
 function getLangAttribute() {
   // Implementation for getting language attribute
   return document.documentElement.lang || 'en';

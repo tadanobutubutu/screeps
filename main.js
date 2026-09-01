@@ -3,7 +3,7 @@ const axe = require('axe-core');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
-const accessiblyHelper = require('./accessibly-helper'); // Added this import
+const accessiblyHelper = require('./accessibly-helper');
 
 const expressApp = express();
 
@@ -264,6 +264,64 @@ function processData(data) {
   return { ...data, processed: true };
 }
 
+// Landmark validation from HEAD
+function isValidLandmark(landmark) {
+    return landmark && typeof landmark.id !== 'undefined' && landmark.id !== null;
+}
+
+function loadLandmarks() {
+    try {
+        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error loading landmarks:', error.message);
+        return [];
+    }
+}
+
+function processLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+
+    const validLandmarks = landmarks.filter(isValidLandmark);
+    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+    return uniqueLandmarks.slice(0, CONFIG.maxResults);
+}
+
+function sortLandmarks(landmarks, ascending = true) {
+    return landmarks.slice().sort((a, b) => {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+
+        if (ascending) {
+            return nameA.localeCompare(nameB);
+        }
+        return nameB.localeCompare(nameA);
+    });
+}
+
+function getLandmarkById(landmarks, id) {
+    return landmarks.find(landmark => landmark.id === id) || null;
+}
+
+function ensureUniqueLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+
+    const seenIds = new Set();
+    return landmarks.filter(landmark => {
+        if (seenIds.has(landmark.id)) {
+            return false;
+        }
+        seenIds.add(landmark.id);
+        return true;
+    });
+}
+
 // Initialize function
 function initialize() {
   appState.initialized = true;
@@ -301,8 +359,6 @@ const HOST = process.env.HOST || 'localhost';
 // Application main entry point
 const app = expressApp;
 
-// ... (remaining helper functions and other code)
-
 // New function or changes requested in the issue
 function wrapContentWithMain() {
   const contentToWrap = document.querySelector('div.container'); // Assuming the primary content is within a div with class 'container'
@@ -319,6 +375,27 @@ if (typeof window !== 'undefined') {
 }
 
 // ... (Preserve all existing code, exports, and functions)
+
+// Write report from HEAD
+function writeReport(report) {
+    const reportFile = path.join(__dirname, 'accessibility_report.json');
+    fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+}
+
+// ... (remaining accessibility and helper functions from origin/main)
+
+// New function or changes requested in the issue (accessibility)
+function ensureDependencyGraphRole(container) {
+    if (!container) return;
+    if (!container.hasAttribute('role')) {
+      container.setAttribute('role', 'graphics-document');
+    }
+    if (!container.hasAttribute('aria-label')) {
+      container.setAttribute('aria-label', 'Dependency graph');
+    }
+}
+
+// ... (additional functions like renderDependencyGraphContent, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport, validateTableAccessibility, validateTableStructure, fixTableStructure, addMainLandmark, validateLandmark, validateLandmarkStructure, validateLandmarkAttributes, getSvgAccessibleName, setSvgAttributes, createInPageButton, validateLinkAccessibility, handleFakeLinks, addLandmarkRegions, addProperLandmarkRegions, fixTableAccessibility, fixLandmarkIssues, addSvgAccessibility, createAccessibleLinks, formatResponse, fixUniqueLandmarksList, fixTableStructureIssues, fixTableHeaderCellScope, addSvgAccessibleNames, fixFakeLinks, addLandmarkRoles, setLanguageAttribute, processAccessibilityReport, getLangAttribute, addLangAttribute, improveAccessibility, scanAccessibility, renderDependencyGraph, checkLandmarkElement, landmarkStructureCheck, wrapPrimaryContentInMain, main)
 
 module.exports = {
   initializeApp,

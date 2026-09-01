@@ -44,9 +44,9 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâçéèêëîïôùûüÿœæ]+/i.test(content)) {
+    } else if (/[àâçéèêëîïôùûü]/i.test(content)) {
       lang = 'fr'; // French
-    } else if (/[äöüß]+/i.test(content)) {
+    } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }
@@ -145,11 +145,11 @@ function validateLandmark(element) {
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
   
-  if (role && !validLandmarks.includes(role) && !validLandmarks.includes(role.toLowerCase())) {
+  if (role && validLandmarks.indexOf(role) === -1) {
     errors.push(`Invalid landmark role: ${role}`);
   }
   
-  if (!role && !validLandmarks.includes(tagName)) {
+  if (!role && validLandmarks.indexOf(tagName) === -1) {
     errors.push(`Element is not a valid landmark: ${tagName}`);
   }
   
@@ -179,7 +179,7 @@ function validateLandmarkStructure() {
   }
   
   // Check for proper nesting of landmarks
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
+  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
   landmarks.forEach((landmark) => {
     const parent = landmark.parentElement;
     while (parent) {
@@ -261,7 +261,7 @@ function ensureUniqueLandmarks() {
   const landmarkRoles = ['main', 'banner', 'navigation', 'search', 'contentinfo', 'complementary', 'form'];
   
   landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
+    const elements = document.querySelectorAll(`[role="${role}"]`);
     if (elements.length > 1) {
       errors.push(`Multiple landmarks with role '${role}' found (${elements.length}). Only one should exist.`);
     }
@@ -292,26 +292,4 @@ function renderDependencyGraph(data = []) {
   // Build edges connecting sequential items as a simple chain
   const edges = [];
   for (let i = 0; i < data.length - 1; i++) {
-    edges.push({
-      source: data[i].id || data[i].label,
-      target: data[i + 1].id || data[i + 1].label
-    });
-  }
-  return { nodes, edges };
-}
-
-export { 
-  renderDependencyGraph,
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateSvgAccessibility,
-  ensureUniqueLandmarks,
-  personName,
-  createInPageButton
-};
+    edges

@@ -1,10 +1,68 @@
 // TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+// Main entry point for dependency visualization tool
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 // Importing the necessary functions (for illustration purposes)
 import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+
+// TODO: Implement spawning logic
+function spawnEntity(entityType, position, properties = {}) {
+  // Validate required parameters
+  if (!entityType || typeof entityType !== 'string') {
+    throw new Error('Entity type must be a non-empty string');
+  }
+
+  if (!position || typeof position !== 'object' ||
+      typeof position.x !== 'number' || typeof position.y !== 'number') {
+    throw new Error('Position must be an object with x and y coordinates');
+  }
+
+  // Create a new entity object with default properties
+  const entity = {
+    type: entityType,
+    position: { ...position },
+    health: properties.health || 100,
+    speed: properties.speed || 1,
+    createdAt: new Date(),
+    ...properties
+  };
+
+  // Additional initialization based on entity type
+  switch (entityType.toLowerCase()) {
+    case 'player':
+      entity.inventory = properties.inventory || [];
+      entity.score = properties.score || 0;
+      break;
+    case 'enemy':
+      entity.aggression = properties.aggression || 50;
+      entity.damage = properties.damage || 10;
+      break;
+    case 'npc':
+      entity.dialogue = properties.dialogue || [];
+      break;
+    default:
+      // For custom entity types, merge any additional properties
+      Object.assign(entity, properties);
+  }
+
+  return entity;
+}
+
+// TODO: Implement calculateDiscount
+function calculateDiscount(originalPrice, discountPercentage) {
+  const discountAmount = originalPrice * (discountPercentage / 100);
+  return originalPrice - discountAmount;
+}
+
+// Example of adding a new function
+function newFunction() {
+  // Function body
+}
 
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
@@ -164,11 +222,23 @@ function checkLinkAccessibility() {
     if (!text) {
       issues.push(`Link with href "${href}" has no accessible text`);
     }
+
+    // Check for aria-label or aria-labelledby if link has no text
+    if (!text && !link.hasAttribute('aria-label') && !link.hasAttribute('aria-labelledby')) {
+      issues.push(`Link with href "${href}" has no accessible name (missing text, aria-label, or aria-labelledby)`);
+    }
+
+    // Check if link is decorative but not marked as such
+    if (href === '#' && !link.hasAttribute('aria-hidden') && !link.hasAttribute('role')) {
+      issues.push(`Decorative link with href="#" should have aria-hidden="true" or role="presentation"`);
+    }
   });
 
   return issues;
 }
 
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic
 /**
  * Wraps the primary content of the page in a <main> element for improved accessibility.
@@ -284,12 +354,20 @@ function addressAccessibilityIssues(insightReport) {
   console.log('Addressing accessibility issues from insight report:', insightReport);
 }
 
+/**
+ * Creates an in-page button element with the specified ID, text, and class
+ * @param {string} buttonId - The ID to assign to the button
+ * @param {string} buttonText - The text content of the button
+ * @param {string} buttonClass - The CSS class to assign to the button
+ * @returns {HTMLButtonElement} The created button element
+ */
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
     document.body.appendChild(button);
+    return button;
 }
 
 // New function to address accessibility issues
@@ -374,7 +452,8 @@ export {
   applyAccessibilityFixes,
   divide,
   wrapPrimaryContentInMain,
-  handleCredentialResponse
+  handleCredentialResponse,
+  spawnEntity
 };
 
 // Run if executed directly

@@ -58,6 +58,51 @@ function wrapPrimaryContentInMain(parent) {
   return mainElement;
 }
 
+// New function to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="landmark"], [aria-label], [aria-labelledby]');
+  const uniqueLandmarks = new Set();
+
+  landmarks.forEach(landmark => {
+    const landmarkId = landmark.id || landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby');
+    if (uniqueLandmarks.has(landmarkId)) {
+      landmark.remove();
+    } else {
+      uniqueLandmarks.add(landmarkId);
+    }
+  });
+}
+
+// New function to validate ARIA attributes
+function validateAriaAttributes(element) {
+  if (!element || typeof element.getAttribute !== 'function') {
+    throw new Error('Invalid element provided');
+  }
+
+  const ariaAttributes = Array.from(element.attributes)
+    .filter(attr => attr.name.startsWith('aria-'))
+    .map(attr => attr.name);
+
+  const validAriaAttributes = ['aria-label', 'aria-labelledby', 'aria-hidden', 'aria-expanded'];
+
+  return ariaAttributes.every(attr => validAriaAttributes.includes(attr));
+}
+
+// New function to get all focusable elements
+function getFocusableElements() {
+  const focusableSelectors = [
+    'a[href]',
+    'button',
+    'input',
+    'select',
+    'textarea',
+    '[tabindex]:not([tabindex="-1"])'
+  ];
+
+  return Array.from(document.querySelectorAll(focusableSelectors.join(',')))
+    .filter(el => !el.disabled && el.offsetParent !== null);
+}
+
 function initialize() {
   appConfig.apiUrl = process.env.API_URL || 'default';
   appConfig.timeout = 5000;
@@ -130,5 +175,7 @@ module.exports = {
   landmarkConfig: appConfig,
   initialize,
   initializeApp,
-  clearCache
+  clearCache,
+  validateAriaAttributes,
+  getFocusableElements
 };

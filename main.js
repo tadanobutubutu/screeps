@@ -550,6 +550,19 @@ function renderDependencyGraph() {
   }
 }
 
+// Accessibility function (merged from both branches)
+function setSvgAccessibleProps(svg) {
+  addSvgAccessibleNames(svg); // From branch HEAD
+  validateLandmarkStructure(svg); // From branch origin/main
+  const titleElement = main.getSvgAccessibleName(svg);
+  if (titleElement) {
+    svg.setAttribute('aria-labelledby', titleElement.id);
+  }
+  if (!svg.getAttribute('role')) {
+    svg.setAttribute('role', 'img');
+  }
+}
+
 /**
  * Renders the dependency graph view
  * @param {Object} deps - Dependencies object
@@ -929,11 +942,14 @@ function existingFunction() {
 }
 
 module.exports = {
+  ...main,
   existingFunction,
   personName,
   validateAccessibilityReport,
+  setSvgAccessibleProps,
+  renderGraphIndex, // Replace renderDependencyGraphs with renderGraphIndex
+  addressAccessibilityIssues, // Add the new accessibility function to exports
   checkAccessibility: checkAccessibilityInternal,
-  addressAccessibilityIssues,
   implementAccessibilityFixesFromReport,
   updateUI,
   newFunction,

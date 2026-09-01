@@ -20,19 +20,19 @@ function initializeGameData() {
         'W0N0': { terrain: 'normal', sources: 2, controller: true },
         'W0N1': { terrain: 'normal', sources: 1, controller: false }
     };
-    
+
     gameData.players = {
         'Player1': { username: 'Player1', level: 1, power: 0 },
         'Player2': { username: 'Player2', level: 2, power: 100 }
     };
-    
+
     gameData.structures = {
         'W0N0': [
             { type: 'spawn', name: 'Spawn1', energy: 300, energyCapacity: 300 },
             { type: 'extension', name: 'Extension1', energy: 50, energyCapacity: 50 }
         ]
     };
-    
+
     gameData.creepTasks = {
         'harvester1': { task: 'harvest', target: 'source1', status: 'idle' }
     };
@@ -43,7 +43,7 @@ function scanRoom(roomName) {
     if (!room) {
         return { error: 'Room not found' };
     }
-    
+
     return {
         room: roomName,
         terrain: room.terrain,
@@ -90,18 +90,18 @@ function runCommand(command) {
 
 function checkAccessibilityIssues(code) {
     const issues = [];
-    
+
     if (!code || typeof code !== 'string') {
         issues.push({ type: 'error', message: 'Code must be a non-empty string' });
         return issues;
     }
-    
+
     const patterns = {
         'TODO': /TODO:/,
         'FIXME': /FIXME:?\s*/,
         'HACK': /HACK:/
     };
-    
+
     const lines = code.split('\n');
     lines.forEach((line, index) => {
         const lineNum = index + 1;
@@ -118,26 +118,100 @@ function checkAccessibilityIssues(code) {
             issues.push({ type: 'info', line: lineNum, message: 'Comment found - should be addressed' });
         }
     });
-    
+
     if (code.length > 10000) {
         issues.push({ type: 'warning', message: 'Code length exceeds 10000 characters - consider splitting' });
     }
-    
+
     return issues;
 }
 
 function generateAccessibilityReport(scan) {
     const issues = checkAccessibilityIssues(scan);
-    
+
     const summary = {
         total: issues.length,
         errors: issues.filter(i => i.type === 'error').length,
         warnings: issues.filter(i => i.type === 'warning').length,
         info: issues.filter(i => i.type === 'info').length
     };
-    
+
     return {
         summary,
+        issues,
+        generatedAt: new Date().toISOString()
+    };
+}
+
+/**
+ * Checks for landmark elements in the provided HTML code
+ * @param {string} html - The HTML code to scan for landmarks
+ * @returns {Object} - An object containing landmark information and issues
+ */
+function checkLandmarkElements(html) {
+    const landmarkTypes = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
+    const issues = [];
+    const landmarks = [];
+
+    if (!html || typeof html !== 'string') {
+        issues.push({ type: 'error', message: 'HTML must be a non-empty string' });
+        return { landmarks, issues };
+    }
+
+    // Create a temporary DOM parser (using jsdom in a Node.js environment)
+    const { JSDOM } = require('jsdom');
+    const dom = new JSDOM(html);
+    const document = dom.window.document;
+
+    // Check for each landmark type
+    landmarkTypes.forEach(type => {
+        const elements = document.getElementsByTagName(type);
+        if (elements.length > 0) {
+            landmarks.push({
+                type,
+                count: elements.length,
+                elements: Array.from(elements).map(el => ({
+                    id: el.id || null,
+                    className: el.className || null,
+                    ariaLabel: el.getAttribute('aria-label') || null
+                }))
+            });
+        }
+    });
+
+    // Check for missing main landmark
+    if (document.getElementsByTagName('main').length === 0) {
+        issues.push({
+            type: 'warning',
+            message: 'No <main> landmark found - recommended for better accessibility'
+        });
+    }
+
+    // Check for multiple main landmarks
+    if (document.getElementsByTagName('main').length > 1) {
+        issues.push({
+            type: 'error',
+            message: 'Multiple <main> landmarks found - only one should exist'
+        });
+    }
+
+    // Check for ARIA landmarks
+    const ariaLandmarks = document.querySelectorAll('[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], [role="navigation"], [role="region"], [role="search"]');
+    if (ariaLandmarks.length > 0) {
+        landmarks.push({
+            type: 'aria-landmarks',
+            count: ariaLandmarks.length,
+            elements: Array.from(ariaLandmarks).map(el => ({
+                role: el.getAttribute('role'),
+                id: el.id || null,
+                className: el.className || null,
+                ariaLabel: el.getAttribute('aria-label') || null
+            }))
+        });
+    }
+
+    return {
+        landmarks,
         issues,
         generatedAt: new Date().toISOString()
     };
@@ -182,6 +256,12 @@ app.post('/api/accessibility/scan', (req, res) => {
     res.json(report);
 });
 
+app.post('/api/landmarks/scan', (req, res) => {
+    const { html } = req.body;
+    const report = checkLandmarkElements(html);
+    res.json(report);
+});
+
 app.post('/api/run', async (req, res) => {
     try {
         const { command } = req.body;
@@ -196,4 +276,4 @@ app.listen(PORT, () => {
     console.log(`Screeps API Server running on port ${PORT}`);
 });
 
-module.exports = { app, generateAccessibilityReport };
+module.exports = { app, generateAccessibilityReport, checkLandmarkElements };

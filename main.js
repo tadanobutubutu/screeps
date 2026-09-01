@@ -159,8 +159,104 @@ function focusTrap(element) {
   return element;
 }
 
-function newFocusTrap() {
-  // New function implementation
+/**
+ * Create a new focus trap with enhanced options.
+ * @param {HTMLElement} element - The element to trap focus within
+ * @param {Object} [options] - Configuration options for the focus trap
+ * @param {boolean} [options.returnFocusOnClose=true] - Whether to return focus to the previously focused element when the trap is closed
+ * @param {boolean} [options.clickOutsideDeactivates=true] - Whether clicking outside the element deactivates the trap
+ * @returns {Object} An object with methods to activate and deactivate the focus trap
+ */
+function newFocusTrap(element, options = {}) {
+  if (!element) {
+    throw new Error('Element is required for focus trap');
+  }
+
+  const {
+    returnFocusOnClose = true,
+    clickOutsideDeactivates = true
+  } = options;
+
+  let previouslyFocusedElement = null;
+  let isActive = false;
+
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+
+  if (focusableElements.length === 0) {
+    console.warn('No focusable elements found in the specified container');
+    return {
+      activate: () => {},
+      deactivate: () => {}
+    };
+  }
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    } else if (e.key === 'Escape') {
+      deactivate();
+    }
+  };
+
+  const handleClickOutside = (e) => {
+    if (!element.contains(e.target)) {
+      deactivate();
+    }
+  };
+
+  const activate = () => {
+    if (isActive) return;
+
+    previouslyFocusedElement = document.activeElement;
+    isActive = true;
+
+    element.setAttribute('aria-modal', 'true');
+    element.setAttribute('role', 'dialog');
+
+    firstElement.focus();
+
+    element.addEventListener('keydown', handleKeyDown);
+
+    if (clickOutsideDeactivates) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+  };
+
+  const deactivate = () => {
+    if (!isActive) return;
+
+    isActive = false;
+
+    element.removeAttribute('aria-modal');
+    element.removeAttribute('role');
+
+    element.removeEventListener('keydown', handleKeyDown);
+
+    if (clickOutsideDeactivates) {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    if (returnFocusOnClose && previouslyFocusedElement) {
+      previouslyFocusedElement.focus();
+    }
+  };
+
+  return {
+    activate,
+    deactivate,
+    isActive: () => isActive
+  };
 }
 
 /**

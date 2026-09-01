@@ -394,7 +394,7 @@ const exportUtils = {
 };
 
 // Merge all utilities functions (imported and origin/main)
-const {
+const main = {
   createInPageButton,
   createWebResourceButton,
   validateLandmark,
@@ -434,8 +434,8 @@ const {
   googleSignIn,
   addressAccessibilityIssues,
   newFunction,
-  trapFocus // merge from origin/main
-} = main;
+  trapFocus
+};
 
 // Preserve all existing exports
 module.exports = {

@@ -6,5 +6,9 @@ function functionB() {
   // Function B implementation
 }
 
+function functionC() {
+  // New function C implementation, addressing accessibility issues
+}
+
 // Exporting functions
-export { functionA, functionB };
+export { functionA, functionB, functionC };

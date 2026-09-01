@@ -47,7 +47,7 @@ const a11yStore = {
         if (landmark.id === '') {
           landmark.setAttribute('id', `${element}-${index}`);
         }
-        
+
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
             landmark.setAttribute('aria-label', `${element} ${index + 1}`);
@@ -66,13 +66,13 @@ const a11yStore = {
         titleElement.textContent = 'Image';
         svg.insertBefore(titleElement, svg.firstChild);
       }
-      
+
       if (!titleElement.id) {
         titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
       }
-      
+
       svg.setAttribute('aria-labelledby', titleElement.id);
-      
+
       if (!svg.hasAttribute('role')) {
         svg.setAttribute('role', 'img');
       }
@@ -103,20 +103,20 @@ const a11yStore = {
 function getSvgAccessibleName(svgElement) {
   const title = svgElement.querySelector('title');
   const desc = svgElement.querySelector('desc');
-  
+
   if (title && title.textContent) {
     return title.textContent.trim();
   }
-  
+
   if (desc && desc.textContent) {
     return desc.textContent.trim();
   }
-  
+
   const ariaLabel = svgElement.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel.trim();
   }
-  
+
   const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
     const labeledElement = document.getElementById(ariaLabelledby);
@@ -124,8 +124,140 @@ function getSvgAccessibleName(svgElement) {
       return labeledElement.textContent.trim();
     }
   }
-  
+
   return 'SVG graphic';
+}
+
+/**
+ * Validates table accessibility by ensuring proper structure and attributes
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {boolean} - True if table is accessible
+ */
+function validateTableAccessibility(table) {
+  if (!table || table.tagName !== 'TABLE') return false;
+
+  // Check for proper table structure
+  const hasCaption = table.querySelector('caption') !== null;
+  const hasThead = table.querySelector('thead') !== null;
+  const hasTbody = table.querySelector('tbody') !== null;
+  const hasTh = table.querySelector('th') !== null;
+
+  // Check for scope attributes on th elements
+  const thElements = table.querySelectorAll('th');
+  let hasScope = false;
+  thElements.forEach(th => {
+    if (th.hasAttribute('scope')) {
+      hasScope = true;
+    }
+  });
+
+  // Check for proper aria attributes
+  const hasAriaLabel = table.hasAttribute('aria-label') || table.hasAttribute('aria-labelledby');
+
+  return (hasCaption || hasAriaLabel) && (hasThead || hasTh) && (hasTbody || hasScope);
+}
+
+/**
+ * Validates table structure by ensuring proper nesting of table elements
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {boolean} - True if table structure is valid
+ */
+function validateTableStructure(table) {
+  if (!table || table.tagName !== 'TABLE') return false;
+
+  // Check for proper nesting of table elements
+  const children = Array.from(table.children);
+  const validTags = ['caption', 'colgroup', 'thead', 'tbody', 'tfoot'];
+
+  for (const child of children) {
+    if (!validTags.includes(child.tagName.toLowerCase())) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Validates landmark elements in the document
+ * @param {Document} doc - The document to validate
+ * @returns {boolean} - True if landmarks are valid
+ */
+function validateLandmark(doc = document) {
+  const requiredLandmarks = ['main', 'nav', 'header', 'footer'];
+  const landmarkElements = doc.querySelectorAll(requiredLandmarks.join(', '));
+
+  // Check for required landmarks
+  for (const landmark of requiredLandmarks) {
+    if (!doc.querySelector(landmark)) {
+      return false;
+    }
+  }
+
+  // Check for unique landmarks
+  const mainLandmarks = doc.querySelectorAll('main, [role="main"]');
+  if (mainLandmarks.length > 1) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Validates landmark structure by ensuring proper nesting and attributes
+ * @param {HTMLElement} landmark - The landmark element to validate
+ * @returns {boolean} - True if landmark structure is valid
+ */
+function validateLandmarkStructure(landmark) {
+  if (!landmark) return false;
+
+  // Check for proper role attributes
+  const validRoles = ['main', 'navigation', 'banner', 'contentinfo', 'complementary'];
+  const role = landmark.getAttribute('role');
+
+  if (role && !validRoles.includes(role)) {
+    return false;
+  }
+
+  // Check for proper aria attributes
+  if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Creates a new focus trap for keyboard navigation
+ * @param {HTMLElement} container - The container element to trap focus within
+ */
+function newFocusTrap(container) {
+  if (!container) return;
+
+  const focusableElements = Array.from(container.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  ));
+
+  if (focusableElements.length === 0) return;
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  container.addEventListener('keydown', function(event) {
+    if (event.key !== 'Tab') return;
+
+    if (event.shiftKey) {
+      if (document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+  });
 }
 
 /**
@@ -279,5 +411,11 @@ module.exports = {
   checkLandmarks,
   ensureUniqueLandmarks,
   handleFocusTrap,
-  revokeSession
+  revokeSession,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  newFocusTrap,
+  getSvgAccessibleName
 };

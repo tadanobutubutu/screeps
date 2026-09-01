@@ -53,8 +53,79 @@ export const main = {
   // New function to address all accessibility issues
   addressAccessibilityIssues: function() {
     fixAccessibilityIssues();
+  },
+
+  // New function to add a book with accessibility improvements
+  addBook: function(title, author, isbn) {
+    // Create form with proper accessibility attributes
+    const form = document.createElement('form');
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-label', 'Add Book Form');
+
+    // Create accessible input fields
+    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
+    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
+    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
+
+    // Create accessible submit button
+    const submitButton = document.createElement('button');
+    submitButton.setAttribute('type', 'submit');
+    submitButton.setAttribute('aria-label', 'Add Book');
+    submitButton.textContent = 'Add Book';
+
+    // Append all elements to form
+    form.appendChild(titleInput);
+    form.appendChild(authorInput);
+    form.appendChild(isbnInput);
+    form.appendChild(submitButton);
+
+    // Add form to document body
+    document.body.appendChild(form);
+
+    // Add event listener for form submission
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      // Handle form submission logic here
+      console.log('Book added:', {
+        title: titleInput.value,
+        author: authorInput.value,
+        isbn: isbnInput.value
+      });
+    });
+
+    return form;
   }
 };
+
+/**
+ * Creates an accessible input element with proper labeling.
+ * @param {string} type - Input type (text, number, etc.)
+ * @param {string} id - Unique identifier for the input
+ * @param {string} labelText - Text for the associated label
+ * @param {string} value - Initial value for the input
+ * @returns {HTMLElement} The created input element with label
+ */
+function createAccessibleInput(type, id, labelText, value = '') {
+  const container = document.createElement('div');
+  container.className = 'form-group';
+
+  const label = document.createElement('label');
+  label.setAttribute('for', id);
+  label.textContent = labelText;
+
+  const input = document.createElement('input');
+  input.setAttribute('type', type);
+  input.setAttribute('id', id);
+  input.setAttribute('name', id);
+  input.setAttribute('aria-required', 'true');
+  input.setAttribute('aria-label', labelText);
+  input.value = value;
+
+  container.appendChild(label);
+  container.appendChild(input);
+
+  return container;
+}
 
 /**
  * Creates an in-page button element with optional click handler.

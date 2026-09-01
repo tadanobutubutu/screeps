@@ -65,16 +65,16 @@ const accessibilityUtils = {
    */
   newFocusTrap(element) {
     if (!element) return;
-    
+
     const focusableElements = element.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
-    
+
     if (focusableElements.length === 0) return;
-    
+
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
-    
+
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
@@ -86,7 +86,7 @@ const accessibilityUtils = {
         }
       }
     });
-    
+
     firstElement.focus();
   },
 
@@ -140,7 +140,7 @@ const accessibilityUtils = {
       tables: 0,
       images: 0,
     };
-    
+
     // Validate skip links
     document.querySelectorAll('a[href^="#"]').forEach((link) => {
       const target = link.getAttribute('href').substring(1);
@@ -150,7 +150,7 @@ const accessibilityUtils = {
         fixes.skipLinks++;
       }
     });
-    
+
     // Validate tables
     document.querySelectorAll('table').forEach((table) => {
       if (!table.querySelector('th')) {
@@ -168,13 +168,13 @@ const accessibilityUtils = {
         fixes.tables++;
       }
     });
-    
+
     // Validate images
     document.querySelectorAll('img:not([alt])').forEach((img) => {
       console.warn('Image missing alt attribute', img);
       fixes.images++;
     });
-    
+
     console.log('Accessibility issues addressed', fixes);
   },
 
@@ -208,11 +208,11 @@ const ensureElementHasId = (element, prefix = 'element') => {
   if (!element) {
     throw new Error('Element is required');
   }
-  
+
   if (element.id) {
     return element.id;
   }
-  
+
   const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = id;
   return id;
@@ -232,7 +232,7 @@ const addAriaLabel = (element, label) => {
   if (!label) {
     throw new Error('Label is required');
   }
-  
+
   element.setAttribute('aria-label', label);
   return element;
 };
@@ -249,26 +249,25 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
   if (!container) {
     throw new Error('Container element is required');
   }
-  
+
   if (!dependencies) {
     throw new Error('Dependencies data is required');
   }
-  
+
   // Ensure container has an id for graph references
   const containerId = ensureElementHasId(container, 'graph-container');
-  
+
   // Add accessibility label if not present
   const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
-  
+
   // Render logic placeholder
   container.innerHTML = `<div id="${containerId}">Graph not implemented</div>`;
-  
+
   return container;
 }
 
-// TODO: Validate the table structure for accessibility issues
 /**
- * Validates the structure of tables on the page for accessibility best practices.
+ * Validates the table structure for accessibility issues.
  * Checks for:
  *   - Presence of captions.
  *   - Proper use of `<th>` elements with `scope` attributes.
@@ -280,14 +279,14 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
 function validateTableStructure() {
   const tables = document.querySelectorAll('table');
   const issues = [];
-  
+
   tables.forEach((table, index) => {
     // Check if table has a caption
     const caption = table.querySelector('caption');
     if (!caption) {
       issues.push({ tableIndex: index, issue: 'Missing caption' });
     }
-    
+
     // Check for header scope
     const headers = table.querySelectorAll('th');
     if (headers.length === 0) {
@@ -299,7 +298,7 @@ function validateTableStructure() {
         }
       });
     }
-    
+
     // Check for consistent row cell counts
     const rows = table.querySelectorAll('tr');
     const cellCounts = new Set();
@@ -309,7 +308,7 @@ function validateTableStructure() {
     if (cellCounts.size > 1) {
       issues.push({ tableIndex: index, issue: 'Inconsistent number of cells across rows' });
     }
-    
+
     // Ensure data cells have proper headers (simple check)
     const firstRow = rows[0];
     if (firstRow) {
@@ -326,13 +325,136 @@ function validateTableStructure() {
       });
     }
   });
-  
+
   if (issues.length > 0) {
     console.warn('Table accessibility issues found:', issues);
     return false;
   }
-  
+
   console.log('All tables passed accessibility checks.');
+  return true;
+}
+
+/**
+ * Validates form elements for accessibility issues.
+ * Checks for:
+ *   - Presence of labels for form controls.
+ *   - Proper use of aria-label or aria-labelledby.
+ *   - Required attributes for form elements.
+ *
+ * @returns {boolean} True if all form elements pass checks, otherwise false.
+ */
+function validateFormAccessibility() {
+  const forms = document.querySelectorAll('form');
+  const issues = [];
+
+  forms.forEach((form, formIndex) => {
+    const formId = form.id || `form-${formIndex}`;
+    const formControls = form.querySelectorAll('input, textarea, select, button');
+
+    formControls.forEach((control, controlIndex) => {
+      const controlId = control.id || `${formId}-control-${controlIndex}`;
+      const controlType = control.tagName.toLowerCase();
+
+      // Check for labels
+      if (controlType !== 'button' && !control.hasAttribute('aria-label') && !control.hasAttribute('aria-labelledby')) {
+        const label = form.querySelector(`label[for="${controlId}"]`);
+        if (!label) {
+          issues.push({
+            formIndex,
+            controlIndex,
+            issue: 'Form control missing label or aria-label/aria-labelledby',
+            element: control
+          });
+        }
+      }
+
+      // Check required attributes
+      if (control.hasAttribute('required') && !control.hasAttribute('aria-required')) {
+        issues.push({
+          formIndex,
+          controlIndex,
+          issue: 'Required form control missing aria-required attribute',
+          element: control
+        });
+      }
+    });
+  });
+
+  if (issues.length > 0) {
+    console.warn('Form accessibility issues found:', issues);
+    return false;
+  }
+
+  console.log('All form elements passed accessibility checks.');
+  return true;
+}
+
+/**
+ * Validates interactive elements for proper ARIA attributes.
+ * Checks for:
+ *   - Presence of role attributes when needed.
+ *   - Proper use of aria-* attributes.
+ *   - Consistent state management.
+ *
+ * @returns {boolean} True if all interactive elements pass checks, otherwise false.
+ */
+function validateInteractiveElements() {
+  const interactiveElements = document.querySelectorAll('[role="button"], [role="checkbox"], [role="radio"], [role="switch"], [role="tab"]');
+  const issues = [];
+
+  interactiveElements.forEach((element, index) => {
+    const role = element.getAttribute('role');
+
+    // Check for required ARIA attributes based on role
+    switch (role) {
+      case 'button':
+        if (!element.hasAttribute('aria-pressed') && !element.hasAttribute('aria-expanded')) {
+          issues.push({
+            index,
+            issue: 'Button role element missing aria-pressed or aria-expanded',
+            element
+          });
+        }
+        break;
+      case 'checkbox':
+      case 'radio':
+      case 'switch':
+        if (!element.hasAttribute('aria-checked')) {
+          issues.push({
+            index,
+            issue: `${role} role element missing aria-checked`,
+            element
+          });
+        }
+        break;
+      case 'tab':
+        if (!element.hasAttribute('aria-selected')) {
+          issues.push({
+            index,
+            issue: 'Tab role element missing aria-selected',
+            element
+          });
+        }
+        break;
+    }
+
+    // Check for proper tabindex
+    if (!element.hasAttribute('tabindex')) {
+      issues.push({
+        index,
+        issue: 'Interactive element missing tabindex',
+        element
+      });
+    }
+  });
+
+  if (issues.length > 0) {
+    console.warn('Interactive element accessibility issues found:', issues);
+    return false;
+  }
+
+  console.log('All interactive elements passed accessibility checks.');
   return true;
 }
 
@@ -348,4 +470,6 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   validateTableStructure,
+  validateFormAccessibility,
+  validateInteractiveElements
 };

@@ -61,7 +61,6 @@ const {
   addAriaLabel: addAriaLabelAlt,
   googleSignIn,
   handleCredentialResponse: handleCredentialResponseAlt,
-  renderGraphIndex
 } = require('./utilities');
 
 const http = require('http');
@@ -574,7 +573,6 @@ module.exports = {
     fixFakeLinkIssue,
     googleSignIn,
     handleCredentialResponseAlt,
-    renderGraphIndex,
     setSvgAccessibilityProps,
     addAccessibleNamesToSVGs,
     addSvgAccessibleNames,

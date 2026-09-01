@@ -1,89 +1,92 @@
 // main.js - Accessibility-focused implementation
-// TODO: This is the existing code that needs to be preserved
-//
 
-function init() {
+// Helper function to process SVG elements
+function processSvgElements() {
   const svgElements = document.querySelectorAll('svg');
-
   svgElements.forEach(svg => {
-    if (!svg.hasAttribute('role')) {
+    if (!svg.getAttribute('role')) {
       svg.setAttribute('role', 'img');
     }
-
     const accessibleName = getSvgAccessibleName(svg);
     if (accessibleName) {
       svg.setAttribute('aria-label', accessibleName);
     }
-
     setSvgAttributes(svg);
   });
 }
 
-const checkTableStructure = function() {
-  // existing code
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.getAttribute('title') || '';
+}
+
+function setSvgAttributes(svg) {
+  if (!svg) return;
+  // Set necessary attributes for accessibility
+  if (!svg.hasAttribute('focusable')) {
+    svg.setAttribute('focusable', 'false');
+  }
+  if (!svg.hasAttribute('width') && svg.hasAttribute('viewBox')) {
+    svg.setAttribute('width', '24');
+  }
+  if (!svg.hasAttribute('height') && svg.hasAttribute('viewBox')) {
+    svg.setAttribute('height', '24');
+  }
+}
+
+// Check table structure function
+const checkTableStructure = function(tableElement) {
+  if (!tableElement) {
+    return { valid: false, error: 'Table element is required' };
+  }
+
+  const hasHeader = tableElement.querySelector('thead') !== null || tableElement.querySelector('th') !== null;
+  const hasBody = tableElement.querySelector('tbody') !== null;
+  const hasCaption = tableElement.querySelector('caption') !== null;
+
+  return {
+    valid: true,
+    hasHeader,
+    hasBody,
+    hasCaption
+  };
 };
 
+// Utilities for addressing accessibility issues
 const AddressabilityIssues = {
-  ensureUniqueLandmarksFromString(source) {
-    const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+  addressAccessibilityIssues,
 
-    const matches = Array.from(source.matchAll(mainBlockRegex));
-    if (matches.length <= 1) {
-      return source;
+  generateAccessibilityReport(accessibilityReport) {
+    if (!accessibilityReport || !Array.isArray(accessibilityReport.issues)) {
+      return [];
     }
 
-    let result = source;
-    for (let i = 1; i < matches.length; i++) {
-      const block = matches[i][0];
-      const fixedBlock = block
-        .replace(/<main([^>]*)>/, '<section$1>')
-        .replace(/<\/main>/, '</section>');
-      result = result.replace(block, fixedBlock);
-    }
+    const report = accessibilityReport.issues.map(issue => ({
+      issueType: issue.type,
+      status: issue.status || 'pending',
+      fixApplied: issue.fixApplied || ''
+    }));
 
-    return result;
+    return report;
   },
 
-  validateLandmark(element) {
-    if (!element) {
-      return { valid: false, error: 'Element is required' };
+  calculateAccessibilityScore(fixedIssues) {
+    if (!Array.isArray(fixedIssues)) {
+      return 0;
     }
 
-    const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
-
-    const implicitLandmarks = {
-      'header': 'banner',
-      'main': 'main',
-      'nav': 'navigation',
-      'aside': 'complementary',
-      'footer': 'contentinfo',
-      'section': 'region',
-      'form': 'form'
+    const scorePoints = {
+      'color-contrast': 5,
+      'missing-alt-text': 3,
+      'missing-aria-label': 5,
+      'heading-order': 2,
+      'other': 1
     };
 
-    let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
-
-    if (!landmarkRole && implicitLandmarks[tagName]) {
-      landmarkRole = implicitLandmarks[tagName];
-    }
-
-    if (!landmarkRole) {
-      return {
-        valid: false,
-        error: 'Element does not have a valid landmark role',
-        element: tagName
-      };
-    }
-
-    if (!Array.from(document.querySelectorAll(`[role="${landmarkRole}"]`)).includes(element)) {
-      return {
-        valid: false,
-        error: `Landmark with role "${landmarkRole}" should be immediate child of ${tagName}`,
-        element: tagName
-      };
-    }
-
-    return { valid: true, role: landmarkRole };
+    return fixedIssues.reduce((score, issue) => {
+      const points = scorePoints[issue.type] || scorePoints['other'];
+      return score + points;
+    }, 0);
   },
 
   fixFakeLinkIssue(selector) {
@@ -139,60 +142,154 @@ const AddressabilityIssues = {
     link.parentNode.replaceChild(newButton, link);
 
     return { fixed: true };
+  },
+
+  fixMainLandmarkIssues(source) {
+    const mainBlockRegex = /<main\b[^>]*>([\s\S]*)<\/main>/g;
+    const matches = source.matchAll(mainBlockRegex);
+    let result = source;
+    for (let match of matches) {
+      const block = match[1];
+      const fixedBlock = block
+        .replace(/<main\b([^>]*)>/, '<section$1>')
+        .replace(/<\/main>/, '</section>');
+      result = result.replace(match[0], fixedBlock);
+    }
+    return result;
+  },
+
+  validateLandmark(element) {
+    if (!element) {
+      return { valid: false, error: 'Element is required' };
+    }
+
+    const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
+
+    const implicitLandmarks = {
+      'header': 'banner',
+      'main': 'main',
+      'nav': 'navigation',
+      'aside': 'complementary',
+      'footer': 'contentinfo',
+      'section': 'region',
+      'form': 'form'
+    };
+
+    let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
+
+    if (!landmarkRole) {
+      if (implicitLandmarks[tagName]) {
+        landmarkRole = implicitLandmarks[tagName];
+      } else {
+        return { valid: false, error: 'No landmark role found' };
+      }
+    }
+
+    if (!Array.from(document.querySelectorAll(`[role="${landmarkRole}"]`)).includes(element)) {
+      return {
+        valid: false,
+        error: `Landmark with role "${landmarkRole}" should be immediate child of ${tagName}`,
+        element: tagName
+      };
+    }
+
+    return { valid: true, role: landmarkRole };
+  },
+
+  ensureUniqueLandmarksFromString(source) {
+    const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+
+    const matches = Array.from(source.matchAll(mainBlockRegex));
+    if (matches.length <= 1) {
+      return source;
+    }
+
+    let result = source;
+    for (let i = 1; i < matches.length; i++) {
+      const block = matches[i][0];
+      const fixedBlock = block
+        .replace(/<main([^>]*)>/, '<section$1 id="unique-main-release-' + i + '">')
+        .replace(/<\/main>/, '</section>');
+      result = result.replace(block, fixedBlock);
+    }
+
+    return result;
   }
 };
 
+// Ensure DOM is fully loaded before executing scripts
+if (typeof module !== 'undefined' && module.exports) {
+  // Node.js environment - setup basic exports
+  module.exports = {
+    checkTableStructure,
+    countDependencies,
+    init,
+    processSvgElements,
+    setupAriaLiveRegions,
+    setupFocusManagement,
+    enhanceSemanticMarkup,
+    setupKeyboardNavigation,
+    trapFocus,
+    handleKeyNavigation,
+    closeOpenDialogs,
+    announceToScreenReader,
+    calculateDifference,
+    calculateProduct,
+    isNumber,
+    clamp,
+    hello,
+    getVersion,
+    getConfig,
+    addressAccessibilityIssues,
+    generateAccessibilityReport,
+    calculateAccessibilityScore,
+    validateLandmark,
+    spawnSomeCommand,
+    createInPageButton,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    addLangAttribute,
+    addDocumentLangAttribute,
+    handleCredentialResponse,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmarkStructure,
+    getSvgAccessibleNames,
+    checkLandmarkElements,
+    createResourceButton,
+    renderDependencyGraph,
+    displayModuleStructure,
+    newFunction,
+    MyComponent,
+    getLangAttribute,
+    fixMainLandmarkIssues,
+    AddressabilityIssues
+  };
+} else {
+  // Browser environment - wait for DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+}
+
+function init() {
+  console.log('Initializing accessibility features');
+  processSvgElements();
+  setupKeyboardNavigation();
+  setupAriaLiveRegions();
+  setupFocusManagement();
+  enhanceSemanticMarkup();
+}
+
 // ... (other functions and comments preserved)
 
-const sampleInsightReport = {
-  title: 'Quarterly Performance Report',
-  sections: [
-    {
-      heading: 'Sales Overview',
-      content: 'Total sales increased by 15% compared to last quarter.'
-    },
-    {
-      heading: 'Customer Satisfaction',
-      content: 'Average satisfaction score: 4.2 out of 5.'
-    }
-  ]
-};
-
-// Implement function for addressing accessibility issues from insight report
-function addressAccessibilityIssues(insightReport) {
-  const accessibilityIssues = [];
-
-  const accessibilityChecks = [
-    AddressabilityIssues.fixFakeLinkIssue('a[href="#"], a[href="javascript:void(0)"], a[href="javascript:;"]'),
-    AddressabilityIssues.validateLandmark(document.getElementById('main')),
-    AddressabilityIssues.validateLandmark(document.getElementById('example_of_bad_landmark')),
-  ];
-
-  accessibilityChecks.forEach(checkResult => {
-    if (!checkResult.fixed) {
-      accessibilityIssues.push({
-        type: 'accessibility',
-        status: 'pending',
-        issue: checkResult.errors ? checkResult.errors.join('\n') : checkResult.results[0].error
-      });
-    } else if (checkResult.results && checkResult.results.length > 0) {
-      checkResult.results.forEach(result => {
-        accessibilityIssues.push({
-          type: 'accessibility',
-          status: 'done',
-          issue: `Fixed issue with fake link <a id="fake_link_${result.index}"> ${result.originalLinkText} </a>`
-        });
-      });
-    }
-  });
-
-  // Add other accessibility checks here as needed
-
-  return {
-    insightReport,
-    accessibilityReport: AddressabilityIssues.generateAccessibilityReport(accessibilityIssues)
-  };
+function setupKeyboardNavigation() {
+  // Set up keyboard navigation handlers
+  document.addEventListener('keydown', handleKeyNavigation);
 }
-```
 
-In this example, I merged both branches' changes by preserving the existing code and the accessibility improvements that were introduced. I also created a new `AddressabilityIssues` object with methods for ensuring unique landmarks, validating landmarks, and fixing fake links. These methods are used to address accessibility issues found in the insight report. Furthermore, I added a new `addressAccessibilityIssues` function that addresses the issues from the insight report.
+// ... (other function and event listeners implementation)

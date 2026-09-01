@@ -1,6 +1,3 @@
-const { dependencyGraphContent } = require('./dependencyGraphContent')
-const { indexContent } = require('./indexContent')
-
 import React from 'react'
 import { render } from 'react-dom'
 import {
@@ -28,6 +25,9 @@ import {
   getSvgAccessibleName,
   newFocusTrap
 } from './AccessibilityHelpers'
+
+const { dependencyGraphContent } = require('./dependencyGraphContent')
+const { indexContent } = require('./indexContent')
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph')

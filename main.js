@@ -1,10 +1,10 @@
-const main = require('./utilities');
+const main = require('./utilities')
 const accessibilityUtils = {
   // ... existing accessibilityUtils implementation
-};
+}
 const exportUtils = {
   // ... existing exportUtils implementation
-};
+}
 
 const {
   createInPageButton,
@@ -43,15 +43,15 @@ const {
   fixImageAltTexts,
   googleSignIn,
   addressAccessibilityIssues
-} = main;
+} = main
 
 const a11yStore = {
-  prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  prefersReducedMotion () {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
   },
-  newFocusTrap: newFocusTrap,
-  addressAccessibilityIssues: addressAccessibilityIssues
-};
+  newFocusTrap,
+  addressAccessibilityIssues
+}
 
 // Import all utilities functions for convenience (merged from both branches)
 
@@ -97,4 +97,4 @@ module.exports = {
   googleSignIn,
   addressAccessibilityIssues,
   a11yStore
-};
+}

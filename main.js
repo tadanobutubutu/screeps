@@ -164,6 +164,44 @@ function initializeGameData() {
     };
 }
 
+// New function to validate accessibility issues
+function validateAccessibilityIssues(issues) {
+  if (!Array.isArray(issues)) {
+    throw new Error('Issues must be an array');
+  }
+
+  const validSeverities = ['critical', 'moderate', 'minor'];
+  const validTypes = ['semantic', 'structural', 'functional', 'visual'];
+
+  return issues.every(issue => {
+    return (
+      typeof issue.message === 'string' &&
+      validSeverities.includes(issue.severity) &&
+      (validTypes.includes(issue.type) || typeof issue.type === 'string')
+    );
+  });
+}
+
+// New function to filter issues by severity
+function filterIssuesBySeverity(issues, severity) {
+  if (!Array.isArray(issues)) return [];
+  const validSeverities = ['critical', 'moderate', 'minor'];
+
+  if (!validSeverities.includes(severity)) {
+    throw new Error(`Invalid severity. Must be one of: ${validSeverities.join(', ')}`);
+  }
+
+  return issues.filter(issue => issue.severity === severity);
+}
+
+// New function to get unique issue types
+function getUniqueIssueTypes(issues) {
+  if (!Array.isArray(issues)) return [];
+
+  const types = issues.map(issue => issue.type || 'Unknown');
+  return [...new Set(types)];
+}
+
 module.exports = {
   generateAccessibilityReport,
   exportReportAsJSON,
@@ -173,5 +211,9 @@ module.exports = {
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraph,
-  initializeGameData
+  initializeGameData,
+  countDependencies,
+  validateAccessibilityIssues,
+  filterIssuesBySeverity,
+  getUniqueIssueTypes
 };

@@ -55,7 +55,7 @@ const accessibilityUtils = {
   },
 
   // New function for addressing accessibility issues from insight report
-  newFocusTrap: newFocusTrap(),
+  newFocusTrap: newFocusTrap,
 
   // Accessibility functions to address new issues (TODO: Implement)
   // - REACT_015: Add lang attribute to HTML element
@@ -92,7 +92,7 @@ const renderDependencyGraph = (data) => {
 };
 
 // Function for trap focus implementation (merged with newFocusTrap)
-function newFunction(element) {
+function newFocusTrap(element) {
   if (!element) return;
   const focusable = element.querySelectorAll(
     'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'

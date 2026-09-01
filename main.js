@@ -17,9 +17,9 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
-/**
- * Main application entry point with accessibility features
- */
+// /**
+//  * Main application entry point with accessibility features
+//  */
 function renderDependencyGraphs(svgElements) {
   const accessibleName = getSvgAccessibleName(svgElements);
   if (accessibleName) {

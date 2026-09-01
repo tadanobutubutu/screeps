@@ -164,6 +164,16 @@ function checkLinkAccessibility() {
     if (!text) {
       issues.push(`Link with href "${href}" has no accessible text`);
     }
+
+    // Check for aria-label or aria-labelledby if link has no text
+    if (!text && !link.hasAttribute('aria-label') && !link.hasAttribute('aria-labelledby')) {
+      issues.push(`Link with href "${href}" has no accessible name (missing text, aria-label, or aria-labelledby)`);
+    }
+
+    // Check if link is decorative but not marked as such
+    if (href === '#' && !link.hasAttribute('aria-hidden') && !link.hasAttribute('role')) {
+      issues.push(`Decorative link with href="#" should have aria-hidden="true" or role="presentation"`);
+    }
   });
 
   return issues;

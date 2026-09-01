@@ -82,6 +82,99 @@ const accessibilityUtils = {
     };
 
     document.addEventListener('keydown', handleKeyDown);
+  },
+
+  // New function for addressing accessibility issues from insight report
+  addressAccessibilityIssues: (issues, options = {}) => {
+    const {
+      autoFix = false,
+      reportOnly = false,
+      priority = 'moderate'
+    } = options;
+
+    if (!issues || !Array.isArray(issues)) {
+      throw new Error('Invalid issues array provided');
+    }
+
+    const results = {
+      fixed: [],
+      skipped: [],
+      errors: [],
+      report: []
+    };
+
+    issues.forEach((issue, index) => {
+      try {
+        if (typeof issue !== 'object' || !issue.message) {
+          throw new Error(`Invalid issue format at index ${index}`);
+        }
+
+        const { message, element, severity = 'moderate', fix } = issue;
+
+        // Add to report
+        results.report.push({
+          index,
+          message,
+          severity,
+          status: 'pending'
+        });
+
+        // Skip if not auto-fixing and not reporting only
+        if (!autoFix && !reportOnly) {
+          results.skipped.push({
+            index,
+            message,
+            reason: 'Auto-fix disabled'
+          });
+          return;
+        }
+
+        // Attempt to fix if possible
+        if (autoFix && fix && typeof fix === 'function') {
+          try {
+            const fixResult = fix(element);
+            results.fixed.push({
+              index,
+              message,
+              result: fixResult
+            });
+            results.report[index].status = 'fixed';
+          } catch (fixError) {
+            results.errors.push({
+              index,
+              message,
+              error: fixError.message
+            });
+            results.report[index].status = 'error';
+          }
+        } else if (reportOnly) {
+          results.report[index].status = 'reported';
+        }
+      } catch (error) {
+        results.errors.push({
+          index,
+          message: `Error processing issue at index ${index}: ${error.message}`,
+          error: error.message
+        });
+      }
+    });
+
+    // Generate summary
+    results.summary = {
+      totalIssues: issues.length,
+      fixed: results.fixed.length,
+      skipped: results.skipped.length,
+      errors: results.errors.length,
+      timestamp: new Date().toISOString()
+    };
+
+    // Announce results to screen readers if priority is high
+    if (priority === 'critical' || priority === 'serious') {
+      const announcement = `Accessibility issues report: ${results.summary.fixed} fixed, ${results.summary.errors} errors`;
+      accessibilityUtils.announceToScreenReader(announcement, 'assertive');
+    }
+
+    return results;
   }
 };
 
@@ -114,11 +207,11 @@ async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received');
   }
-  
+
   if (response.error) {
     throw new Error(response.error);
   }
-  
+
   if (response.token) {
     return {
       success: true,
@@ -126,7 +219,7 @@ async function handleCredentialResponse(response) {
       expiresIn: response.expiresIn || 3600
     };
   }
-  
+
   throw new Error('Invalid credential response');
 }
 
@@ -149,7 +242,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
   },
 
@@ -160,11 +253,11 @@ const exportUtils = {
 
   exportToCSV: (data, filename) => {
     if (!data || data.length === 0) return;
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (const row of data) {
       const values = headers.map(header => {
         const escaped = ('' + row[header]).replace(/"/g, '\\"');
@@ -172,7 +265,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -216,7 +309,7 @@ function filterValidItems(items, validator) {
 // Initialize accessibility features
 const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
-  
+
   // Add keyboard support for all interactive elements
   document.querySelectorAll('[data-accessible]').forEach(element => {
     element.addEventListener('keydown', (e) => {
@@ -285,7 +378,7 @@ function transformInputData(inputData, options = {}) {
     const result = {};
     const originalKeys = Object.keys(inputData);
     const keys = preserveKeys ? originalKeys : originalKeys.map(() => Math.random().toString(36).substring(2, 11));
-    
+
     let i = 0;
     for (const key of originalKeys) {
       const value = inputData[key];
@@ -368,11 +461,11 @@ function ensureElementHasId(element, prefix = 'element') {
   if (!element) {
     throw new Error('Element is required');
   }
-  
+
   if (element.id) {
     return element.id;
   }
-  
+
   const id = `${prefix}-${Math.random().toString(36).substring(2, 11)}`;
   element.id = id;
   return id;
@@ -388,7 +481,7 @@ function generateAccessibilityReport(issues, options = {}) {
     groupBySeverity = true,
     includeSummary = true
   } = options;
-  
+
   // Handle empty issues array
   if (!issues || !Array.isArray(issues) || issues.length === 0) {
     return {
@@ -397,25 +490,25 @@ function generateAccessibilityReport(issues, options = {}) {
         timestamp: new Date().toISOString()
       },
       issues: [],
-      message: format === 'json' ? 
-        JSON.stringify({ summary: { totalIssues: 0, timestamp: new Date().toISOString() }, issues: [], message: 'No accessibility issues found' }) : 
+      message: format === 'json' ?
+        JSON.stringify({ summary: { totalIssues: 0, timestamp: new Date().toISOString() }, issues: [], message: 'No accessibility issues found' }) :
         'No accessibility issues found'
     };
   }
-  
+
   let processedIssues = [...issues];
   let groups = {};
   let summary = {
     totalIssues: issues.length,
     timestamp: new Date().toISOString()
   };
-  
+
   // Group issues by severity if requested
   if (groupBySeverity) {
     groups = processedIssues.reduce((acc, issue) => {
       // Determine severity - default to 'unknown' if not specified
       let severity = 'unknown';
-      
+
       if (typeof issue === 'string') {
         // Try to infer severity from issue text
         const lowerIssue = issue.toLowerCase();
@@ -431,14 +524,14 @@ function generateAccessibilityReport(issues, options = {}) {
       } else if (issue.level) {
         severity = issue.level;
       }
-      
+
       if (!acc[severity]) {
         acc[severity] = [];
       }
       acc[severity].push(issue);
       return acc;
     }, {});
-    
+
     // Add group counts to summary
     if (includeSummary) {
       summary.groups = Object.keys(groups).reduce((acc, key) => {
@@ -447,26 +540,26 @@ function generateAccessibilityReport(issues, options = {}) {
       }, {});
     }
   }
-  
+
   // Create report based on format
   const report = {
     summary: includeSummary ? summary : undefined,
     groups: groupBySeverity ? groups : undefined,
     issues: processedIssues
   };
-  
+
   // Remove undefined properties
   Object.keys(report).forEach(key => {
     if (report[key] === undefined) {
       delete report[key];
     }
   });
-  
+
   // Return formatted output
   if (format === 'json') {
     return JSON.stringify(report, null, 2);
   }
-  
+
   if (format === 'text') {
     let textReport = '';
     if (includeSummary) {
@@ -474,7 +567,7 @@ function generateAccessibilityReport(issues, options = {}) {
       textReport += `========================\n`;
       textReport += `Total Issues: ${summary.totalIssues}\n`;
       textReport += `Generated: ${summary.timestamp}\n\n`;
-      
+
       if (groupBySeverity && summary.groups) {
         textReport += `By Severity:\n`;
         Object.entries(summary.groups).forEach(([severity, count]) => {
@@ -483,7 +576,7 @@ function generateAccessibilityReport(issues, options = {}) {
         textReport += `\n`;
       }
     }
-    
+
     textReport += `Issues:\n`;
     if (groupBySeverity) {
       Object.entries(groups).forEach(([severity, severityIssues]) => {
@@ -497,10 +590,10 @@ function generateAccessibilityReport(issues, options = {}) {
         textReport += `${index + 1}. ${typeof issue === 'string' ? issue : (issue.message || JSON.stringify(issue))}\n`;
       });
     }
-    
+
     return textReport;
   }
-  
+
   return report;
 }
 

@@ -29,9 +29,6 @@ var a11yStore;
 
     // BEGIN CHANGES TO ADDRESS ACCESSIBILITY ISSUES
 
-    // Landmark elements that should be checked for proper usage
-    const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
-
     // New implementation to count dependencies using Document and regex
     function countDependencies() {
         const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
@@ -50,7 +47,7 @@ var a11yStore;
         });
     }
 
-    // New function to check landmark elements
+    // Function to check landmark elements
     function checkLandmarkElements() {
         const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
         landmarkElements.forEach((landmark, index) => {
@@ -118,8 +115,9 @@ var a11yStore;
             link.style.color = '#fff';
             link.style.padding = '8px';
             link.style.zIndex = '100';
-            link.addEventListener('focus', () => { link.style.top = '0'; });
-            link.addEventListener('blur', () => { link.style.top = '-40px'; });
+            link.style.visibility = 'hidden'; // New
+            link.addEventListener('focus', () => { link.style.visibility = 'visible'; });
+            link.addEventListener('blur', () => { link.style.visibility = 'hidden'; });
             if (document.body) {
                 document.body.insertBefore(link, document.body.firstChild);
             }
@@ -167,28 +165,33 @@ var a11yStore;
         }
     };
 
-})();
-
-// TODO: Preserve existing code
-// ... your existing code ...
-
-// Here's the new function
-function newFunction() {
-    // ... your implementation ...
-    // Integrated accessibility initialization
-    if (typeof a11yStore !== 'undefined' && typeof a11yStore.init === 'function') {
-        try {
+    // New export for the function that initiates accessibility
+    const initAccessibility = function initAccessibility() {
+        if (a11yStore) {
             a11yStore.init();
-        } catch (e) {
-            // Fail silently if DOM is unavailable
         }
-    }
-    return true;
-}
+    };
 
-// Export the new function
-module.exports = {
-    // ... existing exports ...
-    newFunction,
-    a11yStore: typeof a11yStore !== 'undefined' ? a11yStore : undefined
-};
+    // Modify the newFunction to include the accessibility initialization
+    function newFunction() {
+        // ... your implementation ...
+        // Integrated accessibility initialization
+        if (typeof a11yStore !== 'undefined' && typeof a11yStore.init === 'function') {
+            try {
+                a11yStore.init();
+            } catch (e) {
+                // Fail silently if DOM is unavailable
+            }
+        }
+        initAccessibility(); // New export called
+        return true;
+    }
+
+    // Export the new function and the initAccessibility function
+    module.exports = {
+        // ... existing exports ...
+        newFunction: newFunction,
+        initAccessibility: initAccessibility,
+        a11yStore: typeof a11yStore !== 'undefined' ? a11yStore : undefined
+    };
+})();

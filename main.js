@@ -1,5 +1,4 @@
 // TODO: add the new functions or changes requested in the issue
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
 
 /** TODO: Implement function for addressing accessibility issues from insight report */
 function addressAccessibilityIssues(insightReport) {
@@ -874,5 +873,5 @@ if (typeof module !== 'undefined' && module.exports) {
 // Auto-validate on load if this is a browser context
 if (typeof window !== 'undefined') {
     // Store validation result globally for debugging
-    window.landmarkValidation = validateLandmarkStructure();
+    window.landmarkValidation = validateLandmarkStructure(document);
 }

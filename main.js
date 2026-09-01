@@ -527,4 +527,43 @@ function handleFakeLinks(container) {
     }
 
     if (tagName === 'button' && element.querySelector('a')) {
-      issues.push(`Button at
+      issues.push(`Button at index ${index} contains an anchor element`);
+    }
+  });
+
+  return issues;
+}
+
+// New function to ensure element has an ID
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element.id) {
+    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element.id;
+}
+
+// New function to add aria-label to an element
+function addAriaLabel(element, label) {
+  if (element && label) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+}
+
+// New function to render dependency graph
+function renderDependencyGraph(dependencies) {
+  const container = document.createElement('div');
+  container.className = 'dependency-graph';
+
+  const title = document.createElement('h2');
+  title.textContent = 'Dependency Graph';
+  container.appendChild(title);
+
+  const graph = document.createElement('pre');
+  graph.textContent = generateDependencyReport(dependencies).graph;
+  container.appendChild(graph);
+
+  return container;
+}
+
+// TODO: Any additional changes requested in the issue

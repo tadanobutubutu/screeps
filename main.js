@@ -114,4 +114,30 @@ function newFunction(element) {
   });
 }
 
+// New function for creating in-page buttons
+const createButton = (options = {}) => {
+  const {
+    text = 'Button',
+    id = '',
+    className = '',
+    ariaLabel = '',
+    onClick = () => {},
+    disabled = false,
+    type = 'button'
+  } = options;
+
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.type = type;
+
+  if (id) button.id = id;
+  if (className) button.className = className;
+  if (ariaLabel) button.setAttribute('aria-label', ariaLabel);
+  if (disabled) button.disabled = true;
+
+  button.addEventListener('click', onClick);
+
+  return button;
+};
+
 // ... (The rest of the file remains unchanged)

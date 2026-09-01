@@ -1,5 +1,10 @@
 // main.js - Accessibility-focused implementation
 
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// todo-hash: 47df124c35cdd9c341f347ace29486f538a848cf
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs,
 // count dependencies, and address accessibility issues from insight report
 // todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
@@ -64,6 +69,13 @@ function addressNewAccessibilityIssues() {
   const submitBtn = document.querySelector('.btn-submit');
   if (submitBtn && typeof submitBtn !== 'undefined') {
     submitBtn.setAttribute('aria-label', personName());
+  }
+
+  // Ensure the dependencyGraph container has a proper ARIA role
+  const dependencyGraph = document.querySelector('#dependencyGraph');
+  if (dependencyGraph && typeof dependencyGraph !== 'undefined') {
+    dependencyGraph.setAttribute('role', 'region');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
   }
 }
 

@@ -899,6 +899,55 @@ function generateAccessibilityReport() {
   };
 }
 
+/**
+ * Returns an accessible name for an SVG element.
+ * @param {SVGElement} svg - The SVG element.
+ * @returns {string} The accessible name.
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  const title = svg.querySelector('title');
+  if (title && title.textContent) return title.textContent;
+  const aria-labelledby = svg.getAttribute('aria-labelledby');
+  if (aria-labelledby) {
+    const labelElement = document.getElementById(aria-labelledby);
+    if (labelElement) return labelElement.textContent;
+  }
+  return 'SVG';
+}
+
+/**
+ * Creates an accessible link element.
+ * @param {string} text - The text content of the link.
+ * @param {string} href - The URL the link points to.
+ * @returns {HTMLElement} The created link element.
+ */
+function createAccessibleLink(text, href) {
+  const link = document.createElement('a');
+  link.textContent = text;
+  link.href = href;
+  link.setAttribute('role', 'link');
+  link.setAttribute('tabindex', '0');
+  return link;
+}
+
+/**
+ * Handles accessibility issues by running various checks and fixes.
+ */
+function handleAccessibilityIssues() {
+  // Ensure landmark roles are added
+  addLandmarkRoles();
+  // Ensure unique landmarks
+  ensureUniqueLandmarks();
+  // Fix fake links
+  fixFakeLink();
+  // Add accessible names to SVGs
+  addSvgAccessibleNames();
+  // Additional accessibility checks can be added here
+}
+
 // Export existing functionality and new functions
 export {
   initialize,
@@ -940,7 +989,10 @@ export {
   validateTableAccessibility,
   validateTableStructure,
   generateAccessibilityReport,
-  createUnrotateButton
+  createUnrotateButton,
+  getSvgAccessibleName,
+  createAccessibleLink,
+  handleAccessibilityIssues
 };
 
 // Add back any required exports that might have been missing

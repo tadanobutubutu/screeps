@@ -141,21 +141,21 @@ const accessibilityUtils = {
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
-const ensureElementId = (element) => {
+const ensureElementIdOrigin = (element) => {
   if (element && !element.id) {
     element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
   }
   return element;
 };
 
-const addAriaLabel = (element, label) => {
+const addAriaLabelOrigin = (element, label) => {
   if (element) {
     element.setAttribute('aria-label', label);
   }
   return element;
 };
 
-const renderDependencyGraph = (data) => {
+const renderDependencyGraphOrigin = (data) => {
   // Implementation for rendering dependency graphs
   return {
     nodes: data.nodes || [],
@@ -168,7 +168,7 @@ const renderDependencyGraph = (data) => {
 function calculateSum(a, b) { return a + b; }
 
 // Credential response handling
-async function handleCredentialResponse(response) {
+async function handleCredentialResponseOrigin(response) {
   if (!response) {
     throw new Error('No response received');
   }
@@ -207,7 +207,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
   },
@@ -219,11 +219,11 @@ const exportUtils = {
 
   exportToCSV: (data, filename) => {
     if (!data || data.length === 0) return;
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (const row of data) {
       const values = headers.map(header => {
         const escaped = ('' + row[header]).replace(/"/g, '\\"');
@@ -231,7 +231,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -275,7 +275,7 @@ function filterValidItems(items, validator) {
 // Initialize accessibility features
 const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
-  
+
   // Add keyboard support for all interactive elements
   document.querySelectorAll('[data-accessible]').forEach(element => {
     element.addEventListener('keydown', (e) => {
@@ -349,11 +349,11 @@ function ensureElementHasId(element, prefix = 'element') {
   if (!element) {
     throw new Error('Element is required');
   }
-  
+
   if (element.id) {
     return element.id;
   }
-  
+
   const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = id;
   return id;
@@ -383,25 +383,25 @@ function displayModuleStructure(module, options = {}) {
   }
 
   const visited = new WeakSet();
-  
+
   function traverse(obj, depth = 0) {
     if (depth > maxDepth || obj === null || obj === undefined) {
       return obj;
     }
-    
+
     if (typeof obj !== 'object') {
       return obj;
     }
-    
+
     if (visited.has(obj)) {
       return '[Circular]';
     }
     visited.add(obj);
-    
+
     if (Array.isArray(obj)) {
       return obj.map(item => traverse(item, depth + 1));
     }
-    
+
     const result = {};
     for (const [key, value] of Object.entries(obj)) {
       if (!includePrivate && key.startsWith('_')) {
@@ -411,13 +411,13 @@ function displayModuleStructure(module, options = {}) {
     }
     return result;
   }
-  
+
   const structure = traverse(module);
-  
+
   if (format === 'string') {
     return JSON.stringify(structure, null, 2);
   }
-  
+
   if (format === 'tree') {
     function toTree(obj, prefix = '') {
       if (typeof obj !== 'object' || obj === null) {
@@ -440,7 +440,7 @@ function displayModuleStructure(module, options = {}) {
     }
     return toTree(structure);
   }
-  
+
   return structure;
 }
 
@@ -453,7 +453,7 @@ function generateDependencyGraph(modules) {
   const nodes = [];
   const edges = [];
   const nodeMap = new Map();
-  
+
   // Create nodes for each module
   for (const [name, module] of Object.entries(modules)) {
     const id = `module-${name}`;
@@ -466,7 +466,7 @@ function generateDependencyGraph(modules) {
       dependencies: module.dependencies || []
     });
   }
-  
+
   // Create edges for dependencies
   for (const [name, module] of Object.entries(modules)) {
     const sourceId = nodeMap.get(name);
@@ -483,7 +483,7 @@ function generateDependencyGraph(modules) {
       }
     }
   }
-  
+
   return { nodes, edges };
 }
 
@@ -552,7 +552,7 @@ function validateTableStructure(tableElement) {
   if (hasHeadersAttr) {
     const headerIds = new Set();
     tableElement.querySelectorAll('th[id]').forEach(th => headerIds.add(th.id));
-    
+
     tableElement.querySelectorAll('td[headers]').forEach(td => {
       const headersList = td.getAttribute('headers').split(/\s+/);
       headersList.forEach(id => {
@@ -573,28 +573,28 @@ function validateTableStructure(tableElement) {
  */
 function validateLandmark(element) {
   const issues = [];
-  
+
   if (!element) {
     issues.push('Element is required');
     return issues;
   }
 
   const landmarkRoles = [
-    'banner', 'complementary', 'contentinfo', 'form', 
+    'banner', 'complementary', 'contentinfo', 'form',
     'main', 'navigation', 'region', 'search'
   ];
 
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
-  
+
   // Check if element is a landmark
-  const isLandmark = landmarkRoles.includes(role) || 
-    (tagName === 'main') || 
-    (tagName === 'nav') || 
-    (tagName === 'aside') || 
-    (tagName === 'header') || 
-    (tagName === 'footer') || 
-    (tagName === 'form') || 
+  const isLandmark = landmarkRoles.includes(role) ||
+    (tagName === 'main') ||
+    (tagName === 'nav') ||
+    (tagName === 'aside') ||
+    (tagName === 'header') ||
+    (tagName === 'footer') ||
+    (tagName === 'form') ||
     (tagName === 'section' && element.hasAttribute('aria-label')) ||
     (tagName === 'section' && element.hasAttribute('aria-labelledby'));
 
@@ -627,7 +627,7 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure() {
   const issues = [];
-  
+
   // Check for main landmark
   const mainLandmarks = document.querySelectorAll('main, [role="main"]');
   if (mainLandmarks.length === 0) {
@@ -715,7 +715,7 @@ function getSvgAccessibleName(svgElement) {
  */
 function createInPageButton(options) {
   const { text, onClick, ariaLabel, className = '' } = options;
-  
+
   if (!text || typeof onClick !== 'function') {
     throw new Error('Button text and onClick handler are required');
   }
@@ -724,13 +724,13 @@ function createInPageButton(options) {
   button.type = 'button';
   button.textContent = text;
   button.className = className;
-  
+
   if (ariaLabel) {
     button.setAttribute('aria-label', ariaLabel);
   }
-  
+
   button.addEventListener('click', onClick);
-  
+
   // Add keyboard support
   button.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -738,7 +738,7 @@ function createInPageButton(options) {
       onClick(e);
     }
   });
-  
+
   return button;
 }
 
@@ -753,7 +753,7 @@ function createInPageButton(options) {
  */
 function createWebResourceButton(options) {
   const { text, url, icon, className = '' } = options;
-  
+
   if (!text || !url) {
     throw new Error('Button text and URL are required');
   }
@@ -764,15 +764,15 @@ function createWebResourceButton(options) {
   button.rel = 'noopener noreferrer';
   button.textContent = text;
   button.className = `web-resource-button ${className}`;
-  
+
   if (icon) {
     button.innerHTML = `${icon}<span>${text}</span>`;
   }
-  
+
   // Add accessibility attributes
   button.setAttribute('aria-label', `${text} (opens in new window)`);
   button.setAttribute('role', 'button');
-  
+
   return button;
 }
 
@@ -783,7 +783,7 @@ function createWebResourceButton(options) {
  */
 function validateAccessibilityReport(report) {
   const issues = [];
-  
+
   if (!report) {
     issues.push({ severity: 'error', description: 'No report provided' });
     return issues;
@@ -840,14 +840,14 @@ function addressAccessibilityIssues(issues) {
 function ensureUniqueLandmarks() {
   const warnings = [];
   const landmarkTypes = ['main', 'banner', 'navigation', 'aside', 'footer'];
-  
+
   landmarkTypes.forEach(type => {
     const elements = document.querySelectorAll(`${type}, [role="${type}"]`);
     if (elements.length > 1) {
       warnings.push(`Multiple ${type} landmarks found - should be unique`);
     }
   });
-  
+
   return warnings;
 }
 
@@ -893,7 +893,7 @@ function transformInputData(inputData, options = {}) {
   if (typeof inputData === 'object' && !Array.isArray(inputData) && inputData !== null) {
     const result = {};
     const keys = preserveKeys ? Object.keys(inputData) : Object.keys(inputData).map(() => Math.random().toString(36).substr(2, 9));
-    
+
     let i = 0;
     for (const key of Object.keys(inputData)) {
       const value = inputData[key];
@@ -922,12 +922,96 @@ function transformInputData(inputData, options = {}) {
 // Export the newFocusTrap function as a standalone utility
 const newFocusTrap = accessibilityUtils.newFocusTrap;
 
+// New functions for the issue
+/**
+ * Ensures an element has an ID, generating one if needed
+ * @param {HTMLElement} element - The element to check
+ * @param {string} [prefix='element'] - Prefix for generated ID
+ * @returns {string} The element's ID
+ */
+function ensureElementHasIdNew(element, prefix = 'element') {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+
+  if (element.id) {
+    return element.id;
+  }
+
+  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  element.id = id;
+  return id;
+}
+
+/**
+ * Adds an aria-label to an element
+ * @param {HTMLElement} element - The element to modify
+ * @param {string} label - The accessible label
+ * @returns {HTMLElement} The modified element
+ */
+function addAriaLabelNew(element, label) {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+
+  if (!label || typeof label !== 'string') {
+    throw new Error('Valid label string is required');
+  }
+
+  element.setAttribute('aria-label', label);
+  return element;
+}
+
+/**
+ * Renders dependency graphs in the DOM
+ * @param {Object} graphData - Data for the dependency graph
+ * @param {HTMLElement} container - Container element to render into
+ * @returns {HTMLElement} The rendered graph element
+ */
+function renderDependencyGraphsNew(graphData, container) {
+  if (!graphData || !container) {
+    throw new Error('Graph data and container are required');
+  }
+
+  // Create graph container
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'dependency-graph';
+  graphContainer.setAttribute('role', 'region');
+  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+
+  // Create nodes
+  if (graphData.nodes) {
+    graphData.nodes.forEach(node => {
+      const nodeElement = document.createElement('div');
+      nodeElement.className = 'graph-node';
+      nodeElement.id = node.id || `node-${Math.random().toString(36).substr(2, 9)}`;
+      nodeElement.textContent = node.label || 'Unnamed Node';
+      nodeElement.setAttribute('aria-label', `Node: ${node.label || 'Unnamed'}`);
+      graphContainer.appendChild(nodeElement);
+    });
+  }
+
+  // Create edges
+  if (graphData.edges) {
+    graphData.edges.forEach(edge => {
+      const edgeElement = document.createElement('div');
+      edgeElement.className = 'graph-edge';
+      edgeElement.setAttribute('aria-hidden', 'true');
+      // In a real implementation, you would position these elements to connect nodes
+      graphContainer.appendChild(edgeElement);
+    });
+  }
+
+  container.appendChild(graphContainer);
+  return graphContainer;
+}
+
 // Export all utilities
 module.exports = {
   ...main,
   ...accessibilityUtils,
   ensureElementId,
-  ensureElementHasId,
+  ensureElementHasId: ensureElementHasIdNew,
   newFocusTrap,
   log,
   sanitizeFilename,
@@ -949,10 +1033,17 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createWebResourceButton,
-  getTables,
-  getConfig,
-  setConfig,
-  addAccessibleName,
-  renderAdditionalContent,
-  renderDependencyGraphs
+  addAriaLabel: addAriaLabelNew,
+  renderDependencyGraphs: renderDependencyGraphsNew,
+  // Existing functions with renamed versions
+  ensureElementHasIdOrigin,
+  addAriaLabelOrigin,
+  renderDependencyGraphOrigin,
+  handleCredentialResponseOrigin,
+  // Other existing exports
+  calculateSum,
+  exportUtils,
+  ensureUniqueLandmarks,
+  addressAccessibilityIssues,
+  validateAccessibilityReport
 };

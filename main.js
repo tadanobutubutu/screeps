@@ -325,8 +325,6 @@ function addressAccessibilityIssues() {
   // For example, you might want to update the DOM or call other functions
 }
 
-// Don't forget to test your new additions in the test file
-
 // Export accessibility utility functions
 export {
   getLangAttribute,

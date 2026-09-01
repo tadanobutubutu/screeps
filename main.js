@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Existing code from main.js (to be preserved)
 // ... (existing code) ...
 
@@ -145,6 +142,3 @@ addAccessibleNamesToSVGs();
 fixFakeLinkIssue();
 googleSignIn();
 fixButtonIdentifiers();
-```
-
-This resolved file preserves the functions and other code from both branches, resolving the merge conflict by combining the functions from both sides while keeping the existing data processing functions and initialization methods.

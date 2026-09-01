@@ -30,7 +30,16 @@ function addAriaLabel(element, label) {
   element.setAttribute('aria-label', label);
 }
 
-// TODO: Add exports for new functions if needed
+// New function added to visualize dependencies
+function visualizeDependencies(dependencies) {
+  // Implementation for visualizing dependencies
+  console.log('Visualizing dependencies:', dependencies);
+}
 
-// Existing export
-export { existingFunction, ensureAccessibleAttributes, makeFocusable, addAriaLabel };
+// New function added to analyze dependency graph
+function analyzeDependencyGraph(graph) {
+  // Implementation for analyzing dependency graph
+  console.log('Analyzing dependency graph:', graph);
+}
+
+export { existingFunction, ensureAccessibleAttributes, makeFocusable, addAriaLabel, visualizeDependencies, analyzeDependencyGraph };

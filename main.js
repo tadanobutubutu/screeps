@@ -49,7 +49,7 @@ const a11yStore = {
         if (landmark.id === '') {
           landmark.id = `${element}-${index}`;
         }
-        
+
         if (landmarks.length > 1) {
           if (!landmark.getAttribute('aria-label')) {
             landmark.setAttribute('aria-label', `${element} ${index + 1}`);
@@ -68,13 +68,13 @@ const a11yStore = {
         titleElement.textContent = 'Image';
         svg.insertBefore(titleElement, svg.firstChild);
       }
-      
+
       if (!titleElement.id) {
         titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
       }
-      
+
       svg.setAttribute('aria-labelledby', titleElement.id);
-      
+
       if (!svg.getAttribute('role')) {
         svg.setAttribute('role', 'img');
       }
@@ -100,7 +100,7 @@ const a11yStore = {
     // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
   },
 
-  newFunction() {
+  newFunctionFromOrigin() {
     // New function implementation from origin/main
   }
 };
@@ -108,20 +108,20 @@ const a11yStore = {
 function getSvgAccessibleName(svg) {
   const title = svg.querySelector('title');
   const desc = svg.querySelector('desc');
-  
+
   if (title && title.textContent) {
     return title.textContent.trim();
   }
-  
+
   if (desc && desc.textContent) {
     return desc.textContent.trim();
   }
-  
+
   const ariaLabel = svg.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel.trim();
   }
-  
+
   const ariaLabelledby = svg.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
     const labeledElement = document.getElementById(ariaLabelledby);
@@ -129,7 +129,7 @@ function getSvgAccessibleName(svg) {
       return labeledElement.textContent.trim();
     }
   }
-  
+
   return 'SVG graphic';
 }
 

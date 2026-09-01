@@ -44,11 +44,17 @@ function mergeResults(primary, secondary) {
   return { ...primary, ...secondary };
 }
 
+// TODO: This is the existing code that needs to be preserved
+function newFunction() {
+  // Implementation for the new function
+}
+
 module.exports = {
   processData,
   calculateTotal,
   formatResponse,
   validateInput,
   transformData,
-  mergeResults
+  mergeResults,
+  newFunction
 };

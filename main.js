@@ -1,3 +1,6 @@
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice
+
 const landmarkSelectors = [
   'main',
   '[role="main"]',

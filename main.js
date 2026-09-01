@@ -247,15 +247,15 @@ function countDependencies(dependencies) {
   if (!dependencies) {
     return 0;
   }
-  
+
   if (Array.isArray(dependencies)) {
     return dependencies.length;
   }
-  
+
   if (typeof dependencies === 'object') {
     return Object.keys(dependencies).length;
   }
-  
+
   return 0;
 }
 
@@ -281,17 +281,17 @@ function add(a, b) {
 }
 
 // Export existing functionality and new functions
-export { 
-  initialize, 
-  getConfig, 
-  setupSkipLinks, 
-  setupButtonAccessibility, 
-  createInPageButton, 
-  performTask, 
-  handleEvent, 
-  greet, 
-  add, 
-  calculateDiscount, 
+export {
+  initialize,
+  getConfig,
+  setupSkipLinks,
+  setupButtonAccessibility,
+  createInPageButton,
+  performTask,
+  handleEvent,
+  greet,
+  add,
+  calculateDiscount,
   newFunction,
   countDependencies
 };
@@ -307,3 +307,7 @@ if (typeof document !== 'undefined') {
     initialize();
   }
 }
+
+// TODO: This is the existing code that needs to be preserved
+// ----- END ORIGINAL CODE (unchanged) -----
+// (This comment remains as-is)

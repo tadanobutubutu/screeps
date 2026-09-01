@@ -20,11 +20,11 @@ function ensureElementHasId(element, prefix = 'element') {
   if (!element) {
     return null;
   }
-  
+
   if (!element.id) {
     element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   }
-  
+
   return element.id;
 }
 
@@ -38,11 +38,11 @@ function addAriaLabel(element, label) {
   if (!element) {
     return null;
   }
-  
+
   if (typeof label !== 'string' || label.trim() === '') {
     return element;
   }
-  
+
   element.setAttribute('aria-label', label);
   return element;
 }
@@ -58,10 +58,10 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
   if (!element) {
     return null;
   }
-  
+
   const id = ensureElementHasId(element, idPrefix);
   addAriaLabel(element, ariaLabel);
-  
+
   return id;
 }
 
@@ -72,7 +72,7 @@ function renderDependencyGraph() {
   if (container) {
     container.setAttribute('role', 'region');
     container.setAttribute('aria-label', 'Dependency graph visualization');
-    
+
     // Ensure the container has an id for accessibility
     ensureElementHasId(container, 'dep-graph');
   }
@@ -82,7 +82,7 @@ function renderDependencyGraph() {
 
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, checkAccessibility, getLangAttribute: getLangAttributeImpl, createInPageButton: createInPageButtonImpl, validateTableAccessibility: validateTableAccessibilityImpl, validateTableStructure: validateTableStructureImpl, getSvgAccessibleName: getSvgAccessibleNameImpl, setSvgAttributes: setSvgAttributesImpl, ensureUniqueLandmarks: ensureUniqueLandmarksImpl, validateLinkAccessibility: validateLinkAccessibilityImpl, handleFakeLinks: handleFakeLinksImpl, addProperLandmarkRegions: addProperLandmarkRegionsImpl, checkFocusOrder: checkFocusOrderImpl, enhanceTableNavigation: enhanceTableNavigationImpl, improveContrast: improveContrastImpl, newFunction } = main;
+const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasIdOrigin, addAriaLabel: addAriaLabelOrigin, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, checkAccessibility, getLangAttribute: getLangAttributeImpl, createInPageButton: createInPageButtonImpl, validateTableAccessibility: validateTableAccessibilityImpl, validateTableStructure: validateTableStructureImpl, getSvgAccessibleName: getSvgAccessibleNameImpl, setSvgAttributes: setSvgAttributesImpl, ensureUniqueLandmarks: ensureUniqueLandmarksImpl, validateLinkAccessibility: validateLinkAccessibilityImpl, handleFakeLinks: handleFakeLinksImpl, addProperLandmarkRegions: addProperLandmarkRegionsImpl, checkFocusOrder: checkFocusOrderImpl, enhanceTableNavigation: enhanceTableNavigationImpl, improveContrast: improveContrastImpl } = main;
 
 // Implement the function for addressing accessibility issues from insight report
 function newFunction() {
@@ -122,12 +122,61 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
 }
 
 /**
- * Adds/fixes landmark issues in the document.
+ * Validates the landmark structure for accessibility issues.
+ * Checks for proper landmark hierarchy and ensures all required landmarks are present.
+ * @returns {Object} An object containing validation results and any fixes applied
  */
 function validateLandmarkStructure() {
-  // Assuming there is a function to check the structure of landmarks in the document
-  // These functions are not provided in the sample code, so the actual implementation is left as a placeholder
-  // Example usage: validateAllLandmarks();
+  const results = {
+    valid: true,
+    issues: [],
+    fixes: []
+  };
+
+  // Check for required landmarks
+  const requiredLandmarks = ['header', 'main', 'footer'];
+  const existingLandmarks = document.querySelectorAll('[role="banner"], [role="main"], [role="contentinfo"]');
+
+  requiredLandmarks.forEach(landmark => {
+    const exists = Array.from(existingLandmarks).some(el =>
+      el.getAttribute('role') === landmark ||
+      el.tagName.toLowerCase() === landmark
+    );
+
+    if (!exists) {
+      results.valid = false;
+      results.issues.push(`Missing required landmark: ${landmark}`);
+    }
+  });
+
+  // Check landmark hierarchy
+  const main = document.querySelector('[role="main"]');
+  if (main && !main.closest('body')) {
+    results.valid = false;
+    results.issues.push('Main landmark is not properly nested within the document body');
+  }
+
+  // Fix issues if needed
+  if (!results.valid) {
+    // Add missing main landmark if needed
+    if (!document.querySelector('[role="main"]')) {
+      const mainElement = document.createElement('main');
+      mainElement.setAttribute('role', 'main');
+      document.body.appendChild(mainElement);
+      results.fixes.push('Added missing main landmark');
+    }
+
+    // Ensure proper hierarchy
+    const bodyChildren = Array.from(document.body.children);
+    bodyChildren.forEach(child => {
+      if (child.tagName.toLowerCase() === 'main' && !child.getAttribute('role')) {
+        child.setAttribute('role', 'main');
+        results.fixes.push('Added role="main" to existing main element');
+      }
+    });
+  }
+
+  return results;
 }
 
 function validateLandmarkAttributes() {
@@ -240,10 +289,10 @@ class ScreepsBot {
   async start() {
     // Initialize network connection
     await this.network.connect();
-    
+
     // Load initial data
     await this.loadData();
-    
+
     console.log('Screenspider bot started');
   }
 
@@ -333,5 +382,3 @@ module.exports = {
   ScreepsBot,
   updateUI
 };
-
-// Your new function or changes requested in the issue go here

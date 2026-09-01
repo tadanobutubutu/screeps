@@ -183,7 +183,8 @@ if (typeof module !== 'undefined' && module.exports) {
     ensureElementHasId,
     addAriaLabel,
     renderDependencyGraph,
-    handleCredentialResponse
+    handleCredentialResponse,
+    checkLandmarkElements
   };
 } else {
   // Browser environment - wait for DOM
@@ -303,6 +304,19 @@ function ensureUniqueLandmarks() {
       footer.setAttribute('role', 'contentinfo');
     }
   });
+}
+
+/**
+ * Checks for the presence of landmark elements in the document
+ * @returns {Object} An object with boolean flags for each landmark type
+ */
+function checkLandmarkElements() {
+  const landmarkTags = ['main', 'header', 'footer', 'nav', 'aside', 'section', 'article'];
+  const result = {};
+  for (const tag of landmarkTags) {
+    result[tag] = document.querySelector(tag) !== null;
+  }
+  return result;
 }
 
 // ... (Existing common functions are omitted for brevity)

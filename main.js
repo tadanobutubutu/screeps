@@ -1,6 +1,6 @@
 // ... (existing import, const, let, or var declarations)
 
-function renderFunction1() {
+async function renderFunction1() {
   // Existing functionality
 
   // Add the imported modules to function1 as needed
@@ -11,7 +11,7 @@ function renderFunction1() {
   // ... (remaining function1 logic)
 }
 
-function renderFunction2() {
+async function renderFunction2() {
   // Existing functionality
 
   // Add the imported modules to function2 as needed
@@ -290,4 +290,68 @@ function setLanguageAttribute() {
     htmlElement.setAttribute('lang', 'en');
   }
   return htmlElement ? htmlElement.getAttribute('lang') : null;
+}
+
+// TODO: Implement spawning logic
+function spawnCreep(spawn, creepName, bodyParts, memory) {
+  if (!spawn || !spawn.spawnCreep) {
+    throw new Error('Invalid spawn object');
+  }
+
+  if (!Array.isArray(bodyParts) || bodyParts.length === 0) {
+    throw new Error('Body parts must be a non-empty array');
+  }
+
+  if (!memory || typeof memory !== 'object') {
+    memory = {};
+  }
+
+  return spawn.spawnCreep(bodyParts, creepName, {
+    memory: memory
+  });
+}
+
+// Helper function to get available energy for spawning
+function getAvailableEnergy(spawn) {
+  if (!spawn || !spawn.room) {
+    return 0;
+  }
+  return spawn.room.energyAvailable;
+}
+
+// Function to calculate optimal body parts based on available energy
+function calculateOptimalBodyParts(energy, role) {
+  const bodyParts = [];
+  const energyPerPart = {
+    move: 50,
+    work: 100,
+    carry: 50,
+    attack: 80,
+    ranged_attack: 150,
+    heal: 250,
+    claim: 600,
+    tough: 10
+  };
+
+  const roleParts = {
+    harvester: ['work', 'carry', 'move'],
+    builder: ['work', 'carry', 'move'],
+    upgrader: ['work', 'carry', 'move'],
+    warrior: ['attack', 'move', 'tough'],
+    healer: ['heal', 'move']
+  };
+
+  const parts = roleParts[role] || ['work', 'carry', 'move'];
+  let remainingEnergy = energy;
+
+  while (remainingEnergy >= 50) {
+    for (const part of parts) {
+      if (remainingEnergy >= energyPerPart[part]) {
+        bodyParts.push(part);
+        remainingEnergy -= energyPerPart[part];
+      }
+    }
+  }
+
+  return bodyParts;
 }

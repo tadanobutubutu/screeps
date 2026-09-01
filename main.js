@@ -115,42 +115,42 @@ function validateTableAccessibility(table) {
   // This function validates the accessibility of tables
   // Check for proper table headers with scope attributes
   const errors = [];
-  
+
   if (!table) {
     return { valid: false, errors: ['Table element is required'] };
   }
-  
+
   const headers = table.querySelectorAll('th');
   headers.forEach((th, index) => {
     if (!th.hasAttribute('scope')) {
       errors.push(`Table header at index ${index} is missing scope attribute`);
     }
   });
-  
+
   // Check if table has a caption or is properly described
   const hasCaption = table.querySelector('caption');
   const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby');
-  
+
   if (!hasCaption && !hasAriaLabel) {
     errors.push('Table is missing a caption or aria-label/aria-labelledby');
   }
-  
+
   return { valid: errors.length === 0, errors };
 }
 
 function validateTableStructure(table) {
   // This function validates the structure of tables
   const errors = [];
-  
+
   if (!table) {
     return { valid: false, errors: ['Table element is required'] };
   }
-  
+
   // Check for proper table structure
   const tbody = table.querySelector('tbody');
   const thead = table.querySelector('thead');
   const tfoot = table.querySelector('tfoot');
-  
+
   // Check for thead and tbody presence
   if (!thead) {
     errors.push('Table is missing thead element');
@@ -158,7 +158,7 @@ function validateTableStructure(table) {
   if (!tbody) {
     errors.push('Table is missing tbody element');
   }
-  
+
   // Check for consistent column counts in tbody
   const rows = table.querySelectorAll('tbody tr');
   let expectedCols = null;
@@ -170,7 +170,7 @@ function validateTableStructure(table) {
       errors.push(`Row ${rowIndex} has inconsistent cell count: expected ${expectedCols}, got ${cells.length}`);
     }
   });
-  
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -179,59 +179,59 @@ function validateLandmark(element) {
   // This function validates landmarks
   const errors = [];
   const allowedLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
-  
+
   if (!element) {
     return { valid: false, errors: ['Element is required'] };
   }
-  
+
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
-  
+
   // Check if element has valid landmark role
   if (role && !allowedLandmarks.includes(role)) {
     errors.push(`Invalid landmark role: ${role}`);
   }
-  
+
   // Check if landmark has accessible name when required
   const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary'];
   if (role && landmarksNeedingNames.includes(role)) {
-    const hasLabel = element.getAttribute('aria-label') || 
+    const hasLabel = element.getAttribute('aria-label') ||
                      element.getAttribute('aria-labelledby') ||
                      element.querySelector('h1, h2, h3, h4, h5, h6');
     if (!hasLabel) {
       errors.push(`Landmark role "${role}" is missing accessible name`);
     }
   }
-  
+
   return { valid: errors.length === 0, errors };
 }
 
 function validateLandmarkStructure() {
   // This function validates the structure of landmarks
   const errors = [];
-  
+
   if (typeof document === 'undefined') {
     return { valid: false, errors: ['Document not available'] };
   }
-  
+
   // Check for multiple main landmarks
   const mainLandmarks = document.querySelectorAll('[role="main"], main');
   if (mainLandmarks.length > 1) {
     errors.push(`Found ${mainLandmarks.length} main landmarks, should have only 1`);
   }
-  
+
   // Check for multiple banner landmarks
   const bannerLandmarks = document.querySelectorAll('[role="banner"], header');
   if (bannerLandmarks.length > 1) {
     errors.push(`Found ${bannerLandmarks.length} banner landmarks, should have only 1`);
   }
-  
+
   // Check for contentinfo (footer) landmarks
   const footerLandmarks = document.querySelectorAll('[role="contentinfo"], footer');
   if (footerLandmarks.length > 1) {
     errors.push(`Found ${footerLandmarks.length} contentinfo landmarks, should have only 1`);
   }
-  
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -241,13 +241,13 @@ function getSvgAccessibleName(svg) {
   if (!svg) {
     return '';
   }
-  
+
   // Check for aria-label attribute
   const ariaLabel = svg.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel;
   }
-  
+
   // Check for aria-labelledby reference
   const ariaLabelledby = svg.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
@@ -256,13 +256,13 @@ function getSvgAccessibleName(svg) {
       return labelElement.textContent || '';
     }
   }
-  
+
   // Check for title element inside SVG
   const title = svg.querySelector('title');
   if (title) {
     return title.textContent || '';
   }
-  
+
   // Check for adjacent description
   const id = svg.getAttribute('id');
   if (id) {
@@ -271,7 +271,7 @@ function getSvgAccessibleName(svg) {
       return describedBy.textContent || '';
     }
   }
-  
+
   return '';
 }
 
@@ -279,25 +279,25 @@ function getSvgAccessibleName(svg) {
 function ensureUniqueLandmarks() {
   // This function ensures that landmarks are unique
   const errors = [];
-  
+
   if (typeof document === 'undefined') {
     return { valid: false, errors: ['Document not available'] };
   }
-  
+
   // Define unique landmarks that should only appear once
   const uniqueLandmarks = ['main', 'banner', 'contentinfo'];
   const uniqueRoleSelectors = ['[role="main"]', '[role="banner"]', '[role="contentinfo"]'];
-  
+
   uniqueLandmarks.forEach((landmark, index) => {
     const elements = document.querySelectorAll(uniqueRoleSelectors[index]);
     const tagElements = document.querySelectorAll(landmark);
     const totalCount = elements.length + tagElements.length;
-    
+
     if (totalCount > 1) {
       errors.push(`Found ${totalCount} instances of "${landmark}" landmark, should have only 1`);
     }
   });
-  
+
   // Check for landmark IDs that should be unique
   const landmarksWithIds = document.querySelectorAll('[role][id]');
   const ids = new Set();
@@ -308,29 +308,29 @@ function ensureUniqueLandmarks() {
     }
     ids.add(id);
   });
-  
+
   return { valid: errors.length === 0, errors };
 }
 
 // New function to address REACT_036: Fix 1 fake link issue
 function createAccessibleLink(href, text, options = {}) {
   // This function creates an accessible link
-  const { 
-    onClick, 
+  const {
+    onClick,
     role = 'link',
     ariaLabel,
     className,
     target,
-    rel 
+    rel
   } = options;
-  
+
   if (!href && !onClick) {
     return null;
   }
-  
+
   const link = document.createElement('a');
   link.textContent = text;
-  
+
   if (href) {
     link.href = href;
     // Add rel="noopener noreferrer" for external links
@@ -349,23 +349,23 @@ function createAccessibleLink(href, text, options = {}) {
       }
     });
   }
-  
+
   if (target) {
     link.target = target;
   }
-  
+
   if (className) {
     link.className = className;
   }
-  
+
   if (ariaLabel) {
     link.setAttribute('aria-label', ariaLabel);
   }
-  
+
   if (role && role !== 'link') {
     link.setAttribute('role', role);
   }
-  
+
   return link;
 }
 
@@ -376,17 +376,17 @@ function createAccessibleLink(href, text, options = {}) {
  */
 function isLinkAccessible(link) {
   const errors = [];
-  
+
   if (!link) {
     return { valid: false, errors: ['Link element is required'] };
   }
-  
+
   // Check if it's an anchor element
   if (link.tagName !== 'A') {
     errors.push('Element is not an anchor tag');
     return { valid: false, errors };
   }
-  
+
   // Check for href attribute
   const href = link.getAttribute('href');
   if (!href || href === '#' || href === '') {
@@ -400,17 +400,17 @@ function isLinkAccessible(link) {
       errors.push('Fake link missing click handler');
     }
   }
-  
+
   // Check for accessible name
   const textContent = link.textContent ? link.textContent.trim() : '';
   const ariaLabel = link.getAttribute('aria-label');
   const ariaLabelledby = link.getAttribute('aria-labelledby');
   const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
-  
+
   if (!hasAccessibleName) {
     errors.push('Link is missing accessible name (text content, aria-label, or aria-labelledby)');
   }
-  
+
   // Check for valid href if present
   if (href && href !== '#') {
     // Check for javascript: links
@@ -422,7 +422,7 @@ function isLinkAccessible(link) {
       errors.push('Mailto link may need aria-label for clarity');
     }
   }
-  
+
   // Check target="_blank" has rel="noopener noreferrer"
   if (link.getAttribute('target') === '_blank') {
     const rel = link.getAttribute('rel');
@@ -430,13 +430,13 @@ function isLinkAccessible(link) {
       errors.push('External link with target="_blank" missing rel="noopener noreferrer"');
     }
   }
-  
+
   // Check for redundant title attribute
   const title = link.getAttribute('title');
   if (title && title === textContent) {
     errors.push('Link title attribute duplicates link text');
   }
-  
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -454,6 +454,217 @@ function createInPageButton(parent = document.body) {
   return btn;
 }
 
+// New function to address REACT_041: Add accessible names to SVGs
+function ensureSvgAccessibility(svg) {
+  const errors = [];
+
+  if (!svg) {
+    return { valid: false, errors: ['SVG element is required'] };
+  }
+
+  // Check for accessible name
+  const accessibleName = getSvgAccessibleName(svg);
+  if (!accessibleName) {
+    errors.push('SVG is missing accessible name (aria-label, aria-labelledby, or title element)');
+  }
+
+  // Check for decorative SVGs
+  const isDecorative = svg.getAttribute('aria-hidden') === 'true';
+  if (!isDecorative && !accessibleName) {
+    errors.push('Non-decorative SVG is missing accessible name');
+  }
+
+  // Check for redundant title elements
+  const title = svg.querySelector('title');
+  if (title && !accessibleName) {
+    errors.push('SVG has title element but no accessible name');
+  }
+
+  // Check for proper focus management
+  const focusable = svg.getAttribute('tabindex');
+  if (focusable && !accessibleName) {
+    errors.push('Focusable SVG is missing accessible name');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_017: Add/fix landmark issues
+function ensureLandmarkAccessibility() {
+  const errors = [];
+
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+
+  // Check for required landmarks
+  const requiredLandmarks = ['banner', 'main', 'contentinfo'];
+  requiredLandmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`);
+    if (elements.length === 0) {
+      errors.push(`Missing required landmark: ${landmark}`);
+    }
+  });
+
+  // Check for proper landmark hierarchy
+  const main = document.querySelector('[role="main"], main');
+  if (main) {
+    const parent = main.parentElement;
+    if (parent && parent.getAttribute('role') === 'main') {
+      errors.push('Nested main landmarks are not allowed');
+    }
+  }
+
+  // Check for landmark roles on non-semantic elements
+  const landmarkElements = document.querySelectorAll('[role]');
+  landmarkElements.forEach(el => {
+    const role = el.getAttribute('role');
+    if (['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'].includes(role)) {
+      const tagName = el.tagName.toLowerCase();
+      const allowedTags = {
+        banner: ['header', 'div', 'section'],
+        navigation: ['nav', 'div', 'section'],
+        main: ['main', 'div', 'section'],
+        complementary: ['aside', 'div', 'section'],
+        contentinfo: ['footer', 'div', 'section'],
+        search: ['div', 'section'],
+        form: ['form', 'div', 'section'],
+        region: ['div', 'section']
+      };
+
+      if (!allowedTags[role].includes(tagName)) {
+        errors.push(`Landmark role "${role}" should not be used on <${tagName}> element`);
+      }
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_027: Fix table structure issues
+function ensureTableAccessibility(table) {
+  const errors = [];
+
+  if (!table) {
+    return { valid: false, errors: ['Table element is required'] };
+  }
+
+  // Check for proper table structure
+  const structureValidation = validateTableStructure(table);
+  if (!structureValidation.valid) {
+    errors.push(...structureValidation.errors);
+  }
+
+  // Check for accessibility features
+  const accessibilityValidation = validateTableAccessibility(table);
+  if (!accessibilityValidation.valid) {
+    errors.push(...accessibilityValidation.errors);
+  }
+
+  // Check for data tables vs presentation tables
+  const isDataTable = table.getAttribute('role') === 'table' ||
+                      table.querySelector('th') !== null ||
+                      table.getAttribute('summary') !== null;
+
+  if (isDataTable) {
+    // Check for proper table headers
+    const headers = table.querySelectorAll('th');
+    headers.forEach((th, index) => {
+      if (!th.hasAttribute('scope') && !th.hasAttribute('id')) {
+        errors.push(`Data table header at index ${index} is missing scope or id attribute`);
+      }
+    });
+
+    // Check for proper cell associations
+    const cells = table.querySelectorAll('td');
+    cells.forEach((td, index) => {
+      if (!td.hasAttribute('headers') && !td.closest('tr').querySelector('th')) {
+        errors.push(`Data table cell at index ${index} is not properly associated with a header`);
+      }
+    });
+  } else {
+    // Check for presentation tables
+    const role = table.getAttribute('role');
+    if (role !== 'presentation') {
+      errors.push('Presentation table should have role="presentation"');
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_036: Fix fake link issues
+function ensureLinkAccessibility(link) {
+  const errors = [];
+
+  if (!link) {
+    return { valid: false, errors: ['Link element is required'] };
+  }
+
+  // Check if it's an anchor element
+  if (link.tagName !== 'A') {
+    errors.push('Element is not an anchor tag');
+    return { valid: false, errors };
+  }
+
+  // Check for href attribute
+  const href = link.getAttribute('href');
+  if (!href || href === '#' || href === '') {
+    // If no href, check if it's properly set up as a button
+    const role = link.getAttribute('role');
+    if (role !== 'button') {
+      errors.push('Link missing href attribute and not configured as a button');
+    }
+    // Check for click handler
+    if (!link.onclick && !link.hasAttribute('data-handler')) {
+      errors.push('Fake link missing click handler');
+    }
+  }
+
+  // Check for accessible name
+  const textContent = link.textContent ? link.textContent.trim() : '';
+  const ariaLabel = link.getAttribute('aria-label');
+  const ariaLabelledby = link.getAttribute('aria-labelledby');
+  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
+
+  if (!hasAccessibleName) {
+    errors.push('Link is missing accessible name (text content, aria-label, or aria-labelledby)');
+  }
+
+  // Check for valid href if present
+  if (href && href !== '#') {
+    // Check for javascript: links
+    if (href.toLowerCase().startsWith('javascript:')) {
+      errors.push('Link uses javascript: protocol which is not accessible');
+    }
+    // Check for mailto: links without proper labeling
+    if (href.toLowerCase().startsWith('mailto:') && !ariaLabel && !textContent.includes('@')) {
+      errors.push('Mailto link may need aria-label for clarity');
+    }
+  }
+
+  // Check target="_blank" has rel="noopener noreferrer"
+  if (link.getAttribute('target') === '_blank') {
+    const rel = link.getAttribute('rel');
+    if (!rel || !rel.includes('noopener') || !rel.includes('noreferrer')) {
+      errors.push('External link with target="_blank" missing rel="noopener noreferrer"');
+    }
+  }
+
+  // Check for redundant title attribute
+  const title = link.getAttribute('title');
+  if (title && title === textContent) {
+    errors.push('Link title attribute duplicates link text');
+  }
+
+  // Check for proper link text
+  if (textContent && textContent.length < 3) {
+    errors.push('Link text is too short and may not be descriptive');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
 // TODO: Implement tower defense
 function towerDefense() {
   // A simple tower defense game implementation
@@ -461,7 +672,7 @@ function towerDefense() {
   const towers = [];
   const enemies = [];
   let wave = 1;
-  
+
   // Example: Tower constructor
   function Tower(x, y, range, damage, rate) {
     this.x = x;
@@ -471,7 +682,7 @@ function towerDefense() {
     this.rate = rate;
     this.lastShot = 0;
   }
-  
+
   // Example: Enemy constructor
   function Enemy(x, y, health, speed) {
     this.x = x;
@@ -479,23 +690,23 @@ function towerDefense() {
     this.health = health;
     this.speed = speed;
   }
-  
+
   // Add a tower
   function addTower(x, y, range, damage, rate) {
     towers.push(new Tower(x, y, range, damage, rate));
   }
-  
+
   // Add an enemy
   function addEnemy(x, y, health, speed) {
     enemies.push(new Enemy(x, y, health, speed));
   }
-  
+
   // Update game state (simplified)
   function update() {
     // Logic for enemy movement, tower shooting, etc.
     console.log(`Wave ${wave} - updating game state`);
   }
-  
+
   // Start the game
   function start() {
     console.log('Tower defense game started');
@@ -504,7 +715,7 @@ function towerDefense() {
     addEnemy(0, 50, 100, 2);
     // Game loop would be here
   }
-  
+
   // Expose game functions
   return {
     start,
@@ -538,7 +749,11 @@ module.exports = {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
+  ensureSvgAccessibility,
   ensureUniqueLandmarks,
+  ensureLandmarkAccessibility,
+  ensureTableAccessibility,
+  ensureLinkAccessibility,
   createAccessibleLink,
   isLinkAccessible,
   towerDefense

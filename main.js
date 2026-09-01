@@ -38,10 +38,61 @@
 
     // New function3 logic
     function function3() {
-      // TODO: Implement new function3 logic here
-      // Example implementation:
-      console.log('Function3 is running.');
-      // Add your implementation details here.
+      // Implementation of function3
+      // This function will handle accessibility checks and improvements
+      try {
+        // Check if the dependency graph element exists
+        if (dependencyGraph) {
+          // Ensure proper ARIA attributes
+          if (!dependencyGraph.hasAttribute('role')) {
+            dependencyGraph.setAttribute('role', 'region');
+          }
+          if (!dependencyGraph.hasAttribute('aria-label')) {
+            dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
+          }
+
+          // Log the status of the dependency graph
+          console.log('Dependency graph accessibility enhanced:', {
+            role: dependencyGraph.getAttribute('role'),
+            ariaLabel: dependencyGraph.getAttribute('aria-label')
+          });
+        }
+
+        // Perform additional accessibility checks
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+          if (!button.hasAttribute('role')) {
+            button.setAttribute('role', 'button');
+          }
+          if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
+            button.setAttribute('aria-label', 'Button');
+          }
+        });
+
+        // Check for landmarks
+        const landmarks = ['main', 'nav', 'aside', 'footer', 'header'];
+        landmarks.forEach(landmark => {
+          const elements = document.querySelectorAll(`[role="${landmark}"]`);
+          elements.forEach(element => {
+            if (!element.hasAttribute('aria-label')) {
+              element.setAttribute('aria-label', `${landmark} section`);
+            }
+          });
+        });
+
+        return {
+          status: 'success',
+          message: 'Accessibility checks and improvements completed',
+          timestamp: new Date().toISOString()
+        };
+      } catch (error) {
+        console.error('Error in function3:', error);
+        return {
+          status: 'error',
+          message: error.message,
+          timestamp: new Date().toISOString()
+        };
+      }
     }
 
     // Function to create in-page buttons

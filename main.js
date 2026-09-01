@@ -22,6 +22,19 @@
 // Use unique aria-label or aria-labelledby for landmark regions
 
 // REACT_036: Fix fake link issue - convert <a href="#"> to <button> with proper ARIA
+
+import './styles.less';
+import react from 'react';
+import { initializeApp as initApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import { isSecureContext } from './utils.js';
+import {CONFIG} from './utils/constants';
+
+// Node.js functions for dependency visualization tool
+const fs = require('fs');
+const path = require('path');
+
+// REACT_036: Fix fake link issue - convert <a href="#"> to <button> with proper ARIA
 function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
@@ -42,12 +55,7 @@ if (fakeLink && fakeLink.tagName === 'A') {
   parent.replaceChild(newButton, fakeLink);
 }
 
-// Node.js functions for dependency visualization tool
-const fs = require('fs');
-const path = require('path');
-
 // Load landmarks from file (new addition)
-import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
       const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
@@ -97,41 +105,6 @@ export const main = {
     });
   }
 };
-
-/**
- * Creates an in-page button element with optional click handler.
- * @param {string} buttonText - The label text for the button
- * @param {Function} onClickHandler - Callback function triggered when the button is clicked
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(buttonText, onClickHandler) {
-  const button = document.createElement('button');
-  button.textContent = buttonText;
-  if (onClickHandler && typeof onClickHandler === 'function') {
-    button.addEventListener('click', onClickHandler);
-  }
-  return button;
-}
-
-// Resolved main.js
-// Merged version combining accessibility features and application initialization
-
-import './styles.less';
-import react from 'react';
-
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-import { isSecureContext } from './utils.js';
-
-// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 // Application data structure
 const appData = {
@@ -461,26 +434,36 @@ function setSvgAttributes(svgElement, name) {
 }
 
 /**
- * REACT_036: Fix 1 fake link issue
- * Creates an in-page button with proper accessibility.
- * @param {string} text - The button text.
- * @param {Function} onClick - The click handler.
- * @returns {HTMLButtonElement} The created button element.
+ * Creates an in-page button element with optional click handler.
+ * @param {string} buttonText - The label text for the button
+ * @param {Function} onClickHandler - Callback function triggered when the button is clicked
+ * @param {string} targetId - Optional target element ID for skip-to-content functionality
+ * @returns {HTMLElement} The created button element
  */
-function createInPageButton(targetId, buttonText) {
+function createInPageButton(buttonText, onClickHandler, targetId) {
   const button = document.createElement('button');
-  button.textContent = buttonText || 'Skip to content';
-  button.setAttribute('type', 'button');
-  button.setAttribute('aria-label', buttonText || 'Skip to main content');
+  
+  if (targetId) {
+    // Skip to content button functionality
+    button.textContent = buttonText || 'Skip to content';
+    button.setAttribute('type', 'button');
+    button.setAttribute('aria-label', buttonText || 'Skip to main content');
 
-  button.addEventListener('click', function() {
-    const target = document.getElementById(targetId);
-    if (target) {
-      target.setAttribute('tabindex', '-1');
-      target.focus();
+    button.addEventListener('click', function() {
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.setAttribute('tabindex', '-1');
+        target.focus();
+      }
+    });
+  } else {
+    // Standard in-page button functionality
+    button.textContent = buttonText;
+    if (onClickHandler && typeof onClickHandler === 'function') {
+      button.addEventListener('click', onClickHandler);
     }
-  });
-
+  }
+  
   return button;
 }
 
@@ -514,6 +497,8 @@ function validateLinkAccessibility(link) {
 
 /**
  * Handles fake links by converting them to proper buttons or adding accessibility attributes.
+ * @param {HTMLElement} container - The container element to search for fake links
+ * @returns {Array} Array of issues found during validation
  */
 function handleFakeLinks(container) {
   const issues = [];
@@ -527,4 +512,33 @@ function handleFakeLinks(container) {
     }
 
     if (tagName === 'button' && element.querySelector('a')) {
-      issues.push(`Button at
+      issues.push(`Button at index ${index} contains an anchor element`);
+    }
+  });
+
+  return issues;
+}
+
+/**
+ * Adds proper landmark regions to the document for accessibility.
+ */
+function addProperLandmarkRegions() {
+  // Ensure only one main landmark exists
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length > 1) {
+    for (let i = 1; i < mainElements.length; i++) {
+      mainElements[i].setAttribute('role', 'complementary');
+    }
+  }
+  
+  // Add proper landmark roles to semantic elements
+  const header = document.querySelector('header:not([role])');
+  if (header && !document.querySelector('[role="banner"]')) {
+    header.setAttribute('role', 'banner');
+  }
+  
+  const footer = document.querySelector('footer:not([role])');
+  if (footer && !document.querySelector('[role="contentinfo"]')) {
+    footer.setAttribute('role', 'contentinfo');
+  }
+}

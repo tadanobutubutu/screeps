@@ -49,6 +49,29 @@ function validateTableAccessibility(table) {
     issues.push('Missing scope attribute');
   }
 
+  if (!table.querySelector || !table.querySelector('caption')) {
+    issues.push('Missing caption element');
+  }
+
+  const tableArray = Array.isArray(table) ? tables : [table];
+  tableArray.forEach((tableObj, index) => {
+    const rows = tableObj.querySelectorAll ? tableObj.querySelectorAll('tr') : [];
+    if (rows.length === 0) {
+      issues.push({
+        tableIndex: index,
+        issues: ['Table has no rows']
+      });
+    }
+
+    const result = validateTableAccessibility(tableObj);
+    if (!result.success) {
+      issues.push({
+        tableIndex: index,
+        issues: result.issues
+      });
+    }
+  });
+
   return {
     success: issues.length === 0,
     issues
@@ -57,13 +80,21 @@ function validateTableAccessibility(table) {
 
 /**
  * Validates the structure of tables for accessibility
- * @param {Array} tables - Array of table objects to validate
+ * @param {Array|Object} tables - Array of table objects or single table to validate
  * @returns {Object} Validation result with success status and any issues found
  */
 function validateTableStructure(tables) {
   const allIssues = [];
 
   tables.forEach((table, index) => {
+    const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
+    if (rows.length === 0) {
+      allIssues.push({
+        tableIndex: index,
+        issues: ['Table has no rows']
+      });
+    }
+
     const result = validateTableAccessibility(table);
     if (!result.success) {
       allIssues.push({
@@ -92,6 +123,44 @@ function validateLandmark(element) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
+  }
+
+  if (!element.hasAttribute('id')) {
+    issues.push('Missing id attribute');
+  }
+
+  if (!element.getAttribute('role')) {
+    issues.push('Missing role attribute');
+  }
+
+  if (!element.ariaLabel && !element.ariaLabelledby && !element.textContent) {
+    issues.push('Landmark missing accessible name');
+  }
+
+  if (element.role && !['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search'].includes(element.role)) {
+    issues.push(`Invalid landmark role: ${element.role}`);
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Validates landmark attributes
+ * @param {Object} landmark - The landmark element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLandmarkAttributes(landmark) {
+  const issues = [];
+
+  if (!landmark.ariaLabel && !landmark.ariaLabelledby && !landmark.textContent) {
+    issues.push('Landmark missing accessible name');
+  }
+
+  if (landmark.role && !['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search'].includes(landmark.role)) {
+    issues.push(`Invalid landmark role: ${landmark.role}`);
   }
 
   return {
@@ -213,13 +282,22 @@ function getSvgAccessibleName(svg) {
 /**
  * Sets accessible attributes for an SVG element
  * @param {Object} svg - The SVG element to modify
- * @param {string} name - The accessible name to set
- * @returns {Object} The modified SVG element
+ * @param {Object} options - Accessibility options
+ * @param {string} options.ariaLabel - ARIA label for the SVG
+ * @param {string} options.ariaLabelledby - ARIA labelledby reference
+ * @param {string} options.title - Title for the SVG
+ * @returns {Object} Modified SVG element
  */
-function setSvgAttributes(svg, name) {
-  svg.ariaLabel = name;
-  svg.title = name;
-  return svg;
+function setSvgAttributes(svg, options) {
+  if (options.ariaLabel) {
+    svg.ariaLabel = options.ariaLabel;
+  }
+  if (options.ariaLabelledby) {
+    svg.ariaLabelledby = options.ariaLabelledby;
+  }
+  if (options.title) {
+    svg.title = options.title;
+  }
 }
 
 /**
@@ -260,7 +338,7 @@ function createAccessibleLink(options) {
 
 /**
  * Validates link accessibility
- * @param {Object} link - The link element to validate
+ * @param {Object} link - The link object to validate
  * @returns {Object} Validation result with success status and any issues found
  */
 function validateLinkAccessibility(link) {
@@ -274,6 +352,10 @@ function validateLinkAccessibility(link) {
     issues.push('Missing both text content and aria-label');
   }
 
+  if (link.isFake) {
+    issues.push('Fake link detected');
+  }
+
   return {
     success: issues.length === 0,
     issues
@@ -281,17 +363,19 @@ function validateLinkAccessibility(link) {
 }
 
 /**
- * Handles fake links by converting them to proper buttons
- * @param {Object} link - The fake link element
- * @returns {Object} Converted button element
+ * Handles fake links by converting them to proper accessible elements
+ * @param {Object} link - The fake link to handle
+ * @returns {Object} Converted accessible element
  */
 function handleFakeLinks(link) {
   if (link.isFake) {
-    return createInPageButton({
+    return {
+      type: 'span',
       text: link.text,
-      ariaLabel: link.ariaLabel,
-      onClick: link.onClick
-    });
+      role: 'link',
+      ariaLabel: link.ariaLabel || link.text,
+      tabIndex: 0
+    };
   }
   return link;
 }
@@ -321,23 +405,20 @@ function handleAccessibilityIssues(issues) {
   };
 }
 
-// Export all functions for testing and external use
-module.exports = {
-  getLangAttribute,
-  getFullLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  ensureUniqueLandmarksFromString,
-  addProperLandmarkRegions,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  createAccessibleLink,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  handleAccessibilityIssues
-};
+/**
+ * Ensures an element has an ID attribute
+ * @param {Object} element - The element to check
+ * @param {string} id - The ID to assign if missing
+ * @returns {Object} The element with ensured ID
+ */
+function ensureElementId(element, id) {
+  if (!element.id) {
+    element.id = id;
+  }
+  return element;
+}
+
+/**
+ * Adds an aria-label to an element if missing
+ * @param {Object} element - The element to modify
+ * @param {

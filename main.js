@@ -2,6 +2,8 @@ import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+
 // Landmark data structure
 const landmarks = [];
 
@@ -114,7 +116,7 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (elementsById[landmark.id]) {
+        if (!elementsById[landmark.id]) {
           elementsById[landmark.id] = true;
         } else {
           landmark.id += '_duplicate';
@@ -138,196 +140,103 @@ function renderDependencyGraphContent() {
   renderIndexView(container);
 }
 
-// New function to get language attribute for HTML element
-function getLangAttribute() {
-  // Default to English if not specified
-  return document.documentElement.lang || 'en';
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = {
+    'react': true,
+    'react-redux': true,
+    'antd': true
+  };
+  return Object.keys(dependencies).length;
 }
 
-// New function to validate table accessibility
-function validateTableAccessibility(table) {
-  if (!table) return false;
+// Add lang attribute to HTML element
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
 
-  // Check if table has a caption
-  const hasCaption = table.querySelector('caption') !== null;
+// Fix table structure issues
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure table has proper caption if needed
+    if (!table.querySelector('caption') && table.rows.length > 0) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table data';
+      table.insertBefore(caption, table.firstChild);
+    }
 
-  // Check if table has proper headers
-  const headers = table.querySelectorAll('th');
-  const hasHeaders = headers.length > 0;
+    // Ensure table has proper headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      // Add headers if missing
+      const firstRow = table.rows[0];
+      if (firstRow) {
+        Array.from(firstRow.cells).forEach(cell => {
+          const th = document.createElement('th');
+          th.textContent = cell.textContent;
+          cell.replaceWith(th);
+        });
+      }
+    }
 
-  // Check if table cells have proper scope attributes
-  let hasScopeAttributes = true;
-  table.querySelectorAll('th').forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      hasScopeAttributes = false;
+    // Ensure table has proper scope attributes for headers
+    const headerRows = table.querySelectorAll('thead th');
+    headerRows.forEach((th, index) => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+  });
+}
+
+// Add/fix landmark issues
+function addMainLandmark() {
+  if (!document.querySelector('main')) {
+    const main = document.createElement('main');
+    main.id = 'main-content';
+    document.body.appendChild(main);
+  }
+}
+
+// Add accessible names to SVGs
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg:not([aria-hidden="true"])');
+  svgs.forEach(svg => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      const title = svg.querySelector('title');
+      if (title) {
+        svg.setAttribute('aria-labelledby', title.id);
+      } else {
+        svg.setAttribute('aria-label', 'graphic');
+      }
     }
   });
-
-  return hasCaption && hasHeaders && hasScopeAttributes;
 }
 
-// New function to validate table structure
-function validateTableStructure(table) {
-  if (!table) return false;
-
-  // Check if table has proper row and column structure
-  const rows = table.querySelectorAll('tr');
-  if (rows.length === 0) return false;
-
-  // Check if all rows have the same number of cells
-  const cellCount = rows[0].cells.length;
-  for (let i = 1; i < rows.length; i++) {
-    if (rows[i].cells.length !== cellCount) {
-      return false;
-    }
-  }
-
-  return true;
+// Fix fake link issue
+function fixFakeLinkIssue() {
+  const fakeLinks = document.querySelectorAll('[role="link"][href="javascript:void(0)"]');
+  fakeLinks.forEach(link => {
+    link.setAttribute('tabindex', '0');
+    link.setAttribute('role', 'button');
+    link.removeAttribute('href');
+  });
 }
 
-// New function to validate landmark structure
-function validateLandmarkStructure(landmark) {
-  if (!landmark) return false;
-
-  // Check if landmark has proper role
-  const validRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  if (!validRoles.includes(landmark.role)) {
-    return false;
-  }
-
-  // Check if landmark has proper label
-  if (!landmark.label || typeof landmark.label !== 'string' || landmark.label.trim() === '') {
-    return false;
-  }
-
-  return true;
-}
-
-// New function to get accessible name for SVG
-function getSvgAccessibleName(svg) {
-  if (!svg) return '';
-
-  // Check for title element
-  const title = svg.querySelector('title');
-  if (title && title.textContent.trim() !== '') {
-    return title.textContent.trim();
-  }
-
-  // Check for aria-label attribute
-  if (svg.hasAttribute('aria-label') && svg.getAttribute('aria-label').trim() !== '') {
-    return svg.getAttribute('aria-label').trim();
-  }
-
-  // Check for aria-labelledby attribute
-  if (svg.hasAttribute('aria-labelledby')) {
-    const labelledbyId = svg.getAttribute('aria-labelledby');
-    const labelledbyElement = document.getElementById(labelledbyId);
-    if (labelledbyElement && labelledbyElement.textContent.trim() !== '') {
-      return labelledbyElement.textContent.trim();
-    }
-  }
-
-  return '';
-}
-
-// New function to validate unique landmarks
-function validateUniqueLandmarks(landmarks) {
-  if (!landmarks || !Array.isArray(landmarks)) return false;
-
-  const seen = new Set();
-  for (const landmark of landmarks) {
-    const key = `${landmark.role}_${landmark.label}`;
-    if (seen.has(key)) {
-      return false;
-    }
-    seen.add(key);
-  }
-
-  return true;
-}
-
-// New function to create in-page button with proper accessibility
-function createInPageButton(text, onClick) {
-  const button = document.createElement('button');
-  button.textContent = text;
-  button.onclick = onClick;
-  button.setAttribute('aria-label', text);
-  return button;
-}
-
-// New function to address all insight issues
+// Address all accessibility issues from insight report
 function addressInsightIssues() {
-  // Set language attribute for HTML element
-  document.documentElement.lang = getLangAttribute();
-
-  // Fix table accessibility issues
-  document.querySelectorAll('table').forEach(table => {
-    if (!validateTableAccessibility(table)) {
-      // Add missing caption if needed
-      if (!table.querySelector('caption')) {
-        const caption = document.createElement('caption');
-        caption.textContent = 'Table caption';
-        table.prepend(caption);
-      }
-
-      // Add proper headers if needed
-      if (table.querySelectorAll('th').length === 0) {
-        const firstRow = table.querySelector('tr');
-        if (firstRow) {
-          firstRow.querySelectorAll('td').forEach(td => {
-            const th = document.createElement('th');
-            th.textContent = td.textContent;
-            td.replaceWith(th);
-          });
-        }
-      }
-
-      // Add scope attributes to headers
-      table.querySelectorAll('th').forEach(th => {
-        if (!th.hasAttribute('scope')) {
-          th.setAttribute('scope', 'col');
-        }
-      });
-    }
-
-    // Fix table structure issues
-    if (!validateTableStructure(table)) {
-      // Implement table structure fixes here
-    }
-  });
-
-  // Fix landmark issues
-  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
-    if (elements.length > 1) {
-      // Ensure unique landmarks
-      elements.forEach((element, index) => {
-        if (index > 0) {
-          element.setAttribute('aria-hidden', 'true');
-        }
-      });
-    }
-  });
-
-  // Add accessible names to SVGs
-  document.querySelectorAll('svg').forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    if (!accessibleName) {
-      svg.setAttribute('aria-label', 'Graphic');
-    }
-  });
-
-  // Fix fake links
-  document.querySelectorAll('a').forEach(link => {
-    if (!link.href || link.href === '#') {
-      link.setAttribute('role', 'button');
-      link.setAttribute('tabindex', '0');
-    }
-  });
+  addLangAttribute();
+  fixTableStructureIssues();
+  addMainLandmark();
+  addSvgAccessibleNames();
+  fixFakeLinkIssue();
 }
 
-// Initialize the app and address accessibility issues
+// Initialize the app with accessibility fixes
 function initApp() {
   initializeApp();
   addressInsightIssues();
@@ -359,11 +268,9 @@ export {
   calculateSum,
   addProperLandmarkRegions,
   countDependencies,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateUniqueLandmarks,
-  createInPageButton
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue
 };

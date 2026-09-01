@@ -107,7 +107,6 @@ let addressAccessibilityIssues;
 let generateAccessibilityReport;
 let calculateAccessibilityScore;
 let ensureUniqueLandmarksFromString;
-let validateLandmark;
 let spawnSomeCommand;
 let addLangAttribute;
 
@@ -332,7 +331,8 @@ module.exports = {
   createServer,
   startApp,
   config,
-  validateLandmark // Export the new function
+  validateLandmark,
+  countDependencies
 };
 
 // Start the application if run directly

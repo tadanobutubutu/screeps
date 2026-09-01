@@ -493,6 +493,36 @@ const accessibilityUtils = {
     if (typeof document === 'undefined') return 'en';
     const htmlElement = document.documentElement;
     return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
+  },
+
+  // NEW: Function to ensure dependencyGraph container has proper ARIA role
+  ensureDependencyGraphAccessibility: () => {
+    if (typeof document === 'undefined') return;
+
+    const dependencyGraph = document.querySelector('.dependencyGraph, [data-dependency-graph]');
+    if (dependencyGraph && !dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'tree');
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+
+      // Add ARIA attributes to child elements if they exist
+      const nodes = dependencyGraph.querySelectorAll('.node, [data-node]');
+      nodes.forEach((node, index) => {
+        if (!node.getAttribute('role')) {
+          node.setAttribute('role', 'treeitem');
+        }
+        if (!node.id) {
+          node.id = `dependency-node-${index}`;
+        }
+      });
+
+      // Add ARIA attributes to edges if they exist
+      const edges = dependencyGraph.querySelectorAll('.edge, [data-edge]');
+      edges.forEach((edge, index) => {
+        if (!edge.getAttribute('role')) {
+          edge.setAttribute('role', 'presentation');
+        }
+      });
+    }
   }
 };
 
@@ -509,7 +539,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
   },
@@ -521,11 +551,11 @@ const exportUtils = {
 
   exportToCSV: (data, filename) => {
     if (!data || data.length === 0) return;
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (const row of data) {
       const values = headers.map(header => {
         const escaped = ('' + row[header]).replace(/"/g, '\\"');
@@ -533,7 +563,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -612,6 +642,9 @@ const initAccessibility = () => {
       });
     }
   });
+
+  // Ensure dependencyGraph container has proper ARIA role
+  accessibilityUtils.ensureDependencyGraphAccessibility();
 };
 
 // Initialize on DOM ready
@@ -670,6 +703,7 @@ module.exports = {
   handleFakeLinks: accessibilityUtils.handleFakeLinks,
   addProperLandmarkRegions: accessibilityUtils.addProperLandmarkRegions,
   newFocusTrap: accessibilityUtils.newFocusTrap,
+  ensureDependencyGraphAccessibility: accessibilityUtils.ensureDependencyGraphAccessibility,
 
   // Accessibility utils for direct access
   accessibilityUtils: accessibilityUtils,

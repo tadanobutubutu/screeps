@@ -68,6 +68,9 @@ function functionC() {
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report
 
+// TODO: This is the existing code that needs to be preserved
+// ...
+
 // TODO: Update the existing function using the new functions for rendering graph/index
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 

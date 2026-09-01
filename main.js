@@ -49,6 +49,25 @@ module.exports = {
     // Your implementation here
   },
 
+  // New function: renderGraphIndex (replaces renderDependencyGraphs)
+  renderGraphIndex: (graphData) => {
+    // Implement the new rendering logic using the existing utility functions
+    // This function should use the new functions for rendering the graph/index
+    // For example, it could call `setSvgAccessibilityProps`, `addAccessibleNamesToSVGs`, etc.
+
+    // First ensure the graph data has proper accessibility properties
+    const accessibleGraphData = setSvgAccessibilityProps(graphData);
+
+    // Add accessible names to any SVGs in the graph
+    const namedGraphData = addAccessibleNamesToSVGs(accessibleGraphData);
+
+    // Render the dependency graphs with the processed data
+    renderDependencyGraphs(namedGraphData);
+
+    // Return the processed data for further use if needed
+    return namedGraphData;
+  },
+
   // Accessibility-related functions
   getLangAttribute: function() {
     // Implementation of getLangAttribute

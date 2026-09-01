@@ -67,13 +67,11 @@ function validateLandmarkObject(landmark) {
 
 // Function to render a single book item
 function BookItem({ book }) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        description={`by ${book.author}`}
-      />
-    </List.Item>
+  return React.createElement(List.Item, { key: generateKey(book) },
+    React.createElement(List.Item.Meta, {
+      title: book.title,
+      description: `by ${book.author}`
+    })
   );
 }
 
@@ -100,26 +98,24 @@ function BookForm() {
   };
 
   // Render the form
-  return (
-    <form onSubmit={handleSubmit}>
-      <label htmlFor="title">Title:</label>
-      <input
-        type="text"
-        id="title"
-        value={title}
-        onChange={handleTitleChange}
-        aria-label="Book title"
-      />
-      <label htmlFor="author">Author:</label>
-      <input
-        type="text"
-        id="author"
-        value={author}
-        onChange={handleAuthorChange}
-        aria-label="Book author"
-      />
-      <button type="submit">Add Book</button>
-    </form>
+  return React.createElement('form', { onSubmit: handleSubmit },
+    React.createElement('label', { htmlFor: 'title' }, 'Title:'),
+    React.createElement('input', {
+      type: 'text',
+      id: 'title',
+      value: title,
+      onChange: handleTitleChange,
+      'aria-label': 'Book title'
+    }),
+    React.createElement('label', { htmlFor: 'author' }, 'Author:'),
+    React.createElement('input', {
+      type: 'text',
+      id: 'author',
+      value: author,
+      onChange: handleAuthorChange,
+      'aria-label': 'Book author'
+    }),
+    React.createElement('button', { type: 'submit' }, 'Add Book')
   );
 }
 
@@ -131,14 +127,10 @@ function getLangAttribute() {
 
 // REACT_015 & REACT_036: Create accessible in-page button
 function createInPageButton(buttonText, onClickHandler) {
-  return (
-    <button 
-      onClick={onClickHandler}
-      lang={getLangAttribute()}
-    >
-      {buttonText}
-    </button>
-  );
+  return React.createElement('button', {
+    onClick: onClickHandler,
+    lang: getLangAttribute()
+  }, buttonText);
 }
 
 // REACT_027: Validate table accessibility
@@ -339,36 +331,30 @@ function AddBookForm({ onAddBook }) {
     setAuthor('');
   };
 
-  return (
-    <form ref={formRef} onSubmit={handleSubmit} aria-label="Add new book">
-      <div>
-        <label htmlFor="new-book-title">Book Title:</label>
-        <input
-          ref={titleInputRef}
-          id="new-book-title"
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          aria-invalid={!!error}
-          aria-describedby={error ? 'book-form-error' : undefined}
-        />
-      </div>
-      <div>
-        <label htmlFor="new-book-author">Author:</label>
-        <input
-          id="new-book-author"
-          type="text"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-        />
-      </div>
-      {error && (
-        <div id="book-form-error" role="alert" aria-live="polite">
-          {error}
-        </div>
-      )}
-      <button type="submit">Add Book</button>
-    </form>
+  return React.createElement('form', { ref: formRef, onSubmit: handleSubmit, 'aria-label': 'Add new book' },
+    React.createElement('div', null,
+      React.createElement('label', { htmlFor: 'new-book-title' }, 'Book Title:'),
+      React.createElement('input', {
+        ref: titleInputRef,
+        id: 'new-book-title',
+        type: 'text',
+        value: title,
+        onChange: (e) => setTitle(e.target.value),
+        'aria-invalid': !!error,
+        'aria-describedby': error ? 'book-form-error' : undefined
+      })
+    ),
+    React.createElement('div', null,
+      React.createElement('label', { htmlFor: 'new-book-author' }, 'Author:'),
+      React.createElement('input', {
+        id: 'new-book-author',
+        type: 'text',
+        value: author,
+        onChange: (e) => setAuthor(e.target.value)
+      })
+    ),
+    error && React.createElement('div', { id: 'book-form-error', role: 'alert', 'aria-live': 'polite' }, error),
+    React.createElement('button', { type: 'submit' }, 'Add Book')
   );
 }
 
@@ -418,6 +404,8 @@ async function makeApiCall(url, options = {}) {
   }
 }
 
+const validateInput = (input) => input !== null && input !== undefined;
+
 function processData(data) {
   if (!validateInput(data)) {
     throw new Error('Invalid input data');
@@ -425,68 +413,10 @@ function processData(data) {
   return {
     processed: true,
     data: data,
-    timestamp: Date.now()
-
-  const validateInput = (input) => input !== null && input !== undefined;
-
-  const BookItem = ({ book }) => {
-    return (
-      <List.Item key={generateKey(book)}>
-        <List.Item.Meta
-          title={book.title}
-          description={`by ${book.author}`}
-        />
-      </List.Item>
-    );
+    timestamp: Date.now(),
+    BookForm: BookForm,
+    BookItem: BookItem
   };
-
-  const BookForm = () => {
-    const dispatch = useDispatch();
-
-    // Define state for the form inputs
-    const [title, setTitle] = useState('');
-    const [author, setAuthor] = useState('');
-
-    // Handle input changes
-    const handleTitleChange = (e) => setTitle(e.target.value);
-    const handleAuthorChange = (e) => setAuthor(e.target.value);
-
-    // Handle form submission
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      // Perform any necessary validation or processing before adding the book
-      // ...
-
-      // Dispatch an action to add the book to the books list in the Redux store
-      dispatch({ type: 'ADD_BOOK', payload: { title, author } });
-    };
-
-    return (
-      <form onSubmit={handleSubmit}>
-        <Form.Item
-          label="Title"
-          required
-          validationRules={[Rules.required]}
-        >
-          <Input value={title} onChange={handleTitleChange}/>
-        </Form.Item>
-        <Form.Item
-          label="Author"
-          required
-          validationRules={[Rules.required]}
-        >
-          <Input value={author} onChange={handleAuthorChange}/>
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
-      </form>
-    );
-  };
-
-  return { BookForm, BookItem };
 }
 
 if (require.main === module) {

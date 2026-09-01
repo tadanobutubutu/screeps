@@ -62,10 +62,10 @@ const appData = {
 let icons = {};
 
 // Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure() and ...
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
@@ -73,13 +73,11 @@ let icons = {};
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//<!-- todo-hash: 272e6a6243d9be8b7bfe22b7c3a3f41fe62c6f20 -->
 
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
-  const errors = [];
+  const errors = [];;
 
   // Check if landmark exists
   if (!landmark) {
@@ -587,8 +585,13 @@ function initialize() {
 }
 
 // Initialize app
-function initializeApp() {
-  // Initialize the app
+function initApp() {
+  initializeApp();
+  wrapPrimaryContentInMain();
+  addLangAttribute();  // REACT_015: Add lang attribute to HTML element
+  fixTableStructure();  // REACT_027: Fix 26 table structure issues
+  addMainLandmark();   // REACT_017: Add/fix 4 landmark issues
+  addSvgAccessibleNames();  // REACT_041: Add accessible names to 2 SVGs
 }
 
 // Function to count dependencies
@@ -616,6 +619,10 @@ function cleanup() {
 function initApp() {
   initializeApp();
   wrapPrimaryContentInMain();
+  addLangAttribute();  // REACT_015: Add lang attribute to HTML element
+  fixTableStructure();  // REACT_027: Fix 26 table structure issues
+  addMainLandmark();   // REACT_017: Add/fix 4 landmark issues
+  addSvgAccessibleNames();  // REACT_041: Add accessible names to 2 SVGs
 }
 
 // Process data
@@ -695,104 +702,4 @@ function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
   const dispatch = useDispatch();
 
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
-    }
-  }, [sorting]);
-
-  // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(book => BookItem(book));
-
-  // Render the list of book items and sorting controls
-  return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
-      {/* Example of adding a new book form with accessibility considerations */}
-      <form onSubmit={(e) => {
-        e.preventDefault();
-        // Assuming there's a function to get the form data
-        const newBook = getFormData();
-        addBook(newBook);
-      }}>
-        <label htmlFor="title">Title:</label>
-        <input type="text" id="title" name="title" required aria-label="Book title" />
-        <label htmlFor="author">Author:</label>
-        <input type="text" id="author" name="author" required aria-label="Book author" />
-        <button type="submit">Add Book</button>
-      </form>
-    </div>
-  );
-}
-
-// Export all functions
-export {
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  processAccessibilityIssues,
-  initialize,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  validateInput,
-  main,
-  wrapPrimaryContentInMain,
-  handleUserInteraction,
-  cleanup,
-  initApp,
-  VisualizeDependencyTree,
-  checkLandmarkElement,
-  ensureUniqueLandmarks,
-  ensureLandmarkUniqueness,
-  validateLandmark,
-  renderDependencyGraphContent,
-  landmarks,
-  appData,
-  icons,
-  countDependencies,
-  addBook,
-  BookItem,
-  defaultSorting,
-  onTitleSort,
-  onAuthorSort,
-  Main,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  ensureFocusableElements,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  createInPageButtons,
-  fixFakeLinkIssue,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarksDoc
-};
+  // UseEffect hook to

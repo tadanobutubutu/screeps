@@ -68,15 +68,15 @@ function divide(dividend, divisor) {
   if (typeof dividend !== 'number' || typeof divisor !== 'number') {
     throw new Error('Both arguments must be numbers');
   }
-  
+
   if (isNaN(dividend) || isNaN(divisor)) {
     throw new Error('Both arguments must be valid numbers');
   }
-  
+
   if (divisor === 0) {
     throw new Error('Division by zero is not allowed');
   }
-  
+
   return dividend / divisor;
 }
 
@@ -239,6 +239,85 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// TODO: Update the existing function using the new functions for rendering graph/index
+function renderGraph(data, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`Container with ID ${containerId} not found`);
+        return;
+    }
+
+    // Clear previous content
+    container.innerHTML = '';
+
+    // Create SVG element
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.setAttribute('viewBox', '0 0 500 300');
+
+    // Add title for accessibility
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = 'Data Visualization Graph';
+    svg.appendChild(title);
+
+    // Create a simple bar chart as an example
+    const maxValue = Math.max(...data.map(item => item.value));
+    const barWidth = 40;
+    const gap = 20;
+    const padding = 30;
+
+    data.forEach((item, index) => {
+        const barHeight = (item.value / maxValue) * 200;
+        const x = padding + index * (barWidth + gap);
+        const y = 250 - barHeight;
+
+        // Create bar
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', x);
+        rect.setAttribute('y', y);
+        rect.setAttribute('width', barWidth);
+        rect.setAttribute('height', barHeight);
+        rect.setAttribute('fill', '#4CAF50');
+        rect.setAttribute('aria-label', `${item.label}: ${item.value}`);
+        svg.appendChild(rect);
+
+        // Add label
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', x + barWidth / 2);
+        text.setAttribute('y', 280);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-size', '12');
+        text.textContent = item.label;
+        svg.appendChild(text);
+    });
+
+    container.appendChild(svg);
+}
+
+function renderIndex(data, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`Container with ID ${containerId} not found`);
+        return;
+    }
+
+    // Clear previous content
+    container.innerHTML = '';
+
+    // Create a simple index list
+    const ul = document.createElement('ul');
+    ul.setAttribute('aria-label', 'Index of items');
+
+    data.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        ul.appendChild(li);
+    });
+
+    container.appendChild(ul);
+}
+
 // TODO: Re-add the required exports for functionA and functionB
 
 module.exports = {
@@ -251,7 +330,9 @@ module.exports = {
     applyAccessibilityFixes,
     addressAccessibilityIssues,
     createInPageButton,
-    divide
+    divide,
+    renderGraph,
+    renderIndex
 };
 
 // Run if executed directly

@@ -12,5 +12,18 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// New function to check link accessibility
+async function checkLinkAccessibility(url) {
+    try {
+        const response = await fetch(url, { method: 'HEAD' });
+        if (!response.ok) {
+            throw new Error(`Link check failed with status ${response.status}`);
+        }
+        return { accessible: true, status: response.status };
+    } catch (error) {
+        return { accessible: false, error: error.message };
+    }
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

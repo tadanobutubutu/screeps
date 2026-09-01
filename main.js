@@ -4,29 +4,29 @@
 // ... existing code ...
 
 // Function for addressing accessibility issues from insight report
-function addressAccessibilityIssues(insightReport) {
+function addressAccessibilityIssues (insightReport) {
   if (!insightReport || !Array.isArray(insightReport.issues)) {
-    return insightReport;
+    return insightReport
   }
 
-  insightReport.issues = insightReport.issues.map(issue => {
+  insightReport.issues = insightReport.issues.map((issue) => {
     if (issue.type === 'accessibility' && issue.status !== 'addressed') {
       return {
         ...issue,
         status: 'addressed',
-        resolution: 'Applied accessibility fix based on insight report',
-      };
+        resolution: 'Applied accessibility fix based on insight report'
+      }
     }
-    return issue;
-  });
+    return issue
+  })
 
-  return insightReport;
+  return insightReport
 }
 
 // Line 156 (updated)
-module.exports.functionA = functionA;
-module.exports.functionB = functionB;
-module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
+module.exports.functionA = functionA
+module.exports.functionB = functionB
+module.exports.addressAccessibilityIssues = addressAccessibilityIssues
 
 // TODO: This is the existing code that needs to be preserved
 // TODO: add the new functions or changes requested in the issue

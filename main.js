@@ -2,7 +2,11 @@
 function greet(name) {
   return `Hello, ${name}!`;
 }
-// TODO: Any additional changes requested in the issue should be added after this function
+
+// New function to calculate the average of two numbers
+export function calculateAverage(a, b) {
+  return (a + b) / 2;
+}
 
 // Exported functions
 export function calculateSum(a, b) {

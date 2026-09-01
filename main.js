@@ -140,10 +140,10 @@ function renderDependencyGraph(container, dependencies = {}) {
   // Render edges
   edges.forEach((edge, index) => {
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', edge.source?.x || 0);
-    line.setAttribute('y1', edge.source?.y || 0);
-    line.setAttribute('x2', edge.target?.x || 0);
-    line.setAttribute('y2', edge.target?.y || 0);
+    line.setAttribute('x1', (edge.source && edge.source.x) || 0);
+    line.setAttribute('y1', (edge.source && edge.source.y) || 0);
+    line.setAttribute('x2', (edge.target && edge.target.x) || 0);
+    line.setAttribute('y2', (edge.target && edge.target.y) || 0);
     line.setAttribute('stroke', '#666');
     line.setAttribute('stroke-width', '2');
     line.setAttribute('id', `edge-${index}`);
@@ -221,6 +221,36 @@ function createInPageButton(options) {
   return button;
 }
 
+function validateAccessibilityReport(report) {
+  if (typeof report === 'undefined' || report === null) {
+    return false;
+  }
+
+  if (Array.isArray(report)) {
+    return report.length === 0;
+  }
+
+  if (typeof report === 'object') {
+    if (Array.isArray(report.issues)) {
+      return report.issues.length === 0;
+    }
+
+    for (const key in report) {
+      if (Object.prototype.hasOwnProperty.call(report, key)) {
+        const value = report[key];
+        if (value === true) {
+          return false;
+        }
+        if (Array.isArray(value) && value.length > 0) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
 module.exports = {
   // Existing exports
   getLangAttribute,
@@ -231,5 +261,6 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraph,
   existingFunction,
-  personName
+  personName,
+  validateAccessibilityReport
 };

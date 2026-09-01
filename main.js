@@ -6,6 +6,7 @@
 // REACT_041: Add accessible names to 2 SVGs
 // REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
 // REACT_036: Fix 1 fake link issue
+// ADD: Address new accessibility issues from insight report — FIXED
 
 // TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs

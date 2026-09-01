@@ -30,15 +30,15 @@ function getFullLangAttribute() {
  */
 function validateTableAccessibility(table) {
   const issues = [];
-  
+
   if (!table.headers) {
     issues.push('Missing headers attribute');
   }
-  
+
   if (!table.scope) {
     issues.push('Missing scope attribute');
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -52,7 +52,7 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(tables) {
   const allIssues = [];
-  
+
   tables.forEach((table, index) => {
     const result = validateTableAccessibility(table);
     if (!result.success) {
@@ -62,7 +62,7 @@ function validateTableStructure(tables) {
       });
     }
   });
-  
+
   return {
     success: allIssues.length === 0,
     issues: allIssues
@@ -77,13 +77,13 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  
+
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -97,7 +97,7 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure(landmarks) {
   const issues = [];
-  
+
   landmarks.forEach((landmark, index) => {
     const result = validateLandmark(landmark);
     if (!result.success) {
@@ -107,7 +107,7 @@ function validateLandmarkStructure(landmarks) {
       });
     }
   });
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -122,7 +122,7 @@ function validateLandmarkStructure(landmarks) {
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
-  
+
   landmarks.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
@@ -131,7 +131,7 @@ function ensureUniqueLandmarks(landmarks) {
       names.push(name);
     }
   });
-  
+
   return {
     success: duplicates.length === 0,
     duplicates
@@ -193,6 +193,51 @@ function createAccessibleLink(options) {
 }
 
 /**
+ * Checks accessibility of links and buttons
+ * @param {Array} elements - Array of elements to check
+ * @returns {Object} Accessibility check result with success status and any issues found
+ */
+function checkLinkAndButtonAccessibility(elements) {
+  const issues = [];
+
+  elements.forEach((element, index) => {
+    const elementIssues = [];
+
+    // Check for required attributes
+    if (element.type === 'a' && !element.href) {
+      elementIssues.push('Link missing href attribute');
+    }
+
+    if ((element.type === 'a' || element.type === 'button') && !element.ariaLabel && !element.text) {
+      elementIssues.push('Element missing accessible name (aria-label or text content)');
+    }
+
+    // Check for fake links
+    if (element.type === 'a' && element.href === '#' && !element.onClick) {
+      elementIssues.push('Fake link detected (href="#" without click handler)');
+    }
+
+    // Check for proper button roles
+    if (element.type === 'button' && !element.onClick) {
+      elementIssues.push('Button missing click handler');
+    }
+
+    if (elementIssues.length > 0) {
+      issues.push({
+        elementIndex: index,
+        type: element.type,
+        issues: elementIssues
+      });
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
  * Handles accessibility issues found during validation
  * @param {Array} issues - Array of accessibility issues
  * @returns {Object} Summary of handled issues
@@ -200,7 +245,7 @@ function createAccessibleLink(options) {
 function handleAccessibilityIssues(issues) {
   const handled = [];
   const unhandled = [];
-  
+
   issues.forEach(issue => {
     if (issue.fixable) {
       handled.push(issue);
@@ -208,7 +253,7 @@ function handleAccessibilityIssues(issues) {
       unhandled.push(issue);
     }
   });
-  
+
   return {
     total: issues.length,
     handled: handled.length,
@@ -229,5 +274,6 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  checkLinkAndButtonAccessibility
 };

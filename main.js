@@ -8,6 +8,7 @@
 // REACT_041: Add accessible names to 2 SVGs
 // REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
 // REACT_036: Fix 1 fake link issue
+// ADD: Address new accessibility issues from insight report
 
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute (html, lang = 'en') {
@@ -263,6 +264,81 @@ function fixFakeLinks (html) {
   return html
 }
 
+// NEW: Validate table accessibility
+function validateTableAccessibility(html) {
+    if (typeof html !== 'string') return true;
+
+    // Check for tables without captions
+    const tablesWithoutCaptions = html.match(/<table[^>]*>(?!.*<caption[^>]*>)/gi);
+    if (tablesWithoutCaptions) {
+        console.warn(`Found ${tablesWithoutCaptions.length} tables without captions`);
+        return false;
+    }
+
+    // Check for tables without thead/tbody
+    const tablesWithoutStructure = html.match(/<table[^>]*>(?!.*<thead[^>]*>)(?!.*<tbody[^>]*>)/gi);
+    if (tablesWithoutStructure) {
+        console.warn(`Found ${tablesWithoutStructure.length} tables without proper structure`);
+        return false;
+    }
+
+    return true;
+}
+
+// NEW: Validate landmark structure
+function validateLandmarkStructure(html) {
+    if (typeof html !== 'string') return true;
+
+    const requiredLandmarks = ['main', 'nav', 'footer'];
+    let isValid = true;
+
+    requiredLandmarks.forEach(landmark => {
+        const pattern = new RegExp(`<${landmark}[^>]*>|<div[^>]*role=["']${landmark}["']`, 'i');
+        if (!pattern.test(html)) {
+            console.warn(`Missing required landmark: ${landmark}`);
+            isValid = false;
+        }
+    });
+
+    return isValid;
+}
+
+// NEW: Get language attribute for HTML element
+function getLangAttribute(html) {
+    if (typeof html !== 'string') return 'en';
+
+    const match = html.match(/<html[^>]*lang=["']([^"']*)["']/i);
+    return match ? match[1] : 'en';
+}
+
+// NEW: Get accessible name for SVG
+function getSvgAccessibleName(svgElement) {
+    if (!svgElement) return 'SVG';
+
+    if (svgElement.hasAttribute('aria-label')) {
+        return svgElement.getAttribute('aria-label');
+    }
+
+    if (svgElement.hasAttribute('aria-labelledby')) {
+        const id = svgElement.getAttribute('aria-labelledby');
+        const labelElement = document.getElementById(id);
+        return labelElement ? labelElement.textContent : 'SVG';
+    }
+
+    const title = svgElement.querySelector('title');
+    return title ? title.textContent : 'SVG';
+}
+
+// NEW: Person name utility
+function personName(name) {
+    if (!name) return '';
+
+    // Simple name formatting - can be enhanced as needed
+    return name.trim()
+        .replace(/\s+/g, ' ')
+        .replace(/([a-z])([A-Z])/g, '$1 $2');
+}
+
 // Main function that applies all accessibility fixes
 function applyAccessibilityFixes (html) {
   let result = html
@@ -275,20 +351,20 @@ function applyAccessibilityFixes (html) {
   return result
 }
 
-function addressAccessibilityIssues (insightReport) {
+function addressAccessibilityIssues(insightReport) {
   // Apply accessibility fixes to HTML content based on insight report
   if (insightReport && insightReport.html) {
-    insightReport.html = applyAccessibilityFixes(insightReport.html)
+    insightReport.html = applyAccessibilityFixes(insightReport.html);
   }
-  console.log('Addressing accessibility issues from insight report:', insightReport)
+  console.log('Addressing accessibility issues from insight report:', insightReport);
 }
 
-function createInPageButton (buttonId, buttonText, buttonClass) {
-  const button = document.createElement('button')
-  button.id = buttonId
-  button.textContent = buttonText
-  button.className = buttonClass
-  document.body.appendChild(button)
+function createInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    document.body.appendChild(button);
 }
 
 // Don't forget to test your new additions in the test file
@@ -304,12 +380,12 @@ module.exports = {
   applyAccessibilityFixes,
   addressAccessibilityIssues,
   createInPageButton,
+  validateTableAccessibility,
+  validateLandmarkStructure,
+  getLangAttribute,
+  getSvgAccessibleName,
+  personName,
   divide,
   checkLinkAccessibility,
   wrapPrimaryContentInMain
-}
-
-// Run if executed directly
-if (require.main === module) {
-  main()
 }

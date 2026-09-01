@@ -18,7 +18,7 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
@@ -87,3 +87,16 @@ function renderAdditionalContent(additionalData) {
 
 // Add the new function to the exports
 module.exports.renderAdditionalContent = renderAdditionalContent;
+
+// TODO: Update the existing function using the new functions for rendering graph/index
+function renderDependencyGraph() {
+  // Implementation using the new functions
+  // This is a placeholder - actual implementation should use the new rendering functions
+  return renderDependencyGraphs();
+}
+
+function renderIndex() {
+  // Implementation using the new functions
+  // This is a placeholder - actual implementation should use the new rendering functions
+  return renderAdditionalContent({});
+}

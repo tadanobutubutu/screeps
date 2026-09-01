@@ -6,6 +6,24 @@ import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
 
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = [
+    'react',
+    'express',
+    'path',
+    './styles.css',
+    './app.js',
+    'effector-sw',
+    './utils.js'
+  ];
+  
+  return {
+    count: dependencies.length,
+    dependencies: dependencies
+  };
+}
+
 // Existing code starts here
 
 // This is the existing code that needs to be preserved
@@ -602,3 +620,4 @@ if (require.main === module) {
 }
 
 module.exports.main = main;
+module.exports.countDependencies = countDependencies;

@@ -132,6 +132,107 @@
       require(modulePath)[functionName](callback);
     }
 
+    // New function to validate table accessibility
+    function validateTableAccessibility(tableElement) {
+      if (!tableElement) return false;
+
+      // Check if table has a caption
+      const hasCaption = tableElement.querySelector('caption') !== null;
+
+      // Check if table has proper headers
+      const hasHeaders = tableElement.querySelector('thead') !== null ||
+                        tableElement.querySelector('th') !== null;
+
+      // Check if table has proper scope attributes for headers
+      const headers = tableElement.querySelectorAll('th');
+      let hasScope = true;
+      headers.forEach(header => {
+        if (!header.hasAttribute('scope')) {
+          hasScope = false;
+        }
+      });
+
+      return hasCaption && hasHeaders && hasScope;
+    }
+
+    // New function to validate table structure
+    function validateTableStructure(tableElement) {
+      if (!tableElement) return false;
+
+      // Check if table has proper row and cell structure
+      const rows = tableElement.querySelectorAll('tr');
+      let validStructure = true;
+
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td, th');
+        if (cells.length === 0) {
+          validStructure = false;
+        }
+      });
+
+      return validStructure;
+    }
+
+    // New function to validate landmark
+    function validateLandmark(landmarkElement) {
+      if (!landmarkElement) return false;
+
+      // Check if landmark has proper role
+      const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
+      const role = landmarkElement.getAttribute('role');
+
+      return validRoles.includes(role);
+    }
+
+    // New function to validate landmark structure
+    function validateLandmarkStructure(landmarkElement) {
+      if (!landmarkElement) return false;
+
+      // Check if landmark has proper heading
+      const heading = landmarkElement.querySelector('h1, h2, h3, h4, h5, h6');
+      return heading !== null;
+    }
+
+    // New function to get SVG accessible name
+    function getSvgAccessibleName(svgElement) {
+      if (!svgElement) return '';
+
+      // Check for title and desc elements
+      const title = svgElement.querySelector('title');
+      const desc = svgElement.querySelector('desc');
+
+      if (title) return title.textContent;
+      if (desc) return desc.textContent;
+
+      // Check for aria-label or aria-labelledby
+      if (svgElement.hasAttribute('aria-label')) {
+        return svgElement.getAttribute('aria-label');
+      }
+
+      if (svgElement.hasAttribute('aria-labelledby')) {
+        const id = svgElement.getAttribute('aria-labelledby');
+        const labelElement = document.getElementById(id);
+        return labelElement ? labelElement.textContent : '';
+      }
+
+      return '';
+    }
+
+    // New function to set SVG attributes
+    function setSvgAttributes(svgElement, name) {
+      if (!svgElement || !name) return;
+
+      // Set aria-label if not already set
+      if (!svgElement.hasAttribute('aria-label')) {
+        svgElement.setAttribute('aria-label', name);
+      }
+
+      // Set role if not already set
+      if (!svgElement.hasAttribute('role')) {
+        svgElement.setAttribute('role', 'img');
+      }
+    }
+
     // Export the report generation function
     module.exports = {
       generateAccessibilityReport: async function () {
@@ -142,7 +243,13 @@
       getLangAttribute,
       createInPageButton,
       a11y,
-      importAndExecute
+      importAndExecute,
+      validateTableAccessibility,
+      validateTableStructure,
+      validateLandmark,
+      validateLandmarkStructure,
+      getSvgAccessibleName,
+      setSvgAttributes
     };
 
     // Initialize the application with accessibility improvements

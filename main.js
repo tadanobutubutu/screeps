@@ -136,12 +136,43 @@ function fixLandmarks() {
 
 // New function for REACT_017: Add landmark roles and fix landmark issues
 function addLandmarkRoles() {
-  // Implementation for adding landmark roles
+  const landmarks = {
+    header: 'banner',
+    nav: 'navigation',
+    main: 'main',
+    footer: 'contentinfo',
+    aside: 'complementary',
+    section: 'region',
+    article: 'article'
+  };
+
+  Object.keys(landmarks).forEach(tag => {
+    document.querySelectorAll(tag).forEach(element => {
+      if (!element.hasAttribute('role')) {
+        element.setAttribute('role', landmarks[tag]);
+      }
+    });
+  });
 }
 
 // New function for REACT_025: Ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  // Implementation for ensuring unique landmarks
+  const landmarkRoles = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'region', 'article'];
+  const roleCounts = {};
+
+  landmarkRoles.forEach(role => {
+    roleCounts[role] = 0;
+  });
+
+  document.querySelectorAll('[role]').forEach(element => {
+    const role = element.getAttribute('role');
+    if (landmarkRoles.includes(role)) {
+      roleCounts[role]++;
+      if (roleCounts[role] > 1 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+        element.setAttribute('aria-label', `${role}-${roleCounts[role]}`);
+      }
+    }
+  });
 }
 
 function addSvgAccessibleNames() {

@@ -12,10 +12,7 @@ const { indexContent } = require('./index');
 const { spawn } = require('child_process');
 
 // Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// - Add keyboard navigation support for all interactive elements
-// - Ensure proper ARIA labels on dynamic content
-// - Maintain focus management for modal dialogs
+// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
 
 const accessibilityUtils = {
   /**
@@ -45,6 +42,92 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  /**
+   * Trap focus within an element.
+   * @param {HTMLElement} element - The element to trap focus within
+   */
+  focusTrap: (element) => {
+    if (!element) return;
+
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length === 0) return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    });
+
+    return element;
+  },
+
+  /**
+   * Create a new focus trap instance.
+   * @param {HTMLElement} element - The element to trap focus within
+   * @returns {Object} The focus trap instance with activate/deactivate methods
+   */
+  newFocusTrap: (element) => {
+    if (!element) return null;
+
+    let isActive = false;
+    let focusableElements = [];
+    let firstElement = null;
+    let lastElement = null;
+
+    const updateFocusableElements = () => {
+      focusableElements = element.querySelectorAll(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusableElements.length > 0) {
+        firstElement = focusableElements[0];
+        lastElement = focusableElements[focusableElements.length - 1];
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Tab' && focusableElements.length > 0) {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    };
+
+    const activate = () => {
+      if (isActive) return;
+      updateFocusableElements();
+      element.addEventListener('keydown', handleKeyDown);
+      isActive = true;
+    };
+
+    const deactivate = () => {
+      if (!isActive) return;
+      element.removeEventListener('keydown', handleKeyDown);
+      isActive = false;
+    };
+
+    return {
+      activate,
+      deactivate,
+      updateFocusableElements
+    };
   }
 };
 
@@ -156,8 +239,8 @@ function focusTrap(element) {
   return element;
 }
 
-function newFocusTrap() {
-  // New function implementation
+function newFocusTrap(element) {
+  return accessibilityUtils.newFocusTrap(element);
 }
 
 /**

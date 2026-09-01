@@ -1,8 +1,5 @@
 // main.js - Accessibility-focused implementation
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 /* todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 */
 const AddressabilityIssues = {
@@ -150,5 +147,7 @@ const AddressabilityIssues = {
     };
   }
 };
+
+// TODO: Any additional changes requested in the issue
 
 // ... (other functions and setting up exports)

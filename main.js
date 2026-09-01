@@ -8,6 +8,10 @@
 const http = require('http');
 const path = require('path');
 
+// Import dependency graph and index view content from appropriate modules
+const dependencyGraphContent = require('./dependencyGraphContent');
+const indexContent = require('./indexContent');
+
 function getLangAttribute() {
   // ... code for handling lang attribute
 }
@@ -317,6 +321,15 @@ function newFunctionality() {
   console.log('New functionality has been added.');
 }
 
+// Functions to render dependency graphs and index views using imported content
+function renderDependencyGraph() {
+  return dependencyGraphContent;
+}
+
+function renderIndexView() {
+  return indexContent;
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
@@ -333,5 +346,7 @@ module.exports = {
   calculateAccessibilityScore,
   ensureUniqueLandmarksFromString,
   validateLandmark,
-  createInPageButton
+  createInPageButton,
+  renderDependencyGraph,
+  renderIndexView
 };

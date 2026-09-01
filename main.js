@@ -5,6 +5,7 @@
 // REACT_041: Add accessible names to 2 SVGs
 // REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
 // REACT_036: Fix 1 fake link issue
+// ADD: Address new accessibility issues from insight report — FIXED
 
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
@@ -68,15 +69,15 @@ function divide(dividend, divisor) {
   if (typeof dividend !== 'number' || typeof divisor !== 'number') {
     throw new Error('Both arguments must be numbers');
   }
-  
+
   if (isNaN(dividend) || isNaN(divisor)) {
     throw new Error('Both arguments must be valid numbers');
   }
-  
+
   if (divisor === 0) {
     throw new Error('Division by zero is not allowed');
   }
-  
+
   return dividend / divisor;
 }
 

@@ -6,14 +6,14 @@ const http = require('http');
 const url = require('url');
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse: handleCredentialResponseImported, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
 const { main } = require('./utilities');
 const { functionA, functionB } = require('./functionModule');
 
-const { http } = require('http');
-const url = require('url');
+const { http: httpImported } = require('http');
+const url2 = require('url');
 
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
@@ -106,7 +106,7 @@ const validateTableAccessibility = (html) => {
 
 // Re-add the required exports for functionA and functionB
 // Assuming that they are objects with properties X, Y, and Z
-const { functionA, functionB } = require('./functionModule');
+// (already imported above)
 
 // App state for session management
 const appState = {
@@ -134,12 +134,13 @@ const a11yStore = {
   // ... existing methods ...
 };
 
+const a11yStoreMethods = {
   prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return (typeof window !== 'undefined' && window.matchMedia) ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
   },
 
   prefersHighContrast() {
-    return window.matchMedia('(prefers-contrast: more)').matches;
+    return (typeof window !== 'undefined' && window.matchMedia) ? window.matchMedia('(prefers-contrast: more)').matches : false;
   },
 
   updateLiveRegion(message, priority = 'polite') {
@@ -151,12 +152,26 @@ const a11yStore = {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
       const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark) => {
+      landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
           landmark.setAttribute('id', `${element}-${index}`);
         }
 
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria
-```
+            landmark.setAttribute('aria-label', element);
+          }
+        }
+      });
+    });
+  }
+};
+
+module.exports = {
+  validateTableAccessibility,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  functionA,
+  functionB
+};

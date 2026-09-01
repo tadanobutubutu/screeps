@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -207,6 +204,28 @@ function handleAccessibilityIssues(issues) {
   };
 }
 
+/**
+ * Ensures the dependencyGraph container has a proper ARIA role
+ * @param {HTMLElement} container - The container element
+ */
+function ensureDependencyGraphRole(container) {
+  if (!container.getAttribute('role')) {
+    container.setAttribute('role', 'region');
+  }
+}
+
+/**
+ * Generates unique IDs for landmark elements if they don't have one
+ * @param {Array} landmarks - Array of landmark elements
+ */
+function generateLandmarkIds(landmarks) {
+  landmarks.forEach((landmark, index) => {
+    if (!landmark.id) {
+      landmark.id = `landmark-${index}`;
+    }
+  });
+}
+
 // Export all functions for testing and external use
 module.exports = {
   getLangAttribute,
@@ -220,8 +239,7 @@ module.exports = {
   createInPageButton,
   createAccessibleLink,
   handleAccessibilityIssues,
-  addLangAttribute // Added for merge
+  addLangAttribute,
+  ensureDependencyGraphRole,
+  generateLandmarkIds
 };
-```
-
-This file has been merged with the new changes from the conflicting changeset, which includes additional functions for validating table structure, landmark structure, and ensuring unique landmarks; as well as functions for creating accessible in-page buttons and links. The added `addLangAttribute` function has also been included in the exports to make it accessible for external use.

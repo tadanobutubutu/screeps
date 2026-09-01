@@ -1,8 +1,8 @@
 function main() {
   const svgElements = document.querySelectorAll('svg');
 
-  svgElements.forEach((svg) => {
-    if (!svg.hasAttribute('role')) {
+  svgElements.forEach(svg => {
+    if (!svg.hasAttribute('role') || svg.getAttribute('role') !== 'img') {
       svg.setAttribute('role', 'img');
     }
 
@@ -14,9 +14,8 @@ function main() {
     setSvgAttributes(svg);
   });
 
-  setupAriaLiveRegions();
   setupFocusManagement();
-  enhanceSemanticMarkup();
+  validateLinkAccessibility();
 
   init();
 }
@@ -35,7 +34,7 @@ function getSvgAccessibleName(svg) {
 
 function setSvgAttributes(svg) {
   if (!svg.hasAttribute('aria-hidden')) {
-    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('aria-hidden', 'false');
   }
 }
 
@@ -95,7 +94,10 @@ if (typeof module !== 'undefined' && module.exports) {
     countDependencies,
     init,
     handleCredentialResponse,
-    sampleInsightReport
+    sampleInsightReport,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    main
   };
 } else {
   // Browser environment - wait for DOM

@@ -2,6 +2,8 @@
 
 // ... (existing code from main.js)
 
+// TODO: This is the existing code that needs to be preserved
+
 // TODO: Implement the required changes to improve accessibility for the addBook function or form
 // Assuming that the `addBook` function or form is within the scope of the file and that the
 // changes needed are related to adding ARIA roles and labels to improve accessibility.

@@ -269,6 +269,144 @@ function enhanceSemanticMarkup() {
   ensureUniqueLandmarks();
 }
 
+/**
+ * Checks landmark elements on the page for accessibility issues
+ * Ensures semantic structure and adds ARIA roles where necessary
+ */
+function checkLandmarkElements() {
+  // Get all landmark elements
+  const landmarkSelectors = ['main', 'header', 'footer', 'nav', 'aside', 'section', '[role="banner"]', '[role="contentinfo"]', '[role="navigation"]', '[role="complementary"]', '[role="main"]'];
+  const landmarkElements = document.querySelectorAll(landmarkSelectors.join(', '));
+
+  // Track landmark counts
+  const landmarkCounts = {};
+  landmarkElements.forEach(element => {
+    let role = element.getAttribute('role');
+    let tagName = element.tagName.toLowerCase();
+
+    // Determine landmark type for counting purposes
+    let landmarkType;
+    if (role) {
+      landmarkType = role;
+    } else {
+      // Map HTML5 elements to their implicit ARIA roles
+      const implicitRoles = {
+        'main': 'main',
+        'header': 'banner',
+        'footer': 'contentinfo',
+        'nav': 'navigation',
+        'aside': 'complementary',
+        'section': 'region'
+      };
+      landmarkType = implicitRoles[tagName] || tagName;
+    }
+
+    // Count occurrences of each landmark type
+    landmarkCounts[landmarkType] = (landmarkCounts[landmarkType] || 0) + 1;
+  });
+
+  // Apply ARIA roles to semantic HTML elements that may be missing them
+  const semanticElements = document.querySelectorAll('main, header, footer, nav, aside');
+  semanticElements.forEach(element => {
+    const tagName = element.tagName.toLowerCase();
+    const implicitRoleMap = {
+      'main': 'main',
+      'header': 'banner', 
+      'footer': 'contentinfo',
+      'nav': 'navigation',
+      'aside': 'complementary'
+    };
+    
+    // Only add role if it's not already present
+    if (!element.hasAttribute('role') && implicitRoleMap[tagName]) {
+      element.setAttribute('role', implicitRoleMap[tagName]);
+    }
+  });
+
+  // Ensure section elements have accessible names when used as landmarks
+  const sections = document.querySelectorAll('section');
+  sections.forEach((section, index) => {
+    if (!section.hasAttribute('aria-label') && 
+        !section.hasAttribute('aria-labelledby') &&
+        !section.hasAttribute('title')) {
+      // Check if it has a heading child
+      const heading = section.querySelector('h1, h2, h3, h4, h5, h6');
+      if (heading) {
+        // Use the heading's text content as the label
+        section.setAttribute('aria-label', heading.textContent.trim());
+      } else {
+        // Add a generic label
+        section.setAttribute('aria-label', `Section ${index + 1}`);
+      }
+    }
+  });
+
+  // Validate landmark uniqueness (e.g., only one main element)
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length > 1) {
+    console.warn('Multiple main landmark elements found. There should be only one per page.');
+    // Fix by converting duplicates to generic containers
+    for (let i = 1; i < mainElements.length; i++) {
+      const element = mainElements[i];
+      element.removeAttribute('role');
+      element.removeAttribute('name'); // Remove any name attribute that might affect landmark identification
+      // Replace with a div to remove semantic meaning
+      const replacement = document.createElement('div');
+      while (element.firstChild) {
+        replacement.appendChild(element.firstChild);
+      }
+      element.parentNode.replaceChild(replacement, element);
+    }
+  }
+
+  // Ensure navigation elements are properly identified
+  const navElements = document.querySelectorAll('nav, [role="navigation"]');
+  navElements.forEach((nav, index) => {
+    if (!nav.hasAttribute('aria-label') && 
+        !nav.hasAttribute('aria-labelledby') &&
+        !nav.hasAttribute('title')) {
+      // Try to find a heading or link that might describe the nav
+      const heading = nav.querySelector('h1, h2, h3, h4, h5, h6');
+      const firstLink = nav.querySelector('a');
+      
+      if (heading) {
+        nav.setAttribute('aria-label', heading.textContent.trim());
+      } else if (firstLink) {
+        const linkText = firstLink.textContent.trim();
+        if (linkText) {
+          nav.setAttribute('aria-label', `${linkText} navigation`);
+        } else {
+          nav.setAttribute('aria-label', `Navigation ${index + 1}`);
+        }
+      } else {
+        nav.setAttribute('aria-label', `Navigation ${index + 1}`);
+      }
+    }
+  });
+
+  // Ensure aside elements have descriptive labels
+  const asideElements = document.querySelectorAll('aside, [role="complementary"]');
+  asideElements.forEach((aside, index) => {
+    if (!aside.hasAttribute('aria-label') && 
+        !aside.hasAttribute('aria-labelledby') &&
+        !aside.hasAttribute('title')) {
+      const heading = aside.querySelector('h1, h2, h3, h4, h5, h6');
+      if (heading) {
+        aside.setAttribute('aria-label', heading.textContent.trim());
+      } else {
+        aside.setAttribute('aria-label', `Complementary content ${index + 1}`);
+      }
+    }
+  });
+
+  // Return summary of landmark analysis
+  return {
+    totalLandmarks: landmarkElements.length,
+    landmarkCounts: landmarkCounts,
+    issuesFixed: true // Indicates that potential issues were remediated
+  };
+}
+
 function ensureUniqueLandmarks() {
   const landmarks = [
     'main',

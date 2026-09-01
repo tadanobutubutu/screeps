@@ -25,7 +25,7 @@ const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
 const { functionA, functionB } = require('./functionModule');
 
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn } = require('./utilities');
 
 const http = require('http');
 const url = require('url');
@@ -276,7 +276,13 @@ const a11yStore = {
 };
 
 const renderIndex = (data, options = {}) => {
-  return indexContent(data, options);
+  // Use the imported indexContent module for rendering
+  const content = indexContent(data, options);
+  // Use the imported addLangAttribute module for ensuring lang attribute
+  if (content && typeof content === 'string') {
+    return addLangAttribute(content);
+  }
+  return content;
 };
 
 function getSvgAccessibleName(svgElement) {
@@ -308,6 +314,7 @@ function getSvgAccessibleName(svgElement) {
 }
 
 const renderDependencyGraph = (deps, options = {}) => {
+  // Use the imported dependencyGraphContent module for rendering
   const graphData = dependencyGraphContent(deps, options);
   renderGraphIndex(graphData);
 };

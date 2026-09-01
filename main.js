@@ -1,13 +1,4 @@
-// TODO: This is the modified and merged code
-// This is the existing code that needs to be preserved in main.js
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+import React from 'react';
 
 /**
  * Ensures an element has an id attribute. If the element doesn't have an id,
@@ -65,157 +56,166 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
   return id;
 }
 
-// Sample main.js with dependencyGraph container
-function renderDependencyGraph() {
-  const container = document.getElementById('dependency-graph');
+// Utility functions for accessibility
+const accessibilityUtils = {
+    initSkipLink: () => {
+        const skipLink = document.querySelector('#skip-link');
+        if (skipLink) {
+            skipLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = skipLink.getAttribute('href');
+                const target = document.querySelector(targetId);
+                if (target) {
+                    target.setAttribute('tabindex', '-1');
+                    target.focus();
+                }
+            });
+        }
+    },
 
-  if (container) {
-    container.setAttribute('role', 'region');
-    container.setAttribute('aria-label', 'Dependency graph visualization');
+    trapFocus: (element) => {
+        const focusableElements = element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
 
-    // Ensure the container has an id for accessibility
-    ensureElementHasId(container, 'dep-graph');
-  }
-}
+        element.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
+        });
+    },
 
-// TODO: Add new functions below this line
+    announceToScreenReader: (message, priority = 'polite') => {
+        const announcer = document.createElement('div');
+        announcer.setAttribute('aria-live', priority);
+        announcer.setAttribute('aria-atomic', 'true');
+        announcer.className = 'sr-only';
+        announcer.style.position = 'absolute';
+        announcer.style.left = '-9999px';
+        announcer.textContent = message;
+        document.body.appendChild(announcer);
+        setTimeout(() => announcer.remove(), 1000);
+    },
 
-const main = require('./utilities');
+    handleKeyboardNav: (e, handlers) => {
+        const key = e.key;
+        if (handlers[key]) {
+            handlers[key](e);
+        }
+    },
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId: ensureElementHasIdOrigin, addAriaLabel: addAriaLabelOrigin, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, checkAccessibility, getLangAttribute: getLangAttributeImpl, createInPageButton: createInPageButtonImpl, validateTableAccessibility: validateTableAccessibilityImpl, validateTableStructure: validateTableStructureImpl, getSvgAccessibleName: getSvgAccessibleNameImpl, setSvgAttributes: setSvgAttributesImpl, ensureUniqueLandmarks: ensureUniqueLandmarksImpl, validateLinkAccessibility: validateLinkAccessibilityImpl, handleFakeLinks: handleFakeLinksImpl, addProperLandmarkRegions: addProperLandmarkRegionsImpl, checkFocusOrder: checkFocusOrderImpl, enhanceTableNavigation: enhanceTableNavigationImpl, improveContrast: improveContrastImpl } = main;
+    // Get language attribute for HTML element
+    getLangAttribute: () => {
+        return document.documentElement.getAttribute('lang') || 'en';
+    },
 
-// Implement the function for addressing accessibility issues from insight report
-function implementNewFunction(input) {
-  // Placeholder logic for demonstration
-  console.log('Implementing new feature:', input);
-  // For the sake of the example, let's assume we're transforming the input string to uppercase
-  if (typeof input === 'string') {
-    return input.toUpperCase();
-  }
-  return input; // Return the input unchanged if it's not a string
-}
+    // Validate table accessibility
+    validateTableAccessibility: (table) => {
+        // Check for proper table structure and ARIA attributes
+        if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+            console.warn('Table missing thead or tbody');
+            return false;
+        }
+        return true;
+    },
 
-// Implement the function for addressing accessibility issues from insight report
-function implementAccessibilityFixesFromReport(container, containerReport) {
-  const fixes = {
-    langAdded: false,
-    mainLandmarkAdded: false,
-    landmarksFixed: 0,
-    svgNamesAdded: 0,
-    fakeLinksFixed: 0
-  };
+    // Validate table structure
+    validateTableStructure: (table) => {
+        // Check for proper table structure
+        const rows = table.querySelectorAll('tr');
+        if (rows.length === 0) {
+            console.warn('Table has no rows');
+            return false;
+        }
+        return true;
+    },
 
-  // Accessibility-related functions
-  getLangAttribute = getLangAttributeImpl || function() { return getLangAttributeImpl.call(this); },
-  createInPageButton = createInPageButtonImpl || function() { return createInPageButtonImpl.call(this); },
-  validateTableAccessibility = validateTableAccessibilityImpl || function() { return validateTableAccessibilityImpl.call(this); },
-  validateTableStructure = validateTableStructureImpl || function() { return validateTableStructureImpl.call(this); },
-  getSvgAccessibleName = getSvgAccessibleNameImpl || function(svg) { return getSvgAccessibleNameImpl.call(this, svg); },
-  setSvgAttributes = setSvgAttributesImpl || function(svg) { return setSvgAttributesImpl.call(this, svg); },
-  ensureUniqueLandmarks = ensureUniqueLandmarksImpl || function() { return ensureUniqueLandmarksImpl.call(this); },
-  validateLinkAccessibility = validateLinkAccessibilityImpl || function() { return validateLinkAccessibilityImpl.call(this); },
-  handleFakeLinks = handleFakeLinksImpl || function() { return handleFakeLinksImpl.call(this); },
-  addProperLandmarkRegions = addProperLandmarkRegionsImpl || function() { return addProperLandmarkRegionsImpl.call(this); },
-  checkFocusOrder = checkFocusOrderImpl || function() { return checkFocusOrderImpl.call(this); },
-  enhanceTableNavigation = enhanceTableNavigationImpl || function() { return enhanceTableNavigationImpl.call(this); },
-  improveContrast = improveContrastImpl || function() { return improveContrastImpl.call(this); },
+    // Validate landmark elements
+    validateLandmark: () => {
+        const landmarks = ['header', 'nav', 'main', 'footer'];
+        landmarks.forEach(landmark => {
+            const elements = document.querySelectorAll(landmark);
+            if (elements.length > 1) {
+                console.warn(`Multiple ${landmark} elements found`);
+            }
+        });
+    },
 
-  // ... (The rest of the implementation from the 'origin/main' branch, including comments, remains unchanged.)
+    // Validate landmark structure
+    validateLandmarkStructure: () => {
+        const main = document.querySelector('main');
+        if (!main) {
+            console.warn('Main landmark missing');
+            return false;
+        }
+        return true;
+    },
 
-  // ... (The rest of the function implementation remains unchanged.)
+    // Get accessible name for SVG
+    getSvgAccessibleName: (svg) => {
+        const title = svg.querySelector('title');
+        const desc = svg.querySelector('desc');
+        if (title) return title.textContent;
+        if (desc) return desc.textContent;
+        return svg.getAttribute('aria-label') || 'SVG graphic';
+    },
 
-  return fixes;
-}
+    // Create in-page button with proper accessibility attributes
+    createInPageButton: (text, href) => {
+        const button = document.createElement('a');
+        button.textContent = text;
+        button.href = href;
+        button.setAttribute('role', 'button');
+        button.setAttribute('tabindex', '0');
+        return button;
+    },
 
-/**
- * Adds/fixes landmark issues in the document.
- */
-function validateLandmarkStructure() {
-  // Assuming there is a function to check the structure of landmarks in the document
-  // These functions are not provided in the sample code, so the actual implementation is left as a placeholder
-  // Example usage: validateAllLandmarks();
-}
+    // Get person name with proper accessibility attributes
+    personName: (name) => {
+        const span = document.createElement('span');
+        span.textContent = name;
+        span.setAttribute('aria-label', name);
+        return span;
+    },
 
-function validateLandmarkAttributes() {
-  // Assuming there is a function to check the attributes of landmarks in the document
-  // These functions are not provided in the sample code, so the actual implementation is left as a placeholder
-  // Example usage: ...
-}
+    // New focus trap implementation
+    newFocusTrap: (element) => {
+        const focusableElements = element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
 
-function addMainLandmark() {
-  // Function to add main landmark if missing
-  // Placeholder implementation
-}
+        const handleKeyDown = (e) => {
+            if (e.key === 'Tab') {
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
 
-/**
- * Ensures that all landmarks in the document are unique.
- */
-function ensureUniqueLandmarks() {
-  // Assuming that there are functions to check for uniqueness
-  // These functions are not provided in the sample code, so the actual implementation is left as a placeholder
-  // Example usage: ...
-}
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    lastElement.focus();
+                    e.preventDefault();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    firstElement.focus();
+                    e.preventDefault();
+                }
+            }
+        };
 
-/**
- * Adds accessible name to an SVG element.
- */
-function getSvgAccessibleName() {
-  // Assuming there is a function to add accessible names to all SVGs in the document
-  // These functions are not provided in the sample code, so the actual implementation is left as a placeholder
-  // Example usage: ...
-}
+        element.addEventListener('keydown', handleKeyDown);
 
-/**
- * Adds accessible names to SVGs using ID.
- * @param {string} id - The ID of the SVG.
- * @returns {string} The accessible name for the SVG.
- */
-function setSvgAttributes(id) {
-  // Assuming there is a function to get the accessible name for an SVG by its ID
-  // These functions are not provided in the sample code, so the actual implementation is left as a placeholder
-  // Example usage: ...
-}
-
-function personName() {
-  // Placeholder function
-}
-
-/**
- * Fixes 1 fake link issue by converting it into an actual link.
- */
-function createInPageButton() {
-  // Assuming there is a function to correct fake links in the document
-  // These functions are not provided in the sample code, so the actual implementation is left as a placeholder
-  // Example usage: createInPageButton();
-}
-
-/**
- * Validates and fixes 26 table structure issues.
- */
-function validateTableAccessibility() {
-  // Assuming there is a function to validate the accessibility of tables in the document
-  // These functions are not provided in the sample code, so the actual implementation is left as a placeholder
-  // Example usage: validateAllTables();
-}
-
-/**
- * Validates and fixes table structure.
- * @param {string} tableId - The ID of the table to validate.
- * @returns {boolean} Returns true if the table passes the validation, false otherwise.
- */
-function validateTableStructure(tableId) {
-  // Assuming there is a function to validate the structure of a specific table by its ID
-  // These functions are not provided in the sample code, so the actual implementation is left as a placeholder
-  // Example usage: ...
-}
-
-// Accessibility-related function to be added
-function checkAccessibility(content) {
-  // Placeholder for accessibility checking logic
-  // This function should be implemented to check for accessibility issues
-  // For now, it just returns an empty array
-  return [];
-}
+        return {
+            destroy: () => {
+                element.removeEventListener('keydown', handleKeyDown);
+            }
+        };
+    }
+};
 
 /**
  * Main entry point for the Screeps bot.
@@ -286,40 +286,62 @@ function updateUI(elementId, text) {
   }
 }
 
+function setHtmlLangAttribute(lang) {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.setAttribute('lang', lang || 'en');
+    }
+    return lang || 'en';
+}
+
+function addLangAttribute() {
+    document.documentElement.setAttribute('lang', 'en');
+}
+
 module.exports = {
-  // Existing exports preserved
-  renderDependencyGraph,
-  getLangAttribute,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  personName,
-  validateTableStructure,
-  implementNewFunction,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  createInPageButton,
-  validateTableAccessibility,
-  ensureElementHasId,
-  addAriaLabel,
-  ensureElementAccessibility,
-  implementAccessibilityFixesFromReport,
-  checkAccessibility,
-  // Re-export utilities functions
-  createWebResourceButton,
-  validateLandmark,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  handleCredentialResponse,
-  ensureElementHasIdOrigin,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  // Export new ScreepsBot class and helper
-  ScreepsBot,
-  updateUI
+    accessibilityUtils,
+    ScreepsBot,
+    updateUI,
+    ensureElementHasId,
+    addAriaLabel,
+    ensureElementAccessibility,
+    setHtmlLangAttribute,
+    addLangAttribute,
+    getLangAttribute: accessibilityUtils.getLangAttribute,
+    personName: accessibilityUtils.personName,
+    validateTableAccessibility: accessibilityUtils.validateTableAccessibility,
+    validateTableStructure: accessibilityUtils.validateTableStructure,
+    validateLandmark: accessibilityUtils.validateLandmark,
+    validateLandmarkStructure: accessibilityUtils.validateLandmarkStructure,
+    newFocusTrap: accessibilityUtils.newFocusTrap,
+    getSvgAccessibleName: accessibilityUtils.getSvgAccessibleName,
+    createInPageButton: accessibilityUtils.createInPageButton,
+    trapFocus: accessibilityUtils.trapFocus,
+    initSkipLink: accessibilityUtils.initSkipLink,
+    announceToScreenReader: accessibilityUtils.announceToScreenReader,
+    handleKeyboardNav: accessibilityUtils.handleKeyboardNav
 };
+
+// Also attach to global scope for browser/standalone access
+if (typeof window !== 'undefined') {
+    window.accessibilityUtils = accessibilityUtils;
+    window.ScreepsBot = ScreepsBot;
+    window.updateUI = updateUI;
+    window.ensureElementHasId = ensureElementHasId;
+    window.addAriaLabel = addAriaLabel;
+    window.ensureElementAccessibility = ensureElementAccessibility;
+    window.setHtmlLangAttribute = setHtmlLangAttribute;
+    window.addLangAttribute = addLangAttribute;
+    window.getLangAttribute = accessibilityUtils.getLangAttribute;
+    window.personName = accessibilityUtils.personName;
+    window.validateTableAccessibility = accessibilityUtils.validateTableAccessibility;
+    window.validateTableStructure = accessibilityUtils.validateTableStructure;
+    window.validateLandmark = accessibilityUtils.validateLandmark;
+    window.validateLandmarkStructure = accessibilityUtils.validateLandmarkStructure;
+    window.newFocusTrap = accessibilityUtils.newFocusTrap;
+    window.getSvgAccessibleName = accessibilityUtils.getSvgAccessibleName;
+    window.createInPageButton = accessibilityUtils.createInPageButton;
+    window.trapFocus = accessibilityUtils.trapFocus;
+    window.initSkipLink = accessibilityUtils.initSkipLink;
+    window.announceToScreenReader = accessibilityUtils.announceToScreenReader;
+    window.handleKeyboardNav = accessibilityUtils.handleKeyboardNav;
+}

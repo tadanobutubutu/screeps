@@ -567,3 +567,99 @@ export {
   MyComponent,
   AddressabilityIssues,
 };
+
+/**
+ * Ensure the dependencyGraph container has a proper ARIA role
+ * Ensure all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
+ * (Preserve existing function for control)
+ */
+
+/**
+ * Sets a proper ARIA role on the dependencyGraph container
+ * Ensures it has role="region" for accessibility
+ */
+function ensureDependencyGraphAccessibility() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    if (!dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+    if (!dependencyGraph.getAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
+}
+
+/**
+ * Ensures all landmark elements have unique ids
+ * If a landmark doesn't have an id, generates one
+ * @param {string} prefix - Optional prefix for generated IDs
+ * @returns {Object} - Contains the number of landmarks processed and any warnings
+ */
+function ensureUniqueLandmarkIds(prefix = 'landmark') {
+  const landmarkSelectors = [
+    'main',
+    'header',
+    'nav',
+    'aside',
+    'footer',
+    'section[role="region"]',
+    '[role="banner"]',
+    '[role="main"]',
+    '[role="navigation"]',
+    '[role="complementary"]',
+    '[role="contentinfo"]',
+    '[role="search"]',
+    '[role="form"]'
+  ];
+
+  const landmarks = [];
+  landmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(el => landmarks.push(el));
+  });
+
+  const usedIds = new Set();
+  const warnings = [];
+
+  landmarks.forEach(landmark => {
+    let id = landmark.getAttribute('id');
+    
+    if (id) {
+      usedIds.add(id);
+    } else {
+      let newId = `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
+      while (usedIds.has(newId)) {
+        newId = `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
+      }
+      landmark.setAttribute('id', newId);
+      usedIds.add(newId);
+      warnings.push(`Generated id "${newId}" for landmark: ${landmark.tagName.toLowerCase()}`);
+    }
+  });
+
+  return { landmarksProcessed: landmarks.length, warnings };
+}
+
+// Initialize accessibility features on DOM load
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports.ensureDependencyGraphAccessibility = ensureDependencyGraphAccessibility;
+  module.exports.ensureUniqueLandmarkIds = ensureUniqueLandmarkIds;
+} else {
+  // Browser environment - initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      ensureDependencyGraphAccessibility();
+      const result = ensureUniqueLandmarkIds();
+      if (result.warnings.length > 0) {
+        console.info('Accessibility: Generated landmark IDs', result.warnings);
+      }
+    });
+  } else {
+    ensureDependencyGraphAccessibility();
+    const result = ensureUniqueLandmarkIds();
+    if (result.warnings.length > 0) {
+      console.info('Accessibility: Generated landmark IDs', result.warnings);
+    }
+  }
+}

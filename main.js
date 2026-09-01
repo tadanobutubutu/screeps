@@ -18,10 +18,10 @@ class ScreepsBot {
   async start() {
     // Initialize network connection
     await this.network.connect();
-    
+
     // Load initial data
     await this.loadData();
-    
+
     console.log('Screenspider bot started');
   }
 
@@ -61,6 +61,48 @@ class ScreepsBot {
         console.error(`Task failed: ${err.message}`);
       }
     }
+  }
+
+  // New accessibility function: Focus management for keyboard navigation
+  setFocus(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.focus();
+      element.setAttribute('tabindex', '0');
+    }
+  }
+
+  // New accessibility function: Keyboard event handler for accessibility
+  handleKeyboardNavigation(event) {
+    const key = event.key;
+    const activeElement = document.activeElement;
+
+    // Handle keyboard navigation (e.g., arrow keys, tab)
+    switch (key) {
+      case 'ArrowUp':
+      case 'ArrowDown':
+      case 'ArrowLeft':
+      case 'ArrowRight':
+        this.navigateWithArrows(key, activeElement);
+        break;
+      case 'Tab':
+        this.handleTabNavigation(event, activeElement);
+        break;
+      default:
+        break;
+    }
+  }
+
+  // Helper for arrow key navigation
+  navigateWithArrows(key, activeElement) {
+    // Implement custom navigation logic based on element type
+    console.log(`Navigating with ${key} key`);
+  }
+
+  // Helper for tab key navigation
+  handleTabNavigation(event, activeElement) {
+    // Implement custom tab navigation logic
+    console.log('Handling tab navigation');
   }
 }
 

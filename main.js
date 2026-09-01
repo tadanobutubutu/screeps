@@ -111,7 +111,7 @@ function addLandmarkRoles() {
   if (mainElement && ... {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   const navElement = ...
   if (navElement && ... {
     ... 'navigation');
@@ -307,7 +307,7 @@ function addressAccessibilityIssues(insightReport) {
 
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -318,7 +318,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -333,7 +333,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -348,7 +348,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -362,7 +362,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = ...
   if (landmarkStructureIssues && ... > 0) {
@@ -371,3 +371,49 @@ function getInsightReport() {
         type: 'REACT_017',
         structure: true,
         description: issue.description || 'Landmark structure issue',
+      });
+    });
+  }
+
+  return issues;
+}
+
+// Export all functions and objects that need to be available to other modules
+export {
+  config,
+  appState,
+  initialize,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  someFunction,
+  helper,
+  formatDate,
+  validateInput,
+  getLangAttribute,
+  addLangAttribute,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  addLandmarkRegions,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addressAccessibilityIssues,
+  getInsightReport,
+  icons,
+  landmarks,
+  appData,
+  initApp
+};

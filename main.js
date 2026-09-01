@@ -58,6 +58,47 @@ function wrapPrimaryContentInMain(parent) {
   return mainElement;
 }
 
+// New function to ensure elements have unique landmarks
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="landmark"]');
+  const landmarkIds = new Set();
+
+  landmarks.forEach(landmark => {
+    if (landmark.id) {
+      if (landmarkIds.has(landmark.id)) {
+        landmark.id = `${landmark.id}-${Date.now()}`;
+      }
+      landmarkIds.add(landmark.id);
+    } else {
+      landmark.id = `landmark-${Date.now()}`;
+    }
+  });
+}
+
+// New function to add aria-label to elements
+function addAriaLabel(element, label) {
+  if (!element || typeof element !== 'object') {
+    throw new Error('Invalid element provided');
+  }
+
+  if (typeof label !== 'string' || label.trim() === '') {
+    throw new Error('Invalid aria-label provided');
+  }
+
+  element.setAttribute('aria-label', label);
+}
+
+// New function to render dependency graphs
+function renderDependencyGraph(data) {
+  if (!data || typeof data !== 'object') {
+    throw new Error('Invalid data provided for dependency graph');
+  }
+
+  // Implementation would depend on the specific graphing library being used
+  // This is a placeholder for the actual implementation
+  console.log('Rendering dependency graph with data:', data);
+}
+
 function initialize() {
   appConfig.apiUrl = process.env.API_URL || 'default';
   appConfig.timeout = 5000;
@@ -108,6 +149,8 @@ module.exports = {
   generateAccessibilityReport,
   wrapPrimaryContentInMain,
   ensureUniqueLandmarks,
+  addAriaLabel,
+  renderDependencyGraph,
   addLangAttribute,
   validateTableAccessibility,
   validateTableStructure,

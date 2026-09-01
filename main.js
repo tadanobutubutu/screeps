@@ -37,6 +37,70 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  /**
+   * Initialize accessibility features for the application
+   * @param {Object} options - Configuration options for accessibility
+   * @param {boolean} [options.enforceContrast=true] - Whether to enforce minimum contrast ratios
+   * @param {boolean} [options.enableKeyboardNav=true] - Whether to enable keyboard navigation
+   * @param {boolean} [options.announcePageLoad=true] - Whether to announce page load to screen readers
+   */
+  initAccessibility: (options = {}) => {
+    const {
+      enforceContrast = true,
+      enableKeyboardNav = true,
+      announcePageLoad = true
+    } = options;
+
+    // Set default language if not specified
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = 'en';
+    }
+
+    // Enforce minimum contrast if enabled
+    if (enforceContrast) {
+      document.documentElement.style.setProperty('--min-contrast', '4.5:1');
+    }
+
+    // Enable keyboard navigation if enabled
+    if (enableKeyboardNav) {
+      document.addEventListener('keydown', (e) => {
+        const handlers = {
+          Tab: (event) => {
+            // Handle tab navigation
+          },
+          Escape: (event) => {
+            // Handle escape key
+          }
+        };
+        accessibilityUtils.handleKeyboardNav(e, handlers);
+      });
+    }
+
+    // Announce page load if enabled
+    if (announcePageLoad) {
+      accessibilityUtils.announceToScreenReader('Page loaded successfully');
+    }
+
+    // Add skip to content link
+    const skipLink = document.createElement('a');
+    skipLink.href = '#main-content';
+    skipLink.textContent = 'Skip to main content';
+    skipLink.className = 'skip-link';
+    skipLink.style.position = 'absolute';
+    skipLink.style.left = '-9999px';
+    document.body.insertBefore(skipLink, document.body.firstChild);
+
+    // Focus skip link when it's clicked
+    skipLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      const mainContent = document.getElementById('main-content') || document.querySelector('main');
+      if (mainContent) {
+        mainContent.setAttribute('tabindex', '-1');
+        mainContent.focus();
+      }
+    });
   }
 };
 
@@ -80,10 +144,10 @@ function setConfig(config) {
 function validateTableAccessibility() {
   const errors = [];
   const tables = getTables();
-  
+
   for (let i = 0; i < tables.length; i++) {
     const table = tables[i];
-    
+
     // Check if table has headers
     if (!table.headers || !Array.isArray(table.headers) || table.headers.length === 0) {
       errors.push({
@@ -91,7 +155,7 @@ function validateTableAccessibility() {
         error: 'Table must have headers defined'
       });
     }
-    
+
     // Check if table has proper structure
     if (!table.rows || !Array.isArray(table.rows)) {
       errors.push({
@@ -99,7 +163,7 @@ function validateTableAccessibility() {
         error: 'Table must have rows array defined'
       });
     }
-    
+
     // Check for proper ARIA attributes (placeholder implementation)
     if (table.ariaLabel === undefined && table.caption === undefined) {
       errors.push({
@@ -107,17 +171,17 @@ function validateTableAccessibility() {
         error: 'Table should have aria-label or caption for accessibility'
       });
     }
-    
+
     // Add lang attribute to HTML element
     if (document.documentElement.lang === undefined) {
       document.documentElement.lang = 'en';
     }
-    
+
     // Add landmark roles and fix landmark issues
     if (table.role === undefined) {
       table.role = 'table';
     }
-    
+
     // Add accessible names to 2 SVGs
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
@@ -125,7 +189,7 @@ function validateTableAccessibility() {
         svg.setAttribute('aria-label', 'SVG description');
       }
     });
-    
+
     // Ensure unique landmarks (2 issues)
     const landmarks = ['navigation', 'search', 'main', 'contentinfo', 'complementary', 'form'];
     let uniqueLandmarks = new Set();
@@ -141,7 +205,7 @@ function validateTableAccessibility() {
         error: 'Landmarks are not unique'
       });
     }
-    
+
     // Fix 1 fake link issue
     const links = document.querySelectorAll('a');
     links.forEach(link => {
@@ -150,7 +214,7 @@ function validateTableAccessibility() {
       }
     });
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors: errors

@@ -51,18 +51,19 @@ module.exports = {
   addProperLandmarkRegions: function() {
     // Implementation of addProperLandmarkRegions
   },
-  // Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+
+  // Address new accessibility issues from insight report
   validateLandmark: function() {
     // Implementation of validateLandmark
   },
   validateLandmarkStructure: function() {
     // Implementation of validateLandmarkStructure
   },
-  // Ensure unique landmarks (2 issues) (handled by ...)
+  // Ensure unique landmarks (2 issues)
   ensureUniqueLandmarks: function() {
     // Implementation of ensureUniqueLandmarks
   },
-  // Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+  // Fix 1 fake link issue
   fixFakeLink: function() {
     // Implementation of fixFakeLink
   }

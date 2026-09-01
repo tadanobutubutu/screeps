@@ -30,15 +30,15 @@ function getFullLangAttribute() {
  */
 function validateTableAccessibility(table) {
   const issues = [];
-  
+
   if (!table.headers) {
     issues.push('Missing headers attribute');
   }
-  
+
   if (!table.scope) {
     issues.push('Missing scope attribute');
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -52,7 +52,7 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(tables) {
   const allIssues = [];
-  
+
   tables.forEach((table, index) => {
     const result = validateTableAccessibility(table);
     if (!result.success) {
@@ -62,7 +62,7 @@ function validateTableStructure(tables) {
       });
     }
   });
-  
+
   return {
     success: allIssues.length === 0,
     issues: allIssues
@@ -77,13 +77,13 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  
+
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -97,7 +97,7 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure(landmarks) {
   const issues = [];
-  
+
   landmarks.forEach((landmark, index) => {
     const result = validateLandmark(landmark);
     if (!result.success) {
@@ -107,7 +107,7 @@ function validateLandmarkStructure(landmarks) {
       });
     }
   });
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -122,7 +122,7 @@ function validateLandmarkStructure(landmarks) {
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
-  
+
   landmarks.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
@@ -131,7 +131,7 @@ function ensureUniqueLandmarks(landmarks) {
       names.push(name);
     }
   });
-  
+
   return {
     success: duplicates.length === 0,
     duplicates
@@ -200,7 +200,7 @@ function createAccessibleLink(options) {
 function handleAccessibilityIssues(issues) {
   const handled = [];
   const unhandled = [];
-  
+
   issues.forEach(issue => {
     if (issue.fixable) {
       handled.push(issue);
@@ -208,13 +208,61 @@ function handleAccessibilityIssues(issues) {
       unhandled.push(issue);
     }
   });
-  
+
   return {
     total: issues.length,
     handled: handled.length,
     unhandled: unhandled.length,
     unhandledIssues: unhandled
   };
+}
+
+/**
+ * New function3 implementation
+ * @param {Object} options - Configuration options
+ * @param {string} options.type - The type of element to create
+ * @param {Object} options.props - Properties for the element
+ * @returns {Object} The created element with accessibility attributes
+ */
+function function3(options) {
+  const { type, props } = options;
+
+  // Basic validation
+  if (!type) {
+    throw new Error('Element type is required');
+  }
+
+  // Create base element
+  const element = {
+    type,
+    ...props
+  };
+
+  // Add accessibility attributes based on type
+  switch (type.toLowerCase()) {
+    case 'button':
+      element.ariaLabel = props.ariaLabel || props.text || 'Button';
+      element.role = 'button';
+      break;
+    case 'link':
+    case 'a':
+      element.ariaLabel = props.ariaLabel || props.text || 'Link';
+      element.role = 'link';
+      break;
+    case 'input':
+      element.ariaLabel = props.ariaLabel || props.placeholder || 'Input field';
+      element.role = 'textbox';
+      break;
+    default:
+      element.role = 'presentation';
+  }
+
+  // Ensure accessible name exists
+  if (!element.ariaLabel && !element.ariaLabelledby) {
+    element.ariaLabel = 'Unnamed element';
+  }
+
+  return element;
 }
 
 // Export all functions for testing and external use
@@ -229,5 +277,6 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  function3
 };

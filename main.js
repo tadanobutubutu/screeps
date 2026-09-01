@@ -87,20 +87,20 @@ function detectAndSetLang(content) {
 function personName(options = {}) {
   const { firstName = '', lastName = '', lang = 'en', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
-  
+
   if (typeof document !== 'undefined') {
     const nameElement = document.createElement('span');
     nameElement.setAttribute('lang', lang);
     nameElement.setAttribute('aria-label', fullName);
     nameElement.textContent = fullName || 'Unknown';
-    
+
     if (container) {
       container.appendChild(nameElement);
     }
-    
+
     return nameElement;
   }
-  
+
   return fullName || 'Unknown';
 }
 
@@ -120,33 +120,154 @@ function createInPageButton(parent = document.body) {
 
 // New function to validate table accessibility
 function validateTableAccessibility() {
-  // Implementation for table accessibility validation
+  if (typeof document === 'undefined') return;
+
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure table has a caption
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table caption';
+      table.prepend(caption);
+    }
+
+    // Ensure table has proper headers
+    const headers = table.querySelectorAll('th');
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        header.setAttribute('scope', 'col');
+      }
+    });
+
+    // Ensure table cells have proper headers
+    const cells = table.querySelectorAll('td');
+    cells.forEach(cell => {
+      if (!cell.hasAttribute('headers')) {
+        const rowIndex = cell.parentElement.rowIndex;
+        const headers = table.querySelectorAll(`tr:nth-child(${rowIndex + 1}) th`);
+        if (headers.length > 0) {
+          const headerIds = Array.from(headers).map(h => h.id).filter(id => id);
+          if (headerIds.length > 0) {
+            cell.setAttribute('headers', headerIds.join(' '));
+          }
+        }
+      }
+    });
+  });
 }
 
 // New function to validate table structure
 function validateTableStructure() {
-  // Implementation for table structure validation
+  if (typeof document === 'undefined') return;
+
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure table has proper structure
+    const rows = table.querySelectorAll('tr');
+    if (rows.length > 0) {
+      const firstRow = rows[0];
+      const hasHeaderRow = Array.from(firstRow.children).some(cell => cell.tagName === 'TH');
+
+      if (hasHeaderRow) {
+        // Ensure all header cells have scope
+        const headerCells = firstRow.querySelectorAll('th');
+        headerCells.forEach(cell => {
+          if (!cell.hasAttribute('scope')) {
+            cell.setAttribute('scope', 'col');
+          }
+        });
+      }
+    }
+  });
 }
 
 // New function to validate landmarks
 function validateLandmark() {
-  // Implementation for landmark validation
+  if (typeof document === 'undefined') return;
+
+  const requiredLandmarks = ['header', 'main', 'footer'];
+  const existingLandmarks = new Set();
+
+  requiredLandmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    if (elements.length === 0) {
+      // Create missing landmark
+      const landmarkElement = document.createElement('div');
+      landmarkElement.setAttribute('role', landmark);
+      document.body.prepend(landmarkElement);
+    } else {
+      existingLandmarks.add(landmark);
+    }
+  });
+
+  return Array.from(existingLandmarks);
 }
 
 // New function to validate landmark structure
 function validateLandmarkStructure() {
-  // Implementation for landmark structure validation
+  if (typeof document === 'undefined') return;
+
+  const landmarks = document.querySelectorAll('[role="header"], [role="main"], [role="footer"]');
+  landmarks.forEach(landmark => {
+    // Ensure landmarks have proper structure
+    if (landmark.getAttribute('role') === 'header' && !landmark.querySelector('h1')) {
+      const heading = document.createElement('h1');
+      heading.textContent = 'Page Title';
+      landmark.prepend(heading);
+    }
+  });
 }
 
 // New function to get SVG accessible name
-function getSvgAccessibleName() {
-  // Implementation for getting SVG accessible name
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement || typeof document === 'undefined') return '';
+
+  // Check for existing accessible name
+  let name = svgElement.getAttribute('aria-label') ||
+             svgElement.getAttribute('aria-labelledby') ||
+             svgElement.getAttribute('title');
+
+  if (!name) {
+    // Try to find a title element inside the SVG
+    const titleElement = svgElement.querySelector('title');
+    if (titleElement) {
+      name = titleElement.textContent.trim();
+    }
+  }
+
+  if (!name) {
+    // Generate a default name if none found
+    name = 'Graphic';
+  }
+
+  return name;
 }
 
 // New function to validate unique landmarks
 function validateUniqueLandmarks() {
-  // Implementation for validating unique landmark roles
-  // Ensures each landmark has a unique identifier for accessibility
+  if (typeof document === 'undefined') return;
+
+  const landmarks = document.querySelectorAll('[role="header"], [role="main"], [role="footer"]');
+  const landmarkCounts = {};
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    landmarkCounts[role] = (landmarkCounts[role] || 0) + 1;
+  });
+
+  // Ensure each landmark type appears only once
+  Object.entries(landmarkCounts).forEach(([role, count]) => {
+    if (count > 1) {
+      // If multiple landmarks of the same type exist, ensure they have unique labels
+      const elements = document.querySelectorAll(`[role="${role}"]`);
+      elements.forEach((element, index) => {
+        if (index > 0) {
+          const label = element.getAttribute('aria-label') || '';
+          element.setAttribute('aria-label', `${label} ${index + 1}`);
+        }
+      });
+    }
+  });
 }
 
 /**
@@ -203,7 +324,7 @@ function newFocusTrap(container) {
   const focusableElements = Array.from(
     container.querySelectorAll(focusableSelectors)
   ).filter(el => el.offsetParent !== null);
-  
+
   if (focusableElements.length > 0) {
     focusableElements[0].focus();
   }

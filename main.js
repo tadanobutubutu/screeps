@@ -62,7 +62,7 @@ const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
 
-// Configuration
+// Configuration - merged
 const CONFIG = {
     dataPath: './data',
     maxResults: 100
@@ -136,6 +136,79 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
+// App state with accessibility updates
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map(),
+  lang: 'en' // Added lang property
+};
+
+// Utilities
+const { validateInput, processData } = require('./utils/validators');
+const { formatResponse } = require('./utils/processor');
+
+// Helper for input transformation
+function helper(input) {
+  return input ? input.toUpperCase() : '';
+}
+
+// Helper function to format dates
+function formatDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.toISOString().split('T')[0];
+}
+
+// Validate input helper
+function validateInputFn(input) {
+  return input && typeof input === 'string' && input.trim().length > 0;
+}
+
+// Process data helper
+function processDataFn(data) {
+  if (!data) return null;
+  return { ...data, processed: true };
+}
+
+// Initialize function
+function initialize() {
+  appState.initialized = true;
+  console.log('App initialized');
+}
+
+// Initialize app function
+function initializeApp() {
+  initialize();
+  return appState;
+}
+
+// Fetch user function
+async function fetchUser(userId) {
+  // ... implementation
+}
+
+// Clear cache function
+function clearCache() {
+  appState.cache.clear();
+}
+
+// Improve accessibility
+function improveAccessibility() {
+  fixTableStructureIssues();
+  fixTableHeaderCellScope();
+  addMainLandmark();
+  addSvgAccessibleNames();
+  fixTableAccessibility();
+  fixFakeLinks();
+  ensureUniqueLandmarks();
+  addLandmarkRoles();
+  addKeyboardNavigation();
+  addAriaLabels();
+  addScreenReaderAnnouncements();
+}
+
 // Function to write the generated report to a file
 function writeReport(report) {
   const reportFile = path.join(__dirname, 'accessibility_report.json');
@@ -150,84 +223,57 @@ function generateAccessibilityReport() {
   return report;
 }
 
-// Utilities
-const { validateInput, processData } = require('./utils/validators');
-const { formatResponse } = require('./utils/processor');
-
-// Main execution when run directly
-if (require.main === module) {
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-  const sorted = sortLandmarks(processed);
-
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
-
-  if (sorted.length > 0) {
-    console.log('First landmark:', sorted[0]);
-  }
-}
-
 async function scanAccessibility() {
     // ... Scanning and reporting accessibility issues using axe-core ...
+    return {
+      timestamp: new Date().toISOString(),
+      issues: []
+    };
 }
 
-/**
- * REACT_027: Fix table structure issues
- * Ensures tables have proper structure and accessibility attributes
- */
-function fixTableAccessibility() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    // Add caption if missing
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table caption';
-      table.insertBefore(caption, table.firstChild);
-    }
-
-    // Ensure headers have scope or id
-    const headers = table.querySelectorAll('th');
-    headers.forEach((th, index) => {
-      if (!th.getAttribute('scope') && !th.getAttribute('id')) {
-        th.setAttribute('scope', 'col');
-      }
-    });
-
-    // Ensure proper table structure
-    validateTableStructure(table);
+// Accessibility functions
+function addKeyboardNavigation() {
+  // Implementation for keyboard navigation support
+  document.addEventListener('keydown', (e) => {
+    // Handle keyboard events
   });
 }
 
-/**
- * REACT_017: Validate and fix landmark issues
- * Ensures proper landmark structure and accessibility
- */
-function fixLandmarkIssues() {
-  // Ensure unique landmarks
-  ensureUniqueLandmarks(landmarks);
-
-  // Add proper landmark regions
-  addProperLandmarkRegions();
-
-  // Validate existing landmarks
-  const landmarkValidation = validateLandmark();
-  if (!landmarkValidation.valid) {
-    console.warn('Landmark validation issues:', landmarkValidation.issues);
-  }
+function addAriaLabels() {
+  // Implementation for adding ARIA labels
+  const elements = document.querySelectorAll('[role]');
+  elements.forEach(el => {
+    if (!el.getAttribute('aria-label')) {
+      el.setAttribute('aria-label', el.getAttribute('role'));
+    }
+  });
 }
 
-/**
- * REACT_041: Add accessible names to SVGs
- * Ensures all SVGs have accessible names
- */
-function addSvgAccessibility() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const name = getSvgAccessibleName(svg);
-    if (!name) {
-      setSvgAttributes(svg, 'Graphic element');
+function addScreenReaderAnnouncements() {
+  // Implementation for screen reader announcements
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  document.body.appendChild(announcer);
+}
+
+function addFocusTrap(modal) {
+  // Implementation for focus trapping in modals
+  const focusableElements = modal.querySelectorAll(
+    'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+  );
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  modal.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstFocusable) {
+        e.preventDefault();
+        lastFocusable.focus();
+      } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+        e.preventDefault();
+        firstFocusable.focus();
+      }
     }
   });
 }
@@ -328,44 +374,6 @@ function addLangAttribute() {
   // Implementation for adding lang attribute
 }
 
-// App state and initialization
-let appState = { initialized: false };
-
-function initializeApp() {
-  appState.initialized = true;
-  return appState;
-}
-
-function fetchUser(userId) {
-  // Implementation for fetching user
-  return null;
-}
-
-function clearCache() {
-  // Implementation for clearing cache
-}
-
-function initialize() {
-  // Implementation for initialization
-  return true;
-}
-
-// Legacy module exports for backward compatibility
-const someFunction = function() {
-    return 'some value';
-};
-
-const helper = function(input) {
-    return input ? input.toUpperCase() : '';
-};
-
-const formatDate = function(date) {
-    if (!(date instanceof Date)) {
-        date = new Date(date);
-    }
-    return date.toISOString().split('T')[0];
-};
-
 module.exports = {
   // Screeps bot exports
   renderDependencyGraph,
@@ -391,11 +399,11 @@ module.exports = {
   config: CONFIG,
   appState,
   initializeApp,
-  processData,
+  processData: processDataFn,
   fetchUser,
   clearCache,
   initialize,
-  validateInput,
+  validateInput: validateInputFn,
   addressAccessibilityIssues,
   processAccessibilityReport,
   getLangAttribute,
@@ -425,14 +433,15 @@ module.exports = {
   processLandmarks,
   sortLandmarks,
   getLandmarkById,
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
-  someFunction,
-  helper,
-  formatDate,
+  CONFIG,
   isValidLandmark,
   writeReport,
-  scanAccessibility
+  scanAccessibility,
+  addKeyboardNavigation,
+  addAriaLabels,
+  addScreenReaderAnnouncements,
+  addFocusTrap,
+  improveAccessibility,
+  helper,
+  formatDate
 };

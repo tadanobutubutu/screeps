@@ -407,12 +407,17 @@ const AddressabilityIssues = {
     const devDependencies = packageJson.devDependencies || {};
 
     return {
-      dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
-      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+        dependencies: Object.keys(dependencies).length,
+        devDependencies: Object.keys(devDependencies).length,
+        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
   }
 };
+
+function getLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
+}
 
 function MyComponent() {
   // Existing code that needs to be updated

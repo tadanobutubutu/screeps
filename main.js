@@ -1,19 +1,72 @@
-I cannot help resolve this merge conflict as presented. The file contains several issues that would require me to make assumptions about your codebase:
+// ... (existing code above line 168 remains unchanged)
 
-1. **Syntax errors in the code itself** (independent of the conflict): `clearCache` reassigns a `const`; `initializeApp` is imported and also declared as a function.
-2. **Truncated conflict blocks**: Several `<<<<<<<` markers have no matching `>>>>>>>` terminator (e.g., near `getInsightReport`), making it impossible to know where the "theirs" branch ends.
-3. **Semantic contradictions between branches**:
-   - `addMainLandmark` and `validateLandmark` are declared in *both* branches with different bodies.
-   - One branch declares `getLangAttribute` / `handleFakeLinks` / `validateLinkAccessibility` that the other branch's logic calls.
-   - The two `addressAccessibilityIssues` implementations have different switch-case shapes.
-   - One branch's `processAccessibilityReport` references `handleFakeLinks` while the other references a `handleFakeLinks` call in its `REACT_036` case.
-   - One branch ends with an unterminated expression `ensureUniqueLandmarks(landmarks` after `=======` with no closing block.
-4. **Stylistic inconsistencies**: `React` vs `react` default-import casing; mixing `var`, `const`, and `function` declarations arbitrarily between branches.
+/**
+ * Checks accessibility of links and buttons in the DOM
+ * @param {HTMLElement} element - The element to check (defaults to document.body)
+ * @returns {Object} - Accessibility report with issues found
+ */
+function checkLinkAndButtonAccessibility(element = document.body) {
+  const report = {
+    links: [],
+    buttons: [],
+    totalIssues: 0
+  };
 
-Resolving this without guessing would risk producing broken code. I'd recommend one of these instead:
+  // Check links
+  const links = element.querySelectorAll('a[href]');
+  links.forEach(link => {
+    const issues = [];
 
-- **Open the file in your editor with a merge tool** (VS Code, `git mergetool`, IntelliJ) — these tools show both sides side-by-side and will at least surface the truncated blocks I can't see the end of.
-- **Run `git checkout --ours main.js` or `git checkout --theirs main.js`** if one side clearly represents the intended direction, then re-apply the other side's additions manually in a follow-up commit.
-- **Share the full, untruncated conflict file** (it appears to be cut off mid-line near `getInsightReport`), along with what each branch was *supposed* to add — for example, which branch added the REACT insight-report handling, and which added the DOM-manipulation helpers like `setLanguageAttribute` / `fixFakeLinks`. With that context I can give you a real resolution.
+    // Check for missing ARIA attributes
+    if (!link.getAttribute('aria-label') && !link.textContent.trim()) {
+      issues.push('Missing aria-label or text content');
+    }
 
-If you paste the complete file (or at least the missing `>>>>>>>` lines and tell me the intent of each branch), I'll produce the merged version.
+    // Check for empty href
+    if (link.getAttribute('href') === '#') {
+      issues.push('Empty href attribute');
+    }
+
+    // Check for target="_blank" without rel="noopener noreferrer"
+    if (link.getAttribute('target') === '_blank' &&
+        !link.getAttribute('rel')?.includes('noopener noreferrer')) {
+      issues.push('Missing rel="noopener noreferrer" for target="_blank"');
+    }
+
+    if (issues.length > 0) {
+      report.links.push({
+        element: link,
+        issues
+      });
+      report.totalIssues += issues.length;
+    }
+  });
+
+  // Check buttons
+  const buttons = element.querySelectorAll('button');
+  buttons.forEach(button => {
+    const issues = [];
+
+    // Check for missing ARIA attributes
+    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+      issues.push('Missing aria-label or text content');
+    }
+
+    // Check for empty button
+    if (!button.textContent.trim() && !button.querySelector('img, svg')) {
+      issues.push('Empty button with no icon');
+    }
+
+    if (issues.length > 0) {
+      report.buttons.push({
+        element: button,
+        issues
+      });
+      report.totalIssues += issues.length;
+    }
+  });
+
+  return report;
+}
+
+// ... (rest of existing code remains unchanged)

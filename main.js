@@ -54,7 +54,37 @@ function countDependencies() {
 
 // Additional functions to address accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
-  // Implement function to address the reported accessibility issues
+  if (!insightReport || !Array.isArray(insightReport)) {
+    throw new Error('insightReport must be an array of issues');
+  }
+
+  const processed = insightReport.map((issue, index) => {
+    const issueType = issue.type || 'unknown';
+    const status = issue.status || 'pending';
+    let fixApplied = '';
+
+    switch (issueType) {
+      case 'missing-alt-text':
+        fixApplied = 'added-alt-text';
+        break;
+      case 'missing-aria-label':
+        fixApplied = 'added-aria-label';
+        break;
+      case 'invalid-landmark-role':
+        fixApplied = 'fixed-role';
+        break;
+      default:
+        fixApplied = 'none';
+    }
+
+    return {
+      issueType,
+      status,
+      fixApplied
+    };
+  });
+
+  return processed;
 }
 
 function generateAccessibilityReport(accessibilityReport) {

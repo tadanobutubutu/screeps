@@ -96,6 +96,35 @@ function processData(data) {
   };
 }
 
+function handleCredentialResponse(response) {
+  if (!response || !response.credential) {
+    throw new Error('Invalid credential response');
+  }
+
+  try {
+    // Decode the JWT credential (simplified example)
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+
+    // Store the credential in app state
+    appState.credential = {
+      userId: payload.sub,
+      email: payload.email,
+      name: payload.name,
+      picture: payload.picture,
+      issuedAt: new Date(payload.iat * 1000),
+      expiresAt: new Date(payload.exp * 1000)
+    };
+
+    return {
+      success: true,
+      credential: appState.credential
+    };
+  } catch (error) {
+    console.error('Error processing credential:', error);
+    throw new Error('Failed to process credential');
+  }
+}
+
 function main() {
   initializeApp();
   setupHandlers();
@@ -116,5 +145,6 @@ module.exports = {
   setupHandlers,
   validateInput,
   processData,
+  handleCredentialResponse,
   main
 };

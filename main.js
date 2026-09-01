@@ -8,6 +8,8 @@
 // _Commit: ca07afdb3852933670d8d59e11575814d1bda9e5_
 // <!-- todo-hash: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
 
+// TODO: This is the existing code that needs to be preserved
+
 // TODO: Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 

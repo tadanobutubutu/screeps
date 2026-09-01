@@ -13,29 +13,29 @@
  */
 function validateTableStructure() {
     const tables = document.querySelectorAll('table');
-    
+
     tables.forEach(table => {
         const rows = table.querySelectorAll('tr');
         const firstRow = rows[0];
-        
+
         if (!firstRow) return;
-        
+
         // Get all header cells in the first row to determine column count
         const firstRowThs = firstRow.querySelectorAll('th');
         const firstRowTds = firstRow.querySelectorAll('td');
         const firstRowHeaders = [...firstRowThs, ...firstRowTds];
         const columnCount = firstRowHeaders.length;
-        
+
         rows.forEach((row, rowIndex) => {
             const ths = row.querySelectorAll('th');
             const tds = row.querySelectorAll('td');
             const allCells = [...ths, ...tds];
-            
+
             allCells.forEach((cell, cellIndex) => {
                 if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
                     const isFirstRow = rowIndex === 0;
                     const isFirstCell = cellIndex === 0;
-                    
+
                     // First row cells are column headers
                     if (isFirstRow) {
                         cell.setAttribute('scope', 'col');
@@ -57,8 +57,6 @@ function validateTableStructure() {
 function validateTableAccessibility() {
     validateTableStructure();
 }
-
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
 
 // TODO: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 
@@ -100,8 +98,77 @@ function ensureUniqueLandmarks(landmarksArray) {
 // Apply uniqueness to the landmarks
 const uniqueLandmarks = ensureUniqueLandmarks(landmarks);
 
+// TODO: Add these imported modules to the relevant rendering functions
+function getLangAttribute() {
+    return document.documentElement.getAttribute('lang') || 'en';
+}
+
+function createInPageButton() {
+    const button = document.createElement('button');
+    button.setAttribute('aria-label', 'In-page navigation');
+    return button;
+}
+
+function validateLandmark() {
+    const landmarks = document.querySelectorAll('[role="landmark"]');
+    landmarks.forEach(landmark => {
+        if (!landmark.hasAttribute('aria-label')) {
+            landmark.setAttribute('aria-label', landmark.textContent.trim());
+        }
+    });
+}
+
+function validateLandmarkStructure() {
+    const main = document.querySelector('main');
+    if (!main) {
+        console.warn('No main landmark found');
+    }
+}
+
+function getSvgAccessibleName(svgElement) {
+    if (svgElement.hasAttribute('aria-label')) {
+        return svgElement.getAttribute('aria-label');
+    }
+    if (svgElement.hasAttribute('title')) {
+        return svgElement.getAttribute('title');
+    }
+    return 'graphic';
+}
+
+function setSvgAttributes(svgElement, name) {
+    svgElement.setAttribute('role', 'img');
+    svgElement.setAttribute('aria-label', name);
+}
+
+function validateLinkAccessibility() {
+    const links = document.querySelectorAll('a');
+    links.forEach(link => {
+        if (!link.hasAttribute('href') || link.getAttribute('href') === '#') {
+            link.setAttribute('role', 'button');
+        }
+    });
+}
+
+function handleFakeLinks() {
+    const fakeLinks = document.querySelectorAll('a[href="#"]');
+    fakeLinks.forEach(link => {
+        link.setAttribute('role', 'button');
+        link.setAttribute('tabindex', '0');
+    });
+}
+
 module.exports = {
   ensureUniqueLandmarks,
   landmarks,
-  uniqueLandmarks
+  uniqueLandmarks,
+  validateTableAccessibility,
+  validateTableStructure,
+  getLangAttribute,
+  createInPageButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks
 };

@@ -4,6 +4,7 @@
 
 // TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)
 const { createWebResourceButton, validateAccessibilityReport } = require('./utilities');
+const { createAccessibleButton } = require('./utilities'); // New import for the requested function
 
 const http = require('http');
 const fs = require('fs');
@@ -111,6 +112,7 @@ module.exports = {
   updateFunction,
   accessibleFunction,
   main,
+  createAccessibleButton // New export
 };
 
 // Also attach to global scope for browser/standalone access
@@ -119,4 +121,5 @@ if (typeof window !== 'undefined') {
   window.updateFunction = updateFunction;
   window.accessibleFunction = accessibleFunction;
   window.main = main;
+  window.createAccessibleButton = createAccessibleButton; // New global export
 }

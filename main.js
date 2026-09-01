@@ -99,6 +99,18 @@ function validateTableStructure (tableData) {
   return true
 }
 
+// Call the functions to address the accessibility issues
+addLangAttribute();
+fixTableStructure();
+addMainLandmark();
+fixLandmarkIssues();
+ensureUniqueLandmarks();
+addSvgAccessibleNames();
+addAccessibleNamesToSVGs();
+fixFakeLinkIssue();
+googleSignIn();
+fixButtonIdentifiers();
+
 // Other code...
 
 // Preserve all existing exports

@@ -1,9 +1,75 @@
 // main.js
 
-const main = require('./utilities');
+const main = require('./utilities')
 const accessibilityUtils = {
-  // ... existing accessibilityUtils implementation
-};
+  // Initialize skip link functionality for keyboard navigation
+  initSkipLink: function () {
+    const skipLink = document.querySelector('.skip-link')
+    if (skipLink) {
+      skipLink.addEventListener('click', function (e) {
+        e.preventDefault()
+        const target = document.querySelector(skipLink.getAttribute('href'))
+        if (target) {
+          target.setAttribute('tabindex', '-1')
+          target.focus()
+        }
+      })
+    }
+  },
+
+  // Trap focus within an element (for modals, dialogs)
+  trapFocus: function (element) {
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )
+    const firstElement = focusableElements[0]
+    const lastElement = focusableElements[focusableElements.length - 1]
+
+    element.addEventListener('keydown', function (e) {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus()
+          e.preventDefault()
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus()
+          e.preventDefault()
+        }
+      }
+    })
+  },
+
+  // Announce message to screen readers
+  announceToScreenReader: function (message, priority) {
+    if (priority === undefined) {
+      priority = 'polite'
+    }
+    const announcer = document.createElement('div')
+    announcer.setAttribute('aria-live', priority)
+    announcer.setAttribute('aria-atomic', 'true')
+    announcer.className = 'sr-only'
+    announcer.style.position = 'absolute'
+    announcer.style.left = '-9999px'
+    announcer.textContent = message
+    document.body.appendChild(announcer)
+    setTimeout(function () {
+      announcer.remove()
+    }, 1000)
+  },
+
+  // Handle keyboard navigation
+  handleKeyboardNav: function (e, handlers) {
+    const key = e.key
+    if (handlers[key]) {
+      handlers[key](e)
+    }
+  },
+
+  // New function for focus trap
+  newFocusTrap: function (element, options) {
+    // Existing implementation of newFocusTrap here
+  }
+}
+
 const exportUtils = {
   // ... existing exportUtils implementation
 };
@@ -36,7 +102,7 @@ const {
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   validateTableAccessibilityImpl,
-  ...
+  validateTableStructureImpl,
   transformInputData,
   setSvgAccessibleProps,
   addAccessibleNamesToSVGs,
@@ -45,7 +111,11 @@ const {
   uniqueLandmarks,
   fixImageAltTexts,
   googleSignIn,
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  newFunction,
+  newFunction1,
+  newFunction2,
+  updateGraphRendering
 } = main;
 
 // TODO: Implement this function for checking landmark elements
@@ -69,17 +139,17 @@ function checkLandmarkElement(element) {
 }
 
 const a11yStore = {
-  prefersReducedMotion() {
-    return ... reduce)').matches;
+  prefersReducedMotion () {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
   },
-  newFocusTrap: newFocusTrap,
-  addressAccessibilityIssues: addressAccessibilityIssues
+  newFocusTrap,
+  addressAccessibilityIssues
 };
 
 // Initialize wrapPrimaryContentInMain on DOM ready
-... () => {
-  ...
-});
+document.addEventListener('DOMContentLoaded', () => {
+  wrapPrimaryContentInMain()
+})
 
 // Import all utilities functions for convenience (merged from both branches)
 
@@ -114,7 +184,7 @@ module.exports = {
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   validateTableAccessibilityImpl,
-  ...
+  validateTableStructureImpl,
   transformInputData,
   setSvgAccessibleProps,
   addAccessibleNamesToSVGs,
@@ -124,5 +194,6 @@ module.exports = {
   fixImageAltTexts,
   googleSignIn,
   addressAccessibilityIssues,
-  a11yStore
+  a11yStore,
+  trapFocus
 };

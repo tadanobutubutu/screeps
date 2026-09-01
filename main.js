@@ -28,10 +28,48 @@ function processData(data) {
   };
 }
 
+function renderDependencyGraph(dependencies) {
+  if (!validateInput(dependencies)) {
+    throw new Error('Invalid dependencies data');
+  }
+
+  // Simple graph representation
+  const graph = {};
+  dependencies.forEach(dep => {
+    if (!graph[dep.package]) {
+      graph[dep.package] = [];
+    }
+    if (dep.dependency) {
+      graph[dep.package].push(dep.dependency);
+    }
+  });
+
+  return graph;
+}
+
+function visualizeDependencyGraph(graph) {
+  if (!validateInput(graph)) {
+    throw new Error('Invalid graph data');
+  }
+
+  console.log('Dependency Graph Visualization:');
+  Object.entries(graph).forEach(([pkg, deps]) => {
+    console.log(`${pkg} depends on: ${deps.join(', ')}`);
+  });
+}
+
 function main() {
   initializeApp();
   setupHandlers();
   return processData;
 }
 
-module.exports = { main, processData, validateInput, initializeApp, setupHandlers };
+module.exports = {
+  main,
+  processData,
+  validateInput,
+  initializeApp,
+  setupHandlers,
+  renderDependencyGraph,
+  visualizeDependencyGraph
+};

@@ -12,10 +12,7 @@ const { indexContent } = require('./index');
 const { spawn } = require('child_process');
 
 // Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// - Add keyboard navigation support for all interactive elements
-// - Ensure proper ARIA labels on dynamic content
-// - Maintain focus management for modal dialogs
+// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
 
 const accessibilityUtils = {
   // ... existing methods from both branches ...
@@ -47,6 +44,58 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  /**
+   * Add keyboard navigation support for interactive elements
+   * @param {HTMLElement} element - The element to add keyboard support to
+   * @param {Object} handlers - The handler functions for different keys
+   */
+  addKeyboardNavigation: (element, handlers) => {
+    if (!element || !handlers) return;
+
+    element.addEventListener('keydown', (e) => {
+      accessibilityUtils.handleKeyboardNav(e, handlers);
+    });
+  },
+
+  /**
+   * Ensure proper ARIA labels on dynamic content
+   * @param {HTMLElement} element - The element to add ARIA attributes to
+   * @param {Object} ariaAttributes - The ARIA attributes to add
+   */
+  ensureAriaAttributes: (element, ariaAttributes) => {
+    if (!element || !ariaAttributes) return;
+
+    Object.entries(ariaAttributes).forEach(([key, value]) => {
+      element.setAttribute(key, value);
+    });
+  },
+
+  /**
+   * Maintain focus management for modal dialogs
+   * @param {HTMLElement} modal - The modal element
+   * @param {HTMLElement} trigger - The element that triggered the modal
+   */
+  manageModalFocus: (modal, trigger) => {
+    if (!modal || !trigger) return;
+
+    // Trap focus within the modal
+    focusTrap(modal);
+
+    // Set initial focus to the first focusable element
+    const firstFocusable = modal.querySelector(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (firstFocusable) {
+      firstFocusable.focus();
+    }
+
+    // Return focus to trigger when modal closes
+    modal.addEventListener('close', () => {
+      trigger.focus();
+    });
   }
 };
 
@@ -236,6 +285,51 @@ const exportUtils = {
 
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
+  },
+
+  /**
+   * Export data to a file with accessibility support
+   * @param {*} data - The data to export
+   * @param {string} filename - The name of the file
+   * @param {string} mimeType - The MIME type of the file
+   * @param {Object} options - Additional options
+   */
+  exportWithAccessibility: (data, filename, mimeType, options = {}) => {
+    const sanitizedFilename = sanitizeFilename(filename);
+    const blob = new Blob([data], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = sanitizedFilename;
+    link.setAttribute('aria-label', `Download ${sanitizedFilename}`);
+    link.setAttribute('role', 'button');
+    link.setAttribute('tabindex', '0');
+
+    // Add keyboard support
+    accessibilityUtils.addKeyboardNavigation(link, {
+      Enter: () => link.click(),
+      ' ': () => link.click()
+    });
+
+    // Add ARIA attributes
+    accessibilityUtils.ensureAriaAttributes(link, {
+      'aria-live': 'polite',
+      'aria-atomic': 'true'
+    });
+
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+
+    // Announce download completion
+    accessibilityUtils.announceToScreenReader(`Download of ${sanitizedFilename} started`);
+
+    // Clean up
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      link.remove();
+    }, 100);
   }
 };
 

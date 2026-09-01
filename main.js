@@ -424,6 +424,153 @@ function createInPageButton(parent = document.body) {
   return btn;
 }
 
+// New function to render dependency graph
+function renderDependencyGraph(container, dependencies) {
+  if (typeof document === 'undefined') {
+    console.warn('Document not available - cannot render dependency graph');
+    return;
+  }
+
+  if (!container || !dependencies || !Array.isArray(dependencies)) {
+    console.error('Invalid parameters for renderDependencyGraph');
+    return;
+  }
+
+  // Clear container
+  container.innerHTML = '';
+
+  // Create SVG container
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  svg.setAttribute('viewBox', '0 0 800 600');
+  svg.setAttribute('aria-label', 'Dependency graph visualization');
+
+  // Create nodes and edges
+  const nodes = {};
+  const edges = [];
+
+  // Create nodes for each dependency
+  dependencies.forEach((dep, index) => {
+    const x = 100 + (index % 4) * 200;
+    const y = 100 + Math.floor(index / 4) * 150;
+
+    const node = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    node.setAttribute('cx', x);
+    node.setAttribute('cy', y);
+    node.setAttribute('r', 30);
+    node.setAttribute('fill', '#4a90e2');
+    node.setAttribute('stroke', '#2a6496');
+    node.setAttribute('stroke-width', '2');
+    node.setAttribute('aria-label', `Dependency node for ${dep.name}`);
+
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', x);
+    label.setAttribute('y', y + 5);
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('fill', 'white');
+    label.setAttribute('font-size', '12');
+    label.textContent = dep.name;
+
+    svg.appendChild(node);
+    svg.appendChild(label);
+
+    nodes[dep.name] = { x, y };
+  });
+
+  // Create edges between dependencies
+  dependencies.forEach(dep => {
+    if (dep.dependencies) {
+      dep.dependencies.forEach(depName => {
+        if (nodes[depName] && nodes[dep.name]) {
+          const edge = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          edge.setAttribute('x1', nodes[depName].x);
+          edge.setAttribute('y1', nodes[depName].y);
+          edge.setAttribute('x2', nodes[dep.name].x);
+          edge.setAttribute('y2', nodes[dep.name].y);
+          edge.setAttribute('stroke', '#999');
+          edge.setAttribute('stroke-width', '2');
+          edge.setAttribute('marker-end', 'url(#arrowhead)');
+
+          svg.appendChild(edge);
+          edges.push(edge);
+        }
+      });
+    }
+  });
+
+  // Add arrowhead marker
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  marker.setAttribute('id', 'arrowhead');
+  marker.setAttribute('markerWidth', '10');
+  marker.setAttribute('markerHeight', '7');
+  marker.setAttribute('refX', '9');
+  marker.setAttribute('refY', '3.5');
+  marker.setAttribute('orient', 'auto');
+
+  const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+  polygon.setAttribute('fill', '#999');
+
+  marker.appendChild(polygon);
+  defs.appendChild(marker);
+  svg.appendChild(defs);
+
+  container.appendChild(svg);
+}
+
+// New function to render index view
+function renderIndexView(container, items) {
+  if (typeof document === 'undefined') {
+    console.warn('Document not available - cannot render index view');
+    return;
+  }
+
+  if (!container || !items || !Array.isArray(items)) {
+    console.error('Invalid parameters for renderIndexView');
+    return;
+  }
+
+  // Clear container
+  container.innerHTML = '';
+
+  // Create index view container
+  const indexContainer = document.createElement('div');
+  indexContainer.className = 'index-view';
+  indexContainer.setAttribute('role', 'navigation');
+  indexContainer.setAttribute('aria-label', 'Index view of items');
+
+  // Create index items
+  items.forEach((item, index) => {
+    const itemElement = document.createElement('div');
+    itemElement.className = 'index-item';
+    itemElement.setAttribute('role', 'listitem');
+
+    const link = document.createElement('a');
+    link.href = item.url || '#';
+    link.textContent = item.title || `Item ${index + 1}`;
+    link.setAttribute('aria-label', `Go to ${item.title || `Item ${index + 1}`}`);
+
+    if (item.url) {
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    } else {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (item.onClick) {
+          item.onClick(e);
+        }
+      });
+    }
+
+    itemElement.appendChild(link);
+    indexContainer.appendChild(itemElement);
+  });
+
+  container.appendChild(indexContainer);
+}
+
 // New function to address ADD: Address new accessibility issues from insight report
 function validateFormAccessibility(form) {
   // This function validates the accessibility of forms
@@ -548,6 +695,8 @@ function exampleFunction() {
 
 // TODO: Implement actual logic for functionA
 function functionA() {
+
+}
 
 // TODO: Implement tower defense
 function towerDefense() {
@@ -743,6 +892,8 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
+  renderDependencyGraph,
+  renderIndexView,
   validateFormAccessibility,
   validateImageAccessibility,
   validateButtonAccessibility,
@@ -751,6 +902,3 @@ module.exports = {
   countDependencies,
   exampleFunction
 };
-
-// Add the new function to the exports
-module.exports.exampleFunction = exampleFunction;

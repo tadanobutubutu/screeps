@@ -33,9 +33,8 @@ const sampleInsightReport = {
 // Implement function for addressing accessibility issues from insight report
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-    const path = require('path');
     const fs = require('fs');
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJsonPath = require('path').join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
     const dependencies = packageJson.dependencies || {};
@@ -48,52 +47,37 @@ function countDependencies() {
     };
 }
 
-/**
- * Handle credential response from browser authentication
- * @param {Object} response - The credential response object
- * @returns {Object} Processed credential information
- */
-function handleCredentialResponse(response) {
-    if (!response) {
-        return { success: false, error: 'No credential response provided' };
+// Function for keyboard navigation focus trap within modal dialogs
+function trapFocus(event) {
+    // Find all elements inside the dialog that can receive focus
+    const focusableElements = event.currentTarget.querySelectorAll('a, area, button, input, select, textarea,[tabindex]');
+
+    // Get the currently focused element
+    let currentFocusElement = document.activeElement;
+
+    // Remove focus from the currently focused element if it's not a focusable element inside the dialog
+    if (!focusableElements.contains(currentFocusElement)) {
+        currentFocusElement.blur();
+        event.preventDefault();
     }
 
-    // Check if response contains expected credential data
-    const hasCredential = response.credential || response.token || response.id;
-    
-    if (!hasCredential) {
-        return { success: false, error: 'Invalid credential response format' };
-    }
+    const nextFocusElement = focusableElements.length > 0 ? focusableElements[0] : null;
 
-    // Process credential information
-    const processedCredential = {
-        id: response.id || null,
-        token: response.token || response.credential || null,
-        name: response.name || 'Anonymous User',
-        email: response.email || null,
-        success: true
-    };
-
-    // Handle different types of credential responses
-    if (response.credential) {
-        // Google Sign-In response
-        try {
-            // Credential is a base64-encoded JWT
-            const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            processedCredential.id = payload.sub || processedCredential.id;
-            processedCredential.email = payload.email || processedCredential.email;
-            processedCredential.name = payload.name || processedCredential.name;
-        } catch (error) {
-            console.warn('Failed to parse credential response:', error);
+    // If the event was the "KeyboardEvent.keydown" event with the "Tab" key, manage focus changes
+    if (event.type === 'keydown' && event.key === 'Tab') {
+        // If the event was triggered by moving focus to a focusable element outside the dialog
+        if (!focusableElements.contains(currentFocusElement) && (event.target !== event.currentTarget)) {
+            event.preventDefault();
+            if (nextFocusElement) {
+                nextFocusElement.focus();
+            }
         }
     }
 
-    // Announce success to screen readers
-    if (typeof announceToScreenReader === 'function') {
-        announceToScreenReader('User successfully authenticated');
+    // Set the activeElement to the new focusable element on focus
+    if (nextFocusElement) {
+        nextFocusElement.type === 'radio' || 'checkbox' ? nextFocusElement.focus() : nextFocusElement.focus();
     }
-
-    return processedCredential;
 }
 
 // Ensure DOM is fully loaded before executing scripts
@@ -123,7 +107,8 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
-    handleCredentialResponse
+    handleCredentialResponse,
+    sampleInsightReport
   };
 } else {
   // Browser environment - wait for DOM
@@ -293,202 +278,4 @@ function enhanceSemanticMarkup() {
   });
 }
 
-function trapFocus(element) {
-  /* existing code */
-}
-
-function closeOpenDialogs() {
-  /* existing code */
-}
-
-function announceToScreenReader(message) {
-  const liveRegion = document.getElementById('aria-live-region');
-  if (liveRegion) {
-    liveRegion.textContent = '';
-    // Slight delay to ensure screen readers pick up the change
-    setTimeout(() => {
-      liveRegion.textContent = message;
-    }, 100);
-  }
-}
-
-function calculateDifference(a, b) {
-  /* existing code */
-}
-
-function calculateProduct(a, b) {
-  /* existing code */
-}
-
-function isNumber(value) {
-  /* existing code */
-}
-
-function clamp(value, min, max) {
-  /* existing code */
-}
-
-function createInPageButton(buttonId, buttonText) {
-  /* existing code */
-}
-
-function handleKeyNavigation(event) {
-  /* existing code */
-}
-
-function handleFakeLinks(issues) {
-  /* existing code */
-}
-
-// Accessibility utilities
-const hello = () => {
-  return 'Hello from main.js';
-};
-
-// Utilities for addressing accessibility issues
-const AddressabilityIssues = {
-  generateAccessibilityReport: function(accessibilityReport) {
-    if (!accessibilityReport || !accessibilityReport.issues) {
-      return [];
-    }
-
-    const report = accessibilityReport.issues.map(issue => ({
-      issueType: issue.type,
-      status: issue.status || 'pending',
-      fixApplied: issue.fixApplied || ''
-    }));
-
-    return report;
-  },
-
-  calculateAccessibilityScore: function(fixedIssues) {
-    if (!Array.isArray(fixedIssues)) {
-      return 0;
-    }
-
-    const scorePoints = {
-      'color-contrast': 5,
-      'missing-alt-text': 3,
-      'missing-aria-label': 5,
-      'heading-order': 2,
-      'other': 1
-    };
-
-    return fixedIssues.reduce((score, issue) => {
-      const points = scorePoints[issue.type] || scorePoints['other'];
-      return score + points;
-    }, 0);
-  },
-
-  fixMainLandmarkTags: function(source) {
-    const mainBlockRegex = /<main[^>]*>[\s\S]*?<\/main>/gi;
-
-    const matches = source.match(mainBlockRegex);
-    if (!matches || matches.length <= 1) {
-      return source;
-    }
-
-    let result = source;
-    for (let i = 1; i < matches.length; i++) {
-      const block = matches[i];
-      const fixedBlock = block
-        .replace(/<main>/, '<section>')
-        .replace(/<\/main>/, '</section>');
-      result = result.replace(block, fixedBlock);
-    }
-
-    return result;
-  },
-
-  validateLandmark: function(element) {
-    if (!element) {
-      return { valid: false, error: 'Element is required' };
-    }
-
-    const landmarkRoles = [
-      'banner',
-      'main',
-      'navigation',
-      'search',
-      'contentinfo',
-      'complementary',
-      'region',
-      'form'
-    ];
-
-    const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-
-    const implicitLandmarks = {
-      'header': 'banner',
-      'main': 'main',
-      'nav': 'navigation',
-      'aside': 'complementary',
-      '
-=======
-const sampleInsightReport = {
-  title: 'Quarterly Performance Report',
-  sections: [
-    {
-      heading: 'Sales Overview',
-      content: 'Total sales increased by 15% compared to last quarter.'
-    },
-    {
-      heading: 'Customer Satisfaction',
-      content: 'Average satisfaction score: 4.2 out of 5.'
-    }
-  ]
-};
-
-function countDependencies() {
-  const fs = require('fs');
-  const packageJsonPath = require('path').join(__dirname, 'package.json');
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-  const dependencies = packageJson.dependencies || {};
-  const devDependencies = packageJson.devDependencies || {};
-
-  return {
-    dependencies: Object.keys(dependencies).length,
-    devDependencies: Object.keys(devDependencies).length,
-    total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-  };
-}
-
-// Ensure DOM is fully loaded before executing scripts
-if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment - setup basic exports
-  module.exports = {
-    checkTableStructure,
-    countDependencies,
-    init,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    validateLandmark,
-    spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse,
-    sampleInsightReport
-  };
-} else {
-  // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-}
+// ... Further existing code

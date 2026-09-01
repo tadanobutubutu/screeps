@@ -142,9 +142,9 @@ function addressAccessibilityIssues(container) {
   });
 
   // Validate accessibility report
-  const report = validateAccessibilityReport(container);
-  if (report && report.length > 0) {
-    log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
+  const accessibilityReport = validateAccessibilityReport(container);
+  if (accessibilityReport && accessibilityReport.length > 0) {
+    log(`Accessibility report contains ${accessibilityReport.length} remaining issues`, 'warn');
   }
 
   if (fixes.langAdded) {
@@ -171,6 +171,14 @@ function addressAccessibilityIssues(container) {
   }
 
   return fixes;
+}
+
+// Accessibility-related function to be added
+function checkAccessibilityInternal(content) {
+  // Placeholder for accessibility checking logic
+  // This function should be implemented to check for accessibility issues
+  // For now, it just returns an empty array
+  return [];
 }
 
 // New feature: Priority-based task scheduling
@@ -220,12 +228,11 @@ class ScreepsBot {
 
     // Execute highest priority task
     if (this.tasks.length > 0) {
-      const nextTask = this.tasks[0];
-      try {
-        nextTask.task();
-      } catch (err) {
-        console.error(`Task failed: ${err.message}`);
-      }
+    const nextTask = this.tasks[0];
+    try {
+      nextTask.task();
+    } catch (err) {
+      console.error(`Task failed: ${err.message}`);
     }
   }
 }
@@ -354,4 +361,12 @@ function existingFunction() {
 }
 
 // Export existing function
-export { existingFunction };
+module.exports = {
+  existingFunction,
+  checkAccessibility: checkAccessibilityInternal,
+  addressAccessibilityIssues,
+  implementAccessibilityFixesFromReport,
+  updateUI,
+  newFunction,
+  ScreepsBot
+};

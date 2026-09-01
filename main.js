@@ -11,11 +11,21 @@ const http = require('http');
 
 // Assuming the new function is called `renderGraphIndex` and it should replace or integrate with the existing `renderDependencyGraphs` function.
 const renderGraphIndex = (graphData) => {
-  // Placeholder for the new rendering logic
+  // Implement the new rendering logic using the existing utility functions
   // This function should use the new functions for rendering the graph/index
   // For example, it could call `setSvgAccessibilityProps`, `addAccessibleNamesToSVGs`, etc.
-  // Replace this with the actual implementation details
-  renderDependencyGraphs(graphData);
+
+  // First ensure the graph data has proper accessibility properties
+  const accessibleGraphData = setSvgAccessibilityProps(graphData);
+
+  // Add accessible names to any SVGs in the graph
+  const namedGraphData = addAccessibleNamesToSVGs(accessibleGraphData);
+
+  // Render the dependency graphs with the processed data
+  renderDependencyGraphs(namedGraphData);
+
+  // Return the processed data for further use if needed
+  return namedGraphData;
 };
 
 // Update the call to the new function in the existing context

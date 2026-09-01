@@ -34,4 +34,27 @@ function main() {
   return processData;
 }
 
-module.exports = { main, processData, validateInput, initializeApp, setupHandlers };
+// Accessibility improvements
+function getAccessibleDescription(element) {
+  if (!element) return '';
+  return element.getAttribute('aria-label') ||
+         element.getAttribute('title') ||
+         element.textContent ||
+         '';
+}
+
+function setAccessibleAttribute(element, attribute, value) {
+  if (element && typeof element.setAttribute === 'function') {
+    element.setAttribute(attribute, value);
+  }
+}
+
+module.exports = {
+  main,
+  processData,
+  validateInput,
+  initializeApp,
+  setupHandlers,
+  getAccessibleDescription,
+  setAccessibleAttribute
+};

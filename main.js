@@ -1,6 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
-//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-//<!-- todo-hash: ... -->
+//_Commit: 243c66538868c6b878456603a6d20d489ee1915356a26_
+//<!-- todo-hash: a15ad4a6de1dc0d8ec37c24be5d9c48445a5b34c -->
 
 // REACT_015: Add lang attribute
 // REACT_027: Fix 26 table structure issues
@@ -57,6 +57,9 @@
 
             // REACT_037: Google sign-in logic
             this.googleSignIn();
+
+            // NEW: Implement focus trap for keyboard navigation
+            this.setupFocusTrap();
         },
         ensureUniqueLandmarks: function() {
             // REACT_017 & REACT_025: Ensure unique landmarks by adding unique IDs
@@ -205,6 +208,134 @@
                     console.log('Google sign-in initiated');
                 });
             }
+        },
+        setupFocusTrap: function() {
+            // NEW: Implement focus trap for keyboard navigation
+            this.focusTrapElements = [];
+            this.currentFocusTrap = null;
+            this.isFocusTrapActive = false;
+
+            // Create a focus trap for a given element
+            this.createFocusTrap = function(element, options = {}) {
+                if (!element) return null;
+
+                const trap = {
+                    element: element,
+                    firstFocusable: null,
+                    lastFocusable: null,
+                    previousActiveElement: null,
+                    options: {
+                        escapeDeactivates: true,
+                        clickOutsideDeactivates: true,
+                        ...options
+                    }
+                };
+
+                // Find all focusable elements within the trap
+                const focusableSelector = 'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex="0"]';
+                const focusableElements = element.querySelectorAll(focusableSelector);
+
+                if (focusableElements.length > 0) {
+                    trap.firstFocusable = focusableElements[0];
+                    trap.lastFocusable = focusableElements[focusableElements.length - 1];
+                }
+
+                return trap;
+            };
+
+            // Activate a focus trap
+            this.activateFocusTrap = function(trap) {
+                if (!trap || this.isFocusTrapActive) return;
+
+                this.currentFocusTrap = trap;
+                this.isFocusTrapActive = true;
+
+                // Store the previously focused element
+                trap.previousActiveElement = document.activeElement;
+
+                // Focus the first focusable element
+                if (trap.firstFocusable) {
+                    trap.firstFocusable.focus();
+                }
+
+                // Set up event listeners
+                this.setupFocusTrapEvents(trap);
+            };
+
+            // Deactivate the current focus trap
+            this.deactivateFocusTrap = function() {
+                if (!this.isFocusTrapActive || !this.currentFocusTrap) return;
+
+                // Remove event listeners
+                this.removeFocusTrapEvents(this.currentFocusTrap);
+
+                // Restore focus to the previously focused element
+                if (this.currentFocusTrap.previousActiveElement) {
+                    this.currentFocusTrap.previousActiveElement.focus();
+                }
+
+                this.currentFocusTrap = null;
+                this.isFocusTrapActive = false;
+            };
+
+            // Set up event listeners for the focus trap
+            this.setupFocusTrapEvents = function(trap) {
+                // Handle tab key navigation
+                const handleTabKey = (e) => {
+                    if (e.key !== 'Tab') return;
+
+                    if (trap.firstFocusable && trap.lastFocusable) {
+                        if (e.shiftKey) {
+                            // Shift+Tab: move focus to last element if at first
+                            if (document.activeElement === trap.firstFocusable) {
+                                e.preventDefault();
+                                trap.lastFocusable.focus();
+                            }
+                        } else {
+                            // Tab: move focus to first element if at last
+                            if (document.activeElement === trap.lastFocusable) {
+                                e.preventDefault();
+                                trap.firstFocusable.focus();
+                            }
+                        }
+                    }
+                };
+
+                // Handle escape key
+                const handleEscapeKey = (e) => {
+                    if (e.key === 'Escape' && trap.options.escapeDeactivates) {
+                        this.deactivateFocusTrap();
+                    }
+                };
+
+                // Handle click outside
+                const handleClickOutside = (e) => {
+                    if (trap.options.clickOutsideDeactivates && !trap.element.contains(e.target)) {
+                        this.deactivateFocusTrap();
+                    }
+                };
+
+                // Store handlers for removal later
+                trap._handlers = {
+                    tabKey: handleTabKey,
+                    escapeKey: handleEscapeKey,
+                    clickOutside: handleClickOutside
+                };
+
+                document.addEventListener('keydown', handleTabKey);
+                document.addEventListener('keydown', handleEscapeKey);
+                document.addEventListener('click', handleClickOutside);
+            };
+
+            // Remove event listeners for the focus trap
+            this.removeFocusTrapEvents = function(trap) {
+                if (trap._handlers) {
+                    document.removeEventListener('keydown', trap._handlers.tabKey);
+                    document.removeEventListener('keydown', trap._handlers.escapeKey);
+                    document.removeEventListener('click', trap._handlers.clickOutside);
+                    trap._handlers = null;
+                }
+            };
         }
     };
 

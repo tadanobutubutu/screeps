@@ -108,12 +108,18 @@ const formatResponse = (data) => {
 const { validateInput } = require('./utils/validators');
 const { processData } = require('./utils/processor');
 
+// Landmark configuration
+const landmarkConfig = {
+    regions: ['main', 'nav', 'aside', 'section'],
+    landmarks: ['header', 'footer', 'form', 'article', 'section']
+};
+
 // Export new necessary functions
 module.exports = {
   validateInput,
   processData,
   formatResponse,
-  config,
+  config: CONFIG,
   // landmark functions
   isValidLandmark,
   loadLandmarks,
@@ -138,6 +144,15 @@ if (require.main === module) {
     console.log('First landmark:', sorted[0]);
   }
 }
+
+// Line 202: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLandmarkUniqueness())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
 // New function to render dependency graph
 function renderDependencyGraph(landmarks) {

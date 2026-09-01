@@ -206,9 +206,9 @@ function applyAccessibilityFixes(html) {
 }
 
 // TODO: Add back any required exports that might have been removed
-// TODO: This is the existing code that needs to be preserved
-//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-//<!-- todo-hash: ... -->
+ // TODO: This is the existing code that needs to be preserved
+ //_Commit: 243c66538868c66b87845660312397ab39e0f830d_
+ //<!-- todo-hash: ... -->
 
 function addressAccessibilityIssues(insightReport) {
   // Implement the logic to address accessibility issues based on the insight report
@@ -264,6 +264,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.textContent = buttonText;
     button.className = buttonClass;
     button.setAttribute('aria-label', buttonText); // Add ARIA label
+    button.setAttribute('role', 'button'); // Added for accessibility
     document.body.appendChild(button);
 }
 

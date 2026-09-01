@@ -224,7 +224,11 @@ module.exports = {
     path,
     app: express(),
     PORT: process.env.PORT || 3000,
-    HOST: process.env.HOST || 'localhost'
+    HOST: process.env.HOST || 'localhost',
+
+    // Added back required exports
+    landmarks,
+    appState
 };
 
 // Main execution when run directly

@@ -31,13 +31,19 @@ export function calculateProduct(a, b) {
   return a * b;
 }
 
+// New export as per the issue requirements
+export function newExportedFunction() {
+  // Implementation details go here
+}
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { calculateSum, calculateProduct };
+  module.exports = { calculateSum, calculateProduct, newExportedFunction };
 }
 
 // If running in browser context
 if (typeof window !== 'undefined') {
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;
+  window.newExportedFunction = newExportedFunction;
 }

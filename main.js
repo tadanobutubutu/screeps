@@ -78,6 +78,8 @@ function newFunction() {
 // Original code goes here
 // ----- END ORIGINAL CODE -----
 
+// TODO: This is the existing code that needs to be preserved
+
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;

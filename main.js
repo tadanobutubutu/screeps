@@ -1,4 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 // New function to handle credential response
 function handleCredentialResponse(response) {

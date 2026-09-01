@@ -1,4 +1,9 @@
 // main.js - Entry point for the application
+// Accessibility improvements:
+// - Added semantic HTML structure
+// - Included ARIA attributes where necessary
+// - Ensured keyboard navigation support
+// - Added focus management
 
 // Import required modules
 const utils = require('./utils');
@@ -7,12 +12,6 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const { a11y } = require('@accessible/react');
-
-// Accessibility improvements:
-// - Added semantic HTML structure
-// - Included ARIA attributes where necessary
-// - Ensured keyboard navigation support
-// - Added focus management
 
 // Application configuration
 const config = {
@@ -26,11 +25,11 @@ const config = {
 // Helper function
 function initialize() {
   console.log('Initializing application...');
-  
+
   // Load landmarks for accessibility processing
   const landmarks = loadLandmarks();
   const processed = processLandmarks(landmarks);
-  
+
   // Ensure the dependencyGraph container has a proper ARIA role
   if (dependencyGraph) {
     if (!dependencyGraph.id) {
@@ -200,6 +199,9 @@ function fixFakeLink() {
 // Accessibility scanning function using axe-core library
 async function scanAccessibility(filePaths) {
   const issues = [];
+  if (issuesData && Array.isArray(issuesData)) {
+    issues.push(...issuesData);
+  }
 
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
@@ -464,7 +466,10 @@ if (require.main === module) {
   }
 }
 
-// Export all functions
+function function3() {
+  // TODO: Implement new function
+}
+
 module.exports = {
   config,
   initialize,
@@ -504,5 +509,6 @@ module.exports = {
     X: 'valueX',
     Y: 'valueY',
     Z: 'valueZ'
-  }
+  },
+  function3
 };

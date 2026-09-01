@@ -136,6 +136,56 @@ function handleIssue(issue) {
   }
 }
 
+// Helper functions for accessibility fixes
+function addLangAttribute(element) {
+  if (element) {
+    const lang = getLangAttribute();
+    if (lang) {
+      element.setAttribute('lang', lang);
+    }
+  }
+}
+
+function fixTableStructure() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableStructure(table);
+  });
+}
+
+function addMainLandmark() {
+  const mainElement = document.querySelector('main');
+  if (!mainElement) {
+    const newMain = document.createElement('main');
+    document.body.prepend(newMain);
+  }
+}
+
+function validateLandmarkAttributes() {
+  const landmarks = document.querySelectorAll('[role="landmark"]');
+  landmarks.forEach(landmark => {
+    if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+      landmark.setAttribute('aria-label', 'Landmark region');
+    }
+  });
+}
+
+function addLandmarkRegions() {
+  const regions = document.querySelectorAll('[role="region"]');
+  regions.forEach(region => {
+    if (!region.getAttribute('aria-label') && !region.getAttribute('aria-labelledby')) {
+      region.setAttribute('aria-label', 'Content region');
+    }
+  });
+}
+
+function setLanguageAttribute() {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
 // ... (existing code for loading, processing, and sorting landmarks)
 
 // Export functions for testing

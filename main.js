@@ -10,7 +10,7 @@ const {
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues,
-  handleCredentialResponse,
+  handleCredentialResponse: originalHandleCredentialResponse,
   ensureElementHasId,
   ensureElementHasIdOrigin,
   addAriaLabel,

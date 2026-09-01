@@ -20,11 +20,11 @@ function ensureElementHasId(element, prefix = 'element') {
   if (!element) {
     return null;
   }
-  
+
   if (!element.id) {
     element.id = `${prefix}-${Date.now().toString(36).slice(-9)}`;
   }
-  
+
   return element.id;
 }
 
@@ -38,11 +38,11 @@ function addAriaLabel(element, label) {
   if (!element) {
     return null;
   }
-  
+
   if (typeof label !== 'string' || label.trim() === '') {
     return element;
   }
-  
+
   element.setAttribute('aria-label', label);
   return element;
 }
@@ -58,10 +58,10 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
   if (!element) {
     return null;
   }
-  
+
   const id = ensureElementHasId(element, idPrefix);
   addAriaLabel(element, ariaLabel);
-  
+
   return id;
 }
 
@@ -75,13 +75,13 @@ function renderDependencyGraphs(container, options = {}) {
   const { nodes = [], edges = [] } = options;
   const graphContainer = document.createElement('div');
   graphContainer.className = 'dependency-graph';
-  
+
   // Ensure container has an id for accessibility
   const containerId = ensureElementHasId(container, 'graph-container');
-  
+
   // Add aria-label for accessibility
   addAriaLabel(graphContainer, 'Dependency graph visualization');
-  
+
   // Render nodes
   nodes.forEach(node => {
     const nodeElement = document.createElement('div');
@@ -90,19 +90,19 @@ function renderDependencyGraphs(container, options = {}) {
     nodeElement.className = 'graph-node';
     graphContainer.appendChild(nodeElement);
   });
-  
+
   // Render edges (connections between nodes)
   edges.forEach(edge => {
     const sourceId = edge.source?.id || ensureElementHasId({ id: edge.source }, 'node-source');
     const targetId = edge.target?.id || ensureElementHasId({ id: edge.target }, 'node-target');
-    
+
     const edgeElement = document.createElement('div');
     edgeElement.className = 'graph-edge';
     edgeElement.setAttribute('data-source', edge.source);
     edgeElement.setAttribute('data-target', edge.target);
     graphContainer.appendChild(edgeElement);
   });
-  
+
   container.appendChild(graphContainer);
   return graphContainer;
 }
@@ -117,22 +117,22 @@ function renderIndex(container, data = {}) {
   if (!container) {
     throw new Error('Container is required');
   }
-  
+
   const indexContainer = document.createElement('div');
   indexContainer.className = 'index-container';
-  
+
   // Ensure container has an id for accessibility
   ensureElementHasId(indexContainer, 'index');
-  
+
   // Add aria-label for accessibility
   addAriaLabel(indexContainer, 'Dependency index');
-  
+
   // Render the dependency graphs using the new function
   renderDependencyGraphs(indexContainer, {
     nodes: data.nodes || [],
     edges: data.edges || []
   });
-  
+
   container.appendChild(indexContainer);
   return indexContainer;
 }
@@ -146,7 +146,7 @@ function renderDependencyGraph() {
   if (container) {
     container.setAttribute('role', 'region');
     container.setAttribute('aria-label', 'Dependency graph visualization');
-    
+
     // Ensure the container has an id for accessibility
     ensureElementHasId(container, 'dep-graph');
   }
@@ -262,10 +262,10 @@ class ScreepsBot {
   async start() {
     // Initialize network connection
     await this.network.connect();
-    
+
     // Load initial data
     await this.loadData();
-    
+
     console.log('Screenspider bot started');
   }
 
@@ -329,6 +329,228 @@ function existingFunction() {
   // Function implementation
 }
 
+// New accessibility-related functions
+/**
+ * Gets the lang attribute from an element
+ * @param {HTMLElement} element - The element to check
+ * @returns {string|null} The lang attribute value or null if not found
+ */
+function getLangAttribute(element) {
+  if (!element) return null;
+  return element.getAttribute('lang') || element.getAttribute('xml:lang') || null;
+}
+
+/**
+ * Adds lang attribute to an element
+ * @param {HTMLElement} element - The element to add lang to
+ * @param {string} lang - The language code to set
+ */
+function addLangAttribute(element, lang = 'en') {
+  if (!element) return;
+  element.setAttribute('lang', lang);
+}
+
+/**
+ * Validates landmark elements in the container
+ * @param {HTMLElement} container - The container to validate
+ * @returns {Array} Array of fixed landmarks
+ */
+function validateLandmark(container) {
+  if (!container) return [];
+
+  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+  const fixes = [];
+
+  landmarks.forEach(landmark => {
+    if (!landmark.id) {
+      const role = landmark.getAttribute('role');
+      ensureElementHasId(landmark, `landmark-${role}`);
+      fixes.push(landmark);
+    }
+  });
+
+  return fixes;
+}
+
+/**
+ * Validates landmark structure in the container
+ * @param {HTMLElement} container - The container to validate
+ * @returns {Array} Array of fixed landmarks
+ */
+function validateLandmarkStructure(container) {
+  if (!container) return [];
+
+  const fixes = [];
+  const requiredLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+
+  requiredLandmarks.forEach(role => {
+    const selector = role === 'main' ? 'main' : `[role="${role}"]`;
+    const landmark = container.querySelector(selector);
+
+    if (!landmark) {
+      // Create missing landmark
+      const newLandmark = document.createElement('div');
+      newLandmark.setAttribute('role', role);
+      ensureElementHasId(newLandmark, `landmark-${role}`);
+      fixes.push(newLandmark);
+
+      // Insert at appropriate position
+      if (role === 'banner') {
+        container.insertBefore(newLandmark, container.firstChild);
+      } else if (role === 'contentinfo') {
+        container.appendChild(newLandmark);
+      } else {
+        // Insert after banner if exists, otherwise at beginning
+        const banner = container.querySelector('[role="banner"]');
+        if (banner) {
+          banner.insertAdjacentElement('afterend', newLandmark);
+        } else {
+          container.insertBefore(newLandmark, container.firstChild);
+        }
+      }
+    }
+  });
+
+  return fixes;
+}
+
+/**
+ * Gets accessible name for an SVG element
+ * @param {SVGElement} svg - The SVG element to check
+ * @returns {string|null} The accessible name or null if not found
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) return null;
+
+  // Check for title and description elements
+  const title = svg.querySelector('title');
+  const desc = svg.querySelector('desc');
+
+  if (title && title.textContent.trim()) {
+    return title.textContent.trim();
+  }
+
+  if (desc && desc.textContent.trim()) {
+    return desc.textContent.trim();
+  }
+
+  // Check aria-label and aria-labelledby
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim()) {
+    return ariaLabel.trim();
+  }
+
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelledElement = document.getElementById(ariaLabelledby);
+    if (labelledElement && labelledElement.textContent.trim()) {
+      return labelledElement.textContent.trim();
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Sets accessibility properties for an SVG element
+ * @param {SVGElement} svg - The SVG element to update
+ * @param {string} accessibleName - The accessible name to set
+ */
+function setSvgAccessibilityProps(svg, accessibleName) {
+  if (!svg || !accessibleName) return;
+
+  // Ensure SVG has a title element
+  let title = svg.querySelector('title');
+  if (!title) {
+    title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    svg.insertBefore(title, svg.firstChild);
+  }
+  title.textContent = accessibleName;
+
+  // Ensure SVG has a description if needed
+  let desc = svg.querySelector('desc');
+  if (!desc) {
+    desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+    svg.insertBefore(desc, title.nextSibling);
+  }
+
+  // Set aria-label as fallback
+  svg.setAttribute('aria-label', accessibleName);
+}
+
+/**
+ * Validates accessibility report for a container
+ * @param {HTMLElement} container - The container to validate
+ * @returns {Array} Array of accessibility issues found
+ */
+function validateAccessibilityReport(container) {
+  if (!container) return [];
+
+  const issues = [];
+
+  // Check for missing alt text on images
+  const images = container.querySelectorAll('img:not([alt])');
+  images.forEach(img => {
+    issues.push({
+      element: img,
+      issue: 'Missing alt text',
+      severity: 'high'
+    });
+  });
+
+  // Check for empty links
+  const emptyLinks = container.querySelectorAll('a:not([href])');
+  emptyLinks.forEach(link => {
+    issues.push({
+      element: link,
+      issue: 'Empty link (missing href)',
+      severity: 'high'
+    });
+  });
+
+  // Check for missing labels on form elements
+  const unlabeledInputs = container.querySelectorAll('input:not([id]):not([aria-label]):not([aria-labelledby])');
+  unlabeledInputs.forEach(input => {
+    issues.push({
+      element: input,
+      issue: 'Form element missing label',
+      severity: 'medium'
+    });
+  });
+
+  return issues;
+}
+
+/**
+ * Creates an in-page button with accessibility attributes
+ * @param {Object} options - Button options
+ * @param {string} options.text - Button text
+ * @param {string} options.id - Button ID
+ * @param {string} options.ariaLabel - ARIA label
+ * @param {Function} options.onClick - Click handler
+ * @returns {HTMLElement} The created button
+ */
+function createInPageButton(options = {}) {
+  const { text = '', id = '', ariaLabel = '', onClick = () => {} } = options;
+
+  const button = document.createElement('button');
+  button.textContent = text;
+
+  if (id) {
+    button.id = id;
+  } else {
+    ensureElementHasId(button, 'btn');
+  }
+
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+
+  button.addEventListener('click', onClick);
+
+  return button;
+}
+
 // Export functions
 module.exports = {
   ensureElementHasId,
@@ -341,5 +563,13 @@ module.exports = {
   ScreepsBot,
   updateUI,
   newFunction,
-  existingFunction
+  existingFunction,
+  getLangAttribute,
+  addLangAttribute,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAccessibilityProps,
+  validateAccessibilityReport,
+  createInPageButton
 };

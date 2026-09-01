@@ -10,15 +10,15 @@ const url = require('url');
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
   const issues = [];
-  
+
   // Check if HTML contains tables
   const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
   let match;
-  
+
   while ((match = tableRegex.exec(html)) !== null) {
     const tableContent = match[0];
     const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
-    
+
     // Check for caption
     const hasCaption = /<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent);
     if (!hasCaption) {
@@ -29,7 +29,7 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Add a <caption> element immediately after the <table> tag to describe the purpose of the table'
       });
     }
-    
+
     // Check for th elements
     const hasHeaders = /<th[^>]*>/i.test(tableContent);
     if (!hasHeaders) {
@@ -40,7 +40,7 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Add <th> elements for column or row headers to improve accessibility for screen readers'
       });
     }
-    
+
     // Check for scope attributes on th elements
     const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
     thMatches.forEach((thTag, index) => {
@@ -53,11 +53,11 @@ const validateTableAccessibility = (html) => {
         });
       }
     });
-    
+
     // Check for thead and tbody structure
     const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent);
     const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent);
-    
+
     if (!hasThead) {
       issues.push({
         type: 'table',
@@ -66,7 +66,7 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Wrap header rows in a <thead> element for better semantic structure'
       });
     }
-    
+
     if (!hasTbody) {
       issues.push({
         type: 'table',
@@ -75,13 +75,13 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Wrap data rows in a <tbody> element for better semantic structure'
       });
     }
-    
+
     // Check for id and headers attributes for complex tables
     const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
     if (hasMultipleHeaders) {
       const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
       const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
-      
+
       if (!hasIdAttr && !hasHeadersAttr) {
         issues.push({
           type: 'table',
@@ -92,7 +92,7 @@ const validateTableAccessibility = (html) => {
       }
     }
   }
-  
+
   return issues;
 };
 
@@ -102,22 +102,20 @@ const { functionA, functionB } = require('./functionModule');
 
 const a11yStore = {
   // ... existing methods ...
-};
-
-  prefersReducedMotion() {
+  prefersReducedMotion: function() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
 
-  prefersHighContrast() {
+  prefersHighContrast: function() {
     return window.matchMedia('(prefers-contrast: more)').matches;
   },
 
-  updateLiveRegion(message, priority = 'polite') {
+  updateLiveRegion: function(message, priority = 'polite') {
     if (!this.liveRegion) this.createLiveRegion();
     this.announce(message, priority);
   },
 
-  checkLandmarkElements() {
+  checkLandmarkElements: function() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
       const landmarks = document.querySelectorAll(`[role="${element}"]`);
@@ -135,7 +133,7 @@ const a11yStore = {
     });
   },
 
-  addSVGAccessibilityProps() {
+  addSVGAccessibilityProps: function() {
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach((svg) => {
       let titleElement = svg.querySelector('title');
@@ -157,7 +155,7 @@ const a11yStore = {
     });
   },
 
-  fixFakeLinks() {
+  fixFakeLinks: function() {
     const fakeLinks = document.querySelectorAll('[href]:not(a)');
     fakeLinks.forEach((link) => {
       link.setAttribute('role', 'link');
@@ -166,7 +164,7 @@ const a11yStore = {
     });
   },
 
-  preserveExistingCode() {
+  preserveExistingCode: function() {
     // This is the existing code that needs to be preserved
     // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
     // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
@@ -176,7 +174,7 @@ const a11yStore = {
     // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
   },
 
-  newFunction() {
+  newFunction: function() {
     // New function implementation from origin/main
   },
 
@@ -192,20 +190,20 @@ const renderGraphIndex = (graphData) => {
 function getSvgAccessibleName(svgElement) {
   const title = svgElement.querySelector('title');
   const desc = svgElement.querySelector('desc');
-  
+
   if (title && title.textContent) {
     return title.textContent.trim();
   }
-  
+
   if (desc && desc.textContent) {
     return desc.textContent.trim();
   }
-  
+
   const ariaLabel = svgElement.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel.trim();
   }
-  
+
   const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
     const labeledElement = document.getElementById(ariaLabelledby);
@@ -213,7 +211,7 @@ function getSvgAccessibleName(svgElement) {
       return labeledElement.textContent.trim();
     }
   }
-  
+
   return 'SVG graphic';
 }
 
@@ -358,12 +356,12 @@ function handleFocusTrap(element) {
 // HTTP Server setup
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
-    
+
     // CORS headers for credential responses
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    
+
     if (req.method === 'OPTIONS') {
         res.writeHead(200);
         res.end();
@@ -380,16 +378,16 @@ const server = http.createServer((req, res) => {
     // Credential response endpoint
     if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
         let body = '';
-        
+
         req.on('data', chunk => {
             body += chunk.toString();
         });
-        
+
         req.on('end', () => {
             try {
                 const credentialResponse = JSON.parse(body);
                 const result = handleCredentialResponse(credentialResponse);
-                
+
                 res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(result));
             } catch (error) {
@@ -403,7 +401,7 @@ const server = http.createServer((req, res) => {
     // Session validation endpoint
     if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
         const sessionId = parsedUrl.query.sessionId;
-        
+
         if (!sessionId) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
@@ -411,7 +409,7 @@ const server = http.createServer((req, res) => {
         }
 
         const session = validateSession(sessionId);
-        
+
         if (session) {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'valid', user: session.user }));
@@ -425,16 +423,16 @@ const server = http.createServer((req, res) => {
     // Session revocation endpoint
     if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
         let body = '';
-        
+
         req.on('data', chunk => {
             body += chunk.toString();
         });
-        
+
         req.on('end', () => {
             try {
                 const { sessionId } = JSON.parse(body);
                 const revoked = revokeSession(sessionId);
-                
+
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
             } catch (error) {
@@ -480,15 +478,15 @@ if (require.main === module) {
     // Fix landmark issues by ensuring proper roles and accessible names
     const landmarkElements = container.querySelectorAll('header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
     const processedLandmarks = new Set();
-    
+
     landmarkElements.forEach(landmark => {
       if (processedLandmarks.has(landmark)) return;
       processedLandmarks.add(landmark);
-      
+
       if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
         const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
         const previousSibling = landmark.previousElementSibling;
-        
+
         if (previousSibling && previousSibling.textContent.trim()) {
           const labelId = `landmark-label-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
           const labelSpan = container.ownerDocument.createElement('span');
@@ -510,9 +508,9 @@ if (require.main === module) {
     const fakeLinks = container.querySelectorAll('a:not([href]), [role="link"]:not([href])');
     fakeLinks.forEach(element => {
       if (uniqueFakeLinksFixed.has(element)) return;
-      
+
       const isNavigation = element.closest('nav') !== null;
-      
+
       if (isNavigation || element.tagName.toLowerCase() === 'a') {
         if (!element.hasAttribute('href')) {
           element.setAttribute('href', '#' + (element.id || `link-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`));
@@ -590,5 +588,4 @@ module.exports = {
   revokeSession,
   functionA,
   functionB
-};
 };

@@ -511,3 +511,30 @@ if (dependencyGraphContainer) {
 }
 
 export { dependencyGraphContainer };
+
+// Export all required functions and variables
+export {
+  createLandmarkId,
+  uniqueLandmarks,
+  addAriaLabel,
+  addLangAttribute,
+  ensureElementHasId,
+  outputSafetyClassification,
+  classifyUserSafety,
+  classifyResponseSafety,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  ensureElementsHaveIds,
+  ensureUniqueLandmarks,
+  setSvgAttributes,
+  createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  fixAccessibilityIssues,
+  calculateSum,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  updateRenderingFunction,
+  makeHeaderFocusable
+};

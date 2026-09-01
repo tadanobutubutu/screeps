@@ -129,6 +129,45 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
+/**
+ * Adds SVG accessibility attributes to an SVG element
+ * @param {SVGElement} svgElement - The SVG element to enhance
+ * @param {Object} options - Configuration options
+ * @param {string} [options.title] - Accessible title for the SVG
+ * @param {string} [options.desc] - Accessible description for the SVG
+ * @param {string} [options.role='img'] - ARIA role for the SVG
+ * @returns {SVGElement} The enhanced SVG element
+ */
+function addSvgAccessibility(svgElement, options = {}) {
+  if (!svgElement || !(svgElement instanceof SVGElement)) {
+    console.warn('Invalid SVG element provided');
+    return svgElement;
+  }
+
+  // Set default ARIA role if not provided
+  const role = options.role || 'img';
+
+  // Add ARIA attributes
+  svgElement.setAttribute('role', role);
+  svgElement.setAttribute('focusable', 'false');
+
+  // Add title if provided
+  if (options.title) {
+    const titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    titleElement.textContent = options.title;
+    svgElement.insertBefore(titleElement, svgElement.firstChild);
+  }
+
+  // Add description if provided
+  if (options.desc) {
+    const descElement = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+    descElement.textContent = options.desc;
+    svgElement.insertBefore(descElement, svgElement.firstChild);
+  }
+
+  return svgElement;
+}
+
 // Export functions for testing
 export {
   checkLandmarkElement,
@@ -153,5 +192,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  addSvgAccessibility
 };

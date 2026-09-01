@@ -550,13 +550,8 @@ function isLinkAccessibleSync(url) {
   }
 }
 
-function createInPageButton(options = {}) {
-  // ... existing code ...
-}
-
-function validateTableAccessibility(table) {
-  // ... existing code ...
-}
+// Note: createInPageButton is already imported from './accessibility-helpers' at the top of this file.
+// The previous local declaration caused a duplicate identifier syntax error and has been removed.
 
 function validateTableStructureLocal(table) {
   // ... existing code ...
@@ -645,6 +640,106 @@ function accessibilityCheckTables() {
   }
 }
 
+/**
+ * Implements a focus trap for keyboard navigation within a container element.
+ * This ensures that keyboard focus remains within the specified container,
+ * which is essential for accessible modal dialogs, menus, and other interactive widgets.
+ * Addresses the REACT_017 landmark/keyboard navigation accessibility issues referenced in the TODO.
+ *
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @param {Object} [options] - Configuration options
+ * @param {boolean} [options.returnFocus=true] - Whether to return focus to the previously focused element on release
+ * @param {HTMLElement} [options.initialFocus] - The element to focus when the trap is activated
+ * @returns {Function} A release function that, when called, removes the focus trap
+ */
+function newFocusTrap(container, options = {}) {
+  if (typeof document === 'undefined' || !container) {
+    return () => {};
+  }
+
+  const FOCUSABLE_SELECTORS = [
+    'a[href]',
+    'area[href]',
+    'input:not([disabled]):not([type="hidden"])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    'button:not([disabled])',
+    'iframe',
+    'object',
+    'embed',
+    '[tabindex]:not([tabindex="-1"])',
+    '[contenteditable="true"]'
+  ].join(', ');
+
+  const { returnFocus = true, initialFocus = null } = options;
+  const previouslyFocusedElement = document.activeElement;
+
+  const getFocusableElements = () => {
+    return Array.from(container.querySelectorAll(FOCUSABLE_SELECTORS))
+      .filter(el => {
+        if (el.hasAttribute('disabled')) return false;
+        if (el.getAttribute('aria-hidden') === 'true') return false;
+        const style = window.getComputedStyle(el);
+        if (style.visibility === 'hidden' || style.display === 'none') return false;
+        return true;
+      });
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key !== 'Tab') return;
+
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length === 0) {
+      event.preventDefault();
+      container.focus();
+      return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    const activeElement = document.activeElement;
+
+    if (event.shiftKey) {
+      if (activeElement === firstElement || !container.contains(activeElement)) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      if (activeElement === lastElement || !container.contains(activeElement)) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+  };
+
+  // Ensure the container itself is focusable so focus can land on it
+  if (!container.hasAttribute('tabindex')) {
+    container.setAttribute('tabindex', '-1');
+  }
+
+  // Set initial focus
+  if (initialFocus && typeof initialFocus.focus === 'function') {
+    initialFocus.focus();
+  } else {
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus();
+    } else {
+      container.focus();
+    }
+  }
+
+  container.addEventListener('keydown', handleKeyDown);
+
+  // Return release function
+  return function releaseFocusTrap() {
+    container.removeEventListener('keydown', handleKeyDown);
+    if (returnFocus && previouslyFocusedElement && typeof previouslyFocusedElement.focus === 'function') {
+      previouslyFocusedElement.focus();
+    }
+  };
+}
+
 module.exports = {
   run,
   main,
@@ -665,5 +760,6 @@ module.exports = {
   mainElement,
   accessibilityCheckTables,
   checkLandmarkElements,
-  addLangAttribute
+  addLangAttribute,
+  newFocusTrap
 };

@@ -509,7 +509,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
   },
@@ -521,11 +521,11 @@ const exportUtils = {
 
   exportToCSV: (data, filename) => {
     if (!data || data.length === 0) return;
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (const row of data) {
       const values = headers.map(header => {
         const escaped = ('' + row[header]).replace(/"/g, '\\"');
@@ -533,7 +533,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -677,4 +677,131 @@ module.exports = {
 
   // Export the demo component
   AccessibilityDemo
+};
+
+// New functions for rendering graph/index added at line 361
+/**
+ * Renders a graph visualization
+ * @param {Object} data - The data to visualize
+ * @param {Object} options - Rendering options
+ * @returns {Object} Graph visualization element
+ */
+function renderGraph(data, options = {}) {
+  const { width = 600, height = 400, margin = { top: 20, right: 20, bottom: 30, left: 40 } } = options;
+
+  // Create SVG container
+  const svg = {
+    type: 'svg',
+    props: {
+      width: width + margin.left + margin.right,
+      height: height + margin.top + margin.bottom,
+      'aria-label': 'Data visualization graph',
+      role: 'img'
+    },
+    children: [
+      {
+        type: 'g',
+        props: {
+          transform: `translate(${margin.left},${margin.top})`
+        },
+        children: [
+          // Add graph elements here
+          {
+            type: 'rect',
+            props: {
+              width: width,
+              height: height,
+              fill: 'none',
+              stroke: '#ccc'
+            }
+          }
+        ]
+      }
+    ]
+  };
+
+  // Add data points if data is provided
+  if (data && data.points) {
+    svg.children[0].children.push({
+      type: 'g',
+      props: {
+        className: 'data-points'
+      },
+      children: data.points.map((point, index) => ({
+        type: 'circle',
+        props: {
+          cx: point.x,
+          cy: point.y,
+          r: 5,
+          fill: point.color || '#69b3a2',
+          'aria-label': `Data point ${index + 1}: X=${point.x}, Y=${point.y}`
+        }
+      }))
+    });
+  }
+
+  return svg;
+}
+
+/**
+ * Renders an index visualization
+ * @param {Object} data - The data to visualize
+ * @param {Object} options - Rendering options
+ * @returns {Object} Index visualization element
+ */
+function renderIndex(data, options = {}) {
+  const { width = 300, height = 200 } = options;
+
+  // Create SVG container
+  const svg = {
+    type: 'svg',
+    props: {
+      width: width,
+      height: height,
+      'aria-label': 'Data index visualization',
+      role: 'img'
+    },
+    children: [
+      {
+        type: 'rect',
+        props: {
+          width: width,
+          height: height,
+          fill: '#f5f5f5',
+          rx: 5,
+          ry: 5
+        }
+      }
+    ]
+  };
+
+  // Add index items if data is provided
+  if (data && data.items) {
+    const itemHeight = height / data.items.length;
+    svg.children.push({
+      type: 'g',
+      props: {
+        className: 'index-items'
+      },
+      children: data.items.map((item, index) => ({
+        type: 'text',
+        props: {
+          x: 10,
+          y: (index + 1) * itemHeight - 10,
+          fill: item.color || '#333',
+          'aria-label': `Index item ${index + 1}: ${item.label}`
+        },
+        children: item.label
+      }))
+    });
+  }
+
+  return svg;
+}
+
+// Add the new functions to the exports
+module.exports = {
+  ...module.exports,
+  renderGraph,
+  renderIndex
 };

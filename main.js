@@ -213,6 +213,141 @@ function createInPageButton(text, onClick) {
   return button;
 }
 
+/**
+ * Validates an accessibility report object for issues.
+ * Checks for missing required fields, invalid values, and common accessibility problems.
+ * @param {Object} report - The accessibility report to validate
+ * @returns {Object} An object containing validation results with any issues found
+ */
+function validateAccessibilityReport(report) {
+  const issues = [];
+  const result = {
+    isValid: true,
+    issues: [],
+    warnings: [],
+    summary: ''
+  };
+
+  if (!report || typeof report !== 'object') {
+    result.isValid = false;
+    result.issues.push('Report is missing or is not a valid object.');
+    result.summary = 'Invalid accessibility report.';
+    return result;
+  }
+
+  // Check for required top-level fields
+  const requiredFields = ['url', 'timestamp', 'violations'];
+  requiredFields.forEach((field) => {
+    if (!(field in report)) {
+      result.isValid = false;
+      result.issues.push(`Missing required field: "${field}".`);
+    }
+  });
+
+  // Validate URL
+  if (report.url && typeof report.url !== 'string') {
+    result.isValid = false;
+    result.issues.push('Field "url" must be a string.');
+  } else if (report.url && !/^(https?:\/\/|\/)/.test(report.url)) {
+    result.warnings.push('Field "url" does not appear to be a valid URL or path.');
+  }
+
+  // Validate timestamp
+  if (report.timestamp) {
+    const timestamp = new Date(report.timestamp);
+    if (isNaN(timestamp.getTime())) {
+      result.isValid = false;
+      result.issues.push('Field "timestamp" is not a valid date/time value.');
+    }
+  }
+
+  // Validate violations array
+  if (report.violations) {
+    if (!Array.isArray(report.violations)) {
+      result.isValid = false;
+      result.issues.push('Field "violations" must be an array.');
+    } else {
+      report.violations.forEach((violation, index) => {
+        if (!violation || typeof violation !== 'object') {
+          result.isValid = false;
+          result.issues.push(`Violation at index ${index} is not a valid object.`);
+          return;
+        }
+
+        if (!violation.id) {
+          result.isValid = false;
+          result.issues.push(`Violation at index ${index} is missing required field: "id".`);
+        }
+
+        if (!violation.impact) {
+          result.warnings.push(`Violation at index ${index} is missing field: "impact".`);
+        } else {
+          const validImpacts = ['minor', 'moderate', 'serious', 'critical'];
+          if (!validImpacts.includes(violation.impact)) {
+            result.warnings.push(`Violation at index ${index} has unrecognized impact level: "${violation.impact}".`);
+          }
+        }
+
+        if (!violation.description) {
+          result.warnings.push(`Violation at index ${index} is missing field: "description".`);
+        }
+
+        if (!violation.helpUrl) {
+          result.warnings.push(`Violation at index ${index} is missing field: "helpUrl".`);
+        }
+
+        if (!Array.isArray(violation.nodes)) {
+          result.isValid = false;
+          result.issues.push(`Violation at index ${index} is missing or has invalid "nodes" array.`);
+        } else if (violation.nodes.length === 0) {
+          result.warnings.push(`Violation at index ${index} has no affected nodes.`);
+        } else {
+          violation.nodes.forEach((node, nodeIndex) => {
+            if (!node || typeof node !== 'object') {
+              result.isValid = false;
+              result.issues.push(`Violation at index ${index}, node at index ${nodeIndex} is not a valid object.`);
+              return;
+            }
+
+            if (!node.target) {
+              result.warnings.push(`Violation at index ${index}, node at index ${nodeIndex} is missing field: "target".`);
+            }
+
+            if (Array.isArray(node.target) && node.target.length === 0) {
+              result.warnings.push(`Violation at index ${index}, node at index ${nodeIndex} has empty target array.`);
+            }
+          });
+        }
+      });
+    }
+  }
+
+  // Validate passes array if present
+  if (report.passes && !Array.isArray(report.passes)) {
+    result.isValid = false;
+    result.issues.push('Field "passes" must be an array when provided.');
+  }
+
+  // Validate incomplete array if present
+  if (report.incomplete && !Array.isArray(report.incomplete)) {
+    result.isValid = false;
+    result.issues.push('Field "incomplete" must be an array when provided.');
+  }
+
+  // Build summary
+  const issueCount = result.issues.length;
+  const warningCount = result.warnings.length;
+  const violationCount = Array.isArray(report.violations) ? report.violations.length : 0;
+
+  if (issueCount === 0 && warningCount === 0) {
+    result.summary = `Accessibility report is valid with ${violationCount} violation(s).`;
+  } else {
+    result.summary = `Accessibility report validation: ${issueCount} issue(s), ${warningCount} warning(s), ${violationCount} violation(s).`;
+  }
+
+  return result;
+}
+
 function ensureUniqueLandmarks() {
   const landmarks = document.querySelectorAll(
     'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]'
@@ -781,9 +916,10 @@ function existingFunction() {
   // Function implementation
 }
 
-// Export existing function
 module.exports = {
   existingFunction,
+  personName,
+  validateAccessibilityReport,
   checkAccessibility: checkAccessibilityInternal,
   addressAccessibilityIssues,
   implementAccessibilityFixesFromReport,

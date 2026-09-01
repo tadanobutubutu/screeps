@@ -584,7 +584,7 @@ function initialize() {
   // Accessibility: Add landmark roles and fix landmark issues
   addLandmarkRoles();
 
-  // Accessibility: Add accessible names to 2 SVGs
+  // Accessibility: Add accessible names to SVGs
   addSvgAccessibleNames();
 
   // Accessibility: Ensure unique landmarks (2 issues)

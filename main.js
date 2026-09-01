@@ -61,7 +61,7 @@ function fixTableStructure (html) {
 }
 
 /**
- * Divides two numbers with proper error handling
+ * Divides two number with proper error handling
  * @param {number} dividend - The number to be divided
  * @param {number} divisor - The number to divide by
  * @returns {number} The result of the division
@@ -140,6 +140,19 @@ function addSvgAccessibleNames (html) {
   })
 
   return html
+}
+
+/**
+ * Adds accessibility properties to SVG elements
+ * @param {SVGElement} svgElement - The SVG element to enhance
+ */
+function addSvgAccessibilityProps(svgElement) {
+  if (!svgElement.getAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
+  }
+  if (!svgElement.getAttribute('aria-hidden') && !svgElement.getAttribute('aria-label')) {
+    svgElement.setAttribute('aria-hidden', 'true');
+  }
 }
 
 function checkLinkAccessibility () {
@@ -305,6 +318,7 @@ module.exports = {
   addressAccessibilityIssues,
   createInPageButton,
   divide,
+  addSvgAccessibilityProps,
   checkLinkAccessibility,
   wrapPrimaryContentInMain
 }

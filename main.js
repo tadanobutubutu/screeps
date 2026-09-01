@@ -40,12 +40,12 @@ function generateAccessibilityReport(issuesData) {
       totalIssues: analyzedIssues.length,
       issues: analyzedIssues,
     };
-    
+
     // Generate conclusions based on issue severity
     const criticalIssues = analyzedIssues.filter(i => i.severity === 'critical').length;
     const majorIssues = analyzedIssues.filter(i => i.severity === 'major').length;
     const minorIssues = analyzedIssues.filter(i => i.severity === 'minor').length;
-    
+
     report.conclusions = `Found ${analyzedIssues.length} accessibility issues: ${criticalIssues} critical, ${majorIssues} major, and ${minorIssues} minor.`;
   } else {
     report.data = {
@@ -249,7 +249,7 @@ const accessibilityUtils = {
         if (!issues || !Array.isArray(issues)) {
             return [];
         }
-        
+
         return issues.map(issue => {
             return {
                 id: issue.id,
@@ -275,11 +275,11 @@ async function harvest() {
       totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
       details: report
     };
-    
+
     // Store harvested data for potential upgrades
     const harvestFile = path.join(__dirname, 'harvest_data.json');
     fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-    
+
     return harvestedData;
   } catch (error) {
     console.error('Harvest failed:', error);
@@ -352,6 +352,34 @@ async function harvestAndUpgrade() {
   return { harvested, upgraded };
 }
 
+// Function to spawn a new process
+function spawnProcess(command, args, options) {
+  // Implementation of spawn logic
+  // This function should handle process spawning with proper error handling
+  try {
+    const { spawn } = require('child_process');
+    const process = spawn(command, args, options);
+
+    // Handle process events
+    process.stdout.on('data', (data) => {
+      console.log(`stdout: ${data}`);
+    });
+
+    process.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`);
+    });
+
+    process.on('close', (code) => {
+      console.log(`child process exited with code ${code}`);
+    });
+
+    return process;
+  } catch (error) {
+    console.error('Failed to spawn process:', error);
+    throw error;
+  }
+}
+
 // Call the function to address accessibility issues
 addressAccessibilityIssues();
 createInPageButtonDOM();
@@ -422,6 +450,7 @@ if (typeof module !== 'undefined' && module.exports) {
         harvest,
         upgrade,
         harvestAndUpgrade,
+        spawnProcess,
         ...accessibilityUtils
     };
 }

@@ -8,6 +8,40 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 /**
+<<<<<<< HEAD
+ * Adds accessibility props to SVG elements
+ * @param {Object} props - Existing props object
+ * @param {string} [role] - ARIA role for the SVG (default: 'img')
+ * @param {string} [ariaLabel] - Accessible name for the SVG
+ * @param {string} [ariaHidden] - Whether the SVG should be hidden from screen readers
+ * @returns {Object} Enhanced props object with accessibility attributes
+ */
+function addSvgAccessibilityProps(props = {}, { role = 'img', ariaLabel, ariaHidden } = {}) {
+    const enhancedProps = { ...props };
+
+    // Set ARIA role if not already present
+    if (!enhancedProps.role) {
+        enhancedProps.role = role;
+    }
+
+    // Add aria-label if provided and not already present
+    if (ariaLabel && !enhancedProps['aria-label']) {
+        enhancedProps['aria-label'] = ariaLabel;
+    }
+
+    // Add aria-hidden if provided and not already present
+    if (ariaHidden !== undefined && enhancedProps['aria-hidden'] === undefined) {
+        enhancedProps['aria-hidden'] = ariaHidden;
+    }
+
+    // Ensure focusable attribute is set correctly
+    if (enhancedProps.focusable === undefined) {
+        enhancedProps.focusable = 'false';
+    }
+
+    return enhancedProps;
+}
+=======
  * Adds accessibility attributes to SVG elements
  * @param {SVGElement} svgElement - The SVG element to enhance
  * @param {Object} options - Configuration options
@@ -43,6 +77,26 @@ function addSvgAccessibilityProps(svgElement, { title, desc, focusable = false }
   svgElement.setAttribute('focusable', focusable ? 'true' : 'false');
 
   return svgElement;
+}
+
+/**
+ * Unified accessibility handler for SVG elements
+ * Handles both prop-based configuration and direct DOM manipulation
+ * @param {Object|SVGElement} input - Either props object or SVG element
+ * @param {Object} [options] - Options for DOM manipulation
+ * @returns {Object|SVGElement} Result depending on input type
+ */
+function processSvgAccessibility(input, options = {}) {
+  if (input && typeof input === 'object') {
+    // Props-based configuration
+    const enhancedProps = addSvgAccessibilityProps(input, options);
+    return enhancedProps;
+  } else if (input && typeof input === 'object' && input !== {} && input.constructor.name.includes('Element')) {
+    // Direct DOM manipulation
+    return addSvgAccessibilityProps(input, options);
+  }
+  
+  return null;
 }
 
 function implementAccessibilitySolution() {
@@ -109,5 +163,6 @@ export {
   createInPageButton,
   createAccessibleLink,
   handleAccessibilityIssues,
-  addSvgAccessibilityProps // New export
+  addSvgAccessibilityProps // Original function kept for backward compatibility
 };
+>>>>>>> origin/main

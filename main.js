@@ -171,4 +171,6 @@
             initialize();
         }
     }
+
+    // TODO: Existing main.js content before the merge conflict...
 })();

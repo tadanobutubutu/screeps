@@ -1,5 +1,29 @@
-// Existing code from main.js (to be preserved)
-// ... (existing code) ...
+// Dependency imports
+const { dependencyGraphContent } = require('./dependencyGraphContent')
+const { indexContent } = require('./indexContent')
+
+/**
+ * Main entry point for the Screeps bot.
+ * Handles core game logic and integration points.
+ */
+class ScreepsBot {
+  // ... Remaining code from both branches ...
+}
+
+function getSvgAccessibleName(svg) {
+  // ... Remaining code from both branches ...
+}
+
+function renderDependencyGraph(deps, options = {}) {
+  // Use dependencyGraphContent from the imported module
+  const graphContent = dependencyGraphContent(deps, options)
+  return `<div class="dependency-graph-container" role="img" aria-label="Dependency graph visualization">${graphContent}</div>`
+}
+
+function renderIndex(data, options = {}) {
+  // Use indexContent from the imported module
+  return indexContent(data, options)
+}
 
 // New functions or changes requested in the issue
 function addLangAttribute () {
@@ -117,6 +141,7 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
+  renderIndex,
   calculateSum,
   getLangAttribute,
   personName,
@@ -128,7 +153,20 @@ module.exports = {
   createInPageButton,
   ensureUniqueLandmarks,
   newFocusTrap,
-  transformInputData
+  transformInputData,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  fixLandmarkIssues,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  googleSignIn,
+  fixButtonIdentifiers,
+  processData,
+  filterValidItems,
+  groupByCategory,
+  ScreepsBot
 }
 
 // Call the functions to address the accessibility issues

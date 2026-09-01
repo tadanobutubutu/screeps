@@ -205,7 +205,7 @@ function validateTableAccessibility(table) {
 
   const headers = Array.from(table.querySelectorAll('th'));
   const hasHeaders = headers.length > 0;
-  
+
   const caption = table.querySelector('caption');
   const hasCaption = caption !== null;
 
@@ -388,6 +388,40 @@ function processAccessibilityReport(report) {
   return findings;
 }
 
+/**
+ * Function to process data and return formatted results
+ * @param {Array} data - The input data array
+ * @returns {Object} Processed data with summary statistics
+ */
+function functionB(data) {
+  if (!Array.isArray(data)) {
+    throw new Error('Input must be an array');
+  }
+
+  if (data.length === 0) {
+    return {
+      count: 0,
+      sum: 0,
+      average: 0,
+      max: null,
+      min: null
+    };
+  }
+
+  const sum = data.reduce((acc, val) => acc + val, 0);
+  const average = sum / data.length;
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+
+  return {
+    count: data.length,
+    sum,
+    average,
+    max,
+    min
+  };
+}
+
 function App() {
   const [programData, setProgramData] = useState(null);
 
@@ -438,5 +472,6 @@ module.exports = {
   landmarkConfig: appConfig,
   initialize,
   initializeApp,
-  clearCache
+  clearCache,
+  functionB
 };

@@ -592,6 +592,9 @@ function initialize() {
 
   // Accessibility: Fix 1 fake link issue
   fixFakeLink();
+
+  // Set language attribute for the HTML element
+  document.documentElement.setAttribute('lang', 'en');
 }
 
 // New function requested in the issue

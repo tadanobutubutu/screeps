@@ -22,4 +22,16 @@ function addBook() {
   addBookForm.insertBefore(addBookLabel, addBookForm.firstChild);
 }
 
+// The functions below have been created to match the exported names
+function getBooks() {
+  // ... (existing getBooks function code)
+}
+
+function deleteBook() {
+  // ... (existing deleteBook function code)
+}
+
+// Export the functions to make them accessible
+export { addBook, getBooks, deleteBook };
+
 // ... (rest of the existing code from main.js)

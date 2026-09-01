@@ -67,13 +67,107 @@ function addressNewAccessibilityIssues() {
   }
 }
 
+/**
+ * Ensures the given element has an id attribute.
+ * If the element doesn't have an id, generates one using the provided prefix.
+ * @param {HTMLElement} element - The element to ensure has an id
+ * @param {string} [prefix='element'] - Prefix for generated id
+ * @returns {string} The element's id (existing or generated)
+ */
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+  if (!element.id) {
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 9);
+    element.id = `${prefix}-${timestamp}-${random}`;
+  }
+  return element.id;
+}
+
+/**
+ * Adds an aria-label attribute to the given element.
+ * @param {HTMLElement} element - The element to add aria-label to
+ * @param {string} label - The label text
+ * @returns {HTMLElement} The element with aria-label added
+ */
+function addAriaLabel(element, label) {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+  if (typeof label !== 'string' || label.trim() === '') {
+    throw new Error('Label must be a non-empty string');
+  }
+  element.setAttribute('aria-label', label.trim());
+  return element;
+}
+
+/**
+ * Renders dependency graphs based on the current module dependencies.
+ * @param {Object} [options] - Configuration options
+ * @param {boolean} [options.includeDevDependencies=false] - Whether to include dev dependencies
+ * @param {string} [options.format='json'] - Output format ('json' | 'text' | 'dot')
+ * @returns {Object|string} Dependency graph data in the requested format
+ */
+function renderDependencyGraphs(options = {}) {
+  const { includeDevDependencies = false, format = 'json' } = options;
+  
+  const dependencies = {};
+  
+  if (require.main && require.main.requires) {
+    require.main.requires.forEach(mod => {
+      if (mod && mod.filename) {
+        const isDev = mod.filename.includes('node_modules') && (
+          mod.filename.includes('.test.') || 
+          mod.filename.includes('.spec.') ||
+          mod.filename.includes('__tests__') ||
+          mod.filename.includes('jest')
+        );
+        if (!isDev || includeDevDependencies) {
+          const name = path.basename(mod.filename, '.js');
+          dependencies[name] = {
+            path: mod.filename,
+            dependencies: mod.requires ? mod.requires.map(m => m.filename) : []
+          };
+        }
+      }
+    });
+  }
+
+  if (format === 'dot') {
+    let dot = 'digraph dependencies {\n';
+    Object.entries(dependencies).forEach(([name, data]) => {
+      data.dependencies.forEach(dep => {
+        const depName = path.basename(dep, '.js');
+        dot += `  "${name}" -> "${depName}";\n`;
+      });
+    });
+    dot += '}';
+    return dot;
+  }
+
+  if (format === 'text') {
+    return Object.entries(dependencies)
+      .map(([name, data]) => `${name} -> ${data.dependencies.map(d => path.basename(d, '.js')).join(', ')}`)
+      .join('\n');
+  }
+
+  return {
+    count: Object.keys(dependencies).length,
+    dependencies,
+    generatedAt: new Date().toISOString()
+  };
+}
+
 // Export functions for both browser and Node.js environments
 if (typeof window !== 'undefined') {
   // Browser environment - expose functions to window
   const functionsToExpose = [
     'getLangAttribute', 'personName', 'validateTableAccessibility',
     'validateTableStructure', 'validateLandmark', 'validateLandmarkStructure',
-    'getSvgAccessibleName', 'createInPageButton', 'addressNewAccessibilityIssues'
+    'getSvgAccessibleName', 'createInPageButton', 'addressNewAccessibilityIssues',
+    'ensureElementHasId', 'addAriaLabel', 'renderDependencyGraphs'
   ];
   functionsToExpose.forEach(functionName => {
     window[functionName] = window[functionName] || eval(functionName);
@@ -333,5 +427,8 @@ module.exports = {
   calculateAccessibilityScore,
   ensureUniqueLandmarksFromString,
   validateLandmark,
-  createInPageButton
+  createInPageButton,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs
 };

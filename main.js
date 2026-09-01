@@ -246,7 +246,7 @@
             if (!issues || !Array.isArray(issues)) {
                 return [];
             }
-            
+
             return issues.map(issue => {
                 return {
                     id: issue.id,
@@ -272,11 +272,11 @@
           totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
           details: report
         };
-        
+
         // Store harvested data for potential upgrades
         const harvestFile = path.join(__dirname, 'harvest_data.json');
         fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-        
+
         return harvestedData;
       } catch (error) {
         console.error('Harvest failed:', error);
@@ -349,6 +349,57 @@
       return { harvested, upgraded };
     }
 
+    // Function to add a new book with accessibility improvements
+    function addNewBook(title, author, description) {
+      // Create a new book element with proper ARIA attributes
+      const bookElement = document.createElement('div');
+      bookElement.setAttribute('role', 'article');
+      bookElement.setAttribute('aria-label', `Book: ${title} by ${author}`);
+
+      // Create and append title element
+      const titleElement = document.createElement('h3');
+      titleElement.textContent = title;
+      titleElement.setAttribute('aria-label', `Title: ${title}`);
+      bookElement.appendChild(titleElement);
+
+      // Create and append author element
+      const authorElement = document.createElement('p');
+      authorElement.textContent = `Author: ${author}`;
+      authorElement.setAttribute('aria-label', `Author: ${author}`);
+      bookElement.appendChild(authorElement);
+
+      // Create and append description element
+      const descElement = document.createElement('p');
+      descElement.textContent = description;
+      descElement.setAttribute('aria-label', `Description: ${description}`);
+      bookElement.appendChild(descElement);
+
+      // Add keyboard navigation support
+      bookElement.setAttribute('tabindex', '0');
+      bookElement.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          // Add focus styles or other interactive behavior here
+          this.style.outline = '2px solid #0056b3';
+        }
+      });
+
+      // Add to the books container
+      const booksContainer = document.getElementById('booksContainer');
+      if (booksContainer) {
+        booksContainer.appendChild(bookElement);
+      } else {
+        console.error('Books container not found');
+      }
+
+      // Announce the new book addition for screen readers
+      if (a11y && a11y.announce) {
+        a11y.announce(`New book added: ${title} by ${author}`, 'assertive');
+      }
+
+      return bookElement;
+    }
+
     // Call the function to address accessibility issues
     addressAccessibilityIssues();
     createInPageButton();
@@ -389,6 +440,7 @@
       checkLinkAccessibility,
       writeReport,
       scanAccessibility,
+      addNewBook, // Exporting the new function
       ...accessibilityUtils
     };
 

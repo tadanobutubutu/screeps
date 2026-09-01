@@ -79,13 +79,13 @@ function validateLandmark(landmark) {
 // Accessibility helper function to validate table accessibility
 function validateTableAccessibility(table) {
     const issues = [];
-    
+
     // Check for caption
     const caption = table.querySelector('caption');
     if (!caption) {
         issues.push('Table missing caption');
     }
-    
+
     // Check for th elements with scope or headers
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
@@ -93,7 +93,7 @@ function validateTableAccessibility(table) {
             issues.push('TH element missing scope or headers attribute');
         }
     });
-    
+
     return issues;
 }
 
@@ -103,7 +103,7 @@ if (require.main === module) {
     const app = express();
     const PORT = process.env.PORT || 3000;
     const HOST = process.env.HOST || 'localhost';
-    
+
     app.listen(PORT, () => {
         console.log(`Server running on http://${HOST}:${PORT}`);
     });
@@ -125,7 +125,7 @@ if (require.main === module) {
 // Accessibility helper function to validate table structure
 function validateTableStructure(table) {
     const issues = [];
-    
+
     // Check for proper table structure (thead, tbody, tfoot)
     if (!table.querySelector('thead')) {
         issues.push('Table missing thead');
@@ -133,7 +133,7 @@ function validateTableStructure(table) {
     if (!table.querySelector('tbody')) {
         issues.push('Table missing tbody');
     }
-    
+
     // Check for proper row structure
     const rows = table.querySelectorAll('tr');
     rows.forEach((row, index) => {
@@ -142,7 +142,7 @@ function validateTableStructure(table) {
             issues.push(`Row ${index} has no cells`);
         }
     });
-    
+
     return issues;
 }
 
@@ -193,7 +193,7 @@ function ensureLandmarkUniqueness(elements) {
 function getSvgAccessibleName(svgElement) {
     // Check for aria-label
     let label = svgElement.getAttribute('aria-label');
-    
+
     // Check for aria-labelledby
     const labelledBy = svgElement.getAttribute('aria-labelledby');
     if (labelledBy) {
@@ -202,7 +202,7 @@ function getSvgAccessibleName(svgElement) {
             label = labelElement.textContent;
         }
     }
-    
+
     // Check for title element inside SVG
     if (!label) {
         const title = svgElement.querySelector('title');
@@ -210,7 +210,7 @@ function getSvgAccessibleName(svgElement) {
             label = title.textContent;
         }
     }
-    
+
     return label || '';
 }
 
@@ -218,12 +218,12 @@ function getSvgAccessibleName(svgElement) {
 function setSvgAttributes(svgElement, accessibleName) {
     // Ensure SVG has role="img"
     svgElement.setAttribute('role', 'img');
-    
+
     // Set aria-label if not already set
     if (!svgElement.getAttribute('aria-label') && accessibleName) {
         svgElement.setAttribute('aria-label', accessibleName);
     }
-    
+
     // Add title element if missing
     const existingTitle = svgElement.querySelector('title');
     if (!existingTitle && accessibleName) {
@@ -237,7 +237,7 @@ function setSvgAttributes(svgElement, accessibleName) {
 function ensureUniqueLandmarks() {
     const landmarks = {};
     const issues = [];
-    
+
     // Find all landmark elements
     const banner = document.querySelectorAll('[role="banner"], .banner');
     const navigation = document.querySelectorAll('[role="navigation"], .navigation');
@@ -245,20 +245,20 @@ function ensureUniqueLandmarks() {
     const contentinfo = document.querySelectorAll('[role="contentinfo"], .contentinfo');
     const complementary = document.querySelectorAll('[role="complementary"], .complementary');
     const search = document.querySelectorAll('[role="search"], .search');
-    
+
     // Check for duplicate landmarks
     if (banner.length > 1) landmarks.banner = banner;
     if (main.length > 1) landmarks.main = main;
     if (contentinfo.length > 1) landmarks.contentinfo = contentinfo;
-    
+
     if (complementary.length > 1) {
         issues.push(`Found ${complementary.length} complementary landmarks, should have at most 1`);
     }
-    
+
     if (search.length > 1) {
         issues.push(`Found ${search.length} search landmarks, should have at most 1`);
     }
-    
+
     return { landmarks, issues };
 }
 
@@ -276,18 +276,18 @@ function addLandmarkRegions() {
         main.setAttribute('id', 'main-content');
         // Content would need to be moved into main here
     }
-    
+
     // Ensure unique IDs for landmarks
     const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="search"], [role="region"]');
     const usedIds = new Set();
-    
+
     landmarks.forEach(landmark => {
         const existingId = landmark.id;
         if (existingId) {
             usedIds.add(existingId);
         }
     });
-    
+
     return { main, usedIds };
 }
 
@@ -334,7 +334,7 @@ function ensureUniqueLandmarks(landmarksArray) {
 // NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 function newFocusTrap(focusableElements, onEscape) {
   const initialFocus = null;
-  
+
   function trapFocus(event) {
     if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
       const focusable = Array.from(focusableElements).filter(el => el.offsetWidth > 0 && el.offsetHeight > 0);
@@ -349,9 +349,9 @@ function newFocusTrap(focusableElements, onEscape) {
       console.log('Focus trap triggered, returning focus');
     }
   }
-  
+
   document.addEventListener('keydown', trapFocus);
-  
+
   return () => {
     document.removeEventListener('keydown', trapFocus);
   };
@@ -525,6 +525,52 @@ function getInsightReport() {
     return [];
 }
 
+// NEW: Function to add a new book with accessibility considerations
+function addNewBook(bookData) {
+    if (!bookData || typeof bookData !== 'object') {
+        console.error('Invalid book data provided');
+        return false;
+    }
+
+    // Validate required fields
+    const requiredFields = ['title', 'author', 'isbn'];
+    const missingFields = requiredFields.filter(field => !bookData[field]);
+
+    if (missingFields.length > 0) {
+        console.error(`Missing required fields: ${missingFields.join(', ')}`);
+        return false;
+    }
+
+    // Create book element with proper ARIA attributes
+    const bookElement = document.createElement('div');
+    bookElement.setAttribute('role', 'article');
+    bookElement.setAttribute('aria-label', `Book: ${bookData.title} by ${bookData.author}`);
+
+    // Add book details
+    const titleElement = document.createElement('h3');
+    titleElement.textContent = bookData.title;
+    titleElement.setAttribute('id', `book-title-${bookData.isbn}`);
+    bookElement.appendChild(titleElement);
+
+    const authorElement = document.createElement('p');
+    authorElement.textContent = `Author: ${bookData.author}`;
+    bookElement.appendChild(authorElement);
+
+    const isbnElement = document.createElement('p');
+    isbnElement.textContent = `ISBN: ${bookData.isbn}`;
+    bookElement.appendChild(isbnElement);
+
+    // Add to books container
+    const booksContainer = document.getElementById('books-container');
+    if (booksContainer) {
+        booksContainer.appendChild(bookElement);
+        return true;
+    } else {
+        console.error('Books container not found');
+        return false;
+    }
+}
+
 // Export functions for testing
 module.exports = {
     User,
@@ -569,6 +615,9 @@ module.exports = {
     calculateSum,
     addProperLandmarkRegions,
     countGraphDependencies,
+
+    // New book-related function
+    addNewBook,
 
     // Landmarks array and app state
     landmarks,

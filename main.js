@@ -280,5 +280,10 @@ module.exports = {
   renderDependencyGraphs,
   spawnProcess,
   focusTrap,
-  newFocusTrap
+  newFocusTrap,
+  dependencyGraphContent,
+  indexContent,
+  sanitizeFilename,
+  readFileSafe,
+  log
 };

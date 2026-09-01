@@ -3,275 +3,58 @@
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 /* todo-hash: a6e35127a459684dcab932e3ed9ebe5d71604410 */
 
-/**
- * Main application entry point with accessibility features
- */
-
-function ... {
-  const svgElements = ...
-
-  ... => {
-    if ... {
-      svg.setAttribute('role', 'img');
-    }
-
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      ... accessibleName);
-    }
-
-    setSvgAttributes(svg);
-  });
-}
-
-const sampleInsightReport = {
-  title: 'Quarterly Performance Report',
-  sections: [
-    {
-      heading: 'Sales Overview',
-      content: 'Total sales increased by 15% compared to last quarter.'
-    },
-    {
-      heading: 'Customer Satisfaction',
-      content: 'Average satisfaction score: 4.2 out of 5.'
-    }
-  ]
-};
-
-// Implement function for addressing accessibility issues from insight report
-// TODO: Implement a function to count dependencies
-function countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = ... 'package.json');
-    const packageJson = ... 'utf8'));
-
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-
-    return {
-        dependencies: ...
-        devDependencies: ...
-        total: ... + ...
-    };
-}
-
-/**
- * Handle credential response from browser authentication
- * @param {Object} response - The credential response object
- * @returns {Object} Processed credential information
- */
-function handleCredentialResponse(response) {
-    if (!response) {
-        return { success: false, error: 'No credential response provided' };
-    }
-
-    // Check if response contains expected credential data
-    const hasCredential = response.credential || response.token || response.id;
-    
-    if (!hasCredential) {
-        return { success: false, error: 'Invalid credential response format' };
-    }
-
-    // Process credential information
-    const processedCredential = {
-        id: response.id || null,
-        token: response.token || response.credential || null,
-        name: response.name || 'Anonymous User',
-        email: response.email || null,
-        success: true
-    };
-
-    // Handle different types of credential responses
-    if (response.credential) {
-        // Google Sign-In response
-        try {
-            // Credential is a base64-encoded JWT
-            const payload = ...
-            processedCredential.id = payload.sub || processedCredential.id;
-            processedCredential.email = payload.email || processedCredential.email;
-            processedCredential.name = payload.name || processedCredential.name;
-        } catch (error) {
-            console.warn('Failed to parse credential response:', error);
-        }
-    }
-
-    // Announce success to screen readers
-    if (typeof announceToScreenReader === 'function') {
-        announceToScreenReader('User successfully authenticated');
-    }
-
-    return processedCredential;
-}
-
-// Ensure DOM is fully loaded before executing scripts
-if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment - setup basic exports
-  module.exports = {
-    checkTableStructure,
-    countDependencies,
-    init,
-    ...
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    ...
-    validateLandmark,
-    spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse
-  };
-} else {
-  // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    ... init);
-  } else {
-    init();
-  }
-}
-
-function init() {
-  ...
-  ...
-  setupFocusManagement();
-  ...
-}
-
-function ... {
-  /* existing code */
-}
-
-function ... {
-  const liveRegion = ...
-  if (!liveRegion) {
-    const region = ...
-    region.id = 'aria-live-region';
-    ... 'polite');
-    ... 'true');
-    region.className = 'sr-only';
-    ...
-  }
-}
-
-function setupFocusManagement() {
-  // Trap focus within modal dialogs
-  const modals = ...
-  modals.forEach((modal) => {
-    ... trapFocus);
-  });
-
-  // Ensure all interactive elements are keyboard accessible
-  const interactiveElements = document.querySelectorAll(
-    'button, a, input, select, textarea, [tabindex]'
-  );
-  ... => {
-    if ... {
-      element.setAttribute('tabindex', '0');
-    }
-  });
-}
-
-function enhanceSemanticMarkup() {
-  // Add skip link if not present
-  if ... {
-    const skipLink = document.createElement('a');
-    skipLink.id = 'skip-link';
-    skipLink.href = '#main-content';
-    skipLink.textContent = 'Skip to main content';
-    skipLink.className = 'skip-link';
-    ... ...
-  }
-
-  // Ensure images have alt attributes
-  const images = ...
-  images.forEach((img) => {
-    if ... {
-      img.setAttribute('alt', '');
-      img.setAttribute('role', 'presentation');
-    }
-  });
-
-  // Ensure form inputs have associated labels
-  const inputs = ... select, textarea');
-  ... => {
-    const id = input.id || ... 9)}`;
-    input.id = id;
-    if ... && ... {
-      input.setAttribute('aria-label', input.name || 'Input field');
-    }
-  });
-}
-
-function closeOpenDialogs() {
-  /* existing code */
-}
-
-function announceToScreenReader(message) {
-  const liveRegion = ...
-  if (liveRegion) {
-    liveRegion.textContent = '';
-    // Slight delay to ensure screen readers pick up the change
-    setTimeout(() => {
-      liveRegion.textContent = message;
-    }, 100);
-  }
-}
-
-function calculateDifference(a, b) {
-  /* existing code */
-}
-
-function calculateProduct(a, b) {
-  /* existing code */
-}
-
-function isNumber(value) {
-  /* existing code */
-}
-
-function clamp(value, min, max) {
-  /* existing code */
-}
-
-function createInPageButton(buttonId, buttonText) {
-  /* existing code */
-}
-
-function ... {
-  /* existing code */
-}
-
-function handleFakeLinks(issues) {
-  /* existing code */
-}
-
-// Accessibility utilities
-const hello = () => {
-  return 'Hello from main.js';
-};
-
-// Utilities for addressing accessibility issues
 const AddressabilityIssues = {
-  ... {
-    /* existing code */
+  MISSING_ID: 'missing-id',
+  MISSING_ALT: 'missing-alt',
+  MISSING_ARIA_LABEL: 'missing-aria-label',
+  MISSING_ROLE: 'missing-role',
+  LOW_CONTRAST: 'low-contrast',
+  TINY_SIZE: 'tiny-size',
+
+  addressAccessibilityIssues(insightReport) {
+    if (!insightReport || !insightReport.sections) {
+      return [];
+    }
+
+    const issues = [];
+
+    insightReport.sections.forEach((section, index) => {
+      // Check for missing headings
+      if (!section.heading) {
+        issues.push({
+          type: 'missing-heading',
+          severity: 'high',
+          message: `Section ${index} is missing a heading`,
+          suggestedFix: 'Add a descriptive heading to each section'
+        });
+      }
+
+      // Check for empty content
+      if (!section.content || section.content.trim() === '') {
+        issues.push({
+          type: 'empty-content',
+          severity: 'medium',
+          message: `Section "${section.heading}" has no content`,
+          suggestedFix: 'Add meaningful content to the section'
+        });
+      }
+
+      // Check for potentially inaccessible language
+      if (section.content && section.content.toLowerCase().includes('click here')) {
+        issues.push({
+          type: 'inaccessible-link-text',
+          severity: 'low',
+          message: `Section "${section.heading}" contains "click here" text which is not accessible`,
+          suggestedFix: 'Use descriptive link text instead of "click here"'
+        });
+      }
+    });
+
+    return issues;
   },
 
   generateAccessibilityReport(accessibilityReport) {
-    if (!accessibilityReport || ... {
+    if (!accessibilityReport || !Array.isArray(accessibilityReport.issues) || accessibilityReport.issues.length === 0) {
       return [];
     }
 
@@ -304,9 +87,9 @@ const AddressabilityIssues = {
   },
 
   fixMainLandmarkIssues(source) {
-    const mainBlockRegex = ...
+    const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
 
-    const matches = ...
+    const matches = Array.from(source.matchAll(mainBlockRegex));
     if (matches.length <= 1) {
       return source;
     }
@@ -315,7 +98,7 @@ const AddressabilityIssues = {
     for (let i = 1; i < matches.length; i++) {
       const block = matches[i][0];
       const fixedBlock = block
-        ... '<section$1>')
+        .replace(/<main([^>]*)>/, '<section$1>')
         .replace(/<\/main>/, '</section>');
       result = result.replace(block, fixedBlock);
     }
@@ -353,57 +136,33 @@ const AddressabilityIssues = {
 
     let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
 
-    // If no explicit role, try to infer from tag name
-    if (!landmarkRole) {
-      if (tagName.includes('header')) {
-        landmarkRole = 'banner';
-      } else if (tagName.includes('main')) {
-        landmarkRole = 'main';
-      } else if (tagName.includes('nav')) {
-        landmarkRole = 'navigation';
-      } else if (tagName.includes('aside')) {
-        landmarkRole = 'complementary';
-      } else if (tagName.includes('footer')) {
-        landmarkRole = 'contentinfo';
-      } else if (tagName.includes('section')) {
-        landmarkRole = 'region';
-      } else if (tagName.includes('form')) {
-        landmarkRole = 'form';
-      } else {
-        landmarkRole = null;
-      }
+    if (!landmarkRole && implicitLandmarks[tagName]) {
+      landmarkRole = implicitLandmarks[tagName];
     }
 
     if (!landmarkRole) {
-      return { 
-        valid: false, 
-        error: 'Element does not have a valid landmark role',
-        element: tagName
-      };
+      return { valid: false, error: 'Element does not have a valid landmark role', element: tagName };
     }
 
     if (!landmarkRoles.includes(landmarkRole)) {
-      return { 
-        valid: false, 
-        error: `Invalid landmark role: ${landmarkRole}`,
-        element: tagName,
-        role: landmarkRole
-      };
+      return { valid: false, error: `Invalid landmark role: ${landmarkRole}`, element: tagName, role: landmarkRole };
     }
 
     return { valid: true, element: tagName, role: landmarkRole };
   },
 
   spawnSomeCommand(callback) {
-    const child_process = ...
-    ... {}, {
-      stdio: 'inherit',
-    }).on('exit', (code, signal) => {
-      if (code === 0) {
-        callback(null, 'Successfully executed someCommand');
-      } else {
-        callback(new Error(`someCommand failed with code ${code}`));
+    const child_process = require('child_process');
+
+    const spawnOptions = {  shell: true };
+
+    child_process.spawn('someCommand', [], spawnOptions, (error, stdout, stderr) => {
+      if (error) {
+        callback(new Error(`someCommand failed: ${error.message}`));
+        return;
       }
+
+      callback(null, `someCommand exited with status code: ${stdout}`);
     });
   },
 
@@ -414,151 +173,197 @@ const AddressabilityIssues = {
   countDependencies() {
     const path = require('path');
     const fs = require('fs');
-    const packageJsonPath = ... 'package.json');
-    const packageJson = ... 'utf8'));
+    const packageJsonPath = path.join(__dirname, '..', 'package.json');
+    const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
 
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
+    const dependencies = JSON.parse(packageJson).dependencies || {};
+    const devDependencies = JSON.parse(packageJson).devDependencies || {};
 
     return {
-      dependencies: ...
-      devDependencies: ...
-      total: ... + ...
+      dependencies: Object.keys(dependencies).length,
+      devDependencies: Object.keys(devDependencies).length,
+      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+    };
+  },
+
+  renderDependencyGraph() {
+    const dependencyContent = require('../dependencyGraphContent/indexContent');
+    const graphContainer = document.getElementById('dependency-graph-container');
+    if (graphContainer) {
+      graphContainer.innerHTML = dependencyContent;
+    }
+  },
+
+  renderIndexView() {
+    const indexContent = require('../indexContent/indexContent');
+    const indexContainer = document.getElementById('index-container');
+    if (indexContainer) {
+      indexContainer.innerHTML = indexContent;
+    }
+  },
+
+  getSvgAccessibleName(svg) {
+    if (!svg) return '';
+    return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.querySelector('title')?.textContent || '';
+  },
+
+  setSvgAttributes(svg) {
+    if (!svg) return;
+  
+    // Handle width: set to 24 if missing or less than 24
+    const width = svg.getAttribute('width');
+    if (!width || parseInt(width) < 24) {
+      svg.setAttribute('width', '24');
+    }
+  
+    // Handle height: set to 24 if missing or less than 24
+    const height = svg.getAttribute('height');
+    if (!height || parseInt(height) < 24) {
+      svg.setAttribute('height', '24');
+    }
+  },
+
+  detectAccessibilityIssues(elements) {
+    const issues = [];
+  
+    elements.forEach((element, index) => {
+      if (!element.id) {
+        issues.push({
+          element: index,
+          type: AddressabilityIssues.MISSING_ID,
+          message: 'Element is missing an id attribute'
+        });
+      }
+      
+      if (!element.getAttribute('role')) {
+        issues.push({
+          element: index,
+          type: AddressabilityIssues.MISSING_ROLE,
+          message: 'Element is missing a role attribute'
+        });
+      }
+    });
+
+    return issues;
+  },
+
+  initializeAccessibility(container) {
+    let svgElements;
+    if (container instanceof Element) {
+      svgElements = container.querySelectorAll('svg');
+    } else if (Array.isArray(container)) {
+      svgElements = container;
+    } else {
+      svgElements = [];
+    }
+
+    svgElements.forEach(svg => {
+      if (!svg.id) {
+        svg.id = generateUniqueId();
+      }
+
+      if (!svg.getAttribute('role')) {
+        svg.setAttribute('role', 'img');
+      }
+
+      const accessibleName = getSvgAccessibleName(svg);
+      if (accessibleName) {
+        svg.setAttribute('aria-label', accessibleName);
+      }
+
+      setSvgAttributes(svg);
+    });
+
+    return {
+      issues: detectAccessibilityIssues(svgElements),
+      count: svgElements.length
+    };
+  },
+
+  handleCredentialResponse(response) {
+    if (!response) {
+      return {
+        success: false,
+        message: 'No credential response provided'
+      };
+    }
+
+    if (!response.token) {
+      return {
+        success: false,
+        message: 'Token is missing from credential response'
+      };
+    }
+
+    try {
+      // Store credentials securely
+      const credentialData = {
+        token: response.token,
+        refreshToken: response.refreshToken || null,
+        expiresAt: response.expiresIn ? Date.now() + (response.expiresIn * 1000) : null,
+        receivedAt: Date.now()
+      };
+
+      // Emit custom event for other components to handle
+      if (typeof window !== 'undefined') {
+        const credentialEvent = new CustomEvent('credential-response', {
+          detail: credentialData,
+          bubbles: true
+        });
+        window.dispatchEvent(credentialEvent);
+      }
+
+      return {
+        success: true,
+        message: 'Credential response handled successfully',
+        data: credentialData
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Failed to process credential response: ' + error.message
+      };
+    }
+  },
+
+  getStoredCredentials() {
+    const stored = sessionStorage.getItem('credentials');
+    if (!stored) return null;
+
+    try {
+      const credentials = JSON.parse(stored);
+      if (credentials.expiresAt && Date.now() > credentials.expiresAt) {
+        sessionStorage.removeItem('credentials');
+        return null;
+      }
+      return credentials;
+    } catch (error) {
+      return null;
+    }
+  },
+
+  clearCredentials() {
+    sessionStorage.removeItem('credentials');
+    if (typeof window !== 'undefined') {
+      const clearEvent = new CustomEvent('credentials-cleared', {
+        bubbles: true
+      });
+      window.dispatchEvent(clearEvent);
+    }
+  },
+
+  // Export functions for testing
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+      AddressabilityIssues,
+      initializeAccessibility,
+      getSvgAccessibleName,
+      setSvgAttributes,
+      checkTableStructure,
+      generateUniqueId,
+      detectAccessibilityIssues,
+      handleCredentialResponse,
+      getStoredCredentials,
+      clearCredentials
     };
   }
-};
-
-function trapFocus(event) {
-  if (event.key !== 'Tab') {
-    return;
-  }
-
-  const focusableElements = event.currentTarget.querySelectorAll(
-    'button, a, input, select, textarea, [tabindex]'
-  );
-  
-  if (focusableElements.length === 0) {
-    return;
-  }
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  if (event.shiftKey) {
-    if (document.activeElement === firstElement) {
-      event.preventDefault();
-      lastElement.focus();
-    }
-  } else {
-    if (document.activeElement === lastElement) {
-      event.preventDefault();
-      firstElement.focus();
-    }
-  }
-}
-
-function handleKeyNavigation(event) {
-  const key = event.key;
-  const target = event.target;
-  
-  switch (key) {
-    case 'Escape':
-      closeOpenDialogs();
-      break;
-    case 'ArrowUp':
-    case 'ArrowDown':
-      handleArrowNavigation(event);
-      break;
-    case 'Home':
-      event.preventDefault();
-      const firstFocusable = target.closest('dialog') 
-        ? target.closest('dialog').querySelector('button, a, input, select, textarea, [tabindex]')
-        : document.querySelector('button, a, input, select, textarea, [tabindex]');
-      if (firstFocusable) {
-        firstFocusable.focus();
-      }
-      break;
-    case 'End':
-      event.preventDefault();
-      const dialog = target.closest('dialog');
-      const focusableElements = dialog 
-        ? Array.from(dialog.querySelectorAll('button, a, input, select, textarea, [tabindex]'))
-        : Array.from(document.querySelectorAll('button, a, input, select, textarea, [tabindex]'));
-      if (focusableElements.length > 0) {
-        focusableElements[focusableElements.length - 1].focus();
-      }
-      break;
-    default:
-      break;
-  }
-}
-
-function getSvgAccessibleName(svg) {
-  const title = svg.querySelector('title');
-  if (title) {
-    return title.textContent;
-  }
-  
-  const desc = svg.querySelector('desc');
-  if (desc) {
-    return desc.textContent;
-  }
-  
-  return null;
-}
-
-function setSvgAttributes(svg) {
-  if (!svg.hasAttribute('focusable')) {
-    svg.setAttribute('focusable', 'false');
-  }
-  
-  if (!svg.hasAttribute('aria-hidden')) {
-    svg.setAttribute('aria-hidden', 'false');
-  }
-}
-
-function getVersion() {
-  return '1.0.0';
-}
-
-function getConfig() {
-  return {
-    theme: 'light',
-    announcePolicy: true,
-    focusManagement: true,
-    semanticMarkup: true
-  };
-}
-
-function getLangAttribute() {
-  return document.documentElement.getAttribute('lang') || 'en';
-}
-
-function handleArrowNavigation(event) {
-  const target = event.target;
-  const direction = event.key === 'ArrowUp' ? -1 : 1;
-  
-  const focusableElements = Array.from(
-    target.closest('dialog') 
-      ? target.closest('dialog').querySelectorAll('button, a, input, select, textarea, [tabindex]')
-      : document.querySelectorAll('button, a, input, select, textarea, [tabindex]')
-  );
-  
-  const currentIndex = focusableElements.indexOf(target);
-  const nextIndex = currentIndex + direction;
-  
-  if (nextIndex >= 0 && nextIndex < focusableElements.length) {
-    event.preventDefault();
-    focusableElements[nextIndex].focus();
-  }
-}
-
-function MyComponent() {
-  // Existing code that needs to be updated
-  const langAttr = getLangAttribute();
-  return (
-    <div lang={langAttr}>
-      {/* Content */}
-    </div>
-  );
-}

@@ -1,27 +1,10 @@
 // main.js - Accessibility-focused implementation
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs,
-// count dependencies, and address accessibility issues from insight report
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
-
-functions.forEach(functionToSave => {
-  window[functionToSave] = window[functionToSave] || module.exports[functionToSave];
-});
-
-module.exports = {
-  // ... Existing functions
-
-  countDependencies() {
-    return require.main.requires.length;
-  },
-
-  // Additional functions to address accessibility issues from insight report
-  addressAccessibilityIssues(insightReport) {
-    // Implement function to address the reported accessibility issues
-  },
-
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+/* todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 */
+const AddressabilityIssues = {
   generateAccessibilityReport(accessibilityReport) {
-    if (!accessibilityReport || !Array.isArray(accessibilityReport.issues)) {
+    if (!accessibilityReport || accessibilityReport.issues.length === 0) {
       return [];
     }
 
@@ -53,11 +36,15 @@ module.exports = {
     }, 0);
   },
 
-  ensureUniqueLandmarksFromString(source) {
-    const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+  fixMainLandmarkIssues(source) {
+    const mainBlockRegex = /<\w+(\s+\w+\s*=\s*.*\s*)*<\/main>/g;
 
-    const matches = Array.from(source.matchAll(mainBlockRegex));
-    if (matches.length <= 1) {
+    let matches = source.match(mainBlockRegex);
+    if (matches && matches.length <= 1) {
+      return source;
+    }
+
+    if (!matches) {
       return source;
     }
 
@@ -65,8 +52,8 @@ module.exports = {
     for (let i = 1; i < matches.length; i++) {
       const block = matches[i][0];
       const fixedBlock = block
-        .replace(/<main([^>]*)>/, '<section$1>')
-        .replace(/<\/main>/, '</section>');
+        .replace(/<\/main>/, '</section>')
+        .replace(/<main/, '<section');
       result = result.replace(block, fixedBlock);
     }
 
@@ -103,26 +90,66 @@ module.exports = {
 
     let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
 
+    if (!landmarkRole && tagName === 'div') {
+      landmarkRole = 'region';
+    }
+
     if (!landmarkRole) {
-      if (implicitLandmarks[tagName]) {
-        landmarkRole = implicitLandmarks[tagName];
+      return {
+        valid: false,
+        error: 'Element does not have a valid landmark role',
+        element: tagName
+      };
+    }
+
+    if (landmarkRoles.indexOf(landmarkRole) === -1) {
+      return {
+        valid: false,
+        error: `Invalid landmark role: ${landmarkRole}`,
+        element: tagName,
+        role: landmarkRole
+      };
+    }
+
+    return { valid: true, element: tagName, role: landmarkRole };
+  },
+
+  spawnSomeCommand(callback) {
+    const child_process = require('child_process');
+
+    const spawnOptions = {
+      shell: true
+    };
+
+    const child = child_process.spawn('someCommand', [], spawnOptions);
+    child.on('exit', (code, signal) => {
+      if (code === 0) {
+        callback(null, 'Successfully executed someCommand');
       } else {
-        return { valid: false, error: 'No landmark role found' };
+        callback(new Error(`someCommand failed with code ${code}`));
       }
-    }
+    });
+  },
 
-    if (!landmarkRoles.includes(landmarkRole)) {
-      return { valid: false, error: `Invalid landmark role: ${landmarkRole}` };
-    }
+  addLangAttribute(element, lang) {
+    element.setAttribute('lang', lang);
+  },
 
-    return { valid: true, role: landmarkRole };
+  countDependencies() {
+    const path = require('path');
+    const fs = require('fs');
+    const packageJsonPath = path.join(__dirname, '..', 'package.json');
+    const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
+
+    const dependencies = JSON.parse(packageJson).dependencies || {};
+    const devDependencies = JSON.parse(packageJson).devDependencies || {};
+
+    return {
+      dependencies: Object.keys(dependencies).length,
+      devDependencies: Object.keys(devDependencies).length,
+      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+    };
   }
-};
-
-// Application configuration
-const config = {
-  port: process.env.PORT || 3000,
-  env: process.env.NODE_ENV || 'development'
 };
 
 /**
@@ -132,7 +159,10 @@ function createServer() {
   // ... (existing code)
 }
 
-// Utility for spawning a command
+/**
+ * Spawn a child process to run some command with proper error handling.
+ * @param {Function} callback - Invoked with (err, result) when the command exits.
+ */
 function spawnSomeCommand(callback) {
     const child_process = require('child_process');
     const child = child_process.spawn('someCommand', [], {
@@ -147,10 +177,6 @@ function spawnSomeCommand(callback) {
     });
 }
 
-/**
- * Spawn a child process to run some command with proper error handling.
- * @param {Function} callback - Invoked with (err, result) when the command exits.
- */
 function startApp() {
   // ... (existing code)
 }
@@ -160,7 +186,9 @@ module.exports = {
   createServer,
   startApp,
   config,
-  countDependencies, // Export the countDependencies function from both branches
-  addressAccessibilityIssues, // Export the addressAccessibilityIssues function from the additional branch
-  // ... More functions exported as needed
+  countDependencies: AddressabilityIssues.countDependencies,
+  addressAccessibilityIssues: AddressabilityIssues,
+  spawnSomeCommand,
+  spawnSomeCommandAlt: AddressabilityIssues.spawnSomeCommand
 };
+// ... (other functions and setting up exports)

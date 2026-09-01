@@ -1,13 +1,3 @@
-// main.js - Accessibility-focused implementation
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// REACT_015: Add lang attribute
-// REACT_027: Fix 26 table structure issues
-// REACT_017: Add/fix 4 landmark issues
-// REACT_041: Add accessible names to 2 SVGs
-// REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
-// REACT_036: Fix 1 fake link issue
-
 /**
  * Main application entry point with accessibility features
  */
@@ -29,7 +19,22 @@ function addSvgAccessibilityProps() {
   });
 }
 
-const checkTableStructure = /* existing code */
+function checkTableStructure(table) {
+  if (!table) {
+    return { valid: false, error: 'Table element is required' };
+  }
+
+  const hasHeader = table.querySelector('thead') !== null || table.querySelector('th') !== null;
+  const hasBody = table.querySelector('tbody') !== null;
+  const hasCaption = table.querySelector('caption') !== null;
+
+  return {
+    valid: true,
+    hasHeader,
+    hasBody,
+    hasCaption
+  };
+}
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -171,25 +176,21 @@ const AddressabilityIssues = {
 
     let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
 
-    if (!landmarkRole && tagName === 'div') {
-      landmarkRole = 'region';
-    }
-
     if (!landmarkRole && implicitLandmarks[tagName]) {
       landmarkRole = implicitLandmarks[tagName];
     }
 
     if (!landmarkRole) {
-      return { 
-        valid: false, 
+      return {
+        valid: false,
         error: 'Element does not have a valid landmark role',
         element: tagName
       };
     }
 
     if (!landmarkRoles.includes(landmarkRole)) {
-      return { 
-        valid: false, 
+      return {
+        valid: false,
         error: `Invalid landmark role: ${landmarkRole}`,
         element: tagName,
         role: landmarkRole
@@ -199,43 +200,59 @@ const AddressabilityIssues = {
     return { valid: true, element: tagName, role: landmarkRole };
   },
 
-  spawnSomeCommand(callback) {
-    const child_process = require('child_process');
-
-    const spawnOptions = {
-      shell: true
-    };
-
-    child_process.spawn('someCommand', [], spawnOptions, (error, stdout, stderr) => {
-      if (error) {
-        callback(new Error(`someCommand failed: ${error.message}`));
-        return;
-      }
-
-      callback(null, `someCommand exited with status code: ${stdout}`);
-    });
-  },
-
-  addLangAttribute(element, lang) {
-    element.setAttribute('lang', lang);
-  },
-
-  countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(__dirname, '..', 'package.json');
-    const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
-
-    const dependencies = JSON.parse(packageJson).dependencies || {};
-    const devDependencies = JSON.parse(packageJson).devDependencies || {};
-
-    return {
-      dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
-      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
+  // Additional changes requested in the issue should be added after this function
+  newFunctionality() {
+    // TODO: Implement the new functionality as described in the issue
   }
 };
+
+/**
+ * Handle credential response from browser authentication
+ * @param {Object} response - The credential response object
+ * @returns {Object} Processed credential information
+ */
+function handleCredentialResponse(response) {
+  if (!response) {
+    return { success: false, error: 'No credential response provided' };
+  }
+
+  // Check if response contains expected credential data
+  const hasCredential = response.credential || response.token || response.id;
+  
+  if (!hasCredential) {
+    return { success: false, error: 'Invalid credential response format' };
+  }
+
+  // Process credential information
+  const processedCredential = {
+    id: response.id || null,
+    token: response.token || response.credential || null,
+    name: response.name || 'Anonymous User',
+    email: response.email || null,
+    success: true
+  };
+
+  // Handle different types of credential responses
+  if (response.credential) {
+    // Google Sign-In response
+    try {
+      // Credential is a base64-encoded JWT
+      const payload = JSON.parse(atob(response.credential.split('.')[1]));
+      processedCredential.id = payload.sub || processedCredential.id;
+      processedCredential.email = payload.email || processedCredential.email;
+      processedCredential.name = payload.name || processedCredential.name;
+    } catch (error) {
+      console.warn('Failed to parse credential response:', error);
+    }
+  }
+
+  // Announce success to screen readers
+  if (typeof announceToScreenReader === 'function') {
+    announceToScreenReader('User successfully authenticated');
+  }
+
+  return processedCredential;
+}
 
 function ensureUniqueLandmarksFromString(source) {
   const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
@@ -331,65 +348,18 @@ function addLangAttribute(element, lang) {
 function countDependencies() {
   const path = require('path');
   const fs = require('fs');
-  const packageJsonPath = path.join(process.cwd(), 'package.json');
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  const packageJsonPath = path.join(__dirname, '..', 'package.json');
+  const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
 
-  const dependencies = packageJson.dependencies || {};
-  const devDependencies = packageJson.devDependencies || {};
+  const dependencies = JSON.parse(packageJson).dependencies || {};
+  const devDependencies = JSON.parse(packageJson).devDependencies || {};
 
   return {
     dependencies: Object.keys(dependencies).length,
     devDependencies: Object.keys(devDependencies).length,
+    // TODO: This is the existing code that needs to be preserved
     total: Object.keys(dependencies).length + Object.keys(devDependencies).length
   };
-}
-
-/**
- * Handle credential response from browser authentication
- * @param {Object} response - The credential response object
- * @returns {Object} Processed credential information
- */
-function handleCredentialResponse(response) {
-  if (!response) {
-    return { success: false, error: 'No credential response provided' };
-  }
-
-  // Check if response contains expected credential data
-  const hasCredential = response.credential || response.token || response.id;
-  
-  if (!hasCredential) {
-    return { success: false, error: 'Invalid credential response format' };
-  }
-
-  // Process credential information
-  const processedCredential = {
-    id: response.id || null,
-    token: response.token || response.credential || null,
-    name: response.name || 'Anonymous User',
-    email: response.email || null,
-    success: true
-  };
-
-  // Handle different types of credential responses
-  if (response.credential) {
-    // Google Sign-In response
-    try {
-      // Credential is a base64-encoded JWT
-      const payload = JSON.parse(atob(response.credential.split('.')[1]));
-      processedCredential.id = payload.sub || processedCredential.id;
-      processedCredential.email = payload.email || processedCredential.email;
-      processedCredential.name = payload.name || processedCredential.name;
-    } catch (error) {
-      console.warn('Failed to parse credential response:', error);
-    }
-  }
-
-  // Announce success to screen readers
-  if (typeof announceToScreenReader === 'function') {
-    announceToScreenReader('User successfully authenticated');
-  }
-
-  return processedCredential;
 }
 
 // Ensure DOM is fully loaded before executing scripts

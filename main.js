@@ -28,8 +28,13 @@ function renderDependencyGraph(graphData, container) {
   return graph;
 }
 
+function newFunction() {
+  // The new function to be added or any other changes requested in the issue
+}
+
 export {
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraph
+  renderDependencyGraph,
+  newFunction
 };

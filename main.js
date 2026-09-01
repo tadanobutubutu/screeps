@@ -1,6 +1,3 @@
-Here's the resolved file content:
-
-```javascript
 import React from 'react';
 import express from 'express';
 import path from 'path';
@@ -8,7 +5,7 @@ import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
-import { visualizeDependencyTree } from './utils.js'; // Incorporated the new function
+import { visualizeDependencyTree } from './utils.js';
 
 // Existing code starts here
 
@@ -62,13 +59,41 @@ if (require.main === module) {
   visualizeDependencyTree(require.dependencies);
 }
 
+// Accessibility improvements
+function ensureAccessibleAttributes() {
+  // Add ARIA attributes to important elements
+  document.querySelectorAll('button').forEach(button => {
+    if (!button.getAttribute('aria-label')) {
+      button.setAttribute('aria-label', button.textContent || 'Button');
+    }
+  });
+
+  // Ensure proper heading structure
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  headings.forEach((heading, index) => {
+    if (!heading.id) {
+      heading.id = `heading-${index + 1}`;
+    }
+  });
+
+  // Add skip link for keyboard users
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.className = 'skip-link';
+  skipLink.textContent = 'Skip to main content';
+  document.body.insertBefore(skipLink, document.body.firstChild);
+}
+
+// Initialize accessibility when DOM is ready
+if (typeof window !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', ensureAccessibleAttributes);
+}
+
 module.exports = {
   config,
   initialize,
   initializeApp,
   main,
+  ensureAccessibleAttributes,
   // ... (Preserve the rest of the existing exports)
 };
-```
-
-This version of the code introduces the `visualizeDependencyTree` function to the `main.js` file, making it accessible when running the script directly. The function uses the `require.dependencies` object to visualize the dependency tree.

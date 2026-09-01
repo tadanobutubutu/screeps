@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -207,6 +204,72 @@ function handleAccessibilityIssues(issues) {
   };
 }
 
+/**
+ * Validates the structure of a table element
+ * @param {Object} table - The table element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableStructure(table) {
+  const issues = [];
+
+  if (!table.hasCaption) {
+    issues.push('Missing caption element');
+  }
+
+  if (!table.hasValidHeaders) {
+    issues.push('Invalid or missing header structure');
+  }
+
+  if (!table.hasValidRowGroups) {
+    issues.push('Invalid or missing row groups');
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Creates a new landmark element with proper attributes
+ * @param {Object} options - Landmark options
+ * @param {string} options.type - Type of landmark (header, nav, main, etc.)
+ * @param {string} options.ariaLabel - Accessible name for the landmark
+ * @param {string} options.content - Content of the landmark
+ * @returns {Object} Landmark element object
+ */
+function createLandmark(options) {
+  const landmark = {
+    type: options.type,
+    ariaLabel: options.ariaLabel,
+    content: options.content
+  };
+
+  // Validate the created landmark
+  const validation = validateLandmark(landmark);
+  if (!validation.success) {
+    throw new Error(`Invalid landmark created: ${validation.issues.join(', ')}`);
+  }
+
+  return landmark;
+}
+
+/**
+ * Ensures all landmarks in the document are properly structured
+ * @param {Array} landmarks - Array of landmark elements to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateAllLandmarks(landmarks) {
+  const structureValidation = validateLandmarkStructure(landmarks);
+  const uniquenessValidation = ensureUniqueLandmarks(landmarks);
+
+  return {
+    success: structureValidation.success && uniquenessValidation.success,
+    structureIssues: structureValidation.issues,
+    uniquenessIssues: uniquenessValidation.duplicates
+  };
+}
+
 // Export all functions for testing and external use
 module.exports = {
   getLangAttribute,
@@ -220,8 +283,8 @@ module.exports = {
   createInPageButton,
   createAccessibleLink,
   handleAccessibilityIssues,
-  addLangAttribute // Added for merge
+  addLangAttribute,
+  validateTableStructure,
+  createLandmark,
+  validateAllLandmarks
 };
-```
-
-This file has been merged with the new changes from the conflicting changeset, which includes additional functions for validating table structure, landmark structure, and ensuring unique landmarks; as well as functions for creating accessible in-page buttons and links. The added `addLangAttribute` function has also been included in the exports to make it accessible for external use.

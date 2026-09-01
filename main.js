@@ -51,7 +51,7 @@ const Main = () => {
       event.preventDefault();
       setTitleForm('');
       setAuthorForm('');
-      
+
       if (titleForm.trim() && authorForm.trim()) {
         addBook({ title: titleForm.trim(), author: authorForm.trim() });
       } else {
@@ -221,7 +221,7 @@ function addLandmarkRoles() {
   if (mainElement && mainElement.setAttribute) {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   const navElement = document.querySelector('nav');
   if (navElement && navElement.setAttribute) {
     navElement.setAttribute('role', 'navigation');
@@ -443,7 +443,7 @@ function addressAccessibilityIssues(insightReport) {
 
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -454,7 +454,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -469,7 +469,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -484,7 +484,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -498,7 +498,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -513,7 +513,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
@@ -527,11 +527,72 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check SVG accessibility
   const svgAccessibleNames = getSvgAccessibleName();
 
   return issues;
+}
+
+/**
+ * Generates a report based on accessibility issues found in the application
+ * @param {Array} issues - Array of accessibility issues
+ * @returns {Object} - Report object containing summary and detailed information
+ */
+function generateAccessibilityReport(issues) {
+  if (!issues || !Array.isArray(issues)) {
+    return {
+      summary: 'No accessibility issues provided',
+      totalIssues: 0,
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 0,
+      details: []
+    };
+  }
+
+  // Initialize counters
+  let critical = 0;
+  let high = 0;
+  let medium = 0;
+  let low = 0;
+
+  // Categorize issues by severity
+  issues.forEach(issue => {
+    switch (issue.severity) {
+      case 'critical':
+        critical++;
+        break;
+      case 'high':
+        high++;
+        break;
+      case 'medium':
+        medium++;
+        break;
+      case 'low':
+        low++;
+        break;
+      default:
+        // Default to medium if severity is not specified
+        medium++;
+    }
+  });
+
+  // Generate summary
+  const summary = `Accessibility Report: ${issues.length} issues found. ` +
+    `Critical: ${critical}, High: ${high}, Medium: ${medium}, Low: ${low}`;
+
+  // Return the complete report
+  return {
+    summary,
+    totalIssues: issues.length,
+    critical,
+    high,
+    medium,
+    low,
+    details: issues
+  };
 }
 
 export { someFunction };

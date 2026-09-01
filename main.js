@@ -13,8 +13,12 @@ const http = require('http');
 const renderGraphIndex = (graphData) => {
   // Placeholder for the new rendering logic
   // This function should use the new functions for rendering the graph/index
-  // For example, it could call `setSvgAccessibilityProps`, `addAccessibleNamesToSVGs`, etc.
+  // For example, it could call ... ... etc.
   // Replace this with the actual implementation details
+  
+  // Address accessibility issues from insight report
+  addressAccessibilityIssues();
+  
   renderDependencyGraphs(graphData);
 };
 

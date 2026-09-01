@@ -1367,33 +1367,8 @@ function createAccessibleLink(href, text) {
   return link;
 }
 
-// Harvest logic implementation (async, placeholder for actual harvest)
-async function harvest() {
-  // TODO: Implement harvest logic
-  // This function should collect resources or data from available sources
-  try {
-    // Example: Harvest accessibility data from scanned pages
-    const report = await scanAccessibility();
-    const harvestedData = {
-      timestamp: new Date().toISOString(),
-      pagesScanned: report.length,
-      totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
-      details: report
-    };
-
-    // Store harvested data for potential upgrades
-    const harvestFile = path.join(__dirname, 'harvest_data.json');
-    fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-
-    return harvestedData;
-  } catch (error) {
-    console.error('Harvest failed:', error);
-    throw error;
-  }
-}
-
 // Function to scan accessibility using axe-core (placeholder for browser)
-function scanAccessibility() {
+function scanAccessibilityBrowser() {
   // This is a simplified example - in a real application you would:
   // 1. Load the HTML content to scan
   // 2. Use axe.run() to analyze the page
@@ -1421,7 +1396,7 @@ function scanAccessibility() {
 
 // Function to generate an accessibility report (from scan)
 function generateAccessibilityReportFromScan() {
-  const report = scanAccessibility();
+  const report = scanAccessibilityBrowser();
   writeReport(report);
   return report;
 }

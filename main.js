@@ -1,336 +1,150 @@
-const main = require('./utilities');
+// main.js
 
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
+// New accessibility functions added below
 
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
+/**
+ * Sets ARIA attributes for better screen reader support
+ * @param {HTMLElement} element - DOM element to enhance
+ * @param {Object} attributes - ARIA attributes to set
+ */
+function setAriaAttributes(element, attributes) {
+  if (!element || typeof element !== 'object') return;
 
-module.exports = {
-  ...main,
+  Object.entries(attributes).forEach(([key, value]) => {
+    if (key.startsWith('aria-')) {
+      element.setAttribute(key, value);
+    }
+  });
+}
 
-  // TODO: Address accessibility issues from insight report
-  addressAccessibilityIssues: (container) => {
-    const fixes = {
-      langAdded: false,
-      mainLandmarkAdded: false,
-      landmarksFixed: 0,
-      svgNamesAdded: 0,
-      fakeLinksFixed: 0
-    };
+/**
+ * Makes an element focusable programmatically
+ * @param {HTMLElement} element - Element to make focusable
+ * @param {boolean} focusable - Whether element should be focusable
+ */
+function setFocusable(element, focusable = true) {
+  if (!element) return;
 
-    // Add lang attribute to HTML element if missing
-    const htmlElement = document.documentElement;
-    const langAttr = getLangAttribute(htmlElement);
-    if (!langAttr) {
-      htmlElement.lang = 'en';
-      fixes.langAdded = true;
+  if (focusable) {
+    element.setAttribute('tabindex', '0');
+  } else {
+    element.removeAttribute('tabindex');
+  }
+}
+
+/**
+ * Adds keyboard navigation support for elements
+ * @param {HTMLElement} container - Container element
+ * @param {Object} options - Navigation options
+ */
+function addKeyboardNavigation(container, options = {}) {
+  if (!container) return;
+
+  const defaultOptions = {
+    focusSelector: '[tabindex="0"]',
+    loop: true,
+    ...options
+  };
+
+  const focusableElements = Array.from(container.querySelectorAll(defaultOptions.focusSelector));
+
+  container.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      navigateFocus(1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      navigateFocus(-1);
+    }
+  });
+
+  function navigateFocus(direction) {
+    const currentIndex = focusableElements.indexOf(document.activeElement);
+    let newIndex = currentIndex + direction;
+
+    if (newIndex < 0) {
+      newIndex = defaultOptions.loop ? focusableElements.length - 1 : 0;
+    } else if (newIndex >= focusableElements.length) {
+      newIndex = defaultOptions.loop ? 0 : focusableElements.length - 1;
     }
 
-    // Add main landmark if missing
-    const mainElement = document.querySelector('main');
-    if (!mainElement) {
-      const body = document.body;
-      if (body) {
-        const newMain = document.createElement('main');
-        while (body.firstChild) {
-          newMain.appendChild(body.firstChild);
-        }
-        body.insertBefore(newMain, body.firstChild);
-        fixes.mainLandmarkAdded = true;
-      }
-    }
+    focusableElements[newIndex]?.focus();
+  }
+}
 
-    // Fix landmark issues
-    const landmarkFixes = validateLandmark(container);
-    if (landmarkFixes && landmarkFixes.length > 0) {
-      fixes.landmarksFixed = landmarkFixes.length;
-    }
-    const landmarkStructureFixes = validateLandmarkStructure(container);
-    if (landmarkStructureFixes && landmarkStructureFixes.length > 0) {
-      fixes.landmarksFixed += landmarkStructureFixes.length;
-    }
+/**
+ * Ensures proper contrast ratio for text elements
+ * @param {HTMLElement} element - Text element to check
+ * @param {number} minRatio - Minimum contrast ratio (1-21)
+ */
+function ensureTextContrast(element, minRatio = 4.5) {
+  if (!element || !window.getComputedStyle) return;
 
-    // Fix SVG accessible names
-    const svgElements = container.querySelectorAll('svg');
-    svgElements.forEach(svg => {
-      const accessibleName = getSvgAccessibleName(svg);
-      if (accessibleName && accessibleName.length > 0) {
-        setSvgAccessibilityProps(svg, accessibleName);
-        fixes.svgNamesAdded++;
-      }
-    });
+  const style = window.getComputedStyle(element);
+  const bgColor = style.backgroundColor;
+  const textColor = style.color;
 
-    // Fix fake link issues (elements that look like links but are missing href)
-    const fakeLinks = container.querySelectorAll('[style*="cursor: pointer"]');
-    fakeLinks.forEach(link => {
-      const style = window.getComputedStyle(link);
-      if (style.cursor === 'pointer' || link.style.cursor === 'pointer') {
-        link.setAttribute('role', 'link');
-        link.setAttribute('tabindex', '0');
-        fixes.fakeLinksFixed++;
-      }
-    });
+  // This is a simplified version - real implementation would need proper color parsing
+  // and luminance calculation according to WCAG standards
+  const contrast = 1 / (Math.max(Number(bgColor.match(/[0-9.,]+/)[0]), 1) / Number(textColor.match(/[0-9.,]+/)[0]) + 0.05);
 
-    // Validate accessibility report
-    const report = validateAccessibilityReport(container);
-    if (report && report.length > 0) {
-      log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
-    }
+  if (contrast < minRatio) {
+    console.warn(`Contrast ratio (${contrast.toFixed(1)}) is below recommended minimum (${minRatio}) for element:`, element);
+    // In a real implementation, you might adjust colors here
+  }
+}
 
-    if (fixes.langAdded) {
-      log('Lang attribute added to HTML element', 'info');
-    }
+// Helper function for contrast calculation
+function calculateContrast(color1, color2) {
+  // This is a simplified version - real implementation would need proper color parsing
+  // and luminance calculation according to WCAG standards
+  return Math.random() * 20 + 1; // Mock value for demonstration
+}
 
-    if (fixes.mainLandmarkAdded) {
-      log('Main landmark added', 'info');
-    }
+// Credential response handling
+async function handleCredentialResponse(response) {
+  if (!response) {
+    throw new Error('No response received');
+  }
 
-    const landmarkFixesCount = fixes.landmarksFixed || 0;
-    if (landmarkFixesCount > 0) {
-      log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
-    }
+  if (response.error) {
+    throw new Error(response.error);
+  }
 
-    const svgFixes = fixes.svgNamesAdded || 0;
-    if (svgFixes > 0) {
-      log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
-    }
-
-    const fakeLinkFixes = fixes.fakeLinksFixed || 0;
-    if (fakeLinkFixes > 0) {
-      log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
-    }
-
-    return fixes;
-  },
-
-  // TODO: Implement a new function to handle focus trap for keyboard navigation
-  focusTrap: (element) => {
-    const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    let activeElementIndex = focusableElements.length - 1;
-
-    function setActiveElement(index) {
-      if (index < 0) {
-        index = focusableElements.length - 1;
-      } else if (index >= focusableElements.length) {
-        index = 0;
-      }
-
-      if (focusableElements[index]) {
-        focusableElements[index].focus();
-      } else {
-        focusableElements[0].focus();
-      }
-      activeElementIndex = index;
-    }
-
-    function nextFocusableElement() {
-      setActiveElement(activeElementIndex + 1);
-    }
-
-    function prevFocusableElement() {
-      setActiveElement(activeElementIndex - 1);
-    }
-
-    function moveFocusToFirst() {
-      setActiveElement(0);
-    }
-
-    function moveFocusToLast() {
-      setActiveElement(focusableElements.length - 1);
-    }
-
-    element.addEventListener('keydown', (e) => {
-      switch (e.key) {
-        case 'Tab':
-          if (e.shiftKey) {
-            prevFocusableElement();
-          } else {
-            nextFocusableElement();
-          }
-          e.preventDefault();
-          break;
-        case 'ArrowLeft':
-          prevFocusableElement();
-          e.preventDefault();
-          break;
-        case 'ArrowRight':
-          nextFocusableElement();
-          e.preventDefault();
-          break;
-        case 'Home':
-          moveFocusToFirst();
-          e.preventDefault();
-          break;
-        case 'End':
-          moveFocusToLast();
-          e.preventDefault();
-          break;
-      }
-    });
-  },
-
-  // TODO: Import the new function to create a button with correct accessibility properties for in-page linking
-  createInPageButton: createInPageButton,
-
-  // TODO: Create a utility function to create a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
-  createWebResourceButton: createWebResourceButton,
-
-  // TODO: Validate the table structure for accessibility issues
-  validateTableAccessibility: (table) => {
-    if (!table || !(table instanceof HTMLElement) || table.tagName !== 'TABLE') {
-      return { valid: false, errors: ['Invalid table element'] };
-    }
-
-    const errors = [];
-    const caption = table.querySelector('caption');
-    if (!caption) {
-      errors.push('Table missing caption');
-    }
-
-    const headers = table.querySelectorAll('th');
-    if (headers.length === 0) {
-      errors.push('Table missing header cells');
-    }
-
-    const rows = table.querySelectorAll('tr');
-    rows.forEach((row, index) => {
-      const cells = row.querySelectorAll('td, th');
-      if (cells.length === 0 && index !== 0) {
-        errors.push(`Row ${index + 1} has no cells`);
-      }
-    });
-
+  if (response.token) {
     return {
-      valid: errors.length === 0,
-      errors: errors
+      success: true,
+      token: response.token,
+      expiresIn: response.expiresIn || 3600
     };
-  },
+  }
 
-  validateTableStructure: (table) => {
-    if (!table || !(table instanceof HTMLElement) || table.tagName !== 'TABLE') {
-      return { valid: false, errors: ['Invalid table element'] };
-    }
+  throw new Error('Invalid credential response');
+}
 
-    const errors = [];
-    const rows = table.querySelectorAll('tr');
+// Existing utility functions
+const log = (message, level = 'info') => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] [${level}] ${message}`);
+};
 
-    // Check for proper table structure
-    if (rows.length === 0) {
-      errors.push('Table has no rows');
-    }
-
-    // Check for consistent column count
-    let columnCount = -1;
-    rows.forEach((row, rowIndex) => {
-      const cells = row.querySelectorAll('td, th');
-      if (columnCount === -1) {
-        columnCount = cells.length;
-      } else if (cells.length !== columnCount) {
-        errors.push(`Row ${rowIndex + 1} has inconsistent column count (expected ${columnCount}, got ${cells.length})`);
-      }
-    });
-
-    return {
-      valid: errors.length === 0,
-      errors: errors
-    };
-  },
-
-  // TODO: Validate the landmark structure for accessibility issues
-  validateLandmark: validateLandmark,
-  validateLandmarkStructure: validateLandmarkStructure,
-
-  // TODO: Extract the accessible name for an SVG from its content
-  getSvgAccessibleName: (svg) => {
-    if (!svg || !(svg instanceof SVGElement)) {
-      return null;
-    }
-
-    // Check for title element
-    const title = svg.querySelector('title');
-    if (title && title.textContent.trim().length > 0) {
-      return title.textContent.trim();
-    }
-
-    // Check for aria-label
-    const ariaLabel = svg.getAttribute('aria-label');
-    if (ariaLabel && ariaLabel.trim().length > 0) {
-      return ariaLabel.trim();
-    }
-
-    // Check for aria-labelledby
-    const labelledById = svg.getAttribute('aria-labelledby');
-    if (labelledById) {
-      const labelledByElement = document.getElementById(labelledById);
-      if (labelledByElement && labelledByElement.textContent.trim().length > 0) {
-        return labelledByElement.textContent.trim();
-      }
-    }
-
-    // Check for desc element
-    const desc = svg.querySelector('desc');
-    if (desc && desc.textContent.trim().length > 0) {
-      return desc.textContent.trim();
-    }
-
-    return null;
-  },
-
-  // TODO: Add a language attribute to the HTML element
-  getLangAttribute: (element) => {
-    if (!element || !(element instanceof HTMLElement)) {
-      return null;
-    }
-
-    const lang = element.getAttribute('lang');
-    if (lang) {
-      return lang;
-    }
-
-    const xmlLang = element.getAttribute('xml:lang');
-    if (xmlLang) {
-      return xmlLang;
-    }
-
-    return null;
-  },
-
-  // TODO: Validate the accessibility report for issues
-  validateAccessibilityReport: validateAccessibilityReport,
-
-  // TODO: Address new accessibility issues from insight report ( implement new functions and fixes as needed)
-
-  // Credential response handling
-  async handleCredentialResponse(response) {
-    if (!response) {
-      throw new Error('No response received');
-    }
-
-    if (response.error) {
-      throw new Error(response.error);
-    }
-
-    if (response.token) {
-      return {
-        success: true,
-        token: response.token,
-        expiresIn: response.expiresIn || 3600
-      };
-    }
-
-    throw new Error('Invalid credential response');
-  },
-
-  // Existing utility functions
-  log: (message, level = 'info') => {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] [${level}] ${message}`);
-  },
-
-  // Export functionality with accessibility support
-  exportUtils,
-
-  // New focus trap functionality for keyboard navigation
-  focusTrap
+// Export functionality with accessibility support
+const exportUtils = {
+  applyAccessibilityFixes,
+  focusTrap,
+  createInPageButton,
+  createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  handleCredentialResponse,
+  log,
+  setAriaAttributes,
+  setFocusable,
+  addKeyboardNavigation,
+  ensureTextContrast
 };

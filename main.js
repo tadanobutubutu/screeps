@@ -49,7 +49,7 @@ const {
   fixFakeLinkIssue,
   addAriaAttribute,
   implementAccessibilityFixesFromReport,
-  addressAccessibilityIssues,
+  addressAccessibilityIssues: addressAccessibilityIssuesImported,
   ensureElementHasId,
   fixButtonIdentifiers,
   fixDependencyGraphAria,

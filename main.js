@@ -1,4 +1,10 @@
 function main() {
+  const htmlElement = document.querySelector('html');
+  const langAttribute = getLangAttribute();
+  if (langAttribute) {
+    htmlElement.setAttribute('lang', langAttribute);
+  }
+
   const svgElements = document.querySelectorAll('svg');
 
   svgElements.forEach((svg) => {
@@ -19,6 +25,11 @@ function main() {
   enhanceSemanticMarkup();
 
   init();
+}
+
+function getLangAttribute() {
+  // Placeholder function, should be implemented to return the correct language attribute
+  return 'en';
 }
 
 function getSvgAccessibleName(svg) {

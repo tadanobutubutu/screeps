@@ -148,6 +148,3 @@ function renderDependencyGraph(landmarks) {
 
 // Export the new function
 module.exports.renderDependencyGraph = renderDependencyGraph;
-
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice

@@ -145,6 +145,7 @@ if (typeof module !== 'undefined' && module.exports) {
     addressAccessibilityIssues,
     generateAccessibilityReport,
     calculateAccessibilityScore,
+    ensureUniqueLandmarksFromString,
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
@@ -164,6 +165,7 @@ function init() {
   enhanceSemanticMarkup();
   setupFocusManagement();
   setupKeyboardNavigation();
+  addLangAttribute(document.documentElement, 'en');
 }
 
 function setupKeyboardNavigation() {
@@ -573,9 +575,6 @@ const mainExports = {
     getLangAttribute,
     MyComponent,
     AddressabilityIssues,
-    addSvgAccessibilityProps,
-    getSvgAccessibleName,
-    setSvgAttributes
 };
 
 // Re-export for Node.js environment

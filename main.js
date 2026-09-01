@@ -3,8 +3,33 @@
 // (Previously existing code that needs to be preserved)
 
 // New function or changes requested in the issue
-function newFunction() {
-  // Implementation of the new function
+function createAccessibleWebResourceButton(resourceName, url, iconClass) {
+  const button = document.createElement('button');
+  button.className = `resource-button ${iconClass}`;
+  button.setAttribute('aria-label', `Visit ${resourceName}`);
+  button.setAttribute('role', 'link');
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.setAttribute('aria-hidden', 'true');
+
+  const icon = document.createElement('i');
+  icon.className = `icon ${iconClass}`;
+  link.appendChild(icon);
+
+  button.appendChild(link);
+
+  // Add keyboard navigation support
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      window.open(url, '_blank');
+    }
+  });
+
+  return button;
 }
 
 // main.js
@@ -36,6 +61,6 @@ function addBook() {
 module.exports = {
   // Existing exports
   // ...
-  newFunction, // Export the new function
+  createAccessibleWebResourceButton, // Export the new function
   addBook, // Export the addBook function
 };

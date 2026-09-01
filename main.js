@@ -63,7 +63,7 @@ function getLangAttribute() {
 function detectAndSetLang(content) {
   // Simple language detection based on common patterns
   let lang = 'en'; // Default to English
-  
+
   if (content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
@@ -80,7 +80,7 @@ function detectAndSetLang(content) {
       lang = 'de'; // German;
     }
   }
-  
+
   return lang;
 }
 
@@ -134,7 +134,43 @@ function validateTableStructure(table) {
  * @returns {boolean} Whether the landmark is valid
  */
 function validateLandmark(element) {
-  if (!element || typeof element !== 'object') return true;
+  if (!element || typeof element !== 'object') return false;
+
+  // Check if element is a valid landmark role
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+  const role = element.getAttribute('role') || element.tagName.toLowerCase();
+
+  if (!validRoles.includes(role)) {
+    return false;
+  }
+
+  // Check for required ARIA attributes based on role
+  switch (role) {
+    case 'navigation':
+      if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+        return false;
+      }
+      break;
+    case 'region':
+      if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+        return false;
+      }
+      break;
+    case 'form':
+      if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+        return false;
+      }
+      break;
+  }
+
+  // Check if landmark is unique when required
+  if (['banner', 'main', 'contentinfo'].includes(role)) {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -164,15 +200,15 @@ if (typeof document !== 'undefined' && document.documentElement) {
   detectAndSetLang();
 }
 
-module.exports = { 
-  setHtmlLangAttribute, 
-  getLangAttribute, 
-  detectAndSetLang, 
-  personName, 
-  createInPageButton, 
-  validateTableAccessibility, 
-  validateTableStructure, 
-  validateLandmark, 
-  validateLandmarkStructure, 
-  getSvgAccessibleName 
+module.exports = {
+  setHtmlLangAttribute,
+  getLangAttribute,
+  detectAndSetLang,
+  personName,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName
 };

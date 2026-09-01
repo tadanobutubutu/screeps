@@ -111,14 +111,17 @@ function addLangAttribute(element) {
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
+
   if (!element.hasAttribute('id')) {
     issues.push('Missing id attribute');
   }
+
   return {
     success: issues.length === 0,
     issues
@@ -288,48 +291,67 @@ function addSvgAccessibilityProps(svg, options = {}) {
 
 // ... (the rest of the file remains unchanged)
 
-function createInPageButton(text, onClick) {
-    // Implementation to create accessible in-page button
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.onclick = onClick;
-    button.setAttribute('aria-label', text);
-    if (text.length === 0) {
-      button.setAttribute('aria-label', 'Empty button');
+/**
+ * Handles accessibility issues found during validation
+ * @param {Array} issues - Array of accessibility issues
+ * @returns {Object} Summary of handled issues
+ */
+function handleAccessibilityIssues(issues) {
+  const handled = [];
+  const unhandled = [];
+
+  issues.forEach(issue => {
+    if (issue.fixable) {
+      handled.push(issue);
+    } else {
+      unhandled.push(issue);
     }
-    return button;
+  });
+
+  return {
+    handled,
+    unhandled
+  };
 }
 
+/**
+ * Creates an accessible in-page button
+ * @param {string} text - The button text
+ * @param {Function} onClick - The click handler
+ * @returns {Object} The created button element
+ */
+function createInPageButton(text, onClick) {
+  // Implementation to create accessible in-page button
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.onclick = onClick;
+  button.setAttribute('aria-label', text);
+  if (text.length === 0) {
+    button.setAttribute('aria-label', 'Empty button');
+  }
+  return button;
+}
+
+/**
+ * Creates an accessible link
+ * @param {string} href - The link href
+ * @param {string} text - The link text
+ * @returns {Object} The created link element
+ */
 function createAccessibleLink(href, text) {
-    // Implementation to create accessible link (conflict resolved: merged implementation)
-    const link = document.createElement('a');
-    link.href = href;
-    link.textContent = text;
-    link.setAttribute('aria-label', text);
-    return link;
+  // Implementation to create accessible link (conflict resolved: merged implementation)
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  link.setAttribute('aria-label', text);
+  return link;
 }
 
-function handleAccessibilityIssues() {
-  // Placeholder for handling accessibility issues
-  return true;
-}
-
-function addSvgAccessibilityProps(svgElement) {
-    // Merged implementation (conflict resolved)
-    if (!svgElement) return 'Accessible SVG Icon';
-
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (title) return title.textContent;
-    if (ariaLabel) return ariaLabel;
-    return 'Accessible SVG Icon';
-}
-
-function addLangAttribute(element) {
-  element.lang = getFullLangAttribute();
-  return element;
-}
-
+/**
+ * Fixes table structure issues
+ * @param {Object} table - The table to fix
+ * @returns {Object} The fixed table
+ */
 function fixTableStructure(table) {
   if (!table.headers) {
     table.headers = 'auto';
@@ -342,6 +364,11 @@ function fixTableStructure(table) {
   return table;
 }
 
+/**
+ * Adds a main landmark to the document if missing
+ * @param {Object} document - The document object
+ * @returns {Object} The document with main landmark added
+ */
 function addMainLandmark(document) {
   if (!document.querySelector('main')) {
     const main = document.createElement('main');
@@ -351,12 +378,23 @@ function addMainLandmark(document) {
   return document;
 }
 
+/**
+ * Sets SVG attributes for accessibility
+ * @param {Object} svg - The SVG element
+ * @param {string} accessibleName - The accessible name
+ * @returns {Object} The SVG element with attributes set
+ */
 function setSvgAttributes(svg, accessibleName) {
   svg.setAttribute('aria-label', accessibleName);
   svg.setAttribute('role', 'img');
   return svg;
 }
 
+/**
+ * Validates link accessibility
+ * @param {Object} link - The link element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
 function validateLinkAccessibility(link) {
   const issues = [];
 
@@ -374,6 +412,11 @@ function validateLinkAccessibility(link) {
   };
 }
 
+/**
+ * Handles fake links by converting them to accessible in-page buttons
+ * @param {Object} link - The link element
+ * @returns {Object} The converted button or original link
+ */
 function handleFakeLinks(link) {
   if (link.href === '#' || link.href === 'javascript:void(0)') {
     return createInPageButton({
@@ -385,6 +428,11 @@ function handleFakeLinks(link) {
   return link;
 }
 
+/**
+ * Adds proper landmark regions to the document
+ * @param {Object} document - The document object
+ * @returns {Object} The document with landmark regions added
+ */
 function addProperLandmarkRegions(document) {
   const regions = [
     { selector: 'header', role: 'banner' },
@@ -406,15 +454,43 @@ function addProperLandmarkRegions(document) {
   return document;
 }
 
-function getSvgAccessibleName(svgElement) {
-    // Merged implementation (conflict resolved)
-    if (!svgElement) return 'Accessible SVG Icon';
+/**
+ * Handles the credential response from authentication
+ * @param {Object} credentialResponse - The credential response object
+ * @returns {Object} Processed credential data
+ */
+function handleCredentialResponse(credentialResponse) {
+  if (!credentialResponse || typeof credentialResponse !== 'object') {
+    throw new Error('Invalid credential response');
+  }
 
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (title) return title.textContent;
-    if (ariaLabel) return ariaLabel;
-    return 'Accessible SVG Icon';
+  // Extract and validate required fields
+  const { credential, clientExtensionResults, authenticatorData } = credentialResponse;
+
+  if (!credential || typeof credential !== 'string') {
+    throw new Error('Invalid credential in response');
+  }
+
+  // Process the credential data
+  const processedCredential = {
+    rawId: credential,
+    id: credential,
+    response: {
+      clientDataJSON: credentialResponse.clientDataJSON,
+      authenticatorData: authenticatorData || null,
+      signature: credentialResponse.signature || null,
+      userHandle: credentialResponse.userHandle || null
+    },
+    type: 'public-key',
+    extensions: clientExtensionResults || {}
+  };
+
+  // Validate the processed credential
+  if (!processedCredential.response.clientDataJSON) {
+    throw new Error('Missing clientDataJSON in credential response');
+  }
+
+  return processedCredential;
 }
 
 module.exports = {
@@ -430,14 +506,13 @@ module.exports = {
   createInPageButton,
   createAccessibleLink,
   handleAccessibilityIssues,
+  handleCredentialResponse,
   addSvgAccessibilityProps,
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
   setSvgAttributes,
-  initializeApp,
-  getConfig,
-  validateInput,
-  processData,
-  addLandmarkRegions
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions
 };

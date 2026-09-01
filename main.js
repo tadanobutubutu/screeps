@@ -443,6 +443,17 @@ function towerDefense() {
   const towers = [];
   const enemies = [];
   let wave = 1;
+  let gameRunning = false;
+  let lastEnemySpawnTime = 0;
+  const spawnInterval = 3000; // Spawn enemies every 3 seconds
+  const pathPoints = [
+    { x: 0, y: 50 },
+    { x: 200, y: 50 },
+    { x: 200, y: 200 },
+    { x: 400, y: 200 },
+    { x: 400, y: 50 },
+    { x: 600, y: 50 }
+  ];
 
   // Example: Tower constructor
   function Tower(x, y, range, damage, rate) {
@@ -460,6 +471,7 @@ function towerDefense() {
     this.y = y;
     this.health = health;
     this.speed = speed;
+    this.pathIndex = 0;
   }
 
   // Add a tower
@@ -472,28 +484,108 @@ function towerDefense() {
     enemies.push(new Enemy(x, y, health, speed));
   }
 
+  // Spawn a new enemy at the start of the path
+  function spawnEnemy() {
+    const startPoint = pathPoints[0];
+    addEnemy(startPoint.x, startPoint.y, 100, 2);
+  }
+
   // Update game state (simplified)
-  function update() {
+  function update(currentTime) {
+    if (!gameRunning) return;
+
+    // Spawn enemies at intervals
+    if (currentTime - lastEnemySpawnTime > spawnInterval) {
+      spawnEnemy();
+      lastEnemySpawnTime = currentTime;
+    }
+
     // Logic for enemy movement, tower shooting, etc.
+    enemies.forEach((enemy, index) => {
+      // Move enemy along path
+      if (enemy.pathIndex < pathPoints.length - 1) {
+        const target = pathPoints[enemy.pathIndex + 1];
+        const dx = target.x - enemy.x;
+        const dy = target.y - enemy.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance > enemy.speed) {
+          enemy.x += (dx / distance) * enemy.speed;
+          enemy.y += (dy / distance) * enemy.speed;
+        } else {
+          enemy.pathIndex++;
+        }
+      } else {
+        // Enemy reached end of path - remove it
+        enemies.splice(index, 1);
+      }
+    });
+
+    // Tower shooting logic
+    towers.forEach(tower => {
+      if (currentTime - tower.lastShot > tower.rate) {
+        // Find closest enemy in range
+        let closestEnemy = null;
+        let minDistance = Infinity;
+
+        enemies.forEach(enemy => {
+          const dx = enemy.x - tower.x;
+          const dy = enemy.y - tower.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < tower.range && distance < minDistance) {
+            minDistance = distance;
+            closestEnemy = enemy;
+          }
+        });
+
+        // Attack closest enemy if found
+        if (closestEnemy) {
+          closestEnemy.health -= tower.damage;
+          tower.lastShot = currentTime;
+
+          // Remove enemy if health <= 0
+          if (closestEnemy.health <= 0) {
+            const index = enemies.indexOf(closestEnemy);
+            if (index > -1) {
+              enemies.splice(index, 1);
+            }
+          }
+        }
+      }
+    });
+
     console.log(`Wave ${wave} - updating game state`);
   }
 
   // Start the game
   function start() {
+    gameRunning = true;
+    lastEnemySpawnTime = Date.now();
     console.log('Tower defense game started');
-    // Add initial towers and enemies
+    // Add initial towers
     addTower(100, 100, 200, 10, 1000);
-    addEnemy(0, 50, 100, 2);
-    // Game loop would be here
+    addTower(300, 150, 200, 15, 800);
+    addTower(500, 100, 200, 12, 900);
+  }
+
+  // Stop the game
+  function stop() {
+    gameRunning = false;
+    console.log('Tower defense game stopped');
   }
 
   // Expose game functions
   return {
     start,
+    stop,
     addTower,
     addEnemy,
     update,
-    getWave: () => wave
+    getWave: () => wave,
+    getEnemies: () => enemies,
+    getTowers: () => towers,
+    isRunning: () => gameRunning
   };
 }
 

@@ -1,13 +1,33 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+const fs = require('fs');
+const main = require('./utilities');
 
-// Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+const {
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  announceToScreenReader,
+  handleKeyboardNav,
+  newFocusTrap: originNewFocusTrap,
+  exportUtils,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  ensureElementHasId: ensureElementIdOrigin,
+  ensureElementId,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  renderAdditionalContent,
+  transformInputData
+} = main;
 
-// Utility functions for accessibility
 const accessibilityUtils = {
-  // Initialize skip link functionality for keyboard navigation
   initSkipLink: () => {
     const skipLink = document.querySelector('.skip-link');
     if (skipLink) {
@@ -22,7 +42,6 @@ const accessibilityUtils = {
     }
   },
 
-  // Trap focus within an element (for modals, dialogs)
   trapFocus: (element) => {
     const focusableElements = element.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -43,7 +62,6 @@ const accessibilityUtils = {
     });
   },
 
-  // Announce message to screen readers
   announceToScreenReader: (message, priority = 'polite') => {
     const announcer = document.createElement('div');
     announcer.setAttribute('aria-live', priority);
@@ -56,9 +74,8 @@ const accessibilityUtils = {
     setTimeout(() => announcer.remove(), 1000);
   },
 
-  // New focus trap function
   newFocusTrap: (element) => {
-    if (!element) return;
+    if (!element) return originNewFocusTrap(element);
     const focusable = element.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
@@ -102,45 +119,6 @@ const ensureElementHasId = (element, prefix = 'element') => {
   return id;
 };
 
-// Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
-
-function newFocusTrap() {
-  // New function implementation: traps focus within a given element
-  return (element) => {
-    if (!element) return;
-    const focusable = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    if (focusable.length === 0) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === first) {
-          last.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          first.focus();
-          e.preventDefault();
-        }
-      }
-    });
-  };
-}
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
 const addAriaLabel = (element, label) => {
   if (element) {
     element.setAttribute('aria-label', label);
@@ -156,17 +134,6 @@ const renderDependencyGraph = (data) => {
   };
 };
 
-// Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
-
 function getTables() {
   return appData.tables;
 }
@@ -178,11 +145,6 @@ function getConfig() {
 function setConfig(config) {
   appData.config = { ...appData.config, ...config };
 }
-
-// Import necessary dependencies
-import React from 'react';
-import { render } from 'react-dom';
-import { addLangAttribute, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, uniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, googleSignIn, decodeJwtResponse, fixButtonIdentifiers, ensureElementHasId, addAriaLabel, renderDependencyGraphs } from './AccessibilityHelpers';
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph');
@@ -285,33 +247,23 @@ function validateTableStructure(tableData) {
   return true;
 }
 
-// Other code...
+function newFocusTrap() {
+  // New function implementation: traps focus within a given element
+  return accessibilityUtils.newFocusTrap;
+}
 
-// Preserve all existing exports
 module.exports = {
+  ...accessibilityUtils,
   renderDependencyGraph,
-  renderIndex,
+  addAriaLabel,
+  addAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
-  addAccessibleName,
-  accessibilityUtils,
   ensureElementId,
   ensureElementHasId,
   newFocusTrap,
+  getTables,
+  getConfig,
+  setConfig,
   // Preserve any other existing exports here
 };
-
-// New function or changes requested in the issue
-/**
- * New function to handle additional rendering logic
- * @param {Object} additionalData - Additional data for rendering
- * @returns {string} Rendered additional content HTML
- */
-function renderAdditionalContent(additionalData) {
-  // Implementation of the new function
-  // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`;
-}
-
-// Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent;

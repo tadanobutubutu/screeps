@@ -1,3 +1,5 @@
+// TODO: Replace this placeholder with the actual main.js content containing real conflict markers:
+
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
 // REACT_027: Fix 26 table structure issues

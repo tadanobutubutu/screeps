@@ -3,7 +3,7 @@ const { createInPageButton, createWebResourceButton, validateLandmark, validateL
 
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, renderGraphIndex, checkLandmarkElement, wrapPrimaryContentInMain, checkLandmarks, handleFocusTrap, revokeSession } = require('./utilities');
 
 const http = require('http');
 const url = require('url');
@@ -289,6 +289,59 @@ const renderDependencyGraph = (deps, options = {}) => {
   renderGraphIndex(graphData);
 };
 
+// New focus trap implementation
+function handleFocusTrap(container, options = {}) {
+  const { focusableElementsSelector = 'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])', initialFocusSelector = '[autofocus], [data-autofocus]' } = options;
+
+  // Get all focusable elements within the container
+  const focusableElements = Array.from(container.querySelectorAll(focusableElementsSelector))
+    .filter(el => !el.disabled && el.offsetParent !== null);
+
+  if (focusableElements.length === 0) return;
+
+  // Find the initial focus element
+  let initialFocusElement = container.querySelector(initialFocusSelector);
+  if (!initialFocusElement || !focusableElements.includes(initialFocusElement)) {
+    initialFocusElement = focusableElements[0];
+  }
+
+  // Set initial focus
+  initialFocusElement.focus();
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+
+      const currentIndex = focusableElements.indexOf(document.activeElement);
+      let nextIndex;
+
+      if (e.shiftKey) {
+        // Shift+Tab: move backward
+        nextIndex = currentIndex <= 0 ? focusableElements.length - 1 : currentIndex - 1;
+      } else {
+        // Tab: move forward
+        nextIndex = currentIndex >= focusableElements.length - 1 ? 0 : currentIndex + 1;
+      }
+
+      focusableElements[nextIndex].focus();
+    } else if (e.key === 'Escape') {
+      // Optional: Close the trap on Escape
+      if (options.onEscape) {
+        options.onEscape();
+      }
+    }
+  };
+
+  // Add event listeners
+  container.addEventListener('keydown', handleKeyDown);
+
+  // Return cleanup function
+  return () => {
+    container.removeEventListener('keydown', handleKeyDown);
+  };
+}
+
 module.exports = {
   renderDependencyGraph,
   renderIndex,
@@ -326,10 +379,8 @@ module.exports = {
   uniqueLandmarks,
   fixImageAltTexts,
   googleSignIn,
-  ensureElementHasId,
   ensureElementHasIdOrigin,
   addAriaLabel,
-  renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,

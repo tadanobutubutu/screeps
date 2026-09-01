@@ -157,6 +157,28 @@ function getSvgAccessibleName(svg) {
 }
 
 /**
+ * Sets SVG attributes to ensure accessibility
+ * @param {Object} svg - The SVG element to modify
+ * @param {Object} options - Accessibility options
+ * @param {string} options.ariaLabel - ARIA label for the SVG
+ * @param {string} options.ariaLabelledby - ARIA labelledby reference
+ * @param {string} options.title - Title for the SVG
+ * @returns {Object} Modified SVG element
+ */
+function setSvgAttributes(svg, options) {
+  if (options.ariaLabel) {
+    svg.ariaLabel = options.ariaLabel;
+  }
+  if (options.ariaLabelledby) {
+    svg.ariaLabelledby = options.ariaLabelledby;
+  }
+  if (options.title) {
+    svg.title = options.title;
+  }
+  return svg;
+}
+
+/**
  * Creates an accessible in-page button
  * @param {Object} options - Button options
  * @param {string} options.text - Button text
@@ -190,53 +212,6 @@ function createAccessibleLink(options) {
     ariaLabel: options.ariaLabel || options.text,
     isFake: false
   };
-}
-
-/**
- * Handles accessibility issues found during validation
- * @param {Array} issues - Array of accessibility issues
- * @returns {Object} Summary of handled issues
- */
-function handleAccessibilityIssues(issues) {
-  const handled = [];
-  const unhandled = [];
-
-  issues.forEach(issue => {
-    if (issue.fixable) {
-      handled.push(issue);
-    } else {
-      unhandled.push(issue);
-    }
-  });
-
-  return {
-    total: issues.length,
-    handled: handled.length,
-    unhandled: unhandled.length,
-    unhandledIssues: unhandled
-  };
-}
-
-/**
- * Sets SVG attributes to ensure accessibility
- * @param {Object} svg - The SVG element to modify
- * @param {Object} options - Accessibility options
- * @param {string} options.ariaLabel - ARIA label for the SVG
- * @param {string} options.ariaLabelledby - ARIA labelledby reference
- * @param {string} options.title - Title for the SVG
- * @returns {Object} Modified SVG element
- */
-function setSvgAttributes(svg, options) {
-  if (options.ariaLabel) {
-    svg.ariaLabel = options.ariaLabel;
-  }
-  if (options.ariaLabelledby) {
-    svg.ariaLabelledby = options.ariaLabelledby;
-  }
-  if (options.title) {
-    svg.title = options.title;
-  }
-  return svg;
 }
 
 /**
@@ -284,6 +259,57 @@ function handleFakeLinks(link) {
 }
 
 /**
+ * Handles accessibility issues found during validation
+ * @param {Array} issues - Array of accessibility issues
+ * @returns {Object} Summary of handled issues
+ */
+function handleAccessibilityIssues(issues) {
+  const handled = [];
+  const unhandled = [];
+
+  issues.forEach(issue => {
+    if (issue.fixable) {
+      handled.push(issue);
+    } else {
+      unhandled.push(issue);
+    }
+  });
+
+  return {
+    total: issues.length,
+    handled: handled.length,
+    unhandled: unhandled.length,
+    unhandledIssues: unhandled
+  };
+}
+
+/**
+ * Ensures an element has an ID attribute
+ * @param {Object} element - The element to check
+ * @param {string} id - The ID to assign if missing
+ * @returns {Object} The element with ensured ID
+ */
+function ensureElementId(element, id) {
+  if (!element.id) {
+    element.id = id;
+  }
+  return element;
+}
+
+/**
+ * Adds an aria-label to an element if missing
+ * @param {Object} element - The element to modify
+ * @param {string} label - The aria-label to add
+ * @returns {Object} The element with aria-label
+ */
+function addAriaLabel(element, label) {
+  if (!element.ariaLabel) {
+    element.ariaLabel = label;
+  }
+  return element;
+}
+
+/**
  * Adds proper landmark regions to the document
  * @param {Array} regions - Array of landmark regions to add
  * @returns {Object} Result with success status and any issues found
@@ -304,6 +330,20 @@ function addProperLandmarkRegions(regions) {
   };
 }
 
+/**
+ * Renders a dependency graph visualization
+ * @param {Object} graphData - The graph data to render
+ * @returns {Object} The rendered graph element
+ */
+function renderDependencyGraph(graphData) {
+  return {
+    type: 'graph',
+    data: graphData,
+    rendered: true,
+    timestamp: new Date().toISOString()
+  };
+}
+
 // Export all functions for testing and external use
 module.exports = {
   getLangAttribute,
@@ -320,5 +360,8 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   handleAccessibilityIssues,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  ensureElementId,
+  addAriaLabel,
+  renderDependencyGraph
 };

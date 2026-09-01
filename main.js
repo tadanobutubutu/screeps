@@ -122,6 +122,9 @@ function validateLandmarkStructure(landmarks) {
     if (!hasMain) {
       issues.push('Missing main landmark');
     }
+    if (!hasNavigation) {
+      issues.push('Missing navigation landmark');
+    }
   }
 
   return {
@@ -476,10 +479,16 @@ function createAccessibleLink(href, text) {
 
 /**
  * Fixes table structure issues
- * @param {Object} table - The table to fix
- * @returns {Object} The fixed table
+ * @param {Array|Object} tables - Array of tables or a single table to fix
+ * @returns {Array|Object} Fixed table(s)
  */
-function fixTableStructure(table) {
+function fixTableStructure(tables) {
+  if (Array.isArray(tables)) {
+    return tables.map(table => fixTableStructure(table));
+  }
+
+  // Single table fix
+  const table = tables;
   if (!table.headers) {
     table.headers = 'auto';
   }
@@ -492,17 +501,147 @@ function fixTableStructure(table) {
 }
 
 /**
- * Adds a main landmark to the document if missing
- * @param {Object} document - The document object
- * @returns {Object} The document with main landmark added
+ * Fixes landmark issues
+ * @param {Array} landmarks - Array of landmarks to fix
+ * @returns {Array} Array of fixed landmarks
  */
-function addMainLandmark(document) {
-  if (!document.querySelector('main')) {
-    const main = document.createElement('main');
-    main.setAttribute('role', 'main');
-    document.body.appendChild(main);
+function fixLandmarkIssues(landmarks) {
+  return landmarks.map(landmark => {
+    if (!landmark.tagName) {
+      return { ...landmark, tagName: 'section' };
+    }
+    return landmark;
+  });
+}
+
+/**
+ * Adds main landmark if missing
+ * @param {Array|Object} target - Array of landmarks or document object
+ * @returns {Array|Object} Array with main landmark added if needed, or document with main landmark
+ */
+function addMainLandmark(target) {
+  if (Array.isArray(target)) {
+    const hasMain = target.some(landmark => landmark.tagName.toLowerCase() === 'main');
+    if (!hasMain) {
+      return [...target, { tagName: 'main', ariaLabel: 'Main content' }];
+    }
+    return target;
+  } else if (target && target.querySelector) {
+    // Document version
+    if (!target.querySelector('main')) {
+      const main = target.createElement('main');
+      main.setAttribute('role', 'main');
+      target.body.appendChild(main);
+    }
+    return target;
   }
-  return document;
+  return target;
+}
+
+/**
+ * Adds landmark regions if needed
+ * @param {Array} landmarks - Array of existing landmarks
+ * @returns {Array} Array with additional landmark regions
+ */
+function addLandmarkRegions(landmarks) {
+  const requiredRegions = ['header', 'footer', 'nav'];
+  const existingTags = landmarks.map(l => l.tagName.toLowerCase());
+
+  requiredRegions.forEach(region => {
+    if (!existingTags.includes(region)) {
+      landmarks.push({ tagName: region, ariaLabel: `${region} region` });
+    }
+  });
+
+  return landmarks;
+}
+
+/**
+ * Ensures unique landmarks by adding suffixes to duplicates
+ * @param {Array} landmarks - Array of landmarks to process
+ * @returns {Array} Array with unique landmarks
+ */
+function uniqueLandmarks(landmarks) {
+  const nameCounts = {};
+
+  return landmarks.map(landmark => {
+    const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent || '';
+    if (nameCounts[name]) {
+      nameCounts[name]++;
+      return {
+        ...landmark,
+        ariaLabel: `${name} ${nameCounts[name]}`
+      };
+    } else {
+      nameCounts[name] = 1;
+      return landmark;
+    }
+  });
+}
+
+/**
+ * Adds accessible names to SVGs
+ * @param {Array} svgs - Array of SVG elements
+ * @returns {Array} Array of SVGs with accessible names
+ */
+function addSvgAccessibleNames(svgs) {
+  return svgs.map(svg => ({
+    ...svg,
+    ariaLabel: svg.ariaLabel || svg.title || 'SVG graphic'
+  }));
+}
+
+/**
+ * Fixes fake link issues
+ * @param {Array} links - Array of links to check
+ * @returns {Array} Array of fixed links
+ */
+function fixFakeLinkIssues(links) {
+  return links.map(link => ({
+    ...link,
+    isFake: link.href === '#' || !link.href,
+    role: link.href === '#' ? 'button' : undefined
+  }));
+}
+
+/**
+ * Handles Google sign-in logic for accessibility
+ * @param {Object} options - Sign-in options
+ * @returns {Object} Accessible sign-in button
+ */
+function googleSignIn(options) {
+  return createInPageButton({
+    ...options,
+    ariaLabel: options.ariaLabel || 'Sign in with Google',
+    text: options.text || 'Sign in with Google'
+  });
+}
+
+/**
+ * Fixes button identifiers for accessibility
+ * @param {Object} button - Button element to fix
+ * @param {string} id - New ID for the button
+ * @returns {Object} Fixed button with proper ID
+ */
+function fixButtonIdentifiers(button, id) {
+  return {
+    ...button,
+    id: id || button.id || 'accessible-button',
+    ariaLabel: button.ariaLabel || button.text || 'Button'
+  };
+}
+
+/**
+ * Ensures dependency graph container has proper ARIA role
+ * @param {Object} container - The container element
+ * @returns {Object} Container with proper ARIA role
+ */
+function ensureDependencyGraphAriaRole(container) {
+  return {
+    ...container,
+    role: container.role || 'region',
+    ariaLabel: container.ariaLabel || 'Dependency graph'
+  };
 }
 
 /**
@@ -602,7 +741,15 @@ module.exports = {
   createAccessibleLink,
   handleCredentialResponse,
   fixTableStructure,
+  fixLandmarkIssues,
   addMainLandmark,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinkIssues,
+  googleSignIn,
+  fixButtonIdentifiers,
+  ensureDependencyGraphAriaRole,
   setSvgAttributes,
   addProperLandmarkRegions,
   createLandmark,

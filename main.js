@@ -112,14 +112,14 @@ function getLangAttribute(element = document.documentElement) {
   if (!element) {
     throw new Error('Element is required');
   }
-  
+
   const lang = element.getAttribute('lang');
   if (!lang) {
     // Default to 'en' if no lang attribute is found
     element.setAttribute('lang', 'en');
     return 'en';
   }
-  
+
   return lang;
 }
 
@@ -128,17 +128,17 @@ function personName(personData) {
   if (!personData) {
     return '';
   }
-  
+
   const { firstName, lastName, prefix, suffix } = personData;
-  
+
   let nameParts = [];
   if (prefix) nameParts.push(prefix);
   if (firstName) nameParts.push(firstName);
   if (lastName) nameParts.push(lastName);
   if (suffix) nameParts.push(suffix);
-  
+
   const fullName = nameParts.join(' ');
-  
+
   // Set aria-label for the element if not present
   if (typeof document !== 'undefined') {
     const activeElement = document.activeElement;
@@ -146,44 +146,44 @@ function personName(personData) {
       activeElement.setAttribute('aria-label', fullName);
     }
   }
-  
+
   return fullName;
 }
 
 // Validate table structure accessibility
 function validateTableStructure(tableElement) {
   const issues = [];
-  
+
   if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
     issues.push('Element is not a TABLE element');
     return issues;
   }
-  
+
   // Check for header consistency
   const headerRows = tableElement.querySelectorAll('tr th');
   if (headerRows.length === 0) {
     issues.push('TABLE lacks header cells (TH) for proper structure');
   }
-  
+
   // Check for proper caption
   const caption = tableElement.querySelector('caption');
   if (!caption || !caption.textContent.trim()) {
     issues.push('TABLE requires a descriptive caption');
   }
-  
+
   // Check row consistency
   const rows = Array.from(tableElement.querySelectorAll('tr'));
   let cellCounts = [];
-  
+
   rows.forEach((row, index) => {
     const cells = Array.from(row.querySelectorAll('td, th'));
     cellCounts.push(cells.length);
-    
+
     if (cells.length === 0 && index > 0) {
       issues.push(`Row ${index + 1} has no accessible cells`);
     }
   });
-  
+
   // Check for consistent cell counts across rows
   if (cellCounts.length > 1) {
     const firstCount = cellCounts[0];
@@ -193,7 +193,7 @@ function validateTableStructure(tableElement) {
       }
     });
   }
-  
+
   return issues;
 }
 
@@ -202,15 +202,15 @@ function validateLandmark(element) {
   if (!element) {
     return ['Element is required'];
   }
-  
+
   const issues = [];
   const tagName = element.tagName.toLowerCase();
   const role = element.getAttribute('role');
-  
+
   // Check for proper landmark roles
   const validLandmarks = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form'];
   const elementRole = role || tagName;
-  
+
   if (validLandmarks.includes(elementRole)) {
     // Check for unique landmarks
     const sameLandmarks = document.querySelectorAll(`[role="${elementRole}"], ${tagName}[role="${elementRole}"]`);
@@ -218,7 +218,7 @@ function validateLandmark(element) {
       issues.push(`Multiple ${elementRole} landmarks found - should be unique`);
     }
   }
-  
+
   // Check for landmark structure
   if (elementRole === 'section' || elementRole === 'article') {
     const hasHeading = element.querySelector('h1, h2, h3, h4, h5, h6');
@@ -226,29 +226,29 @@ function validateLandmark(element) {
       issues.push(`${elementRole} landmark should have a heading for structure`);
     }
   }
-  
+
   return issues;
 }
 
 // Validate landmark structure
 function validateLandmarkStructure(landmarkElement) {
   const issues = [];
-  
+
   if (!landmarkElement) {
     return ['Landmark element is required'];
   }
-  
+
   const role = landmarkElement.getAttribute('role');
   const tagName = landmarkElement.tagName.toLowerCase();
   const landmarkRole = role || tagName;
-  
+
   // Check landmark hierarchy
   const parentLandmark = landmarkElement.parentElement?.closest('[role], [role="main"], [role="nav"], [role="aside"], [role="header"], [role="footer"], [role="section"], [role="article"], [role="form"]');
-  
+
   if (parentLandmark && parentLandmark !== landmarkElement) {
     const parentRole = parentLandmark.getAttribute('role') || parentLandmark.tagName.toLowerCase();
     const currentRole = landmarkRole;
-    
+
     // Semantic landmark hierarchy rules
     const hierarchyRules = {
       'header': ['header', 'section', 'article'],
@@ -260,13 +260,13 @@ function validateLandmarkStructure(landmarkElement) {
       'article': ['article'],
       'form': ['form', 'section', 'article']
     };
-    
+
     const allowedParents = hierarchyRules[currentRole] || [];
     if (!allowedParents.includes(parentRole)) {
       issues.push(`Invalid landmark hierarchy: ${currentRole} cannot be nested within ${parentRole}`);
     }
   }
-  
+
   // Check for proper content structure
   if (landmarkRole === 'main') {
     const hasInteractiveElements = landmarkElement.querySelector('button, input, select, textarea, a[href], [tabindex]');
@@ -274,7 +274,7 @@ function validateLandmarkStructure(landmarkElement) {
       issues.push('Main landmark should contain interactive elements or meaningful content');
     }
   }
-  
+
   return issues;
 }
 
@@ -283,11 +283,11 @@ function getSvgAccessibleName(svgElement) {
   if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
     throw new Error('Element must be an SVG element');
   }
-  
+
   // Try to find aria-label or aria-labelledby
-  let accessibleName = svgElement.getAttribute('aria-label') || 
+  let accessibleName = svgElement.getAttribute('aria-label') ||
                        svgElement.getAttribute('aria-labelledby');
-  
+
   if (!accessibleName) {
     // Try to get title element as fallback
     const titleElement = svgElement.querySelector('title');
@@ -295,24 +295,24 @@ function getSvgAccessibleName(svgElement) {
       accessibleName = titleElement.textContent;
     }
   }
-  
+
   if (!accessibleName) {
     // Generate a simple description based on SVG content
     const paths = svgElement.querySelectorAll('path');
     const rects = svgElement.querySelectorAll('rect');
     const circles = svgElement.querySelectorAll('circle');
-    
+
     let description = 'SVG graphic';
     if (paths.length > 0) description += ' containing ' + paths.length + ' path elements';
     if (rects.length > 0) description += ' with ' + rects.length + ' rectangle elements';
     if (circles.length > 0) description += ' and ' + circles.length + ' circle elements';
-    
+
     accessibleName = description;
-    
+
     // Set aria-label on the SVG
     svgElement.setAttribute('aria-label', accessibleName);
   }
-  
+
   return accessibleName;
 }
 
@@ -323,16 +323,16 @@ function createInPageButton(text, targetId, options = {}) {
     ariaLabel = text,
     onClick = null
   } = options;
-  
+
   const button = document.createElement('button');
   button.textContent = text;
   button.setAttribute('type', 'button');
   button.className = isSkipLink ? 'skip-link' : 'in-page-button';
-  
+
   if (ariaLabel) {
     button.setAttribute('aria-label', ariaLabel);
   }
-  
+
   if (targetId) {
     button.setAttribute('href', `#${targetId}`);
     button.addEventListener('click', (e) => {
@@ -344,11 +344,11 @@ function createInPageButton(text, targetId, options = {}) {
       }
     });
   }
-  
+
   if (onClick) {
     button.addEventListener('click', onClick);
   }
-  
+
   return button;
 }
 
@@ -359,11 +359,11 @@ async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received');
   }
-  
+
   if (response.error) {
     throw new Error(response.error);
   }
-  
+
   if (response.token) {
     return {
       success: true,
@@ -371,7 +371,7 @@ async function handleCredentialResponse(response) {
       expiresIn: response.expiresIn || 3600
     };
   }
-  
+
   throw new Error('Invalid credential response');
 }
 
@@ -394,7 +394,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
   },
 
@@ -405,11 +405,11 @@ const exportUtils = {
 
   exportToCSV: (data, filename) => {
     if (!data || data.length === 0) return;
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (const row of data) {
       const values = headers.map(header => {
         const escaped = ('' + row[header]).replace(/"/g, '\\"');
@@ -417,7 +417,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -461,7 +461,7 @@ function filterValidItems(items, validator) {
 // Initialize accessibility features
 const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
-  
+
   // Add keyboard support for all interactive elements
   document.querySelectorAll('[data-accessible]').forEach(element => {
     element.addEventListener('keydown', (e) => {
@@ -530,7 +530,7 @@ function transformInputData(inputData, options = {}) {
     const result = {};
     const originalKeys = Object.keys(inputData);
     const keys = preserveKeys ? originalKeys : originalKeys.map(() => Math.random().toString(36).substring(2, 11));
-    
+
     let i = 0;
     for (const key of originalKeys) {
       const value = inputData[key];
@@ -613,11 +613,11 @@ function ensureElementHasId(element, prefix = 'element') {
   if (!element) {
     throw new Error('Element is required');
   }
-  
+
   if (element.id) {
     return element.id;
   }
-  
+
   const id = `${prefix}-${Math.random().toString(36).substring(2, 11)}`;
   element.id = id;
   return id;
@@ -633,7 +633,7 @@ function generateAccessibilityReport(issues, options = {}) {
     groupBySeverity = true,
     includeSummary = true
   } = options;
-  
+
   // Handle empty issues array
   if (!issues || !Array.isArray(issues) || issues.length === 0) {
     return {
@@ -642,25 +642,25 @@ function generateAccessibilityReport(issues, options = {}) {
         timestamp: new Date().toISOString()
       },
       issues: [],
-      message: format === 'json' ? 
-        JSON.stringify({ summary: { totalIssues: 0, timestamp: new Date().toISOString() }, issues: [], message: 'No accessibility issues found' }) : 
+      message: format === 'json' ?
+        JSON.stringify({ summary: { totalIssues: 0, timestamp: new Date().toISOString() }, issues: [], message: 'No accessibility issues found' }) :
         'No accessibility issues found'
     };
   }
-  
+
   let processedIssues = [...issues];
   let groups = {};
   let summary = {
     totalIssues: issues.length,
     timestamp: new Date().toISOString()
   };
-  
+
   // Group issues by severity if requested
   if (groupBySeverity) {
     groups = processedIssues.reduce((acc, issue) => {
       // Determine severity - default to 'unknown' if not specified
       let severity = 'unknown';
-      
+
       if (typeof issue === 'string') {
         // Try to infer severity from issue text
         const lowerIssue = issue.toLowerCase();
@@ -676,14 +676,14 @@ function generateAccessibilityReport(issues, options = {}) {
       } else if (issue.level) {
         severity = issue.level;
       }
-      
+
       if (!acc[severity]) {
         acc[severity] = [];
       }
       acc[severity].push(issue);
       return acc;
     }, {});
-    
+
     // Add group counts to summary
     if (includeSummary) {
       summary.groups = Object.keys(groups).reduce((acc, key) => {
@@ -692,26 +692,26 @@ function generateAccessibilityReport(issues, options = {}) {
       }, {});
     }
   }
-  
+
   // Create report based on format
   const report = {
     summary: includeSummary ? summary : undefined,
     groups: groupBySeverity ? groups : undefined,
     issues: processedIssues
   };
-  
+
   // Remove undefined properties
   Object.keys(report).forEach(key => {
     if (report[key] === undefined) {
       delete report[key];
     }
   });
-  
+
   // Return formatted output
   if (format === 'json') {
     return JSON.stringify(report, null, 2);
   }
-  
+
   if (format === 'text') {
     let textReport = '';
     if (includeSummary) {
@@ -719,7 +719,7 @@ function generateAccessibilityReport(issues, options = {}) {
       textReport += `========================\n`;
       textReport += `Total Issues: ${summary.totalIssues}\n`;
       textReport += `Generated: ${summary.timestamp}\n\n`;
-      
+
       if (groupBySeverity && summary.groups) {
         textReport += `By Severity:\n`;
         Object.entries(summary.groups).forEach(([severity, count]) => {
@@ -728,7 +728,7 @@ function generateAccessibilityReport(issues, options = {}) {
         textReport += `\n`;
       }
     }
-    
+
     textReport += `Issues:\n`;
     if (groupBySeverity) {
       Object.entries(groups).forEach(([severity, severityIssues]) => {
@@ -742,10 +742,10 @@ function generateAccessibilityReport(issues, options = {}) {
         textReport += `${index + 1}. ${typeof issue === 'string' ? issue : (issue.message || JSON.stringify(issue))}\n`;
       });
     }
-    
+
     return textReport;
   }
-  
+
   return report;
 }
 

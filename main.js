@@ -76,15 +76,15 @@ function getLangAttribute() {
 function personName(options = {}) {
   const { firstName = '', lastName = '', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
-  
+
   const element = document.createElement('span');
   element.setAttribute('aria-label', fullName);
   element.textContent = fullName;
-  
+
   if (container) {
     container.appendChild(element);
   }
-  
+
   return element;
 }
 
@@ -105,26 +105,117 @@ function createInPageButton(parent = document.body) {
 // New function to validate table accessibility
 function validateTableAccessibility() {
   // Implementation for table accessibility validation
+  if (typeof document === 'undefined') return;
+
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure table has a caption
+    if (!table.querySelector('caption')) {
+      console.warn('Table missing caption:', table);
+    }
+
+    // Ensure table has proper headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      console.warn('Table missing headers:', table);
+    }
+
+    // Ensure table cells have proper scope attributes
+    const cells = table.querySelectorAll('td, th');
+    cells.forEach(cell => {
+      if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
+        console.warn('Table header missing scope attribute:', cell);
+      }
+    });
+  });
 }
 
 // New function to validate table structure
 function validateTableStructure() {
   // Implementation for table structure validation
+  if (typeof document === 'undefined') return;
+
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Check for proper table structure
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length === 0) {
+        console.warn('Table row missing cells:', row);
+      }
+    });
+  });
 }
 
 // New function to validate landmarks
 function validateLandmark() {
   // Implementation for landmark validation
+  if (typeof document === 'undefined') return;
+
+  const landmarks = [
+    'header', 'nav', 'main', 'footer',
+    '[role="banner"]', '[role="navigation"]',
+    '[role="main"]', '[role="contentinfo"]'
+  ];
+
+  landmarks.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      console.warn(`Multiple ${selector} landmarks found. Only one should exist.`);
+    }
+  });
 }
 
 // New function to validate landmark structure
 function validateLandmarkStructure() {
   // Implementation for landmark structure validation
+  if (typeof document === 'undefined') return;
+
+  const main = document.querySelector('main, [role="main"]');
+  if (!main) {
+    console.warn('Missing main landmark. Every page should have one main landmark.');
+  }
+
+  const nav = document.querySelector('nav, [role="navigation"]');
+  if (!nav) {
+    console.warn('Missing navigation landmark. Consider adding one for better accessibility.');
+  }
 }
 
 // New function to get SVG accessible name
-function getSvgAccessibleName() {
+function getSvgAccessibleName(svgElement) {
   // Implementation for getting SVG accessible name
+  if (!svgElement || typeof document === 'undefined') return '';
+
+  // Check for aria-label
+  if (svgElement.hasAttribute('aria-label')) {
+    return svgElement.getAttribute('aria-label');
+  }
+
+  // Check for aria-labelledby
+  if (svgElement.hasAttribute('aria-labelledby')) {
+    const id = svgElement.getAttribute('aria-labelledby');
+    const labelElement = document.getElementById(id);
+    if (labelElement) {
+      return labelElement.textContent.trim();
+    }
+  }
+
+  // Check for title element
+  const title = svgElement.querySelector('title');
+  if (title) {
+    return title.textContent.trim();
+  }
+
+  // Check for desc element
+  const desc = svgElement.querySelector('desc');
+  if (desc) {
+    return desc.textContent.trim();
+  }
+
+  // Fallback to empty string
+  return '';
 }
 
 /**
@@ -181,7 +272,7 @@ function newFocusTrap(container) {
   const focusableElements = Array.from(
     container.querySelectorAll(focusableSelectors)
   ).filter(el => el.offsetParent !== null);
-  
+
   if (focusableElements.length > 0) {
     focusableElements[0].focus();
   }

@@ -511,3 +511,37 @@ if (dependencyGraphContainer) {
 }
 
 export { dependencyGraphContainer };
+
+// New accessibility functions added to address the issue
+function ensureSkipLinks() {
+  // Ensure skip links are properly implemented
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.className = 'skip-link';
+  skipLink.textContent = 'Skip to main content';
+  document.body.insertBefore(skipLink, document.body.firstChild);
+}
+
+function ensureMainContentId() {
+  // Ensure main content has an ID for skip links to work
+  const mainContent = document.querySelector('main');
+  if (mainContent && !mainContent.id) {
+    mainContent.id = 'main-content';
+  }
+}
+
+function ensureFocusableElements() {
+  // Make sure interactive elements are focusable
+  const interactiveElements = document.querySelectorAll('[role="button"], [role="link"], [role="checkbox"], [role="radio"]');
+  interactiveElements.forEach(el => {
+    if (!el.hasAttribute('tabindex')) {
+      el.setAttribute('tabindex', '0');
+    }
+  });
+}
+
+// Call the new accessibility functions
+ensureSkipLinks();
+ensureMainContentId();
+ensureFocusableElements();
+makeHeaderFocusable();

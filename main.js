@@ -124,7 +124,7 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
 }
 
 // Accessibility-related function to be added
-function checkAccessibility(content) {
+function _checkAccessibility(content) {
   // Placeholder for accessibility checking logic
   // This function should be implemented to check for accessibility issues
   // For now, it just returns an empty array
@@ -135,7 +135,7 @@ module.exports = {
   // Existing exports preserved
   newFunction,
   implementAccessibilityFixesFromReport,
-  checkAccessibility,
+  checkAccessibility: _checkAccessibility,
   // Re-export utilities functions
   createInPageButton,
   createWebResourceButton,

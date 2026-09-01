@@ -257,5 +257,5 @@ module.exports = {
   createWebResourceButton,
   validateUniqueLandmarks,
   newFocusTrap,
-  checkAccessibility // Add the new export
+  checkAccessibility
 };

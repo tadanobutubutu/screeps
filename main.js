@@ -5,29 +5,142 @@ module.exports = {
   myFunction: function () {
     // Existing implementation
   },
+  anotherFunction: function () {
+    // New function implementation
+  },
   getLangAttribute: function() {
     // Implementation to handle REACT_015
   },
   personName: function() {
     // Implementation to handle REACT_015
   },
-  validateTableAccessibility: function() {
-    // Implementation to handle REACT_027
+  validateTableAccessibility: function(element) {
+    if (!element) return false;
+    // Prefer explicit role="table"; allow tables without explicit role if they contain <table>
+    if (element.getAttribute('role') !== 'table') {
+      const table = element.querySelector('table');
+      if (table) return true;
+    }
+    return true;
   },
-  validateTableStructure: function() {
-    // Implementation to handle REACT_027
+  validateTableStructure: function(element) {
+    if (!element) return false;
+    const rows = element.querySelectorAll('tr');
+    return rows.length > 0;
   },
-  validateLandmark: function() {
-    // Implementation to handle REACT_017
+  validateLandmark: function(element) {
+    if (!element) return false;
+    // Landmarks are expected to be SVG elements
+    return element.tagName === 'SVG';
   },
-  validateLandmarkStructure: function() {
-    // Implementation to handle REACT_017
+  validateLandmarkStructure: function(element) {
+    if (!element) return false;
+    return element.id || element.getAttribute('aria-label');
   },
-  newFocusTrap: function() {
-    // Implementation to handle REACT_017 and NEW
+  newFocusTrap: function(container) {
+    if (!container) {
+      return {
+        activate: () => {},
+        deactivate: () => {},
+        toggle: () => {}
+      };
+    }
+
+    let isActive = false;
+    let previouslyFocusedElement = null;
+
+    function getFocusableElements(element) {
+      const getFocusableSelectors = [
+        'a[href]',
+        'area[href]',
+        'input:not([disabled]):not([type="hidden"])',
+        'select:not([disabled])',
+        'textarea:not([disabled])',
+        'button:not([disabled])',
+        'iframe',
+        'object',
+        'embed',
+        '[tabindex]:not([tabindex="-1"])',
+        '[contenteditable="true"]:not([contenteditable="false"])'
+      ].join(', ');
+
+      return Array.from(element.querySelectorAll(getFocusableSelectors))
+        .filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0);
+    }
+
+    function handleKeyDown(event) {
+      if (event.key === 'Tab') {
+        const focusableElements = getFocusableElements(container);
+
+        if (focusableElements.length === 0) {
+          event.preventDefault();
+          return;
+        }
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey) {
+          if (document.activeElement === firstElement) {
+            event.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            event.preventDefault();
+            firstElement.focus();
+          }
+        }
+      } else if (event.key === 'Escape') {
+        deactivate();
+      }
+    }
+
+    function activate() {
+      if (isActive) return;
+
+      previouslyFocusedElement = document.activeElement;
+      container.setAttribute('data-focus-trap-active', 'true');
+
+      const focusableElements = getFocusableElements(container);
+      if (focusableElements.length > 0) {
+        focusableElements[0].focus();
+      }
+
+      container.addEventListener('keydown', handleKeyDown);
+      isActive = true;
+    }
+
+    function deactivate() {
+      if (!isActive) return;
+
+      container.removeAttribute('data-focus-trap-active');
+      container.removeEventListener('keydown', handleKeyDown);
+
+      if (previouslyFocusedElement) {
+        previouslyFocusedElement.focus();
+      }
+
+      isActive = false;
+    }
+
+    function toggle() {
+      if (isActive) {
+        deactivate();
+      } else {
+        activate();
+      }
+    }
+
+    return { activate, deactivate, toggle };
   },
-  getSvgAccessibleName: function() {
-    // Implementation to handle REACT_041
+  getSvgAccessibleName: function(svgElement) {
+    if (!svgElement) return '';
+    const ariaLabel = svgElement.getAttribute('aria-label');
+    if (ariaLabel) return ariaLabel;
+    const title = svgElement.getAttribute('title');
+    if (title) return title;
+    return svgElement.tagName.toLowerCase();
   },
   createInPageButton: function() {
     // Implementation to handle REACT_036
@@ -38,6 +151,7 @@ module.exports = {
   newFunction: function () {
     // New function implementation
   },
+  // REACT_027: Fix table structure issues
   fixTableStructureIssues: function(document) {
     const tables = document.querySelectorAll('table');
     tables.forEach(table => {
@@ -82,199 +196,6 @@ module.exports = {
     });
     return tables.length;
   },
-  addressAccessibilityIssues: function () {
-    // New function to address accessibility issues
-  },
-  // TODO: This is the existing code that needs to be preserved
-  // (This comment remains as-is)
-  // TODO: Create or update the affected functions to be accessible
-  newFunction: function () {
-    // New function implementation
-  },
-  validateTableAccessibility: function(element) {
-    if (!element) return false;
-    // Prefer explicit role="table"; allow tables without explicit role if they contain <table>
-    if (element.getAttribute('role') !== 'table') {
-      const table = element.querySelector('table');
-      if (table) return true;
-    }
-    return true;
-  },
-  validateTableStructure: function(element) {
-    if (!element) return false;
-    const rows = element.querySelectorAll('tr');
-    return rows.length > 0;
-  },
-  validateLandmark: function(element) {
-    if (!element) return false;
-    // Landmarks are expected to be SVG elements
-    return element.tagName === 'SVG';
-  },
-  validateLandmarkStructure: function(element) {
-    if (!element) return false;
-    return element.id || element.getAttribute('aria-label');
-  },
-  ensureUniqueLandmarksArray: function(landmarks) {
-    if (!Array.isArray(landmarks)) return [];
-    const seen = new Set();
-    const result = [];
-    for (const lm of landmarks) {
-      const id = lm.id || 'unknown';
-      if (seen.has(id)) {
-        // Generate a unique ID by appending a timestamp
-        lm.id = `${id}-${Date.now()}`;
-      }
-      seen.add(id);
-      result.push(lm);
-    }
-    return result;
-  },
-  getSvgAccessibleName: function(svgElement) {
-    if (!svgElement) return '';
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (ariaLabel) return ariaLabel;
-    const title = svgElement.getAttribute('title');
-    if (title) return title;
-    return svgElement.tagName.toLowerCase();
-  },
-  addAccessibleNamesToSvg: function(svgElement, names) {
-    const targetNames = Array.isArray(names) ? names : [names];
-    for (let i = 0; i < svgElement.children.length; i++) {
-      const child = svgElement.children[i];
-      if (child.nodeType === Node.ELEMENT_NODE) {
-        if (child.getAttribute('role') === 'img' || child.type === 'image') {
-          if (!child.getAttribute('aria-label') && targetNames.length > 0) {
-            addAriaLabel(child, targetNames[0]);
-          }
-        }
-      }
-    }
-  },
-  ensureElementHasId: function(element) {
-    if (!element) {
-      throw new Error('Element is required');
-    }
-    if (!element.id) {
-      element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    }
-    return element.id;
-  },
-  addAriaLabel: function(element, label) {
-    if (!element) {
-      throw new Error('Element is required');
-    }
-    element.setAttribute('aria-label', label);
-    return element;
-  },
-  renderDependencyGraph: function(data, container) {
-    if (!data) {
-      throw new Error('Dependency data is required');
-    }
-    if (!container) {
-      throw new Error('Container element is required');
-    }
-    // Implementation would go here
-    return container;
-  },
-  generateAccessibilityReport: function(issues) {
-    if (!Array.isArray(issues)) {
-      throw new Error('Issues must be an array');
-    }
-
-    const report = {
-      totalIssues: issues.length,
-      severityCounts: {
-        critical: 0,
-        serious: 0,
-        moderate: 0,
-        minor: 0
-      },
-      issuesByType: {},
-      issues: []
-    };
-
-    issues.forEach(issue => {
-      if (!issue || typeof issue !== 'object') {
-        return;
-      }
-
-      const severity = issue.severity || 'minor';
-      if (report.severityCounts[severity] !== undefined) {
-        report.severityCounts[severity]++;
-      } else {
-        report.severityCounts.minor++;
-      }
-
-      const type = issue.type || 'other';
-      if (!report.issuesByType[type]) {
-        report.issuesByType[type] = 0;
-      }
-      report.issuesByType[type]++;
-
-      report.issues.push({
-        type: type,
-        severity: severity,
-        message: issue.message || '',
-        element: issue.element || null
-      });
-    });
-
-    report.summary = `Found ${report.totalIssues} accessibility issue(s): ` +
-      `${report.severityCounts.critical} critical, ` +
-      `${report.severityCounts.serious} serious, ` +
-      `${report.severityCounts.moderate} moderate, ` +
-      `${report.severityCounts.minor} minor.`;
-
-    return report;
-  },
-  // REACT_027: Fix table structure issues
-  fixTableStructureIssues(document) {
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-      const tables = document.querySelectorAll('table');
-      tables.forEach(table => {
-        // Ensure tables have proper structure
-        if (!table.querySelector('thead') && table.querySelector('tr')) {
-          const firstRow = table.querySelector('tr');
-          const ths = firstRow.querySelectorAll('th');
-          if (ths.length > 0) {
-            const thead = document.createElement('thead');
-            thead.appendChild(firstRow.cloneNode(true));
-            table.insertBefore(thead, table.firstChild);
-            firstRow.remove();
-          }
-        }
-
-        // Ensure tables have tbody
-        if (!table.querySelector('tbody')) {
-          const rows = Array.from(table.querySelectorAll('tr'));
-          const tbody = document.createElement('tbody');
-          rows.forEach(row => tbody.appendChild(row));
-          const thead = table.querySelector('thead');
-          if (thead) {
-            table.insertBefore(tbody, thead.nextSibling);
-          } else {
-            table.insertBefore(tbody, table.firstChild);
-          }
-        }
-
-        // Ensure proper caption if needed
-        const caption = table.querySelector('caption');
-        if (!caption) {
-          const newCaption = document.createElement('caption');
-          newCaption.textContent = 'Data table';
-          newCaption.style.clip = 'rect(0 0 0 0)';
-          newCaption.style.clipPath = 'inset(50%)';
-          newCaption.style.height = '1px';
-          newCaption.style.overflow = 'hidden';
-          newCaption.style.whiteSpace = 'nowrap';
-          newCaption.style.width = '1px';
-          table.insertBefore(newCaption, table.firstChild);
-        }
-      });
-    });
-    return tables.length;
-  },
   addMainLandmark: function(document) {
     const mainElements = document.querySelectorAll('main');
 
@@ -290,7 +211,7 @@ module.exports = {
       }
       body.appendChild(main);
     } else if (mainElements.length === 1) {
-      const main = mainElements[0];
+      const main = document.querySelector('main');
       if (!main.hasAttribute('role')) {
         main.setAttribute('role', 'main');
       }
@@ -423,103 +344,6 @@ module.exports = {
 
     return issues;
   },
-  newFocusTrap: function(container) {
-    if (!container) {
-      return {
-        activate: () => {},
-        deactivate: () => {},
-        toggle: () => {}
-      };
-    }
-
-    let isActive = false;
-    let previouslyFocusedElement = null;
-
-    function getFocusableElements(element) {
-      const getFocusableSelectors = [
-        'a[href]',
-        'area[href]',
-        'input:not([disabled]):not([type="hidden"])',
-        'select:not([disabled])',
-        'textarea:not([disabled])',
-        'button:not([disabled])',
-        'iframe',
-        'object',
-        'embed',
-        '[tabindex]:not([tabindex="-1"])',
-        '[contenteditable="true"]:not([contenteditable="false"])'
-      ].join(', ');
-
-      return Array.from(element.querySelectorAll(getFocusableSelectors))
-        .filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0);
-    }
-
-    function handleKeyDown(event) {
-      if (event.key === 'Tab') {
-        const focusableElements = getFocusableElements(container);
-
-        if (focusableElements.length === 0) {
-          event.preventDefault();
-          return;
-        }
-
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        if (event.shiftKey) {
-          if (document.activeElement === firstElement) {
-            event.preventDefault();
-            lastElement.focus();
-          }
-        } else {
-          if (document.activeElement === lastElement) {
-            event.preventDefault();
-            firstElement.focus();
-          }
-        }
-      } else if (event.key === 'Escape') {
-        deactivate();
-      }
-    }
-
-    function activate() {
-      if (isActive) return;
-
-      previouslyFocusedElement = document.activeElement;
-      container.setAttribute('data-focus-trap-active', 'true');
-
-      const focusableElements = getFocusableElements(container);
-      if (focusableElements.length > 0) {
-        focusableElements[0].focus();
-      }
-
-      container.addEventListener('keydown', handleKeyDown);
-      isActive = true;
-    }
-
-    function deactivate() {
-      if (!isActive) return;
-
-      container.removeAttribute('data-focus-trap-active');
-      container.removeEventListener('keydown', handleKeyDown);
-
-      if (previouslyFocusedElement) {
-        previouslyFocusedElement.focus();
-      }
-
-      isActive = false;
-    }
-
-    function toggle() {
-      if (isActive) {
-        deactivate();
-      } else {
-        activate();
-      }
-    }
-
-    return { activate, deactivate, toggle };
-  },
   addLangAttribute: function(document, lang = 'en') {
     const htmlElement = document.documentElement;
     if (!htmlElement.hasAttribute('lang')) {
@@ -578,7 +402,7 @@ module.exports = {
             const grandparent = parent.parentElement;
             if (grandparent && grandparent.tagName === 'THEAD') {
               th.setAttribute('scope', 'col');
-            } else if (th.tagName === 'TH') {
+            } else if (grandparent.tagName === 'TH') {
               // If it's in a row that is itself a header row (like in tbody for row headers)
               th.setAttribute('scope', 'row');
             } else {
@@ -596,10 +420,10 @@ module.exports = {
     });
   },
   applyAccessibilityFixes: function(document, options = {}) {
-    const lang = options.lang || 'en';
+    const lang = 'en';
 
     return {
-      langAdded: addLangAttribute(document, lang),
+      langAdded: addLangAttribute(document, 'en'),
       tablesFixed: fixTableStructureIssues(document),
       mainsAdded: addMainLandmark(document),
       svgsFixed: addSvgAccessibleNames(document),
@@ -639,120 +463,6 @@ module.exports = {
       console.error('Error handling credential response:', error);
     }
   },
-  loop: () => {
-    // Main game loop
-  },
-  add: function (a, b) {
-    return a + b;
-  },
-  subtract: function (a, b) {
-    return a - b;
-  },
-  multiply: function (a, b) {
-    return a * b;
-  },
-  divide: function (a, b) {
-    if (b === 0) {
-      throw new Error('Division by zero');
-    }
-    return a / b;
-  },
-  fixTableStructureIssues: function(document) {
-    // Validate and fix table structure for accessibility
-    const tables = document.querySelectorAll('table');
-
-    tables.forEach(table => {
-      // Check for missing headers
-      const hasHeaderCells = table.querySelectorAll('th').length > 0;
-      if (!hasHeaderCells) {
-        console.warn('Table missing header cells (th).', table);
-        // Attempt to fix: convert first row cells to th if they seem like headers
-        const firstRow = table.querySelector('tr');
-        if (firstRow && firstRow.children.length > 0) {
-          // Only if not already th
-          if (!firstRow.querySelector('th')) {
-            const cells = firstRow.children;
-            for (let i = 0; i < cells.length; i++) {
-              const newTh = document.createElement('th');
-              newTh.textContent = cells[i].textContent;
-              newTh.setAttribute('scope', 'col');
-              cells[i].replaceWith(newTh);
-            }
-            // Wrap first row in thead if not already
-            if (!table.querySelector('thead')) {
-              const thead = document.createElement('thead');
-              firstRow.parentNode.insertBefore(thead, firstRow);
-              thead.appendChild(firstRow);
-            }
-          }
-        }
-      }
-
-      // Ensure proper use of thead and tbody
-      const rows = Array.from(table.rows);
-      const firstRow = rows[0];
-      if (firstRow && firstRow.querySelector('th') && !table.querySelector('thead')) {
-        const thead = document.createElement('thead');
-        table.insertBefore(thead, firstRow);
-        thead.appendChild(firstRow);
-      }
-
-      // Add scope attributes to th elements
-      const thElements = table.querySelectorAll('th');
-      thElements.forEach(th => {
-        if (!th.hasAttribute('scope')) {
-          // Determine appropriate scope
-          const parent = th.parentElement;
-          if (parent && parent.tagName === 'TR') {
-            const grandparent = parent.parentElement;
-            if (grandparent && grandparent.tagName === 'THEAD') {
-              th.setAttribute('scope', 'col');
-            } else if (th.tagName === 'TH') {
-              // If it's in a row that is itself a header row (like in tbody for row headers)
-              th.setAttribute('scope', 'row');
-            } else {
-              th.setAttribute('scope', 'col');
-            }
-          }
-        }
-      });
-
-      // Ensure table has an accessible name (caption or aria-label)
-      if (!table.querySelector('caption') && !table.hasAttribute('aria-label') && !table.hasAttribute('aria-labelledby')) {
-        // Optionally add a caption if we can infer one, but for now just warn
-        console.warn('Table missing accessible name (caption or aria-label).', table);
-      }
-    });
-  },
-  addressAccessibilityIssues: function () {
-    // New function to address accessibility issues
-  },
-  newFunction: function () {
-    // New function implementation
-  },
-  validateTableAccessibility: function(element) {
-    if (!element) return false;
-    // Prefer explicit role="table"; allow tables without explicit role if they contain <table>
-    if (element.getAttribute('role') !== 'table') {
-      const table = element.querySelector('table');
-      if (table) return true;
-    }
-    return true;
-  },
-  validateTableStructure: function(element) {
-    if (!element) return false;
-    const rows = element.querySelectorAll('tr');
-    return rows.length > 0;
-  },
-  validateLandmark: function(element) {
-    if (!element) return false;
-    // Landmarks are expected to be SVG elements
-    return element.tagName === 'SVG';
-  },
-  validateLandmarkStructure: function(element) {
-    if (!element) return false;
-    return element.id || element.getAttribute('aria-label');
-  },
   ensureUniqueLandmarksArray: function(landmarks) {
     if (!Array.isArray(landmarks)) return [];
     const seen = new Set();
@@ -767,14 +477,6 @@ module.exports = {
       result.push(lm);
     }
     return result;
-  },
-  getSvgAccessibleName: function(svgElement) {
-    if (!svgElement) return '';
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (ariaLabel) return ariaLabel;
-    const title = svgElement.getAttribute('title');
-    if (title) return title;
-    return svgElement.tagName.toLowerCase();
   },
   addAccessibleNamesToSvg: function(svgElement, names) {
     const targetNames = Array.isArray(names) ? names : [names];
@@ -866,66 +568,25 @@ module.exports = {
 
     return report;
   },
-  newFocusTrap: function(container) {
-    if (!container) {
-      return {
-        activate: () => {},
-        deactivate: () => {},
-        toggle: () => {}
-      };
+  loop: () => {
+    // Main game loop
+  },
+  add: function (a, b) {
+    return a + b;
+  },
+  subtract: function (a, b) {
+    return a - b;
+  },
+  multiply: function (a, b) {
+    return a * b;
+  },
+  divide: function (a, b) {
+    if (b === 0) {
+      throw new Error('Division by zero');
     }
-
-    let isActive = false;
-    let previouslyFocusedElement = null;
-
-    function getFocusableElements(element) {
-      const getFocusableSelectors = [
-        'a[href]',
-        'area[href]',
-        'input:not([disabled]):not([type="hidden"])',
-        'select:not([disabled])',
-        'textarea:not([disabled])',
-        'button:not([disabled])',
-        'iframe',
-        'object',
-        'embed',
-        '[tabindex]:not([tabindex="-1"])',
-        '[contenteditable="true"]:not([contenteditable="false"])'
-      ].join(', ');
-
-      return Array.from(element.querySelectorAll(getFocusableSelectors))
-        .filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0);
-    }
-
-    function handleKeyDown(event) {
-      if (event.key === 'Tab') {
-        const focusableElements = getFocusableElements(container);
-
-        if (focusableElements.length === 0) {
-          event.preventDefault();
-          return;
-        }
-
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        if (event.shiftKey) {
-          if (document.activeElement === firstElement) {
-            event.preventDefault();
-            lastElement.focus();
-          }
-        } else {
-          if (document.activeElement === lastElement) {
-            event.preventDefault();
-            firstElement.focus();
-          }
-        }
-      } else if (event.key === 'Escape') {
-        deactivate();
-      }
-    }
-
-    function activate() {
-      if (isActive) return;
-
-      previouslyFocusedElement = document.activeElement;
+    return a / b;
+  },
+  // TODO: This is the existing code that needs to be preserved
+  // (This comment remains as-is)
+  // TODO: Create or update the affected functions to be accessible
+};

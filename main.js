@@ -1,30 +1,17 @@
-// TODO: This is the existing code that needs to be preserved
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
 // REACT_027: Fix 26 table structure issues
-// REACT_017: Add/fix 4 landmark issues
+// REACT_017: Add/fix landmark issues
 // REACT_041: Add accessible names to 2 SVGs
 // REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
 // REACT_036: Fix 1 fake link issue
-// ADD: Address new accessibility issues from insight report — FIXED
-
-// TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-// main.js - Accessibility improvements implementation
-// main.js - Combined utility and accessibility features
-
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
-// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
-
-// TODO: This is the existing code that needs to be preserved
 
 // REACT_015: Add lang attribute to the <html> element
-function addLangAttribute(html, lang = 'en') {
+function addLangAttribute(html) {
     if (typeof html !== 'string') return html;
     return html.replace(/<html([^>]*)>/i, (match, attrs) => {
         if (/\blang=/i.test(match)) return match;
-        return `<html${attrs} lang="${lang}">`;
+        return `<html${attrs} lang="en">`;
     });
 }
 
@@ -71,7 +58,7 @@ function fixTableStructure(html) {
 }
 
 /**
- * Divides two numbers with proper error handling
+ * Divides two number with proper error handling
  * @param {number} dividend - The number to be divided
  * @param {number} divisor - The number to divide by
  * @returns {number} The result of the division
@@ -164,60 +151,7 @@ function addSvgAccessibleNames(html) {
     return html;
 }
 
-function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  const links = document.querySelectorAll('a[href]');
-  const issues = [];
-
-  links.forEach(link => {
-    const href = link.getAttribute('href');
-    const text = link.textContent.trim();
-
-    if (!text) {
-      issues.push(`Link with href "${href}" has no accessible text`);
-    }
-  });
-
-  return issues;
-}
-
-// TODO: Implement wrapPrimaryContentInMain function, including the added logic
-/**
- * Wraps the primary content of the page in a <main> element for improved accessibility.
- * This function checks if a <main> element already exists; if not, it creates one
- * and moves all body content into it.
- * @returns {Element|null} The <main> element if successfully created/wrapped, or null if body is not available
- */
-function wrapPrimaryContentInMain() {
-  const body = document.body;
-
-  // Return null if body element is not available
-  if (!body) {
-    return null;
-  }
-
-  // Check if a <main> element already exists to avoid duplication
-  const existingMain = document.querySelector('main');
-  if (existingMain) {
-    return existingMain;
-  }
-
-  // Create a new <main> element
-  const main = document.createElement('main');
-
-  // Move all existing body children into the <main> element
-  while (body.firstChild) {
-    main.appendChild(body.firstChild);
-  }
-
-  // Append the <main> element to the body
-  body.appendChild(main);
-
-  return main;
-}
-
-// REACT_025: Ensure unique landmarks
+// REACT_025: Ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks(html) {
     if (typeof html !== 'string') return html;
 
@@ -248,7 +182,7 @@ function ensureUniqueLandmarks(html) {
             html = html.replace(pattern, (match) => {
                 count++;
                 if (count === 1) return match;
-                return match.replace(new RegExp(`<${tag}`, 'i'), `<${tag} role="region"`);
+                return match.replace(/^</, '<' + tag).replace(`<${tag}`, `<${tag} role="region"`);
             });
         }
     });
@@ -256,7 +190,7 @@ function ensureUniqueLandmarks(html) {
     return html;
 }
 
-// REACT_036: Fix fake link issues
+// REACT_036: Fix 1 fake link issue
 function fixFakeLinks(html) {
     if (typeof html !== 'string') return html;
 
@@ -275,37 +209,6 @@ function fixFakeLinks(html) {
     html = html.replace(/<\/span>/gi, '</a>');
 
     return html;
-}
-
-// New function to check link accessibility
-function isLinkAccessible(html, linkSelector) {
-    if (typeof html !== 'string' || !linkSelector) return false;
-
-    // Create a temporary DOM element to parse the HTML
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-
-    // Find the link element
-    const linkElement = tempDiv.querySelector(linkSelector);
-
-    if (!linkElement) return false;
-
-    // Check if the link has an accessible name
-    const hasAccessibleName =
-        linkElement.textContent.trim().length > 0 ||
-        linkElement.getAttribute('aria-label') ||
-        linkElement.getAttribute('title');
-
-    // Check if the link has a valid href
-    const href = linkElement.getAttribute('href');
-    const hasValidHref = href && href.trim() !== '#' && !href.startsWith('javascript:');
-
-    // Check if the link is not hidden
-    const isVisible = linkElement.offsetParent !== null &&
-                      !linkElement.hasAttribute('hidden') &&
-                      window.getComputedStyle(linkElement).display !== 'none';
-
-    return hasAccessibleName && hasValidHref && isVisible;
 }
 
 // Main function that applies all accessibility fixes
@@ -333,89 +236,165 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
-    button.setAttribute('aria-label', buttonText); // Added for accessibility
-    button.setAttribute('role', 'button'); // Added for accessibility
     document.body.appendChild(button);
 }
 
-// New function to improve accessibility for adding a new book
-/**
- * Creates an accessible form for adding a new book with proper labels and ARIA attributes
- * @param {string} formId - The ID for the form element
- * @param {string} submitButtonId - The ID for the submit button
- * @returns {HTMLFormElement} The created form element
- */
-function createAccessibleBookForm(formId, submitButtonId) {
-    const form = document.createElement('form');
-    form.id = formId;
-    form.setAttribute('role', 'form');
-    form.setAttribute('aria-labelledby', `${formId}-title`);
-
-    // Add form title for accessibility
-    const title = document.createElement('h2');
-    title.id = `${formId}-title`;
-    title.textContent = 'Add New Book';
-    form.appendChild(title);
-
-    // Create accessible form fields
-    const createField = (labelText, inputId, inputType = 'text') => {
-        const fieldset = document.createElement('fieldset');
-        const label = document.createElement('label');
-        label.setAttribute('for', inputId);
-        label.textContent = labelText;
-        const input = document.createElement('input');
-        input.type = inputType;
-        input.id = inputId;
-        input.setAttribute('required', 'true');
-        input.setAttribute('aria-required', 'true');
-
-        fieldset.appendChild(label);
-        fieldset.appendChild(input);
-        return fieldset;
-    };
-
-    // Add form fields
-    form.appendChild(createField('Book Title:', `${formId}-title`));
-    form.appendChild(createField('Author:', `${formId}-author`));
-    form.appendChild(createField('Publication Year:', `${formId}-year`, 'number'));
-
-    // Add submit button
-    const submitButton = document.createElement('button');
-    submitButton.id = submitButtonId;
-    submitButton.type = 'submit';
-    submitButton.textContent = 'Add Book';
-    submitButton.setAttribute('aria-label', 'Submit new book form');
-    form.appendChild(submitButton);
-
-    return form;
+// TODO: add the new functions or changes requested in the issue
+// Here's a sample implementation for a new function named 'myNewFunction'
+function myNewFunction(param1, param2) {
+    // Implementation of the new function
+    if (typeof param1 !== 'string' || typeof param2 !== 'number') {
+        throw new Error('Invalid parameters: param1 must be a string and param2 must be a number');
+    }
+    return `${param1} repeated ${param2} times: ${param1.repeat(param2)}`;
 }
 
-// Validation functions for accessibility checks
-function getLangAttribute(html) {
-    if (typeof html !== 'string') return null;
-    const match = html.match(/<html[^>]*\slang=["']([^"']+)["']/i);
-    return match ? match[1] : null;
+// Placeholder functions for functionA and functionB
+function functionA() {
+    // Implementation to be added
 }
 
-function validateTableAccessibility(html) {
-    if (typeof html !== 'string') return { valid: false, issues: [] };
-    const issues = [];
+function functionB() {
+    // Implementation to be added
+}
 
-    // Check for tables without captions
-    const tables = html.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
-    tables.forEach((table, index) => {
-        if (!/<caption/i.test(table)) {
-            issues.push(`Table ${index + 1} is missing a caption`);
-        }
-    });
-
-    // Check for th elements without scope
-    const thWithoutScope = html.match(/<th(?!([^>]*)scope=)/gi) || [];
-    if (thWithoutScope.length > 0) {
-        issues.push(`${thWithoutScope.length} table header(s) missing scope attribute`);
+// TODO: add the new functions or changes requested in the issue
+// Here is the implementation for checking link accessibility
+// The existing isLinkAccessible function implementation
+function isLinkAccessible(linkElement) {
+    if (!linkElement || !(linkElement instanceof HTMLElement)) {
+        throw new Error('Invalid link element provided');
     }
 
-    return { valid: issues.length === 0, issues };
+    // Check if link has text content
+    const hasTextContent = linkElement.textContent.trim().length > 0;
+
+    // Check if link has aria-label or aria-labelledby
+    const hasAriaLabel = linkElement.hasAttribute('aria-label') ||
+                         linkElement.hasAttribute('aria-labelledby');
+
+    // Check if link has title attribute
+    const hasTitle = linkElement.hasAttribute('title');
+
+    // Check if link has href attribute
+    const hasHref = linkElement.hasAttribute('href');
+
+    // Check if link is visible
+    const isVisible = window.getComputedStyle(linkElement).display !== 'none' &&
+                      window.getComputedStyle(linkElement).visibility !== 'hidden';
+
+    // Check if link is focusable
+    const isFocusable = linkElement.tabIndex >= 0 ||
+                       (linkElement.tagName === 'A' && hasHref) ||
+                       linkElement.tagName === 'BUTTON' ||
+                       linkElement.tagName === 'INPUT' ||
+                       linkElement.tagName === 'SELECT' ||
+                       linkElement.tagName === 'TEXTAREA';
+
+    // Check if link has sufficient color contrast
+    const hasContrast = checkColorContrast(linkElement);
+
+    return {
+        hasTextContent,
+        hasAriaLabel,
+        hasTitle,
+        hasHref,
+        isVisible,
+        isFocusable,
+        hasContrast,
+        isAccessible: hasTextContent && (hasAriaLabel || hasTitle) && hasHref && isVisible && isFocusable && hasContrast
+    };
+}
+
+// Helper function to check color contrast
+function checkColorContrast(element) {
+    if (!element || !(element instanceof HTMLElement)) return false;
+
+    const style = window.getComputedStyle(element);
+    const bgColor = style.backgroundColor;
+    const color = style.color;
+
+    // Convert colors to RGB
+    const bgRgb = parseColor(bgColor);
+    const fgRgb = parseColor(color);
+
+    if (!bgRgb || !fgRgb) return false;
+
+    // Calculate luminance
+    const bgLum = calculateLuminance(bgRgb);
+    const fgLum = calculateLuminance(fgRgb);
+
+    // Calculate contrast ratio
+    const lighter = Math.max(bgLum, fgLum);
+    const darker = Math.min(bgLum, fgLum);
+    const contrastRatio = (lighter + 0.05) / (darker + 0.05);
+
+    // WCAG AA standard requires at least 4.5:1 contrast for normal text
+    return contrastRatio >= 4.5;
+}
+
+// Helper function to parse color strings to RGB
+function parseColor(colorString) {
+    if (!colorString) return null;
+
+    // Handle rgb() format
+    const rgbMatch = colorString.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    if (rgbMatch) {
+        return {
+            r: parseInt(rgbMatch[1], 10),
+            g: parseInt(rgbMatch[2], 10),
+            b: parseInt(rgbMatch[3], 10)
+        };
+    }
+
+    // Handle rgba() format (ignore alpha)
+    const rgbaMatch = colorString.match(/^rgba\((\d+),\s*(\d+),\s*(\d+),\s*[\d.]+\)$/);
+    if (rgbaMatch) {
+        return {
+            r: parseInt(rgbaMatch[1], 10),
+            g: parseInt(rgbaMatch[2], 10),
+            b: parseInt(rgbaMatch[3], 10)
+        };
+    }
+
+    // Handle hex format
+    const hexMatch = colorString.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+    if (hexMatch) {
+        const hex = hexMatch[1];
+        if (hex.length === 3) {
+            return {
+                r: parseInt(hex[0] + hex[0], 16),
+                g: parseInt(hex[1] + hex[1], 16),
+                b: parseInt(hex[2] + hex[2], 16)
+            };
+        } else {
+            return {
+                r: parseInt(hex.substring(0, 2], 16),
+                g: parseInt(hex.substring(2, 4), 16),
+                b: parseInt(hex.substring(4, 6), 16)
+            };
+        }
+    }
+
+    // Handle named colors (limited support)
+    const namedColors = {
+        'black': {r: 0, g: 0, b: 0},
+        'white': {r: 255, g: 255, b: 255},
+        'red': {r: 255, g: 0, b: 0},
+        'green': {r: 0, g: 128, b: 0},
+        'blue': {r: 0, g: 0, b: 255}
+    };
+
+    return namedColors[colorString.toLowerCase()] || null;
+}
+
+// Helper function to calculate relative luminance
+function calculateLuminance(rgb) {
+    const sRGB = [rgb.r, rgb.g, rgb.b].map(c => {
+        c /= 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * sRGB[0] + 0.7152 * sRGB[1] + 0.0722 * sRGB[2];
 }
 
 function validateTableStructure(html) {
@@ -476,6 +455,7 @@ function handleFakeLinks(html) {
 // export { existingFunction1, existingFunction2, ... };
 
 // Export accessibility utility functions
+// Re-add the required exports
 module.exports = {
     addLangAttribute,
     fixTableStructure,
@@ -487,15 +467,16 @@ module.exports = {
     addressAccessibilityIssues,
     createInPageButton,
     divide,
+    myNewFunction,
+    functionA,
+    functionB,
     isLinkAccessible,
-    checkLinkAccessibility,
-    wrapPrimaryContentInMain,
-    getLangAttribute,
-    validateTableAccessibility,
+    checkColorContrast,
+    parseColor,
+    calculateLuminance,
     validateTableStructure,
     validateLinkAccessibility,
-    handleFakeLinks,
-    createAccessibleBookForm
+    handleFakeLinks
 };
 
 // Run if executed directly

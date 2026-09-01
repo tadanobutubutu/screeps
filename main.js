@@ -106,7 +106,14 @@ function validateTableStructure(tables) {
       });
     }
 
-    // Additional structure validation can be added here
+    // Validate table accessibility (from HEAD)
+    const result = validateTableAccessibility(table);
+    if (!result.success) {
+      allIssues.push({
+        tableIndex: index,
+        issues: result.issues
+      });
+    }
   });
 
   return {

@@ -603,6 +603,58 @@ function newFunction() {
   document.body.appendChild(button);
 }
 
+/**
+ * Checks the accessibility of a link element
+ * @param {HTMLElement} link - The link element to check
+ * @returns {Object} Accessibility status and issues
+ */
+function checkLinkAccessibility(link) {
+  if (!link || link.tagName !== 'A') {
+    return {
+      isAccessible: false,
+      issues: ['Element is not a link']
+    };
+  }
+
+  const issues = [];
+
+  // Check if link has text content
+  if (!link.textContent.trim()) {
+    issues.push('Link has no visible text content');
+  }
+
+  // Check if link has href attribute
+  if (!link.hasAttribute('href')) {
+    issues.push('Link is missing href attribute');
+  } else {
+    const href = link.getAttribute('href');
+    // Check if href is not empty and not just #
+    if (!href || href === '#') {
+      issues.push('Link href is empty or just #');
+    }
+  }
+
+  // Check for ARIA attributes
+  if (link.hasAttribute('aria-hidden') && link.getAttribute('aria-hidden') === 'true') {
+    issues.push('Link is hidden from assistive technologies');
+  }
+
+  // Check for title attribute
+  if (link.hasAttribute('title') && !link.textContent.includes(link.getAttribute('title'))) {
+    issues.push('Title attribute does not complement link text');
+  }
+
+  // Check for role attribute
+  if (link.hasAttribute('role') && link.getAttribute('role') !== 'link') {
+    issues.push('Link has incorrect role attribute');
+  }
+
+  return {
+    isAccessible: issues.length === 0,
+    issues: issues.length > 0 ? issues : null
+  };
+}
+
 // Tower Defense Implementation
 const TOWER_DEFENSE_CONFIG = {
   boardSize: { rows: 8, cols: 8 },
@@ -625,7 +677,7 @@ class TowerDefenseGame {
 
   createBoard() {
     const { rows, cols } = this.config.boardSize;
-    return Array.from({ length: rows }, () => 
+    return Array.from({ length: rows }, () =>
       Array.from({ length: cols }, () => ({ type: 'path', tower: null }))
     );
   }
@@ -634,13 +686,13 @@ class TowerDefenseGame {
     if (this.towers.length >= this.config.maxTowers) {
       return false;
     }
-    
+
     if (this.board[row] && this.board[row][col]) {
       const cell = this.board[row][col];
       if (cell.type !== 'path' || cell.tower) {
         return false;
       }
-      
+
       const tower = {
         id: this.towers.length,
         row,
@@ -649,7 +701,7 @@ class TowerDefenseGame {
         range: 3,
         cost: this.config.towerCost
       };
-      
+
       cell.tower = tower;
       this.towers.push(tower);
       return true;
@@ -681,9 +733,9 @@ class TowerDefenseGame {
       }
       return true;
     });
-    
+
     // Remove enemies that reached the end
-    this.enemies = this.enemies.filter(enemy => 
+    this.enemies = this.enemies.filter(enemy =>
       enemy.position.row < this.config.boardSize.rows - 1
     );
   }
@@ -692,9 +744,9 @@ class TowerDefenseGame {
     this.towers.forEach(tower => {
       // Find enemies in range and attack
       this.enemies.forEach(enemy => {
-        const distance = Math.abs(tower.row - enemy.position.row) + 
+        const distance = Math.abs(tower.row - enemy.position.row) +
                          Math.abs(tower.col - enemy.position.col);
-        
+
         if (distance <= tower.range) {
           enemy.health -= tower.damage;
           if (enemy.health <= 0) {
@@ -704,17 +756,17 @@ class TowerDefenseGame {
         }
       });
     });
-    
+
     // Remove dead enemies
     this.enemies = this.enemies.filter(enemy => enemy.health > 0);
   }
 
   start() {
     if (this.isRunning) return;
-    
+
     this.isRunning = true;
     this.spawnEnemy(); // Initial enemy
-    
+
     this.gameIntervalId = setInterval(() => {
       this.spawnEnemy();
       this.updateEnemies();
@@ -802,14 +854,14 @@ function addressAccessibilityIssues() {
 function validateTableAccessibility() {
   const tables = document.querySelectorAll('table');
   const results = [];
-  
+
   tables.forEach((table, index) => {
     const hasCaption = table.querySelector('caption') !== null;
     const hasHeaders = table.querySelector('th') !== null;
     const hasScope = Array.from(table.querySelectorAll('th')).every(
       th => th.hasAttribute('scope')
     );
-    
+
     results.push({
       tableIndex: index,
       hasCaption,
@@ -818,7 +870,7 @@ function validateTableAccessibility() {
       isAccessible: hasCaption && hasHeaders && hasScope
     });
   });
-  
+
   return results;
 }
 
@@ -826,25 +878,25 @@ function validateTableAccessibility() {
 function validateTableStructure() {
   const tables = document.querySelectorAll('table');
   const results = [];
-  
+
   tables.forEach((table, index) => {
     const rows = table.querySelectorAll('tr');
     let isValid = true;
     let error = null;
-    
+
     if (rows.length === 0) {
       isValid = false;
       error = 'Table has no rows';
     } else {
       const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td').length);
       const allSame = cellCounts.every(count => count === cellCounts[0]);
-      
+
       if (!allSame) {
         isValid = false;
         error = 'Table has inconsistent cell counts across rows';
       }
     }
-    
+
     results.push({
       tableIndex: index,
       rowCount: rows.length,
@@ -852,7 +904,7 @@ function validateTableStructure() {
       error
     });
   });
-  
+
   return results;
 }
 
@@ -861,13 +913,13 @@ function generateAccessibilityReport() {
   const timestamp = new Date().toISOString();
   const tableAccessibilityResults = validateTableAccessibility();
   const tableStructureResults = validateTableStructure();
-  
+
   const totalTables = tableAccessibilityResults.length;
   const accessibleTables = tableAccessibilityResults.filter(r => r.isAccessible).length;
   const validStructures = tableStructureResults.filter(r => r.isValid).length;
-  
+
   const issues = [];
-  
+
   tableAccessibilityResults.forEach((result, index) => {
     if (!result.isAccessible) {
       const issue = { tableIndex: index, type: 'accessibility' };
@@ -877,13 +929,13 @@ function generateAccessibilityReport() {
       issues.push(issue);
     }
   });
-  
+
   tableStructureResults.forEach((result, index) => {
     if (!result.isValid && result.error) {
       issues.push({ tableIndex: index, type: 'structure', reason: result.error });
     }
   });
-  
+
   return {
     timestamp,
     summary: {
@@ -940,18 +992,20 @@ export {
   validateTableAccessibility,
   validateTableStructure,
   generateAccessibilityReport,
-  createUnrotateButton
+  createUnrotateButton,
+  checkLinkAccessibility
 };
 
 // Add back any required exports that might have been missing
-export { 
-  createUnrotateButton, 
-  ensureThScope, 
-  addLandmarkRoles, 
-  addSvgAccessibleNames, 
-  ensureUniqueLandmarks, 
-  fixFakeLink, 
-  initializeAccessibility 
+export {
+  createUnrotateButton,
+  ensureThScope,
+  addLandmarkRoles,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLink,
+  initializeAccessibility,
+  checkLinkAccessibility
 };
 
 // Add the new function to the default export
@@ -965,12 +1019,14 @@ export default {
   root,
   validateTableAccessibility,
   validateTableStructure,
-  generateAccessibilityReport
+  generateAccessibilityReport,
+  checkLinkAccessibility
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
 if (typeof module !== 'undefined' && module.exports) {
   module.exports.newFunction = newFunction;
+  module.exports.checkLinkAccessibility = checkLinkAccessibility;
 }
 
 module.exports = main;

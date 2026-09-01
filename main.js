@@ -11,3 +11,8 @@ export function calculateSum(a, b) {
 export function calculateProduct(a, b) {
   return a * b;
 }
+
+function function3() {
+  // TODO: Implement new function3 logic here
+  return "function3";
+}

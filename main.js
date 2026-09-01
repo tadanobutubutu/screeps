@@ -136,6 +136,45 @@ function handleIssue(issue) {
   }
 }
 
+// Function to make the addBook form accessible
+function makeAddBookFormAccessible() {
+  const form = document.querySelector('#addBookForm');
+  if (!form) return;
+
+  // Add ARIA attributes to the form
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', 'addBookFormTitle');
+
+  // Add labels to form fields
+  const titleInput = form.querySelector('#bookTitle');
+  if (titleInput) {
+    titleInput.setAttribute('aria-label', 'Book Title');
+    titleInput.setAttribute('required', 'true');
+  }
+
+  const authorInput = form.querySelector('#bookAuthor');
+  if (authorInput) {
+    authorInput.setAttribute('aria-label', 'Book Author');
+    authorInput.setAttribute('required', 'true');
+  }
+
+  const submitButton = form.querySelector('button[type="submit"]');
+  if (submitButton) {
+    submitButton.setAttribute('aria-label', 'Add Book to Collection');
+  }
+
+  // Make sure all form fields are focusable
+  const inputs = form.querySelectorAll('input, textarea, select, button');
+  inputs.forEach(input => {
+    if (!input.hasAttribute('tabindex')) {
+      input.setAttribute('tabindex', '0');
+    }
+  });
+}
+
+// Call the accessibility function when the DOM is loaded
+document.addEventListener('DOMContentLoaded', makeAddBookFormAccessible);
+
 // ... (existing code for loading, processing, and sorting landmarks)
 
 // Export functions for testing
@@ -146,6 +185,7 @@ if (typeof module !== 'undefined' && module.exports) {
     sortLandmarks,
     getLandmarkById,
     ensureUniqueLandmarks,
-    addressAccessibilityIssues
+    addressAccessibilityIssues,
+    makeAddBookFormAccessible
   };
 }

@@ -68,15 +68,15 @@ function divide(dividend, divisor) {
   if (typeof dividend !== 'number' || typeof divisor !== 'number') {
     throw new Error('Both arguments must be numbers');
   }
-  
+
   if (isNaN(dividend) || isNaN(divisor)) {
     throw new Error('Both arguments must be valid numbers');
   }
-  
+
   if (divisor === 0) {
     throw new Error('Division by zero is not allowed');
   }
-  
+
   return dividend / divisor;
 }
 
@@ -239,6 +239,11 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// TODO: add the new functions or changes requested in the issue
+function main() {
+    console.log('Main function executed');
+}
+
 module.exports = {
     addLangAttribute,
     fixTableStructure,
@@ -249,7 +254,8 @@ module.exports = {
     applyAccessibilityFixes,
     addressAccessibilityIssues,
     createInPageButton,
-    divide
+    divide,
+    main
 };
 
 // Run if executed directly

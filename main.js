@@ -60,42 +60,42 @@ function validateTableAccessibility(table) {
   // This function validates the accessibility of tables
   // Check for proper table headers with scope attributes
   const errors = [];
-  
+
   if (!table) {
     return { valid: false, errors: ['Table element is required'] };
   }
-  
+
   const headers = table.querySelectorAll('th');
   headers.forEach((th, index) => {
     if (!th.hasAttribute('scope')) {
       errors.push(`Table header at index ${index} is missing scope attribute`);
     }
   });
-  
+
   // Check if table has a caption or is properly described
   const hasCaption = table.querySelector('caption');
   const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby');
-  
+
   if (!hasCaption && !hasAriaLabel) {
     errors.push('Table is missing a caption or aria-label/aria-labelledby');
   }
-  
+
   return { valid: errors.length === 0, errors };
 }
 
 function validateTableStructure(table) {
   // This function validates the structure of tables
   const errors = [];
-  
+
   if (!table) {
     return { valid: false, errors: ['Table element is required'] };
   }
-  
+
   // Check for proper table structure
   const tbody = table.querySelector('tbody');
   const thead = table.querySelector('thead');
   const tfoot = table.querySelector('tfoot');
-  
+
   // Check for thead and tbody presence
   if (!thead) {
     errors.push('Table is missing thead element');
@@ -103,7 +103,7 @@ function validateTableStructure(table) {
   if (!tbody) {
     errors.push('Table is missing tbody element');
   }
-  
+
   // Check for consistent column counts in tbody
   const rows = table.querySelectorAll('tbody tr');
   let expectedCols = null;
@@ -115,7 +115,7 @@ function validateTableStructure(table) {
       errors.push(`Row ${rowIndex} has inconsistent cell count: expected ${expectedCols}, got ${cells.length}`);
     }
   });
-  
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -124,59 +124,59 @@ function validateLandmark(element) {
   // This function validates landmarks
   const errors = [];
   const allowedLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
-  
+
   if (!element) {
     return { valid: false, errors: ['Element is required'] };
   }
-  
+
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
-  
+
   // Check if element has valid landmark role
   if (role && !allowedLandmarks.includes(role)) {
     errors.push(`Invalid landmark role: ${role}`);
   }
-  
+
   // Check if landmark has accessible name when required
   const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary'];
   if (role && landmarksNeedingNames.includes(role)) {
-    const hasLabel = element.getAttribute('aria-label') || 
+    const hasLabel = element.getAttribute('aria-label') ||
                      element.getAttribute('aria-labelledby') ||
                      element.querySelector('h1, h2, h3, h4, h5, h6');
     if (!hasLabel) {
       errors.push(`Landmark role "${role}" is missing accessible name`);
     }
   }
-  
+
   return { valid: errors.length === 0, errors };
 }
 
 function validateLandmarkStructure() {
   // This function validates the structure of landmarks
   const errors = [];
-  
+
   if (typeof document === 'undefined') {
     return { valid: false, errors: ['Document not available'] };
   }
-  
+
   // Check for multiple main landmarks
   const mainLandmarks = document.querySelectorAll('[role="main"], main');
   if (mainLandmarks.length > 1) {
     errors.push(`Found ${mainLandmarks.length} main landmarks, should have only 1`);
   }
-  
+
   // Check for multiple banner landmarks
   const bannerLandmarks = document.querySelectorAll('[role="banner"], header');
   if (bannerLandmarks.length > 1) {
     errors.push(`Found ${bannerLandmarks.length} banner landmarks, should have only 1`);
   }
-  
+
   // Check for contentinfo (footer) landmarks
   const footerLandmarks = document.querySelectorAll('[role="contentinfo"], footer');
   if (footerLandmarks.length > 1) {
     errors.push(`Found ${footerLandmarks.length} contentinfo landmarks, should have only 1`);
   }
-  
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -186,13 +186,13 @@ function getSvgAccessibleName(svg) {
   if (!svg) {
     return '';
   }
-  
+
   // Check for aria-label attribute
   const ariaLabel = svg.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel;
   }
-  
+
   // Check for aria-labelledby reference
   const ariaLabelledby = svg.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
@@ -201,13 +201,13 @@ function getSvgAccessibleName(svg) {
       return labelElement.textContent || '';
     }
   }
-  
+
   // Check for title element inside SVG
   const title = svg.querySelector('title');
   if (title) {
     return title.textContent || '';
   }
-  
+
   // Check for adjacent description
   const id = svg.getAttribute('id');
   if (id) {
@@ -216,7 +216,7 @@ function getSvgAccessibleName(svg) {
       return describedBy.textContent || '';
     }
   }
-  
+
   return '';
 }
 
@@ -224,25 +224,25 @@ function getSvgAccessibleName(svg) {
 function ensureUniqueLandmarks() {
   // This function ensures that landmarks are unique
   const errors = [];
-  
+
   if (typeof document === 'undefined') {
     return { valid: false, errors: ['Document not available'] };
   }
-  
+
   // Define unique landmarks that should only appear once
   const uniqueLandmarks = ['main', 'banner', 'contentinfo'];
   const uniqueRoleSelectors = ['[role="main"]', '[role="banner"]', '[role="contentinfo"]'];
-  
+
   uniqueLandmarks.forEach((landmark, index) => {
     const elements = document.querySelectorAll(uniqueRoleSelectors[index]);
     const tagElements = document.querySelectorAll(landmark);
     const totalCount = elements.length + tagElements.length;
-    
+
     if (totalCount > 1) {
       errors.push(`Found ${totalCount} instances of "${landmark}" landmark, should have only 1`);
     }
   });
-  
+
   // Check for landmark IDs that should be unique
   const landmarksWithIds = document.querySelectorAll('[role][id]');
   const ids = new Set();
@@ -253,29 +253,29 @@ function ensureUniqueLandmarks() {
     }
     ids.add(id);
   });
-  
+
   return { valid: errors.length === 0, errors };
 }
 
 // New function to address REACT_036: Fix 1 fake link issue
 function createAccessibleLink(href, text, options = {}) {
   // This function creates an accessible link
-  const { 
-    onClick, 
+  const {
+    onClick,
     role = 'link',
     ariaLabel,
     className,
     target,
-    rel 
+    rel
   } = options;
-  
+
   if (!href && !onClick) {
     return null;
   }
-  
+
   const link = document.createElement('a');
   link.textContent = text;
-  
+
   if (href) {
     link.href = href;
     // Add rel="noopener noreferrer" for external links
@@ -294,23 +294,23 @@ function createAccessibleLink(href, text, options = {}) {
       }
     });
   }
-  
+
   if (target) {
     link.target = target;
   }
-  
+
   if (className) {
     link.className = className;
   }
-  
+
   if (ariaLabel) {
     link.setAttribute('aria-label', ariaLabel);
   }
-  
+
   if (role && role !== 'link') {
     link.setAttribute('role', role);
   }
-  
+
   return link;
 }
 
@@ -335,7 +335,7 @@ function towerDefense() {
   const towers = [];
   const enemies = [];
   let wave = 1;
-  
+
   // Example: Tower constructor
   function Tower(x, y, range, damage, rate) {
     this.x = x;
@@ -345,7 +345,7 @@ function towerDefense() {
     this.rate = rate;
     this.lastShot = 0;
   }
-  
+
   // Example: Enemy constructor
   function Enemy(x, y, health, speed) {
     this.x = x;
@@ -353,23 +353,23 @@ function towerDefense() {
     this.health = health;
     this.speed = speed;
   }
-  
+
   // Add a tower
   function addTower(x, y, range, damage, rate) {
     towers.push(new Tower(x, y, range, damage, rate));
   }
-  
+
   // Add an enemy
   function addEnemy(x, y, health, speed) {
     enemies.push(new Enemy(x, y, health, speed));
   }
-  
+
   // Update game state (simplified)
   function update() {
     // Logic for enemy movement, tower shooting, etc.
     console.log(`Wave ${wave} - updating game state`);
   }
-  
+
   // Start the game
   function start() {
     console.log('Tower defense game started');
@@ -378,7 +378,7 @@ function towerDefense() {
     addEnemy(0, 50, 100, 2);
     // Game loop would be here
   }
-  
+
   // Expose game functions
   return {
     start,
@@ -398,11 +398,11 @@ function towerDefense() {
  */
 function fixTableStructure(table) {
   const result = { valid: true, errors: [] };
-  
+
   if (!table) {
     return { valid: false, errors: ['Table element is required'] };
   }
-  
+
   // Fix missing thead
   const thead = table.querySelector('thead');
   if (!thead) {
@@ -413,7 +413,7 @@ function fixTableStructure(table) {
       table.insertBefore(newThead, table.firstChild);
     }
   }
-  
+
   // Fix missing tbody
   if (!table.querySelector('tbody')) {
     const tbody = document.createElement('tbody');
@@ -425,7 +425,7 @@ function fixTableStructure(table) {
     }
     table.appendChild(tbody);
   }
-  
+
   // Fix inconsistent column counts
   const allRows = table.querySelectorAll('tr');
   const columnCounts = Array.from(allRows).map(row => row.querySelectorAll('td, th').length);
@@ -437,7 +437,7 @@ function fixTableStructure(table) {
       countCounts[count] = (countCounts[count] || 0) + 1;
     });
     const mostCommonCount = Object.entries(countCounts).sort((a, b) => b[1] - a[1])[0][0];
-    
+
     allRows.forEach((row, rowIndex) => {
       const cells = row.querySelectorAll('td, th');
       if (cells.length !== mostCommonCount) {
@@ -454,7 +454,7 @@ function fixTableStructure(table) {
     });
     result.valid = result.errors.length === 0;
   }
-  
+
   return result;
 }
 
@@ -465,11 +465,11 @@ function fixTableStructure(table) {
  */
 function addLandmarkIssues(element) {
   const errors = [];
-  
+
   if (!element) {
     return { valid: false, errors: ['Element is required'] };
   }
-  
+
   // Check if element has role attribute
   const role = element.getAttribute('role');
   if (!role) {
@@ -492,18 +492,18 @@ function addLandmarkIssues(element) {
       errors.push('Added role="contentinfo" to footer element');
     }
   }
-  
+
   // Check for required accessible names
   const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary'];
   if (role && landmarksNeedingNames.includes(role)) {
-    const hasLabel = element.getAttribute('aria-label') || 
+    const hasLabel = element.getAttribute('aria-label') ||
                      element.getAttribute('aria-labelledby') ||
                      element.querySelector('h1, h2, h3, h4, h5, h6');
     if (!hasLabel) {
       errors.push(`Landmark role "${role}" is missing accessible name`);
     }
   }
-  
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -515,31 +515,31 @@ function addLandmarkIssues(element) {
  */
 function addSvgAccessibleNames(svg, accessibleName) {
   const result = { valid: true, errors: [] };
-  
+
   if (!svg) {
     return { valid: false, errors: ['SVG element is required'] };
   }
-  
+
   if (!accessibleName) {
     result.errors.push('Accessible name is required');
     result.valid = false;
     return result;
   }
-  
+
   // Check if SVG already has an accessible name
   const hasAriaLabel = svg.getAttribute('aria-label');
   const hasTitle = svg.querySelector('title');
   const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
-  
+
   if (hasAriaLabel || hasTitle || hasAriaLabelledby) {
     result.errors.push('SVG already has an accessible name');
     result.valid = false;
     return result;
   }
-  
+
   // Add aria-label to SVG
   svg.setAttribute('aria-label', accessibleName);
-  
+
   return result;
 }
 
@@ -550,11 +550,11 @@ function addSvgAccessibleNames(svg, accessibleName) {
  */
 function fixFakeLinkIssue(element) {
   const result = { valid: true, errors: [] };
-  
+
   if (!element) {
     return { valid: false, errors: ['Element is required'] };
   }
-  
+
   // Check if element is a fake link
   if (element.tagName.toLowerCase() === 'a') {
     const href = element.getAttribute('href');
@@ -563,22 +563,22 @@ function fixFakeLinkIssue(element) {
       const button = document.createElement('button');
       button.textContent = element.textContent;
       button.setAttribute('role', 'button');
-      
+
       const ariaLabel = element.getAttribute('aria-label');
       if (ariaLabel) {
         button.setAttribute('aria-label', ariaLabel);
       }
-      
+
       const className = element.getAttribute('class');
       if (className) {
         button.className = className;
       }
-      
+
       element.replaceWith(button);
       result.errors.push('Converted fake link to button');
     }
   }
-  
+
   return result;
 }
 
@@ -592,17 +592,17 @@ function personName(person) {
   if (!person) {
     return '';
   }
-  
+
   // If person is an object with a name property
   if (typeof person === 'object' && person.name) {
     return person.name;
   }
-  
+
   // If person is a string, return it as the name
   if (typeof person === 'string') {
     return person;
   }
-  
+
   // Default case
   return String(person);
 }
@@ -614,6 +614,214 @@ function personName(person) {
  */
 function addLangAttribute(lang) {
   return setHtmlLangAttribute(lang);
+}
+
+/**
+ * Function to render a dependency graph
+ * @param {HTMLElement} container - The container element to render the graph in
+ * @param {Object} data - The graph data to render
+ * @returns {Object} Result object with success status and any errors
+ */
+function renderDependencyGraph(container, data) {
+  const result = { success: true, errors: [] };
+
+  if (!container) {
+    result.errors.push('Container element is required');
+    result.success = false;
+    return result;
+  }
+
+  if (!data || typeof data !== 'object') {
+    result.errors.push('Valid graph data is required');
+    result.success = false;
+    return result;
+  }
+
+  try {
+    // Clear the container
+    container.innerHTML = '';
+
+    // Create a simple SVG graph visualization
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.setAttribute('viewBox', '0 0 800 600');
+
+    // Add a title for accessibility
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = 'Dependency Graph';
+    svg.appendChild(title);
+
+    // Add some sample nodes and edges
+    const nodes = data.nodes || [];
+    const edges = data.edges || [];
+
+    // Draw nodes
+    nodes.forEach((node, index) => {
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      const x = 100 + (index % 3) * 200;
+      const y = 100 + Math.floor(index / 3) * 150;
+
+      circle.setAttribute('cx', x);
+      circle.setAttribute('cy', y);
+      circle.setAttribute('r', 30);
+      circle.setAttribute('fill', '#4a90e2');
+      circle.setAttribute('stroke', '#2a6496');
+      circle.setAttribute('stroke-width', '2');
+
+      // Add accessible name
+      const nodeTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      nodeTitle.textContent = node.label || `Node ${index + 1}`;
+      circle.appendChild(nodeTitle);
+
+      svg.appendChild(circle);
+
+      // Add label
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', x);
+      text.setAttribute('y', y + 5);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('fill', 'white');
+      text.textContent = node.label || `Node ${index + 1}`;
+      svg.appendChild(text);
+    });
+
+    // Draw edges
+    edges.forEach(edge => {
+      const fromNode = nodes[edge.from];
+      const toNode = nodes[edge.to];
+
+      if (fromNode && toNode) {
+        const fromX = 100 + (edge.from % 3) * 200;
+        const fromY = 100 + Math.floor(edge.from / 3) * 150;
+        const toX = 100 + (edge.to % 3) * 200;
+        const toY = 100 + Math.floor(edge.to / 3) * 150;
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', fromX);
+        line.setAttribute('y1', fromY);
+        line.setAttribute('x2', toX);
+        line.setAttribute('y2', toY);
+        line.setAttribute('stroke', '#999');
+        line.setAttribute('stroke-width', '2');
+        line.setAttribute('marker-end', 'url(#arrowhead)');
+
+        // Add accessible description
+        const edgeTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        edgeTitle.textContent = `Dependency from ${fromNode.label || `Node ${edge.from + 1}`} to ${toNode.label || `Node ${edge.to + 1}`}`;
+        line.appendChild(edgeTitle);
+
+        svg.appendChild(line);
+      }
+    });
+
+    // Add arrowhead marker
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+    marker.setAttribute('id', 'arrowhead');
+    marker.setAttribute('markerWidth', '10');
+    marker.setAttribute('markerHeight', '7');
+    marker.setAttribute('refX', '9');
+    marker.setAttribute('refY', '3.5');
+    marker.setAttribute('orient', 'auto');
+
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+    polygon.setAttribute('fill', '#999');
+
+    marker.appendChild(polygon);
+    defs.appendChild(marker);
+    svg.appendChild(defs);
+
+    container.appendChild(svg);
+  } catch (error) {
+    result.errors.push(`Error rendering graph: ${error.message}`);
+    result.success = false;
+  }
+
+  return result;
+}
+
+/**
+ * Function to render an index view
+ * @param {HTMLElement} container - The container element to render the view in
+ * @param {Object} data - The data to render in the view
+ * @returns {Object} Result object with success status and any errors
+ */
+function renderIndexView(container, data) {
+  const result = { success: true, errors: [] };
+
+  if (!container) {
+    result.errors.push('Container element is required');
+    result.success = false;
+    return result;
+  }
+
+  if (!data || typeof data !== 'object') {
+    result.errors.push('Valid data is required');
+    result.success = false;
+    return result;
+  }
+
+  try {
+    // Clear the container
+    container.innerHTML = '';
+
+    // Create a main container with proper landmark roles
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    main.setAttribute('aria-label', 'Index View');
+
+    // Add a heading
+    const heading = document.createElement('h1');
+    heading.textContent = data.title || 'Index View';
+    main.appendChild(heading);
+
+    // Add a description if provided
+    if (data.description) {
+      const description = document.createElement('p');
+      description.textContent = data.description;
+      main.appendChild(description);
+    }
+
+    // Add items if provided
+    if (data.items && Array.isArray(data.items)) {
+      const list = document.createElement('ul');
+      list.setAttribute('role', 'list');
+
+      data.items.forEach((item, index) => {
+        const listItem = document.createElement('li');
+
+        if (item.url) {
+          const link = document.createElement('a');
+          link.href = item.url;
+          link.textContent = item.label || `Item ${index + 1}`;
+          listItem.appendChild(link);
+        } else {
+          listItem.textContent = item.label || `Item ${index + 1}`;
+        }
+
+        list.appendChild(listItem);
+      });
+
+      main.appendChild(list);
+    }
+
+    // Add a footer if provided
+    if (data.footer) {
+      const footer = document.createElement('footer');
+      footer.setAttribute('role', 'contentinfo');
+      footer.textContent = data.footer;
+      main.appendChild(footer);
+    }
+
+    container.appendChild(main);
+  } catch (error) {
+    result.errors.push(`Error rendering index view: ${error.message}`);
+    result.success = false;
+  }
+
+  return result;
 }
 
 // Export all functions to maintain current exports
@@ -635,5 +843,7 @@ module.exports = {
   createAccessibleLink,
   fixFakeLinkIssue, // Add back fixFakeLinkIssue export
   towerDefense,
-  personName // Add back personName export
+  personName, // Add back personName export
+  renderDependencyGraph, // New function to render dependency graphs
+  renderIndexView // New function to render index views
 };

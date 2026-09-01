@@ -111,7 +111,7 @@ function addLandmarkRoles() {
   if (mainElement && ... {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   const navElement = ...
   if (navElement && ... {
     ... 'navigation');
@@ -307,7 +307,7 @@ function addressAccessibilityIssues(insightReport) {
 
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -318,7 +318,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -333,7 +333,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -348,7 +348,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -362,7 +362,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = ...
   if (landmarkStructureIssues && ... > 0) {
@@ -371,3 +371,105 @@ function getInsightReport() {
         type: 'REACT_017',
         structure: true,
         description: issue.description || 'Landmark structure issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check for dependency graph container
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph && !dependencyGraph.getAttribute('aria-label')) {
+    issues.push({
+      type: 'REACT_018',
+      description: 'Dependency graph container is missing ARIA label',
+      severity: 'high',
+      element: 'dependencyGraph'
+    });
+  }
+
+  return {
+    issues: issues,
+    summary: {
+      totalIssues: issues.length,
+      critical: issues.filter(i => i.severity === 'critical').length,
+      high: issues.filter(i => i.severity === 'high').length,
+      medium: issues.filter(i => i.severity === 'medium').length,
+      low: issues.filter(i => i.severity === 'low').length
+    }
+  };
+}
+
+// Function to ensure element has an ID
+function ensureElementHasId(element, id) {
+  if (!element.id) {
+    element.id = id;
+  }
+  return element;
+}
+
+// Function to add ARIA label to an element
+function addAriaLabel(element, label) {
+  if (element && typeof element === 'object') {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+}
+
+// Function to render dependency graph with accessibility features
+function renderDependencyGraph(data) {
+  const container = document.getElementById('dependencyGraph');
+  if (!container) {
+    console.error('Dependency graph container not found');
+    return;
+  }
+
+  // Ensure container has proper ID and ARIA label
+  ensureElementHasId(container, 'dependencyGraph');
+  addAriaLabel(container, 'Dependency Graph Visualization');
+
+  // Render the graph (implementation depends on your graph library)
+  // This is a placeholder for the actual rendering logic
+  console.log('Rendering dependency graph with data:', data);
+
+  // Add ARIA role for better accessibility
+  container.setAttribute('role', 'img');
+}
+
+// Export all functions that need to be preserved
+export {
+  initialize,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  someFunction,
+  helper,
+  formatDate,
+  validateInput,
+  getLangAttribute,
+  addLangAttribute,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  addLandmarkRegions,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addressAccessibilityIssues,
+  getInsightReport,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph
+};

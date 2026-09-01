@@ -223,6 +223,104 @@ function improveAccessibility() {
   addMainLandmark();
 }
 
+// New function to generate a report based on accessibility issues
+function generateAccessibilityReport(insightReport) {
+  if (!insightReport || !insightReport.issues || insightReport.issues.length === 0) {
+    return {
+      summary: 'No accessibility issues found',
+      issues: [],
+      severityCounts: {
+        critical: 0,
+        high: 0,
+        medium: 0,
+        low: 0
+      }
+    };
+  }
+
+  const severityCounts = {
+    critical: 0,
+    high: 0,
+    medium: 0,
+    low: 0
+  };
+
+  const categorizedIssues = {
+    landmarks: [],
+    tables: [],
+    svgs: [],
+    links: [],
+    language: [],
+    other: []
+  };
+
+  insightReport.issues.forEach(issue => {
+    // Count severity
+    switch (issue.severity) {
+      case 'critical':
+        severityCounts.critical++;
+        break;
+      case 'high':
+        severityCounts.high++;
+        break;
+      case 'medium':
+        severityCounts.medium++;
+        break;
+      case 'low':
+        severityCounts.low++;
+        break;
+    }
+
+    // Categorize issues
+    switch (issue.type) {
+      case 'REACT_015':
+        categorizedIssues.language.push(issue);
+        break;
+      case 'REACT_027':
+        categorizedIssues.tables.push(issue);
+        break;
+      case 'REACT_017':
+        categorizedIssues.landmarks.push(issue);
+        break;
+      case 'REACT_041':
+        categorizedIssues.svgs.push(issue);
+        break;
+      case 'REACT_036':
+        categorizedIssues.links.push(issue);
+        break;
+      default:
+        categorizedIssues.other.push(issue);
+    }
+  });
+
+  // Generate summary
+  const totalIssues = insightReport.issues.length;
+  let summary = `Accessibility report: ${totalIssues} issue${totalIssues !== 1 ? 's' : ''} found. `;
+
+  if (severityCounts.critical > 0) {
+    summary += `${severityCounts.critical} critical, `;
+  }
+  if (severityCounts.high > 0) {
+    summary += `${severityCounts.high} high, `;
+  }
+  if (severityCounts.medium > 0) {
+    summary += `${severityCounts.medium} medium, `;
+  }
+  if (severityCounts.low > 0) {
+    summary += `${severityCounts.low} low severity issues. `;
+  }
+
+  // Remove trailing comma and space
+  summary = summary.replace(/, $/, '.');
+
+  return {
+    summary,
+    issues: categorizedIssues,
+    severityCounts,
+    totalIssues
+  };
+}
+
 // More existing code that should be preserved
 
 // Configuration
@@ -623,5 +721,6 @@ module.exports = {
   handleFakeLinks,
   appData,
   initApp,
-  getInsightReport
+  getInsightReport,
+  generateAccessibilityReport
 };

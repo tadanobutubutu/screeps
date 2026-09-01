@@ -170,10 +170,10 @@ function setupKeyboardNavigation() {
   /* existing code */
 }
 
-/**
- * Handle keyboard navigation events
- * @param {KeyboardEvent} event
- */
+ /**
+  * Handle keyboard navigation events
+  * @param {KeyboardEvent} event
+  */
 function handleKeyNavigation(event) {
   // Skip to main content with Tab or specific key combination
   if (event.key === 'Tab' && event.altKey) {
@@ -339,194 +339,68 @@ function addressAccessibilityIssues(insightReport) {
   return AddressabilityIssues.addressAccessibilityIssues(insightReport);
 }
 
-function generateAccessibilityReport(accessibilityReport) {
-  // Implementation for generating accessibility report
-  return AddressabilityIssues.generateAccessibilityReport(accessibilityReport);
-}
-
-function calculateAccessibilityScore(fixedIssues) {
-  // Implementation for calculating accessibility score
-  return AddressabilityIssues.calculateAccessibilityScore(fixedIssues);
-}
-
-function getVersion() {
-  // Implementation for getting version
-  return '1.0.0';
-}
-
-function getConfig() {
-  // Implementation for getting config
-  return {};
-}
-
-// Accessibility utilities
-const hello = () => {
-  return 'Hello from main.js';
-};
-
-// Utilities for addressing accessibility issues
-const AddressabilityIssues = {
-  addressAccessibilityIssues(insightReport) {
-    /* existing code */
-    if (!insightReport || !insightReport.sections) {
-      return [];
+/**
+ * Fix 26 table structure issues.
+ * Ensures each table has a caption, thead, tbody, tfoot (if missing),
+ * proper header cells (<th>), and the role="table" attribute.
+ */
+function fixTableStructure() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure caption exists
+    if (!table.caption) {
+      const caption = document.createElement('caption');
+      caption.textContent = table.getAttribute('aria-label') || 'Table';
+      table.appendChild(caption);
     }
-    
-    const issues = [];
-    insightReport.sections.forEach(section => {
-      if (section.heading) {
-        issues.push({
-          type: 'missing-aria-label',
-          severity: 'medium',
-          element: section.heading,
-          description: `Section heading missing aria-label`
-        });
+
+    // Ensure thead exists
+    let thead = table.querySelector('thead');
+    if (!thead) {
+      thead = document.createElement('thead');
+      table.appendChild(thead);
+    }
+
+    // Identify header rows (rows containing at least one <th>)
+    const headerRows = Array.from(table.rows).filter(row => {
+      return Array.from(row.cells).some(cell => cell.tagName.toLowerCase() === 'th');
+    });
+
+    // Move header rows to thead if they are not already inside it
+    headerRows.forEach(row => {
+      if (!thead.contains(row)) {
+        thead.appendChild(row);
       }
     });
-    
-    return issues;
-  },
 
-  generateAccessibilityReport(accessibilityReport) {
-    if (!accessibilityReport || !Array.isArray(accessibilityReport.issues)) {
-      return [];
+    // Ensure tbody exists
+    let tbody = table.querySelector('tbody');
+    if (!tbody) {
+      tbody = document.createElement('tbody');
+      table.appendChild(tbody);
     }
 
-    const report = accessibilityReport.issues.map(issue => ({
-      issueType: issue.type,
-      status: issue.status || 'pending',
-      fixApplied: issue.fixApplied || ''
-    }));
-
-    return report;
-  },
-
-  calculateAccessibilityScore(fixedIssues) {
-    if (!Array.isArray(fixedIssues)) {
-      return 0;
-    }
-
-    const scorePoints = {
-      'color-contrast': 5,
-      'missing-alt-text': 3,
-      'missing-aria-label': 5,
-      'heading-order': 2,
-      'other': 1
-    };
-
-    return fixedIssues.reduce((score, issue) => {
-      const points = scorePoints[issue.type] || scorePoints['other'];
-      return score + points;
-    }, 0);
-  },
-
-  ensureUniqueLandmarksFromString(source) {
-    const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
-
-    const matches = Array.from(source.matchAll(mainBlockRegex));
-    if (matches.length <= 1) {
-      return source;
-    }
-
-    let result = source;
-    for (let i = 1; i < matches.length; i++) {
-      const block = matches[i][0];
-      const fixedBlock = block
-        .replace(/<main([^>]*)>/, '<section$1>')
-        .replace(/<\/main>/, '</section>');
-      result = result.replace(block, fixedBlock);
-    }
-
-    return result;
-  },
-
-  validateLandmark(element) {
-    if (!element) {
-      return { valid: false, error: 'Element is required' };
-    }
-
-    const landmarkRoles = [
-      'banner',
-      'main',
-      'navigation',
-      'search',
-      'contentinfo',
-      'complementary',
-      'region',
-      'form'
-    ];
-
-    const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
-
-    const implicitLandmarks = {
-      'header': 'banner',
-      'main': 'main',
-      'nav': 'navigation',
-      'aside': 'complementary',
-      'footer': 'contentinfo',
-      'section': 'region',
-      'form': 'form'
-    };
-
-    let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
-
-    if (!landmarkRole && implicitLandmarks[tagName]) {
-      landmarkRole = implicitLandmarks[tagName];
-    }
-
-    if (!landmarkRole) {
-      return { 
-        valid: false, 
-        error: 'Element does not have a valid landmark role',
-        element: tagName
-      };
-    }
-
-    if (!landmarkRoles.includes(landmarkRole)) {
-      return { 
-        valid: false, 
-        error: `Invalid landmark role: ${landmarkRole}`,
-        element: tagName,
-        role: landmarkRole
-      };
-    }
-
-    return { valid: true, element: tagName, role: landmarkRole };
-  },
-
-  spawnSomeCommand(callback) {
-    const child_process = require('child_process');
-    child_process.spawn('someCommand', {}, {
-      stdio: 'inherit',
-    }).on('exit', (code, signal) => {
-      if (code === 0) {
-        callback(null, 'Successfully executed someCommand');
-      } else {
-        callback(new Error(`someCommand failed with code ${code}`));
+    // Move non‑header rows to tbody if they are not already inside it
+    Array.from(table.rows).forEach(row => {
+      const isHeader = headerRows.includes(row);
+      if (!isHeader && !tbody.contains(row)) {
+        tbody.appendChild(row);
       }
     });
-  },
 
-  addLangAttribute(element, lang) {
-    element.setAttribute('lang', lang);
-  },
+    // Ensure tfoot exists (optional, create empty if missing)
+    let tfoot = table.querySelector('tfoot');
+    if (!tfoot) {
+      tfoot = document.createElement('tfoot');
+      table.appendChild(tfoot);
+    }
 
-  countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-
-    return {
-      dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
-      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
-  }
-};
+    // Add role attribute if missing
+    if (!table.hasAttribute('role')) {
+      table.setAttribute('role', 'table');
+    }
+  });
+}
 
 // Replacing JSX with plain JavaScript function
 function MyComponent() {

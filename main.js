@@ -351,20 +351,13 @@ module.exports = {
   getLangAttribute,
   detectAndSetLang,
   personName,
-<<<<<<< HEAD
   createAccessibleInPageButton,
-=======
->>>>>>> origin/main
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-<<<<<<< HEAD
-  getSvgAccessibleName
-=======
   getSvgAccessibleName,
   createWebResourceButton,
   newFunction,
->>>>>>> origin/main
 };

@@ -137,11 +137,11 @@ function addAriaLabel(element, label) {
   if (!element) {
     return null;
   }
-  
+
   if (typeof label !== 'string' || label.trim() === '') {
     return element;
   }
-  
+
   element.setAttribute('aria-label', label);
   return element;
 }
@@ -157,21 +157,21 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
   if (!element) {
     return null;
   }
-  
+
   const id = ensureElementHasId(element, idPrefix);
   addAriaLabel(element, ariaLabel);
-  
+
   return id;
 }
 
 // Sample main.js with dependencyGraph container
-function renderDependencyGraph() {
+function renderDependencyGraphContainer() {
   const container = document.getElementById('dependency-graph');
 
   if (container) {
     container.setAttribute('role', 'region');
     container.setAttribute('aria-label', 'Dependency graph visualization');
-    
+
     // Ensure the container has an id for accessibility
     ensureElementHasId(container, 'dep-graph');
   }
@@ -442,3 +442,56 @@ addAccessibleNamesToSVGs();
 fixFakeLinkIssue();
 googleSignIn();
 fixButtonIdentifiers();
+
+// New function to improve accessibility for adding a new book
+function improveAddBookAccessibility() {
+  const addBookForm = document.getElementById('add-book-form');
+  if (addBookForm) {
+    // Ensure form has proper ARIA attributes
+    addBookForm.setAttribute('role', 'form');
+    addBookForm.setAttribute('aria-labelledby', 'add-book-title');
+
+    // Add labels to form fields
+    const fields = addBookForm.querySelectorAll('input, textarea, select');
+    fields.forEach(field => {
+      if (!field.id) {
+        field.id = `book-${Math.random().toString(36).substr(2, 9)}`;
+      }
+      if (!field.getAttribute('aria-label') && !field.getAttribute('aria-labelledby')) {
+        const label = document.querySelector(`label[for="${field.id}"]`);
+        if (label) {
+          field.setAttribute('aria-labelledby', label.id);
+        } else {
+          // Fallback to aria-label if no label exists
+          const placeholder = field.getAttribute('placeholder') || '';
+          field.setAttribute('aria-label', placeholder || field.name);
+        }
+      }
+    });
+
+    // Add keyboard navigation support
+    addBookForm.addEventListener('keydown', (e) => {
+      accessibilityUtils.handleKeyboardNav(e, {
+        'Escape': () => {
+          const cancelButton = addBookForm.querySelector('[type="reset"]');
+          if (cancelButton) cancelButton.click();
+        }
+      });
+    });
+
+    // Trap focus within the form when it's open
+    accessibilityUtils.trapFocus(addBookForm);
+
+    // Announce form opening to screen readers
+    accessibilityUtils.announceToScreenReader('Add new book form opened');
+  }
+}
+
+// Initialize the new accessibility improvements
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', improveAddBookAccessibility);
+  } else {
+    improveAddBookAccessibility();
+  }
+}

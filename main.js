@@ -44,9 +44,9 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâçéèêëîïôùûüÿœæ]+/i.test(content)) {
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
-    } else if (/[äöüß]+/i.test(content)) {
+    } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }
@@ -145,7 +145,7 @@ function validateLandmark(element) {
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
   
-  if (role && !validLandmarks.includes(role) && !validLandmarks.includes(role.toLowerCase())) {
+  if (role && !validLandmarks.includes(role) && !role.includes('landmark')) {
     errors.push(`Invalid landmark role: ${role}`);
   }
   
@@ -244,4 +244,54 @@ function validateSvgAccessibility() {
   svgs.forEach((svg, index) => {
     const name = getSvgAccessibleName(svg);
     if (!name) {
-      errors.push(`SVG ${index + 1} is missing
+      errors.push(`SVG ${index + 1} is missing an accessible name (aria-label, aria-labelledby, title, or desc)`);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_025: Ensure unique landmarks (2 issues)
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+  
+  const errors = [];
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="search"]');
+  const landmarkNames = new Map();
+  
+  landmarks.forEach((landmark) => {
+    const role = landmark.getAttribute('role');
+    const name = getLandmarkName(landmark);
+    const key = `${role}:${name}`;
+    
+    if (landmarkNames.has(key)) {
+      errors.push(`Duplicate landmark found: ${role} with name "${name}"`);
+    } else {
+      landmarkNames.set(key, landmark);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Gets the accessible name of a landmark element
+ * @param {HTMLElement} landmark - The landmark element
+ * @returns {string} The landmark's accessible name
+ */
+function getLandmarkName(landmark) {
+  if (!landmark) return '';
+  
+  const ariaLabel = landmark.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  
+  const ariaLabelledby = landmark.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    if (labelElement) return labelElement.textContent;
+  }
+  
+  const heading = landmark.querySelector('h1, h2, h3, h4, h5, h6');
+  if (heading

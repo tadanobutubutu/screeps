@@ -68,15 +68,15 @@ function divide(dividend, divisor) {
   if (typeof dividend !== 'number' || typeof divisor !== 'number') {
     throw new Error('Both arguments must be numbers');
   }
-  
+
   if (isNaN(dividend) || isNaN(divisor)) {
     throw new Error('Both arguments must be valid numbers');
   }
-  
+
   if (divisor === 0) {
     throw new Error('Division by zero is not allowed');
   }
-  
+
   return dividend / divisor;
 }
 
@@ -156,16 +156,16 @@ function checkLinkAccessibility() {
   // This function will be used to validate the accessibility of links
   const links = document.querySelectorAll('a[href]');
   const issues = [];
-  
+
   links.forEach(link => {
     const href = link.getAttribute('href');
     const text = link.textContent.trim();
-    
+
     if (!text) {
       issues.push(`Link with href "${href}" has no accessible text`);
     }
   });
-  
+
   return issues;
 }
 
@@ -178,29 +178,29 @@ function checkLinkAccessibility() {
  */
 function wrapPrimaryContentInMain() {
   const body = document.body;
-  
+
   // Return null if body element is not available
   if (!body) {
     return null;
   }
-  
+
   // Check if a <main> element already exists to avoid duplication
   const existingMain = document.querySelector('main');
   if (existingMain) {
     return existingMain;
   }
-  
+
   // Create a new <main> element
   const main = document.createElement('main');
-  
+
   // Move all existing body children into the <main> element
   while (body.firstChild) {
     main.appendChild(body.firstChild);
   }
-  
+
   // Append the <main> element to the body
   body.appendChild(main);
-  
+
   return main;
 }
 
@@ -284,6 +284,156 @@ function addressAccessibilityIssues(insightReport) {
   console.log('Addressing accessibility issues from insight report:', insightReport);
 }
 
+// TODO: Implement function for generating a report based on accessibility issues
+/**
+ * Generates an accessibility report based on the current page's HTML and DOM
+ * @param {Object} options - Configuration options for the report
+ * @param {boolean} options.includeHtml - Whether to include HTML analysis in the report
+ * @param {boolean} options.includeDom - Whether to include DOM analysis in the report
+ * @returns {Object} The generated accessibility report
+ */
+function generateAccessibilityReport(options = { includeHtml: true, includeDom: true }) {
+    const report = {
+        timestamp: new Date().toISOString(),
+        issues: [],
+        summary: {
+            totalIssues: 0,
+            critical: 0,
+            serious: 0,
+            moderate: 0,
+            minor: 0
+        }
+    };
+
+    // HTML-based analysis
+    if (options.includeHtml && document.documentElement) {
+        const html = document.documentElement.outerHTML;
+
+        // Check for missing lang attribute
+        if (!/<html[^>]*\blang=/i.test(html)) {
+            report.issues.push({
+                type: 'missing-lang-attribute',
+                severity: 'critical',
+                message: 'HTML element is missing lang attribute',
+                selector: 'html'
+            });
+            report.summary.critical++;
+        }
+
+        // Check for tables without captions
+        const tableMatches = html.match(/<table[^>]*>/gi) || [];
+        const captionMatches = html.match(/<caption[^>]*>/gi) || [];
+        if (tableMatches.length > captionMatches.length) {
+            report.issues.push({
+                type: 'missing-table-caption',
+                severity: 'serious',
+                message: `${tableMatches.length - captionMatches.length} tables are missing captions`,
+                selector: 'table'
+            });
+            report.summary.serious += tableMatches.length - captionMatches.length;
+        }
+
+        // Check for SVGs without accessible names
+        const svgMatches = html.match(/<svg[^>]*>/gi) || [];
+        const accessibleSvgs = svgMatches.filter(svg => {
+            return /<title[^>]*>|aria-label=|aria-labelledby=/i.test(svg);
+        });
+        if (svgMatches.length > accessibleSvgs.length) {
+            report.issues.push({
+                type: 'inaccessible-svg',
+                severity: 'moderate',
+                message: `${svgMatches.length - accessibleSvgs.length} SVGs are missing accessible names`,
+                selector: 'svg'
+            });
+            report.summary.moderate += svgMatches.length - accessibleSvgs.length;
+        }
+    }
+
+    // DOM-based analysis
+    if (options.includeDom) {
+        // Check for links without text
+        const links = document.querySelectorAll('a[href]');
+        const emptyLinks = Array.from(links).filter(link => !link.textContent.trim());
+        if (emptyLinks.length > 0) {
+            report.issues.push({
+                type: 'empty-link',
+                severity: 'serious',
+                message: `${emptyLinks.length} links have no accessible text`,
+                selector: 'a[href]',
+                count: emptyLinks.length
+            });
+            report.summary.serious += emptyLinks.length;
+        }
+
+        // Check for images without alt text
+        const images = document.querySelectorAll('img');
+        const imagesWithoutAlt = Array.from(images).filter(img => !img.getAttribute('alt'));
+        if (imagesWithoutAlt.length > 0) {
+            report.issues.push({
+                type: 'missing-alt-text',
+                severity: 'serious',
+                message: `${imagesWithoutAlt.length} images are missing alt text`,
+                selector: 'img',
+                count: imagesWithoutAlt.length
+            });
+            report.summary.serious += imagesWithoutAlt.length;
+        }
+
+        // Check for ARIA attributes without corresponding elements
+        const ariaElements = document.querySelectorAll('[aria-labelledby], [aria-describedby]');
+        Array.from(ariaElements).forEach(element => {
+            const labelledBy = element.getAttribute('aria-labelledby');
+            const describedBy = element.getAttribute('aria-describedby');
+
+            if (labelledBy && !document.getElementById(labelledBy)) {
+                report.issues.push({
+                    type: 'invalid-aria-labelledby',
+                    severity: 'serious',
+                    message: `Element with aria-labelledby="${labelledBy}" references non-existent ID`,
+                    selector: `[aria-labelledby="${labelledBy}"]`
+                });
+                report.summary.serious++;
+            }
+
+            if (describedBy && !document.getElementById(describedBy)) {
+                report.issues.push({
+                    type: 'invalid-aria-describedby',
+                    severity: 'serious',
+                    message: `Element with aria-describedby="${describedBy}" references non-existent ID`,
+                    selector: `[aria-describedby="${describedBy}"]`
+                });
+                report.summary.serious++;
+            }
+        });
+
+        // Check for duplicate landmarks
+        const landmarkSelectors = [
+            'header', 'nav', 'main', 'aside', 'footer',
+            '[role="banner"]', '[role="navigation"]', '[role="main"]',
+            '[role="complementary"]', '[role="contentinfo"]'
+        ];
+
+        landmarkSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            if (elements.length > 1) {
+                report.issues.push({
+                    type: 'duplicate-landmark',
+                    severity: 'serious',
+                    message: `Multiple elements found for landmark ${selector}`,
+                    selector: selector,
+                    count: elements.length
+                });
+                report.summary.serious += elements.length - 1;
+            }
+        });
+    }
+
+    // Update summary totals
+    report.summary.totalIssues = report.issues.length;
+
+    return report;
+}
+
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
     button.id = buttonId;
@@ -307,7 +457,8 @@ module.exports = {
     createInPageButton,
     divide,
     checkLinkAccessibility,
-    wrapPrimaryContentInMain
+    wrapPrimaryContentInMain,
+    generateAccessibilityReport
 };
 
 // Run if executed directly

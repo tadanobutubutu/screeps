@@ -147,6 +147,83 @@ const accessibilityUtils = {
   // Function to handle accessibility issues
   handleAccessibilityIssues: function(container, report) {
     // Implementation to handle accessibility issues
+  },
+
+  // New function to validate and fix form accessibility
+  validateAndFixFormAccessibility: function(form) {
+    if (!form || form.tagName.toLowerCase() !== 'form') {
+      return false;
+    }
+
+    // Ensure form has a proper role
+    if (!form.getAttribute('role')) {
+      form.setAttribute('role', 'form');
+    }
+
+    // Check for required labels
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+      const id = input.id;
+      if (id) {
+        const label = form.querySelector(`label[for="${id}"]`);
+        if (!label) {
+          // Create implicit label if missing
+          input.setAttribute('aria-label', input.placeholder || 'Input field');
+        }
+      } else {
+        // Generate ID if missing
+        input.id = `input-${Math.random().toString(36).substr(2, 9)}`;
+      }
+    });
+
+    // Check for submit button
+    const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
+    if (!submitButton) {
+      const newButton = document.createElement('button');
+      newButton.type = 'submit';
+      newButton.textContent = 'Submit';
+      form.appendChild(newButton);
+    }
+
+    return true;
+  },
+
+  // New function to validate and fix link accessibility
+  validateAndFixLinkAccessibility: function(link) {
+    if (!link || link.tagName.toLowerCase() !== 'a') {
+      return false;
+    }
+
+    // Ensure link has proper text content
+    if (!link.textContent.trim()) {
+      link.textContent = link.getAttribute('aria-label') || 'Link';
+    }
+
+    // Ensure link has href or role
+    if (!link.getAttribute('href') && !link.getAttribute('role')) {
+      link.setAttribute('role', 'button');
+    }
+
+    return true;
+  },
+
+  // New function to validate and fix button accessibility
+  validateAndFixButtonAccessibility: function(button) {
+    if (!button || (button.tagName.toLowerCase() !== 'button' && !button.getAttribute('role') !== 'button')) {
+      return false;
+    }
+
+    // Ensure button has proper text content
+    if (!button.textContent.trim()) {
+      button.textContent = button.getAttribute('aria-label') || 'Button';
+    }
+
+    // Ensure button has type attribute
+    if (!button.getAttribute('type')) {
+      button.setAttribute('type', 'button');
+    }
+
+    return true;
   }
 };
 
@@ -196,6 +273,19 @@ function initAccessibility() {
       });
     });
   }
+
+  // Apply accessibility fixes to all forms, links, and buttons
+  document.querySelectorAll('form').forEach(form => {
+    accessibilityUtils.validateAndFixFormAccessibility(form);
+  });
+
+  document.querySelectorAll('a').forEach(link => {
+    accessibilityUtils.validateAndFixLinkAccessibility(link);
+  });
+
+  document.querySelectorAll('button').forEach(button => {
+    accessibilityUtils.validateAndFixButtonAccessibility(button);
+  });
 }
 
 // New function: validateTableAccessibility
@@ -312,7 +402,7 @@ function transformInputData(inputData, options = {}) {
   if (typeof inputData === 'object' && !Array.isArray(inputData) && inputData !== null) {
     const result = {};
     const keys = preserveKeys ? Object.keys(inputData) : Object.keys(inputData).map(() => Math.random().toString(36).substr(2, 9));
-    
+
     let i = 0;
     for (const key of Object.keys(inputData)) {
       const value = inputData[key];

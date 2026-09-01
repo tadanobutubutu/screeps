@@ -30,15 +30,15 @@ function getFullLangAttribute() {
  */
 function validateTableAccessibility(table) {
   const issues = [];
-  
+
   if (!table.headers) {
     issues.push('Missing headers attribute');
   }
-  
+
   if (!table.scope) {
     issues.push('Missing scope attribute');
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -52,7 +52,7 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(tables) {
   const allIssues = [];
-  
+
   tables.forEach((table, index) => {
     const result = validateTableAccessibility(table);
     if (!result.success) {
@@ -62,7 +62,7 @@ function validateTableStructure(tables) {
       });
     }
   });
-  
+
   return {
     success: allIssues.length === 0,
     issues: allIssues
@@ -77,13 +77,13 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  
+
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -97,7 +97,7 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure(landmarks) {
   const issues = [];
-  
+
   landmarks.forEach((landmark, index) => {
     const result = validateLandmark(landmark);
     if (!result.success) {
@@ -107,7 +107,7 @@ function validateLandmarkStructure(landmarks) {
       });
     }
   });
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -122,7 +122,7 @@ function validateLandmarkStructure(landmarks) {
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
-  
+
   landmarks.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
@@ -131,7 +131,7 @@ function ensureUniqueLandmarks(landmarks) {
       names.push(name);
     }
   });
-  
+
   return {
     success: duplicates.length === 0,
     duplicates
@@ -200,7 +200,7 @@ function createAccessibleLink(options) {
 function handleAccessibilityIssues(issues) {
   const handled = [];
   const unhandled = [];
-  
+
   issues.forEach(issue => {
     if (issue.fixable) {
       handled.push(issue);
@@ -208,12 +208,78 @@ function handleAccessibilityIssues(issues) {
       unhandled.push(issue);
     }
   });
-  
+
   return {
     total: issues.length,
     handled: handled.length,
     unhandled: unhandled.length,
     unhandledIssues: unhandled
+  };
+}
+
+/**
+ * Adds lang attribute to HTML element
+ * @param {Object} element - The HTML element to modify
+ * @returns {Object} The modified element with lang attribute
+ */
+function addLangAttribute(element) {
+  return {
+    ...element,
+    lang: getFullLangAttribute()
+  };
+}
+
+/**
+ * Fixes table structure issues
+ * @param {Array} tables - Array of tables to fix
+ * @returns {Array} Array of fixed tables
+ */
+function fixTableStructureIssues(tables) {
+  return tables.map(table => ({
+    ...table,
+    headers: table.headers || true,
+    scope: table.scope || 'col'
+  }));
+}
+
+/**
+ * Adds main landmark to the document
+ * @param {Object} document - The document object
+ * @returns {Object} The document with main landmark added
+ */
+function addMainLandmark(document) {
+  return {
+    ...document,
+    landmarks: [
+      ...document.landmarks,
+      { tagName: 'main', role: 'main' }
+    ]
+  };
+}
+
+/**
+ * Adds accessible names to SVGs
+ * @param {Array} svgs - Array of SVG elements
+ * @returns {Array} Array of SVGs with accessible names
+ */
+function addSvgAccessibleNames(svgs) {
+  return svgs.map(svg => ({
+    ...svg,
+    ariaLabel: svg.ariaLabel || getSvgAccessibleName(svg)
+  }));
+}
+
+/**
+ * Fixes fake link issues
+ * @param {Object} link - The link element to fix
+ * @returns {Object} The fixed link element
+ */
+function fixFakeLinkIssue(link) {
+  return {
+    ...link,
+    isFake: false,
+    href: link.href || '#',
+    role: link.role || 'link'
   };
 }
 
@@ -229,5 +295,10 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue
 };

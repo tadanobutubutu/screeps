@@ -1,19 +1,45 @@
 // Import the new modules (from HEAD)
-import React from 'react';
-import { render } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-import { WindowContext } from 'react-open-window';
+import React from 'react'
+import { render } from '@testing-library/react'
+import '@testing-library/jest-dom/extend-expect'
+import { WindowContext } from 'react-open-window'
 
 // CommonJS requires (from origin/main)
-const main = require('./utilities');
-const { requireDir } = require('require-dir');
-requireDir(require.resolve('./utilities'));
+const main = require('./utilities')
+const { requireDir } = require('require-dir')
+requireDir(require.resolve('./utilities'))
 
 // Import all utilities functions for convenience
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport,
-  addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderGraphIndex, renderDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderGraphIndex,
+  renderDependencyGraphAria,
+  addMainLandmarkToIndex,
+  addressAccessibilityIssues
+} = main
 
-const http = require('http');
+const http = require('http')
 
 // Find the relevant rendering functions, that's where we might add the new modules.
 // We'll assume there are two relevant functions, `renderMyComponent` and `renderAnotherComponent`.
@@ -22,7 +48,7 @@ const http = require('http');
 // ...
 
 // Add the new module usage to renderMyComponent
-function renderMyComponent(props) {
+function renderMyComponent (props) {
   // use the imported React module here and other necessary work
   // ...
 }
@@ -31,7 +57,7 @@ function renderMyComponent(props) {
 // ...
 
 // Add the new module usage to renderAnotherComponent
-function renderAnotherComponent(props) {
+function renderAnotherComponent (props) {
   // use the imported React module, Testing Library, and WindowContext here and other necessary work
   // ...
 
@@ -40,25 +66,25 @@ function renderAnotherComponent(props) {
   return (
     <WindowContext>
       {(window) => (
-        <React.Fragment>
+        <>
           {/* render the component as it was before */}
           {originalRenderAnotherComponent(props, window)}
-        </React.Fragment>
+        </>
       )}
     </WindowContext>
-  );
+  )
 }
 
 // Accessibility function (merged from both branches)
-function setSvgAccessibleProps(svg) {
-  addSvgAccessibleNames(svg); // From branch HEAD
-  validateLandmarkStructure(svg); // From branch origin/main
-  const titleElement = main.getSvgAccessibleName(svg);
+function setSvgAccessibleProps (svg) {
+  addSvgAccessibleNames(svg) // From branch HEAD
+  validateLandmarkStructure(svg) // From branch origin/main
+  const titleElement = main.getSvgAccessibleName(svg)
   if (titleElement) {
-    svg.setAttribute('aria-labelledby', titleElement.id);
+    svg.setAttribute('aria-labelledby', titleElement.id)
   }
   if (!svg.getAttribute('role')) {
-    svg.setAttribute('role', 'img');
+    svg.setAttribute('role', 'img')
   }
 }
 
@@ -69,11 +95,11 @@ function setSvgAccessibleProps(svg) {
 // Other exports or functions in main.js might be unaffected
 
 // Export the new rendering functions
-export { renderMyComponent, renderAnotherComponent };
+export { renderMyComponent, renderAnotherComponent }
 
 // Exporting merged code (CommonJS)
 module.exports = {
   ...main,
   setSvgAccessibleProps,
   renderGraphIndex // Replace renderDependencyGraphs with renderGraphIndex
-};
+}

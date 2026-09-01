@@ -85,7 +85,6 @@ function addProperLandmarkRegions() {
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-=======
 
 // Main JavaScript file
 // This file handles the main application logic
@@ -368,7 +367,7 @@ function addProperLandmarkRegions() {
             if (!issues || !Array.isArray(issues)) {
                 return [];
             }
-            
+
             return issues.map(issue => {
                 return {
                     id: issue.id,
@@ -394,11 +393,11 @@ function addProperLandmarkRegions() {
           totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
           details: report
         };
-        
+
         // Store harvested data for potential upgrades
         const harvestFile = path.join(__dirname, 'harvest_data.json');
         fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-        
+
         return harvestedData;
       } catch (error) {
         console.error('Harvest failed:', error);
@@ -471,6 +470,38 @@ function addProperLandmarkRegions() {
       return { harvested, upgraded };
     }
 
+    // Function to address new accessibility issues from insight report
+    function addressNewAccessibilityIssues() {
+      // Implementation for addressing new accessibility issues
+      // This function will handle the specific issues mentioned in the insight report
+
+      // 1. Add lang attribute to HTML element
+      const htmlElement = document.documentElement;
+      if (htmlElement && !htmlElement.hasAttribute('lang')) {
+        htmlElement.setAttribute('lang', getLangAttribute());
+      }
+
+      // 2. Fix table structure issues
+      validateTableStructure();
+      validateTableAccessibility();
+
+      // 3. Add accessible names to SVGs
+      getSvgAccessibleName();
+      setSvgAttributes();
+
+      // 4. Ensure unique landmarks
+      ensureUniqueLandmarks();
+
+      // 5. Fix fake link issues
+      handleFakeLinks();
+      validateLinkAccessibility();
+
+      // 6. Add proper landmark regions
+      addProperLandmarkRegions();
+
+      console.log('New accessibility issues addressed successfully');
+    }
+
     // Call the function to address accessibility issues
     addressAccessibilityIssues();
     createInPageButton();
@@ -511,6 +542,7 @@ function addProperLandmarkRegions() {
       checkLinkAccessibility,
       writeReport,
       scanAccessibility,
+      addressNewAccessibilityIssues, // Add the new function to exports
       ...accessibilityUtils
     };
 
@@ -543,6 +575,9 @@ function addProperLandmarkRegions() {
 
         // Fix 1 fake link issue
         fixFakeLink();
+
+        // Address new accessibility issues from insight report
+        addressNewAccessibilityIssues();
 
         // Initialize accessibility features from a11y utilities
         if (a11y && a11y.init) {

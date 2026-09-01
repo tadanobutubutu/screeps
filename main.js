@@ -13,7 +13,7 @@ import { isSecureContext } from './utils.js';
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
@@ -311,7 +311,7 @@ function getSvgAccessibleName(svgElement) {
  * @param {SVGElement} svg - The SVG element.
  * @param {string} name - The accessible name to set.
  */
-function setSvgAttributes(svgElement, name) {
+function setSvgAccessibilityProps(svgElement, name) {
   if (!svgElement || svgElement.tagName !== 'svg') {
     return false;
   }
@@ -541,7 +541,7 @@ function addressAccessibilityIssues(insightReport) {
         // Add accessible names to SVGs
         if (issue.svg) {
           const accessibleName = getSvgAccessibleName(issue.svg);
-          setSvgAttributes(issue.svg, accessibleName);
+          setSvgAccessibilityProps(issue.svg, accessibleName);
         }
         break;
       case 'REACT_025':
@@ -615,7 +615,7 @@ module.exports = {
   validateLandmarkStructure,
   validateLandmarkAttributes,
   getSvgAccessibleName,
-  setSvgAttributes,
+  setSvgAccessibilityProps,
   ensureUniqueLandmarks,
   createInPageButton,
   validateLinkAccessibility,

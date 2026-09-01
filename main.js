@@ -62,6 +62,10 @@ function setSvgAccessibleProps(svg) {
   }
 }
 
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report
+// ----- END ORIGINAL CODE -----
+
 // Other exports or functions in main.js might be unaffected
 
 // Export the new rendering functions

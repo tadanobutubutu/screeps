@@ -57,6 +57,13 @@ import effectorSW from 'effector-sw';
 // Ensure accessibility attributes are set when adding a book
 ensureAccessibilityAttributesForAddBook();
 
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// More existing code that should be preserved
+// Existing code ends here
+
 function initializeApp() {
   appState.initialized = true;
   console.log('Initializing application...');

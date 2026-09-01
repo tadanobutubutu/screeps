@@ -1,238 +1,133 @@
-// Helper function to validate landmark structure
-function isValidLandmark(landmark) {
-    return landmark &&
-           typeof landmark.id !== 'undefined' &&
-           landmark.id !== null;
-}
+We need to resolve the conflict. The file has two sections separated by conflict markers. The HEAD version contains many function stubs and module exports, while the origin/main version contains implementations for loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks, writeReport, generateAccessibilityReport, and also module.exports with many more functions.
 
-function getLangAttribute() {
-  // Implementation for getting lang attribute
-}
+We need to merge them meaningfully. Likely we need to keep both sets of functions, but resolve duplication: there are duplicate function names (fixTableStructure vs fixTableAccessibility). In HEAD, there is function fixTableStructure (starting at "function fixTableStructure (html) {") but it's incomplete. In origin/main, there is fixTableAccessibility function, which seems more complete. Also there are duplicate module.exports entries; we need to combine them, avoiding duplication. The HEAD export includes many functions, but origin/main also includes many functions and config.
 
-function addLangAttribute() {
-  // Implementation for adding lang attribute
-}
+We need to produce a resolved file with no conflict markers, logically integrating both changes.
 
-function validateTableAccessibility() {
-  // Implementation for validating table accessibility
-}
+Approach: Combine the code:
 
-function validateTableStructure() {
-  // Implementation for validating table structure
-}
+- Keep the initial require statements and CONFIG.
 
-function fixTableStructure() {
-  // Implementation for fixing table structure
-}
+- Keep isValidLandmark function.
 
-function addMainLandmark() {
-  // Implementation for adding main landmark
-}
+- Keep the stub functions defined in HEAD (getLangAttribute, addLangAttribute, validateTableAccessibility, etc.) but maybe they are placeholders; we can keep them as is (maybe they are intended to be implemented later). However origin/main introduces new functions (loadLandmarks, processLandmarks, etc.) which likely replace some of those stubs.
 
-function validateLandmark() {
-  // Implementation for validating landmark
-}
+We need to see which functions are overlapping. For example, in HEAD there is function fixTableStructure (incomplete). In origin/main there is fixTableAccessibility (different name). They are separate; maybe we keep both but rename to avoid conflict? Or we could integrate: maybe fixTableStructure should be implemented using the logic from fixTableAccessibility. But they have different signatures: fixTableStructure takes html string; fixTableAccessibility works on document elements. They serve different purposes. So we keep both.
 
-function validateLandmarkStructure() {
-  // Implementation for validating landmark structure
-}
+Also there is duplicate module.exports: HEAD exports a set of functions, origin/main exports a much larger set including config, appState, initializeApp, etc. We need to merge the exports: maybe combine into a single object, ensuring no duplicate keys. Since both sides have some overlapping names (e.g., validateTableStructure, fixTableStructure, addMainLandmark, validateLandmark, etc.). We need to decide which one to keep. Probably we keep the more complete definitions from origin/main, and retain the stub functions from HEAD that are not otherwise defined.
 
-function validateLandmarkAttributes() {
-  // Implementation for validating landmark attributes
-}
+But the HEAD also defines functions like getLangAttribute, addLangAttribute, etc., which are not present in origin/main. Those likely need to stay.
 
-function getSvgAccessibleName() {
-  // Implementation for getting SVG accessible name
-}
+Thus we need to merge the two export objects: maybe create a combined exports object that includes all functions from both, but avoid duplicate names. If duplicate names exist, we need to decide which implementation to keep. Let's list duplicate names:
 
-function setSvgAttributes() {
-  // Implementation for setting SVG attributes
-}
+- validateTableStructure: present in HEAD (stub) and origin/main (function fixTableAccessibility? Actually origin/main defines fixTableAccessibility, not validateTableStructure. Wait, origin/main includes function fixTableAccessibility, not validateTableStructure. HEAD includes validateTableStructure (stub). So they are different names; no conflict.
 
-function ensureUniqueLandmarks() {
-  // Implementation for ensuring unique landmarks
-}
+- fixTableStructure: HEAD defines function fixTableStructure (html) { ... incomplete }. origin/main defines fixTableAccessibility (different name). So no conflict.
 
-function createInPageButton() {
-  // Implementation for creating in-page button
-}
+- addMainLandmark: HEAD stub, origin/main not present. Keep stub.
 
-function validateLinkAccessibility() {
-  // Implementation for validating link accessibility
-}
+- validateLandmark: HEAD stub, origin/main not present. Keep stub.
 
-function handleFakeLinks() {
-  // Implementation for handling fake links
-}
+- validateLandmarkStructure: HEAD stub, origin/main not present. Keep stub.
 
-function addProperLandmarkRegions() {
-  // Implementation for adding proper landmark regions
-}
+- validateLandmarkAttributes: HEAD stub, origin/main not present. Keep stub.
 
-module.exports = {
-  addressAccessibilityIssues,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions
-};
+- getSvgAccessibleName: HEAD stub, origin/main not present. Keep stub.
 
-=======
+- setSvgAttributes: HEAD stub, origin/main not present. Keep stub.
 
-// Function to process and filter landmarks
-function processLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
+- ensureUniqueLandmarks: HEAD stub, origin/main defines ensureUniqueLandmarks (full). So we need to replace HEAD stub with origin/main implementation (since it's actual code). That's fine.
 
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+- createInPageButton: HEAD stub, origin/main defines createAccessibleLinks which uses createInPageButton. But createInPageButton itself is a stub in HEAD; we need to keep it (maybe implement later). But origin/main's createAccessibleLinks uses createInPageButton, so we need to keep that stub or implement. Since we are merging, we keep the stub as is.
 
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
-}
+- validateLinkAccessibility: HEAD stub, origin/main defines createAccessibleLinks which uses validateLinkAccessibility; but origin/main also defines validateLinkAccessibility? Not shown. There's a function validateLinkAccessibility in HEAD stub, and origin/main maybe not. Keep stub.
 
-// Function to sort landmarks by name
-function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
+- handleFakeLinks: HEAD stub, origin/main not present. Keep stub.
 
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(nameA);
-    });
-}
+- addProperLandmarkRegions: HEAD stub, origin/main defines addProperLandmarkRegions (maybe). Actually origin/main includes addProperLandmarkRegions in module.exports, but not the function body. It may be defined elsewhere. Keep stub.
 
-// Ensure unique landmarks by ID
-function ensureUniqueLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
+- generateAccessibilityReport: origin/main defines this function (full). HEAD does not have it. Keep it.
 
-    const seen = new Set();
-    const uniqueLandmarks = [];
+- loadLandmarks: origin/main defines this function (full). HEAD does not have it. Keep it.
 
-    for (const landmark of landmarks) {
-        if (!landmark || typeof landmark.id === 'undefined') {
-            continue;
-        }
+- processLandmarks: origin/main defines this function (full). HEAD does not have it. Keep it.
 
-        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+- sortLandmarks: origin/main defines this function (full). HEAD does not have it. Keep it.
 
-        if (!seen.has(landmarkId)) {
-            seen.add(landmarkId);
-            uniqueLandmarks.push(landmark);
-        }
-    }
+- getLandmarkById: origin/main defines this function (full). HEAD does not have it. Keep it.
 
-    return uniqueLandmarks;
-}
+- writeReport: origin/main defines this function (full). HEAD does not have it. Keep it.
 
-// Function to scan accessibility using axe-core
-function scanAccessibility() {
-  // This is a simplified example - in a real application you would:
-  // 1. Load the HTML content to scan
-  // 2. Use axe.run() to analyze the page
-  // 3. Return the results
+- scanAccessibility: origin/main defines placeholder for scanning. HEAD does not have it. Keep it.
 
-  // Placeholder implementation
-  const mockResults = {
-    violations: [],
-    passes: [],
-    incomplete: [],
-    inapplicable: [],
-    timestamp: new Date().toISOString()
-  };
+- The module.exports in HEAD includes many functions (including those stubs). origin/main includes a large object with many functions, config, appState, initializeApp, etc. We need to merge these.
 
-  // In a real implementation, you would use:
-  // return axe.run(document, {
-  //   runOnly: {
-  //     type: 'tag',
-  //     values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']
-  //   }
-  // });
+Probably we should create a single exports object that includes all functions from both sides. But we need to avoid duplicate keys. Let's list all keys from HEAD exports:
 
-  return mockResults;
-}
+From HEAD:
 
-// Function to generate an accessibility report
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
-}
+addressAccessibilityIssues,
+getLangAttribute,
+addLangAttribute,
+validateTableAccessibility,
+validateTableStructure,
+fixTableStructure,
+addMainLandmark,
+validateLandmark,
+validateLandmarkStructure,
+validateLandmarkAttributes,
+getSvgAccessibleName,
+setSvgAttributes,
+ensureUniqueLandmarks,
+createInPageButton,
+validateLinkAccessibility,
+handleFakeLinks,
+addProperLandmarkRegions
 
-// Utility functions
-const validateInput = require('./validateInput');
-const processData = require('./processData');
-const formatResponse = require('./formatResponse');
+Also maybe other functions like addressAccessibilityIssues (not shown earlier). That's all.
 
-// Export new necessary functions
-module.exports = {
-  validateInput,
-  processData,
-  formatResponse,
-  config: CONFIG,
-  // landmark functions
-  isValidLandmark,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  ensureUniqueLandmarks,
-  landmarkConfig: CONFIG,
-  generateAccessibilityReport,
-  scanAccessibility,
-  writeReport
-};
+From origin/main exports:
 
-// Main execution when run directly
-if (require.main === module) {
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-  const sorted = sortLandmarks(processed);
+config,
+appState,
+initializeApp,
+processData,
+fetchUser,
+clearCache,
+initialize,
+validateInput,
+addressAccessibilityIssues,
+processAccessibilityReport,
+getLangAttribute,
+addLangAttribute,
+validateTableAccessibility,
+validateTableStructure,
+fixTableStructure,
+addMainLandmark,
+validateLandmark,
+validateLandmarkStructure,
+validateLandmarkAttributes,
+getSvgAccessibleName,
+setSvgAttributes,
+ensureUniqueLandmarks,
+createInPageButton,
+validateLinkAccessibility,
+handleFakeLinks,
+addLandmarkRegions,
+addProperLandmarkRegions,
+fixTableAccessibility,
+fixLandmarkIssues,
+addSvgAccessibility,
+createAccessibleLinks,
+formatResponse,
+generateAccessibilityReport,
+loadLandmarks,
+processLandmarks,
+sortLandmarks,
+getLandmarkById,
+CONFIG,
+someFunction,
+helper,
+formatDate
 
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
-
-  if (sorted.length > 0) {
-    console.log('First landmark:', sorted[0]);
-  }
-}
-
-// Accessibility-related functions
-// TODO: This is the existing code that needs to be preserve
-// (This comment remains as-is)
-
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
-function addLangAttribute (html, lang = 'en') {
-  if (typeof html !== 'string') return html
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-    if (/\blang=/i.test(match)) return match
-    return `<html${attrs} lang="${lang}">`
-  })
-}
-
-// REACT_027: Fix table structure issues (add thead, tbody, th scope, caption)
-function fixTableStructure (html) {
-  if (typeof html !== 'string') return html
-
-  // Ensure every table has a caption
-  html = html.replace(/<table([^>]*)>/gi, (match, attrs) => {
-    if (/<caption/i.test(match)) return match
-    return `<table${attrs}
+Note that many of these overlap with HEAD exports (e.g., getLangAttribute, addLangAttribute, validateTableAccessibility, validateTableStructure, fixTableStructure, addMainLandmark, validateLandmark, validateLandmark being

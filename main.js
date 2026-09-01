@@ -1,5 +1,5 @@
 // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
-// TODO: Address accessibility issues from insight report:
+// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
 // - REACT_015: Add lang attribute to HTML element (typically in index.html, not main.js)
 // - REACT_017: Add landmark roles and fix landmark issues
 // - REACT_041: Add accessible names to 2 SVGs

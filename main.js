@@ -43,17 +43,18 @@ function addressAccessibilityIssues(insightReport) {
 /* Accessibility Validator and Utilities */
 
 const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form'];
-const LANDMARK_SELECTORS = LANDMARK_ELEMENTS.map(el => el).join(', ');
+const LANDMARK_SELECTORS = LANDMARK_ELEMENTS.map(tag => tag).join(', ');
 
 function findLandmarks(context = document) {
     const landmarks = [];
-    LANDMARK_ELEMENTS.forEach(tag => {
-        const elements = context.querySelectorAll(tag);
-        elements.forEach(el => landmarks.push({
-            tag: tag,
+    const elements = context.querySelectorAll(LANDMARK_SELECTORS);
+    elements.forEach(el => {
+        landmarks.push({
+            tag: el.tagName.toLowerCase(),
             element: el,
+            id: el.id || null,
             label: el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || null
-        }));
+        });
     });
     return landmarks;
 }
@@ -102,6 +103,7 @@ function validateLandmarkStructure(context = document) {
     forms.forEach((form, index) => {
         const hasLabel = form.getAttribute('aria-label') || 
                          form.getAttribute('aria-labelledby') ||
+                         form.getAttribute('title') ||
                          form.querySelector('legend');
         if (!hasLabel && form.querySelectorAll('input, select, textarea').length > 0) {
             issues.push({
@@ -116,7 +118,8 @@ function validateLandmarkStructure(context = document) {
     const navElements = context.querySelectorAll('nav');
     navElements.forEach((nav, index) => {
         const hasLabel = nav.getAttribute('aria-label') || 
-                         nav.getAttribute('aria-labelledby');
+                         nav.getAttribute('aria-labelledby') ||
+                         nav.getAttribute('title');
         const isMultipleNav = navElements.length > 1 && !hasLabel;
         if (isMultipleNav) {
             issues.push({
@@ -130,7 +133,7 @@ function validateLandmarkStructure(context = document) {
     // Check for proper header/footer usage
     const headers = context.querySelectorAll('header');
     headers.forEach((header, index) => {
-        if (header.closest('main') && !header.closest('article')) {
+        if (header.closest('main') && !header.closest('article') && !header.getAttribute('aria-label')) {
             issues.push({
                 type: 'info',
                 code: 'HEADER_NESTING',
@@ -177,7 +180,7 @@ function getLandmarkSummary(context = document) {
         infos.forEach(i => summary.push(`  • ${i.message}`));
     }
     
-    summary.push(`Validation ${result.isValid ? 'PASSED' : 'FAILED'}`);
+    summary.push(`Validation: ${result.isValid ? 'PASSED' : 'FAILED'}`);
     
     return summary.join('\n');
 }
@@ -202,7 +205,7 @@ function divide(a, b) {
 /* New functions */
 function addLangAttribute() {
   const htmlElement = document.querySelector('html');
-  if (htmlElement) {
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en'); // Assuming English for this example
   }
 }

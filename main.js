@@ -53,6 +53,11 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('id')) {
     dependencyGraph.setAttribute('id', 'dependencyGraph');
   }
+
+  // Ensure the container is focusable if it's interactive
+  if (!dependencyGraph.getAttribute('tabindex')) {
+    dependencyGraph.setAttribute('tabindex', '0');
+  }
 }
 
 // Required changes to fix the React SVG Accessible Name issue

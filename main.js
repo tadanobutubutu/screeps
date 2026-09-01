@@ -170,7 +170,7 @@ function ensureUniqueLandmarks() {
     ...
     'footer[role="contentinfo"]'
   ].join(', '));
-  
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation
@@ -291,3 +291,94 @@ ensureUniqueLandmarks();
 const svg = ...
 const accessibleName = getSvgAccessibleName(svg);
 set
+
+// New functions for rendering graph/index as requested in the issue
+/**
+ * Renders a graph with the provided data and configuration
+ * @param {HTMLElement} container - The container element to render the graph in
+ * @param {Array} data - The data points to render
+ * @param {Object} config - Configuration options for the graph
+ */
+function renderGraph(container, data, config) {
+  // Implementation for rendering graph
+  if (!container || !data || !config) return;
+
+  // Clear previous content
+  container.innerHTML = '';
+
+  // Create SVG element
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', config.width || '100%');
+  svg.setAttribute('height', config.height || '400');
+
+  // Add graph elements based on data
+  // This is a simplified example - actual implementation would depend on graph type
+  data.forEach((point, index) => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', (index * 50) + 30);
+    circle.setAttribute('cy', 200 - (point * 2));
+    circle.setAttribute('r', 5);
+    circle.setAttribute('fill', config.color || '#4285F4');
+    svg.appendChild(circle);
+  });
+
+  container.appendChild(svg);
+}
+
+/**
+ * Renders an index/legend for the graph
+ * @param {HTMLElement} container - The container element to render the index in
+ * @param {Array} items - The items to include in the index
+ */
+function renderGraphIndex(container, items) {
+  // Implementation for rendering graph index
+  if (!container || !items) return;
+
+  // Clear previous content
+  container.innerHTML = '';
+
+  // Create index container
+  const indexContainer = document.createElement('div');
+  indexContainer.className = 'graph-index';
+
+  // Add index items
+  items.forEach(item => {
+    const itemElement = document.createElement('div');
+    itemElement.className = 'graph-index-item';
+
+    const colorBox = document.createElement('span');
+    colorBox.className = 'graph-index-color';
+    colorBox.style.backgroundColor = item.color || '#4285F4';
+
+    const label = document.createElement('span');
+    label.className = 'graph-index-label';
+    label.textContent = item.label;
+
+    itemElement.appendChild(colorBox);
+    itemElement.appendChild(label);
+    indexContainer.appendChild(itemElement);
+  });
+
+  container.appendChild(indexContainer);
+}
+
+// Update the existing function using the new functions for rendering graph/index
+// Assuming newFunction is meant to be used to update the rendering of graph/index
+function updateGraphRendering(containerId, data, config, indexItems) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  // Split container into graph and index areas if needed
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'graph-container';
+
+  const indexContainer = document.createElement('div');
+  indexContainer.className = 'graph-index-container';
+
+  container.appendChild(graphContainer);
+  container.appendChild(indexContainer);
+
+  // Render graph and index using the new functions
+  renderGraph(graphContainer, data, config);
+  renderGraphIndex(indexContainer, indexItems);
+}

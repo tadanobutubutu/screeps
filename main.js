@@ -12,6 +12,66 @@ const path = require('path');
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
+// 73: // TODO: Implement function for generating a report based on accessibility issues
+function generateAccessibilityReport() {
+  const issues = [];
+  
+  // Check for lang attribute on HTML element
+  if (typeof document !== 'undefined' && document.documentElement) {
+    const htmlElement = document.documentElement;
+    const lang = htmlElement.getAttribute('lang') || htmlElement.getAttribute('xml:lang');
+    if (!lang) {
+      issues.push({
+        code: 'REACT_015',
+        message: 'HTML element is missing lang attribute',
+        severity: 'error',
+        element: 'html'
+      });
+    }
+  }
+  
+  // Check for accessible links
+  if (typeof document !== 'undefined') {
+    const links = document.querySelectorAll('a');
+    links.forEach((link, index) => {
+      if (!isLinkAccessible(link)) {
+        issues.push({
+          code: 'REACT_025',
+          message: `Link at index ${index} is not accessible`,
+          severity: 'warning',
+          element: link.tagName.toLowerCase()
+        });
+      }
+    });
+    
+    // Check interactive elements for accessible names
+    const interactiveElements = document.querySelectorAll('button, [role="button"], input, select, textarea');
+    interactiveElements.forEach((element, index) => {
+      const hasAriaLabel = element.getAttribute && element.getAttribute('aria-label');
+      const hasAriaLabelledby = element.getAttribute && element.getAttribute('aria-labelledby');
+      const hasText = element.textContent && element.textContent.trim().length > 0;
+      
+      if (!hasAriaLabel && !hasAriaLabelledby && !hasText) {
+        issues.push({
+          code: 'REACT_025',
+          message: `Interactive element at index ${index} is missing accessible name`,
+          severity: 'error',
+          element: element.tagName.toLowerCase()
+        });
+      }
+    });
+  }
+  
+  return {
+    issues,
+    summary: {
+      totalIssues: issues.length,
+      errors: issues.filter(i => i.severity === 'error').length,
+      warnings: issues.filter(i => i.severity === 'warning').length
+    }
+  };
+}
+
 // Assuming 'addLangAttribute' is a function that has already been implemented
 function addLangAttribute() {
   if (typeof document !== 'undefined' && document.documentElement) {
@@ -231,5 +291,6 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraph,
   existingFunction,
-  personName
+  personName,
+  generateAccessibilityReport
 };

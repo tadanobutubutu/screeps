@@ -1,170 +1,203 @@
-// main.js
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-
-const fs = require('fs');
-const path = require('path');
-
-console.log('Main application starting...');
-
-/**
- * Gets the affected functions based on the provided configuration
- * @param {Object} config - Configuration object
- * @returns {Array} Array of affected functions
- */
-function getAffected(config) {
-  if (!config || !config.files) {
-    return [];
-  }
-  return config.files.filter(file => file.affected);
-}
-
-// TODO: Create or update the affected functions to be accessible
-// The functions below have been created to match the exported names
-
-/**
- * Process all affected files
- * @param {Array} files - Array of affected files
- * @returns {Array} Processed files
- */
-function processAffected(files) {
-  return files.map(file => ({
-    ...file,
-    processed: true
-  }));
-}
-
-/**
- * Get the status of affected functions
- * @returns {Object} Status object
- */
-function getStatus() {
-  return {
-    status: 'ready',
-    timestamp: new Date().toISOString()
-  };
-}
-
-/**
- * Initialize the main application
- */
-function initialize() {
-  return { initialized: true };
-}
-
-// Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+import React from 'react';
 
 // Utility functions for accessibility
 const accessibilityUtils = {
-  // Initialize skip link functionality for keyboard navigation
-  initSkipLink: function() {
-    const skipLink = document.getElementById('skip-link');
-    if (skipLink) {
-      skipLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        const targetId = skipLink.getAttribute('href').slice(1);
-        const target = document.getElementById(targetId);
-        if (target) {
-          target.setAttribute('tabindex', '-1');
-          target.focus();
+    initSkipLink: () => {
+        const skipLink = document.querySelector('#skip-link');
+        if (skipLink) {
+            skipLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = skipLink.getAttribute('href');
+                const target = document.querySelector(targetId);
+                if (target) {
+                    target.setAttribute('tabindex', '-1');
+                    target.focus();
+                }
+            });
         }
-      });
-    }
-  },
+    },
 
-  // Trap focus within an element (for modals, dialogs)
-  trapFocus: function(element) {
-    const focusableElements = element.querySelectorAll(
-      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
-    );
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
+    trapFocus: (element) => {
+        const focusableElements = element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
 
-    element.addEventListener('keydown', function(e) {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          lastElement.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
-          e.preventDefault();
+        element.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
+        });
+    },
+
+    announceToScreenReader: (message, priority = 'polite') => {
+        const announcer = document.createElement('div');
+        announcer.setAttribute('aria-live', priority);
+        announcer.setAttribute('aria-atomic', 'true');
+        announcer.className = 'sr-only';
+        announcer.style.position = 'absolute';
+        announcer.style.left = '-9999px';
+        announcer.textContent = message;
+        document.body.appendChild(announcer);
+        setTimeout(() => announcer.remove(), 1000);
+    },
+
+    handleKeyboardNav: (e, handlers) => {
+        const key = e.key;
+        if (handlers[key]) {
+            handlers[key](e);
         }
-      }
-    });
-  },
+    },
 
-  // Announce message to screen readers
-  announceToScreenReader: function(message, priority) {
-    if (priority === undefined) {
-      priority = 'polite';
+    // Get language attribute for HTML element
+    getLangAttribute: () => {
+        return document.documentElement.getAttribute('lang') || 'en';
+    },
+
+    // Validate table accessibility
+    validateTableAccessibility: (table) => {
+        // Check for proper table structure and ARIA attributes
+        if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+            console.warn('Table missing thead or tbody');
+            return false;
+        }
+        return true;
+    },
+
+    // Validate table structure
+    validateTableStructure: (table) => {
+        // Check for proper table structure
+        const rows = table.querySelectorAll('tr');
+        if (rows.length === 0) {
+            console.warn('Table has no rows');
+            return false;
+        }
+        return true;
+    },
+
+    // Validate landmark elements
+    validateLandmark: () => {
+        const landmarks = ['header', 'nav', 'main', 'footer'];
+        landmarks.forEach(landmark => {
+            const elements = document.querySelectorAll(landmark);
+            if (elements.length > 1) {
+                console.warn(`Multiple ${landmark} elements found`);
+            }
+        });
+    },
+
+    // Validate landmark structure
+    validateLandmarkStructure: () => {
+        const main = document.querySelector('main');
+        if (!main) {
+            console.warn('Main landmark missing');
+            return false;
+        }
+        return true;
+    },
+
+    // Get accessible name for SVG
+    getSvgAccessibleName: (svg) => {
+        const title = svg.querySelector('title');
+        const desc = svg.querySelector('desc');
+        if (title) return title.textContent;
+        if (desc) return desc.textContent;
+        return svg.getAttribute('aria-label') || 'SVG graphic';
+    },
+
+    // Create in-page button with proper accessibility attributes
+    createInPageButton: (text, href) => {
+        const button = document.createElement('a');
+        button.textContent = text;
+        button.href = href;
+        button.setAttribute('role', 'button');
+        button.setAttribute('tabindex', '0');
+        return button;
+    },
+
+    // Get person name with proper accessibility attributes
+    personName: (name) => {
+        const span = document.createElement('span');
+        span.textContent = name;
+        span.setAttribute('aria-label', name);
+        return span;
+    },
+
+    // New focus trap implementation
+    newFocusTrap: (element) => {
+        const focusableElements = element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Tab') {
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
+
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    lastElement.focus();
+                    e.preventDefault();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    firstElement.focus();
+                    e.preventDefault();
+                }
+            }
+        };
+
+        element.addEventListener('keydown', handleKeyDown);
+
+        return {
+            destroy: () => {
+                element.removeEventListener('keydown', handleKeyDown);
+            }
+        };
     }
-    const announcer = document.createElement('div');
-    announcer.setAttribute('role', 'status');
-    announcer.setAttribute('aria-live', priority);
-    announcer.setAttribute('aria-atomic', 'true');
-    announcer.className = 'sr-only';
-    announcer.style.position = 'absolute';
-    announcer.style.left = '-9999px';
-    announcer.textContent = message;
-    document.body.appendChild(announcer);
-    setTimeout(function() {
-      announcer.remove();
-    }, 1000);
-  },
-
-  // Handle keyboard navigation
-  handleKeyboardNav: function(e, handlers) {
-    const key = e.key;
-    if (handlers[key]) {
-      handlers[key](e);
-    }
-  },
-
-  // New function for focus trap
-  newFocusTrap: function() {
-    // New function implementation
-  }
 };
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
-function ensureElementId(element) {
-  if (element && !element.id) {
-    element.id = 'element-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-  }
-  return element;
+// New utility functions from origin/main
+function setHtmlLangAttribute(lang) {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.setAttribute('lang', lang || 'en');
+    }
+    return lang || 'en';
 }
 
-// Existing function
-function existingFunction() {
-  // Function implementation
+function addAriaLabel(element, label) {
+    if (!element) {
+        return;
+    }
+
+    if (typeof label !== 'string' || label.trim() === '') {
+        return element;
+    }
+
+    element.setAttribute('aria-label', label);
+    return element;
 }
 
-// TODO: Add exports for new functions if needed
+function ensureElementAccessibility(element, idPrefix, ariaLabel) {
+    if (!element) {
+        return;
+    }
 
-function renderDependencyGraph(data) {
-  // Implementation for rendering dependency graphs
-  return {
-    nodes: data.nodes || [],
-    edges: data.edges || []
-  };
+    const id = ensureElementHasId(element, idPrefix);
+    addAriaLabel(element, ariaLabel);
+
+    return id;
 }
 
-// Add back any required exports that might have been removed.
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
-function calculateSum(a, b) {
-  return a + b;
+function ensureElementHasId(element, prefix) {
+    if (!element.id) {
+        element.id = prefix + Math.random().toString(36).substr(2, 9);
+    }
+    return element.id;
 }
 
 // Credential response handling
@@ -188,13 +221,34 @@ async function handleCredentialResponse(response) {
   throw new Error('Invalid credential response');
 }
 
-// Existing utility functions
-function log(message, level) {
-  if (level === undefined) {
-    level = 'info';
-  }
-  const timestamp = new Date().toISOString();
-  console.log(timestamp + ' [' + level.toUpperCase() + ']: ' + message);
+// New focus trap function from origin/main
+function newFocusTrap() {
+    // New function implementation: traps focus within a given element
+    return (element) => {
+        if (!element) return;
+        const focusable = element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        element.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === first) {
+                    last.focus();
+                    e.preventDefault();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    first.focus();
+                    e.preventDefault();
+                }
+            }
+        });
+    };
+}
+
+function addLangAttribute() {
+    document.documentElement.setAttribute('lang', 'en');
 }
 
 // Export functionality with accessibility support
@@ -380,5 +434,51 @@ module.exports = {
   renderDependencyGraph: renderDependencyGraph,
   calculateSum: calculateSum,
   existingFunction: existingFunction,
-  transformInputData: transformInputData
+  transformInputData: transformInputData,
+  setHtmlLangAttribute,
+  ensureElementAccessibility,
+  ensureElementHasId,
+  addLangAttribute,
+  newFocusTrap,
+  getLangAttribute: accessibilityUtils.getLangAttribute,
+  personName: accessibilityUtils.personName,
+  validateTableAccessibility: accessibilityUtils.validateTableAccessibility,
+  validateTableStructure: accessibilityUtils.validateTableStructure,
+  validateLandmark: accessibilityUtils.validateLandmark,
+  validateLandmarkStructure: accessibilityUtils.validateLandmarkStructure,
+  getSvgAccessibleName: accessibilityUtils.getSvgAccessibleName,
+  createInPageButton: accessibilityUtils.createInPageButton,
+  trapFocus: accessibilityUtils.trapFocus,
+  announceToScreenReader: accessibilityUtils.announceToScreenReader,
+  handleKeyboardNav: accessibilityUtils.handleKeyboardNav
 };
+
+// Also attach to global scope for browser/standalone access
+if (typeof window !== 'undefined') {
+    window.accessibilityUtils = accessibilityUtils;
+    window.exportUtils = exportUtils;
+    window.initAccessibility = initAccessibility;
+    window.handleCredentialResponse = handleCredentialResponse;
+    window.ensureElementId = ensureElementId;
+    window.addAriaLabel = addAriaLabel;
+    window.renderDependencyGraph = renderDependencyGraph;
+    window.calculateSum = calculateSum;
+    window.existingFunction = existingFunction;
+    window.transformInputData = transformInputData;
+    window.setHtmlLangAttribute = setHtmlLangAttribute;
+    window.ensureElementAccessibility = ensureElementAccessibility;
+    window.ensureElementHasId = ensureElementHasId;
+    window.addLangAttribute = addLangAttribute;
+    window.newFocusTrap = newFocusTrap;
+    window.getLangAttribute = accessibilityUtils.getLangAttribute;
+    window.personName = accessibilityUtils.personName;
+    window.validateTableAccessibility = accessibilityUtils.validateTableAccessibility;
+    window.validateTableStructure = accessibilityUtils.validateTableStructure;
+    window.validateLandmark = accessibilityUtils.validateLandmark;
+    window.validateLandmarkStructure = accessibilityUtils.validateLandmarkStructure;
+    window.getSvgAccessibleName = accessibilityUtils.getSvgAccessibleName;
+    window.createInPageButton = accessibilityUtils.createInPageButton;
+    window.trapFocus = accessibilityUtils.trapFocus;
+    window.announceToScreenReader = accessibilityUtils.announceToScreenReader;
+    window.handleKeyboardNav = accessibilityUtils.handleKeyboardNav;
+}

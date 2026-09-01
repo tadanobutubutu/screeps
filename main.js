@@ -23,3 +23,46 @@ const renderGraphIndex = (graphData) => {
 // Example:
 // renderDependencyGraphs(graphData); // Before
 // renderGraphIndex(graphData); // After
+
+// New function for making API calls
+const makeApiCall = async (url, method = 'GET', data = null, headers = {}) => {
+  return new Promise((resolve, reject) => {
+    const options = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers
+      }
+    };
+
+    const req = http.request(url, options, (res) => {
+      let responseData = '';
+
+      res.on('data', (chunk) => {
+        responseData += chunk;
+      });
+
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          try {
+            resolve(JSON.parse(responseData));
+          } catch (e) {
+            resolve(responseData);
+          }
+        } else {
+          reject(new Error(`Request failed with status ${res.statusCode}: ${responseData}`));
+        }
+      });
+    });
+
+    req.on('error', (error) => {
+      reject(error);
+    });
+
+    if (data) {
+      req.write(JSON.stringify(data));
+    }
+
+    req.end();
+  });
+};

@@ -159,8 +159,80 @@ function focusTrap(element) {
   return element;
 }
 
-function newFocusTrap() {
-  // New function implementation
+/**
+ * Create a new focus trap with enhanced functionality.
+ * @param {HTMLElement} element - The element to trap focus within
+ * @param {Object} [options] - Configuration options for the focus trap
+ * @param {boolean} [options.initialFocus=false] - Whether to focus the first element automatically
+ * @param {boolean} [options.returnFocus=false] - Whether to return focus to the previously focused element when the trap is deactivated
+ * @returns {Object} An object with methods to activate and deactivate the focus trap
+ */
+function newFocusTrap(element, options = {}) {
+  if (!element) {
+    throw new Error('Element is required for focus trap');
+  }
+
+  let previousActiveElement = null;
+  let isActive = false;
+
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+
+  if (focusableElements.length === 0) {
+    console.warn('No focusable elements found in the focus trap container');
+    return {
+      activate: () => {},
+      deactivate: () => {}
+    };
+  }
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    } else if (e.key === 'Escape') {
+      // Optional: Add escape key handling if needed
+    }
+  };
+
+  const activate = () => {
+    if (isActive) return;
+
+    previousActiveElement = document.activeElement;
+    isActive = true;
+
+    if (options.initialFocus) {
+      firstElement.focus();
+    }
+
+    element.addEventListener('keydown', handleKeyDown);
+  };
+
+  const deactivate = () => {
+    if (!isActive) return;
+
+    isActive = false;
+    element.removeEventListener('keydown', handleKeyDown);
+
+    if (options.returnFocus && previousActiveElement) {
+      previousActiveElement.focus();
+    }
+  };
+
+  return {
+    activate,
+    deactivate,
+    isActive: () => isActive
+  };
 }
 
 /**

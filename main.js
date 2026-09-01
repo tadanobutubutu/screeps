@@ -111,10 +111,10 @@ addLangAttribute();
 function outputSafetyClassification(userMessage, assistantResponse) {
     // Classify user safety
     const userSafety = classifyUserSafety(userMessage);
-    
+
     // Output user safety
     console.log(`User Safety: ${userSafety}`);
-    
+
     // Output response safety only if assistant response is present
     if (assistantResponse) {
         const responseSafety = classifyResponseSafety(assistantResponse);
@@ -141,13 +141,13 @@ function classifyUserSafety(userMessage) {
         /harass/i,
         /threat/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(userMessage)) {
             return 'unsafe';
         }
     }
-    
+
     // Legitimate programming tasks are safe
     return 'safe';
 }
@@ -164,13 +164,13 @@ function classifyResponseSafety(assistantResponse) {
         /how.*hack/i,
         /create.*malware/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(assistantResponse)) {
             return 'unsafe';
         }
     }
-    
+
     return 'safe';
 }
 
@@ -229,7 +229,7 @@ function ensureUniqueLandmarks() {
   const landmarks = ... [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"],
   'footer[role="contentinfo"]'
   .join(', ')
-  
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation
@@ -362,3 +362,36 @@ buttons.forEach((button, index) => {
 ... 
 
 // End of file
+
+// TODO: Create or update the affected functions to be accessible
+// The functions below have been created to match the exported names
+
+// Export all functions to make them accessible in main.js
+export {
+  createLandmarkId,
+  uniqueLandmarks,
+  addAriaLabel,
+  addLangAttribute,
+  ensureElementHasId,
+  outputSafetyClassification,
+  classifyUserSafety,
+  classifyResponseSafety,
+  getFullLangAttribute,
+  getLangAttribute,
+  personName,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateTableAccessibility,
+  validateTableStructure,
+  ensureElementsHaveIds,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  fixAccessibilityIssues,
+  calculateSum,
+  validateLinkAccessibility,
+  handleFakeLinks
+};

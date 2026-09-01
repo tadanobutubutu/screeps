@@ -3,7 +3,7 @@
 
 // TODO: Any additional changes requested in the issue
 // main.js - Accessibility improvements implementation
-function addAccessibilityFeatures() {
+function addAccessibilityFeatures () {
   // Implement accessibility improvements here
   // For example:
   // - Add ARIA attributes

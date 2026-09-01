@@ -94,15 +94,15 @@ function divide(dividend, divisor) {
   if (typeof dividend !== 'number' || typeof divisor !== 'number') {
     throw new Error('Both arguments must be numbers');
   }
-  
+
   if (isNaN(dividend) || isNaN(divisor)) {
     throw new Error('Both arguments must be valid numbers');
   }
-  
+
   if (divisor === 0) {
     throw new Error('Division by zero is not allowed');
   }
-  
+
   return dividend / divisor;
 }
 
@@ -182,16 +182,16 @@ function checkLinkAccessibility() {
   // This function will be used to validate the accessibility of links
   const links = document.querySelectorAll('a[href]');
   const issues = [];
-  
+
   links.forEach(link => {
     const href = link.getAttribute('href');
     const text = link.textContent.trim();
-    
+
     if (!text) {
       issues.push(`Link with href "${href}" has no accessible text`);
     }
   });
-  
+
   return issues;
 }
 
@@ -204,29 +204,29 @@ function checkLinkAccessibility() {
  */
 function wrapPrimaryContentInMain() {
   const body = document.body;
-  
+
   // Return null if body element is not available
   if (!body) {
     return null;
   }
-  
+
   // Check if a <main> element already exists to avoid duplication
   const existingMain = document.querySelector('main');
   if (existingMain) {
     return existingMain;
   }
-  
+
   // Create a new <main> element
   const main = document.createElement('main');
-  
+
   // Move all existing body children into the <main> element
   while (body.firstChild) {
     main.appendChild(body.firstChild);
   }
-  
+
   // Append the <main> element to the body
   body.appendChild(main);
-  
+
   return main;
 }
 
@@ -341,7 +341,22 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
 // Don't forget to test your new additions in the test file
 
 // Export the function for testing and external use
-module.exports = { newFunction };
+module.exports = {
+  newFunction,
+  calculateDiscount,
+  addressAccessibilityIssues,
+  addLangAttribute,
+  fixTableStructure,
+  divide,
+  fixLandmarks,
+  addSvgAccessibleNames,
+  checkLinkAccessibility,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  applyAccessibilityFixes,
+  createInPageButton
+};
 
 // Export accessibility utility functions
 export {

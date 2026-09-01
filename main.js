@@ -206,7 +206,7 @@
             if (!issues || !Array.isArray(issues)) {
                 return [];
             }
-            
+
             return issues.map(issue => {
                 return {
                     id: issue.id,
@@ -232,11 +232,11 @@
           totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
           details: report
         };
-        
+
         // Store harvested data for potential upgrades
         const harvestFile = path.join(__dirname, 'harvest_data.json');
         fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-        
+
         return harvestedData;
       } catch (error) {
         console.error('Harvest failed:', error);
@@ -309,6 +309,50 @@
       return { harvested, upgraded };
     }
 
+    // New function for adding proper landmark regions
+    function addLandmarkRegions() {
+      // Define standard landmark roles and their typical containers
+      const landmarkRoles = {
+        'banner': 'header',
+        'navigation': 'nav',
+        'main': 'main',
+        'complementary': 'aside',
+        'contentinfo': 'footer',
+        'search': 'div[role="search"]'
+      };
+
+      // Check and add missing landmark regions
+      Object.entries(landmarkRoles).forEach(([role, selector]) => {
+        // Check if the landmark already exists
+        if (!document.querySelector(`[role="${role}"]`)) {
+          // Try to find an existing element that could serve as the landmark
+          let landmarkElement = document.querySelector(selector);
+
+          // If no suitable element found, create one
+          if (!landmarkElement) {
+            landmarkElement = document.createElement(selector === 'div' ? 'div' : selector);
+            document.body.prepend(landmarkElement);
+          }
+
+          // Set the proper role and aria-label
+          landmarkElement.setAttribute('role', role);
+          landmarkElement.setAttribute('aria-label', `${role} region`);
+
+          // Add visual indicator for development (can be removed in production)
+          landmarkElement.style.outline = '1px dashed #ff00ff';
+          landmarkElement.style.padding = '10px';
+          landmarkElement.style.margin = '5px 0';
+        }
+      });
+
+      // Ensure the main content area is properly marked
+      const mainContent = document.querySelector('[role="main"]');
+      if (mainContent) {
+        mainContent.setAttribute('tabindex', '-1');
+        mainContent.setAttribute('aria-labelledby', 'main-heading');
+      }
+    }
+
     // Call the function to address accessibility issues
     addressAccessibilityIssues();
     createInPageButton();
@@ -345,6 +389,7 @@
       checkLinkAccessibility,
       writeReport,
       scanAccessibility,
+      addLandmarkRegions, // Add the new function to exports
       ...accessibilityUtils
     };
 
@@ -362,6 +407,9 @@
                 dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
             }
         }
+
+        // Call the new function to add landmark regions
+        addLandmarkRegions();
     }
 
     // Initialize on DOM ready

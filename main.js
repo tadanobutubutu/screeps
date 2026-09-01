@@ -128,6 +128,24 @@ function implementAccessibilitySolutions(insightReport) {
   // Call the necessary functions to address each issue from the insight report
 }
 
+/**
+ * Counts the number of dependencies in the given object.
+ * Dependencies are defined as keys whose values are objects or functions.
+ *
+ * @param {Object} dependencies - The object whose dependencies should be counted.
+ * @returns {number} The number of dependencies found.
+ */
+function countDependencies(dependencies) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0;
+  }
+
+  return Object.keys(dependencies).filter((key) => {
+    const value = dependencies[key];
+    return value !== null && (typeof value === 'object' || typeof value === 'function');
+  }).length;
+}
+
 // Export the new function and sampleInsightReport (both versions agreed to do this)
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -154,5 +172,6 @@ export {
   getLangAttribute,
   logMessage,
   gracefulShutdown,
-  addLangAttribute
+  addLangAttribute,
+  countDependencies
 };

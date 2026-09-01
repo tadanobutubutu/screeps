@@ -25,10 +25,58 @@ function countDependencies(modules) {
   return 0;
 }
 
+// New function to visualize dependency relationships in a more structured way
+function visualizeDependencies(modules) {
+  const graph = {};
+  modules.forEach(module => {
+    graph[module.name] = module.dependencies || [];
+  });
+  console.log('Dependency visualization:', graph);
+  return graph;
+}
+
+// New function to analyze module dependencies and identify potential circular references
+function analyzeCircularDependencies(modules) {
+  const visited = new Set();
+  const recursionStack = new Set();
+
+  function hasCycle(moduleName) {
+    if (!visited.has(moduleName)) {
+      visited.add(moduleName);
+      recursionStack.add(moduleName);
+
+      const module = modules.find(m => m.name === moduleName);
+      if (module && module.dependencies) {
+        for (const dep of module.dependencies) {
+          if (!visited.has(dep) && hasCycle(dep)) {
+            return true;
+          } else if (recursionStack.has(dep)) {
+            return true;
+          }
+        }
+      }
+    }
+    recursionStack.delete(moduleName);
+    return false;
+  }
+
+  const cycles = [];
+  modules.forEach(module => {
+    if (hasCycle(module.name)) {
+      cycles.push(module.name);
+    }
+  });
+
+  console.log('Circular dependencies detected:', cycles);
+  return cycles;
+}
+
 module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
   countDependencies,
+  visualizeDependencies,
+  analyzeCircularDependencies,
   loop: function () {
     // Resolve merged bot logic for Screeps
     for (let name in Game.creeps) {

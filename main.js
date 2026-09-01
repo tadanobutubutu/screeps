@@ -111,7 +111,7 @@ function addLandmarkRoles() {
   if (mainElement && mainElement.setAttribute) {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   const navElement = document.querySelector('nav');
   if (navElement && navElement.setAttribute) {
     navElement.setAttribute('role', 'navigation');
@@ -206,6 +206,57 @@ function handleFakeLinks() {
   console.log('Handling fake links');
 }
 
+// New function to check link and button accessibility
+function checkLinkAndButtonAccessibility() {
+  const issues = [];
+
+  // Check all links for accessibility issues
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (!link.hasAttribute('href') && !link.hasAttribute('role')) {
+      issues.push({
+        type: 'ACCESSIBILITY_001',
+        description: 'Link without href or role attribute',
+        element: link,
+        severity: 'high'
+      });
+    }
+
+    if (link.hasAttribute('href') && !link.textContent.trim()) {
+      issues.push({
+        type: 'ACCESSIBILITY_002',
+        description: 'Link with href but no visible text',
+        element: link,
+        severity: 'medium'
+      });
+    }
+  });
+
+  // Check all buttons for accessibility issues
+  const buttons = document.querySelectorAll('button, [role="button"]');
+  buttons.forEach(button => {
+    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
+      issues.push({
+        type: 'ACCESSIBILITY_003',
+        description: 'Button without accessible name',
+        element: button,
+        severity: 'high'
+      });
+    }
+
+    if (button.tagName.toLowerCase() !== 'button' && !button.hasAttribute('role')) {
+      issues.push({
+        type: 'ACCESSIBILITY_004',
+        description: 'Non-button element with button role but missing proper button attributes',
+        element: button,
+        severity: 'medium'
+      });
+    }
+  });
+
+  return issues;
+}
+
 // Landmark data
 const landmarks = [];
 
@@ -298,7 +349,7 @@ function addressAccessibilityIssues(insightReport) {
 // Get insight report
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -309,7 +360,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -324,7 +375,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -339,7 +390,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -353,7 +404,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -368,7 +419,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
@@ -382,7 +433,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check SVG accessibility
   const svgAccessibleNames = getSvgAccessibleName();
 

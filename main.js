@@ -296,6 +296,52 @@ function addressInsightReportIssues(insightReport) {
   improveAccessibility(insightReport);
 }
 
+// New function to generate accessibility report
+function generateAccessibilityReport(insightReport) {
+  if (!insightReport || !insightReport.issues) {
+    return {
+      summary: "No accessibility issues found",
+      issues: [],
+      severityCounts: {
+        critical: 0,
+        serious: 0,
+        moderate: 0,
+        minor: 0
+      }
+    };
+  }
+
+  const severityCounts = {
+    critical: 0,
+    serious: 0,
+    moderate: 0,
+    minor: 0
+  };
+
+  // Count issues by severity
+  insightReport.issues.forEach(issue => {
+    if (issue.severity === 'critical') severityCounts.critical++;
+    else if (issue.severity === 'serious') severityCounts.serious++;
+    else if (issue.severity === 'moderate') severityCounts.moderate++;
+    else if (issue.severity === 'minor') severityCounts.minor++;
+  });
+
+  // Generate summary
+  const totalIssues = insightReport.issues.length;
+  let summary = `Accessibility report generated with ${totalIssues} issues found.`;
+
+  if (severityCounts.critical > 0) {
+    summary += ` ${severityCounts.critical} critical issues need immediate attention.`;
+  }
+
+  return {
+    summary,
+    issues: insightReport.issues,
+    severityCounts,
+    timestamp: new Date().toISOString()
+  };
+}
+
 // Existing code preserved below
 function main() {
   console.log('Running main application');
@@ -333,7 +379,8 @@ module.exports = {
   addressAccessibilityIssues,
   renderDependencyGraphContent,
   createInPageButtons,
-  fixUniqueLandmarks // Add the createInPageButtons and fixUniqueLandmarks functions to the exports
+  fixUniqueLandmarks,
+  generateAccessibilityReport // Add the new generateAccessibilityReport function to the exports
 };
 
 // Execute main function

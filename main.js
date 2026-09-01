@@ -156,6 +156,14 @@ const formatResponse = (data) => {
   return JSON.stringify(data, null, 2);
 };
 
+// Utility function for safe division
+function divide(a, b) {
+  if (b === 0) {
+    return 0;
+  }
+  return a / b;
+}
+
 // Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
 const { validateInput } = require('./utils/validators');
 const { processData } = require('./utils/processor');
@@ -180,7 +188,9 @@ module.exports = {
   writeAccessibilityReport,
   // i18n/accessibility functions
   getLangAttribute,
-  addLangAttribute
+  addLangAttribute,
+  // utility functions
+  divide
 };
 
 // Main execution when run directly
@@ -195,9 +205,3 @@ if (require.main === module) {
 
   if (sorted.length > 0) {
     console.log('First landmark:', sorted[0]);
-  }
-
-  // Call the function to generate the accessibility report
-  // Uncomment this line if you want to generate a report during local testing:
-  // generateAccessibilityReport();
-}

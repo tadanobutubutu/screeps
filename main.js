@@ -1,165 +1,121 @@
-const main = require('./utilities');
+import React, { useEffect } from 'react';
 
 const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, checkAccessibility } = main;
 
-// Utility function to create a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
-function createWebResourceButton(options = {}) {
-    const {
-        label,
-        url,
-        icon = null,
-        iconAltText = '',
-        ariaLabel = null,
-        className = 'web-resource-btn',
-        target = '_blank',
-        rel = 'noopener noreferrer'
-    } = options;
+/**
+ * Adds the lang attribute to the document's <html> tag based on content
+ * @param {string} content - The text content to analyze
+ * @returns {string} The detected language code
+ */
+function detectAndSetLang(content) {
+  let lang = 'en'; // Default to English
 
-    const button = document.createElement('a');
-    button.href = url;
-    button.className = className;
-    button.target = target;
-    button.rel = rel;
-    
-    // Set accessible name - prefer explicit ariaLabel, fallback to label
-    const accessibleName = ariaLabel || label;
-    button.setAttribute('aria-label', accessibleName);
-    
-    // Add text content
-    if (label) {
-        button.textContent = label;
-    }
-    
-    // Handle icon accessibility
-    if (icon) {
-        if (typeof icon === 'string') {
-            // If icon is an SVG string
-            button.insertAdjacentHTML('afterbegin', icon);
-            const svg = button.querySelector('svg');
-            if (svg) {
-                svg.setAttribute('aria-hidden', 'true');
-                if (iconAltText) {
-                    svg.setAttribute('aria-label', iconAltText);
-                }
-            }
-        } else if (icon instanceof HTMLElement) {
-            // If icon is already an DOM element
-            icon.setAttribute('aria-hidden', 'true');
-            button.insertBefore(icon, button.firstChild);
-        }
-    }
-    
-    return button;
-}
-
-// Implement the function for addressing accessibility issues from insight report
-function implementAccessibilityFixesFromReport(container, containerReport) {
-  const fixes = {
-    langAdded: false,
-    mainLandmarkAdded: false,
-    landmarksFixed: 0,
-    svgNamesAdded: 0,
-    fakeLinksFixed: 0
-  };
-
-  if (!containerReport || !containerReport.issues) {
-    return fixes;
-  }
-
-  // Add lang attribute to HTML element if missing
-  const htmlEl = container.querySelector('html') || (container.ownerDocument && container.ownerDocument.querySelector('html'));
-  if (htmlEl && !htmlEl.hasAttribute('lang')) {
-    htmlEl.setAttribute('lang', 'en');
-    fixes.langAdded = true;
-  }
-
-  // Add main landmark if missing
-  const mainElement = container.querySelector('main');
-  if (!mainElement) {
-    const body = container.querySelector('body');
-    if (body) {
-      const newMain = document.createElement('main');
-      while (body.firstChild) {
-        newMain.appendChild(body.firstChild);
+  if (content) {
+    // Simple language detection based on common patterns
+    if (content) {
+      if (/[\u4e00-\u9fff]/.test(content)) {
+        lang = 'zh'; // Chinese
+      } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
+        lang = 'ja'; // Japanese
+      } else if (/[\u0400-\u04ff]/.test(content)) {
+        lang = 'ru'; // Russian/Cyrillic
+      } else if (/[\u0600-\u06ff]/.test(content)) {
+        lang = 'ar'; // Arabic
+      } else if (/[éèêàâïîôùûüç]/i.test(content)) {
+        lang = 'fr'; // French
+      } else if (/[äöüß]/i.test(content)) {
+        lang = 'de'; // German
       }
-      body.appendChild(newMain);
-      fixes.mainLandmarkAdded = true;
+    }
+
+    useEffect(() => {
+      setHtmlLangAttribute(lang);
+    }, [lang]);
+
+    return lang;
+  }
+
+  return 'en';
+}
+
+/**
+ * Gets the current lang attribute from the document's <html> element
+ * @returns {string} The current lang attribute value
+ */
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.lang || '';
+  }
+  return '';
+}
+
+// Assuming main.js already exports the renderDependencyGraph and renderIndexView functions
+// No need to handle those conflicts here
+
+/**
+ * Utility function to create a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
+ * @param {Object} options - An options object with the following properties:
+ *   - label (String): The button label
+ *   - url (String): The button URL
+ *   - icon (String|HTMLElement): An optional icon for the button (String: SVG code, HTMLElement)
+ *   - iconAltText (String): The alternative text for the icon if it's an SVG
+ *   - ariaLabel (String): An optional aria-label for the button
+ *   - className (String): The CSS class to apply to the button
+ *   - target (String): The target for the link (e.g., '_blank', '_self')
+ *   - rel (String): The rel attribute for the link (e.g., 'noopener noreferrer')
+ * @returns {HTMLAnchorElement} The created button element
+ */
+function createWebResourceButton(options = {}) {
+  const {
+    label,
+    url,
+    icon = null,
+    iconAltText = '',
+    ariaLabel = null,
+    className = 'web-resource-btn',
+    target = '_blank',
+    rel = 'noopener noreferrer'
+  } = options;
+
+  const button = document.createElement('a');
+  button.href = url;
+  button.className = className;
+  button.target = target;
+  button.rel = rel;
+
+  // Set accessible name - prefer explicit ariaLabel, fallback to label
+  const accessibleName = ariaLabel || label;
+  button.setAttribute('aria-label', accessibleName);
+
+  // Add text content
+  if (label) {
+    button.textContent = label;
+  }
+
+  // Handle icon accessibility
+  if (icon) {
+    if (typeof icon === 'string') {
+      // If icon is an SVG string
+      button.insertAdjacentHTML('beforebegin', icon);
+      const svg = button.querySelector('svg');
+      if (svg) {
+        svg.setAttribute('aria-hidden', 'true');
+        if (iconAltText) {
+          svg.setAttribute('aria-label', iconAltText);
+        }
+      }
+    } else if (icon instanceof HTMLElement) {
+      // If icon is already an DOM element
+      icon.setAttribute('aria-hidden', 'true');
+      button.insertBefore(icon, button.firstChild);
     }
   }
 
-  // Update the existing function using the new functions for rendering graph/index
-  renderDependencyGraphs(container);
-  fixButtonIdentifiers(container);
-  fixDependencyGraphAria(container);
-  addMainLandmarkToIndex(container);
-
-  // Fix landmark issues
-  validateLandmark(container);
-  validateLandmarkStructure(container);
-
-  // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', accessibleName);
-      fixes.svgNamesAdded++;
-    }
-  });
-
-  // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('a:not([href])');
-  fakeLinks.forEach(link => {
-    link.setAttribute('href', '#' + (link.id || `link-${Date.now()}`));
-    link.setAttribute('role', 'link');
-    fixes.fakeLinksFixed++;
-  });
-
-  // Validate accessibility report
-  const accessibilityReport = validateAccessibilityReport(container);
-  if (accessibilityReport && accessibilityReport.length > 0) {
-    log(`Accessibility report contains ${accessibilityReport.length} remaining issues`, 'warn');
-  }
-
-  // Implement focus trap for keyboard navigation
-  focusTrap(container);
-
-  if (fixes.langAdded) {
-    log('Lang attribute added to HTML element', 'info');
-  }
-
-  if (fixes.mainLandmarkAdded) {
-    log('Main landmark added', 'info');
-  }
-
-  // Check for new accessibility issues
-  const newAccessibilityIssues = checkAccessibility(container);
-  if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.join(', ')}`, 'error');
-  }
-
-  const landmarkFixesCount = fixes.landmarksFixed || 0;
-  if (landmarkFixesCount > 0) {
-    log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
-  }
-
-  const svgFixes = fixes.svgNamesAdded || 0;
-  if (svgFixes > 0) {
-    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
-  }
-
-  const fakeLinkFixes = fixes.fakeLinksFixed || 0;
-  if (fakeLinkFixes > 0) {
-    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
-  }
-
-  return fixes;
+  return button;
 }
 
-// Accessibility-related function to be added
-function checkAccessibility(content) {
-  // Placeholder for accessibility checking logic
-  // This function should be implemented to check for accessibility issues
-  // For now, it just returns an empty array
-  return [];
-}
+module.exports = {
+  detectAndSetLang,
+  getLangAttribute,
+  createWebResourceButton
+};

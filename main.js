@@ -47,6 +47,52 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  /**
+   * Check link accessibility by verifying required attributes
+   * @param {HTMLAnchorElement} link - The link element to check
+   * @returns {Object} Accessibility status and issues
+   */
+  checkLinkAccessibility: (link) => {
+    if (!link || link.tagName !== 'A') {
+      return { isAccessible: false, issues: ['Not a valid link element'] };
+    }
+
+    const issues = [];
+
+    // Check for href attribute
+    if (!link.hasAttribute('href') || link.getAttribute('href').trim() === '') {
+      issues.push('Missing or empty href attribute');
+    }
+
+    // Check for aria-label or text content
+    if (!link.hasAttribute('aria-label') && !link.textContent.trim()) {
+      issues.push('Missing aria-label or link text');
+    }
+
+    // Check for target attribute if it's an external link
+    if (link.href && link.hostname !== window.location.hostname) {
+      if (!link.hasAttribute('target')) {
+        issues.push('External link missing target attribute');
+      } else if (link.getAttribute('target') !== '_blank') {
+        issues.push('External link should use target="_blank"');
+      }
+
+      if (!link.hasAttribute('rel') || !link.getAttribute('rel').includes('noopener')) {
+        issues.push('External link missing rel="noopener noreferrer"');
+      }
+    }
+
+    // Check for role attribute if it's a button-like link
+    if (link.getAttribute('role') === 'button' && !link.hasAttribute('tabindex')) {
+      issues.push('Button-like link missing tabindex="0"');
+    }
+
+    return {
+      isAccessible: issues.length === 0,
+      issues: issues.length > 0 ? issues : null
+    };
   }
 };
 

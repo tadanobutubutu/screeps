@@ -291,3 +291,136 @@ ensureUniqueLandmarks();
 const svg = ...
 const accessibleName = getSvgAccessibleName(svg);
 set
+
+/**
+ * Creates an accessible book form with proper labels and ARIA attributes
+ * @param {string} formId - ID for the form element
+ * @returns {HTMLFormElement} The created form element
+ */
+function createAccessibleBookForm(formId) {
+  const form = document.createElement('form');
+  form.id = formId;
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', `${formId}-title`);
+
+  // Create form title
+  const title = document.createElement('h2');
+  title.id = `${formId}-title`;
+  title.textContent = 'Add New Book';
+  form.appendChild(title);
+
+  // Create accessible form fields
+  const fields = [
+    { id: 'title', label: 'Book Title', type: 'text', required: true },
+    { id: 'author', label: 'Author', type: 'text', required: true },
+    { id: 'isbn', label: 'ISBN', type: 'text', required: true },
+    { id: 'price', label: 'Price', type: 'number', required: true }
+  ];
+
+  fields.forEach(field => {
+    const div = document.createElement('div');
+    div.className = 'form-group';
+
+    const label = document.createElement('label');
+    label.htmlFor = `${formId}-${field.id}`;
+    label.textContent = field.label;
+    div.appendChild(label);
+
+    const input = document.createElement('input');
+    input.type = field.type;
+    input.id = `${formId}-${field.id}`;
+    input.name = field.id;
+    if (field.required) {
+      input.required = true;
+      input.setAttribute('aria-required', 'true');
+    }
+    div.appendChild(input);
+
+    form.appendChild(div);
+  });
+
+  // Create submit button
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Book';
+  submitButton.setAttribute('aria-label', 'Submit book information');
+  form.appendChild(submitButton);
+
+  return form;
+}
+
+/**
+ * Adds a book to the system with accessibility considerations
+ * @param {Object} bookData - Book information
+ * @param {string} bookData.title - Book title
+ * @param {string} bookData.author - Author name
+ * @param {string} bookData.isbn - ISBN number
+ * @param {number} bookData.price - Book price
+ */
+function addBook(bookData) {
+  // Validate input data
+  if (!validateBookData(bookData)) {
+    throw new Error('Invalid book data provided');
+  }
+
+  // Process the book data
+  const processedBook = {
+    ...bookData,
+    formattedPrice: formatCurrency(bookData.price),
+    addedDate: formatDate(new Date())
+  };
+
+  // Update application state
+  updateState('books', [...state.books, processedBook]);
+
+  // Announce the addition to screen readers
+  const announcement = document.createElement('div');
+  announcement.setAttribute('role', 'status');
+  announcement.setAttribute('aria-live', 'polite');
+  announcement.textContent = `Book "${bookData.title}" by ${bookData.author} has been added.`;
+  document.body.appendChild(announcement);
+
+  // Remove the announcement after a delay
+  setTimeout(() => {
+    document.body.removeChild(announcement);
+  }, 5000);
+}
+
+/**
+ * Validates book data for the addBook function
+ * @param {Object} bookData - Book information to validate
+ * @returns {boolean} True if data is valid
+ */
+function validateBookData(bookData) {
+  if (!bookData || typeof bookData !== 'object') return false;
+
+  const requiredFields = ['title', 'author', 'isbn', 'price'];
+  for (const field of requiredFields) {
+    if (!bookData[field]) return false;
+  }
+
+  if (typeof bookData.price !== 'number' || bookData.price <= 0) return false;
+
+  return true;
+}
+
+// Add lang attribute to HTML element
+... getLangAttribute());
+
+// Create in-page button with accessibility considerations
+createInPageButton();
+
+// Validate table structure and accessibility
+const table = ...
+validateTableAccessibility(table);
+validateTableStructure(table);
+
+// Add/fix landmark issues
+validateLandmark();
+...
+ensureUniqueLandmarks();
+
+// Add accessible names to SVGs
+const svg = ...
+const accessibleName = getSvgAccessibleName(svg);
+set

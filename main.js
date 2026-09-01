@@ -15,15 +15,15 @@ const { functionA, functionB } = require('./functionModule');
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
   const issues = [];
-  
+
   // Check if HTML contains tables
   const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
   let match;
-  
+
   while ((match = tableRegex.exec(html)) !== null) {
     const tableContent = match[0];
     const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
-    
+
     // Check for caption
     const hasCaption = /<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent);
     if (!hasCaption) {
@@ -34,7 +34,7 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Add a <caption> element immediately after the <table> tag to describe the purpose of the table'
       });
     }
-    
+
     // Check for th elements
     const hasHeaders = /<th[^>]*>/i.test(tableContent);
     if (!hasHeaders) {
@@ -45,7 +45,7 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Add <th> elements for column or row headers to improve accessibility for screen readers'
       });
     }
-    
+
     // Check for scope attributes on th elements
     const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
     thMatches.forEach((thTag, index) => {
@@ -58,11 +58,11 @@ const validateTableAccessibility = (html) => {
         });
       }
     });
-    
+
     // Check for thead and tbody structure
     const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent);
     const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent);
-    
+
     if (!hasThead) {
       issues.push({
         type: 'table',
@@ -71,7 +71,7 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Wrap header rows in a <thead> element for better semantic structure'
       });
     }
-    
+
     if (!hasTbody) {
       issues.push({
         type: 'table',
@@ -80,13 +80,13 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Wrap data rows in a <tbody> element for better semantic structure'
       });
     }
-    
+
     // Check for id and headers attributes for complex tables
     const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
     if (hasMultipleHeaders) {
       const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
       const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
-      
+
       if (!hasIdAttr && !hasHeadersAttr) {
         issues.push({
           type: 'table',
@@ -97,7 +97,7 @@ const validateTableAccessibility = (html) => {
       }
     }
   }
-  
+
   return issues;
 };
 
@@ -116,14 +116,6 @@ function getActiveSessionsCount() {
 
 function validateSession(sessionId) {
   return appState.sessions.get(sessionId) || null;
-}
-
-function handleCredentialResponse(credentialResponse) {
-  // Process credential response - basic implementation
-  if (!credentialResponse || typeof credentialResponse !== 'object') {
-    return { status: 'error', message: 'Invalid credential response' };
-  }
-  return { status: 'success', credential: credentialResponse };
 }
 
 const a11yStore = {
@@ -169,13 +161,13 @@ const a11yStore = {
         titleElement.textContent = 'Image';
         svg.insertBefore(titleElement, svg.firstChild);
       }
-      
+
       if (!titleElement.id) {
         titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
       }
-      
+
       svg.setAttribute('aria-labelledby', titleElement.id);
-      
+
       if (!svg.hasAttribute('role')) {
         svg.setAttribute('role', 'img');
       }
@@ -203,20 +195,20 @@ const a11yStore = {
 function getSvgAccessibleName(svgElement) {
   const title = svgElement.querySelector('title');
   const desc = svgElement.querySelector('desc');
-  
+
   if (title && title.textContent) {
     return title.textContent.trim();
   }
-  
+
   if (desc && desc.textContent) {
     return desc.textContent.trim();
   }
-  
+
   const ariaLabel = svgElement.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel.trim();
   }
-  
+
   const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
     const labeledElement = document.getElementById(ariaLabelledby);
@@ -224,7 +216,7 @@ function getSvgAccessibleName(svgElement) {
       return labeledElement.textContent.trim();
     }
   }
-  
+
   return 'SVG graphic';
 }
 
@@ -378,5 +370,10 @@ module.exports = {
   checkLandmarks,
   ensureUniqueLandmarks,
   handleFocusTrap,
-  revokeSession
+  revokeSession,
+  validateTableAccessibility,
+  getActiveSessionsCount,
+  validateSession,
+  getSvgAccessibleName,
+  a11yStore
 };

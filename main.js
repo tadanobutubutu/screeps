@@ -639,5 +639,14 @@ module.exports = {
     return date.toISOString().split('T')[0];
   },
   // Accessibility Functions
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  // Added back required exports
+  appData,
+  landmarks,
+  landmarkStructureCheck,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  checkLandmarkElement,
+  main,
+  initApp
 };

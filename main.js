@@ -105,12 +105,20 @@ function main() {
   return 'main function executed';
 }
 
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 // Export functions to make them accessible
 module.exports = {
   affectedFunction,
   updateFunction,
   accessibleFunction,
   main,
+  createWebResourceButton,
+  validateAccessibilityReport,
+  accessibilityUtils,
+  log,
+  CONFIG
 };
 
 // Also attach to global scope for browser/standalone access
@@ -119,4 +127,9 @@ if (typeof window !== 'undefined') {
   window.updateFunction = updateFunction;
   window.accessibleFunction = accessibleFunction;
   window.main = main;
+  window.createWebResourceButton = createWebResourceButton;
+  window.validateAccessibilityReport = validateAccessibilityReport;
+  window.accessibilityUtils = accessibilityUtils;
+  window.log = log;
+  window.CONFIG = CONFIG;
 }

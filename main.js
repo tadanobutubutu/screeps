@@ -225,28 +225,28 @@ const exportUtils = {
 };
 
 // Main entry point
-function main() {
+const mainFunction = function() {
   // Application initialization
   return 'main function executed';
-}
+};
 
 // Import and call the newer functions if they exist and are compatible
 if (acquiredMain) {
-  main = acquiredMain;
+  mainFunction = acquiredMain;
 }
 if (affectedFunction) {
-  main = main.bind(null, affectedFunction);
+  mainFunction = mainFunction.bind(null, affectedFunction);
 }
 if (updateFunction) {
-  main = main.bind(null, updateFunction);
+  mainFunction = mainFunction.bind(null, updateFunction);
 }
 if (accessibleFunction) {
-  main = main.bind(null, accessibleFunction);
+  mainFunction = mainFunction.bind(null, accessibleFunction);
 }
 
 // Export functions to make them accessible
 module.exports = {
-  main,
+  main: mainFunction,
   myNewFunction,
   calculateSum,
   ensureElementHasId,
@@ -287,7 +287,7 @@ module.exports = {
 
 // Also attach to global scope for browser/standalone access
 if (typeof window !== 'undefined') {
-  window.main = main;
+  window.main = mainFunction;
   window.myNewFunction = myNewFunction;
   window.calculateSum = calculateSum;
   window.ensureElementHasId = ensureElementHasId;

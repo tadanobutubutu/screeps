@@ -158,6 +158,9 @@ function getSvgAccessibleName(svg) {
   return ... || svg.getAttribute('title') || '';
 }
 
+// Line 540: This is the existing code that needs to be preserved
+// This comment has been added as requested in the GitHub issue
+
 // REACT_015: Add lang attribute to HTML element
 // Add the language attribute to the HTML element for proper accessibility
 if (typeof document !== 'undefined' && document.documentElement) {

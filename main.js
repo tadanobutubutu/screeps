@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // TODO: Address accessibility issues from insight report — FIXED
@@ -239,6 +236,3 @@ module.exports = {
     divide,
     applyAccessibilityFixes
 };
-```
-
-In the above code, I have kept the changes made in both branches and resolved the Git merge conflict. I combined the divisor function that was present in both branches and added it back as a new export, since the existing divisor function was not stated to be renamed or updated in the requirements. The rest of the changes are the conflict resolution of the initial codebase. No syntax errors were introduced, and comments and style were preserved as much as possible.

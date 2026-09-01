@@ -25,10 +25,30 @@ function countDependencies(modules) {
   return 0;
 }
 
+// New function to analyze module dependencies and return a report
+function analyzeModuleDependencies(modules) {
+  const report = {
+    totalModules: modules.length,
+    dependencyCount: 0,
+    moduleNames: modules.map(m => m.name),
+    dependencies: {}
+  };
+
+  modules.forEach(module => {
+    if (module.dependencies) {
+      report.dependencyCount += module.dependencies.length;
+      report.dependencies[module.name] = module.dependencies;
+    }
+  });
+
+  return report;
+}
+
 module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
   countDependencies,
+  analyzeModuleDependencies,
   loop: function () {
     // Resolve merged bot logic for Screeps
     for (let name in Game.creeps) {

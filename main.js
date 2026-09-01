@@ -21,7 +21,6 @@ function validateLandmark(landmark) {
     issues.push(`Invalid landmark: ${landmark.tagName}`);
   }
 
-  // Check for aria attributes (from origin/main)
   if (landmark.nodeName.toLowerCase() === 'div' && !landmark.getAttribute('role')) {
     issues.push('Missing role attribute');
   }
@@ -49,12 +48,10 @@ const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 function getLangAttribute() {
-    // Implementation to get language attribute
     return document.documentElement.lang || 'en';
 }
 
 function getFullLangAttribute() {
-    // Implementation to get full language attribute
     return document.documentElement.lang || navigator.language || 'en-US';
 }
 
@@ -74,7 +71,6 @@ function validateTableAccessibility(table) {
     issues.push('Missing scope attribute');
   }
 
-  // Check for caption (from origin/main)
   if (!table.querySelector || !table.querySelector('caption')) {
     issues.push('Missing caption element');
   }
@@ -97,7 +93,6 @@ function validateTableStructure(tables) {
   const tableArray = Array.isArray(tables) ? tables : [tables];
 
   tableArray.forEach((table, index) => {
-    // Check for rows (from origin/main)
     const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
     if (rows.length === 0) {
       allIssues.push({
@@ -106,7 +101,6 @@ function validateTableStructure(tables) {
       });
     }
 
-    // Validate table accessibility (from HEAD)
     const result = validateTableAccessibility(table);
     if (!result.success) {
       allIssues.push({
@@ -137,7 +131,6 @@ function validateLandmark(element) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
 
-  // Check for aria attributes (from origin/main)
   if (element.nodeName.toLowerCase() === 'div' && !element.getAttribute('role')) {
     issues.push('Missing role attribute');
   }
@@ -150,13 +143,13 @@ function validateLandmark(element) {
 
 /**
  * Validates the structure of landmark elements
- * @param {Array} landmarks - Array of landmark elements to validate (optional)
+ * @param {Array} landmarks - Array of landmark elements to validate
  * @returns {Object} Validation result with success status and any issues found
  */
 function validateLandmarkStructure(landmarks) {
   const issues = [];
 
-  // If landmarks array is provided, validate each one (from HEAD)
+  // Validate each landmark in the array
   if (Array.isArray(landmarks)) {
     landmarks.forEach((landmark, index) => {
       const result = validateLandmark(landmark);
@@ -168,7 +161,6 @@ function validateLandmarkStructure(landmarks) {
       }
     });
   } else {
-    // Otherwise, check for required landmarks in the DOM (from origin/main)
     const allLandmarks = document.querySelectorAll('[role]');
     let hasMain = false;
     let hasNavigation = false;
@@ -189,6 +181,7 @@ function validateLandmarkStructure(landmarks) {
 
   // Check for unique landmarks (from REACT_025)
   const landmarkSet = new Set();
+  const allLandmarks = document.querySelectorAll('[role]');
   allLandmarks.forEach(landmark => {
     const role = landmark.getAttribute('role');
     if (role && !landmarkSet.has(role)) {
@@ -213,35 +206,27 @@ function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
 
-  // If landmarks array is provided, validate each one (from HEAD)
+  // Determine landmarks array
+  let landmarksToCheck;
   if (Array.isArray(landmarks)) {
-    landmarks.forEach(landmark => {
-      const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
-      if (names.includes(name)) {
-        if (!duplicates.includes(name)) {
-          duplicates.push(name);
-        }
-      } else {
-        names.push(name);
-      }
-    });
+    landmarksToCheck = landmarks;
   } else {
-    // Otherwise, check for duplicate accessible names in the DOM (from origin/main)
-    const allLandmarks = document.querySelectorAll('[role]');
-    allLandmarks.forEach(landmark => {
-      const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
-      if (names.includes(name)) {
-        if (!duplicates.includes(name)) {
-          duplicates.push(name);
-        }
-      } else {
-        names.push(name);
-      }
-    });
+    landmarksToCheck = Array.from(document.querySelectorAll('[role]'));
   }
 
-  // Check for duplicate IDs (from origin/main)
+  // Check duplicate accessible names
+  landmarksToCheck.forEach(landmark => {
+    const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
+    if (names.includes(name)) {
+      duplicates.push(name);
+    } else {
+      names.push(name);
+    }
+  });
+
+  // Check for duplicate IDs
   const elementsById = {};
+  const allLandmarks = document.querySelectorAll('[role]');
   allLandmarks.forEach(landmark => {
     if (landmark.id) {
       if (elementsById[landmark.id]) {
@@ -259,83 +244,57 @@ function ensureUniqueLandmarks(landmarks) {
   };
 }
 
-function initializeApp() {
-  appState.initialized = true;
-  console.log('Initializing application...');
-  return true;
-}
-
-function getConfig() {
-  return config;
-}
-
-function validateInput(input) {
-  return input !== null && input !== undefined;
-}
-
-function processData(data) {
-  if (!validateInput(data)) {
-    throw new Error('Invalid input data');
+/**
+ * Gets the accessible name for an SVG element
+ * @param {Object} svg - The SVG element
+ * @returns {string} The accessible name for the SVG
+ */
+function getSvgAccessibleName(svg) {
+  if (svg.ariaLabel) {
+    return svg.ariaLabel;
   }
-  return {
-    processed: true,
-    data: data,
-    timestamp: Date.now()
-  };
-}
-
-function createInPageButton(text, onClick) {
-    // Implementation to create accessible in-page button (conflict resolved: merged implementation)
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.onclick = onClick;
-    button.setAttribute('aria-label', text);
-    return button;
+  if (svg.ariaLabelledby) {
+    return svg.ariaLabelledby;
+  }
+  if (svg.title) {
+    return svg.title;
+  }
+  return 'Unnamed SVG';
 }
 
 /**
- * Handles accessibility issues found during validation
- * @param {Array} issues - Array of accessibility issues (optional)
- * @returns {Object} Summary of handled issues
+ * Creates an accessible in-page button
+ * @param {Object} options - Button options
+ * @param {string} options.text - Button text
+ * @param {string} options.ariaLabel - Aria label for the button
+ * @param {Function} options.onClick - Click handler
+ * @returns {Object} Button element object
  */
-function handleAccessibilityIssues(issues = []) {
-  const handled = [];
-  const unhandled = [];
-
-  // Process provided issues (from HEAD)
-  issues.forEach(issue => {
-    if (issue.fixable) {
-      handled.push(issue);
-    } else {
-      unhandled.push(issue);
-    }
-  });
-
-  // Perform DOM validation (from origin/main)
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
-
-  const landmarks = document.querySelectorAll('[role]');
-  landmarks.forEach(landmark => {
-    validateLandmark(landmark);
-  });
-
-  validateLandmarkStructure();
-  ensureUniqueLandmarks();
-
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    getSvgAccessibleName(svg);
-  });
-
+function createInPageButton(options) {
   return {
-    total: issues.length,
-    handled: handled.length,
-    unhandled: unhandled.length,
-    unhandledIssues: unhandled
+    type: 'button',
+    text: options.text,
+    ariaLabel: options.ariaLabel || options.text,
+    onClick: options.onClick,
+    accessibleName: getSvgAccessibleName({ ariaLabel: options.ariaLabel })
+  };
+}
+
+/**
+ * Creates an accessible link element
+ * @param {Object} options - Link options
+ * @param {string} options.href - Link URL
+ * @param {string} options.text - Link text
+ * @param {string} options.ariaLabel - Aria label for the link
+ * @returns {Object} Link element object
+ */
+function createAccessibleLink(options) {
+  return {
+    type: 'a',
+    href: options.href,
+    text: options.text,
+    ariaLabel: options.ariaLabel || options.text,
+    isFake: false
   };
 }
 
@@ -352,7 +311,6 @@ function handleCredentialResponse(credentialResponse) {
     };
   }
 
-  // Basic validation of required fields
   if (!credentialResponse.credential || !credentialResponse.clientDataJSON) {
     return {
       success: false,
@@ -360,11 +318,9 @@ function handleCredentialResponse(credentialResponse) {
     };
   }
 
-  // Parse and validate the credential data
   try {
     const clientData = JSON.parse(atob(credentialResponse.clientDataJSON.split('.')[0]));
 
-    // Validate the challenge matches (assuming we have a stored challenge)
     if (clientData.challenge !== window.currentChallenge) {
       return {
         success: false,
@@ -372,7 +328,6 @@ function handleCredentialResponse(credentialResponse) {
       };
     }
 
-    // Store the credential for later use
     window.storedCredential = credentialResponse;
 
     return {
@@ -390,6 +345,31 @@ function handleCredentialResponse(credentialResponse) {
   }
 }
 
+/**
+ * Handles accessibility issues found during validation
+ * @param {Array} issues - Array of accessibility issues
+ * @returns {Object} Summary of handled issues
+ */
+function handleAccessibilityIssues(issues) {
+  const handled = [];
+  const unhandled = [];
+
+  issues.forEach(issue => {
+    if (issue.fixable) {
+      handled.push(issue);
+    } else {
+      unhandled.push(issue);
+    }
+  });
+
+  return {
+    total: issues.length,
+    handled: handled.length,
+    unhandled: unhandled.length,
+    unhandledIssues: unhandled
+  };
+}
+
 // Export all functions for testing and external use
 module.exports = {
   getLangAttribute,
@@ -401,6 +381,7 @@ module.exports = {
   ensureUniqueLandmarks,
   getSvgAccessibleName,
   createInPageButton,
+  createAccessibleLink,
   handleAccessibilityIssues,
   handleCredentialResponse
 };

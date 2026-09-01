@@ -64,6 +64,32 @@ const accessibilityUtils = {
   // - REACT_041: Add accessible names to 2 SVGs
   // - REACT_025: Ensure unique landmarks
   // - REACT_036: Fix 1 fake link issue
+
+  // Function to check for required landmark elements
+  checkLandmarks: () => {
+    const requiredLandmarks = ['header', 'main', 'footer'];
+    const missingLandmarks = [];
+
+    requiredLandmarks.forEach(landmark => {
+      const elements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`);
+      if (elements.length === 0) {
+        missingLandmarks.push(landmark);
+      }
+    });
+
+    if (missingLandmarks.length > 0) {
+      console.warn(`Missing required landmarks: ${missingLandmarks.join(', ')}`);
+      return {
+        valid: false,
+        missing: missingLandmarks
+      };
+    }
+
+    return {
+      valid: true,
+      missing: []
+    };
+  }
 };
 
 // Functions already existing in the file to preserve

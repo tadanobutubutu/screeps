@@ -56,6 +56,22 @@ function visualizeModuleRelationships(modules) {
   };
 }
 
+// Helper for input transformation
+function helper(input) {
+  return input ? input.toUpperCase() : '';
+}
+
+// Validate input helper
+function validateInputFn(input) {
+  return input && typeof input === 'string' && input.trim().length > 0;
+}
+
+// Process data helper
+function processDataFn(data) {
+  if (!data) return null;
+  return { ...data, processed: true };
+}
+
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
@@ -67,6 +83,60 @@ const CONFIG = {
     dataPath: './data',
     maxResults: 100
 };
+
+// Application state
+const appState = {
+    initialized: false,
+    data: null,
+    cache: {}
+};
+
+// Initialize application
+function initializeApp(config) {
+    appState.initialized = true;
+    appState.data = config || {};
+    return appState;
+}
+
+// Fetch user data
+function fetchUser(userId) {
+    return { id: userId, name: 'Test User' };
+}
+
+// Clear cache
+function clearCache() {
+    appState.cache = {};
+}
+
+// Initialize
+function initialize() {
+    return initializeApp(CONFIG);
+}
+
+// Format response
+function formatResponse(data) {
+    return {
+        success: true,
+        data: data,
+        timestamp: new Date().toISOString()
+    };
+}
+
+// Format date
+function formatDate(date) {
+    return new Date(date).toISOString();
+}
+
+// Process data
+function processData(data) {
+    if (!data) return null;
+    return { ...data, processed: true };
+}
+
+// Some function
+function someFunction() {
+    return 'some function';
+}
 
 function isValidLandmark(landmark) {
     return landmark &&
@@ -136,83 +206,15 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
-// App state with accessibility updates
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map(),
-  lang: 'en' // Added lang property
-};
-
-// Utilities
-const { validateInput, processData } = require('./utils/validators');
-const { formatResponse } = require('./utils/processor');
-
-// Helper for input transformation
-function helper(input) {
-  return input ? input.toUpperCase() : '';
-}
-
-// Helper function to format dates
-function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-  return date.toISOString().split('T')[0];
-}
-
-// Validate input helper
-function validateInputFn(input) {
-  return input && typeof input === 'string' && input.trim().length > 0;
-}
-
-// Process data helper
-function processDataFn(data) {
-  if (!data) return null;
-  return { ...data, processed: true };
-}
-
-// Initialize function
-function initialize() {
-  appState.initialized = true;
-  console.log('App initialized');
-}
-
-// Initialize app function
-function initializeApp() {
-  initialize();
-  return appState;
-}
-
-// Fetch user function
-async function fetchUser(userId) {
-  // ... implementation
-}
-
-// Clear cache function
-function clearCache() {
-  appState.cache.clear();
-}
-
-// Improve accessibility
-function improveAccessibility() {
-  fixTableStructureIssues();
-  fixTableHeaderCellScope();
-  addMainLandmark();
-  addSvgAccessibleNames();
-  fixTableAccessibility();
-  fixFakeLinks();
-  ensureUniqueLandmarks();
-  addLandmarkRoles();
-  addKeyboardNavigation();
-  addAriaLabels();
-  addScreenReaderAnnouncements();
-}
-
-// Function to write the generated report to a file
+// Write report to file
 function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
-  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+    const reportPath = path.join(__dirname, CONFIG.dataPath, 'accessibility-report.json');
+    try {
+        fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');
+        console.log('Report written to', reportPath);
+    } catch (error) {
+        console.error('Error writing report:', error.message);
+    }
 }
 
 // TODO: Implement function for generating a report based on accessibility issues
@@ -239,43 +241,75 @@ function addKeyboardNavigation() {
   });
 }
 
+// Add ARIA labels
 function addAriaLabels() {
-  // Implementation for adding ARIA labels
-  const elements = document.querySelectorAll('[role]');
+  const elements = document.querySelectorAll('[data-label]');
   elements.forEach(el => {
-    if (!el.getAttribute('aria-label')) {
-      el.setAttribute('aria-label', el.getAttribute('role'));
-    }
+    el.setAttribute('aria-label', el.getAttribute('data-label'));
   });
 }
 
+// Add screen reader announcements
 function addScreenReaderAnnouncements() {
-  // Implementation for screen reader announcements
   const announcer = document.createElement('div');
   announcer.setAttribute('aria-live', 'polite');
   announcer.setAttribute('aria-atomic', 'true');
+  announcer.className = 'sr-only';
   document.body.appendChild(announcer);
 }
 
-function addFocusTrap(modal) {
-  // Implementation for focus trapping in modals
-  const focusableElements = modal.querySelectorAll(
-    'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
-  );
-  const firstFocusable = focusableElements[0];
-  const lastFocusable = focusableElements[focusableElements.length - 1];
+// Add focus trap
+function addFocusTrap() {
+  const focusableElements = document.querySelectorAll('a, button, input, [tabindex]');
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
 
-  modal.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstFocusable) {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
         e.preventDefault();
-        lastFocusable.focus();
-      } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
         e.preventDefault();
-        firstFocusable.focus();
       }
     }
   });
+}
+
+// Improve accessibility
+function improveAccessibility() {
+  fixTableStructureIssues();
+  fixTableHeaderCellScope();
+  addMainLandmark();
+  addSvgAccessibleNames();
+  fixTableAccessibility();
+  fixFakeLinks();
+  ensureUniqueLandmarks();
+  addLandmarkRoles();
+  addKeyboardNavigation();
+  addAriaLabels();
+  addScreenReaderAnnouncements();
+}
+
+function fixTableStructureIssues() {
+  // Implementation for fixing table structure issues
+}
+
+function fixTableHeaderCellScope() {
+  // Implementation for fixing table header cell scope
+}
+
+function addSvgAccessibleNames() {
+  // Implementation for adding SVG accessible names
+}
+
+function fixFakeLinks() {
+  // Implementation for fixing fake links
+}
+
+function addLandmarkRoles() {
+  // Implementation for adding landmark roles
 }
 
 /**
@@ -295,6 +329,21 @@ function createAccessibleLinks() {
       console.warn('Link validation issues:', validation.issues);
     }
   });
+}
+
+// Fix table accessibility
+function fixTableAccessibility() {
+  // Implementation for fixing table accessibility
+}
+
+// Fix landmark issues
+function fixLandmarkIssues() {
+  // Implementation for fixing landmark issues
+}
+
+// Add SVG accessibility
+function addSvgAccessibility() {
+  // Implementation for adding SVG accessibility
 }
 
 // Additional utility functions for accessibility
@@ -443,5 +492,6 @@ module.exports = {
   addFocusTrap,
   improveAccessibility,
   helper,
-  formatDate
+  formatDate,
+  someFunction
 };

@@ -662,5 +662,12 @@ module.exports = {
   fixLandmarks: function() {
     addLandmarkRegions();
     ensureUniqueLandmarks(landmarks);
-  }
+  },
+  // New exports added back
+  landmarkStructureCheck,
+  setLanguageAttribute,
+  addProperLandmarkRegions,
+  addLandmarkRegions,
+  fixFakeLinks,
+  initApp
 };

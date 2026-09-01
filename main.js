@@ -215,6 +215,142 @@ const appData = {
   version: '1.0.0'
 };
 
+// Add book function
+function addBook(title, author) {
+  if (!title || !author) {
+    console.error('Title and author are required to add a book');
+    return null;
+  }
+  const book = { id: Date.now(), title, author };
+  console.log('Book added:', book);
+  return book;
+}
+
+// Create accessible add book form
+function createAccessibleAddBookForm() {
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-label', 'Add a new book');
+  form.setAttribute('aria-describedby', 'add-book-description');
+  form.id = 'add-book-form';
+
+  const description = document.createElement('p');
+  description.id = 'add-book-description';
+  description.className = 'sr-only';
+  description.textContent = 'Use this form to add a new book to your library. All fields are required.';
+
+  const titleLabel = document.createElement('label');
+  titleLabel.setAttribute('for', 'book-title');
+  titleLabel.textContent = 'Book Title:';
+  titleLabel.id = 'book-title-label';
+
+  const titleInput = document.createElement('input');
+  titleInput.type = 'text';
+  titleInput.id = 'book-title';
+  titleInput.name = 'title';
+  titleInput.setAttribute('aria-labelledby', 'book-title-label');
+  titleInput.setAttribute('aria-required', 'true');
+  titleInput.setAttribute('aria-invalid', 'false');
+  titleInput.setAttribute('autocomplete', 'off');
+  titleInput.tabIndex = 0;
+  titleInput.required = true;
+  titleInput.placeholder = 'Enter book title';
+
+  const authorLabel = document.createElement('label');
+  authorLabel.setAttribute('for', 'book-author');
+  authorLabel.textContent = 'Book Author:';
+  authorLabel.id = 'book-author-label';
+
+  const authorInput = document.createElement('input');
+  authorInput.type = 'text';
+  authorInput.id = 'book-author';
+  authorInput.name = 'author';
+  authorInput.setAttribute('aria-labelledby', 'book-author-label');
+  authorInput.setAttribute('aria-required', 'true');
+  authorInput.setAttribute('aria-invalid', 'false');
+  authorInput.setAttribute('autocomplete', 'off');
+  authorInput.tabIndex = 0;
+  authorInput.required = true;
+  authorInput.placeholder = 'Enter author name';
+
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Book';
+  submitButton.setAttribute('aria-label', 'Add book to library');
+  submitButton.tabIndex = 0;
+
+  const statusRegion = document.createElement('div');
+  statusRegion.id = 'add-book-status';
+  statusRegion.setAttribute('role', 'status');
+  statusRegion.setAttribute('aria-live', 'polite');
+  statusRegion.setAttribute('aria-atomic', 'true');
+  statusRegion.className = 'sr-only';
+
+  titleInput.addEventListener('input', function () {
+    titleInput.setAttribute('aria-invalid', 'false');
+  });
+
+  authorInput.addEventListener('input', function () {
+    authorInput.setAttribute('aria-invalid', 'false');
+  });
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    let isValid = true;
+
+    if (!titleInput.value.trim()) {
+      titleInput.setAttribute('aria-invalid', 'true');
+      titleInput.focus();
+      isValid = false;
+    }
+
+    if (!authorInput.value.trim()) {
+      authorInput.setAttribute('aria-invalid', 'true');
+      if (isValid) {
+        authorInput.focus();
+      }
+      isValid = false;
+    }
+
+    if (isValid) {
+      const result = addBook(titleInput.value.trim(), authorInput.value.trim());
+      if (result) {
+        statusRegion.textContent = 'Book "' + result.title + '" by ' + result.author + ' added successfully.';
+        titleInput.value = '';
+        authorInput.value = '';
+        titleInput.focus();
+      } else {
+        statusRegion.textContent = 'Failed to add book. Please try again.';
+      }
+    } else {
+      statusRegion.textContent = 'Please fill in all required fields.';
+    }
+  });
+
+  form.appendChild(description);
+  form.appendChild(titleLabel);
+  form.appendChild(titleInput);
+  form.appendChild(authorLabel);
+  form.appendChild(authorInput);
+  form.appendChild(submitButton);
+  form.appendChild(statusRegion);
+
+  return form;
+}
+
+// Initialize and attach the accessible add book form
+function initializeAccessibleAddBookForm() {
+  const existingForm = document.getElementById('add-book-form');
+  if (existingForm) {
+    existingForm.remove();
+  }
+
+  const form = createAccessibleAddBookForm();
+  const container = document.querySelector('#add-book-container') || document.querySelector('main') || document.body;
+  container.appendChild(form);
+  return form;
+}
+
 // Initialization and secure context check
 if (typeof isSecureContext === 'function' && isSecureContext()) {
   const initApp = () => {
@@ -233,6 +369,9 @@ if (typeof isSecureContext === 'function' && isSecureContext()) {
 
     // Fix fake links
     fixFakeLinks();
+
+    // Initialize the accessible add book form
+    initializeAccessibleAddBookForm();
 
     // Initialize the application data
     console.log('Initializing ' + appData.title + ' v' + appData.version);

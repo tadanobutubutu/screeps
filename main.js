@@ -21,7 +21,5 @@ function addressAccessibilityIssues(insightReport) {
   console.log('Addressing accessibility issues:', insightReport);
 }
 
-// Any other new functions or changes should be added here following the same pattern
-
 // Preserve existing exports and functions
 // ... (existing exports and functions from main.js)

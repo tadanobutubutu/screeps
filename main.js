@@ -9,7 +9,9 @@ function implementAccessibilityFixesFromReport(container, report) {
     mainLandmarkAdded: false,
     landmarksFixed: 0,
     svgNamesAdded: 0,
-    fakeLinksFixed: 0
+    fakeLinksFixed: 0,
+    tableStructureFixed: 0,
+    tableAccessibilityFixed: 0
   };
 
   if (!report || !report.issues) {
@@ -47,7 +49,7 @@ function implementAccessibilityFixesFromReport(container, report) {
   // Fix landmarks by ensuring proper roles and accessible names
   if (report.issues.landmarkIssues && Array.isArray(report.issues.landmarkIssues)) {
     const uniqueLandmarksFixed = new Set();
-    
+
     report.issues.landmarkIssues.forEach(issue => {
       if (issue.selector && !uniqueLandmarksFixed.has(issue.selector)) {
         const element = container.querySelector(issue.selector);
@@ -55,7 +57,7 @@ function implementAccessibilityFixesFromReport(container, report) {
           // Add accessible name if missing
           if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
             const role = element.getAttribute('role') || element.tagName.toLowerCase();
-            
+
             // Try to get label from surrounding context
             const previousSibling = element.previousElementSibling;
             if (previousSibling && previousSibling.textContent.trim()) {
@@ -88,21 +90,21 @@ function implementAccessibilityFixesFromReport(container, report) {
         if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
           // Look for a title element within the SVG
           let titleElement = svg.querySelector('title');
-          
+
           if (!titleElement) {
             // Create a title element
             titleElement = container.ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'title');
             const titleId = `svg-title-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             titleElement.id = titleId;
             titleElement.textContent = issue.suggestedName || 'Decorative SVG';
-            
+
             // Insert title as first child of SVG
             if (svg.firstChild) {
               svg.insertBefore(titleElement, svg.firstChild);
             } else {
               svg.appendChild(titleElement);
             }
-            
+
             svg.setAttribute('aria-labelledby', titleId);
             fixes.svgNamesAdded++;
           }
@@ -114,14 +116,14 @@ function implementAccessibilityFixesFromReport(container, report) {
   // Fix fake links (elements that look like links but aren't)
   if (report.issues.fakeLinkIssues && Array.isArray(report.issues.fakeLinkIssues)) {
     const uniqueFakeLinksFixed = new Set();
-    
+
     report.issues.fakeLinkIssues.forEach(issue => {
       if (issue.selector && !uniqueFakeLinksFixed.has(issue.selector)) {
         const element = container.querySelector(issue.selector);
         if (element) {
           // Check if this element should be a link or a button
           const isNavigation = element.closest('nav') !== null;
-          
+
           if (isNavigation || element.tagName.toLowerCase() === 'a') {
             // Convert to proper link with href
             if (!element.hasAttribute('href')) {
@@ -144,6 +146,32 @@ function implementAccessibilityFixesFromReport(container, report) {
     });
   }
 
+  // Fix table structure issues
+  if (report.issues.tableStructureIssues && Array.isArray(report.issues.tableStructureIssues)) {
+    report.issues.tableStructureIssues.forEach(issue => {
+      const table = container.querySelector(issue.selector);
+      if (table && table.tagName.toLowerCase() === 'table') {
+        const fixed = validateTableStructure(table);
+        if (fixed) {
+          fixes.tableStructureFixed++;
+        }
+      }
+    });
+  }
+
+  // Fix table accessibility issues
+  if (report.issues.tableAccessibilityIssues && Array.isArray(report.issues.tableAccessibilityIssues)) {
+    report.issues.tableAccessibilityIssues.forEach(issue => {
+      const table = container.querySelector(issue.selector);
+      if (table && table.tagName.toLowerCase() === 'table') {
+        const fixed = validateTableAccessibility(table);
+        if (fixed) {
+          fixes.tableAccessibilityFixed++;
+        }
+      }
+    });
+  }
+
   return fixes;
 }
 
@@ -161,7 +189,9 @@ module.exports = {
       mainLandmarkAdded: false,
       landmarksFixed: 0,
       svgNamesAdded: 0,
-      fakeLinksFixed: 0
+      fakeLinksFixed: 0,
+      tableStructureFixed: 0,
+      tableAccessibilityFixed: 0
     };
 
     // Add lang attribute to HTML element if missing
@@ -222,6 +252,16 @@ module.exports = {
     const fakeLinkFixes = fixes.fakeLinksFixed || 0;
     if (fakeLinkFixes > 0) {
       console.info(`Fixed fake link issues for ${fakeLinkFixes} elements`);
+    }
+
+    const tableStructureFixes = fixes.tableStructureFixed || 0;
+    if (tableStructureFixes > 0) {
+      console.info(`Fixed table structure issues for ${tableStructureFixes} tables`);
+    }
+
+    const tableAccessibilityFixes = fixes.tableAccessibilityFixed || 0;
+    if (tableAccessibilityFixes > 0) {
+      console.info(`Fixed table accessibility issues for ${tableAccessibilityFixes} tables`);
     }
 
     return fixes;

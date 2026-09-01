@@ -5,6 +5,8 @@
 // todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
 
 // Import required modules
+// TODO: New code that was added to the branch
+// New function that does something different
 const http = require('http');
 const path = require('path');
 

@@ -1,9 +1,3 @@
-// TODO: This is the modified and merged code
-// This is the existing code that needs to be preserved in main.js
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report
-// ----- END ORIGINAL CODE-----
-
 /**
  * Main entry point for the Screeps bot.
  * Handles core game logic and integration points.
@@ -115,7 +109,61 @@ function updateUI(elementId, text) {
   }
 }
 
+// Accessibility utilities for keyboard navigation and focus management
+const accessibilityUtils = {
+  // Trap focus within an element (for modals, dialogs)
+  trapFocus: function(element) {
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            lastElement.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            firstElement.focus();
+            e.preventDefault();
+          }
+        }
+      }
+    });
+  },
+
+  // Announce message to screen readers
+  announceToScreenReader: function(message, priority) {
+    if (priority === undefined) {
+      priority = 'polite';
+    }
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(function() {
+      announcer.remove();
+    }, 1000);
+  },
+
+  // Handle keyboard navigation
+  handleKeyboardNav: function(e, handlers) {
+    const key = e.key;
+    if (handlers[key]) {
+      handlers[key](e);
+    }
+  },
+};
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ScreepsBot, updateUI };
+  module.exports = { ScreepsBot, updateUI, accessibilityUtils };
 }

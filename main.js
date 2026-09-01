@@ -15,11 +15,11 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure(), and ensureUniqueLandmarks())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and validateSvgAccessibility())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
-// - ADD: Address new accessibility issues from insight report
+// - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and validateLinks())
+// - ADD: Address new accessibility issues from insight report (handled by checkColorContrast(), announceToScreenReader(), and createSkipLink())
 import React from 'react';
 
 /**
@@ -344,6 +344,48 @@ function validateLinks(container) {
   return { valid: errors.length === 0, errors };
 }
 
+/**
+ * Creates an in-page button element that acts as a link but uses a real <button>
+ * to address REACT_036 fake link issues. Use this instead of <a> elements that
+ * don't navigate anywhere (e.g., buttons styled as links, toggle controls).
+ * @param {Object} options - Configuration options for the button
+ * @param {string} options.text - The visible text content of the button
+ * @param {string} options.accessibleName - The aria-label for the button (optional, defaults to text)
+ * @param {Function} options.onClick - Click handler function
+ * @param {string} options.className - Additional CSS class names
+ * @returns {HTMLButtonElement} A properly configured button element with an accessible name
+ */
+function createInPageButton(options = {}) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  
+  const config = {
+    text: options.text || '',
+    accessibleName: options.accessibleName || options.text || '',
+    onClick: options.onClick || null,
+    className: options.className || ''
+  };
+  
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = config.text;
+  
+  if (config.accessibleName) {
+    button.setAttribute('aria-label', config.accessibleName);
+  }
+  
+  if (config.className) {
+    button.className = config.className;
+  }
+  
+  if (typeof config.onClick === 'function') {
+    button.addEventListener('click', config.onClick);
+  }
+  
+  return button;
+}
+
 // TODO: Implement a new function to handle focus trap for keyboard navigation
 /**
  * Creates a focus trap within a container element for keyboard navigation.
@@ -437,4 +479,100 @@ function createFocusTrap(container, options = {}) {
     update,
     destroy: deactivate
   };
+}
+
+/**
+ * Checks the color contrast ratio between two colors to ensure WCAG compliance.
+ * Addresses accessibility issues related to insufficient color contrast.
+ * @param {string} foreground - Foreground color in hex format (e.g., '#000000')
+ * @param {string} background - Background color in hex format (e.g., '#FFFFFF')
+ * @returns {object} Result with ratio, AA pass/fail, and AAA pass/fail booleans
+ */
+function checkColorContrast(foreground, background) {
+  const hexToRgb = (hex) => {
+    const cleanHex = hex.replace('#', '');
+    return {
+        r: parseInt(cleanHex.substring(0, 2), 16),
+        g: parseInt(cleanHex.substring(2, 4), 16),
+        b: parseInt(cleanHex.substring(4, 6), 16)
+      };
+  };
+  
+  const getLuminance = (rgb) => {
+    const [r, g, b] = [rgb.r, rgb.g, rgb.b].map((val) => {
+      const sRGB = val / 255;
+      return sRGB <= 0.03928 ? sRGB / 12.92 : Math.pow((sRGB + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  
+  const fgLuminance = getLuminance(hexToRgb(foreground));
+  const bgLuminance = getLuminance(hexToRgb(background));
+  
+  const ratio = (Math.max(fgLuminance, bgLuminance) + 0.05) / (Math.min(fgLuminance, bgLuminance) + 0.05);
+  
+  return {
+    ratio: Math.round(ratio * 100) / 100,
+    passesAA: ratio >= 4.5,
+    passesAAA: ratio >= 7,
+    passesAALarge: ratio >= 3
+  };
+}
+
+/**
+ * Announces a message to screen readers using a live region.
+ * @param {string} message - The message to announce
+ * @param {string} priority - The priority level: 'polite' (default) or 'assertive'
+ */
+function announceToScreenReader(message, priority = 'polite') {
+  if (typeof document === 'undefined' || !message) {
+    return;
+  }
+  
+  let liveRegion = document.getElementById('a11y-live-region');
+  if (!liveRegion) {
+    liveRegion = document.createElement('div');
+    liveRegion.id = 'a11y-live-region';
+    liveRegion.setAttribute('aria-live', priority);
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.style.position = 'absolute';
+    liveRegion.style.left = '-9999px';
+    liveRegion.style.width = '1px';
+    liveRegion.style.height = '1px';
+    liveRegion.style.overflow = 'hidden';
+    document.body.appendChild(liveRegion);
+  } else {
+    liveRegion.setAttribute('aria-live', priority);
+  }
+  
+  // Clear and set the message to trigger announcement
+  liveRegion.textContent = '';
+  setTimeout(() => {
+    liveRegion.textContent = message;
+  }, 50);
+}
+
+/**
+ * Creates a skip link element to allow keyboard users to bypass navigation.
+ * @param {string} targetId - The ID of the element to skip to
+ * @param {string} text - The visible text for the skip link (default: 'Skip to main content')
+ * @returns {HTMLAnchorElement|null} The skip link element
+ */
+function createSkipLink(targetId, text = 'Skip to main content') {
+  if (typeof document === 'undefined' || !targetId) {
+    return null;
+  }
+  
+  const skipLink = document.createElement('a');
+  skipLink.href = `#${targetId}`;
+  skipLink.textContent = text;
+  skipLink.className = 'skip-link';
+  
+  // Ensure the target is focusable
+  const target = document.getElementById(targetId);
+  if (target && !target.hasAttribute('tabindex')) {
+    target.setAttribute('tabindex', '-1');
+  }
+  
+  return skipLink;
 }

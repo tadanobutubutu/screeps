@@ -3,6 +3,9 @@
  */
 // Main JavaScript file
 // This file handles the main application logic
+const fs = require('fs');
+const path = require('path');
+
 (function() {
     'use strict';
 

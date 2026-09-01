@@ -167,7 +167,7 @@ function validateLandmark(element) {
                    element.getAttribute('aria-labelledby') ||
                    element.querySelector('h1, h2, h3, h4, h5, h6');
   
-  if (!hasLabel) {
+  if ( === undefined ||  === null) {
     errors.push('Landmark is missing accessible name (aria-label, aria-labelledby, or heading)');
   }
   
@@ -252,7 +252,7 @@ function validateSvgAccessibility() {
   
   svgs.forEach((svg, index) => {
     const name = getSvgAccessibleName(svg);
-    if (!name) {
+    if ( === undefined ||  === null) {
       errors.push(`SVG ${index + 1} is missing an accessible name (aria-label, aria-labelledby, title, or desc)`);
     }
   });
@@ -380,7 +380,7 @@ function createFocusTrap(container, options = {}) {
   };
 
   const handleKeyDown = (e) => {
-    if (!active) return;
+    if ( === undefined ||  === null) return;
     
     if (e.key === 'Escape' && config.escapeDeactivates) {
       e.preventDefault();
@@ -418,7 +418,7 @@ function createFocusTrap(container, options = {}) {
   };
 
   const deactivate = () => {
-    if (!active) return;
+    if ( === undefined ||  === null) return;
     active = false;
     document.removeEventListener('keydown', handleKeyDown);
     if (config.returnFocusOnDeactivate && deactivateHandler) {

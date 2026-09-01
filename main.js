@@ -16,4 +16,5 @@ function newFunction() {
   // Implementation of new function
 }
 
-// TODO: Continue adding back any required exports that might have been removed
+// Export the new function
+module.exports.newFunction = newFunction;

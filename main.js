@@ -30,15 +30,15 @@ function getFullLangAttribute() {
  */
 function validateTableAccessibility(table) {
   const issues = [];
-  
+
   if (!table.headers) {
     issues.push('Missing headers attribute');
   }
-  
+
   if (!table.scope) {
     issues.push('Missing scope attribute');
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -52,7 +52,7 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(tables) {
   const allIssues = [];
-  
+
   tables.forEach((table, index) => {
     const result = validateTableAccessibility(table);
     if (!result.success) {
@@ -62,7 +62,7 @@ function validateTableStructure(tables) {
       });
     }
   });
-  
+
   return {
     success: allIssues.length === 0,
     issues: allIssues
@@ -77,13 +77,13 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  
+
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -97,7 +97,7 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure(landmarks) {
   const issues = [];
-  
+
   landmarks.forEach((landmark, index) => {
     const result = validateLandmark(landmark);
     if (!result.success) {
@@ -107,7 +107,7 @@ function validateLandmarkStructure(landmarks) {
       });
     }
   });
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -122,7 +122,7 @@ function validateLandmarkStructure(landmarks) {
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
-  
+
   landmarks.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
@@ -131,7 +131,7 @@ function ensureUniqueLandmarks(landmarks) {
       names.push(name);
     }
   });
-  
+
   return {
     success: duplicates.length === 0,
     duplicates
@@ -200,7 +200,7 @@ function createAccessibleLink(options) {
 function handleAccessibilityIssues(issues) {
   const handled = [];
   const unhandled = [];
-  
+
   issues.forEach(issue => {
     if (issue.fixable) {
       handled.push(issue);
@@ -208,13 +208,108 @@ function handleAccessibilityIssues(issues) {
       unhandled.push(issue);
     }
   });
-  
+
   return {
     total: issues.length,
     handled: handled.length,
     unhandled: unhandled.length,
     unhandledIssues: unhandled
   };
+}
+
+/**
+ * Generates a report based on accessibility issues
+ * @param {Object} validationResults - Results from accessibility validations
+ * @returns {Object} Formatted report with summary and detailed issues
+ */
+function generateAccessibilityReport(validationResults) {
+  const report = {
+    summary: {
+      totalIssues: 0,
+      handledIssues: 0,
+      unhandledIssues: 0,
+      criticalIssues: 0,
+      warnings: 0
+    },
+    details: {
+      tables: [],
+      landmarks: [],
+      svgs: [],
+      other: []
+    }
+  };
+
+  // Process table validation results
+  if (validationResults.tables) {
+    validationResults.tables.forEach(tableResult => {
+      if (!tableResult.success) {
+        report.summary.totalIssues += tableResult.issues.length;
+        report.details.tables.push({
+          tableIndex: tableResult.tableIndex,
+          issues: tableResult.issues
+        });
+      }
+    });
+  }
+
+  // Process landmark validation results
+  if (validationResults.landmarks) {
+    validationResults.landmarks.forEach(landmarkResult => {
+      if (!landmarkResult.success) {
+        report.summary.totalIssues += landmarkResult.issues.length;
+        report.details.landmarks.push({
+          landmarkIndex: landmarkResult.landmarkIndex,
+          issues: landmarkResult.issues
+        });
+      }
+    });
+  }
+
+  // Process SVG validation results
+  if (validationResults.svgs) {
+    validationResults.svgs.forEach(svgResult => {
+      if (!svgResult.success) {
+        report.summary.totalIssues += svgResult.issues.length;
+        report.details.svgs.push({
+          svgIndex: svgResult.svgIndex,
+          issues: svgResult.issues
+        });
+      }
+    });
+  }
+
+  // Process other validation results
+  if (validationResults.other) {
+    validationResults.other.forEach(otherResult => {
+      if (!otherResult.success) {
+        report.summary.totalIssues += otherResult.issues.length;
+        report.details.other.push({
+          issueType: otherResult.issueType,
+          issues: otherResult.issues
+        });
+      }
+    });
+  }
+
+  // Calculate summary statistics
+  if (validationResults.handledIssues) {
+    report.summary.handledIssues = validationResults.handledIssues;
+  }
+
+  if (validationResults.unhandledIssues) {
+    report.summary.unhandledIssues = validationResults.unhandledIssues;
+  }
+
+  // Categorize issues by severity
+  if (validationResults.criticalIssues) {
+    report.summary.criticalIssues = validationResults.criticalIssues;
+  }
+
+  if (validationResults.warnings) {
+    report.summary.warnings = validationResults.warnings;
+  }
+
+  return report;
 }
 
 // Export all functions for testing and external use
@@ -229,5 +324,6 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  generateAccessibilityReport
 };

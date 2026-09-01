@@ -325,6 +325,76 @@ function newFunction(element) {
   trap.activate();
 }
 
+// New functions for graph/index rendering
+/**
+ * Renders a graph visualization based on provided data
+ * @param {Object} graphData - Data containing nodes and edges for the graph
+ * @param {HTMLElement} container - The container element to render the graph into
+ * @returns {HTMLElement} The rendered graph container
+ */
+function renderGraph(graphData, container) {
+  if (!graphData || !container) {
+    console.error('Missing required parameters for renderGraph');
+    return null;
+  }
+
+  // Create graph container
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'graph-visualization';
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', 'Graph visualization');
+
+  // Add nodes
+  if (graphData.nodes) {
+    graphData.nodes.forEach((node, index) => {
+      const nodeElement = document.createElement('div');
+      nodeElement.className = 'graph-node';
+      nodeElement.id = `node-${index}`;
+      nodeElement.textContent = node.label || `Node ${index + 1}`;
+      nodeElement.setAttribute('role', 'button');
+      nodeElement.setAttribute('tabindex', '0');
+      graphContainer.appendChild(nodeElement);
+    });
+  }
+
+  // Add edges
+  if (graphData.edges) {
+    graphData.edges.forEach((edge, index) => {
+      const edgeElement = document.createElement('div');
+      edgeElement.className = 'graph-edge';
+      edgeElement.id = `edge-${index}`;
+      edgeElement.setAttribute('aria-hidden', 'true');
+      graphContainer.appendChild(edgeElement);
+    });
+  }
+
+  // Append to container
+  container.appendChild(graphContainer);
+  return graphContainer;
+}
+
+/**
+ * Updates an existing graph visualization with new data
+ * @param {HTMLElement} graphContainer - The existing graph container to update
+ * @param {Object} newGraphData - New data to update the graph with
+ */
+function updateGraph(graphContainer, newGraphData) {
+  if (!graphContainer || !newGraphData) {
+    console.error('Missing required parameters for updateGraph');
+    return;
+  }
+
+  // Clear existing nodes and edges
+  const nodes = graphContainer.querySelectorAll('.graph-node');
+  const edges = graphContainer.querySelectorAll('.graph-edge');
+
+  nodes.forEach(node => node.remove());
+  edges.forEach(edge => edge.remove());
+
+  // Re-render with new data
+  renderGraph(newGraphData, graphContainer.parentElement);
+}
+
 // Export statements preserved
 export { existingFunction };
 
@@ -345,7 +415,9 @@ export {
   accessibilityUtils,
   ensureElementId,
   addAriaLabel,
-  renderDependencyGraph
+  renderDependencyGraph,
+  renderGraph,
+  updateGraph
 };
 
 // Set the document language

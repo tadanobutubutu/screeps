@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs

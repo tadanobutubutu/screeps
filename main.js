@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 // main.js - Accessibility improvements implementation
 
 // Function to announce page updates for screen readers

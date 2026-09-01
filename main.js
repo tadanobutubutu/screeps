@@ -1,7 +1,7 @@
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-/* todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 */
+/* todo-hash: a6e35127a459684dcab932e3ed9ebe5d71604410 */
 
 /**
  * Main application entry point with accessibility features
@@ -353,8 +353,25 @@ const AddressabilityIssues = {
 
     let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
 
-    if (!landmarkRole && ... {
-      landmarkRole = ...
+    // If no explicit role, try to infer from tag name
+    if (!landmarkRole) {
+      if (tagName.includes('header')) {
+        landmarkRole = 'banner';
+      } else if (tagName.includes('main')) {
+        landmarkRole = 'main';
+      } else if (tagName.includes('nav')) {
+        landmarkRole = 'navigation';
+      } else if (tagName.includes('aside')) {
+        landmarkRole = 'complementary';
+      } else if (tagName.includes('footer')) {
+        landmarkRole = 'contentinfo';
+      } else if (tagName.includes('section')) {
+        landmarkRole = 'region';
+      } else if (tagName.includes('form')) {
+        landmarkRole = 'form';
+      } else {
+        landmarkRole = null;
+      }
     }
 
     if (!landmarkRole) {
@@ -365,7 +382,7 @@ const AddressabilityIssues = {
       };
     }
 
-    if ... {
+    if (!landmarkRoles.includes(landmarkRole)) {
       return { 
         valid: false, 
         error: `Invalid landmark role: ${landmarkRole}`,

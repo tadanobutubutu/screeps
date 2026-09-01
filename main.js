@@ -4,6 +4,187 @@ const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
 
+// REACT_015: Add lang attribute to document
+function ensureLangAttribute() {
+  if (document.documentElement.getAttribute('lang') === null) {
+    document.documentElement.setAttribute('lang', document.documentElement.lang || 'en');
+  }
+}
+
+// REACT_027: Fix table structure issues
+function fixTableStructure() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = `Table ${index + 1}`;
+      table.insertBefore(caption, table.firstChild);
+    }
+
+    const headers = table.querySelectorAll('th');
+    const cells = table.querySelectorAll('td, th');
+
+    cells.forEach(cell => {
+      if (!cell.hasAttribute('scope') && !cell.hasAttribute('headers')) {
+        const isHeader = cell.tagName === 'TH';
+        if (isHeader) {
+          cell.setAttribute('scope', 'col');
+        }
+      }
+    });
+  });
+}
+
+// REACT_017 & REACT_025: Fix and ensure unique landmarks
+function fixLandmarks() {
+  const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
+  const landmarkCounts = {};
+
+  landmarkSelectors.forEach(selector => {
+    landmarkCounts[selector] = 0;
+  });
+
+  document.querySelectorAll(landmarkSelectors.join(', ')).forEach(element => {
+    const tagName = element.tagName.toLowerCase();
+
+    if (landmarkCounts[tagName] > 0 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      landmarkCounts[tagName]++;
+      element.setAttribute('aria-label', `${tagName}-${landmarkCounts[tagName]}`);
+    } else if (landmarkCounts[tagName] === 0) {
+      landmarkCounts[tagName]++;
+    }
+  });
+}
+
+// REACT_017: Implement this function for checking landmark elements
+function checkLandmarkElements() {
+  const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
+  const landmarks = document.querySelectorAll(landmarkSelectors.join(', '));
+  const results = {
+    totalLandmarks: landmarks.length,
+    landmarksByType: {},
+    issues: []
+  };
+
+  // Count landmarks by type
+  landmarks.forEach(element => {
+    const tagName = element.tagName.toLowerCase();
+    results.landmarksByType[tagName] = (results.landmarksByType[tagName] || 0) + 1;
+
+    // Check for accessibility issues
+    if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      results.issues.push({
+        element: tagName,
+        issue: 'Missing aria-label or aria-labelledby',
+        id: element.id || 'no-id'
+      });
+    }
+  });
+
+  // Check for required landmarks
+  const requiredLandmarks = ['header', 'nav', 'main', 'footer'];
+  requiredLandmarks.forEach(landmark => {
+    if (!results.landmarksByType[landmark]) {
+      results.issues.push({
+        element: landmark,
+        issue: 'Missing required landmark',
+        id: 'none'
+      });
+    }
+  });
+
+  return results;
+}
+
+// REACT_041: Add accessible names to SVGs
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = `SVG icon ${index + 1}`;
+      title.id = `svg-title-${index + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+      svg.setAttribute('aria-labelledby', title.id);
+    }
+  });
+}
+
+// REACT_036: Fix fake link issues (links without href or with javascript:void(0))
+function fixFakeLinks() {
+  document.querySelectorAll('a').forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;') {
+      if (link.querySelector('button') || link.getAttribute('role') === 'button') {
+        link.setAttribute('role', 'button');
+        if (!link.id) {
+          link.id = `button-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        }
+      }
+    }
+  });
+}
+
+// REACT_040: Replace my-button with actual button id for accessibility
+function replaceButtonIds() {
+  const fakeButtons = document.querySelectorAll('[id="my-button"], .my-button');
+  fakeButtons.forEach((button, index) => {
+    const newId = `accessible-button-${index + 1}`;
+    if (button.id === 'my-button') {
+      button.id = newId;
+    }
+    if (button.classList.contains('my-button')) {
+      button.classList.remove('my-button');
+      button.classList.add(newId);
+    }
+  });
+}
+
+// REACT_042: Ensure dependencyGraph container has proper ARIA role
+function ensureDependencyGraphAriaRole() {
+  const dependencyGraph = document.querySelector('#dependencyGraph, .dependencyGraph, [data-dependency-graph]');
+  if (dependencyGraph) {
+    if (!dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+    if (!dependencyGraph.getAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
+}
+
+// REACT_037: Google sign-in logic
+const googleSignIn = {
+  initialize: function(clientId) {
+    if (typeof google !== 'undefined' && google.accounts) {
+      google.accounts.id.initialize({
+        client_id: client_id,
+        callback: this.handleCredentialResponse.bind(this)
+      });
+      return true;
+    }
+    return false;
+  },
+
+  renderButton: function(elementId) {
+    const element = document.getElementById(elementId);
+    if (element && typeof google !== 'undefined' && google.accounts) {
+      google.accounts.id.renderButton(element, {
+        theme: 'outline',
+        size: 'large',
+        text: 'sign_in_with'
+      });
+      return true;
+    }
+    return false;
+  },
+
+  handleCredentialResponse: function(response) {
+    console.log('Google Sign-In successful');
+    return response;
+  }
+};
+
 // Configuration - merged
 const CONFIG = {
     dataPath: './data',
@@ -15,10 +196,6 @@ const CONFIG = {
 // Alternative config style for backwards compatibility
 const config = CONFIG;
 
-// Application state
-let isInitialized = false;
-const appData = {};
-
 // App state with accessibility updates
 const appState = {
   initialized: false,
@@ -26,19 +203,6 @@ const appState = {
   cache: {},
   lang: 'en'
 };
-
-// Helper for input transformation
-function helper(input) {
-  return input ? input.toUpperCase() : '';
-}
-
-// Helper function to format dates
-function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-  return date.toISOString().split('T')[0];
-}
 
 // Validate input helper
 function validateInput(input) {
@@ -76,11 +240,6 @@ function clearCache() {
   appState.cache.clear();
 }
 
-// Helper function
-function someFunction() {
-  return 'some value';
-}
-
 // Configuration
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
@@ -109,27 +268,6 @@ function getLangAttribute() {
   return document.documentElement.getAttribute('lang');
 }
 
-// New function to analyze module dependencies
-function analyzeModuleDependencies(modules) {
-  // Implementation would analyze and return dependency relationships
-  console.log('Analyzing dependencies for modules:', modules);
-  return {
-    totalDependencies: 0,
-    dependencyMap: {}
-  };
-}
-
-// New function to visualize module relationships
-function visualizeModuleRelationships(modules) {
-  // Implementation would create a visual representation of module relationships
-  console.log('Visualizing relationships for modules:', modules);
-  return {
-    graph: {},
-    nodes: [],
-    edges: []
-  };
-}
-
 // Helper for input transformation
 function helper(input) {
   return input ? input.toUpperCase() : '';
@@ -137,7 +275,10 @@ function helper(input) {
 
 // Helper function to format dates
 function formatDate(date) {
-  return new Date(date).toISOString();
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.toISOString().split('T')[0];
 }
 
 // Validate input helper
@@ -182,30 +323,6 @@ function sortLandmarks(landmarks, ascending = true) {
 
 function getLandmarkById(landmarks, id) {
   return landmarks.find(landmark => landmark.id === id) || null;
-}
-
-function ensureUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-
-  const seen = new Set();
-  const uniqueLandmarks = [];
-
-  for (const landmark of landmarks) {
-    if (!landmark || typeof landmark.id === 'undefined') {
-      continue;
-    }
-
-    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-    if (!seen.has(landmarkId)) {
-      seen.add(landmarkId);
-      uniqueLandmarks.push(landmark);
-    }
-  }
-
-  return uniqueLandmarks;
 }
 
 // Write report to file
@@ -285,3 +402,48 @@ function improveAccessibility() {
   fixTableHeaderCellScope();
   addMainLandmark();
   addSvgAccessibleNames();
+  fixFakeLinks();
+  ensureUniqueLandmarks();
+  addLandmarkRoles();
+}
+
+// Exports for testing
+module.exports = {
+  ensureLangAttribute,
+  fixTableStructure,
+  fixLandmarks,
+  checkLandmarkElements,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  replaceButtonIds,
+  ensureDependencyGraphAriaRole,
+  googleSignIn,
+  CONFIG,
+  config,
+  appState,
+  validateInput,
+  processData,
+  initialize,
+  initializeApp,
+  fetchUser,
+  clearCache,
+  someFunction,
+  helper,
+  formatDate,
+  validateInputFn,
+  processDataFn,
+  analyzeModuleDependencies,
+  visualizeModuleRelationships,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  ensureUniqueLandmarks,
+  writeReport,
+  generateAccessibilityReport,
+  scanAccessibility,
+  addKeyboardNavigation,
+  addAriaLabels,
+  addScreenReaderAnnouncements,
+  addFocusTrap,
+  improveAccessibility
+};

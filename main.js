@@ -19,11 +19,96 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
   }
+}
+
+// TODO: Implement a new function to handle focus trap for keyboard navigation
+/**
+ * Creates a focus trap for keyboard navigation within a specified container
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @param {Object} options - Configuration options for the focus trap
+ * @param {boolean} options.initialFocus - Whether to set initial focus to the first focusable element
+ * @param {boolean} options.returnFocus - Whether to return focus to the previously focused element when trap is released
+ * @returns {Object} An object with methods to activate and deactivate the focus trap
+ */
+function createFocusTrap(container, options = {}) {
+  const { initialFocus = true, returnFocus = true } = options;
+  let previouslyFocusedElement = null;
+  let active = false;
+
+  // Get all focusable elements within the container
+  function getFocusableElements() {
+    return Array.from(container.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )).filter(el => !el.hasAttribute('disabled') && el.offsetParent !== null);
+  }
+
+  // Handle keyboard events
+  function handleKeyDown(event) {
+    if (event.key === 'Tab') {
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length === 0) return;
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (event.shiftKey) {
+        // Shift+Tab: move focus to last element if at first
+        if (document.activeElement === firstElement) {
+          lastElement.focus();
+          event.preventDefault();
+        }
+      } else {
+        // Tab: move focus to first element if at last
+        if (document.activeElement === lastElement) {
+          firstElement.focus();
+          event.preventDefault();
+        }
+      }
+    } else if (event.key === 'Escape') {
+      // Optional: Add escape key to deactivate trap
+      deactivate();
+    }
+  }
+
+  // Activate the focus trap
+  function activate() {
+    if (active) return;
+
+    previouslyFocusedElement = document.activeElement;
+    active = true;
+
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length > 0 && initialFocus) {
+      focusableElements[0].focus();
+    }
+
+    container.addEventListener('keydown', handleKeyDown);
+    container.setAttribute('data-focus-trap', 'active');
+  }
+
+  // Deactivate the focus trap
+  function deactivate() {
+    if (!active) return;
+
+    active = false;
+    container.removeEventListener('keydown', handleKeyDown);
+    container.removeAttribute('data-focus-trap');
+
+    if (returnFocus && previouslyFocusedElement) {
+      previouslyFocusedElement.focus();
+    }
+  }
+
+  return {
+    activate,
+    deactivate,
+    isActive: () => active
+  };
 }
 
 // Required changes to fix the React SVG Accessible Name issue
@@ -100,5 +185,6 @@ module.exports = {
   sanitizeHtml,
   validateTableAccessibility,
   validateTableStructure,
-  renderAdditionalContent
+  renderAdditionalContent,
+  createFocusTrap
 };

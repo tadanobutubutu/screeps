@@ -65,16 +65,16 @@ const accessibilityUtils = {
    */
   newFocusTrap(element) {
     if (!element) return;
-    
+
     const focusableElements = element.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
-    
+
     if (focusableElements.length === 0) return;
-    
+
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
-    
+
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
@@ -86,7 +86,7 @@ const accessibilityUtils = {
         }
       }
     });
-    
+
     firstElement.focus();
   },
 
@@ -140,7 +140,7 @@ const accessibilityUtils = {
       tables: 0,
       images: 0,
     };
-    
+
     // Validate skip links
     document.querySelectorAll('a[href^="#"]').forEach((link) => {
       const target = link.getAttribute('href').substring(1);
@@ -150,7 +150,7 @@ const accessibilityUtils = {
         fixes.skipLinks++;
       }
     });
-    
+
     // Validate tables
     document.querySelectorAll('table').forEach((table) => {
       if (!table.querySelector('th')) {
@@ -168,13 +168,13 @@ const accessibilityUtils = {
         fixes.tables++;
       }
     });
-    
+
     // Validate images
     document.querySelectorAll('img:not([alt])').forEach((img) => {
       console.warn('Image missing alt attribute', img);
       fixes.images++;
     });
-    
+
     console.log('Accessibility issues addressed', fixes);
   },
 
@@ -208,11 +208,11 @@ const ensureElementHasId = (element, prefix = 'element') => {
   if (!element) {
     throw new Error('Element is required');
   }
-  
+
   if (element.id) {
     return element.id;
   }
-  
+
   const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = id;
   return id;
@@ -232,7 +232,7 @@ const addAriaLabel = (element, label) => {
   if (!label) {
     throw new Error('Label is required');
   }
-  
+
   element.setAttribute('aria-label', label);
   return element;
 };
@@ -249,21 +249,126 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
   if (!container) {
     throw new Error('Container element is required');
   }
-  
+
   if (!dependencies) {
     throw new Error('Dependencies data is required');
   }
-  
+
   // Ensure container has an id for graph references
   const containerId = ensureElementHasId(container, 'graph-container');
-  
+
   // Add accessibility label if not present
   const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
-  
+
   // Render logic placeholder
   container.innerHTML = `<div id="${containerId}">Graph not implemented</div>`;
-  
+
   return container;
+}
+
+/**
+ * Adds lang attribute to the HTML element if not present.
+ * Ensures proper language declaration for screen readers.
+ */
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+/**
+ * Fixes table structure issues for better accessibility.
+ * Adds missing captions, ensures proper headers, and fixes cell structure.
+ */
+function fixTableStructureIssues() {
+  document.querySelectorAll('table').forEach((table) => {
+    // Add caption if missing
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table data';
+      table.insertBefore(caption, table.firstChild);
+    }
+
+    // Ensure headers have scope attributes
+    table.querySelectorAll('th').forEach((th) => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+
+    // Fix inconsistent cell counts
+    const rows = table.querySelectorAll('tr');
+    if (rows.length > 0) {
+      const firstRowCellCount = rows[0].children.length;
+      rows.forEach((row) => {
+        while (row.children.length < firstRowCellCount) {
+          const td = document.createElement('td');
+          td.textContent = '—';
+          row.appendChild(td);
+        }
+      });
+    }
+  });
+}
+
+/**
+ * Adds main landmark if not present.
+ * Ensures proper document structure for screen readers.
+ */
+function addMainLandmark() {
+  if (!document.querySelector('main')) {
+    const main = document.createElement('main');
+    const content = document.querySelector('body > *:not(script):not(style):not(link)');
+    if (content) {
+      main.appendChild(content);
+      document.body.insertBefore(main, document.body.firstChild);
+    }
+  }
+}
+
+/**
+ * Adds accessible names to SVG elements.
+ * Ensures SVGs have proper labels for screen readers.
+ */
+function addSvgAccessibleName() {
+  document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])').forEach((svg) => {
+    const title = svg.querySelector('title');
+    if (title) {
+      svg.setAttribute('aria-labelledby', ensureElementHasId(title));
+    } else {
+      svg.setAttribute('aria-label', 'Graphic');
+    }
+  });
+}
+
+/**
+ * Ensures unique landmarks by removing duplicate main elements.
+ * Maintains only one main landmark for proper document structure.
+ */
+function ensureUniqueLandmarks() {
+  const mains = document.querySelectorAll('main');
+  if (mains.length > 1) {
+    for (let i = 1; i < mains.length; i++) {
+      const div = document.createElement('div');
+      while (mains[i].firstChild) {
+        div.appendChild(mains[i].firstChild);
+      }
+      mains[i].replaceWith(div);
+    }
+  }
+}
+
+/**
+ * Fixes fake link issues by ensuring proper link behavior.
+ * Removes elements that appear like links but don't function as links.
+ */
+function fixFakeLinkIssue() {
+  document.querySelectorAll('[role="link"], [href]').forEach((element) => {
+    if (!element.hasAttribute('href') && element.getAttribute('role') === 'link') {
+      element.removeAttribute('role');
+    }
+  });
 }
 
 // TODO: Validate the table structure for accessibility issues
@@ -280,14 +385,14 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
 function validateTableStructure() {
   const tables = document.querySelectorAll('table');
   const issues = [];
-  
+
   tables.forEach((table, index) => {
     // Check if table has a caption
     const caption = table.querySelector('caption');
     if (!caption) {
       issues.push({ tableIndex: index, issue: 'Missing caption' });
     }
-    
+
     // Check for header scope
     const headers = table.querySelectorAll('th');
     if (headers.length === 0) {
@@ -299,7 +404,7 @@ function validateTableStructure() {
         }
       });
     }
-    
+
     // Check for consistent row cell counts
     const rows = table.querySelectorAll('tr');
     const cellCounts = new Set();
@@ -309,7 +414,7 @@ function validateTableStructure() {
     if (cellCounts.size > 1) {
       issues.push({ tableIndex: index, issue: 'Inconsistent number of cells across rows' });
     }
-    
+
     // Ensure data cells have proper headers (simple check)
     const firstRow = rows[0];
     if (firstRow) {
@@ -326,12 +431,12 @@ function validateTableStructure() {
       });
     }
   });
-  
+
   if (issues.length > 0) {
     console.warn('Table accessibility issues found:', issues);
     return false;
   }
-  
+
   console.log('All tables passed accessibility checks.');
   return true;
 }
@@ -344,8 +449,15 @@ module.exports = {
   initAccessibility: accessibilityUtils.initAccessibility,
   exportData: accessibilityUtils.exportData,
   addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
+  announceToScreenReader: accessibilityUtils.announceToScreenReader,
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,
   validateTableStructure,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleName,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
 };

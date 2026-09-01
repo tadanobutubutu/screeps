@@ -1,4 +1,8 @@
 // TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+// Main entry point for dependency visualization tool
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 // Importing the necessary functions (for illustration purposes)
@@ -218,6 +222,16 @@ function checkLinkAccessibility() {
     if (!text) {
       issues.push(`Link with href "${href}" has no accessible text`);
     }
+
+    // Check for aria-label or aria-labelledby if link has no text
+    if (!text && !link.hasAttribute('aria-label') && !link.hasAttribute('aria-labelledby')) {
+      issues.push(`Link with href "${href}" has no accessible name (missing text, aria-label, or aria-labelledby)`);
+    }
+
+    // Check if link is decorative but not marked as such
+    if (href === '#' && !link.hasAttribute('aria-hidden') && !link.hasAttribute('role')) {
+      issues.push(`Decorative link with href="#" should have aria-hidden="true" or role="presentation"`);
+    }
   });
 
   return issues;
@@ -338,12 +352,20 @@ function addressAccessibilityIssues(insightReport) {
   console.log('Addressing accessibility issues from insight report:', insightReport);
 }
 
+/**
+ * Creates an in-page button element with the specified ID, text, and class
+ * @param {string} buttonId - The ID to assign to the button
+ * @param {string} buttonText - The text content of the button
+ * @param {string} buttonClass - The CSS class to assign to the button
+ * @returns {HTMLButtonElement} The created button element
+ */
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
     document.body.appendChild(button);
+    return button;
 }
 
 // New function to address accessibility issues

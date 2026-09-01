@@ -12,10 +12,13 @@ const path = require('path');
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-// Assuming 'addLangAttribute' is a function that has already been implemented
+// Function to add lang attribute to the HTML element
 function addLangAttribute() {
   if (typeof document !== 'undefined' && document.documentElement) {
-    getLangAttribute();
+    const lang = getLangAttribute();
+    if (!lang) {
+      document.documentElement.lang = 'en';
+    }
   }
 }
 addLangAttribute();
@@ -25,7 +28,7 @@ function getLangAttribute() {
   let lang = htmlElement.getAttribute('lang');
 
   if (!lang) {
-    lang = htmlElement.getAttribute('xml:lang');
+    lang = htmlElement.lang;
   }
 
   if (!lang) {
@@ -89,7 +92,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = prefix + '-' + Math.random().toString(36).substr(2, 9);
   element.id = generatedId;
   return generatedId;
 }
@@ -125,8 +128,8 @@ function renderDependencyGraph(container, dependencies = {}) {
 
   const graphElement = document.createElement('div');
   graphElement.className = 'dependency-graph';
-  graphElement.setAttribute('role', 'img');
-  graphElement.setAttribute('aria-label', 'Dependency graph visualization');
+  const img = document.createElement('img');
+  img.setAttribute('alt', 'Dependency graph visualization');
 
   const nodes = dependencies.nodes || [];
   const edges = dependencies.edges || [];
@@ -135,7 +138,7 @@ function renderDependencyGraph(container, dependencies = {}) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', '100%');
-  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('role', 'img');
 
   // Render edges
   edges.forEach((edge, index) => {
@@ -146,7 +149,7 @@ function renderDependencyGraph(container, dependencies = {}) {
     line.setAttribute('y2', edge.target?.y || 0);
     line.setAttribute('stroke', '#666');
     line.setAttribute('stroke-width', '2');
-    line.setAttribute('id', `edge-${index}`);
+    line.setAttribute('id', 'edge-' + index);
     svg.appendChild(line);
   });
 
@@ -157,7 +160,7 @@ function renderDependencyGraph(container, dependencies = {}) {
     circle.setAttribute('cy', node.y || 0);
     circle.setAttribute('r', node.size || 20);
     circle.setAttribute('fill', node.color || '#4A90E2');
-    circle.setAttribute('id', `node-${index}`);
+    circle.setAttribute('id', 'node-' + index);
 
     const nodeId = ensureElementHasId(circle, 'graph-node');
     if (node.label) {

@@ -172,6 +172,170 @@ const a11yStore = {
 
   newFunction() {
     // New function implementation from origin/main
+  },
+
+  /**
+   * Ensure proper heading hierarchy in the document
+   * @param {HTMLElement} container - The container to check
+   */
+  ensureProperHeadingHierarchy(container = document) {
+    const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    let currentLevel = 0;
+
+    headings.forEach(heading => {
+      const level = parseInt(heading.tagName.substring(1));
+      if (level > currentLevel + 1) {
+        // Skip a level - create intermediate heading
+        const intermediateLevel = currentLevel + 1;
+        const intermediateHeading = document.createElement(`h${intermediateLevel}`);
+        intermediateHeading.textContent = 'Section';
+        intermediateHeading.setAttribute('aria-hidden', 'true');
+        heading.parentNode.insertBefore(intermediateHeading, heading);
+        currentLevel = intermediateLevel;
+      }
+      currentLevel = level;
+    });
+  },
+
+  /**
+   * Check for proper contrast ratios in the document
+   * @param {HTMLElement} container - The container to check
+   * @returns {Array} Array of elements with insufficient contrast
+   */
+  checkContrastRatios(container = document) {
+    const elements = container.querySelectorAll('*');
+    const insufficientContrast = [];
+
+    elements.forEach(element => {
+      const style = window.getComputedStyle(element);
+      const bgColor = style.backgroundColor;
+      const color = style.color;
+
+      if (bgColor && color && bgColor !== 'rgba(0, 0, 0, 0)') {
+        const contrastRatio = this.calculateContrastRatio(color, bgColor);
+        if (contrastRatio < 4.5) {
+          insufficientContrast.push({
+            element,
+            contrastRatio,
+            text: element.textContent.trim()
+          });
+        }
+      }
+    });
+
+    return insufficientContrast;
+  },
+
+  /**
+   * Calculate contrast ratio between two colors
+   * @param {string} color1 - First color in rgb() or rgba() format
+   * @param {string} color2 - Second color in rgb() or rgba() format
+   * @returns {number} Contrast ratio
+   */
+  calculateContrastRatio(color1, color2) {
+    const rgb1 = this.parseColor(color1);
+    const rgb2 = this.parseColor(color2);
+
+    const lum1 = this.calculateLuminance(rgb1);
+    const lum2 = this.calculateLuminance(rgb2);
+
+    const lighter = Math.max(lum1, lum2);
+    const darker = Math.min(lum1, lum2);
+
+    return (lighter + 0.05) / (darker + 0.05);
+  },
+
+  /**
+   * Parse color string to RGB components
+   * @param {string} color - Color string in rgb() or rgba() format
+   * @returns {Object} RGB components
+   */
+  parseColor(color) {
+    const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
+    if (!match) return { r: 0, g: 0, b: 0 };
+
+    return {
+      r: parseInt(match[1]) / 255,
+      g: parseInt(match[2]) / 255,
+      b: parseInt(match[3]) / 255
+    };
+  },
+
+  /**
+   * Calculate relative luminance of a color
+   * @param {Object} rgb - RGB components
+   * @returns {number} Relative luminance
+   */
+  calculateLuminance(rgb) {
+    const components = ['r', 'g', 'b'].map(c => {
+      const value = rgb[c];
+      return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+    });
+
+    return 0.2126 * components[0] + 0.7152 * components[1] + 0.0722 * components[2];
+  },
+
+  /**
+   * Check for proper ARIA attributes on interactive elements
+   * @param {HTMLElement} container - The container to check
+   * @returns {Array} Array of elements with missing ARIA attributes
+   */
+  checkInteractiveElements(container = document) {
+    const interactiveElements = container.querySelectorAll('button, [role="button"], [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const missingAria = [];
+
+    interactiveElements.forEach(element => {
+      if (!element.hasAttribute('aria-label') &&
+          !element.hasAttribute('aria-labelledby') &&
+          !element.hasAttribute('title') &&
+          !element.textContent.trim()) {
+        missingAria.push(element);
+      }
+    });
+
+    return missingAria;
+  },
+
+  /**
+   * Check for proper form labels
+   * @param {HTMLElement} container - The container to check
+   * @returns {Array} Array of form elements with missing labels
+   */
+  checkFormLabels(container = document) {
+    const formElements = container.querySelectorAll('input:not([type="hidden"]), select, textarea');
+    const missingLabels = [];
+
+    formElements.forEach(element => {
+      const id = element.id;
+      if (id) {
+        const label = container.querySelector(`label[for="${id}"]`);
+        if (!label) {
+          missingLabels.push(element);
+        }
+      } else {
+        missingLabels.push(element);
+      }
+    });
+
+    return missingLabels;
+  },
+
+  /**
+   * Check for proper image alternatives
+   * @param {HTMLElement} container - The container to check
+   * @returns {Array} Array of images with missing alternatives
+   */
+  checkImageAlternatives(container = document) {
+    const images = container.querySelectorAll('img, [role="img"]');
+    const missingAlternatives = [];
+
+    images.forEach(image => {
+      if (!image.hasAttribute('alt') && !image.hasAttribute('aria-label') && !image.hasAttribute('aria-labelledby')) {
+        missingAlternatives.push(image);
+      }
+    });
+
+    return missingAlternatives;
   }
 };
 
@@ -819,7 +983,7 @@ module.exports = {
   ensureUniqueLandmarks,
   handleFocusTrap,
   revokeSession,
-  addSvgAccessibilityProps,
+  addSVGAccessibilityProps,
   isLandmarkElement,
   handleCredentialResponse,
   parseCredentialResponse,

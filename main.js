@@ -14,43 +14,35 @@ const accessibilityUtils = {
   newFocusTrap,
   addLangAttribute,
   fixTableStructure,
-  addLandmarkIssues,
-  addSvgAccessibleNames,
+  addSvgAccessibleName,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
 
   // Functions from the 'origin/main' branch
   validateTableAccessibility: validateTableAccessibilityImpl,
   validateTableStructure: validateTableStructureImpl,
-  transformInputData
+  transformInputData,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  addressAccessibilityIssues,
+  addMainLandmark,
+  googleSignIn,
+  handleCredentialResponseAlt,
+  renderGraphIndexUtil,
+  setSvgAccessibilityProps,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex
 }
 
 // Import required modules
-const {
-  createInPageButton,
-  createWebResourceButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addAltAttribute,
-  replaceButtonId,
-  addLangAttribute,
-  fixTableStructure,
-  addSvgAccessibleName,
-  fixFakeLinkIssue,
-  addAriaAttribute,
-  implementAccessibilityFixesFromReport
-} = require('./utilities')
-
-const http = require('http')
-const fs = require('fs')
-const path = require('path')
+const { http, fs, path } = require('std');
+const { parseCredentialResponse, decodeJwtToken, generateSessionId } = require('./utilities');
 
 // Configuration
 const CONFIG = {
@@ -78,14 +70,6 @@ function parseJSONsafe (jsonString) {
     return JSON.parse(jsonString)
   } catch (error) {
     return null
-  }
-}
-
-function formatResponse (data, statusCode = 200) {
-  return {
-    statusCode,
-    data,
-    timestamp: new Date().toISOString()
   }
 }
 
@@ -168,175 +152,6 @@ function calculateSum (numbers) {
   return numbers.reduce((sum, num) => sum + num, 0)
 }
 
-/**
- * Ensures the element has an id. If the element doesn't have an id,
- * generates one and assigns it to the element.
- * @param {HTMLElement} element - The element to check and modify
- * @param {string} [prefix='element'] - Prefix for the generated id
- * @returns {string} The element's id (existing or newly generated)
- */
-function ensureElementId (element, prefix = 'element') {
-  if (!element) {
-    throw new Error('Element is required')
-  }
-
-  if (element.id) {
-    return element.id
-  }
-
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`
-  element.id = id
-  return id
-}
-
-/**
- * Adds an aria-label attribute to the element if it doesn't already have one.
- * @param {HTMLElement} element - The element to modify
- * @param {string} label - The aria-label value to set
- * @returns {boolean} True if label was added, false if element already had one
- */
-function addAriaLabel (element, label) {
-  if (!element) {
-    throw new Error('Element is required')
-  }
-
-  if (!label) {
-    throw new Error('Label is required')
-  }
-
-  if (element.getAttribute('aria-label')) {
-    return false
-  }
-
-  element.setAttribute('aria-label', label)
-  return true
-}
-
-/**
- * Renders dependency graphs for the given configuration.
- * @param {HTMLElement} container - The container element to render into
- * @param {Object} dependencies - The dependencies data to render
- * @param {Object} [options={}] - Optional rendering configuration
- * @returns {Object} The rendered graph instance
- */
-function renderDependencyGraphs (container, dependencies, options = {}) {
-  if (!container) {
-    throw new Error('Container element is required')
-  }
-
-  if (!dependencies) {
-    throw new Error('Dependencies data is required')
-  }
-
-  // Ensure container has an id for graph references
-  const containerId = ensureElementHasId(container, 'graph-container')
-
-  // Add accessibility label if not present
-  const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`)
-
-  // Placeholder for graph rendering logic
-  // Actual implementation would use a library like D3.js or similar
-  const graphData = {
-    id: containerId,
-    dependencies,
-    options,
-    rendered: true,
-    timestamp: new Date().toISOString()
-  }
-
-  console.log('Rendering dependency graphs:', graphData)
-
-  return graphData
-}
-
-async function handleCredentialResponse (response) {
-  if (!response) {
-    throw new Error('No response received')
-  }
-
-  if (response.error) {
-    throw new Error(response.error)
-  }
-
-  if (response.token) {
-    return {
-      success: true,
-      token: response.token,
-      expiresIn: response.expiresIn || 3600
-    }
-  }
-
-  throw new Error('Invalid credential response')
-}
-
-/**
- * Implements a focus trap for keyboard navigation within the given element.
- * @param {HTMLElement} element - The container element to trap focus within
- */
-const focusTrap = (element) => {
-  const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  )
-  let activeElementIndex = focusableElements.length - 1
-
-  function setActiveElement (index) {
-    if (index < 0) {
-      index = focusableElements.length - 1
-    } else if (index >= focusableElements.length) {
-      index = 0
-    }
-
-    if (focusableElements[index].focus) {
-      focusableElements[index].focus()
-    } else {
-      ensureElementHasId(focusableElements[index])
-      focusableElements[index].focus()
-    }
-    activeElementIndex = index
-  }
-
-  function nextFocusableElement () {
-    setActiveElement(activeElementIndex + 1)
-  }
-
-  function prevFocusableElement () {
-    setActiveElement(activeElementIndex - 1)
-  }
-
-  function moveFocusToFirst () {
-    setActiveElement(0)
-  }
-
-  function moveFocusToLast () {
-    setActiveElement(focusableElements.length - 1)
-  }
-
-  // Handle keyboard events
-  element.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey) {
-        prevFocusableElement()
-      } else {
-        nextFocusableElement()
-      }
-      e.preventDefault()
-    } else if (e.key === 'Escape') {
-      // Exit focus trap
-      element.removeEventListener('keydown', arguments.callee)
-    }
-  })
-
-  // Set initial focus
-  moveFocusToFirst()
-
-  return {
-    next: nextFocusableElement,
-    prev: prevFocusableElement,
-    first: moveFocusToFirst,
-    last: moveFocusToLast
-  }
-}
-
 // Export all necessary functions
 module.exports = {
   accessibilityUtils,
@@ -355,27 +170,31 @@ module.exports = {
   calculateSum,
   ensureElementId,
   addAriaLabel,
-  renderDependencyGraphs,
+  renderDependencyGraph,
   handleCredentialResponse,
-  focusTrap,
-  // Add other utility functions as needed
-  createInPageButton,
-  createWebResourceButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addAltAttribute,
-  replaceButtonId,
+  newFocusTrap,
   addLangAttribute,
   fixTableStructure,
   addSvgAccessibleName,
+  ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  addAriaAttribute,
-  implementAccessibilityFixesFromReport
+  validateTableAccessibility,
+  validateTableStructure,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  addressAccessibilityIssues,
+  addMainLandmark,
+  googleSignIn,
+  handleCredentialResponseAlt,
+  renderGraphIndexUtil,
+  setSvgAccessibilityProps,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  transformInputData
 }

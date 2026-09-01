@@ -23,4 +23,9 @@ const accessibilityUtils = {
   validateTableAccessibility: validateTableAccessibilityImpl,
   validateTableStructure: validateTableStructureImpl,
   transformInputData: transformInputData,
+
+  // New functions for rendering graph/index
+  renderGraphIndex: renderGraphIndex,
+  updateGraphVisualization: updateGraphVisualization,
+  initializeGraphControls: initializeGraphControls,
 };

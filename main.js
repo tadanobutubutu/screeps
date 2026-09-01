@@ -68,6 +68,11 @@ const initializeApp = () => {
     document.body.classList.remove('keyboard-nav');
   });
 
+  // Call accessibility helper functions
+  setLanguageAttribute();
+  addLandmarkRoles();
+  fixFakeLinks();
+
   // Address accessibility issues
   addressAccessibilityIssues();
 
@@ -88,6 +93,34 @@ const initializeApp = () => {
     a11y.init();
   }
 };
+
+// Function to set language attribute on the document
+function setLanguageAttribute() {
+  document.documentElement.lang = 'en';
+}
+
+// Function to add landmark roles to main containers
+function addLandmarkRoles() {
+  const mainElement = document.querySelector('main');
+  if (mainElement && !mainElement.getAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+
+  const navElement = document.querySelector('nav');
+  if (navElement && !navElement.getAttribute('role')) {
+    navElement.setAttribute('role', 'navigation');
+  }
+}
+
+// Function to fix fake links (links without href)
+function fixFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a:not([href])');
+  fakeLinks.forEach(link => {
+    if (!link.getAttribute('role')) {
+      link.setAttribute('role', 'button');
+    }
+  });
+}
 
 // Landmark processing utilities
 function isValidLandmark(landmark) {
@@ -168,6 +201,29 @@ function fixFakeLink() {
 async function scanAccessibility(filePaths) {
   const issues = [];
 
+  // Check for lang attribute on HTML element
+  const langAttribute = getLangAttribute();
+  if (!langAttribute) {
+    issues.push({
+      type: 'REACT_015',
+      description: 'HTML element is missing lang attribute',
+      severity: 'critical',
+      element: 'html'
+    });
+  }
+
+  // Check table accessibility
+  const tableAccessibilityIssues = validateTableAccessibility();
+  if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
+    tableAccessibilityIssues.forEach(function(issue) {
+      issues.push({
+        file: filePaths[0] || 'unknown',
+        issues: [issue],
+      });
+    });
+  }
+
+  // Use axe.analyze for additional scanning
   for (const filePath of filePaths) {
     const fileEmitted = path.join(process.cwd(), filePath);
     const { violations } = await axe.analyze(fileEmitted);
@@ -180,6 +236,106 @@ async function scanAccessibility(filePaths) {
     }
   }
 
+  // Check table structure
+  const tableStructureIssues = validateTableStructure();
+  if (tableStructureIssues && tableStructureIssues.length > 0) {
+    tableStructureIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_027',
+        subtype: 'structure',
+        description: issue.description || 'Table structure issue',
+        severity: issue.severity || 'high',
+        element: issue.element,
+        table: issue.table
+      });
+    });
+  }
+
+  // Check landmark issues
+  const landmarkIssues = validateLandmark();
+  if (landmarkIssues && landmarkIssues.length > 0) {
+    landmarkIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_017',
+        description: issue.description || 'Landmark issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check landmark structure
+  const landmarkStructureIssues = validateLandmarkStructure();
+  if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
+    landmarkStructureIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_017',
+        structure: true,
+        description: issue.description || 'Landmark structure issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check landmark attributes
+  const landmarkAttributeIssues = validateLandmarkAttributes();
+  if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
+    landmarkAttributeIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_017',
+        description: issue.description || 'Landmark attribute issue',
+        severity: issue.severity || 'low',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check SVG accessibility
+  const svgAccessibleNames = getSvgAccessibleName();
+  if (svgAccessibleNames && svgAccessibleNames.length > 0) {
+    svgAccessibleNames.forEach(function(svg) {
+      issues.push({
+        type: 'REACT_041',
+        description: 'SVG is missing accessible name',
+        severity: 'medium',
+        svg: svg.element,
+        svgId: svg.id
+      });
+    });
+  }
+
+  // Check for unique landmarks
+  const uniqueLandmarkIssues = ensureUniqueLandmarks();
+  if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
+    uniqueLandmarkIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_025',
+        description: issue.description || 'Duplicate or missing landmark',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check link accessibility
+  const linkIssues = validateLinkAccessibility();
+  if (linkIssues && linkIssues.length > 0) {
+    linkIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_036',
+        description: issue.description || 'Link accessibility issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        link: issue.link
+      });
+    });
+  }
+
   return issues;
 }
 
@@ -187,11 +343,38 @@ async function scanAccessibility(filePaths) {
 function generateAccessibilityReport(issuesData) {
   const analyzedIssues = analyzeAccessibility(issuesData);
 
-  // Define the structure of the report here
+  // Check for lang attribute on HTML element
+  const langAttribute = getLangAttribute();
+  if (!langAttribute) {
+    analyzedIssues.push({
+      type: 'REACT_015',
+      description: 'HTML element is missing lang attribute',
+      severity: 'critical',
+      element: 'html'
+    });
+  }
+
+  // Define the structure of the report here with comprehensive summary
   const report = {
     introduction: 'Accessibility report for the application',
     data: analyzedIssues,
-    conclusions: ''
+    conclusions: '',
+    issues: analyzedIssues,
+    summary: {
+      totalIssues: analyzedIssues.length,
+      langAttribute: analyzedIssues.filter(function(i) { return i.type === 'REACT_015'; }).length,
+      tableIssues: analyzedIssues.filter(function(i) { return i.type === 'REACT_027'; }).length,
+      landmarkIssues: analyzedIssues.filter(function(i) { return i.type === 'REACT_017'; }).length,
+      svgIssues: analyzedIssues.filter(function(i) { return i.type === 'REACT_041'; }).length,
+      uniqueLandmarkIssues: analyzedIssues.filter(function(i) { return i.type === 'REACT_025'; }).length,
+      linkIssues: analyzedIssues.filter(function(i) { return i.type === 'REACT_036'; }).length,
+      critical: analyzedIssues.filter(function(i) { return i.severity === 'critical'; }).length,
+      high: analyzedIssues.filter(function(i) { return i.severity === 'high'; }).length,
+      medium: analyzedIssues.filter(function(i) { return i.severity === 'medium'; }).length,
+      low: analyzedIssues.filter(function(i) { return i.severity === 'low'; }).length
+    },
+    timestamp: new Date().toISOString(),
+    generatedAt: new Date().toLocaleString()
   };
 
   writeReport(report);
@@ -218,6 +401,43 @@ function checkLinkAccessibility(linkUrl) {
       clearTimeout(timeout);
       return false;
     });
+}
+
+// Placeholder functions for accessibility utilities
+function getLangAttribute() {
+  return document.documentElement.lang;
+}
+
+function validateTableAccessibility() {
+  return [];
+}
+
+function validateTableStructure() {
+  return [];
+}
+
+function validateLandmark() {
+  return [];
+}
+
+function validateLandmarkStructure() {
+  return [];
+}
+
+function validateLandmarkAttributes() {
+  return [];
+}
+
+function getSvgAccessibleName() {
+  return [];
+}
+
+function validateLinkAccessibility() {
+  return [];
+}
+
+function analyzeAccessibility(issuesData) {
+  return issuesData || [];
 }
 
 function main() {
@@ -263,6 +483,17 @@ module.exports = {
   createInPageButton,
   setSvgAccessibleNames,
   fixFakeLink,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  validateLinkAccessibility,
   functionA: {
     X: 'valueX',
     Y: 'valueY',

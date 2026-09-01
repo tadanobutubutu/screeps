@@ -397,7 +397,11 @@ function addressAccessibilityIssues(report) {
   });
 }
 
-const mainElement = document.querySelector('main') || wrapPrimaryContentInMain();
+function getMainElement() {
+  return document.querySelector('main') || wrapPrimaryContentInMain();
+}
+
+const mainElement = getMainElement();
 console.log('Main element lang:', document.documentElement.lang);
 
 if (!document.documentElement.lang) {
@@ -460,7 +464,6 @@ function wrapPrimaryContentInMain() {
     return mainElement;
   }
 
-  const elementsToExclude = [];
   const landmarks = ['nav', 'aside', 'footer', '[role="banner"]', '[role="navigation"]', '[role="main"]', '[role="complementary"]', '[role="contentinfo"]', '[role="search"]', '[role="form"]'];
   
   const possibleMainContent = Array.from(document.body.children).filter(
@@ -479,44 +482,19 @@ function wrapPrimaryContentInMain() {
   return mainElement;
 }
 
-module.exports = {
-  appName: 'MyApplication',
-  version: '1.0.0',
-  renderDependencyGraph,
-  updateDependencyGraphRender,
-  getAllDependencyNodes,
-  getAllDependencyEdges,
-  greet,
-  newFunction,
-  existingFunction,
-  anotherExistingFunction,
-  calculateSum,
-  calculateProduct,
-  renderAccessibilityGraph,
-  renderAccessibilityIndex,
-  renderAccessibilityResults,
-  renderIndexView,
-  getRecommendation,
-  fixSVGAccessibleName,
-  generateSummary,
-  a11yStore,
-  getSVGAccessibleName,
-  addressAccessibilityIssues,
-  ensureUniqueLandmarks,
-  wrapPrimaryContentInMain
-};
-
-if (typeof window !== 'undefined') {
-  window.calculateSum = calculateSum;
-  window.calculateProduct = calculateProduct;
-}
-
 /**
  * Sets accessibility properties on SVG elements.
  * @param {SVGElement} svgElement - The SVG element to modify
  */
 function setSvgAccessibilityProps(svgElement) {
-  // ... (code for setSvgAccessibilityProps remains the same)
+  if (!svgElement) return;
+  // Set default accessibility properties
+  if (!svgElement.getAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
+  }
+  if (!svgElement.getAttribute('aria-label') && !svgElement.querySelector('title')) {
+    svgElement.setAttribute('aria-label', 'SVG graphic');
+  }
 }
 
 /**
@@ -525,7 +503,11 @@ function setSvgAccessibilityProps(svgElement) {
  * @returns {boolean} True if the link is accessible, false otherwise
  */
 function isLinkAccessibleCheck(link) {
-  // ... (code for isLinkAccessible remains the same)
+  if (!link) return false;
+  const hasText = link.textContent && link.textContent.trim().length > 0;
+  const hasAriaLabel = link.hasAttribute('aria-label');
+  const hasAriaLabelledby = link.hasAttribute('aria-labelledby');
+  return hasText || hasAriaLabel || hasAriaLabelledby;
 }
 
 /**
@@ -534,7 +516,10 @@ function isLinkAccessibleCheck(link) {
  * @returns {boolean} True if the button is accessible, false otherwise
  */
 function isButtonAccessible(button) {
-  // ... (code for isButtonAccessible remains the same)
+  if (!button) return false;
+  const hasText = button.textContent && button.textContent.trim().length > 0;
+  const hasAriaLabel = button.hasAttribute('aria-label');
+  return hasText || hasAriaLabel;
 }
 
 /**
@@ -542,8 +527,19 @@ function isButtonAccessible(button) {
  * @param {HTMLElement} [container=document] - The container to check for accessibility
  * @returns {Object} An object with accessibleLink and accessibleButton properties
  */
-function checkAccessibility(container) {
-  // ... (code for checkAccessibility remains the same)
+function checkAccessibility(container = document) {
+  const links = (container || document).querySelectorAll('a');
+  const buttons = (container || document).querySelectorAll('button');
+  
+  const accessibleLinks = Array.from(links).filter(isLinkAccessibleCheck);
+  const accessibleButtons = Array.from(buttons).filter(isButtonAccessible);
+  
+  return {
+    accessibleLinks,
+    accessibleButtons,
+    totalLinks: links.length,
+    totalButtons: buttons.length
+  };
 }
 
 function isLinkAccessibleSync(url) {
@@ -555,28 +551,37 @@ function isLinkAccessibleSync(url) {
   }
 }
 
-function createInPageButton(options = {}) {
-  // ... existing code ...
-}
-
-function validateTableAccessibility(table) {
-  // ... existing code ...
-}
-
 function validateTableStructureLocal(table) {
-  // ... existing code ...
+  if (!table) return { valid: false, errors: ['No table provided'] };
+  const errors = [];
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    errors.push('Table should have header cells (th)');
+  }
+  return { valid: errors.length === 0, errors };
 }
 
 function validateLandmark() {
-  // ... existing code ...
+  return validateLandmarkRole();
 }
 
 function validateLandmarkStructureLocal() {
-  // ... existing code ...
+  const results = validateLandmarkRole();
+  return results.valid;
 }
 
 function validateLandmarkAttributes() {
-  // ... existing code ...
+  const landmarks = document.querySelectorAll('main, nav, header, footer, aside, [role]');
+  const results = [];
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    results.push({
+      element: landmark,
+      role,
+      hasLabel: !!landmark.getAttribute('aria-label') || !!landmark.id
+    });
+  });
+  return results;
 }
 
 /**
@@ -618,7 +623,10 @@ function validateLandmarkRole(container = document) {
 
 function setSvgAttributes(svg, options = {}) {
   if (!svg || svg.tagName !== 'SVG') return false;
-  // Implementation here
+  if (options.role) svg.setAttribute('role', options.role);
+  if (options.ariaLabel) svg.setAttribute('aria-label', options.ariaLabel);
+  if (options.ariaHidden) svg.setAttribute('aria-hidden', 'true');
+  return true;
 }
 
 function someUtility() {
@@ -632,11 +640,6 @@ function updateThScopeAttribute(filePath) {
   console.log(`Updating scope attributes in ${filePath}`);
 }
 
-const config = {
-  enabled: true
-};
-
-// We are not redefining countDependencies here because it's already defined above (to avoid duplication)
 // Implement this function for accessibility checks on tables
 function accessibilityCheckTables() {
   // Your implementation for accessibility checks on tables goes here
@@ -650,25 +653,116 @@ function accessibilityCheckTables() {
   }
 }
 
+// Placeholder implementations for exported but undefined functions
+function run() {
+  console.log('Application running');
+  return true;
+}
+
+function main() {
+  console.log('Main function called');
+  return true;
+}
+
+class SomeClass {
+  constructor() {
+    this.name = 'SomeClass';
+  }
+  
+  getName() {
+    return this.name;
+  }
+}
+
+function countDependencies() {
+  const graph = getDepGraph();
+  if (!graph) return 0;
+  return (graph.nodes ? graph.nodes.length : 0) + (graph.edges ? graph.edges.length : 0);
+}
+
+function validateLandmarkStructure() {
+  return validateLandmarkStructureLocal();
+}
+
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return 'SVG graphic';
+  return getSVGAccessibleName(svgElement);
+}
+
+function checkLandmarkElements() {
+  return validateLandmarkRole();
+}
+
+function addLangAttribute(lang = 'en') {
+  if (document && document.documentElement) {
+    document.documentElement.lang = lang;
+    return true;
+  }
+  return false;
+}
+
+const config = {
+  enabled: true
+};
+
 module.exports = {
+  appName: 'MyApplication',
+  version: version,
+  renderDependencyGraph,
+  updateDependencyGraphRender,
+  getAllDependencyNodes,
+  getAllDependencyEdges,
+  greet,
+  newFeature,
+  existingFunction,
+  anotherExistingFunction,
+  calculateSum,
+  calculateProduct,
+  renderAccessibilityGraph,
+  renderAccessibilityIndex,
+  renderAccessibilityResults,
+  renderIndexView,
+  getRecommendation,
+  fixSVGAccessibleName,
+  generateSummary,
+  a11yStore,
+  getSVGAccessibleName,
+  addressAccessibilityIssues,
+  ensureUniqueLandmarks,
+  wrapPrimaryContentInMain,
+  setSvgAccessibilityProps,
+  isLinkAccessibleCheck,
+  isButtonAccessible,
+  checkAccessibility,
+  isLinkAccessibleSync,
+  validateTableStructureLocal,
+  validateLandmark,
+  validateLandmarkStructureLocal,
+  validateLandmarkAttributes,
+  validateLandmarkRole,
+  setSvgAttributes,
+  someUtility,
+  updateThScopeAttribute,
+  accessibilityCheckTables,
   run,
   main,
   SomeClass,
-  someUtility,
-  config,
   countDependencies,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  checkLandmarkElements,
+  addLangAttribute,
+  config,
   getLangAttribute,
   getFullLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  validateLandmarkRole,
-  a11yStore,
-  mainElement,
-  accessibilityCheckTables,
-  checkLandmarkElements,
-  addLangAttribute
+  mainElement
 };
+
+if (typeof window !== 'undefined') {
+  window.calculateSum = calculateSum;
+  window.calculateProduct = calculateProduct;
+}

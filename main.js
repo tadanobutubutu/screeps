@@ -45,6 +45,46 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  /**
+   * Check if a link is accessible
+   * @param {HTMLAnchorElement} link - The link element to check
+   * @returns {Object} Accessibility status and issues
+   */
+  checkLinkAccessibility: (link) => {
+    if (!link || link.tagName !== 'A') {
+      return { isAccessible: false, issues: ['Not a valid link element'] };
+    }
+
+    const issues = [];
+
+    // Check for href attribute
+    if (!link.hasAttribute('href') || link.getAttribute('href') === '') {
+      issues.push('Missing or empty href attribute');
+    }
+
+    // Check for ARIA attributes
+    if (!link.hasAttribute('aria-label') && !link.textContent.trim()) {
+      issues.push('Missing aria-label and no visible text content');
+    }
+
+    // Check for target attribute
+    if (link.hasAttribute('target') && link.getAttribute('target') === '_blank') {
+      if (!link.hasAttribute('rel') || !link.getAttribute('rel').includes('noopener')) {
+        issues.push('Missing rel="noopener" for target="_blank"');
+      }
+    }
+
+    // Check for role attribute
+    if (link.hasAttribute('role') && link.getAttribute('role') !== 'link') {
+      issues.push('Invalid role attribute for link');
+    }
+
+    return {
+      isAccessible: issues.length === 0,
+      issues: issues.length > 0 ? issues : null
+    };
   }
 };
 

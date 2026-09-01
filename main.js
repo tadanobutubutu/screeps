@@ -222,17 +222,17 @@ validateLandmark = (element) => {
 
     if (!landmarkRole) {
       return {
-        valid: false,
-        error: 'Element does not have a valid landmark role',
+        valid: false, 
+        error: 'Element does not have a valid landmark role', 
         element: tagName
       };
     }
 
     if (!landmarkRoles.includes(landmarkRole)) {
       return {
-        valid: false,
-        error: `Invalid landmark role: ${landmarkRole}`,
-        element: tagName,
+        valid: false, 
+        error: `Invalid landmark role: ${landmarkRole}`, 
+        element: tagName, 
         role: landmarkRole
       };
     }

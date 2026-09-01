@@ -49,7 +49,7 @@ const {
   fixFakeLinkIssue,
   addAriaAttribute,
   implementAccessibilityFixesFromReport,
-  addressAccessibilityIssues,
+  addressAccessibilityIssues: addressAccessibilityIssuesUtil,
   ensureElementHasId,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -371,8 +371,8 @@ function renderGraphIndex(graphData) {
   const renderedGraph = renderDependencyGraphs(container, dependencies, options);
 
   // Apply accessibility enhancements
-  if (typeof addressAccessibilityIssues === 'function') {
-    addressAccessibilityIssues(renderedGraph);
+  if (typeof addressAccessibilityIssuesUtil === 'function') {
+    addressAccessibilityIssuesUtil(renderedGraph);
   }
 
   // Set SVG accessibility properties if available

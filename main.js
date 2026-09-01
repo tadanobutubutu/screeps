@@ -41,6 +41,11 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
   }
+
+  // Ensure element has an ID if not present
+  if (!dependencyGraph.getAttribute('id')) {
+    dependencyGraph.setAttribute('id', 'dependencyGraph');
+  }
 }
 
 // Required changes to fix the React SVG Accessible Name issue

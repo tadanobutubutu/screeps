@@ -14,3 +14,12 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
 
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };
+
+// TODO: Create or update the affected functions to be accessible
+//------ BEGIN CHANGES (added/updated)------
+function newFunctionForMain() {
+    console.log('New function is now accessible in main.js');
+}
+
+// Update or create any other necessary functions here
+//------ END CHANGES------

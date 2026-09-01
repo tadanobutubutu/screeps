@@ -1,5 +1,3 @@
-// TODO: add the new functions or changes requested in the issue
-
 /** TODO: Implement function for addressing accessibility issues from insight report */
 function addressAccessibilityIssues(insightReport) {
     const accessibilityIssues = insightReport.accessibility || [];

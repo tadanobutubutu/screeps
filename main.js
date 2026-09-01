@@ -144,6 +144,35 @@ function calculateAccessibilityScore(fixedIssues) {
 }
 
 /**
+ * Validates a form field for accessibility
+ * @param {HTMLElement} field - The form field to validate
+ * @returns {boolean} True if the field is accessible, false otherwise
+ */
+function validateFormFieldAccessibility(field) {
+    if (!field || typeof field !== 'object') {
+        return false;
+    }
+
+    // Check if the field has a label associated with it
+    const label = field.getAttribute('label') || 
+                 field.relatedBy?.attr('for') ||
+                 field.closest('[for]')?.querySelector('label')?.textContent;
+    
+    if (!label && !field.hasAttribute('aria-label') && !field.hasAttribute('aria-describedby')) {
+        return false;
+    }
+
+    // Check if the field has a required attribute (optional but good practice)
+    if (field.type === 'checkbox' || field.type === 'radio') {
+        if (!field.required) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
  * Ensures unique landmarks in HTML source string
  * @param {string} source - The HTML source string
  * @returns {string} The processed source with unique landmarks

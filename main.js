@@ -179,9 +179,44 @@ function existingFunction() {
 
 // New function implementation as per the issue requirements
 function personName() {
-  // Implementation details go here
-  // For example:
-  return 'New function result';
+  // Returns the name of the person associated with the current context
+  // This is used for accessibility purposes to provide person identification
+  // Returns a string containing the person's name, or null if not available
+  const lang = getLangAttribute();
+  const defaultName = 'User';
+  
+  // Check if there's a person name element in the DOM
+  if (typeof document !== 'undefined') {
+    const personNameElement = document.querySelector('[data-person-name]');
+    if (personNameElement && personNameElement.textContent) {
+      return personNameElement.textContent.trim();
+    }
+    
+    // Check for common accessibility patterns for person names
+    const accessibleNames = [
+      document.querySelector('[aria-label*="name"]'),
+      document.querySelector('[aria-labelledby*="name"]'),
+      document.querySelector('[itemprop="name"]')
+    ];
+    
+    for (const el of accessibleNames) {
+      if (el && el.textContent) {
+        return el.textContent.trim();
+      }
+    }
+  }
+  
+  // Return localized default name based on language
+  const localizedNames = {
+    'en': 'User',
+    'es': 'Usuario',
+    'fr': 'Utilisateur',
+    'de': 'Benutzer',
+    'ja': 'ユーザー',
+    'zh': '用户'
+  };
+  
+  return localizedNames[lang] || defaultName;
 }
 
 function createInPageButton(options) {

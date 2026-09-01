@@ -40,12 +40,12 @@ function generateAccessibilityReport(issuesData) {
       totalIssues: analyzedIssues.length,
       issues: analyzedIssues,
     };
-    
+
     // Generate conclusions based on issue severity
     const criticalIssues = analyzedIssues.filter(i => i.severity === 'critical').length;
     const majorIssues = analyzedIssues.filter(i => i.severity === 'major').length;
     const minorIssues = analyzedIssues.filter(i => i.severity === 'minor').length;
-    
+
     report.conclusions = `Found ${analyzedIssues.length} accessibility issues: ${criticalIssues} critical, ${majorIssues} major, and ${minorIssues} minor.`;
   } else {
     report.data = {
@@ -241,6 +241,61 @@ function fixFakeLink() {
   return accessibilityUtils;
 }
 
+// Function to create an accessible form for adding a new book
+function createAddBookForm() {
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', 'add-book-form-title');
+
+  const title = document.createElement('h2');
+  title.id = 'add-book-form-title';
+  title.textContent = 'Add New Book';
+  form.appendChild(title);
+
+  // Create form fields with proper labels and ARIA attributes
+  const createField = (id, labelText, type = 'text') => {
+    const fieldset = document.createElement('fieldset');
+    const label = document.createElement('label');
+    label.setAttribute('for', id);
+    label.textContent = labelText;
+    const input = document.createElement('input');
+    input.id = id;
+    input.type = type;
+    input.setAttribute('aria-required', 'true');
+    input.setAttribute('required', 'true');
+
+    fieldset.appendChild(label);
+    fieldset.appendChild(input);
+    return fieldset;
+  };
+
+  // Add form fields
+  form.appendChild(createField('book-title', 'Book Title:'));
+  form.appendChild(createField('book-author', 'Author:'));
+  form.appendChild(createField('book-isbn', 'ISBN:'));
+  form.appendChild(createField('book-pages', 'Number of Pages:', 'number'));
+
+  // Add submit button
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Book';
+  submitButton.setAttribute('aria-label', 'Submit new book information');
+  form.appendChild(submitButton);
+
+  // Add form to the document
+  document.body.appendChild(form);
+
+  // Add form submission handler
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    // Handle form submission
+    console.log('Form submitted');
+    // You would add your actual form handling logic here
+  });
+
+  return form;
+}
+
 // Accessibility utilities - preserves the original accessibilityUtils functionality
 const accessibilityUtils = {
     // Function for addressing new accessibility issues
@@ -249,7 +304,7 @@ const accessibilityUtils = {
         if (!issues || !Array.isArray(issues)) {
             return [];
         }
-        
+
         return issues.map(issue => {
             return {
                 id: issue.id,
@@ -275,11 +330,11 @@ async function harvest() {
       totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
       details: report
     };
-    
+
     // Store harvested data for potential upgrades
     const harvestFile = path.join(__dirname, 'harvest_data.json');
     fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-    
+
     return harvestedData;
   } catch (error) {
     console.error('Harvest failed:', error);
@@ -388,6 +443,9 @@ function initialize() {
     // Fix 1 fake link issue
     fixFakeLink();
 
+    // Create the add book form with accessibility features
+    createAddBookForm();
+
     // Initialize accessibility features from a11y utilities
     if (typeof a11y !== 'undefined' && a11y && a11y.init) {
         a11y.init();
@@ -419,6 +477,7 @@ if (typeof module !== 'undefined' && module.exports) {
         addressAccessibilityIssues,
         ensureUniqueLandmarks,
         fixFakeLink,
+        createAddBookForm,
         harvest,
         upgrade,
         harvestAndUpgrade,

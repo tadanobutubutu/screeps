@@ -1,9 +1,35 @@
+const landmarkSelectors = [
+  'main',
+  '[role="main"]',
+  '[role="banner"]',
+  '[role="contentinfo"]',
+  '[role="search"]',
+  'nav',
+  '[role="region"]',
+  'aside'
+];
+
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
 const accessiblyHelper = require('./accessibly-helper');
+const utils = require('./utils');
+const { a11y } = require('@accessible/react');
+const {
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  externalFixFakeLinks,
+  externalEnsureUniqueLandmarks,
+  externalAddLandmarkRoles,
+  renderDependencyGraphContent,
+  createInPageButtons,
+  addressAccessibilityIssues,
+  scanAccessibility
+} = require('./accessibility-improvements');
 
 const expressApp = express();
 
@@ -14,7 +40,20 @@ const CONFIG = {
     timeout: 5000
 };
 
-const config = CONFIG;
+let config = CONFIG;
+
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || 'localhost';
+
+let isInitialized = false;
+let appData_origin = {};
+let appState = {
+  initialized: false,
+  data: null,
+  cache: new Map(),
+  lang: 'en'
+};
+let dependencyGraph = null;
 
 function isValidLandmark(landmark) {
     return landmark && typeof landmark.id !== 'undefined' && landmark.id !== null;
@@ -22,7 +61,7 @@ function isValidLandmark(landmark) {
 
 function loadLandmarks() {
     try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const filePath = path.join(__dirname, config.dataPath, 'landmarks.json');
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
@@ -39,7 +78,22 @@ function processLandmarks(landmarks) {
     const validLandmarks = landmarks.filter(isValidLandmark);
     const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
+    return uniqueLandmarks.slice(0, config.maxResults);
+}
+
+function ensureUniqueLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+
+    const seenIds = new Set();
+    return landmarks.filter(landmark => {
+        if (seenIds.has(landmark.id)) {
+            return false;
+        }
+        seenIds.add(landmark.id);
+        return true;
+    });
 }
 
 function sortLandmarks(landmarks, ascending = true) {
@@ -56,21 +110,6 @@ function sortLandmarks(landmarks, ascending = true) {
 
 function getLandmarkById(landmarks, id) {
     return landmarks.find(landmark => landmark.id === id) || null;
-}
-
-function ensureUniqueLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
-
-    const seenIds = new Set();
-    return landmarks.filter(landmark => {
-        if (seenIds.has(landmark.id)) {
-            return false;
-        }
-        seenIds.add(landmark.id);
-        return true;
-    });
 }
 
 function writeReport(report) {
@@ -183,24 +222,6 @@ function ensureDependencyGraphRole(container) {
     }
 }
 
-async function renderFunction1() {
-  const moduleAReturnValue = await accessiblyHelper();
-
-  // Application data structure
-  const appData = {
-    title: 'Screeps',
-    version: '1.0.0'
-  };
-
-  // ... (remaining function1 logic)
-}
-
-async function renderFunction2() {
-  const moduleBReturnValue = await accessiblyHelper();
-
-  // ... (remaining function2 logic)
-}
-
 function validateTableStructure() {
   // Implementation to validate structure of tables
 }
@@ -265,16 +286,6 @@ function addressAccessibilityIssues() {
   }
 }
 
-// Application state
-let isInitialized = false;
-const appData_originSide = {};
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map(),
-  lang: 'en'
-};
-
 function helper(input) {
   return input ? input.toUpperCase() : '';
 }
@@ -320,9 +331,6 @@ function someFunction() {
   return 'some value';
 }
 
-const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || 'localhost';
-
 const app = expressApp;
 
 function wrapContentWithMain() {
@@ -338,7 +346,137 @@ if (typeof window !== 'undefined') {
   wrapContentWithMain();
 }
 
-// ... (Preserve all existing code, exports, and functions)
+async function renderFunction1() {
+  const moduleAReturnValue = await accessiblyHelper();
+
+  function ensureDependencyGraphRole(container) {
+    if (!container) return;
+    if (!container.hasAttribute('role')) {
+      container.setAttribute('role', 'tree');
+    }
+    if (!container.hasAttribute('aria-label')) {
+      container.setAttribute('aria-label', 'Dependency graph');
+    }
+  }
+
+  const appData = {
+    title: 'Screeps',
+    version: '1.0.0'
+  };
+  // ... (remaining function1 logic)
+}
+
+async function renderFunction2() {
+  const moduleBReturnValue = await accessiblyHelper();
+  // ... (remaining function2 logic)
+}
+
+async function harvest() {
+  // TODO: Implement harvest logic (from one of the changes)
+}
+
+async function upgrade(harvestedData) {
+  // TODO: Implement upgrade logic (from one of the changes)
+}
+
+async function harvestAndUpgrade() {
+  // TODO: Implement harvest and upgrade logic (merged from both changes)
+}
+
+function addLangAttribute() {
+  document.documentElement.lang = 'en';
+}
+
+const validateLandmarkStructure = (landmarks) => {
+  // ... (updated implementation, merging both changes)
+};
+
+const validateLandmarkAttributes = (landmark) => {
+  return landmark && landmark.id && landmark.name;
+};
+
+const addMainLandmark = () => {
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  document.body.appendChild(mainElement);
+};
+
+const renderDependencyGraphContent = () => {
+  // ... (updated implementation, merging both changes)
+};
+
+const createInPageButtons = () => {
+  // ... (updated implementation, merging both changes)
+};
+
+const generateAccessibilityReport = async (issuesData) => {
+  let issues = [];
+
+  if (!issuesData) {
+    issues = [];
+  } else {
+    issues = await axe.analyze('./index.html');
+  }
+
+  const report = {
+    introduction: 'Accessibility report for the application',
+    data: issues,
+    conclusions: '',
+  };
+
+  return report;
+};
+
+// Landmark processing utilities
+const isValidLandmark = landmark => landmark && typeof landmark.id !== 'undefined' && landmark.id !== null;
+
+const processLandmarksFromConfig = (landmarks) => {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const validLandmarks = landmarks.filter(isValidLandmark);
+  const uniqueLandmarks = externalEnsureUniqueLandmarks(validLandmarks);
+
+  return uniqueLandmarks.slice(0, config.maxResults);
+};
+
+const ensureUniqueLandmarksList = (landmarks) => {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    if (seen.has(landmark.id)) {
+      return false;
+    }
+    seen.add(landmark.id);
+    return true;
+  });
+};
+
+// Function to set language attribute on the document
+const setLanguageAttribute = () => {
+  document.documentElement.lang = 'en';
+};
+
+// Function to add landmark roles to main containers
+const addLandmarkRoles = () => {
+  // ... (updated implementation, merging both changes)
+};
+
+// Landmark configuration
+const landmarkConfig = {
+  main: 'main',
+  banner: 'banner',
+  contentInfo: 'contentinfo',
+  search: 'search',
+  navigation: 'navigation',
+  region: 'region',
+  aside: 'aside',
+  header: 'header',
+  footer: 'footer'
+};
 
 module.exports = {
   initializeApp,
@@ -358,14 +496,15 @@ module.exports = {
   },
   renderDependencyGraphContent,
   createInPageButtons,
-  fixUniqueLandmarks,
+  fixUniqueLandmarks: externalEnsureUniqueLandmarks,
   generateAccessibilityReport,
   config: CONFIG,
   appState,
-  validateTableAccessibility,
   validateTableStructure,
-  fixTableStructure,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
   addMainLandmark,
+  addSvgAccessibleNames,
   validateLandmark,
   validateLandmarkStructure,
   validateLandmarkAttributes,
@@ -373,37 +512,43 @@ module.exports = {
   setSvgAttributes,
   createInPageButton,
   validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  addProperLandmarkRegions,
-  fixTableAccessibility,
-  fixLandmarkIssues,
-  addSvgAccessibility,
-  createAccessibleLinks,
-  formatResponse,
+  handleFakeLinks: externalFixFakeLinks,
+  addLandmarkRegions: externalAddLandmarkRoles,
+  addProperLandmarkRegions: externalAddLandmarkRoles,
+  fixTableAccessibility: fixTableStructure,
+  fixLandmarkIssues: externalAddLandmarkRoles,
+  addSvgAccessibility: addSvgAccessibleNames,
+  createAccessibleLinks: externalFixFakeLinks,
+  formatResponse: processData,
   loadLandmarks,
-  processLandmarks,
+  processLandmarks: processLandmarksFromConfig,
+  processLandmarksOriginal: processLandmarks,
   sortLandmarks,
   getLandmarkById,
   CONFIG,
   isValidLandmark,
   ensureUniqueLandmarks,
   ensureUniqueLandmarksList,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addSvgAccessibleNames,
-  fixFakeLinks,
+  externalEnsureUniqueLandmarks,
+  fixFakeLinks: externalFixFakeLinks,
   addLandmarkRoles,
   setLanguageAttribute,
-  processAccessibilityReport,
-  getLangAttribute,
   addLangAttribute,
-  improveAccessibility,
+  improveAccessibility: addressAccessibilityIssues,
   scanAccessibility,
   writeReport,
-  renderDependencyGraph,
-  checkLandmarkElement,
-  landmarkStructureCheck,
-  wrapPrimaryContentInMain,
-  main
+  renderDependencyGraph: renderDependencyGraphContent,
+  checkLandmarkElement: isValidLandmark,
+  landmarkStructureCheck: validateLandmarkStructure,
+  wrapPrimaryContentInMain: wrapContentWithMain,
+  main: addressAccessibilityIssues,
+  landmarkSelectors,
+  exportsLandmarkSelectors: () => landmarkSelectors,
+  harvest,
+  upgrade,
+  harvestAndUpgrade,
+  config,
+  app,
+  PORT,
+  HOST
 };

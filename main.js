@@ -257,44 +257,198 @@ function isInViewport(element) {
 // Placeholder functions for accessibility issues (to be implemented)
 // REACT_015: Add lang attribute to HTML element
 function createInPageButton(options) {
-  // Implement the logic to create a proper in-page link button
+  if (typeof document === 'undefined') return null;
+  
+  var opts = options || {};
+  var button = document.createElement('a');
+  button.href = opts.href || '#';
+  button.textContent = opts.text || 'In-page link';
+  button.role = 'button';
+  button.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (opts.onClick) opts.onClick(e);
+  });
+  
+  if (opts.targetElement) {
+    opts.targetElement.appendChild(button);
+  }
+  
+  return button;
 }
 
 // REACT_027: Fix 26 table structure issues
 function validateTableAccessibility(table) {
-  // Implement the logic to check for table accessibility issues and return a list of issues
+  if (!table) return [];
+  
+  var issues = [];
+  
+  if (!table.hasAttribute('role') || table.getAttribute('role') !== 'table') {
+    issues.push('Table missing role="table" attribute');
+  }
+  
+  var hasCaption = table.querySelector('caption');
+  if (!hasCaption) {
+    issues.push('Table missing caption element');
+  }
+  
+  var headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    issues.push('Table missing header cells');
+  }
+  
+  var rowHeaders = table.querySelectorAll('td[role="rowheader"]');
+  if (rowHeaders.length > 0 && !table.hasAttribute('aria-multiselectable')) {
+    issues.push('Table has row headers but missing aria-multiselectable');
+  }
+  
+  return issues;
 }
 
 function validateTableStructure(table) {
-  // Implement the logic to check for table structure issues and return a list of issues
+  if (!table) return [];
+  
+  var issues = [];
+  var rows = table.querySelectorAll('tr');
+  
+  if (rows.length === 0) {
+    issues.push('Table has no rows');
+    return issues;
+  }
+  
+  rows.forEach(function(row, rowIndex) {
+    var cells = row.querySelectorAll('td, th');
+    var headerCells = row.querySelectorAll('th');
+    
+    if (headerCells.length > 0 && rowIndex > 0) {
+      issues.push('Row ' + rowIndex + ' has header cells which should only be in first row');
+    }
+    
+    cells.forEach(function(cell, cellIndex) {
+      var colSpan = cell.getAttribute('colspan');
+      var rowSpan = cell.getAttribute('rowspan');
+      
+      if (colSpan && parseInt(colSpan) > 1 && !cell.hasAttribute('aria-colspan')) {
+        issues.push('Cell at row ' + rowIndex + ', col ' + cellIndex + ' has colspan but no aria-colspan');
+      }
+      
+      if (rowSpan && parseInt(rowSpan) > 1 && !cell.hasAttribute('aria-rowspan')) {
+        issues.push('Cell at row ' + rowIndex + ', col ' + cellIndex + ' has rowspan but no aria-rowspan');
+      }
+    });
+  });
+  
+  return issues;
 }
 
 // REACT_017: Add/fix 4 landmark issues
 function validateLandmark(element) {
-  // Implement the logic to check for landmark presence and proper use
+  if (!element) return [];
+  
+  var issues = [];
+  var validLandmarks = ['banner', 'navigation', 'main', 'article', 'aside', 'complementary', 'contentinfo', 'search', 'form', 'application'];
+  
+  var landmarks = element.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="article"], [role="aside"], [role="complementary"], [role="contentinfo"], [role="search"], [role="form"], [role="application"], banner, nav, main, article, aside, header, footer, section');
+  
+  if (landmarks.length === 0) {
+    issues.push('No landmark elements found');
+  }
+  
+  return issues;
 }
 
 function validateLandmarkStructure(element) {
-  // Implement the logic to check for landmark structure compliance
+  if (!element) return [];
+  
+  var issues = [];
+  
+  var mainElements = element.querySelectorAll('main, [role="main"]');
+  if (mainElements.length > 1) {
+    issues.push('Multiple main landmarks found');
+  }
+  
+  var bannerElements = element.querySelectorAll('header[role="banner"], [role="banner"]');
+  if (bannerElements.length > 1) {
+    issues.push('Multiple banner landmarks found');
+  }
+  
+  var contentInfoElements = element.querySelectorAll('footer[role="contentinfo"], [role="contentinfo"]');
+  if (contentInfoElements.length > 1) {
+    issues.push('Multiple contentinfo landmarks found');
+  }
+  
+  return issues;
 }
 
 // REACT_025: Ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  // Implement the logic to check for and handle duplicate landmarks
+  if (typeof document === 'undefined') return;
+  
+  var doc = document;
+  var landmarkTypes = {
+    'banner': [],
+    'navigation': [],
+    'main': [],
+    'contentinfo': []
+  };
+  
+  Object.keys(landmarkTypes).forEach(function(type) {
+    var elements = doc.querySelectorAll('[role="' + type + '"], ' + type);
+    if (elements.length > 1) {
+      for (var i = 1; i < elements.length; i++) {
+        elements[i].setAttribute('aria-roledescription', 'supplemental ' + type);
+      }
+    }
+  });
 }
 
 // REACT_041: Add accessible names to 2 SVGs
 function getSvgAccessibleName(svg) {
-  // Implement the logic to generate an accessible name for SVG elements
+  if (!svg) return null;
+  
+  var existingLabel = svg.getAttribute('aria-label');
+  if (existingLabel) return existingLabel;
+  
+  var title = svg.querySelector('title');
+  if (title && title.textContent) return title.textContent;
+  
+  var desc = svg.querySelector('desc');
+  if (desc && desc.textContent) return desc.textContent;
+  
+  var img = svg.parentNode;
+  if (img && img.tagName === 'IMG' && img.getAttribute('alt')) {
+    return img.getAttribute('alt');
+  }
+  
+  return null;
 }
 
 function setSvgAttributes(svg, attributes) {
-  // Implement the logic to set specified attributes on SVG elements
+  if (!svg || !attributes) return;
+  
+  if (typeof attributes === 'string') {
+    if (!svg.hasAttribute('aria-label')) {
+      svg.setAttribute('aria-label', attributes);
+    }
+  } else if (typeof attributes === 'object') {
+    Object.keys(attributes).forEach(function(key) {
+      svg.setAttribute(key, attributes[key]);
+    });
+  }
 }
 
 // REACT_036: Fix 1 fake link issue
 function handleFakeLinks(links) {
-  // Implement the logic to handle fake links within the app
+  if (!links) return;
+  
+  links.forEach(function(link) {
+    var href = link.getAttribute('href');
+    if (href === '#' || href === '' || !href) {
+      link.setAttribute('role', 'button');
+      if (!link.hasAttribute('aria-label')) {
+        link.setAttribute('aria-label', 'Button link');
+      }
+    }
+  });
 }
 
 // Internal set to track used landmark IDs
@@ -333,7 +487,7 @@ function addAriaLabel(element, label) {
 function addLangAttribute() {
   var elementToModify = typeof document !== 'undefined' ? document.querySelector('html') : null;
   if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en'); // Example: English
+    elementToModify.setAttribute('lang', 'en');
   }
 }
 
@@ -354,24 +508,20 @@ function addAriaLabelById(elementId, label) {
 
 // New function to render dependency graphs or display module structure
 function renderDependencyGraph(module) {
-  // Implementation to render the dependency graph for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Rendering dependency graph for:', module);
-  // Example output: 'Rendering dependency graph for: ModuleName'
+  if (typeof console !== 'undefined') {
+    console.log('Rendering dependency graph for:', module);
+  }
 }
 
 // New function to display module structure
 function displayModuleStructure(module) {
-  // Implementation to display the module structure for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Displaying module structure for:', module);
-  // Example output: 'Displaying module structure for: ModuleName'
+  if (typeof console !== 'undefined') {
+    console.log('Displaying module structure for:', module);
+  }
 }
 
 // New function for generating a report based on accessibility issues
 function generateAccessibilityReport() {
-  // Implementation for generating a report based on accessibility issues
-  // This is a placeholder; actual implementation should collect issues
   var report = {
     timestamp: new Date().toISOString(),
     issues: []
@@ -397,8 +547,24 @@ function checkLinkAccessibility() {
 
 // Placeholder for validateLinkAccessibility (referenced by checkLinkAccessibility)
 function validateLinkAccessibility() {
-  // Implement the logic to validate link accessibility
-  return [];
+  var doc = getDocument();
+  if (!doc) return [];
+  
+  var links = doc.querySelectorAll('a');
+  var issues = [];
+  
+  links.forEach(function(link) {
+    if (!link.textContent && !link.getAttribute('aria-label')) {
+      issues.push('Link missing accessible name');
+    }
+    
+    var href = link.getAttribute('href');
+    if (href === '#' || href === '') {
+      issues.push('Link has fake href attribute');
+    }
+  });
+  
+  return issues;
 }
 
 /**
@@ -415,11 +581,11 @@ function myNewFunction(arg1, arg2) {
 // Additional accessibility helper functions from origin/main
 function addressAccessibilityIssues(doc) {
     if (!doc || !doc.documentElement) {
-        // Fallback for environment without document (e.g., test environment)
         return;
     }
 
-    // ... existing code ...
+    ensureDependencyGraphARIA();
+    addLangAttribute();
 }
 
 function getDocument() {
@@ -430,59 +596,112 @@ function getDocument() {
 }
 
 function wrapPrimaryContentInMain() {
-  // Implement the logic to wrap primary content in a main element
+  if (typeof document === 'undefined') return null;
+  
+  var doc = document;
+  var main = doc.querySelector('main');
+  
+  if (!main) {
+    main = doc.createElement('main');
+    main.setAttribute('role', 'main');
+    
+    var content = doc.querySelector('div.content, #content, .content-wrapper');
+    if (content) {
+      content.parentNode.insertBefore(main, content);
+      main.appendChild(content);
+    } else {
+      doc.body.appendChild(main);
+    }
+  }
+  
+  return main;
 }
 
 function addFixLandmarkIssues() {
-  // Implement the logic to fix landmark issues
+  if (typeof document === 'undefined') return;
+  
+  var doc = document;
+  var mainElement = doc.querySelector('main, [role="main"]');
+  if (mainElement && !mainElement.id) {
+    mainElement.id = 'main-content';
+  }
 }
 
 function addAriaToFormControls() {
-  // Implement the logic to add ARIA attributes to form controls
+  if (typeof document === 'undefined') return;
+  
+  var doc = document;
+  var inputs = doc.querySelectorAll('input, textarea, select');
+  
+  inputs.forEach(function(input) {
+    if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
+      var label = doc.querySelector('label[for="' + input.id + '"]');
+      if (label) {
+        input.setAttribute('aria-labelledby', label.id || 'label-' + input.id);
+        if (!label.id) {
+          label.id = 'label-' + input.id;
+        }
+      }
+    }
+  });
 }
 
 function fixFakeLinkIssues() {
-  // Implement the logic to fix fake link issues
+  if (typeof document === 'undefined') return;
+  
+  var doc = document;
+  var links = doc.querySelectorAll('a[href="#"]');
+  links.forEach(function(link) {
+    link.setAttribute('role', 'button');
+    if (!link.hasAttribute('aria-label')) {
+      link.setAttribute('aria-label', 'Action link');
+    }
+  });
 }
 
 function createAccessibleLink() {
-  // Implement the logic to create an accessible link
+  return function(text, href, onClick) {
+    if (typeof document === 'undefined') return null;
+    
+    var link = document.createElement('a');
+    link.href = href || '#';
+    link.textContent = text;
+    
+    if (onClick) {
+      link.addEventListener('click', onClick);
+    }
+    
+    return link;
+  };
 }
 
 // Auto-initialize when DOM is ready
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
     window.accessibilityFeatures = initializeAccessibility();
-    // Ensure ARIA attributes are properly set on the HTML element
     ensureDependencyGraphARIA();
     
-    // Run accessibility fixes
     addLangAttribute();
     createInPageButton();
     
-    // Validate tables
     var tables = document.querySelectorAll('table');
     tables.forEach(function(table) {
       validateTableAccessibility(table);
       validateTableStructure(table);
     });
     
-    // Validate landmarks
     validateLandmark();
     validateLandmarkStructure();
     ensureUniqueLandmarks();
     
-    // Add accessible names to SVGs
     var svgs = document.querySelectorAll('svg');
     svgs.forEach(function(svg) {
       var accessibleName = getSvgAccessibleName(svg);
       setSvgAttributes(svg, accessibleName);
     });
     
-    // Handle fake links
     handleFakeLinks();
     
-    // Ensure elements have IDs and ARIA labels
     ensureElementHasId('myTable');
     ensureElementHasId('mySvg');
     ensureElementHasId('inPageButton');
@@ -490,7 +709,6 @@ if (typeof document !== 'undefined') {
     addAriaLabelById('mySvg', 'Company logo');
     addAriaLabelById('inPageButton', 'Accessibility menu');
     
-    // Fix button identifiers
     var buttons = document.querySelectorAll('button, [role="button"]');
     buttons.forEach(function(button, index) {
       if (!button.id) {
@@ -498,7 +716,6 @@ if (typeof document !== 'undefined') {
       }
     });
     
-    // Google sign-in accessibility
     var googleButton = document.querySelector('[data-google-signin]');
     if (googleButton) {
       googleButton.setAttribute('aria-label', 'Sign in with Google');
@@ -511,7 +728,6 @@ if (typeof document !== 'undefined') {
 function initializeAccessibility() {
   var announcer = createAnnouncer();
 
-  // Return the announcer for use in the app
   return {
     announce: announcer.announce,
     handleKeyboardNavigation: handleKeyboardNavigation,
@@ -526,30 +742,34 @@ function initializeAccessibility() {
 
 // Screeps game loop
 module.exports = function() {
-    // Initialize accessibility features
     var langAttr = getLangAttribute();
     var primaryContent = wrapPrimaryContentInMain();
 
-    // Validate accessibility
-    validateTableAccessibility();
-    validateTableStructure();
-    validateLandmark();
-    validateLandmarkStructure();
+    var tables = document.querySelectorAll('table');
+    tables.forEach(function(table) {
+      validateTableAccessibility(table);
+      validateTableStructure(table);
+    });
+    
+    validateLandmark(document);
+    validateLandmarkStructure(document);
     addFixLandmarkIssues();
 
-    // SVG accessibility
-    var svgName = getSvgAccessibleName();
+    var svgs = document.querySelectorAll('svg');
+    svgs.forEach(function(svg) {
+      var svgName = getSvgAccessibleName(svg);
+      setSvgAttributes(svg, svgName);
+    });
+    
     addAriaToFormControls();
 
-    // Unique landmarks and fake link fixes
     ensureUniqueLandmarks();
     fixFakeLinkIssues();
     createAccessibleLink();
 
-    // Harvest and upgrade logic
     var creeps = Game.creeps;
     var sources = Game.sources;
-    var controller = Game.controllers[0]; // assuming first controller
+    var controller = Game.controllers[0];
 
     Object.values(creeps).forEach(function(creep) {
         var source = creep.findClosestByPath(FIND_SOURCES, {
@@ -564,7 +784,6 @@ module.exports = function() {
         }
     });
 
-    // Check link accessibility
     checkLinkAccessibility();
 };
 

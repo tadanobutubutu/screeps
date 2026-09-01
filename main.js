@@ -18,7 +18,7 @@ const missingModule = require('./path/to/missing/module');
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
+// ADD: Address new accessibility issues from insight report
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -27,7 +27,9 @@ const missingModule = require('./path/to/missing/module');
 // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// _Commit: 56c793558143a5a34cb42ce99410e87c31febca_
+// <!-- todo-hash: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
+
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
 import React from 'react';
@@ -114,7 +116,30 @@ function createInPageButton(parent = document.body) {
  * @returns {boolean} Whether the table is accessible
  */
 function validateTableAccessibility(table) {
-  if (!table || typeof table !== 'object') return true;
+  if (!table || typeof table !== 'object' || !(table instanceof HTMLElement)) return false;
+
+  // Check if table has a caption
+  if (!table.querySelector('caption')) {
+    console.warn('Table is missing a caption');
+    return false;
+  }
+
+  // Check if table has proper headers
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    console.warn('Table is missing header cells');
+    return false;
+  }
+
+  // Check if table cells have proper scope attributes
+  const cells = table.querySelectorAll('td, th');
+  for (const cell of cells) {
+    if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
+      console.warn('Table header cell is missing scope attribute');
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -124,7 +149,20 @@ function validateTableAccessibility(table) {
  * @returns {boolean} Whether the table structure is valid
  */
 function validateTableStructure(table) {
-  if (!table || typeof table !== 'object') return true;
+  if (!table || typeof table !== 'object' || !(table instanceof HTMLElement)) return false;
+
+  // Check if table has proper structure
+  if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+    console.warn('Table is missing required thead or tbody elements');
+    return false;
+  }
+
+  // Check if table has at least one row
+  if (table.querySelectorAll('tr').length === 0) {
+    console.warn('Table is missing rows');
+    return false;
+  }
+
   return true;
 }
 
@@ -191,7 +229,7 @@ function validateLandmarkStructure(element) {
  */
 function getSvgAccessibleName(svg) {
   if (!svg || typeof svg !== 'object') return '';
-  return ... || svg.getAttribute('title') || '';
+  return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
 }
 
 // REACT_015: Add lang attribute to HTML element
@@ -199,6 +237,9 @@ function getSvgAccessibleName(svg) {
 if (typeof document !== 'undefined' && document.documentElement) {
   detectAndSetLang();
 }
+
+// _Commit: 56c793558143a5a34cb42ce99410e87c31febca_
+// <!-- todo-hash: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
 
 module.exports = {
   setHtmlLangAttribute,

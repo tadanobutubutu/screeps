@@ -300,6 +300,98 @@ function renderDependencyGraph(data = []) {
   return { nodes, edges };
 }
 
+/**
+ * Validates the accessibility report for issues
+ * Runs all accessibility validation functions and returns a comprehensive report
+ * @returns {Object} An object containing validation results for all accessibility checks
+ */
+function validateAccessibilityReport() {
+  if (typeof document === 'undefined') {
+    return { 
+      valid: false, 
+      errors: ['Document not available'],
+      results: {}
+    };
+  }
+  
+  const results = {
+    tables: [],
+    landmarks: [],
+    svgs: [],
+    uniqueLandmarks: null,
+    overall: true
+  };
+  
+  const allErrors = [];
+  
+  // Validate tables
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    const tableAccessibility = validateTableAccessibility(table);
+    const tableStructure = validateTableStructure(table);
+    
+    results.tables.push({
+      index,
+      accessibility: tableAccessibility,
+      structure: tableStructure
+    });
+    
+    if (!tableAccessibility.valid) {
+      allErrors.push(...tableAccessibility.errors.map(e => `Table ${index + 1} accessibility: ${e}`));
+      results.overall = false;
+    }
+    if (!tableStructure.valid) {
+      allErrors.push(...tableStructure.errors.map(e => `Table ${index + 1} structure: ${e}`));
+      results.overall = false;
+    }
+  });
+  
+  // Validate landmarks
+  const landmarkElements = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
+  landmarkElements.forEach((element, index) => {
+    const landmarkValidation = validateLandmark(element);
+    results.landmarks.push({
+      index,
+      element: element.tagName,
+      validation: landmarkValidation
+    });
+    
+    if (!landmarkValidation.valid) {
+      allErrors.push(...landmarkValidation.errors.map(e => `Landmark ${index + 1}: ${e}`));
+      results.overall = false;
+    }
+  });
+  
+  // Validate landmark structure
+  const landmarkStructure = validateLandmarkStructure();
+  if (!landmarkStructure.valid) {
+    allErrors.push(...landmarkStructure.errors);
+    results.overall = false;
+  }
+  
+  // Validate SVGs
+  const svgValidation = validateSvgAccessibility();
+  results.svgs = svgValidation;
+  if (!svgValidation.valid) {
+    allErrors.push(...svgValidation.errors.map(e => `SVG: ${e}`));
+    results.overall = false;
+  }
+  
+  // Ensure unique landmarks
+  const landmarkErrors = ensureUniqueLandmarks();
+  results.uniqueLandmarks = landmarkErrors;
+  if (!landmarkErrors.valid) {
+    allErrors.push(...landmarkErrors.errors);
+    results.overall = false;
+  }
+  
+  return {
+    valid: results.overall && allErrors.length === 0,
+    errors: allErrors,
+    results
+  };
+}
+
 export { 
   renderDependencyGraph,
   setHtmlLangAttribute,
@@ -313,5 +405,6 @@ export {
   validateSvgAccessibility,
   ensureUniqueLandmarks,
   personName,
-  createInPageButton
+  createInPageButton,
+  validateAccessibilityReport
 };

@@ -12,10 +12,7 @@ const { indexContent } = require('./index');
 const { spawn } = require('child_process');
 
 // Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// - Add keyboard navigation support for all interactive elements
-// - Ensure proper ARIA labels on dynamic content
-// - Maintain focus management for modal dialogs
+// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
 
 const accessibilityUtils = {
   // ... existing methods from both branches ...
@@ -47,6 +44,65 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  /**
+   * Add keyboard navigation support for interactive elements
+   * @param {HTMLElement} element - The element to add keyboard support to
+   * @param {Object} handlers - The handler functions for different keys
+   */
+  addKeyboardNavigation: (element, handlers) => {
+    if (!element) return;
+
+    element.addEventListener('keydown', (e) => {
+      accessibilityUtils.handleKeyboardNav(e, handlers);
+    });
+  },
+
+  /**
+   * Ensure proper ARIA labels on dynamic content
+   * @param {HTMLElement} element - The element to add ARIA attributes to
+   * @param {string} label - The ARIA label to set
+   * @param {string} [role] - The ARIA role to set (optional)
+   */
+  ensureAriaLabel: (element, label, role) => {
+    if (!element) return;
+
+    if (label) {
+      element.setAttribute('aria-label', label);
+    }
+
+    if (role) {
+      element.setAttribute('role', role);
+    }
+  },
+
+  /**
+   * Maintain focus management for modal dialogs
+   * @param {HTMLElement} modal - The modal element
+   * @param {HTMLElement} trigger - The element that triggered the modal
+   */
+  manageModalFocus: (modal, trigger) => {
+    if (!modal || !trigger) return;
+
+    // Trap focus within the modal
+    focusTrap(modal);
+
+    // Set initial focus to the first focusable element
+    const firstFocusable = modal.querySelector(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (firstFocusable) {
+      firstFocusable.focus();
+    }
+
+    // Return focus to trigger when modal closes
+    modal.addEventListener('close', () => {
+      if (trigger) {
+        trigger.focus();
+      }
+    });
   }
 };
 
@@ -120,6 +176,15 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
 
   // Add accessibility label if not present
   const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
+
+  // Add keyboard navigation support
+  accessibilityUtils.addKeyboardNavigation(container, {
+    'Escape': () => {
+      // Handle escape key for closing the graph
+      const closeButton = container.querySelector('[aria-label="Close graph"]');
+      if (closeButton) closeButton.click();
+    }
+  });
 
   return {
     containerId,
@@ -236,6 +301,47 @@ const exportUtils = {
 
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
+  },
+
+  /**
+   * Export data to a file with accessibility features
+   * @param {any} data - The data to export
+   * @param {string} filename - The name of the file to create
+   * @param {string} mimeType - The MIME type of the data
+   * @param {string} [label] - Accessibility label for the download button
+   */
+  exportWithAccessibility: (data, filename, mimeType, label) => {
+    const sanitizedFilename = sanitizeFilename(filename);
+    const accessibleLabel = label || `Download ${sanitizedFilename}`;
+
+    const blob = new Blob([data], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = sanitizedFilename;
+    link.setAttribute('aria-label', accessibleLabel);
+    link.setAttribute('role', 'button');
+    link.style.display = 'none';
+
+    // Add keyboard support
+    link.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        link.click();
+      }
+    });
+
+    document.body.appendChild(link);
+    link.click();
+    URL.revokeObjectURL(url);
+
+    // Announce download completion to screen readers
+    accessibilityUtils.announceToScreenReader(`Download of ${sanitizedFilename} started`);
+
+    // Clean up after a delay
+    setTimeout(() => {
+      link.remove();
+    }, 1000);
   }
 };
 

@@ -147,6 +147,93 @@ const accessibilityUtils = {
   // Function to handle accessibility issues
   handleAccessibilityIssues: function(container, report) {
     // Implementation to handle accessibility issues
+  },
+
+  // Function to add ARIA attributes to elements
+  addAriaAttributes: function(element, attributes) {
+    if (!element || !attributes) return;
+
+    for (const [key, value] of Object.entries(attributes)) {
+      if (value !== undefined && value !== null) {
+        element.setAttribute(key, value);
+      }
+    }
+  },
+
+  // Function to ensure proper heading hierarchy
+  ensureHeadingHierarchy: function(container) {
+    if (!container) return;
+
+    const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    let currentLevel = 1;
+
+    headings.forEach(heading => {
+      const level = parseInt(heading.tagName.substring(1));
+      if (level > currentLevel + 1) {
+        // Skip levels if needed (e.g., h1 -> h3)
+        currentLevel = level - 1;
+      } else if (level < currentLevel) {
+        // Reset to current level if we go back
+        currentLevel = level;
+      } else {
+        currentLevel = level;
+      }
+
+      // Ensure proper heading structure
+      if (level > currentLevel + 1) {
+        // If we skip a level, adjust the heading level
+        const newLevel = currentLevel + 1;
+        const newHeading = document.createElement(`h${newLevel}`);
+        newHeading.textContent = heading.textContent;
+        heading.replaceWith(newHeading);
+        currentLevel = newLevel;
+      }
+    });
+  },
+
+  // Function to ensure proper form labels
+  ensureFormLabels: function(form) {
+    if (!form) return;
+
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+      const id = input.id || `input-${Math.random().toString(36).substr(2, 9)}`;
+      input.id = id;
+
+      if (!input.getAttribute('aria-label') && !input.getAttribute('aria-labelledby')) {
+        const label = form.querySelector(`label[for="${id}"]`);
+        if (!label) {
+          // Create implicit label if none exists
+          input.setAttribute('aria-label', input.placeholder || 'Input field');
+        }
+      }
+    });
+  },
+
+  // Function to ensure proper button accessibility
+  ensureButtonAccessibility: function(button) {
+    if (!button) return;
+
+    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+      button.setAttribute('aria-label', button.getAttribute('title') || 'Button');
+    }
+
+    if (button.tagName.toLowerCase() === 'button' && !button.getAttribute('type')) {
+      button.setAttribute('type', 'button');
+    }
+  },
+
+  // Function to ensure proper image accessibility
+  ensureImageAccessibility: function(image) {
+    if (!image) return;
+
+    if (!image.getAttribute('alt') && !image.getAttribute('aria-hidden')) {
+      image.setAttribute('alt', '');
+    }
+
+    if (image.getAttribute('alt') === '') {
+      image.setAttribute('role', 'presentation');
+    }
   }
 };
 
@@ -175,6 +262,35 @@ function renderDependencyGraph(data) {
 
 function implementAccessibilityFixesFromReport(container, report) {
   // Implementation to address accessibility issues from the insight report
+  if (!container || !report) return;
+
+  // Fix heading hierarchy
+  accessibilityUtils.ensureHeadingHierarchy(container);
+
+  // Fix form labels
+  const forms = container.querySelectorAll('form');
+  forms.forEach(form => accessibilityUtils.ensureFormLabels(form));
+
+  // Fix button accessibility
+  const buttons = container.querySelectorAll('button, [role="button"]');
+  buttons.forEach(button => accessibilityUtils.ensureButtonAccessibility(button));
+
+  // Fix image accessibility
+  const images = container.querySelectorAll('img, svg');
+  images.forEach(image => accessibilityUtils.ensureImageAccessibility(image));
+
+  // Fix table accessibility
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    const issues = validateTableAccessibility(table);
+    if (issues.length > 0) {
+      // Add ARIA attributes to help with accessibility
+      accessibilityUtils.addAriaAttributes(table, {
+        'aria-describedby': 'table-description',
+        'role': 'table'
+      });
+    }
+  });
 }
 
 // Initialize accessibility features
@@ -196,6 +312,9 @@ function initAccessibility() {
       });
     });
   }
+
+  // Apply accessibility fixes to the entire document
+  implementAccessibilityFixesFromReport(document.body, {});
 }
 
 // New function: validateTableAccessibility
@@ -270,7 +389,7 @@ function newExportedFunction() {
 
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// _Commit: eef4b6be04a5e2cd61b75c443cfe2dff2da0857ca2_
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
@@ -312,7 +431,7 @@ function transformInputData(inputData, options = {}) {
   if (typeof inputData === 'object' && !Array.isArray(inputData) && inputData !== null) {
     const result = {};
     const keys = preserveKeys ? Object.keys(inputData) : Object.keys(inputData).map(() => Math.random().toString(36).substr(2, 9));
-    
+
     let i = 0;
     for (const key of Object.keys(inputData)) {
       const value = inputData[key];

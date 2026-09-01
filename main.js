@@ -1,50 +1,8 @@
-// main.js
-
-// Find the primary content element in the DOM
-const primaryContent = document.querySelector('.primary-content') ||
-                        document.querySelector('[role="main"]') ||
-                        document.getElementById('main-content') ||
-                        document.querySelector('#content');
-
-// If primary content exists and is not already inside a <main> element
-if (primaryContent && !primaryContent.closest('main')) {
-  // Create a new <main> element
-  const mainElement = document.createElement('main');
-
-  // Insert the <main> element before the primary content in the DOM
-  primaryContent.parentNode.insertBefore(mainElement, primaryContent);
-
-  // Move the primary content inside the <main> element
-  mainElement.appendChild(primaryContent);
-
-  return mainElement;
-}
-
-// Import necessary dependencies
-import React, { useState, useEffect } from 'react';
-import { List, Button } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
-import { setDependencyGraph } from './actions/dependencyGraph';
-import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
-import { isSecureContext } from './utils.js';
-import fs from 'fs';
-import './styles.css';
-import './styles.less';
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { CONFIG } from './utils/constants';
-import App from './App';
-import { helper, formatDate } from './utils';
-import { someFunction } from './utils/someFunction';
-import express from 'express';
-import path from 'path';
-import { fetchUser, clearCache } from './utils/user';
+
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
 // Landmark data structure
 const landmarks = [];
@@ -58,14 +16,6 @@ const appData = {
 let icons = {};
 
 // Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -155,44 +105,21 @@ function ensureUniqueLandmarks(landmarksArray) {
   });
 }
 
-// New function for creating in-page buttons
-function createInPageButtons(buttonsData) {
-  const buttonsContainer = document.getElementById('in-page-buttons-container');
-
-  if (!buttonsContainer) {
-    console.error('In-page buttons container not found');
-    return;
-  }
-
-  buttonsData.forEach(buttonData => {
-    const button = document.createElement('button');
-    button.id = buttonData.id;
-    button.textContent = buttonData.text;
-    button.setAttribute('data-role', buttonData.role);
-
-    button.addEventListener('click', () => {
-      location.hash = buttonData.href;
-    });
-
-    buttonsContainer.appendChild(button);
-  });
-}
-
 // ... (previous and updated code remains as it is)
 
 // Updated function: ensures landmarks uniqueness when there's an array structure
 function ensureLandmarkUniqueness(elements) {
-  const landmarkTypes = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
 
   const elementsById = {};
 
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (elementsById[landmark.id]) {
-          landmark.id += '_duplicate';
-        } else {
+        if (!elementsById[landmark.id]) {
           elementsById[landmark.id] = true;
+        } else {
+          landmark.id += '_duplicate';
         }
       }
     }
@@ -223,44 +150,101 @@ function countDependencies() {
   return Object.keys(dependencies).length;
 }
 
-// New function to render dependency graph
-function renderDependencyGraph(container) {
-  // Implementation for rendering dependency graph
-  // This would typically involve creating SVG elements or using a library like D3.js
-  const graph = document.createElement('div');
-  graph.className = 'dependency-graph';
-  graph.setAttribute('role', 'graph');
-  graph.setAttribute('aria-label', 'Dependency Graph Visualization');
-  container.appendChild(graph);
-
-  // Placeholder for actual graph rendering logic
-  // In a real implementation, this would create nodes and edges based on dependency data
+// Add lang attribute to HTML element
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
 }
 
-// New function to render index view
-function renderIndexView(container) {
-  // Implementation for rendering index view
-  const index = document.createElement('div');
-  index.className = 'dependency-index';
-  index.setAttribute('role', 'navigation');
-  index.setAttribute('aria-label', 'Dependency Index');
-  container.appendChild(index);
+// Fix table structure issues
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure table has proper caption if needed
+    if (!table.querySelector('caption') && table.rows.length > 0) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table data';
+      table.insertBefore(caption, table.firstChild);
+    }
 
-  // Placeholder for actual index rendering logic
-  // This would typically list all dependencies with links to their details
+    // Ensure table has proper headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      // Add headers if missing
+      const firstRow = table.rows[0];
+      if (firstRow) {
+        Array.from(firstRow.cells).forEach(cell => {
+          const th = document.createElement('th');
+          th.textContent = cell.textContent;
+          cell.replaceWith(th);
+        });
+      }
+    }
+
+    // Ensure table has proper scope attributes for headers
+    const headerRows = table.querySelectorAll('thead th');
+    headerRows.forEach((th, index) => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+  });
 }
 
-// Exporting module objects
+// Add/fix landmark issues
+function addMainLandmark() {
+  if (!document.querySelector('main')) {
+    const main = document.createElement('main');
+    main.id = 'main-content';
+    document.body.appendChild(main);
+  }
+}
+
+// Add accessible names to SVGs
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg:not([aria-hidden="true"])');
+  svgs.forEach(svg => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      const title = svg.querySelector('title');
+      if (title) {
+        svg.setAttribute('aria-labelledby', title.id);
+      } else {
+        svg.setAttribute('aria-label', 'graphic');
+      }
+    }
+  });
+}
+
+// Fix fake link issue
+function fixFakeLinkIssue() {
+  const fakeLinks = document.querySelectorAll('[role="link"][href="javascript:void(0)"]');
+  fakeLinks.forEach(link => {
+    link.setAttribute('tabindex', '0');
+    link.setAttribute('role', 'button');
+    link.removeAttribute('href');
+  });
+}
+
+// Address all accessibility issues from insight report
+function addressInsightIssues() {
+  addLangAttribute();
+  fixTableStructureIssues();
+  addMainLandmark();
+  addSvgAccessibleNames();
+  fixFakeLinkIssue();
+}
+
+// Initialize the app with accessibility fixes
+function initApp() {
+  initializeApp();
+  addressInsightIssues();
+  registerSW();
+}
+
+// Export functions for testing
 export {
-  wrapPrimaryContentInMain,
-  initializeApp,
-  handleUserInteraction,
-  cleanup,
-  initApp,
-  processData,
-  fetchUser,
-  clearCache,
-  VisualizeDependencyTree,
   checkLandmarkElement,
   ensureUniqueLandmarks,
   landmarkStructureCheck,
@@ -268,6 +252,7 @@ export {
   addLandmarkRoles,
   fixFakeLinks,
   isSecureContext,
+  initApp,
   landmarks,
   appData,
   icons,
@@ -283,5 +268,9 @@ export {
   calculateSum,
   addProperLandmarkRegions,
   countDependencies,
-  createInPageButtons // Added new export
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue
 };

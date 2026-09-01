@@ -1,10 +1,27 @@
-// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+// TODO: This is the existing code that needs to be preserved
+// TODO: Address accessibility issues from insight report — FIXED
+// REACT_015: Add lang attribute
+// REACT_027: Fix 26 table structure issues
+// REACT_017: Add/fix 4 landmark issues
+// REACT_041: Add accessible names to 2 SVGs
+// REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
+// REACT_036: Fix 1 fake link issue
+
+// TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
-// Importing the necessary functions (for illustration purposes)
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+// main.js - Accessibility improvements implementation
+// main.js - Combined utility and accessibility features
+
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
+
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Original code goes here
+// ----- END ORIGINAL CODE -----
+
+// TODO: This is the existing code that needs to be preserved
 
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
@@ -289,7 +306,141 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
+    button.setAttribute('aria-label', buttonText); // Added for accessibility
+    button.setAttribute('role', 'button'); // Added for accessibility
     document.body.appendChild(button);
+}
+
+// New function to improve accessibility for adding a new book
+/**
+ * Creates an accessible form for adding a new book with proper labels and ARIA attributes
+ * @param {string} formId - The ID for the form element
+ * @param {string} submitButtonId - The ID for the submit button
+ * @returns {HTMLFormElement} The created form element
+ */
+function createAccessibleBookForm(formId, submitButtonId) {
+    const form = document.createElement('form');
+    form.id = formId;
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-labelledby', `${formId}-title`);
+
+    // Add form title for accessibility
+    const title = document.createElement('h2');
+    title.id = `${formId}-title`;
+    title.textContent = 'Add New Book';
+    form.appendChild(title);
+
+    // Create accessible form fields
+    const createField = (labelText, inputId, inputType = 'text') => {
+        const fieldset = document.createElement('fieldset');
+        const label = document.createElement('label');
+        label.setAttribute('for', inputId);
+        label.textContent = labelText;
+        const input = document.createElement('input');
+        input.type = inputType;
+        input.id = inputId;
+        input.setAttribute('required', 'true');
+        input.setAttribute('aria-required', 'true');
+
+        fieldset.appendChild(label);
+        fieldset.appendChild(input);
+        return fieldset;
+    };
+
+    // Add form fields
+    form.appendChild(createField('Book Title:', `${formId}-title`));
+    form.appendChild(createField('Author:', `${formId}-author`));
+    form.appendChild(createField('Publication Year:', `${formId}-year`, 'number'));
+
+    // Add submit button
+    const submitButton = document.createElement('button');
+    submitButton.id = submitButtonId;
+    submitButton.type = 'submit';
+    submitButton.textContent = 'Add Book';
+    submitButton.setAttribute('aria-label', 'Submit new book form');
+    form.appendChild(submitButton);
+
+    return form;
+}
+
+// Validation functions for accessibility checks
+function getLangAttribute(html) {
+    if (typeof html !== 'string') return null;
+    const match = html.match(/<html[^>]*\slang=["']([^"']+)["']/i);
+    return match ? match[1] : null;
+}
+
+function validateTableAccessibility(html) {
+    if (typeof html !== 'string') return { valid: false, issues: [] };
+    const issues = [];
+
+    // Check for tables without captions
+    const tables = html.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
+    tables.forEach((table, index) => {
+        if (!/<caption/i.test(table)) {
+            issues.push(`Table ${index + 1} is missing a caption`);
+        }
+    });
+
+    // Check for th elements without scope
+    const thWithoutScope = html.match(/<th(?!([^>]*)scope=)/gi) || [];
+    if (thWithoutScope.length > 0) {
+        issues.push(`${thWithoutScope.length} table header(s) missing scope attribute`);
+    }
+
+    return { valid: issues.length === 0, issues };
+}
+
+function validateTableStructure(html) {
+    if (typeof html !== 'string') return { valid: false, issues: [] };
+    const issues = [];
+
+    // Check for tables without thead
+    const tables = html.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
+    tables.forEach((table, index) => {
+        if (!/<thead/i.test(table)) {
+            issues.push(`Table ${index + 1} is missing thead element`);
+        }
+        if (!/<tbody/i.test(table)) {
+            issues.push(`Table ${index + 1} is missing tbody element`);
+        }
+    });
+
+    return { valid: issues.length === 0, issues };
+}
+
+function validateLinkAccessibility(html) {
+    if (typeof html !== 'string') return { valid: false, issues: [] };
+    const issues = [];
+
+    // Check for links with no text content
+    const linkPattern = /<a([^>]*)>([\s]*)<\/a>/gi;
+    let match;
+    while ((match = linkPattern.exec(html)) !== null) {
+        issues.push(`Link ${match[1]} has no accessible text`);
+    }
+
+    return { valid: issues.length === 0, issues };
+}
+
+function handleFakeLinks(html) {
+    if (typeof html !== 'string') return { html, linksConverted: 0 };
+    let count = 0;
+
+    // Find spans or divs with onclick that act as links
+    const fakeLinkPattern = /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi;
+    html = html.replace(fakeLinkPattern, (match, before, onclick, after) => {
+        const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/);
+        if (hrefMatch) {
+            count++;
+            return `<a href="${hrefMatch[1]}"${before}${after}>`;
+        }
+        return match;
+    });
+
+    html = html.replace(/<\/span>/gi, '</a>');
+
+    return { html, linksConverted: count };
 }
 
 // Don't forget to test your new additions in the test file
@@ -312,7 +463,8 @@ module.exports = {
     validateTableAccessibility,
     validateTableStructure,
     validateLinkAccessibility,
-    handleFakeLinks
+    handleFakeLinks,
+    createAccessibleBookForm
 };
 
 // Run if executed directly

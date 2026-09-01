@@ -87,20 +87,20 @@ function detectAndSetLang(content) {
 function personName(options = {}) {
   const { firstName = '', lastName = '', lang = 'en', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
-  
+
   if (typeof document !== 'undefined') {
     const nameElement = document.createElement('span');
     nameElement.setAttribute('lang', lang);
     nameElement.setAttribute('aria-label', fullName);
     nameElement.textContent = fullName || 'Unknown';
-    
+
     if (container) {
       container.appendChild(nameElement);
     }
-    
+
     return nameElement;
   }
-  
+
   return fullName || 'Unknown';
 }
 
@@ -214,7 +214,7 @@ function newFocusTrap(container) {
   const focusableElements = Array.from(
     container.querySelectorAll(focusableSelectors)
   ).filter(el => el.offsetParent !== null);
-  
+
   if (focusableElements.length > 0) {
     focusableElements[0].focus();
   }
@@ -227,6 +227,134 @@ function newFocusTrap(container) {
       }
     }
   };
+}
+
+/**
+ * Validates that all SVG elements have accessible names
+ * @param {HTMLElement} container - The container to check for SVGs (defaults to document)
+ * @returns {Array} Array of SVG elements that need accessible names
+ */
+function validateSvgAccessibility(container = document) {
+  if (typeof document === 'undefined') return [];
+
+  const svgs = container.querySelectorAll('svg:not([aria-hidden="true"])');
+  const svgsWithoutNames = [];
+
+  svgs.forEach(svg => {
+    const hasTitle = svg.querySelector('title') !== null;
+    const hasAriaLabel = svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby');
+
+    if (!hasTitle && !hasAriaLabel) {
+      svgsWithoutNames.push(svg);
+    }
+  });
+
+  return svgsWithoutNames;
+}
+
+/**
+ * Adds accessible names to SVG elements that are missing them
+ * @param {HTMLElement} svg - The SVG element to make accessible
+ * @param {string} name - The accessible name to add
+ */
+function addSvgAccessibleName(svg, name) {
+  if (!svg || typeof document === 'undefined') return;
+
+  if (!svg.querySelector('title')) {
+    const title = document.createElement('title');
+    title.textContent = name;
+    svg.prepend(title);
+  }
+
+  if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+    svg.setAttribute('aria-label', name);
+  }
+}
+
+/**
+ * Validates that all tables have proper accessibility attributes
+ * @param {HTMLElement} container - The container to check for tables (defaults to document)
+ * @returns {Array} Array of tables that need accessibility improvements
+ */
+function validateTableAccessibility(container = document) {
+  if (typeof document === 'undefined') return [];
+
+  const tables = container.querySelectorAll('table');
+  const invalidTables = [];
+
+  tables.forEach(table => {
+    const hasCaption = table.querySelector('caption') !== null;
+    const hasScope = table.querySelectorAll('th[scope]').length > 0;
+    const hasHeaders = table.querySelectorAll('th').length > 0;
+
+    if (!hasCaption || (!hasScope && !hasHeaders)) {
+      invalidTables.push(table);
+    }
+  });
+
+  return invalidTables;
+}
+
+/**
+ * Adds proper accessibility attributes to a table
+ * @param {HTMLElement} table - The table to make accessible
+ * @param {string} captionText - The caption text for the table
+ */
+function addTableAccessibility(table, captionText) {
+  if (!table || typeof document === 'undefined') return;
+
+  if (!table.querySelector('caption')) {
+    const caption = document.createElement('caption');
+    caption.textContent = captionText;
+    table.prepend(caption);
+  }
+
+  const headers = table.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+}
+
+/**
+ * Validates that all landmarks have unique roles
+ * @param {HTMLElement} container - The container to check for landmarks (defaults to document)
+ * @returns {Array} Array of duplicate landmark roles
+ */
+function validateUniqueLandmarks(container = document) {
+  if (typeof document === 'undefined') return [];
+
+  const landmarkRoles = ['main', 'nav', 'search', 'region', 'complementary', 'contentinfo'];
+  const foundRoles = {};
+  const duplicates = [];
+
+  landmarkRoles.forEach(role => {
+    const elements = container.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      duplicates.push(role);
+    }
+  });
+
+  return duplicates;
+}
+
+/**
+ * Ensures landmarks have unique roles by adding identifiers
+ * @param {HTMLElement} container - The container to process landmarks in (defaults to document)
+ */
+function ensureUniqueLandmarks(container = document) {
+  if (typeof document === 'undefined') return;
+
+  const duplicates = validateUniqueLandmarks(container);
+  duplicates.forEach(role => {
+    const elements = container.querySelectorAll(`[role="${role}"]`);
+    elements.forEach((el, index) => {
+      if (index > 0) {
+        el.setAttribute('aria-label', `${role} ${index + 1}`);
+      }
+    });
+  });
 }
 
 // Export the new functions
@@ -243,5 +371,9 @@ module.exports = {
   getSvgAccessibleName,
   createWebResourceButton,
   validateUniqueLandmarks,
-  newFocusTrap
+  newFocusTrap,
+  validateSvgAccessibility,
+  addSvgAccessibleName,
+  addTableAccessibility,
+  ensureUniqueLandmarks
 };

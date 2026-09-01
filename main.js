@@ -228,12 +228,12 @@ function validateLandmark(landmark) {
       !['main', 'complementary', 'navigation', 'search'].includes(landmark.getAttribute('role'))) {
     return false;
   }
-  
+
   // Check if landmark has appropriate name
   if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
     return false;
   }
-  
+
   // Additional checks can be added here
   return true;
 }
@@ -244,22 +244,22 @@ function validateLandmark(landmark) {
  */
 function validateLandmarkStructure() {
   const landmarks = document.querySelectorAll('[role="main"], [role="complementary"], [role="navigation"], [role="search"]');
-  
+
   // Count each type of landmark
   const mainCount = landmarks.filter(l => l.getAttribute('role') === 'main').length;
   const complementaryCount = landmarks.filter(l => l.getAttribute('role') === 'complementary').length;
   const navigationCount = landmarks.filter(l => l.getAttribute('role') === 'navigation').length;
   const searchCount = landmarks.filter(l => l.getAttribute('role') === 'search').length;
-  
+
   // Basic validation: ensure at least one main landmark exists
   if (mainCount === 0) {
     console.warn('No main landmark found on the page');
     return false;
   }
-  
+
   // Ensure no duplicate landmark IDs (reusing previous function)
   ensureUniqueLandmarks();
-  
+
   return true;
 }
 
@@ -270,7 +270,7 @@ function validateLandmarkStructure() {
 function addFixLandmarkIssues() {
   // Apply any necessary fixes for landmark accessibility
   // This could include adding missing roles, labels, etc.
-  
+
   // Example: Find all main landmarks and ensure they have proper roles
   const mainLandmarks = document.querySelectorAll('[role="main"]');
   mainLandmarks.forEach(landmark => {
@@ -278,7 +278,7 @@ function addFixLandmarkIssues() {
       landmark.setAttribute('aria-label', 'Main content area');
     }
   });
-  
+
   return true;
 }
 
@@ -335,3 +335,378 @@ function replaceFakeLinks() {
     parent.replaceChild(newButton, fakeLink);
   }
 }
+
+// TODO: Implement tower defense
+class TowerDefenseGame {
+  constructor(canvasId) {
+    this.canvas = document.getElementById(canvasId);
+    this.ctx = this.canvas.getContext('2d');
+    this.towers = [];
+    this.enemies = [];
+    this.projectiles = [];
+    this.money = 100;
+    this.lives = 20;
+    this.wave = 1;
+    this.gameOver = false;
+    this.gameSpeed = 1;
+    this.path = [
+      {x: 50, y: 50},
+      {x: 50, y: 350},
+      {x: 350, y: 350},
+      {x: 350, y: 50}
+    ];
+
+    this.setupEventListeners();
+    this.startGameLoop();
+  }
+
+  setupEventListeners() {
+    this.canvas.addEventListener('click', (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      // Check if clicked on a tower
+      for (const tower of this.towers) {
+        if (this.isPointInCircle(x, y, tower.x, tower.y, 20)) {
+          this.showTowerMenu(tower);
+          return;
+        }
+      }
+
+      // Check if clicked on a path (to place tower)
+      if (this.isPointOnPath(x, y)) {
+        this.placeTower(x, y);
+      }
+    });
+  }
+
+  isPointInCircle(x, y, circleX, circleY, radius) {
+    const dx = x - circleX;
+    const dy = y - circleY;
+    return dx * dx + dy * dy <= radius * radius;
+  }
+
+  isPointOnPath(x, y) {
+    const pathWidth = 30;
+    for (let i = 0; i < this.path.length - 1; i++) {
+      const start = this.path[i];
+      const end = this.path[i + 1];
+
+      // Check if point is near the line segment
+      if (this.isPointNearLine(x, y, start.x, start.y, end.x, end.y, pathWidth)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  isPointNearLine(px, py, x1, y1, x2, y2, width) {
+    const A = px - x1;
+    const B = py - y1;
+    const C = x2 - x1;
+    const D = y2 - y1;
+
+    const dot = A * C + B * D;
+    const len_sq = C * C + D * D;
+    let param = -1;
+    if (len_sq !== 0) param = dot / len_sq;
+
+    let xx, yy;
+
+    if (param < 0) {
+      xx = x1;
+      yy = y1;
+    } else if (param > 1) {
+      xx = x2;
+      yy = y2;
+    } else {
+      xx = x1 + param * C;
+      yy = y1 + param * D;
+    }
+
+    const dx = px - xx;
+    const dy = py - yy;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    return distance <= width;
+  }
+
+  placeTower(x, y) {
+    if (this.money < 50) {
+      console.log("Not enough money to place tower!");
+      return;
+    }
+
+    // Check if there's already a tower at this position
+    for (const tower of this.towers) {
+      if (this.isPointInCircle(x, y, tower.x, tower.y, 40)) {
+        console.log("Cannot place tower too close to another tower!");
+        return;
+      }
+    }
+
+    this.towers.push({
+      x: x,
+      y: y,
+      range: 100,
+      damage: 10,
+      fireRate: 1000,
+      lastShot: 0,
+      type: 'basic'
+    });
+
+    this.money -= 50;
+    this.updateUI();
+  }
+
+  showTowerMenu(tower) {
+    // In a real implementation, this would show a menu for upgrading/selling
+    console.log(`Tower at (${tower.x}, ${tower.y}) selected`);
+  }
+
+  startGameLoop() {
+    this.lastTime = performance.now();
+    this.gameLoop();
+  }
+
+  gameLoop() {
+    if (this.gameOver) {
+      this.drawGameOver();
+      return;
+    }
+
+    const now = performance.now();
+    const deltaTime = now - this.lastTime;
+    this.lastTime = now;
+
+    this.update(deltaTime);
+    this.draw();
+
+    requestAnimationFrame(() => this.gameLoop());
+  }
+
+  update(deltaTime) {
+    // Spawn enemies
+    if (Math.random() < 0.01 && this.enemies.length < 10) {
+      this.spawnEnemy();
+    }
+
+    // Update enemies
+    for (let i = this.enemies.length - 1; i >= 0; i--) {
+      const enemy = this.enemies[i];
+      enemy.update(deltaTime);
+
+      // Check if enemy reached end
+      if (enemy.reachedEnd) {
+        this.lives--;
+        this.enemies.splice(i, 1);
+        if (this.lives <= 0) {
+          this.gameOver = true;
+        }
+        continue;
+      }
+
+      // Check if enemy is dead
+      if (enemy.health <= 0) {
+        this.money += 5;
+        this.enemies.splice(i, 1);
+        continue;
+      }
+    }
+
+    // Update towers
+    for (const tower of this.towers) {
+      if (now - tower.lastShot > tower.fireRate) {
+        const target = this.findTarget(tower);
+        if (target) {
+          this.shootProjectile(tower, target);
+          tower.lastShot = now;
+        }
+      }
+    }
+
+    // Update projectiles
+    for (let i = this.projectiles.length - 1; i >= 0; i--) {
+      const projectile = this.projectiles[i];
+      projectile.update(deltaTime);
+
+      // Check for collisions with enemies
+      for (let j = this.enemies.length - 1; j >= 0; j--) {
+        const enemy = this.enemies[j];
+        if (this.isPointInCircle(projectile.x, projectile.y, enemy.x, enemy.y, 10)) {
+          enemy.health -= projectile.damage;
+          this.projectiles.splice(i, 1);
+          break;
+        }
+      }
+
+      // Remove projectiles that are out of bounds
+      if (projectile.x < 0 || projectile.x > this.canvas.width ||
+          projectile.y < 0 || projectile.y > this.canvas.height) {
+        this.projectiles.splice(i, 1);
+      }
+    }
+
+    this.updateUI();
+  }
+
+  findTarget(tower) {
+    let closestEnemy = null;
+    let closestDistance = Infinity;
+
+    for (const enemy of this.enemies) {
+      const dx = enemy.x - tower.x;
+      const dy = enemy.y - tower.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < tower.range && distance < closestDistance) {
+        closestEnemy = enemy;
+        closestDistance = distance;
+      }
+    }
+
+    return closestEnemy;
+  }
+
+  shootProjectile(tower, target) {
+    const dx = target.x - tower.x;
+    const dy = target.y - tower.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    this.projectiles.push({
+      x: tower.x,
+      y: tower.y,
+      speed: 300,
+      directionX: dx / distance,
+      directionY: dy / distance,
+      damage: tower.damage,
+      update: function(deltaTime) {
+        const moveDistance = this.speed * (deltaTime / 1000);
+        this.x += this.directionX * moveDistance;
+        this.y += this.directionY * moveDistance;
+      }
+    });
+  }
+
+  spawnEnemy() {
+    const pathStart = this.path[0];
+    this.enemies.push({
+      x: pathStart.x,
+      y: pathStart.y,
+      speed: 50,
+      health: 100,
+      maxHealth: 100,
+      pathIndex: 0,
+      reachedEnd: false,
+      update: function(deltaTime) {
+        if (this.reachedEnd) return;
+
+        const path = this.path;
+        const target = path[this.pathIndex];
+        const dx = target.x - this.x;
+        const dy = target.y - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < 5) {
+          this.pathIndex++;
+          if (this.pathIndex >= path.length) {
+            this.reachedEnd = true;
+            return;
+          }
+        } else {
+          const moveDistance = this.speed * (deltaTime / 1000);
+          this.x += (dx / distance) * moveDistance;
+          this.y += (dy / distance) * moveDistance;
+        }
+      }
+    });
+  }
+
+  draw() {
+    // Clear canvas
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Draw path
+    this.ctx.strokeStyle = '#555';
+    this.ctx.lineWidth = 30;
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.path[0].x, this.path[0].y);
+    for (let i = 1; i < this.path.length; i++) {
+      this.ctx.lineTo(this.path[i].x, this.path[i].y);
+    }
+    this.ctx.stroke();
+
+    // Draw towers
+    this.ctx.fillStyle = '#3498db';
+    for (const tower of this.towers) {
+      this.ctx.beginPath();
+      this.ctx.arc(tower.x, tower.y, 20, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Draw range
+      this.ctx.strokeStyle = 'rgba(52, 152, 219, 0.3)';
+      this.ctx.lineWidth = 2;
+      this.ctx.beginPath();
+      this.ctx.arc(tower.x, tower.y, tower.range, 0, Math.PI * 2);
+      this.ctx.stroke();
+    }
+
+    // Draw enemies
+    this.ctx.fillStyle = '#e74c3c';
+    for (const enemy of this.enemies) {
+      this.ctx.beginPath();
+      this.ctx.arc(enemy.x, enemy.y, 10, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Draw health bar
+      this.ctx.fillStyle = '#2ecc71';
+      this.ctx.fillRect(enemy.x - 10, enemy.y - 20, 20 * (enemy.health / enemy.maxHealth), 3);
+      this.ctx.strokeStyle = '#000';
+      this.ctx.strokeRect(enemy.x - 10, enemy.y - 20, 20, 3);
+    }
+
+    // Draw projectiles
+    this.ctx.fillStyle = '#f39c12';
+    for (const projectile of this.projectiles) {
+      this.ctx.beginPath();
+      this.ctx.arc(projectile.x, projectile.y, 3, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
+  }
+
+  updateUI() {
+    // In a real implementation, this would update the UI elements
+    console.log(`Money: ${this.money}, Lives: ${this.lives}, Wave: ${this.wave}`);
+  }
+
+  drawGameOver() {
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.ctx.fillStyle = '#fff';
+    this.ctx.font = '48px Arial';
+    this.ctx.textAlign = 'center';
+    this.ctx.fillText('Game Over', this.canvas.width / 2, this.canvas.height / 2);
+
+    this.ctx.font = '24px Arial';
+    this.ctx.fillText('Click to restart', this.canvas.width / 2, this.canvas.height / 2 + 50);
+
+    this.canvas.addEventListener('click', () => {
+      this.resetGame();
+    }, { once: true });
+  }
+
+  resetGame() {
+    this.towers = [];
+    this.enemies = [];
+    this.projectiles = [];
+    this.money = 100;
+    this.lives = 20;
+    this.wave = 1;
+    this.gameOver = false;
+  }
+}
+
+// Export the TowerDefenseGame class
+export { TowerDefenseGame };

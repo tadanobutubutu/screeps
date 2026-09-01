@@ -488,8 +488,9 @@ module.exports = {
   renderDependencyGraph,
   renderIndex,
   validateTableAccessibility,
-  validateTableStructure
+  validateTableStructure,
   // Preserve any other existing exports here
+  // Required exports restored from previous version
 }
 
 // New function or changes requested in the issue

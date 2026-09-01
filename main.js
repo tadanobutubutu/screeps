@@ -13,9 +13,6 @@ const { createInPageButton, createWebResourceButton, validateLandmark, validateL
 const { main } = require('./utilities');
 const { functionA, functionB } = require('./functionModule');
 
-const { http } = require('http');
-const url = require('url');
-
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
   const issues = [];
@@ -133,7 +130,6 @@ function handleCredentialResponse(credentialResponse) {
 
 const a11yStore = {
   // ... existing methods ...
-};
 
   prefersReducedMotion() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -150,6 +146,7 @@ const a11yStore = {
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+    let index = 0;
     landmarkElements.forEach((element) => {
       const landmarks = document.querySelectorAll(`[role="${element}"]`);
       landmarks.forEach((landmark) => {
@@ -159,4 +156,11 @@ const a11yStore = {
 
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria
+            landmark.setAttribute('aria-label', `${element} section ${index + 1}`);
+          }
+        }
+        index++;
+      });
+    });
+  }
+};

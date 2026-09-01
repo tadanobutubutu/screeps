@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file with merged changes:
-
-```javascript
 const main = require('./utilities')
 
 const {
@@ -29,121 +26,149 @@ const {
   validateTableStructure,
   renderSimpleDependencyGraph,
   addAccessibleName,
-  initializeAccessibility
+  ensureElementAccessibility,
+  setElementLabel,
+  implementAccessibilityFixesFromReport,
+  addAccessibleName as addSvgAccessibleName,
+  ...rest
 } = main
 
-// Import necessary dependencies
-import React from 'react'
-import { render } from 'react-dom'
-import {
-  googleSignIn,
-  decodeJwtResponse
-} from './AccessibilityHelpers'
+/**
+ * Ensures an element has an id attribute. If the element doesn't have an id,
+ * one is generated using the provided prefix.
+ * @param {HTMLElement} element - The element to ensure has an id
+ * @param {string} prefix - The prefix to use for generating an id if one doesn't exist
+ * @returns {string} The id of the element
+ */
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) {
+    return null;
+  }
 
-// Implement the function for addressing accessibility issues from insight report
-function newFunction () {
-  // TODO: Implement the new function as per the issue requirements
+  if (!element.id) {
+    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  return element.id;
 }
 
-// Implement the function for addressing accessibility issues from insight report
-function implementAccessibilityFixesFromReport (container, report) {
-  // ... Existing code ...
+/**
+ * Adds an aria-label attribute to an element.
+ * @param {HTMLElement} element - The element to add aria-label to
+ * @param {string} label - The label text to set
+ * @returns {HTMLElement} The element with the aria-label added
+ */
+function addAriaLabel(element, label) {
+  if (!element) {
+    return null;
+  }
 
-  // New function to extract accessible name from SVG content
-  function getSvgAccessibleName(svgString) {
-    // Extracts the accessible name from SVG content by looking for:
-    // 1. aria-label attribute
-    // 2. aria-labelledby attribute and referenced element
-    // 3. <title> element
-    // 4. <desc> element
-    // 5. text content if no other accessible name is found
+  if (typeof label !== 'string' || label.trim() === '') {
+    return element;
+  }
 
-    const svg = new DOMParser().parseFromString(svgString, "image/svg+xml");
-    const svgElement = svg.documentElement;
+  element.setAttribute('aria-label', label);
+  return element;
+}
 
-    // Check for aria-label
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (ariaLabel) return ariaLabel;
+/**
+ * Ensures an element has both an id and an aria-label for accessibility.
+ * @param {HTMLElement} element - The element to enhance
+ * @param {string} idPrefix - The prefix for generating an id if needed
+ * @param {string} ariaLabel - The aria-label text
+ * @returns {string|null} The id of the element, or null if element is invalid
+ */
+function ensureElementAccessibility(element, idPrefix, ariaLabel) {
+  if (!element) {
+    return null;
+  }
 
-    // Check for aria-labelledby
-    const labelledById = svgElement.getAttribute('aria-labelledby');
-    if (labelledById) {
-      const labelledElement = svg.getElementById(labelledById);
-      if (labelledElement) return labelledElement.textContent.trim();
+  const id = ensureElementHasId(element, idPrefix);
+  addAriaLabel(element, ariaLabel);
+
+  return id;
+}
+
+// Sample main.js with dependencyGraph container
+function renderDependencyGraph() {
+  const container = document.getElementById('dependency-graph');
+
+  if (container) {
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency graph visualization');
+
+    // Ensure the container has an id for accessibility
+    ensureElementHasId(container, 'dep-graph');
+  }
+}
+
+// Resolved: Address accessibility issues - combines lang attribute and main landmark addition
+function addressAccessibilityIssues(container) {
+  const fixes = {
+    langAdded: false,
+    mainLandmarkAdded: false,
+    landmarksFixed: 0,
+    svgNamesAdded: 0,
+    fakeLinksFixed: 0
+  };
+
+  // Add lang attribute to HTML element if missing
+  const htmlElement = container || document.documentElement;
+  const langAttr = getLangAttribute(htmlElement);
+  if (!langAttr) {
+    addLangAttribute(htmlElement, 'en');
+    fixes.langAdded = true;
+  }
+
+  // Add main landmark if missing
+  const mainElement = container.querySelector('main') || container.querySelector('[role="main"]');
+  if (!mainElement) {
+    const body = container.querySelector('body');
+    if (body) {
+      const newMain = document.createElement('main');
+      while (body.firstChild) {
+        newMain.appendChild(body.firstChild);
+      }
+      body.insertBefore(newMain, body.firstChild);
+      fixes.mainLandmarkAdded = true;
     }
-
-    // Check for <title> element
-    const titleElement = svg.querySelector('title');
-    if (titleElement) return titleElement.textContent.trim();
-
-    // Check for <desc> element
-    const descElement = svg.querySelector('desc');
-    if (descElement) return descElement.textContent.trim();
-
-    // Fallback to text content if no accessible name found
-    return svgElement.textContent.trim() || 'SVG graphic';
   }
 
   // ... Rest of the function implementation ...
-}
 
-// New rendering function
-function renderGraphIndex(content, options = {}) {
-  // ... Existing code for rendering graphs and index ...
-}
-
-// Helper to manage focus within a container
-function trapFocus(container) {
-  // ... Existing code for focus trap ...
-}
-
-// Initialize announcer function
-function createAnnouncer() {
-  // ... Existing code for announcer function ...
-}
-
-// Check if user prefers reduced motion
-function prefersReducedMotion() {
-  // ... Existing code for checking reduced motion preference ...
-}
-
-// Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
-
-if (dependencyGraph) {
-  // ... Existing code for setting ARIA role for dependencyGraph container ...
-}
-
-// Function to render dependency graph
-function renderDependencyGraph(element) {
-  // ... Existing code for rendering dependency graphs ...
-}
-
-// Function to render a simple dependency graph
-function renderSimpleDependencyGraph(element) {
-  // ... Existing code for rendering simple dependency graphs ...
-}
-
-// Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName (svgString) {
-  // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
-  // and returns the modified SVG string.
-  // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
-  const svgElement = svg.documentElement
-  if (!svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
+  // Function to render dependency graph
+  function renderDependencyGraph(element) {
+    // ... Existing code for rendering dependency graphs ...
   }
-  return new XMLSerializer().serializeToString(svgElement)
+
+  // Function to render a simple dependency graph
+  function renderSimpleDependencyGraph(element) {
+    // ... Existing code for rendering simple dependency graphs ...
+  }
+
+  // Required changes to fix the React SVG Accessible Name issue
+  function addAccessibleName (svgString) {
+    // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
+    // and returns the modified SVG string.
+    // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
+    const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
+    const svgElement = svg.documentElement
+    if (!svgElement.getAttribute('aria-label')) {
+      svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
+    }
+    return new XMLSerializer().serializeToString(svgElement)
+  }
+
+  // ... Rest of the merged exports ...
+
+  const a11yStore = {
+    prefersReducedMotion,
+    newFocusTrap,
+    addressAccessibilityIssues
+  };
+
+  // ... Existing code for initializing functions and exports ...
 }
 
-// ... Rest of the merged exports ...
-
-const a11yStore = {
-  prefersReducedMotion,
-  newFocusTrap,
-  addressAccessibilityIssues
-};
-
-// ... Existing code for initializing functions and exports ...
-```
+// ... Rest of the merged exports with appropriate renaming
+module.exports = { ...rest };

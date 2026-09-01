@@ -6,27 +6,24 @@ const http = require('http');
 const url = require('url');
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
 const { main } = require('./utilities');
 const { functionA, functionB } = require('./functionModule');
 
-const { http } = require('http');
-const url = require('url');
-
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
   const issues = [];
-  
+
   // Check if HTML contains tables
   const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
   let match;
-  
+
   while ((match = tableRegex.exec(html)) !== null) {
     const tableContent = match[0];
     const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
-    
+
     // Check for caption
     const hasCaption = /<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent);
     if (!hasCaption) {
@@ -37,7 +34,7 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Add a <caption> element immediately after the <table> tag to describe the purpose of the table'
       });
     }
-    
+
     // Check for th elements
     const hasHeaders = /<th[^>]*>/i.test(tableContent);
     if (!hasHeaders) {
@@ -48,7 +45,7 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Add <th> elements for column or row headers to improve accessibility for screen readers'
       });
     }
-    
+
     // Check for scope attributes on th elements
     const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
     thMatches.forEach((thTag, index) => {
@@ -61,11 +58,11 @@ const validateTableAccessibility = (html) => {
         });
       }
     });
-    
+
     // Check for thead and tbody structure
     const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent);
     const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent);
-    
+
     if (!hasThead) {
       issues.push({
         type: 'table',
@@ -74,7 +71,7 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Wrap header rows in a <thead> element for better semantic structure'
       });
     }
-    
+
     if (!hasTbody) {
       issues.push({
         type: 'table',
@@ -83,13 +80,13 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Wrap data rows in a <tbody> element for better semantic structure'
       });
     }
-    
+
     // Check for id and headers attributes for complex tables
     const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
     if (hasMultipleHeaders) {
       const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
       const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
-      
+
       if (!hasIdAttr && !hasHeadersAttr) {
         issues.push({
           type: 'table',
@@ -100,7 +97,7 @@ const validateTableAccessibility = (html) => {
       }
     }
   }
-  
+
   return issues;
 };
 
@@ -134,29 +131,98 @@ const a11yStore = {
   // ... existing methods ...
 };
 
-  prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  },
+prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+},
 
-  prefersHighContrast() {
-    return window.matchMedia('(prefers-contrast: more)').matches;
-  },
+prefersHighContrast() {
+  return window.matchMedia('(prefers-contrast: more)').matches;
+},
 
-  updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
-    this.announce(message, priority);
-  },
+updateLiveRegion(message, priority = 'polite') {
+  if (!this.liveRegion) this.createLiveRegion();
+  this.announce(message, priority);
+},
 
-  checkLandmarkElements() {
-    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark) => {
-        if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
+checkLandmarkElements() {
+  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+  landmarkElements.forEach((element) => {
+    const landmarks = document.querySelectorAll(`[role="${element}"]`);
+    landmarks.forEach((landmark) => {
+      if (landmark.id === '') {
+        landmark.setAttribute('id', `${element}-${index}`);
+      }
+
+      if (landmarks.length > 1) {
+        if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+          landmark.setAttribute('aria-label', `${element} section`);
         }
+      }
+    });
+  });
+},
 
-        if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria
-```
+// TODO: Implement function for addressing accessibility issues from insight report
+function addressAccessibilityIssues(html) {
+  // Implement accessibility fixes based on insight report
+  let fixedHtml = html;
+
+  // Fix table structure issues
+  fixedHtml = fixTableStructureIssues(fixedHtml);
+
+  // Add lang attribute if missing
+  fixedHtml = addLangAttribute(fixedHtml);
+
+  // Add main landmark if missing
+  fixedHtml = addMainLandmark(fixedHtml);
+
+  // Ensure unique landmarks
+  fixedHtml = ensureUniqueLandmarks(fixedHtml);
+
+  // Set SVG accessibility properties
+  fixedHtml = setSvgAccessibilityProps(fixedHtml);
+
+  // Add accessible names to SVGs
+  fixedHtml = addAccessibleNamesToSVGs(fixedHtml);
+
+  // Fix fake link issues
+  fixedHtml = fixFakeLinkIssues(fixedHtml);
+
+  // Fix landmark issues
+  fixedHtml = fixLandmarkIssues(fixedHtml);
+
+  // Add landmark regions
+  fixedHtml = addLandmarkRegions(fixedHtml);
+
+  // Ensure unique landmarks
+  fixedHtml = uniqueLandmarks(fixedHtml);
+
+  // Fix image alt texts
+  fixedHtml = fixImageAltTexts(fixedHtml);
+
+  // Ensure elements have IDs
+  fixedHtml = ensureElementHasId(fixedHtml);
+
+  // Add ARIA labels where needed
+  fixedHtml = addAriaLabel(fixedHtml);
+
+  // Fix button identifiers
+  fixedHtml = fixButtonIdentifiers(fixedHtml);
+
+  // Fix dependency graph ARIA
+  fixedHtml = fixDependencyGraphAria(fixedHtml);
+
+  return fixedHtml;
+}
+
+// Export all required functions
+module.exports = {
+  validateTableAccessibility,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  addressAccessibilityIssues,
+  functionA,
+  functionB,
+  // ... other existing exports ...
+};

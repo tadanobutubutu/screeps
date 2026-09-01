@@ -9,6 +9,13 @@ if (typeof document !== 'undefined' && document.documentElement) {
   detectAndSetLang();
 }
 
+// Implementation of the new function as per the issue requirements
+function detectAndSetLang() {
+  // Detect the user's preferred language and set it on the HTML element
+  const lang = (navigator && navigator.language) || 'en';
+  document.documentElement.setAttribute('lang', lang);
+}
+
 module.exports = {
   // Existing exports...
   MyExport: function() {
@@ -65,5 +72,7 @@ module.exports = {
   // Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
   fixFakeLink: function() {
     // Implementation of fixFakeLink
-  }
+  },
+  // New export for the implemented function
+  detectAndSetLang: detectAndSetLang
 };

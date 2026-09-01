@@ -3,6 +3,70 @@
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 
 /**
+ * Gets the accessible name for SVG elements
+ * @param {NodeList|Array} svgElements - SVG elements to get accessible name from
+ * @returns {string|null} The accessible name or null if not found
+ */
+function getSvgAccessibleName(svgElements) {
+  const elements = Array.from(svgElements);
+  
+  for (const element of elements) {
+    // Check for aria-label
+    if (element.hasAttribute('aria-label')) {
+      return element.getAttribute('aria-label');
+    }
+    
+    // Check for aria-labelledby
+    if (element.hasAttribute('aria-labelledby')) {
+      const labelledById = element.getAttribute('aria-labelledby');
+      const labelElement = document.getElementById(labelledById);
+      if (labelElement) {
+        return labelElement.textContent.trim();
+      }
+    }
+    
+    // Check for <title> child element
+    const titleElement = element.querySelector('title');
+    if (titleElement && titleElement.textContent.trim()) {
+      return titleElement.textContent.trim();
+    }
+    
+    // Check for <desc> child element
+    const descElement = element.querySelector('desc');
+    if (descElement && descElement.textContent.trim()) {
+      return descElement.textContent.trim();
+    }
+  }
+  
+  return null;
+}
+
+/**
+ * Sets accessibility attributes on SVG elements
+ * @param {NodeList|Array} svgElements - SVG elements to set attributes on
+ */
+function setSvgAttributes(svgElements) {
+  const elements = Array.from(svgElements);
+  
+  elements.forEach((element, index) => {
+    // Ensure element has an ID
+    if (!element.id) {
+      element.id = `svg-element-${index}-${Date.now()}`;
+    }
+    
+    // Set role="img" if not already set
+    if (!element.hasAttribute('role')) {
+      element.setAttribute('role', 'img');
+    }
+    
+    // Ensure focusable is set appropriately
+    if (!element.hasAttribute('focusable')) {
+      element.setAttribute('focusable', 'false');
+    }
+  });
+}
+
+/**
  * Main application entry point with accessibility features
  */
 function renderDependencyGraphs(svgElements) {
@@ -15,6 +79,17 @@ function renderDependencyGraphs(svgElements) {
 }
 
 function checkLandmarkElements() {
+  const landmarkRoles = [
+    'banner',
+    'main',
+    'navigation',
+    'search',
+    'contentinfo',
+    'complementary',
+    'region',
+    'form'
+  ];
+
   const checkLandmarkElement = (selector, role, implicitRole) => {
     const elements = document.querySelectorAll(selector);
     elements.forEach((element) => {
@@ -31,17 +106,6 @@ function checkLandmarkElements() {
       }
     });
   };
-
-  const landmarkRoles = [
-    'banner',
-    'main',
-    'navigation',
-    'search',
-    'contentinfo',
-    'complementary',
-    'region',
-    'form'
-  ];
 
   checkLandmarkElement('[role="main"], main', 'main', {
     'main': 'main',
@@ -93,6 +157,3 @@ function countDependencies() {
 }
 
 // Rest of the code remains the same
-```
-
-This resolved the conflict by combining both changes and keeping both features. The `checkLandmarkElements` function now checks for landmark elements and warnings for duplicates, and the `sampleInsightReport` object is exported along with the `checkLandmarkElements` function. The rest of the file remains untouched.

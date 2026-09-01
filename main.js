@@ -192,165 +192,33 @@ function getVersion() {
   return packageJson.version;
 }
 
-function handleCredentialResponse(response) {
-  if (!response) {
-    return { success: false, error: 'No credential response provided' };
-  }
-
-  // Check if response contains expected credential data
-  const hasCredential = response.credential || response.token || response.id;
-  
-  if (!hasCredential) {
-    return { success: false, error: 'Invalid credential response format' };
-  }
-
-  // Process credential information
-  const processedCredential = {
-    id: response.id || null,
-    token: response.token || response.credential || null,
-    name: response.name || 'Anonymous User',
-    email: response.email || null,
-    success: true
-  };
-
-  // Handle different types of credential responses
-  if (response.credential) {
-    // Google Sign-In response
-    try {
-      // Credential is a base64-encoded JWT
-      const payload = JSON.parse(atob(response.credential.split('.')[1]));
-      processedCredential.id = payload.sub || processedCredential.id;
-      processedCredential.email = payload.email || processedCredential.email;
-      processedCredential.name = payload.name || processedCredential.name;
-    } catch (error) {
-      console.warn('Failed to parse credential response:', error);
-    }
-  }
-
-  // Announce success to screen readers
-  if (typeof announceToScreenReader === 'function') {
-    announceToScreenReader('User successfully authenticated');
-  }
-
-  return processedCredential;
-}
-
-function setupAriaLiveRegions() {
-  const liveRegion = document.getElementById('aria-live-region');
-  if (!liveRegion) {
-    const region = document.createElement('div');
-    region.id = 'aria-live-region';
-    region.setAttribute('aria-live', 'polite');
-    region.setAttribute('aria-atomic', 'true');
-    region.className = 'sr-only';
-    document.body.appendChild(region);
-  }
-}
-
-function setupFocusManagement() {
-  // Trap focus within modal dialogs
-  const modals = document.querySelectorAll('[role="dialog"]');
-  modals.forEach((modal) => {
-    modal.addEventListener('keydown', trapFocus);
-  });
-
-  // Ensure all interactive elements are keyboard accessible
-  const interactiveElements = document.querySelectorAll(
-    'button, a, input, select, textarea, [tabindex]'
-  );
-  interactiveElements.forEach((element) => {
-    if (!element.getAttribute('tabindex')) {
-      element.setAttribute('tabindex', '0');
-    }
-  });
-}
-
-function enhanceSemanticMarkup() {
-  // Add skip link if not present
-  if (!document.getElementById('skip-link')) {
-    const skipLink = document.createElement('a');
-    skipLink.id = 'skip-link';
-    skipLink.href = '#main-content';
-    skipLink.textContent = 'Skip to main content';
-    skipLink.className = 'skip-link';
-    skipLink.style.position = 'absolute';
-    skipLink.style.left = '-9999px';
-    document.body.insertBefore(skipLink, document.body.firstChild);
-  }
-
-  // Ensure images have alt attributes
-  const images = document.querySelectorAll('img');
-  images.forEach((img) => {
-    if (!img.hasAttribute('alt')) {
-      img.setAttribute('alt', '');
-      img.setAttribute('role', 'presentation');
-    }
-  });
-
-  // Ensure form inputs have associated labels
-  const inputs = document.querySelectorAll('input:not([type="hidden"]), select, textarea');
-  inputs.forEach((input) => {
-    const id = input.id || `input-${Math.random().toString(36).substr(2, 9)}`;
-    input.id = id;
-    if (!input.hasAttribute('aria-label') && !document.querySelector(`label[for="${id}"]`)) {
-      input.setAttribute('aria-label', input.name || 'Input');
-    }
-  });
-}
-
-function trapFocus(element) {
-  /* existing code */
-}
-
-function closeOpenDialogs() {
-  /* existing code */
-}
-
-function announceToScreenReader(message) {
-  const liveRegion = document.getElementById('aria-live-region');
-  if (liveRegion) {
-    liveRegion.textContent = '';
-    // Slight delay to ensure screen readers pick up the change
-    setTimeout(() => {
-      liveRegion.textContent = message;
-    }, 100);
-  }
-}
-
-function calculateDifference(a, b) {
-  /* existing code */
-}
-
-function calculateProduct(a, b) {
-  /* existing code */
-}
-
-function isNumber(value) {
-  /* existing code */
-}
-
-function clamp(value, min, max) {
-  /* existing code */
-}
-
-function createInPageButton(buttonId, buttonText) {
-  /* existing code */
-}
-
-function handleKeyNavigation(event) {
-  /* existing code */
-}
-
-function handleFakeLinks(issues) {
-  /* existing code */
-}
-
-// Accessibility utilities
-const hello = () => {
-  return 'Hello from main.js';
+// Configuration object for accessibility features
+const config = {
+  enableAriaLabels: true,
+  autoGenerateIds: true,
+  focusManagement: true,
+  skipLinks: true
 };
 
-// Utilities for addressing accessibility issues
+// Get configuration settings
+function getConfig() {
+  return config;
+}
+
+// Spawn a command process
+function spawnSomeCommand(command, args) {
+  const { spawn } = require('child_process');
+  return spawn(command, args || []);
+}
+
+// Add language attribute to HTML element
+function addLangAttribute(lang = 'en') {
+  if (document && document.documentElement) {
+    document.documentElement.setAttribute('lang', lang);
+  }
+}
+
+// Accessibility utilities object
 const AddressabilityIssues = {
   generateAccessibilityReport: function(accessibilityReport) {
     if (!accessibilityReport || !accessibilityReport.issues) {
@@ -428,172 +296,44 @@ const AddressabilityIssues = {
       'main': 'main',
       'nav': 'navigation',
       'aside': 'complementary',
-      '
-=======
-const sampleInsightReport = {
-  title: 'Quarterly Performance Report',
-  sections: [
-    {
-      heading: 'Sales Overview',
-      content: 'Total sales increased by 15% compared to last quarter.'
-    },
-    {
-      heading: 'Customer Satisfaction',
-      content: 'Average satisfaction score: 4.2 out of 5.'
-    }
-  ]
+      'footer': 'contentinfo',
+      'section': 'region',
+      'form': 'form'
+    };
+
+    const role = element.getAttribute('role');
+    const implicitRole = implicitLandmarks[tagName];
+
+    const validRole = role && landmarkRoles.includes(role);
+    const validImplicit = implicitRole && landmarkRoles.includes(implicitRole);
+
+    return {
+      valid: validRole || validImplicit,
+      tag: tagName,
+      role: role || implicitRole,
+      isValidLandmark: validRole || validImplicit
+    };
+  }
 };
 
-function countDependencies() {
-  const fs = require('fs');
-  const packageJsonPath = require('path').join(__dirname, 'package.json');
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-  const dependencies = packageJson.dependencies || {};
-  const devDependencies = packageJson.devDependencies || {};
-
-  return {
-    dependencies: Object.keys(dependencies).length,
-    devDependencies: Object.keys(devDependencies).length,
-    total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-  };
-}
-
-// Ensure DOM is fully loaded before executing scripts
-if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment - setup basic exports
-  module.exports = {
-    checkTableStructure,
-    countDependencies,
-    init,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    validateLandmark,
-    spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse,
-    sampleInsightReport
-  };
-} else {
-  // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+// Functions that reference AddressabilityIssues properties
+function addressAccessibilityIssues(issues) {
+  if (!issues || !Array.isArray(issues)) {
+    return [];
   }
-}
-
-function init() {
-  const svgElements = document.querySelectorAll('svg');
-
-  svgElements.forEach((svg) => {
-    if (!svg.hasAttribute('role')) {
-      svg.setAttribute('role', 'img');
-    }
-
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
-
-    setSvgAttributes(svg);
-
-    setupAriaLiveRegions();
-    setupFocusManagement();
-    enhanceSemanticMarkup();
-  });
-}
-
-function getSvgAccessibleName(svg) {
-  const title = svg.querySelector('title');
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-  const desc = svg.querySelector('desc');
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
-  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '';
-}
-
-function setSvgAttributes(svg) {
-  if (!svg.hasAttribute('aria-hidden')) {
-    svg.setAttribute('aria-hidden', 'true');
-  }
-}
-
-// Function for checking table structure
-const checkTableStructure = (table) => {
-  if (!table) return false;
-  const rows = table.querySelectorAll('tr');
-  return rows.length > 0;
-};
-
-function getVersion() {
-  const fs = require('fs');
-  const packageJsonPath = require('path').join(__dirname, 'package.json');
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-  return packageJson.version;
-}
-
-function handleCredentialResponse(response) {
-  if (!response) {
-    return { success: false, error: 'No credential response provided' };
-  }
-
-  // Check if response contains expected credential data
-  const hasCredential = response.credential || response.token || response.id;
   
-  if (!hasCredential) {
-    return { success: false, error: 'Invalid credential response format' };
-  }
-
-  // Process credential information
-  const processedCredential = {
-    id: response.id || null,
-    token: response.token || response.credential || null,
-    name: response.name || 'Anonymous User',
-    email: response.email || null,
-    success: true
-  };
-
-  // Handle different types of credential responses
-  if (response.credential) {
-    // Google Sign-In response
-    try {
-      // Credential is a base64-encoded JWT
-      const payload = JSON.parse(atob(response.credential.split('.')[1]));
-      processedCredential.id = payload.sub || processedCredential.id;
-      processedCredential.email = payload.email || processedCredential.email;
-      processedCredential.name = payload.name || processedCredential.name;
-    } catch (error) {
-      console.warn('Failed to parse credential response:', error);
-    }
-  }
-
-  // Announce success to screen readers
-  if (typeof announceToScreenReader === 'function') {
-    announceToScreenReader('User successfully authenticated');
-  }
-
-  return processedCredential;
+  return AddressabilityIssues.generateAccessibilityReport({ issues });
 }
 
+function generateAccessibilityReport(report) {
+  return AddressabilityIssues.generateAccessibilityReport(report);
+}
+
+function calculateAccessibilityScore(fixedIssues) {
+  return AddressabilityIssues.calculateAccessibilityScore(fixedIssues);
+}
+
+// Setup Aria Live Regions
 function setupAriaLiveRegions() {
   const liveRegion = document.getElementById('aria-live-region');
   if (!liveRegion) {
@@ -606,6 +346,7 @@ function setupAriaLiveRegions() {
   }
 }
 
+// Setup Focus Management
 function setupFocusManagement() {
   // Trap focus within modal dialogs
   const modals = document.querySelectorAll('[role="dialog"]');
@@ -624,6 +365,7 @@ function setupFocusManagement() {
   });
 }
 
+// Enhance Semantic Markup
 function enhanceSemanticMarkup() {
   // Add skip link if not present
   if (!document.getElementById('skip-link')) {
@@ -654,3 +396,72 @@ function enhanceSemanticMarkup() {
     if (!input.hasAttribute('aria-label') && !document.querySelector(`label[for="${id}"]`)) {
       input.setAttribute('aria-label', input.name || 'Input');
     }
+  });
+}
+
+// Trap Focus Handler
+function trapFocus(element) {
+  /* existing code */
+}
+
+// Close Open Dialogs
+function closeOpenDialogs() {
+  /* existing code */
+}
+
+// Announce to Screen Reader
+function announceToScreenReader(message) {
+  const liveRegion = document.getElementById('aria-live-region');
+  if (liveRegion) {
+    liveRegion.textContent = '';
+    // Slight delay to ensure screen readers pick up the change
+    setTimeout(() => {
+      liveRegion.textContent = message;
+    }, 100);
+  }
+}
+
+// Calculate Difference
+function calculateDifference(a, b) {
+  /* existing code */
+}
+
+// Calculate Product
+function calculateProduct(a, b) {
+  /* existing code */
+}
+
+// Is Number Check
+function isNumber(value) {
+  /* existing code */
+}
+
+// Clamp Function
+function clamp(value, min, max) {
+  /* existing code */
+}
+
+// Create In Page Button
+function createInPageButton(buttonId, buttonText) {
+  /* existing code */
+}
+
+// Handle Key Navigation
+function handleKeyNavigation(event) {
+  /* existing code */
+}
+
+// Handle Fake Links
+function handleFakeLinks(issues) {
+  /* existing code */
+}
+
+// Hello Function
+const hello = () => {
+  return 'Hello from main.js';
+};
+
+// Validate Landmark Function
+function validateLandmark(element) {
+  return AddressabilityIssues.validateLandmark(element);
+}

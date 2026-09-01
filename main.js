@@ -112,9 +112,36 @@ function implementAccessibilityFixesFromReport(container, report) {
 }
 
 // Accessibility-related function to be added
-function checkAccessibility(content) {
+function checkAccessibilityInternal(content) {
   // Placeholder for accessibility checking logic
   // This function should be implemented to check for accessibility issues
   // For now, it just returns an empty array
   return [];
 }
+
+// Export the utility functions
+module.exports = {
+  createInPageButton,
+  createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility: checkAccessibilityInternal,
+  implementAccessibilityFixesFromReport,
+  newFunction
+};

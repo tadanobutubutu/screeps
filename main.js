@@ -170,7 +170,7 @@ function ensureUniqueLandmarks() {
     ...
     'footer[role="contentinfo"]'
   ].join(', '));
-  
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation
@@ -291,3 +291,5 @@ ensureUniqueLandmarks();
 const svg = ...
 const accessibleName = getSvgAccessibleName(svg);
 set
+
+// TODO: This is the existing code that needs to be preserved

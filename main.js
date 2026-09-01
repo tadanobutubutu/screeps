@@ -24,6 +24,10 @@ function renderDependencyGraphs(svgElements) {
   const accessibleName = getSvgAccessibleName(svgElements);
   if (accessibleName) {
     // Use accessibleName
+    const firstElement = svgElements[0];
+    if (firstElement) {
+      firstElement.setAttribute('aria-label', accessibleName);
+    }
   }
 
   setSvgAttributes(svgElements);

@@ -30,15 +30,15 @@ function getFullLangAttribute() {
  */
 function validateTableAccessibility(table) {
   const issues = [];
-  
+
   if (!table.headers) {
     issues.push('Missing headers attribute');
   }
-  
+
   if (!table.scope) {
     issues.push('Missing scope attribute');
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -52,7 +52,7 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(tables) {
   const allIssues = [];
-  
+
   tables.forEach((table, index) => {
     const result = validateTableAccessibility(table);
     if (!result.success) {
@@ -62,7 +62,7 @@ function validateTableStructure(tables) {
       });
     }
   });
-  
+
   return {
     success: allIssues.length === 0,
     issues: allIssues
@@ -77,13 +77,13 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  
+
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -97,7 +97,7 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure(landmarks) {
   const issues = [];
-  
+
   landmarks.forEach((landmark, index) => {
     const result = validateLandmark(landmark);
     if (!result.success) {
@@ -107,7 +107,7 @@ function validateLandmarkStructure(landmarks) {
       });
     }
   });
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -122,7 +122,7 @@ function validateLandmarkStructure(landmarks) {
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
-  
+
   landmarks.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
@@ -131,7 +131,7 @@ function ensureUniqueLandmarks(landmarks) {
       names.push(name);
     }
   });
-  
+
   return {
     success: duplicates.length === 0,
     duplicates
@@ -200,7 +200,7 @@ function createAccessibleLink(options) {
 function handleAccessibilityIssues(issues) {
   const handled = [];
   const unhandled = [];
-  
+
   issues.forEach(issue => {
     if (issue.fixable) {
       handled.push(issue);
@@ -208,13 +208,82 @@ function handleAccessibilityIssues(issues) {
       unhandled.push(issue);
     }
   });
-  
+
   return {
     total: issues.length,
     handled: handled.length,
     unhandled: unhandled.length,
     unhandledIssues: unhandled
   };
+}
+
+/**
+ * Validates link accessibility compliance
+ * @param {Object} link - The link object to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLinkAccessibility(link) {
+  const issues = [];
+
+  if (!link.href) {
+    issues.push('Missing href attribute');
+  }
+
+  if (!link.text && !link.ariaLabel) {
+    issues.push('Missing both text and aria-label');
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Handles fake links by converting them to proper accessible links
+ * @param {Object} fakeLink - The fake link to handle
+ * @returns {Object} Converted accessible link
+ */
+function handleFakeLinks(fakeLink) {
+  return createAccessibleLink({
+    href: fakeLink.href || '#',
+    text: fakeLink.text || 'Link',
+    ariaLabel: fakeLink.ariaLabel || fakeLink.text
+  });
+}
+
+/**
+ * Sets accessibility properties for SVG elements
+ * @param {Object} svg - The SVG element
+ * @param {Object} props - Accessibility properties to set
+ */
+function setSvgAccessibilityProps(svg, props) {
+  if (props.ariaLabel) {
+    svg.ariaLabel = props.ariaLabel;
+  }
+  if (props.ariaLabelledby) {
+    svg.ariaLabelledby = props.ariaLabelledby;
+  }
+  if (props.title) {
+    svg.title = props.title;
+  }
+}
+
+/**
+ * Adds proper landmark regions to the document
+ * @param {Array} regions - Array of region objects to add
+ */
+function addProperLandmarkRegions(regions) {
+  regions.forEach(region => {
+    const landmark = {
+      tagName: region.tagName,
+      role: region.role,
+      ariaLabel: region.ariaLabel,
+      ariaLabelledby: region.ariaLabelledby
+    };
+    // In a real implementation, this would add the landmark to the DOM
+    console.log('Adding landmark:', landmark);
+  });
 }
 
 // Export all functions for testing and external use
@@ -229,5 +298,9 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  setSvgAccessibilityProps,
+  addProperLandmarkRegions
 };

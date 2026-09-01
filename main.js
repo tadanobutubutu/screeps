@@ -1,6 +1,3 @@
-Here's the resolved file content:
-
-```javascript
 import React from 'react';
 import express from 'express';
 import path from 'path';
@@ -41,6 +38,30 @@ function initializeApp() {
 
 // ... (Preserve the rest of the existing functions and their changes)
 
+// Function to handle credential response
+function handleCredentialResponse(response) {
+  if (!response || typeof response !== 'object') {
+    throw new Error('Invalid credential response');
+  }
+
+  // Parse and validate the response
+  const { credential, provider } = response;
+
+  if (!credential) {
+    throw new Error('Credential is missing in the response');
+  }
+
+  // Store the credential in app state
+  appState.credentials = {
+    credential,
+    provider: provider || 'unknown',
+    timestamp: new Date().toISOString()
+  };
+
+  console.log('Credential stored successfully');
+  return appState.credentials;
+}
+
 // Main function (required export)
 function main() {
   initialize();
@@ -67,8 +88,6 @@ module.exports = {
   initialize,
   initializeApp,
   main,
+  handleCredentialResponse, // Added new export
   // ... (Preserve the rest of the existing exports)
 };
-```
-
-This version of the code introduces the `visualizeDependencyTree` function to the `main.js` file, making it accessible when running the script directly. The function uses the `require.dependencies` object to visualize the dependency tree.

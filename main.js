@@ -293,5 +293,9 @@ module.exports = {
   setSvgAttributes,
   ensureUniqueLandmarks,
   validateLinkAccessibility,
-  handleFakeLinks
+  handleFakeLinks,
+
+  class1,
+  function1,
+  Object1
 };

@@ -118,35 +118,35 @@ function personName(name) {
 
 function validateTableAccessibility(table) {
   if (!table) return false;
-  
+
   const hasCaption = table.querySelector('caption') !== null;
   const hasHeaders = table.querySelector('thead') !== null;
   const rows = table.querySelectorAll('tr');
-  
+
   let isValid = hasCaption && hasHeaders;
-  
+
   if (rows.length > 0) {
     const firstRowCells = rows[0].querySelectorAll('th, td');
-    const hasScope = Array.from(firstRowCells).some(cell => 
+    const hasScope = Array.from(firstRowCells).some(cell =>
       cell.hasAttribute('scope')
     );
     isValid = isValid && hasScope;
   }
-  
+
   return isValid;
 }
 
 function validateTableStructure(table) {
   if (!table) return false;
-  
+
   const rows = table.querySelectorAll('tr');
   let isValid = true;
-  
+
   rows.forEach((row, index) => {
     const cells = row.querySelectorAll('td, th');
     if (index === 0) {
       // Header row should have th elements
-      const hasHeaderCells = Array.from(cells).some(cell => 
+      const hasHeaderCells = Array.from(cells).some(cell =>
         cell.tagName.toLowerCase() === 'th'
       );
       isValid = isValid && hasHeaderCells;
@@ -157,38 +157,38 @@ function validateTableStructure(table) {
       }
     }
   });
-  
+
   return isValid;
 }
 
 function validateLandmark(element) {
   if (!element) return false;
-  
+
   const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
-  
+
   // Check for semantic HTML5 elements
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'form', 'section'];
   if (landmarks.includes(tagName)) {
     return true;
   }
-  
+
   // Check for explicit ARIA landmark roles
   if (role && landmarkRoles.includes(role)) {
     return true;
   }
-  
+
   return false;
 }
 
 function validateLandmarkStructure(element) {
   if (!element) return false;
-  
+
   const landmarks = element.querySelectorAll(
     'header, nav, main, aside, footer, form[role="search"], section[aria-label], div[role="banner"], div[role="navigation"], div[role="main"], div[role="complementary"], div[role="contentinfo"]'
   );
-  
+
   return landmarks.length > 0;
 }
 
@@ -212,14 +212,14 @@ function ensureUniqueLandmarks() {
   const landmarks = document.querySelectorAll(
     'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]'
   );
-  
+
   const landmarkTypes = {};
-  
+
   landmarks.forEach((landmark, index) => {
     const tagName = landmark.tagName.toLowerCase();
     const role = landmark.getAttribute('role');
     const identifier = role || tagName;
-    
+
     if (!landmarkTypes[identifier]) {
       landmarkTypes[identifier] = 0;
     } else {
@@ -233,16 +233,16 @@ function ensureUniqueLandmarks() {
 
 function newFocusTrap(element) {
   if (!element) return;
-  
+
   const focusableElements = element.querySelectorAll(
     'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
   );
-  
+
   if (focusableElements.length === 0) return;
-  
+
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
-  
+
   element.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
       if (e.shiftKey && document.activeElement === firstElement) {
@@ -254,7 +254,7 @@ function newFocusTrap(element) {
       }
     }
   });
-  
+
   // Focus first element when trap starts
   firstElement.focus();
 }
@@ -268,11 +268,11 @@ async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received');
   }
-  
+
   if (response.error) {
     throw new Error(response.error);
   }
-  
+
   if (response.token) {
     return {
       success: true,
@@ -280,7 +280,7 @@ async function handleCredentialResponse(response) {
       expiresIn: response.expiresIn || 3600
     };
   }
-  
+
   throw new Error('Invalid credential response');
 }
 
@@ -303,7 +303,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
   },
@@ -315,11 +315,11 @@ const exportUtils = {
 
   exportToCSV: (data, filename) => {
     if (!data || data.length === 0) return;
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (const row of data) {
       const values = headers.map(header => {
         const escaped = ('' + row[header]).replace(/"/g, '\\"');
@@ -327,7 +327,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -371,7 +371,7 @@ function filterValidItems(items, validator) {
 // Initialize accessibility features
 const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
-  
+
   // Add keyboard support for all interactive elements
   document.querySelectorAll('[data-accessible]').forEach(element => {
     element.addEventListener('keydown', (e) => {
@@ -380,6 +380,37 @@ const initAccessibility = () => {
         ' ': () => element.click()
       });
     });
+  });
+
+  // Add lang attribute to HTML element if not present
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    getLangAttribute(htmlElement, 'en');
+  }
+
+  // Validate and fix table structures
+  document.querySelectorAll('table').forEach(table => {
+    if (!validateTableAccessibility(table) || !validateTableStructure(table)) {
+      console.warn('Table accessibility issues found. Please review:', table);
+    }
+  });
+
+  // Validate and fix landmark structures
+  if (!validateLandmarkStructure(document.body)) {
+    console.warn('Landmark structure issues found. Please review the document structure.');
+  }
+
+  // Ensure unique landmarks
+  ensureUniqueLandmarks();
+
+  // Add accessible names to SVGs
+  document.querySelectorAll('svg').forEach(svg => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      const title = svg.querySelector('title');
+      if (title) {
+        getSvgAccessibleName(svg, title.textContent);
+      }
+    }
   });
 };
 
@@ -406,28 +437,28 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
-  
+
   if (typeof inputData === 'string') {
     let result = inputData;
-    
+
     if (trimWhitespace) {
       result = result.trim();
     }
-    
+
     if (uppercase) {
       result = result.toUpperCase();
     }
-    
+
     if (maxLength && result.length > maxLength) {
       result = result.substring(0, maxLength);
     }
-    
+
     return result;
   }
-  
+
   if (typeof inputData === 'object' && !Array.isArray(inputData)) {
     const result = {};
-    
+
     for (const key in inputData) {
       if (inputData.hasOwnProperty(key)) {
         if (preserveKeys || !key.startsWith('_')) {
@@ -435,14 +466,14 @@ function transformInputData(inputData, options = {}) {
         }
       }
     }
-    
+
     return result;
   }
-  
+
   if (Array.isArray(inputData)) {
     return inputData.map(item => transformInputData(item, options));
   }
-  
+
   return inputData;
 }
 

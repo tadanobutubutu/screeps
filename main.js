@@ -68,15 +68,15 @@ function divide(dividend, divisor) {
   if (typeof dividend !== 'number' || typeof divisor !== 'number') {
     throw new Error('Both arguments must be numbers');
   }
-  
+
   if (isNaN(dividend) || isNaN(divisor)) {
     throw new Error('Both arguments must be valid numbers');
   }
-  
+
   if (divisor === 0) {
     throw new Error('Division by zero is not allowed');
   }
-  
+
   return dividend / divisor;
 }
 
@@ -231,12 +231,39 @@ function addressAccessibilityIssues(insightReport) {
   console.log('Addressing accessibility issues from insight report:', insightReport);
 }
 
-function createInPageButton(buttonId, buttonText, buttonClass) {
+// TODO: Implement this function for creating in-page buttons
+/**
+ * Creates a button element and appends it to the document body
+ * @param {string} buttonId - The ID to assign to the button
+ * @param {string} buttonText - The text content of the button
+ * @param {string} buttonClass - The CSS class to assign to the button
+ * @param {Object} [options] - Optional configuration
+ * @param {string} [options.type] - The button type (default: 'button')
+ * @param {string} [options.ariaLabel] - ARIA label for accessibility
+ * @param {Function} [options.onClick] - Click event handler
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(buttonId, buttonText, buttonClass, options = {}) {
     const button = document.createElement('button');
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
+
+    // Set button type if provided, default to 'button'
+    button.type = options.type || 'button';
+
+    // Add ARIA label if provided
+    if (options.ariaLabel) {
+        button.setAttribute('aria-label', options.ariaLabel);
+    }
+
+    // Add click event handler if provided
+    if (typeof options.onClick === 'function') {
+        button.addEventListener('click', options.onClick);
+    }
+
     document.body.appendChild(button);
+    return button;
 }
 
 module.exports = {

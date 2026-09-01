@@ -671,6 +671,31 @@ function getInsightReport() {
     return [];
 }
 
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+
+function ensureElementHasId(element) {
+    if (!element.id) {
+        element.id = `generated-id-${Math.random().toString(36).substr(2, 9)}`;
+    }
+    return element;
+}
+
+function addAriaLabel(element, label) {
+    if (element && label) {
+        element.setAttribute('aria-label', label);
+    }
+    return element;
+}
+
+function renderDependencyGraphs(graphs) {
+    if (!Array.isArray(graphs)) {
+        return [];
+    }
+    return graphs.map(graph => renderDependencyGraph(graph));
+}
+
 // Export functions for testing
 module.exports = {
     User,
@@ -716,6 +741,11 @@ module.exports = {
     calculateSum,
     addProperLandmarkRegions,
     countGraphDependencies,
+
+    // Preserved functions from the issue
+    ensureElementHasId,
+    addAriaLabel,
+    renderDependencyGraphs,
 
     // Landmarks array and app state
     landmarks,

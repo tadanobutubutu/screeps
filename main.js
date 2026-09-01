@@ -232,6 +232,7 @@ const AddressabilityIssues = {
     return {
       dependencies: Object.keys(dependencies).length,
       devDependencies: Object.keys(devDependencies).length,
+      // TODO: This is the existing code that needs to be preserved
       total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
   },

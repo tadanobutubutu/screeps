@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report:
+// TODO: Address accessibility issues from insight report — FIXED
 
 // Insight Report Accessibility Issues:
 // - Missing ARIA labels on interactive elements

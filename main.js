@@ -10,7 +10,7 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
@@ -73,6 +73,31 @@ function renderGraphIndex(content, options = {}) {
   return container;
 }
 
+// New function to address accessibility issues from insight report
+function ensureAccessibility(container) {
+  // Ensure all SVGs in the container have accessible names
+  addAccessibleNamesToSVGs(container);
+
+  // Ensure all buttons have proper identifiers
+  fixButtonIdentifiers(container);
+
+  // Ensure all elements with landmark roles have unique identifiers
+  ensureUniqueLandmarks(container);
+
+  // Ensure the dependency graph has proper ARIA attributes
+  const graph = container.querySelector('#dependencyGraph');
+  if (graph) {
+    if (!graph.getAttribute('role')) {
+      graph.setAttribute('role', 'region');
+    }
+    if (!graph.getAttribute('aria-label')) {
+      graph.setAttribute('aria-label', 'Dependency graph visualization');
+    }
+  }
+
+  return container;
+}
+
 module.exports = {
   VERSION,
   hello,
@@ -84,6 +109,7 @@ module.exports = {
   calculateSum,
   newFunction,
   renderGraphIndex,
+  ensureAccessibility,
   prefersReducedMotion,
   isEmpty,
   getRandomInt,

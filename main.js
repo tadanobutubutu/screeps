@@ -59,6 +59,44 @@ function wrapPrimaryContentInMain(parent) {
   return mainElement;
 }
 
+// New function to ensure lang attribute is added to HTML element
+function ensureHtmlLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang')) {
+    const lang = getLangAttribute() || 'en';
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
+// New function to ensure proper ARIA attributes are used
+function ensureAriaAttributes() {
+  const elements = document.querySelectorAll('[role]');
+  elements.forEach(element => {
+    const role = element.getAttribute('role');
+    if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      element.setAttribute('aria-label', role);
+    }
+  });
+}
+
+// New function to ensure proper heading structure
+function ensureProperHeadingStructure() {
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+
+  headings.forEach(heading => {
+    const currentLevel = parseInt(heading.tagName.substring(1));
+    if (currentLevel > previousLevel + 1) {
+      // Skip levels to maintain proper hierarchy
+      const newLevel = previousLevel + 1;
+      const newHeading = document.createElement(`h${newLevel}`);
+      newHeading.textContent = heading.textContent;
+      heading.replaceWith(newHeading);
+    }
+    previousLevel = currentLevel;
+  });
+}
+
 function initialize() {
   appConfig.apiUrl = process.env.API_URL || 'default';
   appConfig.timeout = 5000;
@@ -131,5 +169,8 @@ module.exports = {
   landmarkConfig: appConfig,
   initialize,
   initializeApp,
-  clearCache
+  clearCache,
+  ensureHtmlLangAttribute,
+  ensureAriaAttributes,
+  ensureProperHeadingStructure
 };

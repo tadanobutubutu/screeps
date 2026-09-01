@@ -70,6 +70,9 @@ function newFunction() {
 // main.js - Accessibility improvements implementation
 // main.js - Combined utility and accessibility features
 
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
+
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;

@@ -86,7 +86,7 @@ function countDependencies() {
 function ensureUniqueLandmarks() {
   // Landmarks that should be unique on a page
   const uniqueLandmarkSelectors = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
-  
+
   uniqueLandmarkSelectors.forEach(selector => {
     const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
@@ -95,7 +95,7 @@ function ensureUniqueLandmarks() {
         const existingLabel = element.getAttribute('aria-label');
         const elementTag = element.tagName.toLowerCase();
         const role = element.getAttribute('role') || elementTag;
-        
+
         if (!existingLabel) {
           // Add index-based label for distinction
           element.setAttribute('aria-label', `${role} ${index + 1}`);
@@ -103,17 +103,17 @@ function ensureUniqueLandmarks() {
       });
     }
   });
-  
+
   // Ensure region and navigation landmarks have accessible names when multiple exist
   const sectionLandmarkSelectors = ['nav', '[role="region"]', 'aside'];
-  
+
   sectionLandmarkSelectors.forEach(selector => {
     const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
       elements.forEach((element, index) => {
         const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.id;
         const role = element.getAttribute('role') || element.tagName.toLowerCase();
-        
+
         if (!hasLabel) {
           element.setAttribute('aria-label', `${role} ${index + 1}`);
         }
@@ -128,7 +128,7 @@ function ensureUniqueLandmarks() {
 
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    
+
     // Ensure unique IDs
     if (!landmark.id) {
       let id = role;
@@ -208,13 +208,13 @@ function wrapPrimaryContentInMain(primaryContent) {
   const mainElement = doc.createElement('main');
   mainElement.setAttribute('id', 'main-content');
   mainElement.setAttribute('role', 'main');
-  
+
   if (typeof primaryContent === 'string') {
     mainElement.innerHTML = primaryContent;
   } else if (primaryContent instanceof HTMLElement || (primaryContent && primaryContent.appendChild)) {
     mainElement.appendChild(primaryContent);
   }
-  
+
   return mainElement;
 }
 
@@ -375,3 +375,5 @@ function addAriaLabel(element) {
 }
 
 // ----- END ORIGINAL CODE -----
+
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.

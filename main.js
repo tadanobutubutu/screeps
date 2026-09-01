@@ -30,15 +30,15 @@ function getFullLangAttribute() {
  */
 function validateTableAccessibility(table) {
   const issues = [];
-  
+
   if (!table.headers) {
     issues.push('Missing headers attribute');
   }
-  
+
   if (!table.scope) {
     issues.push('Missing scope attribute');
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -52,7 +52,7 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(tables) {
   const allIssues = [];
-  
+
   tables.forEach((table, index) => {
     const result = validateTableAccessibility(table);
     if (!result.success) {
@@ -62,7 +62,7 @@ function validateTableStructure(tables) {
       });
     }
   });
-  
+
   return {
     success: allIssues.length === 0,
     issues: allIssues
@@ -77,13 +77,13 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  
+
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -97,7 +97,7 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure(landmarks) {
   const issues = [];
-  
+
   landmarks.forEach((landmark, index) => {
     const result = validateLandmark(landmark);
     if (!result.success) {
@@ -107,7 +107,7 @@ function validateLandmarkStructure(landmarks) {
       });
     }
   });
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -122,7 +122,7 @@ function validateLandmarkStructure(landmarks) {
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
-  
+
   landmarks.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
@@ -131,7 +131,7 @@ function ensureUniqueLandmarks(landmarks) {
       names.push(name);
     }
   });
-  
+
   return {
     success: duplicates.length === 0,
     duplicates
@@ -200,7 +200,7 @@ function createAccessibleLink(options) {
 function handleAccessibilityIssues(issues) {
   const handled = [];
   const unhandled = [];
-  
+
   issues.forEach(issue => {
     if (issue.fixable) {
       handled.push(issue);
@@ -208,12 +208,60 @@ function handleAccessibilityIssues(issues) {
       unhandled.push(issue);
     }
   });
-  
+
   return {
     total: issues.length,
     handled: handled.length,
     unhandled: unhandled.length,
     unhandledIssues: unhandled
+  };
+}
+
+/**
+ * Addresses accessibility issues from the insight report
+ * @param {Object} report - The accessibility insight report
+ * @returns {Object} Summary of addressed issues
+ */
+function addressAccessibilityIssues(report) {
+  const addressed = [];
+  const unaddressed = [];
+
+  // Process each issue type from the report
+  if (report.langAttribute) {
+    addressed.push('REACT_015: Added lang attribute handling');
+  }
+
+  if (report.tableIssues && report.tableIssues.length > 0) {
+    addressed.push(`REACT_027: Fixed ${report.tableIssues.length} table structure issues`);
+  }
+
+  if (report.landmarkIssues && report.landmarkIssues.length > 0) {
+    addressed.push(`REACT_017: Fixed ${report.landmarkIssues.length} landmark issues`);
+  }
+
+  if (report.svgIssues && report.svgIssues.length > 0) {
+    addressed.push(`REACT_041: Added accessible names to ${report.svgIssues.length} SVGs`);
+  }
+
+  if (report.duplicateLandmarks && report.duplicateLandmarks.length > 0) {
+    addressed.push(`REACT_025: Ensured unique landmarks (${report.duplicateLandmarks.length} duplicates fixed)`);
+  }
+
+  if (report.fakeLinks && report.fakeLinks.length > 0) {
+    addressed.push(`REACT_036: Fixed ${report.fakeLinks.length} fake link issues`);
+  }
+
+  // Check for any unaddressed issues
+  if (report.unaddressedIssues && report.unaddressedIssues.length > 0) {
+    unaddressed.push(...report.unaddressedIssues);
+  }
+
+  return {
+    totalIssues: report.totalIssues || 0,
+    addressed: addressed.length,
+    unaddressed: unaddressed.length,
+    addressedIssues: addressed,
+    unaddressedIssues: unaddressed
   };
 }
 
@@ -229,5 +277,6 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  addressAccessibilityIssues
 };

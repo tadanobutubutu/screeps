@@ -91,7 +91,6 @@ function writeReport(report) {
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
 // Replaced placeholder with full implementation using axe-core scanning and report writing
 function generateAccessibilityReport() {
   const report = scanAccessibility();
@@ -149,9 +148,28 @@ function renderDependencyGraph(landmarks) {
 // Export the new function
 module.exports.renderDependencyGraph = renderDependencyGraph;
 
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
+// New function to add proper landmark regions
+function addLandmarkRegions(landmarks, regions) {
+    if (!Array.isArray(landmarks) || !Array.isArray(regions)) {
+        throw new Error('Both landmarks and regions must be arrays');
+    }
+
+    return landmarks.map(landmark => {
+        const matchingRegions = regions.filter(region =>
+            region.landmarkId === landmark.id
+        );
+
+        return {
+            ...landmark,
+            regions: matchingRegions
+        };
+    });
+}
+
+// Export the new function
+module.exports.addLandmarkRegions = addLandmarkRegions;
 
 // TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// This is the existing code that needs to be preserved
 // Version 1 implementation (HEAD branch)
 // Code for version 1 implementation goes here.

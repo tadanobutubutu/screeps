@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -39,17 +36,17 @@ const AddressabilityIssues = {
     }, 0);
   },
 
-  fixMainLandmarkIssues(source) {
+  convertMultipleMainElements(source) {
     const mainBlockRegex = /<\w+(\s+\w+\s*=\s*.*\s*)*<\/main>/g;
 
     let matches = source.match(mainBlockRegex);
-    if (matches.length <= 1) {
+    if (!matches || matches.length <= 1) {
       return source;
     }
 
     let result = source;
     for (let i = 1; i < matches.length; i++) {
-      const block = matches[i][0];
+      const block = matches[i];
       const fixedBlock = block
         .replace(/<\/main>/, '</section>')
         .replace(/<main/, '<section');
@@ -138,20 +135,17 @@ const AddressabilityIssues = {
     const path = require('path');
     const fs = require('fs');
     const packageJsonPath = path.join(__dirname, '..', 'package.json');
-    const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
-    const dependencies = JSON.parse(packageJson).dependencies || {};
-    const devDependencies = JSON.parse(packageJson).devDependencies || {};
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
 
     return {
-      dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
+      dependencies: Object.keys(dependencies),
+      devDependencies: Object.keys(devDependencies),
       total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
   }
 };
 
-// ... (other functions and setting up exports)
-```
-
-The conflicts in the `AddressabilityIssues` object were resolved by combining both changes and fixing the syntax errors. The `spawnSomeCommand` function was also modified to use the existing `child_process` module for spawning the command.
+module.exports = AddressabilityIssues;

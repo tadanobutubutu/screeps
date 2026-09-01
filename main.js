@@ -1,78 +1,78 @@
 import React from 'react';
 
-const { createWebResourceButton, validateAccessibilityReport } = require('./utilities')
+const { createWebResourceButton, validateAccessibilityReport } = require('./utilities');
 
-const http = require('http')
-const fs = require('fs')
-const path = require('path')
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
 // Configuration
 const CONFIG = {
-  port: process.env.PORT || 3000,
-  host: process.env.HOST || 'localhost',
-  maxRetries: 3,
-  timeout: 5000
-}
+    port: process.env.PORT || 3000,
+    host: process.env.HOST || 'localhost',
+    maxRetries: 3,
+    timeout: 5000,
+};
 
 // Accessibility utilities and functions
 const accessibilityUtils = {
-  // Initialize skip link functionality for keyboard navigation
-  initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link')
-    if (skipLink) {
-      skipLink.addEventListener('click', (e) => {
-        e.preventDefault()
-        const target = document.querySelector(skipLink.getAttribute('href'))
-        if (target) {
-          target.setAttribute('tabindex', '-1')
-          target.focus()
+    // Initialize skip link functionality for keyboard navigation
+    initSkipLink: () => {
+        const skipLink = document.querySelector('.skip-link');
+        if (skipLink) {
+            skipLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(skipLink.getAttribute('href'));
+                if (target) {
+                    target.setAttribute('tabindex', '-1');
+                    target.focus();
+                }
+            });
         }
-      })
-    }
-  },
+    },
 
-  // Trap focus within an element (for modals, dialogs)
-  trapFocus: (element) => {
-    const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    )
-    const firstElement = focusableElements[0]
-    const lastElement = focusableElements[focusableElements.length - 1]
+    // Trap focus within an element (for modals, dialogs)
+    trapFocus: (element) => {
+        const focusableElements = element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
 
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          lastElement.focus()
-          e.preventDefault()
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus()
-          e.preventDefault()
+        element.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    lastElement.focus();
+                    e.preventDefault();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    firstElement.focus();
+                    e.preventDefault();
+                }
+            }
+        });
+    },
+
+    // Announce message to screen readers
+    announceToScreenReader: (message, priority = 'polite') => {
+        const announcer = document.createElement('div');
+        announcer.setAttribute('aria-live', priority);
+        announcer.setAttribute('aria-atomic', 'true');
+        announcer.className = 'sr-only';
+        announcer.style.position = 'absolute';
+        announcer.style.left = '-9999px';
+        announcer.textContent = message;
+        document.body.appendChild(announcer);
+        setTimeout(() => announcer.remove(), 1000);
+    },
+
+    // Handle keyboard navigation
+    handleKeyboardNav: (e, handlers) => {
+        const key = e.key;
+        if (handlers[key]) {
+            handlers[key](e);
         }
-      }
-    })
-  },
-
-  // Announce message to screen readers
-  announceToScreenReader: (message, priority = 'polite') => {
-    const announcer = document.createElement('div')
-    announcer.setAttribute('aria-live', priority)
-    announcer.setAttribute('aria-atomic', 'true')
-    announcer.className = 'sr-only'
-    announcer.style.position = 'absolute'
-    announcer.style.left = '-9999px'
-    announcer.textContent = message
-    document.body.appendChild(announcer)
-    setTimeout(() => announcer.remove(), 1000)
-  },
-
-  // Handle keyboard navigation
-  handleKeyboardNav: (e, handlers) => {
-    const key = e.key
-    if (handlers[key]) {
-      handlers[key](e)
-    }
-  }
-}
+    },
+};
 
 // Utility functions for accessibility
 const main = require('./utilities');
@@ -119,19 +119,71 @@ const {
 } = main;
 
 // Function definitions with fallback implementations
-const getLangAttributeFn = getLangAttributeImpl || function() { return getLangAttributeImpl.call(this); };
-const createInPageButtonFn = createInPageButtonImpl || function() { return createInPageButtonImpl.call(this); };
-const validateTableAccessibilityFn = validateTableAccessibilityImpl || function() { return validateTableAccessibilityImpl.call(this); };
-const validateTableStructureFn = validateTableStructureImpl || function() { return validateTableStructureImpl.call(this); };
-const getSvgAccessibleNameFn = getSvgAccessibleNameImpl || function(svg) { return getSvgAccessibleNameImpl.call(this, svg); };
-const setSvgAttributesFn = setSvgAttributesImpl || function(svg) { return setSvgAttributesImpl.call(this, svg); };
-const ensureUniqueLandmarksFn = ensureUniqueLandmarksImpl || function() { return ensureUniqueLandmarksImpl.call(this); };
-const validateLinkAccessibilityFn = validateLinkAccessibilityImpl || function() { return validateLinkAccessibilityImpl.call(this); };
-const handleFakeLinksFn = handleFakeLinksImpl || function() { return handleFakeLinksImpl.call(this); };
-const addProperLandmarkRegionsFn = addProperLandmarkRegionsImpl || function() { return addProperLandmarkRegionsImpl.call(this); };
-const checkFocusOrderFn = checkFocusOrderImpl || function() { return checkFocusOrderImpl.call(this); };
-const enhanceTableNavigationFn = enhanceTableNavigationImpl || function() { return enhanceTableNavigationImpl.call(this); };
-const improveContrastFn = improveContrastImpl || function() { return improveContrastImpl.call(this); };
+const getLangAttributeFn =
+    getLangAttributeImpl ||
+    function () {
+        return getLangAttributeImpl.call(this);
+    };
+const createInPageButtonFn =
+    createInPageButtonImpl ||
+    function () {
+        return createInPageButtonImpl.call(this);
+    };
+const validateTableAccessibilityFn =
+    validateTableAccessibilityImpl ||
+    function () {
+        return validateTableAccessibilityImpl.call(this);
+    };
+const validateTableStructureFn =
+    validateTableStructureImpl ||
+    function () {
+        return validateTableStructureImpl.call(this);
+    };
+const getSvgAccessibleNameFn =
+    getSvgAccessibleNameImpl ||
+    function (svg) {
+        return getSvgAccessibleNameImpl.call(this, svg);
+    };
+const setSvgAttributesFn =
+    setSvgAttributesImpl ||
+    function (svg) {
+        return setSvgAttributesImpl.call(this, svg);
+    };
+const ensureUniqueLandmarksFn =
+    ensureUniqueLandmarksImpl ||
+    function () {
+        return ensureUniqueLandmarksImpl.call(this);
+    };
+const validateLinkAccessibilityFn =
+    validateLinkAccessibilityImpl ||
+    function () {
+        return validateLinkAccessibilityImpl.call(this);
+    };
+const handleFakeLinksFn =
+    handleFakeLinksImpl ||
+    function () {
+        return handleFakeLinksImpl.call(this);
+    };
+const addProperLandmarkRegionsFn =
+    addProperLandmarkRegionsImpl ||
+    function () {
+        return addProperLandmarkRegionsImpl.call(this);
+    };
+const checkFocusOrderFn =
+    checkFocusOrderImpl ||
+    function () {
+        return checkFocusOrderImpl.call(this);
+    };
+const enhanceTableNavigationFn =
+    enhanceTableNavigationImpl ||
+    function () {
+        return enhanceTableNavigationImpl.call(this);
+    };
+const improveContrastFn =
+    improveContrastImpl ||
+    function () {
+        return improveContrastImpl.call(this);
+    };
 
 // Screeps Bot class
 class ScreepsBot {
@@ -187,19 +239,19 @@ function log(message, level = 'info') {
 }
 
 // Module-level function definitions
-function affectedFunction () {
-  // Function implementation
-  return 'affected function result'
+function affectedFunction() {
+    // Function implementation
+    return 'affected function result';
 }
 
-function updateFunction () {
-  // Function implementation
-  return 'update function result'
+function updateFunction() {
+    // Function implementation
+    return 'update function result';
 }
 
-function accessibleFunction () {
-  // Function implementation
-  return 'accessible function result'
+function accessibleFunction() {
+    // Function implementation
+    return 'accessible function result';
 }
 
 // Utility functions for logging and data processing
@@ -385,49 +437,49 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
 }
 
 // New functions for dependency graph rendering
-function renderDependencyGraph (dependencies, options = {}) {
-  // Implementation for rendering dependency graphs
-  // This would typically create a visual representation of dependencies
-  // between modules or components in the application
+function renderDependencyGraph(dependencies, options = {}) {
+    // Implementation for rendering dependency graphs
+    // This would typically create a visual representation of dependencies
+    // between modules or components in the application
 
-  // Example implementation (simplified):
-  const graphContainer = document.createElement('div')
-  graphContainer.className = 'dependency-graph'
+    // Example implementation (simplified):
+    const graphContainer = document.createElement('div');
+    graphContainer.className = 'dependency-graph';
 
-  dependencies.forEach((dep) => {
-    const node = document.createElement('div')
-    node.className = 'dependency-node'
-    node.textContent = dep.name
-    graphContainer.appendChild(node)
-  })
+    dependencies.forEach((dep) => {
+        const node = document.createElement('div');
+        node.className = 'dependency-node';
+        node.textContent = dep.name;
+        graphContainer.appendChild(node);
+    });
 
-  return graphContainer
+    return graphContainer;
 }
 
-function updateDependencyGraph (graphElement, newDependencies) {
-  // Implementation for updating an existing dependency graph
-  // This would modify the visual representation to reflect changes
-  // in the dependencies
+function updateDependencyGraph(graphElement, newDependencies) {
+    // Implementation for updating an existing dependency graph
+    // This would modify the visual representation to reflect changes
+    // in the dependencies
 
-  // Clear existing nodes
-  while (graphElement.firstChild) {
-    graphElement.removeChild(graphElement.firstChild)
-  }
+    // Clear existing nodes
+    while (graphElement.firstChild) {
+        graphElement.removeChild(graphElement.firstChild);
+    }
 
-  // Add new nodes
-  newDependencies.forEach((dep) => {
-    const node = document.createElement('div')
-    node.className = 'dependency-node'
-    node.textContent = dep.name
-    graphElement.appendChild(node)
-  })
+    // Add new nodes
+    newDependencies.forEach((dep) => {
+        const node = document.createElement('div');
+        node.className = 'dependency-node';
+        node.textContent = dep.name;
+        graphElement.appendChild(node);
+    });
 
-  return graphElement
+    return graphElement;
 }
 
-function main () {
-  // Application initialization
-  return 'main function executed'
+function main() {
+    // Application initialization
+    return 'main function executed';
 }
 
 // Initialize accessibility features
@@ -459,7 +511,7 @@ if (typeof document !== 'undefined') {
 }
 
 // Sample main.js with dependencyGraph container
-function renderDependencyGraphInitial () {
+function renderDependencyGraphInitial() {
     const container = document.getElementById('dependency-graph');
 
     if (container) {
@@ -520,18 +572,18 @@ module.exports = {
     addAriaLabel,
     ensureElementAccessibility,
     log,
-    initAccessibility
+    initAccessibility,
 };
 
 // Also attach to global scope for browser/standalone access
 if (typeof window !== 'undefined') {
-  window.affectedFunction = affectedFunction
-  window.updateFunction = updateFunction
-  window.accessibleFunction = accessibleFunction
-  window.main = main
-  window.renderDependencyGraph = renderDependencyGraph
-  window.updateDependencyGraph = updateDependencyGraph
-  window.accessibilityUtils = accessibilityUtils
-  window.log = log
-  window.initAccessibility = initAccessibility
+    window.affectedFunction = affectedFunction;
+    window.updateFunction = updateFunction;
+    window.accessibleFunction = accessibleFunction;
+    window.main = main;
+    window.renderDependencyGraph = renderDependencyGraph;
+    window.updateDependencyGraph = updateDependencyGraph;
+    window.accessibilityUtils = accessibilityUtils;
+    window.log = log;
+    window.initAccessibility = initAccessibility;
 }

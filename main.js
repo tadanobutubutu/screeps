@@ -25,6 +25,37 @@
     // Assuming that pages are in './pages' directory with `.js` or `.jsx` extension
     const pagesDir = path.join(__dirname, 'pages');
 
+    // Function to spawn a new process
+    function spawnProcess(command, args, options) {
+        const { spawn } = require('child_process');
+        return new Promise((resolve, reject) => {
+            const process = spawn(command, args, options);
+
+            let stdout = '';
+            let stderr = '';
+
+            process.stdout.on('data', (data) => {
+                stdout += data.toString();
+            });
+
+            process.stderr.on('data', (data) => {
+                stderr += data.toString();
+            });
+
+            process.on('close', (code) => {
+                if (code !== 0) {
+                    reject(new Error(`Process exited with code ${code}: ${stderr}`));
+                } else {
+                    resolve(stdout);
+                }
+            });
+
+            process.on('error', (err) => {
+                reject(err);
+            });
+        });
+    }
+
     // Function to scan pages for accessibility issues and generate a report
     async function scanAccessibility() {
       const filePaths = await fs.promises.readdir(pagesDir);
@@ -182,7 +213,8 @@
       scanAccessibility,
       writeReport,
       importAndExecute,
-      initialize
+      initialize,
+      spawnProcess
     };
 
     // Initialize on DOM ready

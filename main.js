@@ -29,7 +29,28 @@ function getLangAttribute() {
     // Implementation to add lang attribute
 }
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap } = main;
+const {
+    createInPageButton,
+    createWebResourceButton,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    getLangAttribute,
+    validateAccessibilityReport,
+    exportUtils,
+    addressAccessibilityIssues,
+    handleCredentialResponse,
+    ensureElementHasId,
+    ensureElementHasIdOrigin,
+    addAriaLabel,
+    renderDependencyGraphs,
+    fixButtonIdentifiers,
+    fixDependencyGraphAria,
+    addMainLandmarkToIndex,
+    focusTrap,
+} = main;
 
 // Accessibility utilities and functions
 const accessibilityUtils = {
@@ -248,34 +269,35 @@ function validateTableAccessibility(tableElement) {
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
 function getTables() {
-  return appData.tables;
+    return appData.tables;
 }
 
 function getConfig() {
-  return { ...appData.config };
+    return { ...appData.config };
 }
 
 function setConfig(config) {
-  appData.config = { ...appData.config, ...config };
+    appData.config = { ...appData.config, ...config };
 }
 
 // Required changes to fix the React SVG Accessible Name issue
 function addSvgAccessibleName(svgString, label) {
-  // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
-  // and returns the modified SVG string.
-  // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const parser = new DOMParser();
-  const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
-  const svgElement = svgDoc.documentElement;
-  if (!svgElement.hasAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', label || 'Descriptive label for SVG');
-  }
-  const serializer = new XMLSerializer();
-  return serializer.serializeToString(svgElement);
+    // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
+    // and returns the modified SVG string.
+    // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
+    const svgElement = svgDoc.documentElement;
+    if (!svgElement.hasAttribute('aria-label')) {
+        svgElement.setAttribute('aria-label', label || 'Descriptive label for SVG');
+    }
+    const serializer = new XMLSerializer();
+    return serializer.serializeToString(svgElement);
 }
 
 // Example usage of the function
-const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" dy=".35em" x="50%" text-anchor="middle" class="sim-title" font-size="17">Screeps Dashboard</text></svg>';
+const originalSvgString =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" dy=".35em" x="50%" text-anchor="middle" class="sim-title" font-size="17">Screeps Dashboard</text></svg>';
 const modifiedSvgString = addSvgAccessibleName(originalSvgString, 'Screeps Dashboard');
 
 /**
@@ -288,39 +310,39 @@ const modifiedSvgString = addSvgAccessibleName(originalSvgString, 'Screeps Dashb
  * @returns {string} Rendered HTML content
  */
 function renderGraphIndex(container, options = {}) {
-  const defaultOptions = {
-    title: 'Dependency Graph',
-    graphType: 'dependency',
-    showLegend: true
-  };
+    const defaultOptions = {
+        title: 'Dependency Graph',
+        graphType: 'dependency',
+        showLegend: true,
+    };
 
-  const mergedOptions = { ...defaultOptions, ...options };
+    const mergedOptions = { ...defaultOptions, ...options };
 
-  // Use renderDependencyGraphs function from utilities
-  const graphHtml = renderDependencyGraphs(container, {
-    ...mergedOptions,
-    onRender: (graphData) => {
-      // Apply accessibility fixes to the rendered graph
-      if (addressAccessibilityIssues) {
-        addressAccessibilityIssues(graphData);
-      }
-    }
-  });
+    // Use renderDependencyGraphs function from utilities
+    const graphHtml = renderDependencyGraphs(container, {
+        ...mergedOptions,
+        onRender: (graphData) => {
+            // Apply accessibility fixes to the rendered graph
+            if (addressAccessibilityIssues) {
+                addressAccessibilityIssues(graphData);
+            }
+        },
+    });
 
-  // Apply additional accessibility improvements using new functions
-  const fixedHtml = fixDependencyGraphAria(graphHtml);
+    // Apply additional accessibility improvements using new functions
+    const fixedHtml = fixDependencyGraphAria(graphHtml);
 
-  // Ensure all elements have proper IDs for accessibility
-  const tempContainer = document.createElement('div');
-  tempContainer.innerHTML = fixedHtml;
-  const elements = tempContainer.querySelectorAll('button, a, [role="button"]');
-  elements.forEach((element, index) => {
-    if (!element.id) {
-      element.id = `graph-element-${index}`;
-    }
-  });
+    // Ensure all elements have proper IDs for accessibility
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = fixedHtml;
+    const elements = tempContainer.querySelectorAll('button, a, [role="button"]');
+    elements.forEach((element, index) => {
+        if (!element.id) {
+            element.id = `graph-element-${index}`;
+        }
+    });
 
-  return tempContainer.innerHTML;
+    return tempContainer.innerHTML;
 }
 
 /**
@@ -329,41 +351,41 @@ function renderGraphIndex(container, options = {}) {
  * @returns {string} Rendered additional content HTML
  */
 function renderAdditionalContent(additionalData) {
-  // Implementation of the new function
-  // Placeholder for actual implementation
-  return '<div class="additional-content"></div>';
+    // Implementation of the new function
+    // Placeholder for actual implementation
+    return '<div class="additional-content"></div>';
 }
 
 // Accessibility-related functions
 function addLangAttribute() {
-  // Implementation for adding lang attribute to HTML element
-  // This would typically be done in the HTML template, not in JavaScript
-  // For the purpose of this exercise, we'll assume it's handled elsewhere
+    // Implementation for adding lang attribute to HTML element
+    // This would typically be done in the HTML template, not in JavaScript
+    // For the purpose of this exercise, we'll assume it's handled elsewhere
 }
 
 function fixTableStructureIssues() {
-  // Implementation for fixing table structure issues
-  // This would typically involve ensuring proper table semantics
+    // Implementation for fixing table structure issues
+    // This would typically involve ensuring proper table semantics
 }
 
 function addMainLandmark() {
-  // Implementation for adding/fixing landmark issues
-  // This would typically involve ensuring proper ARIA landmarks
+    // Implementation for adding/fixing landmark issues
+    // This would typically involve ensuring proper ARIA landmarks
 }
 
 function addSvgAccessibleNameUtil() {
-  // Implementation for adding accessible names to SVGs
-  // This would typically involve adding title/desc elements or ARIA labels
+    // Implementation for adding accessible names to SVGs
+    // This would typically involve adding title/desc elements or ARIA labels
 }
 
 function ensureUniqueLandmarks() {
-  // Implementation for ensuring unique landmarks
-  // This would typically involve checking for duplicate landmarks
+    // Implementation for ensuring unique landmarks
+    // This would typically involve checking for duplicate landmarks
 }
 
 function fixFakeLinkIssue() {
-  // Implementation for fixing fake link issues
-  // This would typically involve ensuring links are actual links or have proper ARIA roles
+    // Implementation for fixing fake link issues
+    // This would typically involve ensuring links are actual links or have proper ARIA roles
 }
 
 module.exports = {

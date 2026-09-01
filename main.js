@@ -24,6 +24,16 @@ function getFullLangAttribute() {
 }
 
 /**
+ * Adds lang attribute to HTML element
+ * @param {Object} element - The HTML element to modify
+ * @returns {Object} The modified element with lang attribute
+ */
+function addLangAttribute(element) {
+  element.lang = getFullLangAttribute();
+  return element;
+}
+
+/**
  * Validates table accessibility compliance
  * @param {Object} table - The table object to validate
  * @returns {Object} Validation result with success status and any issues found
@@ -84,8 +94,6 @@ function validateTableStructure(tables) {
     issues: allIssues
   };
 }
-
-// TODO: Any additional changes requested in the issue
 
 /**
  * Validates landmark elements for accessibility
@@ -334,6 +342,7 @@ function addProperLandmarkRegions(landmarks) {
 module.exports = {
   getLangAttribute,
   getFullLangAttribute,
+  addLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,

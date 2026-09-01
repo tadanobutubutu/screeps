@@ -192,6 +192,136 @@ function getAccessibleLinkProps(href, label) {
   };
 };
 
+// REACT_027: Validate table structure and accessibility
+function validateTableAccessibility(tableElement) {
+  if (!tableElement) return false;
+
+  // Check for proper table structure
+  const hasCaption = tableElement.querySelector('caption') !== null;
+  const hasThead = tableElement.querySelector('thead') !== null;
+  const hasTbody = tableElement.querySelector('tbody') !== null;
+
+  // Check for proper headers
+  const headers = tableElement.querySelectorAll('th');
+  const hasScope = Array.from(headers).every(th => th.hasAttribute('scope'));
+
+  // Check for proper data cells
+  const dataCells = tableElement.querySelectorAll('td');
+  const hasHeaders = Array.from(dataCells).every(td => td.hasAttribute('headers'));
+
+  return hasCaption && hasThead && hasTbody && hasScope && hasHeaders;
+}
+
+// REACT_027: Validate table structure
+function validateTableStructure(tableElement) {
+  if (!tableElement) return false;
+
+  // Check for proper table structure
+  const hasCaption = tableElement.querySelector('caption') !== null;
+  const hasThead = tableElement.querySelector('thead') !== null;
+  const hasTbody = tableElement.querySelector('tbody') !== null;
+
+  // Check for proper headers
+  const headers = tableElement.querySelectorAll('th');
+  const hasScope = Array.from(headers).every(th => th.hasAttribute('scope'));
+
+  return hasCaption && hasThead && hasTbody && hasScope;
+}
+
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"]');
+  const landmarkRoles = {};
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (landmarkRoles[role]) {
+      landmark.setAttribute('aria-label', `${role} ${Object.keys(landmarkRoles).filter(r => r === role).length + 1}`);
+    } else {
+      landmarkRoles[role] = true;
+    }
+  });
+}
+
+// REACT_025: Ensure unique landmarks from string
+function ensureUniqueLandmarksFromString(htmlString) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, 'text/html');
+  const landmarks = doc.querySelectorAll('[role="main"], [role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"]');
+  const landmarkRoles = {};
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (landmarkRoles[role]) {
+      landmark.setAttribute('aria-label', `${role} ${Object.keys(landmarkRoles).filter(r => r === role).length + 1}`);
+    } else {
+      landmarkRoles[role] = true;
+    }
+  });
+
+  return doc.documentElement.outerHTML;
+}
+
+// REACT_036: Validate link accessibility
+function validateLinkAccessibility(linkElement) {
+  if (!linkElement) return false;
+
+  // Check if link has proper ARIA attributes
+  const hasRole = linkElement.hasAttribute('role') && linkElement.getAttribute('role') === 'link';
+  const hasLabel = linkElement.hasAttribute('aria-label') || linkElement.hasAttribute('aria-labelledby');
+
+  // Check if link has proper href
+  const hasHref = linkElement.hasAttribute('href') && linkElement.getAttribute('href').trim() !== '';
+
+  return hasRole && hasLabel && hasHref;
+}
+
+// REACT_036: Handle fake links
+function handleFakeLinks() {
+  const fakeLinks = document.querySelectorAll('[role="link"]:not([href])');
+
+  fakeLinks.forEach(link => {
+    // Convert to real link if it has proper ARIA attributes
+    if (link.hasAttribute('aria-label') || link.hasAttribute('aria-labelledby')) {
+      link.setAttribute('href', '#');
+      link.setAttribute('tabindex', '0');
+    } else {
+      // Remove role if it's not properly labeled
+      link.removeAttribute('role');
+    }
+  });
+}
+
+// REACT_037: Add proper landmark regions
+function addProperLandmarkRegions() {
+  const mainContent = document.querySelector('main');
+  if (mainContent && !mainContent.hasAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+    mainContent.setAttribute('aria-label', 'Main content');
+  }
+
+  const navigation = document.querySelector('nav');
+  if (navigation && !navigation.hasAttribute('role')) {
+    navigation.setAttribute('role', 'navigation');
+    navigation.setAttribute('aria-label', 'Site navigation');
+  }
+
+  const search = document.querySelector('[role="search"]');
+  if (search && !search.hasAttribute('aria-label')) {
+    search.setAttribute('aria-label', 'Search');
+  }
+}
+
+// REACT_037: Validate landmark
+function validateLandmark(landmarkElement) {
+  if (!landmarkElement) return false;
+
+  const role = landmarkElement.getAttribute('role');
+  const hasLabel = landmarkElement.hasAttribute('aria-label') || landmarkElement.hasAttribute('aria-labelledby');
+
+  return role && hasLabel;
+}
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(() => {

@@ -64,6 +64,53 @@ function newFunctionToImplement() {
   // Implementation details here
 }
 
+// New functions to ensure element has an id and add aria-label
+function ensureElementHasId(element) {
+  if (!element.id) {
+    element.id = `generated-id-${uuidv4()}`;
+  }
+  return element;
+}
+
+function addAriaLabel(element, label) {
+  if (label && !element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+}
+
+// Function to render dependency graphs
+function renderDependencyGraph(data) {
+  if (!data || !Array.isArray(data.nodes) || !Array.isArray(data.edges)) {
+    console.error('Invalid dependency graph data');
+    return null;
+  }
+
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'dependency-graph';
+
+  // Create nodes
+  data.nodes.forEach(node => {
+    const nodeElement = document.createElement('div');
+    nodeElement.className = 'graph-node';
+    nodeElement.textContent = node.label;
+    ensureElementHasId(nodeElement);
+    addAriaLabel(nodeElement, `Dependency node: ${node.label}`);
+    graphContainer.appendChild(nodeElement);
+  });
+
+  // Create edges (connections between nodes)
+  data.edges.forEach(edge => {
+    const edgeElement = document.createElement('div');
+    edgeElement.className = 'graph-edge';
+    edgeElement.textContent = edge.label || '';
+    addAriaLabel(edgeElement, `Dependency edge from ${edge.source} to ${edge.target}`);
+    graphContainer.appendChild(edgeElement);
+  });
+
+  return graphContainer;
+}
+
 // Ensure that all existing exports are preserved and that no exports are removed or renamed
 
 // Exporting functions and any other exports that were previously exported
@@ -72,7 +119,7 @@ export function existingFunction() {
 }
 
 // Exporting any new functions that were added as part of the solution
-export { newFunctionToImplement };
+export { newFunctionToImplement, ensureElementHasId, addAriaLabel, renderDependencyGraph };
 
 // If any other exports were previously in main.js, they should be preserved and added here
 export { otherExport1, otherExport2 };

@@ -144,7 +144,10 @@ module.exports = {
   addLangAttribute,
   addLandmarkRoles,
   ensureUniqueLandmarks,
-  fixFakeLink
+  fixFakeLink,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs
 };
 
 // Start the application if run directly

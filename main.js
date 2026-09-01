@@ -43,13 +43,17 @@ function addressAccessibilityIssues(insightReport) {
 /* Accessibility Validator and Utilities */
 
 const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form'];
-const LANDMARK_SELECTORS = LANDMARK_ELEMENTS.join(',');
+const LANDMARK_SELECTORS = LANDMARK_ELEMENTS.map(el => el).join(', ');
 
 function findLandmarks(context = document) {
     const landmarks = [];
     LANDMARK_ELEMENTS.forEach(tag => {
         const elements = context.querySelectorAll(tag);
-        elements.forEach(el => landmarks.push(el));
+        elements.forEach(el => landmarks.push({
+            tag: tag,
+            element: el,
+            label: el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || null
+        }));
     });
     return landmarks;
 }
@@ -98,7 +102,7 @@ function validateLandmarkStructure(context = document) {
     forms.forEach((form, index) => {
         const hasLabel = form.getAttribute('aria-label') || 
                          form.getAttribute('aria-labelledby') ||
-                         form.getAttribute('name');
+                         form.querySelector('legend');
         if (!hasLabel && form.querySelectorAll('input, select, textarea').length > 0) {
             issues.push({
                 type: 'warning',
@@ -126,7 +130,7 @@ function validateLandmarkStructure(context = document) {
     // Check for proper header/footer usage
     const headers = context.querySelectorAll('header');
     headers.forEach((header, index) => {
-        if (header.closest('main') && !header.closest('section') && !header.closest('article')) {
+        if (header.closest('main') && !header.closest('article')) {
             issues.push({
                 type: 'info',
                 code: 'HEADER_NESTING',
@@ -173,7 +177,7 @@ function getLandmarkSummary(context = document) {
         infos.forEach(i => summary.push(`  • ${i.message}`));
     }
     
-    summary.push(`\nValidation ${result.isValid ? 'PASSED' : 'FAILED'}`);
+    summary.push(`Validation ${result.isValid ? 'PASSED' : 'FAILED'}`);
     
     return summary.join('\n');
 }

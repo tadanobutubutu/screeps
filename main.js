@@ -10,7 +10,7 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
@@ -44,6 +44,39 @@ const main = require('./utilities');
 // Added missing calculateSum function export
 function calculateSum(a, b) {
   return a + b;
+}
+
+// New function implementation as per the issue requirements
+function checkLandmarkElements(container) {
+  // Check if the container has a main landmark
+  const mainLandmark = container.querySelector('[role="main"]');
+  if (!mainLandmark) {
+    console.warn('No main landmark found in the container');
+  }
+
+  // Check for other required landmarks (navigation, search, etc.)
+  const landmarks = container.querySelectorAll('[role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"]');
+  if (landmarks.length === 0) {
+    console.warn('No additional landmarks found in the container');
+  }
+
+  // Check for duplicate landmarks
+  const landmarkRoles = {};
+  const allLandmarks = container.querySelectorAll('[role^="navigation"], [role^="search"], [role^="main"], [role^="complementary"], [role^="contentinfo"]');
+  allLandmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (landmarkRoles[role]) {
+      console.warn(`Duplicate landmark role found: ${role}`);
+    } else {
+      landmarkRoles[role] = true;
+    }
+  });
+
+  return {
+    hasMainLandmark: !!mainLandmark,
+    landmarkCount: landmarks.length,
+    hasDuplicateLandmarks: Object.keys(landmarkRoles).length !== allLandmarks.length
+  };
 }
 
 // New function implementation as per the issue requirements
@@ -88,5 +121,6 @@ module.exports = {
   isEmpty,
   getRandomInt,
   clamp,
-  deepClone
+  deepClone,
+  checkLandmarkElements
 };

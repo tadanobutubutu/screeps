@@ -68,15 +68,15 @@ function divide(dividend, divisor) {
   if (typeof dividend !== 'number' || typeof divisor !== 'number') {
     throw new Error('Both arguments must be numbers');
   }
-  
+
   if (isNaN(dividend) || isNaN(divisor)) {
     throw new Error('Both arguments must be valid numbers');
   }
-  
+
   if (divisor === 0) {
     throw new Error('Division by zero is not allowed');
   }
-  
+
   return dividend / divisor;
 }
 
@@ -175,29 +175,29 @@ function checkLinkAccessibility() {
  */
 function wrapPrimaryContentInMain() {
   const body = document.body;
-  
+
   // Return null if body element is not available
   if (!body) {
     return null;
   }
-  
+
   // Check if a <main> element already exists to avoid duplication
   const existingMain = document.querySelector('main');
   if (existingMain) {
     return existingMain;
   }
-  
+
   // Create a new <main> element
   const main = document.createElement('main');
-  
+
   // Move all existing body children into the <main> element
   while (body.firstChild) {
     main.appendChild(body.firstChild);
   }
-  
+
   // Append the <main> element to the body
   body.appendChild(main);
-  
+
   return main;
 }
 
@@ -261,6 +261,99 @@ function fixFakeLinks(html) {
     return html;
 }
 
+// NEW: Implement a new function to handle focus trap for keyboard navigation
+/**
+ * Creates a focus trap for keyboard navigation within a specified container.
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @param {Object} options - Configuration options for the focus trap
+ * @param {boolean} options.initialFocus - Whether to focus the first focusable element initially
+ * @param {boolean} options.returnFocus - Whether to return focus to the previously focused element when the trap is released
+ * @returns {Object} An object with methods to activate and deactivate the focus trap
+ */
+function newFocusTrap(container, options = {}) {
+    const { initialFocus = true, returnFocus = true } = options;
+    let previouslyFocusedElement = null;
+    let isActive = false;
+
+    // Get all focusable elements within the container
+    function getFocusableElements() {
+        const focusableSelectors = [
+            'a[href]',
+            'area[href]',
+            'input:not([disabled])',
+            'select:not([disabled])',
+            'textarea:not([disabled])',
+            'button:not([disabled])',
+            'iframe',
+            '[tabindex="0"]',
+            '[contenteditable]',
+            '[tabindex]:not([tabindex="-1"])'
+        ].join(',');
+        return Array.from(container.querySelectorAll(focusableSelectors));
+    }
+
+    // Handle keyboard events to trap focus
+    function handleKeyDown(event) {
+        if (!isActive) return;
+
+        const focusableElements = getFocusableElements();
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        // Tab key pressed
+        if (event.key === 'Tab') {
+            if (event.shiftKey) {
+                // Shift+Tab: move focus to last element if at first element
+                if (document.activeElement === firstElement) {
+                    lastElement.focus();
+                    event.preventDefault();
+                }
+            } else {
+                // Tab: move focus to first element if at last element
+                if (document.activeElement === lastElement) {
+                    firstElement.focus();
+                    event.preventDefault();
+                }
+            }
+        }
+    }
+
+    // Activate the focus trap
+    function activate() {
+        if (isActive) return;
+
+        previouslyFocusedElement = document.activeElement;
+        isActive = true;
+
+        const focusableElements = getFocusableElements();
+        if (focusableElements.length > 0 && initialFocus) {
+            focusableElements[0].focus();
+        }
+
+        document.addEventListener('keydown', handleKeyDown);
+    }
+
+    // Deactivate the focus trap
+    function deactivate() {
+        if (!isActive) return;
+
+        isActive = false;
+        document.removeEventListener('keydown', handleKeyDown);
+
+        if (returnFocus && previouslyFocusedElement) {
+            previouslyFocusedElement.focus();
+        }
+    }
+
+    return {
+        activate,
+        deactivate,
+        isActive: () => isActive
+    };
+}
+
 // Main function that applies all accessibility fixes
 function applyAccessibilityFixes(html) {
     let result = html;
@@ -303,7 +396,8 @@ module.exports = {
     createInPageButton,
     divide,
     checkLinkAccessibility,
-    wrapPrimaryContentInMain
+    wrapPrimaryContentInMain,
+    newFocusTrap
 };
 
 // Run if executed directly

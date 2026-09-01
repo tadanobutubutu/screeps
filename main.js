@@ -41,7 +41,7 @@ function isLinkAccessible(link) {
   // Must have an accessible name
   const hasText = text.trim().length > 0;
   const hasAriaLabel = ariaLabel && ariaLabel.trim().length > 0;
-  const hasAriaLabelledby = link.getAttribute ? !!link.getAttribute('aria-labelledby') : false;
+  const hasAriaLabelledby = link.getAttribute ? link.getAttribute('aria-labelledby') : false;
 
   if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
     return false;
@@ -65,7 +65,7 @@ function ensureElementHasId(element, prefix = 'element') {
         return element.id;
     }
 
-    const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+    const generatedId = `${prefix}-${Date.now()}-${Math.floor(Math.random() * 9000) + 1000}`;
     element.id = generatedId;
     return generatedId;
 }
@@ -101,8 +101,8 @@ function renderDependencyGraph(container, dependencies = {}) {
 
     const graphElement = document.createElement('div');
     graphElement.className = 'dependency-graph';
-    graphElement.setAttribute('role', 'img');
-    graphElement.setAttribute('aria-label', 'Dependency graph visualization');
+    const img = document.createElement('img');
+    img.setAttribute('alt', 'Dependency graph visualization');
 
     const nodes = dependencies.nodes || [];
     const edges = dependencies.edges || [];
@@ -139,10 +139,10 @@ function renderDependencyGraph(container, dependencies = {}) {
         if (node.label) {
             addAriaLabel(circle, node.label);
         }
-
         svg.appendChild(circle);
     });
 
+    graphElement.appendChild(img);
     graphElement.appendChild(svg);
     container.appendChild(graphElement);
     return graphElement;
@@ -166,9 +166,11 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
 
     // Set the button's ID, text content, and class
-    button.id = buttonId;
+    button.id = buttonId || ensureElementHasId(button, 'in-page-btn');
     button.textContent = buttonText;
     button.className = buttonClass;
 
     // Append the button to the body or a specific container
     document.body.appendChild(button);
+    return button;
+}

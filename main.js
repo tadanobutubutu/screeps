@@ -3,7 +3,10 @@
 // (Previously existing code that needs to be preserved)
 // Importing the necessary functions (for illustration purposes)
 import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import {
+    validateTableAccessibility,
+    validateTableStructure,
+} from './utils/tableAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 
 // TODO: Add back any required exports that might have been removed
@@ -68,19 +71,19 @@ function fixTableStructure(html) {
  * @throws {Error} If divisor is zero or if inputs are not valid numbers
  */
 function divide(dividend, divisor) {
-  if (typeof dividend !== 'number' || typeof divisor !== 'number') {
-    throw new Error('Both arguments must be numbers');
-  }
+    if (typeof dividend !== 'number' || typeof divisor !== 'number') {
+        throw new Error('Both arguments must be numbers');
+    }
 
-  if (isNaN(dividend) || isNaN(divisor)) {
-    throw new Error('Both arguments must be valid numbers');
-  }
+    if (isNaN(dividend) || isNaN(divisor)) {
+        throw new Error('Both arguments must be valid numbers');
+    }
 
-  if (divisor === 0) {
-    throw new Error('Division by zero is not allowed');
-  }
+    if (divisor === 0) {
+        throw new Error('Division by zero is not allowed');
+    }
 
-  return dividend / divisor;
+    return dividend / divisor;
 }
 
 // REACT_017: Add/fix landmark issues
@@ -89,35 +92,23 @@ function fixLandmarks(html) {
 
     // Ensure <main> landmark exists
     if (!/<main[^>]*>/i.test(html) && !/<div[^>]*role=["']main["']/i.test(html)) {
-        html = html.replace(
-            /<body([^>]*)>/i,
-            '<body$1><main>'
-        );
+        html = html.replace(/<body([^>]*)>/i, '<body$1><main>');
         html = html.replace(/<\/body>/i, '</main></body>');
     }
 
     // Ensure <nav> landmark exists
     if (!/<nav[^>]*>/i.test(html) && !/<div[^>]*role=["']navigation["']/i.test(html)) {
-        html = html.replace(
-            /<main[^>]*>/i,
-            '<nav aria-label="Main navigation"></nav><main>'
-        );
+        html = html.replace(/<main[^>]*>/i, '<nav aria-label="Main navigation"></nav><main>');
     }
 
     // Ensure <aside> landmark exists if content suggests a sidebar
     if (!/<aside[^>]*>/i.test(html) && !/<div[^>]*role=["']complementary["']/i.test(html)) {
-        html = html.replace(
-            /<\/main>/i,
-            '<aside aria-label="Supplementary"></aside></main>'
-        );
+        html = html.replace(/<\/main>/i, '<aside aria-label="Supplementary"></aside></main>');
     }
 
     // Ensure <footer> landmark exists
     if (!/<footer[^>]*>/i.test(html) && !/<div[^>]*role=["']contentinfo["']/i.test(html)) {
-        html = html.replace(
-            /<\/body>/i,
-            '<footer></footer></body>'
-        );
+        html = html.replace(/<\/body>/i, '<footer></footer></body>');
     }
 
     return html;
@@ -155,21 +146,21 @@ function addSvgAccessibleNames(html) {
 }
 
 function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  const links = document.querySelectorAll('a[href]');
-  const issues = [];
+    // Implementation for checking link accessibility
+    // This function will be used to validate the accessibility of links
+    const links = document.querySelectorAll('a[href]');
+    const issues = [];
 
-  links.forEach(link => {
-    const href = link.getAttribute('href');
-    const text = link.textContent.trim();
+    links.forEach((link) => {
+        const href = link.getAttribute('href');
+        const text = link.textContent.trim();
 
-    if (!text) {
-      issues.push(`Link with href "${href}" has no accessible text`);
-    }
-  });
+        if (!text) {
+            issues.push(`Link with href "${href}" has no accessible text`);
+        }
+    });
 
-  return issues;
+    return issues;
 }
 
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic
@@ -180,40 +171,48 @@ function checkLinkAccessibility() {
  * @returns {Element|null} The <main> element if successfully created/wrapped, or null if body is not available
  */
 function wrapPrimaryContentInMain() {
-  const body = document.body;
+    const body = document.body;
 
-  // Return null if body element is not available
-  if (!body) {
-    return null;
-  }
+    // Return null if body element is not available
+    if (!body) {
+        return null;
+    }
 
-  // Check if a <main> element already exists to avoid duplication
-  const existingMain = document.querySelector('main');
-  if (existingMain) {
-    return existingMain;
-  }
+    // Check if a <main> element already exists to avoid duplication
+    const existingMain = document.querySelector('main');
+    if (existingMain) {
+        return existingMain;
+    }
 
-  // Create a new <main> element
-  const main = document.createElement('main');
+    // Create a new <main> element
+    const main = document.createElement('main');
 
-  // Move all existing body children into the <main> element
-  while (body.firstChild) {
-    main.appendChild(body.firstChild);
-  }
+    // Move all existing body children into the <main> element
+    while (body.firstChild) {
+        main.appendChild(body.firstChild);
+    }
 
-  // Append the <main> element to the body
-  body.appendChild(main);
+    // Append the <main> element to the body
+    body.appendChild(main);
 
-  return main;
+    return main;
 }
 
 // REACT_025: Ensure unique landmarks
 function ensureUniqueLandmarks(html) {
     if (typeof html !== 'string') return html;
 
-    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
+    const landmarkRoles = [
+        'banner',
+        'navigation',
+        'main',
+        'complementary',
+        'contentinfo',
+        'search',
+        'form',
+    ];
 
-    landmarkRoles.forEach(role => {
+    landmarkRoles.forEach((role) => {
         const pattern = new RegExp(`role=["']${role}["']`, 'gi');
         const matches = html.match(pattern);
         if (matches && matches.length > 1) {
@@ -229,7 +228,7 @@ function ensureUniqueLandmarks(html) {
 
     // Also check for duplicate HTML5 landmark elements (header, nav, main, aside, footer)
     const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
-    html5Landmarks.forEach(tag => {
+    html5Landmarks.forEach((tag) => {
         const pattern = new RegExp(`<${tag}[^>]*>`, 'gi');
         const matches = html.match(pattern);
         if (matches && matches.length > 1) {
@@ -280,32 +279,32 @@ function applyAccessibilityFixes(html) {
 }
 
 function addressAccessibilityIssues(insightReport) {
-  // Implement the logic to address accessibility issues based on the insight report
-  // This is a placeholder function and should be replaced with actual implementation
-  console.log('Addressing accessibility issues from insight report:', insightReport);
+    // Implement the logic to address accessibility issues based on the insight report
+    // This is a placeholder function and should be replaced with actual implementation
+    console.log('Addressing accessibility issues from insight report:', insightReport);
 
-  // Add accessibility improvements
-  document.body.setAttribute('lang', 'en');
-  document.title = 'Accessible Application';
+    // Add accessibility improvements
+    document.body.setAttribute('lang', 'en');
+    document.title = 'Accessible Application';
 
-  // Add ARIA attributes to buttons
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach(button => {
-    if (!button.getAttribute('aria-label')) {
-      button.setAttribute('aria-label', button.textContent);
-    }
-  });
+    // Add ARIA attributes to buttons
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach((button) => {
+        if (!button.getAttribute('aria-label')) {
+            button.setAttribute('aria-label', button.textContent);
+        }
+    });
 
-  // Add skip link for keyboard users
-  const skipLink = document.createElement('a');
-  skipLink.href = '#main-content';
-  skipLink.textContent = 'Skip to main content';
-  skipLink.className = 'skip-link';
-  document.body.insertBefore(skipLink, document.body.firstChild);
+    // Add skip link for keyboard users
+    const skipLink = document.createElement('a');
+    skipLink.href = '#main-content';
+    skipLink.textContent = 'Skip to main content';
+    skipLink.className = 'skip-link';
+    document.body.insertBefore(skipLink, document.body.firstChild);
 
-  // Add focus styles for keyboard navigation
-  const style = document.createElement('style');
-  style.textContent = `
+    // Add focus styles for keyboard navigation
+    const style = document.createElement('style');
+    style.textContent = `
     .skip-link {
       position: absolute;
       left: -9999px;
@@ -322,7 +321,7 @@ function addressAccessibilityIssues(insightReport) {
       outline: 3px solid #4d90fe;
     }
   `;
-  document.head.appendChild(style);
+    document.head.appendChild(style);
 }
 
 // TODO: Implement function for generating a report based on accessibility issues
@@ -342,8 +341,8 @@ function generateAccessibilityReport(options = { includeHtml: true, includeDom: 
             critical: 0,
             serious: 0,
             moderate: 0,
-            minor: 0
-        }
+            minor: 0,
+        },
     };
 
     // HTML-based analysis
@@ -356,7 +355,7 @@ function generateAccessibilityReport(options = { includeHtml: true, includeDom: 
                 type: 'missing-lang-attribute',
                 severity: 'critical',
                 message: 'HTML element is missing lang attribute',
-                selector: 'html'
+                selector: 'html',
             });
             report.summary.critical++;
         }
@@ -369,14 +368,14 @@ function generateAccessibilityReport(options = { includeHtml: true, includeDom: 
                 type: 'missing-table-caption',
                 severity: 'serious',
                 message: `${tableMatches.length - captionMatches.length} tables are missing captions`,
-                selector: 'table'
+                selector: 'table',
             });
             report.summary.serious += tableMatches.length - captionMatches.length;
         }
 
         // Check for SVGs without accessible names
         const svgMatches = html.match(/<svg[^>]*>/gi) || [];
-        const accessibleSvgs = svgMatches.filter(svg => {
+        const accessibleSvgs = svgMatches.filter((svg) => {
             return /<title[^>]*>|aria-label=|aria-labelledby=/i.test(svg);
         });
         if (svgMatches.length > accessibleSvgs.length) {
@@ -384,7 +383,7 @@ function generateAccessibilityReport(options = { includeHtml: true, includeDom: 
                 type: 'inaccessible-svg',
                 severity: 'moderate',
                 message: `${svgMatches.length - accessibleSvgs.length} SVGs are missing accessible names`,
-                selector: 'svg'
+                selector: 'svg',
             });
             report.summary.moderate += svgMatches.length - accessibleSvgs.length;
         }
@@ -394,35 +393,35 @@ function generateAccessibilityReport(options = { includeHtml: true, includeDom: 
     if (options.includeDom) {
         // Check for links without text
         const links = document.querySelectorAll('a[href]');
-        const emptyLinks = Array.from(links).filter(link => !link.textContent.trim());
+        const emptyLinks = Array.from(links).filter((link) => !link.textContent.trim());
         if (emptyLinks.length > 0) {
             report.issues.push({
                 type: 'empty-link',
                 severity: 'serious',
                 message: `${emptyLinks.length} links have no accessible text`,
                 selector: 'a[href]',
-                count: emptyLinks.length
+                count: emptyLinks.length,
             });
             report.summary.serious += emptyLinks.length;
         }
 
         // Check for images without alt text
         const images = document.querySelectorAll('img');
-        const imagesWithoutAlt = Array.from(images).filter(img => !img.getAttribute('alt'));
+        const imagesWithoutAlt = Array.from(images).filter((img) => !img.getAttribute('alt'));
         if (imagesWithoutAlt.length > 0) {
             report.issues.push({
                 type: 'missing-alt-text',
                 severity: 'serious',
                 message: `${imagesWithoutAlt.length} images are missing alt text`,
                 selector: 'img',
-                count: imagesWithoutAlt.length
+                count: imagesWithoutAlt.length,
             });
             report.summary.serious += imagesWithoutAlt.length;
         }
 
         // Check for ARIA attributes without corresponding elements
         const ariaElements = document.querySelectorAll('[aria-labelledby], [aria-describedby]');
-        Array.from(ariaElements).forEach(element => {
+        Array.from(ariaElements).forEach((element) => {
             const labelledBy = element.getAttribute('aria-labelledby');
             const describedBy = element.getAttribute('aria-describedby');
 
@@ -431,7 +430,7 @@ function generateAccessibilityReport(options = { includeHtml: true, includeDom: 
                     type: 'invalid-aria-labelledby',
                     severity: 'serious',
                     message: `Element with aria-labelledby="${labelledBy}" references non-existent ID`,
-                    selector: `[aria-labelledby="${labelledBy}"]`
+                    selector: `[aria-labelledby="${labelledBy}"]`,
                 });
                 report.summary.serious++;
             }
@@ -441,7 +440,7 @@ function generateAccessibilityReport(options = { includeHtml: true, includeDom: 
                     type: 'invalid-aria-describedby',
                     severity: 'serious',
                     message: `Element with aria-describedby="${describedBy}" references non-existent ID`,
-                    selector: `[aria-describedby="${describedBy}"]`
+                    selector: `[aria-describedby="${describedBy}"]`,
                 });
                 report.summary.serious++;
             }
@@ -449,12 +448,19 @@ function generateAccessibilityReport(options = { includeHtml: true, includeDom: 
 
         // Check for duplicate landmarks
         const landmarkSelectors = [
-            'header', 'nav', 'main', 'aside', 'footer',
-            '[role="banner"]', '[role="navigation"]', '[role="main"]',
-            '[role="complementary"]', '[role="contentinfo"]'
+            'header',
+            'nav',
+            'main',
+            'aside',
+            'footer',
+            '[role="banner"]',
+            '[role="navigation"]',
+            '[role="main"]',
+            '[role="complementary"]',
+            '[role="contentinfo"]',
         ];
 
-        landmarkSelectors.forEach(selector => {
+        landmarkSelectors.forEach((selector) => {
             const elements = document.querySelectorAll(selector);
             if (elements.length > 1) {
                 report.issues.push({
@@ -462,7 +468,7 @@ function generateAccessibilityReport(options = { includeHtml: true, includeDom: 
                     severity: 'serious',
                     message: `Multiple elements found for landmark ${selector}`,
                     selector: selector,
-                    count: elements.length
+                    count: elements.length,
                 });
                 report.summary.serious += elements.length - 1;
             }
@@ -558,7 +564,7 @@ module.exports = {
     divide,
     checkLinkAccessibility,
     wrapPrimaryContentInMain,
-    generateAccessibilityReport
+    generateAccessibilityReport,
 };
 
 // Preserve any existing exports here

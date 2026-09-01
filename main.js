@@ -61,7 +61,7 @@ const {
   addAriaLabel: addAriaLabelAlt,
   googleSignIn,
   handleCredentialResponse: handleCredentialResponseAlt,
-  renderGraphIndex
+  renderGraphIndex: renderGraphIndexUtil
 } = require('./utilities');
 
 const http = require('http');
@@ -442,6 +442,32 @@ function addressAccessibilityIssues(graphData) {
   }
 }
 
+/**
+ * Adds the lang attribute to the HTML element for proper accessibility.
+ * Addresses REACT_015 from the accessibility insight report.
+ * @param {HTMLElement} element - The HTML element to add the lang attribute to
+ * @param {string} [lang='en'] - The language code to set
+ * @returns {boolean} True if the lang attribute was added or changed
+ */
+function addLangAttribute(element, lang = 'en') {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+
+  if (typeof lang !== 'string' || lang.length === 0) {
+    throw new Error('Language code must be a non-empty string');
+  }
+
+  const existingLang = element.getAttribute('lang');
+
+  if (existingLang && existingLang.toLowerCase() === lang.toLowerCase()) {
+    return false;
+  }
+
+  element.setAttribute('lang', lang);
+  return true;
+}
+
 // Top-level jQuery implementation for accessibility enhancement
 $(document).ready(() => {
   // Initialize skip links
@@ -555,6 +581,7 @@ module.exports = {
     renderGraphIndex,
     wrapPrimaryContentInMain,
     addressAccessibilityIssues,
+    addLangAttribute,
     createInPageButton,
     createWebResourceButton,
     validateLandmark,
@@ -574,7 +601,7 @@ module.exports = {
     fixFakeLinkIssue,
     googleSignIn,
     handleCredentialResponseAlt,
-    renderGraphIndex,
+    renderGraphIndexUtil,
     setSvgAccessibilityProps,
     addAccessibleNamesToSVGs,
     addSvgAccessibleNames,

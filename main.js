@@ -438,3 +438,35 @@ function createFocusTrap(container, options = {}) {
     destroy: deactivate
   };
 }
+
+export {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  personName,
+  validateLinks,
+  createFocusTrap
+};
+
+export default {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  personName,
+  validateLinks,
+  createFocusTrap
+};

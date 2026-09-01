@@ -17,10 +17,17 @@ const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section'
  * @returns {Object} - Object containing landmark element information and any warnings
  */
 function checkLandmarkElements(htmlContent) {
+  // Validate input
+  if (typeof htmlContent !== 'string') {
+    throw new Error('HTML content must be a string');
+  }
+
   const warnings = [];
   const foundLandmarks = {};
 
+  // Check for each landmark element in the HTML content
   LANDMARK_ELEMENTS.forEach(landmark => {
+    // Use case-insensitive regex to find landmark elements
     const regex = new RegExp(`<${landmark}[^>]*>`, 'gi');
     const matches = htmlContent.match(regex);
     if (matches) {
@@ -28,9 +35,17 @@ function checkLandmarkElements(htmlContent) {
     }
   });
 
+  // Check for required main landmark
   if (!foundLandmarks.main) {
     warnings.push('Missing main landmark element');
   }
+
+  // Check for duplicate landmarks (potential issue)
+  LANDMARK_ELEMENTS.forEach(landmark => {
+    if (foundLandmarks[landmark] > 1) {
+      warnings.push(`Multiple ${landmark} elements found`);
+    }
+  });
 
   return {
     foundLandmarks,
@@ -90,6 +105,11 @@ function countDependencies() {
   const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }
+
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Original code goes here
+// ----- END ORIGINAL CODE -----
 
 // Render index view content using indexContent
 function renderIndexView() {
@@ -562,6 +582,21 @@ const a11yStore = {
       descriptionElement.textContent = titleText;
       svg.appendChild(descriptionElement);
     });
+  },
+
+  // Set accessibility attributes for SVG elements
+  setSvgAttributes(svg) {
+    svg.setAttribute('role', 'img');
+    const title = svg.getAttribute('title') || 'Image description';
+    if (!svg.getAttribute('aria-labelledby')) {
+      const descId = `svg-desc-${Math.floor(Math.random() * 10000)}`;
+      svg.setAttribute('aria-labelledby', descId);
+
+      const descElement = document.createElement('desc');
+      descElement.id = descId;
+      descElement.textContent = title;
+      svg.appendChild(descElement);
+    }
   },
 
   // Apply ARIA attributes to dynamically added elements

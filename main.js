@@ -103,7 +103,7 @@ function addLandmarkRoles() {
   if (mainElement && mainElement.setAttribute) {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   const navElement = document.querySelector('nav');
   if (navElement && navElement.setAttribute) {
     navElement.setAttribute('role', 'navigation');
@@ -325,7 +325,7 @@ function addressAccessibilityIssues(insightReport) {
 
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -336,7 +336,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -351,7 +351,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -366,7 +366,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -380,7 +380,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -395,7 +395,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
@@ -409,9 +409,51 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check SVG accessibility
   const svgAccessibleNames = getSvgAccessibleName();
 
   return issues;
 }
+
+// Added required exports
+export {
+  initialize,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  someFunction,
+  helper,
+  formatDate,
+  validateInput,
+  getLangAttribute,
+  addLangAttribute,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  addLandmarkRegions,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  ensureRootContainerAccessible,
+  addressAccessibilityIssues,
+  getInsightReport,
+  getConfig,
+  getVersion,
+  config,
+  appState,
+  appData,
+  icons,
+  landmarks
+};

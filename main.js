@@ -64,4 +64,13 @@ module.exports.createInPageButton = createInPageButton;
 // TODO: This is the existing code that needs to be preserved
 // TODO: add the new functions or changes requested in the issue
 
+// New function exampleFunction, as per the issue's request
+function exampleFunction() {
+    // Function implementation
+    console.log("This is the new function exampleFunction");
+}
+
+// Add the new function to the exports
+module.exports.exampleFunction = exampleFunction;
+
 // ... rest of the code ...

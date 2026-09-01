@@ -58,25 +58,9 @@ function validateTableAccessibility() {
     validateTableStructure();
 }
 
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
-
-// TODO: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-
 /**
- * Landmark data structure
- */
-const landmarks = [
-  { id: 1, name: 'Eiffel Tower', location: 'Paris' },
-  { id: 2, name: 'Statue of Liberty', location: 'New York' },
-  { id: 3, name: 'Eiffel Tower', location: 'Paris' },
-  { id: 4, name: 'Big Ben', location: 'London' },
-  { id: 5, name: 'Statue of Liberty', location: 'New York' }
-];
-
-/**
- * Ensures unique landmarks by removing duplicates based on name and location
- * @param {Array} landmarksArray - Array of landmark objects
- * @returns {Array} - Array of unique landmarks
+ * Ensures unique landmarks (DONE: ensureUniqueLandmarks)
+ * This function addresses REACT_025 from the accessibility insight report
  */
 function ensureUniqueLandmarks(landmarksArray) {
   if (!Array.isArray(landmarksArray)) {
@@ -97,11 +81,40 @@ function ensureUniqueLandmarks(landmarksArray) {
   return uniqueLandmarks;
 }
 
-// Apply uniqueness to the landmarks
-const uniqueLandmarks = ensureUniqueLandmarks(landmarks);
+/**
+ * Validates landmark structure for accessibility.
+ * Ensures proper landmark roles and hierarchy.
+ */
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll('[role="region"], [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+  
+  landmarks.forEach(landmark => {
+    if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+      landmark.setAttribute('aria-label', landmark.tagName);
+    }
+  });
+}
+
+/**
+ * Main entry point for landmark accessibility validation.
+ * Calls ensureUniqueLandmarks() and validateLandmarkStructure()
+ */
+function validateLandmarks() {
+  // Ensure unique landmarks data
+  const uniqueLandmarkData = ensureUniqueLandmarks(landmarks);
+  
+  // Validate landmark structure in DOM
+  validateLandmarkStructure();
+  
+  return uniqueLandmarkData;
+}
 
 module.exports = {
   ensureUniqueLandmarks,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarks,
+  validateLandmarkStructure,
   landmarks,
   uniqueLandmarks
 };

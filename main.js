@@ -8,6 +8,19 @@
 const fs = require('fs')
 const path = require('path')
 
+// Import test helper function
+const { updateThScopeAttribute } = require('./testHelper');
+
+// Import dependency graph and index content modules
+const dependencyGraphContent = require('./dependencyGraphContent');
+const indexContent = require('./indexContent');
+
+// Import a11y store configuration
+const a11yStore = require('./a11yStore');
+
+// Landmark elements that should be checked for proper usage
+const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
+
 // Assuming 'addLangAttribute' is a function that has already been implemented
 function addLangAttribute () {
   if (typeof document !== 'undefined' && document.documentElement) {
@@ -71,11 +84,114 @@ function isLinkAccessible (link) {
 }
 
 /**
- * Ensures an element has an id attribute, generating one if necessary
- * @param {HTMLElement} element - The element to check
- * @param {string} [prefix] - Optional prefix for the generated id
- * @returns {string} The element's id (existing or newly generated)
+ * Checks landmark elements in HTML content for accessibility compliance.
+ * @param {string} htmlContent - The HTML content to check
+ * @returns {Object} - Object containing landmark element information and any warnings
  */
+function checkLandmarkElements(htmlContent) {
+  // Validate input
+  if (typeof htmlContent !== 'string') {
+    throw new Error('HTML content must be a string');
+  }
+
+  const warnings = [];
+  const foundLandmarks = {};
+
+  // Check for each landmark element in the HTML content
+  LANDMARK_ELEMENTS.forEach(landmark => {
+    // Use case-insensitive regex to find landmark elements
+    const regex = new RegExp(`<${landmark}[^>]*>`, 'gi');
+    const matches = htmlContent.match(regex);
+    if (matches) {
+      foundLandmarks[landmark] = matches.length;
+    }
+  });
+
+  // Check for required main landmark
+  if (!foundLandmarks.main) {
+    warnings.push('Missing main landmark element');
+  }
+
+  // Check for duplicate landmarks (potential issue)
+  LANDMARK_ELEMENTS.forEach(landmark => {
+    if (foundLandmarks[landmark] > 1) {
+      warnings.push(`Multiple ${landmark} elements found`);
+    }
+  });
+
+  return {
+    foundLandmarks,
+    warnings,
+    hasMainLandmark: !!foundLandmarks.main
+  };
+}
+
+/**
+ * Creates an in-page button for the game interface
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - The text to display on the button
+ * @param {Function} options.onClick - The callback function when button is clicked
+ * @param {string} [options.id] - Optional unique identifier for the button
+ * @param {string} [options.title] - Optional title/tooltip for the button
+ * @param {string} [options.className] - Optional CSS class name for styling
+ * @returns {Object} - The created button object
+ */
+function createInPageButton(options) {
+  const { id, text, onClick, title, className = 'in-page-button', ariaLabel, lang } = options || {};
+
+  // Validate required options
+  if (!text) {
+    throw new Error('Button text is required');
+  }
+  if (typeof onClick !== 'function') {
+    throw new Error('onClick callback must be a function');
+  }
+
+  const button = {
+    id: id || `btn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    text: String(text),
+    title: title || '',
+    className: className || 'default-button',
+    onClick,
+    disabled: false,
+    visible: true,
+    element: null
+  };
+
+  // Attach DOM properties when document is available
+  if (typeof document !== 'undefined') {
+    const domButton = document.createElement('button');
+    domButton.id = button.id;
+    domButton.type = 'button';
+    domButton.className = button.className;
+    domButton.textContent = button.text;
+
+    if (ariaLabel) {
+      domButton.setAttribute('aria-label', ariaLabel);
+    } else {
+      domButton.setAttribute('aria-label', button.text);
+    }
+
+    if (lang) {
+      domButton.setAttribute('lang', lang);
+    }
+
+    if (typeof onClick === 'function') {
+      domButton.addEventListener('click', onClick);
+    }
+
+    button.element = domButton;
+  }
+
+  // Store button reference
+  if (!createInPageButton.buttons) {
+    createInPageButton.buttons = {};
+  }
+  createInPageButton.buttons[button.id] = button;
+
+  return button;
+}
+
 function ensureElementHasId (element, prefix = 'element') {
   if (!element) {
     throw new Error('Element is required')
@@ -181,39 +297,203 @@ function personName () {
   return 'New function result'
 }
 
-function createInPageButton (options) {
-  const { id, text, className = 'in-page-button', onClick, ariaLabel, lang } = options || {}
+// TODO: Implement a function to count dependencies
+function countDependencies() {
+  // Existing function implementation
 
-  if (!id || !text) {
-    throw new Error('createInPageButton: "id" and "text" are required options.')
+  // New implementation to count dependencies using dependencyGraphContent and regex
+  const importCommentRegExp = /\/\/\s*require\s*\(\)|import\s+.*\s+from\s+['"`]/;
+  const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
+  return importCount.length;
+}
+
+// Render index view content using indexContent
+function renderIndexView() {
+  return indexContent;
+}
+
+// New function to handle adding landmark regions
+function addLandmarkRegions() {
+  const landmarks = {
+    main: true,
+    nav: false,
+    aside: false
+  };
+
+  return {
+    landmarks,
+    regions: Object.keys(landmarks).filter(key => landmarks[key])
+  };
+}
+
+// Standalone function to address accessibility issues from insight report
+function addressAccessibilityIssues(report) {
+  if (!report) return;
+  a11yStore.addressAccessibilityIssues(report);
+}
+
+// Get person name for accessible labeling
+function personNameLocal() {
+  return a11yStore.personName();
+}
+
+// Validate and fix table accessibility
+function validateTableAccessibility() {
+  a11yStore.validateTableAccessibility();
+}
+
+// Validate and fix table structure
+function validateTableStructure() {
+  a11yStore.validateTableStructure();
+}
+
+// Validate landmark elements
+function validateLandmark() {
+  a11yStore.validateLandmark();
+}
+
+// Validate landmark structure
+function validateLandmarkStructure() {
+  a11yStore.validateLandmarkStructure();
+}
+
+// Get accessible name for SVG
+function getSvgAccessibleName(svg) {
+  return a11yStore.getSvgAccessibleName(svg);
+}
+
+// Ensure unique landmark IDs
+function ensureUniqueLandmarks() {
+  a11yStore.ensureUniqueLandmarks();
+}
+
+// New function to handle dynamic content updates
+function updateLiveRegion(message, priority = 'polite') {
+  a11yStore.updateLiveRegion(message, priority);
+}
+
+// New function to check landmark elements in the DOM
+function checkLandmarkElementsInDom() {
+  a11yStore.checkLandmarkElements();
+}
+
+// New function to add SVG accessibility props
+function addSVGAccessibilityProps() {
+  a11yStore.addSVGAccessibilityProps();
+}
+
+// Preserve existing code functionality
+function preserveExistingCode() {
+  a11yStore.preserveExistingCode();
+}
+
+// New function to address new accessibility issues from insight report
+function newFunction() {
+  // Placeholder for new accessibility issue fixes
+  // Implement specific fixes based on insight report when available
+}
+
+/**
+ * Generates a comprehensive report based on accessibility issues
+ * @param {Object} [htmlContent] - Optional HTML content to analyze. If not provided, uses DOM checks.
+ * @returns {Object} - Report object containing accessibility findings and recommendations
+ */
+function generateAccessibilityReport(htmlContent) {
+  const report = {
+    timestamp: new Date().toISOString(),
+    issues: [],
+    warnings: [],
+    recommendations: [],
+    summary: {
+      totalIssues: 0,
+      criticalIssues: 0,
+      landmarkIssues: 0,
+      tableIssues: 0
+    }
+  };
+
+  try {
+    // Check landmark elements if HTML content is provided
+    if (htmlContent && typeof htmlContent === 'string') {
+      try {
+        const landmarkResults = checkLandmarkElements(htmlContent);
+        report.landmarkAnalysis = landmarkResults;
+        
+        // Add landmark warnings to report
+        if (landmarkResults.warnings && landmarkResults.warnings.length > 0) {
+          report.warnings.push(...landmarkResults.warnings);
+          report.summary.landmarkIssues = landmarkResults.warnings.length;
+        }
+        
+        // Add recommendations based on landmark findings
+        landmarkResults.warnings.forEach(warning => {
+          if (warning.includes('main landmark')) {
+            report.recommendations.push({
+              type: 'landmark',
+              severity: 'critical',
+              message: 'Add a <main> landmark element to identify the primary content region',
+              code: '<main>...</main>'
+            });
+          } else if (warning.includes('Multiple')) {
+            report.recommendations.push({
+              type: 'landmark',
+              severity: 'warning',
+              message: `Ensure only one ${warning.split(' ')[1]} landmark for proper navigation`,
+            });
+          }
+        });
+      } catch (landmarkError) {
+        report.issues.push({
+          type: 'landmark-analysis-error',
+          severity: 'error',
+          message: landmarkError.message
+        });
+      }
+    }
+
+    // Add general accessibility recommendations
+    report.recommendations.push(
+      {
+        type: 'general',
+        severity: 'info',
+        message: 'Ensure all images have appropriate alt text',
+        code: '<img src="..." alt="description">'
+      },
+      {
+        type: 'general',
+        severity: 'info',
+        message: 'Use semantic HTML elements where appropriate',
+        code: '<header>, <nav>, <main>, <article>, <section>, <aside>, <footer>'
+      },
+      {
+        type: 'general',
+        severity: 'info',
+        message: 'Ensure sufficient color contrast for text elements',
+        code: 'Contrast ratio should be at least 4.5:1 for normal text'
+      }
+    );
+
+    // Calculate summary statistics
+    report.summary.totalIssues = 
+      report.issues.length + 
+      report.warnings.length + 
+      (report.landmarkAnalysis ? report.landmarkAnalysis.warnings.length : 0);
+    
+    report.summary.criticalIssues = report.issues.filter(i => i.severity === 'critical').length;
+
+  } catch (error) {
+    report.issues.push({
+      type: 'report-generation-error',
+      severity: 'error',
+      message: error.message
+    });
   }
 
-  const button = document.createElement('button')
-  button.id = id
-  button.type = 'button'
-  button.className = className
-  button.textContent = text
-
-  if (ariaLabel) {
-    button.setAttribute('aria-label', ariaLabel)
-  } else {
-    button.setAttribute('aria-label', text)
-  }
-
-  if (lang) {
-    button.setAttribute('lang', lang)
-  }
-
-  if (typeof onClick === 'function') {
-    button.addEventListener('click', onClick)
-  }
-
-  return button
+  return report;
 }
 
 module.exports = {
-  // Existing exports
-  getLangAttribute,
+  checkLandmarkElements,
   createInPageButton,
   addLangAttribute,
   isLinkAccessible,
@@ -221,5 +501,23 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraph,
   existingFunction,
-  personName
-}
+  personName,
+  countDependencies,
+  a11yStore,
+  addLandmarkRegions,
+  addressAccessibilityIssues,
+  LANDMARK_ELEMENTS,
+  getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
+  updateLiveRegion,
+  addSVGAccessibilityProps,
+  preserveExistingCode,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  ensureUniqueLandmarks,
+  checkLandmarkElementsInDom,
+  renderIndexView,
+  generateAccessibilityReport
+};

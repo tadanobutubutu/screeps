@@ -7,10 +7,10 @@
  * @param {*} param2 - Description of parameter
  * @returns {*} Description of return value
  */
-function newFunction(param1, param2) {
+function newFunction (param1, param2) {
   // TODO: Implement the actual functionality here
   // This is just a placeholder implementation
-  return param1 + param2;
+  return param1 + param2
 }
 
 // ... rest of existing code ...
@@ -19,4 +19,4 @@ function newFunction(param1, param2) {
 module.exports = {
   // ... existing exports ...
   newFunction // Add the new function to exports
-};
+}

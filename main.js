@@ -5,20 +5,19 @@
 // New functionality: Ensure element has an id, add aria-label, render dependency graphs
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `el-${Math.random().toString(36).slice(2, 11)}`;
+    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element;
 }
 
 function addAriaLabel(element, label) {
-  if (!element.hasAttribute('aria-label')) {
+  if (label && label.trim()) {
     element.setAttribute('aria-label', label);
   }
   return element;
 }
 
 function renderDependencyGraph(graphData, container) {
-  ensureElementHasId(container);
   addAriaLabel(container, 'Dependency graph');
   // Render the dependency graph into the container
   const graph = document.createElement('div');

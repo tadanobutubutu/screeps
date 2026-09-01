@@ -12,6 +12,14 @@
 
 // Existing code and functions preserved below...
 
+// New function for REACT_015: Add lang attribute to HTML element
+function addLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en'); // Default to English
+  }
+}
+
 // New function for REACT_017: Add landmark roles and fix landmark issues
 function addLandmarkRoles() {
   // Implementation for adding landmark roles

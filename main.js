@@ -17,7 +17,7 @@ function getLangAttribute() {
 
 /**
  * Get the full language attribute string for the HTML element
- * @returns {string} The full lang attribute (e.g., "en" or "en-US")
+ * @returns {string} The full lang attribute (e. g., "en" or "en-US")
  */
 function getFullLangAttribute() {
   return 'en-US';

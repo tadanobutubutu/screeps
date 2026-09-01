@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -52,6 +49,30 @@ function validateTableAccessibility(table) {
   if (!table.scope) {
     issues.push('Missing scope attribute');
   }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Validates the structure of tables for accessibility
+ * @param {Array} tables - Array of table objects to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableStructure(tables) {
+  const issues = [];
+
+  tables.forEach((table, index) => {
+    const result = validateTableAccessibility(table);
+    if (!result.success) {
+      issues.push({
+        tableIndex: index,
+        issues: result.issues
+      });
+    }
+  });
 
   return {
     success: issues.length === 0,
@@ -222,6 +243,3 @@ module.exports = {
   handleAccessibilityIssues,
   addLangAttribute // Added for merge
 };
-```
-
-This file has been merged with the new changes from the conflicting changeset, which includes additional functions for validating table structure, landmark structure, and ensuring unique landmarks; as well as functions for creating accessible in-page buttons and links. The added `addLangAttribute` function has also been included in the exports to make it accessible for external use.

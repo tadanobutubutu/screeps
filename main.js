@@ -856,46 +856,305 @@ function validateTableStructure() {
   return results;
 }
 
-// Generate accessibility report
+/**
+ * Generates a report based on accessibility issues found in the page.
+ *
+ * Collects and summarizes accessibility information including:
+ * - Language attribute presence
+ * - Page title presence
+ * - Landmark elements (header, nav, main, footer)
+ * - Heading hierarchy
+ * - Images missing alt attributes
+ * - Form inputs missing labels
+ * - Links and buttons missing accessible names
+ * - Table accessibility (captions, headers, scope)
+ * - ARIA landmark uniqueness
+ *
+ * @returns {Object} Accessibility report containing a timestamp,
+ *   summary counts, detailed issues, and raw findings.
+ */
 function generateAccessibilityReport() {
   const timestamp = new Date().toISOString();
+  const issues = [];
+  const findings = {};
+
+  // 1. Check lang attribute on the HTML element
+  const htmlElement = document.documentElement;
+  const hasLang = htmlElement && htmlElement.hasAttribute('lang');
+  const langValue = hasLang ? htmlElement.getAttribute('lang') : null;
+  findings.lang = { hasLang, value: langValue };
+  if (!hasLang) {
+    issues.push({
+      type: 'lang',
+      severity: 'critical',
+      message: 'HTML element is missing the lang attribute.'
+    });
+  }
+
+  // 2. Check page title
+  const titleElement = document.querySelector('title');
+  const pageTitle = titleElement ? titleElement.textContent.trim() : '';
+  findings.title = { value: pageTitle, exists: pageTitle.length > 0 };
+  if (!pageTitle) {
+    issues.push({
+      type: 'title',
+      severity: 'critical',
+      message: 'Page is missing a <title> element.'
+    });
+  }
+
+  // 3. Check landmark elements
+  const landmarkSelectors = ['header', 'nav', 'main', 'aside', 'footer'];
+  const landmarks = {};
+  landmarkSelectors.forEach((selector) => {
+    const elements = document.querySelectorAll(selector);
+    landmarks[selector] = elements.length;
+    if (selector === 'main' && elements.length === 0) {
+      issues.push({
+        type: 'landmark',
+        severity: 'critical',
+        message: 'Page is missing a <main> landmark.'
+      });
+    }
+    if (elements.length === 0) {
+      issues.push({
+        type: 'landmark',
+        severity: 'warning',
+        message: `Page is missing a <${selector}> landmark.`
+      });
+    }
+  });
+  findings.landmarks = landmarks;
+
+  // 4. Check heading hierarchy
+  const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+  const headingLevels = headings.map((h) => parseInt(h.tagName.substring(1), 10));
+  findings.headings = {
+    count: headings.length,
+    levels: headingLevels
+  };
+  if (headings.length === 0) {
+    issues.push({
+      type: 'heading',
+      severity: 'warning',
+      message: 'Page has no heading elements.'
+    });
+  } else {
+    // Check for skipped heading levels
+    for (let i = 1; i < headingLevels.length; i++) {
+      if (headingLevels[i] - headingLevels[i - 1] > 1) {
+        issues.push({
+          type: 'heading',
+          severity: 'warning',
+          message: `Heading level skipped: from h${headingLevels[i - 1]} to h${headingLevels[i]}.`
+        });
+        break;
+      }
+    }
+    // Ensure there is exactly one h1
+    const h1Count = headingLevels.filter((l) => l === 1).length;
+    if (h1Count === 0) {
+      issues.push({
+        type: 'heading',
+        severity: 'warning',
+        message: 'Page has no h1 element.'
+      });
+    } else if (h1Count > 1) {
+      issues.push({
+        type: 'heading',
+        severity: 'warning',
+        message: `Page has multiple h1 elements (${h1Count}).`
+      });
+    }
+  }
+
+  // 5. Check images missing alt attributes
+  const images = document.querySelectorAll('img');
+  const imagesWithoutAlt = [];
+  images.forEach((img) => {
+    const hasAlt = img.hasAttribute('alt');
+    const isDecorative = img.getAttribute('aria-hidden') === 'true' ||
+      img.getAttribute('role') === 'presentation';
+    if (!hasAlt && !isDecorative) {
+      imagesWithoutAlt.push(img.getAttribute('src') || '<unknown>');
+    }
+  });
+  findings.images = {
+    total: images.length,
+    withoutAlt: imagesWithoutAlt.length
+  };
+  if (imagesWithoutAlt.length > 0) {
+    issues.push({
+      type: 'image',
+      severity: 'critical',
+      message: `${imagesWithoutAlt.length} image(s) missing alt attribute.`,
+      elements: imagesWithoutAlt
+    });
+  }
+
+  // 6. Check form inputs missing labels
+  const formInputs = document.querySelectorAll('input, textarea, select');
+  const inputsWithoutLabels = [];
+  formInputs.forEach((input) => {
+    const type = (input.getAttribute('type') || '').toLowerCase();
+    if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'reset') {
+      return;
+    }
+    const id = input.getAttribute('id');
+    const hasAriaLabel = input.hasAttribute('aria-label');
+    const hasAriaLabelledBy = input.hasAttribute('aria-labelledby');
+    const hasLabel = id && document.querySelector(`label[for="${id}"]`);
+    const wrappedByLabel = input.closest('label') !== null;
+    if (!hasLabel && !wrappedByLabel && !hasAriaLabel && !hasAriaLabelledBy) {
+      inputsWithoutLabels.push(id || input.getAttribute('name') || '<unknown>');
+    }
+  });
+  findings.formInputs = {
+    total: formInputs.length,
+    withoutLabels: inputsWithoutLabels.length
+  };
+  if (inputsWithoutLabels.length > 0) {
+    issues.push({
+      type: 'form',
+      severity: 'critical',
+      message: `${inputsWithoutLabels.length} form input(s) missing accessible labels.`,
+      elements: inputsWithoutLabels
+    });
+  }
+
+  // 7. Check links and buttons missing accessible names
+  const links = document.querySelectorAll('a');
+  const linksWithoutName = [];
+  links.forEach((link) => {
+    const text = (link.textContent || '').trim();
+    const hasAriaLabel = link.hasAttribute('aria-label');
+    const hasAriaLabelledBy = link.hasAttribute('aria-labelledby');
+    const hasTitle = link.hasAttribute('title') && link.getAttribute('title').trim().length > 0;
+    if (!text && !hasAriaLabel && !hasAriaLabelledBy && !hasTitle) {
+      linksWithoutName.push(link.getAttribute('href') || '<unknown>');
+    }
+  });
+  const buttons = document.querySelectorAll('button');
+  const buttonsWithoutName = [];
+  buttons.forEach((button) => {
+    const text = (button.textContent || '').trim();
+    const hasAriaLabel = button.hasAttribute('aria-label');
+    const hasAriaLabelledBy = button.hasAttribute('aria-labelledby');
+    const hasTitle = button.hasAttribute('title') && button.getAttribute('title').trim().length > 0;
+    if (!text && !hasAriaLabel && !hasAriaLabelledBy && !hasTitle) {
+      buttonsWithoutName.push('<unknown>');
+    }
+  });
+  findings.links = {
+    total: links.length,
+    withoutName: linksWithoutName.length
+  };
+  findings.buttons = {
+    total: buttons.length,
+    withoutName: buttonsWithoutName.length
+  };
+  if (linksWithoutName.length > 0) {
+    issues.push({
+      type: 'link',
+      severity: 'critical',
+      message: `${linksWithoutName.length} link(s) missing accessible name.`,
+      elements: linksWithoutName
+    });
+  }
+  if (buttonsWithoutName.length > 0) {
+    issues.push({
+      type: 'button',
+      severity: 'critical',
+      message: `${buttonsWithoutName.length} button(s) missing accessible name.`,
+      elements: buttonsWithoutName
+    });
+  }
+
+  // 8. Run table accessibility checks (existing helpers)
   const tableAccessibilityResults = validateTableAccessibility();
   const tableStructureResults = validateTableStructure();
-  
   const totalTables = tableAccessibilityResults.length;
-  const accessibleTables = tableAccessibilityResults.filter(r => r.isAccessible).length;
-  const validStructures = tableStructureResults.filter(r => r.isValid).length;
-  
-  const issues = [];
-  
+  const accessibleTables = tableAccessibilityResults.filter((r) => r.isAccessible).length;
+  const validStructures = tableStructureResults.filter((r) => r.isValid).length;
+  findings.tables = {
+    total: totalTables,
+    accessible: accessibleTables,
+    validStructure: validStructures,
+    accessibilityScore: totalTables > 0 ? (accessibleTables / totalTables) * 100 : 100,
+    structureScore: totalTables > 0 ? (validStructures / totalTables) * 100 : 100
+  };
   tableAccessibilityResults.forEach((result, index) => {
     if (!result.isAccessible) {
-      const issue = { tableIndex: index, type: 'accessibility' };
-      if (!result.hasCaption) issue.reason = 'Missing caption';
-      else if (!result.hasHeaders) issue.reason = 'Missing header cells';
-      else if (!result.hasScope) issue.reason = 'Headers missing scope attribute';
-      issues.push(issue);
+      let reason = 'Table is not fully accessible';
+      if (!result.hasCaption) reason = 'Missing <caption>';
+      else if (!result.hasHeaders) reason = 'Missing <th> elements';
+      else if (!result.hasScope) reason = 'Headers missing scope attribute';
+      issues.push({
+        type: 'table-accessibility',
+        severity: 'warning',
+        message: `Table ${index}: ${reason}.`
+      });
     }
   });
-  
   tableStructureResults.forEach((result, index) => {
     if (!result.isValid && result.error) {
-      issues.push({ tableIndex: index, type: 'structure', reason: result.error });
+      issues.push({
+        type: 'table-structure',
+        severity: 'warning',
+        message: `Table ${index}: ${result.error}.`
+      });
     }
   });
-  
+
+  // 9. Check ARIA landmark uniqueness
+  const uniqueLandmarkRoles = ['main', 'banner', 'contentinfo'];
+  const landmarkDuplicates = [];
+  uniqueLandmarkRoles.forEach((role) => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      landmarkDuplicates.push({ role, count: elements.length });
+    }
+  });
+  findings.landmarkDuplicates = landmarkDuplicates;
+  landmarkDuplicates.forEach((dup) => {
+    issues.push({
+      type: 'landmark-uniqueness',
+      severity: 'warning',
+      message: `Multiple ${dup.role} landmarks found (${dup.count}). Only one is allowed per page.`
+    });
+  });
+
+  // 10. Compute severity counts and an overall accessibility score
+  const criticalIssues = issues.filter((i) => i.severity === 'critical').length;
+  const warningIssues = issues.filter((i) => i.severity === 'warning').length;
+  const totalChecks = 10;
+  const failedChecks = (hasLang ? 0 : 1) +
+    (pageTitle ? 0 : 1) +
+    (landmarks.main > 0 ? 0 : 1) +
+    (headings.length > 0 ? 0 : 1) +
+    (imagesWithoutAlt.length === 0 ? 0 : 1) +
+    (inputsWithoutLabels.length === 0 ? 0 : 1) +
+    ((linksWithoutName.length === 0 && buttonsWithoutName.length === 0) ? 0 : 1) +
+    (accessibleTables === totalTables ? 0 : 1) +
+    (validStructures === totalTables ? 0 : 1) +
+    (landmarkDuplicates.length === 0 ? 0 : 1);
+  const accessibilityScore = Math.round(((totalChecks - failedChecks) / totalChecks) * 100);
+
   return {
     timestamp,
     summary: {
-      totalTables,
-      accessibleTables,
-      validStructures,
-      accessibilityScore: totalTables > 0 ? (accessibleTables / totalTables) * 100 : 100,
-      structureScore: totalTables > 0 ? (validStructures / totalTables) * 100 : 100
+      totalIssues: issues.length,
+      criticalIssues,
+      warningIssues,
+      accessibilityScore,
+      images: findings.images,
+      formInputs: findings.formInputs,
+      links: findings.links,
+      buttons: findings.buttons,
+      tables: findings.tables
     },
-    issues,
-    tableAccessibility: tableAccessibilityResults,
-    tableStructure: tableStructureResults
+    findings,
+    issues
   };
 }
 

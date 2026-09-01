@@ -8,34 +8,43 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
 /**
+ * Gets the language attribute for the HTML element
+ * @returns {string} The language attribute value
+ */
+function getLangAttribute() {
+    // Default to English if no language is specified
+    return document.documentElement.lang || 'en';
+}
+
+/**
  * Validates and fixes table structure accessibility issues.
  * Handles REACT_027 - Fix 26 table structure issues
  */
 function validateTableStructure() {
     const tables = document.querySelectorAll('table');
-    
+
     tables.forEach(table => {
         const rows = table.querySelectorAll('tr');
         const firstRow = rows[0];
-        
+
         if (!firstRow) return;
-        
+
         // Get all header cells in the first row to determine column count
         const firstRowThs = firstRow.querySelectorAll('th');
         const firstRowTds = firstRow.querySelectorAll('td');
         const firstRowHeaders = [...firstRowThs, ...firstRowTds];
         const columnCount = firstRowHeaders.length;
-        
+
         rows.forEach((row, rowIndex) => {
             const ths = row.querySelectorAll('th');
             const tds = row.querySelectorAll('td');
             const allCells = [...ths, ...tds];
-            
+
             allCells.forEach((cell, cellIndex) => {
                 if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
                     const isFirstRow = rowIndex === 0;
                     const isFirstCell = cellIndex === 0;
-                    
+
                     // First row cells are column headers
                     if (isFirstRow) {
                         cell.setAttribute('scope', 'col');
@@ -103,5 +112,6 @@ const uniqueLandmarks = ensureUniqueLandmarks(landmarks);
 module.exports = {
   ensureUniqueLandmarks,
   landmarks,
-  uniqueLandmarks
+  uniqueLandmarks,
+  getLangAttribute
 };

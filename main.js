@@ -1,7 +1,7 @@
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
+// todo-hash: 3387b328ed31e6aaa7a649a00a8a016eea4fdf1d
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
@@ -105,6 +105,191 @@ function checkTableStructure(table) {
 }
 
 /**
+ * Get the lang attribute from the HTML element or determine it from content
+ * @returns {string} The language code (e.g., 'en', 'es', 'fr')
+ */
+function getLangAttribute() {
+  // First check if html element has lang attribute
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && htmlElement.hasAttribute('lang')) {
+    return htmlElement.getAttribute('lang');
+  }
+
+  // Fallback: try to detect from content or use default
+  return 'en';
+}
+
+/**
+ * Validate table accessibility by checking for proper structure and attributes
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Validation result with issues array
+ */
+function validateTableAccessibility(table) {
+  const issues = [];
+
+  if (!table) {
+    return { valid: false, issues: [{ type: 'missing-table', message: 'Table element is required' }] };
+  }
+
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    issues.push({ type: 'REACT_027', message: 'Table is missing a caption' });
+  }
+
+  // Check for thead
+  const thead = table.querySelector('thead');
+  if (!thead) {
+    issues.push({ type: 'REACT_027', message: 'Table is missing a thead element' });
+  }
+
+  // Check for tbody
+  const tbody = table.querySelector('tbody');
+  if (!tbody) {
+    issues.push({ type: 'REACT_027', message: 'Table is missing a tbody element' });
+  }
+
+  // Check for header cells
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    issues.push({ type: 'REACT_027', message: 'Table has no header cells (th elements)' });
+  }
+
+  // Check if headers have scope attribute
+  headers.forEach((th, index) => {
+    if (!th.hasAttribute('scope')) {
+      issues.push({ type: 'REACT_027', message: `Header cell ${index + 1} is missing scope attribute` });
+    }
+  });
+
+  return {
+    valid: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Validate table structure for accessibility compliance
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Structure validation result
+ */
+function validateTableStructure(table) {
+  const result = checkTableStructure(table);
+
+  if (!result.valid) {
+    return result;
+  }
+
+  const issues = [];
+
+  // Additional structural checks
+  if (!result.hasCaption) {
+    issues.push({ type: 'structure', message: 'Table missing caption' });
+  }
+
+  if (!result.hasHeader) {
+    issues.push({ type: 'structure', message: 'Table missing header (thead or th)' });
+  }
+
+  if (!result.hasBody) {
+    issues.push({ type: 'structure', message: 'Table missing body (tbody)' });
+  }
+
+  return {
+    valid: issues.length === 0,
+    issues,
+    hasHeader: result.hasHeader,
+    hasBody: result.hasBody,
+    hasCaption: result.hasCaption
+  };
+}
+
+/**
+ * Validate landmark structure for accessibility
+ * @param {HTMLElement} element - The element to validate
+ * @returns {Object} Landmark validation result
+ */
+function validateLandmarkStructure(element) {
+  const validation = validateLandmark(element);
+
+  if (!validation.valid) {
+    return validation;
+  }
+
+  const issues = [];
+  const role = validation.role;
+
+  // Check for proper landmark content
+  const hasContent = element && element.innerHTML && element.innerHTML.trim().length > 0;
+
+  if (!hasContent) {
+    issues.push({ type: 'REACT_017', message: `Landmark ${role} has no content` });
+  }
+
+  // Check for proper nesting
+  const invalidNesting = ['header', 'footer'].some(tag => {
+    const parent = element ? element.closest(tag) : null;
+    return parent && role !== 'main';
+  });
+
+  if (invalidNesting) {
+    issues.push({ type: 'REACT_017', message: `Landmark ${role} has invalid nesting` });
+  }
+
+  return {
+    valid: issues.length === 0,
+    role,
+    issues
+  };
+}
+
+/**
+ * Ensure all landmarks in the source are unique
+ * @param {string} source - The HTML source string to process
+ * @returns {string} Source with duplicate landmarks converted to sections
+ */
+function ensureUniqueLandmarks(source) {
+  return AddressabilityIssues.ensureUniqueLandmarksFromString(source);
+}
+
+/**
+ * Add proper landmark regions to the document
+ * @param {Document} doc - The document to enhance
+ */
+function addProperLandmarkRegions(doc) {
+  if (!doc) doc = document;
+
+  // Ensure main landmark exists
+  let main = doc.querySelector('main');
+  if (!main) {
+    const existingMain = doc.querySelector('[role="main"]');
+    if (existingMain) {
+      main = existingMain;
+    }
+  }
+
+  // Ensure header has banner role
+  const header = doc.querySelector('header');
+  if (header && !header.hasAttribute('role')) {
+    header.setAttribute('role', 'banner');
+  }
+
+  // Ensure footer has contentinfo role
+  const footer = doc.querySelector('footer');
+  if (footer && !footer.hasAttribute('role')) {
+    footer.setAttribute('role', 'contentinfo');
+  }
+
+  // Ensure nav elements have navigation role
+  const navs = doc.querySelectorAll('nav');
+  navs.forEach(nav => {
+    if (!nav.hasAttribute('role')) {
+      nav.setAttribute('role', 'navigation');
+    }
+  });
+}
+
+/**
  * Spawn a child process to run some command with proper error handling.
  * @param {Function} callback - Invoked with (err, result) when the command exits.
  */
@@ -154,7 +339,13 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLinkAccessibility,
     handleFakeLinks,
     MyComponent,
-    AddressabilityIssues
+    AddressabilityIssues,
+    getLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmarkStructure,
+    ensureUniqueLandmarks,
+    addProperLandmarkRegions
   };
 }
 

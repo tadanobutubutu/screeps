@@ -17,6 +17,7 @@ const accessibilityUtils = {
         const target = document.getElementById(targetId);
         if (target) {
           target.setAttribute('tabindex', '-1');
+          target.setAttribute('aria-hidden', 'false');
           target.focus();
         }
       });
@@ -113,11 +114,11 @@ async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received');
   }
-  
+
   if (response.error) {
     throw new Error(response.error);
   }
-  
+
   if (response.token) {
     return {
       success: true,
@@ -125,7 +126,7 @@ async function handleCredentialResponse(response) {
       expiresIn: response.expiresIn || 3600
     };
   }
-  
+
   throw new Error('Invalid credential response');
 }
 
@@ -151,7 +152,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader('Download of ' + filename + ' started');
   },
@@ -165,11 +166,11 @@ const exportUtils = {
     if (!data || data.length === 0) {
       return;
     }
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (let i = 0; i < data.length; i++) {
       const row = data[i];
       const values = headers.map(function(header) {
@@ -178,7 +179,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -228,7 +229,7 @@ function filterValidItems(items, validator) {
 // Initialize accessibility features
 function initAccessibility() {
   accessibilityUtils.initSkipLink();
-  
+
   // Add keyboard support for all interactive elements
   const elements = document.querySelectorAll('button, a, input, select, textarea');
   for (let i = 0; i < elements.length; i++) {
@@ -243,6 +244,29 @@ function initAccessibility() {
         }
       });
     });
+
+    // Ensure all interactive elements have proper ARIA attributes
+    if (!element.getAttribute('role')) {
+      if (element.tagName === 'BUTTON') {
+        element.setAttribute('role', 'button');
+      } else if (element.tagName === 'A' && element.getAttribute('href')) {
+        element.setAttribute('role', 'link');
+      }
+    }
+  }
+
+  // Add ARIA labels to form elements if missing
+  const formElements = document.querySelectorAll('input, textarea, select');
+  for (let i = 0; i < formElements.length; i++) {
+    const formElement = formElements[i];
+    if (!formElement.getAttribute('aria-label') && !formElement.getAttribute('aria-labelledby')) {
+      const label = document.querySelector(`label[for="${formElement.id}"]`);
+      if (label) {
+        formElement.setAttribute('aria-labelledby', label.id);
+      } else if (formElement.placeholder) {
+        formElement.setAttribute('aria-label', formElement.placeholder);
+      }
+    }
   }
 }
 
@@ -271,7 +295,7 @@ function transformInputData(inputData, options) {
   if (options === undefined) {
     options = {};
   }
-  
+
   const preserveKeys = options.preserveKeys !== undefined ? options.preserveKeys : true;
   const uppercase = options.uppercase === true;
   const trimWhitespace = options.trimWhitespace !== false;

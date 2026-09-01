@@ -100,20 +100,20 @@ function detectAndSetLang(content) {
 function personName(options = {}) {
   const { firstName = '', lastName = '', lang = 'en', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
-  
+
   if (typeof document !== 'undefined') {
     const nameElement = document.createElement('span');
     nameElement.setAttribute('lang', lang);
     nameElement.setAttribute('aria-label', fullName);
     nameElement.textContent = fullName || 'Unknown';
-    
+
     if (container) {
       container.appendChild(nameElement);
     }
-    
+
     return nameElement;
   }
-  
+
   return fullName || 'Unknown';
 }
 
@@ -227,7 +227,7 @@ function newFocusTrap(container) {
   const focusableElements = Array.from(
     container.querySelectorAll(focusableSelectors)
   ).filter(el => el.offsetParent !== null);
-  
+
   if (focusableElements.length > 0) {
     focusableElements[0].focus();
   }
@@ -240,6 +240,34 @@ function newFocusTrap(container) {
       }
     }
   };
+}
+
+/**
+ * New function3 implementation
+ * @param {Object} options - Configuration options for the function
+ * @param {string} options.input - Input data to process
+ * @param {boolean} options.verbose - Whether to log verbose output
+ * @returns {Object} Result of the operation
+ */
+function function3(options = {}) {
+  const { input = '', verbose = false } = options;
+
+  if (verbose) {
+    console.log('Processing input:', input);
+  }
+
+  // Example processing logic
+  const result = {
+    processed: input.toUpperCase(),
+    length: input.length,
+    timestamp: Date.now()
+  };
+
+  if (verbose) {
+    console.log('Processing complete:', result);
+  }
+
+  return result;
 }
 
 // Preserve all existing exports
@@ -257,5 +285,6 @@ module.exports = {
   createWebResourceButton,
   validateUniqueLandmarks,
   newFocusTrap,
-  checkAccessibility // Add the new export
+  checkAccessibility,
+  function3 // Add the new function3 export
 };

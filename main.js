@@ -625,7 +625,7 @@ class TowerDefenseGame {
 
   createBoard() {
     const { rows, cols } = this.config.boardSize;
-    return Array.from({ length: rows }, () => 
+    return Array.from({ length: rows }, () =>
       Array.from({ length: cols }, () => ({ type: 'path', tower: null }))
     );
   }
@@ -634,13 +634,13 @@ class TowerDefenseGame {
     if (this.towers.length >= this.config.maxTowers) {
       return false;
     }
-    
+
     if (this.board[row] && this.board[row][col]) {
       const cell = this.board[row][col];
       if (cell.type !== 'path' || cell.tower) {
         return false;
       }
-      
+
       const tower = {
         id: this.towers.length,
         row,
@@ -649,7 +649,7 @@ class TowerDefenseGame {
         range: 3,
         cost: this.config.towerCost
       };
-      
+
       cell.tower = tower;
       this.towers.push(tower);
       return true;
@@ -681,9 +681,9 @@ class TowerDefenseGame {
       }
       return true;
     });
-    
+
     // Remove enemies that reached the end
-    this.enemies = this.enemies.filter(enemy => 
+    this.enemies = this.enemies.filter(enemy =>
       enemy.position.row < this.config.boardSize.rows - 1
     );
   }
@@ -692,9 +692,9 @@ class TowerDefenseGame {
     this.towers.forEach(tower => {
       // Find enemies in range and attack
       this.enemies.forEach(enemy => {
-        const distance = Math.abs(tower.row - enemy.position.row) + 
+        const distance = Math.abs(tower.row - enemy.position.row) +
                          Math.abs(tower.col - enemy.position.col);
-        
+
         if (distance <= tower.range) {
           enemy.health -= tower.damage;
           if (enemy.health <= 0) {
@@ -704,17 +704,17 @@ class TowerDefenseGame {
         }
       });
     });
-    
+
     // Remove dead enemies
     this.enemies = this.enemies.filter(enemy => enemy.health > 0);
   }
 
   start() {
     if (this.isRunning) return;
-    
+
     this.isRunning = true;
     this.spawnEnemy(); // Initial enemy
-    
+
     this.gameIntervalId = setInterval(() => {
       this.spawnEnemy();
       this.updateEnemies();
@@ -802,14 +802,14 @@ function addressAccessibilityIssues() {
 function validateTableAccessibility() {
   const tables = document.querySelectorAll('table');
   const results = [];
-  
+
   tables.forEach((table, index) => {
     const hasCaption = table.querySelector('caption') !== null;
     const hasHeaders = table.querySelector('th') !== null;
     const hasScope = Array.from(table.querySelectorAll('th')).every(
       th => th.hasAttribute('scope')
     );
-    
+
     results.push({
       tableIndex: index,
       hasCaption,
@@ -818,7 +818,7 @@ function validateTableAccessibility() {
       isAccessible: hasCaption && hasHeaders && hasScope
     });
   });
-  
+
   return results;
 }
 
@@ -826,25 +826,25 @@ function validateTableAccessibility() {
 function validateTableStructure() {
   const tables = document.querySelectorAll('table');
   const results = [];
-  
+
   tables.forEach((table, index) => {
     const rows = table.querySelectorAll('tr');
     let isValid = true;
     let error = null;
-    
+
     if (rows.length === 0) {
       isValid = false;
       error = 'Table has no rows';
     } else {
       const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td').length);
       const allSame = cellCounts.every(count => count === cellCounts[0]);
-      
+
       if (!allSame) {
         isValid = false;
         error = 'Table has inconsistent cell counts across rows';
       }
     }
-    
+
     results.push({
       tableIndex: index,
       rowCount: rows.length,
@@ -852,7 +852,7 @@ function validateTableStructure() {
       error
     });
   });
-  
+
   return results;
 }
 
@@ -861,13 +861,13 @@ function generateAccessibilityReport() {
   const timestamp = new Date().toISOString();
   const tableAccessibilityResults = validateTableAccessibility();
   const tableStructureResults = validateTableStructure();
-  
+
   const totalTables = tableAccessibilityResults.length;
   const accessibleTables = tableAccessibilityResults.filter(r => r.isAccessible).length;
   const validStructures = tableStructureResults.filter(r => r.isValid).length;
-  
+
   const issues = [];
-  
+
   tableAccessibilityResults.forEach((result, index) => {
     if (!result.isAccessible) {
       const issue = { tableIndex: index, type: 'accessibility' };
@@ -877,13 +877,13 @@ function generateAccessibilityReport() {
       issues.push(issue);
     }
   });
-  
+
   tableStructureResults.forEach((result, index) => {
     if (!result.isValid && result.error) {
       issues.push({ tableIndex: index, type: 'structure', reason: result.error });
     }
   });
-  
+
   return {
     timestamp,
     summary: {
@@ -897,6 +897,118 @@ function generateAccessibilityReport() {
     tableAccessibility: tableAccessibilityResults,
     tableStructure: tableStructureResults
   };
+}
+
+/**
+ * Creates a form for adding a new book with proper accessibility features
+ * @param {HTMLElement} container - The container element to append the form to
+ * @param {Function} onSubmit - Callback function when the form is submitted
+ */
+function createAddBookForm(container, onSubmit) {
+  // Create form element with proper ARIA attributes
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', 'add-book-form-title');
+  form.className = 'add-book-form';
+
+  // Create form title
+  const title = document.createElement('h2');
+  title.id = 'add-book-form-title';
+  title.textContent = 'Add New Book';
+  form.appendChild(title);
+
+  // Create form fields with proper labels and ARIA attributes
+  const fields = [
+    { id: 'book-title', label: 'Title', type: 'text', required: true },
+    { id: 'book-author', label: 'Author', type: 'text', required: true },
+    { id: 'book-isbn', label: 'ISBN', type: 'text', required: true },
+    { id: 'book-pages', label: 'Number of Pages', type: 'number', required: true },
+    { id: 'book-published', label: 'Publication Date', type: 'date', required: true }
+  ];
+
+  fields.forEach(field => {
+    const fieldContainer = document.createElement('div');
+    fieldContainer.className = 'form-field';
+
+    const label = document.createElement('label');
+    label.htmlFor = field.id;
+    label.textContent = field.label;
+    fieldContainer.appendChild(label);
+
+    const input = document.createElement('input');
+    input.id = field.id;
+    input.type = field.type;
+    input.required = field.required;
+    input.setAttribute('aria-required', field.required.toString());
+    fieldContainer.appendChild(input);
+
+    form.appendChild(fieldContainer);
+  });
+
+  // Create submit button with proper ARIA attributes
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Book';
+  submitButton.setAttribute('aria-label', 'Submit new book information');
+  form.appendChild(submitButton);
+
+  // Add form submission handler
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Validate form inputs
+    const titleInput = document.getElementById('book-title');
+    const authorInput = document.getElementById('book-author');
+    const isbnInput = document.getElementById('book-isbn');
+    const pagesInput = document.getElementById('book-pages');
+    const publishedInput = document.getElementById('book-published');
+
+    if (!titleInput.value.trim() || !authorInput.value.trim() || !isbnInput.value.trim()) {
+      // Announce validation error
+      announceAccessibilityMessage('Please fill in all required fields');
+      return;
+    }
+
+    // Create book object from form data
+    const newBook = {
+      title: titleInput.value.trim(),
+      author: authorInput.value.trim(),
+      isbn: isbnInput.value.trim(),
+      pages: parseInt(pagesInput.value) || 0,
+      published: publishedInput.value
+    };
+
+    // Call the onSubmit callback with the new book data
+    if (typeof onSubmit === 'function') {
+      onSubmit(newBook);
+    }
+
+    // Reset the form after submission
+    form.reset();
+
+    // Announce successful submission
+    announceAccessibilityMessage('New book added successfully');
+  });
+
+  // Append the form to the container
+  container.appendChild(form);
+
+  // Focus the first input field for better accessibility
+  const firstInput = form.querySelector('input');
+  if (firstInput) {
+    firstInput.focus();
+  }
+}
+
+/**
+ * Announces a message to screen readers
+ * @param {string} message - The message to announce
+ */
+function announceAccessibilityMessage(message) {
+  const announcement = document.getElementById('accessibility-announcement');
+  if (announcement) {
+    announcement.textContent = message;
+  }
 }
 
 // Export existing functionality and new functions
@@ -940,18 +1052,20 @@ export {
   validateTableAccessibility,
   validateTableStructure,
   generateAccessibilityReport,
-  createUnrotateButton
+  createUnrotateButton,
+  createAddBookForm
 };
 
 // Add back any required exports that might have been missing
-export { 
-  createUnrotateButton, 
-  ensureThScope, 
-  addLandmarkRoles, 
-  addSvgAccessibleNames, 
-  ensureUniqueLandmarks, 
-  fixFakeLink, 
-  initializeAccessibility 
+export {
+  createUnrotateButton,
+  ensureThScope,
+  addLandmarkRoles,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLink,
+  initializeAccessibility,
+  createAddBookForm
 };
 
 // Add the new function to the default export
@@ -965,12 +1079,14 @@ export default {
   root,
   validateTableAccessibility,
   validateTableStructure,
-  generateAccessibilityReport
+  generateAccessibilityReport,
+  createAddBookForm
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
 if (typeof module !== 'undefined' && module.exports) {
   module.exports.newFunction = newFunction;
+  module.exports.createAddBookForm = createAddBookForm;
 }
 
 module.exports = main;

@@ -49,7 +49,7 @@ function addressAccessibilityIssues(insightReport) {
 
   // Filter only accessibility-related issues
   const accessibilityIssues = insightReport.issues.filter(
-    issue => issue.category === 'Accessibility' || 
+    issue => issue.category === 'Accessibility' ||
              (issue.type && issue.type.toLowerCase().includes('accessibility'))
   );
 
@@ -131,23 +131,62 @@ function ensureLangAttribute() {
 // REACT_027: Fix table structure issues
 function fixTableStructure() {
   if (typeof document === 'undefined') return;
-  
+
   const tables = document.querySelectorAll('table');
   tables.forEach((table, index) => {
+    // Add caption if missing
     if (!table.querySelector('caption')) {
       const caption = document.createElement('caption');
       caption.textContent = `Table ${index + 1}`;
       table.insertBefore(caption, table.firstChild);
     }
-    
+
+    // Ensure proper table structure
+    const rows = table.querySelectorAll('tr');
+    if (rows.length > 0) {
+      // Check if first row contains headers
+      const firstRowCells = rows[0].querySelectorAll('th, td');
+      let hasHeaders = false;
+
+      firstRowCells.forEach(cell => {
+        if (cell.tagName === 'TH') {
+          hasHeaders = true;
+        }
+      });
+
+      // If no headers, add them
+      if (!hasHeaders && rows.length > 1) {
+        const headerRow = document.createElement('tr');
+        const secondRowCells = rows[1].querySelectorAll('td');
+
+        secondRowCells.forEach((cell, cellIndex) => {
+          const th = document.createElement('th');
+          th.textContent = `Column ${cellIndex + 1}`;
+          th.setAttribute('scope', 'col');
+          headerRow.appendChild(th);
+        });
+
+        table.insertBefore(headerRow, table.firstChild);
+      }
+    }
+
+    // Ensure proper scope attributes for headers
     const headers = table.querySelectorAll('th');
-    const cells = table.querySelectorAll('td, th');
-    
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        header.setAttribute('scope', 'col');
+      }
+    });
+
+    // Ensure all cells have proper headers attribute if needed
+    const cells = table.querySelectorAll('td');
     cells.forEach(cell => {
-      if (!cell.hasAttribute('scope') && !cell.hasAttribute('headers')) {
-        const isHeader = cell.tagName === 'TH';
-        if (isHeader) {
-          cell.setAttribute('scope', 'col');
+      if (!cell.hasAttribute('headers') && headers.length > 0) {
+        const rowIndex = Array.from(table.rows).indexOf(cell.parentNode);
+        const cellIndex = Array.from(cell.parentNode.cells).indexOf(cell);
+
+        if (rowIndex > 0 && cellIndex < headers.length) {
+          cell.setAttribute('headers', headers[cellIndex].id || `col-${cellIndex}`);
         }
       }
     });
@@ -157,17 +196,17 @@ function fixTableStructure() {
 // REACT_017 & REACT_025: Fix and ensure unique landmarks
 function fixLandmarks() {
   if (typeof document === 'undefined') return;
-  
+
   const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
   const landmarkCounts = {};
-  
+
   landmarkSelectors.forEach(selector => {
     landmarkCounts[selector] = 0;
   });
-  
+
   document.querySelectorAll(landmarkSelectors.join(', ')).forEach(element => {
     const tagName = element.tagName.toLowerCase();
-    
+
     if (landmarkCounts[tagName] > 0 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
       landmarkCounts[tagName]++;
       element.setAttribute('aria-label', `${tagName}-${landmarkCounts[tagName]}`);
@@ -180,7 +219,7 @@ function fixLandmarks() {
 // REACT_041: Add accessible names to SVGs
 function addSvgAccessibleNames() {
   if (typeof document === 'undefined') return;
-  
+
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
@@ -196,7 +235,7 @@ function addSvgAccessibleNames() {
 // REACT_036: Fix fake link issues (links without href or with javascript:void(0))
 function fixFakeLinks() {
   if (typeof document === 'undefined') return;
-  
+
   document.querySelectorAll('a').forEach(link => {
     const href = link.getAttribute('href');
     if (!href || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;') {
@@ -213,7 +252,7 @@ function fixFakeLinks() {
 // REACT_040: Replace my-button with actual button id for accessibility
 function replaceButtonIds() {
   if (typeof document === 'undefined') return;
-  
+
   const fakeButtons = document.querySelectorAll('[id="my-button"], .my-button');
   fakeButtons.forEach((button, index) => {
     const newId = `accessible-button-${index + 1}`;
@@ -230,7 +269,7 @@ function replaceButtonIds() {
 // REACT_042: Ensure dependencyGraph container has proper ARIA role
 function ensureDependencyGraphAriaRole() {
   if (typeof document === 'undefined') return;
-  
+
   const dependencyGraph = document.querySelector('#dependencyGraph, .dependencyGraph, [data-dependency-graph]');
   if (dependencyGraph) {
     if (!dependencyGraph.getAttribute('role')) {
@@ -254,7 +293,7 @@ const googleSignIn = {
     }
     return false;
   },
-  
+
   renderButton: function(elementId) {
     const element = document.getElementById(elementId);
     if (element && typeof google !== 'undefined' && google.accounts) {
@@ -267,7 +306,7 @@ const googleSignIn = {
     }
     return false;
   },
-  
+
   handleCredentialResponse: function(response) {
     console.log('Google Sign-In successful');
     return response;

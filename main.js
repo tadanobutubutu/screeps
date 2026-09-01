@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (typically in index.html, not main.js)

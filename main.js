@@ -1,8 +1,5 @@
 // main.js - Accessibility-focused implementation
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
-
 /**
  * Main application entry point with accessibility features
  */
@@ -517,7 +514,24 @@ function MyComponent() {
   return div;
 }
 
-// Export MyComponent properly for CommonJS
+// Export helper functions that reference AddressabilityIssues methods
+function spawnSomeCommand(callback) {
+  return AddressabilityIssues.spawnSomeCommand(callback);
+}
+
+function addLangAttribute(element, lang) {
+  return AddressabilityIssues.addLangAttribute(element, lang);
+}
+
+function ensureUniqueLandmarksFromString(source) {
+  return AddressabilityIssues.ensureUniqueLandmarksFromString(source);
+}
+
+function validateLandmark(element) {
+  return AddressabilityIssues.validateLandmark(element);
+}
+
+// Main exports object
 const mainExports = {
     checkTableStructure,
     countDependencies,
@@ -563,7 +577,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports.default = mainExports;
 }
 
-export {
-  MyComponent,
-  AddressabilityIssues,
-};
+// ES Module exports for browser/module environments
+if (typeof exports !== 'undefined' && !exports.nodeType) {
+  Object.assign(exports, mainExports);
+}

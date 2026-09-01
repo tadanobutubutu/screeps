@@ -226,5 +226,59 @@ module.exports = {
   exportUtils,
 
   // New focus trap functionality for keyboard navigation
-  focusTrap
+  focusTrap,
+
+  // New function to improve accessibility for addBook form
+  enhanceAddBookFormAccessibility: (formElement) => {
+    if (!formElement) return;
+
+    // Ensure form has proper ARIA attributes
+    formElement.setAttribute('role', 'form');
+    formElement.setAttribute('aria-labelledby', 'add-book-form-title');
+
+    // Add labels to all form fields
+    const inputs = formElement.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+      if (!input.id) {
+        input.id = `book-${Math.random().toString(36).substr(2, 9)}`;
+      }
+
+      if (!input.getAttribute('aria-label') && !input.getAttribute('aria-labelledby')) {
+        const label = document.querySelector(`label[for="${input.id}"]`);
+        if (label) {
+          input.setAttribute('aria-labelledby', label.id || `label-${Math.random().toString(36).substr(2, 9)}`);
+        } else {
+          input.setAttribute('aria-label', input.placeholder || input.name || 'Form field');
+        }
+      }
+    });
+
+    // Ensure submit button has proper ARIA attributes
+    const submitButton = formElement.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.setAttribute('aria-label', 'Add book to collection');
+    }
+
+    // Add keyboard navigation support
+    formElement.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type !== 'submit') {
+        e.preventDefault();
+        const inputs = Array.from(formElement.querySelectorAll('input, textarea, select, button'));
+        const currentIndex = inputs.indexOf(e.target);
+        if (currentIndex < inputs.length - 1) {
+          inputs[currentIndex + 1].focus();
+        }
+      }
+    });
+
+    // Add visual focus styles
+    const style = document.createElement('style');
+    style.textContent = `
+      .add-book-form :focus {
+        outline: 2px solid #4a90e2;
+        outline-offset: 2px;
+      }
+    `;
+    document.head.appendChild(style);
+  }
 };

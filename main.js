@@ -68,15 +68,15 @@ function divide(dividend, divisor) {
   if (typeof dividend !== 'number' || typeof divisor !== 'number') {
     throw new Error('Both arguments must be numbers');
   }
-  
+
   if (isNaN(dividend) || isNaN(divisor)) {
     throw new Error('Both arguments must be valid numbers');
   }
-  
+
   if (divisor === 0) {
     throw new Error('Division by zero is not allowed');
   }
-  
+
   return dividend / divisor;
 }
 
@@ -211,6 +211,62 @@ function fixFakeLinks(html) {
     return html;
 }
 
+// TODO: The new function to check link accessibility
+// This function will be used to validate the accessibility of links
+function checkLinkAccessibility(html) {
+    if (typeof html !== 'string') return { valid: true, issues: [] };
+
+    const issues = [];
+    const links = [...html.matchAll(/<a\s+([^>]*)>/gi)];
+
+    links.forEach((linkMatch, index) => {
+        const attrs = linkMatch[1];
+        const linkText = html.substring(linkMatch.index, html.indexOf('</a>', linkMatch.index));
+
+        // Check for missing href
+        if (!/\bhref\s*=/i.test(attrs)) {
+            issues.push({
+                type: 'missing-href',
+                message: `Link ${index + 1} is missing href attribute`,
+                position: linkMatch.index
+            });
+        }
+
+        // Check for empty link text
+        const textContent = linkText.replace(/<[^>]+>/g, '').trim();
+        if (textContent === '') {
+            issues.push({
+                type: 'empty-text',
+                message: `Link ${index + 1} has no visible text`,
+                position: linkMatch.index
+            });
+        }
+
+        // Check for aria-label without visible text
+        if (/\baria-label=/i.test(attrs) && textContent !== '') {
+            issues.push({
+                type: 'redundant-aria-label',
+                message: `Link ${index + 1} has both visible text and aria-label`,
+                position: linkMatch.index
+            });
+        }
+
+        // Check for role="link" without href
+        if (/\brole\s*=\s*["']link["']/i.test(attrs) && !/\bhref\s*=/i.test(attrs)) {
+            issues.push({
+                type: 'role-link-without-href',
+                message: `Link ${index + 1} has role="link" but no href`,
+                position: linkMatch.index
+            });
+        }
+    });
+
+    return {
+        valid: issues.length === 0,
+        issues: issues
+    };
+}
+
 // Main function that applies all accessibility fixes
 function applyAccessibilityFixes(html) {
     let result = html;
@@ -251,7 +307,8 @@ module.exports = {
     applyAccessibilityFixes,
     addressAccessibilityIssues,
     createInPageButton,
-    divide
+    divide,
+    checkLinkAccessibility
 };
 
 // Run if executed directly

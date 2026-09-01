@@ -137,11 +137,11 @@ function addAriaLabel(element, label) {
   if (!element) {
     return null;
   }
-  
+
   if (typeof label !== 'string' || label.trim() === '') {
     return element;
   }
-  
+
   element.setAttribute('aria-label', label);
   return element;
 }
@@ -157,21 +157,21 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
   if (!element) {
     return null;
   }
-  
+
   const id = ensureElementHasId(element, idPrefix);
   addAriaLabel(element, ariaLabel);
-  
+
   return id;
 }
 
 // Sample main.js with dependencyGraph container
-function renderDependencyGraph() {
+function renderDependencyGraphContainer() {
   const container = document.getElementById('dependency-graph');
 
   if (container) {
     container.setAttribute('role', 'region');
     container.setAttribute('aria-label', 'Dependency graph visualization');
-    
+
     // Ensure the container has an id for accessibility
     ensureElementHasId(container, 'dep-graph');
   }
@@ -442,3 +442,72 @@ addAccessibleNamesToSVGs();
 fixFakeLinkIssue();
 googleSignIn();
 fixButtonIdentifiers();
+
+/**
+ * Validates table structure for accessibility issues
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {Object} Validation results with issues found and fixes applied
+ */
+function validateTableStructure(table) {
+  const results = {
+    issues: [],
+    fixesApplied: 0
+  };
+
+  if (!table || table.tagName !== 'TABLE') {
+    results.issues.push('Not a valid table element');
+    return results;
+  }
+
+  // Check for missing table caption
+  if (!table.querySelector('caption')) {
+    results.issues.push('Table missing caption');
+    results.fixesApplied++;
+    const caption = document.createElement('caption');
+    caption.textContent = 'Table data';
+    table.prepend(caption);
+  }
+
+  // Check for missing table headers
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    results.issues.push('Table missing headers');
+    results.fixesApplied++;
+    // Add headers based on first row if it exists
+    const firstRow = table.querySelector('tr');
+    if (firstRow) {
+      const cells = firstRow.querySelectorAll('td');
+      cells.forEach((cell, index) => {
+        const th = document.createElement('th');
+        th.textContent = `Column ${index + 1}`;
+        cell.replaceWith(th);
+      });
+    }
+  }
+
+  // Check for scope attributes on headers
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      results.issues.push('Header missing scope attribute');
+      results.fixesApplied++;
+      header.setAttribute('scope', 'col');
+    }
+  });
+
+  // Check for missing summary attribute (deprecated but still used in some cases)
+  if (!table.hasAttribute('summary') && results.issues.length > 0) {
+    results.issues.push('Table missing summary attribute');
+    results.fixesApplied++;
+    table.setAttribute('summary', 'Table structure issues found and fixed');
+  }
+
+  // Check for missing aria-describedby if complex table
+  if (results.issues.length > 2 && !table.hasAttribute('aria-describedby')) {
+    results.issues.push('Complex table missing aria-describedby');
+    results.fixesApplied++;
+    const descriptionId = ensureElementId(table, 'table-desc');
+    table.setAttribute('aria-describedby', descriptionId);
+  }
+
+  return results;
+}

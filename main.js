@@ -16,7 +16,7 @@ function validateInput(input) {
   return input !== null && input !== undefined;
 }
 
-// TODO: Implement your logic after the existing code
+// TODO: This is the existing code that needs to be preserved
 function processData(data) {
   if (!validateInput(data)) {
     throw new Error('Invalid input data');

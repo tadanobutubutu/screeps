@@ -155,6 +155,21 @@ function validateLandmark(element) {
   return { valid: true, role: landmarkRole };
 }
 
+/**
+ * Function to add proper landmark regions to the document
+ */
+function addProperLandmarkRegions() {
+  const elements = document.querySelectorAll('[role]');
+  elements.forEach(element => {
+    const validationResult = validateLandmark(element);
+    if (!validationResult.valid) {
+      console.error(validationResult.error);
+      return;
+    }
+    // Additional logic to ensure landmarks are properly added could be implemented here
+  });
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
@@ -165,5 +180,6 @@ module.exports = {
   generateAccessibilityReport,
   calculateAccessibilityScore,
   ensureUniqueLandmarksFromString,
-  validateLandmark
+  validateLandmark,
+  addProperLandmarkRegions
 };

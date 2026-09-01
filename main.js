@@ -1,4 +1,3 @@
-const http = require('http');
 const url = require('url');
 
 // Dependency imports
@@ -124,92 +123,6 @@ const a11yStore = {
 
   newFunction() {
     // New function implementation from origin/main
-  },
-
-  /**
-   * Creates a focus trap for keyboard navigation within a specified container
-   * @param {HTMLElement} container - The container element to trap focus within
-   * @param {Object} options - Configuration options for the focus trap
-   * @param {boolean} options.initialFocus - Whether to set initial focus on the first focusable element
-   * @param {boolean} options.returnFocus - Whether to return focus to the previously focused element when trap is released
-   * @returns {Object} An object with methods to activate and deactivate the focus trap
-   */
-  createFocusTrap(container, options = {}) {
-    if (!container) {
-      throw new Error('Container element is required for focus trap');
-    }
-
-    const { initialFocus = true, returnFocus = true } = options;
-    let previouslyFocusedElement = null;
-    let isActive = false;
-
-    // Get all focusable elements within the container
-    function getFocusableElements() {
-      return Array.from(container.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      )).filter(el => !el.hasAttribute('disabled') && el.offsetParent !== null);
-    }
-
-    // Handle keyboard events
-    function handleKeyDown(event) {
-      if (event.key === 'Tab') {
-        const focusableElements = getFocusableElements();
-        if (focusableElements.length === 0) return;
-
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        if (event.shiftKey) {
-          // Shift+Tab: move to last element if at first
-          if (document.activeElement === firstElement) {
-            event.preventDefault();
-            lastElement.focus();
-          }
-        } else {
-          // Tab: move to first element if at last
-          if (document.activeElement === lastElement) {
-            event.preventDefault();
-            firstElement.focus();
-          }
-        }
-      } else if (event.key === 'Escape') {
-        // Escape key can be used to exit the trap
-        deactivate();
-      }
-    }
-
-    // Activate the focus trap
-    function activate() {
-      if (isActive) return;
-
-      previouslyFocusedElement = document.activeElement;
-      isActive = true;
-
-      const focusableElements = getFocusableElements();
-      if (focusableElements.length > 0 && initialFocus) {
-        focusableElements[0].focus();
-      }
-
-      container.addEventListener('keydown', handleKeyDown);
-    }
-
-    // Deactivate the focus trap
-    function deactivate() {
-      if (!isActive) return;
-
-      isActive = false;
-      container.removeEventListener('keydown', handleKeyDown);
-
-      if (returnFocus && previouslyFocusedElement) {
-        previouslyFocusedElement.focus();
-      }
-    }
-
-    return {
-      activate,
-      deactivate,
-      isActive: () => isActive
-    };
   }
 };
 
@@ -683,6 +596,8 @@ function decodeJwtToken(token) {
 }
 
 // HTTP Server setup
+const http = require('http');
+
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
 
@@ -820,6 +735,5 @@ module.exports = {
     wrapPrimaryContentInMain,
     checkLandmarks,
     ensureUniqueLandmarks,
-    getSvgAccessibleName,
-    createFocusTrap: a11yStore.createFocusTrap
+    getSvgAccessibleName
 };

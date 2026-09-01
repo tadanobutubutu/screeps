@@ -1,6 +1,3 @@
-Here's the resolved file content:
-
-```javascript
 import React from 'react';
 import express from 'express';
 import path from 'path';
@@ -8,7 +5,7 @@ import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
-import { visualizeDependencyTree } from './utils.js'; // Incorporated the new function
+import { visualizeDependencyTree } from './utils.js';
 
 // Existing code starts here
 
@@ -39,6 +36,32 @@ function initializeApp() {
   return appState;
 }
 
+// Handle credential response
+function handleCredentialResponse(response) {
+  if (!response || !response.credential) {
+    throw new Error('Invalid credential response');
+  }
+
+  try {
+    // Decode the JWT credential
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+
+    // Store the user info in app state
+    appState.data = {
+      id: payload.sub,
+      email: payload.email,
+      name: payload.name,
+      picture: payload.picture
+    };
+
+    console.log('Credential processed successfully');
+    return appState.data;
+  } catch (error) {
+    console.error('Error processing credential:', error);
+    throw error;
+  }
+}
+
 // ... (Preserve the rest of the existing functions and their changes)
 
 // Main function (required export)
@@ -66,9 +89,7 @@ module.exports = {
   config,
   initialize,
   initializeApp,
+  handleCredentialResponse,
   main,
   // ... (Preserve the rest of the existing exports)
 };
-```
-
-This version of the code introduces the `visualizeDependencyTree` function to the `main.js` file, making it accessible when running the script directly. The function uses the `require.dependencies` object to visualize the dependency tree.

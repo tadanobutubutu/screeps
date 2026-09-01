@@ -132,7 +132,7 @@ function renderDependencyGraphContent() {
   if (!container) {
     return;
   }
-  
+
   // Use the new functions for rendering
   renderDependencyGraph(container);
   renderIndexView(container);

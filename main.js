@@ -5,6 +5,7 @@
 // REACT_041: Add accessible names to 2 SVGs
 // REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
 // REACT_036: Fix 1 fake link issue
+// REACT_037: Add proper landmark regions — (DONE: addProperLandmarkRegions)
 
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html) {
@@ -68,15 +69,15 @@ function divide(dividend, divisor) {
   if (typeof dividend !== 'number' || typeof divisor !== 'number') {
     throw new Error('Both arguments must be numbers');
   }
-  
+
   if (isNaN(dividend) || isNaN(divisor)) {
     throw new Error('Both arguments must be valid numbers');
   }
-  
+
   if (divisor === 0) {
     throw new Error('Division by zero is not allowed');
   }
-  
+
   return dividend / divisor;
 }
 
@@ -211,6 +212,29 @@ function fixFakeLinks(html) {
     return html;
 }
 
+// REACT_037: Add proper landmark regions
+function addProperLandmarkRegions(html) {
+    if (typeof html !== 'string') return html;
+
+    // Add role="region" to any div that serves as a landmark but isn't a proper HTML5 landmark
+    html = html.replace(/<div([^>]*)role=["']region["'][^>]*>/gi, (match, attrs) => {
+        if (/\baria-label=/i.test(match) || /\baria-labelledby=/i.test(match)) {
+            return match;
+        }
+        return match.replace(/>/, ' aria-label="Region">');
+    });
+
+    // Ensure all regions have proper labels
+    html = html.replace(/<div([^>]*)role=["']region["'][^>]*>/gi, (match) => {
+        if (/\baria-label=/i.test(match) || /\baria-labelledby=/i.test(match)) {
+            return match;
+        }
+        return match.replace(/>/, ' aria-label="Content region">');
+    });
+
+    return html;
+}
+
 // Main function that applies all accessibility fixes
 function applyAccessibilityFixes(html) {
     let result = html;
@@ -220,6 +244,7 @@ function applyAccessibilityFixes(html) {
     result = addSvgAccessibleNames(result);
     result = ensureUniqueLandmarks(result);
     result = fixFakeLinks(result);
+    result = addProperLandmarkRegions(result);
     return result;
 }
 
@@ -248,6 +273,7 @@ module.exports = {
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
     fixFakeLinks,
+    addProperLandmarkRegions,
     applyAccessibilityFixes,
     addressAccessibilityIssues,
     createInPageButton,

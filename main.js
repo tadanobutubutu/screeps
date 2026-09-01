@@ -45,6 +45,55 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  /**
+   * Validate the landmark structure for accessibility issues
+   * @param {HTMLElement} rootElement - The root element to validate
+   * @returns {Object} Validation results with issues and suggestions
+   */
+  validateLandmarks: (rootElement) => {
+    if (!rootElement || typeof rootElement.querySelectorAll !== 'function') {
+      return {
+        valid: false,
+        issues: ['Invalid root element provided']
+      };
+    }
+
+    const requiredLandmarks = ['header', 'main', 'footer'];
+    const foundLandmarks = new Set();
+    const issues = [];
+    const suggestions = [];
+
+    // Check for required landmarks
+    requiredLandmarks.forEach(landmark => {
+      const elements = rootElement.querySelectorAll(`[role="${landmark}"], ${landmark}`);
+      if (elements.length === 0) {
+        issues.push(`Missing required landmark: ${landmark}`);
+        suggestions.push(`Add a <${landmark}> element or element with role="${landmark}"`);
+      } else if (elements.length > 1) {
+        issues.push(`Multiple ${landmark} landmarks found`);
+        suggestions.push(`Ensure only one ${landmark} landmark exists in the document`);
+      } else {
+        foundLandmarks.add(landmark);
+      }
+    });
+
+    // Check for additional landmarks
+    const allLandmarks = rootElement.querySelectorAll('[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], [role="navigation"], [role="region"], header, main, footer, aside, nav, section');
+    allLandmarks.forEach(element => {
+      const role = element.getAttribute('role') || element.tagName.toLowerCase();
+      if (!requiredLandmarks.includes(role) && !foundLandmarks.has(role)) {
+        suggestions.push(`Consider adding ARIA label to ${role} landmark: aria-label="..."`);
+      }
+    });
+
+    return {
+      valid: issues.length === 0,
+      issues,
+      suggestions,
+      foundLandmarks: Array.from(foundLandmarks)
+    };
   }
 };
 

@@ -2,8 +2,7 @@
 const { dependencyGraphContent } = require('./dependency-graph');
 const { indexContent } = require('./index-template');
 
-// TODO: Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
+// TODO: This is the existing code that needs to be preserved
 
 // Import necessary dependencies
 import React, { useRef } from 'react';

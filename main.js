@@ -1,99 +1,133 @@
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
+const {
+    createInPageButton,
+    createWebResourceButton,
+    validateLandmark,
+    validateLandmarkStructure,
+    validateAccessibilityReport,
+} = require('./utilities');
 
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks: ensureUniqueLandmarksUtil, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
+const {
+    addLangAttribute,
+    fixTableStructureIssues,
+    addMainLandmark,
+    ensureUniqueLandmarks: ensureUniqueLandmarksUtil,
+    setSvgAccessibilityProps,
+    addSvgAccessibleNames,
+    addAccessibleNamesToSVGs,
+    fixFakeLinkIssue,
+    fixFakeLinkIssues,
+    fixLandmarkIssues,
+    addLandmarkRegions,
+    uniqueLandmarks,
+    fixImageAltTexts,
+    googleSignIn,
+    handleCredentialResponse,
+    ensureElementHasId,
+    ensureElementHasIdOrigin,
+    addAriaLabel,
+    renderDependencyGraphs,
+    fixButtonIdentifiers,
+    fixDependencyGraphAria,
+    addMainLandmarkToIndex,
+    addressAccessibilityIssues,
+} = main;
 
 const http = require('http');
 const url = require('url');
 
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
-  const issues = [];
+    const issues = [];
 
-  // Check if HTML contains tables
-  const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
-  let match;
+    // Check if HTML contains tables
+    const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
+    let match;
 
-  while ((match = tableRegex.exec(html)) !== null) {
-    const tableContent = match[0];
-    const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
+    while ((match = tableRegex.exec(html)) !== null) {
+        const tableContent = match[0];
+        const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
 
-    // Check for caption
-    const hasCaption = /<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent);
-    if (!hasCaption) {
-      issues.push({
-        type: 'table',
-        severity: 'warning',
-        message: `Table ${tableNumber} is missing a <caption> element for accessibility`,
-        suggestion: 'Add a <caption> element immediately after the <table> tag to describe the purpose of the table'
-      });
-    }
+        // Check for caption
+        const hasCaption = /<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent);
+        if (!hasCaption) {
+            issues.push({
+                type: 'table',
+                severity: 'warning',
+                message: `Table ${tableNumber} is missing a <caption> element for accessibility`,
+                suggestion:
+                    'Add a <caption> element immediately after the <table> tag to describe the purpose of the table',
+            });
+        }
 
-    // Check for th elements
-    const hasHeaders = /<th[^>]*>/i.test(tableContent);
-    if (!hasHeaders) {
-      issues.push({
-        type: 'table',
-        severity: 'warning',
-        message: `Table ${tableNumber} appears to be a data table but has no <th> (table header) elements`,
-        suggestion: 'Add <th> elements for column or row headers to improve accessibility for screen readers'
-      });
-    }
+        // Check for th elements
+        const hasHeaders = /<th[^>]*>/i.test(tableContent);
+        if (!hasHeaders) {
+            issues.push({
+                type: 'table',
+                severity: 'warning',
+                message: `Table ${tableNumber} appears to be a data table but has no <th> (table header) elements`,
+                suggestion:
+                    'Add <th> elements for column or row headers to improve accessibility for screen readers',
+            });
+        }
 
-    // Check for scope attributes on th elements
-    const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
-    thMatches.forEach((thTag, index) => {
-      if (!/scope=["'](row|col|rowgroup|colgroup)["']/i.test(thTag)) {
-        issues.push({
-          type: 'table',
-          severity: 'info',
-          message: `Table ${tableNumber} header ${index + 1} is missing a 'scope' attribute`,
-          suggestion: 'Add scope="col", scope="row", scope="rowgroup", or scope="colgroup" to <th> elements'
+        // Check for scope attributes on th elements
+        const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
+        thMatches.forEach((thTag, index) => {
+            if (!/scope=["'](row|col|rowgroup|colgroup)["']/i.test(thTag)) {
+                issues.push({
+                    type: 'table',
+                    severity: 'info',
+                    message: `Table ${tableNumber} header ${index + 1} is missing a 'scope' attribute`,
+                    suggestion:
+                        'Add scope="col", scope="row", scope="rowgroup", or scope="colgroup" to <th> elements',
+                });
+            }
         });
-      }
-    });
 
-    // Check for thead and tbody structure
-    const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent);
-    const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent);
+        // Check for thead and tbody structure
+        const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent);
+        const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent);
 
-    if (!hasThead) {
-      issues.push({
-        type: 'table',
-        severity: 'info',
-        message: `Table ${tableNumber} is missing <thead> element`,
-        suggestion: 'Wrap header rows in a <thead> element for better semantic structure'
-      });
+        if (!hasThead) {
+            issues.push({
+                type: 'table',
+                severity: 'info',
+                message: `Table ${tableNumber} is missing <thead> element`,
+                suggestion: 'Wrap header rows in a <thead> element for better semantic structure',
+            });
+        }
+
+        if (!hasTbody) {
+            issues.push({
+                type: 'table',
+                severity: 'info',
+                message: `Table ${tableNumber} is missing <tbody> element`,
+                suggestion: 'Wrap data rows in a <tbody> element for better semantic structure',
+            });
+        }
+
+        // Check for id and headers attributes for complex tables
+        const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
+        if (hasMultipleHeaders) {
+            const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
+            const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
+
+            if (!hasIdAttr && !hasHeadersAttr) {
+                issues.push({
+                    type: 'table',
+                    severity: 'warning',
+                    message: `Table ${tableNumber} has multiple headers but may not have proper id/headers associations`,
+                    suggestion:
+                        'For complex tables, ensure header cells have unique id attributes and data cells have headers attributes referencing those ids',
+                });
+            }
+        }
     }
 
-    if (!hasTbody) {
-      issues.push({
-        type: 'table',
-        severity: 'info',
-        message: `Table ${tableNumber} is missing <tbody> element`,
-        suggestion: 'Wrap data rows in a <tbody> element for better semantic structure'
-      });
-    }
-
-    // Check for id and headers attributes for complex tables
-    const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
-    if (hasMultipleHeaders) {
-      const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
-      const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
-
-      if (!hasIdAttr && !hasHeadersAttr) {
-        issues.push({
-          type: 'table',
-          severity: 'warning',
-          message: `Table ${tableNumber} has multiple headers but may not have proper id/headers associations`,
-          suggestion: 'For complex tables, ensure header cells have unique id attributes and data cells have headers attributes referencing those ids'
-        });
-      }
-    }
-  }
-
-  return issues;
+    return issues;
 };
 
 // Re-add the required exports for functionA and functionB
@@ -101,44 +135,44 @@ const validateTableAccessibility = (html) => {
 const { functionA, functionB } = require('./functionModule');
 
 const a11yStore = {
-  // ... existing methods ...
+    // ... existing methods ...
 };
 
 // Assuming the new function is called `renderGraphIndex` and it should replace or integrate with the existing `renderDependencyGraphs` function.
 const renderGraphIndex = (graphData) => {
-  // Placeholder for the new rendering logic
-  // This function should use the new functions for rendering the graph/index
-  // For example, it could call `setSvgAccessibilityProps`, `addAccessibleNamesToSVGs`, etc.
-  // Replace this with the actual implementation details
-  renderDependencyGraph(graphData);
+    // Placeholder for the new rendering logic
+    // This function should use the new functions for rendering the graph/index
+    // For example, it could call `setSvgAccessibilityProps`, `addAccessibleNamesToSVGs`, etc.
+    // Replace this with the actual implementation details
+    renderDependencyGraph(graphData);
 };
 
 function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
+    const title = svgElement.querySelector('title');
+    const desc = svgElement.querySelector('desc');
 
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
-
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
-
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
-    if (labeledElement && labeledElement.textContent) {
-      return labeledElement.textContent.trim();
+    if (title && title.textContent) {
+        return title.textContent.trim();
     }
-  }
 
-  return 'SVG graphic';
+    if (desc && desc.textContent) {
+        return desc.textContent.trim();
+    }
+
+    const ariaLabel = svgElement.getAttribute('aria-label');
+    if (ariaLabel) {
+        return ariaLabel.trim();
+    }
+
+    const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+    if (ariaLabelledby) {
+        const labeledElement = document.getElementById(ariaLabelledby);
+        if (labeledElement && labeledElement.textContent) {
+            return labeledElement.textContent.trim();
+        }
+    }
+
+    return 'SVG graphic';
 }
 
 /**
@@ -148,8 +182,8 @@ function getSvgAccessibleName(svgElement) {
  * @returns {string} Rendered dependency graph HTML
  */
 function renderDependencyGraph(deps, options = {}) {
-  // Use dependencyGraphContent from the imported module
-  return dependencyGraphContent(deps, options);
+    // Use dependencyGraphContent from the imported module
+    return dependencyGraphContent(deps, options);
 }
 
 /**
@@ -159,64 +193,66 @@ function renderDependencyGraph(deps, options = {}) {
  * @returns {string} Rendered index HTML
  */
 function renderIndex(data, options = {}) {
-  // Use indexContent from the imported module
-  return indexContent(data, options);
+    // Use indexContent from the imported module
+    return indexContent(data, options);
 }
 
 if (typeof document !== 'undefined') {
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('lang', document.documentElement.lang);
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('lang', document.documentElement.lang);
 
-  if (!document.documentElement.getAttribute('lang')) {
-    document.documentElement.setAttribute('lang', 'en');
-  }
+    if (!document.documentElement.getAttribute('lang')) {
+        document.documentElement.setAttribute('lang', 'en');
+    }
 }
 
 function newFunction() {
-  // Implementation from origin/main
+    // Implementation from origin/main
 }
 
 if (typeof document !== 'undefined') {
-  const banners = document.querySelectorAll('[role="banner"], [role="header"]');
-  if (banners.length > 1) {
-    throw new Error('Document should have at most one banner or header landmark');
-  }
+    const banners = document.querySelectorAll('[role="banner"], [role="header"]');
+    if (banners.length > 1) {
+        throw new Error('Document should have at most one banner or header landmark');
+    }
 }
 
 function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
+    // (code for checkLandmarkElement remains the same)
 }
 
 function wrapPrimaryContentInMain() {
-  if (typeof document === 'undefined' || !document.body) {
-    return null;
-  }
-
-  let mainElement = document.querySelector('main');
-  if (mainElement) {
-    return mainElement;
-  }
-
-  const elementsToExclude = [];
-  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
-  landmarks.forEach(landmark => elementsToExclude.push(landmark));
-
-  mainElement = document.createElement('main');
-
-  const bodyChildren = Array.from(document.body.children);
-  bodyChildren.forEach(child => {
-    if (!elementsToExclude.includes(child)) {
-      mainElement.appendChild(child);
+    if (typeof document === 'undefined' || !document.body) {
+        return null;
     }
-  });
 
-  document.body.appendChild(mainElement);
+    let mainElement = document.querySelector('main');
+    if (mainElement) {
+        return mainElement;
+    }
 
-  return mainElement;
+    const elementsToExclude = [];
+    const landmarks = document.querySelectorAll(
+        'header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]'
+    );
+    landmarks.forEach((landmark) => elementsToExclude.push(landmark));
+
+    mainElement = document.createElement('main');
+
+    const bodyChildren = Array.from(document.body.children);
+    bodyChildren.forEach((child) => {
+        if (!elementsToExclude.includes(child)) {
+            mainElement.appendChild(child);
+        }
+    });
+
+    document.body.appendChild(mainElement);
+
+    return mainElement;
 }
 
 function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
+    // (code for checkLandmarks remains the same)
 }
 
 /**
@@ -224,16 +260,16 @@ function checkLandmarks(container = document) {
  * Logs a warning if multiple main landmarks are detected.
  */
 function ensureUniqueLandmarks() {
-  const mains = document.querySelectorAll('main, [role="main"]');
-  if (mains.length > 1) {
-    console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
-    throw new Error('Document should have at most one main landmark');
-  }
+    const mains = document.querySelectorAll('main, [role="main"]');
+    if (mains.length > 1) {
+        console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
+        throw new Error('Document should have at most one main landmark');
+    }
 }
 
 function ensureUniqueLandmarksUtil() {
-  // This is the utility function from the main object
-  // Implementation remains the same as in the original code
+    // This is the utility function from the main object
+    // Implementation remains the same as in the original code
 }
 
 /**
@@ -250,38 +286,40 @@ function revokeSession(sessionId) {
  * @param {Element} element - Element to monitor for focus events
  */
 function handleFocusTrap(element) {
-  if (!element || typeof element.querySelectorAll !== 'function') {
-    return;
-  }
-
-  const focusableElements = Array.from(element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  ));
-
-  if (focusableElements.length === 0) {
-    return;
-  }
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  element.addEventListener('keydown', function(event) {
-    if (event.key !== 'Tab') {
-      return;
+    if (!element || typeof element.querySelectorAll !== 'function') {
+        return;
     }
 
-    if (event.shiftKey) {
-      if (document.activeElement === firstElement) {
-        event.preventDefault();
-        lastElement.focus();
-      }
-    } else {
-      if (document.activeElement === lastElement) {
-        event.preventDefault();
-        firstElement.focus();
-      }
+    const focusableElements = Array.from(
+        element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+    );
+
+    if (focusableElements.length === 0) {
+        return;
     }
-  });
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', function (event) {
+        if (event.key !== 'Tab') {
+            return;
+        }
+
+        if (event.shiftKey) {
+            if (document.activeElement === firstElement) {
+                event.preventDefault();
+                lastElement.focus();
+            }
+        } else {
+            if (document.activeElement === lastElement) {
+                event.preventDefault();
+                firstElement.focus();
+            }
+        }
+    });
 }
 
 // HTTP Server setup
@@ -310,7 +348,7 @@ const server = http.createServer((req, res) => {
     if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
         let body = '';
 
-        req.on('data', chunk => {
+        req.on('data', (chunk) => {
             body += chunk.toString();
         });
 
@@ -319,7 +357,9 @@ const server = http.createServer((req, res) => {
                 const credentialResponse = JSON.parse(body);
                 const result = handleCredentialResponse(credentialResponse);
 
-                res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
+                res.writeHead(result.status === 'success' ? 200 : 400, {
+                    'Content-Type': 'application/json',
+                });
                 res.end(JSON.stringify(result));
             } catch (error) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -355,7 +395,7 @@ const server = http.createServer((req, res) => {
     if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
         let body = '';
 
-        req.on('data', chunk => {
+        req.on('data', (chunk) => {
             body += chunk.toString();
         });
 
@@ -388,22 +428,22 @@ if (require.main === module) {
 
 // Export modules for testing
 module.exports = {
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateAccessibilityReport,
-  validateTableAccessibility,
-  renderDependencyGraph,
-  renderIndex,
-  renderGraphIndex,
-  newFunction,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  ensureUniqueLandmarks,
-  handleFocusTrap,
-  revokeSession,
-  functionA,
-  functionB
+    createInPageButton,
+    createWebResourceButton,
+    validateLandmark,
+    validateLandmarkStructure,
+    validateAccessibilityReport,
+    validateTableAccessibility,
+    renderDependencyGraph,
+    renderIndex,
+    renderGraphIndex,
+    newFunction,
+    checkLandmarkElement,
+    wrapPrimaryContentInMain,
+    checkLandmarks,
+    ensureUniqueLandmarks,
+    handleFocusTrap,
+    revokeSession,
+    functionA,
+    functionB,
 };

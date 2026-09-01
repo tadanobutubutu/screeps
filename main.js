@@ -2,6 +2,8 @@ const main = require('./utilities');
 const { requireDir } = require('require-dir');
 requireDir(require.resolve('./utilities'));
 
+// TODO: This is the existing code that needs to be preserved
+
 // Import all utilities functions for convenience
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport,
   addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderGraphIndex, renderDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;

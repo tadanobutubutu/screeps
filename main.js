@@ -5,7 +5,7 @@ function createAccessibleWebResourceButton(url, text) {
   const button = document.createElement('button');
   button.setAttribute('type', 'button');
   button.setAttribute('aria-label', text);
-  button.innerHTML = `<a href="${url}" ...</a>`;
+  button.innerHTML = `<a href="${url}">...</a>`;
   return button;
 }
 
@@ -128,7 +128,8 @@ function countDependencies() {
 
   // New implementation to count dependencies using dependencyGraphContent and regex
   const importCommentRegExp = /import\s+.*?from\s+['"].*?['"]/g;
-  const importCount = (dependencyGraphContent.matches(importCommentRegExp) || []).length;
+  const content = typeof dependencyGraphContent === 'string' ? dependencyGraphContent : '';
+  const importCount = (content.match(importCommentRegExp) || []).length;
   return importCount;
 }
 
@@ -255,7 +256,26 @@ addLangAttribute();
 //   // Implement accessibility changes here
 // }
 
-// Get lang attribute for accessibility
+/**
+ * Renders the dependency graph view using the graph rendering utilities
+ * @returns {string} The rendered graph content
+ */
+function renderGraphView() {
+  return dependencyGraphContent;
+}
+
+/**
+ * Renders the index view using the index rendering utilities
+ * @returns {string} The rendered index content
+ */
+function renderIndex() {
+  return renderIndexView();
+}
+
+/**
+ * Get lang attribute for accessibility
+ * @returns {string} The lang attribute value
+ */
 function getLangAttribute() {
   return document.documentElement ? document.documentElement.getAttribute('lang') : 'en';
 }
@@ -281,6 +301,8 @@ module.exports = {
   ensureUniqueLandmarks,
   setSvgAttributes,
   renderIndexView,
+  renderGraphView,
+  renderIndex,
   newRequiredFunction,
   additionalFunction,
   createAccessibleWebResourceButton

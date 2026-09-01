@@ -31,6 +31,8 @@ export default function Dashboard() {
     const [roomQuery, setRoomQuery] = useState('');
     const [summaryDetailsHover, setSummaryDetailsHover] = useState(false);
     const [summaryDetailsFocused, setSummaryDetailsFocused] = useState(false);
+    const [noMatchClearHover, setNoMatchClearHover] = useState(false);
+    const [noMatchClearFocused, setNoMatchClearFocused] = useState(false);
 
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -936,18 +938,26 @@ export default function Dashboard() {
                                     setRoomQuery('');
                                     searchInputRef.current?.focus();
                                 }}
-                                aria-label="検索フィルターをクリア"
-                                title="検索をクリア"
+                                onMouseEnter={() => setNoMatchClearHover(true)}
+                                onMouseLeave={() => setNoMatchClearHover(false)}
+                                onFocus={() => setNoMatchClearFocused(true)}
+                                onBlur={() => setNoMatchClearFocused(false)}
+                                aria-label="検索フィルターをクリア (Escape)"
+                                aria-keyshortcuts="Escape"
+                                title="検索をクリア (Escape)"
                                 style={{
                                     marginLeft: '0.25rem',
                                     fontSize: '0.75rem',
                                     color: '#004b73',
-                                    background: 'none',
+                                    backgroundColor: noMatchClearHover ? '#edf2f7' : 'transparent',
                                     border: 'none',
                                     cursor: 'pointer',
                                     textDecoration: 'underline',
-                                    padding: '0.1rem 0.2rem',
+                                    padding: '0.1rem 0.25rem',
                                     borderRadius: '2px',
+                                    outline: noMatchClearFocused ? '2px solid #004b73' : 'none',
+                                    outlineOffset: '1px',
+                                    transition: 'all 0.15s ease-in-out',
                                 }}
                             >
                                 クリア

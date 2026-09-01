@@ -218,9 +218,62 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
+// New function to address accessibility issues
+function addressNewAccessibilityIssues(insightReport) {
+  if (!insightReport || !insightReport.issues) {
+    return;
+  }
+
+  // Process each issue in the report
+  insightReport.issues.forEach(issue => {
+    switch (issue.type) {
+      case 'REACT_015':
+        // Add lang attribute to HTML element
+        if (issue.element) {
+          addLangAttribute(issue.element);
+        }
+        break;
+      case 'REACT_027':
+        // Fix table structure issues
+        if (issue.subtype === 'structure') {
+          validateTableStructure();
+          fixTableStructure();
+        } else {
+          validateTableAccessibility();
+        }
+        break;
+      case 'REACT_017':
+        // Add/fix landmark issues
+        addMainLandmark();
+        validateLandmark();
+        validateLandmarkStructure();
+        validateLandmarkAttributes();
+        addLandmarkRegions();
+        break;
+      case 'REACT_041':
+        // Add accessible names to SVGs
+        if (issue.element) {
+          setSvgAttributes(issue.element, issue.accessibleName || getSvgAccessibleName());
+        }
+        break;
+      case 'REACT_025':
+        // Ensure unique landmarks
+        ensureUniqueLandmarks();
+        break;
+      case 'REACT_036':
+        // Fix fake link issue
+        handleFakeLinks();
+        validateLinkAccessibility();
+        break;
+      default:
+        console.log('Unknown issue type:', issue.type);
+    }
+  });
+}
+
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -231,7 +284,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -246,7 +299,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -261,7 +314,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -275,7 +328,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -290,7 +343,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
@@ -304,7 +357,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check SVG accessibility
   const svgAccessibleNames = getSvgAccessibleName();
   if (svgAccessibleNames && svgAccessibleNames.length > 0) {
@@ -318,7 +371,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check for unique landmarks
   const uniqueLandmarkIssues = ensureUniqueLandmarks();
   if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
@@ -332,7 +385,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check link accessibility
   const linkIssues = validateLinkAccessibility();
   if (linkIssues && linkIssues.length > 0) {
@@ -346,7 +399,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Generate the report
   var report = {
     issues: issues,
@@ -366,7 +419,7 @@ function getInsightReport() {
     timestamp: new Date().toISOString(),
     generatedAt: new Date().toLocaleString()
   };
-  
+
   return report;
 }
 

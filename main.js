@@ -19,7 +19,7 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
@@ -175,5 +175,22 @@ module.exports = {
   personName,
   addressAccessibilityIssues,
   newFocusTrap,
-  renderIndexView
+  renderIndexView,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  fixButtonIdentifiers,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  googleSignIn,
+  decodeJwtResponse,
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  addSvgAccessibleNames
 };

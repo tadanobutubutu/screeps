@@ -749,6 +749,28 @@ function generateAccessibilityReport(issues, options = {}) {
   return report;
 }
 
+// REACT_025: Ensure unique landmarks
+// _Commit: ffa294e51824d7d76e329fe167f686d71b8d4c92_
+// <!-- todo-hash: 8ad60efd40c45bb15f567185d6466fa4f2f51728 -->
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') {
+    return [];
+  }
+
+  const issues = [];
+  const landmarks = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form'];
+  const uniqueLandmarks = ['main', 'banner', 'contentinfo'];
+  
+  uniqueLandmarks.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
+    if (elements.length > 1) {
+      issues.push(`Multiple ${role} landmarks found - should be unique`);
+    }
+  });
+
+  return issues;
+}
+
 // Export all utilities
 module.exports = {
   accessibilityUtils,
@@ -777,5 +799,6 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   createInPageButton,
-  generateAccessibilityReport
+  generateAccessibilityReport,
+  ensureUniqueLandmarks
 };

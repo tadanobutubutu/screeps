@@ -135,7 +135,7 @@ function validateLandmark(landmark) {
 // Validate landmark structure
 function landmarkStructureCheck(landmark) {
   const errors = [];
-  
+
   if (!landmark) {
     errors.push('Landmark is required');
     return { valid: false, errors };
@@ -202,16 +202,16 @@ function ensureLandmarkUniqueness(elements) {
 // Function to ensure focusable elements
 function ensureFocusableElements(container) {
   if (!container) return;
-  
+
   const focusableSelectors = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])';
   const focusableElements = container.querySelectorAll(focusableSelectors);
-  
+
   focusableElements.forEach((el, index) => {
     if (!el.getAttribute('tabindex')) {
       el.setAttribute('tabindex', '0');
     }
   });
-  
+
   return focusableElements;
 }
 
@@ -248,14 +248,14 @@ function setLanguageAttribute(document, lang) {
 // Function to add landmark roles
 function addLandmarkRoles(container) {
   if (!container) return;
-  
+
   const possibleLandmarks = {
     'nav': 'navigation',
     'aside': 'complementary',
     'section': 'region',
     'form': 'form'
   };
-  
+
   const sections = container.querySelectorAll('nav, aside, section, form');
   sections.forEach(section => {
     if (!section.getAttribute('role') && possibleLandmarks[section.tagName.toLowerCase()]) {
@@ -396,7 +396,7 @@ function fixFakeLinkIssue() {
 // Function to fix fake links
 function fixFakeLinks(container) {
   if (!container) return;
-  
+
   const fakeLinks = container.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
   fakeLinks.forEach(link => {
     if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
@@ -412,18 +412,18 @@ function fixFakeLinks(container) {
 // Validate SVG accessibility
 function validateSvgAccessibility(svg) {
   const errors = [];
-  
+
   if (!svg) {
     errors.push('SVG element is required');
     return { valid: false, errors };
   }
-  
+
   // Check for accessible name
   const accessibleName = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.querySelector('title');
   if (!accessibleName) {
     errors.push('SVG must have an accessible name via aria-label, aria-labelledby, or title element');
   }
-  
+
   return {
     valid: errors.length === 0,
     errors
@@ -435,10 +435,10 @@ function processUniqueElements(elements) {
   if (!Array.isArray(elements)) {
     return [];
   }
-  
+
   const uniqueElements = [];
   const seen = new Map();
-  
+
   elements.forEach(element => {
     const key = element.id || element.name || JSON.stringify(element);
     if (!seen.has(key)) {
@@ -446,26 +446,26 @@ function processUniqueElements(elements) {
       uniqueElements.push(element);
     }
   });
-  
+
   return uniqueElements;
 }
 
 // Address insight issues
 function addressInsightIssues(document) {
   const issues = [];
-  
+
   // Address REACT_015: Add lang attribute
   if (!document.documentElement.lang) {
     setLanguageAttribute(document, 'en');
     issues.push('lang attribute added');
   }
-  
+
   // Address REACT_017: Add/fix landmark issues
   const mainLandmark = document.querySelector('main') || document.querySelector('[role="main"]');
   if (!mainLandmark) {
     issues.push('main landmark added');
   }
-  
+
   // Address REACT_041: Add accessible names to SVGs
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
@@ -476,7 +476,7 @@ function addressInsightIssues(document) {
       issues.push('SVG accessible name added');
     }
   });
-  
+
   return issues;
 }
 
@@ -562,7 +562,7 @@ function renderDependencyGraphContent() {
 // Add proper landmark regions
 function addProperLandmarkRegions(document) {
   const regions = ['main', 'navigation', 'banner', 'contentinfo', 'complementary'];
-  
+
   regions.forEach(role => {
     const existing = document.querySelector(`[role="${role}"]`);
     if (!existing) {
@@ -732,6 +732,59 @@ function Main() {
   );
 }
 
+// New function to improve keyboard navigation
+function improveKeyboardNavigation() {
+  // Add keyboard event listeners for common navigation patterns
+  document.addEventListener('keydown', (e) => {
+    // Skip if modifier keys are pressed
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    // Handle arrow key navigation between focusable elements
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      const focusableElements = document.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]'
+      );
+      const currentIndex = Array.from(focusableElements).indexOf(document.activeElement);
+      const nextIndex = (currentIndex + 1) % focusableElements.length;
+      focusableElements[nextIndex].focus();
+    }
+
+    // Handle reverse arrow key navigation
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const focusableElements = document.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]'
+      );
+      const currentIndex = Array.from(focusableElements).indexOf(document.activeElement);
+      const prevIndex = (currentIndex - 1 + focusableElements.length) % focusableElements.length;
+      focusableElements[prevIndex].focus();
+    }
+
+    // Handle Home key to focus first element
+    if (e.key === 'Home') {
+      e.preventDefault();
+      const focusableElements = document.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]'
+      );
+      if (focusableElements.length > 0) {
+        focusableElements[0].focus();
+      }
+    }
+
+    // Handle End key to focus last element
+    if (e.key === 'End') {
+      e.preventDefault();
+      const focusableElements = document.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]'
+      );
+      if (focusableElements.length > 0) {
+        focusableElements[focusableElements.length - 1].focus();
+      }
+    }
+  });
+}
+
 // Export all functions
 export {
   getLangAttribute,
@@ -794,5 +847,6 @@ export {
   createInPageButtons,
   fixFakeLinkIssue,
   addSvgAccessibleNames,
-  ensureUniqueLandmarksDoc
+  ensureUniqueLandmarksDoc,
+  improveKeyboardNavigation
 };

@@ -1,10 +1,29 @@
-Here is the resolved file content:
-
-```javascript
 // Existing code from main.js (to be preserved)
 // ... (existing code) ...
 
-// New functions or changes requested in the issue
+// New function to create a button with correct accessibility properties for in-page linking
+function createInPageButton(text, href) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.setAttribute('aria-label', `Link to ${text}`);
+  button.setAttribute('role', 'link');
+  button.setAttribute('tabindex', '0');
+
+  button.addEventListener('click', () => {
+    window.location.href = href;
+  });
+
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      window.location.href = href;
+    }
+  });
+
+  return button;
+}
+
+// Existing functions (preserved)
 function addLangAttribute() {
   document.documentElement.setAttribute('lang', 'en');
 }
@@ -145,6 +164,3 @@ addAccessibleNamesToSVGs();
 fixFakeLinkIssue();
 googleSignIn();
 fixButtonIdentifiers();
-```
-
-This resolved file preserves the functions and other code from both branches, resolving the merge conflict by combining the functions from both sides while keeping the existing data processing functions and initialization methods.

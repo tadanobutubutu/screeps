@@ -45,6 +45,127 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  /**
+   * Add lang attribute to HTML element
+   * @param {string} lang - The language code to set
+   */
+  addLangAttribute: (lang = 'en') => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = lang;
+    }
+  },
+
+  /**
+   * Validate table accessibility
+   * @param {HTMLElement} table - The table element to validate
+   * @returns {boolean} Whether the table is accessible
+   */
+  validateTableAccessibility: (table) => {
+    if (!table) return false;
+
+    // Check for proper table structure
+    const hasCaption = table.querySelector('caption') !== null;
+    const hasThead = table.querySelector('thead') !== null;
+    const hasTbody = table.querySelector('tbody') !== null;
+
+    // Check for proper headers
+    const headers = table.querySelectorAll('th');
+    let allHeadersHaveScope = true;
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        allHeadersHaveScope = false;
+      }
+    });
+
+    return hasCaption && hasThead && hasTbody && allHeadersHaveScope;
+  },
+
+  /**
+   * Validate landmark structure
+   * @param {HTMLElement} element - The element to validate
+   * @returns {boolean} Whether the landmark is properly structured
+   */
+  validateLandmark: (element) => {
+    if (!element) return false;
+
+    const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section'];
+    const role = element.getAttribute('role') || element.tagName.toLowerCase();
+
+    return validLandmarks.includes(role);
+  },
+
+  /**
+   * Get accessible name for SVG
+   * @param {HTMLElement} svg - The SVG element
+   * @returns {string} The accessible name
+   */
+  getSvgAccessibleName: (svg) => {
+    if (!svg) return '';
+
+    const title = svg.querySelector('title');
+    const desc = svg.querySelector('desc');
+    const ariaLabel = svg.getAttribute('aria-label');
+    const ariaLabelledby = svg.getAttribute('aria-labelledby');
+
+    if (ariaLabel) return ariaLabel;
+    if (ariaLabelledby) {
+      const labelledElement = document.getElementById(ariaLabelledby);
+      return labelledElement ? labelledElement.textContent : '';
+    }
+    if (title) return title.textContent;
+    if (desc) return desc.textContent;
+
+    return '';
+  },
+
+  /**
+   * Validate landmark uniqueness
+   * @param {HTMLElement} container - The container to check
+   * @returns {boolean} Whether landmarks are unique
+   */
+  validateLandmarkUniqueness: (container) => {
+    if (!container) return false;
+
+    const landmarks = container.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="search"]');
+    const landmarkRoles = new Set();
+
+    for (const landmark of landmarks) {
+      const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+      if (landmarkRoles.has(role)) {
+        return false;
+      }
+      landmarkRoles.add(role);
+    }
+
+    return true;
+  },
+
+  /**
+   * Fix fake link issues
+   * @param {HTMLElement} element - The element to check
+   * @returns {boolean} Whether the element is a proper link
+   */
+  fixFakeLinkIssue: (element) => {
+    if (!element) return false;
+
+    // Check if element looks like a link but doesn't have proper href
+    const isLinkLike = element.tagName === 'A' && !element.hasAttribute('href');
+    const isButtonLike = element.tagName === 'BUTTON' && !element.hasAttribute('type');
+
+    if (isLinkLike) {
+      element.setAttribute('role', 'link');
+      element.setAttribute('tabindex', '0');
+      return true;
+    }
+
+    if (isButtonLike) {
+      element.setAttribute('type', 'button');
+      return true;
+    }
+
+    return false;
   }
 };
 
@@ -56,6 +177,9 @@ function initAccessibility() {
   if (typeof window !== 'undefined') {
     // Ensure screen reader support is available
     document.body.setAttribute('role', 'application');
+
+    // Add lang attribute
+    accessibilityUtils.addLangAttribute();
   }
   return accessibilityUtils;
 }

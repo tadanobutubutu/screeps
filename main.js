@@ -47,6 +47,130 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  /**
+   * Add lang attribute to HTML element
+   */
+  addLangAttribute: () => {
+    if (typeof document !== 'undefined') {
+      const htmlElement = document.querySelector('html');
+      if (htmlElement && !htmlElement.hasAttribute('lang')) {
+        htmlElement.setAttribute('lang', 'en');
+      }
+    }
+  },
+
+  /**
+   * Fix table structure issues
+   * @param {HTMLElement} table - The table element to fix
+   */
+  fixTableStructure: (table) => {
+    if (!table || table.tagName !== 'TABLE') return;
+
+    // Ensure table has a caption
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table data';
+      table.insertBefore(caption, table.firstChild);
+    }
+
+    // Ensure table has proper headers
+    const headers = table.querySelectorAll('th');
+    headers.forEach((header, index) => {
+      if (!header.id) {
+        header.id = `table-header-${index}`;
+      }
+      if (!header.hasAttribute('scope')) {
+        header.setAttribute('scope', 'col');
+      }
+    });
+
+    // Associate data cells with headers
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      cells.forEach((cell, cellIndex) => {
+        if (!cell.hasAttribute('headers') && headers[cellIndex]) {
+          cell.setAttribute('headers', headers[cellIndex].id);
+        }
+      });
+    });
+  },
+
+  /**
+   * Add/fix landmark issues
+   * @param {HTMLElement} container - The container element to add landmarks to
+   */
+  addLandmarkIssues: (container) => {
+    if (!container) return;
+
+    // Add main landmark if missing
+    if (!container.querySelector('main')) {
+      const main = document.createElement('main');
+      main.setAttribute('role', 'main');
+      container.appendChild(main);
+    }
+
+    // Add navigation landmark if missing
+    if (!container.querySelector('nav')) {
+      const nav = document.createElement('nav');
+      nav.setAttribute('aria-label', 'Main navigation');
+      container.appendChild(nav);
+    }
+  },
+
+  /**
+   * Add accessible names to SVGs
+   * @param {HTMLElement} svg - The SVG element to add accessible names to
+   * @param {string} name - The accessible name for the SVG
+   */
+  addSvgAccessibleNames: (svg, name) => {
+    if (!svg || svg.tagName !== 'svg') return;
+
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      svg.setAttribute('aria-label', name);
+    }
+
+    // Ensure SVG has a title element for screen readers
+    if (!svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = name;
+      svg.insertBefore(title, svg.firstChild);
+    }
+  },
+
+  /**
+   * Ensure unique landmarks
+   * @param {HTMLElement} container - The container element to check for unique landmarks
+   */
+  ensureUniqueLandmarks: (container) => {
+    if (!container) return;
+
+    const landmarks = ['main', 'nav', 'header', 'footer', 'aside'];
+    landmarks.forEach(landmark => {
+      const elements = container.querySelectorAll(landmark);
+      if (elements.length > 1) {
+        elements.forEach((el, index) => {
+          if (index > 0) {
+            el.setAttribute('aria-label', `${landmark} section ${index + 1}`);
+          }
+        });
+      }
+    });
+  },
+
+  /**
+   * Fix fake link issues
+   * @param {HTMLElement} element - The element to check for fake link issues
+   */
+  fixFakeLinkIssue: (element) => {
+    if (!element) return;
+
+    if (element.tagName === 'A' && !element.hasAttribute('href')) {
+      element.setAttribute('role', 'button');
+      element.setAttribute('tabindex', '0');
+    }
   }
 };
 
@@ -58,6 +182,12 @@ function initAccessibility() {
   if (typeof window !== 'undefined') {
     // Ensure screen reader support is available
     document.body.setAttribute('role', 'application');
+
+    // Add lang attribute to HTML element
+    accessibilityUtils.addLangAttribute();
+
+    // Add landmark issues
+    accessibilityUtils.addLandmarkIssues(document.body);
   }
   return accessibilityUtils;
 }
@@ -120,6 +250,10 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
 
   // Add accessibility label if not present
   const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
+
+  // Fix table structure if present
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => accessibilityUtils.fixTableStructure(table));
 
   return {
     containerId,

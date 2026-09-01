@@ -307,4 +307,30 @@ const focusTrap = (element) => {
   }
 
   function moveFocusToFirst() {
-    set
+    setActiveElement(0);
+  }
+
+  function moveFocusToLast() {
+    setActiveElement(focusableElements.length - 1);
+  }
+
+  // Add event listeners for keyboard navigation
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        prevFocusableElement();
+      } else {
+        nextFocusableElement();
+      }
+      e.preventDefault();
+    } else if (e.key === 'Escape') {
+      moveFocusToFirst();
+    }
+  });
+
+  // Set initial focus
+  moveFocusToFirst();
+};
+
+// TODO: Any additional changes requested in the issue
+// main.js - Accessibility improvements implementation

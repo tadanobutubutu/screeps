@@ -18,12 +18,12 @@ const config = {
 };
 
 /**
- * Main application entry point with accessibility features
+ * Renders dependency graphs by applying accessible names and SVG attributes.
  */
 function renderDependencyGraphs(svgElements) {
   const accessibleName = getSvgAccessibleName(svgElements);
   if (accessibleName) {
-    // Use accessibleName
+    svgElements.setAttribute('aria-label', accessibleName);
   }
 
   setSvgAttributes(svgElements);

@@ -63,7 +63,7 @@ function getLangAttribute() {
 function detectAndSetLang(content) {
   // Simple language detection based on common patterns
   let lang = 'en'; // Default to English
-  
+
   if (content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
@@ -80,7 +80,7 @@ function detectAndSetLang(content) {
       lang = 'de'; // German;
     }
   }
-  
+
   return lang;
 }
 
@@ -134,7 +134,21 @@ function validateTableStructure(table) {
  * @returns {boolean} Whether the landmark is valid
  */
 function validateLandmark(element) {
-  if (!element || typeof element !== 'object') return true;
+  if (!element || typeof element !== 'object') return false;
+
+  // Check if element is a landmark role
+  const landmarkRoles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'region', 'search'];
+  const role = element.getAttribute('role') || element.tagName.toLowerCase();
+
+  if (!landmarkRoles.includes(role)) {
+    return false;
+  }
+
+  // Check for required attributes
+  if (role === 'region' && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+    return false;
+  }
+
   return true;
 }
 
@@ -144,7 +158,21 @@ function validateLandmark(element) {
  * @returns {boolean} Whether the landmark structure is valid
  */
 function validateLandmarkStructure(element) {
-  if (!element || typeof element !== 'object') return true;
+  if (!element || typeof element !== 'object') return false;
+
+  // Check if element is a landmark role
+  const landmarkRoles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'region', 'search'];
+  const role = element.getAttribute('role') || element.tagName.toLowerCase();
+
+  if (!landmarkRoles.includes(role)) {
+    return false;
+  }
+
+  // Check for proper nesting
+  if (role === 'main' && element.parentElement && element.parentElement.tagName.toLowerCase() === 'body') {
+    return true;
+  }
+
   return true;
 }
 
@@ -155,7 +183,7 @@ function validateLandmarkStructure(element) {
  */
 function getSvgAccessibleName(svg) {
   if (!svg || typeof svg !== 'object') return '';
-  return ... || svg.getAttribute('title') || '';
+  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.getAttribute('title') || '';
 }
 
 // REACT_015: Add lang attribute to HTML element
@@ -164,15 +192,15 @@ if (typeof document !== 'undefined' && document.documentElement) {
   detectAndSetLang();
 }
 
-module.exports = { 
-  setHtmlLangAttribute, 
-  getLangAttribute, 
-  detectAndSetLang, 
-  personName, 
-  createInPageButton, 
-  validateTableAccessibility, 
-  validateTableStructure, 
-  validateLandmark, 
-  validateLandmarkStructure, 
-  getSvgAccessibleName 
+module.exports = {
+  setHtmlLangAttribute,
+  getLangAttribute,
+  detectAndSetLang,
+  personName,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName
 };

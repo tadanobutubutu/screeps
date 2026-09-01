@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -207,6 +204,82 @@ function handleAccessibilityIssues(issues) {
   };
 }
 
+/**
+ * Validates the structure of a table element
+ * @param {Object} table - The table element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableStructure(table) {
+  const issues = [];
+
+  if (!table.rows || table.rows.length === 0) {
+    issues.push('Table has no rows');
+  }
+
+  if (!table.columns || table.columns.length === 0) {
+    issues.push('Table has no columns');
+  }
+
+  table.rows.forEach((row, rowIndex) => {
+    if (!row.cells || row.cells.length !== table.columns.length) {
+      issues.push(`Row ${rowIndex} has incorrect number of cells`);
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Validates the structure of landmark elements
+ * @param {Array} landmarks - Array of landmark elements to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLandmarkStructure(landmarks) {
+  const issues = [];
+
+  landmarks.forEach((landmark, index) => {
+    const result = validateLandmark(landmark);
+    if (!result.success) {
+      issues.push({
+        landmarkIndex: index,
+        issues: result.issues
+      });
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Ensures all landmarks have unique accessible names
+ * @param {Array} landmarks - Array of landmark elements to check
+ * @returns {Object} Result with success status and any duplicate names found
+ */
+function ensureUniqueLandmarks(landmarks) {
+  const names = [];
+  const duplicates = [];
+
+  landmarks.forEach(landmark => {
+    const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
+    if (names.includes(name)) {
+      duplicates.push(name);
+    } else {
+      names.push(name);
+    }
+  });
+
+  return {
+    success: duplicates.length === 0,
+    duplicates
+  };
+}
+
 // Export all functions for testing and external use
 module.exports = {
   getLangAttribute,
@@ -222,6 +295,3 @@ module.exports = {
   handleAccessibilityIssues,
   addLangAttribute // Added for merge
 };
-```
-
-This file has been merged with the new changes from the conflicting changeset, which includes additional functions for validating table structure, landmark structure, and ensuring unique landmarks; as well as functions for creating accessible in-page buttons and links. The added `addLangAttribute` function has also been included in the exports to make it accessible for external use.

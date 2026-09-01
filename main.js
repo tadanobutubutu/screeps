@@ -1,7 +1,22 @@
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
-const main = require('./utilities')
+// Dependency imports
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
+const { accessibilityUtils } = require('./accessibilityUtils');
+const { a11yStore } = require('./a11yStore');
+const { mathHelpers } = require('./mathHelpers');
+
+const main = require('./utilities');
+
+// Import necessary dependencies
+import React from 'react';
+import { render } from 'react-dom';
+import {
+  googleSignIn,
+  decodeJwtResponse
+} from './AccessibilityHelpers';
 
 const {
   createInPageButton,
@@ -11,7 +26,7 @@ const {
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
-  exportUtils,
+  exportUtils: mainExportUtils,
   addressAccessibilityIssues,
   ensureElementHasId,
   ensureElementHasIdOrigin,
@@ -22,15 +37,71 @@ const {
   addMainLandmarkToIndex,
   focusTrap,
   checkAccessibility
-} = main
+} = main;
 
-// Import necessary dependencies
-import React from 'react'
-import { render } from 'react-dom'
-import {
-  googleSignIn,
-  decodeJwtResponse
-} from './AccessibilityHelpers'
+console.log('Main script activated');
+
+// Credential response handling
+async function handleCredentialResponse(response) {
+    if (!response) {
+        throw new Error('No response received');
+    }
+
+    if (response.error) {
+        throw new Error(response.error);
+    }
+
+    if (response.token) {
+        return {
+            success: true,
+            token: response.token,
+            expiresIn: response.expiresIn || 36000,
+        };
+    }
+
+    throw new Error('Invalid credential response');
+}
+
+// Export functionality with accessibility support
+const exportUtils = {
+    exportData: (data, filename, mimeType) => {
+        const blob = new Blob([data], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.setAttribute('aria-label', `Download ${filename}`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
+    },
+
+    exportToJSON: (data, filename) => {
+        const jsonString = JSON.stringify(data, null, 2);
+        exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
+    },
+
+    exportToCSV: (data, filename) => {
+        if (!data || data.length === 0) return;
+
+        const headers = Object.keys(data[0]);
+        const csvRows = [];
+        csvRows.push(headers.join(','));
+
+        for (const row of data) {
+            const values = headers.map((header) => {
+                const escaped = ('' + row[header]).replace(/"/g, '\\"');
+                return `"${escaped}"`;
+            });
+            csvRows.push(values.join(','));
+        }
+
+        const csvString = csvRows.join('\n');
+        exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
+    },
+};
 
 // Implement the function for addressing accessibility issues from insight report
 function newFunction () {
@@ -153,6 +224,29 @@ function checkAccessibilityForReport (content) {
   // This function should be implemented to check for accessibility issues
   // For now, it just returns an empty array
   return []
+}
+
+function sanitizeFilename(filename) {
+    return filename.replace(/[^a-z0-9_\-\.]/gi, '_');
+}
+
+function readFileSafe(filePath) {
+    try {
+        const fs = require('fs');
+        return fs.readFileSync(filePath, 'utf8');
+    } catch (error) {
+        console.error(`Error reading file ${filePath}: ${error.message}`);
+        return null;
+    }
+}
+
+function initAccessibility() {
+    accessibilityUtils.initSkipLink();
+    document.addEventListener('keydown', (e) => a11yStore.handleKeyboardNav(e, {
+        Escape: () => {
+            // Close modals or dropdowns
+        },
+    }));
 }
 
 // New rendering function
@@ -430,49 +524,6 @@ function validateSession(sessionId) {
   return appState.sessions.get(sessionId) || null;
 }
 
-function handleCredentialResponse(credentialResponse) {
-  if (!credentialResponse || typeof credentialResponse !== 'object') {
-    return { status: 'error', message: 'Invalid credential response' };
-  }
-  return { status: 'success', credential: credentialResponse };
-}
-
-// Accessibility Utilities
-const accessibilityUtils = {
-  initSkipLink: function() {
-    const skipLink = document.querySelector('.skip-link, [href^="#skip"]');
-    if (skipLink) {
-      skipLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
-        if (target) {
-          target.setAttribute('tabindex', '-1');
-          target.focus();
-        }
-      });
-    }
-  },
-  
-  announceToScreenReader: function(message, priority) {
-    if (priority === undefined) {
-      priority = 'polite';
-    }
-    
-    const announcer = document.createElement('div');
-    announcer.setAttribute('aria-live', priority);
-    announcer.setAttribute('aria-atomic', 'true');
-    announcer.className = 'sr-only';
-    announcer.style.position = 'absolute';
-    announcer.style.left = '-9999px';
-    announcer.textContent = message;
-    document.body.appendChild(announcer);
-    
-    setTimeout(function() {
-      announcer.remove();
-    }, 1000);
-  }
-};
-
 // Create announcer function
 function createAnnouncer() {
   let currentMessage = '';
@@ -511,28 +562,28 @@ function prefersReducedMotion() {
 }
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
+const dependencyGraph = document.getElementById('dependencyGraph');
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
   // Using 'region' role for a contained section of content
   if (!dependencyGraph.getAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region')
+    dependencyGraph.setAttribute('role', 'region');
   }
 
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
   }
 
   // Ensure element has an ID if not present
   if (!dependencyGraph.getAttribute('id')) {
-    dependencyGraph.setAttribute('id', 'dependencyGraph')
+    dependencyGraph.setAttribute('id', 'dependencyGraph');
   }
 
   // Ensure the container is focusable if it's interactive
   if (!dependencyGraph.getAttribute('tabindex')) {
-    dependencyGraph.setAttribute('tabindex', '0')
+    dependencyGraph.setAttribute('tabindex', '0');
   }
 }
 
@@ -551,12 +602,12 @@ function addAccessibleName (svgString) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
-  const svgElement = svg.documentElement
+  const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml');
+  const svgElement = svg.documentElement;
   if (!svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
+    svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
   }
-  return new XMLSerializer().serializeToString(svgElement)
+  return new XMLSerializer().serializeToString(svgElement);
 }
 
 // New function to extract accessible name from SVG content
@@ -596,8 +647,8 @@ function getSvgAccessibleName(svgString) {
 
 // Example usage of the function
 const originalSvgString =
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
-const modifiedSvgString = addAccessibleName(originalSvgString)
+    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>';
+const modifiedSvgString = addAccessibleName(originalSvgString);
 
 /**
  * Validates table accessibility
@@ -606,7 +657,7 @@ const modifiedSvgString = addAccessibleName(originalSvgString)
  */
 function validateTableAccessibility (tableData) {
   // Implementation placeholder - function to be implemented
-  return true
+  return true;
 }
 
 /**
@@ -616,7 +667,7 @@ function validateTableAccessibility (tableData) {
  */
 function validateTableStructure (tableData) {
   // Implementation placeholder - function to be implemented
-  return true
+  return true;
 }
 
 // Initialize accessibility features
@@ -631,46 +682,27 @@ function initializeAccessibility() {
   };
 }
 
-// Call the functions to address the accessibility issues
-addLangAttribute();
-fixTableStructure();
-addMainLandmark();
-fixLandmarkIssues();
-ensureUniqueLandmarks();
-addSvgAccessibleNames();
-addAccessibleNamesToSVGs();
-fixFakeLinkIssue();
-googleSignIn();
-fixButtonIdentifiers();
+function main() {
+    // Application initialization
 
-// Other code...
+    // Load necessary resources and render content (possibly using dependencyGraphContent/indexContent depending on the situation)
 
-// Preserve all existing exports
-module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  validateTableAccessibility,
-  validateTableStructure,
-  // Preserve any other existing exports here
-  // Required exports restored from previous version
-  newFunction,
-  implementAccessibilityFixesFromReport,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  trapFocus,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixFakeLinkIssues,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  accessibilityUtils,
-  createAnnouncer,
-  prefersReducedMotion,
-  renderSimpleDependencyGraph,
-  addAccessibleName,
-  initializeAccessibility
+    // Initialize accessibility features
+    initAccessibility();
+
+    // Manage server, credentials, sessions, etc. if applicable
+
+    // ... Other functionality or event listeners ...
 }
+
+// Assuming the new function is called `renderGraphIndex` and it should replace or integrates with the existing `renderDependencyGraphs` function.
+const renderGraphIndexFromHead = (graphData) => {
+    a11yStore.setSvgAccessibilityProps(graphData);
+    a11yStore.addSVGAccessibleNames(graphData);
+    highLevelRender(graphData); // You might need to update this function to use newly added accessibility utilities
+};
+
+// ... Existing Utility Functions from origin/main ...
 
 // New function or changes requested in the issue
 /**
@@ -681,8 +713,107 @@ module.exports = {
 function renderAdditionalContent (additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
+  return `<div>${JSON.stringify(additionalData)}</div>`;
 }
 
-// Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent
+// Export all functions to make them accessible
+module.exports = {
+    handleCredentialResponse,
+    ensureElementId,
+    addAriaLabel,
+    renderDependencyGraph,
+    renderDependencyGraphs,
+    renderIndexView,
+    calculateSum,
+    getLangAttribute,
+    personName,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    createInPageButton,
+    ensureUniqueLandmarks,
+    newFocusTrap,
+    transformInputData,
+    dependencyGraphContent,
+    indexContent,
+    affectedFunction,
+    updateFunction,
+    accessibleFunction,
+    main,
+    log,
+    sanitizeFilename,
+    readFileSafe,
+    renderGraphIndexFromHead,
+    initAccessibility,
+    config,
+    a11yStore,
+    exportUtils,
+    newFunction,
+    implementAccessibilityFixesFromReport,
+    checkAccessibilityForReport,
+    renderGraphIndex,
+    trapFocus,
+    addLandmarkRegions,
+    uniqueLandmarks,
+    fixFakeLinkIssues,
+    getActiveSessionsCount,
+    validateSession,
+    accessibilityUtils,
+    createAnnouncer,
+    prefersReducedMotion,
+    renderSimpleDependencyGraph,
+    addAccessibleName,
+    initializeAccessibility,
+    addLangAttribute,
+    fixTableStructure,
+    addMainLandmark,
+    fixLandmarkIssues,
+    addSvgAccessibleNames,
+    addAccessibleNamesToSVGs,
+    fixFakeLinkIssue,
+    renderAdditionalContent,
+    googleSignIn,
+    decodeJwtResponse,
+    fixButtonIdentifiers,
+    fixDependencyGraphAria,
+    addMainLandmarkToIndex,
+    focusTrap,
+    checkAccessibility,
+    validateAccessibilityReport,
+    addressAccessibilityIssues,
+    ensureElementHasId,
+    ensureElementHasIdOrigin,
+    createWebResourceButton
+};
+
+// Attach to global scope for browser/standalone access
+if (typeof window !== 'undefined') {
+    window.affectedFunction = affectedFunction;
+    window.updateFunction = updateFunction;
+    window.accessibleFunction = accessibleFunction;
+    window.main = main;
+    window.accessibilityUtils = accessibilityUtils;
+    window.ensureElementId = ensureElementId;
+    window.addAriaLabel = addAriaLabel;
+    window.renderDependencyGraph = renderDependencyGraph;
+    window.renderIndexView = renderIndexView;
+    window.getLangAttribute = getLangAttribute;
+    window.renderGraphIndex = renderGraphIndex;
+    window.renderGraphIndexFromHead = renderGraphIndexFromHead;
+    window.addLangAttribute = addLangAttribute;
+    window.fixTableStructure = fixTableStructure;
+    window.addMainLandmark = addMainLandmark;
+    window.fixLandmarkIssues = fixLandmarkIssues;
+    window.addLandmarkRegions = addLandmarkRegions;
+    window.ensureUniqueLandmarks = ensureUniqueLandmarks;
+    window.addSvgAccessibleNames = addSvgAccessibleNames;
+    window.addAccessibleNamesToSVGs = addAccessibleNamesToSVGs;
+    window.fixFakeLinkIssue = fixFakeLinkIssue;
+    window.fixFakeLinkIssues = fixFakeLinkIssues;
+    window.initializeAccessibility = initializeAccessibility;
+    window.createAnnouncer = createAnnouncer;
+    window.prefersReducedMotion = prefersReducedMotion;
+    window.renderAdditionalContent = renderAdditionalContent;
+}

@@ -126,6 +126,31 @@ function addLandmarkRegions() {
   console.log('Adding landmark regions');
 }
 
+// New function to check landmark elements
+function checkLandmarkElements(document) {
+  if (!document) {
+    console.error('No document provided');
+    return false;
+  }
+
+  const landmarks = [
+    'header', 'nav', 'main', 'footer',
+    'aside', 'section', 'article'
+  ];
+
+  let hasLandmarks = false;
+
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(landmark);
+    if (elements.length > 0) {
+      hasLandmarks = true;
+      console.log(`Found ${elements.length} ${landmark} element(s)`);
+    }
+  });
+
+  return hasLandmarks;
+}
+
 // SVG accessibility functions
 function getSvgAccessibleName() {
   return 'Accessible SVG Icon';
@@ -227,7 +252,7 @@ function addressAccessibilityIssues(insightReport) {
 
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -238,7 +263,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -253,7 +278,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -268,7 +293,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -282,7 +307,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -297,7 +322,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
@@ -311,6 +336,6 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check SVG accessibility
   const svgAccessibleNames = getSvgAccessibleName();

@@ -42,6 +42,34 @@
       fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
     }
 
+    // Function to generate a report based on accessibility issues
+    async function generateAccessibilityReport() {
+      try {
+        const issues = await scanAccessibility();
+        const report = {
+          generatedAt: new Date().toISOString(),
+          totalFilesScanned: issues.length,
+          totalIssuesFound: issues.reduce((sum, file) => sum + file.issues.length, 0),
+          filesWithIssues: issues.map(file => ({
+            fileName: file.file,
+            issueCount: file.issues.length,
+            issues: file.issues.map(issue => ({
+              id: issue.id,
+              description: issue.description,
+              impact: issue.impact,
+              nodes: issue.nodes.length
+            }))
+          }))
+        };
+
+        writeReport(report);
+        return report;
+      } catch (error) {
+        console.error('Error generating accessibility report:', error);
+        throw error;
+      }
+    }
+
     // Function to get the language attribute value
     function getLangAttribute() {
       // Implementation of getLangAttribute function

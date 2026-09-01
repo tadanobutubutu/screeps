@@ -57,6 +57,21 @@ function wrapPrimaryContentInMain(parent) {
   return mainElement;
 }
 
+// New function to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="search"], [role="contentinfo"]');
+  const uniqueLandmarks = new Set();
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (uniqueLandmarks.has(role)) {
+      landmark.removeAttribute('role');
+    } else {
+      uniqueLandmarks.add(role);
+    }
+  });
+}
+
 function initialize() {
   appConfig apiUrl = process.env.API_URL || 'default';
   appConfig.timeout = 5000;

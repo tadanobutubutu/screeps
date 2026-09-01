@@ -133,10 +133,10 @@ const modifiedSvgString = addAccessibleName(originalSvgString);
 function validateTableAccessibility(tableData) {
   const errors = [];
   const tables = getTables();
-  
+
   for (let i = 0; i < tables.length; i++) {
     const table = tables[i];
-    
+
     // Check if table has headers
     if (!table.headers || !Array.isArray(table.headers) || table.headers.length === 0) {
       errors.push({
@@ -144,7 +144,7 @@ function validateTableAccessibility(tableData) {
         error: 'Table must have headers defined'
       });
     }
-    
+
     // Check if table has proper structure
     if (!table.rows || !Array.isArray(table.rows)) {
       errors.push({
@@ -152,7 +152,7 @@ function validateTableAccessibility(tableData) {
         error: 'Table must have rows array defined'
       });
     }
-    
+
     // Check for proper ARIA attributes (placeholder implementation)
     if (table.ariaLabel === undefined && table.caption === undefined) {
       errors.push({
@@ -160,17 +160,17 @@ function validateTableAccessibility(tableData) {
         error: 'Table should have aria-label or caption for accessibility'
       });
     }
-    
+
     // Add lang attribute to HTML element
     if (document.documentElement.lang === undefined) {
       document.documentElement.setAttribute('lang', 'en');
     }
-    
+
     // Add landmark roles and fix landmark issues
     if (table.role === undefined) {
       table.role = 'table';
     }
-    
+
     // Add accessible names to 2 SVGs
     const svgElements = table.querySelectorAll('svg');
     svgElements.forEach(svg => {
@@ -179,18 +179,8 @@ function validateTableAccessibility(tableData) {
       }
     });
   }
-  
-  return errors.length === 0;
-}
 
-/**
- * Validates table structure
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table structure is valid, false otherwise
- */
-function validateTableStructure(tableData) {
-  // Implementation placeholder - function to be implemented
-  return true;
+  return errors.length === 0;
 }
 
 // Implement the function for addressing accessibility issues from insight report
@@ -350,6 +340,13 @@ function renderAdditionalContent(additionalData) {
   return `<div>${JSON.stringify(additionalData)}</div>`;
 }
 
+// New function to render dependency graphs
+function renderDependencyGraph(graphData) {
+  // Implementation of the new function to render dependency graphs
+  // Placeholder for actual implementation
+  return `<div class="dependency-graph">${JSON.stringify(graphData)}</div>`;
+}
+
 // Preserve all existing exports
 module.exports = {
   ...main,
@@ -360,7 +357,6 @@ module.exports = {
   renderDependencyGraph,
   renderAdditionalContent,
   validateTableAccessibility,
-  validateTableStructure,
   addAccessibleName,
   addAriaLabel,
   implementAccessibilityFixesFromReport,

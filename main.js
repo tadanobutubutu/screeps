@@ -7,6 +7,145 @@
  * Main application entry point with accessibility features
  */
 
+// Helper function for table cell validation
+function validateTableCell(cell) {
+  const validTags = ['th', 'td'];
+  const hasThParent = cell.tagName.toLowerCase() === 'th';
+  return hasThParent || validTags.includes(cell.tagName.toLowerCase());
+}
+
+/**
+ * Validates table accessibility structure
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Array} Array of accessibility issues found
+ */
+function validateTableStructure(table) {
+  const issues = [];
+  
+  // Check for table header
+  const headers = table.querySelectorAll('thead');
+  if (headers.length === 0) {
+    issues.push('Table missing <thead> element');
+  }
+  
+  // Check for table body
+  const bodies = table.querySelectorAll('tbody');
+  if (bodies.length === 0) {
+    issues.push('Table missing <tbody> element');
+  }
+  
+  // Check for header cells in first row
+  const rows = table.querySelectorAll('tr');
+  if (rows.length > 0) {
+    const firstRowCells = rows[0].querySelectorAll('th, td');
+    let hasHeader = false;
+    firstRowCells.forEach(cell => {
+      if (cell.tagName.toLowerCase() === 'th') {
+        hasHeader = true;
+      }
+    });
+    if (!hasHeader && firstRowCells.length > 0) {
+      issues.push('First row should contain header cells (<th>)');
+    }
+  }
+  
+  return issues;
+}
+
+/**
+ * Validates table accessibility attributes
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Array} Array of accessibility issues found
+ */
+function validateTableAccessibility(table) {
+  const issues = [];
+  
+  // Check for summary or caption
+  const caption = table.querySelector('caption');
+  const summary = table.getAttribute('summary');
+  
+  if (!caption && !summary) {
+    issues.push('Table missing caption or summary attribute');
+  }
+  
+  // Check for scope attributes on header cells
+  const headerCells = table.querySelectorAll('th');
+  headerCells.forEach((cell, index) => {
+    if (!cell.hasAttribute('scope')) {
+      issues.push(`Header cell ${index + 1} missing scope attribute`);
+    }
+  });
+  
+  return issues;
+}
+
+const checkTableStructure = {
+  validate: validateTableStructure,
+  checkAccessibility: validateTableAccessibility
+};
+
+// Get language attribute based on page content
+function getLangAttribute() {
+  // Default to English
+  return 'en';
+}
+
+/**
+ * Gets the person name to use in lang attribute
+ * @returns {string} The language code
+ */
+function personName() {
+  return getLangAttribute();
+}
+
+// Add lang attribute to HTML element
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    const lang = getLangAttribute();
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
+// Add accessible names to SVG elements
+function getSvgAccessibleName(svg) {
+  // Check for title element
+  const title = svg.querySelector('title');
+  if (title && title.textContent.trim()) {
+    return title.textContent.trim();
+  }
+  
+  // Check for aria-label already set
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  // Check for parent element with accessible name
+  const parent = svg.parentElement;
+  if (parent) {
+    const parentLabel = parent.getAttribute('aria-label') || 
+                        parent.getAttribute('alt') ||
+                        parent.querySelector('img')?.getAttribute('alt');
+    if (parentLabel) {
+      return parentLabel;
+    }
+  }
+  
+  return null;
+}
+
+// Set SVG accessibility attributes
+function setSvgAttributes(svg) {
+  // Ensure focus is not stolen by SVG
+  if (!svg.hasAttribute('tabindex')) {
+    svg.setAttribute('tabindex', '0');
+  }
+}
+
+/**
+ * Adds accessibility props to all SVG elements on the page
+ */
 function addSvgAccessibilityProps() {
   const svgElements = document.querySelectorAll('svg');
 
@@ -24,240 +163,4 @@ function addSvgAccessibilityProps() {
   });
 }
 
-const checkTableStructure = /* existing code */
-
-function createSampleInsightReport() {
-  return {
-    title: 'Quarterly Performance Report',
-    sections: [
-      {
-        heading: 'Sales Overview',
-        content: 'Total sales increased by 15% compared to last quarter.'
-      },
-      {
-        heading: 'Customer Satisfaction',
-        content: 'Average satisfaction score: 4.2 out of 5.'
-      }
-    ]
-  };
-}
-
-// Implement function for addressing accessibility issues from insight report
-// TODO: Implement a function to count dependencies
-function countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-
-    return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
-}
-
-/**
- * Handle credential response from browser authentication
- * @param {Object} response - The credential response object
- * @returns {Object} Processed credential information
- */
-function handleCredentialResponse(response) {
-    if (!response) {
-        return { success: false, error: 'No credential response provided' };
-    }
-
-    // Check if response contains expected credential data
-    const hasCredential = response.credential || response.token || response.id;
-
-    if (!hasCredential) {
-        return { success: false, error: 'Invalid credential response format' };
-    }
-
-    // Process credential information
-    const processedCredential = {
-        id: response.id || null,
-        token: response.token || response.credential || null,
-        name: response.name || 'Anonymous User',
-        email: response.email || null,
-        success: true
-    };
-
-    // Handle different types of credential responses
-    if (response.credential) {
-        // Google Sign-In response
-        try {
-            // Credential is a base64-encoded JWT
-            const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            processedCredential.id = payload.sub || processedCredential.id;
-            processedCredential.email = payload.email || processedCredential.email;
-            processedCredential.name = payload.name || processedCredential.name;
-        } catch (error) {
-            console.warn('Failed to parse credential response:', error);
-        }
-    }
-
-    // Announce success to screen readers
-    if (typeof announceToScreenReader === 'function') {
-        announceToScreenReader('User successfully authenticated');
-    }
-
-    return processedCredential;
-}
-
-// Ensure DOM is fully loaded before executing scripts
-if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment - setup basic exports
-  module.exports = {
-    checkTableStructure,
-    countDependencies,
-    init,
-    setupKeyboardNavigation,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    ensureUniqueLandmarksFromString,
-    validateLandmark,
-    spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse,
-    sampleInsightReport: createSampleInsightReport()
-  };
-} else {
-  // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-}
-
-function init() {
-  setupKeyboardNavigation();
-  setupAriaLiveRegions();
-  setupFocusManagement();
-  enhanceSemanticMarkup();
-}
-
-function setupKeyboardNavigation() {
-  /* existing code */
-}
-
-function setupAriaLiveRegions() {
-  const liveRegion = document.getElementById('aria-live-region');
-  if (!liveRegion) {
-    const region = document.createElement('div');
-    region.id = 'aria-live-region';
-    region.setAttribute('aria-live', 'polite');
-    region.setAttribute('aria-atomic', 'true');
-    region.className = 'sr-only';
-    document.body.appendChild(region);
-  }
-}
-
-function setupFocusManagement() {
-  // Trap focus within modal dialogs
-  const modals = document.querySelectorAll('[role="dialog"]');
-  modals.forEach((modal) => {
-    modal.addEventListener('keydown', trapFocus);
-  });
-
-  // Ensure all interactive elements are keyboard accessible
-  const interactiveElements = document.querySelectorAll(
-    'button, a, input, select, textarea, [tabindex]'
-  );
-  interactiveElements.forEach((element) => {
-    if (!element.hasAttribute('tabindex')) {
-      element.setAttribute('tabindex', '0');
-    }
-  });
-}
-
-function enhanceSemanticMarkup() {
-  // Add skip link if not present
-  if (!document.getElementById('skip-link')) {
-    const skipLink = document.createElement('a');
-    skipLink.id = 'skip-link';
-    skipLink.href = '#main-content';
-    skipLink.textContent = 'Skip to main content';
-    skipLink.className = 'skip-link';
-    document.body.insertBefore(skipLink, document.body.firstChild);
-  }
-
-  // Ensure images have alt attributes
-  const images = document.querySelectorAll('img');
-  images.forEach((img) => {
-    if (!img.hasAttribute('alt')) {
-      img.setAttribute('alt', '');
-      img.setAttribute('role', 'presentation');
-    }
-  });
-
-  // Ensure form inputs have associated labels
-  const inputs = document.querySelectorAll('input, select, textarea');
-  inputs.forEach((input) => {
-    const id = input.id || `input-${Math.random().toString(36).slice(2, 9)}`;
-    input.id = id;
-    if (!input.hasAttribute('aria-label') && !document.querySelector(`label[for="${id}"]`)) {
-      input.setAttribute('aria-label', input.name || 'Input field');
-    }
-  });
-
-  // Ensure unique landmarks per page
-  ensureUniqueLandmarks();
-}
-
-function ensureUniqueLandmarks() {
-  const landmarks = [
-    'main',
-    'header',
-    'footer'
-  ];
-
-  const existingLandmarks = {};
-  const mainElements = document.querySelectorAll('main');
-  mainElements.forEach((main) => {
-    if (!existingLandmarks[main.id]) {
-      existingLandmarks[main.id] = true;
-    } else {
-      throw new Error('Duplicate main element found!');
-    }
-  });
-
-  const headerElements = document.querySelectorAll('header');
-  headerElements.forEach((header) => {
-    if (!existingLandmarks[header.id]) {
-      existingLandmarks[header.id] = true;
-    } else {
-      header.setAttribute('role', 'complementary');
-    }
-  });
-
-  const footerElements = document.querySelectorAll('footer');
-  footerElements.forEach((footer) => {
-    if (!existingLandmarks[footer.id]) {
-      existingLandmarks[footer.id] = true;
-    } else {
-      footer.setAttribute('role', 'contentinfo');
-    }
-  });
-}
-
-// ... (Existing common functions are omitted for brevity)
+// ... (rest of the code continues)

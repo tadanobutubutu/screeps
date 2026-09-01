@@ -93,8 +93,7 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  
-  // From Version 2 - comprehensive validation
+
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
@@ -384,6 +383,66 @@ function handleAccessibilityIssues(issues) {
 }
 
 /**
+ * Creates an accessible book form with proper labels, ARIA attributes, and validation
+ * @param {Object} options - Form options
+ * @param {string} options.formId - ID for the form
+ * @param {string} options.title - Title for the form
+ * @param {Array} options.fields - Array of field configurations
+ * @param {Function} options.onSubmit - Submit handler function
+ * @returns {Object} Accessible form object
+ */
+function createAccessibleBookForm(options) {
+  // Validate required options
+  if (!options.formId || !options.title || !options.fields || !options.onSubmit) {
+    throw new Error('Missing required form options');
+  }
+
+  // Create form structure with proper ARIA attributes
+  const form = {
+    id: options.formId,
+    role: 'form',
+    'aria-labelledby': `${options.formId}-title`,
+    titleElement: {
+      id: `${options.formId}-title`,
+      text: options.title,
+      level: 2
+    },
+    fields: [],
+    submitButton: createInPageButton({
+      text: 'Submit Book',
+      ariaLabel: `Submit ${options.title} form',
+      onClick: options.onSubmit
+    })
+  };
+
+  // Process each field with accessibility features
+  options.fields.forEach((field, index) => {
+    const fieldId = `${options.formId}-field-${index}`;
+    const accessibleField = {
+      id: fieldId,
+      type: field.type || 'text',
+      label: {
+        for: fieldId,
+        text: field.label || `Field ${index + 1}`
+      },
+      required: field.required || false,
+      'aria-required': field.required ? 'true' : 'false',
+      'aria-describedby': field.description ? `${fieldId}-description` : undefined,
+      description: field.description ? {
+        id: `${fieldId}-description`,
+        text: field.description
+      } : undefined,
+      value: field.value || '',
+      placeholder: field.placeholder || ''
+    };
+
+    form.fields.push(accessibleField);
+  });
+
+  return form;
+}
+
+/**
  * Ensures an element has an ID attribute
  * @param {Object} element - The element to check
  * @param {string} id - The ID to assign if missing
@@ -488,11 +547,11 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   handleAccessibilityIssues,
+  createAccessibleBookForm,
   ensureElementId,
   addAriaLabel,
   addProperLandmarkRegions,
-  ensureElementId,
-  addAriaLabel,
+  renderDependencyGraph,
   addBook,
   makeAccessible,
   addAriaSupport,

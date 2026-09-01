@@ -19,6 +19,20 @@ const CONFIG = {
   maxResults: 100
 };
 
+// New function to count dependencies
+function countDependencies() {
+  const dependencies = {
+    express: express ? 'installed' : 'not installed',
+    'axe-core': axe ? 'installed' : 'not installed',
+    fs: fs ? 'installed' : 'not installed',
+    'fast-map': fastMap ? 'installed' : 'not installed',
+    path: path ? 'installed' : 'not installed',
+    react: React ? 'installed' : 'not installed'
+  };
+
+  return dependencies;
+}
+
 // New function to generate a report based on accessibility issues
 function generateAccessibilityReport() {
   const options = {
@@ -98,6 +112,7 @@ const App = () => {
 export default App;
 module.exports = {
   ...module.exports, // Preserve existing functions
+  countDependencies,
   generateAccessibilityReport,
   wrapPrimaryContentInMain,
   ensureUniqueLandmarks,
@@ -125,6 +140,3 @@ module.exports = {
   wrapPrimaryContentInMain,
   ensureUniqueLandmarks
 };
-```
-
-This merged file now contains both changes: the existing Node.js code and the React set-up from the new branch. The code is now compilable and functional, with no syntax errors. The comments and style have been preserved as much as possible.

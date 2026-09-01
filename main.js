@@ -657,6 +657,40 @@ function applyAccessibilityFixes(document, options = {}) {
   };
 }
 
+/* New function to handle credential response */
+async function handleCredentialResponse(response) {
+  // Implement the logic to handle the credential response
+  // This function should be called when a credential response is received
+  // For example, you might parse the response, validate it, and then store or use the credentials
+  
+  try {
+    // Check if response is ok
+    if (response.ok) {
+      console.log('Handling credential response:', response);
+      
+      // Try to parse JSON response
+      const json = await response.json();
+      
+      // If credentials are present in the response, set them
+      if (json && typeof json === 'object' && 'credentials' in json) {
+        const credentials = json.credentials;
+        if (Array.isArray(credentials)) {
+          // Set cookies based on credentials
+          Object.entries(credentials).forEach(([key, value]) => {
+            if (value) {
+              document.cookie = `${key}=${value}; path=/`;
+            }
+          });
+        }
+      }
+    } else {
+      console.warn('Credential response is not OK:', response.status);
+    }
+  } catch (error) {
+    console.error('Error handling credential response:', error);
+  }
+}
+
 // Module exports
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -687,6 +721,7 @@ if (typeof module !== 'undefined' && module.exports) {
     multiply,
     divide,
     fixTableStructure,
+    handleCredentialResponse,
     newFunction: function () {
       // New function implementation
     }

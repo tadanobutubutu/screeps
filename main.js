@@ -35,11 +35,83 @@ function countDependencies() {
     return dependencies.length;
 }
 
+// Accessibility functions
+function addLangAttribute(htmlElement) {
+    if (!htmlElement.hasAttribute('lang')) {
+        htmlElement.setAttribute('lang', 'en');
+    }
+    return htmlElement;
+}
+
+function fixTableStructure(tableElement) {
+    // Ensure table has proper structure with thead, tbody, etc.
+    if (!tableElement.querySelector('thead') || !tableElement.querySelector('tbody')) {
+        const thead = document.createElement('thead');
+        const tbody = document.createElement('tbody');
+
+        // Move first row to thead if it exists
+        const firstRow = tableElement.querySelector('tr');
+        if (firstRow) {
+            thead.appendChild(firstRow);
+        }
+
+        // Move remaining rows to tbody
+        const rows = tableElement.querySelectorAll('tr');
+        rows.forEach(row => tbody.appendChild(row));
+
+        tableElement.innerHTML = '';
+        tableElement.appendChild(thead);
+        tableElement.appendChild(tbody);
+    }
+    return tableElement;
+}
+
+function addMainLandmark(mainElement) {
+    if (!mainElement.hasAttribute('role') || mainElement.getAttribute('role') !== 'main') {
+        mainElement.setAttribute('role', 'main');
+    }
+    return mainElement;
+}
+
+function ensureUniqueLandmarks() {
+    const landmarks = ['main', 'navigation', 'search', 'contentinfo'];
+    landmarks.forEach(landmark => {
+        const elements = document.querySelectorAll(`[role="${landmark}"]`);
+        if (elements.length > 1) {
+            // Keep first one, remove others
+            for (let i = 1; i < elements.length; i++) {
+                elements[i].removeAttribute('role');
+            }
+        }
+    });
+}
+
+function addSvgAccessibleNames(svgElements) {
+    svgElements.forEach(svg => {
+        if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+            svg.setAttribute('aria-label', 'Graphic');
+        }
+    });
+}
+
+function fixFakeLinkIssue(linkElement) {
+    if (linkElement.getAttribute('href') === '#' && !linkElement.getAttribute('role')) {
+        linkElement.setAttribute('role', 'button');
+    }
+    return linkElement;
+}
+
 module.exports = {
     greet,
     add,
     getDependencies,
     addDependency,
     removeDependency,
-    countDependencies
+    countDependencies,
+    addLangAttribute,
+    fixTableStructure,
+    addMainLandmark,
+    ensureUniqueLandmarks,
+    addSvgAccessibleNames,
+    fixFakeLinkIssue
 };

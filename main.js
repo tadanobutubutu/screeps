@@ -10,7 +10,7 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
@@ -73,6 +73,13 @@ function renderGraphIndex(content, options = {}) {
   return container;
 }
 
+// REACT_015: Add lang attribute
+function addLangAttribute(element) {
+  if (!element.getAttribute('lang')) {
+    element.setAttribute('lang', 'en');
+  }
+}
+
 module.exports = {
   VERSION,
   hello,
@@ -88,5 +95,6 @@ module.exports = {
   isEmpty,
   getRandomInt,
   clamp,
-  deepClone
+  deepClone,
+  addLangAttribute
 };

@@ -3,10 +3,6 @@
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
 
-const AddressabilityIssues = {
-  ...
-};
-
 /**
  * Main application entry point with accessibility features
  */
@@ -92,6 +88,19 @@ function checkTableStructure(table) {
   };
 }
 
+// Ensure dependencyGraph container has proper ARIA role (DONE: fixDependencyGraphAccessibility)
+function fixDependencyGraphAccessibility() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    if (!dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'img');
+    }
+    if (!dependencyGraph.getAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
+}
+
 /**
  * Spawn a child process to run some command with proper error handling.
  * @param {Function} callback - Invoked with (err, result) when the command exits.
@@ -141,6 +150,7 @@ if (typeof module !== 'undefined' && module.exports) {
     createInPageButton,
     validateLinkAccessibility,
     handleFakeLinks,
+    fixDependencyGraphAccessibility,
     MyComponent,
     AddressabilityIssues
   };
@@ -151,6 +161,7 @@ function init() {
   setupAriaLiveRegions();
   setupFocusManagement();
   enhanceSemanticMarkup();
+  fixDependencyGraphAccessibility();
 }
 
 function setupKeyboardNavigation() {

@@ -204,6 +204,16 @@ function generateAccessibilityReport(scan) {
     };
 }
 
+// TODO: Add the implementation of this function
+function getGameDataSummary() {
+    return {
+        rooms: Object.keys(gameData.rooms).length,
+        players: Object.keys(gameData.players).length,
+        structures: Object.values(gameData.structures).reduce((total, roomStructures) => total + roomStructures.length, 0),
+        tasks: Object.keys(gameData.creepTasks).length
+    };
+}
+
 function ensureDependencyGraphARIA() {
     // Implementation to ensure ARIA attributes are properly set
     // This would be used in a frontend context, not directly in this backend code
@@ -305,4 +315,4 @@ app.listen(PORT, () => {
     console.log(`Screeps API Server running on port ${PORT}`);
 });
 
-module.exports = { app, generateAccessibilityReport, ensureDependencyGraphARIA, getLangAttribute, setSvgAttributes, main, checkLandmarkElements, countDependencies };
+module.exports = { app, generateAccessibilityReport, getGameDataSummary, ensureDependencyGraphARIA, getLangAttribute, setSvgAttributes, main, checkLandmarkElements, countDependencies };

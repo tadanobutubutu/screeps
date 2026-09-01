@@ -114,7 +114,30 @@ function createInPageButton(parent = document.body) {
  * @returns {boolean} Whether the table is accessible
  */
 function validateTableAccessibility(table) {
-  if (!table || typeof table !== 'object') return true;
+  if (!table || typeof table !== 'object' || !(table instanceof HTMLElement)) return false;
+
+  // Check if table has a caption
+  if (!table.querySelector('caption')) {
+    console.warn('Table is missing a caption');
+    return false;
+  }
+
+  // Check if table has proper headers
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    console.warn('Table is missing header cells');
+    return false;
+  }
+
+  // Check if table cells have proper scope attributes
+  const cells = table.querySelectorAll('td, th');
+  for (const cell of cells) {
+    if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
+      console.warn('Table header cell is missing scope attribute');
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -124,7 +147,20 @@ function validateTableAccessibility(table) {
  * @returns {boolean} Whether the table structure is valid
  */
 function validateTableStructure(table) {
-  if (!table || typeof table !== 'object') return true;
+  if (!table || typeof table !== 'object' || !(table instanceof HTMLElement)) return false;
+
+  // Check if table has proper structure
+  if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+    console.warn('Table is missing required thead or tbody elements');
+    return false;
+  }
+
+  // Check if table has at least one row
+  if (table.querySelectorAll('tr').length === 0) {
+    console.warn('Table is missing rows');
+    return false;
+  }
+
   return true;
 }
 

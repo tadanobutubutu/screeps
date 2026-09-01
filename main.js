@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
 // REACT_027: Fix 26 table structure issues
@@ -5,6 +6,17 @@
 // REACT_041: Add accessible names to 2 SVGs
 // REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
 // REACT_036: Fix 1 fake link issue
+
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+// main.js - Accessibility improvements implementation
+// main.js - Combined utility and accessibility features
+
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
+
+// TODO: This is the existing code that needs to be preserved
 
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
@@ -151,6 +163,59 @@ function addSvgAccessibleNames(html) {
     return html;
 }
 
+function checkLinkAccessibility() {
+  // Implementation for checking link accessibility
+  // This function will be used to validate the accessibility of links
+  const links = document.querySelectorAll('a[href]');
+  const issues = [];
+
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    const text = link.textContent.trim();
+
+    if (!text) {
+      issues.push(`Link with href "${href}" has no accessible text`);
+    }
+  });
+
+  return issues;
+}
+
+// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+/**
+ * Wraps the primary content of the page in a <main> element for improved accessibility.
+ * This function checks if a <main> element already exists; if not, it creates one
+ * and moves all body content into it.
+ * @returns {Element|null} The <main> element if successfully created/wrapped, or null if body is not available
+ */
+function wrapPrimaryContentInMain() {
+  const body = document.body;
+
+  // Return null if body element is not available
+  if (!body) {
+    return null;
+  }
+
+  // Check if a <main> element already exists to avoid duplication
+  const existingMain = document.querySelector('main');
+  if (existingMain) {
+    return existingMain;
+  }
+
+  // Create a new <main> element
+  const main = document.createElement('main');
+
+  // Move all existing body children into the <main> element
+  while (body.firstChild) {
+    main.appendChild(body.firstChild);
+  }
+
+  // Append the <main> element to the body
+  body.appendChild(main);
+
+  return main;
+}
+
 // REACT_025: Ensure unique landmarks
 function ensureUniqueLandmarks(html) {
     if (typeof html !== 'string') return html;
@@ -267,9 +332,66 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
+    button.setAttribute('aria-label', buttonText); // Added for accessibility
+    button.setAttribute('role', 'button'); // Added for accessibility
     document.body.appendChild(button);
 }
 
+// New function to improve accessibility for adding a new book
+/**
+ * Creates an accessible form for adding a new book with proper labels and ARIA attributes
+ * @param {string} formId - The ID for the form element
+ * @param {string} submitButtonId - The ID for the submit button
+ * @returns {HTMLFormElement} The created form element
+ */
+function createAccessibleBookForm(formId, submitButtonId) {
+    const form = document.createElement('form');
+    form.id = formId;
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-labelledby', `${formId}-title`);
+
+    // Add form title for accessibility
+    const title = document.createElement('h2');
+    title.id = `${formId}-title`;
+    title.textContent = 'Add New Book';
+    form.appendChild(title);
+
+    // Create accessible form fields
+    const createField = (labelText, inputId, inputType = 'text') => {
+        const fieldset = document.createElement('fieldset');
+        const label = document.createElement('label');
+        label.setAttribute('for', inputId);
+        label.textContent = labelText;
+        const input = document.createElement('input');
+        input.type = inputType;
+        input.id = inputId;
+        input.setAttribute('required', 'true');
+        input.setAttribute('aria-required', 'true');
+
+        fieldset.appendChild(label);
+        fieldset.appendChild(input);
+        return fieldset;
+    };
+
+    // Add form fields
+    form.appendChild(createField('Book Title:', `${formId}-title`));
+    form.appendChild(createField('Author:', `${formId}-author`));
+    form.appendChild(createField('Publication Year:', `${formId}-year`, 'number'));
+
+    // Add submit button
+    const submitButton = document.createElement('button');
+    submitButton.id = submitButtonId;
+    submitButton.type = 'submit';
+    submitButton.textContent = 'Add Book';
+    submitButton.setAttribute('aria-label', 'Submit new book form');
+    form.appendChild(submitButton);
+
+    return form;
+}
+
+// Don't forget to test your new additions in the test file
+
+// Export accessibility utility functions
 module.exports = {
     addLangAttribute,
     fixTableStructure,
@@ -281,7 +403,10 @@ module.exports = {
     addressAccessibilityIssues,
     createInPageButton,
     divide,
-    isLinkAccessible
+    isLinkAccessible,
+    checkLinkAccessibility,
+    wrapPrimaryContentInMain,
+    createAccessibleBookForm
 };
 
 // Run if executed directly

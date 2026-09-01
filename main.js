@@ -31,6 +31,62 @@ function getFullLangAttribute() {
   return 'en-US';
 }
 
+function handleCredentialResponse(response) {
+    // Implement the logic to handle the credential response
+    if (!response) {
+        return { success: false, error: 'No credential response provided' };
+    }
+
+    // Check if response contains expected credential data
+    if (!response.credential) {
+        return { success: false, error: 'Missing credential data in response' };
+    }
+
+    // Process credential information
+    try {
+        const credentialData = JSON.parse(response.credential);
+        
+        // Validate required fields
+        if (!credentialData.sub || !credentialData.email) {
+            return { success: false, error: 'Invalid credential data: missing required fields' };
+        }
+
+        // Handle different types of credential responses
+        switch (response.type) {
+            case 'google':
+                return {
+                    success: true,
+                    credential: credentialData,
+                    type: 'google',
+                    email: credentialData.email,
+                    sub: credentialData.sub
+                };
+            case 'facebook':
+                return {
+                    success: true,
+                    credential: credentialData,
+                    type: 'facebook',
+                    email: credentialData.email,
+                    id: credentialData.id
+                };
+            default:
+                return {
+                    success: true,
+                    credential: credentialData,
+                    type: response.type || 'unknown',
+                    email: credentialData.email
+                };
+        }
+    } catch (error) {
+        // Continue with existing code for failed parsing of credential response
+        return { 
+            success: false, 
+            error: 'Failed to parse credential response',
+            details: error.message
+        };
+    }
+}
+
 /**
  * Validates table accessibility compliance
  * @param {Object} table - The table object to validate
@@ -418,7 +474,7 @@ function createAccessibleBookForm(options) {
     fields: [],
     submitButton: createInPageButton({
       text: 'Submit Book',
-      ariaLabel: `Submit ${options.title} form',
+      ariaLabel: `Submit ${options.title} form`,
       onClick: options.onSubmit
     })
   };
@@ -540,13 +596,14 @@ enhanceAddBookAccessibility();
 
 // Export all functions for testing and external use
 module.exports = {
-  // ... (existing exports)
   generateAccessibilityReport,
   getLangAttribute,
   getFullLangAttribute,
+  handleCredentialResponse,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
+  validateLandmarkAttributes,
   validateLandmarkStructure,
   ensureUniqueLandmarks,
   getSvgAccessibleName,

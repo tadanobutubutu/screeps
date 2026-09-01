@@ -1,3 +1,17 @@
+// Required exports for the application
+export {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  fixLandmarkIssues,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  googleSignIn,
+  fixButtonIdentifiers
+};
+
 // Existing code from main.js (to be preserved)
 // ... (existing code) ...
 

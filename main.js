@@ -7,48 +7,71 @@ const { spawn } = require('child_process');
 // (This comment remains as-is)
 // TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, affectedFunction, updateFunction, accessibleFunction, main: acquiredMain } = require('./utilities');
+const {
+    createInPageButton,
+    createWebResourceButton,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    getLangAttribute,
+    validateAccessibilityReport,
+    affectedFunction,
+    updateFunction,
+    accessibleFunction,
+    main: acquiredMain,
+} = require('./utilities');
 
-const { myNewFunction, calculateSum, ensureElementHasId, addAriaLabel, renderDependencyGraphs, handleCredentialResponse, focusTrap, addressAccessibilityIssues } = require('./utilities');
+const {
+    myNewFunction,
+    calculateSum,
+    ensureElementHasId,
+    addAriaLabel,
+    renderDependencyGraphs,
+    handleCredentialResponse,
+    focusTrap,
+    addressAccessibilityIssues,
+} = require('./utilities');
 
 // Application data store
 let appData = {
-  tables: [],
-  config: {}
+    tables: [],
+    config: {},
 };
 
 // Accessibility utilities and functions
 const accessibilityUtils = {
-  // ... existing methods from both branches ...
+    // ... existing methods from both branches ...
 
-  /**
-   * Announce message to screen readers (from origin/head)
-   * @param {string} message - The message to announce
-   * @param {string} [priority='polite'] - The priority of the message (optional, defaults to 'polite')
-   */
-  announceToScreenReader: (message, priority = 'polite') => {
-    const announcer = document.createElement('div');
-    announcer.setAttribute('aria-live', priority);
-    announcer.setAttribute('aria-atomic', 'true');
-    announcer.className = 'sr-only';
-    announcer.style.position = 'absolute';
-    announcer.style.left = '-9999px';
-    announcer.textContent = message;
-    document.body.appendChild(announcer);
-    setTimeout(() => announcer.remove(), 1000);
-  },
+    /**
+     * Announce message to screen readers (from origin/head)
+     * @param {string} message - The message to announce
+     * @param {string} [priority='polite'] - The priority of the message (optional, defaults to 'polite')
+     */
+    announceToScreenReader: (message, priority = 'polite') => {
+        const announcer = document.createElement('div');
+        announcer.setAttribute('aria-live', priority);
+        announcer.setAttribute('aria-atomic', 'true');
+        announcer.className = 'sr-only';
+        announcer.style.position = 'absolute';
+        announcer.style.left = '-9999px';
+        announcer.textContent = message;
+        document.body.appendChild(announcer);
+        setTimeout(() => announcer.remove(), 1000);
+    },
 
-  /**
-   * Handle keyboard navigation (from origin/head)
-   * @param {Event} e - The keyboard event
-   * @param {Object} handlers - The handler functions for different keys
-   */
-  handleKeyboardNav: (e, handlers) => {
-    const key = e.key;
-    if (handlers[key]) {
-      handlers[key](e);
-    }
-  }
+    /**
+     * Handle keyboard navigation (from origin/head)
+     * @param {Event} e - The keyboard event
+     * @param {Object} handlers - The handler functions for different keys
+     */
+    handleKeyboardNav: (e, handlers) => {
+        const key = e.key;
+        if (handlers[key]) {
+            handlers[key](e);
+        }
+    },
 };
 
 /**
@@ -56,43 +79,43 @@ const accessibilityUtils = {
  * @returns {Object} Object containing initialized accessibility utilities and status
  */
 function initAccessibility() {
-  // Set lang attribute on html element if not set
-  if (document.documentElement.lang === undefined || document.documentElement.lang === '') {
-    document.documentElement.setAttribute('lang', 'en');
-  }
+    // Set lang attribute on html element if not set
+    if (document.documentElement.lang === undefined || document.documentElement.lang === '') {
+        document.documentElement.setAttribute('lang', 'en');
+    }
 
-  // Add skip link for keyboard navigation
-  const skipLink = document.createElement('a');
-  skipLink.href = '#main-content';
-  skipLink.className = 'sr-only';
-  skipLink.textContent = 'Skip to main content';
-  skipLink.addEventListener('focus', () => {
-    skipLink.classList.remove('sr-only');
-  });
-  skipLink.addEventListener('blur', () => {
-    skipLink.classList.add('sr-only');
-  });
-  document.body.insertBefore(skipLink, document.body.firstChild);
+    // Add skip link for keyboard navigation
+    const skipLink = document.createElement('a');
+    skipLink.href = '#main-content';
+    skipLink.className = 'sr-only';
+    skipLink.textContent = 'Skip to main content';
+    skipLink.addEventListener('focus', () => {
+        skipLink.classList.remove('sr-only');
+    });
+    skipLink.addEventListener('blur', () => {
+        skipLink.classList.add('sr-only');
+    });
+    document.body.insertBefore(skipLink, document.body.firstChild);
 
-  // Initialize focus trap for modals and dialogs
-  const focusableModal = document.querySelector('[role="dialog"], [role="alertdialog"]');
-  if (focusableModal) {
-    accessibilityUtils.focusTrap = focusTrap;
-  }
+    // Initialize focus trap for modals and dialogs
+    const focusableModal = document.querySelector('[role="dialog"], [role="alertdialog"]');
+    if (focusableModal) {
+        accessibilityUtils.focusTrap = focusTrap;
+    }
 
-  return {
-    utils: accessibilityUtils,
-    initialized: true
-  };
+    return {
+        utils: accessibilityUtils,
+        initialized: true,
+    };
 }
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 const ensureElementId = (element) => {
-  if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  return element;
+    if (element && !element.id) {
+        element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+    return element;
 };
 
 /**
@@ -100,7 +123,7 @@ const ensureElementId = (element) => {
  * @returns {Array} Array of table objects
  */
 function getTables() {
-  return appData.tables;
+    return appData.tables;
 }
 
 /**
@@ -108,7 +131,7 @@ function getTables() {
  * @returns {Object} Configuration object
  */
 function getConfig() {
-  return { ...appData.config };
+    return { ...appData.config };
 }
 
 /**
@@ -116,85 +139,85 @@ function getConfig() {
  * @param {Object} config - Configuration object
  */
 function setConfig(config) {
-  appData.config = { ...appData.config, ...config };
+    appData.config = { ...appData.config, ...config };
 }
 
 const renderDependencyGraph = (data) => {
-  // Implementation for rendering dependency graphs
-  return {
-    nodes: data.nodes || [],
-    edges: data.edges || []
-  };
+    // Implementation for rendering dependency graphs
+    return {
+        nodes: data.nodes || [],
+        edges: data.edges || [],
+    };
 };
 
 function newFocusTrap() {
-  // New function implementation
+    // New function implementation
 }
 
 function spawnProcess(command, args = [], options = {}) {
-  return spawn(command, args, options);
+    return spawn(command, args, options);
 }
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9_.-]/g, '_');
+    return filename.replace(/[^a-zA-Z0-9_.-]/g, '_');
 }
 
 function readFileSafe(filePath) {
-  try {
-    return fs.readFileSync(filePath, 'utf8');
-  } catch (error) {
-    log(`Error reading file ${filePath}: ${error.message}`, 'error');
-    return null;
-  }
+    try {
+        return fs.readFileSync(filePath, 'utf8');
+    } catch (error) {
+        log(`Error reading file ${filePath}: ${error.message}`, 'error');
+        return null;
+    }
 }
 
 // Existing utility functions
 function log(message, level = 'info') {
-  const timestamp = new Date().toISOString();
-  console.log(`${timestamp} [${level.toUpperCase()}] ${message}`);
+    const timestamp = new Date().toISOString();
+    console.log(`${timestamp} [${level.toUpperCase()}] ${message}`);
 }
 
 // Export functionality with accessibility support
 const exportUtils = {
-  exportData: (data, filename, mimeType) => {
-    const blob = new Blob([data], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.setAttribute('aria-label', `Download ${filename}`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    exportData: (data, filename, mimeType) => {
+        const blob = new Blob([data], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.setAttribute('aria-label', `Download ${filename}`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
 
-    // Announce download completion to screen readers
-    accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
-  },
+        // Announce download completion to screen readers
+        accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
+    },
 
-  exportToJSON: (data, filename) => {
-    const jsonString = JSON.stringify(data, null, 2);
-    exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
-  },
+    exportToJSON: (data, filename) => {
+        const jsonString = JSON.stringify(data, null, 2);
+        exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
+    },
 
-  exportToCSV: (data, filename) => {
-    if (!data || data.length === 0) return;
+    exportToCSV: (data, filename) => {
+        if (!data || data.length === 0) return;
 
-    const headers = Object.keys(data[0]);
-    const csvRows = [];
-    csvRows.push(headers.join(','));
+        const headers = Object.keys(data[0]);
+        const csvRows = [];
+        csvRows.push(headers.join(','));
 
-    for (const row of data) {
-      const values = headers.map(header => {
-        const escaped = ('' + row[header]).replace(/"/g, '\\"');
-        return `"${escaped}"`;
-      });
-      csvRows.push(values.join(','));
-    }
+        for (const row of data) {
+            const values = headers.map((header) => {
+                const escaped = ('' + row[header]).replace(/"/g, '\\"');
+                return `"${escaped}"`;
+            });
+            csvRows.push(values.join(','));
+        }
 
-    const csvString = csvRows.join('\n');
-    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
-  }
+        const csvString = csvRows.join('\n');
+        exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
+    },
 };
 
 /**
@@ -208,130 +231,130 @@ const exportUtils = {
  * @returns {HTMLButtonElement} The created button element
  */
 function createInPageButton({ text, id, className, ariaLabel, onClick }) {
-  const button = document.createElement('button');
-  button.textContent = text;
+    const button = document.createElement('button');
+    button.textContent = text;
 
-  if (id) {
-    button.id = id;
-  } else {
-    button.id = `btn-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  if (className) {
-    button.className = className;
-  }
-
-  if (ariaLabel) {
-    button.setAttribute('aria-label', ariaLabel);
-  } else {
-    button.setAttribute('aria-label', text);
-  }
-
-  if (onClick) {
-    button.addEventListener('click', onClick);
-  }
-
-  // Add keyboard accessibility
-  button.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      button.click();
+    if (id) {
+        button.id = id;
+    } else {
+        button.id = `btn-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     }
-  });
 
-  return button;
+    if (className) {
+        button.className = className;
+    }
+
+    if (ariaLabel) {
+        button.setAttribute('aria-label', ariaLabel);
+    } else {
+        button.setAttribute('aria-label', text);
+    }
+
+    if (onClick) {
+        button.addEventListener('click', onClick);
+    }
+
+    // Add keyboard accessibility
+    button.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            button.click();
+        }
+    });
+
+    return button;
 }
 
 // Main entry point
 function _main() {
-  // Application initialization
-  return 'main function executed';
+    // Application initialization
+    return 'main function executed';
 }
 
 // Import and call the newer functions if they exist and are compatible
 if (acquiredMain) {
-  _main = acquiredMain;
+    _main = acquiredMain;
 }
 if (affectedFunction) {
-  _main = _main.bind(null, affectedFunction);
+    _main = _main.bind(null, affectedFunction);
 }
 if (updateFunction) {
-  _main = _main.bind(null, updateFunction);
+    _main = _main.bind(null, updateFunction);
 }
 if (accessibleFunction) {
-  _main = _main.bind(null, accessibleFunction);
+    _main = _main.bind(null, accessibleFunction);
 }
 
 // Export functions to make them accessible
 module.exports = {
-  main: _main,
-  myNewFunction,
-  calculateSum,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  handleCredentialResponse,
-  focusTrap,
-  addressAccessibilityIssues,
-  createInPageButton,
-  createWebResourceButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  accessibilityUtils,
-  exportUtils,
-  initAccessibility,
-  ensureElementId,
-  renderDependencyGraph,
-  newFocusTrap,
-  spawnProcess,
-  getTables,
-  getConfig,
-  setConfig,
-  sanitizeFilename,
-  readFileSafe,
-  log,
-  appData,
-  dependencyGraphContent,
-  indexContent
+    main: _main,
+    myNewFunction,
+    calculateSum,
+    ensureElementHasId,
+    addAriaLabel,
+    renderDependencyGraphs,
+    handleCredentialResponse,
+    focusTrap,
+    addressAccessibilityIssues,
+    createInPageButton,
+    createWebResourceButton,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    getLangAttribute,
+    validateAccessibilityReport,
+    accessibilityUtils,
+    exportUtils,
+    initAccessibility,
+    ensureElementId,
+    renderDependencyGraph,
+    newFocusTrap,
+    spawnProcess,
+    getTables,
+    getConfig,
+    setConfig,
+    sanitizeFilename,
+    readFileSafe,
+    log,
+    appData,
+    dependencyGraphContent,
+    indexContent,
 };
 
 // Also attach to global scope for browser/standalone access
 if (typeof window !== 'undefined') {
-  window.main = _main;
-  window.myNewFunction = myNewFunction;
-  window.calculateSum = calculateSum;
-  window.ensureElementHasId = ensureElementHasId;
-  window.addAriaLabel = addAriaLabel;
-  window.renderDependencyGraphs = renderDependencyGraphs;
-  window.handleCredentialResponse = handleCredentialResponse;
-  window.focusTrap = focusTrap;
-  window.addressAccessibilityIssues = addressAccessibilityIssues;
-  window.createInPageButton = createInPageButton;
-  window.createWebResourceButton = createWebResourceButton;
-  window.validateTableAccessibility = validateTableAccessibility;
-  window.validateTableStructure = validateTableStructure;
-  window.validateLandmark = validateLandmark;
-  window.validateLandmarkStructure = validateLandmarkStructure;
-  window.getSvgAccessibleName = getSvgAccessibleName;
-  window.getLangAttribute = getLangAttribute;
-  window.validateAccessibilityReport = validateAccessibilityReport;
-  window.accessibilityUtils = accessibilityUtils;
-  window.exportUtils = exportUtils;
-  window.initAccessibility = initAccessibility;
-  window.ensureElementId = ensureElementId;
-  window.renderDependencyGraph = renderDependencyGraph;
-  window.newFocusTrap = newFocusTrap;
-  window.spawnProcess = spawnProcess;
-  window.getTables = getTables;
-  window.getConfig = getConfig;
-  window.setConfig = setConfig;
-  window.sanitizeFilename = sanitizeFilename;
-  window.readFileSafe = readFileSafe;
-  window.log = log;
-  window.appData = appData;
+    window.main = _main;
+    window.myNewFunction = myNewFunction;
+    window.calculateSum = calculateSum;
+    window.ensureElementHasId = ensureElementHasId;
+    window.addAriaLabel = addAriaLabel;
+    window.renderDependencyGraphs = renderDependencyGraphs;
+    window.handleCredentialResponse = handleCredentialResponse;
+    window.focusTrap = focusTrap;
+    window.addressAccessibilityIssues = addressAccessibilityIssues;
+    window.createInPageButton = createInPageButton;
+    window.createWebResourceButton = createWebResourceButton;
+    window.validateTableAccessibility = validateTableAccessibility;
+    window.validateTableStructure = validateTableStructure;
+    window.validateLandmark = validateLandmark;
+    window.validateLandmarkStructure = validateLandmarkStructure;
+    window.getSvgAccessibleName = getSvgAccessibleName;
+    window.getLangAttribute = getLangAttribute;
+    window.validateAccessibilityReport = validateAccessibilityReport;
+    window.accessibilityUtils = accessibilityUtils;
+    window.exportUtils = exportUtils;
+    window.initAccessibility = initAccessibility;
+    window.ensureElementId = ensureElementId;
+    window.renderDependencyGraph = renderDependencyGraph;
+    window.newFocusTrap = newFocusTrap;
+    window.spawnProcess = spawnProcess;
+    window.getTables = getTables;
+    window.getConfig = getConfig;
+    window.setConfig = setConfig;
+    window.sanitizeFilename = sanitizeFilename;
+    window.readFileSafe = readFileSafe;
+    window.log = log;
+    window.appData = appData;
 }

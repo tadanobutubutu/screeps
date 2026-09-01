@@ -1,6 +1,3 @@
-Here's the resolved version of the file, fixing syntax issues and duplicates while preserving both changes:
-
-```javascript
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -278,4 +275,3 @@ function initApp() {
 
 // Call the initApp function to kick off the application
 initApp();
-```

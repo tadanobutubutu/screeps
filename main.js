@@ -4,13 +4,13 @@
 // Dependency imports
 const http = require('http');
 const url = require('url');
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
+const { dependencyGraphContent } = require('./content/dependency-graph');
+const { indexContent } = require('./content/index');
 const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
 const { main } = require('./utilities');
-const { functionA, functionB } = require('./functionModule');
+const { functionA, functionB } = require('./other-utilities');
 
 const { http } = require('http');
 const url = require('url');
@@ -52,7 +52,7 @@ const validateTableAccessibility = (html) => {
     // Check for scope attributes on th elements
     const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
     thMatches.forEach((thTag, index) => {
-      if (!/scope=["'](row|col|rowgroup|colgroup)["']/i.test(thTag)) {
+      if (!/scope=["'](col|row|rowgroup|colgroup)["']/i.test(thTag)) {
         issues.push({
           type: 'table',
           severity: 'info',
@@ -63,8 +63,8 @@ const validateTableAccessibility = (html) => {
     });
     
     // Check for thead and tbody structure
-    const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent);
-    const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent);
+    const hasThead = /<thead[^>]*>/i.test(tableContent);
+    const hasTbody = /<tbody[^>]*>/i.test(tableContent);
     
     if (!hasThead) {
       issues.push({
@@ -85,10 +85,10 @@ const validateTableAccessibility = (html) => {
     }
     
     // Check for id and headers attributes for complex tables
-    const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
+    const hasMultipleHeaders = (tableContent.match(/<th[^>]*>/gi) || []).length > 1;
     if (hasMultipleHeaders) {
-      const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
-      const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
+      const hasHeadersAttr = /headers=["'][^"']+["']/i.test(tableContent);
+      const hasIdAttr = /<th[^>]*\sid=["'][^"']+["']/i.test(tableContent);
       
       if (!hasIdAttr && !hasHeadersAttr) {
         issues.push({
@@ -106,7 +106,7 @@ const validateTableAccessibility = (html) => {
 
 // Re-add the required exports for functionA and functionB
 // Assuming that they are objects with properties X, Y, and Z
-const { functionA, functionB } = require('./functionModule');
+const { functionA, functionB } = require('./other-module');
 
 // App state for session management
 const appState = {
@@ -132,8 +132,6 @@ function handleCredentialResponse(credentialResponse) {
 
 const a11yStore = {
   // ... existing methods ...
-};
-
   prefersReducedMotion() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
@@ -143,20 +141,85 @@ const a11yStore = {
   },
 
   updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
+    if (!this.liveRegion) {
+      this.liveRegion = document.createElement('div');
+      this.liveRegion.setAttribute('aria-live', priority);
+      this.liveRegion.setAttribute('aria-atomic', 'true');
+      this.liveRegion.className = 'sr-only';
+      document.body.appendChild(this.liveRegion);
+    }
     this.announce(message, priority);
   },
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark) => {
+      const landmarks = document.getElementsByTagName(element);
+      landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
+          landmark.id = `${element}-${index}`;
         }
 
         if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria
-```
+          if (element === 'main' && landmark.getAttribute('role') !== 'main') {
+            landmark.setAttribute('role', 'main');
+          }
+        }
+      });
+    });
+  },
+
+  // Focus trap function for keyboard navigation
+  trapFocus(containerElement) {
+    const focusableSelectors = [
+      'a[href]',
+      'button:not([disabled])',
+      'textarea:not([disabled])',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])'
+    ].join(', ');
+
+    const focusableElements = containerElement.querySelectorAll(focusableSelectors);
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+
+    const handleKeyDown = (event) => {
+      const isTabPressed = event.key === 'Tab' || event.keyCode === 9;
+
+      if (!isTabPressed) {
+        return;
+      }
+
+      if (event.shiftKey) {
+        // Shift + Tab
+        if (document.activeElement === firstFocusable) {
+          event.preventDefault();
+          lastFocusable.focus();
+        }
+      } else {
+        // Tab
+        if (document.activeElement === lastFocusable) {
+          event.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    };
+
+    containerElement.addEventListener('keydown', handleKeyDown);
+
+    // Return cleanup function
+    return () => {
+      containerElement.removeEventListener('keydown', handleKeyDown);
+    };
+  }
+};
+
+module.exports = {
+  a11yStore,
+  validateTableAccessibility,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  trapFocus: (element) => a11yStore.trapFocus(element)
+};

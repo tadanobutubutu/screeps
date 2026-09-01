@@ -1,19 +1,14 @@
+Here is the resolved file content:
+
+```javascript
 // main.js - Entry point for the application
-
-// TODO: Address accessibility issues from insight report:
-// ... (Removed hashes for ease of reading)
-
-// Accessibility improvements:
-// - Added semantic HTML structure
-// - Included ARIA attributes where necessary
-// - Ensured keyboard navigation support
-// - Added focus management
 
 // Import required modules
 const utils = require('./utils');
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const accessiblyHelper = require('./accessibly-helper');
 
 // Application configuration
 const config = {
@@ -32,7 +27,6 @@ function initialize() {
 
 // Main initialization function
 const initializeApp = () => {
-  // Main initialization function
   console.log('Application initialized');
 
   // Ensure the app is accessible
@@ -55,85 +49,61 @@ const initializeApp = () => {
 
 // Landmark processing utilities
 function isValidLandmark(landmark) {
-    return landmark &&
-           typeof landmark.id !== 'undefined' &&
-           landmark.id !== null;
+  return landmark &&
+         typeof landmark.id !== 'undefined' &&
+         landmark.id !== null;
 }
 
-function loadLandmarks() {
-    try {
-        const filePath = path.join(__dirname, config.dataPath, 'landmarks.json');
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error loading landmarks:', error.message);
-        return [];
+// Accessibility functions
+function getLangAttribute(element) {
+  return element.getAttribute('lang') || document.documentElement.getAttribute('lang');
+}
+
+function createInPageButton(targetId, text) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.addEventListener('click', () => {
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.focus();
+      target.scrollIntoView();
     }
+  });
+  return button;
+}
+
+function getLandmarks() {
+  const landmarks = [];
+  const elements = document.querySelectorAll('[role]');
+  elements.forEach(el => {
+    const role = el.getAttribute('role');
+    if (CONFIG.landmarkRoles.includes(role)) {
+      landmarks.push(el);
+    }
+  });
+  return landmarks;
 }
 
 function processLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
-
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
-    return uniqueLandmarks.slice(0, config.maxResults);
+  return landmarks.map(landmark => ({
+    element: landmark,
+    role: landmark.getAttribute('role'),
+    label: landmark.getAttribute('aria-label') || '',
+    id: landmark.id || ''
+  }));
 }
 
-function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
-
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(nameA);
-    });
+function sortLandmarks(landmarks) {
+  const roleOrder = CONFIG.landmarkRoles;
+  return landmarks.sort((a, b) => roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role));
 }
 
-function getLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
-}
-
-function ensureUniqueLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
-
-    const seen = new Set();
-    const uniqueLandmarks = [];
-
-    for (const landmark of landmarks) {
-        if (!landmark || typeof landmark.id === 'undefined') {
-            continue;
-        }
-
-        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-        if (!seen.has(landmarkId)) {
-            seen.add(landmarkId);
-            uniqueLandmarks.push(landmark);
-        }
-    }
-
-    return uniqueLandmarks;
-}
-
-// Function to write the generated report to a file
-function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
-  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
+function getLandmarkById(id) {
+  const element = document.getElementById(id);
+  if (element && isValidLandmark(element)) {
+    return element;
+  }
+  return null;
 }
 
 // Utilities
@@ -150,18 +120,13 @@ function main() {
 }
 
 // TODO: Add your code here
-function newFunction() {
-  // Implementation for the new function
-  console.log('New function added');
-}
-
 async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
+  // ... Scanning and reporting accessibility issues using axe-core ...
 }
 
 // Main execution when run directly
 if (require.main === module) {
-  const landmarks = loadLandmarks();
+  const landmarks = getLandmarks();
   const processed = processLandmarks(landmarks);
   const sorted = sortLandmarks(processed);
 
@@ -174,33 +139,18 @@ if (require.main === module) {
   }
 }
 
-// Export existing functions
-module.exports = {
-  config,
-  initialize,
-  initializeApp,
-  main,
-  helperFunction: utils.helper,
-  validateInput,
-  processData,
-  formatResponse,
-  generateAccessibilityReport,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  ensureUniqueLandmarks,
-  newFunction
-};
+// Export all functions for use in other modules
+module.exports.initialize = initialize;
+module.exports.initializeApp = initializeApp;
+module.exports.getLandmarks = getLandmarks;
+module.exports.processLandmarks = processLandmarks;
+module.exports.sortLandmarks = sortLandmarks;
+module.exports.getLandmarkById = getLandmarkById;
+module.exports.configure = config;
+module.exports.addLangAttribute = accessiblyHelper.addLangAttribute;
+module.exports.createInPageButton = accessiblyHelper.createInPageButton;
+module.exports.scanAccessibility = scanAccessibility;
+module.exports.main = main;
+```
 
-module.exports.functionA = {
-  X: 'valueX',
-  Y: 'valueY',
-  Z: 'valueZ'
-};
-
-module.exports.functionB = {
-  X: 'valueX',
-  Y: 'valueY',
-  Z: 'valueZ'
-};
+This solution integrates changes from both branches, including the merged accessibility improvements and additional modules imports.

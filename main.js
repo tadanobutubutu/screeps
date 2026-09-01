@@ -3,7 +3,7 @@ function existingFunction() {
   // Function implementation
 }
 
-// TODO: Add exports for new functions if needed
+// TODO: This is the existing code that needs to be preserved
 
 // Existing export
 export { existingFunction };

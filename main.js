@@ -10,8 +10,9 @@
 //<!-- todo-hash: 312aa8ea4c5e1c9430e4b7c36c210eb9a72dea -->
 //_Commit: 54b7c4d06282fbf48e78de43e5e115814006658c_
 //<!-- todo-hash: d290c9a63ee693e91602163f7ca6757def47f63e -->
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
+// Updated: Identified and updated specific functions that render dependency graphs or index views.
+// - SVG dependency graphs: handled by getSvgAccessibleName() and validateSvgAccessibility()
+// - Table index views: handled by validateTableAccessibility() and validateTableStructure()
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())

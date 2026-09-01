@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -148,10 +145,71 @@ const AddressabilityIssues = {
       devDependencies: Object.keys(devDependencies).length,
       total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
+  },
+
+  fixTableStructure(tableElement) {
+    if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
+      return { success: false, error: 'Invalid table element provided' };
+    }
+
+    // Ensure table has proper structure
+    let hasThead = false;
+    let hasTbody = false;
+    let hasTfoot = false;
+
+    // Check for existing structure
+    const children = Array.from(tableElement.children);
+    children.forEach(child => {
+      const tagName = child.tagName.toLowerCase();
+      if (tagName === 'thead') hasThead = true;
+      if (tagName === 'tbody') hasTbody = true;
+      if (tagName === 'tfoot') hasTfoot = true;
+    });
+
+    // Create missing sections
+    if (!hasThead) {
+      const thead = document.createElement('thead');
+      if (children.length > 0) {
+        tableElement.insertBefore(thead, children[0]);
+      } else {
+        tableElement.appendChild(thead);
+      }
+    }
+
+    if (!hasTbody) {
+      const tbody = document.createElement('tbody');
+      tableElement.appendChild(tbody);
+    }
+
+    // Move any direct tr elements to tbody
+    const directTrs = children.filter(child => child.tagName.toLowerCase() === 'tr');
+    if (directTrs.length > 0) {
+      const tbody = tableElement.querySelector('tbody');
+      directTrs.forEach(tr => {
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Ensure proper table structure
+    const rows = tableElement.querySelectorAll('tr');
+    if (rows.length > 0) {
+      // Check for proper th/td structure in header rows
+      const firstRow = rows[0];
+      const cells = Array.from(firstRow.children);
+      const hasTh = cells.some(cell => cell.tagName.toLowerCase() === 'th');
+
+      if (!hasTh) {
+        // Convert first row to header row if it doesn't have th elements
+        cells.forEach(cell => {
+          const th = document.createElement('th');
+          th.innerHTML = cell.innerHTML;
+          firstRow.replaceChild(th, cell);
+        });
+      }
+    }
+
+    return { success: true, message: 'Table structure fixed successfully' };
   }
 };
 
 // ... (other functions and setting up exports)
-```
-
-The conflicts in the `AddressabilityIssues` object were resolved by combining both changes and fixing the syntax errors. The `spawnSomeCommand` function was also modified to use the existing `child_process` module for spawning the command.

@@ -72,14 +72,14 @@ const ensureElementId = (element) => {
   return element;
 };
 
-const addAriaLabel = (element, label) => {
+const addAriaLabelOriginal = (element, label) => {
   if (element) {
     element.setAttribute('aria-label', label);
   }
   return element;
 };
 
-const renderDependencyGraph = (data) => {
+const renderDependencyGraphOriginal = (data) => {
   // Implementation for rendering dependency graphs
   return {
     nodes: data.nodes || [],
@@ -137,11 +137,11 @@ function addAriaLabel(element, label) {
   if (!element) {
     return null;
   }
-  
+
   if (typeof label !== 'string' || label.trim() === '') {
     return element;
   }
-  
+
   element.setAttribute('aria-label', label);
   return element;
 }
@@ -157,10 +157,10 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
   if (!element) {
     return null;
   }
-  
+
   const id = ensureElementHasId(element, idPrefix);
   addAriaLabel(element, ariaLabel);
-  
+
   return id;
 }
 
@@ -171,7 +171,7 @@ function renderDependencyGraph() {
   if (container) {
     container.setAttribute('role', 'region');
     container.setAttribute('aria-label', 'Dependency graph visualization');
-    
+
     // Ensure the container has an id for accessibility
     ensureElementHasId(container, 'dep-graph');
   }
@@ -181,7 +181,7 @@ function renderDependencyGraph() {
 
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, checkAccessibility, getLangAttribute: getLangAttributeImpl, createInPageButton: createInPageButtonImpl, validateTableAccessibility: validateTableAccessibilityImpl, validateTableStructure: validateTableStructureImpl, getSvgAccessibleName: getSvgAccessibleNameImpl, setSvgAttributes: setSvgAttributesImpl, ensureUniqueLandmarks: ensureUniqueLandmarksImpl, validateLinkAccessibility: validateLinkAccessibilityImpl, handleFakeLinks: handleFakeLinksImpl, addProperLandmarkRegions: addProperLandmarkRegionsImpl, checkFocusOrder: checkFocusOrderImpl, enhanceTableNavigation: enhanceTableNavigationImpl, improveContrast: improveContrastImpl, newFunction } = main;
+const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel: addAriaLabelImported, renderDependencyGraph: renderDependencyGraphImported, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, checkAccessibility, getLangAttribute: getLangAttributeImpl, createInPageButton: createInPageButtonImpl, validateTableAccessibility: validateTableAccessibilityImpl, validateTableStructure: validateTableStructureImpl, getSvgAccessibleName: getSvgAccessibleNameImpl, setSvgAttributes: setSvgAttributesImpl, ensureUniqueLandmarks: ensureUniqueLandmarksImpl, validateLinkAccessibility: validateLinkAccessibilityImpl, handleFakeLinks: handleFakeLinksImpl, addProperLandmarkRegions: addProperLandmarkRegionsImpl, checkFocusOrder: checkFocusOrderImpl, enhanceTableNavigation: enhanceTableNavigationImpl, improveContrast: improveContrastImpl, newFunction } = main;
 
 // Implement the function for addressing accessibility issues from insight report
 function newFunction() {
@@ -415,8 +415,8 @@ module.exports = {
   initAccessibility,
   handleCredentialResponse,
   ensureElementId,
-  addAriaLabel,
-  renderDependencyGraph,
+  addAriaLabel: addAriaLabelOriginal,
+  renderDependencyGraph: renderDependencyGraphOriginal,
   calculateSum,
   getLangAttribute,
   personName,

@@ -23,3 +23,25 @@ function countDependencies(dependencies) {
   }
   return dependencies.filter(Boolean).length;
 }
+
+// Assuming main.js has a <html> tag, add the lang attribute based on your content
+// For example, if the page is in English, set lang to 'en'
+// This function should be called when the page loads or when the language changes
+function setLangAttribute() {
+  // TODO: Determine the current language of the page
+  // For this example, let's assume we have a function that returns the current language
+  const currentLang = getLangAttribute();
+
+  // Set the lang attribute on the <html> element
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', currentLang);
+  }
+}
+
+// Call the setLangAttribute function when the page loads
+document.addEventListener('DOMContentLoaded', setLangAttribute);
+
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Assuming main.js has a <html> tag, add the lang attribute based on your content
+// For example, if the page is in English, set lang to 'en'

@@ -6,7 +6,16 @@
  */
 
 // Common landmark selectors
-const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form'];
+const LANDMARK_ELEMENTS = [
+    'main',
+    'nav',
+    'aside',
+    'header',
+    'footer',
+    'section',
+    'article',
+    'form',
+];
 const LANDMARK_SELECTORS = LANDMARK_ELEMENTS.join(', ');
 
 /**
@@ -16,9 +25,9 @@ const LANDMARK_SELECTORS = LANDMARK_ELEMENTS.join(', ');
  */
 function findLandmarks(context = document) {
     const landmarks = [];
-    LANDMARK_ELEMENTS.forEach(tag => {
+    LANDMARK_ELEMENTS.forEach((tag) => {
         const elements = context.querySelectorAll(tag);
-        elements.forEach(el => landmarks.push(el));
+        elements.forEach((el) => landmarks.push(el));
     });
     return landmarks;
 }
@@ -70,36 +79,34 @@ function checkLandmarkElements(htmlContent) {
             foundLandmarks[landmark] = matches.length;
         }
     });
-    
+
     // Validate forms have accessible names
     const forms = context.querySelectorAll('form');
     forms.forEach((form, index) => {
-        const hasLabel = form.getAttribute('aria-label') || 
-                         form.getAttribute('aria-labelledby');
+        const hasLabel = form.getAttribute('aria-label') || form.getAttribute('aria-labelledby');
         if (!hasLabel && form.querySelectorAll('input, select, textarea').length > 0) {
             issues.push({
                 type: 'warning',
                 code: 'FORM_WITHOUT_NAME',
-                message: `Form at index ${index} should have an accessible name if it contains form controls`
+                message: `Form at index ${index} should have an accessible name if it contains form controls`,
             });
         }
     });
-    
+
     // Validate navigation elements
     const navElements = context.querySelectorAll('nav');
     navElements.forEach((nav, index) => {
-        const hasLabel = nav.getAttribute('aria-label') || 
-                         nav.getAttribute('aria-labelledby');
+        const hasLabel = nav.getAttribute('aria-label') || nav.getAttribute('aria-labelledby');
         const isMultipleNav = navElements.length > 1 && !hasLabel;
         if (isMultipleNav) {
             issues.push({
                 type: 'warning',
                 code: 'NAV_WITHOUT_LABEL',
-                message: `Navigation at index ${index} should have an aria-label when multiple nav elements exist`
+                message: `Navigation at index ${index} should have an aria-label when multiple nav elements exist`,
             });
         }
     });
-    
+
     // Check for proper header/footer usage
     const headers = context.querySelectorAll('header');
     headers.forEach((header, index) => {
@@ -108,11 +115,10 @@ function checkLandmarkElements(htmlContent) {
             issues.push({
                 type: 'info',
                 code: 'HEADER_NESTING',
-                message: `Header at index ${index} is inside main content - consider if this is the intended use`
+                message: `Header at index ${index} is inside main content - consider if this is the intended use`,
             });
         }
     });
-    
 
     // Check for required main landmark
     if (!foundLandmarks.main) {
@@ -178,35 +184,35 @@ function createInPageButton(options) {
 
 // New function to validate link accessibility and handle fake links
 const validateLinkAccessibility = () => {
-  const links = document.getElementsByTagName('a')
-  for (let i = 0; i < links.length; i++) {
-    const link = links[i]
-    if (link.href.startsWith('#') || !link.hasAttribute('href')) {
-      handleFakeLinks(link)
+    const links = document.getElementsByTagName('a');
+    for (let i = 0; i < links.length; i++) {
+        const link = links[i];
+        if (link.href.startsWith('#') || !link.hasAttribute('href')) {
+            handleFakeLinks(link);
+        }
     }
-  }
-}
+};
 
 // New function to handle fake links by wrapping them in an in-page button
 const handleFakeLinks = (link) => {
-  const fakeLinkButton = createInPageButton({ text: link.textContent, onClick: () => {} })
-  link.textContent = ''
-  link.setAttribute('target', '_top')
-  link.addEventListener('click', (event) => {
-    event.preventDefault()
-    fakeLinkButton.onClick()
-  })
-}
+    const fakeLinkButton = createInPageButton({ text: link.textContent, onClick: () => {} });
+    link.textContent = '';
+    link.setAttribute('target', '_top');
+    link.addEventListener('click', (event) => {
+        event.preventDefault();
+        fakeLinkButton.onClick();
+    });
+};
 
 // New function to wrap primary content in a main element
 const wrapPrimaryContentInMain = () => {
-  const primaryContent = document.getElementById('primary-content')
-  if (primaryContent) {
-    const mainElement = document.createElement('main')
-    mainElement.appendChild(primaryContent)
-    document.body.insertBefore(mainElement, document.body.firstChild)
-  }
-}
+    const primaryContent = document.getElementById('primary-content');
+    if (primaryContent) {
+        const mainElement = document.createElement('main');
+        mainElement.appendChild(primaryContent);
+        document.body.insertBefore(mainElement, document.body.firstChild);
+    }
+};
 
 // New function to count dependencies
 function countDependencies() {
@@ -333,9 +339,9 @@ function newFunction() {
 
 // New function to get the language attribute value
 const getLangAttribute = () => {
-  // Assuming the function to determine the page language
-  // This is a placeholder for the actual implementation
-  return 'en';
+    // Assuming the function to determine the page language
+    // This is a placeholder for the actual implementation
+    return 'en';
 };
 
 // Example of addressing REACT_015: Add lang attribute to HTML element

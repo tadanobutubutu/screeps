@@ -53,6 +53,22 @@ function getAccessibleLinkProps(href, label) {
   };
 };
 
+// REACT_040: Helper to replace my-button with actual button id for accessibility
+function getAccessibleButtonProps(id, label) {
+  return {
+    id,
+    'aria-label': label,
+  };
+};
+
+// REACT_042: Helper to ensure dependencyGraph container has proper ARIA role
+function getDependencyGraphContainerProps() {
+  return {
+    role: 'region',
+    'aria-label': 'Dependency graph visualization',
+  };
+};
+
 // Function to count dependencies
 function countDependencies() {
   const dependencies = {
@@ -196,7 +212,7 @@ function Main() {
   // Render the list of book items and sorting controls
   return (
     <main {...getLandmarkProps('main', 'Main content')}>
-      <div>
+      <div {...getDependencyGraphContainerProps()}>
         <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
         <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
         <List
@@ -233,7 +249,7 @@ function Main() {
               aria-required="true"
             />
           </div>
-          <button type="submit">
+          <button type="submit" {...getAccessibleButtonProps('add-book-button', 'Add new book')}>
             {typeof enhanceAccessibilityForAddBook === 'function' ? 'Add Book (Experimental Accessibility Improvements)' : 'Add Book'}
           </button>
         </form>

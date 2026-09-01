@@ -158,5 +158,9 @@ const a11yStore = {
 
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria
-```
+            landmark.setAttribute('aria-label', `Navigation: ${element}`);
+          }
+        }
+      });
+    });
+  }

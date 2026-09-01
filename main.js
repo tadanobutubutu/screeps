@@ -64,6 +64,41 @@ const accessibilityUtils = {
   // - REACT_041: Add accessible names to 2 SVGs
   // - REACT_025: Ensure unique landmarks
   // - REACT_036: Fix 1 fake link issue
+
+  // New function for generating accessibility report
+  generateAccessibilityReport: async (options = {}) => {
+    const { axe } = await import('axe-core');
+    const results = await axe.run(options.selector || document, {
+      runOnly: options.rules || {
+        type: 'tag',
+        values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']
+      }
+    });
+
+    const report = {
+      timestamp: new Date().toISOString(),
+      url: window.location.href,
+      violations: results.violations.map(violation => ({
+        id: violation.id,
+        description: violation.description,
+        help: violation.help,
+        helpUrl: violation.helpUrl,
+        nodes: violation.nodes.length,
+        impact: violation.impact
+      })),
+      passes: results.passes.length,
+      incomplete: results.incomplete.length,
+      totalViolations: results.violations.length
+    };
+
+    if (options.output === 'console') {
+      console.log('Accessibility Report:', report);
+    } else if (options.output === 'json') {
+      return JSON.stringify(report, null, 2);
+    }
+
+    return report;
+  }
 };
 
 // Functions already existing in the file to preserve

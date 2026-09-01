@@ -53,6 +53,16 @@ export const main = {
   // New function to address all accessibility issues
   addressAccessibilityIssues: function() {
     fixAccessibilityIssues();
+  },
+
+  // New function to visualize dependency tree
+  visualizeDependencyTree: function(dependencies) {
+    visualizeDependencyTree(dependencies);
+  },
+
+  // New function to generate dependency report
+  generateDependencyReport: function(dependencies) {
+    return generateDependencyReport(dependencies);
   }
 };
 

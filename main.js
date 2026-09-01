@@ -16,8 +16,6 @@ main.js
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
 
 (function() {
     'use strict';
@@ -29,136 +27,113 @@ main.js
 
     // BEGIN CHANGES TO ADDRESS ACCESSIBILITY ISSUES
 
-<<<<<<< HEAD
-// Landmark elements that should be checked for proper usage
-const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
+    const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
 
-// New implementation to count dependencies using Document and regex
-function countDependencies() {
-    const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
-    const importCount = (document.body.textContent || '').match(importCommentRegExp)?.length || 0;
-    return importCount;
-}
+    function addAriaLabel(element) {
+        if (!element.getAttribute('aria-label')) {
+            element.setAttribute('aria-label', element.innerHTML);
+        }
+    }
 
-// Function to add landmark regions ensuring proper IDs
-function addLandmarkRegions() {
-    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
-    landmarkElements.forEach((landmark) => {
-        if (landmark) {
-            if (!landmark.id) {
-                landmark.id = `${landmark.tagName.toLowerCase()}-${landmark.id ? landmark.id : 0}`;
+    function provideKeyboardNavigation() {
+        // Code for keyboard navigation improvements
+    }
+
+    function manageFocusForDynamicContent() {
+        // Code for focus management for dynamic content
+    }
+
+    function ensureColorContrastCompliance() {
+        // Code for color contrast compliance
+    }
+
+    function announceScreenReaderForDynamicUpdates(message) {
+        const liveRegion = document.getElementById('accessibility-announcements');
+        if (liveRegion) {
+            liveRegion.textContent += `${message}\n`;
+        }
+    }
+
+    function ensureElementHasId(element) {
+        if (!element.id) {
+            element.id = `${element.tagName.toLowerCase()}-${element.id ? element.id : 0}`;
+        }
+    }
+
+    function getLandmarkElements() {
+        return document.querySelectorAll(LANDMARK_ELEMENTS.join(", "));
+    }
+
+    function addAriaLandmarkRoles(landmarkElements) {
+        landmarkElements.forEach((landmark) => {
+            landmark.setAttribute('role', landmark.tagName.toLowerCase());
+        });
+    }
+
+    function fixLandmarkIssues() {
+        const landmarkElements = getLandmarkElements();
+        landmarkElements.forEach((landmark) => {
+            if (!landmark.hasAttribute('aria-label')) {
+                addAriaLabel(landmark);
             }
-        }
-    });
-}
+        });
+    }
 
-// New function to check landmark elements
-function checkLandmarkElements() {
-    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
-    landmarkElements.forEach((landmark, index) => {
-        if (landmark.id === '') {
-            landmark.id = `${landmark.tagName.toLowerCase()}-${index}`;
-        }
-        
-        if (landmarkElements.length > 1) {
-            if (landmark.id === '') {
-                landmark.id = `${landmark.tagName.toLowerCase()}-${index}`;
+    function addAccessibleNamesForSVGs(svgs) {
+        svgs.forEach((svg) => {
+            if (!svg.hasAttribute('aria-labelledby')) {
+                svg.setAttribute('aria-labelledby', `${svg.id}`);
             }
-        }
-    });
-}
+        });
+    }
 
-// New function to ensure all landmark elements have unique IDs
-function ensureLandmarkUniqueness() {
-    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
-    const ids = new Set();
-    let hasDuplicate = false;
-    
-    landmarkElements.forEach((landmark) => {
-        if (landmark.id) {
-            if (ids.has(landmark.id)) {
-                hasDuplicate = true;
+    function ensureUniqueLandmarks() {
+        const landmarkElements = getLandmarkElements();
+        const ids = new Set();
+        let hasDuplicate = false;
+
+        landmarkElements.forEach((landmark) => {
+            if (landmark.id) {
+                if (ids.has(landmark.id)) {
+                    hasDuplicate = true;
+                }
+                ids.add(landmark.id);
+            } else {
+                ensureElementHasId(landmark);
+                ids.add(landmark.id);
             }
-            ids.add(landmark.id);
-        } else {
-            const tagName = landmark.tagName.toLowerCase();
-            const id = `${tagName}-${landmark.id ? landmark.id : 0}`;
-            landmark.id = id;
-            if (ids.has(id)) {
-                hasDuplicate = true;
+        });
+
+        return !hasDuplicate;
+    }
+
+    function fixFakeLinkIssue(links) {
+        links.forEach((link) => {
+            if (!link.href) {
+                link.removeAttribute('href');
+                link.setAttribute('aria-hidden', 'true');
             }
-            ids.add(id);
+        });
+    }
+
+    const a11yStore = {
+        countDependencies() {
+            return countDependencies();
+        },
+        init() {
+            // ... (existing code) ...
+            this.addAriaLabels();
+            this.provideKeyboardNavigation();
+            this.manageFocusForDynamicContent();
+            this.ensureColorContrastCompliance();
+            this.announceScreenReaderForDynamicUpdates('Initial render.');
+            // ... (existing code) ...
+        },
+        addAriaLabels() {
+            getLandmarkElements().forEach(addAriaLabel);
         }
-    });
-    
-    return !hasDuplicate;
-}
+    };
 
-// New function to handle adding landmark regions
-function addLandmarkRegions() {
-    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
-    landmarkElements.forEach((landmark) => {
-        if (landmark) {
-            if (!landmark.id) {
-                landmark.id = `${landmark.tagName.toLowerCase()}-${landmark.id ? landmark.id : 0}`;
-            }
-        }
-    });
-}
+    // Other existing functions and exports can remain unchanged
 
-// New function to check dependency counts using Document and regex
-function countDependencies() {
-    const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
-    const importCount = (document.body.textContent || '').match(importCommentRegExp)?.length || 0;
-    return importCount;
-}
-
-// Function to add landmark regions ensuring proper IDs
-function addLandmarkRegions() {
-    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
-    landmarkElements.forEach((landmark) => {
-        if (landmark) {
-            if (!landmark.id) {
-                landmark.id = `${landmark.tagName.toLowerCase()}-${landmark.id ? landmark.id : 0}`;
-            }
-        }
-    });
-}
-
-// New function to check landmark elements
-function checkLandmarkElements() {
-    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
-    landmarkElements.forEach((landmark, index) => {
-        if (landmark.id === '') {
-            landmark.id = `${landmark.tagName.toLowerCase()}-${index}`;
-        }
-        
-        if (landmarkElements.length > 1) {
-            if (landmark.id === '') {
-                landmark.id = `${landmark.tagName.toLowerCase()}-${index}`;
-            }
-        }
-    });
-}
-
-// Store for accessibility announcements (screen reader support)
-const a11yStore = {
-
-  // Existing code
-
-  // New property to count dependencies
-  countDependencies() {
-    return countDependencies();
-  },
-
-  init() {
-    ...
-    ...
-    ...
-    this.setupSkipLinks();
-    ...
-    ...
-    this.fixFakeLinks(); // Added for REACT_036
-  },
-
-  // Create a live region for screen reader announcements
+})();

@@ -341,6 +341,7 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
     }
 
     return fixes;
+  }
 }
 
 // Existing function

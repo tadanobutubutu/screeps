@@ -65,16 +65,16 @@ const accessibilityUtils = {
    */
   newFocusTrap(element) {
     if (!element) return;
-    
+
     const focusableElements = element.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
-    
+
     if (focusableElements.length === 0) return;
-    
+
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
-    
+
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
@@ -86,7 +86,7 @@ const accessibilityUtils = {
         }
       }
     });
-    
+
     firstElement.focus();
   },
 
@@ -140,7 +140,7 @@ const accessibilityUtils = {
       tables: 0,
       images: 0,
     };
-    
+
     // Validate skip links
     document.querySelectorAll('a[href^="#"]').forEach((link) => {
       const target = link.getAttribute('href').substring(1);
@@ -150,7 +150,7 @@ const accessibilityUtils = {
         fixes.skipLinks++;
       }
     });
-    
+
     // Validate tables
     document.querySelectorAll('table').forEach((table) => {
       if (!table.querySelector('th')) {
@@ -168,13 +168,13 @@ const accessibilityUtils = {
         fixes.tables++;
       }
     });
-    
+
     // Validate images
     document.querySelectorAll('img:not([alt])').forEach((img) => {
       console.warn('Image missing alt attribute', img);
       fixes.images++;
     });
-    
+
     console.log('Accessibility issues addressed', fixes);
   },
 
@@ -208,11 +208,11 @@ const ensureElementHasId = (element, prefix = 'element') => {
   if (!element) {
     throw new Error('Element is required');
   }
-  
+
   if (element.id) {
     return element.id;
   }
-  
+
   const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = id;
   return id;
@@ -232,7 +232,7 @@ const addAriaLabel = (element, label) => {
   if (!label) {
     throw new Error('Label is required');
   }
-  
+
   element.setAttribute('aria-label', label);
   return element;
 };
@@ -249,26 +249,25 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
   if (!container) {
     throw new Error('Container element is required');
   }
-  
+
   if (!dependencies) {
     throw new Error('Dependencies data is required');
   }
-  
+
   // Ensure container has an id for graph references
   const containerId = ensureElementHasId(container, 'graph-container');
-  
+
   // Add accessibility label if not present
   const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
-  
+
   // Render logic placeholder
   container.innerHTML = `<div id="${containerId}">Graph not implemented</div>`;
-  
+
   return container;
 }
 
-// TODO: Validate the table structure for accessibility issues
 /**
- * Validates the structure of tables on the page for accessibility best practices.
+ * Validates the table structure for accessibility issues.
  * Checks for:
  *   - Presence of captions.
  *   - Proper use of `<th>` elements with `scope` attributes.
@@ -280,14 +279,14 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
 function validateTableStructure() {
   const tables = document.querySelectorAll('table');
   const issues = [];
-  
+
   tables.forEach((table, index) => {
     // Check if table has a caption
     const caption = table.querySelector('caption');
     if (!caption) {
       issues.push({ tableIndex: index, issue: 'Missing caption' });
     }
-    
+
     // Check for header scope
     const headers = table.querySelectorAll('th');
     if (headers.length === 0) {
@@ -299,7 +298,7 @@ function validateTableStructure() {
         }
       });
     }
-    
+
     // Check for consistent row cell counts
     const rows = table.querySelectorAll('tr');
     const cellCounts = new Set();
@@ -309,7 +308,7 @@ function validateTableStructure() {
     if (cellCounts.size > 1) {
       issues.push({ tableIndex: index, issue: 'Inconsistent number of cells across rows' });
     }
-    
+
     // Ensure data cells have proper headers (simple check)
     const firstRow = rows[0];
     if (firstRow) {
@@ -326,13 +325,94 @@ function validateTableStructure() {
       });
     }
   });
-  
+
   if (issues.length > 0) {
     console.warn('Table accessibility issues found:', issues);
     return false;
   }
-  
+
   console.log('All tables passed accessibility checks.');
+  return true;
+}
+
+/**
+ * Validates the structure of tables on the page for accessibility best practices.
+ * This is a more comprehensive version of validateTableStructure that includes additional checks.
+ *
+ * @returns {boolean} True if all tables pass checks, otherwise false.
+ */
+function validateTableStructureComprehensive() {
+  const tables = document.querySelectorAll('table');
+  const issues = [];
+
+  tables.forEach((table, tableIndex) => {
+    // Check if table has a caption
+    const caption = table.querySelector('caption');
+    if (!caption) {
+      issues.push({ tableIndex, issue: 'Missing caption' });
+    }
+
+    // Check for headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      issues.push({ tableIndex, issue: 'No header cells found' });
+    } else {
+      // Check header scope attributes
+      headers.forEach((th, headerIndex) => {
+        if (!th.hasAttribute('scope')) {
+          issues.push({
+            tableIndex,
+            issue: `Header cell at index ${headerIndex} missing scope attribute`,
+            element: th
+          });
+        }
+      });
+    }
+
+    // Check row consistency
+    const rows = table.querySelectorAll('tr');
+    const cellCounts = new Set();
+    rows.forEach((row, rowIndex) => {
+      cellCounts.add(row.children.length);
+    });
+
+    if (cellCounts.size > 1) {
+      issues.push({
+        tableIndex,
+        issue: 'Inconsistent number of cells across rows',
+        details: `Found ${cellCounts.size} different cell counts`
+      });
+    }
+
+    // Check for complex table structures
+    const complexCells = table.querySelectorAll('td[colspan], td[rowspan]');
+    if (complexCells.length > 0) {
+      complexCells.forEach((cell, cellIndex) => {
+        issues.push({
+          tableIndex,
+          issue: 'Complex table structure detected',
+          details: `Cell at index ${cellIndex} has colspan/rowspan`,
+          element: cell
+        });
+      });
+    }
+
+    // Check for missing summary (deprecated but still sometimes used)
+    if (table.hasAttribute('summary')) {
+      issues.push({
+        tableIndex,
+        issue: 'Deprecated summary attribute used',
+        details: 'Use caption instead'
+      });
+    }
+  });
+
+  if (issues.length > 0) {
+    console.warn('Comprehensive table accessibility issues found:', issues);
+    return false;
+  }
+
+  console.log('All tables passed comprehensive accessibility checks.');
   return true;
 }
 
@@ -348,4 +428,5 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   validateTableStructure,
+  validateTableStructureComprehensive,
 };

@@ -4,8 +4,7 @@ const { dependencyGraphContent } = require('./dependencyGraph');
 const { indexContent } = require('./index');
 
 // Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// ... (Removed hashes for ease of reading)
+// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
 
 const accessibilityUtils = {
   // ... existing methods from both branches ...
@@ -37,6 +36,49 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  /**
+   * Initialize accessibility features
+   */
+  initAccessibility: () => {
+    // Set lang attribute on HTML element
+    if (!document.documentElement.hasAttribute('lang')) {
+      document.documentElement.setAttribute('lang', 'en');
+    }
+
+    // Add skip link for keyboard users
+    const skipLink = document.createElement('a');
+    skipLink.href = '#main-content';
+    skipLink.className = 'skip-link';
+    skipLink.textContent = 'Skip to main content';
+    skipLink.style.position = 'absolute';
+    skipLink.style.left = '-9999px';
+    skipLink.style.top = '0';
+    skipLink.style.zIndex = '1000';
+    skipLink.setAttribute('aria-label', 'Skip to main content');
+
+    skipLink.addEventListener('focus', () => {
+      skipLink.style.left = '0';
+    });
+
+    skipLink.addEventListener('blur', () => {
+      skipLink.style.left = '-9999px';
+    });
+
+    document.body.insertBefore(skipLink, document.body.firstChild);
+
+    // Add focus styles for keyboard navigation
+    const style = document.createElement('style');
+    style.textContent = `
+      .skip-link:focus {
+        left: 0;
+        padding: 1rem;
+        background: #000;
+        color: #fff;
+      }
+    `;
+    document.head.appendChild(style);
   }
 };
 
@@ -80,10 +122,10 @@ function setConfig(config) {
 function validateTableAccessibility() {
   const errors = [];
   const tables = getTables();
-  
+
   for (let i = 0; i < tables.length; i++) {
     const table = tables[i];
-    
+
     // Check if table has headers
     if (!table.headers || !Array.isArray(table.headers) || table.headers.length === 0) {
       errors.push({
@@ -91,7 +133,7 @@ function validateTableAccessibility() {
         error: 'Table must have headers defined'
       });
     }
-    
+
     // Check if table has proper structure
     if (!table.rows || !Array.isArray(table.rows)) {
       errors.push({
@@ -99,7 +141,7 @@ function validateTableAccessibility() {
         error: 'Table must have rows array defined'
       });
     }
-    
+
     // Check for proper ARIA attributes (placeholder implementation)
     if (table.ariaLabel === undefined && table.caption === undefined) {
       errors.push({
@@ -107,17 +149,17 @@ function validateTableAccessibility() {
         error: 'Table should have aria-label or caption for accessibility'
       });
     }
-    
+
     // Add lang attribute to HTML element
     if (document.documentElement.lang === undefined) {
       document.documentElement.lang = 'en';
     }
-    
+
     // Add landmark roles and fix landmark issues
     if (table.role === undefined) {
       table.role = 'table';
     }
-    
+
     // Add accessible names to 2 SVGs
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
@@ -125,7 +167,7 @@ function validateTableAccessibility() {
         svg.setAttribute('aria-label', 'SVG description');
       }
     });
-    
+
     // Ensure unique landmarks (2 issues)
     const landmarks = ['navigation', 'search', 'main', 'contentinfo', 'complementary', 'form'];
     let uniqueLandmarks = new Set();
@@ -141,7 +183,7 @@ function validateTableAccessibility() {
         error: 'Landmarks are not unique'
       });
     }
-    
+
     // Fix 1 fake link issue
     const links = document.querySelectorAll('a');
     links.forEach(link => {
@@ -150,7 +192,7 @@ function validateTableAccessibility() {
       }
     });
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors: errors
@@ -340,7 +382,7 @@ function log(message, level = 'info') {
 module.exports = {
   accessibilityUtils,
   exportUtils,
-  initAccessibility,
+  initAccessibility: accessibilityUtils.initAccessibility,
   handleCredentialResponse,
   ensureElementId,
   ensureElementHasId,

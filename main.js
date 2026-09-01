@@ -25,13 +25,13 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
+    if (/[一-鿿]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if (/[぀-ヿ]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
+    } else if (/[Ѐ-ӿ]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
+    } else if (/[؀-ۿ]/.test(content)) {
       lang = 'ar'; // Arabic
     } else if (/[àâçéèêëîïôùûüÿœæ]+/i.test(content)) {
       lang = 'fr'; // French
@@ -270,18 +270,70 @@ function ensureUniqueLandmarks() {
   return { valid: errors.length === 0, errors };
 }
 
-// New function to address REACT_036: Fix fake link issues
-function createInPageButton(text, onClick) {
+// New function to address REACT_036: Fix 1 fake link issue
+// Creates a button element with correct accessibility properties for in-page linking
+/**
+ * Creates a button element with correct accessibility properties for in-page linking
+ * @param {string} text - The visible text content of the button
+ * @param {string} targetId - The id of the target element to scroll/link to
+ * @param {object} [options] - Additional options
+ * @param {string} [options.ariaLabel] - Custom aria-label for the button
+ * @param {string} [options.className] - CSS class name(s) to apply to the button
+ * @returns {HTMLButtonElement|null} The created button element, or null if document is unavailable
+ */
+function createInPageButton(text, targetId, options) {
   if (typeof document === 'undefined') {
     return null;
   }
   
+  const opts = options || {};
   const button = document.createElement('button');
+  
+  // Set the type explicitly to avoid form submission side effects
   button.type = 'button';
-  button.textContent = text;
-  if (onClick && typeof onClick === 'function') {
-    button.addEventListener('click', onClick);
+  
+  // Set the accessible name
+  button.setAttribute('aria-label', opts.ariaLabel || text);
+  
+  // Use aria-controls to indicate the element the button controls/links to
+  if (targetId) {
+    button.setAttribute('aria-controls', targetId);
   }
+  
+  // Set the text content
+  button.textContent = text;
+  
+  // Apply optional className
+  if (opts.className) {
+    button.className = opts.className;
+  }
+  
+  // Store the target id as a data attribute for handling clicks
+  if (targetId) {
+    button.setAttribute('data-target-id', targetId);
+    
+    // Attach a click handler that scrolls to the target and updates the URL hash
+    button.addEventListener('click', function(event) {
+      const targetElement = document.getElementById(targetId);
+      if (targetElement) {
+        // Prevent default to allow smooth scrolling behavior to be controlled
+        event.preventDefault();
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Update the URL hash without jumping
+        if (history && typeof history.pushState === 'function') {
+          history.pushState(null, '', '#' + targetId);
+        } else {
+          window.location.hash = targetId;
+        }
+        // Move focus to the target element if it's focusable, otherwise set tabindex
+        if (!targetElement.hasAttribute('tabindex')) {
+          targetElement.setAttribute('tabindex', '-1');
+        }
+        targetElement.focus({ preventScroll: true });
+      }
+    });
+  }
+  
   return button;
 }
 

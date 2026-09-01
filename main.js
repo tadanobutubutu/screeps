@@ -7,6 +7,7 @@
 // Import required modules
 const http = require('http');
 const path = require('path');
+const childProcess = require('child_process');
 
 function getLangAttribute() {
   // ... code for handling lang attribute
@@ -106,8 +107,7 @@ function createServer() {
 
 // Utility for spawning a command
 function spawnSomeCommand(callback) {
-    const child_process = require('child_process');
-    const child = child_process.spawn('someCommand', [], {
+    const child = childProcess.spawn('someCommand', [], {
         stdio: 'inherit',
     });
     child.on('exit', (code, signal) => {

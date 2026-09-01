@@ -133,6 +133,125 @@ const accessibilityUtils = {
   // New function for focus trap
   newFocusTrap: function() {
     // New function implementation
+  },
+
+  // Add lang attribute to HTML element
+  addLangAttribute: function() {
+    if (typeof document !== 'undefined') {
+      const htmlElement = document.documentElement;
+      if (!htmlElement.hasAttribute('lang')) {
+        htmlElement.setAttribute('lang', 'en');
+      }
+    }
+  },
+
+  // Fix table structure issues
+  fixTableStructureIssues: function() {
+    if (typeof document !== 'undefined') {
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => {
+        // Ensure table has proper structure
+        if (!table.querySelector('thead') && table.querySelector('th')) {
+          const thead = document.createElement('thead');
+          const tbody = document.createElement('tbody');
+          const firstRow = table.querySelector('tr');
+
+          // Move header row to thead
+          if (firstRow && firstRow.querySelector('th')) {
+            thead.appendChild(firstRow.cloneNode(true));
+            firstRow.remove();
+          }
+
+          // Move remaining rows to tbody
+          const rows = table.querySelectorAll('tr');
+          rows.forEach(row => {
+            tbody.appendChild(row.cloneNode(true));
+            row.remove();
+          });
+
+          table.appendChild(thead);
+          table.appendChild(tbody);
+        }
+
+        // Add scope attributes to headers
+        const headers = table.querySelectorAll('th');
+        headers.forEach(header => {
+          if (!header.hasAttribute('scope')) {
+            header.setAttribute('scope', 'col');
+          }
+        });
+
+        // Add summary if missing
+        if (!table.hasAttribute('summary') && !table.querySelector('caption')) {
+          table.setAttribute('summary', 'Table data');
+        }
+      });
+    }
+  },
+
+  // Add main landmark
+  addMainLandmark: function() {
+    if (typeof document !== 'undefined') {
+      const mainElement = document.querySelector('main');
+      if (!mainElement) {
+        const content = document.querySelector('.content') || document.body;
+        const main = document.createElement('main');
+        while (content.firstChild) {
+          main.appendChild(content.firstChild);
+        }
+        content.appendChild(main);
+      }
+    }
+  },
+
+  // Add accessible names to SVGs
+  addSvgAccessibleName: function() {
+    if (typeof document !== 'undefined') {
+      const svgs = document.querySelectorAll('svg');
+      svgs.forEach(svg => {
+        if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+          const title = svg.querySelector('title');
+          if (title && title.textContent.trim()) {
+            svg.setAttribute('aria-labelledby', title.id || 'svg-title-' + Math.random().toString(36).substr(2, 9));
+          } else {
+            svg.setAttribute('aria-label', 'Graphic');
+          }
+        }
+      });
+    }
+  },
+
+  // Ensure unique landmarks
+  ensureUniqueLandmarks: function() {
+    if (typeof document !== 'undefined') {
+      const mainElements = document.querySelectorAll('main');
+      if (mainElements.length > 1) {
+        for (let i = 1; i < mainElements.length; i++) {
+          const div = document.createElement('div');
+          while (mainElements[i].firstChild) {
+            div.appendChild(mainElements[i].firstChild);
+          }
+          mainElements[i].replaceWith(div);
+        }
+      }
+    }
+  },
+
+  // Fix fake link issues
+  fixFakeLinkIssue: function() {
+    if (typeof document !== 'undefined') {
+      const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
+      fakeLinks.forEach(link => {
+        link.setAttribute('role', 'button');
+        link.setAttribute('tabindex', '0');
+        link.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            link.click();
+          }
+        });
+      });
+    }
   }
 };
 
@@ -172,11 +291,11 @@ async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received');
   }
-  
+
   if (response.error) {
     throw new Error(response.error);
   }
-  
+
   if (response.token) {
     return {
       success: true,
@@ -184,7 +303,7 @@ async function handleCredentialResponse(response) {
       expiresIn: response.expiresIn || 3600
     };
   }
-  
+
   throw new Error('Invalid credential response');
 }
 
@@ -210,7 +329,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader('Download of ' + filename + ' started');
   },
@@ -224,11 +343,11 @@ const exportUtils = {
     if (!data || data.length === 0) {
       return;
     }
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (let i = 0; i < data.length; i++) {
       const row = data[i];
       const values = headers.map(function(header) {
@@ -237,7 +356,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -287,7 +406,13 @@ function filterValidItems(items, validator) {
 // Initialize accessibility features
 function initAccessibility() {
   accessibilityUtils.initSkipLink();
-  
+  accessibilityUtils.addLangAttribute();
+  accessibilityUtils.fixTableStructureIssues();
+  accessibilityUtils.addMainLandmark();
+  accessibilityUtils.addSvgAccessibleName();
+  accessibilityUtils.ensureUniqueLandmarks();
+  accessibilityUtils.fixFakeLinkIssue();
+
   // Add keyboard support for all interactive elements
   const elements = document.querySelectorAll('button, a, input, select, textarea');
   for (let i = 0; i < elements.length; i++) {
@@ -330,7 +455,7 @@ function transformInputData(inputData, options) {
   if (options === undefined) {
     options = {};
   }
-  
+
   const preserveKeys = options.preserveKeys !== undefined ? options.preserveKeys : true;
   const uppercase = options.uppercase === true;
   const trimWhitespace = options.trimWhitespace !== false;

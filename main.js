@@ -414,7 +414,6 @@ export {
   validateLinkAccessibility,
   handleFakeLinks,
   checkLinkAccessibility,
-  newFunction,
   addressAccessibilityIssues,
   addLangAttribute,
   fixTableStructure,

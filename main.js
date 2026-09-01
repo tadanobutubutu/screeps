@@ -298,12 +298,20 @@ function addressAccessibilityIssues(insightReport) {
   console.log('Addressing accessibility issues from insight report:', insightReport);
 }
 
+/**
+ * Creates an in-page button element with the specified ID, text, and class
+ * @param {string} buttonId - The ID to assign to the button
+ * @param {string} buttonText - The text content of the button
+ * @param {string} buttonClass - The CSS class to assign to the button
+ * @returns {HTMLButtonElement} The created button element
+ */
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
     document.body.appendChild(button);
+    return button;
 }
 
 // New function to address accessibility issues

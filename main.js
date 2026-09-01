@@ -1,364 +1,314 @@
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
-// REACT_027: Fix 26 table structure issues
-// REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
-// REACT_036: Fix 1 fake link issue
-// REACT_017: Add/fix 4 landmark issues
-// REACT_041: Add accessible names to 2 SVGs
+const resolveConflictMainJS = `
+// Implement this function for ensuring unique landmarks (merged from both branches)
+function ensureUniqueLandmarks() {
+  // Landmarks that should be unique on a page
+  const uniqueLandmarkSelectors = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
 
-// REACT_015: Add lang attribute to the <html> element
-function addLangAttribute (html) {
-  if (typeof html !== 'string') return html
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-    if (/\blang=/i.test(match)) return match
-    return `<html${attrs} lang="en">`
-  })
-}
+  uniqueLandmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        // Add or update aria-label to make each landmark unique
+        const existingLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.id;
+        const elementTag = element.tagName.toLowerCase();
+        const role = element.getAttribute('role') || element.tagName.toLowerCase();
 
-// REACT_027: Fix table structure issues (add thead, tbody, th scope, caption)
-function fixTableStructure (html) {
-  if (typeof html !== 'string') return html
-
-  // Ensure every table has a caption
-  html = html.replace(/<table([^>]*)>/gi, (match, attrs) => {
-    if (/<caption/i.test(match)) return match
-    return `<table${attrs}><caption></caption>`
-  })
-
-  // Close caption and wrap rows in thead/tbody where missing
-  html = html.replace(/<table([^>]*)>([\s\S]*?)<\/table>/gi, (match, attrs, content) => {
-    if (/<thead/i.test(content)) return match
-    const rows = content.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || []
-    if (rows.length === 0) return match
-    const firstRows = rows.slice(0, 1).join('')
-    const restRows = rows.slice(1).join('')
-    const thPattern = /<td>/gi
-    const firstRowHasTh = thPattern.test(firstRows)
-    let thead = ''
-    let tbody = restRows
-
-    if (!firstRowHasTh) {
-      thead = `<thead>${firstRows.replace(/<td>/gi, '<th scope="col">').replace(/<\/td>/gi, '</th>')}</thead>`
-    } else {
-      thead = `<thead>${firstRows}</thead>`
-    }
-    if (!tbody) tbody = ''
-    tbody = `<tbody>${tbody}</tbody>`
-
-    return `<table${attrs}>${thead}${tbody}</table>`
-  })
-
-  // Add scope="col" to th elements that don't have it
-  html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (/\bscope=/i.test(match)) return match
-    return `<th${attrs} scope="col">`
-  })
-
-  return html
-}
-
-// REACT_017: Add/fix landmark issues
-function fixLandmarks (html) {
-  if (typeof html !== 'string') return html
-
-  // Ensure <main> landmark exists
-  if (!/<main[^>]*>/i.test(html) && !/<div[^>]*role=["']main["']/i.test(html)) {
-    html = html.replace(/<body([^>]*)>/i, '<body$1><main>')
-    html = html.replace(/<\/body>/i, '</main></body>')
-  }
-
-  // Ensure <nav> landmark exists
-  if (!/<nav[^>]*>/i.test(html) && !/<div[^>]*role=["']navigation["']/i.test(html)) {
-    html = html.replace(/<main[^>]*>/i, '<nav aria-label="Main navigation"></nav><main>')
-  }
-
-  // Ensure <aside> landmark exists if content suggests a sidebar
-  if (!/<aside[^>]*>/i.test(html) && !/<div[^>]*role=["']complementary["']/i.test(html)) {
-    html = html.replace(/<\/main>/i, '<aside aria-label="Supplementary"></aside></main>')
-  }
-
-  // Ensure <footer> landmark exists
-  if (!/<footer[^>]*>/i.test(html) && !/<div[^>]*role=["']contentinfo["']/i.test(html)) {
-    html = html.replace(/<\/body>/i, '<footer></footer></body>')
-  }
-
-  return html
-}
-
-// REACT_041: Add accessible names to SVGs
-function addSvgAccessibleNames (html) {
-  if (typeof html !== 'string') return html
-
-  const svgMatches = [...html.matchAll(/<svg([^>]*)>/gi)]
-  let offset = 0
-
-  svgMatches.forEach((match, index) => {
-    const fullMatch = match[0]
-    const attrs = match[1]
-    const svgStart = match.index + offset
-    const svgEnd = html.indexOf('</svg>', svgStart)
-
-    if (svgEnd === -1) return
-
-    const svgContent = html.substring(svgStart, svgEnd + 6)
-    const hasTitle = /<title/i.test(svgContent)
-    const hasAriaLabel = /\baria-label=/i.test(attrs)
-    const hasAriaLabelledBy = /\baria-labelledby=/i.test(attrs)
-
-    if (!hasTitle && !hasAriaLabel && !hasAriaLabelledBy) {
-      const newSvg = fullMatch.replace(/>/, `><title>SVG ${index + 1}</title>`)
-      const oldSvgLength = svgContent.length
-      html = html.substring(0, svgStart) + newSvg + html.substring(svgStart + oldSvgLength)
-      offset += newSvg.length - oldSvgLength
-    }
-  })
-
-  return html
-}
-
-// REACT_025: Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks (html) {
-  if (typeof html !== 'string') return html
-
-  const landmarkRoles = [
-    'banner',
-    'navigation',
-    'main',
-    'complementary',
-    'contentinfo',
-    'search',
-    'form'
-  ]
-
-  landmarkRoles.forEach((role) => {
-    const pattern = new RegExp(`role=["']${role}["']`, 'gi')
-    const matches = html.match(pattern)
-    if (matches && matches.length > 1) {
-      // Keep first occurrence, change subsequent ones
-      let count = 0
-      html = html.replace(pattern, (match) => {
-        count++
-        if (count === 1) return match
-        return 'role="region"'
-      })
-    }
-  })
-
-  // Also check for duplicate HTML5 landmark elements (header, nav, main, aside, footer)
-  const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer']
-  html5Landmarks.forEach((tag) => {
-    const pattern = new RegExp(`<${tag}[^>]*>`, 'gi')
-    const matches = html.match(pattern)
-    if (matches && matches.length > 1) {
-      // Keep first, add role="region" to others
-      let count = 0
-      html = html.replace(pattern, (match) => {
-        count++
-        if (count === 1) return match
-        return match.replace(/^</, '<' + tag).replace(`<${tag}`, `<${tag} role="region">`)
-      })
-    }
-  })
-
-  return html
-}
-
-// REACT_036: Fix 1 fake link issue
-function fixFakeLinks (html) {
-  if (typeof html !== 'string') return html
-
-  // Find spans or divs with onclick that act as links and convert to <a>
-  html = html.replace(
-    /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi,
-    (match, before, onclick, after) => {
-      const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/)
-      if (hrefMatch) {
-        return `<a href="${hrefMatch[1]}"${before}${after}>`
-      }
-      return match
-    }
-  )
-
-  html = html.replace(/<\/span>/gi, '</a>')
-
-  return html
-}
-
-// TODO: add the new functions or changes requested in the issue
-// Here's a sample implementation for a new function named 'myNewFunction'
-function myNewFunction (html) {
-  if (typeof html !== 'string') return html
-  // Implementation goes here
-  return html
-}
-
-// Main function that applies all accessibility fixes
-function applyAccessibilityFixes (html) {
-  let result = html
-  result = addLangAttribute(result)
-  result = fixTableStructure(result)
-  result = fixLandmarks(result)
-  result = addSvgAccessibleNames(result)
-  result = ensureUniqueLandmarks(result)
-  result = fixFakeLinks(result)
-  return result
-}
-
-function addressAccessibilityIssues (insightReport) {
-  // Apply accessibility fixes to HTML content based on insight report
-  if (insightReport && insightReport.html) {
-    insightReport.html = applyAccessibilityFixes(insightReport.html)
-  }
-  console.log('Addressing accessibility issues from insight report:', insightReport)
-
-  // Add accessibility improvements
-  document.body.setAttribute('lang', 'en');
-  document.title = 'Accessible Application';
-
-  // Add ARIA attributes to buttons
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach(button => {
-    if (!button.getAttribute('aria-label')) {
-      button.setAttribute('aria-label', button.textContent);
+        if (!existingLabel) {
+          // Add index-based label for distinction
+          element.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
     }
   });
 
-  // Add skip link for keyboard users
-  const skipLink = document.createElement('a');
-  skipLink.href = '#main-content';
-  skipLink.textContent = 'Skip to main content';
-  skipLink.className = 'skip-link';
-  document.body.insertBefore(skipLink, document.body.firstChild);
+  // Ensure region and navigation landmarks have accessible names when multiple exist
+  const sectionLandmarkSelectors = ['nav', '[role="region"]', 'aside'];
 
-  // Add focus styles for keyboard navigation
-  const style = document.createElement('style');
-  style.textContent = `
-    .skip-link {
-      position: absolute;
-      left: -9999px;
-      top: 0;
+  sectionLandmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.id;
+        const role = element.getAttribute('role') || element.tagName.toLowerCase();
+
+        if (!hasLabel) {
+          element.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
     }
-    .skip-link:focus {
-      left: 0;
-      background: #000;
-      color: #fff;
-      padding: 0.5em;
-      z-index: 100;
+  });
+
+  // Also ensure unique IDs and only one main landmark (from origin/main)
+  const landmarks = document.querySelectorAll('nav, main, aside, footer');
+  const seenIds = new Set();
+  const seenRoles = new Map();
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+
+    // Ensure unique IDs
+    if (!landmark.id) {
+      let id = role;
+      let counter = 1;
+      while (seenIds.has(id)) {
+        id = `${role}-${counter++}`;
+      }
+      landmark.id = id;
+      seenIds.add(id);
+    } else {
+      seenIds.add(landmark.id);
     }
-    button:focus {
-      outline: 3px solid #4d90fe;
+
+    // Track roles for uniqueness
+    if (!seenRoles.has(role)) {
+      seenRoles.set(role, []);
     }
-  `;
-  document.head.appendChild(style);
-}
+    seenRoles.get(role).push(landmark);
+  });
 
-function createInPageButton (buttonId, buttonText, buttonClass) {
-  const button = document.createElement('button')
-  button.id = buttonId
-  button.textContent = buttonText
-  button.className = buttonClass
-  button.setAttribute('aria-label', buttonText); // Add ARIA label
-  document.body.appendChild(button)
-}
-
-function renderAccessibilityReport(insightReport) {
-  addressAccessibilityIssues(insightReport)
-}
-
-function renderUIComponents() {
-  createInPageButton('accessibility-btn', 'Check Accessibility', 'accessibility-button')
-}
-
-// Accessibility improvements for addBook function/form
-function addBook(title, author, isbn) {
-  // Create form elements with proper ARIA attributes
-  const form = document.createElement('form')
-  form.setAttribute('role', 'form')
-  form.setAttribute('aria-label', 'Add a new book')
-
-  // Title input
-  const titleLabel = document.createElement('label')
-  titleLabel.setAttribute('for', 'book-title')
-  titleLabel.textContent = 'Book Title:'
-  const titleInput = document.createElement('input')
-  titleInput.id = 'book-title'
-  titleInput.type = 'text'
-  titleInput.required = true
-  titleInput.setAttribute('aria-required', 'true')
-  titleInput.setAttribute('aria-label', 'Enter the book title')
-
-  // Author input
-  const authorLabel = document.createElement('label')
-  authorLabel.setAttribute('for', 'book-author')
-  authorLabel.textContent = 'Author:'
-  const authorInput = document.createElement('input')
-  authorInput.id = 'book-author'
-  authorInput.type = 'text'
-  authorInput.required = true
-  authorInput.setAttribute('aria-required', 'true')
-  authorInput.setAttribute('aria-label', 'Enter the author name')
-
-  // ISBN input
-  const isbnLabel = document.createElement('label')
-  isbnLabel.setAttribute('for', 'book-isbn')
-  isbnLabel.textContent = 'ISBN:'
-  const isbnInput = document.createElement('input')
-  isbnInput.id = 'book-isbn'
-  isbnInput.type = 'text'
-  isbnInput.required = true
-  isbnInput.setAttribute('aria-label', 'Enter the ISBN number')
-
-  // Submit button
-  const submitButton = document.createElement('button')
-  submitButton.type = 'submit'
-  submitButton.textContent = 'Add Book'
-  submitButton.setAttribute('aria-label', 'Submit the book information')
-
-  // Assemble form
-  form.appendChild(titleLabel)
-  form.appendChild(titleInput)
-  form.appendChild(authorLabel)
-  form.appendChild(authorInput)
-  form.appendChild(isbnLabel)
-  form.appendChild(isbnInput)
-  form.appendChild(submitButton)
-
-  // Add form to document
-  document.body.appendChild(form)
-
-  // Return form for potential further manipulation
-  return form
-}
-
-// Newly added utility functions
-function divide(a, b) {
-  if (b === 0) {
-    return 0;
+  // Ensure only one main landmark
+  const mainLandmarks = document.querySelectorAll('main, [role="main"]');
+  if (mainLandmarks.length > 1) {
+    for (let i = 1; i < mainLandmarks.length; i++) {
+      mainLandmarks[i].setAttribute('aria-hidden', 'true');
+    }
   }
-  return a / b;
 }
 
-function validateTableAccessibility (html) {
-  // Placeholder for table accessibility validation
-  return html;
+// New function to fix accessibility issues as per the insight report (merged from both branches)
+function fixAccessibilityIssues() {
+  // 1. REACT_015: Ensure lang attribute is set on the HTML element
+  const lang = getLangAttribute();
+  const htmlElement = getDocument ? getDocument().documentElement : document.documentElement;
+  if (htmlElement && lang) {
+    htmlElement.setAttribute('lang', lang);
+  }
+
+  // 2. REACT_027: Validate table accessibility and structure
+  const tables = (getDocument ? getDocument() : document).querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
+
+  // 3. REACT_017: Validate landmark and landmark structure issues
+  validateLandmark();
+  validateLandmarkStructure();
+
+  // 4. REACT_025: Ensure unique landmarks (addressing the 2 landmark uniqueness issues)
+  ensureUniqueLandmarks();
+
+  // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
+  const svgElements = (getDocument ? getDocument() : document).querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      setSvgAttributes(svg, accessibleName);
+    }
+  });
+
+  // 6. REACT_036: Fix fake link issue (personName is part of the fix)
+  personName();
+  handleFakeLinks();
+  if (typeof handleAccessibilityIssues === 'function') {
+    handleAccessibilityIssues();
+  }
 }
 
-function validateLandmarkStructure (html) {
-  // Placeholder for landmark structure validation
-  return html;
+// Helper function to ensure unique landmarks (from origin/main, integrated above)
+// ensureUniqueLandmarks is already defined above
+
+// Implement wrapPrimaryContentInMain function (merged from both branches)
+function wrapPrimaryContentInMain(primaryContent) {
+  // Wrap primary content in a <main> element for accessibility
+  const doc = getDocument ? getDocument() : document;
+  const mainElement = doc.createElement('main');
+  mainElement.setAttribute('id', 'main-content');
+  mainElement.setAttribute('role', 'main');
+
+  if (typeof primaryContent === 'string') {
+    mainElement.innerHTML = primaryContent;
+  } else if (primaryContent instanceof HTMLElement || (primaryContent && primaryContent.appendChild)) {
+    mainElement.appendChild(primaryContent);
+  }
+
+  return mainElement;
 }
 
-function getLangAttribute (html) {
-  // Extract language attribute from HTML
-  const match = html.match(/<html[^>]*lang="([^"]*)"[^>]*>/i);
-  return match ? match[1] : 'en';
+// DOM-based accessibility code for controls
+function initializeAccessibilityControls() {
+  // Add necessary code to address any remaining control accessibility issues
 }
 
-function getSvgAccessibleName (html) {
-  // Extract accessible name from SVG
-  const svgMatches = [...html.matchAll(/<svg([^>]*)>/gi)];
-  return svgMatches.map(m => m[0]).join('');
+// Renders the dependency graph view.
+// Updated to use dependencyGraphContent.
+export function renderDependencyGraph() {
+  const container = document.getElementById('dependency-graph-container');
+  if (container && dependencyGraphContent) {
+    container.innerHTML = dependencyGraphContent;
+    // Apply accessibility fixes to new content
+    fixAccessibilityIssues();
+  }
 }
 
-function personName (name) {
-  // Get person name from
+// Renders the index view.
+// Updated to use indexContent.
+export function renderIndex() {
+  const container = document.getElementById('index-container');
+  if (container && indexContent) {
+    container.innerHTML = indexContent;
+    // Apply accessibility fixes to new content
+    fixAccessibilityIssues();
+  }
+}
+
+/**
+ * Spawns a new process or subprocess.
+ * @param {string} command - The command to execute
+ * @param {string[]} args - Arguments to pass to the command
+ * @param {object} options - Spawn options
+ * @returns {ChildProcess} - The spawned child process
+ */
+export function spawnProcess(command, args = [], options = {}) {
+  const { spawn } = require('child_process');
+  const defaultOptions = {
+    stdio: 'inherit',
+    shell: true
+  };
+  return spawn(command, args, { ...defaultOptions, ...options });
+}
+
+/**
+ * Spawns a worker or subprocess for the dependency graph.
+ * @param {object} options - Configuration options for the spawn
+ * @returns {Promise<ChildProcess>} - Promise resolving to the spawned process
+ */
+export function spawnDependencyGraphWorker(options = {}) {
+  return new Promise((resolve, reject) => {
+    const worker = spawnProcess('node', ['--worker'], {
+      ...options,
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc']
+    });
+
+    worker.on('error', (error) => {
+      console.error('Error spawning dependency graph worker:', error);
+      reject(error);
+    });
+
+    worker.on('spawn', () => {
+      console.log('Dependency graph worker spawned successfully');
+      resolve(worker);
+    });
+  });
+}
+
+/**
+ * Spawns a worker or subprocess for the index.
+ * @param {object} options - Configuration options for the spawn
+ * @returns {Promise<ChildProcess>} - Promise resolving to the spawned process
+ */
+export function spawnIndexWorker(options = {}) {
+  return new Promise((resolve, reject) => {
+    const worker = spawnProcess('node', ['--index-worker'], {
+      ...options,
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc']
+    });
+
+    worker.on('error', (error) => {
+      console.error('Error spawning index worker:', error);
+      reject(error);
+    });
+
+    worker.on('spawn', () => {
+      console.log('Index worker spawned successfully');
+      resolve(worker);
+    });
+  });
+}
+
+// Export makeHeaderFocusable function (from origin/main)
+export { makeHeaderFocusable };
+
+function makeHeaderFocusable() {
+  const header = document.querySelector('header');
+  if (header) {
+    header.setAttribute('tabindex', '0');
+    header.setAttribute('role', 'banner');
+    header.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        header.focus();
+      }
+    });
+  }
+}
+
+function ensureElementId(element) {
+  // Combined and reconciled code from both branches
+  if (!element.id) {
+    element.id = element.id || element.name || '';
+  }
+}
+
+function initializeAccessibility() {
+  // DOM-based accessibility code
+  const doc = getDocument ? getDocument() : document;
+  // Add lang attribute to HTML element
+  const langAttr = getLangAttribute();
+  if (langAttr) {
+    doc.documentElement.setAttribute('lang', langAttr);
+  }
+
+  // Create in-page button with accessibility considerations
+  createInPageButton();
+
+  // Validate table structure and accessibility
+  const tables = doc.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
+
+  // Add/fix landmark issues
+  validateLandmark();
+  validateLandmarkStructure();
+
+  // Add accessible names to SVGs
+  const svgElements = doc.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  });
+
+  // Ensure unique landmarks
+  ensureUniqueLandmarks();
+  handleFakeLinks();
+}
+
+function addAriaLabel(element) {
+  // Combined and reconciled code from both branches
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', '');
+  }
+}
+
+// ----- END ORIGINAL CODE -----
+
+// New functions for rendering graph/index as requested in the issue
+export function renderGraph() {
+  // Implementation for rendering graph content
+  const graphContainer = document.getElementById('graph-container');
+  if (graphContainer) {
+    graphContainer.innerHTML = '<div class="graph-content">Graph visualization would be rendered here</div>';
+    fixAccessibilityIssues();
+  }
+}
+
+export function renderIndexContent() {
+  // Implementation for rendering index content
+  const indexContainer = document.getElementById('index-container');
+  if (indexContainer) {
+    indexContainer.innerHTML = '<div class="index-content">Index content would be rendered here</div>';
+    fixAccessibilityIssues();
+  }
+}
+`

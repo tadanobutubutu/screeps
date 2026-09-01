@@ -388,5 +388,3 @@ function getInsightReport() {
 
   return issues;
 }
-
-// ... (other code remains the same)

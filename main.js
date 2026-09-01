@@ -56,6 +56,8 @@ function initAccessibility() {
   if (typeof window !== 'undefined') {
     // Ensure screen reader support is available
     document.body.setAttribute('role', 'application');
+    // Add lang attribute to HTML element (REACT_015)
+    document.documentElement.setAttribute('lang', 'en');
   }
   return accessibilityUtils;
 }
@@ -265,6 +267,63 @@ function log(message, level = 'info') {
   console[level === 'error' ? 'error' : 'log'](`[${timestamp}] [${level}] ${message}`);
 }
 
+/**
+ * Add accessible names to SVG elements
+ * @param {SVGElement} svg - The SVG element to add accessible name to
+ * @param {string} name - The accessible name to add
+ */
+function addSvgAccessibleName(svg, name) {
+  if (!svg || !name) return;
+
+  // Add title element for screen readers
+  const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+  title.textContent = name;
+  svg.insertBefore(title, svg.firstChild);
+
+  // Add aria-label as fallback
+  svg.setAttribute('aria-label', name);
+}
+
+/**
+ * Create a landmark element with proper role and label
+ * @param {string} role - The ARIA role for the landmark
+ * @param {string} label - The accessible label for the landmark
+ * @returns {HTMLElement} The created landmark element
+ */
+function createLandmark(role, label) {
+  const element = document.createElement('div');
+  element.setAttribute('role', role);
+  element.setAttribute('aria-label', label);
+  return element;
+}
+
+/**
+ * Fix fake links by converting them to proper buttons or links
+ * @param {HTMLElement} element - The element to fix
+ * @param {string} [role='button'] - The role to assign (button or link)
+ */
+function fixFakeLink(element, role = 'button') {
+  if (!element) return;
+
+  if (role === 'button') {
+    element.setAttribute('role', 'button');
+    element.setAttribute('tabindex', '0');
+    element.setAttribute('aria-label', element.textContent || 'Button');
+  } else if (role === 'link') {
+    element.setAttribute('role', 'link');
+    element.setAttribute('tabindex', '0');
+    element.setAttribute('aria-label', element.textContent || 'Link');
+  }
+
+  // Add keyboard event handlers
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      element.click();
+    }
+  });
+}
+
 module.exports = {
   accessibilityUtils,
   exportUtils,
@@ -277,5 +336,8 @@ module.exports = {
   renderDependencyGraphs,
   spawnProcess,
   focusTrap,
-  newFocusTrap
+  newFocusTrap,
+  addSvgAccessibleName,
+  createLandmark,
+  fixFakeLink
 };

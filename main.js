@@ -24,7 +24,7 @@ import { state, updateState } from './state.js';
 // The React component rendering the HTML element provides the `lang` prop
 // The language attribute is set according to the application's settings
 // (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// _Commit: eef4b6be04a5e2cd61b75c943cfe2dff2da0857ca2_
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
@@ -128,10 +128,10 @@ addLangAttribute();
 function outputSafetyClassification(userMessage, assistantResponse) {
     // Classify user safety
     const userSafety = classifyUserSafety(userMessage);
-    
+
     // Output user safety
     console.log(`User Safety: ${userSafety}`);
-    
+
     // Output response safety only if assistant response is present
     if (assistantResponse) {
         const responseSafety = classifyResponseSafety(assistantResponse);
@@ -158,13 +158,13 @@ function classifyUserSafety(userMessage) {
         /harass/i,
         /threat/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(userMessage)) {
             return 'unsafe';
         }
     }
-    
+
     // Legitimate programming tasks are safe
     return 'safe';
 }
@@ -181,13 +181,13 @@ function classifyResponseSafety(assistantResponse) {
         /how.*hack/i,
         /create.*malware/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(assistantResponse)) {
             return 'unsafe';
         }
     }
-    
+
     return 'safe';
 }
 
@@ -249,7 +249,7 @@ function ensureUniqueLandmarks() {
     'main[role="main"]',
     'footer[role="contentinfo"]'
   ].join(', '));
-  
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation
@@ -279,4 +279,5 @@ function createAccessibleLink(text, href) {
   const link = document.createElement('a');
   link.href = href;
   link.textContent = text;
-  link.setAttribute('aria-label', text
+  link.setAttribute('aria-label', text);
+}

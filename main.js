@@ -218,18 +218,6 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
-// Updated function using the new functions for rendering graph/index
-function renderDependencyGraphContent() {
-  const container = document.getElementById('dependencyGraph');
-  if (!container) {
-    return;
-  }
-
-  // Use the new functions for rendering
-  renderDependencyGraph(container);
-  renderIndexView(container);
-}
-
 // Function to count dependencies
 function countDependencies() {
   const dependencies = {

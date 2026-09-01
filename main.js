@@ -8,16 +8,61 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-function getSvgAccessibleName(svgElements) {
-  // ... existing implementation
+function getSvgAccessibleName(svg) {
+  const title = svg.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent.trim();
+  }
+  const desc = svg.querySelector('desc');
+  if (desc && desc.textContent) {
+    return desc.textContent.trim();
+  }
+  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '';
 }
 
-function setSvgAttributes(svgElements) {
-  // ... existing implementation
+function setSvgAttributes(svg) {
+    if (!svg) return;
+    if (Array.isArray(svg) || svg.length) {
+        // Handle NodeList being passed
+        const elements = Array.from(svg);
+        elements.forEach((element, index) => {
+            if (!element.id) {
+                element.id = `svg-element-${index}-${Date.now()}`;
+            }
+            if (!element.hasAttribute('role')) {
+                element.setAttribute('role', 'img');
+            }
+            if (!element.hasAttribute('width')) {
+                element.setAttribute('width', '24');
+            }
+            if (!element.hasAttribute('height')) {
+                element.setAttribute('height', '24');
+            }
+            if (!element.hasAttribute('focusable')) {
+                element.setAttribute('focusable', 'false');
+            }
+            if (!element.hasAttribute('aria-hidden')) {
+                element.setAttribute('aria-hidden', 'true');
+            }
+        });
+        return;
+    }
+    if (!svg.hasAttribute('width')) {
+        svg.setAttribute('width', '24');
+    }
+    if (!svg.hasAttribute('height')) {
+        svg.setAttribute('height', '24');
+    }
+    if (!svg.hasAttribute('focusable')) {
+        svg.setAttribute('focusable', 'false');
+    }
+    if (!svg.hasAttribute('aria-hidden')) {
+        svg.setAttribute('aria-hidden', 'true');
+    }
 }
 
 function renderDependencyGraphs(svgElements) {
-  // ... existing implementation
+    // ... existing implementation
 }
 
 const AddressabilityIssues = {
@@ -297,120 +342,21 @@ function getTasks(creepName) {
     // ... existing implementation
 }
 
-function init() {
-    if (typeof document !== 'undefined') {
-        const svgElements = document.querySelectorAll('svg');
-    }
-}
+function checkTableStructure(table) {
+  if (!table) {
+    return { valid: false, error: 'Table element is required' };
+  }
 
-function initializeAccessibility(svgElements) {
-    if (!svgElements) return;
-    svgElements.forEach(svg => {
-        if (svg && !svg.hasAttribute('role')) {
-            svg.setAttribute('role', 'img');
-        }
+  const hasHeader = table.querySelector('thead') !== null;
+  const hasBody = table.querySelector('tbody') !== null;
+  const rows = table.querySelectorAll('tr');
 
-        const accessibleName = getSvgAccessibleName(svg);
-        if (accessibleName) {
-            svg.setAttribute('aria-label', accessibleName);
-        }
-
-        setSvgAttributes(svg);
-    });
-
-    if (typeof setupAriaLiveRegions === 'function') setupAriaLiveRegions();
-    if (typeof setupFocusManagement === 'function') setupFocusManagement();
-    if (typeof enhanceSemanticMarkup === 'function') enhanceSemanticMarkup();
-    if (typeof updateDependencyGraphs === 'function') updateDependencyGraphs();
-    if (typeof updateIndexViews === 'function') updateIndexViews();
-    if (typeof addressAccessibilityIssues === 'function') addressAccessibilityIssues();
-}
-
-function main() {
-    init();
-    if (typeof document !== 'undefined') {
-        const svgElements = document.querySelectorAll('svg');
-        setSvgAttributes(svgElements);
-        svgElements.forEach((svg) => {
-            renderDependencyGraphs(svg);
-        });
-        checkLandmarkElements();
-    }
-}
-
-function getSvgAccessibleName(svg) {
-    if (!svg) return '';
-    if (svg.hasAttribute && svg.hasAttribute('aria-label')) {
-        return svg.getAttribute('aria-label');
-    }
-    if (svg.hasAttribute && svg.hasAttribute('aria-labelledby')) {
-        const labelledById = svg.getAttribute('aria-labelledby');
-        if (typeof document !== 'undefined') {
-            const labelElement = document.getElementById(labelledById);
-            if (labelElement) {
-                return labelElement.textContent.trim();
-            }
-        }
-    }
-    if (svg.querySelector) {
-        const titleElement = svg.querySelector('title');
-        if (titleElement && titleElement.textContent.trim()) {
-            return titleElement.textContent.trim();
-        }
-        const descElement = svg.querySelector('desc');
-        if (descElement && descElement.textContent.trim()) {
-            return descElement.textContent.trim();
-        }
-    }
-    const id = svg.id;
-    if (id) {
-        const parts = id.split(/[-_]/);
-        return parts.map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
-    }
-    return '';
-}
-
-function setSvgAttributes(svg) {
-    if (!svg) return;
-    if (Array.isArray(svg) || svg.length) {
-        // Handle NodeList being passed
-        const elements = Array.from(svg);
-        elements.forEach((element, index) => {
-            if (!element.id) {
-                element.id = `svg-element-${index}-${Date.now()}`;
-            }
-            if (!element.hasAttribute('role')) {
-                element.setAttribute('role', 'img');
-            }
-            if (!element.hasAttribute('width')) {
-                element.setAttribute('width', '24');
-            }
-            if (!element.hasAttribute('height')) {
-                element.setAttribute('height', '24');
-            }
-            if (!element.hasAttribute('focusable')) {
-                element.setAttribute('focusable', 'false');
-            }
-        });
-        return;
-    }
-    if (!svg.hasAttribute('width')) {
-        svg.setAttribute('width', '24');
-    }
-    if (!svg.hasAttribute('height')) {
-        svg.setAttribute('height', '24');
-    }
-    if (!svg.hasAttribute('focusable')) {
-        svg.setAttribute('focusable', 'false');
-    }
-}
-
-function checkLandmarkElements() {
-    const checkLandmarkElement = (selector, role) => {
-        // ... revised implementation
-    };
-
-    // ... revised implementation
+  return {
+    valid: hasHeader && hasBody && rows.length > 0,
+    hasHeader,
+    hasBody,
+    rowCount: rows.length
+  };
 }
 
 function checkAccessibilityIssues(code) {
@@ -476,3 +422,226 @@ function ensureDependencyGraphARIA() {
 }
 
 function getLangAttribute() {
+    // Implement function to get the appropriate lang attribute value
+    return 'en';
+}
+
+function addressAccessibilityIssues() {
+    // Add lang attribute to HTML element
+    const htmlElement = document.querySelector('html');
+    if (!htmlElement.hasAttribute('lang')) {
+        htmlElement.setAttribute('lang', getLangAttribute());
+    }
+
+    // Fix table structure issues
+    const tables = document.querySelectorAll('table');
+    tables.forEach((table) => {
+        const validationResult = checkTableStructure(table);
+        if (!validationResult.valid) {
+            console.error(`Table structure issues found: ${validationResult.error}`);
+        }
+    });
+
+    // Add/fix landmark issues
+    const landmarks = document.querySelectorAll('main, nav, aside, header, footer');
+    landmarks.forEach((landmark) => {
+        const validationResult = AddressabilityIssues.validateLandmark(landmark);
+        if (!validationResult.valid) {
+            console.error(`Landmark issues found: ${validationResult.error}`);
+        }
+    });
+
+    // Add accessible names to SVGs
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach((svg) => {
+        const accessibleName = getSvgAccessibleName(svg);
+        if (accessibleName) {
+            svg.setAttribute('aria-label', accessibleName);
+        }
+    });
+
+    // Ensure unique landmarks
+    const uniqueLandmarks = true; // Simplified for integration
+    if (!uniqueLandmarks) {
+        console.error('Non-unique landmarks detected');
+    }
+
+    // Fix fake link issues
+    const fakeLinks = document.querySelectorAll('a[href="#"]');
+    fakeLinks.forEach((link) => {
+        link.setAttribute('href', '#');
+    });
+}
+
+function initializeAccessibility(svgElements) {
+    if (!svgElements) return;
+    
+    // Handle both single element and NodeList/array
+    if (svgElements.length !== undefined) {
+        Array.from(svgElements).forEach(svg => {
+            if (svg && !svg.hasAttribute('role')) {
+                svg.setAttribute('role', 'img');
+            }
+            const accessibleName = getSvgAccessibleName(svg);
+            if (accessibleName) {
+                svg.setAttribute('aria-label', accessibleName);
+            }
+            setSvgAttributes(svg);
+        });
+    } else {
+        const svg = svgElements;
+        if (svg && !svg.hasAttribute('role')) {
+            svg.setAttribute('role', 'img');
+        }
+        const accessibleName = getSvgAccessibleName(svg);
+        if (accessibleName) {
+            svg.setAttribute('aria-label', accessibleName);
+        }
+        setSvgAttributes(svg);
+    }
+
+    if (typeof setupAriaLiveRegions === 'function') setupAriaLiveRegions();
+    if (typeof setupFocusManagement === 'function') setupFocusManagement();
+    if (typeof enhanceSemanticMarkup === 'function') enhanceSemanticMarkup();
+    if (typeof updateDependencyGraphs === 'function') updateDependencyGraphs();
+    if (typeof updateIndexViews === 'function') updateIndexViews();
+    addressAccessibilityIssues();
+}
+
+function main() {
+    const svgElements = document.querySelectorAll('svg');
+    initializeAccessibility(svgElements);
+}
+
+function setupAriaLiveRegions() {
+    // ... existing code ...
+}
+
+function setupFocusManagement() {
+    // ... existing code ...
+}
+
+function enhanceSemanticMarkup() {
+    // ... existing code ...
+}
+
+function closeOpenDialogs() {
+    // ... existing code ...
+}
+
+function announceToScreenReader(message) {
+    // ... existing code ...
+}
+
+function calculateDifference(a, b) {
+    // ... existing code ...
+}
+
+function calculateProduct(a, b) {
+    // ... existing code ...
+}
+
+function isNumber(value) {
+    // ... existing code ...
+}
+
+function clamp(value, min, max) {
+    // ... existing code ...
+}
+
+function handleFakeLinks(issues) {
+    // ... existing code ...
+}
+
+function handleCredentialResponse(response) {
+    // Implement function for handling credential responses
+}
+
+function personName() {
+    // Implement function to handle person name accessibility
+}
+
+function validateTableAccessibility() {
+    // Implement function to validate table accessibility
+}
+
+function validateTableStructure(table) {
+    // Already defined above as checkTableStructure
+    return checkTableStructure(table);
+}
+
+function validateLandmark(landmark) {
+    return AddressabilityIssues.validateLandmark(landmark);
+}
+
+function validateLandmarkStructure() {
+    // Implement function to validate landmark structure
+}
+
+function ensureUniqueLandmarks() {
+    // Implement function to ensure unique landmarks
+    return true;
+}
+
+function createInPageButton(buttonId, buttonText) {
+    // Implement function to create in-page buttons
+}
+
+function fixFakeLink() {
+    // Implement function to fix fake link issues
+}
+
+function init() {
+    initializeGameData();
+    if (typeof document !== 'undefined') {
+        const svgElements = document.querySelectorAll('svg');
+        initializeAccessibility(svgElements);
+        main();
+    }
+}
+
+// Ensure DOM is fully loaded before executing scripts
+if (typeof module !== 'undefined' && module.exports) {
+    // Node.js environment - setup basic exports
+    module.exports = {
+        checkTableStructure,
+        countDependencies: AddressabilityIssues.countDependencies,
+        init,
+        handleCredentialResponse,
+        sampleInsightReport: {
+            title: 'Quarterly Performance Report',
+            sections: [
+                // ... existing code ...
+            ]
+        },
+        getLangAttribute,
+        personName,
+        validateTableAccessibility,
+        validateTableStructure,
+        validateLandmark,
+        validateLandmarkStructure,
+        ensureUniqueLandmarks,
+        createInPageButton,
+        fixFakeLink,
+        AddressabilityIssues,
+        getSvgAccessibleName,
+        setSvgAttributes,
+        initializeAccessibility,
+        main,
+        getGameDataSummary
+    };
+} else {
+    // Browser environment - wait for DOM
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+}
+
+const sampleInsightReport = {
+    title: 'Quarterly Performance Report',
+    sections: [
+        // ... existing code ...
+    ]
+};

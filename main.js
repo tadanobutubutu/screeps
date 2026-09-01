@@ -1,3 +1,5 @@
+// TODO: This is the modified and merged code
+// This is the existing code that needs to be preserved in main.js
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report
 // ----- END ORIGINAL CODE-----

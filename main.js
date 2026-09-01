@@ -231,3 +231,183 @@ function getSvgAccessibleName(svgElement) {
   if (title && title.textContent.trim()) {
     return title.textContent.trim();
   }
+  
+  // Check for desc element inside SVG
+  const desc = svgElement.querySelector('desc');
+  if (desc && desc.textContent.trim()) {
+    return desc.textContent.trim();
+  }
+  
+  return 'SVG graphic';
+}
+
+// Utility functions for accessibility enhancements
+function addAriaLabel(element, label) {
+    if (!element) {
+        return;
+    }
+
+    if (typeof label !== 'string' || label.trim() === '') {
+        return element;
+    }
+
+    element.setAttribute('aria-label', label);
+    return element;
+}
+
+function ensureElementHasId(element, prefix) {
+    if (!element) {
+        return;
+    }
+
+    if (!element.id) {
+        element.id = prefix + Math.random().toString(36).substr(2, 9);
+    }
+    return element.id;
+}
+
+function ensureElementAccessibility(element, idPrefix, ariaLabel) {
+    if (!element) {
+        return;
+    }
+
+    const id = ensureElementHasId(element, idPrefix);
+    addAriaLabel(element, ariaLabel);
+
+    return id;
+}
+
+// Create in-page button with proper accessibility attributes
+function createInPageButton(text, href) {
+    const button = document.createElement('a');
+    button.textContent = text;
+    button.href = href;
+    button.setAttribute('role', 'button');
+    button.setAttribute('tabindex', '0');
+    return button;
+}
+
+// Get person name with proper accessibility attributes
+function personName(name) {
+    const span = document.createElement('span');
+    span.textContent = name;
+    span.setAttribute('aria-label', name);
+    return span;
+}
+
+// New focus trap implementation
+function newFocusTrap(element) {
+    if (!element) return;
+    const focusableElements = element.querySelectorAll(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Tab') {
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+
+            if (e.shiftKey && document.activeElement === firstElement) {
+                e.preventDefault();
+                lastElement.focus();
+            } else if (!e.shiftKey && document.activeElement === lastElement) {
+                e.preventDefault();
+                firstElement.focus();
+            }
+        }
+    };
+
+    element.addEventListener('keydown', handleKeyDown);
+
+    return {
+        destroy: () => {
+            element.removeEventListener('keydown', handleKeyDown);
+        }
+    };
+}
+
+// Announce message to screen readers
+function announceToScreenReader(message, priority = 'polite') {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 1000);
+}
+
+// Handle keyboard navigation
+function handleKeyboardNav(e, handlers) {
+    const key = e.key;
+    if (handlers[key]) {
+        handlers[key](e);
+    }
+}
+
+// Add lang attribute to document element
+function addLangAttribute() {
+    document.documentElement.setAttribute('lang', 'en');
+}
+
+// Export functions to make them accessible
+module.exports = {
+    affectedFunction,
+    updateFunction,
+    accessibleFunction,
+    main,
+    createWebResourceButton,
+    validateAccessibilityReport,
+    CONFIG,
+    accessibilityUtils,
+    log,
+    getLangAttribute,
+    personName,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    newFocusTrap,
+    getSvgAccessibleName,
+    createInPageButton,
+    setHtmlLangAttribute,
+    addAriaLabel,
+    ensureElementAccessibility,
+    ensureElementHasId,
+    addLangAttribute,
+    announceToScreenReader,
+    handleKeyboardNav,
+    detectAndSetLang
+};
+
+// Also attach to global scope for browser/standalone access
+if (typeof window !== 'undefined') {
+    window.affectedFunction = affectedFunction;
+    window.updateFunction = updateFunction;
+    window.accessibleFunction = accessibleFunction;
+    window.main = main;
+    window.createWebResourceButton = createWebResourceButton;
+    window.validateAccessibilityReport = validateAccessibilityReport;
+    window.CONFIG = CONFIG;
+    window.log = log;
+    window.accessibilityUtils = accessibilityUtils;
+    window.getLangAttribute = getLangAttribute;
+    window.personName = personName;
+    window.validateTableAccessibility = validateTableAccessibility;
+    window.validateTableStructure = validateTableStructure;
+    window.validateLandmark = validateLandmark;
+    window.validateLandmarkStructure = validateLandmarkStructure;
+    window.newFocusTrap = newFocusTrap;
+    window.getSvgAccessibleName = getSvgAccessibleName;
+    window.createInPageButton = createInPageButton;
+    window.setHtmlLangAttribute = setHtmlLangAttribute;
+    window.addAriaLabel = addAriaLabel;
+    window.ensureElementAccessibility = ensureElementAccessibility;
+    window.ensureElementHasId = ensureElementHasId;
+    window.addLangAttribute = addLangAttribute;
+    window.announceToScreenReader = announceToScreenReader;
+    window.handleKeyboardNav = handleKeyboardNav;
+    window.detectAndSetLang = detectAndSetLang;
+}

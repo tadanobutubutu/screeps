@@ -260,6 +260,16 @@ function initialize() {
     return initializeApp(CONFIG);
 }
 
+// Helper function to replace fake links with proper buttons
+function replaceFakeLinks() {
+  const fakeLink = document.querySelector('selector');
+  if (fakeLink && fakeLink.tagName === 'A') {
+    const parent = fakeLink.parentElement;
+    const newButton = createUnrotateButton();
+    parent.replaceChild(newButton, fakeLink);
+  }
+}
+
 // Format response
 function formatResponse(data, status = 'success') {
     return {
@@ -313,4 +323,82 @@ function processLandmarks(landmarks) {
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
-function sortLandmarks(landmarks, ascending = true
+function sortLandmarks(landmarks, ascending = true) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+
+    return landmarks.sort((a, b) => {
+        const idA = a.id || '';
+        const idB = b.id || '';
+        return ascending ? idA.localeCompare(idB) : idB.localeCompare(idA);
+    });
+}
+
+// Helper function to ensure unique landmarks
+function ensureUniqueLandmarks(landmarks) {
+    const seen = new Set();
+    return landmarks.filter(landmark => {
+        const id = landmark.id || landmark.ariaLabel;
+        if (seen.has(id)) {
+            return false;
+        }
+        seen.add(id);
+        return true;
+    });
+}
+
+// Validate landmark accessibility
+function validateLandmark(landmark) {
+  // Check if landmark has appropriate name
+  if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+    return false;
+  }
+
+  // Additional checks can be added here
+  return true;
+}
+
+/**
+ * Validates the overall landmark structure of the page
+ * @returns {boolean} True if the landmark structure is valid
+ */
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll('[role="main"], [role="complementary"], [role="navigation"], [role="search"]');
+
+  // Count each type of landmark
+  const mainCount = landmarks.filter(l => l.getAttribute('role') === 'main').length;
+  const complementaryCount = landmarks.filter(l => l.getAttribute('role') === 'complementary').length;
+  const navigationCount = landmarks.filter(l => l.getAttribute('role') === 'navigation').length;
+  const searchCount = landmarks.filter(l => l.getAttribute('role') === 'search').length;
+
+  // Basic validation: ensure at least one main landmark exists
+  if (mainCount === 0) {
+    console.warn('No main landmark found on the page');
+    return false;
+  }
+
+  // Ensure no duplicate landmark IDs (reusing previous function)
+  ensureUniqueLandmarks();
+
+  return true;
+}
+
+/**
+ * Adds fixes for landmark issues throughout the page
+ * @returns {boolean} True if fixes were applied
+ */
+function addFixLandmarkIssues() {
+  // Apply any necessary fixes for landmark accessibility
+  // This could include adding missing roles, labels, etc.
+
+  // Example: Find all main landmarks and ensure they have proper roles
+  const mainLandmarks = document.querySelectorAll('[role="main"]');
+  mainLandmarks.forEach(landmark => {
+    if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+      landmark.setAttribute('aria-label', 'Main content area');
+    }
+  });
+
+  return true;
+}

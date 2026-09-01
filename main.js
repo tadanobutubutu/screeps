@@ -9,7 +9,8 @@ const path = require('path');
 // Configuration
 const CONFIG = {
     dataPath: './data',
-    maxResults: 100
+    maxResults: 100,
+    defaultScanUrl: 'https://example.com' // Default URL for accessibility scanning
 };
 
 // Helper function to validate landmark structure
@@ -138,17 +139,16 @@ function formatAccessibilityReport(results) {
   return { violations };
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
-function generateAccessibilityReport() {
-  const url = 'YOUR_WEBSITE_URL'; // Replace with the URL to be scanned
-  return scanAccessibility(url)
-    .then(report => {
-      writeAccessibilityReport(report);
-      return report;
-    })
-    .catch(error => {
-      console.error('Error running accessibility scan:', error.message);
-    });
+// Updated function for generating a report based on accessibility issues
+async function generateAccessibilityReport(url = CONFIG.defaultScanUrl) {
+  try {
+    const report = await scanAccessibility(url);
+    writeAccessibilityReport(report);
+    return report;
+  } catch (error) {
+    console.error('Error running accessibility scan:', error.message);
+    throw error; // Re-throw the error to allow for proper error handling by the caller
+  }
 }
 
 // Existing utility function (preserved)

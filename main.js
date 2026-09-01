@@ -23,32 +23,28 @@ function addSvgAccessibilityProps() {
   });
 }
 
-<<<<<<< HEAD
-// Existing exports and functions must be preserved
-// Example:
-// export function someExistingFunction() {
-//   // Existing function implementation
-// }
-
 // REACT_015: Returns the appropriate lang attribute value based on the current language setting
 function getLangAttribute() {
-  // TODO: Implement logic to retrieve the current language setting
-  // and return the corresponding lang attribute value
-  // For now, returning a default value
-  return 'en';
+  const htmlElement = document.documentElement;
+  const lang = htmlElement.getAttribute('lang');
+  if (lang) {
+    return lang;
+  }
+  
+  const htmlLang = navigator.language || navigator.userLanguage;
+  return htmlLang ? htmlLang.split('-')[0] : 'en';
 }
 
 // REACT_015: Creates and inserts an in-page button element into the DOM
 function createInPageButton() {
-  // TODO: Implement logic to create an in-page button element
-  // and insert it into the DOM at an appropriate location
   const lang = getLangAttribute();
   const button = document.createElement('button');
   button.setAttribute('lang', lang);
   button.textContent = 'Click me';
   document.body.appendChild(button);
   return button;
-=======
+}
+
 function getSvgAccessibleName(svg) {
   const title = svg.querySelector('title');
   if (title) {
@@ -203,7 +199,9 @@ if (typeof module !== 'undefined' && module.exports) {
     createInPageButton,
     validateLinkAccessibility,
     handleFakeLinks,
-    sampleInsightReport
+    sampleInsightReport,
+    getLangAttribute,
+    addLandmarkRoles
   };
 } else {
   // Browser environment - wait for DOM
@@ -218,6 +216,8 @@ function init() {
   setupKeyboardNavigation();
   setupAriaLiveRegions();
   setupFocusManagement();
+  enhanceSemanticMarkup();
+  addSvgAccessibilityProps();
 }
 
 function setupKeyboardNavigation() {
@@ -483,23 +483,36 @@ function calculateAccessibilityScore(fixedIssues) {
 }
 
 function ensureUniqueLandmarksFromString(source) {
-  const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+  if (typeof source !== 'string') {
+    return source;
+  }
 
+  // Split the source into parts to process main elements
+  const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
   const matches = Array.from(source.matchAll(mainBlockRegex));
+
   if (matches.length <= 1) {
     return source;
   }
 
+  // Replace additional main elements with section elements to ensure unique landmarks
   let result = source;
-  for (let i = 1; i < matches.length; i++) {
-    const block = matches[i][0];
-    const fixedBlock = block
+  let mainCount = 0;
+
+  // Process each main element occurrence
+  const processedSource = source.replace(mainBlockRegex, (match, index) => {
+    mainCount++;
+    if (mainCount <= 1) {
+      return match; // Keep first main element as-is
+    }
+    
+    // Convert subsequent main elements to section with role="main" for landmark
+    return match
       .replace(/<main([^>]*)>/, '<section$1>')
       .replace(/<\/main>/, '</section>');
-    result = result.replace(block, fixedBlock);
-  }
+  });
 
-  return result;
+  return processedSource;
 }
 
 function validateLandmark(element) {
@@ -554,6 +567,90 @@ function validateLandmark(element) {
   }
 
   return { valid: true, element: tagName, role: landmarkRole };
+}
+
+// REACT_017: Add landmark roles to elements
+function addLandmarkRoles() {
+  // Add missing landmark roles to header elements (banner)
+  const headers = document.querySelectorAll('header:not([role])');
+  headers.forEach(header => {
+    const parent = header.parentElement;
+    if (parent && !parent.querySelector('header')) {
+      header.setAttribute('role', 'banner');
+    }
+  });
+
+  // Add missing navigation landmark roles to nav elements
+  const navs = document.querySelectorAll('nav:not([role="navigation"])');
+  navs.forEach(nav => {
+    nav.setAttribute('role', 'navigation');
+  });
+
+  // Add main landmark role to main elements
+  const mains = document.querySelectorAll('main:not([role="main"])');
+  mains.forEach(main => {
+    main.setAttribute('role', 'main');
+  });
+
+  // Add complementary landmark role to aside elements
+  const asides = document.querySelectorAll('aside:not([role])');
+  asides.forEach(aside => {
+    aside.setAttribute('role', 'complementary');
+  });
+
+  // Add contentinfo landmark role to footer elements
+  const footers = document.querySelectorAll('footer:not([role])');
+  footers.forEach(footer => {
+    const isMainFooter = !footer.closest('main, header, nav, aside, section, article, form');
+    if (isMainFooter || footer.parentElement.tagName.toLowerCase() === 'body') {
+      footer.setAttribute('role', 'contentinfo');
+    }
+  });
+
+  // Ensure section with headings have region role if needed
+  const sections = document.querySelectorAll('section:not([role])');
+  sections.forEach(section => {
+    const hasHeading = section.querySelector('h1, h2, h3, h4, h5, h6');
+    const hasLandmark = section.hasAttribute('role');
+    if (hasHeading && !hasLandmark && !section.id) {
+      const headingText = section.querySelector('h1, h2, h3, h4, h5, h6');
+      if (headingText && !headingText.id) {
+        section.id = `region-${Math.random().toString(36).substr(2, 9)}`;
+        headingText.id = `${section.id}-heading`;
+        section.setAttribute('aria-labelledby', `${section.id}-heading`);
+        section.setAttribute('role', 'region');
+      }
+    }
+  });
+
+  // Fix duplicate main landmarks - convert additional main elements to sections
+  const allMains = document.querySelectorAll('main');
+  if (allMains.length > 1) {
+    allMains.forEach((main, index) => {
+      if (index > 0) {
+        main.setAttribute('role', 'region');
+        const newId = `main-${index}`;
+        main.id = newId;
+      }
+    });
+  }
+
+  // Ensure unique IDs for elements with aria-labelledby
+  const elementsWithLabelledby = document.querySelectorAll('[aria-labelledby]');
+  elementsWithLabelledby.forEach(element => {
+    const labelId = element.getAttribute('aria-labelledby');
+    if (labelId) {
+      const labelElement = document.getElementById(labelId);
+      if (!labelElement) {
+        // Create the missing label element if it doesn't exist
+        const span = document.createElement('span');
+        span.id = labelId;
+        span.className = 'sr-only';
+        span.textContent = element.textContent || element.innerText || '';
+        element.parentNode.insertBefore(span, element.nextSibling);
+      }
+    }
+  });
 }
 
 function spawnSomeCommand(callback) {

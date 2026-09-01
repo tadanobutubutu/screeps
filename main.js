@@ -13,7 +13,9 @@ const landmarks = [];
 
 // TODO: Implement spawning logic
 function spawnNewUser(name, age) {
-    return new User(name, age);
+    const newUser = new User(name, age);
+    landmarks.push(newUser);
+    return newUser;
 }
 
 // Web server dependencies (incorporated from origin/main)

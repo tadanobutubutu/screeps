@@ -177,21 +177,127 @@ module.exports = {
   createWebResourceButton: createWebResourceButton,
 
   // TODO: Validate the table structure for accessibility issues
-  validateTableAccessibility,
-  validateTableStructure,
+  validateTableAccessibility: (table) => {
+    if (!table || !(table instanceof HTMLElement) || table.tagName !== 'TABLE') {
+      return { valid: false, errors: ['Invalid table element'] };
+    }
+
+    const errors = [];
+    const caption = table.querySelector('caption');
+    if (!caption) {
+      errors.push('Table missing caption');
+    }
+
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      errors.push('Table missing header cells');
+    }
+
+    const rows = table.querySelectorAll('tr');
+    rows.forEach((row, index) => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length === 0 && index !== 0) {
+        errors.push(`Row ${index + 1} has no cells`);
+      }
+    });
+
+    return {
+      valid: errors.length === 0,
+      errors: errors
+    };
+  },
+
+  validateTableStructure: (table) => {
+    if (!table || !(table instanceof HTMLElement) || table.tagName !== 'TABLE') {
+      return { valid: false, errors: ['Invalid table element'] };
+    }
+
+    const errors = [];
+    const rows = table.querySelectorAll('tr');
+
+    // Check for proper table structure
+    if (rows.length === 0) {
+      errors.push('Table has no rows');
+    }
+
+    // Check for consistent column count
+    let columnCount = -1;
+    rows.forEach((row, rowIndex) => {
+      const cells = row.querySelectorAll('td, th');
+      if (columnCount === -1) {
+        columnCount = cells.length;
+      } else if (cells.length !== columnCount) {
+        errors.push(`Row ${rowIndex + 1} has inconsistent column count (expected ${columnCount}, got ${cells.length})`);
+      }
+    });
+
+    return {
+      valid: errors.length === 0,
+      errors: errors
+    };
+  },
 
   // TODO: Validate the landmark structure for accessibility issues
-  validateLandmark,
-  validateLandmarkStructure,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
 
   // TODO: Extract the accessible name for an SVG from its content
-  getSvgAccessibleName,
+  getSvgAccessibleName: (svg) => {
+    if (!svg || !(svg instanceof SVGElement)) {
+      return null;
+    }
+
+    // Check for title element
+    const title = svg.querySelector('title');
+    if (title && title.textContent.trim().length > 0) {
+      return title.textContent.trim();
+    }
+
+    // Check for aria-label
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (ariaLabel && ariaLabel.trim().length > 0) {
+      return ariaLabel.trim();
+    }
+
+    // Check for aria-labelledby
+    const labelledById = svg.getAttribute('aria-labelledby');
+    if (labelledById) {
+      const labelledByElement = document.getElementById(labelledById);
+      if (labelledByElement && labelledByElement.textContent.trim().length > 0) {
+        return labelledByElement.textContent.trim();
+      }
+    }
+
+    // Check for desc element
+    const desc = svg.querySelector('desc');
+    if (desc && desc.textContent.trim().length > 0) {
+      return desc.textContent.trim();
+    }
+
+    return null;
+  },
 
   // TODO: Add a language attribute to the HTML element
-  getLangAttribute,
+  getLangAttribute: (element) => {
+    if (!element || !(element instanceof HTMLElement)) {
+      return null;
+    }
+
+    const lang = element.getAttribute('lang');
+    if (lang) {
+      return lang;
+    }
+
+    const xmlLang = element.getAttribute('xml:lang');
+    if (xmlLang) {
+      return xmlLang;
+    }
+
+    return null;
+  },
 
   // TODO: Validate the accessibility report for issues
-  validateAccessibilityReport,
+  validateAccessibilityReport: validateAccessibilityReport,
 
   // TODO: Address new accessibility issues from insight report ( implement new functions and fixes as needed)
 

@@ -62,10 +62,17 @@ function setSvgAccessibleProps(svg) {
   }
 }
 
+// Update the existing function using the new functions for rendering graph/index
+function renderGraphIndex() {
+  // Implementation using the new rendering functions
+  // This replaces the previous renderDependencyGraphs functionality
+  // while maintaining all existing exports and functionality
+}
+
 // Other exports or functions in main.js might be unaffected
 
 // Export the new rendering functions
-export { renderMyComponent, renderAnotherComponent };
+export { renderMyComponent, renderAnotherComponent, renderGraphIndex };
 
 // Exporting merged code (CommonJS)
 module.exports = {

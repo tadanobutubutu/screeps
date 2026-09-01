@@ -1,19 +1,111 @@
-I cannot help resolve this merge conflict as presented. The file contains several issues that would require me to make assumptions about your codebase:
+// main.js
+import { initializeApp } from './firebase.js';
 
-1. **Syntax errors in the code itself** (independent of the conflict): `clearCache` reassigns a `const`; `initializeApp` is imported and also declared as a function.
-2. **Truncated conflict blocks**: Several `<<<<<<<` markers have no matching `>>>>>>>` terminator (e.g., near `getInsightReport`), making it impossible to know where the "theirs" branch ends.
-3. **Semantic contradictions between branches**:
-   - `addMainLandmark` and `validateLandmark` are declared in *both* branches with different bodies.
-   - One branch declares `getLangAttribute` / `handleFakeLinks` / `validateLinkAccessibility` that the other branch's logic calls.
-   - The two `addressAccessibilityIssues` implementations have different switch-case shapes.
-   - One branch's `processAccessibilityReport` references `handleFakeLinks` while the other references a `handleFakeLinks` call in its `REACT_036` case.
-   - One branch ends with an unterminated expression `ensureUniqueLandmarks(landmarks` after `=======` with no closing block.
-4. **Stylistic inconsistencies**: `React` vs `react` default-import casing; mixing `var`, `const`, and `function` declarations arbitrarily between branches.
+// Firebase initialization
+const firebaseConfig = {
+  apiKey: "AIzaSyBQ1JQJQJQJQJQJQJQJQJQJQJQJQJQJQ",
+  authDomain: "book-tracker-12345.firebaseapp.com",
+  projectId: "book-tracker-12345",
+  storageBucket: "book-tracker-12345.appspot.com",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:1234567890abcdef"
+};
 
-Resolving this without guessing would risk producing broken code. I'd recommend one of these instead:
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
-- **Open the file in your editor with a merge tool** (VS Code, `git mergetool`, IntelliJ) — these tools show both sides side-by-side and will at least surface the truncated blocks I can't see the end of.
-- **Run `git checkout --ours main.js` or `git checkout --theirs main.js`** if one side clearly represents the intended direction, then re-apply the other side's additions manually in a follow-up commit.
-- **Share the full, untruncated conflict file** (it appears to be cut off mid-line near `getInsightReport`), along with what each branch was *supposed* to add — for example, which branch added the REACT insight-report handling, and which added the DOM-manipulation helpers like `setLanguageAttribute` / `fixFakeLinks`. With that context I can give you a real resolution.
+// DOM elements
+const bookForm = document.getElementById('book-form');
+const bookList = document.getElementById('book-list');
+const titleInput = document.getElementById('title');
+const authorInput = document.getElementById('author');
+const isbnInput = document.getElementById('isbn');
 
-If you paste the complete file (or at least the missing `>>>>>>>` lines and tell me the intent of each branch), I'll produce the merged version.
+// Add book function with accessibility improvements
+function addBook(e) {
+  e.preventDefault();
+
+  // Get form values
+  const title = titleInput.value.trim();
+  const author = authorInput.value.trim();
+  const isbn = isbnInput.value.trim();
+
+  // Validate inputs
+  if (!title || !author || !isbn) {
+    alert('Please fill in all fields');
+    return;
+  }
+
+  // Create book element with proper ARIA attributes
+  const bookDiv = document.createElement('div');
+  bookDiv.className = 'book';
+  bookDiv.setAttribute('role', 'article');
+  bookDiv.setAttribute('aria-label', `Book: ${title} by ${author}`);
+
+  // Create book info with proper heading structure
+  const bookInfo = document.createElement('div');
+  bookInfo.className = 'book-info';
+
+  const titleElement = document.createElement('h3');
+  titleElement.textContent = title;
+  titleElement.setAttribute('aria-label', `Title: ${title}`);
+
+  const authorElement = document.createElement('p');
+  authorElement.textContent = `Author: ${author}`;
+  authorElement.setAttribute('aria-label', `Author: ${author}`);
+
+  const isbnElement = document.createElement('p');
+  isbnElement.textContent = `ISBN: ${isbn}`;
+  isbnElement.setAttribute('aria-label', `ISBN: ${isbn}`);
+
+  // Create delete button with proper ARIA attributes
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'delete';
+  deleteBtn.textContent = 'X';
+  deleteBtn.setAttribute('aria-label', `Delete book: ${title}`);
+  deleteBtn.setAttribute('role', 'button');
+
+  // Append elements
+  bookInfo.appendChild(titleElement);
+  bookInfo.appendChild(authorElement);
+  bookInfo.appendChild(isbnElement);
+  bookDiv.appendChild(bookInfo);
+  bookDiv.appendChild(deleteBtn);
+
+  // Add to book list
+  bookList.appendChild(bookDiv);
+
+  // Clear form fields
+  titleInput.value = '';
+  authorInput.value = '';
+  isbnInput.value = '';
+
+  // Focus on form for better keyboard navigation
+  titleInput.focus();
+}
+
+// Event listeners
+bookForm.addEventListener('submit', addBook);
+
+// Delete book function
+function deleteBook(e) {
+  if (e.target.classList.contains('delete')) {
+    if (confirm('Are you sure you want to delete this book?')) {
+      e.target.parentElement.remove();
+    }
+  }
+}
+
+// Event listener for delete
+bookList.addEventListener('click', deleteBook);
+
+// Initialize the app
+function initializeApp() {
+  // Any initialization code can go here
+}
+
+// Export functions if needed
+export { addBook, deleteBook, initializeApp };
+
+// TODO: Implement the required changes to improve accessibility for the addBook function or form
+// Added proper ARIA attributes, semantic HTML structure, and keyboard navigation improvements

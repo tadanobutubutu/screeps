@@ -496,6 +496,39 @@ function processAccessibilityReport(report) {
   return findings;
 }
 
+/**
+ * Implements a function for generating a report based on accessibility issues.
+ * @param {Object} insightReport - The insight report containing accessibility issues
+ * @returns {Object} A report object with findings
+ */
+function generateAccessibilityReport(insightReport) {
+  if (!insightReport || !insightReport.issues) {
+    return {
+      title: 'Accessibility Report',
+      summary: 'No accessibility issues were found.',
+      findings: {}
+    };
+  }
+
+  const findings = {
+    langAttribute: false,
+    tableIssues: 0,
+    landmarkIssues: 0,
+    svgIssues: 0,
+    uniqueLandmarkIssues: 0,
+    fakeLinkIssues: 0
+  };
+
+  if (insightReport.REACT_015) findings.langAttribute = true;
+  if (insightReport.REACT_027) findings.tableIssues = insightReport.REACT_027.count || 0;
+  if (insightReport.REACT_017) findings.landmarkIssues = insightReport.REACT_017.count || 0;
+  if (insightReport.REACT_041) findings.svgIssues = insightReport.REACT_041.count || 0;
+  if (insightReport.REACT_025) findings.uniqueLandmarkIssues = insightReport.REACT_025.count || 0;
+  if (insightReport.REACT_036) findings.fakeLinkIssues = insightReport.REACT_036.count || 0;
+
+  return findings;
+}
+
 function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
   // This addresses issues from the insight report:
@@ -621,6 +654,7 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   addLandmarkRegions,
+  generateAccessibilityReport,
   // Added from origin/main
   someFunction: function() {
     return 'some value';

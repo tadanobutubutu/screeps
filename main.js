@@ -172,23 +172,103 @@ function renderDependencyGraph(landmarks) {
   console.log('Rendering dependency graphs for landmarks...');
 }
 
+// New function to fix table structure issues (REACT_027)
+function fixTableStructure(tableElement) {
+  if (!tableElement || tableElement.tagName !== 'TABLE') return;
+
+  // Ensure table has proper structure with thead, tbody, and tfoot if needed
+  if (!tableElement.querySelector('thead')) {
+    const thead = document.createElement('thead');
+    const firstRow = tableElement.querySelector('tr');
+    if (firstRow) {
+      thead.appendChild(firstRow);
+      tableElement.insertBefore(thead, tableElement.firstChild);
+    }
+  }
+
+  if (!tableElement.querySelector('tbody')) {
+    const tbody = document.createElement('tbody');
+    const rows = Array.from(tableElement.querySelectorAll('tr:not(:first-child)'));
+    rows.forEach(row => tbody.appendChild(row));
+    tableElement.appendChild(tbody);
+  }
+
+  // Add scope attributes to headers if missing
+  const headers = tableElement.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+}
+
+// New function to add main landmark (REACT_017)
+function addMainLandmark() {
+  const mainElement = document.querySelector('main');
+  if (!mainElement) {
+    const main = document.createElement('main');
+    main.id = 'main-content';
+    document.body.prepend(main);
+    return main;
+  }
+  return mainElement;
+}
+
+// New function to add accessible names to SVGs (REACT_041)
+function addSvgAccessibleNames(svgElement, name) {
+  if (!svgElement || svgElement.tagName !== 'svg') return;
+
+  if (!svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
+    svgElement.setAttribute('aria-label', name || 'Interactive graphic');
+  }
+
+  // Ensure SVG has a title element for screen readers
+  if (!svgElement.querySelector('title')) {
+    const title = document.createElement('title');
+    title.textContent = name || 'Interactive graphic';
+    svgElement.prepend(title);
+  }
+}
+
+// New function to fix fake link issue (REACT_036)
+function fixFakeLinkIssue(element) {
+  if (!element || element.tagName !== 'A') return;
+
+  // If element looks like a link but doesn't have href, make it a button
+  if (!element.hasAttribute('href') || element.getAttribute('href') === '#') {
+    const button = document.createElement('button');
+    // Copy attributes
+    Array.from(element.attributes).forEach(attr => {
+      if (attr.name !== 'href') {
+        button.setAttribute(attr.name, attr.value);
+      }
+    });
+    // Copy content
+    button.innerHTML = element.innerHTML;
+    // Replace in DOM
+    element.parentNode.replaceChild(button, element);
+    return button;
+  }
+  return element;
+}
+
 // Update the main execution to use the new functions
 if (require.main === module) {
   const landmarks = loadLandmarks();
   const processed = processLandmarks(landmarks);
   const sorted = sortLandmarks(processed);
-  
+
   console.log(`Loaded ${landmarks.length} landmarks`);
   console.log(`Processed to ${processed.length} unique landmarks`);
   console.log(`Sorted ${sorted.length} landmarks`);
-  
+
   if (sorted.length > 0) {
     sorted.forEach(landmark => {
       ensureElementId(landmark);
       addAriaLabel(landmark, 'Description of landmark');
     });
     renderDependencyGraph(sorted);
-    
+
     console.log('First landmark with id and aria-label:', sorted[0]);
   }
 }
@@ -226,5 +306,10 @@ module.exports = {
   // newly added functions
   ensureElementId,
   addAriaLabel,
-  renderDependencyGraph
+  renderDependencyGraph,
+  // accessibility fixes
+  fixTableStructure,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue
 };

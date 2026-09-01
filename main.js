@@ -14,3 +14,6 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
 
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };
+
+// Add the requested export for createInPageButton
+export { createInPageButton };

@@ -11,8 +11,8 @@ const { indexContent } = require('./indexContent');
  * @returns {string} Rendered dependency graph HTML
  */
 function renderDependencyGraph(deps, options = {}) {
-  // Use dependencyGraphContent from the imported module
-  return dependencyGraphContent(deps, options);
+    // Use dependencyGraphContent from the imported module
+    return dependencyGraphContent(deps, options);
 }
 
 /**
@@ -22,13 +22,13 @@ function renderDependencyGraph(deps, options = {}) {
  * @returns {string} Rendered index HTML
  */
 function renderIndex(data, options = {}) {
-  // Use indexContent from the imported module
-  return indexContent(data, options);
+    // Use indexContent from the imported module
+    return indexContent(data, options);
 }
 
 // Add lang attribute to HTML element
 function getLangAttribute() {
-  // Implementation to add lang attribute
+    // Implementation to add lang attribute
 }
 
 // Accessibility utilities and functions
@@ -36,236 +36,236 @@ function getLangAttribute() {
 
 // Utility functions for accessibility
 const accessibilityUtils = {
-  // Initialize skip link functionality for keyboard navigation
-  initSkipLink: function() {
-    const skipLink = document.querySelector('.skip-link');
-    if (skipLink) {
-      skipLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
-        if (target) {
-          target.setAttribute('tabindex', '-1');
-          target.focus();
+    // Initialize skip link functionality for keyboard navigation
+    initSkipLink: function () {
+        const skipLink = document.querySelector('.skip-link');
+        if (skipLink) {
+            skipLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(skipLink.getAttribute('href'));
+                if (target) {
+                    target.setAttribute('tabindex', '-1');
+                    target.focus();
+                }
+            });
         }
-      });
-    }
-  },
+    },
 
-  // Trap focus within an element (for modals, dialogs)
-  trapFocus: function(element) {
-    const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
+    // Trap focus within an element (for modals, dialogs)
+    trapFocus: function (element) {
+        const focusableElements = element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
 
-    element.addEventListener('keydown', function(e) {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          lastElement.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
-          e.preventDefault();
+        element.addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    lastElement.focus();
+                    e.preventDefault();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    firstElement.focus();
+                    e.preventDefault();
+                }
+            }
+        });
+    },
+
+    // Announce message to screen readers
+    announceToScreenReader: function (message, priority) {
+        if (priority === undefined) {
+            priority = 'polite';
         }
-      }
-    });
-  },
+        const announcer = document.createElement('div');
+        announcer.setAttribute('aria-live', priority);
+        announcer.setAttribute('aria-atomic', 'true');
+        announcer.className = 'sr-only';
+        announcer.style.position = 'absolute';
+        announcer.style.left = '-9999px';
+        announcer.textContent = message;
+        document.body.appendChild(announcer);
+        setTimeout(function () {
+            announcer.remove();
+        }, 1000);
+    },
 
-  // Announce message to screen readers
-  announceToScreenReader: function(message, priority) {
-    if (priority === undefined) {
-      priority = 'polite';
-    }
-    const announcer = document.createElement('div');
-    announcer.setAttribute('aria-live', priority);
-    announcer.setAttribute('aria-atomic', 'true');
-    announcer.className = 'sr-only';
-    announcer.style.position = 'absolute';
-    announcer.style.left = '-9999px';
-    announcer.textContent = message;
-    document.body.appendChild(announcer);
-    setTimeout(function() {
-      announcer.remove();
-    }, 1000);
-  },
-
-  // Handle keyboard navigation
-  handleKeyboardNav: function(e, handlers) {
-    const key = e.key;
-    if (handlers[key]) {
-      handlers[key](e);
-    }
-  },
-
-  // New focus trap function for keyboard navigation
-  newFocusTrap: function(element) {
-    const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    element.addEventListener('keydown', function(e) {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          lastElement.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
-          e.preventDefault();
+    // Handle keyboard navigation
+    handleKeyboardNav: function (e, handlers) {
+        const key = e.key;
+        if (handlers[key]) {
+            handlers[key](e);
         }
-      }
-    });
-  },
+    },
 
-  // Function to ensure the element has an id, add aria-label, render dependency graphs
-  ensureElementAccessibility: function(element, options) {
-    // Implementation to ensure element accessibility
-  },
+    // New focus trap function for keyboard navigation
+    newFocusTrap: function (element) {
+        const focusableElements = element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
 
-  // Function to fix table structure and accessibility issues
-  validateAndFixTableStructure: function(table) {
-    // Implementation to validate and fix table structure and accessibility
-  },
+        element.addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    lastElement.focus();
+                    e.preventDefault();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    firstElement.focus();
+                    e.preventDefault();
+                }
+            }
+        });
+    },
 
-  // Function to fix landmark structure and accessibility issues
-  validateAndFixLandmark: function(landmark) {
-    // Implementation to validate and fix landmark structure and accessibility
-  },
+    // Function to ensure the element has an id, add aria-label, render dependency graphs
+    ensureElementAccessibility: function (element, options) {
+        // Implementation to ensure element accessibility
+    },
 
-  // Function to improve SVG accessibility
-  improveSvgAccessibility: function(svg) {
-    // Implementation to improve SVG accessibility
-  },
+    // Function to fix table structure and accessibility issues
+    validateAndFixTableStructure: function (table) {
+        // Implementation to validate and fix table structure and accessibility
+    },
 
-  // Function to create an in-page button with accessible link
-  createAccessibleInPageButton: function(options) {
-    // Implementation to create a accessible in-page button
-  },
+    // Function to fix landmark structure and accessibility issues
+    validateAndFixLandmark: function (landmark) {
+        // Implementation to validate and fix landmark structure and accessibility
+    },
 
-  // Function to handle accessibility issues
-  handleAccessibilityIssues: function(container, report) {
-    // Implementation to handle accessibility issues
-  }
+    // Function to improve SVG accessibility
+    improveSvgAccessibility: function (svg) {
+        // Implementation to improve SVG accessibility
+    },
+
+    // Function to create an in-page button with accessible link
+    createAccessibleInPageButton: function (options) {
+        // Implementation to create a accessible in-page button
+    },
+
+    // Function to handle accessibility issues
+    handleAccessibilityIssues: function (container, report) {
+        // Implementation to handle accessibility issues
+    },
 };
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs, address accessibility issues from insight report
 function ensureElementId(element) {
-  if (element && !element.id) {
-    element.id = 'element-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-  }
-  return element;
+    if (element && !element.id) {
+        element.id = 'element-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    }
+    return element;
 }
 
 function addAriaLabel(element, label) {
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-  return element;
+    if (element) {
+        element.setAttribute('aria-label', label);
+    }
+    return element;
 }
 
 function renderDependencyGraph(data) {
-  // Implementation for rendering dependency graphs
-  return {
-    nodes: data.nodes || [],
-    edges: data.edges || []
-  };
+    // Implementation for rendering dependency graphs
+    return {
+        nodes: data.nodes || [],
+        edges: data.edges || [],
+    };
 }
 
 function implementAccessibilityFixesFromReport(container, report) {
-  // Implementation to address accessibility issues from the insight report
+    // Implementation to address accessibility issues from the insight report
 }
 
 // Initialize accessibility features
 function initAccessibility() {
-  accessibilityUtils.initSkipLink();
+    accessibilityUtils.initSkipLink();
 
-  // Add keyboard support for all interactive elements
-  const elements = document.querySelectorAll('[data-accessible]');
-  for (let i = 0; i < elements.length; i++) {
-    const element = elements[i];
-    element.addEventListener('keydown', function(e) {
-      accessibilityUtils.handleKeyboardNav(e, {
-        Enter: function() {
-          element.click();
-        },
-        ' ': function() {
-          element.click();
-        }
-      });
-    });
-  }
+    // Add keyboard support for all interactive elements
+    const elements = document.querySelectorAll('[data-accessible]');
+    for (let i = 0; i < elements.length; i++) {
+        const element = elements[i];
+        element.addEventListener('keydown', function (e) {
+            accessibilityUtils.handleKeyboardNav(e, {
+                Enter: function () {
+                    element.click();
+                },
+                ' ': function () {
+                    element.click();
+                },
+            });
+        });
+    }
 }
 
 // New function: validateTableAccessibility
 function validateTableAccessibility(tableElement) {
-  const issues = [];
+    const issues = [];
 
-  if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
-    issues.push('Element is not a TABLE element');
-    return issues;
-  }
-
-  // Check for presence of <caption> (accessibility best practice for table description)
-  const caption = tableElement.querySelector('caption');
-  if (!caption || !caption.textContent.trim()) {
-    issues.push('TABLE is missing a caption or caption is empty');
-  }
-
-  // Check for th elements in headers
-  const headers = tableElement.querySelectorAll('th');
-  if (headers.length === 0) {
-    issues.push('TABLE is missing TH elements for headers');
-  }
-
-  // Check for scope attributes on th elements
-  headers.forEach(function(th) {
-    if (!th.getAttribute('scope')) {
-      issues.push('TH element is missing scope attribute');
+    if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
+        issues.push('Element is not a TABLE element');
+        return issues;
     }
-  });
 
-  // Check for proper thead/tbody structure
-  const thead = tableElement.querySelector('thead');
-  const tbody = tableElement.querySelector('tbody');
-  if (!thead) {
-    issues.push('TABLE is missing THEAD element');
-  }
-  if (!tbody) {
-    issues.push('TABLE is missing TBODY element');
-  }
+    // Check for presence of <caption> (accessibility best practice for table description)
+    const caption = tableElement.querySelector('caption');
+    if (!caption || !caption.textContent.trim()) {
+        issues.push('TABLE is missing a caption or caption is empty');
+    }
 
-  return issues;
+    // Check for th elements in headers
+    const headers = tableElement.querySelectorAll('th');
+    if (headers.length === 0) {
+        issues.push('TABLE is missing TH elements for headers');
+    }
+
+    // Check for scope attributes on th elements
+    headers.forEach(function (th) {
+        if (!th.getAttribute('scope')) {
+            issues.push('TH element is missing scope attribute');
+        }
+    });
+
+    // Check for proper thead/tbody structure
+    const thead = tableElement.querySelector('thead');
+    const tbody = tableElement.querySelector('tbody');
+    if (!thead) {
+        issues.push('TABLE is missing THEAD element');
+    }
+    if (!tbody) {
+        issues.push('TABLE is missing TBODY element');
+    }
+
+    return issues;
 }
 
 // Export all utilities
 module.exports = {
-  accessibilityUtils: accessibilityUtils,
-  implementAccessibilityFixesFromReport: implementAccessibilityFixesFromReport,
-  initAccessibility: initAccessibility,
-  handleCredentialResponse: handleCredentialResponse,
-  ensureElementId: ensureElementId,
-  addAriaLabel: addAriaLabel,
-  renderDependencyGraph: renderDependencyGraph,
-  calculateSum: calculateSum,
-  processData: processData,
-  filterValidItems: filterValidItems,
-  groupByCategory: groupByCategory,
-  validateTableAccessibility: validateTableAccessibility,
-  validateTableStructure: validateTableStructure,
-  validateLandmark: validateLandmark,
-  validateLandmarkStructure: validateLandmarkStructure,
-  ensureUniqueLandmarks: ensureUniqueLandmarks,
-  getSvgAccessibleName: getSvgAccessibleName,
-  createInPageButton: createInPageButton,
-  handleAccessibilityIssues: handleAccessibilityIssues,
-  transformInputData: transformInputData,
+    accessibilityUtils: accessibilityUtils,
+    implementAccessibilityFixesFromReport: implementAccessibilityFixesFromReport,
+    initAccessibility: initAccessibility,
+    handleCredentialResponse: handleCredentialResponse,
+    ensureElementId: ensureElementId,
+    addAriaLabel: addAriaLabel,
+    renderDependencyGraph: renderDependencyGraph,
+    calculateSum: calculateSum,
+    processData: processData,
+    filterValidItems: filterValidItems,
+    groupByCategory: groupByCategory,
+    validateTableAccessibility: validateTableAccessibility,
+    validateTableStructure: validateTableStructure,
+    validateLandmark: validateLandmark,
+    validateLandmarkStructure: validateLandmarkStructure,
+    ensureUniqueLandmarks: ensureUniqueLandmarks,
+    getSvgAccessibleName: getSvgAccessibleName,
+    createInPageButton: createInPageButton,
+    handleAccessibilityIssues: handleAccessibilityIssues,
+    transformInputData: transformInputData,
 };
 
 // Persist any new functions or fixes from the other conflict branch
 function newExportedFunction() {
-  // Implementation of the new function from the other conflict branch
+    // Implementation of the new function from the other conflict branch
 }
 
 // TODO: This is the existing code that needs to be preserved
@@ -277,72 +277,74 @@ function newExportedFunction() {
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 
-_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
+_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_;
 
 // TODO: Implement the new function as per the issue requirements
 function transformInputData(inputData, options = {}) {
-  const {
-    preserveKeys = true,
-    uppercase = false,
-    trimWhitespace = true,
-    maxLength = null
-  } = options;
+    const {
+        preserveKeys = true,
+        uppercase = false,
+        trimWhitespace = true,
+        maxLength = null,
+    } = options;
 
-  if (!inputData) {
-    return null;
-  }
-
-  const processValue = (value) => {
-    if (typeof value === 'string') {
-      let processed = value;
-      if (trimWhitespace) {
-        processed = processed.trim();
-      }
-      if (uppercase) {
-        processed = processed.toUpperCase();
-      }
-      if (maxLength !== null && processed.length > maxLength) {
-        processed = processed.substring(0, maxLength);
-      }
-      return processed;
+    if (!inputData) {
+        return null;
     }
-    return value;
-  };
 
-  if (typeof inputData === 'object' && !Array.isArray(inputData) && inputData !== null) {
-    const result = {};
-    const keys = preserveKeys ? Object.keys(inputData) : Object.keys(inputData).map(() => Math.random().toString(36).substr(2, 9));
+    const processValue = (value) => {
+        if (typeof value === 'string') {
+            let processed = value;
+            if (trimWhitespace) {
+                processed = processed.trim();
+            }
+            if (uppercase) {
+                processed = processed.toUpperCase();
+            }
+            if (maxLength !== null && processed.length > maxLength) {
+                processed = processed.substring(0, maxLength);
+            }
+            return processed;
+        }
+        return value;
+    };
 
-    let i = 0;
-    for (const key of Object.keys(inputData)) {
-      const value = inputData[key];
-      if (typeof value === 'object' && value !== null) {
-        result[keys[i]] = transformInputData(value, options);
-      } else {
-        result[keys[i]] = processValue(value);
-      }
-      i++;
+    if (typeof inputData === 'object' && !Array.isArray(inputData) && inputData !== null) {
+        const result = {};
+        const keys = preserveKeys
+            ? Object.keys(inputData)
+            : Object.keys(inputData).map(() => Math.random().toString(36).substr(2, 9));
+
+        let i = 0;
+        for (const key of Object.keys(inputData)) {
+            const value = inputData[key];
+            if (typeof value === 'object' && value !== null) {
+                result[keys[i]] = transformInputData(value, options);
+            } else {
+                result[keys[i]] = processValue(value);
+            }
+            i++;
+        }
+        return result;
     }
-    return result;
-  }
 
-  if (Array.isArray(inputData)) {
-    return inputData.map((item) => {
-      if (typeof item === 'object' && item !== null) {
-        return transformInputData(item, options);
-      }
-      return processValue(item);
-    });
-  }
+    if (Array.isArray(inputData)) {
+        return inputData.map((item) => {
+            if (typeof item === 'object' && item !== null) {
+                return transformInputData(item, options);
+            }
+            return processValue(item);
+        });
+    }
 
-  return processValue(inputData);
+    return processValue(inputData);
 }
 
 // Init on DOM ready
 if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAccessibility);
-  } else {
-    initAccessibility();
-  }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAccessibility);
+    } else {
+        initAccessibility();
+    }
 }

@@ -12,4 +12,10 @@ module.exports = {
   // Existing exports from main.js should be listed here
   // Example (to be replaced with actual exports):
   // ...existingExports
+  addLangAttribute: function(elementId, lang) {
+    var element = document.getElementById(elementId);
+    if (element) {
+      element.setAttribute('lang', lang);
+    }
+  }
 };

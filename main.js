@@ -65,16 +65,16 @@ const accessibilityUtils = {
    */
   newFocusTrap(element) {
     if (!element) return;
-    
+
     const focusableElements = element.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
-    
+
     if (focusableElements.length === 0) return;
-    
+
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
-    
+
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
@@ -86,7 +86,7 @@ const accessibilityUtils = {
         }
       }
     });
-    
+
     firstElement.focus();
   },
 
@@ -140,7 +140,7 @@ const accessibilityUtils = {
       tables: 0,
       images: 0,
     };
-    
+
     // Validate skip links
     document.querySelectorAll('a[href^="#"]').forEach((link) => {
       const target = link.getAttribute('href').substring(1);
@@ -150,7 +150,7 @@ const accessibilityUtils = {
         fixes.skipLinks++;
       }
     });
-    
+
     // Validate tables
     document.querySelectorAll('table').forEach((table) => {
       if (!table.querySelector('th')) {
@@ -168,13 +168,13 @@ const accessibilityUtils = {
         fixes.tables++;
       }
     });
-    
+
     // Validate images
     document.querySelectorAll('img:not([alt])').forEach((img) => {
       console.warn('Image missing alt attribute', img);
       fixes.images++;
     });
-    
+
     console.log('Accessibility issues addressed', fixes);
   },
 
@@ -208,11 +208,11 @@ const ensureElementHasId = (element, prefix = 'element') => {
   if (!element) {
     throw new Error('Element is required');
   }
-  
+
   if (element.id) {
     return element.id;
   }
-  
+
   const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = id;
   return id;
@@ -232,7 +232,7 @@ const addAriaLabel = (element, label) => {
   if (!label) {
     throw new Error('Label is required');
   }
-  
+
   element.setAttribute('aria-label', label);
   return element;
 };
@@ -249,20 +249,20 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
   if (!container) {
     throw new Error('Container element is required');
   }
-  
+
   if (!dependencies) {
     throw new Error('Dependencies data is required');
   }
-  
+
   // Ensure container has an id for graph references
   const containerId = ensureElementHasId(container, 'graph-container');
-  
+
   // Add accessibility label if not present
   const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
-  
+
   // Render logic placeholder
   container.innerHTML = `<div id="${containerId}">Graph not implemented</div>`;
-  
+
   return container;
 }
 
@@ -280,14 +280,14 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
 function validateTableStructure() {
   const tables = document.querySelectorAll('table');
   const issues = [];
-  
+
   tables.forEach((table, index) => {
     // Check if table has a caption
     const caption = table.querySelector('caption');
     if (!caption) {
       issues.push({ tableIndex: index, issue: 'Missing caption' });
     }
-    
+
     // Check for header scope
     const headers = table.querySelectorAll('th');
     if (headers.length === 0) {
@@ -299,7 +299,7 @@ function validateTableStructure() {
         }
       });
     }
-    
+
     // Check for consistent row cell counts
     const rows = table.querySelectorAll('tr');
     const cellCounts = new Set();
@@ -309,7 +309,7 @@ function validateTableStructure() {
     if (cellCounts.size > 1) {
       issues.push({ tableIndex: index, issue: 'Inconsistent number of cells across rows' });
     }
-    
+
     // Ensure data cells have proper headers (simple check)
     const firstRow = rows[0];
     if (firstRow) {
@@ -326,14 +326,73 @@ function validateTableStructure() {
       });
     }
   });
-  
+
   if (issues.length > 0) {
     console.warn('Table accessibility issues found:', issues);
     return false;
   }
-  
+
   console.log('All tables passed accessibility checks.');
   return true;
+}
+
+/**
+ * Adds ARIA attributes to form elements to improve accessibility.
+ * Adds appropriate ARIA roles and labels where missing.
+ *
+ * @param {HTMLElement} form - The form element to enhance.
+ */
+function enhanceFormAccessibility(form) {
+  if (!form) {
+    throw new Error('Form element is required');
+  }
+
+  // Add ARIA roles to form elements
+  form.querySelectorAll('input, textarea, select').forEach((element) => {
+    if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      const label = form.querySelector(`label[for="${element.id}"]`);
+      if (label) {
+        element.setAttribute('aria-labelledby', label.id);
+      } else if (element.placeholder) {
+        element.setAttribute('aria-label', element.placeholder);
+      }
+    }
+
+    // Add role="combobox" to select elements if they're enhanced with JavaScript
+    if (element.tagName === 'SELECT' && !element.hasAttribute('role')) {
+      element.setAttribute('role', 'combobox');
+    }
+  });
+
+  // Add ARIA attributes to buttons
+  form.querySelectorAll('button').forEach((button) => {
+    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
+      console.warn('Button without visible text or ARIA label found', button);
+    }
+  });
+}
+
+/**
+ * Adds ARIA attributes to navigation elements to improve keyboard navigation.
+ *
+ * @param {HTMLElement} nav - The navigation element to enhance.
+ */
+function enhanceNavigationAccessibility(nav) {
+  if (!nav) {
+    throw new Error('Navigation element is required');
+  }
+
+  // Ensure nav has a role
+  if (!nav.hasAttribute('role')) {
+    nav.setAttribute('role', 'navigation');
+  }
+
+  // Add ARIA labels to navigation items if missing
+  nav.querySelectorAll('a').forEach((link) => {
+    if (!link.hasAttribute('aria-label') && !link.textContent.trim()) {
+      console.warn('Navigation link without text or ARIA label found', link);
+    }
+  });
 }
 
 // Export functions for use in other modules
@@ -348,4 +407,6 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   validateTableStructure,
+  enhanceFormAccessibility,
+  enhanceNavigationAccessibility
 };

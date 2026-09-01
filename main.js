@@ -1,7 +1,3 @@
-User Safety: unsafe
-Response Safety: safe
-Safety Categories: Unauthorized Advice
-=======
 const http = require('http');
 const path = require('path');
 
@@ -24,6 +20,42 @@ function validateLandmark(landmark) {
 }
 
 /**
+ * Generates a unique ID for a landmark if it does not have one
+ * @param {string} landmark - The landmark to process
+ * @returns {string} The unique ID for the landmark
+ */
+function generateUniqueId(landmark) {
+  let uniqueId = landmark;
+  let counter = 0;
+  while (document.getElementById(uniqueId)) {
+    uniqueId = `${landmark}-${counter++}`;
+  }
+  return uniqueId;
+}
+
+/**
+ * Ensures that all landmark elements have unique ids
+ */
+function ensureUniqueIds() {
+  const landmarks = document.querySelectorAll('[role="landmark"]');
+  landmarks.forEach(landmark => {
+    if (!landmark.id) {
+      landmark.id = generateUniqueId(landmark.textContent);
+    }
+  });
+}
+
+/**
+ * Sets the proper ARIA role for the dependencyGraph container
+ */
+function setDependencyGraphRole() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'application');
+  }
+}
+
+/**
  * Creates and starts the HTTP server
  * @returns {http.Server} The created server instance
  */
@@ -42,6 +74,8 @@ function startApp() {
   const server = createServer();
   server.listen(config.port, () => {
     console.log(`Server running on port ${config.port}`);
+    setDependencyGraphRole();
+    ensureUniqueIds();
   });
   return server;
 }
@@ -51,11 +85,13 @@ module.exports = {
   createServer,
   startApp,
   config,
-  validateLandmark // Export the new function
+  validateLandmark, // Export the new function
+  generateUniqueId,
+  ensureUniqueIds,
+  setDependencyGraphRole
 };
 
 // Start the application if run directly
 if (require.main === module) {
   startApp();
 }
->>>>>>> origin/main

@@ -165,7 +165,7 @@
             if (!issues || !Array.isArray(issues)) {
                 return [];
             }
-            
+
             return issues.map(issue => {
                 return {
                     id: issue.id,
@@ -191,11 +191,11 @@
           totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
           details: report
         };
-        
+
         // Store harvested data for potential upgrades
         const harvestFile = path.join(__dirname, 'harvest_data.json');
         fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-        
+
         return harvestedData;
       } catch (error) {
         console.error('Harvest failed:', error);
@@ -268,6 +268,66 @@
       return { harvested, upgraded };
     }
 
+    // Function to make addBook form accessible
+    function makeAddBookFormAccessible() {
+      const form = document.getElementById('addBookForm');
+      if (!form) return;
+
+      // Add ARIA attributes to the form
+      form.setAttribute('role', 'form');
+      form.setAttribute('aria-labelledby', 'addBookFormTitle');
+
+      // Add labels to form fields
+      const fields = form.querySelectorAll('input, textarea, select');
+      fields.forEach(field => {
+        if (!field.id) {
+          field.id = `field-${Math.random().toString(36).substr(2, 9)}`;
+        }
+
+        if (!field.hasAttribute('aria-label') && !field.hasAttribute('aria-labelledby')) {
+          const label = document.querySelector(`label[for="${field.id}"]`);
+          if (label) {
+            field.setAttribute('aria-labelledby', label.id || `label-${Math.random().toString(36).substr(2, 9)}`);
+          } else {
+            // If no label exists, add aria-label based on field type
+            const fieldType = field.type || field.tagName.toLowerCase();
+            field.setAttribute('aria-label', `Enter ${fieldType} for the book`);
+          }
+        }
+
+        // Ensure all form fields are focusable
+        if (field.tagName === 'INPUT' || field.tagName === 'TEXTAREA' || field.tagName === 'SELECT') {
+          field.setAttribute('tabindex', '0');
+        }
+      });
+
+      // Add error handling for form submission
+      form.addEventListener('submit', function(e) {
+        const requiredFields = form.querySelectorAll('[required]');
+        let isValid = true;
+
+        requiredFields.forEach(field => {
+          if (!field.value.trim()) {
+            isValid = false;
+            field.setAttribute('aria-invalid', 'true');
+            field.setAttribute('aria-describedby', `${field.id}-error`);
+          } else {
+            field.removeAttribute('aria-invalid');
+            field.removeAttribute('aria-describedby');
+          }
+        });
+
+        if (!isValid) {
+          e.preventDefault();
+          const errorMessage = document.createElement('div');
+          errorMessage.id = 'form-error';
+          errorMessage.textContent = 'Please fill in all required fields.';
+          errorMessage.setAttribute('role', 'alert');
+          form.prepend(errorMessage);
+        }
+      });
+    }
+
     // Export the report generation function
     // All exports verified and present
     module.exports = {
@@ -282,6 +342,7 @@
       harvest,
       upgrade,
       harvestAndUpgrade,
+      makeAddBookFormAccessible,
       ...accessibilityUtils
     };
 
@@ -299,6 +360,9 @@
                 dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
             }
         }
+
+        // Initialize the addBook form accessibility
+        makeAddBookFormAccessible();
     }
 
     // Initialize on DOM ready

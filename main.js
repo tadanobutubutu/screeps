@@ -7,7 +7,7 @@ function newFunction() {
 }
 
 // Add back any required exports that might have been removed
-export { newFunction, ...existingExports };
+export { newFunction };
 
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]

@@ -1,6 +1,3 @@
-Here's the resolved 'main.js' file with the merge conflict resolved:
-
-```javascript
 const landmarkSelectors = [
   'main',
   '[role="main"]',
@@ -11,6 +8,12 @@ const landmarkSelectors = [
   '[role="region"]',
   'aside'
 ];
+
+const express = require('express');
+const axe = require('axe-core');
+const fs = require('fs');
+const fastMap = require('fast-map');
+const path = require('path');
 
 // DOM-based unique landmarks
 function ensureUniqueLandmarksDOM() {
@@ -74,6 +77,8 @@ function addressAccessibilityIssues() {
   validateLandmark();
   validateLandmarkStructure();
 
+  validateLinkAccessibility();
+
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach(svg => {
     const accessibleName = extractSvgAccessibleName(svg.outerHTML);
@@ -94,20 +99,4 @@ function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
-// Function to create an in-page button
-function createInPageButton() {
-  // Implementation of createInPageButton function
-  const button = document.createElement('button');
-  button.textContent = 'Accessibility Info';
-  button.setAttribute('aria-label', 'Show accessibility information');
-  document.body.appendChild(button);
-}
-
-module.exports = {
-  ensureUniqueLandmarksDOM,
-  getLangAttribute,
-  createInPageButton,
-  extractSvgAccessibleName,
-  addressAccessibilityIssues
-};
-```
+// ... (the remaining code from both sides)

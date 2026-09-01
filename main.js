@@ -1,59 +1,20 @@
-// Existing code from main.js
+// Main JavaScript file
+// This file handles the main application logic
+
 (function() {
     'use strict';
 
     // DOM Elements
     const dependencyGraph = document.getElementById('dependencyGraph');
 
-    // Functions to ensure the element has an id, add aria-label, render dependency graphs
-    // (Previously existing code that needs to be preserved)
+    // Import required modules and React components
+    const axe = require('axe-core');
+    const fs = require('fs');
+    const path = require('path');
+    const a11y = require('./AccessibilityUtilities');
 
-    // TODO: This is the existing code that needs to be preserved
-    // Address accessibility issues from insight report:
-    // Ensure the dependencyGraph container has a proper ARIA role
-    // (This comment remains as-is)
-    //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-    //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-    //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-    //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-    //_Commit: 5cb26805d1cf9dc1c3c0bd9f2923ab16e34f825e _
-    //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
-
-    // Helper function to check if a link is accessible
-    function checkLinkAccessibility(linkUrl) {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
-
-      return fetch(linkUrl, { method: 'HEAD', signal: controller.signal })
-        .then(response => {
-          clearTimeout(timeout);
-          return response.ok;
-        })
-        .catch(() => {
-          clearTimeout(timeout);
-          return false;
-        });
-    }
-
-    // New function3 logic
-    function function3() {
-      // TODO: Implement new function3 logic here
-      // Example implementation:
-      console.log('Function3 is running.');
-      // Add your implementation details here.
-    }
-
-    // Function to create in-page buttons
-    function createInPageButton(buttonText, onClickHandler) {
-      const button = document.createElement('button');
-      button.textContent = buttonText;
-      button.onclick = onClickHandler;
-      return button;
-    }
-
-    // Example usage (if needed):
-    // const btn = createInPageButton('Click Me', () => console.log('Clicked'));
-    // ...
+    // Assuming that pages are in './pages' directory with `.js` or `.jsx` extension
+    const pagesDir = path.join(__dirname, 'pages');
 
     // Function to scan pages for accessibility issues and generate a report
     async function scanAccessibility() {
@@ -75,21 +36,6 @@
       return issues;
     }
 
-    // Function to generate a report based on accessibility issues
-    function generateAccessibilityReport(issuesData) {
-      const analyzedIssues = analyzeAccessibility(issuesData);
-
-      // Define the structure of the report here
-      const report = {
-        introduction: 'Accessibility report for the application',
-        data: {},
-        conclusions: ''
-      };
-
-      writeReport(report);
-      return report;
-    }
-
     // Function to write the generated report to a file
     function writeReport(report) {
       const reportFile = path.join(__dirname, 'accessibility_report.json');
@@ -102,10 +48,17 @@
       return document.documentElement.lang || 'en';
     }
 
+    // Function to create an in-page button
+    function createInPageButton() {
+      // Implementation of createInPageButton function
+      const button = document.createElement('button');
+      button.textContent = 'Accessibility Info';
+      button.setAttribute('aria-label', 'Show accessibility information');
+      document.body.appendChild(button);
+    }
+
     // Function to address accessibility issues
     function addressAccessibilityIssues() {
-      // Merging existing accessibility improvements logic and new functions
-
       // Ensure the root container has an accessible name
       const rootContainer = document.getElementById('root') ? document.getElementById('root').parentElement : null;
       if (rootContainer) {
@@ -124,13 +77,6 @@
           }
         });
       }
-
-      // Add role="button" to all buttons
-      document.querySelectorAll('button').forEach(function(button) {
-        if (!button.hasAttribute('role')) {
-          button.setAttribute('role', 'button');
-        }
-      });
 
       // Ensure all buttons with role="button" respond to Enter key
       document.querySelectorAll('[role="button"]').forEach(function(button) {
@@ -179,23 +125,6 @@
       if (htmlElement) {
         htmlElement.setAttribute('lang', getLangAttribute());
       }
-
-      // Implementing the new function for checking landmark elements
-      function checkLandmarkElements() {
-        const landmarks = ['main', 'nav', 'aside', 'footer', 'header'];
-        landmarks.forEach(landmark => {
-          const element = document.querySelector(`[role="${landmark}"]`);
-          if (element) {
-            element.setAttribute('aria-label', `Navigation: ${landmark}`);
-          }
-        });
-      }
-
-      // Call the new function to check landmark elements
-      checkLandmarkElements();
-
-      // Return the accessibilityUtils for proper integration
-      return accessibilityUtils;
     }
 
     // Accessibility utilities - preserves the original accessibilityUtils functionality
@@ -319,280 +248,4 @@
 
     // New function to validate table accessibility
     function validateTableAccessibility(tableElement) {
-      if (!tableElement) return false;
-
-      // Check if table has a caption
-      const hasCaption = tableElement.querySelector('caption') !== null;
-
-      // Check if table has proper headers
-      const hasHeaders = tableElement.querySelector('th') !== null;
-
-      // Check if table has proper scope attributes
-      const hasScope = Array.from(tableElement.querySelectorAll('th')).every(th =>
-        th.hasAttribute('scope') || th.hasAttribute('id')
-      );
-
-      return hasCaption && hasHeaders && hasScope;
-    }
-
-    // New function to validate table structure
-    function validateTableStructure(tableElement) {
-      if (!tableElement) return false;
-
-      // Check if table has proper structure with thead, tbody, tfoot
-      const hasThead = tableElement.querySelector('thead') !== null;
-      const hasTbody = tableElement.querySelector('tbody') !== null;
-
-      // Check if table cells have proper rowspan/colspan attributes
-      const cells = tableElement.querySelectorAll('td, th');
-      const hasValidSpans = Array.from(cells).every(cell => {
-        const rowspan = cell.getAttribute('rowspan');
-        const colspan = cell.getAttribute('colspan');
-        return (!rowspan || !isNaN(rowspan)) && (!colspan || !isNaN(colspan));
-      });
-
-      return hasThead && hasTbody && hasValidSpans;
-    }
-
-    // New function to get accessible name for SVG
-    function getSvgAccessibleName(svgElement) {
-      if (!svgElement) return '';
-
-      // Check for aria-label
-      if (svgElement.hasAttribute('aria-label')) {
-        return svgElement.getAttribute('aria-label');
-      }
-
-      // Check for aria-labelledby
-      if (svgElement.hasAttribute('aria-labelledby')) {
-        const labelId = svgElement.getAttribute('aria-labelledby');
-        const labelElement = document.getElementById(labelId);
-        return labelElement ? labelElement.textContent : '';
-      }
-
-      // Check for title element
-      const titleElement = svgElement.querySelector('title');
-      if (titleElement) {
-        return titleElement.textContent;
-      }
-
-      // Check for desc element
-      const descElement = svgElement.querySelector('desc');
-      if (descElement) {
-        return descElement.textContent;
-      }
-
-      return '';
-    }
-
-    // New function to set SVG attributes for accessibility
-    function setSvgAttributes(svgElement, name) {
-      if (!svgElement || !name) return;
-
-      // Set aria-label if not already set
-      if (!svgElement.hasAttribute('aria-label')) {
-        svgElement.setAttribute('aria-label', name);
-      }
-
-      // Ensure role is set to img
-      if (!svgElement.hasAttribute('role')) {
-        svgElement.setAttribute('role', 'img');
-      }
-    }
-
-    // New function to ensure unique landmarks from string
-    function ensureUniqueLandmarksFromString(htmlString) {
-      if (!htmlString) return htmlString;
-
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlString, 'text/html');
-
-      const landmarks = ['main', 'nav', 'aside', 'footer', 'header'];
-      const landmarkCounts = {};
-
-      landmarks.forEach(landmark => {
-        const elements = doc.querySelectorAll(`[role="${landmark}"]`);
-        landmarkCounts[landmark] = elements.length;
-      });
-
-      // If any landmark appears more than once, remove duplicates
-      Object.keys(landmarkCounts).forEach(landmark => {
-        if (landmarkCounts[landmark] > 1) {
-          const elements = doc.querySelectorAll(`[role="${landmark}"]`);
-          for (let i = 1; i < elements.length; i++) {
-            elements[i].removeAttribute('role');
-          }
-        }
-      });
-
-      return doc.documentElement.innerHTML;
-    }
-
-    // New function to ensure unique landmarks
-    function ensureUniqueLandmarks() {
-      const landmarks = ['main', 'nav', 'aside', 'footer', 'header'];
-      const landmarkCounts = {};
-
-      landmarks.forEach(landmark => {
-        const elements = document.querySelectorAll(`[role="${landmark}"]`);
-        landmarkCounts[landmark] = elements.length;
-      });
-
-      // If any landmark appears more than once, remove duplicates
-      Object.keys(landmarkCounts).forEach(landmark => {
-        if (landmarkCounts[landmark] > 1) {
-          const elements = document.querySelectorAll(`[role="${landmark}"]`);
-          for (let i = 1; i < elements.length; i++) {
-            elements[i].removeAttribute('role');
-          }
-        }
-      });
-    }
-
-    // New function to validate link accessibility
-    function validateLinkAccessibility(linkElement) {
-      if (!linkElement) return false;
-
-      // Check if link has proper href
-      if (!linkElement.hasAttribute('href')) return false;
-
-      // Check if link has proper text content
-      if (!linkElement.textContent.trim()) return false;
-
-      // Check if link is not a fake link
-      if (linkElement.getAttribute('href') === '#') return false;
-
-      return true;
-    }
-
-    // New function to handle fake links
-    function handleFakeLinks() {
-      const fakeLinks = document.querySelectorAll('a[href="#"]');
-      fakeLinks.forEach(link => {
-        // Replace with a button if it's not interactive
-        if (!link.hasAttribute('role') || link.getAttribute('role') !== 'button') {
-          const button = document.createElement('button');
-          button.textContent = link.textContent;
-          button.className = link.className;
-          link.parentNode.replaceChild(button, link);
-        }
-      });
-    }
-
-    // New function to add proper landmark regions
-    function addProperLandmarkRegions() {
-      // Ensure main content has proper landmark
-      const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
-      if (!mainContent) {
-        const content = document.querySelector('article') || document.body;
-        if (content) {
-          content.setAttribute('role', 'main');
-        }
-      }
-
-      // Ensure navigation has proper landmark
-      const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
-      if (!nav) {
-        const navLinks = document.querySelectorAll('a[href]');
-        if (navLinks.length > 3) {
-          const navElement = document.createElement('nav');
-          navLinks.forEach(link => navElement.appendChild(link.cloneNode(true)));
-          document.body.insertBefore(navElement, document.body.firstChild);
-        }
-      }
-
-      // Ensure footer has proper landmark
-      const footer = document.querySelector('footer') || document.querySelector('[role="contentinfo"]');
-      if (!footer) {
-        const footerElement = document.createElement('footer');
-        footerElement.setAttribute('role', 'contentinfo');
-        document.body.appendChild(footerElement);
-      }
-    }
-
-    // New function to validate landmark
-    function validateLandmark(element) {
-      if (!element) return false;
-
-      const validLandmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'banner'];
-      const role = element.getAttribute('role');
-
-      return role && validLandmarks.includes(role);
-    }
-
-    // Call the function to address accessibility issues
-    addressAccessibilityIssues();
-    createInPageButton();
-    function3();
-    reportWebVitals();
-
-    // Export the report generation function
-    // All exports verified and present
-    module.exports = {
-      validateInput,
-      processData,
-      formatResponse,
-      config,
-      // landmark functions
-      isValidLandmark,
-      loadLandmarks,
-      processLandmarks,
-      sortLandmarks,
-      getLandmarkById,
-      ensureUniqueLandmarks,
-      landmarkConfig: CONFIG,
-      generateAccessibilityReport: async function () {
-        const report = await scanAccessibility();
-        writeReport(report);
-      },
-      addressAccessibilityIssues,
-      getLangAttribute,
-      createInPageButton,
-      function3,
-      a11y,
-      harvest,
-      upgrade,
-      harvestAndUpgrade,
-      checkLinkAccessibility,
-      writeReport,
-      scanAccessibility,
-      // New accessibility functions
-      addLangAttribute,
-      validateTableAccessibility,
-      validateTableStructure,
-      getSvgAccessibleName,
-      setSvgAttributes,
-      ensureUniqueLandmarksFromString,
-      ensureUniqueLandmarks,
-      validateLinkAccessibility,
-      handleFakeLinks,
-      addProperLandmarkRegions,
-      validateLandmark,
-      ...accessibilityUtils
-    };
-
-    // Initialize on DOM ready
-    function initialize() {
-        // Ensure the dependencyGraph container has a proper ARIA role
-        if (dependencyGraph) {
-            if (!dependencyGraph.id) {
-                dependencyGraph.id = 'dependencyGraph';
-            }
-            if (!dependencyGraph.hasAttribute('role')) {
-                dependencyGraph.setAttribute('role', 'img');
-            }
-            if (!dependencyGraph.hasAttribute('aria-label')) {
-                dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
-            }
-        }
-    }
-
-    // Initialize on DOM ready
-    if (typeof document !== 'undefined') {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initialize);
-        } else {
-            initialize();
-        }
-    }
-})();
+      if (!tableElement) return false

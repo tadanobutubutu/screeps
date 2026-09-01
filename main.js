@@ -20,19 +20,19 @@ function initializeGameData() {
         'W0N0': { terrain: 'normal', sources: 2, controller: true },
         'W0N1': { terrain: 'normal', sources: 1, controller: false }
     };
-    
+
     gameData.players = {
         'Player1': { username: 'Player1', level: 1, power: 0 },
         'Player2': { username: 'Player2', level: 2, power: 100 }
     };
-    
+
     gameData.structures = {
         'W0N0': [
             { type: 'spawn', name: 'Spawn1', energy: 300, energyCapacity: 300 },
             { type: 'extension', name: 'Extension1', energy: 50, energyCapacity: 50 }
         ]
     };
-    
+
     gameData.creepTasks = {
         'harvester1': { task: 'harvest', target: 'source1', status: 'idle' }
     };
@@ -43,7 +43,7 @@ function scanRoom(roomName) {
     if (!room) {
         return { error: 'Room not found' };
     }
-    
+
     return {
         room: roomName,
         terrain: room.terrain,
@@ -90,18 +90,18 @@ function runCommand(command) {
 
 function checkAccessibilityIssues(code) {
     const issues = [];
-    
+
     if (!code || typeof code !== 'string') {
         issues.push({ type: 'error', message: 'Code must be a non-empty string' });
         return issues;
     }
-    
+
     const patterns = {
         'TODO': /TODO:/,
         'FIXME': /FIXME:?\s*/,
         'HACK': /HACK:/
     };
-    
+
     const lines = code.split('\n');
     lines.forEach((line, index) => {
         const lineNum = index + 1;
@@ -118,28 +118,38 @@ function checkAccessibilityIssues(code) {
             issues.push({ type: 'info', line: lineNum, message: 'Comment found - should be addressed' });
         }
     });
-    
+
     if (code.length > 10000) {
         issues.push({ type: 'warning', message: 'Code length exceeds 10000 characters - consider splitting' });
     }
-    
+
     return issues;
 }
 
 function generateAccessibilityReport(scan) {
     const issues = checkAccessibilityIssues(scan);
-    
+
     const summary = {
         total: issues.length,
         errors: issues.filter(i => i.type === 'error').length,
         warnings: issues.filter(i => i.type === 'warning').length,
         info: issues.filter(i => i.type === 'info').length
     };
-    
+
     return {
         summary,
         issues,
         generatedAt: new Date().toISOString()
+    };
+}
+
+// TODO: Add the implementation of this function
+function getGameDataSummary() {
+    return {
+        rooms: Object.keys(gameData.rooms).length,
+        players: Object.keys(gameData.players).length,
+        structures: Object.values(gameData.structures).reduce((total, roomStructures) => total + roomStructures.length, 0),
+        tasks: Object.keys(gameData.creepTasks).length
     };
 }
 
@@ -196,4 +206,4 @@ app.listen(PORT, () => {
     console.log(`Screeps API Server running on port ${PORT}`);
 });
 
-module.exports = { app, generateAccessibilityReport };
+module.exports = { app, generateAccessibilityReport, getGameDataSummary };

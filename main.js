@@ -80,6 +80,8 @@ function validateTableStructure(tables) {
   };
 }
 
+// TODO: Any additional changes requested in the issue
+
 /**
  * Validates landmark elements for accessibility
  * @param {Object} element - The element to validate

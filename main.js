@@ -6,8 +6,8 @@
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// TODO: Any additional changes requested in the issue
 
-// Export all existing functions
 export {
   getLangAttribute,
   getFullLangAttribute,

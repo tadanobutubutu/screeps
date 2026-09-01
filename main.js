@@ -18,6 +18,10 @@ const accessibilityUtils = {
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
+          // Add aria-hidden to skip link after use
+          skipLink.setAttribute('aria-hidden', 'true');
+          // Remove focus from skip link
+          skipLink.blur();
         }
       });
     }
@@ -42,6 +46,11 @@ const accessibilityUtils = {
         }
       }
     });
+
+    // Ensure the first element is focused when trap is activated
+    if (firstElement) {
+      firstElement.focus();
+    }
   },
 
   // Announce message to screen readers
@@ -113,11 +122,11 @@ async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received');
   }
-  
+
   if (response.error) {
     throw new Error(response.error);
   }
-  
+
   if (response.token) {
     return {
       success: true,
@@ -125,7 +134,7 @@ async function handleCredentialResponse(response) {
       expiresIn: response.expiresIn || 3600
     };
   }
-  
+
   throw new Error('Invalid credential response');
 }
 
@@ -151,7 +160,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader('Download of ' + filename + ' started');
   },
@@ -165,11 +174,11 @@ const exportUtils = {
     if (!data || data.length === 0) {
       return;
     }
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (let i = 0; i < data.length; i++) {
       const row = data[i];
       const values = headers.map(function(header) {
@@ -178,7 +187,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -228,7 +237,7 @@ function filterValidItems(items, validator) {
 // Initialize accessibility features
 function initAccessibility() {
   accessibilityUtils.initSkipLink();
-  
+
   // Add keyboard support for all interactive elements
   const elements = document.querySelectorAll('button, a, input, select, textarea');
   for (let i = 0; i < elements.length; i++) {
@@ -243,6 +252,21 @@ function initAccessibility() {
         }
       });
     });
+
+    // Ensure elements have proper ARIA attributes
+    if (element.tagName === 'A' && !element.getAttribute('role')) {
+      element.setAttribute('role', 'button');
+    }
+  }
+
+  // Add ARIA labels to form elements if missing
+  const formElements = document.querySelectorAll('input, textarea, select');
+  for (let i = 0; i < formElements.length; i++) {
+    const formElement = formElements[i];
+    if (!formElement.getAttribute('aria-label') && !formElement.getAttribute('aria-labelledby')) {
+      const label = formElement.getAttribute('placeholder') || formElement.getAttribute('name') || 'form element';
+      formElement.setAttribute('aria-label', label);
+    }
   }
 }
 
@@ -271,7 +295,7 @@ function transformInputData(inputData, options) {
   if (options === undefined) {
     options = {};
   }
-  
+
   const preserveKeys = options.preserveKeys !== undefined ? options.preserveKeys : true;
   const uppercase = options.uppercase === true;
   const trimWhitespace = options.trimWhitespace !== false;

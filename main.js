@@ -111,10 +111,10 @@ addLangAttribute();
 function outputSafetyClassification(userMessage, assistantResponse) {
     // Classify user safety
     const userSafety = classifyUserSafety(userMessage);
-    
+
     // Output user safety
     console.log(`User Safety: ${userSafety}`);
-    
+
     // Output response safety only if assistant response is present
     if (assistantResponse) {
         const responseSafety = classifyResponseSafety(assistantResponse);
@@ -141,13 +141,13 @@ function classifyUserSafety(userMessage) {
         /harass/i,
         /threat/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(userMessage)) {
             return 'unsafe';
         }
     }
-    
+
     // Legitimate programming tasks are safe
     return 'safe';
 }
@@ -164,13 +164,13 @@ function classifyResponseSafety(assistantResponse) {
         /how.*hack/i,
         /create.*malware/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(assistantResponse)) {
             return 'unsafe';
         }
     }
-    
+
     return 'safe';
 }
 
@@ -229,7 +229,7 @@ function ensureUniqueLandmarks() {
   const landmarks = ... [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"],
   'footer[role="contentinfo"]'
   .join(', ')
-  
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation
@@ -360,5 +360,18 @@ buttons.forEach((button, index) => {
 
 // Use the new function to add aria-labels to the appropriate elements
 ... 
+
+// New function to ensure dependencyGraph container has proper ARIA role
+function ensureDependencyGraphAccessibility() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph && !dependencyGraph.getAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'tree');
+    // Adding aria-label for better screen reader support
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+}
+
+// Call the new function to ensure accessibility
+ensureDependencyGraphAccessibility();
 
 // End of file

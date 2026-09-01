@@ -18,6 +18,76 @@ const config = {
 };
 
 /**
+ * Get accessible name for SVG elements (dependency graphs)
+ * @param {Array|NodeList} svgElements - SVG elements to get accessible name from
+ * @returns {string|null} - The accessible name or null if not found
+ */
+function getSvgAccessibleName(svgElements) {
+  if (!svgElements || svgElements.length === 0) {
+    return null;
+  }
+  
+  for (const svg of svgElements) {
+    // Check for title element within SVG
+    const title = svg.querySelector('title');
+    if (title && title.textContent) {
+      return title.textContent.trim();
+    }
+    
+    // Check for aria-label attribute
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (ariaLabel) {
+      return ariaLabel.trim();
+    }
+    
+    // Check for aria-labelledby attribute
+    const ariaLabelledby = svg.getAttribute('aria-labelledby');
+    if (ariaLabelledby) {
+      const referencedElement = document.getElementById(ariaLabelledby);
+      if (referencedElement && referencedElement.textContent) {
+        return referencedElement.textContent.trim();
+      }
+    }
+  }
+  
+  return null;
+}
+
+/**
+ * Set accessibility attributes on SVG elements (dependency graphs)
+ * @param {Array|NodeList} svgElements - SVG elements to set attributes on
+ */
+function setSvgAttributes(svgElements) {
+  if (!svgElements || svgElements.length === 0) {
+    return;
+  }
+  
+  svgElements.forEach((svg, index) => {
+    // Set role="img" for proper semantic meaning
+    svg.setAttribute('role', 'img');
+    
+    // Ensure unique id for referencing
+    if (!svg.id) {
+      svg.id = `dependency-graph-${index}`;
+    }
+    
+    // Add or update title for accessible name
+    let title = svg.querySelector('title');
+    if (!title) {
+      title = document.createElement('title');
+      svg.insertBefore(title, svg.firstChild);
+    }
+    
+    // Set unique id for title if not present
+    const titleId = `svg-title-${svg.id || index}`;
+    title.id = titleId;
+    
+    // Link SVG to its title using aria-labelledby
+    svg.setAttribute('aria-labelledby', titleId);
+  });
+}
+
+/**
  * Main application entry point with accessibility features
  */
 function renderDependencyGraphs(svgElements) {
@@ -154,5 +224,8 @@ export {
   getLangAttribute,
   logMessage,
   gracefulShutdown,
-  addLangAttribute
+  addLangAttribute,
+  renderDependencyGraphs,
+  getSvgAccessibleName,
+  setSvgAttributes
 };

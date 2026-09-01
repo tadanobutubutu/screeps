@@ -672,7 +672,7 @@ function renderAccessibilityReportHtml(report) {
     let html = `<div class="accessibility-report">
         <h1>Accessibility Report</h1>
         <p>Generated: ${report.timestamp}</p>
-        
+
         <div class="summary">
             <h2>Summary</h2>
             <ul>
@@ -682,10 +682,10 @@ function renderAccessibilityReportHtml(report) {
                 <li>Passed: ${report.summary.passed}</li>
             </ul>
         </div>
-        
+
         <div class="issues">
             <h2>Issues Found</h2>`;
-    
+
     if (report.issues.length === 0) {
         html += '<p>No issues found!</p>';
     } else {
@@ -695,12 +695,12 @@ function renderAccessibilityReportHtml(report) {
             </div>`;
         });
     }
-    
+
     html += `</div>
-        
+
         <div class="passed">
             <h2>Passed Checks</h2>`;
-    
+
     if (report.passed.length === 0) {
         html += '<p>No checks passed yet.</p>';
     } else {
@@ -710,9 +710,9 @@ function renderAccessibilityReportHtml(report) {
             </div>`;
         });
     }
-    
+
     html += '</div></div>';
-    
+
     return html;
 }
 
@@ -722,28 +722,28 @@ function renderAccessibilityReportHtml(report) {
  */
 function generateAndDisplayReport() {
     const report = generateAccessibilityReport();
-    
+
     console.log('=== Accessibility Report ===');
     console.log(`Generated: ${report.timestamp}`);
     console.log(`Total Issues: ${report.summary.totalIssues}`);
     console.log(`Critical: ${report.summary.critical}`);
     console.log(`Moderate: ${report.summary.moderate}`);
     console.log(`Passed: ${report.summary.passed}`);
-    
+
     if (report.issues.length > 0) {
         console.log('\n--- Issues ---');
         report.issues.forEach(issue => {
             console.log(`[${issue.status.toUpperCase()}] ${issue.category}: ${issue.message}`);
         });
     }
-    
+
     if (report.passed.length > 0) {
         console.log('\n--- Passed Checks ---');
         report.passed.forEach(item => {
             console.log(`[PASS] ${item.category}: ${item.message}`);
         });
     }
-    
+
     return report;
 }
 
@@ -821,4 +821,367 @@ export {
   generateAndDisplayReport,
   _usedLandmarkIds,
   anyAdditionalChanges
+};
+
+// Tower Defense Implementation
+class TowerDefenseGame {
+  constructor(canvasId) {
+    this.canvas = document.getElementById(canvasId);
+    this.ctx = this.canvas.getContext('2d');
+    this.towers = [];
+    this.enemies = [];
+    this.projectiles = [];
+    this.money = 100;
+    this.lives = 20;
+    this.wave = 1;
+    this.gameOver = false;
+    this.gameSpeed = 1;
+    this.path = this.generatePath();
+    this.setupEventListeners();
+    this.lastEnemySpawn = 0;
+    this.enemySpawnInterval = 2000;
+    this.animationFrameId = null;
+  }
+
+  generatePath() {
+    // Generate a path for enemies to follow
+    const path = [];
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+
+    // Start at top-left
+    path.push({ x: 50, y: 50 });
+
+    // Move right
+    path.push({ x: width - 50, y: 50 });
+
+    // Move down
+    path.push({ x: width - 50, y: height - 50 });
+
+    // Move left
+    path.push({ x: 50, y: height - 50 });
+
+    // Move back up
+    path.push({ x: 50, y: 50 });
+
+    return path;
+  }
+
+  setupEventListeners() {
+    this.canvas.addEventListener('click', (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      // Check if clicking on a tower button
+      if (y > this.canvas.height - 100 && x < 100) {
+        this.placeTower(x, y, 'basic');
+      } else if (y > this.canvas.height - 100 && x > 100 && x < 200) {
+        this.placeTower(x, y, 'sniper');
+      }
+
+      // Check if clicking on a tower to upgrade
+      this.towers.forEach(tower => {
+        if (Math.abs(tower.x - x) < 20 && Math.abs(tower.y - y) < 20) {
+          this.upgradeTower(tower);
+        }
+      });
+    });
+  }
+
+  placeTower(x, y, type) {
+    if (this.money < 50) return;
+
+    const towerTypes = {
+      basic: {
+        range: 100,
+        damage: 10,
+        fireRate: 1000,
+        cost: 50,
+        color: 'blue'
+      },
+      sniper: {
+        range: 150,
+        damage: 20,
+        fireRate: 1500,
+        cost: 75,
+        color: 'red'
+      }
+    };
+
+    const tower = {
+      x,
+      y,
+      type,
+      level: 1,
+      ...towerTypes[type],
+      lastShot: 0
+    };
+
+    this.towers.push(tower);
+    this.money -= tower.cost;
+  }
+
+  upgradeTower(tower) {
+    if (this.money < 50) return;
+
+    tower.level += 1;
+    tower.damage *= 1.2;
+    tower.range *= 1.1;
+    tower.fireRate *= 0.9;
+    this.money -= 50;
+  }
+
+  spawnEnemy() {
+    const enemyTypes = [
+      { health: 50, speed: 1, reward: 10, color: 'green' },
+      { health: 100, speed: 0.8, reward: 20, color: 'purple' },
+      { health: 200, speed: 0.5, reward: 30, color: 'orange' }
+    ];
+
+    const type = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+    const enemy = {
+      x: this.path[0].x,
+      y: this.path[0].y,
+      pathIndex: 0,
+      ...type,
+      maxHealth: type.health
+    };
+
+    this.enemies.push(enemy);
+  }
+
+  updateEnemies(deltaTime) {
+    this.enemies.forEach((enemy, index) => {
+      // Move enemy along path
+      const target = this.path[enemy.pathIndex];
+      const dx = target.x - enemy.x;
+      const dy = target.y - enemy.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < 5) {
+        enemy.pathIndex = (enemy.pathIndex + 1) % this.path.length;
+      } else {
+        enemy.x += (dx / distance) * enemy.speed * deltaTime * this.gameSpeed;
+        enemy.y += (dy / distance) * enemy.speed * deltaTime * this.gameSpeed;
+      }
+
+      // Check if enemy reached end
+      if (enemy.pathIndex === 0 && enemy.x === this.path[0].x && enemy.y === this.path[0].y) {
+        this.lives -= 1;
+        this.enemies.splice(index, 1);
+      }
+    });
+  }
+
+  updateTowers(deltaTime) {
+    this.towers.forEach(tower => {
+      // Find closest enemy in range
+      let closestEnemy = null;
+      let closestDistance = Infinity;
+
+      this.enemies.forEach(enemy => {
+        const dx = enemy.x - tower.x;
+        const dy = enemy.y - tower.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < tower.range && distance < closestDistance) {
+          closestDistance = distance;
+          closestEnemy = enemy;
+        }
+      });
+
+      // Shoot if enemy in range and fire rate allows
+      if (closestEnemy && Date.now() - tower.lastShot > tower.fireRate) {
+        this.projectiles.push({
+          x: tower.x,
+          y: tower.y,
+          targetX: closestEnemy.x,
+          targetY: closestEnemy.y,
+          damage: tower.damage,
+          speed: 5,
+          color: tower.color
+        });
+
+        tower.lastShot = Date.now();
+      }
+    });
+  }
+
+  updateProjectiles(deltaTime) {
+    this.projectiles.forEach((projectile, pIndex) => {
+      // Move projectile toward target
+      const dx = projectile.targetX - projectile.x;
+      const dy = projectile.targetY - projectile.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < 5) {
+        // Projectile hit target
+        this.projectiles.splice(pIndex, 1);
+
+        // Find enemy that was hit
+        this.enemies.forEach((enemy, eIndex) => {
+          if (Math.abs(enemy.x - projectile.targetX) < 10 &&
+              Math.abs(enemy.y - projectile.targetY) < 10) {
+            enemy.health -= projectile.damage;
+
+            if (enemy.health <= 0) {
+              this.enemies.splice(eIndex, 1);
+              this.money += enemy.reward;
+            }
+          }
+        });
+      } else {
+        projectile.x += (dx / distance) * projectile.speed * deltaTime * this.gameSpeed;
+        projectile.y += (dy / distance) * projectile.speed * deltaTime * this.gameSpeed;
+      }
+    });
+  }
+
+  draw() {
+    // Clear canvas
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Draw path
+    this.ctx.strokeStyle = 'gray';
+    this.ctx.lineWidth = 10;
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.path[0].x, this.path[0].y);
+    for (let i = 1; i < this.path.length; i++) {
+      this.ctx.lineTo(this.path[i].x, this.path[i].y);
+    }
+    this.ctx.stroke();
+
+    // Draw towers
+    this.towers.forEach(tower => {
+      this.ctx.fillStyle = tower.color;
+      this.ctx.beginPath();
+      this.ctx.arc(tower.x, tower.y, 15, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Draw range
+      this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      this.ctx.beginPath();
+      this.ctx.arc(tower.x, tower.y, tower.range, 0, Math.PI * 2);
+      this.ctx.stroke();
+    });
+
+    // Draw enemies
+    this.enemies.forEach(enemy => {
+      this.ctx.fillStyle = enemy.color;
+      this.ctx.beginPath();
+      this.ctx.arc(enemy.x, enemy.y, 10, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Draw health bar
+      this.ctx.fillStyle = 'red';
+      this.ctx.fillRect(enemy.x - 15, enemy.y - 20, 30, 3);
+      this.ctx.fillStyle = 'green';
+      this.ctx.fillRect(enemy.x - 15, enemy.y - 20, 30 * (enemy.health / enemy.maxHealth), 3);
+    });
+
+    // Draw projectiles
+    this.projectiles.forEach(projectile => {
+      this.ctx.fillStyle = projectile.color;
+      this.ctx.beginPath();
+      this.ctx.arc(projectile.x, projectile.y, 3, 0, Math.PI * 2);
+      this.ctx.fill();
+    });
+
+    // Draw UI
+    this.ctx.fillStyle = 'black';
+    this.ctx.font = '20px Arial';
+    this.ctx.fillText(`Money: $${this.money}`, 20, 30);
+    this.ctx.fillText(`Lives: ${this.lives}`, 20, 60);
+    this.ctx.fillText(`Wave: ${this.wave}`, 20, 90);
+
+    // Draw tower buttons
+    this.ctx.fillStyle = 'blue';
+    this.ctx.fillRect(10, this.canvas.height - 90, 80, 80);
+    this.ctx.fillStyle = 'white';
+    this.ctx.fillText('Basic', 20, this.canvas.height - 50);
+
+    this.ctx.fillStyle = 'red';
+    this.ctx.fillRect(110, this.canvas.height - 90, 80, 80);
+    this.ctx.fillStyle = 'white';
+    this.ctx.fillText('Sniper', 120, this.canvas.height - 50);
+
+    // Game over message
+    if (this.gameOver) {
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.fillStyle = 'white';
+      this.ctx.font = '48px Arial';
+      this.ctx.fillText('Game Over', this.canvas.width / 2 - 100, this.canvas.height / 2);
+    }
+  }
+
+  gameLoop(timestamp) {
+    if (!this.lastTimestamp) this.lastTimestamp = timestamp;
+    const deltaTime = timestamp - this.lastTimestamp;
+    this.lastTimestamp = timestamp;
+
+    if (this.gameOver) {
+      this.draw();
+      return;
+    }
+
+    // Spawn enemies
+    if (Date.now() - this.lastEnemySpawn > this.enemySpawnInterval) {
+      this.spawnEnemy();
+      this.lastEnemySpawn = Date.now();
+
+      // Increase difficulty every 5 waves
+      if (this.wave % 5 === 0) {
+        this.enemySpawnInterval = Math.max(500, this.enemySpawnInterval - 200);
+        this.gameSpeed += 0.1;
+      }
+    }
+
+    // Update game state
+    this.updateEnemies(deltaTime);
+    this.updateTowers(deltaTime);
+    this.updateProjectiles(deltaTime);
+
+    // Check game over condition
+    if (this.lives <= 0) {
+      this.gameOver = true;
+    }
+
+    // Draw everything
+    this.draw();
+
+    // Continue the game loop
+    this.animationFrameId = requestAnimationFrame(this.gameLoop.bind(this));
+  }
+
+  start() {
+    this.gameLoop(0);
+  }
+
+  stop() {
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+    }
+  }
+}
+
+// Function to initialize the tower defense game
+function initTowerDefenseGame(canvasId) {
+  const game = new TowerDefenseGame(canvasId);
+  game.start();
+
+  // Add restart functionality
+  document.getElementById('restart-btn').addEventListener('click', () => {
+    game.stop();
+    initTowerDefenseGame(canvasId);
+  });
+
+  return game;
+}
+
+// Export the tower defense functions
+export {
+  TowerDefenseGame,
+  initTowerDefenseGame
 };

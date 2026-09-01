@@ -8,6 +8,8 @@
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 
+// TODO: Address accessibility issues from insight report — FIXED
+
 // TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)
 
 // Import required modules
@@ -115,42 +117,42 @@ function validateTableAccessibility(table) {
   // This function validates the accessibility of tables
   // Check for proper table headers with scope attributes
   const errors = [];
-  
+
   if (!table) {
     return { valid: false, errors: ['Table element is required'] };
   }
-  
+
   const headers = table.querySelectorAll('th');
   headers.forEach((th, index) => {
     if (!th.hasAttribute('scope')) {
       errors.push(`Table header at index ${index} is missing scope attribute`);
     }
   });
-  
+
   // Check if table has a caption or is properly described
   const hasCaption = table.querySelector('caption');
   const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby');
-  
+
   if (!hasCaption && !hasAriaLabel) {
     errors.push('Table is missing a caption or aria-label/aria-labelledby');
   }
-  
+
   return { valid: errors.length === 0, errors };
 }
 
 function validateTableStructure(table) {
   // This function validates the structure of tables
   const errors = [];
-  
+
   if (!table) {
     return { valid: false, errors: ['Table element is required'] };
   }
-  
+
   // Check for proper table structure
   const tbody = table.querySelector('tbody');
   const thead = table.querySelector('thead');
   const tfoot = table.querySelector('tfoot');
-  
+
   // Check for thead and tbody presence
   if (!thead) {
     errors.push('Table is missing thead element');
@@ -158,7 +160,7 @@ function validateTableStructure(table) {
   if (!tbody) {
     errors.push('Table is missing tbody element');
   }
-  
+
   // Check for consistent column counts in tbody
   const rows = table.querySelectorAll('tbody tr');
   let expectedCols = null;
@@ -170,7 +172,7 @@ function validateTableStructure(table) {
       errors.push(`Row ${rowIndex} has inconsistent cell count: expected ${expectedCols}, got ${cells.length}`);
     }
   });
-  
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -179,59 +181,59 @@ function validateLandmark(element) {
   // This function validates landmarks
   const errors = [];
   const allowedLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
-  
+
   if (!element) {
     return { valid: false, errors: ['Element is required'] };
   }
-  
+
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
-  
+
   // Check if element has valid landmark role
   if (role && !allowedLandmarks.includes(role)) {
     errors.push(`Invalid landmark role: ${role}`);
   }
-  
+
   // Check if landmark has accessible name when required
   const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary'];
   if (role && landmarksNeedingNames.includes(role)) {
-    const hasLabel = element.getAttribute('aria-label') || 
+    const hasLabel = element.getAttribute('aria-label') ||
                      element.getAttribute('aria-labelledby') ||
                      element.querySelector('h1, h2, h3, h4, h5, h6');
     if (!hasLabel) {
       errors.push(`Landmark role "${role}" is missing accessible name`);
     }
   }
-  
+
   return { valid: errors.length === 0, errors };
 }
 
 function validateLandmarkStructure() {
   // This function validates the structure of landmarks
   const errors = [];
-  
+
   if (typeof document === 'undefined') {
     return { valid: false, errors: ['Document not available'] };
   }
-  
+
   // Check for multiple main landmarks
   const mainLandmarks = document.querySelectorAll('[role="main"], main');
   if (mainLandmarks.length > 1) {
     errors.push(`Found ${mainLandmarks.length} main landmarks, should have only 1`);
   }
-  
+
   // Check for multiple banner landmarks
   const bannerLandmarks = document.querySelectorAll('[role="banner"], header');
   if (bannerLandmarks.length > 1) {
     errors.push(`Found ${bannerLandmarks.length} banner landmarks, should have only 1`);
   }
-  
+
   // Check for contentinfo (footer) landmarks
   const footerLandmarks = document.querySelectorAll('[role="contentinfo"], footer');
   if (footerLandmarks.length > 1) {
     errors.push(`Found ${footerLandmarks.length} contentinfo landmarks, should have only 1`);
   }
-  
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -241,13 +243,13 @@ function getSvgAccessibleName(svg) {
   if (!svg) {
     return '';
   }
-  
+
   // Check for aria-label attribute
   const ariaLabel = svg.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel;
   }
-  
+
   // Check for aria-labelledby reference
   const ariaLabelledby = svg.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
@@ -256,13 +258,13 @@ function getSvgAccessibleName(svg) {
       return labelElement.textContent || '';
     }
   }
-  
+
   // Check for title element inside SVG
   const title = svg.querySelector('title');
   if (title) {
     return title.textContent || '';
   }
-  
+
   // Check for adjacent description
   const id = svg.getAttribute('id');
   if (id) {
@@ -271,7 +273,7 @@ function getSvgAccessibleName(svg) {
       return describedBy.textContent || '';
     }
   }
-  
+
   return '';
 }
 
@@ -279,25 +281,25 @@ function getSvgAccessibleName(svg) {
 function ensureUniqueLandmarks() {
   // This function ensures that landmarks are unique
   const errors = [];
-  
+
   if (typeof document === 'undefined') {
     return { valid: false, errors: ['Document not available'] };
   }
-  
+
   // Define unique landmarks that should only appear once
   const uniqueLandmarks = ['main', 'banner', 'contentinfo'];
   const uniqueRoleSelectors = ['[role="main"]', '[role="banner"]', '[role="contentinfo"]'];
-  
+
   uniqueLandmarks.forEach((landmark, index) => {
     const elements = document.querySelectorAll(uniqueRoleSelectors[index]);
     const tagElements = document.querySelectorAll(landmark);
     const totalCount = elements.length + tagElements.length;
-    
+
     if (totalCount > 1) {
       errors.push(`Found ${totalCount} instances of "${landmark}" landmark, should have only 1`);
     }
   });
-  
+
   // Check for landmark IDs that should be unique
   const landmarksWithIds = document.querySelectorAll('[role][id]');
   const ids = new Set();
@@ -308,29 +310,29 @@ function ensureUniqueLandmarks() {
     }
     ids.add(id);
   });
-  
+
   return { valid: errors.length === 0, errors };
 }
 
 // New function to address REACT_036: Fix 1 fake link issue
 function createAccessibleLink(href, text, options = {}) {
   // This function creates an accessible link
-  const { 
-    onClick, 
+  const {
+    onClick,
     role = 'link',
     ariaLabel,
     className,
     target,
-    rel 
+    rel
   } = options;
-  
+
   if (!href && !onClick) {
     return null;
   }
-  
+
   const link = document.createElement('a');
   link.textContent = text;
-  
+
   if (href) {
     link.href = href;
     // Add rel="noopener noreferrer" for external links
@@ -349,23 +351,23 @@ function createAccessibleLink(href, text, options = {}) {
       }
     });
   }
-  
+
   if (target) {
     link.target = target;
   }
-  
+
   if (className) {
     link.className = className;
   }
-  
+
   if (ariaLabel) {
     link.setAttribute('aria-label', ariaLabel);
   }
-  
+
   if (role && role !== 'link') {
     link.setAttribute('role', role);
   }
-  
+
   return link;
 }
 
@@ -376,17 +378,17 @@ function createAccessibleLink(href, text, options = {}) {
  */
 function isLinkAccessible(link) {
   const errors = [];
-  
+
   if (!link) {
     return { valid: false, errors: ['Link element is required'] };
   }
-  
+
   // Check if it's an anchor element
   if (link.tagName !== 'A') {
     errors.push('Element is not an anchor tag');
     return { valid: false, errors };
   }
-  
+
   // Check for href attribute
   const href = link.getAttribute('href');
   if (!href || href === '#' || href === '') {
@@ -400,17 +402,17 @@ function isLinkAccessible(link) {
       errors.push('Fake link missing click handler');
     }
   }
-  
+
   // Check for accessible name
   const textContent = link.textContent ? link.textContent.trim() : '';
   const ariaLabel = link.getAttribute('aria-label');
   const ariaLabelledby = link.getAttribute('aria-labelledby');
   const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
-  
+
   if (!hasAccessibleName) {
     errors.push('Link is missing accessible name (text content, aria-label, or aria-labelledby)');
   }
-  
+
   // Check for valid href if present
   if (href && href !== '#') {
     // Check for javascript: links
@@ -422,7 +424,7 @@ function isLinkAccessible(link) {
       errors.push('Mailto link may need aria-label for clarity');
     }
   }
-  
+
   // Check target="_blank" has rel="noopener noreferrer"
   if (link.getAttribute('target') === '_blank') {
     const rel = link.getAttribute('rel');
@@ -430,13 +432,13 @@ function isLinkAccessible(link) {
       errors.push('External link with target="_blank" missing rel="noopener noreferrer"');
     }
   }
-  
+
   // Check for redundant title attribute
   const title = link.getAttribute('title');
   if (title && title === textContent) {
     errors.push('Link title attribute duplicates link text');
   }
-  
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -463,7 +465,7 @@ function createInPageButton(parent = document.body) {
 function getModuleDependencies(moduleName, moduleRegistry = {}) {
   const dependencies = [];
   const dependents = [];
-  
+
   // Build dependency list from registry
   if (moduleRegistry[moduleName]) {
     const mod = moduleRegistry[moduleName];
@@ -484,7 +486,7 @@ function getModuleDependencies(moduleName, moduleRegistry = {}) {
       });
     }
   }
-  
+
   // Find all modules that depend on this one
   Object.keys(moduleRegistry).forEach(name => {
     const mod = moduleRegistry[name];
@@ -496,7 +498,7 @@ function getModuleDependencies(moduleName, moduleRegistry = {}) {
       });
     }
   });
-  
+
   return {
     name: moduleName,
     dependencies,
@@ -517,7 +519,7 @@ function renderDependencyGraph(dependencies, options = {}) {
     includeDevDependencies = true,
     format = 'tree'
   } = options;
-  
+
   const graph = {
     nodes: [],
     edges: [],
@@ -528,17 +530,17 @@ function renderDependencyGraph(dependencies, options = {}) {
       circularDeps: []
     }
   };
-  
+
   const visited = new Set();
   const nodeMap = new Map();
-  
+
   // Build nodes from dependencies
   const addNode = (name, depth = 0) => {
     if (visited.has(name)) {
       return;
     }
     visited.add(name);
-    
+
     const nodeId = `node_${graph.nodes.length}`;
     const node = {
       id: nodeId,
@@ -546,13 +548,13 @@ function renderDependencyGraph(dependencies, options = {}) {
       depth: depth,
       type: 'module'
     };
-    
+
     graph.nodes.push(node);
     nodeMap.set(name, nodeId);
     graph.metadata.totalNodes++;
     graph.metadata.maxDepth = Math.max(graph.metadata.maxDepth, depth);
   };
-  
+
   // Build edges between nodes
   const addEdge = (from, to) => {
     const edgeId = `edge_${graph.edges.length}`;
@@ -565,13 +567,13 @@ function renderDependencyGraph(dependencies, options = {}) {
     });
     graph.metadata.totalEdges++;
   };
-  
+
   // Process dependencies recursively
   const processDependencies = (deps, parentName = null, depth = 0) => {
     if (depth > maxDepth) {
       return;
     }
-    
+
     if (typeof deps === 'object' && deps !== null) {
       if (deps.name) {
         addNode(deps.name, depth);
@@ -580,7 +582,7 @@ function renderDependencyGraph(dependencies, options = {}) {
         }
         parentName = deps.name;
       }
-      
+
       if (Array.isArray(deps.dependencies)) {
         deps.dependencies.forEach(dep => {
           const depName = typeof dep === 'string' ? dep : dep.name;
@@ -593,7 +595,7 @@ function renderDependencyGraph(dependencies, options = {}) {
           }
         });
       }
-      
+
       if (includeDevDependencies && Array.isArray(deps.devDependencies)) {
         deps.devDependencies.forEach(dep => {
           const depName = typeof dep === 'string' ? dep : dep.name;
@@ -605,21 +607,21 @@ function renderDependencyGraph(dependencies, options = {}) {
       }
     }
   };
-  
+
   // Detect circular dependencies
   const detectCircularDeps = (deps, path = []) => {
     if (typeof deps !== 'object' || deps === null) {
       return;
     }
-    
+
     const currentName = deps.name || 'root';
     if (path.includes(currentName)) {
       graph.metadata.circularDeps.push([...path, currentName]);
       return;
     }
-    
+
     const newPath = [...path, currentName];
-    
+
     if (Array.isArray(deps.dependencies)) {
       deps.dependencies.forEach(dep => {
         const depName = typeof dep === 'string' ? dep : dep.name;
@@ -629,13 +631,13 @@ function renderDependencyGraph(dependencies, options = {}) {
       });
     }
   };
-  
+
   // Process the input dependencies
   if (dependencies) {
     processDependencies(dependencies);
     detectCircularDeps(dependencies);
   }
-  
+
   // Generate ASCII tree representation if requested
   let treeRepresentation = '';
   if (format === 'tree') {
@@ -646,15 +648,15 @@ function renderDependencyGraph(dependencies, options = {}) {
         }
         return graph.edges.some(e => e.from === parentId && e.to === n.id);
       });
-      
+
       children.forEach((node, index) => {
         const isLastChild = index === children.length - 1;
         const connector = isLast ? '└── ' : '├── ';
         const childPrefix = prefix + (isLast ? '    ' : '│   ');
-        
+
         treeRepresentation += `${prefix}${connector}${node.name}\n`;
-        
-        const nodeChildren = nodes.filter(n => 
+
+        const nodeChildren = nodes.filter(n =>
           graph.edges.some(e => e.from === node.id && e.to === n.id)
         );
         nodeChildren.forEach((child, childIndex) => {
@@ -663,13 +665,13 @@ function renderDependencyGraph(dependencies, options = {}) {
         });
       });
     };
-    
+
     treeRepresentation = 'Dependency Graph:\n';
     treeRepresentation += `Total Modules: ${graph.metadata.totalNodes}\n`;
     treeRepresentation += `Total Dependencies: ${graph.metadata.totalEdges}\n`;
     treeRepresentation += '─'.repeat(40) + '\n';
-    
-    const rootNodes = graph.nodes.filter(n => 
+
+    const rootNodes = graph.nodes.filter(n =>
       graph.edges.every(e => e.to !== n.id)
     );
     rootNodes.forEach((node, index) => {
@@ -677,7 +679,7 @@ function renderDependencyGraph(dependencies, options = {}) {
       renderTree(graph.nodes, node.id, '', index === rootNodes.length - 1);
     });
   }
-  
+
   return {
     graph,
     tree: treeRepresentation,
@@ -697,11 +699,11 @@ function getModuleStructure(modules) {
     exports: {},
     imports: {}
   };
-  
+
   if (typeof modules !== 'object' || modules === null) {
     return structure;
   }
-  
+
   // Process each module
   Object.keys(modules).forEach(moduleName => {
     const mod = modules[moduleName];
@@ -716,7 +718,7 @@ function getModuleStructure(modules) {
       size: mod.size || 0,
       lineCount: mod.lineCount || 0
     };
-    
+
     // Extract exports
     if (mod.exports) {
       if (Array.isArray(mod.exports)) {
@@ -731,7 +733,7 @@ function getModuleStructure(modules) {
         });
       }
     }
-    
+
     // Extract dependencies
     if (Array.isArray(mod.dependencies)) {
       moduleInfo.dependencies = mod.dependencies;
@@ -742,19 +744,19 @@ function getModuleStructure(modules) {
         structure.imports[dep].push(moduleName);
       });
     }
-    
+
     if (Array.isArray(mod.devDependencies)) {
       moduleInfo.devDependencies = mod.devDependencies;
     }
-    
+
     if (Array.isArray(mod.peerDependencies)) {
       moduleInfo.peerDependencies = mod.peerDependencies;
     }
-    
+
     structure.modules.push(moduleInfo);
     structure.totalCount++;
   });
-  
+
   return structure;
 }
 
@@ -771,11 +773,11 @@ function displayModuleStructure(moduleStructure, options = {}) {
     showDependencies = true,
     maxDepth = 2
   } = options;
-  
+
   if (!moduleStructure || !moduleStructure.modules) {
     return 'No module structure data available';
   }
-  
+
   let output = [];
   output.push('═'.repeat(60));
   output.push('MODULE STRUCTURE REPORT');
@@ -784,31 +786,31 @@ function displayModuleStructure(moduleStructure, options = {}) {
   output.push(`Total Unique Exports: ${Object.keys(moduleStructure.exports || {}).length}`);
   output.push(`Total Unique Imports: ${Object.keys(moduleStructure.imports || {}).length}`);
   output.push('═'.repeat(60));
-  
+
   // Sort modules alphabetically
-  const sortedModules = [...moduleStructure.modules].sort((a, b) => 
+  const sortedModules = [...moduleStructure.modules].sort((a, b) =>
     a.name.localeCompare(b.name)
   );
-  
+
   sortedModules.forEach((mod, index) => {
     output.push('');
     output.push(`${index + 1}. ${mod.name}`);
     output.push('─'.repeat(40));
-    
+
     if (verbose) {
       output.push(`   Type: ${mod.type}`);
       output.push(`   Path: ${mod.path}`);
       output.push(`   Size: ${formatBytes(mod.size)}`);
       output.push(`   Lines: ${mod.lineCount}`);
     }
-    
+
     if (showExports && mod.exports.length > 0) {
       output.push('   Exports:');
       mod.exports.forEach(exp => {
         output.push(`     - ${exp}`);
       });
     }
-    
+
     if (showDependencies) {
       if (mod.dependencies.length > 0) {
         output.push(`   Dependencies (${mod.dependencies.length}):`);
@@ -819,7 +821,7 @@ function displayModuleStructure(moduleStructure, options = {}) {
           output.push(`     ... and ${mod.dependencies.length - maxDepth * 5} more`);
         }
       }
-      
+
       if (mod.devDependencies.length > 0) {
         output.push(`   Dev Dependencies (${mod.devDependencies.length}):`);
         mod.devDependencies.slice(0, maxDepth * 3).forEach(dep => {
@@ -829,7 +831,7 @@ function displayModuleStructure(moduleStructure, options = {}) {
           output.push(`     ... and ${mod.devDependencies.length - maxDepth * 3} more`);
         }
       }
-      
+
       if (mod.peerDependencies.length > 0) {
         output.push(`   Peer Dependencies (${mod.peerDependencies.length}):`);
         mod.peerDependencies.forEach(dep => {
@@ -838,12 +840,12 @@ function displayModuleStructure(moduleStructure, options = {}) {
       }
     }
   });
-  
+
   output.push('');
   output.push('═'.repeat(60));
   output.push('END OF REPORT');
   output.push('═'.repeat(60));
-  
+
   return output.join('\n');
 }
 
@@ -867,7 +869,7 @@ function formatBytes(bytes) {
  */
 function exportDependencyGraph(dependencies) {
   const graphData = renderDependencyGraph(dependencies, { format: 'data' });
-  
+
   return {
     format: 'json',
     version: '1.0',
@@ -916,7 +918,7 @@ function towerDefense() {
   const towers = [];
   const enemies = [];
   let wave = 1;
-  
+
   // Example: Tower constructor
   function Tower(x, y, range, damage, rate) {
     this.x = x;
@@ -926,7 +928,7 @@ function towerDefense() {
     this.rate = rate;
     this.lastShot = 0;
   }
-  
+
   // Example: Enemy constructor
   function Enemy(x, y, health, speed) {
     this.x = x;
@@ -934,23 +936,23 @@ function towerDefense() {
     this.health = health;
     this.speed = speed;
   }
-  
+
   // Add a tower
   function addTower(x, y, range, damage, rate) {
     towers.push(new Tower(x, y, range, damage, rate));
   }
-  
+
   // Add an enemy
   function addEnemy(x, y, health, speed) {
     enemies.push(new Enemy(x, y, health, speed));
   }
-  
+
   // Update game state (simplified)
   function update() {
     // Logic for enemy movement, tower shooting, etc.
     console.log(`Wave ${wave} - updating game state`);
   }
-  
+
   // Start the game
   function start() {
     console.log('Tower defense game started');
@@ -959,7 +961,7 @@ function towerDefense() {
     addEnemy(0, 50, 100, 2);
     // Game loop would be here
   }
-  
+
   // Expose game functions
   return {
     start,

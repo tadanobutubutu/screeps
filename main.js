@@ -325,6 +325,84 @@ function newFunction(element) {
   trap.activate();
 }
 
+// New functions for rendering graph/index
+/**
+ * Renders a dependency graph visualization
+ * @param {Object} data - The graph data to visualize
+ * @param {HTMLElement} container - The container element to render into
+ * @returns {HTMLElement} The rendered graph element
+ */
+function renderGraph(data, container) {
+  if (!data || !container) return null;
+
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'graph-container';
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+
+  // Create nodes
+  if (data.nodes) {
+    data.nodes.forEach(node => {
+      const nodeElement = document.createElement('div');
+      nodeElement.className = 'graph-node';
+      nodeElement.textContent = node.label;
+      nodeElement.setAttribute('data-id', node.id);
+      graphContainer.appendChild(nodeElement);
+    });
+  }
+
+  // Create edges
+  if (data.edges) {
+    data.edges.forEach(edge => {
+      const edgeElement = document.createElement('div');
+      edgeElement.className = 'graph-edge';
+      edgeElement.setAttribute('data-from', edge.from);
+      edgeElement.setAttribute('data-to', edge.to);
+      graphContainer.appendChild(edgeElement);
+    });
+  }
+
+  container.appendChild(graphContainer);
+  return graphContainer;
+}
+
+/**
+ * Updates the graph visualization with new data
+ * @param {HTMLElement} graphElement - The existing graph element
+ * @param {Object} newData - The new graph data
+ */
+function updateGraph(graphElement, newData) {
+  if (!graphElement || !newData) return;
+
+  // Clear existing nodes and edges
+  const nodes = graphElement.querySelectorAll('.graph-node');
+  const edges = graphElement.querySelectorAll('.graph-edge');
+
+  nodes.forEach(node => node.remove());
+  edges.forEach(edge => edge.remove());
+
+  // Re-render with new data
+  if (newData.nodes) {
+    newData.nodes.forEach(node => {
+      const nodeElement = document.createElement('div');
+      nodeElement.className = 'graph-node';
+      nodeElement.textContent = node.label;
+      nodeElement.setAttribute('data-id', node.id);
+      graphElement.appendChild(nodeElement);
+    });
+  }
+
+  if (newData.edges) {
+    newData.edges.forEach(edge => {
+      const edgeElement = document.createElement('div');
+      edgeElement.className = 'graph-edge';
+      edgeElement.setAttribute('data-from', edge.from);
+      edgeElement.setAttribute('data-to', edge.to);
+      graphElement.appendChild(edgeElement);
+    });
+  }
+}
+
 // Export statements preserved
 export { existingFunction };
 
@@ -345,7 +423,9 @@ export {
   accessibilityUtils,
   ensureElementId,
   addAriaLabel,
-  renderDependencyGraph
+  renderDependencyGraph,
+  renderGraph,
+  updateGraph
 };
 
 // Set the document language

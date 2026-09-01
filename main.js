@@ -200,7 +200,7 @@ if (require.main === module) {
 
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -211,7 +211,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -226,7 +226,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -241,7 +241,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -255,7 +255,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -270,7 +270,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
@@ -284,7 +284,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check SVG accessibility
   const svgAccessibleNames = getSvgAccessibleName();
   if (svgAccessibleNames && svgAccessibleNames.length > 0) {
@@ -298,7 +298,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check for unique landmarks
   const uniqueLandmarkIssues = ensureUniqueLandmarks();
   if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
@@ -312,7 +312,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check link accessibility
   const linkIssues = validateLinkAccessibility();
   if (linkIssues && linkIssues.length > 0) {
@@ -326,7 +326,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Generate the report
   const report = {
     issues: issues,
@@ -346,7 +346,7 @@ function getInsightReport() {
     timestamp: new Date().toISOString(),
     generatedAt: new Date().toLocaleString()
   };
-  
+
   return report;
 }
 
@@ -371,6 +371,74 @@ function processAccessibilityReport(report) {
   }
 
   return findings;
+}
+
+// New function to render dependency graph
+function renderDependencyGraph(dependencies) {
+  // Implementation to render dependency graph
+  // This would typically involve creating a visualization
+  // of the dependency relationships between components
+
+  if (!dependencies || dependencies.length === 0) {
+    console.warn('No dependencies provided for graph rendering');
+    return null;
+  }
+
+  // Create a graph visualization
+  const graph = {
+    nodes: [],
+    edges: []
+  };
+
+  // Add nodes for each dependency
+  dependencies.forEach(dep => {
+    graph.nodes.push({
+      id: dep.id,
+      name: dep.name,
+      version: dep.version,
+      type: dep.type || 'dependency'
+    });
+  });
+
+  // Add edges for relationships
+  dependencies.forEach(dep => {
+    if (dep.dependencies) {
+      dep.dependencies.forEach(relatedDep => {
+        graph.edges.push({
+          from: dep.id,
+          to: relatedDep.id,
+          type: relatedDep.type || 'depends_on'
+        });
+      });
+    }
+  });
+
+  // Return the graph data structure
+  return graph;
+}
+
+// New function to visualize dependency graph
+function visualizeDependencyGraph(graphData) {
+  // Implementation to visualize the dependency graph
+  // This could be a console output, HTML rendering, or other visualization
+
+  if (!graphData) {
+    console.error('No graph data provided for visualization');
+    return;
+  }
+
+  console.log('Dependency Graph Visualization:');
+  console.log('Nodes:');
+  graphData.nodes.forEach(node => {
+    console.log(`- ${node.name} (${node.version}) [${node.type}]`);
+  });
+
+  console.log('\nEdges:');
+  graphData.edges.forEach(edge => {
+    const fromNode = graphData.nodes.find(n => n.id === edge.from);
+    const toNode = graphData.nodes.find(n => n.id === edge.to);
+    console.log(`- ${fromNode.name} -> ${toNode.name} [${edge.type}]`);
+  });
 }
 
 // Example usage of the new function (if applicable)
@@ -406,6 +474,8 @@ module.exports = {
   handleFakeLinks,
   addLandmarkRegions,
   getInsightReport,
+  renderDependencyGraph,
+  visualizeDependencyGraph,
   // Added from origin/main
   someFunction: function() {
     return 'some value';

@@ -6,5 +6,10 @@ function functionB() {
   // Function B implementation
 }
 
+// New function to be added
+function functionC() {
+  // Function C implementation
+}
+
 // Exporting functions
-export { functionA, functionB };
+export { functionA, functionB, functionC };

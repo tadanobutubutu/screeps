@@ -16,10 +16,10 @@ class ScreepsBot {
   async start() {
     // Initialize network connection
     await this.network.connect();
-    
+
     // Load initial data
     await this.loadData();
-    
+
     console.log('Screenspider bot started');
   }
 

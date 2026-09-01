@@ -1,3 +1,4 @@
+// main.js - Accessibility-focused implementation
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute())
@@ -275,7 +276,7 @@ function generateAccessibilityReport() {
           message: `Invalid landmark role: ${expectedRole} for ${tagName}`,
           severity: 'error'
         });
-      }
+      });
     });
   }
 
@@ -291,11 +292,21 @@ function generateAccessibilityReport() {
   };
 }
 
-// Export the new function and sampleInsightReport (both versions agreed to do this)
-export { checkLandmarkElements, sampleInsightReport, generateAccessibilityReport };
-
-// Rest of the code remains the same
 const AddressabilityIssues = {
+  spawnSomeCommandAlt(callback) {
+    const child_process = require('child_process');
+    const child = child_process.spawn('someCommand', [], {
+        stdio: 'inherit',
+    });
+    child.on('exit', (code, signal) => {
+        if (code === 0) {
+            callback(null, 'Successfully executed someCommand');
+        } else {
+            callback(new Error(`someCommand failed with code ${code}`));
+        }
+    });
+  },
+
   generateAccessibilityReport(accessibilityReport) {
     // ... (existing code)
   },
@@ -334,20 +345,62 @@ const AddressabilityIssues = {
 
   spawnSomeCommand(callback) {
     const child_process = require('child_process');
-
-    const spawnOptions = {
-      shell: true
-    };
-
-    const child = child_process.spawn('someCommand', [], spawnOptions);
+    const child = child_process.spawn('someCommand', [], {
+        stdio: 'inherit',
+    });
     child.on('exit', (code, signal) => {
-      if (code === 0) {
-        callback(null, 'Successfully executed someCommand');
-      } else {
-        callback(new Error(`someCommand failed with code ${code}`));
-      }
+        if (code === 0) {
+            callback(null, 'Successfully executed someCommand');
+        } else {
+            callback(new Error(`someCommand failed with code ${code}`));
+        }
     });
   },
+
+  // New function to handle logging
+  logMessage(message) {
+    console.log(`[LOG]: ${message}`);
+  },
+
+  // New function to handle graceful shutdown
+  gracefulShutdown(server) {
+    server.close(() => {
+      console.log('Server closed gracefully');
+      process.exit(0);
+    });
+
+    // Forcibly close server after 5 seconds
+    setTimeout(() => {
+      server.kill('SIGKILL');
+    }, 5000);
+  },
+
+  // New function to add lang attribute to HTML element
+  addLangAttribute(htmlElement) {
+    htmlElement.setAttribute('lang', 'en');
+  },
+
+  // New function to set lang attribute for HTML element
+  setLangAttributeForHtmlElement() {
+    const htmlElement = document.querySelector('html');
+    if (htmlElement) {
+      const lang = getLangAttribute();
+      this.addLangAttribute(htmlElement);
+    }
+  },
+
+  // New functions as TODO for implementation
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  addressNewAccessibilityIssues,
+  implementAccessibilitySolutions,
+  getLangAttribute,
+  validateTableStructureIssues,
+  validateLandmarkIssues,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssues,
 
   addLangAttribute(element, lang) {
     // ... (existing code)
@@ -355,6 +408,19 @@ const AddressabilityIssues = {
 
   countDependencies() {
     // ... (existing code)
+  },
+
+  // Export functions for testing
+  exportFunctionsForTesting() {
+    return {
+      createServer,
+      startApp,
+      config,
+      countDependencies: AddressabilityIssues.countDependencies,
+      addressAccessibilityIssues: AddressabilityIssues,
+      spawnSomeCommand: this.spawnSomeCommand,
+      spawnSomeCommandAlt: this.spawnSomeCommandAlt
+    };
   }
 };
 
@@ -920,4 +986,3 @@ module.exports = {
   setSvgAttributes,
   addressAccessibilityIssuesFromInsightReport
 };
-// ... (other functions and setting up exports)

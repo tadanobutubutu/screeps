@@ -70,3 +70,6 @@ processAccessibilityIssues(insightReport);
 
 //_Commit: a9cd46f8a23e31066e58c042ecaf4545b4229c42_
 //<!-- todo-hash: 641688d91e4de9a82ff894b47ca3fcdab7317b3d -->
+
+// Add back any required exports that might have been removed
+export { addressAccessibilityIssues, processAccessibilityIssues };

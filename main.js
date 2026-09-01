@@ -1,5 +1,4 @@
 // TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: ... -->
 
@@ -20,7 +19,7 @@ export { newFunctionToImplement };
 
 // If any other exports were previously in main.js, they should be preserved and added here
 export { otherExport1, otherExport2 };
-=======
+
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 
 // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
@@ -45,3 +44,52 @@ import { state, updateState } from './state.js';
 
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
+
+// Accessibility improvements for adding a new book
+function addNewBookAccessibility(bookData) {
+  // Ensure the form has proper labels and ARIA attributes
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', 'add-book-form-title');
+
+  // Create accessible form fields
+  const titleInput = document.createElement('input');
+  titleInput.setAttribute('type', 'text');
+  titleInput.setAttribute('id', 'book-title');
+  titleInput.setAttribute('aria-required', 'true');
+  titleInput.setAttribute('aria-label', 'Book title');
+
+  const titleLabel = document.createElement('label');
+  titleLabel.setAttribute('for', 'book-title');
+  titleLabel.textContent = 'Book Title';
+
+  // Create accessible submit button
+  const submitButton = document.createElement('button');
+  submitButton.setAttribute('type', 'submit');
+  submitButton.setAttribute('aria-label', 'Add new book to collection');
+  submitButton.textContent = 'Add Book';
+
+  // Assemble the form
+  form.appendChild(titleLabel);
+  form.appendChild(titleInput);
+  form.appendChild(submitButton);
+
+  // Add event listener with keyboard support
+  submitButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    // Handle book addition logic here
+    console.log('Adding book:', bookData);
+  });
+
+  submitButton.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      submitButton.click();
+    }
+  });
+
+  return form;
+}
+
+// Export the new accessibility function
+export { addNewBookAccessibility };

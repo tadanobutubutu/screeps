@@ -170,7 +170,7 @@ function ensureUniqueLandmarks() {
     ...
     'footer[role="contentinfo"]'
   ].join(', '));
-  
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation
@@ -291,3 +291,89 @@ ensureUniqueLandmarks();
 const svg = ...
 const accessibleName = getSvgAccessibleName(svg);
 set
+
+/**
+ * Creates an accessible form for adding a new book
+ * @param {HTMLElement} container - The container element to append the form to
+ */
+function createBookForm(container) {
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', 'add-book-form-title');
+
+  const title = document.createElement('h2');
+  title.id = 'add-book-form-title';
+  title.textContent = 'Add New Book';
+  form.appendChild(title);
+
+  // Title field
+  const titleLabel = document.createElement('label');
+  titleLabel.setAttribute('for', 'book-title');
+  titleLabel.textContent = 'Book Title:';
+  form.appendChild(titleLabel);
+
+  const titleInput = document.createElement('input');
+  titleInput.id = 'book-title';
+  titleInput.type = 'text';
+  titleInput.setAttribute('required', 'true');
+  titleInput.setAttribute('aria-required', 'true');
+  form.appendChild(titleInput);
+
+  // Author field
+  const authorLabel = document.createElement('label');
+  authorLabel.setAttribute('for', 'book-author');
+  authorLabel.textContent = 'Author:';
+  form.appendChild(authorLabel);
+
+  const authorInput = document.createElement('input');
+  authorInput.id = 'book-author';
+  authorInput.type = 'text';
+  authorInput.setAttribute('required', 'true');
+  authorInput.setAttribute('aria-required', 'true');
+  form.appendChild(authorInput);
+
+  // Submit button
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Book';
+  submitButton.setAttribute('aria-label', 'Add new book to collection');
+  form.appendChild(submitButton);
+
+  // Error message area
+  const errorArea = document.createElement('div');
+  errorArea.id = 'book-form-error';
+  errorArea.setAttribute('role', 'alert');
+  errorArea.setAttribute('aria-live', 'assertive');
+  form.appendChild(errorArea);
+
+  // Form submission handler
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const titleValue = titleInput.value.trim();
+    const authorValue = authorInput.value.trim();
+
+    if (!titleValue || !authorValue) {
+      errorArea.textContent = 'Please fill in all required fields';
+      return;
+    }
+
+    // Clear form and show success message
+    titleInput.value = '';
+    authorInput.value = '';
+    errorArea.textContent = 'Book added successfully!';
+    errorArea.style.color = 'green';
+
+    // Here you would typically add the book to your data store
+    // For example: addBookToCollection({ title: titleValue, author: authorValue });
+  });
+
+  container.appendChild(form);
+}
+
+// Initialize the book form when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+  const bookFormContainer = document.getElementById('book-form-container');
+  if (bookFormContainer) {
+    createBookForm(bookFormContainer);
+  }
+});

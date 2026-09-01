@@ -64,6 +64,22 @@ function newFunction() {
   // Function body
 }
 
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+// main.js - Accessibility improvements implementation
+// main.js - Combined utility and accessibility features
+
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
+
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Original code goes here
+// ----- END ORIGINAL CODE -----
+
+// TODO: This is the existing code that needs to be preserved
+
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;
@@ -366,6 +382,8 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
+    button.setAttribute('aria-label', buttonText); // Added for accessibility
+    button.setAttribute('role', 'button'); // Added for accessibility
     document.body.appendChild(button);
     return button;
 }

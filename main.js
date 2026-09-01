@@ -165,7 +165,7 @@
             if (!issues || !Array.isArray(issues)) {
                 return [];
             }
-            
+
             return issues.map(issue => {
                 return {
                     id: issue.id,
@@ -180,10 +180,8 @@
 
     // Harvest logic implementation
     async function harvest() {
-      // TODO: Implement harvest logic
-      // This function should collect resources or data from available sources
       try {
-        // Example: Harvest accessibility data from scanned pages
+        // Harvest accessibility data from scanned pages
         const report = await scanAccessibility();
         const harvestedData = {
           timestamp: new Date().toISOString(),
@@ -191,11 +189,11 @@
           totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
           details: report
         };
-        
+
         // Store harvested data for potential upgrades
         const harvestFile = path.join(__dirname, 'harvest_data.json');
         fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-        
+
         return harvestedData;
       } catch (error) {
         console.error('Harvest failed:', error);
@@ -205,8 +203,6 @@
 
     // Upgrade logic implementation
     async function upgrade(harvestedData) {
-      // TODO: Implement upgrade logic
-      // This function should use harvested data to improve the system
       try {
         const data = harvestedData || (() => {
           const harvestFile = path.join(__dirname, 'harvest_data.json');
@@ -220,7 +216,7 @@
           throw new Error('No harvested data available for upgrade');
         }
 
-        // Example: Generate improved accessibility configurations based on harvested issues
+        // Generate improved accessibility configurations based on harvested issues
         const upgradePlan = {
           timestamp: new Date().toISOString(),
           basedOnHarvest: data.timestamp,
@@ -262,7 +258,6 @@
 
     // Combined harvest and upgrade workflow
     async function harvestAndUpgrade() {
-      // TODO: Implement harvest and upgrade logic
       const harvested = await harvest();
       const upgraded = await upgrade(harvested);
       return { harvested, upgraded };

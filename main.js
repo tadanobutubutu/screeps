@@ -35,6 +35,21 @@ function main() {
   return 'main function executed';
 }
 
+// Accessibility helper functions
+function getLangAttribute() {
+  // Get the language attribute from the HTML element
+  return document.documentElement.lang || 'en';
+}
+
+function ensureDependencyGraphARIA() {
+  // Ensure ARIA attributes are properly set for dependency graph elements
+  const elements = document.querySelectorAll('[data-dependency-graph]');
+  elements.forEach(el => {
+    el.setAttribute('role', 'graph');
+    el.setAttribute('aria-label', 'Dependency graph visualization');
+  });
+}
+
 // Export functions to make them accessible
 module.exports = {
   affectedFunction,
@@ -43,6 +58,8 @@ module.exports = {
   newFunction1,
   newFunction2,
   main,
+  getLangAttribute,
+  ensureDependencyGraphARIA
 };
 
 // Also attach to global scope for browser/standalone access
@@ -53,4 +70,6 @@ if (typeof window !== 'undefined') {
   window.newFunction1 = newFunction1;
   window.newFunction2 = newFunction2;
   window.main = main;
+  window.getLangAttribute = getLangAttribute;
+  window.ensureDependencyGraphARIA = ensureDependencyGraphARIA;
 }

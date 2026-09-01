@@ -1,11 +1,10 @@
-User Safety: unsafe
-Response Safety: safe
-Safety Categories: Unauthorized Advice
-=======
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Original code goes here
+// ----- END ORIGINAL CODE -----
+
 const http = require('http');
 const path = require('path');
-
-// TODO: This is the existing code that needs to be preserved
 
 // Application configuration
 const config = {
@@ -58,4 +57,3 @@ module.exports = {
 if (require.main === module) {
   startApp();
 }
->>>>>>> origin/main

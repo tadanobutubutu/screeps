@@ -71,6 +71,34 @@ function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
 }
 
+// New function to address REACT_015: Initialize HTML lang attribute on DOM ready
+function initHtmlLangAttribute() {
+  if (typeof document === 'undefined') {
+    return 'en';
+  }
+  
+  // If lang is already set, return it
+  if (document.documentElement.lang) {
+    return document.documentElement.lang;
+  }
+  
+  // Try to detect from page content
+  const bodyText = document.body?.textContent || '';
+  const detectedLang = detectAndSetLang(bodyText);
+  
+  // Set the lang attribute
+  return setHtmlLangAttribute(detectedLang);
+}
+
+// Auto-initialize on DOMContentLoaded for static HTML pages that load this script
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHtmlLangAttribute);
+  } else {
+    initHtmlLangAttribute();
+  }
+}
+
 // New function to address REACT_027: Fix 26 table structure issues
 function validateTableAccessibility(tableElement) {
   if (typeof document === 'undefined' || !tableElement) {

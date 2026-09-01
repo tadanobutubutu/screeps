@@ -320,4 +320,39 @@
             initialize();
         }
     }
+
+    // TODO: This is the existing code that needs to be preserved
+    // Address accessibility issues from insight report:
+    // Implemented validateLandmark functionality
+
+    // New function to validate landmark elements
+    function validateLandmark() {
+      const requiredLandmarks = ['main', 'nav', 'footer'];
+      const missingLandmarks = [];
+
+      requiredLandmarks.forEach(landmark => {
+        const element = document.querySelector(`[role="${landmark}"]`) ||
+                       document.querySelector(`${landmark}`);
+        if (!element) {
+          missingLandmarks.push(landmark);
+        }
+      });
+
+      if (missingLandmarks.length > 0) {
+        console.warn('Missing required landmarks:', missingLandmarks.join(', '));
+        return false;
+      }
+      return true;
+    }
+
+    // Expose validateLandmark to global scope if needed
+    if (typeof window !== 'undefined') {
+      window.validateLandmark = validateLandmark;
+    }
+
+    // Add the new function to the accessibilityUtils object
+    const accessibilityUtils = {
+      validateLandmark: validateLandmark,
+      // ... other existing utility functions
+    };
 })();

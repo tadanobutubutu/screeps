@@ -402,46 +402,6 @@ function wrapPrimaryContentInMain() {
     }
 }
 
-// Consolidated accessibility issue handler
-function addressAccessibilityIssues(graphData) {
-  if (!graphData) return;
-
-  // Fix landmark issues
-  if (typeof fixLandmarkIssues === 'function') {
-    fixLandmarkIssues(graphData);
-  }
-
-  // Fix fake link issues
-  if (typeof fixFakeLinkIssues === 'function') {
-    fixFakeLinkIssues(graphData);
-  }
-
-  // Fix image alt texts
-  if (typeof fixImageAltTexts === 'function') {
-    fixImageAltTexts(graphData);
-  }
-
-  // Ensure unique landmarks
-  if (typeof uniqueLandmarks === 'function') {
-    uniqueLandmarks(graphData);
-  }
-
-  // Fix button identifiers
-  if (typeof fixButtonIdentifiers === 'function') {
-    fixButtonIdentifiers(graphData);
-  }
-
-  // Fix dependency graph ARIA attributes
-  if (typeof fixDependencyGraphAria === 'function') {
-    fixDependencyGraphAria(graphData);
-  }
-
-  // Add main landmark to index
-  if (typeof addMainLandmarkToIndex === 'function') {
-    addMainLandmarkToIndex(graphData);
-  }
-}
-
 // Top-level jQuery implementation for accessibility enhancement
 $(document).ready(() => {
   // Initialize skip links
@@ -554,7 +514,6 @@ module.exports = {
     generateSessionId,
     renderGraphIndex,
     wrapPrimaryContentInMain,
-    addressAccessibilityIssues,
     createInPageButton,
     createWebResourceButton,
     validateLandmark,

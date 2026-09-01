@@ -55,4 +55,8 @@ function checkTableStructure(table) {
   };
 }
 
+function renderDependencyGraphs() {
+  return [];
+}
+
 // ... (other functions and comments preserved)

@@ -238,7 +238,7 @@
             if (!issues || !Array.isArray(issues)) {
                 return [];
             }
-            
+
             return issues.map(issue => {
                 return {
                     id: issue.id,
@@ -264,11 +264,11 @@
           totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
           details: report
         };
-        
+
         // Store harvested data for potential upgrades
         const harvestFile = path.join(__dirname, 'harvest_data.json');
         fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-        
+
         return harvestedData;
       } catch (error) {
         console.error('Harvest failed:', error);
@@ -341,6 +341,117 @@
       return { harvested, upgraded };
     }
 
+    // Function to add a book with accessibility considerations
+    function addBook(title, author, isbn) {
+      // Validate input
+      if (!title || !author || !isbn) {
+        throw new Error('All fields (title, author, ISBN) are required');
+      }
+
+      // Create book object
+      const book = {
+        title,
+        author,
+        isbn,
+        addedAt: new Date().toISOString()
+      };
+
+      // Add book to the system (implementation depends on your system)
+      // This is a placeholder for your actual implementation
+      console.log('Book added:', book);
+
+      // Return the book object
+      return book;
+    }
+
+    // Function to create an accessible book form
+    function createAccessibleBookForm() {
+      const form = document.createElement('form');
+      form.setAttribute('role', 'form');
+      form.setAttribute('aria-labelledby', 'book-form-heading');
+
+      // Create heading
+      const heading = document.createElement('h2');
+      heading.id = 'book-form-heading';
+      heading.textContent = 'Add New Book';
+      form.appendChild(heading);
+
+      // Create title field
+      const titleLabel = document.createElement('label');
+      titleLabel.setAttribute('for', 'book-title');
+      titleLabel.textContent = 'Book Title:';
+      form.appendChild(titleLabel);
+
+      const titleInput = document.createElement('input');
+      titleInput.id = 'book-title';
+      titleInput.type = 'text';
+      titleInput.required = true;
+      titleInput.setAttribute('aria-required', 'true');
+      titleInput.setAttribute('aria-label', 'Book Title');
+      form.appendChild(titleInput);
+
+      // Create author field
+      const authorLabel = document.createElement('label');
+      authorLabel.setAttribute('for', 'book-author');
+      authorLabel.textContent = 'Author:';
+      form.appendChild(authorLabel);
+
+      const authorInput = document.createElement('input');
+      authorInput.id = 'book-author';
+      authorInput.type = 'text';
+      authorInput.required = true;
+      authorInput.setAttribute('aria-required', 'true');
+      authorInput.setAttribute('aria-label', 'Author');
+      form.appendChild(authorInput);
+
+      // Create ISBN field
+      const isbnLabel = document.createElement('label');
+      isbnLabel.setAttribute('for', 'book-isbn');
+      isbnLabel.textContent = 'ISBN:';
+      form.appendChild(isbnLabel);
+
+      const isbnInput = document.createElement('input');
+      isbnInput.id = 'book-isbn';
+      isbnInput.type = 'text';
+      isbnInput.required = true;
+      isbnInput.setAttribute('aria-required', 'true');
+      isbnInput.setAttribute('aria-label', 'ISBN');
+      form.appendChild(isbnInput);
+
+      // Create submit button
+      const submitButton = document.createElement('button');
+      submitButton.type = 'submit';
+      submitButton.textContent = 'Add Book';
+      submitButton.setAttribute('aria-label', 'Add new book to the collection');
+      form.appendChild(submitButton);
+
+      // Add form submission handler
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        try {
+          const book = addBook(
+            titleInput.value,
+            authorInput.value,
+            isbnInput.value
+          );
+          console.log('Book added successfully:', book);
+          // Reset form after successful submission
+          form.reset();
+          // Announce success to screen readers
+          if (a11y && a11y.announce) {
+            a11y.announce('Book added successfully', 'assertive');
+          }
+        } catch (error) {
+          console.error('Error adding book:', error);
+          if (a11y && a11y.announce) {
+            a11y.announce(`Error: ${error.message}`, 'assertive');
+          }
+        }
+      });
+
+      return form;
+    }
+
     // Call the function to address accessibility issues
     addressAccessibilityIssues();
     createInPageButton();
@@ -380,6 +491,8 @@
       checkLinkAccessibility,
       writeReport,
       scanAccessibility,
+      addBook,
+      createAccessibleBookForm,
       ...accessibilityUtils
     };
 
@@ -417,6 +530,10 @@
         if (a11y && a11y.init) {
             a11y.init();
         }
+
+        // Create and append the accessible book form
+        const bookForm = createAccessibleBookForm();
+        document.body.appendChild(bookForm);
     }
 
     // Initialize on DOM ready

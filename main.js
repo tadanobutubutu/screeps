@@ -48,6 +48,80 @@ const accessibilityUtils = {
   }
 };
 
+// The new function to check link accessibility
+// This function will be used to validate the accessibility of links
+
+/**
+ * Check the accessibility of a link element.
+ * @param {HTMLAnchorElement} link - The link element to check
+ * @returns {Object} An object containing the accessibility status and any issues found
+ */
+function checkLinkAccessibility(link) {
+  if (!link) {
+    throw new Error('Link element is required');
+  }
+
+  const issues = [];
+
+  // Check if link has valid href
+  if (!link.hasAttribute('href') || !link.getAttribute('href')) {
+    issues.push('Link is missing an href attribute');
+  }
+
+  // Check if link has accessible name (text content or aria-label)
+  const textContent = link.textContent && link.textContent.trim();
+  const ariaLabel = link.getAttribute('aria-label');
+  const ariaLabelledBy = link.getAttribute('aria-labelledby');
+  const title = link.getAttribute('title');
+
+  if (!textContent && !ariaLabel && !ariaLabelledBy && !title) {
+    issues.push('Link has no accessible name (text, aria-label, aria-labelledby, or title)');
+  }
+
+  // Check for empty text content
+  if (textContent === '' && !ariaLabel && !ariaLabelledBy) {
+    issues.push('Link has empty text content and no aria-label or aria-labelledby');
+  }
+
+  // Check if link has target="_blank" without rel="noopener"
+  if (link.getAttribute('target') === '_blank') {
+    const rel = link.getAttribute('rel') || '';
+    if (!rel.includes('noopener')) {
+      issues.push('Link with target="_blank" should include rel="noopener" for security');
+    }
+    if (!rel.includes('noreferrer')) {
+      issues.push('Link with target="_blank" should include rel="noreferrer" for privacy');
+    }
+  }
+
+  // Check for sufficient color contrast (basic check)
+  const style = typeof window !== 'undefined' && window.getComputedStyle ? window.getComputedStyle(link) : null;
+  if (style) {
+    const color = style.color;
+    const bgColor = style.backgroundColor;
+    if (color && bgColor && color === bgColor) {
+      issues.push('Link text color matches background color, may cause visibility issues');
+    }
+  }
+
+  // Check if link is focusable
+  const tabIndex = link.getAttribute('tabindex');
+  if (tabIndex === '-1') {
+    issues.push('Link has tabindex="-1" which removes it from tab order');
+  }
+
+  // Check for proper role if not a standard anchor
+  if (link.tagName.toLowerCase() !== 'a' && !link.getAttribute('role')) {
+    issues.push('Non-anchor link element is missing a role attribute');
+  }
+
+  return {
+    accessible: issues.length === 0,
+    issues,
+    link
+  };
+}
+
 /**
  * Initialize accessibility features for the application.
  */
@@ -277,5 +351,6 @@ module.exports = {
   renderDependencyGraphs,
   spawnProcess,
   focusTrap,
-  newFocusTrap
+  newFocusTrap,
+  checkLinkAccessibility
 };

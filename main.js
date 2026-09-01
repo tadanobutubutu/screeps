@@ -63,3 +63,6 @@ export const existingConstant = 'someConstantValue';
 
 // Start the processing of accessibility issues from the insight report
 processAccessibilityIssues(insightReport);
+
+// Add back any required exports that might have been removed
+export { addressAccessibilityIssues, processAccessibilityIssues };

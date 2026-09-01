@@ -1,3 +1,8 @@
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+// Main entry point for dependency visualization tool
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
+
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
 // REACT_027: Fix 26 table structure issues

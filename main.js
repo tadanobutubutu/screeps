@@ -29,20 +29,20 @@ function initialize() {
 const initializeApp = () => {
   // Main initialization function
   console.log('Application initialized');
-  
+
   // Ensure the app is accessible
   const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
   if (mainContent) {
     mainContent.setAttribute('aria-label', 'Main content area');
   }
-  
+
   // Set up keyboard navigation
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Tab') {
       document.body.classList.add('keyboard-nav');
     }
   });
-  
+
   document.addEventListener('mousedown', () => {
     document.body.classList.remove('keyboard-nav');
   });
@@ -77,3 +77,12 @@ module.exports.functionB = {
   Y: 'valueY',
   Z: 'valueZ'
 };
+
+// TODO: Add your code here
+function newFunction() {
+  // Implementation for the new function
+  console.log('New function added');
+}
+
+// Add the new function to exports
+module.exports.newFunction = newFunction;

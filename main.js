@@ -231,7 +231,7 @@ const accessibilityUtils = {
         if (!issues || !Array.isArray(issues)) {
             return [];
         }
-        
+
         return issues.map(issue => {
             return {
                 id: issue.id,
@@ -257,11 +257,11 @@ async function harvest() {
       totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
       details: report
     };
-    
+
     // Store harvested data for potential upgrades
     const harvestFile = path.join(__dirname, 'harvest_data.json');
     fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-    
+
     return harvestedData;
   } catch (error) {
     console.error('Harvest failed:', error);
@@ -334,6 +334,28 @@ async function harvestAndUpgrade() {
   return { harvested, upgraded };
 }
 
+// New function to validate landmark elements
+function validateLandmark() {
+  // Implementation of validateLandmark functionality
+  // This function will validate that landmark elements are properly implemented
+  const requiredLandmarks = ['main', 'nav', 'footer'];
+  const missingLandmarks = [];
+
+  requiredLandmarks.forEach(landmark => {
+    const element = document.querySelector(`[role="${landmark}"]`);
+    if (!element) {
+      missingLandmarks.push(landmark);
+    }
+  });
+
+  if (missingLandmarks.length > 0) {
+    console.warn(`Missing required landmarks: ${missingLandmarks.join(', ')}`);
+    return false;
+  }
+
+  return true;
+}
+
 // Call the function to address accessibility issues
 addressAccessibilityIssues();
 createInPageButtonDOM();
@@ -374,6 +396,9 @@ function initialize() {
     if (typeof a11y !== 'undefined' && a11y && a11y.init) {
         a11y.init();
     }
+
+    // Validate landmark elements
+    validateLandmark();
 }
 
 // Initialize on DOM ready
@@ -404,6 +429,7 @@ if (typeof module !== 'undefined' && module.exports) {
         harvest,
         upgrade,
         harvestAndUpgrade,
+        validateLandmark,
         ...accessibilityUtils
     };
 }

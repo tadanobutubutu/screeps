@@ -31,14 +31,6 @@ function getFullLangAttribute() {
 function validateTableAccessibility(table) {
   const issues = [];
 
-  if (!table.querySelector || !table.querySelector('caption')) {
-    issues.push('Table structure issue: Missing caption element');
-  }
-
-  if (!table.querySelector || !table.querySelector('thead')) {
-    issues.push('Table structure issue: Missing thead element');
-  }
-
   if (!table.headers) {
     issues.push('Missing headers attribute');
   }
@@ -77,8 +69,6 @@ function validateTableStructure(tables) {
   };
 }
 
-// TODO: Any additional changes requested in the issue
-
 /**
  * Validates landmark elements for accessibility
  * @param {Object} element - The element to validate
@@ -89,35 +79,9 @@ function validateLandmark(element) {
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
 
   if (!element.tagName) {
-    issues.push('Invalid landmark: Missing tagName');
+    issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
-  }
-
-  if (!element.hasAttribute('id')) {
-    issues.push('Landmark structure issue: Missing id attribute');
-  }
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
-}
-
-/**
- * Validates landmark attributes
- * @param {Object} landmark - The landmark element to validate
- * @returns {Object} Validation result with success status and any issues found
- */
-function validateLandmarkAttributes(landmark) {
-  const issues = [];
-
-  if (!landmark.ariaLabel && !landmark.ariaLabelledby && !landmark.textContent) {
-    issues.push('Landmark structure issue: Landmark missing accessible name');
-  }
-
-  if (landmark.role && !['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search'].includes(landmark.role)) {
-    issues.push(`Invalid landmark role: ${landmark.role}`);
   }
 
   return {
@@ -176,17 +140,20 @@ function ensureUniqueLandmarks(landmarks) {
 
 /**
  * Gets the accessible name for an SVG element
- * @param {Object} svgElement - The SVG element
+ * @param {Object} svg - The SVG element
  * @returns {string} The accessible name for the SVG
  */
-function getSvgAccessibleName(svgElement) {
-  if (!svgElement) return 'Accessible SVG Icon';
-
-  const title = svgElement.querySelector('title') || svgElement.querySelector('desc');
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (title) return title.textContent || title.innerHTML;
-  if (ariaLabel) return ariaLabel;
-  return 'Accessible SVG Icon';
+function getSvgAccessibleName(svg) {
+  if (svg.ariaLabel) {
+    return svg.ariaLabel;
+  }
+  if (svg.ariaLabelledby) {
+    return svg.ariaLabelledby;
+  }
+  if (svg.title) {
+    return svg.title;
+  }
+  return 'Unnamed SVG';
 }
 
 /**
@@ -251,6 +218,28 @@ function handleAccessibilityIssues(issues) {
 }
 
 /**
+ * Sets SVG attributes to ensure accessibility
+ * @param {Object} svg - The SVG element to modify
+ * @param {Object} options - Accessibility options
+ * @param {string} options.ariaLabel - ARIA label for the SVG
+ * @param {string} options.ariaLabelledby - ARIA labelledby reference
+ * @param {string} options.title - Title for the SVG
+ * @returns {Object} Modified SVG element
+ */
+function setSvgAttributes(svg, options) {
+  if (options.ariaLabel) {
+    svg.ariaLabel = options.ariaLabel;
+  }
+  if (options.ariaLabelledby) {
+    svg.ariaLabelledby = options.ariaLabelledby;
+  }
+  if (options.title) {
+    svg.title = options.title;
+  }
+  return svg;
+}
+
+/**
  * Validates link accessibility compliance
  * @param {Object} link - The link object to validate
  * @returns {Object} Validation result with success status and any issues found
@@ -277,17 +266,21 @@ function validateLinkAccessibility(link) {
 }
 
 /**
- * Sets SVG attributes to ensure accessibility
- * @param {Object} svg - The SVG element
- * @param {Object} attributes - Attributes to set
- * @returns {Object} The updated SVG element
+ * Handles fake links by converting them to proper accessible elements
+ * @param {Object} link - The fake link to handle
+ * @returns {Object} Converted accessible element
  */
-function setSvgAttributes(svg, attributes) {
-  return {
-    ...svg,
-    ...attributes,
-    accessibleName: getSvgAccessibleName(svg)
-  };
+function handleFakeLinks(link) {
+  if (link.isFake) {
+    return {
+      type: 'span',
+      text: link.text,
+      role: 'link',
+      ariaLabel: link.ariaLabel || link.text,
+      tabIndex: 0
+    };
+  }
+  return link;
 }
 
 /**
@@ -322,13 +315,13 @@ module.exports = {
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-  validateLandmarkAttributes,
   ensureUniqueLandmarks,
   getSvgAccessibleName,
+  setSvgAttributes,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues,
   validateLinkAccessibility,
-  setSvgAttributes,
+  handleFakeLinks,
+  handleAccessibilityIssues,
   addProperLandmarkRegions
 };

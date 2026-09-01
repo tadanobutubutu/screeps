@@ -107,6 +107,7 @@ function createInPageButtons(buttonsData) {
         button.id = buttonData.id;
         button.textContent = buttonData.text;
         button.setAttribute('data-role', buttonData.role);
+        button.setAttribute('aria-label', buttonData.text); // Added for accessibility
 
         button.addEventListener('click', () => {
             location.hash = buttonData.href;
@@ -143,15 +144,95 @@ function validateLandmark(landmark) {
 
 // Table accessibility functions (merged from both branches)
 function validateTableAccessibility() {
-    // Implementation for merged table accessibility validation
+    const tables = document.querySelectorAll('table');
+    const errors = [];
+
+    tables.forEach((table, index) => {
+        // Check if table has a caption
+        if (!table.querySelector('caption')) {
+            errors.push(`Table ${index + 1} is missing a caption`);
+        }
+
+        // Check if table has proper headers
+        const headers = table.querySelectorAll('th');
+        if (headers.length === 0) {
+            errors.push(`Table ${index + 1} is missing header cells`);
+        }
+
+        // Check if table has proper scope attributes for headers
+        headers.forEach(header => {
+            if (!header.hasAttribute('scope')) {
+                errors.push(`Header in Table ${index + 1} is missing scope attribute`);
+            }
+        });
+
+        // Check if table has proper data cells
+        const dataCells = table.querySelectorAll('td');
+        if (dataCells.length === 0) {
+            errors.push(`Table ${index + 1} is missing data cells`);
+        }
+    });
+
+    return errors;
 }
 
 function validateTableStructure() {
-    // Implementation for merged table structure validation
+    const tables = document.querySelectorAll('table');
+    const errors = [];
+
+    tables.forEach((table, index) => {
+        // Check if table has proper row structure
+        const rows = table.querySelectorAll('tr');
+        if (rows.length === 0) {
+            errors.push(`Table ${index + 1} has no rows`);
+        }
+
+        // Check if table has proper column structure
+        const columns = table.querySelectorAll('td, th');
+        if (columns.length === 0) {
+            errors.push(`Table ${index + 1} has no columns`);
+        }
+
+        // Check if table has proper nesting
+        const nestedTables = table.querySelectorAll('table');
+        if (nestedTables.length > 0) {
+            errors.push(`Table ${index + 1} contains nested tables`);
+        }
+    });
+
+    return errors;
 }
 
 function fixTableStructure() {
-    // Implementation for merged table structure fixing
+    const tables = document.querySelectorAll('table');
+
+    tables.forEach(table => {
+        // Add role="table" if missing
+        if (!table.hasAttribute('role')) {
+            table.setAttribute('role', 'table');
+        }
+
+        // Add aria-label if missing caption
+        if (!table.querySelector('caption') && !table.hasAttribute('aria-label')) {
+            table.setAttribute('aria-label', 'Table');
+        }
+
+        // Ensure proper header structure
+        const headers = table.querySelectorAll('th');
+        headers.forEach(header => {
+            if (!header.hasAttribute('scope')) {
+                header.setAttribute('scope', 'col');
+            }
+        });
+
+        // Ensure proper data cell structure
+        const dataCells = table.querySelectorAll('td');
+        dataCells.forEach(cell => {
+            if (!cell.hasAttribute('role')) {
+                cell.setAttribute('role', 'cell');
+            }
+        });
+    });
 }
 
 function ensureLandmarkUniqueness(elements) {
@@ -186,11 +267,45 @@ function countDependencies() {
 // Accessibility issue handlers
 function addressAccessibilityIssues(insightReport) {
     // Implementation to address accessibility issues
+    insightReport.forEach(issue => {
+        switch(issue.type) {
+            case 'table':
+                fixTableStructure();
+                break;
+            case 'landmark':
+                ensureLandmarkUniqueness(landmarks);
+                break;
+            default:
+                console.log(`No handler for issue type: ${issue.type}`);
+        }
+    });
 }
 
 function getInsightReport() {
     // Implementation to retrieve insight report
-    return [];
+    const report = [];
+
+    // Check for table issues
+    const tableErrors = validateTableAccessibility();
+    tableErrors.forEach(error => {
+        report.push({
+            type: 'table',
+            description: error
+        });
+    });
+
+    // Check for landmark issues
+    landmarks.forEach(landmark => {
+        const landmarkErrors = validateLandmark(landmark);
+        landmarkErrors.forEach(error => {
+            report.push({
+                type: 'landmark',
+                description: error
+            });
+        });
+    });
+
+    return report;
 }
 
 // Exports from both branches

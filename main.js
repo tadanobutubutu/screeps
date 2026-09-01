@@ -10,13 +10,14 @@
 // REACT_041: Add accessible names to 2 SVGs
 // REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
 // REACT_036: Fix 1 fake link issue
+// ADD: Address new accessibility issues from insight report
 
 // REACT_015: Add lang attribute to the <html> element
-function addLangAttribute (html) {
+function addLangAttribute (html, lang = 'en') {
   if (typeof html !== 'string') return html
   return html.replace(/<html([^>]*)>/i, (match, attrs) => {
     if (/\blang=/i.test(match)) return match
-    return `<html${attrs} lang="en">`
+    return `<html${attrs} lang="${lang}">`
   })
 }
 
@@ -60,6 +61,29 @@ function fixTableStructure (html) {
   })
 
   return html
+}
+
+/**
+ * Divides two numbers with proper error handling
+ * @param {number} dividend - The number to be divided
+ * @param {number} divisor - The number to divide by
+ * @returns {number} The result of the division
+ * @throws {Error} If divisor is zero or if inputs are not valid numbers
+ */
+function divide (dividend, divisor) {
+  if (typeof dividend !== 'number' || typeof divisor !== 'number') {
+    throw new Error('Both arguments must be numbers')
+  }
+
+  if (isNaN(dividend) || isNaN(divisor)) {
+    throw new Error('Both arguments must be valid numbers')
+  }
+
+  if (divisor === 0) {
+    throw new Error('Division by zero is not allowed')
+  }
+
+  return dividend / divisor
 }
 
 // REACT_017: Add/fix landmark issues
@@ -121,6 +145,59 @@ function addSvgAccessibleNames (html) {
   return html
 }
 
+function checkLinkAccessibility () {
+  // Implementation for checking link accessibility
+  // This function will be used to validate the accessibility of links
+  const links = document.querySelectorAll('a[href]')
+  const issues = []
+
+  links.forEach((link) => {
+    const href = link.getAttribute('href')
+    const text = link.textContent.trim()
+
+    if (!text) {
+      issues.push(`Link with href "${href}" has no accessible text`)
+    }
+  })
+
+  return issues
+}
+
+// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+/**
+ * Wraps the primary content of the page in a <main> element for improved accessibility.
+ * This function checks if a <main> element already exists; if not, it creates one
+ * and moves all body content into it.
+ * @returns {Element|null} The <main> element if successfully created/wrapped, or null if body is not available
+ */
+function wrapPrimaryContentInMain () {
+  const body = document.body
+
+  // Return null if body element is not available
+  if (!body) {
+    return null
+  }
+
+  // Check if a <main> element already exists to avoid duplication
+  const existingMain = document.querySelector('main')
+  if (existingMain) {
+    return existingMain
+  }
+
+  // Create a new <main> element
+  const main = document.createElement('main')
+
+  // Move all existing body children into the <main> element
+  while (body.firstChild) {
+    main.appendChild(body.firstChild)
+  }
+
+  // Append the <main> element to the body
+  body.appendChild(main)
+
+  return main
+}
+
 // REACT_025: Ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks (html) {
   if (typeof html !== 'string') return html
@@ -160,7 +237,7 @@ function ensureUniqueLandmarks (html) {
       html = html.replace(pattern, (match) => {
         count++
         if (count === 1) return match
-        return match.replace(/^</, '<' + tag).replace(`<${tag}`, `<${tag} role="region"`)
+        return match.replace(new RegExp(`<${tag}`, 'i'), `<${tag} role="region"`)
       })
     }
   })
@@ -189,6 +266,81 @@ function fixFakeLinks (html) {
   return html
 }
 
+// NEW: Validate table accessibility
+function validateTableAccessibility(html) {
+    if (typeof html !== 'string') return true;
+
+    // Check for tables without captions
+    const tablesWithoutCaptions = html.match(/<table[^>]*>(?!.*<caption[^>]*>)/gi);
+    if (tablesWithoutCaptions) {
+        console.warn(`Found ${tablesWithoutCaptions.length} tables without captions`);
+        return false;
+    }
+
+    // Check for tables without thead/tbody
+    const tablesWithoutStructure = html.match(/<table[^>]*>(?!.*<thead[^>]*>)(?!.*<tbody[^>]*>)/gi);
+    if (tablesWithoutStructure) {
+        console.warn(`Found ${tablesWithoutStructure.length} tables without proper structure`);
+        return false;
+    }
+
+    return true;
+}
+
+// NEW: Validate landmark structure
+function validateLandmarkStructure(html) {
+    if (typeof html !== 'string') return true;
+
+    const requiredLandmarks = ['main', 'nav', 'footer'];
+    let isValid = true;
+
+    requiredLandmarks.forEach(landmark => {
+        const pattern = new RegExp(`<${landmark}[^>]*>|<div[^>]*role=["']${landmark}["']`, 'i');
+        if (!pattern.test(html)) {
+            console.warn(`Missing required landmark: ${landmark}`);
+            isValid = false;
+        }
+    });
+
+    return isValid;
+}
+
+// NEW: Get language attribute for HTML element
+function getLangAttribute(html) {
+    if (typeof html !== 'string') return 'en';
+
+    const match = html.match(/<html[^>]*lang=["']([^"']*)["']/i);
+    return match ? match[1] : 'en';
+}
+
+// NEW: Get accessible name for SVG
+function getSvgAccessibleName(svgElement) {
+    if (!svgElement) return 'SVG';
+
+    if (svgElement.hasAttribute('aria-label')) {
+        return svgElement.getAttribute('aria-label');
+    }
+
+    if (svgElement.hasAttribute('aria-labelledby')) {
+        const id = svgElement.getAttribute('aria-labelledby');
+        const labelElement = document.getElementById(id);
+        return labelElement ? labelElement.textContent : 'SVG';
+    }
+
+    const title = svgElement.querySelector('title');
+    return title ? title.textContent : 'SVG';
+}
+
+// NEW: Person name utility
+function personName(name) {
+    if (!name) return '';
+
+    // Simple name formatting - can be enhanced as needed
+    return name.trim()
+        .replace(/\s+/g, ' ')
+        .replace(/([a-z])([A-Z])/g, '$1 $2');
+}
+
 // Main function that applies all accessibility fixes
 function applyAccessibilityFixes (html) {
   let result = html
@@ -201,50 +353,54 @@ function applyAccessibilityFixes (html) {
   return result
 }
 
-function addressAccessibilityIssues (insightReport) {
-  // Implement the logic to address accessibility issues based on the insight report
-  // This is a placeholder function and should be replaced with actual implementation
+function addressAccessibilityIssues(insightReport) {
+  // Apply accessibility fixes to HTML content based on insight report
+  if (insightReport && insightReport.html) {
+    insightReport.html = applyAccessibilityFixes(insightReport.html);
+  }
   console.log('Addressing accessibility issues from insight report:', insightReport)
 
-  // Add accessibility improvements
-  document.body.setAttribute('lang', 'en')
-  document.title = 'Accessible Application'
+  if (typeof document !== 'undefined') {
+    // Add accessibility improvements
+    document.body.setAttribute('lang', 'en')
+    document.title = 'Accessible Application'
 
-  // Add ARIA attributes to buttons
-  const buttons = document.querySelectorAll('button')
-  buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label')) {
-      button.setAttribute('aria-label', button.textContent)
-    }
-  })
+    // Add ARIA attributes to buttons
+    const buttons = document.querySelectorAll('button')
+    buttons.forEach((button) => {
+      if (!button.getAttribute('aria-label')) {
+        button.setAttribute('aria-label', button.textContent)
+      }
+    })
 
-  // Add skip link for keyboard users
-  const skipLink = document.createElement('a')
-  skipLink.href = '#main-content'
-  skipLink.textContent = 'Skip to main content'
-  skipLink.className = 'skip-link'
-  document.body.insertBefore(skipLink, document.body.firstChild)
+    // Add skip link for keyboard users
+    const skipLink = document.createElement('a')
+    skipLink.href = '#main-content'
+    skipLink.textContent = 'Skip to main content'
+    skipLink.className = 'skip-link'
+    document.body.insertBefore(skipLink, document.body.firstChild)
 
-  // Add focus styles for keyboard navigation
-  const style = document.createElement('style')
-  style.textContent = `
-    .skip-link {
-      position: absolute;
-      left: -9999px;
-      top: 0;
-    }
-    .skip-link:focus {
-      left: 0;
-      background: #000;
-      color: #fff;
-      padding: 0.5em;
-      z-index: 100;
-    }
-    button:focus {
-      outline: 3px solid #4d90fe;
-    }
-  `
-  document.head.appendChild(style)
+    // Add focus styles for keyboard navigation
+    const style = document.createElement('style')
+    style.textContent = `
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+      }
+      .skip-link:focus {
+        left: 0;
+        background: #000;
+        color: #fff;
+        padding: 0.5em;
+        z-index: 100;
+      }
+      button:focus {
+        outline: 3px solid #4d90fe;
+      }
+    `
+    document.head.appendChild(style)
+  }
 }
 
 function createInPageButton (buttonId, buttonText, buttonClass) {
@@ -336,3 +492,30 @@ function newFunctionForMain () {
 
 // Update or create any other necessary functions here
 // ------ END CHANGES------
+
+// Don't forget to test your new additions in the test file
+
+// Export accessibility utility functions
+module.exports = {
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarks,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  applyAccessibilityFixes,
+  addressAccessibilityIssues,
+  createInPageButton,
+  renderAccessibilityReport,
+  renderUIComponents,
+  addBook,
+  newFunctionForMain,
+  validateTableAccessibility,
+  validateLandmarkStructure,
+  getLangAttribute,
+  getSvgAccessibleName,
+  personName,
+  divide,
+  checkLinkAccessibility,
+  wrapPrimaryContentInMain
+};

@@ -36,7 +36,7 @@ function getSvgAccessibleName() {
   // ... code for handling SVG accessible names
 }
 
-function createInPageButton() {
+function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
@@ -48,10 +48,12 @@ function addressNewAccessibilityIssues() {
   // Retrieve the language attribute for the HTML document
   const lang = getLangAttribute();
 
-  // Apply the language attribute to the <body> element if not already present
-  const body = document.body;
-  if (body && typeof body !== 'undefined' && !body.getAttribute('lang')) {
-    body.setAttribute('lang', lang);
+  // Apply the language attribute to the <html> element if not already present
+  const htmlElement = document.documentElement;
+  if (htmlElement && typeof htmlElement !== 'undefined') {
+    if (!htmlElement.getAttribute('lang')) {
+      htmlElement.setAttribute('lang', lang);
+    }
   }
 
   // Ensure the main content area has an appropriate ARIA role
@@ -61,7 +63,7 @@ function addressNewAccessibilityIssues() {
   }
 
   // Attach an accessible label to the primary action button
-  const submitBtn = document.querySelector('.btn-submit');
+  const submitBtn = document.querySelector('button[type="submit"], button[type="button"]');
   if (submitBtn && typeof submitBtn !== 'undefined') {
     submitBtn.setAttribute('aria-label', personName());
   }
@@ -105,9 +107,9 @@ function createServer() {
 }
 
 // Utility for spawning a command
-function spawnSomeCommand(callback) {
+function spawnCommand(command, args, callback) {
     const child_process = require('child_process');
-    const child = child_process.spawn('someCommand', [], {
+    const child = child_process.spawn(command, args, {
         stdio: 'inherit',
     });
     child.on('exit', (code, signal) => {
@@ -136,12 +138,12 @@ function countDependencies() {
 }
 
 // Additional functions to address accessibility issues from insight report
-function addressAccessibilityIssues(insightReport) {
+function addressAccessibilityIssues() {
   // Implement function to address the reported accessibility issues
 }
 
 function generateAccessibilityReport(accessibilityReport) {
-  if (!accessibilityReport || !Array.isArray(accessibilityReport.issues)) {
+  if (!accessibilityReport || !accessibilityReport.issues) {
     return [];
   }
 
@@ -173,10 +175,10 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
-function ensureUniqueLandmarksFromString(source) {
-  const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+function fixLandmarkStructure(source) {
+  const mainBlockRegex = /<main[^>]*>([\s\S]*?)<\/main>/gi;
 
-  const matches = Array.from(source.matchAll(mainBlockRegex));
+  const matches = source.match(mainBlockRegex);
   if (matches.length <= 1) {
     return source;
   }
@@ -252,7 +254,7 @@ function logMessage(message) {
 }
 
 // New function to handle graceful shutdown
-function handleGracefulShutdown(server) {
+function gracefulShutdown(server) {
   server.close(() => {
     console.log('Server closed gracefully');
     process.exit(0);
@@ -331,7 +333,7 @@ module.exports = {
   addressAccessibilityIssues,
   generateAccessibilityReport,
   calculateAccessibilityScore,
-  ensureUniqueLandmarksFromString,
+  fixLandmarkStructure,
   validateLandmark,
   createInPageButton
 };

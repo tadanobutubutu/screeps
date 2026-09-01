@@ -18,10 +18,15 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+
+  // Ensure the container is focusable if it's interactive
+  if (!dependencyGraph.getAttribute('tabindex')) {
+    dependencyGraph.setAttribute('tabindex', '0');
   }
 }
 

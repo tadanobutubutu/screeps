@@ -223,6 +223,62 @@ function fixFakeLink() {
   return accessibilityUtils;
 }
 
+// Function to add lang attribute to HTML element
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', getLangAttribute());
+  }
+}
+
+// Function to fix table structure issues
+function fixTableStructure() {
+  // Fix tables that don't have proper headers
+  document.querySelectorAll('table').forEach(table => {
+    if (!table.querySelector('th')) {
+      // If no headers, add scope attributes to first row cells
+      const firstRowCells = table.querySelectorAll('tr:first-child td');
+      firstRowCells.forEach(cell => {
+        cell.setAttribute('scope', 'col');
+      });
+    }
+
+    // Ensure tables have proper caption
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table caption';
+      table.prepend(caption);
+    }
+
+    // Ensure tables have proper summary
+    if (!table.hasAttribute('summary')) {
+      table.setAttribute('summary', 'Table summary');
+    }
+  });
+}
+
+// Function to add main landmark
+function addMainLandmark() {
+  const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
+  if (!mainElement) {
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    main.setAttribute('aria-label', 'Main content');
+    document.body.prepend(main);
+  }
+}
+
+// Function to add accessible names to SVGs
+function addSvgAccessibleNames() {
+  // Example SVG IDs and accessible names
+  setSvgAccessibleNames('svg1Id', 'svg2Id', 'aria-label for SVG1', 'aria-label for SVG2');
+}
+
+// Function to fix fake link issue
+function fixFakeLinkIssue() {
+  fixFakeLink();
+}
+
 // Accessibility utilities - preserves the original accessibilityUtils functionality
 const accessibilityUtils = {
     // Function for addressing new accessibility issues
@@ -231,7 +287,7 @@ const accessibilityUtils = {
         if (!issues || !Array.isArray(issues)) {
             return [];
         }
-        
+
         return issues.map(issue => {
             return {
                 id: issue.id,
@@ -257,11 +313,11 @@ async function harvest() {
       totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
       details: report
     };
-    
+
     // Store harvested data for potential upgrades
     const harvestFile = path.join(__dirname, 'harvest_data.json');
     fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-    
+
     return harvestedData;
   } catch (error) {
     console.error('Harvest failed:', error);
@@ -374,6 +430,21 @@ function initialize() {
     if (typeof a11y !== 'undefined' && a11y && a11y.init) {
         a11y.init();
     }
+
+    // Add lang attribute to HTML element
+    addLangAttribute();
+
+    // Fix table structure issues
+    fixTableStructure();
+
+    // Add main landmark
+    addMainLandmark();
+
+    // Add accessible names to SVGs
+    addSvgAccessibleNames();
+
+    // Fix fake link issue
+    fixFakeLinkIssue();
 }
 
 // Initialize on DOM ready
@@ -404,6 +475,11 @@ if (typeof module !== 'undefined' && module.exports) {
         harvest,
         upgrade,
         harvestAndUpgrade,
+        addLangAttribute,
+        fixTableStructure,
+        addMainLandmark,
+        addSvgAccessibleNames,
+        fixFakeLinkIssue,
         ...accessibilityUtils
     };
 }

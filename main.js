@@ -177,21 +177,133 @@ module.exports = {
   createWebResourceButton: createWebResourceButton,
 
   // TODO: Validate the table structure for accessibility issues
-  validateTableAccessibility,
-  validateTableStructure,
+  validateTableAccessibility: (table) => {
+    if (!table || !(table instanceof HTMLElement) || table.tagName !== 'TABLE') {
+      throw new Error('Invalid table element provided');
+    }
+
+    const issues = [];
+
+    // Check for missing caption
+    if (!table.querySelector('caption')) {
+      issues.push('Table is missing a caption element');
+    }
+
+    // Check for proper headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      issues.push('Table is missing header cells (th elements)');
+    }
+
+    // Check for scope attributes on headers
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        issues.push('Header cell is missing scope attribute');
+      }
+    });
+
+    // Check for proper data cell associations
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length > 0 && !row.querySelector('th')) {
+        issues.push('Data row is missing a header cell');
+      }
+    });
+
+    return issues.length > 0 ? issues : null;
+  },
+
+  validateTableStructure: (table) => {
+    if (!table || !(table instanceof HTMLElement) || table.tagName !== 'TABLE') {
+      throw new Error('Invalid table element provided');
+    }
+
+    const issues = [];
+
+    // Check for proper table structure
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    const tfoot = table.querySelector('tfoot');
+
+    if (!thead) {
+      issues.push('Table is missing thead element');
+    }
+
+    if (!tbody) {
+      issues.push('Table is missing tbody element');
+    }
+
+    // Check for proper nesting
+    const directChildren = Array.from(table.children);
+    directChildren.forEach(child => {
+      if (!['THEAD', 'TBODY', 'TFOOT', 'CAPTION'].includes(child.tagName)) {
+        issues.push(`Table contains invalid direct child element: ${child.tagName}`);
+      }
+    });
+
+    return issues.length > 0 ? issues : null;
+  },
 
   // TODO: Validate the landmark structure for accessibility issues
-  validateLandmark,
-  validateLandmarkStructure,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
 
   // TODO: Extract the accessible name for an SVG from its content
-  getSvgAccessibleName,
+  getSvgAccessibleName: (svg) => {
+    if (!svg || !(svg instanceof HTMLElement) || svg.tagName !== 'SVG') {
+      throw new Error('Invalid SVG element provided');
+    }
+
+    // Check for aria-label
+    if (svg.hasAttribute('aria-label')) {
+      return svg.getAttribute('aria-label');
+    }
+
+    // Check for aria-labelledby
+    if (svg.hasAttribute('aria-labelledby')) {
+      const id = svg.getAttribute('aria-labelledby');
+      const labelElement = document.getElementById(id);
+      if (labelElement) {
+        return labelElement.textContent.trim();
+      }
+    }
+
+    // Check for title element
+    const title = svg.querySelector('title');
+    if (title) {
+      return title.textContent.trim();
+    }
+
+    // Check for desc element
+    const desc = svg.querySelector('desc');
+    if (desc) {
+      return desc.textContent.trim();
+    }
+
+    // Check for figcaption if SVG is in figure
+    const figure = svg.closest('figure');
+    if (figure) {
+      const caption = figure.querySelector('figcaption');
+      if (caption) {
+        return caption.textContent.trim();
+      }
+    }
+
+    return null;
+  },
 
   // TODO: Add a language attribute to the HTML element
-  getLangAttribute,
+  getLangAttribute: (element) => {
+    if (!element || !(element instanceof HTMLElement)) {
+      throw new Error('Invalid HTML element provided');
+    }
+
+    return element.getAttribute('lang') || element.getAttribute('xml:lang');
+  },
 
   // TODO: Validate the accessibility report for issues
-  validateAccessibilityReport,
+  validateAccessibilityReport: validateAccessibilityReport,
 
   // TODO: Address new accessibility issues from insight report ( implement new functions and fixes as needed)
 

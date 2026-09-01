@@ -15,6 +15,17 @@ function renderDependencyGraphs(svgElements) {
 }
 
 function checkLandmarkElements() {
+  const landmarkRoles = [
+    'banner',
+    'main',
+    'navigation',
+    'search',
+    'contentinfo',
+    'complementary',
+    'region',
+    'form'
+  ];
+
   const checkLandmarkElement = (selector, role, implicitRole) => {
     const elements = document.querySelectorAll(selector);
     elements.forEach((element) => {
@@ -31,17 +42,6 @@ function checkLandmarkElements() {
       }
     });
   };
-
-  const landmarkRoles = [
-    'banner',
-    'main',
-    'navigation',
-    'search',
-    'contentinfo',
-    'complementary',
-    'region',
-    'form'
-  ];
 
   checkLandmarkElement('[role="main"], main', 'main', {
     'main': 'main',
@@ -93,6 +93,3 @@ function countDependencies() {
 }
 
 // Rest of the code remains the same
-```
-
-This resolved the conflict by combining both changes and keeping both features. The `checkLandmarkElements` function now checks for landmark elements and warnings for duplicates, and the `sampleInsightReport` object is exported along with the `checkLandmarkElements` function. The rest of the file remains untouched.

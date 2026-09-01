@@ -10,8 +10,16 @@ const {
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
+  setSvgAccessibilityProps,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  ensureElementHasIdOrigin,
+  addAriaLabel: addAriaLabelAlt,
+  googleSignIn,
+  handleCredentialResponse: handleCredentialResponseAlt,
+  renderGraphIndex: renderGraphIndexUtil,
   addressAccessibilityIssues
-} = main
+} = require('./utilities');
 
 const http = require('http')
 
@@ -20,7 +28,7 @@ const renderGraphIndex = (graphData) => {
   renderDependencyGraphs(graphData);
 }
 
-const renderGraphIndex = (graphData) => {
+const renderGraphIndexAlt = (graphData) => {
   addressAccessibilityIssues();
   renderDependencyGraphs(graphData);
 }
@@ -478,4 +486,221 @@ function createInPageButton(text, targetId) {
   button.textContent = text;
   button.setAttribute('aria-label', `Scroll to ${text}`);
   button.addEventListener('click', () => {
-    const target = document
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+  return button;
+}
+
+// Consolidated accessibility issue handler
+function addressAccessibilityIssues(graphData) {
+  if (!graphData) return;
+
+  // Fix landmark issues
+  if (typeof fixLandmarkIssues === 'function') {
+    fixLandmarkIssues(graphData);
+  }
+
+  // Fix fake link issues
+  if (typeof fixFakeLinkIssues === 'function') {
+    fixFakeLinkIssues(graphData);
+  }
+
+  // Fix image alt texts
+  if (typeof fixImageAltTexts === 'function') {
+    fixImageAltTexts(graphData);
+  }
+
+  // Ensure unique landmarks
+  if (typeof uniqueLandmarks === 'function') {
+    uniqueLandmarks(graphData);
+  }
+
+  // Fix button identifiers
+  if (typeof fixButtonIdentifiers === 'function') {
+    fixButtonIdentifiers(graphData);
+  }
+
+  // Fix dependency graph ARIA attributes
+  if (typeof fixDependencyGraphAria === 'function') {
+    fixDependencyGraphAria(graphData);
+  }
+
+  // Add main landmark to index
+  if (typeof addMainLandmarkToIndex === 'function') {
+    addMainLandmarkToIndex(graphData);
+  }
+}
+
+/**
+ * Adds the lang attribute to the HTML element for proper accessibility.
+ * Addresses REACT_015 from the accessibility insight report.
+ * @param {HTMLElement} element - The HTML element to add the lang attribute to
+ * @param {string} [lang='en'] - The language code to set
+ * @returns {boolean} True if the lang attribute was added or changed
+ */
+function addLangAttribute(element, lang = 'en') {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+
+  if (typeof lang !== 'string' || lang.length === 0) {
+    throw new Error('Language code must be a non-empty string');
+  }
+
+  const existingLang = element.getAttribute('lang');
+
+  if (existingLang && existingLang.toLowerCase() === lang.toLowerCase()) {
+    return false;
+  }
+
+  element.setAttribute('lang', lang);
+  return true;
+}
+
+// Top-level jQuery implementation for accessibility enhancement
+$(document).ready(() => {
+  // Initialize skip links
+  if (typeof accessibilityUtils.initSkipLink === 'function') {
+    accessibilityUtils.initSkipLink();
+  }
+
+  // Wrap primary content in <main> landmark
+  wrapPrimaryContentInMain();
+
+  // Add language attribute to document
+  if (typeof addLangAttribute === 'function') {
+    addLangAttribute(document.documentElement);
+  }
+
+  // Fix table structure issues
+  if (typeof fixTableStructure === 'function') {
+    fixTableStructure();
+  }
+
+  // Add main landmark
+  if (typeof addMainLandmark === 'function') {
+    addMainLandmark();
+  }
+
+  // Ensure unique landmarks
+  if (typeof ensureUniqueLandmarks === 'function') {
+    ensureUniqueLandmarks();
+  }
+
+  // Set SVG accessibility properties
+  if (typeof setSvgAccessibilityProps === 'function') {
+    setSvgAccessibilityProps();
+  }
+
+  // Add accessible names to SVGs
+  if (typeof addAccessibleNamesToSVGs === 'function') {
+    addAccessibleNamesToSVGs();
+  }
+
+  // Fix fake link issues
+  if (typeof fixFakeLinkIssue === 'function') {
+    fixFakeLinkIssue();
+  }
+
+  // Fix landmark issues
+  if (typeof fixLandmarkIssues === 'function') {
+    fixLandmarkIssues();
+  }
+
+  // Add landmark regions
+  if (typeof addLandmarkRegions === 'function') {
+    addLandmarkRegions();
+  }
+
+  // Fix button identifiers
+  if (typeof fixButtonIdentifiers === 'function') {
+    fixButtonIdentifiers();
+  }
+
+  // Fix dependency graph ARIA
+  if (typeof fixDependencyGraphAria === 'function') {
+    fixDependencyGraphAria();
+  }
+
+  // Add main landmark to index
+  if (typeof addMainLandmarkToIndex === 'function') {
+    addMainLandmarkToIndex();
+  }
+
+  // Fix image alt texts
+  if (typeof fixImageAltTexts === 'function') {
+    fixImageAltTexts();
+  }
+
+  // Ensure unique landmarks
+  if (typeof uniqueLandmarks === 'function') {
+    uniqueLandmarks();
+  }
+
+  // Initialize focus traps
+  const focusableContainers = document.querySelectorAll('[data-focus-trap]');
+  focusableContainers.forEach(container => {
+    focusTrap(container);
+  });
+});
+
+// Export modules for testing
+module.exports = {
+    accessibilityUtils,
+    CONFIG,
+    log,
+    validateInput,
+    parseJSONsafe,
+    formatResponse,
+    delay,
+    retryOperation,
+    sanitizeFilename,
+    readFileSafe,
+    processData,
+    filterValidItems,
+    groupByCategory,
+    myNewFunction,
+    calculateSum,
+    ensureElementId,
+    addAriaLabel,
+    renderDependencyGraphs,
+    handleCredentialResponse,
+    focusTrap,
+    generateSessionId,
+    renderGraphIndex,
+    wrapPrimaryContentInMain,
+    addressAccessibilityIssues,
+    addLangAttribute,
+    createInPageButton,
+    createWebResourceButton,
+    validateLandmark,
+    validateLandmarkStructure,
+    validateAccessibilityReport,
+    getSvgAccessibleName,
+    getLangAttribute,
+    addAltAttribute,
+    replaceButtonId,
+    addAriaAttribute,
+    implementAccessibilityFixesFromReport,
+    ensureElementHasId,
+    ensureUniqueLandmarks,
+    addMainLandmark,
+    fixTableStructure,
+    addSvgAccessibleName,
+    fixFakeLinkIssue,
+    googleSignIn,
+    handleCredentialResponseAlt,
+    renderGraphIndexUtil,
+    setSvgAccessibilityProps,
+    addAccessibleNamesToSVGs,
+    addSvgAccessibleNames,
+    fixButtonIdentifiers,
+    fixDependencyGraphAria,
+    addMainLandmarkToIndex,
+    validateTableAccessibility,
+    validateTableStructure,
+    transformInputData
+};

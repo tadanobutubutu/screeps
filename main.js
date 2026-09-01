@@ -22,6 +22,35 @@ function validateLandmarkObject(landmark) {
   if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
     errors.push('Landmark must have a valid name');
   }
+
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+
+  if (Array.isArray(landmark)) {
+    landmark.forEach((innerLandmark, index) => {
+      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+        errors.push(`Landmark at index ${index} must have a valid name`);
+      }
+    });
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
 }
 
 // TODO: Identify and update specific functions that render dependency graphs or mark as N/A if none exist in this file
@@ -93,7 +122,7 @@ function getLangAttribute() {
 // REACT_015 & REACT_036: Create accessible in-page button
 function createInPageButton(buttonText, onClickHandler) {
   return (
-    <button 
+    <button
       onClick={onClickHandler}
       lang={getLangAttribute()}
     >
@@ -108,44 +137,13 @@ function validateTableAccessibility(tableElement) {
   // Check for proper table structure
   const hasCaption = tableElement.querySelector('caption');
   const hasHeaders = tableElement.querySelector('th');
-  
+
   if (!hasCaption) {
     issues.push('Table is missing a caption');
   }
   if (!hasHeaders) {
     issues.push('Table is missing header cells (th)');
-=======
-
-  if (!landmark) {
-    errors.push('Landmark is required');
-    return { valid: false, errors };
   }
-
-  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
-    errors.push('Landmark must have a valid name');
-  }
-
-  if (landmark.latitude === undefined || landmark.latitude === null) {
-    errors.push('Landmark must have a latitude');
-  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
-    errors.push('Landmark latitude must be a number');
-  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
-    errors.push('Landmark latitude must be between -90 and 90');
-  }
-
-  if (landmark.longitude === undefined || landmark.longitude === null) {
-    errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
-    errors.push('Landmark longitude must be a number');
-  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
-    errors.push('Landmark longitude must be between -180 and 180');
-  }
-
-  if (Array.isArray(landmark)) {
-    landmark.forEach((innerLandmark, index) => {
-      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
-        errors.push(`Landmark at index ${index} must have a valid name`);
-=======
 
   return issues;
 }
@@ -156,7 +154,7 @@ function validateLandmarkStructure() {
   const mainElement = document.querySelector('main');
   const headerElement = document.querySelector('header');
   const footerElement = document.querySelector('footer');
-  
+
   if (!mainElement) {
     issues.push('Missing main landmark');
   }
@@ -166,7 +164,7 @@ function validateLandmarkStructure() {
   if (!footerElement) {
     issues.push('Missing footer landmark');
   }
-  
+
   return issues;
 }
 
@@ -177,14 +175,14 @@ function getSvgAccessibleName(svgElement) {
   if (ariaLabel) {
     return ariaLabel;
   }
-  
+
   // Check for aria-labelledby
   const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
     const labelElement = document.getElementById(ariaLabelledby);
     return labelElement ? labelElement.textContent : '';
   }
-  
+
   // Check for title element inside SVG
   const titleElement = svgElement.querySelector('title');
   return titleElement ? titleElement.textContent : '';
@@ -204,14 +202,14 @@ function setSvgAttributes(svgElement, accessibleName) {
 function ensureUniqueLandmarks() {
   const issues = [];
   const landmarkTypes = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-  
+
   landmarkTypes.forEach(type => {
     const landmarks = document.querySelectorAll(`[role="${type}"]`);
     if (landmarks.length > 1) {
       issues.push(`Multiple ${type} landmarks found - should be unique`);
     }
   });
-  
+
   return issues;
 }
 
@@ -219,11 +217,11 @@ function ensureUniqueLandmarks() {
 function addProperLandmarkRegions() {
   const issues = [];
   const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
-  
+
   if (!mainContent) {
     issues.push('Missing main landmark region');
   }
-  
+
   return issues;
 }
 
@@ -233,19 +231,19 @@ function validateLinkAccessibility(linkElement) {
   const href = linkElement.getAttribute('href');
   const text = linkElement.textContent.trim();
   const ariaLabel = linkElement.getAttribute('aria-label');
-  
+
   if (!href || href === '#' || href === '') {
     issues.push('Link has no valid href attribute');
   }
-  
+
   if (!text && !ariaLabel) {
     issues.push('Link has no accessible name');
   }
-  
+
   if (linkElement.getAttribute('role') === 'link' && !href) {
     issues.push('Fake link detected without href');
   }
-  
+
   return issues;
 }
 
@@ -253,19 +251,19 @@ function validateLinkAccessibility(linkElement) {
 function handleFakeLinks() {
   const issues = [];
   const fakeLinks = document.querySelectorAll('[role="link"]');
-  
+
   fakeLinks.forEach((link, index) => {
     const href = link.getAttribute('href');
     if (!href) {
       issues.push(`Fake link ${index} has no href attribute`);
     }
-    
+
     // Convert fake link to accessible button if it's clickable
     if (link.tagName !== 'A' && link.onclick) {
       issues.push(`Consider using <button> instead of fake link ${index}`);
     }
   });
-  
+
   return issues;
 }
 
@@ -275,14 +273,14 @@ function function3(param1, param2) {
   if (!param1 || !param2) {
     return null;
   }
-  
+
   // Process parameters and return result
   const result = {
     combined: `${param1}-${param2}`,
     timestamp: Date.now(),
     validated: true
   };
-  
+
   return result;
 }
 
@@ -317,34 +315,50 @@ function AddBookForm({ onAddBook }) {
       setError('Title is required');
       if (titleInputRef.current) {
         titleInputRef.current.focus();
-=======
+      }
+      return;
+    }
 
-  if (landmark.latitude === undefined || landmark.latitude === null) {
-    errors.push('Landmark must have a latitude');
-  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
-    errors.push('Landmark latitude must be a number');
-  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
-    errors.push('Landmark latitude must be between -90 and 90');
-  }
+    if (!author.trim()) {
+      setError('Author is required');
+      return;
+    }
 
-  if (landmark.longitude === undefined || landmark.longitude === null) {
-    errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
-    errors.push('Landmark longitude must be a number');
-  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
-    errors.push('Landmark longitude must be between -180 and 180');
-  }
-
-  if (Array.isArray(landmark)) {
-    landmark.forEach((innerLandmark, index) => {
-      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
-        errors.push(`Landmark at index ${index} must have a valid name`);
-=======
-
-  return {
-    valid: errors.length === 0,
-    errors
+    onAddBook({ title, author });
+    setTitle('');
+    setAuthor('');
   };
+
+  return (
+    <form onSubmit={handleSubmit} ref={formRef}>
+      <div>
+        <label htmlFor="title">Title:</label>
+        <input
+          id="title"
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          ref={titleInputRef}
+          aria-invalid={error.includes('Title')}
+          aria-describedby="title-error"
+        />
+        {error.includes('Title') && <span id="title-error">{error}</span>}
+      </div>
+      <div>
+        <label htmlFor="author">Author:</label>
+        <input
+          id="author"
+          type="text"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          aria-invalid={error.includes('Author')}
+          aria-describedby="author-error"
+        />
+        {error.includes('Author') && <span id="author-error">{error}</span>}
+      </div>
+      <button type="submit">Add Book</button>
+    </form>
+  );
 }
 
 function ensureLandmarkUniqueness(elements) {
@@ -401,67 +415,14 @@ function processData(data) {
     processed: true,
     data: data,
     timestamp: Date.now()
-
-  const validateInput = (input) => input !== null && input !== undefined;
-
-  const BookItem = ({ book }) => {
-    return (
-      <List.Item key={generateKey(book)}>
-        <List.Item.Meta
-          title={book.title}
-          description={`by ${book.author}`}
-        />
-      </List.Item>
-    );
   };
+}
 
-  const BookForm = () => {
-    const dispatch = useDispatch();
+const validateInput = (input) => input !== null && input !== undefined;
 
-    // Define state for the form inputs
-    const [title, setTitle] = useState('');
-    const [author, setAuthor] = useState('');
-
-    // Handle input changes
-    const handleTitleChange = (e) => setTitle(e.target.value);
-    const handleAuthorChange = (e) => setAuthor(e.target.value);
-
-    // Handle form submission
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      // Perform any necessary validation or processing before adding the book
-      // ...
-
-      // Dispatch an action to add the book to the books list in the Redux store
-      dispatch({ type: 'ADD_BOOK', payload: { title, author } });
-    };
-
-    return (
-      <form onSubmit={handleSubmit}>
-        <Form.Item
-          label="Title"
-          required
-          validationRules={[Rules.required]}
-        >
-          <Input value={title} onChange={handleTitleChange}/>
-        </Form.Item>
-        <Form.Item
-          label="Author"
-          required
-          validationRules={[Rules.required]}
-        >
-          <Input value={author} onChange={handleAuthorChange}/>
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
-      </form>
-    );
-  };
-
-  return { BookForm, BookItem };
+function main() {
+  initializeApp();
+  setupHandlers();
 }
 
 if (require.main === module) {
@@ -481,5 +442,21 @@ module.exports = {
   makeApiCall,
   BookItem,
   BookForm,
-  main
+  AddBookForm,
+  main,
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  addProperLandmarkRegions,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  function3,
+  defaultSorting,
+  onTitleSort,
+  onAuthorSort,
+  generateKey
 };

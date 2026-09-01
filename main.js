@@ -55,6 +55,38 @@ function countDependencies() {
   return require.main.requires.length;
 }
 
+/**
+ * Function to render dependency graphs
+ * @returns {Object} An object containing the dependency graph visualization data
+ */
+function renderDependencyGraph() {
+  const dependencies = require.main.requires || [];
+  const graph = {
+    nodes: [],
+    edges: []
+  };
+
+  // Extract unique dependencies as nodes
+  const uniqueDeps = [...new Set(dependencies)];
+  uniqueDeps.forEach((dep, index) => {
+    graph.nodes.push({
+      id: `dep-${index}`,
+      label: dep,
+      type: 'dependency'
+    });
+  });
+
+  // Create edges from main module to dependencies
+  uniqueDeps.forEach((dep, index) => {
+    graph.edges.push({
+      source: 'main',
+      target: `dep-${index}`
+    });
+  });
+
+  return graph;
+}
+
 // Additional functions to address accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   // Implement function to address the reported accessibility issues
@@ -239,6 +271,7 @@ module.exports = {
   handleAddLangAttribute,
   newFunctionality,
   countDependencies,
+  renderDependencyGraph,
   addressAccessibilityIssues,
   generateAccessibilityReport,
   calculateAccessibilityScore,

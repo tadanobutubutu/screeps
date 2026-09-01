@@ -157,7 +157,7 @@ function addLandmarkRoles() {
   if (mainElement && mainElement.setAttribute) {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   const navElement = document.querySelector('nav');
   if (navElement && navElement.setAttribute) {
     navElement.setAttribute('role', 'navigation');
@@ -379,7 +379,7 @@ function addressAccessibilityIssues(insightReport) {
 
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -390,7 +390,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -405,7 +405,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -420,7 +420,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -434,7 +434,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -449,7 +449,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
@@ -463,13 +463,71 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check SVG accessibility
   const svgAccessibleNames = getSvgAccessibleName();
 
   return issues;
 }
 
+// NEW: Credential response handling functions
+function handleCredentialResponse(response) {
+  if (!response || !response.credential) {
+    console.error('Invalid credential response');
+    return null;
+  }
+
+  try {
+    // Decode the credential response
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+
+    // Store the user information in app state
+    appState.user = {
+      id: payload.sub,
+      email: payload.email,
+      name: payload.name,
+      picture: payload.picture,
+      authenticated: true
+    };
+
+    console.log('Credential processed successfully');
+    return appState.user;
+  } catch (error) {
+    console.error('Error processing credential:', error);
+    return null;
+  }
+}
+
+function verifyCredentialResponse(response) {
+  if (!response || !response.credential) {
+    return false;
+  }
+
+  try {
+    // Basic verification - in a real app, you would verify the JWT signature
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    return !!payload.sub && !!payload.email;
+  } catch (error) {
+    console.error('Credential verification failed:', error);
+    return false;
+  }
+}
+
+function getCurrentUser() {
+  return appState.user || null;
+}
+
+// Update exports to include new credential functions
 module.exports = {
+  User,
+  spawnNewUser,
+  config,
+  initialize,
+  initializeApp,
+  main,
+  visualizeDependencyTree,
+  handleCredentialResponse,
+  verifyCredentialResponse,
+  getCurrentUser,
   someFunction
 };

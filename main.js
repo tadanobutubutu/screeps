@@ -12,14 +12,30 @@ function addBook() {
 
   // Add ARIA roles and labels to improve accessibility
   const addBookForm = document.getElementById('addBookForm');
-  addBookForm.setAttribute('role', 'form');
-  addBookForm.setAttribute('aria-labelledby', 'addBookLabel');
+  if (addBookForm) {
+    addBookForm.setAttribute('role', 'form');
+    addBookForm.setAttribute('aria-labelledby', 'addBookLabel');
 
-  const addBookLabel = document.createElement('label');
-  addBookLabel.id = 'addBookLabel';
-  addBookLabel.htmlFor = 'addBookForm';
-  addBookLabel.textContent = 'Add a new book';
-  addBookForm.insertBefore(addBookLabel, addBookForm.firstChild);
+    const addBookLabel = document.createElement('label');
+    addBookLabel.id = 'addBookLabel';
+    addBookLabel.htmlFor = 'addBookForm';
+    addBookLabel.textContent = 'Add a new book';
+    addBookForm.insertBefore(addBookLabel, addBookForm.firstChild);
+
+    // Add accessibility attributes to form inputs
+    const inputs = addBookForm.querySelectorAll('input');
+    inputs.forEach(input => {
+      if (!input.getAttribute('aria-label') && !input.getAttribute('aria-labelledby')) {
+        input.setAttribute('aria-label', input.placeholder || input.name);
+      }
+    });
+
+    // Add submit button with proper ARIA
+    const submitButton = addBookForm.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.setAttribute('aria-label', 'Submit new book');
+    }
+  }
 }
 
 // ... (rest of the existing code from main.js)

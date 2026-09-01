@@ -177,21 +177,159 @@ module.exports = {
   createWebResourceButton: createWebResourceButton,
 
   // TODO: Validate the table structure for accessibility issues
-  validateTableAccessibility,
-  validateTableStructure,
+  validateTableAccessibility: (table) => {
+    if (!table || !(table instanceof HTMLElement) || table.tagName !== 'TABLE') {
+      throw new Error('Invalid table element provided');
+    }
+
+    const issues = [];
+
+    // Check for missing table headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      issues.push('Table is missing header cells (th elements)');
+    }
+
+    // Check for scope attributes on headers
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        issues.push('Header cell is missing scope attribute');
+      }
+    });
+
+    // Check for missing captions
+    const caption = table.querySelector('caption');
+    if (!caption) {
+      issues.push('Table is missing a caption');
+    }
+
+    // Check for proper table structure (thead, tbody, tfoot)
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    const tfoot = table.querySelector('tfoot');
+
+    if (!thead) {
+      issues.push('Table is missing thead section');
+    }
+
+    if (!tbody) {
+      issues.push('Table is missing tbody section');
+    }
+
+    // Check for data cells in header rows
+    const headerRows = table.querySelectorAll('thead tr');
+    headerRows.forEach(row => {
+      const dataCells = row.querySelectorAll('td');
+      if (dataCells.length > 0) {
+        issues.push('Header row contains data cells (td elements)');
+      }
+    });
+
+    return issues.length > 0 ? issues : null;
+  },
+
+  validateTableStructure: (table) => {
+    if (!table || !(table instanceof HTMLElement) || table.tagName !== 'TABLE') {
+      throw new Error('Invalid table element provided');
+    }
+
+    const issues = [];
+
+    // Check for proper table structure
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    const tfoot = table.querySelector('tfoot');
+
+    if (!thead) {
+      issues.push('Table is missing thead section');
+    }
+
+    if (!tbody) {
+      issues.push('Table is missing tbody section');
+    }
+
+    // Check for empty table
+    if (thead && thead.children.length === 0 && tbody && tbody.children.length === 0) {
+      issues.push('Table is empty (no rows in thead or tbody)');
+    }
+
+    // Check for proper row structure
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('th, td');
+      if (cells.length === 0) {
+        issues.push('Row is missing cells (th or td elements)');
+      }
+    });
+
+    return issues.length > 0 ? issues : null;
+  },
 
   // TODO: Validate the landmark structure for accessibility issues
-  validateLandmark,
-  validateLandmarkStructure,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
 
   // TODO: Extract the accessible name for an SVG from its content
-  getSvgAccessibleName,
+  getSvgAccessibleName: (svg) => {
+    if (!svg || !(svg instanceof HTMLElement) || svg.tagName !== 'SVG') {
+      throw new Error('Invalid SVG element provided');
+    }
+
+    // Check for aria-label attribute
+    if (svg.hasAttribute('aria-label')) {
+      return svg.getAttribute('aria-label');
+    }
+
+    // Check for aria-labelledby attribute
+    if (svg.hasAttribute('aria-labelledby')) {
+      const id = svg.getAttribute('aria-labelledby');
+      const labelledByElement = document.getElementById(id);
+      if (labelledByElement) {
+        return labelledByElement.textContent.trim();
+      }
+    }
+
+    // Check for title element
+    const title = svg.querySelector('title');
+    if (title) {
+      return title.textContent.trim();
+    }
+
+    // Check for desc element
+    const desc = svg.querySelector('desc');
+    if (desc) {
+      return desc.textContent.trim();
+    }
+
+    // Check for figcaption if SVG is inside figure
+    const figure = svg.closest('figure');
+    if (figure) {
+      const caption = figure.querySelector('figcaption');
+      if (caption) {
+        return caption.textContent.trim();
+      }
+    }
+
+    // Check for text content
+    const textContent = svg.textContent.trim();
+    if (textContent.length > 0) {
+      return textContent;
+    }
+
+    return null;
+  },
 
   // TODO: Add a language attribute to the HTML element
-  getLangAttribute,
+  getLangAttribute: (element) => {
+    if (!element || !(element instanceof HTMLElement)) {
+      throw new Error('Invalid HTML element provided');
+    }
+
+    return element.getAttribute('lang') || element.getAttribute('xml:lang');
+  },
 
   // TODO: Validate the accessibility report for issues
-  validateAccessibilityReport,
+  validateAccessibilityReport: validateAccessibilityReport,
 
   // TODO: Address new accessibility issues from insight report ( implement new functions and fixes as needed)
 

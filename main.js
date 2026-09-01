@@ -16,10 +16,10 @@ class ScreepsBot {
   async start() {
     // Initialize network connection
     await this.network.connect();
-    
+
     // Load initial data
     await this.loadData();
-    
+
     console.log('Screenspider bot started');
   }
 
@@ -59,6 +59,35 @@ class ScreepsBot {
         console.error(`Task failed: ${err.message}`);
       }
     }
+  }
+
+  // TODO: Implement the new function as per the issue requirements
+  /**
+   * New function to process tasks in batches
+   * @param {number} batchSize - Number of tasks to process in each batch
+   * @returns {Promise<void>} Resolves when all batches are processed
+   */
+  async processTasksInBatches(batchSize = 5) {
+    if (this.tasks.length === 0) return;
+
+    // Sort tasks by priority before processing
+    this.scheduleTasks();
+
+    // Process tasks in batches
+    for (let i = 0; i < this.tasks.length; i += batchSize) {
+      const batch = this.tasks.slice(i, i + batchSize);
+
+      await Promise.all(batch.map(async (taskItem) => {
+        try {
+          await taskItem.task();
+        } catch (err) {
+          console.error(`Batch task failed: ${err.message}`);
+        }
+      }));
+    }
+
+    // Clear processed tasks
+    this.tasks = [];
   }
 }
 

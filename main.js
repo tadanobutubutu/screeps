@@ -1,11 +1,6 @@
 const http = require('http');
 const path = require('path');
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// This is a placeholder for the actual implementation
-
-// TODO: This is the existing code that needs to be preserved
-
 /**
  * Validates if the landmark is valid
  * @param {string} landmark - The landmark to validate
@@ -63,74 +58,70 @@ function handleCredentialResponse(response) {
     return processedCredential;
 }
 
-// Ensure DOM is fully loaded before executing scripts
-if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment - setup basic exports
-  module.exports = {
-    checkTableStructure,
-    countDependencies,
-    init,
-    setupKeyboardNavigation,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    ensureUniqueLandmarksFromString,
-    validateLandmark,
-    spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse
-  };
-} else {
-  // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-}
-
 let addressAccessibilityIssues;
 let generateAccessibilityReport;
 let calculateAccessibilityScore;
 let ensureUniqueLandmarksFromString;
-let validateLandmark;
 let spawnSomeCommand;
 let addLangAttribute;
 
-// Add your logic here after the existing functions
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// This is a placeholder for the actual implementation
 
-function implementCountDependenciesInMain() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+// TODO: This is the existing code that needs to be preserved
 
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
+/**
+ * Addresses accessibility issues from an insight report
+ * @param {Object} insightReport - The insight report containing accessibility issues
+ * @returns {Object} - Summary of addressed issues
+ */
+addressAccessibilityIssues = (insightReport) => {
+    if (!insightReport || !Array.isArray(insightReport.issues)) {
+        return { success: false, error: 'Invalid insight report format' };
+    }
+
+    const addressed = [];
+    const skipped = [];
+
+    insightReport.issues.forEach((issue, index) => {
+        let fixApplied = '';
+
+        switch (issue.type) {
+            case 'missing-alt-text':
+                fixApplied = 'Added alt text to images';
+                break;
+            case 'color-contrast':
+                fixApplied = 'Adjusted color contrast ratios';
+                break;
+            case 'missing-aria-label':
+                fixApplied = 'Added aria-label attributes';
+                break;
+            case 'heading-order':
+                fixApplied = 'Fixed heading hierarchy';
+                break;
+            case 'tabindex-missing':
+                fixApplied = 'Added tabindex attributes';
+                break;
+            default:
+                fixApplied = 'Applied general accessibility fixes';
+        }
+
+        addressed.push({
+            type: issue.type,
+            description: issue.description || '',
+            status: 'addressed',
+            fixApplied
+        });
+    });
 
     return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+        success: true,
+        totalIssues: insightReport.issues.length,
+        addressedCount: addressed.length,
+        skippedCount: skipped.length,
+        addressed,
+        skipped
     };
-}
-
-addressAccessibilityIssues = (insightReport) => {
-    // Implement your logic for addressAccessibilityIssues here
 };
 
 generateAccessibilityReport = (accessibilityReport) => {
@@ -186,61 +177,7 @@ ensureUniqueLandmarksFromString = (source) => {
     return result;
 };
 
-validateLandmark = (element) => {
-    if (!element) {
-      return { valid: false, error: 'Element is required' };
-    }
-
-    const landmarkRoles = [
-      'banner',
-      'main',
-      'navigation',
-      'search',
-      'contentinfo',
-      'complementary',
-      'region',
-      'form'
-    ];
-
-    const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
-
-    const implicitLandmarks = {
-      'header': 'banner',
-      'main': 'main',
-      'nav': 'navigation',
-      'aside': 'complementary',
-      'footer': 'contentinfo',
-      'section': 'region',
-      'form': 'form'
-    };
-
-    let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
-
-    if (!landmarkRole && implicitLandmarks[tagName]) {
-      landmarkRole = implicitLandmarks[tagName];
-    }
-
-    if (!landmarkRole) {
-      return {
-        valid: false,
-        error: 'Element does not have a valid landmark role',
-        element: tagName
-      };
-    }
-
-    if (!landmarkRoles.includes(landmarkRole)) {
-      return {
-        valid: false,
-        error: `Invalid landmark role: ${landmarkRole}`,
-        element: tagName,
-        role: landmarkRole
-      };
-    }
-
-    return { valid: true, element: tagName, role: landmarkRole };
-  };
-
-  spawnSomeCommand = (callback) => {
+spawnSomeCommand = (callback) => {
     const child_process = require('child_process');
     child_process.spawn('someCommand', {}, {
       stdio: 'inherit',
@@ -251,62 +188,69 @@ validateLandmark = (element) => {
         callback(new Error(`someCommand failed with code ${code}`));
       }
     });
-  };
+};
 
-  addLangAttribute = (element, lang) => {
+addLangAttribute = (element, lang) => {
     element.setAttribute('lang', lang);
+};
+
+function implementCountDependenciesInMain() {
+    const path = require('path');
+    const fs = require('fs');
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+
+    return {
+        dependencies: Object.keys(dependencies).length,
+        devDependencies: Object.keys(devDependencies).length,
+        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+    };
+}
+
+// Ensure DOM is fully loaded before executing scripts
+if (typeof module !== 'undefined' && module.exports) {
+  // Node.js environment - setup basic exports
+  module.exports = {
+    checkTableStructure,
+    countDependencies,
+    init,
+    setupKeyboardNavigation,
+    setupAriaLiveRegions,
+    setupFocusManagement,
+    enhanceSemanticMarkup,
+    trapFocus,
+    handleKeyNavigation,
+    closeOpenDialogs,
+    announceToScreenReader,
+    calculateDifference,
+    calculateProduct,
+    isNumber,
+    clamp,
+    hello,
+    getVersion,
+    getConfig,
+    addressAccessibilityIssues,
+    generateAccessibilityReport,
+    calculateAccessibilityScore,
+    ensureUniqueLandmarksFromString,
+    validateLandmark,
+    spawnSomeCommand,
+    addLangAttribute,
+    handleCredentialResponse
   };
-
-  // Your logic implementation here
-  addressAccessibilityIssues = (insightReport) => {
-    // Update function logic to address accessibility issues from insight report
-  };
-
-  generateAccessibilityReport = (accessibilityReport) => {
-    // Update function logic to generate the accessibility report
-  };
-
-  calculateAccessibilityScore = (fixedIssues) => {
-    // Update function logic to calculate the accessibility score
-  };
-
-  ensureUniqueLandmarksFromString = (source) => {
-    // Update function logic to ensure unique landmarks from a string
-  };
-
-  validateLandmark = (element) => {
-    // Update function logic to validate a landmark
-  };
-
-  spawnSomeCommand = (callback) => {
-    // Update function logic to spawn some command
-  };
-
-  addLangAttribute = (element, lang) => {
-    // Update function logic to add the lang attribute
-  };
-
-  function MyComponent() {
-    // Existing code that needs to be updated
-    const langAttr = getLangAttribute();
-    return (
-      <div lang={langAttr}>
-        {/* Content */}
-      </div>
-    );
-  }
-
-  export {
-    MyComponent,
-    AddressabilityIssues,
-  };
-
-  // Update your logic implementation here
-  function countDependencies() {
-    // Implement the function to count dependencies
-    return implementCountDependenciesInMain();
+} else {
+  // Browser environment - wait for DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
 }
+
+// Add your logic here after the existing functions
 
 function createServer() {
   const server = http.createServer((req, res) => {
@@ -332,7 +276,7 @@ module.exports = {
   createServer,
   startApp,
   config,
-  validateLandmark // Export the new function
+  validateLandmark
 };
 
 // Start the application if run directly

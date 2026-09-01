@@ -111,219 +111,124 @@ const renderIndexView = (data) => {
   };
 };
 
-// Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
-
-function newFocusTrap() {
-  // New function implementation: traps focus within a given element
-  return (element) => {
-    if (!element) return;
-    const focusable = element.querySelectorAll(
-      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
-    );
-    if (focusable.length === 0) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === first) {
-          last.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          first.focus();
-          e.preventDefault();
-        }
-      }
-    });
-  };
-}
-
-// Add back any required exports that might have been removed.
-function calculateSum(a, b) { return a + b; }
-
-// Credential response handling
-async function handleCredentialResponse(response) {
-  if (!response) {
-    throw new Error('No response received');
-  }
-  
-  if (response.error) {
-    throw new Error(response.error);
-  }
-  
-  if (response.token) {
-    return {
-      success: true,
-      token: response.token,
-      expiresIn: response.expiresIn || 36000
-    };
-  }
-  
-  throw new Error('Invalid credential response');
-}
-
-// Existing utility functions
-function log(message, level = 'info') {
-  const timestamp = new Date().toISOString();
-  console[level](`[${timestamp}] ${message}`);
-}
-
-// Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
-
-// New accessibility functions implementation
-function getLangAttribute(element, lang) {
+// Extended accessibility functions
+const getLangAttribute = (element, lang) {
   if (element) {
     element.setAttribute('lang', lang || 'en');
   }
-  return element;
-}
-
-// Module-level function definitions
-function affectedFunction() {
-  // Function implementation
-  return 'affected function result';
-}
-
-function updateFunction() {
-  // Function implementation
-  return 'update function result';
-}
-
-function accessibleFunction() {
-  // Function implementation
-  return 'accessible function result';
-}
-
-// Export functionality with accessibility support
-const exportUtils = {
-  exportData: (data, filename, mimeType) => {
-    const blob = new Blob([data], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.setAttribute('aria-label', `Download ${filename}`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    // Announce download completion to screen readers
-    accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
-  },
-
-  exportToJSON: (data, filename) => {
-    const jsonString = JSON.stringify(data, null, 2);
-    exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
-  },
-
-  exportToCSV: (data, filename) => {
-    if (!data || data.length === 0) return;
-    
-    const headers = Object.keys(data[0]);
-    const csvRows = [];
-    csvRows.push(headers.join(','));
-    
-    for (const row of data) {
-      const values = headers.map(header => {
-        const escaped = ('' + row[header]).replace(/"/g, '\\"');
-        return `"${escaped}"`;
-      });
-      csvRows.push(values.join(','));
-    }
-    
-    const csvString = csvRows.join('\n');
-    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
-  }
+  return lang || 'en';
 };
 
-function sanitizeFilename(filename) {
-  return filename.replace(/[^a-z0-9_\-\.]/gi, '_');
-}
-
-function readFileSafe(filePath) {
-  try {
-    const fs = require('fs');
-    return fs.readFileSync(filePath, 'utf8');
-  } catch (error) {
-    log(`Error reading file ${filePath}: ${error.message}`, 'error');
-    return null;
-  }
-}
-
-// Initialize accessibility features
-const initAccessibility = () => {
-  accessibilityUtils.initSkipLink();
+const detectAndSetLang = (content) => {
+  // Simple language detection based on common patterns
+  let lang = 'en'; // Default to English
   
-  // Add keyboard support for navigation
-  document.addEventListener('keydown', (e) => {
-    accessibilityUtils.handleKeyboardNav(e, {
-      Escape: () => {
-        // Close modals or dropdowns
+  if (content) {
+    // Check for common non-ASCII characters to help detect language
+    if (/[\u4e00-\u9fff]/u.test(content)) {
+      lang = 'zh'; // Chinese
+    } else if (/[\u3040-\u309F\u30A0-\u30FF]/u.test(content)) {
+      lang = 'ja'; // Japanese
+    } else if (/[\u0400-\u04FF]/u.test(content)) {
+      lang = 'ru'; // Russian/Cyrillic
+    } else if (/[\u0600-\u06FF]/u.test(content)) {
+      lang = 'ar'; // Arabic
+    } else if (/[àâçéèêëîïôùûüÿæœ]/i.test(content)) {
+      lang = 'fr'; // French
+    } else if (/[äöüß]/i.test(content)) {
+      lang = 'de'; // German
+    }
+  }
+  
+  return lang;
+};
+
+const setHtmlLangAttribute = (lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang || 'en';
+  }
+  return lang || 'en';
+};
+
+const validateTableAccessibility = (tableElement) => {
+  if (typeof document === 'undefined' || !tableElement) {
+    return { valid: false, errors: ['Table element not found or document not available'] };
+  }
+  
+  const errors = [];
+  
+  // Check if table has proper structure
+  if (!tableElement.querySelector('thead')) {
+    errors.push('Table is missing <thead> element');
+  }
+  
+  if (!tableElement.querySelector('tbody')) {
+    errors.push('Table is missing <tbody> element');
+  }
+  
+  // Check for th elements in thead
+  const thead = tableElement.querySelector('thead');
+  const thElements = thead ? Array.from(thead.querySelectorAll('th')) : [];
+  if (thElements.length === 0) {
+    errors.push('Table header row is missing <th> elements');
+  }
+  
+  // Check that all th elements have scope attributes
+  thElements.forEach((th, index) => {
+    if (!th.getAttribute('scope')) {
+      errors.push(`Table header cell ${index + 1} is missing scope attribute`);
+    }
+  });
+  
+  // Check for proper caption or summary
+  const hasCaption = tableElement.querySelector('caption');
+  const hasSummary = tableElement.getAttribute('summary') || tableElement.getAttribute('aria-describedby');
+  if (!hasCaption && !hasSummary) {
+    errors.push('Table is missing a caption or aria-describedby for accessibility');
+  }
+  
+  return { valid: errors.length === 0, errors };
+};
+
+const validateTableStructure = (tableElement) => {
+  if (typeof document === 'undefined' || !tableElement) {
+    return { valid: false, errors: ['Table element not found'] };
+  }
+  
+  const errors = [];
+  const rows = Array.from(tableElement.querySelectorAll('tr'));
+  
+  rows.forEach((row, rowIndex) => {
+    const cells = Array.from(row.querySelectorAll('th, td'));
+    const cellCount = cells.length;
+    
+    // Check for empty cells
+    cells.forEach((cell, cellIndex) => {
+      if (!cell.textContent.trim()) {
+        errors.push(`Row ${rowIndex + 1}, Cell ${cellIndex + 1} is empty`);
       }
     });
+    
+    // Check that rows have consistent cell counts
+    if (rowIndex > 0) {
+      const prevRow = rows[rowIndex - 1];
+      const prevCells = Array.from(prevRow.querySelectorAll('th, td'));
+      if (cellCount !== prevCells.length) {
+        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
+      }
+    }
   });
+  
+  return { valid: errors.length === 0, errors };
 };
 
-// Main entry point
-function main() {
-  // Application initialization
-  return 'main function executed';
-}
-
-// Export functions to make them accessible
-module.exports = {
-  accessibilityUtils,
-  exportUtils,
-  initAccessibility,
-  handleCredentialResponse,
-  ensureElementId,
-  addAriaLabel,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  getLangAttribute,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createInPageButton,
-  ensureUniqueLandmarks,
-  newFocusTrap,
-  transformInputData,
-  dependencyGraphContent,
-  indexContent,
-  affectedFunction,
-  updateFunction,
-  accessibleFunction,
-  main,
-  log,
-  sanitizeFilename,
-  readFileSafe
-};
-
-// Also attach to global scope for browser/standalone access
-if (typeof window !== 'undefined') {
-  window.affectedFunction = affectedFunction;
-  window.updateFunction = updateFunction;
-  window.accessibleFunction = accessibleFunction;
-  window.main = main;
-  window.accessibilityUtils = accessibilityUtils;
-  window.ensureElementId = ensureElementId;
-  window.addAriaLabel = addAriaLabel;
-  window.renderDependencyGraph = renderDependencyGraph;
-  window.renderIndexView = renderIndexView;
-  window.getLangAttribute = getLangAttribute;
-}
+const validateLandmark = (element) => {
+  if (typeof document === 'undefined' || !element) {
+    return { valid: false, errors: ['Element not found'] };
+  }
+  
+  const errors = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article', 'search'];
+  
+  // Check if element is a valid landmark
+  const role =

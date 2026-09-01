@@ -719,18 +719,32 @@ function processAccessibilityReport(report) {
   return findings;
 }
 
-// Example usage of the new function (if applicable)
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
+// New function to apply all accessibility fixes
+function applyAccessibilityFixes() {
+  // Apply language attribute
+  setLanguageAttribute();
 
-// TODO: Add any other missing exports that might have been?
-// Added missing exports as per the issue
-// ==============================================================================
-// Resolved Merge Conflict
-// Combined HEAD and origin/main changes while preserving all functionality
-// ==============================================================================
+  // Add landmark roles
+  addLandmarkRoles();
 
-// Add back removed exports
+  // Ensure unique landmarks
+  ensureUniqueLandmarks();
+
+  // Fix fake links
+  fixFakeLinks();
+
+  // Add accessible names to SVGs
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      setSvgAttributes(svg, getSvgAccessibleName());
+    }
+  });
+
+  console.log('Accessibility fixes applied');
+}
+
+// Add the new function to the exports
 export {
   config,
   appState,
@@ -777,7 +791,9 @@ export {
   AddBookForm,
   defaultSorting,
   onTitleSort,
-  onAuthorSort
+  onAuthorSort,
+  // New export for accessibility fixes
+  applyAccessibilityFixes
 };
 
 export default Main;

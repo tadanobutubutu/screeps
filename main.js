@@ -17,13 +17,26 @@
     // - Ensured keyboard navigation support
     // - Added focus management
 
-    // Application configuration
+    // Application configuration - merged from both versions
     const config = {
       name: 'MyApp',
       version: '1.0.0',
       debug: false,
       dataPath: './data',
-      maxResults: 100
+      maxResults: 100,
+      apiUrl: process.env.API_URL || 'https://example.com',
+      timeout: 5000
+    };
+
+    // Alternative config style for backwards compatibility
+    const CONFIG = config;
+
+    // App state with accessibility updates
+    const appState = {
+      initialized: false,
+      data: null,
+      cache: {},
+      lang: 'en'
     };
 
     // Some existing utility functions
@@ -68,6 +81,132 @@
         return `<html${attrs} lang="${lang}">`;
       });
     }
+
+    // REACT_015: Add lang attribute to document
+    function ensureLangAttribute() {
+      if (document.documentElement.getAttribute('lang') === null) {
+        document.documentElement.setAttribute('lang', document.documentElement.lang || 'en');
+      }
+    }
+
+    // REACT_027: Fix table structure issues
+    function fixTableStructure() {
+      const tables = document.querySelectorAll('table');
+      tables.forEach((table, index) => {
+        if (!table.querySelector('caption')) {
+          const caption = document.createElement('caption');
+          caption.textContent = `Table ${index + 1}`;
+          table.insertBefore(caption, table.firstChild);
+        }
+
+        const headers = table.querySelectorAll('th');
+        const cells = table.querySelectorAll('td, th');
+
+        cells.forEach(cell => {
+          if (!cell.hasAttribute('scope') && !cell.hasAttribute('headers')) {
+            const isHeader = cell.tagName === 'TH';
+            if (isHeader) {
+              cell.setAttribute('scope', 'col');
+            }
+          }
+        });
+      });
+    }
+
+    // REACT_017 & REACT_025: Fix and ensure unique landmarks
+    function fixLandmarks() {
+      const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
+      const landmarkCounts = {};
+
+      landmarkSelectors.forEach(selector => {
+        landmarkCounts[selector] = 0;
+      });
+
+      document.querySelectorAll(landmarkSelectors.join(', ')).forEach(element => {
+        const tagName = element.tagName.toLowerCase();
+
+        if (landmarkCounts[tagName] > 0 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+          landmarkCounts[tagName]++;
+          element.setAttribute('aria-label', `${tagName}-${landmarkCounts[tagName]}`);
+        } else if (landmarkCounts[tagName] === 0) {
+          landmarkCounts[tagName]++;
+        }
+      });
+    }
+
+    // REACT_041: Add accessible names to SVGs
+    function addSvgAccessibleNames() {
+      const svgs = document.querySelectorAll('svg');
+      svgs.forEach((svg, index) => {
+        if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
+          const title = document.createElement('title');
+          title.textContent = `SVG icon ${index + 1}`;
+          title.id = `svg-title-${index + 1}`;
+          svg.insertBefore(title, svg.firstChild);
+          svg.setAttribute('aria-labelledby', title.id);
+        }
+      });
+    }
+
+    // REACT_040: Replace my-button with actual button id for accessibility
+    function replaceButtonIds() {
+      const fakeButtons = document.querySelectorAll('[id="my-button"], .my-button');
+      fakeButtons.forEach((button, index) => {
+        const newId = `accessible-button-${index + 1}`;
+        if (button.id === 'my-button') {
+          button.id = newId;
+        }
+        if (button.classList.contains('my-button')) {
+          button.classList.remove('my-button');
+          button.classList.add(newId);
+        }
+      });
+    }
+
+    // REACT_042: Ensure dependencyGraph container has proper ARIA role
+    function ensureDependencyGraphAriaRole() {
+      const dependencyGraph = document.querySelector('#dependencyGraph, .dependencyGraph, [data-dependency-graph]');
+      if (dependencyGraph) {
+        if (!dependencyGraph.getAttribute('role')) {
+          dependencyGraph.setAttribute('role', 'region');
+        }
+        if (!dependencyGraph.getAttribute('aria-label')) {
+          dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+        }
+      }
+    }
+
+    // REACT_037: Google sign-in logic
+    const googleSignIn = {
+      initialize: function(clientId) {
+        if (typeof google !== 'undefined' && google.accounts) {
+          google.accounts.id.initialize({
+            client_id: clientId,
+            callback: this.handleCredentialResponse.bind(this)
+          });
+          return true;
+        }
+        return false;
+      },
+
+      renderButton: function(elementId) {
+        const element = document.getElementById(elementId);
+        if (element && typeof google !== 'undefined' && google.accounts) {
+          google.accounts.id.renderButton(element, {
+            theme: 'outline',
+            size: 'large',
+            text: 'sign_in_with'
+          });
+          return true;
+        }
+        return false;
+      },
+
+      handleCredentialResponse: function(response) {
+        console.log('Google Sign-In successful');
+        return response;
+      }
+    };
 
     // DOM Elements
     const dependencyGraph = typeof document !== 'undefined' ? document.getElementById('dependencyGraph') : null;
@@ -133,10 +272,15 @@
 
     // Function to fix fake links (links without href)
     function fixFakeLinks() {
-      const fakeLinks = document.querySelectorAll('a:not([href])');
-      fakeLinks.forEach(link => {
-        if (!link.getAttribute('role')) {
-          link.setAttribute('role', 'button');
+      document.querySelectorAll('a').forEach(link => {
+        const href = link.getAttribute('href');
+        if (!href || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;') {
+          if (link.querySelector('button') || link.getAttribute('role') === 'button') {
+            link.setAttribute('role', 'button');
+            if (!link.id) {
+              link.id = `button-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            }
+          }
         }
       });
     }
@@ -288,22 +432,24 @@
       if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
         tableAccessibilityIssues.forEach(function(issue) {
           issues.push({
-            file: filePaths[0] || 'unknown',
+            file: filePaths && filePaths[0] || 'unknown',
             issues: [issue],
           });
         });
       }
 
       // Use axe.analyze for additional scanning
-      for (const filePath of filePaths) {
-        const fileEmitted = path.join(process.cwd(), filePath);
-        const { violations } = await axe.analyze(fileEmitted);
+      if (filePaths && Array.isArray(filePaths)) {
+        for (const filePath of filePaths) {
+          const fileEmitted = path.join(process.cwd(), filePath);
+          const { violations } = await axe.analyze(fileEmitted);
 
-        if (violations.length > 0) {
-          issues.push({
-            file: filePath,
-            issues: violations,
-          });
+          if (violations.length > 0) {
+            issues.push({
+              file: filePath,
+              issues: violations,
+            });
+          }
         }
       }
 
@@ -407,7 +553,10 @@
         });
       }
 
-      return issues;
+      return {
+        timestamp: new Date().toISOString(),
+        issues: issues
+      };
     }
 
     // Function to generate a report based on accessibility issues
@@ -454,7 +603,7 @@
 
     // Function to write the generated report to a file
     function writeReport(report) {
-      const reportFile = path.join(__dirname, 'accessibility_report.json');
+      const reportFile = path.join(__dirname, config.dataPath, 'accessibility_report.json');
       fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
     }
 
@@ -495,8 +644,42 @@
       return issuesData || [];
     }
 
-    // Helper function
+    // Helper functions
+    function validateInput(input) {
+      return input && typeof input === 'string' && input.trim().length > 0;
+    }
+
+    function processData(data) {
+      if (!data) return null;
+      return { ...data, processed: true };
+    }
+
+    function formatDate(date) {
+      if (!(date instanceof Date)) {
+        date = new Date(date);
+      }
+      return date.toISOString().split('T')[0];
+    }
+
+    // Validate input helper
+    function validateInputFn(input) {
+      return input && typeof input === 'string' && input.trim().length > 0;
+    }
+
+    // Process data helper
+    function processDataFn(data) {
+      if (!data) return null;
+      return { ...data, processed: true };
+    }
+
+    // Some function
+    function someFunction() {
+      return 'some function';
+    }
+
+    // Initialize function
     function initialize() {
+      appState.initialized = true;
       console.log('Initializing application...');
 
       // Load landmarks for accessibility processing
@@ -566,6 +749,69 @@
       }
     };
 
+    // Fetch user function
+    async function fetchUser(userId) {
+      if (!userId) {
+        return null;
+      }
+      return { id: userId, name: 'User ' + userId };
+    }
+
+    // Clear cache function
+    function clearCache() {
+      appState.cache = {};
+    }
+
+    // Accessibility functions
+    function addKeyboardNavigation() {
+      document.addEventListener('keydown', (e) => {
+        // Handle keyboard events
+      });
+    }
+
+    function addAriaLabels() {
+      const elements = document.querySelectorAll('[data-label]');
+      elements.forEach(el => {
+        el.setAttribute('aria-label', el.getAttribute('data-label'));
+      });
+    }
+
+    function addScreenReaderAnnouncements() {
+      const announcer = document.createElement('div');
+      announcer.setAttribute('aria-live', 'polite');
+      announcer.setAttribute('aria-atomic', 'true');
+      announcer.className = 'sr-only';
+      document.body.appendChild(announcer);
+    }
+
+    function addFocusTrap() {
+      const focusableElements = document.querySelectorAll('a, button, input, [tabindex]');
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+          if (e.shiftKey && document.activeElement === firstElement) {
+            lastElement.focus();
+            e.preventDefault();
+          } else if (!e.shiftKey && document.activeElement === lastElement) {
+            firstElement.focus();
+            e.preventDefault();
+          }
+        }
+      });
+    }
+
+    // Improve accessibility
+    function improveAccessibility() {
+      fixTableStructure();
+      addMainLandmark();
+      addSvgAccessibleNames();
+      fixFakeLinks();
+      ensureUniqueLandmarks();
+      addLandmarkRoles();
+    }
+
     // Call the function to address accessibility issues
     if (dependencyGraph) {
       checkAriaRole();
@@ -618,11 +864,14 @@
     module.exports = {
       // Configuration
       config,
+      CONFIG,
+      appState,
 
       // Core functions
       addLangAttribute,
       greet,
       add,
+      someFunction,
 
       // Dependency management
       getDependencies,
@@ -634,14 +883,11 @@
       initialize,
       initializeApp,
       main,
-      helperFunction: utils.helper,
-
-      // Accessibility scanning
-      analyzeAccessibility,
-      scanAccessibility,
-      generateAccessibilityReport,
 
       // Accessibility utilities
+      ensureLangAttribute,
+      fixTableStructure,
+      fixLandmarks,
       checkLinkAccessibility,
       checkAriaRole,
       ensureMainContainerAccessible,
@@ -653,6 +899,9 @@
       fixFakeLink,
       fixFakeLinks,
       addLangAttributeToHtml,
+      addSvgAccessibleNames,
+      replaceButtonIds,
+      ensureDependencyGraphAriaRole,
 
       // Landmark processing
       loadLandmarks,
@@ -666,6 +915,14 @@
       setSvgAccessibleNames,
       setLanguageAttribute,
 
+      // Accessibility scanning
+      analyzeAccessibility,
+      scanAccessibility,
+      generateAccessibilityReport,
+
+      // Report writing
+      writeReport,
+
       // Placeholder functions
       getLangAttribute,
       validateTableAccessibility,
@@ -675,6 +932,24 @@
       validateLandmarkAttributes,
       getSvgAccessibleName,
       validateLinkAccessibility,
+
+      // Helper functions
+      helperFunction: utils.helper,
+      validateInput,
+      processData,
+      formatDate,
+      validateInputFn,
+      processDataFn,
+
+      // Additional utilities
+      fetchUser,
+      clearCache,
+      addKeyboardNavigation,
+      addAriaLabels,
+      addScreenReaderAnnouncements,
+      addFocusTrap,
+      improveAccessibility,
+      googleSignIn,
 
       // Object exports
       functionA: {

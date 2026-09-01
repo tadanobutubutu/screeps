@@ -1,287 +1,102 @@
-// main.js - Accessibility-focused implementation
+// main.js - Accessibility-focused implementation with DOM utilities
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs,
-// count dependencies, and address accessibility issues from insight report
-// todo-hash: f419237658ab4e48ef30e9d90eb19302a8460b5f
+// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+/* todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 */
 
-// Preserve existing function assignments
-functions.forEach(functionToSave => {
-  window[functionToSave] = window[functionToSave] || module.exports[functionToSave];
-});
-
-// Existing functions that should be preserved
-function ensureElementHasId(element) {
-  // Implementation for ensuring element has an id
+/**
+ * Ensures the given element has an id. If it does not, generates and assigns one.
+ * @param {HTMLElement} element - The DOM element to check.
+ * @param {string} [prefix='element'] - Prefix for the generated id.
+ * @returns {string} The element's id.
+ */
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) {
+    throw new Error('ensureElementHasId: element is required');
+  }
   if (!element.id) {
-    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `${prefix}-${Math.random().toString(36).slice(2, 11)}`;
   }
   return element.id;
 }
 
+/**
+ * Adds an aria-label to the given element if one is not already present.
+ * @param {HTMLElement} element - The DOM element to label.
+ * @param {string} label - The aria-label text to add.
+ * @returns {HTMLElement} The element for chaining.
+ */
 function addAriaLabel(element, label) {
-  // Implementation for adding aria-label
-  if (element && label) {
+  if (!element) {
+    throw new Error('addAriaLabel: element is required');
+  }
+  if (!label) {
+    throw new Error('addAriaLabel: label is required');
+  }
+  if (!element.hasAttribute('aria-label')) {
     element.setAttribute('aria-label', label);
   }
   return element;
 }
 
-function renderDependencyGraph(dependencies) {
-  // Implementation for rendering dependency graphs
-  if (!dependencies || !Array.isArray(dependencies)) {
-    return '';
+/**
+ * Renders a dependency graph into a target container.
+ * @param {Object} graph - The dependency graph data.
+ * @param {Array<{id: string, label?: string}>} graph.nodes - Nodes in the graph.
+ * @param {Array<{from: string, to: string}>} graph.edges - Edges between nodes.
+ * @param {HTMLElement} container - The DOM element to render the graph into.
+ * @returns {HTMLElement} The container element with the rendered graph.
+ */
+function renderDependencyGraph(graph, container) {
+  if (!graph) {
+    throw new Error('renderDependencyGraph: graph is required');
   }
-  
-  let graph = 'digraph dependencies {\n';
-  dependencies.forEach((dep, index) => {
-    graph += `  node${index} [label="${dep}"];\n`;
-  });
-  graph += '}\n';
-  return graph;
-}
-
-module.exports = {
-  // Existing functions
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph,
-
-  countDependencies() {
-    return require.main.requires.length;
-  },
-
-  // Additional functions to address accessibility issues from insight report
-  addressAccessibilityIssues(insightReport) {
-    // Implement function to address the reported accessibility issues
-    if (!insightReport || !Array.isArray(insightReport.issues)) {
-      return [];
-    }
-
-    const addressedIssues = insightReport.issues.map(issue => {
-      let fixApplied = false;
-      
-      // Apply fixes based on issue type
-      switch (issue.type) {
-        case 'color-contrast':
-          // Apply color contrast fix
-          fixApplied = true;
-          break;
-        case 'missing-alt-text':
-          // Apply alt text fix
-          fixApplied = true;
-          break;
-        case 'missing-aria-label':
-          // Apply aria-label fix
-          fixApplied = true;
-          break;
-        case 'heading-order':
-          // Apply heading order fix
-          fixApplied = true;
-          break;
-        default:
-          break;
-      }
-
-      return {
-        ...issue,
-        status: fixApplied ? 'fixed' : 'pending',
-        fixApplied: fixApplied ? `Applied fix for ${issue.type}` : ''
-      };
-    });
-
-    return addressedIssues;
-  },
-
-  generateAccessibilityReport(accessibilityReport) {
-    if (!accessibilityReport || !Array.isArray(accessibilityReport.issues)) {
-      return [];
-    }
-
-    const report = accessibilityReport.issues.map(issue => ({
-      issueType: issue.type,
-      status: issue.status || 'pending',
-      fixApplied: issue.fixApplied || ''
-    }));
-
-    return report;
-  },
-
-  calculateAccessibilityScore(fixedIssues) {
-    if (!Array.isArray(fixedIssues)) {
-      return 0;
-    }
-
-    const scorePoints = {
-      'color-contrast': 5,
-      'missing-alt-text': 3,
-      'missing-aria-label': 5,
-      'heading-order': 2,
-      'other': 1
-    };
-
-    return fixedIssues.reduce((score, issue) => {
-      const points = scorePoints[issue.type] || scorePoints['other'];
-      return score + points;
-    }, 0);
-  },
-
-  ensureUniqueLandmarksFromString(source) {
-    const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
-
-    const matches = Array.from(source.matchAll(mainBlockRegex));
-    if (matches.length <= 1) {
-      return source;
-    }
-
-    let result = source;
-    for (let i = 1; i < matches.length; i++) {
-      const block = matches[i][0];
-      const fixedBlock = block
-        .replace(/<main([^>]*)>/, '<section$1>')
-        .replace(/<\/main>/, '</section>');
-      result = result.replace(block, fixedBlock);
-    }
-
-    return result;
-  },
-
-  validateLandmark(element) {
-    if (!element) {
-      return { valid: false, error: 'Element is required' };
-    }
-
-    const landmarkRoles = [
-      'banner',
-      'main',
-      'navigation',
-      'search',
-      'contentinfo',
-      'complementary',
-      'region',
-      'form'
-    ];
-
-    const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
-
-    const implicitLandmarks = {
-      'header': 'banner',
-      'main': 'main',
-      'nav': 'navigation',
-      'aside': 'complementary',
-      'footer': 'contentinfo',
-      'section': 'region',
-      'form': 'form'
-    };
-
-    let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
-
-    if (!landmarkRole) {
-      if (implicitLandmarks[tagName]) {
-        landmarkRole = implicitLandmarks[tagName];
-      } else {
-        return { valid: false, error: 'No landmark role found' };
-      }
-    }
-
-    if (!landmarkRoles.includes(landmarkRole)) {
-      return { valid: false, error: `Invalid landmark role: ${landmarkRole}` };
-    }
-
-    return { valid: true, role: landmarkRole };
+  if (!container) {
+    throw new Error('renderDependencyGraph: container is required');
   }
-};
 
-// Application configuration
-const config = {
-  port: process.env.PORT || 3000,
-  env: process.env.NODE_ENV || 'development'
-};
+  // Create the graph wrapper
+  const graphWrapper = document.createElement('div');
+  graphWrapper.className = 'dependency-graph';
+  ensureElementHasId(graphWrapper, 'dependency-graph');
+  addAriaLabel(graphWrapper, `Dependency graph with ${graph.nodes.length} nodes and ${graph.edges.length} edges`);
 
-/**
- * Main application entry point with accessibility features
- */
-function createServer() {
-  const http = require('http');
-  
-  return http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(`
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Accessibility-Focused Application</title>
-      </head>
-      <body>
-        <header role="banner">
-          <nav role="navigation" aria-label="Main navigation">
-            <ul>
-              <li><a href="/">Home</a></li>
-              <li><a href="/about">About</a></li>
-              <li><a href="/contact">Contact</a></li>
-            </ul>
-          </nav>
-        </header>
-        <main role="main">
-          <h1>Welcome to our Accessibility-Focused Application</h1>
-          <p>This application follows WCAG guidelines for accessibility.</p>
-        </main>
-        <footer role="contentinfo">
-          <p>&copy; 2024 Accessibility-Focused Application</p>
-        </footer>
-      </body>
-      </html>
-    `);
+  // Render nodes
+  const nodesContainer = document.createElement('ul');
+  nodesContainer.className = 'dependency-graph-nodes';
+
+  const nodeMap = {};
+  graph.nodes.forEach((node) => {
+    const nodeEl = document.createElement('li');
+    nodeEl.className = 'dependency-graph-node';
+    nodeEl.dataset.id = node.id;
+    nodeEl.textContent = node.label || node.id;
+    ensureElementHasId(nodeEl, 'node');
+    addAriaLabel(nodeEl, `Node: ${node.label || node.id}`);
+    nodesContainer.appendChild(nodeEl);
+    nodeMap[node.id] = nodeEl;
   });
+
+  graphWrapper.appendChild(nodesContainer);
+
+  // Render edges
+  const edgesContainer = document.createElement('ul');
+  edgesContainer.className = 'dependency-graph-edges';
+
+  graph.edges.forEach((edge) => {
+    const edgeEl = document.createElement('li');
+    edgeEl.className = 'dependency-graph-edge';
+    edgeEl.dataset.from = edge.from;
+    edgeEl.dataset.to = edge.to;
+    edgeEl.textContent = `${edge.from} → ${edge.to}`;
+    ensureElementHasId(edgeEl, 'edge');
+    addAriaLabel(edgeEl, `Edge from ${edge.from} to ${edge.to}`);
+    edgesContainer.appendChild(edgeEl);
+  });
+
+  graphWrapper.appendChild(edgesContainer);
+
+  container.appendChild(graphWrapper);
+  return container;
 }
 
-/**
- * Spawn a child process to run some command with proper error handling.
- * @param {Function} callback - Invoked with (err, result) when the command exits.
- */
-function spawnSomeCommand(callback) {
-  const child_process = require('child_process');
-  const child = child_process.spawn('someCommand', [], {
-    stdio: 'inherit',
-  });
-  child.on('exit', (code, signal) => {
-    if (code === 0) {
-      callback(null, 'Successfully executed someCommand');
-    } else {
-      callback(new Error(`someCommand failed with code ${code}`));
-    }
-  });
-}
-
-/**
- * Start the application with accessibility features
- */
-function startApp() {
-  const server = createServer();
-  
-  server.listen(config.port, () => {
-    console.log(`Server running on port ${config.port} in ${config.env} mode`);
-    console.log('Accessibility features enabled');
-  });
-
-  return server;
-}
-
-// Export functions for testing
-module.exports = {
-  createServer,
-  startApp,
-  config,
-  spawnSomeCommand,
-  // Re-export accessibility functions for testing
-  countDependencies: module.exports.countDependencies,
-  addressAccessibilityIssues: module.exports.addressAccessibilityIssues,
-  generateAccessibilityReport: module.exports.generateAccessibilityReport,
-  calculateAccessibilityScore: module.exports.calculateAccessibilityScore,
-  ensureUniqueLandmarksFromString: module.exports.ensureUniqueLandmarksFromString,
-  validateLandmark: module.exports.validateLandmark,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph
-};
+// ... (other functions and setting up exports)

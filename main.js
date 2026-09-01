@@ -6,18 +6,22 @@ const primaryContent = document.querySelector('.primary-content') ||
                         document.getElementById('main-content') ||
                         document.querySelector('#content');
 
-// If primary content exists and is not already inside a <main> element
-if (primaryContent && !primaryContent.closest('main')) {
-  // Create a new <main> element
-  const mainElement = document.createElement('main');
+// Function to wrap primary content in a <main> element
+function wrapPrimaryContentInMain() {
+  // If primary content exists and is not already inside a <main> element
+  if (primaryContent && !primaryContent.closest('main')) {
+    // Create a new <main> element
+    const mainElement = document.createElement('main');
 
-  // Insert the <main> element before the primary content in the DOM
-  primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+    // Insert the <main> element before the primary content in the DOM
+    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
 
-  // Move the primary content inside the <main> element
-  mainElement.appendChild(primaryContent);
+    // Move the primary content inside the <main> element
+    mainElement.appendChild(primaryContent);
 
-  return mainElement;
+    return mainElement;
+  }
+  return null;
 }
 
 // Import necessary dependencies
@@ -59,9 +63,9 @@ let icons = {};
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)

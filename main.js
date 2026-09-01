@@ -7,6 +7,14 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+/**
+ * Main application entry point with accessibility features
+ */
+
+function init() {
+  const svgElements = document.querySelectorAll('svg');
+}
+
 app.use(express.json());
 
 function getSvgAccessibleName(svgElements) {

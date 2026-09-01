@@ -125,6 +125,11 @@ function validateLandmarkAttributes(landmark) {
 
 function addMainLandmark() {
   // Code for adding main landmark
+  const mainElement = document.querySelector('main');
+  if (!mainElement) {
+    const newMain = document.createElement('main');
+    document.body.insertBefore(newMain, document.body.firstChild);
+  }
 }
 
 function validateTableAccessibility(table) {
@@ -177,7 +182,25 @@ function validateTableStructure(table) {
 
 function fixTableStructure() {
   const tables = document.querySelectorAll('table');
-  tables.forEach(table => validateTableStructure(table));
+  tables.forEach(table => {
+    const validation = validateTableStructure(table);
+    if (!validation.valid) {
+      // Add missing caption if needed
+      if (!table.querySelector('caption')) {
+        const caption = document.createElement('caption');
+        caption.textContent = 'Table caption';
+        table.insertBefore(caption, table.firstChild);
+      }
+
+      // Add scope to headers if needed
+      const headers = table.querySelectorAll('th');
+      headers.forEach((th, index) => {
+        if (!th.getAttribute('scope') && !th.getAttribute('id')) {
+          th.setAttribute('scope', 'col');
+        }
+      });
+    }
+  });
 }
 
 function getSvgAccessibleName(svgElement) {
@@ -254,8 +277,32 @@ function handleFakeLinks(container) {
   return { valid: issues.length === 0, issues };
 }
 
-function fixFakeLink() {
-  handleFakeLinks();
+/**
+ * Fixes fake links that don't have proper href attributes.
+ */
+function fixFakeLinks() {
+  const container = document.body;
+  const result = handleFakeLinks(container);
+
+  if (!result.valid) {
+    // Convert fake links to buttons
+    const fakeLinks = container.querySelectorAll('a:not([href])');
+    fakeLinks.forEach(link => {
+      const button = document.createElement('button');
+      button.textContent = link.textContent;
+      button.setAttribute('type', 'button');
+      button.setAttribute('aria-label', link.getAttribute('aria-label') || link.textContent);
+
+      // Copy any event listeners
+      const clickHandler = link.onclick;
+      if (clickHandler) {
+        button.addEventListener('click', clickHandler);
+      }
+
+      // Replace the link with the button
+      link.parentNode.replaceChild(button, link);
+    });
+  }
 }
 
 function addLandmarkRegions() {
@@ -320,6 +367,8 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_015':
         if (issue.element) {
           addLangAttribute(issue.element);
+        } else {
+          setLanguageAttribute();
         }
         break;
       case 'REACT_027':
@@ -327,7 +376,11 @@ function addressAccessibilityIssues(insightReport) {
           validateTableStructure(issue.table);
           fixTableStructure();
         } else {
-          validateTableAccessibility();
+          const tables = document.querySelectorAll('table');
+          tables.forEach(table => {
+            validateTableAccessibility(table);
+            fixTableStructure();
+          });
         }
         break;
       case 'REACT_017':
@@ -342,6 +395,13 @@ function addressAccessibilityIssues(insightReport) {
         if (issue.svg) {
           const accessibleName = getSvgAccessibleName(issue.svg);
           setSvgAttributes(issue.svg, accessibleName);
+        } else {
+          // Handle all SVGs in the document
+          const svgs = document.querySelectorAll('svg');
+          svgs.forEach(svg => {
+            const name = getSvgAccessibleName(svg);
+            setSvgAttributes(svg, name || 'Graphic');
+          });
         }
         break;
       case 'REACT_025':
@@ -349,7 +409,7 @@ function addressAccessibilityIssues(insightReport) {
         break;
       case 'REACT_036':
         handleFakeLinks();
-        createInPageButton('Click me', () => {});
+        createInPageButton('main-content', 'Skip to main content');
         break;
       default:
         break;
@@ -462,8 +522,8 @@ function addBookWithAccessibility(title, author, isbn) {
   form.setAttribute('role', 'form');
   form.setAttribute('aria-label', 'Add new book form');
   const titleLabel = document.createElement('label');
-  ylabel.setAttribute('for', 'book-title');
-  ylabel.textContent = 'Book Title:';
+  titleLabel.setAttribute('for', 'book-title');
+  titleLabel.textContent = 'Book Title:';
   const titleInput = document.createElement('input');
   titleInput.id = 'book-title';
   titleInput.type = 'text';
@@ -625,7 +685,7 @@ function initialize() {
   createInPageButton();
   setSvgAccessibleNames('svg1Id', 'svg2Id', ' aria-label for SVG1', ' aria-label for SVG2');
   ensureUniqueLandmarks();
-  fixFakeLink();
+  fixFakeLinks();
   if (a11y && a11y.init) {
     a11y.init();
   }
@@ -739,23 +799,5 @@ module.exports = {
   axe,
   express,
   fs,
-  path,
-  // Functions from origin/main
-  function3,
-  newFunction,
-  function1,
-  function2,
-  validateInput,
-  processData,
-  formatResponse,
-  newFunctionFromOriginMain,
-  updatedFunction1,
-  updatedFunction2,
-  newImplementationForFunction3,
-  harvest,
-  upgrade,
-  harvestAndUpgrade,
-  checkLinkAccessibility,
-  writeReport,
-  scanAccessibility
+  path
 };

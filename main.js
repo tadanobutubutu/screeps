@@ -45,7 +45,7 @@ function spawnLandmark(landmarkData) {
 // Manages the spawning logic for landmarks based on configuration
 function handleSpawningLogic(maxLandmarks = 100, landmarkConfigs = []) {
     const spawnedLandmarks = [];
-    
+
     landmarkConfigs.forEach(config => {
         if (landmarks.length < maxLandmarks) {
             const spawned = spawnLandmark(config);
@@ -136,9 +136,9 @@ let appState = {};
 
 // Initialize function
 function initialize() {
-  config = { 
-    apiUrl: process.env.API_URL || 'https://api.example.com', 
-    timeout: 5000 
+  config = {
+    apiUrl: process.env.API_URL || 'https://api.example.com',
+    timeout: 5000
   };
   appState = { initialized: true };
 }
@@ -601,7 +601,27 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   fixFakeLinks,
-  main
+  main,
+  spawnLandmark,
+  handleSpawningLogic,
+  landmarkStructureCheck,
+  checkLandmarkElement,
+  processLandmarks,
+  visualizeDependencyTree,
+  generateDependencyReport,
+  HTML,
+  accessibilityUtils,
+  landmarks,
+  appData,
+  isSecureContext,
+  a11y,
+  reportWebVitals,
+  React,
+  PropTypes,
+  ReactDOM,
+  express,
+  path,
+  CONFIG
 };
 
 function App() {

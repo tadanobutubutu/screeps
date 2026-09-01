@@ -68,15 +68,15 @@ function divide(dividend, divisor) {
   if (typeof dividend !== 'number' || typeof divisor !== 'number') {
     throw new Error('Both arguments must be numbers');
   }
-  
+
   if (isNaN(dividend) || isNaN(divisor)) {
     throw new Error('Both arguments must be valid numbers');
   }
-  
+
   if (divisor === 0) {
     throw new Error('Division by zero is not allowed');
   }
-  
+
   return dividend / divisor;
 }
 
@@ -211,6 +211,37 @@ function fixFakeLinks(html) {
     return html;
 }
 
+// New function to check link accessibility
+function isLinkAccessible(html, linkSelector) {
+    if (typeof html !== 'string' || !linkSelector) return false;
+
+    // Create a temporary DOM element to parse the HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+
+    // Find the link element
+    const linkElement = tempDiv.querySelector(linkSelector);
+
+    if (!linkElement) return false;
+
+    // Check if the link has an accessible name
+    const hasAccessibleName =
+        linkElement.textContent.trim().length > 0 ||
+        linkElement.getAttribute('aria-label') ||
+        linkElement.getAttribute('title');
+
+    // Check if the link has a valid href
+    const href = linkElement.getAttribute('href');
+    const hasValidHref = href && href.trim() !== '#' && !href.startsWith('javascript:');
+
+    // Check if the link is not hidden
+    const isVisible = linkElement.offsetParent !== null &&
+                      !linkElement.hasAttribute('hidden') &&
+                      window.getComputedStyle(linkElement).display !== 'none';
+
+    return hasAccessibleName && hasValidHref && isVisible;
+}
+
 // Main function that applies all accessibility fixes
 function applyAccessibilityFixes(html) {
     let result = html;
@@ -249,7 +280,8 @@ module.exports = {
     applyAccessibilityFixes,
     addressAccessibilityIssues,
     createInPageButton,
-    divide
+    divide,
+    isLinkAccessible
 };
 
 // Run if executed directly

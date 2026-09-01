@@ -102,6 +102,18 @@ function renderDependencyGraph(graph, container) {
   return container;
 }
 
+/**
+ * Renders an index view from the given data.
+ * @param {Object} data - The data to render the index view from.
+ * @returns {Object} The rendered index view object.
+ */
+function renderIndexView(data) {
+  // Implementation for rendering index views
+  // This is a placeholder - actual implementation would depend on requirements
+  console.log('Rendering index view:', data);
+  return { view: 'index-view', data: data };
+}
+
 const AddressabilityIssues = {
   generateAccessibilityReport(accessibilityReport) {
     if (!accessibilityReport || accessibilityReport.issues.length === 0) {
@@ -286,6 +298,7 @@ module.exports = {
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraph,
+  renderIndexView,
   createServer,
   startApp,
   config,

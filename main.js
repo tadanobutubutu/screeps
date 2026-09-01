@@ -129,6 +129,61 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
+/**
+ * Adds accessibility properties to SVG elements
+ * @param {SVGElement} svgElement - The SVG element to enhance
+ * @param {Object} options - Configuration options
+ * @param {string} [options.title] - Accessible title for the SVG
+ * @param {string} [options.desc] - Accessible description for the SVG
+ * @param {string} [options.role] - ARIA role for the SVG (default: 'img')
+ * @returns {SVGElement} The enhanced SVG element
+ */
+function addSvgAccessibilityProps(svgElement, options = {}) {
+  if (!svgElement || !(svgElement instanceof SVGElement)) {
+    console.warn('Invalid SVG element provided');
+    return svgElement;
+  }
+
+  // Set ARIA role if not already set
+  if (!svgElement.getAttribute('role')) {
+    svgElement.setAttribute('role', options.role || 'img');
+  }
+
+  // Add title element if provided
+  if (options.title) {
+    let titleElement = svgElement.querySelector('title');
+    if (!titleElement) {
+      titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      svgElement.prepend(titleElement);
+    }
+    titleElement.textContent = options.title;
+  }
+
+  // Add description element if provided
+  if (options.desc) {
+    let descElement = svgElement.querySelector('desc');
+    if (!descElement) {
+      descElement = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+      svgElement.appendChild(descElement);
+    }
+    descElement.textContent = options.desc;
+  }
+
+  // Ensure SVG has proper dimensions if not set
+  if (!svgElement.getAttribute('width') || !svgElement.getAttribute('height')) {
+    svgElement.setAttribute('width', '100%');
+    svgElement.setAttribute('height', '100%');
+  }
+
+  // Add focusability if needed
+  if (options.focusable !== false) {
+    svgElement.setAttribute('focusable', 'true');
+    svgElement.setAttribute('tabindex', '0');
+  }
+
+  return svgElement;
+}
+
 // Export functions for testing
 export {
   checkLandmarkElement,
@@ -153,5 +208,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  addSvgAccessibilityProps
 };

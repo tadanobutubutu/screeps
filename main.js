@@ -33,7 +33,23 @@ export class ExistingClass {
 
 const AddressabilityIssues = {
   addressAccessibilityIssues(insightReport) {
-    /* existing code */
+    // New code to address accessibility issues from insight report
+    // Ensure the dependencyGraph container has a proper ARIA role
+    const dependencyGraph = document.getElementById('dependencyGraph');
+    if (dependencyGraph) {
+      if (!dependencyGraph.getAttribute('role')) {
+        dependencyGraph.setAttribute('role', 'region');
+      }
+    }
+
+    // Ensure all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
+    const landmarks = document.querySelectorAll('[role="region"], [role="navigation"], [role="search"], [role="main"], [role="banner"], [role="complementary"], [role="contentinfo"]');
+    landmarks.forEach((landmark) => {
+      const id = landmark.id;
+      if (!id) {
+        landmark.id = `landmark-${Math.random().toString(36).slice(2, 9)}`;
+      }
+    });
   },
 
   generateAccessibilityReport(accessibilityReport) {

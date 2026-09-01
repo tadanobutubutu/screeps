@@ -1,6 +1,6 @@
 // main.js - Accessibility Issue Handler
-//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-//<!-- todo-hash: ... -->
+//_Commit: 243c66538868c6b87845666966aba23af9c6c28_
+//<!-- todo-hash: 8f7f55c4cad3b03f50ee91f87198674a11d79d53 -->
 
 import { getLangAttribute as getLangAttrUtils, createInPageButton as createInPageBtnUtils } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
@@ -59,6 +59,72 @@ function addressAccessibilityIssues(insightReport) {
 
 // TODO: This is the existing code that needs to be preserved
 
+/**
+ * Counts the number of dependencies in the main.js file
+ * @returns {Object} An object containing counts of different types of dependencies
+ */
+function countDependencies() {
+  const dependencyTypes = {
+    internal: 0,
+    external: 0,
+    react: 0,
+    utils: 0,
+    helpers: 0
+  };
+
+  // Count internal dependencies (local files)
+  const internalImports = [
+    './utils/accessibilityUtils',
+    './utils/tableAccessibilityUtils',
+    './utils/landmarkUtils',
+    './utils/svgAccessibilityUtils',
+    './utils/linkAccessibilityUtils',
+    './accessibilityHelpers',
+    './accessibilityMode',
+    './utils.js',
+    './components.js',
+    './state.js'
+  ];
+
+  dependencyTypes.internal = internalImports.length;
+
+  // Count external dependencies (npm packages)
+  const externalImports = [
+    'uuid',
+    'react'
+  ];
+
+  dependencyTypes.external = externalImports.length;
+
+  // Count React-specific dependencies
+  const reactImports = [
+    'createElement'
+  ];
+
+  dependencyTypes.react = reactImports.length;
+
+  // Count utility-specific dependencies
+  const utilsImports = [
+    './utils/accessibilityUtils',
+    './utils/tableAccessibilityUtils',
+    './utils/landmarkUtils',
+    './utils/svgAccessibilityUtils',
+    './utils/linkAccessibilityUtils',
+    './utils.js'
+  ];
+
+  dependencyTypes.utils = utilsImports.length;
+
+  // Count helper-specific dependencies
+  const helpersImports = [
+    './accessibilityHelpers'
+  ];
+
+  dependencyTypes.helpers = helpersImports.length;
+
+  return dependencyTypes;
+}
+
 // New code to implement the solution to the issue in line 146
 function newFunctionToImplement() {
   // Implementation details here
@@ -72,7 +138,7 @@ export function existingFunction() {
 }
 
 // Exporting any new functions that were added as part of the solution
-export { newFunctionToImplement };
+export { newFunctionToImplement, countDependencies };
 
 // If any other exports were previously in main.js, they should be preserved and added here
 export { otherExport1, otherExport2 };

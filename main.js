@@ -106,15 +106,6 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
 
-  if (!element.tagName) {
-    issues.push('Missing tagName');
-  } else {
-    const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-    if (!validLandmarks.includes(element.tagName.toLowerCase())) {
-      issues.push(`Invalid landmark: ${element.tagName}`);
-    }
-  }
-
   if (!element.hasAttribute('id')) {
     issues.push('Missing id attribute');
   }
@@ -291,6 +282,42 @@ function handleAccessibilityIssues(issues) {
     unhandled: unhandled.length,
     unhandledIssues: unhandled
   };
+}
+
+/**
+ * Processes all accessibility issues and applies fixes where possible
+ * @param {Object} accessibilityReport - The accessibility report containing issues
+ * @returns {Object} Summary of processed issues
+ */
+function processAccessibilityIssues(accessibilityReport) {
+  const { tables, landmarks, svgs, links } = accessibilityReport;
+
+  // Process table issues
+  const tableIssues = validateTableStructure(tables).issues;
+
+  // Process landmark issues
+  const landmarkIssues = validateLandmarkStructure(landmarks).issues;
+  const uniqueLandmarkIssues = ensureUniqueLandmarks(landmarks).duplicates;
+
+  // Process SVG issues
+  const svgIssues = svgs.map(svg => ({
+    svg,
+    accessibleName: getSvgAccessibleName(svg)
+  }));
+
+  // Process link issues
+  const linkIssues = links.map(link => createAccessibleLink(link));
+
+  // Combine all issues
+  const allIssues = [
+    ...tableIssues,
+    ...landmarkIssues,
+    ...uniqueLandmarkIssues.map(name => ({ type: 'duplicateLandmark', name })),
+    ...svgIssues.map(svg => ({ type: 'svg', ...svg })),
+    ...linkIssues.map(link => ({ type: 'link', ...link }))
+  ];
+
+  return handleAccessibilityIssues(allIssues);
 }
 
 /**
@@ -762,6 +789,7 @@ module.exports = {
   createInPageButton,
   createAccessibleLink,
   handleAccessibilityIssues,
+  processAccessibilityIssues,
   createLandmark,
   validateAllLandmarks,
   fixTableStructure,

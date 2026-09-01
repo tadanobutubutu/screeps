@@ -75,11 +75,19 @@ function validateTableStructure(tableData) {
 // New function to address accessibility issue REACT_015
 function getLangAttribute() {
   // Implementation for adding lang attribute to HTML element
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en'); // Default to English
+  }
 }
 
 // Placeholder for createInPageButton - implementation needed
 function createInPageButton() {
   // Implementation placeholder
+  const button = document.createElement('button');
+  button.setAttribute('aria-label', 'In-page button');
+  button.setAttribute('role', 'button');
+  return button;
 }
 
 // Preserve all existing exports

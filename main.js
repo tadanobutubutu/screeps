@@ -49,7 +49,7 @@ function addressAccessibilityIssues(insightReport) {
 
   // Filter only accessibility-related issues
   const accessibilityIssues = insightReport.issues.filter(
-    issue => issue.category === 'Accessibility' || 
+    issue => issue.category === 'Accessibility' ||
              (issue.type && issue.type.toLowerCase().includes('accessibility'))
   );
 
@@ -110,17 +110,6 @@ function spawnProcess(command) {
   });
 }
 
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
-// REACT_017: Add/fix 4 landmark issues
-// REACT_027: Fix 26 table structure issues
-// REACT_025: Ensure unique landmarks
-// REACT_041: Add accessible names to 2 SVGs
-// REACT_036: Fix 1 fake link issue
-// REACT_037: Google sign-in logic
-// REACT_040: Replace my-button with actual button id for accessibility
-// REACT_042: Ensure dependencyGraph container has proper ARIA role
-
 // REACT_015: Add lang attribute to document
 function ensureLangAttribute() {
   if (typeof document !== 'undefined' && document.documentElement && document.documentElement.getAttribute('lang') === null) {
@@ -131,7 +120,7 @@ function ensureLangAttribute() {
 // REACT_027: Fix table structure issues
 function fixTableStructure() {
   if (typeof document === 'undefined') return;
-  
+
   const tables = document.querySelectorAll('table');
   tables.forEach((table, index) => {
     if (!table.querySelector('caption')) {
@@ -139,10 +128,10 @@ function fixTableStructure() {
       caption.textContent = `Table ${index + 1}`;
       table.insertBefore(caption, table.firstChild);
     }
-    
+
     const headers = table.querySelectorAll('th');
     const cells = table.querySelectorAll('td, th');
-    
+
     cells.forEach(cell => {
       if (!cell.hasAttribute('scope') && !cell.hasAttribute('headers')) {
         const isHeader = cell.tagName === 'TH';
@@ -157,17 +146,17 @@ function fixTableStructure() {
 // REACT_017 & REACT_025: Fix and ensure unique landmarks
 function fixLandmarks() {
   if (typeof document === 'undefined') return;
-  
+
   const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
   const landmarkCounts = {};
-  
+
   landmarkSelectors.forEach(selector => {
     landmarkCounts[selector] = 0;
   });
-  
+
   document.querySelectorAll(landmarkSelectors.join(', ')).forEach(element => {
     const tagName = element.tagName.toLowerCase();
-    
+
     if (landmarkCounts[tagName] > 0 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
       landmarkCounts[tagName]++;
       element.setAttribute('aria-label', `${tagName}-${landmarkCounts[tagName]}`);
@@ -180,7 +169,7 @@ function fixLandmarks() {
 // REACT_041: Add accessible names to SVGs
 function addSvgAccessibleNames() {
   if (typeof document === 'undefined') return;
-  
+
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
@@ -196,7 +185,7 @@ function addSvgAccessibleNames() {
 // REACT_036: Fix fake link issues (links without href or with javascript:void(0))
 function fixFakeLinks() {
   if (typeof document === 'undefined') return;
-  
+
   document.querySelectorAll('a').forEach(link => {
     const href = link.getAttribute('href');
     if (!href || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;') {
@@ -213,7 +202,7 @@ function fixFakeLinks() {
 // REACT_040: Replace my-button with actual button id for accessibility
 function replaceButtonIds() {
   if (typeof document === 'undefined') return;
-  
+
   const fakeButtons = document.querySelectorAll('[id="my-button"], .my-button');
   fakeButtons.forEach((button, index) => {
     const newId = `accessible-button-${index + 1}`;
@@ -230,7 +219,7 @@ function replaceButtonIds() {
 // REACT_042: Ensure dependencyGraph container has proper ARIA role
 function ensureDependencyGraphAriaRole() {
   if (typeof document === 'undefined') return;
-  
+
   const dependencyGraph = document.querySelector('#dependencyGraph, .dependencyGraph, [data-dependency-graph]');
   if (dependencyGraph) {
     if (!dependencyGraph.getAttribute('role')) {
@@ -254,7 +243,7 @@ const googleSignIn = {
     }
     return false;
   },
-  
+
   renderButton: function(elementId) {
     const element = document.getElementById(elementId);
     if (element && typeof google !== 'undefined' && google.accounts) {
@@ -267,7 +256,7 @@ const googleSignIn = {
     }
     return false;
   },
-  
+
   handleCredentialResponse: function(response) {
     console.log('Google Sign-In successful');
     return response;

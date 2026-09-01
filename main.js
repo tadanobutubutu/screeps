@@ -20,6 +20,33 @@ function validateLandmark(landmark) {
 }
 
 /**
+ * Ensures the element has an id. If not, generates a unique id.
+ * @param {HTMLElement} element - The element to ensure has an id
+ * @returns {string} - The element's id
+ */
+function ensureElementHasId(element) {
+  if (!element.id) {
+    // Simple unique id generation; could use timestamp + random
+    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2,9)}`;
+  }
+  return element.id;
+}
+
+/**
+ * Adds an aria-label to the element
+ * @param {HTMLElement} element - The element to add aria-label to
+ * @param {string} label - The accessible label
+ * @returns {HTMLElement} - The element with aria-label set
+ */
+function addAriaLabel(element, label) {
+  if (!label) {
+    throw new Error('aria-label value is required');
+  }
+  element.setAttribute('aria-label', label);
+  return element;
+}
+
+/**
  * Creates and starts the HTTP server
  * @returns {http.Server} The created server instance
  */
@@ -47,7 +74,9 @@ module.exports = {
   createServer,
   startApp,
   config,
-  validateLandmark // Export the new function
+  validateLandmark,
+  ensureElementHasId,
+  addAriaLabel
 };
 
 // Start the application if run directly

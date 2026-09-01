@@ -188,7 +188,9 @@ module.exports = {
   getSvgAccessibleName,
 
   // TODO: Add a language attribute to the HTML element
-  getLangAttribute,
+  getLangAttribute: (element) => {
+    return element.getAttribute('lang');
+  },
 
   // TODO: Validate the accessibility report for issues
   validateAccessibilityReport,

@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// Additional changes that need to be preserved
+
 module.exports = {
   myFunction: function () {
     // Existing implementation

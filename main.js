@@ -205,7 +205,7 @@ function validateTableAccessibility(table) {
 
   const headers = Array.from(table.querySelectorAll('th'));
   const hasHeaders = headers.length > 0;
-  
+
   const caption = table.querySelector('caption');
   const hasCaption = caption !== null;
 

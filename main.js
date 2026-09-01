@@ -55,15 +55,130 @@ const accessibilityUtils = {
   },
 
   // New function for addressing accessibility issues from insight report
-  newFocusTrap: newFocusTrap(),
+  newFocusTrap: (element) => {
+    if (!element) return;
+    const focusable = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
 
-  // Accessibility functions to address new issues (TODO: Implement)
-  // - REACT_015: Add lang attribute to HTML element
-  // - REACT_027: Fix 26 table structure issues
-  // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs
-  // - REACT_025: Ensure unique landmarks
-  // - REACT_036: Fix 1 fake link issue
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          first.focus();
+          e.preventDefault();
+        }
+      }
+    });
+  },
+
+  // Accessibility functions to address new issues
+  addLangAttribute: () => {
+    const htmlElement = document.querySelector('html');
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+      htmlElement.setAttribute('lang', 'en');
+    }
+  },
+
+  fixTableStructure: () => {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      // Ensure table has proper structure
+      if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+        const thead = document.createElement('thead');
+        const tbody = document.createElement('tbody');
+        const rows = table.querySelectorAll('tr');
+
+        if (rows.length > 0) {
+          thead.appendChild(rows[0].cloneNode(true));
+          rows[0].remove();
+
+          rows.forEach(row => {
+            tbody.appendChild(row.cloneNode(true));
+            row.remove();
+          });
+
+          table.appendChild(thead);
+          table.appendChild(tbody);
+        }
+      }
+
+      // Ensure table has proper headers
+      const headers = table.querySelectorAll('th');
+      headers.forEach((header, index) => {
+        if (!header.hasAttribute('scope')) {
+          header.setAttribute('scope', 'col');
+        }
+        const cells = table.querySelectorAll(`tbody td:nth-child(${index + 1})`);
+        cells.forEach(cell => {
+          if (!cell.hasAttribute('headers')) {
+            cell.setAttribute('headers', header.id || `header-${index}`);
+          }
+        });
+      });
+    });
+  },
+
+  addLandmarks: () => {
+    const main = document.querySelector('main');
+    if (main && !main.hasAttribute('role')) {
+      main.setAttribute('role', 'main');
+    }
+
+    const nav = document.querySelector('nav');
+    if (nav && !nav.hasAttribute('role')) {
+      nav.setAttribute('role', 'navigation');
+    }
+
+    const header = document.querySelector('header');
+    if (header && !header.hasAttribute('role')) {
+      header.setAttribute('role', 'banner');
+    }
+
+    const footer = document.querySelector('footer');
+    if (footer && !footer.hasAttribute('role')) {
+      footer.setAttribute('role', 'contentinfo');
+    }
+  },
+
+  addSvgAccessibility: () => {
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+      if (!svg.hasAttribute('aria-hidden') && !svg.querySelector('title, desc')) {
+        const title = document.createElement('title');
+        title.textContent = svg.getAttribute('aria-label') || 'Graphic';
+        svg.insertBefore(title, svg.firstChild);
+      }
+    });
+  },
+
+  ensureUniqueLandmarks: () => {
+    const landmarks = ['main', 'navigation', 'banner', 'contentinfo'];
+    landmarks.forEach(landmark => {
+      const elements = document.querySelectorAll(`[role="${landmark}"]`);
+      if (elements.length > 1) {
+        elements.forEach((el, index) => {
+          if (index > 0) {
+            el.removeAttribute('role');
+          }
+        });
+      }
+    });
+  },
+
+  fixFakeLinks: () => {
+    const elements = document.querySelectorAll('[role="link"]');
+    elements.forEach(el => {
+      if (!el.hasAttribute('href') && !el.hasAttribute('tabindex')) {
+        el.setAttribute('tabindex', '0');
+      }
+    });
+  }
 };
 
 // Functions already existing in the file to preserve

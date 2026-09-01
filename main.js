@@ -142,6 +142,54 @@
       // Call the new function to check landmark elements
       checkLandmarkElements();
 
+      // Added keyboard navigation support
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          const activeElement = document.activeElement;
+          if (activeElement && activeElement.hasAttribute('data-dismiss')) {
+            activeElement.click();
+          }
+        }
+      });
+
+      // Added ARIA labels for interactive elements
+      const interactiveElements = document.querySelectorAll('[aria-controls], [aria-expanded], [aria-pressed]');
+      interactiveElements.forEach(element => {
+        if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+          const textContent = element.textContent.trim();
+          if (textContent) {
+            element.setAttribute('aria-label', textContent);
+          }
+        }
+      });
+
+      // Added screen reader announcements for dynamic content
+      const dynamicContentObserver = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'childList' && a11y && a11y.announce) {
+            const addedNodes = Array.from(mutation.addedNodes);
+            addedNodes.forEach(node => {
+              if (node.nodeType === Node.ELEMENT_NODE && node.textContent.trim()) {
+                a11y.announce(node.textContent.trim(), 'polite');
+              }
+            });
+          }
+        });
+      });
+
+      const dynamicContentElements = document.querySelectorAll('[data-dynamic-content]');
+      dynamicContentElements.forEach(element => {
+        dynamicContentObserver.observe(element, { childList: true, subtree: true });
+      });
+
+      // Added focus trapping for modals
+      const modalElements = document.querySelectorAll('[role="dialog"], [role="alertdialog"]');
+      modalElements.forEach(modal => {
+        if (a11y && a11y.trapFocus) {
+          a11y.trapFocus(modal);
+        }
+      });
+
       const accessibilityUtils = {
         // TODO: Implement the function for addressing new accessibility issues
         addressNewAccessibilityIssues: function(issues) {

@@ -76,15 +76,15 @@ function getLangAttribute() {
 function personName(options = {}) {
   const { firstName = '', lastName = '', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
-  
+
   const element = document.createElement('span');
   element.setAttribute('aria-label', fullName);
   element.textContent = fullName;
-  
+
   if (container) {
     container.appendChild(element);
   }
-  
+
   return element;
 }
 
@@ -181,7 +181,7 @@ function newFocusTrap(container) {
   const focusableElements = Array.from(
     container.querySelectorAll(focusableSelectors)
   ).filter(el => el.offsetParent !== null);
-  
+
   if (focusableElements.length > 0) {
     focusableElements[0].focus();
   }
@@ -195,6 +195,9 @@ function newFocusTrap(container) {
     }
   };
 }
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 // Export the new functions
 module.exports = {

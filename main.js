@@ -5,7 +5,7 @@ const accessibilityUtils = {
         if (!issues || !Array.isArray(issues)) {
             return [];
         }
-        
+
         return issues.map(issue => {
             return {
                 id: issue.id,
@@ -48,6 +48,20 @@ const formatResponse = (data) => {
   return JSON.stringify(data, null, 2);
 };
 
+// Function to count dependencies in landmarks
+function countDependencies(landmarks) {
+    if (!landmarks || !Array.isArray(landmarks)) {
+        return 0;
+    }
+
+    return landmarks.reduce((count, landmark) => {
+        if (landmark.dependencies && Array.isArray(landmark.dependencies)) {
+            return count + landmark.dependencies.length;
+        }
+        return count;
+    }, 0);
+}
+
 // Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
 const { validateInput } = require('./utils/validators');
 const { processData } = require('./utils/processor');
@@ -67,7 +81,8 @@ module.exports = {
   ensureUniqueLandmarks,
   landmarkConfig: CONFIG,
   generateAccessibilityReport,
-  accessibilityUtils
+  accessibilityUtils,
+  countDependencies
 };
 
 // Main execution when run directly
@@ -75,11 +90,11 @@ if (require.main === module) {
   const landmarks = loadLandmarks();
   const processed = processLandmarks(landmarks);
   const sorted = sortLandmarks(processed);
-  
+
   console.log(`Loaded ${landmarks.length} landmarks`);
   console.log(`Processed to ${processed.length} unique landmarks`);
   console.log(`Sorted ${sorted.length} landmarks`);
-  
+
   if (sorted.length > 0) {
     console.log('First landmark:', sorted[0]);
   }

@@ -1,119 +1,381 @@
-Here's a thinking process:
+// main.js - Main application entry point
 
-1.  **Analyze User Input:**
-   - Role: Senior JavaScript/Node.js Developer
-   - Task: Resolve a Git merge conflict in `main.js` for a Screeps bot repository
-   - Input: File content with conflict markers `<<<<<<< HEAD` and `=======` and `>>>>>>> origin/main`
-   - Requirements:
-     - Resolve conflict meaningfully and logically
-     - Keep and integrate both changes if they add features
-     - Choose correct logic that compiles and satisfies both needs
-     - Don't discard functionality unless redundant
-     - No syntax errors
-     - Preserve comments and style as much as possible
-   - Output: ONLY the complete resolved file content
-   - No markdown code blocks, no conversational explanation before/after
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// main.js - Main application entry point
 
-2.  **Examine the Conflict Markers:**
-   The conflict is between `HEAD` (likely the current branch) and `origin/main` (the remote main branch).
+const fs = require('fs');
+const path = require('path');
 
-   Let me split the content into the two sides:
+// TODO: Address accessibility issues (REACT_015 to REACT_041)
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_027: Fix 26 table structure issues
+// - REACT_017: Add/fix 4 landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks
+// - REACT_036: Fix 1 fake link issue
 
-   **HEAD side (<<<<<<< HEAD):**
-   - Starts with `const fs = require('fs');`
-   - Has a long TODO list addressing accessibility issues (REACT_015 to REACT_041)
-   - Defines many functions: `addLangAttribute`, `getFullLangAttribute`, `fixImageAltTexts`, `handleCredentialResponse`, `setSvgAccessibilityProps`, `getSvgAccessibleName`, `ensureUniqueLandmarks`, `validateTableStructure`, `fixTableStructureIssues`, `createInPageButton`, `createAccessibleLink`, `fixTableStructureIssues` (another one?), `fixFakeLinkIssue`, `fixFakeLinkIssues`, `fixLandmarkIssues`, `addLandmarkRegions`, `uniqueLandmarks`, `addSvgAccessibleNames`, `addAccessibleNamesToSVGs`, `fixFakeLinkIssue` (another?), `fixFakeLinkIssues` (another?), `addMainLandmark`, `addMainLandmarkToIndex`, `getLangAttribute`, `fixButtonIdentifiers`, `fixDependencyGraphAria`, `ensureElementHasId`, `ensureElementHasIdOrigin`, `addAriaLabel`, `renderDependencyGraphs`, `googleSignIn`, `addressAccessibilityIssues`, `metadata`, `run`, `loop`, `a11yStore` object, `updateThScopeAttribute`, exports, and `if (typeof window !== 'undefined')` block setting `document.documentElement.lang = getLangAttribute();`
+// Accessibility utility functions
+const addLangAttribute = (element, lang) => {
+  element.setAttribute('lang', lang);
+};
 
-   **origin/main side (>>>>>>> origin/main):**
-   - Defines `accessibilityUtils` object with `initSkipLink`, `trapFocus`, `announceToScreenReader`, `handleKeyboardNav`, `newFocusTrap`
-   - Has TODO comments for REACT issues
-   - Defines `ensureElementId`, `addAriaLabel`, `renderDependencyGraph`
-   - Defines `newFunction` (trap focus merged)
-   - Comments: "The rest of the file remains unchanged"
-   - No export block visible, just function definitions
+const getFullLangAttribute = (element) => {
+  return element.getAttribute('lang') || document.documentElement.lang;
+};
 
-   Wait, let me look more carefully at the structure. The conflict markers are:
-   ```
-   <<<<<<< HEAD
-   ... (lots of code)
-   =======
-   ... (different code)
-   >>>>>>> origin/main
-   ```
+const fixImageAltTexts = (images) => {
+  images.forEach(img => {
+    if (!img.alt) {
+      img.alt = 'Decorative image';
+    }
+  });
+};
 
-   I need to merge both sides logically. The HEAD side is extremely long and seems to be the main file with all the accessibility functions, exports, etc. The origin/main side is shorter, focusing on utility functions, skip links, trap focus, and some merged concepts.
+const handleCredentialResponse = (response) => {
+  // Handle Google Sign-In response
+  console.log('Credential response:', response);
+};
 
-   Let me re-read the exact conflict boundaries. The text shows:
-   ```
-   <<<<<<< HEAD
-   [CODE BLOCK 1]
-   =======
-   [CODE BLOCK 2]
-   >>>>>>> origin/main
-   ```
+const setSvgAccessibilityProps = (svg) => {
+  if (!svg.getAttribute('aria-hidden')) {
+    svg.setAttribute('aria-hidden', 'true');
+  }
+};
 
-   Block 1 (HEAD): 
-   - Starts at `const fs = require('fs');`
-   - Ends at `document.documentElement.lang = getLangAttribute();  // Set the document language`
-   - Actually, looking at the end: `document.documentElement.lang = getLangAttribute();  // Set the document language`
-   - Then `=======`
-   - Then Block 2 (origin/main):
-     ```
-     const accessibilityUtils = {
-       // Utility functions for accessibility
-       initSkipLink: () => { ... },
-       trapFocus: (element) => { ... },
-       announceToScreenReader: (message, priority = 'polite') => { ... },
-       handleKeyboardNav: (e, handlers) => { ... },
-       newFocusTrap: newFocusTrap(),
-       // Accessibility functions to address new issues (TODO: Implement)
-       // - REACT_015: Add lang attribute to HTML element
-       // - REACT_027: Fix 26 table structure issues
-       // - REACT_017: Add/fix 4 landmark issues
-       // - REACT_041: Add accessible names to 2 SVGs
-       // - REACT_025: Ensure unique landmarks
-       // - REACT_036: Fix 1 fake link issue
-     };
-     
-     // Functions already existing in the file to preserve
-     // ...
-     
-     const ensureElementId = (element) => { ... };
-     const addAriaLabel = (element, label) => { ... };
-     const renderDependencyGraph = (data) => { ... };
-     
-     // Function for trap focus implementation (merged with newFocusTrap)
-     function newFunction(element) { ... }
-     // ... (The rest of the file remains unchanged)
-     ```
-   - Wait, the origin/main block doesn't have a clear ending before `>>>>>>> origin/main`? Actually it does: it ends with `// ... (The rest of the file remains unchanged)` and then the closing `>>>>>>> origin/main`.
+const getSvgAccessibleName = (svg) => {
+  return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
+};
 
-   Actually, let me look at the exact structure again. The conflict is between two versions of `main.js`. One is the current HEAD, the other is from origin/main. I need to merge them into a single coherent file.
+const ensureUniqueLandmarks = (landmarks) => {
+  const ids = new Set();
+  landmarks.forEach(landmark => {
+    if (ids.has(landmark.id)) {
+      landmark.id = `${landmark.id}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+    ids.add(landmark.id);
+  });
+};
 
-   Key observations:
-   - HEAD has a complete Node.js module with `fs`, `path`, `metadata`, `run()`, `loop()`, `a11yStore`, exports, window global setup, and `document.documentElement.lang = getLangAttribute()` at the very bottom.
-   - origin/main has `accessibilityUtils` object, some standalone functions (`ensureElementId`, `addAriaLabel`, `renderDependencyGraph`, `newFunction`), and comments about preserving existing functions.
-   - Both have TODO references to the same REACT accessibility issues (REACT_015, 027, 017, 041, 025, 036).
-   - HEAD has extensive functions for: lang attribute, table structure, landmarks, SVGs, credential auth, fake links, etc.
-   - origin/main has skip links, trap focus, screen reader announcements, keyboard nav.
+const validateTableStructure = (table) => {
+  // Validate table structure
+  const rows = table.querySelectorAll('tr');
+  // Implementation would go here
+};
 
-   The goal: resolve conflict meaningfully, integrate both changes if they add features, keep functionality that compiles, preserve comments/style.
+const fixTableStructureIssues = (tables) => {
+  tables.forEach(table => {
+    if (!validateTableStructure(table)) {
+      // Fix table structure
+    }
+  });
+};
 
-   I need to produce a resolved `main.js` that combines the best of both, without syntax errors.
+const createInPageButton = (text, onClick) => {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.addEventListener('click', onClick);
+  return button;
+};
 
-   Let me outline a strategy:
-   1. Start with the imports/requires from HEAD since they're foundational: `const fs = require('fs'); const path = require('path');`
-   2. Include the TODO comment block from HEAD since it's relevant and both sides reference it.
-   3. Merge the function definitions. I'll need to pick one version of duplicate functions, or combine them if they do similar things but with different approaches.
-   4. Integrate the `accessibilityUtils` from origin/main as a new section or merge its methods.
-   5. Keep the `metadata`, `run()`, `loop()` from HEAD.
-   6. Keep the `a11yStore` from HEAD, possibly merging with origin/utils.
-   7. Handle the global window export from HEAD.
-   8. Ensure `document.documentElement.lang = getLangAttribute();` at the end or appropriate place.
+const createAccessibleLink = (text, href) => {
+  const link = document.createElement('a');
+  link.textContent = text;
+  link.href = href;
+  link.setAttribute('aria-label', text);
+  return link;
+};
 
-   Actually, looking more carefully, the conflict markers might be enclosing the entire file content after some initial part? Let me check the format of the provided text.
+const fixFakeLinkIssue = (element) => {
+  if (element.tagName === 'A' && !element.href) {
+    element.setAttribute('role', 'button');
+  }
+};
 
-   The user says: "Here is the conflicting file:" then shows `=========================================` then the content with `<<<<<<< HEAD`... I think the `=========================================` is just a separator, not part of the file.
+const fixFakeLinkIssues = (elements) => {
+  elements.forEach(fixFakeLinkIssue);
+};
 
-   The file content starts with `const fs = require('fs');` and has `<<<<<<< HEAD` immediately
-Throwable: Cannot read properties of undefined (reading the .ics form the previous step)
+const fixLandmarkIssues = (landmarks) => {
+  ensureUniqueLandmarks(landmarks);
+  // Additional landmark fixes
+};
+
+const addLandmarkRegions = (regions) => {
+  regions.forEach(region => {
+    region.setAttribute('role', 'region');
+  });
+};
+
+const uniqueLandmarks = (landmarks) => {
+  const unique = [];
+  const ids = new Set();
+  landmarks.forEach(landmark => {
+    if (!ids.has(landmark.id)) {
+      unique.push(landmark);
+      ids.add(landmark.id);
+    }
+  });
+  return unique;
+};
+
+const addSvgAccessibleNames = (svgs) => {
+  svgs.forEach(svg => {
+    const name = getSvgAccessibleName(svg);
+    if (name) {
+      svg.setAttribute('aria-label', name);
+    }
+  });
+};
+
+const addAccessibleNamesToSVGs = (svgs) => {
+  addSvgAccessibleNames(svgs);
+};
+
+const addMainLandmark = (element) => {
+  element.setAttribute('role', 'main');
+};
+
+const addMainLandmarkToIndex = () => {
+  const main = document.querySelector('main');
+  if (main) {
+    addMainLandmark(main);
+  }
+};
+
+const getLangAttribute = () => {
+  return document.documentElement.lang || 'en';
+};
+
+const fixButtonIdentifiers = (buttons) => {
+  buttons.forEach(button => {
+    if (!button.id) {
+      button.id = `btn-${Math.random().toString(36).substr(2, 9)}`;
+    }
+  });
+};
+
+const fixDependencyGraphAria = (graph) => {
+  graph.setAttribute('aria-label', 'Dependency graph visualization');
+};
+
+const ensureElementHasId = (element) => {
+  if (!element.id) {
+    element.id = `el-${Math.random().toString(36).substr(2, 9)}`;
+  }
+};
+
+const ensureElementHasIdOrigin = (element) => {
+  ensureElementHasId(element);
+};
+
+const addAriaLabel = (element, label) => {
+  element.setAttribute('aria-label', label);
+};
+
+const renderDependencyGraphs = (graphs) => {
+  graphs.forEach(graph => {
+    fixDependencyGraphAria(graph);
+  });
+};
+
+const googleSignIn = () => {
+  // Initialize Google Sign-In
+  console.log('Google Sign-In initialized');
+};
+
+const addressAccessibilityIssues = () => {
+  // Main function to address all accessibility issues
+  const images = document.querySelectorAll('img');
+  const tables = document.querySelectorAll('table');
+  const buttons = document.querySelectorAll('button');
+  const svgs = document.querySelectorAll('svg');
+  const landmarks = document.querySelectorAll('[role="landmark"]');
+  const fakeLinks = document.querySelectorAll('a:not([href])');
+
+  fixImageAltTexts(images);
+  fixTableStructureIssues(tables);
+  fixButtonIdentifiers(buttons);
+  addSvgAccessibleNames(svgs);
+  fixLandmarkIssues(landmarks);
+  fixFakeLinkIssues(fakeLinks);
+  addMainLandmarkToIndex();
+};
+
+// Accessibility utility functions from origin/main
+const accessibilityUtils = {
+  // Utility functions for accessibility
+  initSkipLink: () => {
+    const skipLink = document.createElement('a');
+    skipLink.href = '#main-content';
+    skipLink.textContent = 'Skip to main content';
+    skipLink.className = 'skip-link';
+    document.body.insertBefore(skipLink, document.body.firstChild);
+  },
+
+  trapFocus: (element) => {
+    const focusableElements = element.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusable) {
+            lastFocusable.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastFocusable) {
+            firstFocusable.focus();
+            e.preventDefault();
+          }
+        }
+      }
+    });
+  },
+
+  announceToScreenReader: (message, priority = 'polite') => {
+    const announcement = document.createElement('div');
+    announcement.setAttribute('aria-live', priority);
+    announcement.textContent = message;
+    document.body.appendChild(announcement);
+    setTimeout(() => document.body.removeChild(announcement), 1000);
+  },
+
+  handleKeyboardNav: (e, handlers) => {
+    if (e.key === 'Escape') {
+      handlers.onEscape?.();
+    } else if (e.key === 'Enter') {
+      handlers.onEnter?.();
+    }
+  },
+
+  newFocusTrap: (element) => {
+    const focusableElements = element.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusable) {
+            lastFocusable.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastFocusable) {
+            firstFocusable.focus();
+            e.preventDefault();
+          }
+        }
+      }
+    });
+  }
+};
+
+// Existing functions to preserve
+const ensureElementId = (element) => {
+  if (!element.id) {
+    element.id = `el-${Math.random().toString(36).substr(2, 9)}`;
+  }
+};
+
+const renderDependencyGraph = (data) => {
+  // Implementation would go here
+};
+
+// Function for trap focus implementation (merged with newFocusTrap)
+function newFunction(element) {
+  accessibilityUtils.newFocusTrap(element);
+}
+
+// Main application metadata
+const metadata = {
+  version: '1.0.0',
+  author: 'Your Name',
+  description: 'Accessibility-focused application'
+};
+
+// Main application functions
+function run() {
+  console.log('Application running');
+  addressAccessibilityIssues();
+  googleSignIn();
+}
+
+function loop() {
+  console.log('Application loop');
+  // Main application loop
+}
+
+// Accessibility store
+const a11yStore = {
+  lang: getLangAttribute(),
+  landmarks: [],
+  tables: [],
+  images: [],
+  buttons: [],
+  svgs: [],
+  fakeLinks: []
+};
+
+// Update th scope attribute for tables
+const updateThScopeAttribute = (thElements) => {
+  thElements.forEach(th => {
+    if (!th.getAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+    }
+  });
+};
+
+// Export the main functions
+module.exports = {
+  metadata,
+  run,
+  loop,
+  a11yStore,
+  addLangAttribute,
+  getFullLangAttribute,
+  fixImageAltTexts,
+  handleCredentialResponse,
+  setSvgAccessibilityProps,
+  getSvgAccessibleName,
+  ensureUniqueLandmarks,
+  validateTableStructure,
+  fixTableStructureIssues,
+  createInPageButton,
+  createAccessibleLink,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  addMainLandmark,
+  addMainLandmarkToIndex,
+  getLangAttribute,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  googleSignIn,
+  addressAccessibilityIssues,
+  accessibilityUtils,
+  ensureElementId,
+  renderDependencyGraph,
+  newFunction,
+  updateThScopeAttribute
+};
+
+// Set the document language when running in browser environment
+if (typeof window !== 'undefined') {
+  document.documentElement.lang = getLangAttribute();  // Set the document language
+}

@@ -126,7 +126,9 @@ function ensureUniqueLandmarks(landmarks) {
   landmarks.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
-      duplicates.push(name);
+      if (!duplicates.includes(name)) {
+        duplicates.push(name);
+      }
     } else {
       names.push(name);
     }
@@ -217,6 +219,22 @@ function handleAccessibilityIssues(issues) {
   };
 }
 
+// TODO: Implement solution to the issue
+function runAccessibilityValidation(document) {
+  const langAttr = getLangAttribute();
+  const fullLangAttr = getFullLangAttribute();
+  
+  const validationResults = {
+    language: {
+      success: !!langAttr && !!fullLangAttr,
+      langAttribute: langAttr,
+      fullLangAttribute: fullLangAttr
+    }
+  };
+  
+  return validationResults;
+}
+
 // Export all functions for testing and external use
 module.exports = {
   getLangAttribute,
@@ -229,5 +247,6 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  runAccessibilityValidation
 };

@@ -10,8 +10,34 @@ const { requireDir } = require('require-dir');
 requireDir(require.resolve('./utilities'));
 
 // Import all utilities functions for convenience
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport,
-  addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderGraphIndex, renderDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
+const {
+    createInPageButton,
+    createWebResourceButton,
+    validateLandmark,
+    validateLandmarkStructure,
+    validateAccessibilityReport,
+    addLangAttribute,
+    fixTableStructureIssues,
+    addMainLandmark,
+    ensureUniqueLandmarks,
+    addSvgAccessibleNames,
+    addAccessibleNamesToSVGs,
+    fixFakeLinkIssue,
+    fixFakeLinkIssues,
+    fixLandmarkIssues,
+    addLandmarkRegions,
+    uniqueLandmarks,
+    fixImageAltTexts,
+    googleSignIn,
+    handleCredentialResponse,
+    ensureElementHasId,
+    ensureElementHasIdOrigin,
+    addAriaLabel,
+    renderGraphIndex,
+    renderDependencyGraphAria,
+    addMainLandmarkToIndex,
+    addressAccessibilityIssues,
+} = main;
 
 const http = require('http');
 
@@ -23,8 +49,8 @@ const http = require('http');
 
 // Add the new module usage to renderMyComponent
 function renderMyComponent(props) {
-  // use the imported React module here and other necessary work
-  // ...
+    // use the imported React module here and other necessary work
+    // ...
 }
 
 // original code for renderAnotherComponent before the line 70 comment
@@ -32,64 +58,64 @@ function renderMyComponent(props) {
 
 // Add the new module usage to renderAnotherComponent
 function renderAnotherComponent(props) {
-  // use the imported React module, Testing Library, and WindowContext here and other necessary work
-  // ...
+    // use the imported React module, Testing Library, and WindowContext here and other necessary work
+    // ...
 
-  // Render the component with the testing library (render) and extend Expect with Jest-DOM.
-  // Mock `Window.open` with the WindowContext provider.
-  return (
-    <WindowContext>
-      {(window) => (
-        <React.Fragment>
-          {/* render the component as it was before */}
-          {originalRenderAnotherComponent(props, window)}
-        </React.Fragment>
-      )}
-    </WindowContext>
-  );
+    // Render the component with the testing library (render) and extend Expect with Jest-DOM.
+    // Mock `Window.open` with the WindowContext provider.
+    return (
+        <WindowContext>
+            {(window) => (
+                <React.Fragment>
+                    {/* render the component as it was before */}
+                    {originalRenderAnotherComponent(props, window)}
+                </React.Fragment>
+            )}
+        </WindowContext>
+    );
 }
 
 // Accessibility function (merged from both branches)
 function setSvgAccessibleProps(svg) {
-  addSvgAccessibleNames(svg); // From branch HEAD
-  validateLandmarkStructure(svg); // From branch origin/main
-  const titleElement = main.getSvgAccessibleName(svg);
-  if (titleElement) {
-    svg.setAttribute('aria-labelledby', titleElement.id);
-  }
-  if (!svg.getAttribute('role')) {
-    svg.setAttribute('role', 'img');
-  }
+    addSvgAccessibleNames(svg); // From branch HEAD
+    validateLandmarkStructure(svg); // From branch origin/main
+    const titleElement = main.getSvgAccessibleName(svg);
+    if (titleElement) {
+        svg.setAttribute('aria-labelledby', titleElement.id);
+    }
+    if (!svg.getAttribute('role')) {
+        svg.setAttribute('role', 'img');
+    }
 }
 
 // New accessibility function to address issues from insight report
 function addressAccessibilityIssues(element) {
-  // Ensure all images have alt text
-  fixImageAltTexts(element);
+    // Ensure all images have alt text
+    fixImageAltTexts(element);
 
-  // Ensure proper landmark structure
-  fixLandmarkIssues(element);
+    // Ensure proper landmark structure
+    fixLandmarkIssues(element);
 
-  // Ensure unique landmarks
-  ensureUniqueLandmarks(element);
+    // Ensure unique landmarks
+    ensureUniqueLandmarks(element);
 
-  // Fix fake link issues
-  fixFakeLinkIssues(element);
+    // Fix fake link issues
+    fixFakeLinkIssues(element);
 
-  // Add accessible names to SVGs
-  addAccessibleNamesToSVGs(element);
+    // Add accessible names to SVGs
+    addAccessibleNamesToSVGs(element);
 
-  // Add ARIA labels where needed
-  addAriaLabel(element);
+    // Add ARIA labels where needed
+    addAriaLabel(element);
 
-  // Ensure proper table structure
-  fixTableStructureIssues(element);
+    // Ensure proper table structure
+    fixTableStructureIssues(element);
 
-  // Add lang attribute if missing
-  addLangAttribute(element);
+    // Add lang attribute if missing
+    addLangAttribute(element);
 
-  // Validate accessibility report
-  validateAccessibilityReport(element);
+    // Validate accessibility report
+    validateAccessibilityReport(element);
 }
 
 // Other exports or functions in main.js might be unaffected
@@ -99,8 +125,8 @@ export { renderMyComponent, renderAnotherComponent };
 
 // Exporting merged code (CommonJS)
 module.exports = {
-  ...main,
-  setSvgAccessibleProps,
-  renderGraphIndex, // Replace renderDependencyGraphs with renderGraphIndex
-  addressAccessibilityIssues // Add the new accessibility function to exports
+    ...main,
+    setSvgAccessibleProps,
+    renderGraphIndex, // Replace renderDependencyGraphs with renderGraphIndex
+    addressAccessibilityIssues, // Add the new accessibility function to exports
 };

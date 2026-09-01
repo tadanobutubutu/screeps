@@ -1,14 +1,3 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
-// - ADD: Address new accessibility issues from insight report
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
 import React from 'react';
@@ -252,7 +241,6 @@ function validateSvgAccessibility() {
 }
 
 // New function to address REACT_036: Fix 1 fake link issue
-// Creates a button element with correct accessibility properties for in-page linking
 /**
  * Creates a button element with correct accessibility properties for in-page linking
  * @param {string} text - The visible text content of the button
@@ -260,6 +248,7 @@ function validateSvgAccessibility() {
  * @param {object} [options] - Additional options
  * @param {string} [options.ariaLabel] - Custom aria-label for the button
  * @param {string} [options.className] - CSS class name(s) to apply to the button
+ * @param {function} [options.onClick] - Custom click handler
  * @returns {HTMLButtonElement|null} The created button element, or null if document is unavailable
  */
 function createInPageButton(text, targetId, options) {
@@ -279,22 +268,15 @@ function createInPageButton(text, targetId, options) {
   // Use aria-controls to indicate the element the button controls/links to
   if (targetId) {
     button.setAttribute('aria-controls', targetId);
-  }
-  
-  // Set the text content
-  button.textContent = text;
-  
-  // Apply optional className
-  if (opts.className) {
-    button.className = opts.className;
-  }
-  
-  // Store the target id as a data attribute for handling clicks
-  if (targetId) {
     button.setAttribute('data-target-id', targetId);
     
     // Attach a click handler that scrolls to the target and updates the URL hash
     button.addEventListener('click', function(event) {
+      // Execute custom onClick if provided
+      if (typeof opts.onClick === 'function') {
+        opts.onClick(event);
+      }
+      
       const targetElement = document.getElementById(targetId);
       if (targetElement) {
         // Prevent default to allow smooth scrolling behavior to be controlled
@@ -315,5 +297,78 @@ function createInPageButton(text, targetId, options) {
     });
   }
   
+  // Apply optional className
+  if (opts.className) {
+    button.className = opts.className;
+  }
+  
   return button;
 }
+
+// New function to address REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') {
+    return { valid: true, errors: [] };
+  }
+  
+  const errors = [];
+  const landmarkTypes = ['header', 'nav', 'main', 'aside', 'footer'];
+  
+  landmarkTypes.forEach((type) => {
+    const elements = document.querySelectorAll(type);
+    const labeledElements = document.querySelectorAll(`[role="${type}"]`);
+    const total = elements.length + labeledElements.length;
+    
+    if (total > 1 && type !== 'nav' && type !== 'aside') {
+      errors.push(`Multiple ${type} landmarks found (${total}). Consider using unique aria-labels to differentiate them.`);
+    } else if (total > 1) {
+      // For nav and aside, multiple are allowed but must have unique labels
+      const allElements = [...elements, ...labeledElements];
+      const labels = allElements.map(el => el.getAttribute('aria-label') || el.getAttribute('aria-labelledby'));
+      const uniqueLabels = new Set(labels.filter(l => l));
+      if (uniqueLabels.size < total) {
+        errors.push(`Multiple ${type} landmarks found without unique aria-labels`);
+      }
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_036: Fix fake link issues
+function createInPageButton(text, onClick) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = text;
+  if (onClick && typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  return button;
+}
+
+function personName(name) {
+  if (typeof name !== 'string') {
+    return '';
+  }
+  return name.trim();
+}
+
+// Export all functions to make them available as module exports
+export {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  personName
+};

@@ -142,6 +142,14 @@ function validateLandmarkStructure(landmarks) {
         issues: result.issues
       });
     }
+
+    const attrResult = validateLandmarkAttributes(landmark);
+    if (!attrResult.success) {
+      issues.push({
+        landmarkIndex: index,
+        issues: attrResult.issues
+      });
+    }
   });
 
   return {

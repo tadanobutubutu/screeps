@@ -10,7 +10,7 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
@@ -40,6 +40,12 @@ import { render } from 'react-dom';
 import { addLangAttribute, fixTableStructure, fixLandmarkIssues, fixFakeLinkIssue, fixFakeLinkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, uniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, addAriaLabel, renderDependencyGraphs, focusTrap, prefersReducedMotion, isEmpty, capitalize, getRandomInt, clamp, deepClone, googleSignIn, decodeJwtResponse, fixButtonIdentifiers, ensureElementHasId } from './AccessibilityHelpers';
 
 const main = require('./utilities');
+
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+// main.js - Accessibility improvements implementation
+// main.js - Combined utility and accessibility features
 
 // Added missing calculateSum function export
 function calculateSum(a, b) {

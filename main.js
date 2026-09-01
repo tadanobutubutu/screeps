@@ -68,15 +68,15 @@ function divide(dividend, divisor) {
   if (typeof dividend !== 'number' || typeof divisor !== 'number') {
     throw new Error('Both arguments must be numbers');
   }
-  
+
   if (isNaN(dividend) || isNaN(divisor)) {
     throw new Error('Both arguments must be valid numbers');
   }
-  
+
   if (divisor === 0) {
     throw new Error('Division by zero is not allowed');
   }
-  
+
   return dividend / divisor;
 }
 
@@ -156,16 +156,16 @@ function checkLinkAccessibility() {
   // This function will be used to validate the accessibility of links
   const links = document.querySelectorAll('a[href]');
   const issues = [];
-  
+
   links.forEach(link => {
     const href = link.getAttribute('href');
     const text = link.textContent.trim();
-    
+
     if (!text) {
       issues.push(`Link with href "${href}" has no accessible text`);
     }
   });
-  
+
   return issues;
 }
 
@@ -178,29 +178,29 @@ function checkLinkAccessibility() {
  */
 function wrapPrimaryContentInMain() {
   const body = document.body;
-  
+
   // Return null if body element is not available
   if (!body) {
     return null;
   }
-  
+
   // Check if a <main> element already exists to avoid duplication
   const existingMain = document.querySelector('main');
   if (existingMain) {
     return existingMain;
   }
-  
+
   // Create a new <main> element
   const main = document.createElement('main');
-  
+
   // Move all existing body children into the <main> element
   while (body.firstChild) {
     main.appendChild(body.firstChild);
   }
-  
+
   // Append the <main> element to the body
   body.appendChild(main);
-  
+
   return main;
 }
 
@@ -292,6 +292,58 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// New function to improve accessibility for adding a new book
+/**
+ * Creates an accessible form for adding a new book with proper labels and ARIA attributes
+ * @param {string} formId - The ID for the form element
+ * @param {string} submitButtonId - The ID for the submit button
+ * @returns {HTMLFormElement} The created form element
+ */
+function createAccessibleBookForm(formId, submitButtonId) {
+    const form = document.createElement('form');
+    form.id = formId;
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-labelledby', `${formId}-title`);
+
+    // Add form title for accessibility
+    const title = document.createElement('h2');
+    title.id = `${formId}-title`;
+    title.textContent = 'Add New Book';
+    form.appendChild(title);
+
+    // Create accessible form fields
+    const createField = (labelText, inputId, inputType = 'text') => {
+        const fieldset = document.createElement('fieldset');
+        const label = document.createElement('label');
+        label.setAttribute('for', inputId);
+        label.textContent = labelText;
+        const input = document.createElement('input');
+        input.type = inputType;
+        input.id = inputId;
+        input.setAttribute('required', 'true');
+        input.setAttribute('aria-required', 'true');
+
+        fieldset.appendChild(label);
+        fieldset.appendChild(input);
+        return fieldset;
+    };
+
+    // Add form fields
+    form.appendChild(createField('Book Title:', `${formId}-title`));
+    form.appendChild(createField('Author:', `${formId}-author`));
+    form.appendChild(createField('Publication Year:', `${formId}-year`, 'number'));
+
+    // Add submit button
+    const submitButton = document.createElement('button');
+    submitButton.id = submitButtonId;
+    submitButton.type = 'submit';
+    submitButton.textContent = 'Add Book';
+    submitButton.setAttribute('aria-label', 'Submit new book form');
+    form.appendChild(submitButton);
+
+    return form;
+}
+
 // Don't forget to test your new additions in the test file
 
 // Export accessibility utility functions
@@ -307,7 +359,8 @@ module.exports = {
     createInPageButton,
     divide,
     checkLinkAccessibility,
-    wrapPrimaryContentInMain
+    wrapPrimaryContentInMain,
+    createAccessibleBookForm
 };
 
 // Run if executed directly

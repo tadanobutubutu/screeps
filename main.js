@@ -10,7 +10,7 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
@@ -73,6 +73,46 @@ function renderGraphIndex(content, options = {}) {
   return container;
 }
 
+// Function to validate table structure for accessibility issues
+function validateTableStructure(container) {
+  // Check if container exists and contains tables
+  if (!container || !container.querySelectorAll) return;
+
+  const tables = container.querySelectorAll('table');
+
+  tables.forEach(table => {
+    // Ensure table has a caption if it's not empty
+    if (table.rows.length > 0 && !table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table caption';
+      table.prepend(caption);
+    }
+
+    // Ensure table has proper headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      // If no headers, add scope attributes to first row cells
+      const firstRowCells = table.querySelectorAll('tr:first-child td');
+      firstRowCells.forEach(cell => {
+        cell.setAttribute('scope', 'col');
+      });
+    } else {
+      // Ensure headers have scope attributes
+      headers.forEach(header => {
+        if (!header.hasAttribute('scope')) {
+          header.setAttribute('scope', 'col');
+        }
+      });
+    }
+
+    // Ensure table has proper ARIA attributes
+    if (!table.hasAttribute('role')) {
+      table.setAttribute('role', 'table');
+    }
+  });
+}
+
+// Add the validateTableStructure function to exports
 module.exports = {
   VERSION,
   hello,
@@ -84,6 +124,7 @@ module.exports = {
   calculateSum,
   newFunction,
   renderGraphIndex,
+  validateTableStructure,
   prefersReducedMotion,
   isEmpty,
   getRandomInt,

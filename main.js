@@ -1,5 +1,21 @@
 // TODO: Implement the new function as per the issue requirements
 
+// New function implementation at line 399
+function detectAndSetLang() {
+  // Detect the language from the document or content
+  const lang = document.documentElement.lang || 
+               document.querySelector('html')?.getAttribute('lang') || 
+               document.body?.getAttribute('lang') || 
+               'en';
+  
+  // Ensure the HTML element has a lang attribute for proper accessibility
+  if (!document.documentElement.hasAttribute('lang')) {
+    document.documentElement.setAttribute('lang', lang);
+  }
+  
+  return lang;
+}
+
 module.exports = {
   // Existing exports...
 

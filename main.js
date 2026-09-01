@@ -664,7 +664,7 @@ function renderAccessibilityReportHtml(report) {
     let html = `<div class="accessibility-report">
         <h1>Accessibility Report</h1>
         <p>Generated: ${report.timestamp}</p>
-        
+
         <div class="summary">
             <h2>Summary</h2>
             <ul>
@@ -674,10 +674,10 @@ function renderAccessibilityReportHtml(report) {
                 <li>Passed: ${report.summary.passed}</li>
             </ul>
         </div>
-        
+
         <div class="issues">
             <h2>Issues Found</h2>`;
-    
+
     if (report.issues.length === 0) {
         html += '<p>No issues found!</p>';
     } else {
@@ -687,12 +687,12 @@ function renderAccessibilityReportHtml(report) {
             </div>`;
         });
     }
-    
+
     html += `</div>
-        
+
         <div class="passed">
             <h2>Passed Checks</h2>`;
-    
+
     if (report.passed.length === 0) {
         html += '<p>No checks passed yet.</p>';
     } else {
@@ -702,9 +702,9 @@ function renderAccessibilityReportHtml(report) {
             </div>`;
         });
     }
-    
+
     html += '</div></div>';
-    
+
     return html;
 }
 
@@ -714,22 +714,168 @@ function renderAccessibilityReportHtml(report) {
  */
 function generateAndDisplayReport() {
     const report = generateAccessibilityReport();
-    
+
     console.log('=== Accessibility Report ===');
     console.log(`Generated: ${report.timestamp}`);
     console.log(`Total Issues: ${report.summary.totalIssues}`);
     console.log(`Critical: ${report.summary.critical}`);
     console.log(`Moderate: ${report.summary.moderate}`);
     console.log(`Passed: ${report.summary.passed}`);
-    
+
     if (report.issues.length > 0) {
         console.log('\n--- Issues ---');
         report.issues.forEach(issue => {
             console.log(`[${issue.status.toUpperCase()}] ${issue.category}: ${issue.message}`);
         });
     }
-    
+
     if (report.passed.length > 0) {
         console.log('\n--- Passed Checks ---');
         report.passed.forEach(item => {
-            console.log(`[PASS
+            console.log(`[PASSED] ${item.category}: ${item.message}`);
+        });
+    }
+
+    return report;
+}
+
+// Export the new accessibility report functions
+export {
+    generateAccessibilityReport,
+    renderAccessibilityReportHtml,
+    generateAndDisplayReport
+};
+
+// New accessibility utility functions
+
+/**
+ * Sets up basic accessibility features for a page
+ * @param {Object} options - Configuration options
+ * @param {string} [options.lang='en'] - Language code for the page
+ * @param {boolean} [options.skipToContent=true] - Whether to add skip-to-content link
+ */
+function setupBasicAccessibility(options = {}) {
+    const { lang = 'en', skipToContent = true } = options;
+
+    // Set language attribute
+    if (typeof document !== 'undefined') {
+        const html = document.documentElement;
+        if (html && !html.hasAttribute('lang')) {
+            html.setAttribute('lang', lang);
+        }
+
+        // Add skip-to-content link if enabled
+        if (skipToContent) {
+            const skipLink = document.createElement('a');
+            skipLink.href = '#main-content';
+            skipLink.className = 'skip-link';
+            skipLink.textContent = 'Skip to main content';
+            skipLink.style.cssText = `
+                position: absolute;
+                left: -10000px;
+                top: auto;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+            `;
+            skipLink.addEventListener('focus', function() {
+                this.style.left = '0';
+                this.style.width = 'auto';
+                this.style.height = 'auto';
+            });
+            skipLink.addEventListener('blur', function() {
+                this.style.left = '-10000px';
+                this.style.width = '1px';
+                this.style.height = '1px';
+            });
+            document.body.insertBefore(skipLink, document.body.firstChild);
+        }
+    }
+}
+
+/**
+ * Makes a button more accessible by ensuring it has proper attributes
+ * @param {HTMLElement} button - The button element to enhance
+ * @param {Object} options - Configuration options
+ * @param {string} [options.ariaLabel] - ARIA label for the button
+ * @param {string} [options.role] - ARIA role for the button
+ */
+function enhanceButtonAccessibility(button, options = {}) {
+    if (!button) return;
+
+    const { ariaLabel, role = 'button' } = options;
+
+    // Set role if not already set
+    if (!button.hasAttribute('role')) {
+        button.setAttribute('role', role);
+    }
+
+    // Set ARIA label if provided
+    if (ariaLabel && !button.hasAttribute('aria-label')) {
+        button.setAttribute('aria-label', ariaLabel);
+    }
+
+    // Ensure button has proper tabindex
+    if (!button.hasAttribute('tabindex')) {
+        button.setAttribute('tabindex', '0');
+    }
+
+    // Add keyboard event listeners for better keyboard navigation
+    button.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            button.click();
+        }
+    });
+}
+
+/**
+ * Makes a form more accessible by adding proper labels and ARIA attributes
+ * @param {HTMLFormElement} form - The form element to enhance
+ */
+function enhanceFormAccessibility(form) {
+    if (!form) return;
+
+    // Add ARIA role to form
+    if (!form.hasAttribute('role')) {
+        form.setAttribute('role', 'form');
+    }
+
+    // Ensure all form controls have proper labels
+    const controls = form.querySelectorAll('input, textarea, select');
+    controls.forEach(control => {
+        if (!control.id) {
+            control.id = `form-control-${Math.random().toString(36).substr(2, 9)}`;
+        }
+
+        // Find or create label
+        let label = form.querySelector(`label[for="${control.id}"]`);
+        if (!label) {
+            label = document.createElement('label');
+            label.setAttribute('for', control.id);
+            label.textContent = control.placeholder || control.name || 'Input field';
+            control.parentNode.insertBefore(label, control);
+        }
+
+        // Add ARIA describedby if there's help text
+        const helpText = control.nextElementSibling;
+        if (helpText && helpText.classList.contains('help-text')) {
+            control.setAttribute('aria-describedby', helpText.id || `help-${control.id}`);
+        }
+    });
+
+    // Add submit button if missing
+    if (!form.querySelector('button[type="submit"]')) {
+        const submitBtn = document.createElement('button');
+        submitBtn.type = 'submit';
+        submitBtn.textContent = 'Submit';
+        form.appendChild(submitBtn);
+    }
+}
+
+// Export the new accessibility utility functions
+export {
+    setupBasicAccessibility,
+    enhanceButtonAccessibility,
+    enhanceFormAccessibility
+};

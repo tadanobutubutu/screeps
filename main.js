@@ -438,3 +438,22 @@ function createFocusTrap(container, options = {}) {
     destroy: deactivate
   };
 }
+
+function checkLandmarkElements(container) {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+
+  const errors = [];
+  const root = container || document;
+  const landmarks = root.querySelectorAll('header, nav, main, aside, footer, section, article, [role="header"], [role="nav"], [role="main"], [role="aside"], [role="footer"], [role="section"], [role="article"], [role="search"]');
+
+  landmarks.forEach((landmark, index) => {
+    const result = validateLandmark(landmark);
+    if (!result.valid) {
+      errors.push(`Landmark ${index + 1}: ${result.errors.join(', ')}`);
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}

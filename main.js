@@ -561,6 +561,110 @@ function addressAccessibilityIssues(insightReport) {
 }
 
 /**
+ * Creates an accessible form for adding books.
+ * @param {HTMLElement} container - The container element to append the form to.
+ * @returns {HTMLFormElement} The created form element.
+ */
+function createAccessibleBookForm(container) {
+  // Create form element with proper ARIA attributes
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', 'add-book-form-title');
+
+  // Create form title
+  const title = document.createElement('h2');
+  title.id = 'add-book-form-title';
+  title.textContent = 'Add New Book';
+  form.appendChild(title);
+
+  // Create form fields with proper labels and ARIA attributes
+  const fields = [
+    { id: 'book-title', label: 'Title', type: 'text', required: true },
+    { id: 'book-author', label: 'Author', type: 'text', required: true },
+    { id: 'book-isbn', label: 'ISBN', type: 'text', required: false },
+    { id: 'book-published', label: 'Published Date', type: 'date', required: false }
+  ];
+
+  fields.forEach(field => {
+    const fieldset = document.createElement('div');
+    fieldset.className = 'form-field';
+
+    const label = document.createElement('label');
+    label.setAttribute('for', field.id);
+    label.textContent = field.label;
+    fieldset.appendChild(label);
+
+    const input = document.createElement('input');
+    input.id = field.id;
+    input.type = field.type;
+    input.required = field.required;
+    input.setAttribute('aria-required', field.required.toString());
+    fieldset.appendChild(input);
+
+    form.appendChild(fieldset);
+  });
+
+  // Create submit button
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Book';
+  submitButton.setAttribute('aria-label', 'Submit the book form');
+  form.appendChild(submitButton);
+
+  // Add event listener for form submission
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    // Handle form submission here
+    console.log('Form submitted');
+  });
+
+  // Append form to container
+  if (container) {
+    container.appendChild(form);
+  }
+
+  return form;
+}
+
+/**
+ * Adds ARIA labels to form elements for better accessibility.
+ * @param {HTMLFormElement} form - The form element to enhance.
+ */
+function enhanceFormAccessibility(form) {
+  if (!form) return;
+
+  // Add ARIA attributes to form elements
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', 'form-title');
+
+  // Add ARIA labels to inputs
+  const inputs = form.querySelectorAll('input, textarea, select');
+  inputs.forEach(input => {
+    if (!input.getAttribute('aria-label') && !input.getAttribute('aria-labelledby')) {
+      const id = input.id || `input-${Math.random().toString(36).substr(2, 9)}`;
+      input.id = id;
+
+      const label = form.querySelector(`label[for="${id}"]`);
+      if (label) {
+        input.setAttribute('aria-labelledby', label.id);
+      } else {
+        // If no label exists, add aria-label based on input type
+        const type = input.type || 'text';
+        input.setAttribute('aria-label', `${type} input`);
+      }
+    }
+  });
+
+  // Add ARIA attributes to buttons
+  const buttons = form.querySelectorAll('button');
+  buttons.forEach(button => {
+    if (!button.getAttribute('aria-label')) {
+      button.setAttribute('aria-label', button.textContent.trim() || 'Submit button');
+    }
+  });
+}
+
+/**
  * Initializes the application and applies accessibility fixes.
  */
 const initApp = () => {
@@ -639,5 +743,7 @@ module.exports = {
     return date.toISOString().split('T')[0];
   },
   // Accessibility Functions
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  createAccessibleBookForm,
+  enhanceFormAccessibility
 };

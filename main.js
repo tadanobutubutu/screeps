@@ -127,9 +127,11 @@ function countDependencies() {
   // Existing function implementation
 
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /import\s+.*?from\s+['"].*?['"]/g;
-  const importCount = (dependencyGraphContent.matches(importCommentRegExp) || []).length;
-  return importCount;
+  // Support both ES6 imports and CommonJS require statements
+  const importCommentRegExp = /import\s+.*?\s+from\s+['"].*?['"]|require\s*\(\s*['"].*?['"]\s*\)/g;
+  const content = dependencyGraphContent || '';
+  const importMatches = content.match(importCommentRegExp) || [];
+  return importMatches.length;
 }
 
 // Import a11y store configuration
@@ -138,6 +140,22 @@ const a11yStore = {};
 // Render index view content using indexContent
 function renderIndexView() {
   return indexContent;
+}
+
+/**
+ * Renders the dependency graph view using the graph rendering utilities
+ * @returns {string} The rendered graph content
+ */
+function renderGraphView() {
+  return dependencyGraphContent;
+}
+
+/**
+ * Renders the index view using the index rendering utilities
+ * @returns {string} The rendered index content
+ */
+function renderIndex() {
+  return renderIndexView();
 }
 
 // New function to handle adding landmark regions
@@ -281,6 +299,8 @@ module.exports = {
   ensureUniqueLandmarks,
   setSvgAttributes,
   renderIndexView,
+  renderGraphView,
+  renderIndex,
   newRequiredFunction,
   additionalFunction,
   createAccessibleWebResourceButton

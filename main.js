@@ -509,7 +509,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
   },
@@ -521,11 +521,11 @@ const exportUtils = {
 
   exportToCSV: (data, filename) => {
     if (!data || data.length === 0) return;
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (const row of data) {
       const values = headers.map(header => {
         const escaped = ('' + row[header]).replace(/"/g, '\\"');
@@ -533,7 +533,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -567,6 +567,431 @@ function addBook() {
 function myNewFunction() {
   // Implementation here
   return "Hello from myNewFunction!";
+}
+
+// NEW: Graph rendering functions
+/**
+ * Renders a bar chart with accessibility features
+ * @param {Object} data - Data to render in the chart
+ * @param {Object} options - Chart configuration options
+ * @returns {Object} Chart element structure
+ */
+function renderBarChart(data, options = {}) {
+    const { title = 'Bar Chart', xAxisLabel = 'X Axis', yAxisLabel = 'Y Axis' } = options;
+
+    // Calculate chart dimensions
+    const width = options.width || 600;
+    const height = options.height || 400;
+    const margin = { top: 40, right: 20, bottom: 60, left: 60 };
+
+    // Create SVG container with accessibility attributes
+    const svg = {
+        type: 'svg',
+        props: {
+            width: width + margin.left + margin.right,
+            height: height + margin.top + margin.bottom,
+            'aria-label': title,
+            role: 'img',
+            focusable: 'false'
+        },
+        children: [
+            // Add title
+            {
+                type: 'text',
+                props: {
+                    x: (width + margin.left + margin.right) / 2,
+                    y: margin.top / 2,
+                    textAnchor: 'middle',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    children: title
+                }
+            },
+
+            // Add X axis label
+            {
+                type: 'text',
+                props: {
+                    x: (width + margin.left + margin.right) / 2,
+                    y: height + margin.top + margin.bottom - 10,
+                    textAnchor: 'middle',
+                    fontSize: '14px',
+                    children: xAxisLabel
+                }
+            },
+
+            // Add Y axis label
+            {
+                type: 'text',
+                props: {
+                    transform: `translate(${margin.left / 3}, ${(height + margin.top + margin.bottom) / 2}) rotate(-90)`,
+                    textAnchor: 'middle',
+                    fontSize: '14px',
+                    children: yAxisLabel
+                }
+            },
+
+            // Create chart group
+            {
+                type: 'g',
+                props: {
+                    transform: `translate(${margin.left}, ${margin.top})`
+                },
+                children: [
+                    // Add bars
+                    ...data.map((item, index) => {
+                        const barHeight = (item.value / Math.max(...data.map(d => d.value))) * height;
+                        const barWidth = (width / data.length) * 0.8;
+
+                        return {
+                            type: 'rect',
+                            props: {
+                                x: index * (width / data.length),
+                                y: height - barHeight,
+                                width: barWidth,
+                                height: barHeight,
+                                fill: options.color || '#4e79a7',
+                                'aria-label': `${item.label}: ${item.value}`,
+                                role: 'presentation'
+                            }
+                        };
+                    }),
+
+                    // Add X axis
+                    {
+                        type: 'line',
+                        props: {
+                            x1: 0,
+                            y1: height,
+                            x2: width,
+                            y2: height,
+                            stroke: '#000',
+                            'stroke-width': 1
+                        }
+                    },
+
+                    // Add Y axis
+                    {
+                        type: 'line',
+                        props: {
+                            x1: 0,
+                            y1: 0,
+                            x2: 0,
+                            y2: height,
+                            stroke: '#000',
+                            'stroke-width': 1
+                        }
+                    },
+
+                    // Add X axis labels
+                    ...data.map((item, index) => ({
+                        type: 'text',
+                        props: {
+                            x: index * (width / data.length) + (width / data.length) / 2,
+                            y: height + 20,
+                            textAnchor: 'middle',
+                            fontSize: '12px',
+                            children: item.label
+                        }
+                    }))
+                ]
+            }
+        ]
+    };
+
+    return svg;
+}
+
+/**
+ * Renders a line chart with accessibility features
+ * @param {Object} data - Data to render in the chart
+ * @param {Object} options - Chart configuration options
+ * @returns {Object} Chart element structure
+ */
+function renderLineChart(data, options = {}) {
+    const { title = 'Line Chart', xAxisLabel = 'X Axis', yAxisLabel = 'Y Axis' } = options;
+
+    // Calculate chart dimensions
+    const width = options.width || 600;
+    const height = options.height || 400;
+    const margin = { top: 40, right: 20, bottom: 60, left: 60 };
+
+    // Create SVG container with accessibility attributes
+    const svg = {
+        type: 'svg',
+        props: {
+            width: width + margin.left + margin.right,
+            height: height + margin.top + margin.bottom,
+            'aria-label': title,
+            role: 'img',
+            focusable: 'false'
+        },
+        children: [
+            // Add title
+            {
+                type: 'text',
+                props: {
+                    x: (width + margin.left + margin.right) / 2,
+                    y: margin.top / 2,
+                    textAnchor: 'middle',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    children: title
+                }
+            },
+
+            // Add X axis label
+            {
+                type: 'text',
+                props: {
+                    x: (width + margin.left + margin.right) / 2,
+                    y: height + margin.top + margin.bottom - 10,
+                    textAnchor: 'middle',
+                    fontSize: '14px',
+                    children: xAxisLabel
+                }
+            },
+
+            // Add Y axis label
+            {
+                type: 'text',
+                props: {
+                    transform: `translate(${margin.left / 3}, ${(height + margin.top + margin.bottom) / 2}) rotate(-90)`,
+                    textAnchor: 'middle',
+                    fontSize: '14px',
+                    children: yAxisLabel
+                }
+            },
+
+            // Create chart group
+            {
+                type: 'g',
+                props: {
+                    transform: `translate(${margin.left}, ${margin.top})`
+                },
+                children: [
+                    // Add line path
+                    {
+                        type: 'path',
+                        props: {
+                            d: generateLinePath(data, width, height),
+                            fill: 'none',
+                            stroke: options.color || '#e15759',
+                            'stroke-width': 2,
+                            'aria-label': 'Data line',
+                            role: 'presentation'
+                        }
+                    },
+
+                    // Add data points
+                    ...data.map((item, index) => {
+                        const x = (index / (data.length - 1)) * width;
+                        const y = height - (item.value / Math.max(...data.map(d => d.value))) * height;
+
+                        return {
+                            type: 'circle',
+                            props: {
+                                cx: x,
+                                cy: y,
+                                r: 4,
+                                fill: options.color || '#e15759',
+                                'aria-label': `${item.label}: ${item.value}`,
+                                role: 'presentation'
+                            }
+                        };
+                    }),
+
+                    // Add X axis
+                    {
+                        type: 'line',
+                        props: {
+                            x1: 0,
+                            y1: height,
+                            x2: width,
+                            y2: height,
+                            stroke: '#000',
+                            'stroke-width': 1
+                        }
+                    },
+
+                    // Add Y axis
+                    {
+                        type: 'line',
+                        props: {
+                            x1: 0,
+                            y1: 0,
+                            x2: 0,
+                            y2: height,
+                            stroke: '#000',
+                            'stroke-width': 1
+                        }
+                    },
+
+                    // Add X axis labels
+                    ...data.map((item, index) => ({
+                        type: 'text',
+                        props: {
+                            x: (index / (data.length - 1)) * width,
+                            y: height + 20,
+                            textAnchor: 'middle',
+                            fontSize: '12px',
+                            children: item.label
+                        }
+                    }))
+                ]
+            }
+        ]
+    };
+
+    return svg;
+}
+
+/**
+ * Helper function to generate SVG path for line chart
+ * @param {Array} data - Data points
+ * @param {number} width - Chart width
+ * @param {number} height - Chart height
+ * @returns {string} SVG path string
+ */
+function generateLinePath(data, width, height) {
+    if (!data || data.length === 0) return '';
+
+    const maxValue = Math.max(...data.map(d => d.value));
+    let path = '';
+
+    data.forEach((item, index) => {
+        const x = (index / (data.length - 1)) * width;
+        const y = height - (item.value / maxValue) * height;
+
+        if (index === 0) {
+            path += `M ${x} ${y}`;
+        } else {
+            path += ` L ${x} ${y}`;
+        }
+    });
+
+    return path;
+}
+
+/**
+ * Renders a pie chart with accessibility features
+ * @param {Object} data - Data to render in the chart
+ * @param {Object} options - Chart configuration options
+ * @returns {Object} Chart element structure
+ */
+function renderPieChart(data, options = {}) {
+    const { title = 'Pie Chart', colors = ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f'] } = options;
+
+    // Calculate chart dimensions
+    const width = options.width || 400;
+    const height = options.height || 400;
+    const radius = Math.min(width, height) / 2;
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    // Calculate total for percentages
+    const total = data.reduce((sum, item) => sum + item.value, 0);
+
+    // Create SVG container with accessibility attributes
+    const svg = {
+        type: 'svg',
+        props: {
+            width: width,
+            height: height,
+            'aria-label': title,
+            role: 'img',
+            focusable: 'false'
+        },
+        children: [
+            // Add title
+            {
+                type: 'text',
+                props: {
+                    x: centerX,
+                    y: 20,
+                    textAnchor: 'middle',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    children: title
+                }
+            },
+
+            // Create chart group
+            {
+                type: 'g',
+                props: {
+                    transform: `translate(${centerX}, ${centerY})`
+                },
+                children: [
+                    // Add pie slices
+                    ...data.map((item, index) => {
+                        const percentage = item.value / total;
+                        const startAngle = index === 0 ? 0 : data.slice(0, index).reduce((sum, d) => sum + (d.value / total), 0) * 360;
+                        const endAngle = startAngle + percentage * 360;
+
+                        // Convert angles to radians
+                        const startRad = (startAngle - 90) * Math.PI / 180;
+                        const endRad = (endAngle - 90) * Math.PI / 180;
+
+                        // Calculate path commands
+                        const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
+                        const x1 = radius * Math.cos(startRad);
+                        const y1 = radius * Math.sin(startRad);
+                        const x2 = radius * Math.cos(endRad);
+                        const y2 = radius * Math.sin(endRad);
+
+                        return {
+                            type: 'path',
+                            props: {
+                                d: `M 0 0 L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`,
+                                fill: colors[index % colors.length],
+                                'aria-label': `${item.label}: ${Math.round(percentage * 100)}%`,
+                                role: 'presentation'
+                            }
+                        };
+                    }),
+
+                    // Add legend
+                    ...data.map((item, index) => {
+                        const percentage = item.value / total;
+                        const legendY = -radius + 30 + index * 20;
+
+                        return {
+                            type: 'g',
+                            props: {
+                                transform: `translate(-${radius - 20}, ${legendY})`
+                            },
+                            children: [
+                                // Color box
+                                {
+                                    type: 'rect',
+                                    props: {
+                                        x: 0,
+                                        y: -10,
+                                        width: 15,
+                                        height: 15,
+                                        fill: colors[index % colors.length]
+                                    }
+                                },
+                                // Label
+                                {
+                                    type: 'text',
+                                    props: {
+                                        x: 20,
+                                        y: 0,
+                                        fontSize: '12px',
+                                        children: `${item.label}: ${Math.round(percentage * 100)}%`
+                                    }
+                                }
+                            ]
+                        };
+                    })
+                ]
+            }
+        ]
+    };
+
+    return svg;
 }
 
 // Initialize accessibility features
@@ -653,6 +1078,11 @@ module.exports = {
 
   // New function from HEAD
   myNewFunction,
+
+  // Graph rendering functions
+  renderBarChart,
+  renderLineChart,
+  renderPieChart,
 
   // Accessibility-related functions
   generateUniqueLandmarkId,

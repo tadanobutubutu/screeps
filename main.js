@@ -68,15 +68,15 @@ function divide(dividend, divisor) {
   if (typeof dividend !== 'number' || typeof divisor !== 'number') {
     throw new Error('Both arguments must be numbers');
   }
-  
+
   if (isNaN(dividend) || isNaN(divisor)) {
     throw new Error('Both arguments must be valid numbers');
   }
-  
+
   if (divisor === 0) {
     throw new Error('Division by zero is not allowed');
   }
-  
+
   return dividend / divisor;
 }
 
@@ -211,6 +211,80 @@ function fixFakeLinks(html) {
     return html;
 }
 
+// TODO: The new function to check link accessibility
+/**
+ * Checks if links in HTML are accessible by verifying they have proper attributes
+ * @param {string} html - The HTML string to check
+ * @returns {Object} An object with accessibility issues found
+ */
+function checkLinkAccessibility(html) {
+    if (typeof html !== 'string') return { errors: [], warnings: [] };
+
+    const issues = {
+        errors: [],
+        warnings: []
+    };
+
+    // Check for links without href
+    const linksWithoutHref = [...html.matchAll(/<a([^>]*)>/gi)].filter(match => {
+        const attrs = match[1];
+        return !/\bhref=/i.test(attrs);
+    });
+
+    linksWithoutHref.forEach(match => {
+        issues.errors.push({
+            type: 'missing_href',
+            message: 'Link is missing href attribute',
+            element: match[0]
+        });
+    });
+
+    // Check for links with empty href
+    const linksWithEmptyHref = [...html.matchAll(/<a\s+href=["']\s*["']([^>]*)>/gi)];
+    linksWithEmptyHref.forEach(match => {
+        issues.errors.push({
+            type: 'empty_href',
+            message: 'Link has empty href attribute',
+            element: match[0]
+        });
+    });
+
+    // Check for links with javascript: href
+    const jsLinks = [...html.matchAll(/<a\s+href=["']javascript:[^"']*["']([^>]*)>/gi)];
+    jsLinks.forEach(match => {
+        issues.errors.push({
+            type: 'javascript_href',
+            message: 'Link uses javascript: in href',
+            element: match[0]
+        });
+    });
+
+    // Check for links without text content
+    const linksWithNoText = [...html.matchAll(/<a\s+href=["'][^"']*["']\s*><\/a>/gi)];
+    linksWithNoText.forEach(match => {
+        issues.warnings.push({
+            type: 'empty_link_text',
+            message: 'Link has no visible text content',
+            element: match[0]
+        });
+    });
+
+    // Check for links with title but no aria-label
+    const linksWithTitle = [...html.matchAll(/<a\s+title=["']([^"']*)["']([^>]*)>/gi)];
+    linksWithTitle.forEach(match => {
+        const attrs = match[2];
+        if (!/\baria-label=/i.test(attrs)) {
+            issues.warnings.push({
+                type: 'title_without_aria_label',
+                message: 'Link has title but no aria-label',
+                element: match[0]
+            });
+        }
+    });
+
+    return issues;
+}
+
 // Main function that applies all accessibility fixes
 function applyAccessibilityFixes(html) {
     let result = html;
@@ -251,7 +325,8 @@ module.exports = {
     applyAccessibilityFixes,
     addressAccessibilityIssues,
     createInPageButton,
-    divide
+    divide,
+    checkLinkAccessibility
 };
 
 // Run if executed directly

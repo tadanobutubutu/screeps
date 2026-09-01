@@ -320,6 +320,33 @@ function personName(element) {
 }
 
 /**
+ * Creates an accessible in-page navigation button, addressing REACT_036 fake link issues.
+ * Ensures that buttons used for navigation have proper accessible names and semantics.
+ * @param {Object} props - Button properties
+ * @param {string} props.label - The accessible label for the button
+ * @param {Function} props.onClick - Click handler for the button
+ * @param {string} props.id - Optional id for the button
+ * @param {string} props.className - Optional CSS class name
+ * @returns {React.Element} A React button element with proper accessibility
+ */
+function createInPageButton(props) {
+  const { label, onClick, id, className } = props;
+  
+  if (!label) {
+    console.warn('createInPageButton: label prop is required for accessibility');
+  }
+  
+  return React.createElement('button', {
+    type: 'button',
+    id: id,
+    className: className,
+    onClick: onClick,
+    'aria-label': label,
+    'aria-describedby': props['aria-describedby'] || null
+  }, props.children || label);
+}
+
+/**
  * Validates that links and interactive elements have accessible names,
  * addressing REACT_036 fake link issues.
  * @param {HTMLElement} container - Optional container to scan within

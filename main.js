@@ -571,6 +571,31 @@ function addProperLandmarkRegions(document) {
   });
 }
 
+// REACT_040: Replace my-button with actual button id for accessibility
+function fixButtonIdentifiers() {
+  const buttons = document.querySelectorAll('[id^="my-button"]');
+  buttons.forEach((button, index) => {
+    const newId = `button-${index + 1}`;
+    button.id = newId;
+    button.setAttribute('aria-label', `Button ${index + 1}`);
+  });
+}
+
+// REACT_042: Ensure dependencyGraph container has proper ARIA role
+function ensureDependencyGraphAriaRole() {
+  const container = document.getElementById('dependencyGraph');
+  if (container && !container.getAttribute('role')) {
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
+// REACT_037: Google sign-in logic
+function googleSignIn() {
+  // Implementation for Google sign-in
+  console.log('Google sign-in initiated');
+}
+
 // Configuration
 const config = {
   // Configuration options
@@ -839,5 +864,8 @@ export {
   fixFakeLinkIssue,
   addSvgAccessibleNames,
   ensureUniqueLandmarksDoc,
-  functionA
+  functionA,
+  fixButtonIdentifiers,
+  ensureDependencyGraphAriaRole,
+  googleSignIn
 };

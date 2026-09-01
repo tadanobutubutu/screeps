@@ -45,7 +45,7 @@ function spawnLandmark(landmarkData) {
 // Manages the spawning logic for landmarks based on configuration
 function handleSpawningLogic(maxLandmarks = 100, landmarkConfigs = []) {
     const spawnedLandmarks = [];
-    
+
     landmarkConfigs.forEach(config => {
         if (landmarks.length < maxLandmarks) {
             const spawned = spawnLandmark(config);
@@ -136,9 +136,9 @@ let appState = {};
 
 // Initialize function
 function initialize() {
-  config = { 
-    apiUrl: process.env.API_URL || 'https://api.example.com', 
-    timeout: 5000 
+  config = {
+    apiUrl: process.env.API_URL || 'https://api.example.com',
+    timeout: 5000
   };
   appState = { initialized: true };
 }
@@ -571,6 +571,167 @@ if (isSecureContext()) {
 
 registerSW();
 
+/**
+ * Adds accessibility attributes to a form element
+ * @param {HTMLFormElement} form - The form element to enhance
+ */
+function enhanceFormAccessibility(form) {
+  if (!form) return;
+
+  // Add ARIA attributes if not present
+  if (!form.getAttribute('aria-labelledby')) {
+    const label = form.querySelector('legend') || form.querySelector('h1, h2, h3, h4, h5, h6');
+    if (label && label.id) {
+      form.setAttribute('aria-labelledby', label.id);
+    }
+  }
+
+  // Ensure all form controls have proper labels
+  const formControls = form.querySelectorAll('input, textarea, select, button');
+  formControls.forEach(control => {
+    if (!control.id) {
+      control.id = `form-control-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    if (!control.getAttribute('aria-label') && !control.getAttribute('aria-labelledby')) {
+      const label = form.querySelector(`label[for="${control.id}"]`);
+      if (label) {
+        control.setAttribute('aria-labelledby', label.id);
+      }
+    }
+  });
+
+  // Add role if it's a search form
+  if (form.querySelector('input[type="search"]')) {
+    form.setAttribute('role', 'search');
+  }
+
+  // Add submit button if missing
+  if (!form.querySelector('button[type="submit"]')) {
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    submitButton.textContent = 'Submit';
+    form.appendChild(submitButton);
+  }
+}
+
+/**
+ * Adds a book to the collection with accessibility considerations
+ * @param {Object} bookData - The book data to add
+ * @returns {Object|null} The added book or null if invalid
+ */
+function addBook(bookData) {
+  if (!bookData || !bookData.title || !bookData.author) {
+    console.warn('Invalid book data provided');
+    return null;
+  }
+
+  const newBook = {
+    id: `book-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    title: bookData.title,
+    author: bookData.author,
+    description: bookData.description || '',
+    publishedDate: bookData.publishedDate || new Date().toISOString(),
+    isbn: bookData.isbn || '',
+    accessible: true
+  };
+
+  // Add to books collection (assuming there's a books array)
+  if (typeof books !== 'undefined' && Array.isArray(books)) {
+    books.push(newBook);
+  }
+
+  return newBook;
+}
+
+/**
+ * Creates an accessible form for adding books
+ * @returns {HTMLFormElement} The created form element
+ */
+function createBookForm() {
+  const form = document.createElement('form');
+  form.id = 'add-book-form';
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', 'add-book-form-title');
+
+  // Add title
+  const title = document.createElement('h2');
+  title.id = 'add-book-form-title';
+  title.textContent = 'Add a New Book';
+  form.appendChild(title);
+
+  // Add form fields
+  const fields = [
+    { label: 'Title', type: 'text', name: 'title', required: true },
+    { label: 'Author', type: 'text', name: 'author', required: true },
+    { label: 'Description', type: 'textarea', name: 'description' },
+    { label: 'Published Date', type: 'date', name: 'publishedDate' },
+    { label: 'ISBN', type: 'text', name: 'isbn' }
+  ];
+
+  fields.forEach(field => {
+    const fieldContainer = document.createElement('div');
+    fieldContainer.className = 'form-field';
+
+    const label = document.createElement('label');
+    label.htmlFor = field.name;
+    label.textContent = field.label;
+    fieldContainer.appendChild(label);
+
+    let input;
+    if (field.type === 'textarea') {
+      input = document.createElement('textarea');
+    } else {
+      input = document.createElement('input');
+      input.type = field.type;
+    }
+
+    input.id = field.name;
+    input.name = field.name;
+    if (field.required) {
+      input.required = true;
+      input.setAttribute('aria-required', 'true');
+    }
+
+    fieldContainer.appendChild(input);
+    form.appendChild(fieldContainer);
+  });
+
+  // Add submit button
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Book';
+  form.appendChild(submitButton);
+
+  // Enhance form accessibility
+  enhanceFormAccessibility(form);
+
+  // Add form submission handler
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const bookData = {
+      title: formData.get('title'),
+      author: formData.get('author'),
+      description: formData.get('description'),
+      publishedDate: formData.get('publishedDate'),
+      isbn: formData.get('isbn')
+    };
+
+    const addedBook = addBook(bookData);
+    if (addedBook) {
+      console.log('Book added successfully:', addedBook);
+      form.reset();
+      // You might want to trigger a UI update here
+    } else {
+      console.error('Failed to add book');
+    }
+  });
+
+  return form;
+}
+
 module.exports = {
   config,
   appState,
@@ -601,7 +762,10 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   fixFakeLinks,
-  main
+  main,
+  enhanceFormAccessibility,
+  addBook,
+  createBookForm
 };
 
 function App() {

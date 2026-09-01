@@ -206,8 +206,22 @@ function addSvgAccessibleNameUtil() {
 }
 
 function ensureUniqueLandmarks() {
-  // Implementation for ensuring unique landmarks
-  // This would typically involve checking for duplicate landmarks
+  if (typeof document === 'undefined') {
+    return [];
+  }
+
+  const issues = [];
+  const landmarks = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form'];
+  const uniqueLandmarks = ['main', 'banner', 'contentinfo'];
+  
+  uniqueLandmarks.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
+    if (elements.length > 1) {
+      issues.push(`Multiple ${role} landmarks found - should be unique`);
+    }
+  });
+
+  return issues;
 }
 
 function fixFakeLinkIssue() {
@@ -232,6 +246,14 @@ module.exports = {
   ...accessibilityUtils,
   ensureElementId,
   ensureElementHasId,
+  getLangAttribute,
+  personName,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  generateAccessibilityReport,
   newFocusTrap,
   renderGraphIndex,
   renderDependencyGraphs,

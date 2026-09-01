@@ -109,11 +109,49 @@ function addLangAttribute(htmlElement) {
 // You can implement them as needed, or omit them if they are not relevant to your issue.
 
 function validateTableAccessibility(table, index) {
-  // TODO: Implement validation logic here
+  // Check if table has a scope attribute
+  if (!table.getAttribute('scope')) {
+    console.warn(`Table at index ${index} lacks 'scope' attribute`);
+    return false;
+  }
+  
+  // Check for header row
+  const headerRow = table.querySelector('tr');
+  if (!headerRow) {
+    console.warn(`Table at index ${index} has no header row`);
+    return false;
+  }
+  
+  // Check for th elements in header row
+  const thElements = headerRow.querySelectorAll('th');
+  if (thElements.length === 0) {
+    console.warn(`Table at index ${index} header row has no <th> elements`);
+    return false;
+  }
+  
+  // Check for tbody presence (optional but recommended)
+  if (!table.querySelector('tbody')) {
+    console.warn(`Table at index ${index} is missing a tbody element`);
+    return false;
+  }
+  
+  // Validate that header row has at least one th
+  if (thElements.length === 0) {
+    console.warn(`Table at index ${index} header row has no <th> elements`);
+    return false;
+  }
+  
+  return true;
 }
 
 function validateTableStructure() {
-  // TODO: Implement validation logic here
+  // Iterate through all tables in the document
+  const tables = document.querySelectorAll('table');
+  for (let i = 0; i < tables.length; i++) {
+    if (!validateTableAccessibility(tables[i], i)) {
+      console.error(`Invalid table found at index ${i}`);
+    }
+  }
 }
 
 function validateLandmark(element) {

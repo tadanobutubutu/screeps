@@ -1,5 +1,4 @@
-// Example of a resolved main.js file with exports for functionA and functionB
-// Assuming the functions are already defined and comments indicate where exports were removed
+// main.js - Combined utility and accessibility features with exported functions (functionA, functionB, createInPageButton)
 
 // ... existing code ...
 
@@ -61,7 +60,6 @@ module.exports.functionA = functionA;
 module.exports.functionB = functionB;
 module.exports.createInPageButton = createInPageButton;
 
-// TODO: This is the existing code that needs to be preserved
 // TODO: add the new functions or changes requested in the issue
 
 // New function or changes to address accessibility issues as per the insight report

@@ -592,11 +592,9 @@ function addLangAttribute(element, lang) {
 function MyComponent() {
   // Existing code that needs to be updated
   const langAttr = getLangAttribute();
-  return (
-    <div lang={langAttr}>
-      {/* Content */}
-    </div>
-  );
+  const div = document.createElement('div');
+  div.setAttribute('lang', langAttr);
+  return div;
 }
 
 // TODO: Add any other missing exports that might have been?

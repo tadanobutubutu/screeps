@@ -76,7 +76,7 @@ function divide(dividend, divisor) {
   }
 
   if (divisor === 0) {
-    throw new Error('Division by zero is not allowed');
+    return 0;
   }
 
   return dividend / divisor;
@@ -226,6 +226,22 @@ function applyAccessibilityFixes(html) {
 }
 
 // TODO: Add back any required exports that might have been removed
-// export { applyAccessibilityFixes, divide };
-// _Commit: 243c66538868c6b87845660312397ab39e39e0f830d_
-//<!-- todo-hash: ... -->
+module.exports = {
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarks,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  applyAccessibilityFixes,
+  addressAccessibilityIssues,
+  createInPageButton,
+  validateTableAccessibility,
+  validateLandmarkStructure,
+  getLangAttribute,
+  getSvgAccessibleName,
+  personName,
+  divide,
+  checkLinkAccessibility,
+  wrapPrimaryContentInMain
+}

@@ -111,6 +111,53 @@ const a11yStore = {
     });
   },
 
+  /**
+   * Ensure all form elements have proper labels
+   */
+  ensureFormAccessibility() {
+    const formElements = document.querySelectorAll('input, textarea, select');
+    formElements.forEach((element) => {
+      if (!element.id) {
+        element.id = `form-element-${Math.floor(Math.random() * 10000)}`;
+      }
+
+      if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+        const label = document.querySelector(`label[for="${element.id}"]`);
+        if (!label) {
+          element.setAttribute('aria-label', element.placeholder || 'Form input');
+        }
+      }
+    });
+  },
+
+  /**
+   * Ensure all interactive elements have proper keyboard support
+   */
+  ensureKeyboardNavigation() {
+    const interactiveElements = document.querySelectorAll('[role="button"], [role="tab"], [role="menuitem"]');
+    interactiveElements.forEach((element) => {
+      if (!element.hasAttribute('tabindex')) {
+        element.setAttribute('tabindex', '0');
+      }
+
+      if (!element.hasAttribute('aria-disabled')) {
+        element.setAttribute('aria-disabled', 'false');
+      }
+    });
+  },
+
+  /**
+   * Ensure all images have proper alternative text
+   */
+  ensureImageAccessibility() {
+    const images = document.querySelectorAll('img');
+    images.forEach((img) => {
+      if (!img.alt && !img.getAttribute('aria-hidden')) {
+        img.setAttribute('alt', '');
+      }
+    });
+  },
+
   preserveExistingCode() {
     // TODO: This is the existing code that needs to be preserved
     // _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
@@ -952,5 +999,8 @@ module.exports = {
   getActiveSessionsCount,
   server,
   sanitizeFilename,
-  processData
+  processData,
+  ensureFormAccessibility: a11yStore.ensureFormAccessibility,
+  ensureKeyboardNavigation: a11yStore.ensureKeyboardNavigation,
+  ensureImageAccessibility: a11yStore.ensureImageAccessibility
 };

@@ -137,11 +137,11 @@ function addAriaLabel(element, label) {
   if (!element) {
     return null;
   }
-  
+
   if (typeof label !== 'string' || label.trim() === '') {
     return element;
   }
-  
+
   element.setAttribute('aria-label', label);
   return element;
 }
@@ -157,21 +157,21 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
   if (!element) {
     return null;
   }
-  
+
   const id = ensureElementHasId(element, idPrefix);
   addAriaLabel(element, ariaLabel);
-  
+
   return id;
 }
 
 // Sample main.js with dependencyGraph container
-function renderDependencyGraph() {
+function renderDependencyGraphContainer() {
   const container = document.getElementById('dependency-graph');
 
   if (container) {
     container.setAttribute('role', 'region');
     container.setAttribute('aria-label', 'Dependency graph visualization');
-    
+
     // Ensure the container has an id for accessibility
     ensureElementHasId(container, 'dep-graph');
   }
@@ -185,7 +185,31 @@ const { createInPageButton, createWebResourceButton, validateTableAccessibility,
 
 // Implement the function for addressing accessibility issues from insight report
 function newFunction() {
-    // TODO: Implement the new function as per the issue requirements
+    // Implementation of the new function to handle focus trap for keyboard navigation
+    return (element) => {
+        if (!element) return;
+
+        const focusableElements = element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        element.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
+        });
+    };
 }
 
 // Link accessibility checking functions

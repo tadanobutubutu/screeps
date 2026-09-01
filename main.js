@@ -164,8 +164,8 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
   return id;
 }
 
-// Sample main.js with dependencyGraph container
-function renderDependencyGraph() {
+// Sample main.js with dependencyGraph container (renamed to avoid identifier conflict)
+function renderDependencyGraphContainer() {
   const container = document.getElementById('dependency-graph');
 
   if (container) {

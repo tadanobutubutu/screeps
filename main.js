@@ -280,7 +280,6 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   ensureUniqueLandmarks,
-  addLandmarkIds,
   renderIndexView,
   newRequiredFunction,
   additionalFunction,

@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report
+
 // TODO: Identify and update specific functions that render dependency graphs or index views.
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())

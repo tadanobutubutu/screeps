@@ -47,7 +47,7 @@ const {
   // New function to handle focus trap
   newFocusTrap: newMainFocusTrap,
   // New functions to address new accessibility issues from insight report
-  newAddressAccessibilityIssues: addressAccessibilityIssues
+  newAddressAccessibilityIssues: newAddressAccessibilityIssues
 } = main;
 
 const a11yStore = {

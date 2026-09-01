@@ -63,7 +63,7 @@ function getLangAttribute() {
 function detectAndSetLang(content) {
   // Simple language detection based on common patterns
   let lang = 'en'; // Default to English
-  
+
   if (content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
@@ -80,7 +80,7 @@ function detectAndSetLang(content) {
       lang = 'de'; // German;
     }
   }
-  
+
   return lang;
 }
 
@@ -158,21 +158,58 @@ function getSvgAccessibleName(svg) {
   return ... || svg.getAttribute('title') || '';
 }
 
+// TODO: Implement this function for checking landmark elements
+/**
+ * Checks if an element is a valid landmark element
+ * @param {HTMLElement} element - The element to check
+ * @returns {boolean} Whether the element is a valid landmark
+ */
+function isValidLandmark(element) {
+  if (!element || typeof element !== 'object') return false;
+
+  const landmarkRoles = [
+    'banner', 'complementary', 'contentinfo', 'form',
+    'main', 'navigation', 'region', 'search'
+  ];
+
+  const role = element.getAttribute('role');
+  const tagName = element.tagName.toLowerCase();
+
+  // Check if element is a semantic landmark
+  const semanticLandmarks = ['header', 'footer', 'nav', 'aside', 'main', 'section'];
+  if (semanticLandmarks.includes(tagName)) {
+    return true;
+  }
+
+  // Check if element has a landmark role
+  if (role && landmarkRoles.includes(role)) {
+    return true;
+  }
+
+  // Check if element has an ARIA label
+  if (element.getAttribute('aria-label') || element.getAttribute('aria-labelledby')) {
+    return true;
+  }
+
+  return false;
+}
+
 // REACT_015: Add lang attribute to HTML element
 // Add the language attribute to the HTML element for proper accessibility
 if (typeof document !== 'undefined' && document.documentElement) {
   detectAndSetLang();
 }
 
-module.exports = { 
-  setHtmlLangAttribute, 
-  getLangAttribute, 
-  detectAndSetLang, 
-  personName, 
-  createInPageButton, 
-  validateTableAccessibility, 
-  validateTableStructure, 
-  validateLandmark, 
-  validateLandmarkStructure, 
-  getSvgAccessibleName 
+module.exports = {
+  setHtmlLangAttribute,
+  getLangAttribute,
+  detectAndSetLang,
+  personName,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  isValidLandmark
 };

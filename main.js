@@ -129,7 +129,10 @@ function AddBookForm({ onAdd }) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter book title"
+          required
+          aria-describedby="title-help"
         />
+        <span id="title-help" className="sr-only">Please enter the book title</span>
       </div>
       <div>
         <label htmlFor="book-author" aria-required="true">Author:</label>
@@ -139,11 +142,67 @@ function AddBookForm({ onAdd }) {
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
           placeholder="Enter author name"
+          required
+          aria-describedby="author-help"
         />
+        <span id="author-help" className="sr-only">Please enter the author name</span>
       </div>
-      <button type="submit">Add Book</button>
+      <button type="submit" aria-label="Add the book to the collection">Add Book</button>
     </form>
   );
+}
+
+// New function to enhance accessibility for the addBook functionality
+function enhanceAccessibilityForAddBook() {
+  // Ensure form elements have proper labels and ARIA attributes
+  const form = document.querySelector('form[aria-label="Add new book"]');
+  if (form) {
+    // Add required attributes to inputs
+    const inputs = form.querySelectorAll('input');
+    inputs.forEach(input => {
+      if (!input.hasAttribute('required')) {
+        input.setAttribute('required', 'true');
+      }
+      if (!input.hasAttribute('aria-required')) {
+        input.setAttribute('aria-required', 'true');
+      }
+    });
+
+    // Add help text for screen readers
+    const titleInput = form.querySelector('#book-title');
+    if (titleInput && !titleInput.nextElementSibling?.classList.contains('sr-only')) {
+      const titleHelp = document.createElement('span');
+      titleHelp.id = 'title-help';
+      titleHelp.className = 'sr-only';
+      titleHelp.textContent = 'Please enter the book title';
+      titleInput.insertAdjacentElement('afterend', titleHelp);
+    }
+
+    const authorInput = form.querySelector('#book-author');
+    if (authorInput && !authorInput.nextElementSibling?.classList.contains('sr-only')) {
+      const authorHelp = document.createElement('span');
+      authorHelp.id = 'author-help';
+      authorHelp.className = 'sr-only';
+      authorHelp.textContent = 'Please enter the author name';
+      authorInput.insertAdjacentElement('afterend', authorHelp);
+    }
+
+    // Add ARIA label to submit button if not present
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton && !submitButton.hasAttribute('aria-label')) {
+      submitButton.setAttribute('aria-label', 'Add the book to the collection');
+    }
+  }
+
+  // Add keyboard navigation support
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const activeElement = document.activeElement;
+      if (activeElement && activeElement.tagName === 'INPUT') {
+        activeElement.blur();
+      }
+    }
+  });
 }
 
 // Default sorting function for the book list

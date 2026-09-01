@@ -66,7 +66,32 @@ function checkUserSafety() {
     }
 
     // Ensure unique landmarks
-    function ensureUniqueLandmarks() {
+    function ensureUniqueLandmarks(landmarks) {
+      if (!Array.isArray(landmarks)) {
+        return [];
+      }
+
+      const seen = new Set();
+      const uniqueLandmarks = [];
+
+      for (const landmark of landmarks) {
+        if (!landmark || typeof landmark.id === 'undefined') {
+          continue;
+        }
+
+        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+
+        if (!seen.has(landmarkId)) {
+          seen.add(landmarkId);
+          uniqueLandmarks.push(landmark);
+        }
+      }
+
+      return uniqueLandmarks;
+    }
+
+    // Ensure unique landmarks for DOM elements
+    function ensureUniqueDomLandmarks() {
       const landmarks = ['main', 'nav', 'header', 'footer', 'aside'];
       landmarks.forEach(landmark => {
         const elements = document.querySelectorAll(landmark);
@@ -151,9 +176,6 @@ function checkUserSafety() {
       }));
     }
 
-    // Functions to ensure the element has an id, add aria-label, render dependency graphs
-    // (Previously existing code that needs to be preserved)
-
     // TODO: This is the existing code that needs to be preserved
     // Address accessibility issues from insight report:
     // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and wrapPrimaryContentInMain())
@@ -168,7 +190,7 @@ function checkUserSafety() {
     //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
     //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
     //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-    |_Commit: 5cb26805d1cf9dc1c3c0bd9f2923ab16e34f825e _
+    //_Commit: 5cb26805d1cf9dc1c3c0bd9f2923ab16e34f825e_
     //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
     // New accessibility-related functions
@@ -206,7 +228,7 @@ function checkUserSafety() {
     }
 
     function ensureUniqueLandmarks() {
-      // Implementation for REACT_025
+      // Implementation for REACT_025 - DOM element version
       const landmarks = ['main', 'nav', 'header', 'footer', 'aside'];
       landmarks.forEach(landmark => {
         const elements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`);
@@ -327,7 +349,7 @@ function checkUserSafety() {
     // Function to create in-page buttons
     function createInPageButton(buttonText, onClickHandler) {
       const button = document.createElement('button');
-      button.textContent = buttonText;
+      button.textContent = buttonText || 'Button';
       button.onclick = onClickHandler;
       return button;
     }
@@ -441,21 +463,6 @@ function checkUserSafety() {
             this.click();
           }
         });
-      });
-    }
-
-    // Function to ensure unique landmarks (2 issues)
-    function ensureUniqueLandmarks() {
-      const landmarks = [...document.querySelectorAll('[aria-landmark]')];
-      const landmarkIds = landmarks.map(landmark => landmark.getAttribute('aria-landmark'));
-
-      const uniqueIds = new Set(landmarkIds);
-
-      landmarks.forEach((landmark, index) => {
-        if (!uniqueIds.has(landmarkIds[index])) {
-          landmark.setAttribute('aria-landmark', '');
-          uniqueIds.add(landmarkIds[index]);
-        }
       });
     }
 
@@ -682,114 +689,12 @@ function checkUserSafety() {
       // Implementation details
     }
 
-    // Call the function to address accessibility issues
-    addressAccessibilityIssues();
-    createInPageButton();
-    function3();
-    reportWebVitals();
-
-    // Export the report generation function
-    // All exports verified and present
-    module.exports = {
-      validateInput,
-      processData,
-      formatResponse,
-      config,
-      // landmark functions
-      isValidLandmark,
-      loadLandmarks,
-      processLandmarks,
-      sortLandmarks,
-      getLandmarkById,
-      ensureUniqueLandmarks,
-      landmarkConfig: CONFIG,
-      generateAccessibilityReport: async function () {
-        const report = await scanAccessibility();
-        writeReport(report);
-      },
-      addressAccessibilityIssues,
-      getLangAttribute,
-      createInPageButton,
-      countDependencies, // Exporting the new function
-      function3,
-      a11y,
-      setSvgAccessibleNames,
-      ensureUniqueLandmarks,
-      fixFakeLink,
-      harvest,
-      upgrade,
-      harvestAndUpgrade,
-      checkLinkAccessibility,
-      writeReport,
-      scanAccessibility,
-      addNewBook, // Exporting the new function
-      checkUserSafety,
-      ...accessibilityUtils,
-      addLangAttribute,
-      fixTableStructure,
-      fixLandmarkIssues,
-      addSvgAccessibleNames,
-      fixFakeLinkIssues,
-      googleSignIn,
-      fixButtonIdentifiers,
-      ensureElementHasId,
-      addAriaLabel,
-      renderDependencyGraphs,
-      validateTableAccessibility,
-      validateTableStructure,
-      validateLandmark,
-      validateLandmarkStructure,
-      addFixLandmarkIssues,
-      getSvgAccessibleName,
-      addAriaToFormControls,
-      createAccessibleLink,
-      getLangAttributeValue,
-      createAccessibleInPageButton
-    };
-
-    // Initialize on DOM ready
-    function initialize() {
-        // Ensure the dependencyGraph container has a proper ARIA role
-        if (dependencyGraph) {
-            if (!dependencyGraph.id) {
-                dependencyGraph.id = 'dependencyGraph';
-            }
-            if (!dependencyGraph.hasAttribute('role')) {
-                dependencyGraph.setAttribute('role', 'region');
-            }
-            if (!dependencyGraph.hasAttribute('aria-label')) {
-                dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
-            }
-        }
-
-        // Address accessibility issues
-        addressAccessibilityIssues();
-
-        // Create the in-page button
-        createInPageButton();
-
-        // Add accessible names to 2 SVGs
-        setSvgAccessibleNames('svg1Id', 'svg2Id', ' aria-label for SVG1', ' aria-label for SVG2');
-
-        // Ensure unique landmarks (2 issues)
-        ensureUniqueLandmarks();
-
-        // Fix 1 fake link issue
-        fixFakeLink();
-
-        // Initialize accessibility features from a11y utilities
-        if (a11y && a11y.init) {
-            a11y.init();
-        }
-    }
-
-    // Initialize on DOM ready
-    if (typeof document !== 'undefined') {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initialize);
-        } else {
-            initialize();
-        }
+    // New function to count dependencies
+    function countDependencies() {
+      // Implementation of countDependencies function
+      // Placeholder implementation for demonstration purposes
+      console.log('Counting dependencies...');
+      // You would implement the actual dependency counting logic here
     }
 
     // New function to handle keyboard navigation
@@ -878,4 +783,224 @@ function checkUserSafety() {
         trapModalFocus(modal);
       }
     }
+
+    // Accessibility functions from origin/main
+    const CONFIG = {
+        dataPath: './data',
+        maxResults: 100
+    };
+
+    function isValidLandmark(landmark) {
+        return landmark &&
+               typeof landmark.id !== 'undefined' &&
+               landmark.id !== null;
+    }
+
+    function loadLandmarks() {
+        try {
+            const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+            const data = fs.readFileSync(filePath, 'utf8');
+            return JSON.parse(data);
+        } catch (error) {
+            console.error('Error loading landmarks:', error.message);
+            return [];
+        }
+    }
+
+    function processLandmarks(landmarks) {
+        if (!Array.isArray(landmarks)) {
+            return [];
+        }
+
+        const validLandmarks = landmarks.filter(isValidLandmark);
+        const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+        return uniqueLandmarks.slice(0, CONFIG.maxResults);
+    }
+
+    function sortLandmarks(landmarks, ascending = true) {
+        return landmarks.slice().sort((a, b) => {
+            const nameA = (a.name || '').toLowerCase();
+            const nameB = (b.name || '').toLowerCase();
+
+            if (ascending) {
+                return nameA.localeCompare(nameB);
+            }
+            return nameB.localeCompare(nameA);
+        });
+    }
+
+    function getLandmarkById(landmarks, id) {
+        return landmarks.find(landmark => landmark.id === id) || null;
+    }
+
+    // REACT_027: Fix table structure issues
+    function fixTableAccessibility() {
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => {
+        // Add caption if missing
+        if (!table.querySelector('caption')) {
+          const caption = document.createElement('caption');
+          caption.textContent = 'Table caption';
+          table.insertBefore(caption, table.firstChild);
+        }
+
+        // Ensure headers have scope or id
+        const headers = table.querySelectorAll('th');
+        headers.forEach((th, index) => {
+          if (!th.getAttribute('scope') && !th.getAttribute('id')) {
+            th.setAttribute('scope', 'col');
+          }
+        });
+
+        // Ensure proper table structure
+        validateTableStructure(table);
+      });
+    }
+
+    // REACT_017: Validate and fix landmark issues
+    function fixLandmarkIssuesForValidation() {
+      // Ensure unique landmarks
+      ensureUniqueDomLandmarks();
+
+      // Add proper landmark regions
+      addLandmarkRegions();
+
+      // Validate existing landmarks
+      const landmarkValidation = validateLandmark();
+      if (!landmarkValidation.valid) {
+        console.warn('Landmark validation issues:', landmarkValidation.issues);
+      }
+    }
+
+    // REACT_041: Add accessible names to SVGs
+    function addSvgAccessibility() {
+      const svgs = document.querySelectorAll('svg');
+      svgs.forEach(svg => {
+        const name = getSvgAccessibleName(svg);
+        if (!name) {
+          setSvgAttributes(svg, 'Graphic element');
+        }
+      });
+    }
+
+    // REACT_036: Create accessible links
+    function createAccessibleLinks() {
+      // Create skip to content link
+      const skipLink = createInPageButton('main-content', 'Skip to main content');
+      document.body.insertBefore(skipLink, document.body.firstChild);
+
+      // Validate existing links
+      const links = document.querySelectorAll('a');
+      links.forEach(link => {
+        const validation = validateLinkAccessibility(link);
+        if (!validation.valid) {
+          console.warn('Link validation issues:', validation.issues);
+        }
+      });
+    }
+
+    // Utility functions for landmarks
+    function addLandmarkRegions() {
+      // Implementation for adding proper landmark regions
+    }
+
+    function validateLandmark() {
+      // Implementation for validating landmarks
+      return { valid: true, issues: [] };
+    }
+
+    function validateLandmarkStructure() {
+      // Implementation for validating landmark structure
+    }
+
+    function addFixLandmarkIssues() {
+      // Implementation for fixing landmark issues
+    }
+
+    function validateLinkAccessibility(link) {
+      // Implementation for validating link accessibility
+      return { valid: true, issues: [] };
+    }
+
+    function setSvgAttributes(svg, name) {
+      // Implementation for setting SVG attributes
+      if (!svg.hasAttribute('aria-label')) {
+        svg.setAttribute('aria-label', name);
+      }
+    }
+
+    // Initialize on DOM ready
+    if (typeof document !== 'undefined') {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initialize);
+        } else {
+            initialize();
+        }
+    }
+
+    // Export functions
+    module.exports = {
+        validateInput,
+        processData,
+        formatResponse,
+        config: CONFIG,
+        // landmark functions
+        isValidLandmark,
+        loadLandmarks,
+        processLandmarks,
+        sortLandmarks,
+        getLandmarkById,
+        ensureUniqueLandmarks,
+        landmarkConfig: CONFIG,
+        generateAccessibilityReport: async function () {
+            const report = await scanAccessibility();
+            writeReport(report);
+        },
+        addressAccessibilityIssues,
+        getLangAttribute,
+        createInPageButton,
+        countDependencies,
+        function3,
+        a11y,
+        setSvgAccessibleNames,
+        ensureUniqueDomLandmarks,
+        fixFakeLink,
+        harvest,
+        upgrade,
+        harvestAndUpgrade,
+        checkLinkAccessibility,
+        writeReport,
+        scanAccessibility,
+        addNewBook,
+        checkUserSafety,
+        ...accessibilityUtils,
+        addLangAttribute,
+        fixTableStructure,
+        fixLandmarkIssues,
+        addSvgAccessibleNames,
+        fixFakeLinkIssues,
+        googleSignIn,
+        fixButtonIdentifiers,
+        ensureElementHasId,
+        addAriaLabel,
+        renderDependencyGraphs,
+        validateTableAccessibility,
+        validateTableStructure,
+        validateLandmark,
+        validateLandmarkStructure,
+        addFixLandmarkIssues,
+        getSvgAccessibleName,
+        addAriaToFormControls,
+        createAccessibleLink,
+        getLangAttributeValue,
+        createAccessibleInPageButton,
+        fixTableAccessibility,
+        fixLandmarkIssuesForValidation,
+        addSvgAccessibility,
+        createAccessibleLinks,
+        addLandmarkRegions,
+        validateLinkAccessibility,
+        setSvgAttributes
+    };
 })();

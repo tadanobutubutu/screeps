@@ -11,18 +11,18 @@
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
-import React from 'react';
+import React from 'react'
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
  * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
  * @returns {string} The lang attribute value that was set
  */
-function setHtmlLangAttribute(lang) {
+function setHtmlLangAttribute (lang) {
   if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.lang = lang || 'en';
+    document.documentElement.lang = lang || 'en'
   }
-  return lang || 'en';
+  return lang || 'en'
 }
 
 /**
@@ -30,39 +30,39 @@ function setHtmlLangAttribute(lang) {
  * @param {string} content - The text content to analyze
  * @returns {string} The detected language code
  */
-function detectAndSetLang(content) {
+function detectAndSetLang (content) {
   // Simple language detection based on common patterns
-  let lang = 'en'; // Default to English
+  let lang = 'en' // Default to English
 
   if (content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
-      lang = 'zh'; // Chinese
+      lang = 'zh' // Chinese
     } else if (/[\u3040-\u30ff]/.test(content)) {
-      lang = 'ja'; // Japanese
+      lang = 'ja' // Japanese
     } else if (/[\u0400-\u04ff]/.test(content)) {
-      lang = 'ru'; // Russian/Cyrillic
+      lang = 'ru' // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
-      lang = 'ar'; // Arabic
+      lang = 'ar' // Arabic
     } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
-      lang = 'fr'; // French
+      lang = 'fr' // French
     } else if (/[äöüß]/i.test(content)) {
-      lang = 'de'; // German
+      lang = 'de' // German
     }
   }
 
-  return lang;
+  return lang
 }
 
 /**
  * Gets the current lang attribute from the document's <html> tag
  * @returns {string} The current lang attribute value, defaults to 'en'
  */
-function getLangAttribute() {
+function getLangAttribute () {
   if (typeof document !== 'undefined' && document.documentElement) {
-    return document.documentElement.lang || 'en';
+    return document.documentElement.lang || 'en'
   }
-  return 'en';
+  return 'en'
 }
 
 /**
@@ -73,19 +73,19 @@ function getLangAttribute() {
  * @param {HTMLElement} options.container - Optional container element to append to
  * @returns {HTMLElement} The created element with accessible naming
  */
-function personName(options = {}) {
-  const { firstName = '', lastName = '', container = null } = options;
-  const fullName = `${firstName} ${lastName}`.trim();
+function personName (options = {}) {
+  const { firstName = '', lastName = '', container = null } = options
+  const fullName = `${firstName} ${lastName}`.trim()
 
-  const element = document.createElement('span');
-  element.setAttribute('aria-label', fullName);
-  element.textContent = fullName;
+  const element = document.createElement('span')
+  element.setAttribute('aria-label', fullName)
+  element.textContent = fullName
 
   if (container) {
-    container.appendChild(element);
+    container.appendChild(element)
   }
 
-  return element;
+  return element
 }
 
 /**
@@ -93,37 +93,37 @@ function personName(options = {}) {
  * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
  * @returns {HTMLElement} The created button element
  */
-function createInPageButton(parent = document.body) {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.setAttribute('role', 'button');
-  btn.setAttribute('aria-label', 'Open modal');
-  parent.appendChild(btn);
-  return btn;
+function createInPageButton (parent = document.body) {
+  const btn = document.createElement('button')
+  btn.type = 'button'
+  btn.setAttribute('role', 'button')
+  btn.setAttribute('aria-label', 'Open modal')
+  parent.appendChild(btn)
+  return btn
 }
 
 // New function to validate table accessibility
-function validateTableAccessibility() {
+function validateTableAccessibility () {
   // Implementation for table accessibility validation
 }
 
 // New function to validate table structure
-function validateTableStructure() {
+function validateTableStructure () {
   // Implementation for table structure validation
 }
 
 // New function to validate landmarks
-function validateLandmark() {
+function validateLandmark () {
   // Implementation for landmark validation
 }
 
 // New function to validate landmark structure
-function validateLandmarkStructure() {
+function validateLandmarkStructure () {
   // Implementation for landmark structure validation
 }
 
 // New function to get SVG accessible name
-function getSvgAccessibleName() {
+function getSvgAccessibleName () {
   // Implementation for getting SVG accessible name
 }
 
@@ -133,9 +133,9 @@ function getSvgAccessibleName() {
  * @param {HTMLElement} container - The container element to trap focus within
  * @returns {Object} An object with a detach method to remove the focus trap
  */
-function newFocusTrap(container) {
+function newFocusTrap (container) {
   if (!container || typeof document === 'undefined') {
-    return { detach: () => {} };
+    return { detach: () => {} }
   }
 
   const focusableSelectors = [
@@ -145,55 +145,55 @@ function newFocusTrap(container) {
     'select:not([disabled])',
     'textarea:not([disabled])',
     '[tabindex]:not([tabindex="-1"])'
-  ].join(', ');
+  ].join(', ')
 
-  let previousActiveElement = document.activeElement;
+  const previousActiveElement = document.activeElement
 
   const handleKeyDown = (event) => {
     if (event.key !== 'Tab') {
-      return;
+      return
     }
 
-    const focusableElements = Array.from(
-      container.querySelectorAll(focusableSelectors)
-    ).filter(el => el.offsetParent !== null);
+    const focusableElements = Array.from(container.querySelectorAll(focusableSelectors)).filter(
+      (el) => el.offsetParent !== null
+    )
 
     if (focusableElements.length === 0) {
-      event.preventDefault();
-      return;
+      event.preventDefault()
+      return
     }
 
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
+    const firstElement = focusableElements[0]
+    const lastElement = focusableElements[focusableElements.length - 1]
 
     if (event.shiftKey && document.activeElement === firstElement) {
-      event.preventDefault();
-      lastElement.focus();
+      event.preventDefault()
+      lastElement.focus()
     } else if (!event.shiftKey && document.activeElement === lastElement) {
-      event.preventDefault();
-      firstElement.focus();
+      event.preventDefault()
+      firstElement.focus()
     }
-  };
+  }
 
-  container.addEventListener('keydown', handleKeyDown);
+  container.addEventListener('keydown', handleKeyDown)
 
   // Optionally focus the first focusable element in the trap
-  const focusableElements = Array.from(
-    container.querySelectorAll(focusableSelectors)
-  ).filter(el => el.offsetParent !== null);
+  const focusableElements = Array.from(container.querySelectorAll(focusableSelectors)).filter(
+    (el) => el.offsetParent !== null
+  )
 
   if (focusableElements.length > 0) {
-    focusableElements[0].focus();
+    focusableElements[0].focus()
   }
 
   return {
     detach: () => {
-      container.removeEventListener('keydown', handleKeyDown);
+      container.removeEventListener('keydown', handleKeyDown)
       if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
-        previousActiveElement.focus();
+        previousActiveElement.focus()
       }
     }
-  };
+  }
 }
 
 // TODO: This is the existing code that needs to be preserved
@@ -212,4 +212,4 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   newFocusTrap
-};
+}

@@ -88,6 +88,7 @@ const ensureElementIdOriginal = (element) => {
   return element;
 };
 
+// Removed duplicate addAriaLabel declaration
 const addAriaLabel = (element, label) => {
   if (element) {
     element.setAttribute('aria-label', label);
@@ -125,100 +126,4 @@ async function handleCredentialResponse(response) {
     };
   }
 
-  throw new Error('Invalid credential response');
-}
-
-// Existing utility functions
-function log(message, level = 'info') {
-  const timestamp = new Date().toISOString();
-  console.log(timestamp + " [" + level.toUpperCase() + "]: " + message);
-}
-
-// Export functionality with accessibility support
-const exportUtils = {
-  exportData: (data, filename, mimeType) => {},
-  exportToJSON: (data, filename) => {},
-  exportToCSV: (data, filename) => {},
-  sanitizeFilename,
-  readFileSafe
-};
-
-function processData(items) {
-  if (!Array.isArray(items)) {
-    return [];
-  }
-  return items.map(item => ({
-    ...item,
-    processed: true,
-    timestamp: Date.now()
-  }));
-}
-
-function filterValidItems(items, validator) {
-  return items.filter(item => {
-    try {
-      return validator(item);
-    } catch {
-      return false;
-    }
-  });
-}
-
-// Initialize accessibility features
-const initAccessibility = () => {
-  accessibilityUtils.initSkipLink();
-
-  // Add keyboard support for all interactive elements
-  document.querySelectorAll('[data-accessible]').forEach(element => {
-    element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, {
-        Enter: () => element.click(),
-        ' ': () => element.click()
-      });
-    });
-  });
-};
-
-function groupByCategory(items, getCategory) {
-  return items.reduce((groups, item) => {
-    const category = getCategory(item);
-    if (!groups[category]) {
-      groups[category] = [];
-    }
-    groups[category].push(item);
-    return groups;
-  }, {});
-}
-
-module.exports = {
-  ...main,
-  ...accessibilityUtils,
-  ensureElementId: ensureElementIdOrigin,
-  ensureElementHasId,
-  newFocusTrap,
-  log,
-  sanitizeFilename,
-  readFileSafe,
-  processData,
-  filterValidItems,
-  initAccessibility,
-  groupByCategory,
-  transformInputData,
-  validateTableAccessibility,
-  displayModuleStructure,
-  generateDependencyGraph,
-  // New accessibility functions
-  getLangAttribute,
-  personName,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createInPageButton,
-  createWebResourceButton,
-  validateAccessibilityReport,
-  addressAccessibilityIssues,
-  handleCredentialResponse,
-  renderAdditionalContent,
-  renderDependencyGraphs
-};
+  throw new Error('Invalid credential response

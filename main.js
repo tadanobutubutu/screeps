@@ -30,15 +30,15 @@ function getFullLangAttribute() {
  */
 function validateTableAccessibility(table) {
   const issues = [];
-  
+
   if (!table.headers) {
     issues.push('Missing headers attribute');
   }
-  
+
   if (!table.scope) {
     issues.push('Missing scope attribute');
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -52,7 +52,7 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(tables) {
   const allIssues = [];
-  
+
   tables.forEach((table, index) => {
     const result = validateTableAccessibility(table);
     if (!result.success) {
@@ -62,7 +62,7 @@ function validateTableStructure(tables) {
       });
     }
   });
-  
+
   return {
     success: allIssues.length === 0,
     issues: allIssues
@@ -77,13 +77,13 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  
+
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -97,7 +97,7 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure(landmarks) {
   const issues = [];
-  
+
   landmarks.forEach((landmark, index) => {
     const result = validateLandmark(landmark);
     if (!result.success) {
@@ -107,7 +107,7 @@ function validateLandmarkStructure(landmarks) {
       });
     }
   });
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -122,7 +122,7 @@ function validateLandmarkStructure(landmarks) {
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
-  
+
   landmarks.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
@@ -131,7 +131,7 @@ function ensureUniqueLandmarks(landmarks) {
       names.push(name);
     }
   });
-  
+
   return {
     success: duplicates.length === 0,
     duplicates
@@ -200,7 +200,7 @@ function createAccessibleLink(options) {
 function handleAccessibilityIssues(issues) {
   const handled = [];
   const unhandled = [];
-  
+
   issues.forEach(issue => {
     if (issue.fixable) {
       handled.push(issue);
@@ -208,12 +208,170 @@ function handleAccessibilityIssues(issues) {
       unhandled.push(issue);
     }
   });
-  
+
   return {
     total: issues.length,
     handled: handled.length,
     unhandled: unhandled.length,
     unhandledIssues: unhandled
+  };
+}
+
+/**
+ * Adds lang attribute to HTML element
+ * @param {Object} element - The HTML element to modify
+ * @returns {Object} The modified element with lang attribute
+ */
+function addLangAttribute(element) {
+  return {
+    ...element,
+    lang: getFullLangAttribute()
+  };
+}
+
+/**
+ * Fixes table structure issues
+ * @param {Array} tables - Array of tables to fix
+ * @returns {Array} Array of fixed tables
+ */
+function fixTableStructure(tables) {
+  return tables.map(table => ({
+    ...table,
+    headers: table.headers || true,
+    scope: table.scope || 'col'
+  }));
+}
+
+/**
+ * Fixes landmark issues
+ * @param {Array} landmarks - Array of landmarks to fix
+ * @returns {Array} Array of fixed landmarks
+ */
+function fixLandmarkIssues(landmarks) {
+  return landmarks.map(landmark => {
+    if (!landmark.tagName) {
+      return { ...landmark, tagName: 'section' };
+    }
+    return landmark;
+  });
+}
+
+/**
+ * Adds main landmark if missing
+ * @param {Array} landmarks - Array of existing landmarks
+ * @returns {Array} Array with main landmark added if needed
+ */
+function addMainLandmark(landmarks) {
+  const hasMain = landmarks.some(landmark => landmark.tagName.toLowerCase() === 'main');
+  if (!hasMain) {
+    return [...landmarks, { tagName: 'main', ariaLabel: 'Main content' }];
+  }
+  return landmarks;
+}
+
+/**
+ * Adds landmark regions if needed
+ * @param {Array} landmarks - Array of existing landmarks
+ * @returns {Array} Array with additional landmark regions
+ */
+function addLandmarkRegions(landmarks) {
+  const requiredRegions = ['header', 'footer', 'nav'];
+  const existingTags = landmarks.map(l => l.tagName.toLowerCase());
+
+  requiredRegions.forEach(region => {
+    if (!existingTags.includes(region)) {
+      landmarks.push({ tagName: region, ariaLabel: `${region} region` });
+    }
+  });
+
+  return landmarks;
+}
+
+/**
+ * Ensures unique landmarks by adding suffixes to duplicates
+ * @param {Array} landmarks - Array of landmarks to process
+ * @returns {Array} Array with unique landmarks
+ */
+function uniqueLandmarks(landmarks) {
+  const nameCounts = {};
+
+  return landmarks.map(landmark => {
+    const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent || '';
+    if (nameCounts[name]) {
+      nameCounts[name]++;
+      return {
+        ...landmark,
+        ariaLabel: `${name} ${nameCounts[name]}`
+      };
+    } else {
+      nameCounts[name] = 1;
+      return landmark;
+    }
+  });
+}
+
+/**
+ * Adds accessible names to SVGs
+ * @param {Array} svgs - Array of SVG elements
+ * @returns {Array} Array of SVGs with accessible names
+ */
+function addSvgAccessibleNames(svgs) {
+  return svgs.map(svg => ({
+    ...svg,
+    ariaLabel: svg.ariaLabel || svg.title || 'SVG graphic'
+  }));
+}
+
+/**
+ * Fixes fake link issues
+ * @param {Array} links - Array of links to check
+ * @returns {Array} Array of fixed links
+ */
+function fixFakeLinkIssues(links) {
+  return links.map(link => ({
+    ...link,
+    isFake: link.href === '#' || !link.href,
+    role: link.href === '#' ? 'button' : undefined
+  }));
+}
+
+/**
+ * Handles Google sign-in logic for accessibility
+ * @param {Object} options - Sign-in options
+ * @returns {Object} Accessible sign-in button
+ */
+function googleSignIn(options) {
+  return createInPageButton({
+    ...options,
+    ariaLabel: options.ariaLabel || 'Sign in with Google',
+    text: options.text || 'Sign in with Google'
+  });
+}
+
+/**
+ * Fixes button identifiers for accessibility
+ * @param {Object} button - Button element to fix
+ * @param {string} id - New ID for the button
+ * @returns {Object} Fixed button with proper ID
+ */
+function fixButtonIdentifiers(button, id) {
+  return {
+    ...button,
+    id: id || button.id || 'accessible-button',
+    ariaLabel: button.ariaLabel || button.text || 'Button'
+  };
+}
+
+/**
+ * Ensures dependency graph container has proper ARIA role
+ * @param {Object} container - The container element
+ * @returns {Object} Container with proper ARIA role
+ */
+function ensureDependencyGraphAriaRole(container) {
+  return {
+    ...container,
+    role: container.role || 'region',
+    ariaLabel: container.ariaLabel || 'Dependency graph'
   };
 }
 
@@ -229,5 +387,16 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinkIssues,
+  googleSignIn,
+  fixButtonIdentifiers,
+  ensureDependencyGraphAriaRole
 };

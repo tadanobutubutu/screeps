@@ -314,6 +314,95 @@ function addressAccessibilityIssues() {
   // For example, you might want to update the DOM or call other functions
 }
 
+// New functions for rendering graph/index
+/**
+ * Renders a dependency graph visualization
+ * @param {HTMLElement} container - The container element to render the graph in
+ * @param {Object} data - The data to visualize in the graph
+ * @param {Object} options - Configuration options for the graph
+ */
+function renderDependencyGraph(container, data, options = {}) {
+    if (!container || !(container instanceof HTMLElement)) {
+        throw new Error('Invalid container element provided');
+    }
+
+    if (!data || typeof data !== 'object') {
+        throw new Error('Invalid data provided for graph rendering');
+    }
+
+    // Clear the container
+    container.innerHTML = '';
+
+    // Create a canvas element for the graph
+    const canvas = document.createElement('canvas');
+    canvas.width = options.width || 800;
+    canvas.height = options.height || 600;
+    container.appendChild(canvas);
+
+    // Add accessibility attributes
+    canvas.setAttribute('role', 'img');
+    canvas.setAttribute('aria-label', options.ariaLabel || 'Dependency graph visualization');
+
+    // Here you would typically use a graphing library to render the actual graph
+    // For demonstration purposes, we'll just draw a simple placeholder
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#f0f0f0';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#333';
+    ctx.font = '16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Dependency Graph Placeholder', canvas.width / 2, canvas.height / 2);
+
+    // Return the canvas element for potential further manipulation
+    return canvas;
+}
+
+/**
+ * Renders an index visualization
+ * @param {HTMLElement} container - The container element to render the index in
+ * @param {Array} items - The items to display in the index
+ * @param {Object} options - Configuration options for the index
+ */
+function renderIndex(container, items, options = {}) {
+    if (!container || !(container instanceof HTMLElement)) {
+        throw new Error('Invalid container element provided');
+    }
+
+    if (!Array.isArray(items)) {
+        throw new Error('Items must be provided as an array');
+    }
+
+    // Clear the container
+    container.innerHTML = '';
+
+    // Create a list element for the index
+    const list = document.createElement('ul');
+    list.setAttribute('role', 'list');
+    list.setAttribute('aria-label', options.ariaLabel || 'Index list');
+
+    // Add each item to the list
+    items.forEach((item, index) => {
+        const listItem = document.createElement('li');
+        listItem.setAttribute('role', 'listitem');
+
+        if (typeof item === 'string') {
+            listItem.textContent = item;
+        } else if (item && typeof item === 'object') {
+            const link = document.createElement('a');
+            link.href = item.href || '#';
+            link.textContent = item.text || `Item ${index + 1}`;
+            listItem.appendChild(link);
+        }
+
+        list.appendChild(listItem);
+    });
+
+    container.appendChild(list);
+
+    // Return the list element for potential further manipulation
+    return list;
+}
+
 // Don't forget to test your new additions in the test file
 
 // Export accessibility utility functions
@@ -334,7 +423,9 @@ export {
   fixFakeLinks,
   applyAccessibilityFixes,
   divide,
-  wrapPrimaryContentInMain
+  wrapPrimaryContentInMain,
+  renderDependencyGraph,
+  renderIndex
 };
 
 // Run if executed directly

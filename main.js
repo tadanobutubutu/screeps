@@ -246,7 +246,7 @@
             if (!issues || !Array.isArray(issues)) {
                 return [];
             }
-            
+
             return issues.map(issue => {
                 return {
                     id: issue.id,
@@ -272,11 +272,11 @@
           totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
           details: report
         };
-        
+
         // Store harvested data for potential upgrades
         const harvestFile = path.join(__dirname, 'harvest_data.json');
         fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-        
+
         return harvestedData;
       } catch (error) {
         console.error('Harvest failed:', error);
@@ -349,6 +349,127 @@
       return { harvested, upgraded };
     }
 
+    // New function to add a book with accessibility features
+    function addBookWithAccessibility(title, author, isbn) {
+      // Create form elements with proper ARIA attributes
+      const form = document.createElement('form');
+      form.setAttribute('role', 'form');
+      form.setAttribute('aria-label', 'Add new book form');
+
+      // Title input
+      const titleLabel = document.createElement('label');
+      titleLabel.setAttribute('for', 'book-title');
+      titleLabel.textContent = 'Book Title:';
+      const titleInput = document.createElement('input');
+      titleInput.id = 'book-title';
+      titleInput.type = 'text';
+      titleInput.required = true;
+      titleInput.setAttribute('aria-required', 'true');
+      titleInput.setAttribute('aria-label', 'Enter the title of the book');
+
+      // Author input
+      const authorLabel = document.createElement('label');
+      authorLabel.setAttribute('for', 'book-author');
+      authorLabel.textContent = 'Author:';
+      const authorInput = document.createElement('input');
+      authorInput.id = 'book-author';
+      authorInput.type = 'text';
+      authorInput.required = true;
+      authorInput.setAttribute('aria-required', 'true');
+      authorInput.setAttribute('aria-label', 'Enter the author of the book');
+
+      // ISBN input
+      const isbnLabel = document.createElement('label');
+      isbnLabel.setAttribute('for', 'book-isbn');
+      isbnLabel.textContent = 'ISBN:';
+      const isbnInput = document.createElement('input');
+      isbnInput.id = 'book-isbn';
+      isbnInput.type = 'text';
+      isbnInput.required = true;
+      isbnInput.setAttribute('aria-required', 'true');
+      isbnInput.setAttribute('aria-label', 'Enter the ISBN of the book');
+
+      // Submit button
+      const submitButton = document.createElement('button');
+      submitButton.type = 'submit';
+      submitButton.textContent = 'Add Book';
+      submitButton.setAttribute('aria-label', 'Submit the form to add a new book');
+
+      // Error message area
+      const errorArea = document.createElement('div');
+      errorArea.id = 'book-form-error';
+      errorArea.setAttribute('role', 'alert');
+      errorArea.setAttribute('aria-live', 'assertive');
+      errorArea.style.color = 'red';
+
+      // Success message area
+      const successArea = document.createElement('div');
+      successArea.id = 'book-form-success';
+      successArea.setAttribute('role', 'status');
+      successArea.setAttribute('aria-live', 'polite');
+      successArea.style.color = 'green';
+
+      // Append all elements to the form
+      form.appendChild(titleLabel);
+      form.appendChild(titleInput);
+      form.appendChild(authorLabel);
+      form.appendChild(authorInput);
+      form.appendChild(isbnLabel);
+      form.appendChild(isbnInput);
+      form.appendChild(submitButton);
+      form.appendChild(errorArea);
+      form.appendChild(successArea);
+
+      // Form submission handler
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Clear previous messages
+        errorArea.textContent = '';
+        successArea.textContent = '';
+
+        // Validate inputs
+        if (!titleInput.value.trim()) {
+          errorArea.textContent = 'Please enter a book title';
+          titleInput.focus();
+          return;
+        }
+
+        if (!authorInput.value.trim()) {
+          errorArea.textContent = 'Please enter an author name';
+          authorInput.focus();
+          return;
+        }
+
+        if (!isbnInput.value.trim()) {
+          errorArea.textContent = 'Please enter an ISBN';
+          isbnInput.focus();
+          return;
+        }
+
+        // If validation passes, show success message
+        successArea.textContent = `Book "${titleInput.value}" by ${authorInput.value} added successfully!`;
+
+        // Reset form after a delay
+        setTimeout(() => {
+          form.reset();
+          successArea.textContent = '';
+        }, 3000);
+      });
+
+      // Add keyboard navigation support
+      form.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          form.reset();
+          errorArea.textContent = '';
+          successArea.textContent = '';
+        }
+      });
+
+      // Return the form element
+      return form;
+    }
+
     // Call the function to address accessibility issues
     addressAccessibilityIssues();
     createInPageButton();
@@ -389,6 +510,7 @@
       checkLinkAccessibility,
       writeReport,
       scanAccessibility,
+      addBookWithAccessibility, // Add the new function to exports
       ...accessibilityUtils
     };
 
@@ -426,6 +548,11 @@
         if (a11y && a11y.init) {
             a11y.init();
         }
+
+        // Add the book form to the page
+        const bookForm = addBookWithAccessibility();
+        const container = document.getElementById('book-form-container') || document.body;
+        container.appendChild(bookForm);
     }
 
     // Initialize on DOM ready

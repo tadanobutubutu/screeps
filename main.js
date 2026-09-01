@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -237,8 +234,23 @@ const AddressabilityIssues = {
       devDependencies: Object.keys(devDependencies).length,
       total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
+  },
+
+  renderDependencyGraph() {
+    const dependencyContent = require('../dependencyGraphContent/indexContent');
+    const graphContainer = document.getElementById('dependency-graph-container');
+    if (graphContainer) {
+      graphContainer.innerHTML = dependencyContent;
+    }
+  },
+
+  renderIndexView() {
+    const indexContent = require('../indexContent/indexContent');
+    const indexContainer = document.getElementById('index-container');
+    if (indexContainer) {
+      indexContainer.innerHTML = indexContent;
+    }
   }
 };
 
 // ... (other functions and comments preserved)
-```

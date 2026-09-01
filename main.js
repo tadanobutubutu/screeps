@@ -6,6 +6,9 @@ const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUnique
 
 const http = require('http');
 
+// TODO: This is the existing code that needs to be preserved
+// ...
+
 // TODO: Update the existing function using the new functions for rendering graph/index
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 

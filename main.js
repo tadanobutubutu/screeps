@@ -6,6 +6,9 @@
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// - REACT_037: Google sign-in logic (handled by googleSignIn())
+// - REACT_040: Replace my-button with actual button id for accessibility (handled by fixButtonIdentifiers())
+// - REACT_042: Ensure dependencyGraph container has proper ARIA role (handled by ensureDependencyGraphAriaRole())
 
 /**
  * Get the language attribute value for the HTML element
@@ -37,6 +40,11 @@ function validateTableAccessibility(table) {
 
   if (!table.scope) {
     issues.push('Missing scope attribute');
+  }
+
+  // Check for caption
+  if (!table.querySelector || !table.querySelector('caption')) {
+    issues.push('Missing caption element');
   }
 
   return {
@@ -82,6 +90,22 @@ function validateLandmark(element) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
+  }
+
+  if (!element.hasAttribute('id')) {
+    issues.push('Missing id attribute');
+  }
+
+  if (!element.getAttribute('role')) {
+    issues.push('Missing role attribute');
+  }
+
+  if (!element.ariaLabel && !element.ariaLabelledby && !element.textContent) {
+    issues.push('Landmark missing accessible name');
+  }
+
+  if (element.role && !['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search'].includes(element.role)) {
+    issues.push(`Invalid landmark role: ${element.role}`);
   }
 
   return {
@@ -158,38 +182,45 @@ function getSvgAccessibleName(svg) {
 
 /**
  * Creates an accessible in-page button
- * @param {Object} options - Button options
- * @param {string} options.text - Button text
- * @param {string} options.ariaLabel - Aria label for the button
+ * @param {Object|string} options - Button options (either text string or options object)
  * @param {Function} options.onClick - Click handler
- * @returns {Object} Button element object
+ * @returns {Object} The created button element
  */
 function createInPageButton(options) {
-  return {
-    type: 'button',
-    text: options.text,
-    ariaLabel: options.ariaLabel || options.text,
-    onClick: options.onClick,
-    accessibleName: getSvgAccessibleName({ ariaLabel: options.ariaLabel })
-  };
+  let text = options;
+  let clickHandler = options.onClick;
+  
+  // Handle object parameter format
+  if (typeof options === 'object' && options !== null) {
+    text = options.text || '';
+    clickHandler = options.onClick;
+  }
+  
+  // Implementation to create accessible in-page button
+  const button = document.createElement('button');
+  button.textContent = text;
+  if (clickHandler) {
+    button.onclick = clickHandler;
+  }
+  button.setAttribute('aria-label', text);
+  if (text.length === 0) {
+    button.setAttribute('aria-label', 'Empty button');
+  }
+  return button;
 }
 
 /**
  * Creates an accessible link element
- * @param {Object} options - Link options
- * @param {string} options.href - Link URL
- * @param {string} options.text - Link text
- * @param {string} options.ariaLabel - Aria label for the link
- * @returns {Object} Link element object
+ * @param {string} href - The link href
+ * @param {string} text - The link text
+ * @returns {Object} The created link element
  */
-function createAccessibleLink(options) {
-  return {
-    type: 'a',
-    href: options.href,
-    text: options.text,
-    ariaLabel: options.ariaLabel || options.text,
-    isFake: false
-  };
+function createAccessibleLink(href, text) {
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  link.setAttribute('aria-label', text);
+  return link;
 }
 
 /**
@@ -244,67 +275,111 @@ function validateLinkAccessibility(link) {
 }
 
 /**
- * Sets SVG attributes to ensure accessibility
- * @param {Object} svg - The SVG element
- * @param {Object} attributes - Attributes to set
- * @returns {Object} The updated SVG element
+ * Creates a new landmark element with proper attributes
+ * @param {Object} options - Landmark options
+ * @param {string} options.type - Type of landmark (header, nav, main, etc.)
+ * @param {string} options.ariaLabel - Accessible name for the landmark
+ * @param {string} options.content - Content of the landmark
+ * @returns {Object} Landmark element object
  */
-function setSvgAttributes(svg, attributes) {
-  const updatedSvg = { ...svg };
+function createLandmark(options) {
+  const landmark = {
+    type: options.type,
+    ariaLabel: options.ariaLabel,
+    content: options.content
+  };
 
-  if (attributes.ariaLabel) {
-    updatedSvg.ariaLabel = attributes.ariaLabel;
+  // Validate the created landmark
+  const validation = validateLandmark(landmark);
+  if (!validation.success) {
+    throw new Error(`Invalid landmark created: ${validation.issues.join(', ')}`);
   }
 
-  if (attributes.ariaLabelledby) {
-    updatedSvg.ariaLabelledby = attributes.ariaLabelledby;
-  }
-
-  if (attributes.title) {
-    updatedSvg.title = attributes.title;
-  }
-
-  return updatedSvg;
+  return landmark;
 }
 
 /**
- * Adds proper landmark regions to the document
- * @param {Array} landmarks - Array of landmark elements to add
- * @returns {Object} Result with success status and any issues found
+ * Validates the structure of landmark elements
+ * @param {Array} landmarks - Array of landmark elements to validate
+ * @returns {Object} Validation result with success status and any issues found
  */
-function addProperLandmarkRegions(landmarks) {
-  const issues = [];
-
-  landmarks.forEach((landmark, index) => {
-    const result = validateLandmark(landmark);
-    if (!result.success) {
-      issues.push({
-        landmarkIndex: index,
-        issues: result.issues
-      });
-    }
-  });
+function validateAllLandmarks(landmarks) {
+  const structureValidation = validateLandmarkStructure(landmarks);
+  const uniquenessValidation = ensureUniqueLandmarks(landmarks);
 
   return {
-    success: issues.length === 0,
-    issues
+    success: structureValidation.success && uniquenessValidation.success,
+    structureIssues: structureValidation.issues,
+    uniquenessIssues: uniquenessValidation.duplicates
   };
 }
 
-// Export all functions for testing and external use
-module.exports = {
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  createInPageButton,
-  createAccessibleLink,
-  handleAccessibilityIssues,
-  validateLinkAccessibility,
-  setSvgAttributes,
-  addProperLandmarkRegions
-};
+/**
+ * Fixes table structure issues
+ * @param {Array|Object} tables - Array of tables or a single table to fix
+ * @returns {Array|Object} Fixed table(s)
+ */
+function fixTableStructure(tables) {
+  if (Array.isArray(tables)) {
+    return tables.map(table => fixTableStructure(table));
+  }
+
+  // Single table fix
+  const table = tables;
+  if (!table.headers) {
+    table.headers = 'auto';
+  }
+
+  if (!table.scope) {
+    table.scope = 'auto';
+  }
+
+  return table;
+}
+
+/**
+ * Fixes landmark issues
+ * @param {Array} landmarks - Array of landmarks to fix
+ * @returns {Array} Array of fixed landmarks
+ */
+function fixLandmarkIssues(landmarks) {
+  return landmarks.map(landmark => {
+    if (!landmark.tagName) {
+      return { ...landmark, tagName: 'section' };
+    }
+    return landmark;
+  });
+}
+
+/**
+ * Adds main landmark if missing
+ * @param {Array|Object} target - Array of landmarks or document object
+ * @returns {Array|Object} Array with main landmark added if needed, or document with main landmark
+ */
+function addMainLandmark(target) {
+  if (Array.isArray(target)) {
+    const hasMain = target.some(landmark => landmark.tagName.toLowerCase() === 'main');
+    if (!hasMain) {
+      return [...target, { tagName: 'main', ariaLabel: 'Main content' }];
+    }
+    return target;
+  } else if (target && target.querySelector) {
+    // Document version
+    if (!target.querySelector('main')) {
+      const main = target.createElement('main');
+      main.setAttribute('role', 'main');
+      target.body.appendChild(main);
+    }
+    return target;
+  }
+  return target;
+}
+
+/**
+ * Adds landmark regions if needed
+ * @param {Array} landmarks - Array of existing landmarks
+ * @returns {Array} Array with additional landmark regions
+ */
+function addLandmarkRegions(landmarks) {
+  const requiredRegions = ['header', 'footer', 'nav'];
+  const existingTags = landmarks.map(l => l.tagName.toLowerCase());

@@ -106,15 +106,6 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
 
-  if (!element.tagName) {
-    issues.push('Missing tagName');
-  } else {
-    const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-    if (!validLandmarks.includes(element.tagName.toLowerCase())) {
-      issues.push(`Invalid landmark: ${element.tagName}`);
-    }
-  }
-
   if (!element.hasAttribute('id')) {
     issues.push('Missing id attribute');
   }

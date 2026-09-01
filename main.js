@@ -415,4 +415,28 @@ function calculateAccessibilityScore(fixedIssues) {
     'other': 1
   };
 
-  return fixedIssues.reduce((
+  return fixedIssues.reduce((total, issue) => {
+    const points = scorePoints[issue.type] || scorePoints.other;
+    return total + points;
+  }, 0);
+}
+
+// Validate landmark role
+function validateLandmark(element) {
+  const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
+  const role = element.getAttribute('role');
+  return validLandmarks.includes(role);
+}
+
+// Spawn some command (placeholder)
+function spawnSomeCommand(command) {
+  console.log('Spawning command:', command);
+  return { status: 'ok', command };
+}
+
+// Add language attribute to HTML element
+function addLangAttribute(lang) {
+  if (document && document.documentElement) {
+    document.documentElement.setAttribute('lang', lang);
+  }
+}

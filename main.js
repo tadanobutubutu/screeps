@@ -5,6 +5,7 @@
 /**
  * Main application entry point with accessibility features
  */
+
 function init() {
   const svgElements = document.querySelectorAll('svg');
 

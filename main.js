@@ -5,7 +5,7 @@ const accessibilityUtils = {
         if (!issues || !Array.isArray(issues)) {
             return [];
         }
-        
+
         return issues.map(issue => {
             return {
                 id: issue.id,
@@ -49,6 +49,8 @@ const formatResponse = (data) => {
 };
 
 // Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
+const fs = require('fs');
+const path = require('path');
 const { validateInput } = require('./utils/validators');
 const { processData } = require('./utils/processor');
 
@@ -67,7 +69,8 @@ module.exports = {
   ensureUniqueLandmarks,
   landmarkConfig: CONFIG,
   generateAccessibilityReport,
-  accessibilityUtils
+  accessibilityUtils,
+  renderDependencyGraph
 };
 
 // Main execution when run directly
@@ -75,11 +78,11 @@ if (require.main === module) {
   const landmarks = loadLandmarks();
   const processed = processLandmarks(landmarks);
   const sorted = sortLandmarks(processed);
-  
+
   console.log(`Loaded ${landmarks.length} landmarks`);
   console.log(`Processed to ${processed.length} unique landmarks`);
   console.log(`Sorted ${sorted.length} landmarks`);
-  
+
   if (sorted.length > 0) {
     console.log('First landmark:', sorted[0]);
   }
@@ -91,6 +94,3 @@ function renderDependencyGraph(landmarks) {
     // Placeholder: Replace with actual implementation
     console.log('Rendering dependency graph for landmarks...');
 }
-
-// Export the new function
-module.exports.renderDependencyGraph = renderDependencyGraph;

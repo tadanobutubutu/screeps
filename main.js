@@ -235,7 +235,11 @@ module.exports = {
     updateFunction,
     accessibleFunction,
     main,
+    createWebResourceButton,
+    validateAccessibilityReport,
+    CONFIG,
     accessibilityUtils,
+    log,
     getLangAttribute,
     personName,
     validateTableAccessibility,
@@ -258,6 +262,10 @@ if (typeof window !== 'undefined') {
     window.updateFunction = updateFunction;
     window.accessibleFunction = accessibleFunction;
     window.main = main;
+    window.createWebResourceButton = createWebResourceButton;
+    window.validateAccessibilityReport = validateAccessibilityReport;
+    window.CONFIG = CONFIG;
+    window.log = log;
     window.accessibilityUtils = accessibilityUtils;
     window.getLangAttribute = getLangAttribute;
     window.personName = personName;

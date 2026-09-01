@@ -294,6 +294,42 @@ function handleAccessibilityIssues(issues) {
 }
 
 /**
+ * Processes all accessibility issues and applies fixes where possible
+ * @param {Object} accessibilityReport - The accessibility report containing issues
+ * @returns {Object} Summary of processed issues
+ */
+function processAccessibilityIssues(accessibilityReport) {
+  const { tables, landmarks, svgs, links } = accessibilityReport;
+
+  // Process table issues
+  const tableIssues = validateTableStructure(tables).issues;
+
+  // Process landmark issues
+  const landmarkIssues = validateLandmarkStructure(landmarks).issues;
+  const uniqueLandmarkIssues = ensureUniqueLandmarks(landmarks).duplicates;
+
+  // Process SVG issues
+  const svgIssues = svgs.map(svg => ({
+    svg,
+    accessibleName: getSvgAccessibleName(svg)
+  }));
+
+  // Process link issues
+  const linkIssues = links.map(link => createAccessibleLink(link));
+
+  // Combine all issues
+  const allIssues = [
+    ...tableIssues,
+    ...landmarkIssues,
+    ...uniqueLandmarkIssues.map(name => ({ type: 'duplicateLandmark', name })),
+    ...svgIssues.map(svg => ({ type: 'svg', ...svg })),
+    ...linkIssues.map(link => ({ type: 'link', ...link }))
+  ];
+
+  return handleAccessibilityIssues(allIssues);
+}
+
+/**
  * Creates a new landmark element with proper attributes
  * @param {Object} options - Landmark options
  * @param {string} options.type - Type of landmark (header, nav, main, etc.)
@@ -762,6 +798,7 @@ module.exports = {
   createInPageButton,
   createAccessibleLink,
   handleAccessibilityIssues,
+  processAccessibilityIssues,
   createLandmark,
   validateAllLandmarks,
   fixTableStructure,

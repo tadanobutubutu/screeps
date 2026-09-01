@@ -594,6 +594,17 @@ if (isSecureContext()) {
 // Register the service worker
 registerSW();
 
+/**
+ * Ensures the dependencyGraph container has a proper ARIA role.
+ * Finds an element with id="dependencyGraph" or class="dependencyGraph" and sets role="region" if missing.
+ */
+function ensureDependencyGraphAriaRole() {
+  const container = document.getElementById('dependencyGraph') || document.querySelector('.dependencyGraph');
+  if (container && !container.getAttribute('role')) {
+    container.setAttribute('role', 'region');
+  }
+}
+
 module.exports = {
   config,
   appState,
@@ -639,5 +650,6 @@ module.exports = {
     return date.toISOString().split('T')[0];
   },
   // Accessibility Functions
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  ensureDependencyGraphAriaRole
 };

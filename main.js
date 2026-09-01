@@ -47,6 +47,48 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  /**
+   * Add SVG accessibility attributes to an SVG element
+   * @param {SVGElement} svgElement - The SVG element to enhance
+   * @param {Object} options - Configuration options
+   * @param {string} [options.title] - Title for the SVG
+   * @param {string} [options.desc] - Description for the SVG
+   * @param {boolean} [options.focusable=false] - Whether the SVG should be focusable
+   * @returns {SVGElement} The enhanced SVG element
+   */
+  addSvgAccessibility: (svgElement, options = {}) => {
+    if (!svgElement || !(svgElement instanceof SVGElement)) {
+      throw new Error('Invalid SVG element provided');
+    }
+
+    // Add role="img" for decorative SVGs or role="graphics-document" for complex graphics
+    svgElement.setAttribute('role', options.role || 'img');
+
+    // Add title if provided
+    if (options.title) {
+      const titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      titleElement.textContent = options.title;
+      svgElement.insertBefore(titleElement, svgElement.firstChild);
+    }
+
+    // Add description if provided
+    if (options.desc) {
+      const descElement = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+      descElement.textContent = options.desc;
+      svgElement.insertBefore(descElement, svgElement.firstChild);
+    }
+
+    // Set focusability
+    svgElement.setAttribute('focusable', options.focusable ? 'true' : 'false');
+
+    // Add aria-hidden if the SVG is purely decorative
+    if (options.decorative) {
+      svgElement.setAttribute('aria-hidden', 'true');
+    }
+
+    return svgElement;
   }
 };
 

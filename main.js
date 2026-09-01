@@ -220,7 +220,7 @@ function addressAccessibilityIssues(insightReport) {
 
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -231,7 +231,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -246,7 +246,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -261,7 +261,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -275,7 +275,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -290,7 +290,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
@@ -304,7 +304,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check SVG accessibility
   const svgAccessibleNames = getSvgAccessibleName();
   if (svgAccessibleNames && svgAccessibleNames.length > 0) {
@@ -318,7 +318,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check for unique landmarks
   const uniqueLandmarkIssues = ensureUniqueLandmarks();
   if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
@@ -332,7 +332,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check link accessibility
   const linkIssues = validateLinkAccessibility();
   if (linkIssues && linkIssues.length > 0) {
@@ -346,7 +346,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Generate the report
   var report = {
     issues: issues,
@@ -366,7 +366,7 @@ function getInsightReport() {
     timestamp: new Date().toISOString(),
     generatedAt: new Date().toLocaleString()
   };
-  
+
   return report;
 }
 
@@ -385,4 +385,138 @@ function processAccessibilityReport(report) {
     if (report.REACT_015) findings.langAttribute = true;
     if (report.REACT_027) findings.tableIssues = report.REACT_027.count || 0;
     if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
-    if (report.REACT_041) findings.svgIssues
+    if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
+    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
+    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
+  }
+
+  return findings;
+}
+
+// TODO: Identify and update specific functions that render dependency graphs or
+
+// New function to render dependency graph
+function renderDependencyGraph(data) {
+  if (!data || !data.dependencies) {
+    console.error('No dependency data provided');
+    return null;
+  }
+
+  // Create a simple visualization of dependencies
+  const graph = {
+    nodes: [],
+    edges: []
+  };
+
+  // Add nodes for each package
+  Object.keys(data.dependencies).forEach(packageName => {
+    graph.nodes.push({
+      id: packageName,
+      label: packageName,
+      version: data.dependencies[packageName]
+    });
+  });
+
+  // Add edges for dependencies (simplified - in reality this would need proper dependency resolution)
+  graph.nodes.forEach(node => {
+    // This is a simplified example - real implementation would need to parse package.json
+    graph.edges.push({
+      from: node.id,
+      to: 'react', // Example dependency
+      type: 'depends_on'
+    });
+  });
+
+  return graph;
+}
+
+// New function to visualize dependency graph
+function visualizeDependencyGraph(graphData) {
+  if (!graphData) {
+    console.error('No graph data provided');
+    return;
+  }
+
+  console.log('Dependency Graph Visualization:');
+  console.log('Nodes:');
+  graphData.nodes.forEach(node => {
+    console.log(`- ${node.label} (${node.version})`);
+  });
+
+  console.log('\nEdges:');
+  graphData.edges.forEach(edge => {
+    console.log(`- ${edge.from} -> ${edge.to} [${edge.type}]`);
+  });
+}
+
+// New function to get dependency graph data
+function getDependencyGraphData() {
+  // In a real application, this would fetch from package.json or API
+  return {
+    dependencies: {
+      react: '^18.2.0',
+      'react-dom': '^18.2.0',
+      'd3': '^7.8.5',
+      'lodash': '^4.17.21'
+    }
+  };
+}
+
+// New function to analyze dependency graph
+function analyzeDependencyGraph(graphData) {
+  if (!graphData) return null;
+
+  const analysis = {
+    totalPackages: graphData.nodes.length,
+    totalDependencies: graphData.edges.length,
+    rootDependencies: graphData.edges.filter(edge => edge.type === 'depends_on').length,
+    warnings: []
+  };
+
+  // Check for potential issues
+  graphData.nodes.forEach(node => {
+    if (node.version.startsWith('^')) {
+      analysis.warnings.push(`Package ${node.label} has caret version (${node.version}) which may cause unexpected updates`);
+    }
+  });
+
+  return analysis;
+}
+
+// Export all functions
+export {
+  config,
+  appState,
+  initialize,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  someFunction,
+  helper,
+  formatDate,
+  validateInput,
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  addLandmarkRegions,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addressAccessibilityIssues,
+  getInsightReport,
+  processAccessibilityReport,
+  renderDependencyGraph,
+  visualizeDependencyGraph,
+  getDependencyGraphData,
+  analyzeDependencyGraph
+};

@@ -10,7 +10,7 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
@@ -61,4 +61,17 @@ function renderGraphIndex(content, options = {}) {
   return container;
 }
 
-export { renderGraphIndex, prefersReducedMotion, isEmpty, capitalize, getRandomInt, clamp, deepClone };
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
+function addAccessibleNamesToSVGs(container) {
+  // This function adds aria-label attributes to all SVG elements in the container
+  // that don't already have one
+  const svgs = container.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.getAttribute('aria-label')) {
+      svg.setAttribute('aria-label', 'Graphical content');
+    }
+  });
+}
+
+export { renderGraphIndex, prefersReducedMotion, isEmpty, capitalize, getRandomInt, clamp, deepClone, addAccessibleNamesToSVGs };

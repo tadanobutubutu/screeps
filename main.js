@@ -93,6 +93,3 @@ function countDependencies() {
 }
 
 // Rest of the code remains the same
-```
-
-This resolved the conflict by combining both changes and keeping both features. The `checkLandmarkElements` function now checks for landmark elements and warnings for duplicates, and the `sampleInsightReport` object is exported along with the `checkLandmarkElements` function. The rest of the file remains untouched.

@@ -23,9 +23,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout PR branch
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - name: Exchange GitHub OIDC token for JAIPilot runtime token

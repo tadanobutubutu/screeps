@@ -23,3 +23,6 @@ const renderGraphIndex = (graphData) => {
 // Example:
 // renderDependencyGraphs(graphData); // Before
 // renderGraphIndex(graphData); // After
+
+// Add back any required exports that might have been removed
+export { renderGraphIndex };

@@ -131,8 +131,39 @@ const accessibilityUtils = {
   },
 
   // New function for focus trap
-  newFocusTrap: function() {
-    // New function implementation
+  newFocusTrap: function(element) {
+    if (!element) {
+      console.warn('No element provided for focus trap');
+      return;
+    }
+
+    const focusableElements = element.querySelectorAll(
+      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length === 0) {
+      console.warn('No focusable elements found in the provided element');
+      return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    // Set initial focus to first element
+    firstElement.focus();
+
+    // Trap focus within the element
+    element.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    });
   }
 };
 
@@ -172,11 +203,11 @@ async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received');
   }
-  
+
   if (response.error) {
     throw new Error(response.error);
   }
-  
+
   if (response.token) {
     return {
       success: true,
@@ -184,7 +215,7 @@ async function handleCredentialResponse(response) {
       expiresIn: response.expiresIn || 3600
     };
   }
-  
+
   throw new Error('Invalid credential response');
 }
 
@@ -210,7 +241,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader('Download of ' + filename + ' started');
   },
@@ -224,11 +255,11 @@ const exportUtils = {
     if (!data || data.length === 0) {
       return;
     }
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (let i = 0; i < data.length; i++) {
       const row = data[i];
       const values = headers.map(function(header) {
@@ -237,7 +268,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -287,7 +318,7 @@ function filterValidItems(items, validator) {
 // Initialize accessibility features
 function initAccessibility() {
   accessibilityUtils.initSkipLink();
-  
+
   // Add keyboard support for all interactive elements
   const elements = document.querySelectorAll('button, a, input, select, textarea');
   for (let i = 0; i < elements.length; i++) {
@@ -330,7 +361,7 @@ function transformInputData(inputData, options) {
   if (options === undefined) {
     options = {};
   }
-  
+
   const preserveKeys = options.preserveKeys !== undefined ? options.preserveKeys : true;
   const uppercase = options.uppercase === true;
   const trimWhitespace = options.trimWhitespace !== false;
@@ -379,5 +410,6 @@ module.exports = {
   addAriaLabel: addAriaLabel,
   renderDependencyGraph: renderDependencyGraph,
   calculateSum: calculateSum,
-  existingFunction: existingFunction
+  existingFunction: existingFunction,
+  transformInputData: transformInputData
 };

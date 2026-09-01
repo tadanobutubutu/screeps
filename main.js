@@ -13,14 +13,6 @@ import reportWebVitals from './reportWebVitals';
 // REACT_015: lang attribute added to HTML element
 // The React component rendering the HTML element provides the `lang` prop
 // The language attribute is set according to the application's settings
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30f5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f816325b07a49b809ac49f5e1c81cf4e389f9c1 -->
-// _Commit: b88a21083c89f599fb68eef1dc4d5df10e52_
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -29,7 +21,7 @@ root.render(
   </React.StrictMode>
 );
 
-document.documentElement.lang = 'en';
+document.documentElement.lang = getLangAttribute();
 
 reportWebVitals();
 
@@ -83,7 +75,67 @@ function ensureElementHasId(elementId) {
 
 // Main module entry point
 const main = {
-  // Add your module exports here
+  /**
+   * Sets the language attribute on the HTML element.
+   *
+   * This ensures that screen readers and other assistive technologies
+   * can correctly interpret the language of the page.
+   *
+   * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr').
+   */
+  setLanguageAttribute: setLanguageAttribute,
+
+  /**
+   * Adds landmark roles to the main navigation and content sections.
+   *
+   * This addresses the REACT_017 issue by adding appropriate ARIA roles
+   * such as 'navigation', 'main', and 'banner' to relevant HTML elements.
+   */
+  addLandmarkRolesFn: addLandmarkRolesFn,
+
+  /**
+   * Ensures that landmarks are unique by adding unique ARIA labels where necessary.
+   *
+   * This addresses the REACT_025 issue by checking for duplicate landmarks
+   * and making them unique with appropriate aria-label or aria-labelledby attributes.
+   */
+  ensureUniqueLandmarkElements: ensureUniqueLandmarkElements,
+
+  /**
+   * Adds accessible names to SVG elements.
+   *
+   * This addresses the REACT_041 issue by ensuring that SVGs have appropriate
+   * accessible names, either through title or desc elements.
+   *
+   * @param {string} svgSelector - The CSS selector for the SVG element(s).
+   * @param {string} accessibleName - The accessible name to set.
+   */
+  addSVGAccessibleName: addSVGAccessibleName,
+
+  /**
+   * Fixes fake links (elements that look like links but are not semantic <a> tags).
+   *
+   * This addresses the REACT_036 issue by identifying elements that have
+   * click handlers but are not <a> tags and adding appropriate ARIA roles
+   * and attributes to make them accessible.
+   */
+  fixFakeLinks: fixFakeLinks,
+
+  /**
+   * Creates an accessible in-page button element.
+   *
+   * @param {string} text - The text content of the button
+   * @param {Function} onClick - The click handler function
+   * @param {Object} [options] - Optional configuration
+   * @param {string} [options.id] - The ID for the button
+   * @param {string} [options.className] - The class name for the button
+   * @param {string} [options.ariaLabel] - The ARIA label for the button
+   * @param {boolean} [options.disabled=false] - Whether the button is disabled
+   * @returns {HTMLButtonElement} The created button element
+   */
+  createInPageButton: createInPageButton,
+
+  ... // Add any other exports from main as needed
 };
 
 /**
@@ -748,4 +800,9 @@ export function calculateDiscount(price, discount) {
     throw new Error('Price must be a non-negative number');
   }
   if (typeof discount !== 'number' || discount < 0) {
-    throw new Error('Discount must be a non-negative number
+    throw new Error('Discount must be a non-negative number');
+  }
+  return price - (price * discount / 100);
+}
+
+export default main;

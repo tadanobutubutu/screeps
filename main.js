@@ -594,6 +594,99 @@ if (isSecureContext()) {
 // Register the service worker
 registerSW();
 
+// New functions added at line 237 as requested in the issue
+/**
+ * Creates a new accessibility report with the current state of the application.
+ * @returns {Object} The accessibility report containing findings and recommendations.
+ */
+function createAccessibilityReport() {
+  const report = {
+    timestamp: new Date().toISOString(),
+    findings: processAccessibilityReport(),
+    recommendations: []
+  };
+
+  // Add recommendations based on findings
+  if (!report.findings.langAttribute) {
+    report.recommendations.push('Add lang attribute to HTML element');
+  }
+
+  if (report.findings.tableIssues > 0) {
+    report.recommendations.push(`Fix ${report.findings.tableIssues} table structure issues`);
+  }
+
+  if (report.findings.landmarkIssues > 0) {
+    report.recommendations.push(`Fix ${report.findings.landmarkIssues} landmark issues`);
+  }
+
+  if (report.findings.svgIssues > 0) {
+    report.recommendations.push(`Add accessible names to ${report.findings.svgIssues} SVGs`);
+  }
+
+  if (report.findings.uniqueLandmarkIssues > 0) {
+    report.recommendations.push(`Ensure ${report.findings.uniqueLandmarkIssues} landmarks are unique`);
+  }
+
+  if (report.findings.fakeLinkIssues > 0) {
+    report.recommendations.push(`Fix ${report.findings.fakeLinkIssues} fake link issues`);
+  }
+
+  return report;
+}
+
+/**
+ * Applies all accessibility fixes to the document.
+ */
+function applyAllAccessibilityFixes() {
+  // Apply all accessibility fixes
+  setLanguageAttribute();
+  addLandmarkRoles();
+  ensureUniqueLandmarks(landmarks);
+  fixTableStructure();
+  fixFakeLinks();
+
+  // Add proper landmark regions
+  addProperLandmarkRegions();
+
+  // Add accessible names to SVGs
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const name = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, name);
+  });
+}
+
+/**
+ * Gets the current accessibility score based on the report.
+ * @returns {number} The accessibility score between 0 and 100.
+ */
+function getAccessibilityScore() {
+  const report = createAccessibilityReport();
+  const totalIssues = report.findings.tableIssues +
+                     report.findings.landmarkIssues +
+                     report.findings.svgIssues +
+                     report.findings.uniqueLandmarkIssues +
+                     report.findings.fakeLinkIssues;
+
+  // Simple scoring: 100 points minus 10 points per issue
+  const score = Math.max(0, 100 - (totalIssues * 10));
+  return score;
+}
+
+/**
+ * Logs the current accessibility status to the console.
+ */
+function logAccessibilityStatus() {
+  const score = getAccessibilityScore();
+  const report = createAccessibilityReport();
+
+  console.log(`Accessibility Score: ${score}/100`);
+  console.log('Recommendations:');
+  report.recommendations.forEach((rec, index) => {
+    console.log(`${index + 1}. ${rec}`);
+  });
+}
+
 module.exports = {
   config,
   appState,
@@ -639,5 +732,10 @@ module.exports = {
     return date.toISOString().split('T')[0];
   },
   // Accessibility Functions
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  // New functions added at line 237
+  createAccessibilityReport,
+  applyAllAccessibilityFixes,
+  getAccessibilityScore,
+  logAccessibilityStatus
 };

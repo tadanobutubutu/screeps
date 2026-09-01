@@ -73,6 +73,18 @@ let icons = {};
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
+// TODO: Add new functions below this line
+
+/**
+ * Function to check if the specified landmark element is in the document.
+ * @param {string} id - The ID of the landmark element.
+ * @returns {boolean} Returns true if the element exists; otherwise, false.
+ */
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  return element !== null;
+}
+
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
@@ -126,16 +138,6 @@ function validateLandmark(landmark) {
     valid: errors.length === 0,
     errors
   };
-}
-
-/**
- * Function to check if the specified landmark element is in the document.
- * @param {string} id - The ID of the landmark element.
- * @returns {boolean} Returns true if the element exists; otherwise, false.
- */
-function checkLandmarkElement(id) {
-  const element = ...
-  return element !== null;
 }
 
 // Ensure unique landmarks by filtering duplicates

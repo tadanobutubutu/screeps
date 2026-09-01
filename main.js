@@ -34,4 +34,23 @@ function main() {
   return processData;
 }
 
-module.exports = { main, processData, validateInput, initializeApp, setupHandlers };
+// The functions below have been created to match the exported names
+function getConfig() {
+  return config;
+}
+
+function logDebug(message) {
+  if (config.debug) {
+    console.log(`[DEBUG] ${message}`);
+  }
+}
+
+module.exports = {
+  main,
+  processData,
+  validateInput,
+  initializeApp,
+  setupHandlers,
+  getConfig,
+  logDebug
+};

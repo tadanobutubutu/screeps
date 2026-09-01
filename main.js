@@ -1,7 +1,8 @@
+// TODO: Address accessibility issues from insight report — FIXED
 const fs = require('fs');
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, renderAdditionalContent } = main;
+const { ensureElementHasIdOrigin, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, renderDependencyGraphs, renderAdditionalContent } = main;
 
 // Utility functions for ensuring elements have IDs and adding labels
 const ensureElementId = (element) => {
@@ -135,18 +136,49 @@ const accessibilityUtils = {
   },
 
   // Export functionality with accessibility support
-  exportUtils
+  exportData: (data, filename, mimeType) => {
+    const blob = new Blob([data], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.setAttribute('aria-label', "Download " + filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    // Announce download completion to screen readers
+    accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
+  },
+
+  exportToJSON: (data, filename) => {
+    const jsonString = JSON.stringify(data, null, 2);
+    accessibilityUtils.exportData(jsonString, filename || 'export.json', 'application/json');
+  },
+
+  exportToCSV: (data, filename) => {
+    if (!data || data.length === 0) return;
+    
+    const headers = Object.keys(data[0]);
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+    
+    for (const row of data) {
+      const values = headers.map(header => {
+        const escaped = ('' + row[header]).replace(/"/g, '\\"');
+        return "\"" + escaped + "\"";
+      });
+      csvRows.push(values.join(','));
+    }
+    
+    const csvString = csvRows.join('\n');
+    accessibilityUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
+  }
 };
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
-
-const ensureElementId = (element) => {
-  if (element && !element.id) {
-    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
-  }
-  return element;
-};
 
 const addAriaLabel = (element, label) => {
   if (element) {
@@ -949,10 +981,17 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createWebResourceButton,
+  validateAccessibilityReport,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  exportUtils,
+  addAriaLabel,
+  renderDependencyGraph,
+  calculateSum,
+  ensureUniqueLandmarks,
   getTables,
   getConfig,
   setConfig,
   addAccessibleName,
-  renderAdditionalContent,
-  renderDependencyGraphs
+  renderAdditionalContent
 };

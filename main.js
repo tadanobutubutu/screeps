@@ -1,9 +1,3 @@
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const fastMap = require('fast-map');
-const path = require('path');
-
 // REACT_015: Add lang attribute to document
 function ensureLangAttribute() {
   if (document.documentElement.getAttribute('lang') === null) {

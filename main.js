@@ -5,6 +5,9 @@ const http = require('http');
 const path = require('path');
 
 // TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
 // ----- END ORIGINAL CODE -----
@@ -411,11 +414,12 @@ const AddressabilityIssues = {
 function MyComponent() {
   // Existing code that needs to be updated
   const langAttr = getLangAttribute();
-  return (
-    <div lang={langAttr}>
-      {/* Content */}
-    </div>
-  );
+  // Return a plain object representing the component
+  return {
+    type: 'div',
+    props: { lang: langAttr },
+    children: []
+  };
 }
 
 // Ensure DOM is fully loaded before executing scripts

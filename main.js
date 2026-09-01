@@ -135,7 +135,7 @@ export function renderDependencyGraph(graphData, container) {
   return container;
 }
 
-// REACT_017: Add landmark roles - Ensure proper landmark regions
+// REACT_017: Add landmark roles and fix landmark issues
 function ensureLandmarkRoles(container) {
   const landmarks = {
     header: { role: 'banner', count: 0 },
@@ -149,6 +149,7 @@ function ensureLandmarkRoles(container) {
   elements.forEach(el => {
     const tagName = el.tagName.toLowerCase();
     if (landmarks[tagName]) {
+      el.setAttribute('role', landmarks[tagName].role);
       landmarks[tagName].count++;
     }
   });
@@ -174,7 +175,7 @@ function ensureUniqueLandmarks(container) {
   });
 }
 
-// REACT_041: Add accessible names to SVGs
+// REACT_041: Add accessible names to 2 SVGs
 function addSvgAccessibleNames(container) {
   const svgs = container.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
   svgs.forEach((svg, index) => {

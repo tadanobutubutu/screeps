@@ -114,11 +114,11 @@ async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received');
   }
-  
+
   if (response.error) {
     throw new Error(response.error);
   }
-  
+
   if (response.token) {
     return {
       success: true,
@@ -126,7 +126,7 @@ async function handleCredentialResponse(response) {
       expiresIn: response.expiresIn || 3600
     };
   }
-  
+
   throw new Error('Invalid credential response');
 }
 
@@ -149,7 +149,7 @@ const exportUtils = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
   },
 
@@ -160,11 +160,11 @@ const exportUtils = {
 
   exportToCSV: (data, filename) => {
     if (!data || data.length === 0) return;
-    
+
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (const row of data) {
       const values = headers.map(header => {
         const escaped = ('' + row[header]).replace(/"/g, '\\"');
@@ -172,7 +172,7 @@ const exportUtils = {
       });
       csvRows.push(values.join(','));
     }
-    
+
     const csvString = csvRows.join('\n');
     exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
@@ -216,7 +216,7 @@ function filterValidItems(items, validator) {
 // Initialize accessibility features
 const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
-  
+
   // Add keyboard support for all interactive elements
   document.querySelectorAll('[data-accessible]').forEach(element => {
     element.addEventListener('keydown', (e) => {
@@ -285,7 +285,7 @@ function transformInputData(inputData, options = {}) {
     const result = {};
     const originalKeys = Object.keys(inputData);
     const keys = preserveKeys ? originalKeys : originalKeys.map(() => Math.random().toString(36).substring(2, 11));
-    
+
     let i = 0;
     for (const key of originalKeys) {
       const value = inputData[key];
@@ -368,11 +368,11 @@ function ensureElementHasId(element, prefix = 'element') {
   if (!element) {
     throw new Error('Element is required');
   }
-  
+
   if (element.id) {
     return element.id;
   }
-  
+
   const id = `${prefix}-${Math.random().toString(36).substring(2, 11)}`;
   element.id = id;
   return id;
@@ -388,7 +388,7 @@ function generateAccessibilityReport(issues, options = {}) {
     groupBySeverity = true,
     includeSummary = true
   } = options;
-  
+
   // Handle empty issues array
   if (!issues || !Array.isArray(issues) || issues.length === 0) {
     return {
@@ -397,25 +397,25 @@ function generateAccessibilityReport(issues, options = {}) {
         timestamp: new Date().toISOString()
       },
       issues: [],
-      message: format === 'json' ? 
-        JSON.stringify({ summary: { totalIssues: 0, timestamp: new Date().toISOString() }, issues: [], message: 'No accessibility issues found' }) : 
+      message: format === 'json' ?
+        JSON.stringify({ summary: { totalIssues: 0, timestamp: new Date().toISOString() }, issues: [], message: 'No accessibility issues found' }) :
         'No accessibility issues found'
     };
   }
-  
+
   let processedIssues = [...issues];
   let groups = {};
   let summary = {
     totalIssues: issues.length,
     timestamp: new Date().toISOString()
   };
-  
+
   // Group issues by severity if requested
   if (groupBySeverity) {
     groups = processedIssues.reduce((acc, issue) => {
       // Determine severity - default to 'unknown' if not specified
       let severity = 'unknown';
-      
+
       if (typeof issue === 'string') {
         // Try to infer severity from issue text
         const lowerIssue = issue.toLowerCase();
@@ -431,14 +431,14 @@ function generateAccessibilityReport(issues, options = {}) {
       } else if (issue.level) {
         severity = issue.level;
       }
-      
+
       if (!acc[severity]) {
         acc[severity] = [];
       }
       acc[severity].push(issue);
       return acc;
     }, {});
-    
+
     // Add group counts to summary
     if (includeSummary) {
       summary.groups = Object.keys(groups).reduce((acc, key) => {
@@ -447,26 +447,26 @@ function generateAccessibilityReport(issues, options = {}) {
       }, {});
     }
   }
-  
+
   // Create report based on format
   const report = {
     summary: includeSummary ? summary : undefined,
     groups: groupBySeverity ? groups : undefined,
     issues: processedIssues
   };
-  
+
   // Remove undefined properties
   Object.keys(report).forEach(key => {
     if (report[key] === undefined) {
       delete report[key];
     }
   });
-  
+
   // Return formatted output
   if (format === 'json') {
     return JSON.stringify(report, null, 2);
   }
-  
+
   if (format === 'text') {
     let textReport = '';
     if (includeSummary) {
@@ -474,7 +474,7 @@ function generateAccessibilityReport(issues, options = {}) {
       textReport += `========================\n`;
       textReport += `Total Issues: ${summary.totalIssues}\n`;
       textReport += `Generated: ${summary.timestamp}\n\n`;
-      
+
       if (groupBySeverity && summary.groups) {
         textReport += `By Severity:\n`;
         Object.entries(summary.groups).forEach(([severity, count]) => {
@@ -483,7 +483,7 @@ function generateAccessibilityReport(issues, options = {}) {
         textReport += `\n`;
       }
     }
-    
+
     textReport += `Issues:\n`;
     if (groupBySeverity) {
       Object.entries(groups).forEach(([severity, severityIssues]) => {
@@ -497,11 +497,253 @@ function generateAccessibilityReport(issues, options = {}) {
         textReport += `${index + 1}. ${typeof issue === 'string' ? issue : (issue.message || JSON.stringify(issue))}\n`;
       });
     }
-    
+
     return textReport;
   }
-  
+
   return report;
+}
+
+// New function to get language attribute for HTML element
+function getLangAttribute() {
+  // Try to get language from browser or document
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    return navigator.language;
+  }
+
+  if (typeof document !== 'undefined' && document.documentElement.lang) {
+    return document.documentElement.lang;
+  }
+
+  // Default to English if not detected
+  return 'en';
+}
+
+// New function to handle person name formatting
+function personName(firstName, lastName, options = {}) {
+  const {
+    format = 'full',
+    title = '',
+    suffix = '',
+    separator = ' '
+  } = options;
+
+  let nameParts = [];
+
+  if (title) nameParts.push(title);
+  if (firstName) nameParts.push(firstName);
+  if (lastName) nameParts.push(lastName);
+  if (suffix) nameParts.push(suffix);
+
+  let fullName = nameParts.join(separator);
+
+  switch (format) {
+    case 'full':
+      return fullName;
+    case 'initials':
+      return `${firstName ? firstName[0] : ''}${lastName ? lastName[0] : ''}`.toUpperCase();
+    case 'lastFirst':
+      return `${lastName}${lastName && firstName ? ', ' : ''}${firstName}`;
+    default:
+      return fullName;
+  }
+}
+
+// New function to validate table structure
+function validateTableStructure(tableElement) {
+  const issues = [];
+
+  if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
+    issues.push('Element is not a TABLE element');
+    return issues;
+  }
+
+  // Check for proper table structure
+  const thead = tableElement.querySelector('thead');
+  const tbody = tableElement.querySelector('tbody');
+  const tfoot = tableElement.querySelector('tfoot');
+
+  if (!thead) {
+    issues.push('TABLE is missing required THEAD section');
+  }
+
+  if (!tbody) {
+    issues.push('TABLE is missing required TBODY section');
+  }
+
+  // Check for proper header cells in THEAD
+  if (thead) {
+    const headerRows = thead.querySelectorAll('tr');
+    if (headerRows.length === 0) {
+      issues.push('THEAD section has no rows');
+    } else {
+      const headerCells = headerRows[0].querySelectorAll('th');
+      if (headerCells.length === 0) {
+        issues.push('First row of THEAD has no header cells (TH)');
+      }
+    }
+  }
+
+  // Check for proper data cells in TBODY
+  if (tbody) {
+    const dataRows = tbody.querySelectorAll('tr');
+    if (dataRows.length === 0) {
+      issues.push('TBODY section has no rows');
+    } else {
+      const dataCells = dataRows[0].querySelectorAll('td');
+      if (dataCells.length === 0) {
+        issues.push('First row of TBODY has no data cells (TD)');
+      }
+    }
+  }
+
+  return issues;
+}
+
+// New function to get accessible name for SVG
+function getSvgAccessibleName(svgElement, defaultName = 'graphic') {
+  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
+    return defaultName;
+  }
+
+  // Check for aria-label
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+
+  // Check for aria-labelledby
+  const labelledById = svgElement.getAttribute('aria-labelledby');
+  if (labelledById) {
+    const labelledByElement = document.getElementById(labelledById);
+    if (labelledByElement && labelledByElement.textContent) {
+      return labelledByElement.textContent.trim();
+    }
+  }
+
+  // Check for title element
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent.trim();
+  }
+
+  // Check for desc element
+  const descElement = svgElement.querySelector('desc');
+  if (descElement && descElement.textContent) {
+    return descElement.textContent.trim();
+  }
+
+  // Fallback to default name
+  return defaultName;
+}
+
+// New function to create accessible link
+function createAccessibleLink(href, text, options = {}) {
+  const {
+    ariaLabel = text,
+    target = '_self',
+    rel = target === '_blank' ? 'noopener noreferrer' : undefined,
+    className = '',
+    id = ''
+  } = options;
+
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  link.setAttribute('aria-label', ariaLabel);
+
+  if (target) link.target = target;
+  if (rel) link.rel = rel;
+  if (className) link.className = className;
+  if (id) link.id = id;
+
+  return link;
+}
+
+// New function to handle accessibility errors
+function handleAccessibilityErrors(error) {
+  if (!error) return;
+
+  const errorMessage = typeof error === 'string' ? error : error.message || 'An accessibility error occurred';
+
+  // Log the error
+  log(`Accessibility Error: ${errorMessage}`, 'error');
+
+  // Announce to screen reader
+  accessibilityUtils.announceToScreenReader(`Accessibility error: ${errorMessage}`, 'assertive');
+
+  // Return a user-friendly message
+  return {
+    success: false,
+    message: 'An accessibility issue was encountered. Please try again or contact support.',
+    details: errorMessage
+  };
+}
+
+// New function to handle accessibility issues
+function handleAccessibilityIssues(issues) {
+  if (!issues || issues.length === 0) {
+    return {
+      success: true,
+      message: 'No accessibility issues found'
+    };
+  }
+
+  // Generate report
+  const report = generateAccessibilityReport(issues, {
+    format: 'text',
+    groupBySeverity: true,
+    includeSummary: true
+  });
+
+  // Log the issues
+  log(`Accessibility Issues Report:\n${report}`, 'warn');
+
+  // Announce summary to screen reader
+  const summary = issues.length === 1 ?
+    '1 accessibility issue was found' :
+    `${issues.length} accessibility issues were found`;
+
+  accessibilityUtils.announceToScreenReader(summary, 'polite');
+
+  // Return the report
+  return {
+    success: false,
+    message: 'Accessibility issues were found',
+    report: report
+  };
+}
+
+// New function to create in-page button
+function createInPageButton(text, onClick, options = {}) {
+  const {
+    ariaLabel = text,
+    className = '',
+    id = '',
+    disabled = false,
+    type = 'button'
+  } = options;
+
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.setAttribute('aria-label', ariaLabel);
+  button.type = type;
+
+  if (className) button.className = className;
+  if (id) button.id = id;
+  if (disabled) button.disabled = true;
+
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+
+    // Add keyboard support
+    button.addEventListener('keydown', (e) => {
+      accessibilityUtils.handleKeyboardNav(e, {
+        Enter: () => button.click(),
+        ' ': () => button.click()
+      });
+    });
+  }
+
+  return button;
 }
 
 // Export all utilities
@@ -525,5 +767,13 @@ module.exports = {
   transformInputData,
   validateTableAccessibility,
   ensureElementHasId,
-  generateAccessibilityReport
+  generateAccessibilityReport,
+  getLangAttribute,
+  personName,
+  validateTableStructure,
+  getSvgAccessibleName,
+  createAccessibleLink,
+  handleAccessibilityErrors,
+  handleAccessibilityIssues,
+  createInPageButton
 };

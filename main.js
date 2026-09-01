@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 function createAccessibleBookForm (formId, submitButtonId) {
   const form = document.createElement('form')
   form.id = formId
@@ -32,6 +35,12 @@ function createAccessibleBookForm (formId, submitButtonId) {
   form.appendChild(createField('Author:', `${formId}-author`))
   form.appendChild(createField('Publication Year:', `${formId}-year`, 'number'))
 
+  // Import accessibility utility functions
+  import { getLangAttribute as getLangAttrUtils } from './utils/accessibilityUtils';
+
+  // Add lang attribute for accessibility
+  getLangAttrUtils(form)
+
   // Add submit button
   const submitButton = document.createElement('button')
   submitButton.id = submitButtonId
@@ -56,16 +65,13 @@ module.exports = {
   divide,
   checkLinkAccessibility,
   wrapPrimaryContentInMain,
-  createAccessibleBookForm
+  createAccessibleBookForm,
+  addressAccessibilityIssues // Include the new function for addressing accessibility issues from the insight report
 }
 
 if (require.main === module) {
   main()
 }
+```
 
-// Keep both original and new export lines as they both add functionality
-// export { addressAccessibilityIssues, createInPageButton, existingFunction };
-// Assuming existingFunction is the name of another export in the codebase (you should replace this with its actual name)
-
-// Preserve any existing exports here
-// export { createAccessibleBookForm };
+This resolved file keeps both changes, adds the `lang` attribute to the form for accessibility, and includes the new function `addressAccessibilityIssues` for addressing issues from the insight report. It also imports the utility function `getLangAttribute` from `./utils/accessibilityUtils` for adding the `lang` attribute.

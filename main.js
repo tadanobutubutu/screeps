@@ -744,8 +744,84 @@ function countDependencies() {
   // Count dependencies logic
 }
 
-function checkLandmarkElements() {
-  // Check landmark elements logic
+function checkLandmarkElements(container = document) {
+  const results = {
+    valid: true,
+    landmarks: [],
+    issues: []
+  };
+
+  if (!container || typeof container.querySelectorAll !== 'function') {
+    return results;
+  }
+
+  const selectors = [
+    'main',
+    'nav',
+    'header',
+    'footer',
+    'aside',
+    '[role="main"]',
+    '[role="navigation"]',
+    '[role="banner"]',
+    '[role="contentinfo"]',
+    '[role="complementary"]',
+    '[role="search"]',
+    '[role="form"]'
+  ];
+
+  try {
+    const elements = container.querySelectorAll(selectors.join(', '));
+    const ids = new Set();
+    const roleCounts = {};
+
+    elements.forEach(el => {
+      const role = el.getAttribute('role') || el.tagName.toLowerCase();
+      const id = el.id || '';
+      const label = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || '';
+
+      results.landmarks.push({
+        role: role,
+        element: el.tagName ? el.tagName.toLowerCase() : '',
+        id: id,
+        label: label
+      });
+
+      if (id) {
+        if (ids.has(id)) {
+          results.valid = false;
+          results.issues.push({
+            type: 'duplicate-landmark-id',
+            message: 'Duplicate landmark ID found: ' + id,
+            id: id
+          });
+        } else {
+          ids.add(id);
+        }
+      }
+
+      const uniqueRoles = ['main', 'banner', 'contentinfo'];
+      if (uniqueRoles.indexOf(role) !== -1) {
+        roleCounts[role] = (roleCounts[role] || 0) + 1;
+        if (roleCounts[role] > 1) {
+          results.valid = false;
+          results.issues.push({
+            type: 'duplicate-landmark-role',
+            message: 'Multiple landmarks with role "' + role + '" found. Only one is allowed.',
+            role: role
+          });
+        }
+      }
+    });
+  } catch (err) {
+    results.valid = false;
+    results.issues.push({
+      type: 'error',
+      message: err.message || 'Unknown error checking landmarks'
+    });
+  }
+
+  return results;
 }
 
 function addLangAttribute() {

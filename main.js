@@ -271,7 +271,21 @@ function validateTableStructure(table) {
  */
 function validateLandmark(element) {
   if (!element || typeof element !== 'object') return true;
-  return true;
+
+  // Check if element has a valid ARIA landmark role
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+  const role = element.getAttribute('role');
+
+  if (role && validRoles.includes(role)) {
+    // Check if landmark has an accessible name
+    const hasName = element.getAttribute('aria-label') ||
+                   element.getAttribute('aria-labelledby') ||
+                   element.textContent.trim();
+
+    return hasName !== '';
+  }
+
+  return false;
 }
 
 /**
@@ -281,6 +295,22 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure(element) {
   if (!element || typeof element !== 'object') return true;
+
+  // Check if landmark is properly nested within the document
+  const parent = element.parentElement;
+  if (!parent || parent.tagName === 'BODY') {
+    return false;
+  }
+
+  // Check if landmark is unique (only one of each type per page)
+  const role = element.getAttribute('role');
+  if (role) {
+    const sameLandmarks = document.querySelectorAll(`[role="${role}"]`);
+    if (sameLandmarks.length > 1) {
+      return false;
+    }
+  }
+
   return true;
 }
 

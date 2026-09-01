@@ -263,4 +263,38 @@ function validateSvgAccessibility() {
   return { valid: errors.length === 0, errors };
 }
 
-// New function to address REACT_
+// New function to address REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+
+  const errors = [];
+  const mainElements = Array.from(document.querySelectorAll('main, [role="main"]'));
+
+  if (mainElements.length > 1) {
+    errors.push(`Multiple main landmarks found (${mainElements.length}). Only one <main> should exist.`);
+
+    // Fix: keep the first <main>, convert remaining to <section> with role="region"
+    mainElements.slice(1).forEach((el) => {
+      const section = document.createElement('section');
+
+      // Preserve attributes, changing role="main" to role="region"
+      Array.from(el.attributes).forEach((attr) => {
+        if (attr.name === 'role' && attr.value === 'main') {
+          section.setAttribute('role', 'region');
+        } else {
+          section.setAttribute(attr.name, attr.value);
+        }
+      });
+
+      section.innerHTML = el.innerHTML;
+
+      if (el.parentNode) {
+        el.parentNode.replaceChild(section, el);
+      }
+    });
+  }
+
+  return { valid: errors.length === 0, errors };
+}

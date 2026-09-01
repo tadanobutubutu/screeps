@@ -109,6 +109,55 @@ function addAriaLabel(element, label) {
 }
 
 /**
+ * Extracts the accessible name for an SVG element from its content
+ * @param {SVGElement} svg - The SVG element to extract the accessible name from
+ * @returns {string} The accessible name, or empty string if none found
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) {
+    return '';
+  }
+
+  // Check aria-labelledby first
+  const labelledby = svg.getAttribute('aria-labelledby');
+  if (labelledby && typeof document !== 'undefined') {
+    const labels = labelledby.split(/\s+/).map(id => {
+      const el = document.getElementById(id);
+      return el ? (el.textContent || '').trim() : '';
+    }).filter(Boolean);
+    if (labels.length > 0) {
+      return labels.join(' ');
+    }
+  }
+
+  // Check aria-label
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim()) {
+    return ariaLabel.trim();
+  }
+
+  // Check for <title> child element
+  const title = svg.querySelector ? svg.querySelector('title') : null;
+  if (title && title.textContent && title.textContent.trim()) {
+    return title.textContent.trim();
+  }
+
+  // Check for <desc> child element
+  const desc = svg.querySelector ? svg.querySelector('desc') : null;
+  if (desc && desc.textContent && desc.textContent.trim()) {
+    return desc.textContent.trim();
+  }
+
+  // Fall back to text content
+  const textContent = (svg.textContent || '').trim();
+  if (textContent) {
+    return textContent;
+  }
+
+  return '';
+}
+
+/**
  * Renders a dependency graph visualization
  * @param {HTMLElement} container - The container element for the graph
  * @param {Object} dependencies - The dependency data to render
@@ -228,4 +277,5 @@ module.exports = {
   renderDependencyGraph,
   existingFunction,
   personName,
+  getSvgAccessibleName,
 };

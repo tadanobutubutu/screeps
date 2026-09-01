@@ -351,7 +351,7 @@ function transformInputData(inputData, options = {}) {
   if (typeof inputData === 'object' && !Array.isArray(inputData) && inputData !== null) {
     const result = {};
     const keys = preserveKeys ? Object.keys(inputData) : Object.keys(inputData).map(() => Math.random().toString(36).substr(2, 9));
-    
+
     let i = 0;
     for (const key of Object.keys(inputData)) {
       const value = inputData[key];

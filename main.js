@@ -172,18 +172,18 @@ function handleFakeLinks() {
 // Focus trap function for keyboard navigation
 function newFocusTrap(container) {
   console.log('Implementing focus trap for keyboard navigation');
-  
+
   if (!container) {
     return null;
   }
-  
+
   const focusableElements = container.querySelectorAll(
     'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
   );
-  
+
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
-  
+
   return {
     container: container,
     firstElement: firstElement,
@@ -270,11 +270,11 @@ function addressAccessibilityIssues(insightReport) {
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
   var issues = [];
-  
+
   // Fix table accessibility issues
   const tableResults = validateTableAccessibility();
   const tableStructureResults = validateTableStructure();
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -289,7 +289,7 @@ function fixAccessibilityIssues() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -303,7 +303,7 @@ function fixAccessibilityIssues() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -318,7 +318,7 @@ function fixAccessibilityIssues() {
       });
     });
   }
-  
+
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
@@ -332,7 +332,7 @@ function fixAccessibilityIssues() {
       });
     });
   }
-  
+
   // Check SVG accessibility
   const svgAccessibleNames = [];
   if (svgAccessibleNames.length > 0) {
@@ -346,7 +346,7 @@ function fixAccessibilityIssues() {
       });
     });
   }
-  
+
   // Check for unique landmarks
   const uniqueLandmarkIssues = ensureUniqueLandmarks();
   if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
@@ -360,7 +360,7 @@ function fixAccessibilityIssues() {
       });
     });
   }
-  
+
   // Check link accessibility
   const linkIssues = validateLinkAccessibility();
   if (linkIssues && linkIssues.length > 0) {
@@ -374,7 +374,7 @@ function fixAccessibilityIssues() {
       });
     });
   }
-  
+
   // Return summary of fixes applied
   return {
     tables: tableResults,
@@ -600,12 +600,38 @@ module.exports = {
   processLandmarks: processLandmarks,
   sortLandmarks: sortLandmarks,
   getLandmarkById: getLandmarkById,
-  ensureUniqueLandmarks: ensureUniqueLandmarks
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  newFocusTrap: newFocusTrap,
+  personName: personName,
+  createUnrotateButton: createUnrotateButton,
+  getLangAttribute: getLangAttribute,
+  addLangAttribute: addLangAttribute,
+  validateTableAccessibility: validateTableAccessibility,
+  validateTableStructure: validateTableStructure,
+  fixTableStructure: fixTableStructure,
+  addMainLandmark: addMainLandmark,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
+  validateLandmarkAttributes: validateLandmarkAttributes,
+  addLandmarkRegions: addLandmarkRegions,
+  getSvgAccessibleName: getSvgAccessibleName,
+  setSvgAttributes: setSvgAttributes,
+  validateLinkAccessibility: validateLinkAccessibility,
+  handleFakeLinks: handleFakeLinks,
+  someFunction: someFunction,
+  helper: helper,
+  formatDate: formatDate,
+  validateInput: validateInput
 };
 
 // Export functions for testing (new addition)
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks
+    loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks,
+    newFocusTrap, personName, createUnrotateButton, getLangAttribute, addLangAttribute,
+    validateTableAccessibility, validateTableStructure, fixTableStructure, addMainLandmark,
+    validateLandmark, validateLandmarkStructure, validateLandmarkAttributes, addLandmarkRegions,
+    getSvgAccessibleName, setSvgAttributes, validateLinkAccessibility, handleFakeLinks,
+    someFunction, helper, formatDate, validateInput
   };
 }

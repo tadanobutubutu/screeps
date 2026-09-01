@@ -63,7 +63,7 @@ function getLangAttribute() {
 function detectAndSetLang(content) {
   // Simple language detection based on common patterns
   let lang = 'en'; // Default to English
-  
+
   if (content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
@@ -80,7 +80,7 @@ function detectAndSetLang(content) {
       lang = 'de'; // German;
     }
   }
-  
+
   return lang;
 }
 
@@ -135,7 +135,21 @@ function validateTableStructure(table) {
  */
 function validateLandmark(element) {
   if (!element || typeof element !== 'object') return true;
-  return true;
+
+  // Check if element has a valid ARIA landmark role
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+  const role = element.getAttribute('role');
+
+  if (role && validRoles.includes(role)) {
+    // Check if landmark has an accessible name
+    const hasName = element.getAttribute('aria-label') ||
+                   element.getAttribute('aria-labelledby') ||
+                   element.textContent.trim();
+
+    return hasName !== '';
+  }
+
+  return false;
 }
 
 /**
@@ -145,6 +159,22 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure(element) {
   if (!element || typeof element !== 'object') return true;
+
+  // Check if landmark is properly nested within the document
+  const parent = element.parentElement;
+  if (!parent || parent.tagName === 'BODY') {
+    return false;
+  }
+
+  // Check if landmark is unique (only one of each type per page)
+  const role = element.getAttribute('role');
+  if (role) {
+    const sameLandmarks = document.querySelectorAll(`[role="${role}"]`);
+    if (sameLandmarks.length > 1) {
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -155,7 +185,7 @@ function validateLandmarkStructure(element) {
  */
 function getSvgAccessibleName(svg) {
   if (!svg || typeof svg !== 'object') return '';
-  return ... || svg.getAttribute('title') || '';
+  return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
 }
 
 // REACT_015: Add lang attribute to HTML element
@@ -164,15 +194,15 @@ if (typeof document !== 'undefined' && document.documentElement) {
   detectAndSetLang();
 }
 
-module.exports = { 
-  setHtmlLangAttribute, 
-  getLangAttribute, 
-  detectAndSetLang, 
-  personName, 
-  createInPageButton, 
-  validateTableAccessibility, 
-  validateTableStructure, 
-  validateLandmark, 
-  validateLandmarkStructure, 
-  getSvgAccessibleName 
+module.exports = {
+  setHtmlLangAttribute,
+  getLangAttribute,
+  detectAndSetLang,
+  personName,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName
 };

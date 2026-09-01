@@ -2,11 +2,11 @@
 
 // New function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
-  // Implementation goes here
-  // For example:
-  // - Parse the insight report
-  // - Apply accessibility fixes based on the report
-  // - Return the updated report or a status of the fixes applied
+    // Implementation goes here
+    // For example:
+    // - Parse the insight report
+    // - Apply accessibility fixes based on the report
+    // - Return the updated report or a status of the fixes applied
 }
 
 // Export the new function if needed
@@ -28,41 +28,41 @@ const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section'
  * @returns {Object} - Object containing landmark element information and any warnings
  */
 function checkLandmarkElements(htmlContent) {
-  // Validate input
-  if (typeof htmlContent !== 'string') {
-    throw new Error('HTML content must be a string');
-  }
-
-  const warnings = [];
-  const foundLandmarks = {};
-
-  // Check for each landmark element in the HTML content
-  LANDMARK_ELEMENTS.forEach(landmark => {
-    // Use case-insensitive regex to find landmark elements
-    const regex = new RegExp(`<${landmark}[^>]*>`, 'gi');
-    const matches = htmlContent.match(regex);
-    if (matches) {
-      foundLandmarks[landmark] = matches.length;
+    // Validate input
+    if (typeof htmlContent !== 'string') {
+        throw new Error('HTML content must be a string');
     }
-  });
 
-  // Check for required main landmark
-  if (!foundLandmarks.main) {
-    warnings.push('Missing main landmark element');
-  }
+    const warnings = [];
+    const foundLandmarks = {};
 
-  // Check for duplicate landmarks (potential issue)
-  LANDMARK_ELEMENTS.forEach(landmark => {
-    if (foundLandmarks[landmark] > 1) {
-      warnings.push(`Multiple ${landmark} elements found`);
+    // Check for each landmark element in the HTML content
+    LANDMARK_ELEMENTS.forEach((landmark) => {
+        // Use case-insensitive regex to find landmark elements
+        const regex = new RegExp(`<${landmark}[^>]*>`, 'gi');
+        const matches = htmlContent.match(regex);
+        if (matches) {
+            foundLandmarks[landmark] = matches.length;
+        }
+    });
+
+    // Check for required main landmark
+    if (!foundLandmarks.main) {
+        warnings.push('Missing main landmark element');
     }
-  });
 
-  return {
-    foundLandmarks,
-    warnings,
-    hasMainLandmark: !!foundLandmarks.main
-  };
+    // Check for duplicate landmarks (potential issue)
+    LANDMARK_ELEMENTS.forEach((landmark) => {
+        if (foundLandmarks[landmark] > 1) {
+            warnings.push(`Multiple ${landmark} elements found`);
+        }
+    });
+
+    return {
+        foundLandmarks,
+        warnings,
+        hasMainLandmark: !!foundLandmarks.main,
+    };
 }
 
 /**
@@ -76,35 +76,35 @@ function checkLandmarkElements(htmlContent) {
  * @returns {Object} - The created button object
  */
 function createInPageButton(options) {
-  const { text, onClick, id, title, className } = options;
+    const { text, onClick, id, title, className } = options;
 
-  // Validate required options
-  if (!text) {
-    throw new Error('Button text is required');
-  }
-  if (typeof onClick !== 'function') {
-    throw new Error('onClick callback must be a function');
-  }
+    // Validate required options
+    if (!text) {
+        throw new Error('Button text is required');
+    }
+    if (typeof onClick !== 'function') {
+        throw new Error('onClick callback must be a function');
+    }
 
-  // Create button object
-  const button = {
-    id: id || `btn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    text: String(text),
-    title: title || '',
-    className: className || 'default-button',
-    onClick,
-    disabled: false,
-    visible: true,
-    element: null
-  };
+    // Create button object
+    const button = {
+        id: id || `btn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        text: String(text),
+        title: title || '',
+        className: className || 'default-button',
+        onClick,
+        disabled: false,
+        visible: true,
+        element: null,
+    };
 
-  // Store button reference
-  if (!createInPageButton.buttons) {
-    createInPageButton.buttons = {};
-  }
-  createInPageButton.buttons[button.id] = button;
+    // Store button reference
+    if (!createInPageButton.buttons) {
+        createInPageButton.buttons = {};
+    }
+    createInPageButton.buttons[button.id] = button;
 
-  return button;
+    return button;
 }
 
 // TODO: This is the existing code that needs to be preserved
@@ -117,17 +117,17 @@ function createInPageButton(options) {
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-  // Existing function implementation
+    // Existing function implementation
 
-  // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/g;
-  const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
-  return importCount.length;
+    // New implementation to count dependencies using dependencyGraphContent and regex
+    const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/g;
+    const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
+    return importCount.length;
 }
 
 // Render index view content using indexContent
 function renderIndexView() {
-  return indexContent;
+    return indexContent;
 }
 
 // Import a11y store configuration
@@ -135,94 +135,94 @@ const a11yStore = require('./a11yStore');
 
 // New function to handle adding landmark regions
 function addLandmarkRegions() {
-  const landmarks = {
-    main: true,
-    nav: false,
-    aside: false
-  };
+    const landmarks = {
+        main: true,
+        nav: false,
+        aside: false,
+    };
 
-  return {
-    landmarks,
-    regions: Object.keys(landmarks).filter(key => landmarks[key])
-  };
+    return {
+        landmarks,
+        regions: Object.keys(landmarks).filter((key) => landmarks[key]),
+    };
 }
 
 // Standalone function to address accessibility issues from insight report
 function addressAccessibilityIssues(report) {
-  if (!report) return;
-  a11yStore.addressAccessibilityIssues(report);
+    if (!report) return;
+    a11yStore.addressAccessibilityIssues(report);
 }
 
 // Get person name for accessible labeling
 function personName() {
-  return a11yStore.personName();
+    return a11yStore.personName();
 }
 
 // Validate and fix table accessibility
 function validateTableAccessibility() {
-  a11yStore.validateTableAccessibility();
+    a11yStore.validateTableAccessibility();
 }
 
 // Validate and fix table structure
 function validateTableStructure() {
-  a11yStore.validateTableStructure();
+    a11yStore.validateTableStructure();
 }
 
 // Validate landmark elements
 function validateLandmark() {
-  a11yStore.validateLandmark();
+    a11yStore.validateLandmark();
 }
 
 // Validate landmark structure
 function validateLandmarkStructure() {
-  a11yStore.validateLandmarkStructure();
+    a11yStore.validateLandmarkStructure();
 }
 
 // Get accessible name for SVG
 function getSvgAccessibleName(svg) {
-  return a11yStore.getSvgAccessibleName(svg);
+    return a11yStore.getSvgAccessibleName(svg);
 }
 
 // Ensure unique landmark IDs
 function ensureUniqueLandmarks() {
-  a11yStore.ensureUniqueLandmarks();
+    a11yStore.ensureUniqueLandmarks();
 }
 
 // New function to handle dynamic content updates
 function updateLiveRegion(message, priority = 'polite') {
-  a11yStore.updateLiveRegion(message, priority);
+    a11yStore.updateLiveRegion(message, priority);
 }
 
 // New function to add IDs to landmark elements (preserved from HEAD)
 function addLandmarkIds() {
-  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-  landmarkElements.forEach(tag => {
-    const landmark = document.querySelector(tag);
-    if (landmark && landmark.id === '') {
-      landmark.id = `${tag}-${Math.floor(Math.random() * 1000)}`;
-    }
-  });
+    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+    landmarkElements.forEach((tag) => {
+        const landmark = document.querySelector(tag);
+        if (landmark && landmark.id === '') {
+            landmark.id = `${tag}-${Math.floor(Math.random() * 1000)}`;
+        }
+    });
 }
 
 // New function to check landmark elements in the DOM
 function checkLandmarkElementsInDom() {
-  a11yStore.checkLandmarkElements();
+    a11yStore.checkLandmarkElements();
 }
 
 // New function to add SVG accessibility props
 function addSVGAccessibilityProps() {
-  a11yStore.addSVGAccessibilityProps();
+    a11yStore.addSVGAccessibilityProps();
 }
 
 // Preserve existing code functionality
 function preserveExistingCode() {
-  a11yStore.preserveExistingCode();
+    a11yStore.preserveExistingCode();
 }
 
 // New function to address new accessibility issues from insight report
 function newFunction() {
-  // Placeholder for new accessibility issue fixes
-  // Implement specific fixes based on insight report when available
+    // Placeholder for new accessibility issue fixes
+    // Implement specific fixes based on insight report when available
 }
 
 // TODO: This is the existing code that needs to be preserved
@@ -230,10 +230,10 @@ function newFunction() {
 // ADD YOUR CODE HERE if any other issues need to be addressed
 // Example of addressing REACT_015: Add lang attribute to HTML element
 function addLangAttribute() {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', 'en'); // Assuming English, replace with appropriate lang attribute value
-  }
+    const htmlElement = document.querySelector('html');
+    if (htmlElement) {
+        htmlElement.setAttribute('lang', 'en'); // Assuming English, replace with appropriate lang attribute value
+    }
 }
 
 // Call the function to apply the lang attribute
@@ -246,24 +246,24 @@ addLangAttribute();
 // }
 
 module.exports = {
-  checkLandmarkElements,
-  createInPageButton,
-  countDependencies,
-  a11yStore,
-  addLandmarkRegions,
-  addressAccessibilityIssues,
-  LANDMARK_ELEMENTS,
-  getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
-  updateLiveRegion,
-  addSVGAccessibilityProps,
-  preserveExistingCode,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  ensureUniqueLandmarks,
-  checkLandmarkElementsInDom,
-  renderIndexView
+    checkLandmarkElements,
+    createInPageButton,
+    countDependencies,
+    a11yStore,
+    addLandmarkRegions,
+    addressAccessibilityIssues,
+    LANDMARK_ELEMENTS,
+    getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
+    updateLiveRegion,
+    addSVGAccessibilityProps,
+    preserveExistingCode,
+    personName,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    ensureUniqueLandmarks,
+    checkLandmarkElementsInDom,
+    renderIndexView,
 };

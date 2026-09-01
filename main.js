@@ -3,7 +3,7 @@ const { createInPageButton, createWebResourceButton, validateLandmark, validateL
 
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn } = require('./utilities');
 
 const http = require('http');
 const url = require('url');
@@ -288,6 +288,59 @@ const renderDependencyGraph = (deps, options = {}) => {
   const graphData = dependencyGraphContent(deps, options);
   renderGraphIndex(graphData);
 };
+
+// New function to handle focus trap for keyboard navigation
+function handleFocusTrap(container, options = {}) {
+  const { focusableElementsSelector = 'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])', initialFocusSelector = '[autofocus], [data-focus-trap-initial]' } = options;
+
+  // Get all focusable elements within the container
+  const focusableElements = Array.from(container.querySelectorAll(focusableElementsSelector))
+    .filter(el => !el.disabled && el.offsetParent !== null);
+
+  if (focusableElements.length === 0) return;
+
+  // Find the initial focus element
+  let initialFocusElement = container.querySelector(initialFocusSelector);
+  if (!initialFocusElement || !focusableElements.includes(initialFocusElement)) {
+    initialFocusElement = focusableElements[0];
+  }
+
+  // Set initial focus
+  initialFocusElement.focus();
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e) => {
+    if (e.key !== 'Tab') return;
+
+    const isShiftPressed = e.shiftKey;
+    const currentIndex = focusableElements.indexOf(document.activeElement);
+
+    if (currentIndex === -1) {
+      // If focus is outside the trap, move to first element
+      e.preventDefault();
+      focusableElements[0].focus();
+      return;
+    }
+
+    if (isShiftPressed && currentIndex === 0) {
+      // Shift+Tab on first element - move to last
+      e.preventDefault();
+      focusableElements[focusableElements.length - 1].focus();
+    } else if (!isShiftPressed && currentIndex === focusableElements.length - 1) {
+      // Tab on last element - move to first
+      e.preventDefault();
+      focusableElements[0].focus();
+    }
+  };
+
+  // Add event listeners
+  container.addEventListener('keydown', handleKeyDown);
+
+  // Return cleanup function
+  return () => {
+    container.removeEventListener('keydown', handleKeyDown);
+  };
+}
 
 module.exports = {
   renderDependencyGraph,

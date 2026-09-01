@@ -11,43 +11,38 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 // New functionality: Ensure element has an id, add aria-label, render dependency graphs
-function ensureElementHasId(element) {
+function ensureElementHasId (element) {
   if (!element.id) {
-    element.id = `el-${Math.random().toString(36).slice(2, 11)}`;
+    element.id = `el-${Math.random().toString(36).slice(2, 11)}`
   }
-  return element;
+  return element
 }
 
-function addAriaLabel(element, label) {
+function addAriaLabel (element, label) {
   if (!element.hasAttribute('aria-label')) {
-    element.setAttribute('aria-label', label);
+    element.setAttribute('aria-label', label)
   }
-  return element;
+  return element
 }
 
-function renderDependencyGraph(graphData, container) {
-  ensureElementHasId(container);
-  addAriaLabel(container, 'Dependency graph');
+function renderDependencyGraph (graphData, container) {
+  ensureElementHasId(container)
+  addAriaLabel(container, 'Dependency graph')
   // Render the dependency graph into the container
-  const graph = document.createElement('div');
-  graph.className = 'dependency-graph';
-  graph.textContent = JSON.stringify(graphData, null, 2);
-  container.appendChild(graph);
-  return graph;
+  const graph = document.createElement('div')
+  graph.className = 'dependency-graph'
+  graph.textContent = JSON.stringify(graphData, null, 2)
+  container.appendChild(graph)
+  return graph
 }
 
 // New function to handle credential response
-function handleCredentialResponse(response) {
+function handleCredentialResponse (response) {
   // TODO: Implement the logic to handle the credential response
   // This function should be called when a credential response is received
   // For example, you might parse the response, validate it, and then store or use the credentials
-  console.log('Handling credential response:', response);
+  console.log('Handling credential response:', response)
   // Placeholder for actual implementation
 }
 
-export {
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph,
-  handleCredentialResponse
-};
+export { ensureElementHasId, addAriaLabel, renderDependencyGraph, handleCredentialResponse }

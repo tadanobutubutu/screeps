@@ -1,6 +1,3 @@
-Here's the resolved `main.js` file with merged changes:
-
-```javascript
 // Existing code from main.js
 class User {
     constructor(name, age) {
@@ -95,7 +92,12 @@ module.exports = {
     path,
     app: express(),
     PORT: process.env.PORT || 3000,
-    HOST: process.env.HOST || 'localhost'
+    HOST: process.env.HOST || 'localhost',
+
+    // Newly added functions for dependency graph rendering
+    renderDependencyGraph,
+    generateDependencyGraphData,
+    displayDependencyGraph
 };
 
 // Landmark validation function with merged logic from both branches
@@ -130,8 +132,39 @@ function validateLandmark(landmark) {
   return errors;
 }
 
-// Main execution when run directly
+// New function to render dependency graph
+function renderDependencyGraph(graphData) {
+    console.log('Rendering dependency graph...');
+    // Implementation would go here
+    // This would typically use a library like D3.js or similar
+    return graphData;
+}
 
+// New function to generate dependency graph data
+function generateDependencyGraphData(dependencies) {
+    console.log('Generating dependency graph data...');
+    // Implementation would go here
+    // This would process the dependencies into a format suitable for visualization
+    return {
+        nodes: dependencies.map(dep => ({ id: dep.name, label: dep.name })),
+        edges: dependencies.flatMap(dep =>
+            dep.dependencies.map(depDep => ({
+                from: dep.name,
+                to: depDep
+            }))
+        )
+    };
+}
+
+// New function to display dependency graph
+function displayDependencyGraph(graphData) {
+    console.log('Displaying dependency graph...');
+    // Implementation would go here
+    // This would handle the actual rendering of the graph
+    return graphData;
+}
+
+// Main execution when run directly
 if (require.main === module) {
     // Start server
     app.listen(PORT, () => {
@@ -150,6 +183,18 @@ if (require.main === module) {
       });
       addressAccessibilityIssues(insightReport);
     }
+
+    // Example usage of new dependency graph functions
+    const dependencies = [
+        { name: 'moduleA', dependencies: ['moduleB', 'moduleC'] },
+        { name: 'moduleB', dependencies: ['moduleD'] },
+        { name: 'moduleC', dependencies: [] },
+        { name: 'moduleD', dependencies: [] }
+    ];
+
+    const graphData = generateDependencyGraphData(dependencies);
+    renderDependencyGraph(graphData);
+    displayDependencyGraph(graphData);
 }
 
 /**
@@ -207,6 +252,3 @@ function ensureLandmarkUniqueness(elements) {
 // ... existing SVG accessibility functions ...
 
 // ... existing functions ...
-```
-
-This resolved version includes all changes from both branches and consolidates merged functionalities into a single file.

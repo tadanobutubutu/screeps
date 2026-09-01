@@ -167,7 +167,7 @@ function renderDependencyGraphContent() {
   if (!container) {
     return;
   }
-  
+
   // Use the new functions for rendering
   renderDependencyGraph(container);
   renderIndexView(container);
@@ -181,6 +181,67 @@ function countDependencies() {
     'antd': true
   };
   return Object.keys(dependencies).length;
+}
+
+// New function to add a book with accessibility features
+function addBookAccessibility(bookData) {
+  const bookForm = document.getElementById('add-book-form');
+  if (!bookForm) {
+    console.error('Book form not found');
+    return;
+  }
+
+  // Create form elements with proper ARIA attributes
+  const titleInput = document.createElement('input');
+  titleInput.type = 'text';
+  titleInput.id = 'book-title';
+  titleInput.setAttribute('aria-label', 'Book title');
+  titleInput.setAttribute('aria-required', 'true');
+
+  const authorInput = document.createElement('input');
+  authorInput.type = 'text';
+  authorInput.id = 'book-author';
+  authorInput.setAttribute('aria-label', 'Book author');
+  authorInput.setAttribute('aria-required', 'true');
+
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Book';
+  submitButton.setAttribute('aria-label', 'Submit new book');
+
+  // Add labels for better accessibility
+  const titleLabel = document.createElement('label');
+  titleLabel.htmlFor = 'book-title';
+  titleLabel.textContent = 'Title:';
+
+  const authorLabel = document.createElement('label');
+  authorLabel.htmlFor = 'book-author';
+  authorLabel.textContent = 'Author:';
+
+  // Append elements to form
+  bookForm.appendChild(titleLabel);
+  bookForm.appendChild(titleInput);
+  bookForm.appendChild(authorLabel);
+  bookForm.appendChild(authorInput);
+  bookForm.appendChild(submitButton);
+
+  // Add event listener for form submission
+  bookForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const title = titleInput.value.trim();
+    const author = authorInput.value.trim();
+
+    if (!title || !author) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    // Here you would typically add the book to your data structure
+    console.log('Book added:', { title, author });
+
+    // Clear form after submission
+    bookForm.reset();
+  });
 }
 
 // Export functions for testing
@@ -208,5 +269,6 @@ export {
   calculateSum,
   addProperLandmarkRegions,
   countDependencies,
-  createInPageButtons // Added new export
+  createInPageButtons, // Added new export
+  addBookAccessibility // New export for book accessibility
 };

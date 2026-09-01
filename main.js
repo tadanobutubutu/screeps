@@ -344,6 +344,26 @@ function validateLinks(container) {
   return { valid: errors.length === 0, errors };
 }
 
+function createInPageButton(targetId, label) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  button.textContent = label || 'In-page navigation';
+
+  button.addEventListener('click', () => {
+    const target = typeof targetId === 'string' ? document.getElementById(targetId) : null;
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (target.focus) target.focus();
+    }
+  });
+
+  return button;
+}
+
 // TODO: Implement a new function to handle focus trap for keyboard navigation
 /**
  * Creates a focus trap within a container element for keyboard navigation.
@@ -413,6 +433,7 @@ function createFocusTrap(container, options = {}) {
   const activate = () => {
     if (active) return;
     active = true;
+    deactivateHandler = document.activeElement;
     document.addEventListener('keydown', handleKeyDown);
     if (config.onActivate) config.onActivate();
   };

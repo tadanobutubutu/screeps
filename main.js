@@ -306,3 +306,29 @@ function ensureUniqueLandmarks() {
 }
 
 // ... (Existing common functions are omitted for brevity)
+
+/**
+ * Generates a unique identifier string
+ * @param {string} prefix - Optional prefix for the identifier
+ * @returns {string} A unique identifier
+ */
+function generateUniqueId(prefix = 'id') {
+  let id = `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
+  while (document.getElementById(id)) {
+    id = `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
+  }
+  return id;
+}
+
+/**
+ * Creates and returns an aria-live region with the specified type
+ * @param {string} type - The aria-live type ('polite', 'assertive', or 'off')
+ * @returns {HTMLElement} The created aria-live region element
+ */
+function createAriaLiveRegion(type = 'polite') {
+  const region = document.createElement('div');
+  region.setAttribute('aria-live', type);
+  region.setAttribute('aria-atomic', 'true');
+  region.className = 'sr-only';
+  return region;
+}

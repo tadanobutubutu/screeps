@@ -12,13 +12,10 @@ const appData = {
 
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report:
-// ... (Removed hashes for ease of reading)
 
 const accessibilityUtils = {
-  // ... existing methods from both branches ...
-
   /**
-     * Announce message to screen readers (from origin/head)
+     * Announce message to screen readers
      * @param {string} message - The message to announce
      * @param {string} [priority='polite'] - The priority of the message (optional, defaults to 'polite')
      */
@@ -35,7 +32,7 @@ const accessibilityUtils = {
   },
 
   /**
-     * Handle keyboard navigation (from origin/head)
+     * Handle keyboard navigation
      * @param {Event} e - The keyboard event
      * @param {Object} handlers - The handler functions for different keys
      */
@@ -83,7 +80,6 @@ function initAccessibility () {
 }
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
 const ensureElementId = (element) => {
   if (element && !element.id) {
     element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
@@ -113,6 +109,53 @@ function getConfig () {
  */
 function setConfig (config) {
   appData.config = { ...appData.config, ...config }
+}
+
+/**
+ * Sets the lang attribute on the document's <html> tag
+ * @param {string} lang language code (e.g., 'en', 'es', 'fr')
+ * @returns {string} The lang attribute value that was set
+ */
+function setHtmlLangAttribute (lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang || 'en'
+  }
+  return lang || 'en'
+}
+
+/**
+ * Detects the language of the given content
+ * @param {string} content - The text content to analyze
+ * @returns {string} The detected language code
+ */
+function detectAndSetLang (content) {
+  let lang = 'en' // Default to English
+
+  if (content) {
+    if (/[一-鿿]/.test(content)) {
+      lang = 'zh' // Chinese
+    } else if (/[぀-ヿ]/.test(content)) {
+      lang = 'ja' // Japanese
+    } else if (/[Ѐ-ӿ]/.test(content)) {
+      lang = 'ru' // Russian/Cyrillic
+    } else if (/[؀-ۿݐ-ݿ]/.test(content)) {
+      lang = 'ar' // Arabic
+    } else if (/[àâçéèêëîïôùûüÿœæ]+/i.test(content)) {
+      lang = 'fr' // French
+    } else if (/[äöüß]+/i.test(content)) {
+      lang = 'de' // German
+    }
+  }
+
+  return lang
+}
+
+/**
+ * Gets the lang attribute of the document's <html> element
+ * @returns {string} The lang attribute value
+ */
+function getLangAttribute () {
+  return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en'
 }
 
 /**
@@ -197,6 +240,242 @@ function validateTableAccessibility () {
     isValid: errors.length === 0,
     errors
   }
+}
+
+/**
+ * Validates the structure of a single table element for accessibility
+ * @param {HTMLElement} tableElement - The table element to validate
+ * @returns {Object} Validation result with valid flag and array of errors
+ */
+function validateTableStructure (tableElement) {
+  if (typeof document === 'undefined' || !tableElement) {
+    return { valid: false, errors: ['Table element not found'] }
+  }
+
+  const errors = []
+  const rows = tableElement.querySelectorAll('tr')
+
+  // Check if table has proper structure
+  if (!tableElement.querySelector('thead')) {
+    errors.push('Table is missing <thead> element')
+  }
+
+  if (!tableElement.querySelector('tbody')) {
+    errors.push('Table is missing <tbody> element')
+  }
+
+  // Check for th elements in thead
+  const thead = tableElement.querySelector('thead')
+  const thElements = thead ? thead.querySelectorAll('th') : []
+  if (thElements.length === 0) {
+    errors.push('Table header row is missing <th> elements')
+  }
+
+  // Check that all th elements have scope attributes
+  thElements.forEach((th, index) => {
+    if (!th.getAttribute('scope')) {
+      errors.push(`Table header cell ${index + 1} is missing scope attribute`)
+    }
+  })
+
+  // Check for proper caption or summary
+  const hasCaption = tableElement.querySelector('caption')
+  const hasSummary = tableElement.getAttribute('aria-describedby')
+  if (!hasCaption && !hasSummary) {
+    errors.push('Table is missing a caption or aria-describedby for accessibility')
+  }
+
+  // Check row structure
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('td, th')
+    const cellCount = cells.length
+
+    // Check for empty cells
+    cells.forEach((cell, cellIndex) => {
+      if (!cell.textContent.trim()) {
+        errors.push(`Row ${rowIndex + 1}, Cell ${cellIndex + 1} is empty`)
+      }
+    })
+
+    // Check that rows have consistent cell counts
+    if (rowIndex > 0) {
+      const prevRow = rows[rowIndex - 1]
+      const prevCells = prevRow.querySelectorAll('td, th')
+      if (cellCount !== prevCells.length) {
+        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length} in previous row)`)
+      }
+    }
+  })
+
+  return { valid: errors.length === 0, errors }
+}
+
+/**
+ * Validates a landmark element for accessibility
+ * @param {HTMLElement} element - The landmark element to validate
+ * @returns {Object} Validation result with valid flag and array of errors
+ */
+function validateLandmark (element) {
+  if (typeof document === 'undefined' || !element) {
+    return { valid: false, errors: ['Element not found'] }
+  }
+
+  const errors = []
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article', 'search']
+
+  // Check if element is a valid landmark
+  const role = element.getAttribute('role')
+  const tagName = element.tagName.toLowerCase()
+
+  if (role && !validLandmarks.includes(role) && !validLandmarks.includes(role.toLowerCase())) {
+    errors.push(`Invalid landmark role: ${role}`)
+  }
+
+  if (!role && !validLandmarks.includes(tagName)) {
+    errors.push(`Element is not a valid landmark: ${tagName}`)
+  }
+
+  // Check for accessible name
+  const hasLabel = element.getAttribute('aria-label') ||
+                   element.getAttribute('aria-labelledby') ||
+                   element.querySelector('h1, h2, h3, h4, h5, h6')
+
+  if (!hasLabel) {
+    errors.push('Landmark is missing accessible name (aria-label, aria-labelledby, or heading)')
+  }
+
+  return { valid: errors.length === 0, errors }
+}
+
+/**
+ * Validates landmark structure throughout the document
+ * @returns {Object} Validation result with valid flag and array of errors
+ */
+function validateLandmarkStructure () {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] }
+  }
+
+  const errors = []
+
+  // Check for multiple main landmarks
+  const mainElements = document.querySelectorAll('main, [role="main"]')
+  if (mainElements.length > 1) {
+    errors.push(`Multiple main landmarks found (${mainElements.length}). Only one main landmark should exist.`)
+  }
+
+  // Check for proper nesting of landmarks
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]')
+  landmarks.forEach((landmark) => {
+    const parent = landmark.parentElement
+    let currentParent = parent
+    while (currentParent) {
+      const parentTag = currentParent.tagName ? currentParent.tagName.toLowerCase() : ''
+
+      // Check for invalid nesting
+      if (parentTag === 'header' && landmark.tagName && landmark.tagName.toLowerCase() === 'header') {
+        errors.push('Nested header elements found')
+      }
+      if (parentTag === 'footer' && landmark.tagName && landmark.tagName.toLowerCase() === 'footer') {
+        errors.push('Nested footer elements found')
+      }
+
+      currentParent = currentParent.parentElement
+    }
+  })
+
+  return { valid: errors.length === 0, errors }
+}
+
+/**
+ * Gets the accessible name of an SVG element
+ * @param {SVGElement} svgElement - The SVG element
+ * @returns {string|null} The accessible name or null if not found
+ */
+function getSvgAccessibleName (svgElement) {
+  if (typeof document === 'undefined' || !svgElement) {
+    return null
+  }
+
+  // Check for aria-label
+  let accessibleName = svgElement.getAttribute('aria-label')
+  if (accessibleName) return accessibleName
+
+  // Check for aria-labelledby referencing another element
+  const labelledBy = svgElement.getAttribute('aria-labelledby')
+  if (labelledBy) {
+    const labelElement = document.getElementById(labelledBy)
+    if (labelElement) return labelElement.textContent
+  }
+
+  // Check for title element inside SVG
+  const title = svgElement.querySelector('title')
+  if (title && title.textContent.trim()) {
+    return title.textContent.trim()
+  }
+
+  // Check for desc element inside SVG
+  const desc = svgElement.querySelector('desc')
+  if (desc && desc.textContent.trim()) {
+    return desc.textContent.trim()
+  }
+
+  return null
+}
+
+/**
+ * Validates SVG accessibility across the document
+ * @returns {Object} Validation result with valid flag and array of errors
+ */
+function validateSvgAccessibility () {
+  if (typeof document === 'undefined') {
+    return { valid: true, errors: [] }
+  }
+
+  const errors = []
+  const svgs = document.querySelectorAll('svg')
+
+  svgs.forEach((svg, index) => {
+    const name = getSvgAccessibleName(svg)
+    if (!name) {
+      errors.push(`SVG ${index + 1} is missing accessible name`)
+    }
+  })
+
+  return { valid: errors.length === 0, errors }
+}
+
+/**
+ * Ensures landmarks are unique throughout the document
+ * @returns {Object} Validation result with valid flag and array of errors
+ */
+function ensureUniqueLandmarks () {
+  if (typeof document === 'undefined') {
+    return { valid: true, errors: [] }
+  }
+
+  const errors = []
+  const landmarkTypes = ['header', 'nav', 'main', 'aside', 'footer']
+
+  landmarkTypes.forEach((type) => {
+    const elements = document.querySelectorAll(type)
+    const labeledElements = document.querySelectorAll(`[role="${type}"]`)
+    const total = elements.length + labeledElements.length
+
+    if (total > 1 && type !== 'nav' && type !== 'aside') {
+      errors.push(`Multiple ${type} landmarks found (${total}). Consider using unique aria-labels to differentiate them.`)
+    } else if (total > 1) {
+      // For nav and aside, multiple are allowed but must have unique labels
+      const allElements = [...elements, ...labeledElements]
+      const labels = allElements.map(el => el.getAttribute('aria-label') || el.getAttribute('aria-labelledby'))
+      const uniqueLabels = new Set(labels.filter(l => l))
+      if (uniqueLabels.size < total) {
+        errors.push(`Multiple ${type} landmarks found without unique aria-labels`)
+      }
+    }
+  })
+
+  return { valid: errors.length === 0, errors }
 }
 
 const addAriaLabel = (element, label) => {
@@ -287,10 +566,6 @@ function focusTrap (element) {
   firstElement.focus()
 }
 
-function newFocusTrap () {
-  // New function implementation
-}
-
 function spawnProcess (command, args = [], options = {}) {
   return spawn(command, args, options)
 }
@@ -359,10 +634,40 @@ const exportUtils = {
   }
 }
 
+/**
+ * Creates an in-page button element to replace fake links
+ * @param {string} text - The button text
+ * @param {Function} onClick - Click event handler
+ * @returns {HTMLButtonElement|null} The created button element
+ */
+function createInPageButton (text, onClick) {
+  if (typeof document === 'undefined') {
+    return null
+  }
+
+  const button = document.createElement('button')
+  button.type = 'button'
+  button.textContent = text
+  if (onClick && typeof onClick === 'function') {
+    button.addEventListener('click', onClick)
+  }
+  return button
+}
+
+/**
+ * Sanitizes a filename by replacing invalid characters
+ * @param {string} filename - The filename to sanitize
+ * @returns {string} The sanitized filename
+ */
 function sanitizeFilename (filename) {
   return filename.replace(/[^a-zA-Z0-9_.-]/g, '_')
 }
 
+/**
+ * Reads a file safely, logging any errors
+ * @param {string} filePath - The path to the file
+ * @returns {string|null} The file content or null on error
+ */
 function readFileSafe (filePath) {
   try {
     return fs.readFileSync(filePath, 'utf8')
@@ -372,33 +677,59 @@ function readFileSafe (filePath) {
   }
 }
 
-// Existing utility functions
+/**
+ * Logs a message with timestamp and level
+ * @param {string} message - The message to log
+ * @param {string} [level='info'] - The log level
+ */
 function log (message, level = 'info') {
   const timestamp = new Date().toISOString()
   console.log(`${timestamp} [${level.toUpperCase()}] ${message}`)
 }
 
+/**
+ * Returns a trimmed person name
+ * @param {string} name - The name to process
+ * @returns {string} The trimmed name or empty string if invalid
+ */
+function personName (name) {
+  if (typeof name !== 'string') {
+    return ''
+  }
+  return name.trim()
+}
+
 module.exports = {
-  accessibilityUtils,
-  exportUtils,
-  initAccessibility,
-  handleCredentialResponse,
-  ensureElementId,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph,
-  renderDependencyGraphs,
-  spawnProcess,
-  focusTrap,
-  newFocusTrap,
-  getTables,
-  getConfig,
-  setConfig,
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
   validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  personName,
   sanitizeFilename,
   readFileSafe,
   log,
   appData,
   dependencyGraphContent,
-  indexContent
+  indexContent,
+  initAccessibility,
+  getTables,
+  getConfig,
+  setConfig,
+  ensureElementId,
+  addAriaLabel,
+  renderDependencyGraph,
+  ensureElementHasId,
+  renderDependencyGraphs,
+  focusTrap,
+  spawnProcess,
+  handleCredentialResponse,
+  exportUtils,
+  accessibilityUtils
 }

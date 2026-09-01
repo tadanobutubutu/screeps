@@ -126,13 +126,202 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
+// New function to add lang attribute to HTML element
+function addLangAttribute(lang = 'en') {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
+// New function to fix table structure issues
+function fixTableStructure(tableId) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+
+  // Ensure table has proper structure
+  const rows = table.querySelectorAll('tr');
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('th, td');
+    if (cells.length === 0) {
+      row.remove();
+    }
+  });
+
+  // Add proper headers if missing
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    const firstRow = table.querySelector('tr');
+    if (firstRow) {
+      const cells = firstRow.querySelectorAll('td');
+      cells.forEach(cell => {
+        cell.outerHTML = `<th>${cell.textContent}</th>`;
+      });
+    }
+  }
+}
+
+// New function to validate table accessibility
+function validateTableAccessibility(tableId) {
+  const table = document.getElementById(tableId);
+  if (!table) return { valid: false, errors: ['Table not found'] };
+
+  const errors = [];
+  const rows = table.querySelectorAll('tr');
+
+  // Check for proper headers
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    errors.push('Table missing header cells');
+  }
+
+  // Check row consistency
+  const columnCount = headers.length;
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('th, td');
+    if (cells.length !== columnCount) {
+      errors.push('Inconsistent number of columns in table rows');
+    }
+  });
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+// New function to validate table structure
+function validateTableStructure(tableId) {
+  const table = document.getElementById(tableId);
+  if (!table) return { valid: false, errors: ['Table not found'] };
+
+  const errors = [];
+  const rows = table.querySelectorAll('tr');
+
+  // Check for empty rows
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('th, td');
+    if (cells.length === 0) {
+      errors.push('Empty table row found');
+    }
+  });
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+// New function to add landmark roles
+function addLandmarkRoles() {
+  const landmarkRoles = {
+    'main': 'main',
+    'navigation': 'navigation',
+    'search': 'search',
+    'contentinfo': 'contentinfo',
+    'complementary': 'complementary',
+    'form': 'form',
+    'region': 'region'
+  };
+
+  Object.entries(landmarkRoles).forEach(([id, role]) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.setAttribute('role', role);
+    }
+  });
+}
+
+// New function to validate landmark structure
+function validateLandmarkStructure() {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const errors = [];
+
+  landmarks.forEach(landmarkId => {
+    const element = document.getElementById(landmarkId);
+    if (!element) {
+      errors.push(`Missing landmark element: ${landmarkId}`);
+    } else if (!element.getAttribute('role')) {
+      errors.push(`Landmark element ${landmarkId} missing role attribute`);
+    }
+  });
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+// New function to add accessible names to SVGs
+function addSvgAccessibleName(svgId, name) {
+  const svg = document.getElementById(svgId);
+  if (svg) {
+    svg.setAttribute('aria-label', name);
+    svg.setAttribute('role', 'img');
+  }
+}
+
+// New function to get SVG accessible name
+function getSvgAccessibleName(svgId) {
+  const svg = document.getElementById(svgId);
+  if (svg) {
+    return svg.getAttribute('aria-label') || '';
+  }
+  return '';
+}
+
+// New function to fix fake link issues
+function fixFakeLinkIssue(linkId) {
+  const link = document.getElementById(linkId);
+  if (link && !link.getAttribute('href')) {
+    link.setAttribute('role', 'button');
+    link.setAttribute('tabindex', '0');
+  }
+}
+
+// New function to create in-page button
+function createInPageButton(id, text, onClick) {
+  const button = document.createElement('button');
+  button.id = id;
+  button.textContent = text;
+  button.addEventListener('click', onClick);
+  return button;
+}
+
+// New function to address insight issues
+function addressInsightIssues() {
+  // Add lang attribute
+  addLangAttribute();
+
+  // Fix table structure issues
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    fixTableStructure(table.id);
+  });
+
+  // Add landmark roles
+  addLandmarkRoles();
+
+  // Add accessible names to SVGs
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    addSvgAccessibleName(svg.id, `SVG ${index + 1}`);
+  });
+
+  // Fix fake links
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    fixFakeLinkIssue(link.id);
+  });
+}
+
 // Updated function using the new functions for rendering graph/index
 function renderDependencyGraphContent() {
   const container = document.getElementById('dependencyGraph');
   if (!container) {
     return;
   }
-  
+
   // Use the new functions for rendering
   renderDependencyGraph(container);
   renderIndexView(container);
@@ -162,5 +351,14 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  addLangAttribute,
+  fixTableStructure,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  addSvgAccessibleName,
+  getSvgAccessibleName,
+  fixFakeLinkIssue,
+  createInPageButton
 };

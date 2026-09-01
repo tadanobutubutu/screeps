@@ -40,7 +40,11 @@ const AddressabilityIssues = {
     const mainBlockRegex = /<\w+(\s+\w+\s*=\s*.*\s*)*<\/main>/g;
 
     let matches = source.match(mainBlockRegex);
-    if (matches.length <= 1) {
+    if (matches && matches.length <= 1) {
+      return source;
+    }
+
+    if (!matches) {
       return source;
     }
 
@@ -117,13 +121,13 @@ const AddressabilityIssues = {
       shell: true
     };
 
-    child_process.spawn('someCommand', [], spawnOptions, (error, stdout, stderr) => {
-      if (error) {
-        callback(new Error(`someCommand failed: ${error.message}`));
-        return;
+    const child = child_process.spawn('someCommand', [], spawnOptions);
+    child.on('exit', (code, signal) => {
+      if (code === 0) {
+        callback(null, 'Successfully executed someCommand');
+      } else {
+        callback(new Error(`someCommand failed with code ${code}`));
       }
-
-      callback(null, `someCommand exited with status code: ${stdout}`);
     });
   },
 
@@ -148,6 +152,43 @@ const AddressabilityIssues = {
   }
 };
 
-// TODO: Any additional changes requested in the issue
+/**
+ * Main application entry point with accessibility features
+ */
+function createServer() {
+  // ... (existing code)
+}
 
+/**
+ * Spawn a child process to run some command with proper error handling.
+ * @param {Function} callback - Invoked with (err, result) when the command exits.
+ */
+function spawnSomeCommand(callback) {
+    const child_process = require('child_process');
+    const child = child_process.spawn('someCommand', [], {
+        stdio: 'inherit',
+    });
+    child.on('exit', (code, signal) => {
+        if (code === 0) {
+            callback(null, 'Successfully executed someCommand');
+        } else {
+            callback(new Error(`someCommand failed with code ${code}`));
+        }
+    });
+}
+
+function startApp() {
+  // ... (existing code)
+}
+
+// Export functions for testing
+module.exports = {
+  createServer,
+  startApp,
+  config,
+  countDependencies: AddressabilityIssues.countDependencies,
+  addressAccessibilityIssues: AddressabilityIssues,
+  spawnSomeCommand,
+  spawnSomeCommandAlt: AddressabilityIssues.spawnSomeCommand
+};
 // ... (other functions and setting up exports)

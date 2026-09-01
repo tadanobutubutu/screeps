@@ -23,3 +23,6 @@ function addBook() {
 }
 
 // ... (rest of the existing code from main.js)
+
+// Address any missing required exports
+export { addBook };

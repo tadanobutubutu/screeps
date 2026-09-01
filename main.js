@@ -25,6 +25,17 @@ function spawnProcess(command) {
   });
 }
 
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//_Commit: 78170e9b2b4c77f875fb179212284bc675eb9b10_
+//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
 // REACT_017: Add/fix 4 landmark issues
@@ -52,10 +63,10 @@ function fixTableStructure() {
       caption.textContent = `Table ${index + 1}`;
       table.insertBefore(caption, table.firstChild);
     }
-    
+
     const headers = table.querySelectorAll('th');
     const cells = table.querySelectorAll('td, th');
-    
+
     cells.forEach(cell => {
       if (!cell.hasAttribute('scope') && !cell.hasAttribute('headers')) {
         const isHeader = cell.tagName === 'TH';
@@ -71,14 +82,14 @@ function fixTableStructure() {
 function fixLandmarks() {
   const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
   const landmarkCounts = {};
-  
+
   landmarkSelectors.forEach(selector => {
     landmarkCounts[selector] = 0;
   });
-  
+
   document.querySelectorAll(landmarkSelectors.join(', ')).forEach(element => {
     const tagName = element.tagName.toLowerCase();
-    
+
     if (landmarkCounts[tagName] > 0 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
       landmarkCounts[tagName]++;
       element.setAttribute('aria-label', `${tagName}-${landmarkCounts[tagName]}`);
@@ -157,7 +168,7 @@ const googleSignIn = {
     }
     return false;
   },
-  
+
   renderButton: function(elementId) {
     const element = document.getElementById(elementId);
     if (element && typeof google !== 'undefined' && google.accounts) {
@@ -170,7 +181,7 @@ const googleSignIn = {
     }
     return false;
   },
-  
+
   handleCredentialResponse: function(response) {
     console.log('Google Sign-In successful');
     return response;

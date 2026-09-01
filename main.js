@@ -56,6 +56,25 @@ const sampleInsightReport = {
 };
 
 // Implement function for addressing accessibility issues from insight report
+function addressInsightAccessibility(insightReport) {
+  if (!insightReport || !Array.isArray(insightReport.sections)) {
+    return { success: false, error: 'Invalid insight report' };
+  }
+
+  const issues = addressAccessibilityIssues(insightReport);
+  const fixedIssues = issues.map(issue => ({
+    ...issue,
+    fixed: true
+  }));
+
+  return {
+    success: true,
+    totalIssues: issues.length,
+    fixedIssues: fixedIssues
+  };
+}
+
+// Implement function for addressing accessibility issues from insight report
 // TODO: Implement a function to count dependencies
 function countDependencies() {
     const path = require('path');
@@ -128,6 +147,7 @@ if (typeof module !== 'undefined' && module.exports) {
     checkTableStructure,
     countDependencies,
     init,
+    setupKeyboardNavigation,
     setupAriaLiveRegions,
     setupFocusManagement,
     enhanceSemanticMarkup,
@@ -145,10 +165,18 @@ if (typeof module !== 'undefined' && module.exports) {
     addressAccessibilityIssues,
     generateAccessibilityReport,
     calculateAccessibilityScore,
+    ensureUniqueLandmarksFromString,
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
-    handleCredentialResponse
+    handleCredentialResponse,
+    getLangAttribute,
+    MyComponent,
+    AddressabilityIssues,
+    addSvgAccessibilityProps,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    addressInsightAccessibility
   };
 } else {
   // Browser environment - wait for DOM
@@ -170,10 +198,6 @@ function setupKeyboardNavigation() {
   /* existing code */
 }
 
-/**
- * Handle keyboard navigation events
- * @param {KeyboardEvent} event
- */
 function handleKeyNavigation(event) {
   // Skip to main content with Tab or specific key combination
   if (event.key === 'Tab' && event.altKey) {
@@ -525,6 +549,24 @@ const AddressabilityIssues = {
       devDependencies: Object.keys(devDependencies).length,
       total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
+  },
+
+  addressInsightAccessibility(insightReport) {
+    if (!insightReport || !Array.isArray(insightReport.sections)) {
+      return { success: false, error: 'Invalid insight report' };
+    }
+
+    const issues = addressAccessibilityIssues(insightReport);
+    const fixedIssues = issues.map(issue => ({
+      ...issue,
+      fixed: true
+    }));
+
+    return {
+      success: true,
+      totalIssues: issues.length,
+      fixedIssues: fixedIssues
+    };
   }
 };
 
@@ -573,6 +615,7 @@ const mainExports = {
     getLangAttribute,
     MyComponent,
     AddressabilityIssues,
+    addressInsightAccessibility,
     addSvgAccessibilityProps,
     getSvgAccessibleName,
     setSvgAttributes
@@ -591,4 +634,5 @@ if (typeof module !== 'undefined' && module.exports) {
 export {
   MyComponent,
   AddressabilityIssues,
+  addressInsightAccessibility,
 };

@@ -561,6 +561,88 @@ function addressAccessibilityIssues(insightReport) {
 }
 
 /**
+ * Generates a comprehensive accessibility report based on the current document state.
+ * @returns {Object} An object containing accessibility issues and their counts.
+ */
+function generateAccessibilityReport() {
+  const report = {
+    REACT_015: { count: 0, issues: [] },
+    REACT_027: { count: 0, issues: [] },
+    REACT_017: { count: 0, issues: [] },
+    REACT_041: { count: 0, issues: [] },
+    REACT_025: { count: 0, issues: [] },
+    REACT_036: { count: 0, issues: [] },
+    summary: {
+      totalIssues: 0,
+      criticalIssues: 0,
+      warnings: 0
+    }
+  };
+
+  // Check for missing lang attribute (REACT_015)
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    report.REACT_015.count++;
+    report.REACT_015.issues.push('HTML element is missing lang attribute');
+    report.summary.totalIssues++;
+    report.summary.criticalIssues++;
+  }
+
+  // Check tables for accessibility issues (REACT_027)
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    const tableResult = validateTableAccessibility(table);
+    if (!tableResult.valid) {
+      report.REACT_027.count += tableResult.issues.length;
+      report.REACT_027.issues.push(...tableResult.issues);
+      report.summary.totalIssues += tableResult.issues.length;
+      report.summary.criticalIssues += tableResult.issues.length;
+    }
+  });
+
+  // Check landmarks for issues (REACT_017)
+  const landmarkResult = validateLandmark();
+  if (!landmarkResult.valid) {
+    report.REACT_017.count += landmarkResult.issues.length;
+    report.REACT_017.issues.push(...landmarkResult.issues);
+    report.summary.totalIssues += landmarkResult.issues.length;
+    report.summary.criticalIssues += landmarkResult.issues.length;
+  }
+
+  // Check SVGs for accessible names (REACT_041)
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (!accessibleName) {
+      report.REACT_041.count++;
+      report.REACT_041.issues.push(`SVG at index ${index} is missing accessible name`);
+      report.summary.totalIssues++;
+      report.summary.warnings++;
+    }
+  });
+
+  // Check for duplicate landmarks (REACT_025)
+  const uniqueLandmarks = ensureUniqueLandmarks(landmarks);
+  if (uniqueLandmarks.length !== landmarks.length) {
+    report.REACT_025.count = landmarks.length - uniqueLandmarks.length;
+    report.REACT_025.issues.push(`${report.REACT_025.count} duplicate landmarks found`);
+    report.summary.totalIssues += report.REACT_025.count;
+    report.summary.warnings += report.REACT_025.count;
+  }
+
+  // Check for fake links (REACT_036)
+  const fakeLinksResult = handleFakeLinks();
+  if (!fakeLinksResult.valid) {
+    report.REACT_036.count += fakeLinksResult.issues.length;
+    report.REACT_036.issues.push(...fakeLinksResult.issues);
+    report.summary.totalIssues += fakeLinksResult.issues.length;
+    report.summary.criticalIssues += fakeLinksResult.issues.length;
+  }
+
+  return report;
+}
+
+/**
  * Initializes the application and applies accessibility fixes.
  */
 const initApp = () => {
@@ -621,6 +703,7 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   addLandmarkRegions,
+  generateAccessibilityReport, // Added new function
   // Added from origin/main
   someFunction: function() {
     return 'some value';

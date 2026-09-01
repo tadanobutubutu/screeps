@@ -205,6 +205,72 @@
                     console.log('Google sign-in initiated');
                 });
             }
+        },
+        // New accessibility helper functions
+        getLangAttribute: function() {
+            return document.documentElement.lang || 'en';
+        },
+        getFullLangAttribute: function() {
+            return document.documentElement.lang || 'en-US';
+        },
+        validateTableAccessibility: function(table) {
+            const headers = table.querySelectorAll('th');
+            let hasScope = true;
+            headers.forEach(th => {
+                if (!th.getAttribute('scope')) {
+                    hasScope = false;
+                }
+            });
+            return hasScope && table.querySelector('caption') !== null;
+        },
+        validateTableStructure: function() {
+            const tables = document.querySelectorAll('table');
+            let valid = true;
+            tables.forEach(table => {
+                if (!this.validateTableAccessibility(table)) {
+                    valid = false;
+                }
+            });
+            return valid;
+        },
+        validateLandmark: function(element) {
+            const role = element.getAttribute('role') || element.tagName.toLowerCase();
+            const hasLabel = element.getAttribute('aria-label') ||
+                            element.getAttribute('aria-labelledby') ||
+                            element.id;
+            return hasLabel || ['main', 'banner', 'contentinfo', 'search'].includes(role);
+        },
+        validateLandmarkStructure: function() {
+            const landmarks = document.querySelectorAll('nav, main, aside, footer, [role="region"]');
+            let valid = true;
+            landmarks.forEach(landmark => {
+                if (!this.validateLandmark(landmark)) {
+                    valid = false;
+                }
+            });
+            return valid;
+        },
+        getSvgAccessibleName: function(svg) {
+            return svg.getAttribute('aria-label') ||
+                   svg.getAttribute('aria-labelledby') ||
+                   'SVG graphic';
+        },
+        createInPageButton: function(text, onClick) {
+            const button = document.createElement('button');
+            button.textContent = text;
+            button.addEventListener('click', onClick);
+            button.setAttribute('aria-label', text);
+            return button;
+        },
+        createAccessibleLink: function(href, text) {
+            const link = document.createElement('a');
+            link.href = href;
+            link.textContent = text;
+            link.setAttribute('aria-label', text);
+            return link;
+        },
+        handleAccessibilityIssues: function() {
+            this.setupAccessibility();
         }
     };
 

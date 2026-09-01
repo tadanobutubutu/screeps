@@ -455,6 +455,25 @@ function initializeGraphControls() {
   // Initialize graph controls
 }
 
+// Session management functions
+function revokeSession(sessionId) {
+  appState.sessions.delete(sessionId);
+}
+
+function validateSession(sessionId) {
+  return appState.sessions.has(sessionId);
+}
+
+// Landmark checking function (standalone wrapper for a11yStore method)
+function checkLandmarkElements() {
+  return a11yStore.checkLandmarkElements();
+}
+
+// Wrap primary content in main element helper
+function wrapPrimaryContentInMain() {
+  // Implementation for wrapping primary content
+}
+
 // Also attach to global scope for browser/standalone access
 if (typeof window !== 'undefined') {
   window.affectedFunction = affectedFunction;
@@ -947,11 +966,11 @@ module.exports = {
   renderIndex: renderGraphIndex,
   newFunction,
   checkLandmarkElement: checkLandmarkElements,
-  wrapPrimaryContentInMain: () => {},
+  wrapPrimaryContentInMain,
   checkLandmarks: checkLandmarkElements,
   handleFocusTrap: newFocusTrap,
-  revokeSession: () => {},
-  validateSession: () => {},
+  revokeSession,
+  validateSession,
   a11yStore,
   getSvgAccessibleName,
   affectedFunction,

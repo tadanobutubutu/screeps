@@ -30,15 +30,15 @@ function getFullLangAttribute() {
  */
 function validateTableAccessibility(table) {
   const issues = [];
-  
+
   if (!table.headers) {
     issues.push('Missing headers attribute');
   }
-  
+
   if (!table.scope) {
     issues.push('Missing scope attribute');
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -52,7 +52,7 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(tables) {
   const allIssues = [];
-  
+
   tables.forEach((table, index) => {
     const result = validateTableAccessibility(table);
     if (!result.success) {
@@ -62,7 +62,7 @@ function validateTableStructure(tables) {
       });
     }
   });
-  
+
   return {
     success: allIssues.length === 0,
     issues: allIssues
@@ -77,13 +77,13 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  
+
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -97,7 +97,7 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure(landmarks) {
   const issues = [];
-  
+
   landmarks.forEach((landmark, index) => {
     const result = validateLandmark(landmark);
     if (!result.success) {
@@ -107,7 +107,7 @@ function validateLandmarkStructure(landmarks) {
       });
     }
   });
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -122,7 +122,7 @@ function validateLandmarkStructure(landmarks) {
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
-  
+
   landmarks.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
@@ -131,7 +131,7 @@ function ensureUniqueLandmarks(landmarks) {
       names.push(name);
     }
   });
-  
+
   return {
     success: duplicates.length === 0,
     duplicates
@@ -200,7 +200,7 @@ function createAccessibleLink(options) {
 function handleAccessibilityIssues(issues) {
   const handled = [];
   const unhandled = [];
-  
+
   issues.forEach(issue => {
     if (issue.fixable) {
       handled.push(issue);
@@ -208,13 +208,49 @@ function handleAccessibilityIssues(issues) {
       unhandled.push(issue);
     }
   });
-  
+
   return {
     total: issues.length,
     handled: handled.length,
     unhandled: unhandled.length,
     unhandledIssues: unhandled
   };
+}
+
+/**
+ * Processes all accessibility issues and applies fixes where possible
+ * @param {Object} accessibilityReport - The accessibility report containing issues
+ * @returns {Object} Summary of processed issues
+ */
+function processAccessibilityIssues(accessibilityReport) {
+  const { tables, landmarks, svgs, links } = accessibilityReport;
+
+  // Process table issues
+  const tableIssues = validateTableStructure(tables).issues;
+
+  // Process landmark issues
+  const landmarkIssues = validateLandmarkStructure(landmarks).issues;
+  const uniqueLandmarkIssues = ensureUniqueLandmarks(landmarks).duplicates;
+
+  // Process SVG issues
+  const svgIssues = svgs.map(svg => ({
+    svg,
+    accessibleName: getSvgAccessibleName(svg)
+  }));
+
+  // Process link issues
+  const linkIssues = links.map(link => createAccessibleLink(link));
+
+  // Combine all issues
+  const allIssues = [
+    ...tableIssues,
+    ...landmarkIssues,
+    ...uniqueLandmarkIssues.map(name => ({ type: 'duplicateLandmark', name })),
+    ...svgIssues.map(svg => ({ type: 'svg', ...svg })),
+    ...linkIssues.map(link => ({ type: 'link', ...link }))
+  ];
+
+  return handleAccessibilityIssues(allIssues);
 }
 
 // Export all functions for testing and external use
@@ -229,5 +265,6 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  processAccessibilityIssues
 };

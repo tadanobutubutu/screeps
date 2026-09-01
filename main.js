@@ -223,6 +223,54 @@ function countDependencies() {
   return Object.keys(dependencies).length;
 }
 
+// Function to enhance accessibility for addBook form
+function enhanceAccessibilityForAddBook(formElement) {
+  if (!formElement) return;
+
+  // Add ARIA attributes to form elements
+  formElement.setAttribute('role', 'form');
+  formElement.setAttribute('aria-labelledby', 'add-book-form-title');
+
+  // Find and enhance form controls
+  const inputs = formElement.querySelectorAll('input, textarea, select');
+  inputs.forEach(input => {
+    // Add required attribute if needed
+    if (input.hasAttribute('required')) {
+      input.setAttribute('aria-required', 'true');
+    }
+
+    // Add labels if missing
+    if (!input.id) {
+      input.id = `input-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    // Create label if not present
+    if (!document.querySelector(`label[for="${input.id}"]`)) {
+      const label = document.createElement('label');
+      label.setAttribute('for', input.id);
+      label.textContent = input.placeholder || input.name || 'Input field';
+      input.parentNode.insertBefore(label, input);
+    }
+  });
+
+  // Add submit button if missing
+  if (!formElement.querySelector('button[type="submit"]')) {
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    submitButton.textContent = 'Add Book';
+    submitButton.className = 'add-book-submit';
+    formElement.appendChild(submitButton);
+  }
+
+  // Add error summary area
+  if (!formElement.querySelector('.error-summary')) {
+    const errorSummary = document.createElement('div');
+    errorSummary.className = 'error-summary';
+    errorSummary.setAttribute('aria-live', 'polite');
+    formElement.insertBefore(errorSummary, formElement.firstChild);
+  }
+}
+
 // Exporting module objects
 export {
   wrapPrimaryContentInMain,
@@ -256,5 +304,6 @@ export {
   calculateSum,
   addProperLandmarkRegions,
   countDependencies,
-  createInPageButtons // Added new export
+  createInPageButtons, // Added new export
+  enhanceAccessibilityForAddBook // Added new export
 };

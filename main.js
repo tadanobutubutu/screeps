@@ -155,6 +155,41 @@ function validateLandmark(element) {
   return { valid: true, role: landmarkRole };
 }
 
+/**
+ * Ensures the dependency graph container has a proper ARIA role and accessible attributes.
+ * @param {string|Element} container - The container element or HTML string containing the dependency graph.
+ * @returns {string|Element} The updated container with ARIA attributes applied.
+ */
+function fixDependencyGraphAccessibility(container) {
+  if (typeof container === 'string') {
+    // Add role="img" and aria-label to elements with class or id containing 'dependency-graph'
+    let result = container;
+    const graphRegex = /<([a-z][a-z0-9]*)([^>]*)(class|id)="[^"]*dependency-graph[^"]*"[^>]*>/gi;
+    result = result.replace(graphRegex, (match, tag, attrs, attrName) => {
+      let newAttrs = attrs;
+      if (!/role\s*=/.test(newAttrs)) {
+        newAttrs += ' role="img"';
+      }
+      if (!/aria-label\s*=/.test(newAttrs)) {
+        newAttrs += ' aria-label="Dependency graph"';
+      }
+      return `<${tag}${newAttrs}${attrName}="${match.split('"')[1]}"${match.split('"')[2] || ''}>`;
+    });
+    return result;
+  }
+
+  if (container && container.setAttribute) {
+    if (!container.getAttribute('role')) {
+      container.setAttribute('role', 'img');
+    }
+    if (!container.getAttribute('aria-label')) {
+      container.setAttribute('aria-label', 'Dependency graph');
+    }
+  }
+
+  return container;
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
@@ -165,5 +200,6 @@ module.exports = {
   generateAccessibilityReport,
   calculateAccessibilityScore,
   ensureUniqueLandmarksFromString,
-  validateLandmark
+  validateLandmark,
+  fixDependencyGraphAccessibility
 };

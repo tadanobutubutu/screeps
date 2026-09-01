@@ -265,6 +265,81 @@ function log(message, level = 'info') {
   console[level === 'error' ? 'error' : 'log'](`[${timestamp}] [${level}] ${message}`);
 }
 
+// New functions for rendering graph/index
+/**
+ * Render the dependency graph content
+ * @param {HTMLElement} container - The container element to render into
+ * @param {Object} data - The graph data to render
+ * @param {Object} options - Rendering options
+ * @returns {Object} The rendered graph information
+ */
+function renderGraphContent(container, data, options = {}) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+
+  if (!data) {
+    throw new Error('Graph data is required');
+  }
+
+  // Ensure container has proper accessibility attributes
+  ensureElementHasId(container, 'graph-container');
+  addAriaLabel(container, 'Dependency graph visualization');
+
+  // Render the graph content
+  const graph = renderDependencyGraph(data);
+
+  // Apply any additional options
+  if (options.interactive) {
+    container.setAttribute('aria-live', 'polite');
+    container.setAttribute('role', 'application');
+  }
+
+  return {
+    containerId: container.id,
+    graphData: graph,
+    options
+  };
+}
+
+/**
+ * Render the index content
+ * @param {HTMLElement} container - The container element to render into
+ * @param {Object} data - The index data to render
+ * @param {Object} options - Rendering options
+ * @returns {Object} The rendered index information
+ */
+function renderIndexContent(container, data, options = {}) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+
+  if (!data) {
+    throw new Error('Index data is required');
+  }
+
+  // Ensure container has proper accessibility attributes
+  ensureElementHasId(container, 'index-container');
+  addAriaLabel(container, 'Dependency index');
+
+  // Process the index data
+  const processedData = {
+    items: data.items || [],
+    metadata: data.metadata || {}
+  };
+
+  // Apply any additional options
+  if (options.collapsible) {
+    container.setAttribute('aria-expanded', 'true');
+  }
+
+  return {
+    containerId: container.id,
+    indexData: processedData,
+    options
+  };
+}
+
 module.exports = {
   accessibilityUtils,
   exportUtils,
@@ -277,5 +352,7 @@ module.exports = {
   renderDependencyGraphs,
   spawnProcess,
   focusTrap,
-  newFocusTrap
+  newFocusTrap,
+  renderGraphContent,
+  renderIndexContent
 };

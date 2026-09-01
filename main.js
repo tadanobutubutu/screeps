@@ -171,6 +171,17 @@ function visualizeModuleRelationships(modules) {
 
 // ... Existing accessibility functions
 
+/**
+ * Gets the application configuration
+ * @returns {Object} The configuration object with apiUrl and timeout properties
+ */
+function getConfig() {
+  return {
+    apiUrl: process.env.API_URL || '',
+    timeout: 5000
+  };
+}
+
 module.exports = {
   app,
   PORT,
@@ -193,5 +204,6 @@ module.exports = {
   addSvgAccessibilityProps,
   generateAccessibilityReport,
   analyzeModuleDependencies,
-  visualizeModuleRelationships
+  visualizeModuleRelationships,
+  getConfig
 };

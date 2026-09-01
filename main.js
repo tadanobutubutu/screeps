@@ -4,6 +4,11 @@
 (function() {
     'use strict';
 
+    // Preserving accessibility enhancements from original commitment
+    // Version 1 implementation (HEAD branch) - accessibility features integrated
+    //_Commit: 0cc7acc93dade1532e36e2e26adc7bd895ef60df_
+    //<!-- todo-hash: 398424c02b2e0a493981d83f7e0c15b42542e233 -->
+
     // DOM Elements
     const dependencyGraph = document.getElementById('dependencyGraph');
 
@@ -22,8 +27,8 @@
       const issues = [];
 
       for (const filePath of filePaths) {
-        const fileEmitted = path.join(pagesDir, filePath);
-        const { violations } = await axe.analyze(fileEmitted);
+        const fullPath = path.join(pagesDir, filePath);
+        const { violations } = await axe.analyze(fullPath);
 
         if (violations.length > 0) {
           issues.push({

@@ -3,6 +3,7 @@
 import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
+import { createAccessibleButton } from './accessibility.js'; // Import the new function
 
 // Landmark data structure
 const landmarks = [];
@@ -153,5 +154,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  countDependencies,
+  createAccessibleButton // Add the new function to exports
 };

@@ -122,6 +122,13 @@ function spawnSomeCommand(callback) {
     });
 }
 
+/**
+ * Get the lang attribute for the HTML element.
+ */
+function getLangAttribute() {
+  return document.documentElement.getAttribute('lang') || 'en';
+}
+
 // Ensure DOM is fully loaded before executing scripts
 if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports
@@ -154,7 +161,8 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLinkAccessibility,
     handleFakeLinks,
     MyComponent,
-    AddressabilityIssues
+    AddressabilityIssues,
+    getLangAttribute
   };
 }
 

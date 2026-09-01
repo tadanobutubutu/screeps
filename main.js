@@ -2,6 +2,8 @@ import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 
+// TODO: This is the existing code that needs to be preserved
+
 // Landmark data structure
 const landmarks = [];
 

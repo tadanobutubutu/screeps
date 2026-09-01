@@ -585,8 +585,9 @@ function initialize() {
   // Accessibility: Add landmark roles and fix landmark issues
   addLandmarkRoles();
 
-  // Accessibility: Add accessible names to 2 SVGs
-  addSvgAccessibleNames();
+  // Accessibility: Add accessible names to SVGs
+  addSVGAccessibleName('.home-icon', 'Home icon');
+  addSVGAccessibleName('.settings-icon', 'Settings icon');
 
   // Accessibility: Ensure unique landmarks (2 issues)
   ensureUniqueLandmarks();

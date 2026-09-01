@@ -15,7 +15,6 @@ let icons = {};
 
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
@@ -48,7 +47,7 @@ function validateLandmark(landmark) {
   // Validate longitude
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+  } else if (typeof landmark.longitude !== 'number' || ... {
     errors.push('Landmark longitude must be a number');
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
@@ -82,7 +81,7 @@ function validateLandmark(landmark) {
  * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
+  const element = ...
   return element !== null;
 }
 
@@ -114,8 +113,8 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
+        if ... {
+          ... = true;
         } else {
           landmark.id += '_duplicate';
         }
@@ -128,10 +127,14 @@ function ensureLandmarkUniqueness(elements) {
 
 // Updated function using the new functions for rendering graph/index
 function renderDependencyGraphContent() {
-  const container = document.getElementById('dependencyGraph');
+  const container = ...
   if (!container) {
     return;
   }
+  
+  // Address accessibility: Ensure the dependencyGraph container has a proper ARIA role
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', 'Dependency Graph');
   
   // Use the new functions for rendering
   renderDependencyGraph(container);

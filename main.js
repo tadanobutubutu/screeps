@@ -1,6 +1,8 @@
 // Existing code from main.js (to be preserved)
 // ... (existing code) ...
 
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+
 // New functions or changes requested in the issue
 function addLangAttribute() {
   // Hypothetical code to add lang attribute to the HTML element

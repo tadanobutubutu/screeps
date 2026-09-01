@@ -194,6 +194,55 @@ module.exports = {
   validateAccessibilityReport,
 
   // TODO: Address new accessibility issues from insight report ( implement new functions and fixes as needed)
+  // New function: Fix image alt text issues by adding descriptive alt attributes
+  fixImageAltAttributes: (container) => {
+    const fixes = {
+      imagesFixed: 0,
+      decorativeMarked: 0
+    };
+
+    const images = container.querySelectorAll('img');
+    images.forEach(img => {
+      const alt = img.getAttribute('alt');
+      const role = img.getAttribute('role');
+      const ariaLabel = img.getAttribute('aria-label');
+
+      if (alt === null && !ariaLabel) {
+        // Check if image is likely decorative based on context
+        const isDecorative = img.hasAttribute('aria-hidden') ||
+                            role === 'presentation' ||
+                            role === 'none' ||
+                            img.classList.contains('decorative');
+
+        if (isDecorative) {
+          img.setAttribute('alt', '');
+          img.setAttribute('role', 'presentation');
+          fixes.decorativeMarked++;
+        } else {
+          // Add a generic alt text based on image src or context
+          const src = img.getAttribute('src') || '';
+          const fileName = src.split('/').pop() || 'image';
+          const cleanName = fileName.split('.')[0].replace(/[-_]/g, ' ');
+          img.setAttribute('alt', cleanName || 'Image');
+          fixes.imagesFixed++;
+        }
+      } else if (alt !== null && alt.trim() === '' && !role) {
+        // Empty alt without role should be marked as decorative
+        img.setAttribute('role', 'presentation');
+        fixes.decorativeMarked++;
+      }
+    });
+
+    if (fixes.imagesFixed > 0) {
+      log(`Added alt text to ${fixes.imagesFixed} images`, 'info');
+    }
+
+    if (fixes.decorativeMarked > 0) {
+      log(`Marked ${fixes.decorativeMarked} images as decorative`, 'info');
+    }
+
+    return fixes;
+  },
 
   // Credential response handling
   async handleCredentialResponse(response) {

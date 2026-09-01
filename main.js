@@ -23,8 +23,8 @@ const CONFIG = {
 
 // Helper function to validate landmark structure
 function isValidLandmark(landmark) {
-    return landmark && 
-           typeof landmark.id !== 'undefined' && 
+    return landmark &&
+           typeof landmark.id !== 'undefined' &&
            landmark.id !== null;
 }
 
@@ -45,10 +45,10 @@ function processLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
         return [];
     }
-    
+
     const validLandmarks = landmarks.filter(isValidLandmark);
     const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-    
+
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
@@ -57,7 +57,7 @@ function sortLandmarks(landmarks, ascending = true) {
     return landmarks.slice().sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
-        
+
         if (ascending) {
             return nameA.localeCompare(nameB);
         }
@@ -75,23 +75,23 @@ function ensureUniqueLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
         return [];
     }
-    
+
     const seen = new Set();
     const uniqueLandmarks = [];
-    
+
     for (const landmark of landmarks) {
         if (!landmark || typeof landmark.id === 'undefined') {
             continue;
         }
-        
+
         const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-        
+
         if (!seen.has(landmarkId)) {
             seen.add(landmarkId);
             uniqueLandmarks.push(landmark);
         }
     }
-    
+
     return uniqueLandmarks;
 }
 
@@ -114,16 +114,77 @@ function wrapPrimaryContentInMain(parent) {
   if (!parent || typeof parent.nodeType !== 'number') {
     throw new Error('Invalid parent element');
   }
-  
+
   // If already a main element, return as-is
   if (parent.tagName?.toLowerCase() === 'main') {
     return parent;
   }
-  
+
   const mainElement = document.createElement('main');
   mainElement.appendChild(parent);
-  
+
   return mainElement;
+}
+
+// New functions for rendering graph/index
+function renderGraph(data, containerId) {
+  if (!data || !containerId) {
+    throw new Error('Missing required parameters for graph rendering');
+  }
+
+  const container = document.getElementById(containerId);
+  if (!container) {
+    throw new Error(`Container element with ID ${containerId} not found`);
+  }
+
+  // Clear previous content
+  container.innerHTML = '';
+
+  // Create SVG element
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  svg.setAttribute('viewBox', '0 0 100 100');
+
+  // Add graph elements based on data
+  data.nodes.forEach(node => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', node.x);
+    circle.setAttribute('cy', node.y);
+    circle.setAttribute('r', node.radius || 3);
+    circle.setAttribute('fill', node.color || '#000');
+    svg.appendChild(circle);
+  });
+
+  data.edges.forEach(edge => {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', edge.x1);
+    line.setAttribute('y1', edge.y1);
+    line.setAttribute('x2', edge.x2);
+    line.setAttribute('y2', edge.y2);
+    line.setAttribute('stroke', edge.color || '#000');
+    svg.appendChild(line);
+  });
+
+  container.appendChild(svg);
+  return svg;
+}
+
+function updateGraphIndex(graphData, indexData) {
+  if (!graphData || !indexData) {
+    throw new Error('Missing required parameters for graph index update');
+  }
+
+  // Update graph data with index information
+  const updatedGraph = {
+    ...graphData,
+    index: {
+      ...indexData,
+      timestamp: new Date().toISOString()
+    }
+  };
+
+  return updatedGraph;
 }
 
 // Existing utility function
@@ -147,7 +208,7 @@ app.get('/landmarks', (req, res) => {
   const landmarks = loadLandmarks();
   const processed = processLandmarks(landmarks);
   const sorted = sortLandmarks(processed);
-  
+
   res.json(sorted);
 });
 
@@ -165,7 +226,9 @@ module.exports = {
   getLandmarkById,
   ensureUniqueLandmarks,
   landmarkConfig: CONFIG,
-  generateAccessibilityReport // Add the new function to the exports
+  generateAccessibilityReport, // Add the new function to the exports
+  renderGraph,
+  updateGraphIndex
 };
 
 // Main execution when run directly
@@ -173,11 +236,11 @@ if (require.main === module) {
   const landmarks = loadLandmarks();
   const processed = processLandmarks(landmarks);
   const sorted = sortLandmarks(processed);
-  
+
   console.log(`Loaded ${landmarks.length} landmarks`);
   console.log(`Processed to ${processed.length} unique landmarks`);
   console.log(`Sorted ${sorted.length} landmarks`);
-  
+
   if (sorted.length > 0) {
     console.log('First landmark:', sorted[0]);
   }

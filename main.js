@@ -111,10 +111,10 @@ addLangAttribute();
 function outputSafetyClassification(userMessage, assistantResponse) {
     // Classify user safety
     const userSafety = classifyUserSafety(userMessage);
-    
+
     // Output user safety
     console.log(`User Safety: ${userSafety}`);
-    
+
     // Output response safety only if assistant response is present
     if (assistantResponse) {
         const responseSafety = classifyResponseSafety(assistantResponse);
@@ -141,13 +141,13 @@ function classifyUserSafety(userMessage) {
         /harass/i,
         /threat/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(userMessage)) {
             return 'unsafe';
         }
     }
-    
+
     // Legitimate programming tasks are safe
     return 'safe';
 }
@@ -164,15 +164,19 @@ function classifyResponseSafety(assistantResponse) {
         /how.*hack/i,
         /create.*malware/i
     ];
-    
+
     for (const pattern of harmfulPatterns) {
         if (pattern.test(assistantResponse)) {
             return 'unsafe';
         }
     }
-    
+
     return 'safe';
 }
+
+// TODO: This is the existing code that needs to be preserved
+// (This should be preserved)
+// Addressed accessibility issues from insight report
 
 // TODO: Implement solution to the issue
 const userRequest = "The user asks the assistant to resolve a Git merge conflict in a Screeps bot repository and provide only the resolved file content.";
@@ -229,7 +233,7 @@ function ensureUniqueLandmarks() {
   const landmarks = ... [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"],
   'footer[role="contentinfo"]'
   .join(', ')
-  
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation

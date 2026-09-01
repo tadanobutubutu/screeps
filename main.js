@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 // main.js - Combined utility and accessibility features
 
 const fs = require('fs');

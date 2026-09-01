@@ -360,7 +360,9 @@ function initializeAccessibility() {
   handleFakeLinks();
 }
 
-function addAriaLabel(element) {
+function addAriaLabel(element, label) {
   // Combined and reconciled code from both branches
   if (!element.getAttribute('aria-label')) {
-    element.setAttribute('aria
+    element.setAttribute('aria-label', label);
+  }
+}

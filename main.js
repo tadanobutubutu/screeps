@@ -74,6 +74,57 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  // Add SVG accessibility props to an SVG element
+  addSvgAccessibilityProps: (svgElement, options = {}) => {
+    if (!svgElement || !(svgElement instanceof SVGElement)) {
+      console.warn('Invalid SVG element provided');
+      return;
+    }
+
+    // Set default ARIA attributes if not provided
+    const defaultOptions = {
+      role: 'img',
+      ariaLabel: 'SVG graphic',
+      ariaHidden: false,
+      focusable: false
+    };
+
+    const finalOptions = { ...defaultOptions, ...options };
+
+    // Apply ARIA attributes
+    svgElement.setAttribute('role', finalOptions.role);
+    svgElement.setAttribute('aria-label', finalOptions.ariaLabel);
+
+    if (finalOptions.ariaHidden) {
+      svgElement.setAttribute('aria-hidden', 'true');
+    } else {
+      svgElement.removeAttribute('aria-hidden');
+    }
+
+    // Handle focusability
+    if (finalOptions.focusable) {
+      svgElement.setAttribute('focusable', 'true');
+      svgElement.setAttribute('tabindex', '0');
+    } else {
+      svgElement.setAttribute('focusable', 'false');
+      svgElement.removeAttribute('tabindex');
+    }
+
+    // Add title if provided
+    if (finalOptions.title) {
+      const titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      titleElement.textContent = finalOptions.title;
+      svgElement.prepend(titleElement);
+    }
+
+    // Add description if provided
+    if (finalOptions.description) {
+      const descElement = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+      descElement.textContent = finalOptions.description;
+      svgElement.appendChild(descElement);
+    }
   }
 };
 
@@ -111,6 +162,7 @@ module.exports = {
   updateFunction,
   accessibleFunction,
   main,
+  accessibilityUtils
 };
 
 // Also attach to global scope for browser/standalone access
@@ -119,4 +171,5 @@ if (typeof window !== 'undefined') {
   window.updateFunction = updateFunction;
   window.accessibleFunction = accessibleFunction;
   window.main = main;
+  window.accessibilityUtils = accessibilityUtils;
 }

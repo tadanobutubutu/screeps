@@ -157,7 +157,7 @@ function addLandmarkRoles() {
   if (mainElement && mainElement.setAttribute) {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   const navElement = document.querySelector('nav');
   if (navElement && navElement.setAttribute) {
     navElement.setAttribute('role', 'navigation');
@@ -379,7 +379,7 @@ function addressAccessibilityIssues(insightReport) {
 
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -390,7 +390,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -405,7 +405,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -420,7 +420,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -434,7 +434,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -449,7 +449,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
@@ -463,13 +463,98 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check SVG accessibility
   const svgAccessibleNames = getSvgAccessibleName();
 
   return issues;
 }
 
+// Function to add scope to table headers
+function addTableHeaderScopes() {
+  const tableHeaders = document.querySelectorAll('th');
+  tableHeaders.forEach(header => {
+    if (header && header.setAttribute) {
+      // Default to column scope if not specified
+      const scope = header.getAttribute('scope') || 'col';
+      header.setAttribute('scope', scope);
+    }
+  });
+}
+
+// Updated function to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  // Remove duplicate main landmarks
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    for (let i = 1; i < mainElements.length; i++) {
+      mainElements[i].removeAttribute('role');
+    }
+  }
+
+  // Ensure only one navigation landmark
+  const navElements = document.querySelectorAll('nav[role="navigation"]');
+  if (navElements.length > 1) {
+    for (let i = 1; i < navElements.length; i++) {
+      navElements[i].removeAttribute('role');
+    }
+  }
+}
+
+// Updated function to add accessible names to SVGs
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (svg && !svg.getAttribute('aria-label')) {
+      setSvgAttributes(svg, getSvgAccessibleName());
+    }
+  });
+}
+
+// Updated function to fix fake links
+function fixFakeLinkIssue() {
+  const fakeLinks = document.querySelectorAll('a:not([href])');
+  fakeLinks.forEach(link => {
+    if (link && !link.getAttribute('role')) {
+      link.setAttribute('role', 'button');
+    }
+  });
+}
+
+// Updated exports to include new accessibility functions
 module.exports = {
-  someFunction
+  User,
+  spawnNewUser,
+  config,
+  initialize,
+  initializeApp,
+  main,
+  visualizeDependencyTree,
+  someFunction,
+  getConfig,
+  getVersion,
+  getLangAttribute,
+  addLangAttribute,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  addLandmarkRegions,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addressAccessibilityIssues,
+  getInsightReport,
+  addTableHeaderScopes,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue
 };

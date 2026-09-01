@@ -329,6 +329,7 @@ module.exports = {
   newFunctionality,
   countDependencies,
   addressAccessibilityIssues,
+  addressNewAccessibilityIssues,
   generateAccessibilityReport,
   calculateAccessibilityScore,
   ensureUniqueLandmarksFromString,

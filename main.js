@@ -43,6 +43,118 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  /**
+   * Get language attribute for HTML element
+   * @returns {string} The lang attribute value
+   */
+  getLangAttribute: () => {
+    return document.documentElement.getAttribute('lang') || 'en';
+  },
+
+  /**
+   * Validate table structure for accessibility
+   * @param {HTMLElement} table - The table element to validate
+   * @returns {Object} Validation result
+   */
+  validateTableStructure: (table) => {
+    const errors = [];
+
+    // Check for proper table structure
+    const hasThead = table.querySelector('thead') !== null;
+    const hasTbody = table.querySelector('tbody') !== null;
+
+    if (!hasThead) {
+      errors.push('Table should have a thead element');
+    }
+
+    if (!hasTbody) {
+      errors.push('Table should have a tbody element');
+    }
+
+    // Check for proper scope attributes on headers
+    const headers = table.querySelectorAll('th');
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        errors.push('Table headers should have scope attribute');
+      }
+    });
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  },
+
+  /**
+   * Validate landmark structure
+   * @returns {Object} Validation result
+   */
+  validateLandmarkStructure: () => {
+    const errors = [];
+    const landmarks = ['navigation', 'search', 'main', 'contentinfo', 'complementary', 'form'];
+
+    landmarks.forEach(landmark => {
+      const elements = document.querySelectorAll(`[role="${landmark}"]`);
+      if (elements.length > 1) {
+        errors.push(`Multiple elements with role="${landmark}" found`);
+      }
+    });
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  },
+
+  /**
+   * Get accessible name for SVG element
+   * @param {HTMLElement} svg - The SVG element
+   * @returns {string} The accessible name
+   */
+  getSvgAccessibleName: (svg) => {
+    if (svg.getAttribute('aria-label')) {
+      return svg.getAttribute('aria-label');
+    }
+    if (svg.getAttribute('aria-labelledby')) {
+      const labelId = svg.getAttribute('aria-labelledby');
+      const labelElement = document.getElementById(labelId);
+      return labelElement ? labelElement.textContent : '';
+    }
+    if (svg.querySelector('title')) {
+      return svg.querySelector('title').textContent;
+    }
+    return 'SVG graphic';
+  },
+
+  /**
+   * Validate landmark uniqueness
+   * @returns {Object} Validation result
+   */
+  validateLandmark: () => {
+    const errors = [];
+    const landmarks = ['navigation', 'search', 'main', 'contentinfo', 'complementary', 'form'];
+    const usedLandmarks = new Set();
+
+    landmarks.forEach(landmark => {
+      const elements = document.querySelectorAll(`[role="${landmark}"]`);
+      if (elements.length > 1) {
+        errors.push(`Multiple elements with role="${landmark}" found`);
+      }
+      if (elements.length > 0) {
+        usedLandmarks.add(landmark);
+      }
+    });
+
+    if (usedLandmarks.size < landmarks.length) {
+      errors.push('Not all required landmarks are present');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
   }
 };
 
@@ -121,10 +233,10 @@ function setConfig(config) {
 function validateTableAccessibility() {
   const errors = [];
   const tables = getTables();
-  
+
   for (let i = 0; i < tables.length; i++) {
     const table = tables[i];
-    
+
     // Check if table has headers
     if (!table.headers || !Array.isArray(table.headers) || table.headers.length === 0) {
       errors.push({
@@ -132,7 +244,7 @@ function validateTableAccessibility() {
         error: 'Table must have headers defined'
       });
     }
-    
+
     // Check if table has proper structure
     if (!table.rows || !Array.isArray(table.rows)) {
       errors.push({
@@ -140,7 +252,7 @@ function validateTableAccessibility() {
         error: 'Table must have rows array defined'
       });
     }
-    
+
     // Check for proper ARIA attributes (placeholder implementation)
     if (table.ariaLabel === undefined && table.caption === undefined) {
       errors.push({
@@ -148,17 +260,17 @@ function validateTableAccessibility() {
         error: 'Table should have aria-label or caption for accessibility'
       });
     }
-    
+
     // Add lang attribute to HTML element
     if (document.documentElement.lang === undefined) {
       document.documentElement.setAttribute('lang', 'en');
     }
-    
+
     // Add landmark roles and fix landmark issues
     if (table.role === undefined) {
       table.role = 'table';
     }
-    
+
     // Add accessible names to 2 SVGs
     const svgElements = table.querySelectorAll('svg');
     svgElements.forEach(svg => {
@@ -166,7 +278,7 @@ function validateTableAccessibility() {
         svg.setAttribute('aria-label', 'SVG description');
       }
     });
-    
+
     // Ensure unique landmarks (2 issues)
     const landmarks = ['navigation', 'search', 'main', 'contentinfo', 'complementary', 'form'];
     let uniqueLandmarks = new Set();
@@ -182,7 +294,7 @@ function validateTableAccessibility() {
         error: 'Landmarks are not unique'
       });
     }
-    
+
     // Fix 1 fake link issue
     const links = table.querySelectorAll('a');
     links.forEach(link => {
@@ -191,7 +303,7 @@ function validateTableAccessibility() {
       }
     });
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors: errors

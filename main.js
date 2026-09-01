@@ -1,8 +1,3 @@
-Looking at the merge conflict, I need to combine the comprehensive accessibility implementation from HEAD with the export structure from origin/main, while fixing the incomplete function implementations.
-
-Here's the resolved file:
-
-```javascript
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -117,18 +112,18 @@ function getSvgAccessibleName(svg) {
   if (title && title.textContent) {
     return title.textContent.trim();
   }
-  
+
   const desc = svg.querySelector('desc');
   if (desc && desc.textContent) {
     return desc.textContent.trim();
   }
-  
+
   const id = svg.id;
   if (id) {
     const parts = id.split(/[-_]/);
     return parts.map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
   }
-  
+
   return null;
 }
 
@@ -140,12 +135,12 @@ function setSvgAttributes(svg) {
       svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
     }
   }
-  
+
   const focusable = svg.getAttribute('focusable');
   if (focusable === null || focusable === 'true') {
     svg.setAttribute('focusable', 'false');
   }
-  
+
   const role = svg.getAttribute('role');
   if (role === 'img' || role === 'graphics-document') {
     const tabindex = svg.getAttribute('tabindex');
@@ -174,7 +169,7 @@ function announceToScreenReader(message) {
     liveRegion.className = 'sr-only';
     document.body.appendChild(liveRegion);
   }
-  
+
   if (liveRegion) {
     liveRegion.textContent = '';
     setTimeout(() => {
@@ -213,16 +208,16 @@ function trapFocus(event) {
   const focusableElements = modal.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
-  
+
   if (focusableElements.length === 0) {
     modal.setAttribute('tabindex', '-1');
     modal.focus();
     return;
   }
-  
+
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
-  
+
   if (event.key === 'Tab') {
     if (event.shiftKey) {
       if (document.activeElement === firstElement) {
@@ -236,7 +231,7 @@ function trapFocus(event) {
       }
     }
   }
-  
+
   if (event.key === 'Escape') {
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
@@ -261,7 +256,7 @@ function handleCredentialResponse(response) {
 
     // Check if response contains expected credential data
     const hasCredential = response.credential || response.token || response.id;
-    
+
     if (!hasCredential) {
         return { success: false, error: 'Invalid credential response format' };
     }
@@ -365,25 +360,25 @@ function validateLandmark(element) {
     if (!element) {
         return { valid: false, issue: 'Element is null or undefined' };
     }
-    
+
     const requiredRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
     const elementRole = element.getAttribute('role');
-    
+
     if (!elementRole) {
         return { valid: false, issue: 'Landmark element missing role attribute' };
     }
-    
+
     if (element.tagName === 'MAIN' && !elementRole.includes('main')) {
         return { valid: false, issue: 'MAIN element should have role="main" or no role' };
     }
-    
-    const hasValidRole = requiredRoles.some(role => elementRole.includes(role)) || 
+
+    const hasValidRole = requiredRoles.some(role => elementRole.includes(role)) ||
                          element.tagName.toLowerCase() === elementRole.replace(/-|/g, '');
-    
+
     if (!hasValidRole) {
         return { valid: false, issue: `Invalid landmark role: ${elementRole}` };
     }
-    
+
     return { valid: true };
 }
 
@@ -468,25 +463,25 @@ const AddressabilityIssues = {
     if (!element) {
         return { valid: false, issue: 'Element is null or undefined' };
     }
-    
+
     const requiredRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
     const elementRole = element.getAttribute('role');
-    
+
     if (!elementRole) {
         return { valid: false, issue: 'Landmark element missing role attribute' };
     }
-    
+
     if (element.tagName === 'MAIN' && !elementRole.includes('main')) {
         return { valid: false, issue: 'MAIN element should have role="main" or no role' };
     }
-    
-    const hasValidRole = requiredRoles.some(role => elementRole.includes(role)) || 
+
+    const hasValidRole = requiredRoles.some(role => elementRole.includes(role)) ||
                          element.tagName.toLowerCase() === elementRole.replace(/-|/g, '');
-    
+
     if (!hasValidRole) {
       return { valid: false, issue: `Invalid landmark role: ${elementRole}` };
     }
-    
+
     return { valid: true };
   }
 };
@@ -515,7 +510,7 @@ function getConfig(key) {
 
 function addressAccessibilityIssues(issues) {
   const fixedIssues = [];
-  
+
   issues.forEach(issue => {
     switch (issue.type) {
       case 'missing-alt-text':
@@ -531,7 +526,7 @@ function addressAccessibilityIssues(issues) {
         fixedIssues.push({ ...issue, status: 'pending', fixApplied: '' });
     }
   });
-  
+
   return fixedIssues;
 }
 
@@ -589,4 +584,3 @@ if (typeof module !== 'undefined' && module.exports) {
     init();
   }
 }
-```

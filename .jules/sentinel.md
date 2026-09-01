@@ -9,3 +9,9 @@
 **Vulnerability:** `scripts/auto-pr-generator.js` constructed file paths directly using `path.join(process.cwd(), change.file)` when processing AI-suggested code changes. Unvalidated paths starting with `..` or containing absolute paths allowed arbitrary file writes outside the working directory.
 **Learning:** Automated scripts processing file path strings generated from external APIs or LLMs can introduce path traversal vulnerabilities if paths are joined without strict canonicalization and root containment checks.
 **Prevention:** Always resolve target paths using `path.resolve(process.cwd(), target)` and verify `path.relative(process.cwd(), safePath)` does not start with `..`, is not absolute, and is not empty before creating directories or writing files.
+
+## 2026-08-25 - [Command Injection Prevention in Repo Health Check Script]
+
+**Vulnerability:** `scripts/check_repo_health.js` directly interpolated `process.env.PKG_MANAGER` into shell command execution strings parsed by `execSync` without input validation.
+**Learning:** Environment variables evaluated dynamically as command names or arguments in shell strings can trigger command injection vulnerabilities if shell metacharacters are passed.
+**Prevention:** Always validate environment variables used in CLI execution against a strict allowlist of allowed binary names (e.g., `['npm', 'pnpm', 'yarn', 'bun']`) or execute commands using array-based argument passing (`execFileSync`) without spawning shell interpreters.

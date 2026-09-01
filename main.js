@@ -7,14 +7,16 @@ const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUnique
 module.exports = {
   ...main,
 
-  // TODO: Address accessibility issues from insight report
   addressAccessibilityIssues: (container) => {
     const fixes = {
       langAdded: false,
       mainLandmarkAdded: false,
       landmarksFixed: 0,
       svgNamesAdded: 0,
-      fakeLinksFixed: 0
+      fakeLinksFixed: 0,
+      tableStructureFixed: 0,
+      ariaLabelsAdded: 0,
+      buttonIdentifiersFixed: 0
     };
 
     // Add lang attribute to HTML element if missing
@@ -70,6 +72,43 @@ module.exports = {
       }
     });
 
+    // Fix table structure issues
+    const tables = container.querySelectorAll('table');
+    tables.forEach(table => {
+      if (!table.querySelector('th')) {
+        const firstRow = table.querySelector('tr');
+        if (firstRow) {
+          const cells = firstRow.querySelectorAll('td');
+          cells.forEach(cell => {
+            const th = document.createElement('th');
+            th.textContent = cell.textContent;
+            cell.replaceWith(th);
+          });
+          fixes.tableStructureFixed++;
+        }
+      }
+    });
+
+    // Add ARIA labels to buttons without text
+    const buttons = container.querySelectorAll('button');
+    buttons.forEach(button => {
+      if (!button.textContent.trim() && !button.getAttribute('aria-label')) {
+        const icon = button.querySelector('i, svg');
+        if (icon) {
+          const iconName = icon.className || 'icon';
+          button.setAttribute('aria-label', iconName);
+          fixes.ariaLabelsAdded++;
+        }
+      }
+    });
+
+    // Fix button identifiers
+    const buttonsWithoutId = container.querySelectorAll('button:not([id])');
+    buttonsWithoutId.forEach((button, index) => {
+      button.id = `button-${index}`;
+      fixes.buttonIdentifiersFixed++;
+    });
+
     // Validate accessibility report
     const report = validateAccessibilityReport(container);
     if (report && report.length > 0) {
@@ -97,6 +136,21 @@ module.exports = {
     const fakeLinkFixes = fixes.fakeLinksFixed || 0;
     if (fakeLinkFixes > 0) {
       log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
+    }
+
+    const tableFixes = fixes.tableStructureFixed || 0;
+    if (tableFixes > 0) {
+      log(`Fixed table structure for ${tableFixes} tables`, 'info');
+    }
+
+    const ariaLabelFixes = fixes.ariaLabelsAdded || 0;
+    if (ariaLabelFixes > 0) {
+      log(`Added ARIA labels to ${ariaLabelFixes} buttons`, 'info');
+    }
+
+    const buttonIdFixes = fixes.buttonIdentifiersFixed || 0;
+    if (buttonIdFixes > 0) {
+      log(`Added identifiers to ${buttonIdFixes} buttons`, 'info');
     }
 
     return fixes;

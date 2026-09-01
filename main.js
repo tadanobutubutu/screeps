@@ -107,6 +107,92 @@ addAriaLabel('myLogo', 'Company logo');
 // Add lang attribute to HTML element
 ... getLangAttribute());
 
+// New functions added as requested in the issue
+/**
+ * Generates a unique landmark ID based on the provided base name.
+ * @param {string} baseName - The base name for the landmark ID.
+ * @returns {string} A unique landmark ID.
+ */
+function generateLandmarkId(baseName) {
+    let candidate = baseName;
+    if (_usedLandmarkIds.has(candidate)) {
+        // Collision handling: add random suffix
+        const suffix = Math.floor(Math.random() * 9000) + 1000;
+        candidate = `${baseName}-${suffix}`;
+    }
+    _usedLandmarkIds.add(candidate);
+    return candidate;
+}
+
+/**
+ * Validates that all landmarks in the document are unique.
+ * Removes duplicate landmarks except for the first occurrence.
+ */
+function validateLandmarkUniqueness() {
+    const landmarks = document.querySelectorAll([
+        'header[role="banner"]',
+        'nav[role="navigation"]',
+        'main[role="main"]',
+        'aside[role="complementary"]',
+        'footer[role="contentinfo"]'
+    ].join(', '));
+
+    const seenIds = new Set();
+    landmarks.forEach(landmark => {
+        if (seenIds.has(landmark.id)) {
+            landmark.removeAttribute('role');
+        } else {
+            seenIds.add(landmark.id);
+        }
+    });
+}
+
+/**
+ * Sets the lang attribute on the HTML element based on the application's settings.
+ */
+function setDocumentLanguage() {
+    const htmlElement = document.documentElement;
+    if (htmlElement) {
+        htmlElement.setAttribute('lang', getLangAttribute());
+    }
+}
+
+/**
+ * Creates an accessible button element with proper ARIA attributes.
+ * @param {string} text - The button text content.
+ * @param {string} ariaLabel - The ARIA label for the button.
+ * @returns {HTMLButtonElement} The created button element.
+ */
+function createAccessibleButton(text, ariaLabel) {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.setAttribute('aria-label', ariaLabel);
+    return button;
+}
+
+/**
+ * Validates the accessibility of a table element.
+ * @param {HTMLTableElement} table - The table element to validate.
+ */
+function validateTableAccessibility(table) {
+    if (!table) return;
+
+    // Ensure table has a caption
+    if (!table.querySelector('caption')) {
+        const caption = document.createElement('caption');
+        caption.textContent = 'Table caption';
+        table.prepend(caption);
+    }
+
+    // Ensure all th elements have scope attributes
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+        if (!th.hasAttribute('scope')) {
+            th.setAttribute('scope', 'col');
+        }
+    });
+}
+
 // TODO: add the new functions or changes requested in the issue
 // Here's a sample implementation for a new function named 'myNewFunction'
 function myNewFunction(arg1, arg2) {
@@ -138,12 +224,6 @@ function validateLandmarkStructure() {
   // Existing code...
 }
 
-function validateTableAccessibility(table) {
-  // Implementation for validating table accessibility
-  if (!table) return;
-  // Add accessibility checks for table
-}
-
 function validateTableStructure(table) {
   // Implementation for validating table structure
   if (!table) return;
@@ -170,7 +250,7 @@ function ensureUniqueLandmarks() {
     ...
     'footer[role="contentinfo"]'
   ].join(', '));
-  
+
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation

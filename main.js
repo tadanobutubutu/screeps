@@ -35,11 +35,19 @@ function countDependencies() {
     return dependencies.length;
 }
 
+// Accessibility fix: Add lang attribute to HTML element
+function setHtmlLangAttribute(lang = 'en') {
+    if (typeof document !== 'undefined') {
+        document.documentElement.lang = lang;
+    }
+}
+
 module.exports = {
     greet,
     add,
     getDependencies,
     addDependency,
     removeDependency,
-    countDependencies
+    countDependencies,
+    setHtmlLangAttribute
 };

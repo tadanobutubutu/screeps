@@ -8,7 +8,7 @@ const main = require('./utilities');
 const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, renderAdditionalContent } = main;
 
 // Utility functions for ensuring elements have IDs and adding labels
-const ensureElementId = (element) => {
+const ensureElementIdUtil = (element) => {
   if (element && !element.id) {
     element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
@@ -922,7 +922,7 @@ function newFocusTrap() {
  * @param {string} [prefix='element'] - Prefix for the generated id
  * @returns {string} The element's id (existing or newly generated)
  */
-const ensureElementHasId = (element, prefix = 'element') => {
+const ensureElementHasIdUtil = (element, prefix = 'element') => {
   if (!element) {
     throw new Error('Element is required');
   }
@@ -1210,7 +1210,7 @@ module.exports = {
   ...main,
   ...accessibilityUtils,
   ensureElementId,
-  ensureElementHasId,
+  ensureElementIdUtil,
   newFocusTrap,
   log,
   sanitizeFilename,

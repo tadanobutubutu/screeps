@@ -13,6 +13,14 @@ function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
   button.addEventListener('click', onClickHandler);
+  // Additional accessibility attributes
+  if (!button.hasAttribute('role')) {
+    button.setAttribute('role', 'button');
+  }
+  if (!button.hasAttribute('aria-label') && (!button.textContent || !button.textContent.trim())) {
+    button.setAttribute('aria-label', buttonText);
+  }
+  button.setAttribute('tabindex', '0');
   return button;
 }
 
@@ -269,6 +277,33 @@ function fixFakeLink() {
     link.removeAttribute('role');
     link.setAttribute('href', '#');
   });
+
+  // Trap focus in modal and announce welcome message
+  const modalElement = document.getElementById('modal');
+  if (modalElement && a11y && a11y.trapFocus) {
+    a11y.trapFocus(modalElement);
+  }
+  if (a11y && a11y.announce) {
+    a11y.announce('Welcome to the bot!', 'assertive');
+  }
+
+  // Adding an alt attribute to an image
+  const imageElement = document.getElementById('example-image');
+  if (imageElement) {
+    imageElement.setAttribute('alt', 'A description of the image');
+  }
+
+  // Correcting the ARIA role for a div
+  const divElement = document.getElementById('example-div');
+  if (divElement) {
+    divElement.setAttribute('role', 'list');
+  }
+
+  // Adding the lang attribute to the HTML element
+  addLangAttribute();
+
+  // Implementing the new function for checking landmark elements
+  checkLandmarkElements();
 }
 
 // Helper function to check if a link is accessible
@@ -289,6 +324,62 @@ async function checkLinkAccessibility(linkUrl) {
 // New function3 logic
 function function3() {
   console.log('Function3 is running.');
+
+  // Enhanced functionality from origin/main
+  if (typeof document !== 'undefined') {
+    // Check if the dependency graph element exists
+    const dependencyGraph = document.getElementById('dependencyGraph') || document.getElementById('dependency-graph') || document.querySelector('.dependency-graph');
+    if (dependencyGraph) {
+      // Ensure proper ARIA attributes
+      if (!dependencyGraph.hasAttribute('role')) {
+        dependencyGraph.setAttribute('role', 'region');
+      }
+      if (!dependencyGraph.hasAttribute('aria-label')) {
+        dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
+      }
+
+      // Log the status of the dependency graph
+      console.log('Dependency graph accessibility enhanced:', {
+        role: dependencyGraph.getAttribute('role'),
+        ariaLabel: dependencyGraph.getAttribute('aria-label')
+      });
+    }
+
+    // Perform additional accessibility checks
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+      if (!button.hasAttribute('role')) {
+        button.setAttribute('role', 'button');
+      }
+      if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
+        button.setAttribute('aria-label', 'Button');
+      }
+    });
+
+    // Check for landmarks
+    const landmarks = ['main', 'nav', 'aside', 'footer', 'header'];
+    landmarks.forEach(landmark => {
+      const elements = document.querySelectorAll(`[role="${landmark}"]`);
+      elements.forEach(element => {
+        if (!element.hasAttribute('aria-label')) {
+          element.setAttribute('aria-label', `${landmark} section`);
+        }
+      });
+    });
+
+    return {
+      status: 'success',
+      message: 'Accessibility checks and improvements completed',
+      timestamp: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error('Error in function3:', error);
+    return {
+      status: 'error',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
 }
 
 // Function to count dependencies
@@ -413,6 +504,7 @@ async function upgrade(harvestedData) {
       throw new Error('No harvested data available for upgrade');
     }
 
+    // Generate improved accessibility configurations based on harvested issues
     const upgradePlan = {
       timestamp: new Date().toISOString(),
       basedOnHarvest: data.timestamp,
@@ -420,6 +512,7 @@ async function upgrade(harvestedData) {
       applied: false
     };
 
+    // Analyze harvested issues and create upgrade recommendations
     if (data.details && data.details.length > 0) {
       data.details.forEach(page => {
         page.issues.forEach(violation => {
@@ -434,9 +527,11 @@ async function upgrade(harvestedData) {
       });
     }
 
+    // Write upgrade plan
     const upgradeFile = path.join(__dirname, 'upgrade_plan.json');
     fs.writeFileSync(upgradeFile, JSON.stringify(upgradePlan, null, 2));
 
+    // Apply upgrades if possible (e.g., auto-fix certain issues)
     upgradePlan.applied = true;
     upgradePlan.appliedAt = new Date().toISOString();
 
@@ -478,38 +573,169 @@ function initialize() {
   addressAccessibilityIssues();
 
   // Create the in-page button
-  createInPageButton('Accessibility Info', () => {
-    console.log('Accessibility Info button clicked');
-  });
+  createInPageButton();
 
   // Add accessible names to 2 SVGs
-  setSvgAccessibleNames('svg1Id', 'svg2Id', 'aria-label for SVG1', 'aria-label for SVG2');
+  setSvgAccessibleNames('svg1Id', 'svg2Id', ' aria-label for SVG1', ' aria-label for SVG2');
 
   // Ensure unique landmarks (2 issues)
   ensureUniqueLandmarks();
 
   // Fix 1 fake link issue
   fixFakeLink();
+
+  // Initialize accessibility features from a11y utilities
+  if (a11y && a11y.init) {
+    a11y.init();
+  }
 }
 
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initialize);
-  } else {
-    initialize();
+// New function to handle keyboard navigation
+function handleKeyboardNavigation() {
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+      document.body.classList.add('keyboard-nav');
+    }
+  });
+
+  document.addEventListener('mousedown', function() {
+    document.body.classList.remove('keyboard-nav');
+  });
+}
+
+// New function to add ARIA labels to interactive elements
+function addARIALabels() {
+  const interactiveElements = document.querySelectorAll('[role="button"], [role="link"], [role="menuitem"]');
+  interactiveElements.forEach(element => {
+    if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      const textContent = element.textContent.trim();
+      if (textContent) {
+        element.setAttribute('aria-label', textContent);
+      }
+    }
+  });
+}
+
+// New function to add screen reader announcements
+function addScreenReaderAnnouncements() {
+  const liveRegion = document.createElement('div');
+  liveRegion.setAttribute('aria-live', 'polite');
+  liveRegion.setAttribute('aria-atomic', 'true');
+  liveRegion.setAttribute('class', 'sr-only');
+  document.body.appendChild(liveRegion);
+
+  // Example usage
+  if (a11y && a11y.announce) {
+    a11y.announce('Accessibility features initialized', 'polite');
   }
+}
+
+// New function to trap focus in modals
+function trapModalFocus(modal) {
+  if (!modal) return;
+
+  const focusableElements = modal.querySelectorAll(
+    'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  modal.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable.focus();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    }
+  });
+
+  // Focus the first element when modal opens
+  if (firstFocusable) {
+    firstFocusable.focus();
+  }
+}
+
+// Function to add a new book with accessibility improvements
+function addNewBook(title, author, description) {
+  // Create a new book element with proper ARIA attributes
+  const bookElement = document.createElement('div');
+  bookElement.setAttribute('role', 'article');
+  bookElement.setAttribute('aria-label', `Book: ${title} by ${author}`);
+
+  // Create and append title element
+  const titleElement = document.createElement('h3');
+  titleElement.textContent = title;
+  titleElement.setAttribute('aria-label', `Title: ${title}`);
+  bookElement.appendChild(titleElement);
+
+  // Create and append author element
+  const authorElement = document.createElement('p');
+  authorElement.textContent = `Author: ${author}`;
+  authorElement.setAttribute('aria-label', `Author: ${author}`);
+  bookElement.appendChild(authorElement);
+
+  // Create and append description element
+  const descElement = document.createElement('p');
+  descElement.textContent = description;
+  descElement.setAttribute('aria-label', `Description: ${description}`);
+  bookElement.appendChild(descElement);
+
+  // Add keyboard navigation support
+  bookElement.setAttribute('tabindex', '0');
+  bookElement.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      // Add focus styles or other interactive behavior here
+      this.style.outline = '2px solid #0056b3';
+    }
+  });
+
+  // Add to the books container
+  const booksContainer = document.getElementById('booksContainer');
+  if (booksContainer) {
+    booksContainer.appendChild(bookElement);
+  } else {
+    console.error('Books container not found');
+  }
+
+  // Announce the new book addition for screen readers
+  if (a11y && a11y.announce) {
+    a11y.announce(`New book added: ${title} by ${author}`, 'assertive');
+  }
+
+  return bookElement;
+}
+
+// Helper function for checking landmark elements
+function checkLandmarkElements() {
+  const landmarks = ['main', 'nav', 'aside', 'footer', 'header'];
+  landmarks.forEach(landmark => {
+    const element = document.querySelector(`[role="${landmark}"]`);
+    if (element) {
+      element.setAttribute('aria-label', `Navigation: ${landmark}`);
+    }
+  });
 }
 
 // Export functions for module usage
 export {
   createInPageButton,
   getLangAttribute,
+  addLangAttribute,
   generateAccessibilityReport,
   validateTableAccessibility,
   validateTableStructure,
+  fixTableStructure,
   getSvgAccessibleName,
   setSvgAttributes,
+  setSvgAccessibleNames,
   ensureUniqueLandmarks,
   addMainLandmark,
   validateLandmark,
@@ -520,17 +746,20 @@ export {
   handleFakeLinks,
   checkLinkAccessibility,
   function3,
-  addLangAttribute,
-  fixTableStructure,
-  setSvgAccessibleNames,
-  fixFakeLink,
   countDependencies,
   accessibilityUtils,
+  addressAccessibilityIssues,
   harvest,
   upgrade,
   harvestAndUpgrade,
   scanAccessibility,
   writeReport,
-  addressAccessibilityIssues,
-  initialize
+  initialize,
+  handleKeyboardNavigation,
+  addARIALabels,
+  addScreenReaderAnnouncements,
+  trapModalFocus,
+  addNewBook,
+  checkLandmarkElements,
+  fixFakeLink
 };

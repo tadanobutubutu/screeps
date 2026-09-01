@@ -239,6 +239,16 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// TODO: add the new functions or changes requested in the issue
+// Here's a sample implementation for a new function named 'myNewFunction'
+function myNewFunction(param1, param2) {
+    // Implementation of the new function
+    if (typeof param1 !== 'string' || typeof param2 !== 'number') {
+        throw new Error('Invalid parameters: param1 must be a string and param2 must be a number');
+    }
+    return `${param1} repeated ${param2} times: ${param1.repeat(param2)}`;
+}
+
 // Placeholder functions for functionA and functionB
 function functionA() {
     // Implementation to be added
@@ -399,6 +409,7 @@ module.exports = {
     addressAccessibilityIssues,
     createInPageButton,
     divide,
+    myNewFunction,
     functionA,
     functionB,
     isLinkAccessible,

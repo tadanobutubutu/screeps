@@ -1,38 +1,12 @@
-// TODO: This is the existing code that needs to be preserved
+const fs = require('fs');
+const path = require('path');
 
-// ----- END ORIGINAL CODE -----
-// New function or changes requested in the issue
-// (newFunction placeholder is defined later to avoid duplication)
-// Existing exports and functions from current main.js
-export function existingFunction() {
-  // Implementation of the existing function
-}
-
-// New utility function to create a web resource button suitable for accessibility
-function createAccessibleWebResourceButton(url, text) {
-  const button = document.createElement('button');
-  button.setAttribute('type', 'button');
-  button.setAttribute('aria-label', text);
-  button.innerHTML = `<a href="${url}" ...`;
-  return button;
-}
-
-// Existing code from main.js (not changed)
-// ...
-
-// New required export
-function newRequiredFunction() {
-  // Implementation of the new required function
-}
-
-// Additional new function if needed
-function additionalFunction() {
-  // Implementation of the additional function
-}
+// Import test helper function
+const { updateThScopeAttribute } = require('./testHelper');
 
 // Import dependency graph and index content modules
-const dependencyGraphContent = {};
-const indexContent = {};
+const dependencyGraphContent = require('./dependencyGraphContent');
+const indexContent = require('./indexContent');
 
 // Landmark elements that should be checked for proper usage
 const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
@@ -54,7 +28,7 @@ function checkLandmarkElements(htmlContent) {
   // Check for each landmark element in the HTML content
   LANDMARK_ELEMENTS.forEach(landmark => {
     // Use case-insensitive regex to find landmark elements
-    const regex = new RegExp(`<${landmark}`, 'gi');
+    const regex = new RegExp(`<${landmark}[^>]*>`, 'gi');
     const matches = htmlContent.match(regex);
     if (matches) {
       foundLandmarks[landmark] = matches.length;
@@ -67,7 +41,7 @@ function checkLandmarkElements(htmlContent) {
   }
 
   // Check for duplicate landmarks (potential issue)
-  Object.keys(foundLandmarks).forEach(landmark => {
+  LANDMARK_ELEMENTS.forEach(landmark => {
     if (foundLandmarks[landmark] > 1) {
       warnings.push(`Multiple ${landmark} elements found`);
     }
@@ -103,7 +77,7 @@ function createInPageButton(options) {
 
   // Create button object
   const button = {
-    id: id || `btn-${Date.now()}`,
+    id: id || `btn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     text: String(text),
     title: title || '',
     className: className || 'default-button',
@@ -122,29 +96,23 @@ function createInPageButton(options) {
   return button;
 }
 
-// TODO: This is the existing code that needs to be preserved
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b07b809ac49f5e1c81cf4f389f9c1 -->
-
 // TODO: Implement a function to count dependencies
 function countDependencies() {
+  // Existing function implementation
+
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /import\s+.*\s+from\s+/g;
-  const importCount = (dependencyGraphContent && dependencyGraphContent.match(importCommentRegExp)) || [];
+  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/;
+  const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }
-
-// Import a11y store configuration
-const a11yStore = {};
 
 // Render index view content using indexContent
 function renderIndexView() {
   return indexContent;
 }
+
+// Import a11y store configuration
+const a11yStore = require('./a11yStore');
 
 // New function to handle adding landmark regions
 function addLandmarkRegions() {
@@ -163,76 +131,62 @@ function addLandmarkRegions() {
 // Standalone function to address accessibility issues from insight report
 function addressAccessibilityIssues(report) {
   if (!report) return;
-  console.log('Accessibility issues addressed');
+  a11yStore.addressAccessibilityIssues(report);
 }
 
 // Get person name for accessible labeling
 function personName() {
-  return 'Person';
+  return a11yStore.personName();
 }
 
 // Validate and fix table accessibility
 function validateTableAccessibility() {
-  return { valid: true };
+  a11yStore.validateTableAccessibility();
 }
 
 // Validate and fix table structure
 function validateTableStructure() {
-  return { valid: true };
+  a11yStore.validateTableStructure();
 }
 
 // Validate landmark elements
 function validateLandmark() {
-  return { valid: true };
+  a11yStore.validateLandmark();
 }
 
 // Validate landmark structure
 function validateLandmarkStructure() {
-  return { valid: true };
+  a11yStore.validateLandmarkStructure();
 }
 
 // Get accessible name for SVG
 function getSvgAccessibleName(svg) {
-  return svg && svg.getAttribute('aria-label') || svg && svg.getAttribute('title') || '';
+  return a11yStore.getSvgAccessibleName(svg);
 }
 
 // Ensure unique landmark IDs
 function ensureUniqueLandmarks() {
-  return { unique: true };
+  a11yStore.ensureUniqueLandmarks();
 }
 
 // New function to handle dynamic content updates
 function updateLiveRegion(message, priority = 'polite') {
-  return { message, priority };
-}
-
-// New function to add IDs to landmark elements (preserved from HEAD)
-function addLandmarkIds() {
-  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-  landmarkElements.forEach((element, index) => {
-    const landmark = document && document.getElementById(element);
-    if (landmark && landmark.id === '') {
-      landmark.id = `landmark-${index * 1000}`;
-    }
-  });
+  a11yStore.updateLiveRegion(message, priority);
 }
 
 // New function to check landmark elements in the DOM
-function checkLandmarkElementsInDOM() {
-  return [];
+function checkLandmarkElementsInDom() {
+  a11yStore.checkLandmarkElements();
 }
 
 // New function to add SVG accessibility props
-function addSvgAccessibilityProps(svg) {
-  if (!svg) return;
-  if (!svg.hasAttribute('role')) {
-    svg.setAttribute('role', 'img');
-  }
+function addSVGAccessibilityProps() {
+  a11yStore.addSVGAccessibilityProps();
 }
 
 // Preserve existing code functionality
 function preserveExistingCode() {
-  return true;
+  a11yStore.preserveExistingCode();
 }
 
 // New function to address new accessibility issues from insight report
@@ -240,26 +194,6 @@ function newFunction() {
   // Placeholder for new accessibility issue fixes
   // Implement specific fixes based on insight report when available
 }
-
-// TODO: This is the existing code that needs to be preserved
-
-// ADD YOUR CODE HERE if any other issues need to be addressed
-// Example of addressing REACT_015: Add lang attribute to HTML element
-function addLangAttribute() {
-  const htmlElement = document && document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', 'en'); // Assuming English, replace with appropriate lang attribute value
-  }
-}
-
-// Call the function to apply the lang attribute
-addLangAttribute();
-
-// Example of addressing REACT_025: Add other accessibility changes as per the insight report
-// This is a placeholder for any other accessibility changes you need to implement
-// function ... {
-//   // Implement accessibility changes here
-// }
 
 module.exports = {
   checkLandmarkElements,
@@ -269,9 +203,9 @@ module.exports = {
   addLandmarkRegions,
   addressAccessibilityIssues,
   LANDMARK_ELEMENTS,
-  getLangAttribute: addLangAttribute,
+  getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
   updateLiveRegion,
-  addLandmarkIds,
+  addSVGAccessibilityProps,
   preserveExistingCode,
   personName,
   validateTableAccessibility,
@@ -280,10 +214,6 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   ensureUniqueLandmarks,
-  renderIndexView,
-  newRequiredFunction,
-  additionalFunction,
-  createAccessibleWebResourceButton,
-  newFunction,
-  existingFunction
+  checkLandmarkElementsInDom,
+  renderIndexView
 };

@@ -85,7 +85,6 @@ function addProperLandmarkRegions() {
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-=======
 
 // Main JavaScript file
 // This file handles the main application logic
@@ -368,7 +367,7 @@ function addProperLandmarkRegions() {
             if (!issues || !Array.isArray(issues)) {
                 return [];
             }
-            
+
             return issues.map(issue => {
                 return {
                     id: issue.id,
@@ -394,11 +393,11 @@ function addProperLandmarkRegions() {
           totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
           details: report
         };
-        
+
         // Store harvested data for potential upgrades
         const harvestFile = path.join(__dirname, 'harvest_data.json');
         fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-        
+
         return harvestedData;
       } catch (error) {
         console.error('Harvest failed:', error);

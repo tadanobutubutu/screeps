@@ -5,16 +5,31 @@
 /**
  * Main application entry point with accessibility features
  */
-function renderDependencyGraphs(svgElements) {
-  const accessibleName = getSvgAccessibleName(svgElements);
-  if (accessibleName) {
-    // Use accessibleName
-  }
+function init() {
+  const svgElements = document.querySelectorAll('svg');
+  
+  svgElements.forEach(svg => {
+    if (!svg.id) {
+      svg.setAttribute('role', 'img');
+    }
 
-  setSvgAttributes(svgElements);
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      svg.setAttribute('aria-label', accessibleName);
+    }
+
+    setSvgAttributes(svg);
+
+    setupFocusManagement();
+    setupAriaLiveRegions();
+  });
 }
 
-const checkTableStructure = /* existing code */
+const checkTableStructure = (table) => {
+  if (!table) return false;
+  const rows = table.querySelectorAll('tr');
+  return rows.length > 0;
+};
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -31,7 +46,6 @@ const sampleInsightReport = {
 };
 
 // Implement function for addressing accessibility issues from insight report
-// TODO: Implement a function to count dependencies
 function countDependencies() {
     const path = require('path');
     const fs = require('fs');
@@ -42,8 +56,8 @@ function countDependencies() {
     const devDependencies = packageJson.devDependencies || {};
 
     return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
+        dependencies: Object.keys(dependencies),
+        devDependencies: Object.keys(devDependencies),
         total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
 }
@@ -96,140 +110,6 @@ function handleCredentialResponse(response) {
     return processedCredential;
 }
 
-// Ensure DOM is fully loaded before executing scripts
-if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment - setup basic exports
-  module.exports = {
-    checkTableStructure,
-    countDependencies,
-    init,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    validateLandmark,
-    spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse
-  };
-} else {
-  // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-}
-
-function init() {
-  const svgElements = document.querySelectorAll('svg');
-
-  svgElements.forEach((svg) => {
-    if (!svg.hasAttribute('role')) {
-      svg.setAttribute('role', 'img');
-    }
-
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
-
-    setSvgAttributes(svg);
-
-    setupAriaLiveRegions();
-    setupFocusManagement();
-    enhanceSemanticMarkup();
-  });
-}
-
-function getSvgAccessibleName(svg) {
-  const title = svg.querySelector('title');
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-  const desc = svg.querySelector('desc');
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
-  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '';
-}
-
-function setSvgAttributes(svg) {
-  if (!svg.hasAttribute('aria-hidden')) {
-    svg.setAttribute('aria-hidden', 'true');
-  }
-}
-
-// Function for checking table structure
-const checkTableStructure = (table) => {
-  if (!table) return false;
-  const rows = table.querySelectorAll('tr');
-  return rows.length > 0;
-};
-
-function getVersion() {
-  const fs = require('fs');
-  const packageJsonPath = require('path').join(__dirname, 'package.json');
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-  return packageJson.version;
-}
-
-function handleCredentialResponse(response) {
-  if (!response) {
-    return { success: false, error: 'No credential response provided' };
-  }
-
-  // Check if response contains expected credential data
-  const hasCredential = response.credential || response.token || response.id;
-
-  if (!hasCredential) {
-    return { success: false, error: 'Invalid credential response format' };
-  }
-
-  // Process credential information
-  const processedCredential = {
-    id: response.id || null,
-    token: response.token || response.credential || null,
-    name: response.name || 'Anonymous User',
-    email: response.email || null,
-    success: true
-  };
-
-  // Handle different types of credential responses
-  if (response.credential) {
-    // Google Sign-In response
-    try {
-      // Credential is a base64-encoded JWT
-      const payload = JSON.parse(atob(response.credential.split('.')[1]));
-      processedCredential.id = payload.sub || processedCredential.id;
-      processedCredential.email = payload.email || processedCredential.email;
-      processedCredential.name = payload.name || processedCredential.name;
-    } catch (error) {
-      console.warn('Failed to parse credential response:', error);
-    }
-  }
-
-  // Announce success to screen readers
-  if (typeof announceToScreenReader === 'function') {
-    announceToScreenReader('User successfully authenticated');
-  }
-
-  return processedCredential;
-}
-
 function setupAriaLiveRegions() {
   const liveRegion = document.getElementById('aria-live-region');
   if (!liveRegion) {
@@ -254,7 +134,7 @@ function setupFocusManagement() {
     'button, a, input, select, textarea, [tabindex]'
   );
   interactiveElements.forEach((element) => {
-    if (!element.getAttribute('tabindex')) {
+    if (!element.hasAttribute('tabindex')) {
       element.setAttribute('tabindex', '0');
     }
   });
@@ -270,6 +150,9 @@ function enhanceSemanticMarkup() {
     skipLink.className = 'skip-link';
     skipLink.style.position = 'absolute';
     skipLink.style.left = '-9999px';
+    skipLink.addEventListener('focus', () => {
+      skipLink.style.left = '0';
+    });
     document.body.insertBefore(skipLink, document.body.firstChild);
   }
 
@@ -283,11 +166,11 @@ function enhanceSemanticMarkup() {
   });
 
   // Ensure form inputs have associated labels
-  const inputs = document.querySelectorAll('input:not([type="hidden"]), select, textarea');
+  const inputs = document.querySelectorAll('input, select, textarea');
   inputs.forEach((input) => {
     const id = input.id || `input-${Math.random().toString(36).substr(2, 9)}`;
     input.id = id;
-    if (!input.hasAttribute('aria-label') && !document.querySelector(`label[for="${id}"]`)) {
+    if (!input.getAttribute('aria-label') && !document.querySelector(`label[for="${id}"]`)) {
       input.setAttribute('aria-label', input.name || 'Input');
     }
   });
@@ -381,7 +264,7 @@ const AddressabilityIssues = {
   },
 
   fixMainLandmarkTags: function(source) {
-    const mainBlockRegex = /<main[^>]*>[\s\S]*?<\/main>/gi;
+    const mainBlockRegex = /<main[^>]*>[\s\S]*?<\/main>/g;
 
     const matches = source.match(mainBlockRegex);
     if (!matches || matches.length <= 1) {
@@ -423,72 +306,63 @@ const AddressabilityIssues = {
       'main': 'main',
       'nav': 'navigation',
       'aside': 'complementary',
-      '
-=======
-const sampleInsightReport = {
-  title: 'Quarterly Performance Report',
-  sections: [
-    {
-      heading: 'Sales Overview',
-      content: 'Total sales increased by 15% compared to last quarter.'
-    },
-    {
-      heading: 'Customer Satisfaction',
-      content: 'Average satisfaction score: 4.2 out of 5.'
+      'footer': 'contentinfo'
+    };
+
+    const role = element.getAttribute('role');
+    const impliedRole = implicitLandmarks[tagName];
+
+    if (role && landmarkRoles.includes(role)) {
+      return { valid: true, role: role };
     }
-  ]
+
+    if (impliedRole) {
+      return { valid: true, role: impliedRole };
+    }
+
+    return { valid: false, error: 'No valid landmark role found' };
+  }
 };
 
-function countDependencies() {
-  const fs = require('fs');
-  const packageJsonPath = require('path').join(__dirname, 'package.json');
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-  const dependencies = packageJson.dependencies || {};
-  const devDependencies = packageJson.devDependencies || {};
-
-  return {
-    dependencies: Object.keys(dependencies).length,
-    devDependencies: Object.keys(devDependencies).length,
-    total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-  };
+function getSvgAccessibleName(svg) {
+  const title = svg.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent.trim();
+  }
+  const desc = svg.querySelector('desc');
+  if (desc && desc.textContent) {
+    return desc.textContent.trim();
+  }
+  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '';
 }
 
-// Ensure DOM is fully loaded before executing scripts
-if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment - setup basic exports
-  module.exports = {
-    checkTableStructure,
-    countDependencies,
-    init,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    validateLandmark,
-    spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse,
-    sampleInsightReport
-  };
-} else {
-  // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+function setSvgAttributes(svg) {
+  if (!svg.hasAttribute('role')) {
+    svg.setAttribute('role', 'img');
   }
 }
+
+function getVersion() {
+  const fs = require('fs');
+  const packageJsonPath = require('path').join(process.cwd(), 'package.json');
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  return packageJson.version;
+}
+
+function getConfig() {
+  const fs = require('fs');
+  const path = require('path');
+  const configPath = path.join(process.cwd(), 'config.json');
+  try {
+    return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  } catch (error) {
+    return { default: true };
+  }
+}
+
+function addressAccessibilityIssues(issues) {
+  return AddressabilityIssues.generateAccessibilityReport({ issues });
+}
+
+function generateAccessibilityReport(accessibilityReport) {
+  return

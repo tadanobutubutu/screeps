@@ -150,7 +150,7 @@ function addressAccessibilityIssues() {
 // Validate landmark structure
 function landmarkStructureCheck(landmark) {
   const errors = [];
-  
+
   if (!landmark) {
     errors.push('Landmark is required');
     return { valid: false, errors };
@@ -221,16 +221,16 @@ function ensureLandmarkUniqueness(elements) {
 // Function to ensure focusable elements
 function ensureFocusableElements(container) {
   if (!container) return;
-  
+
   const focusableSelectors = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])';
   const focusableElements = container.querySelectorAll(focusableSelectors);
-  
+
   focusableElements.forEach((el, index) => {
     if (!el.getAttribute('tabindex')) {
       el.setAttribute('tabindex', '0');
     }
   });
-  
+
   return focusableElements;
 }
 
@@ -267,14 +267,14 @@ function setLanguageAttribute(document, lang) {
 // Function to add landmark roles
 function addLandmarkRoles(container) {
   if (!container) return;
-  
+
   const possibleLandmarks = {
     'nav': 'navigation',
     'aside': 'complementary',
     'section': 'region',
     'form': 'form'
   };
-  
+
   const sections = container.querySelectorAll('nav, aside, section, form');
   sections.forEach(section => {
     if (!section.getAttribute('role') && possibleLandmarks[section.tagName.toLowerCase()]) {
@@ -415,7 +415,7 @@ function fixFakeLinkIssue() {
 // Function to fix fake links
 function fixFakeLinks(container) {
   if (!container) return;
-  
+
   const fakeLinks = container.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
   fakeLinks.forEach(link => {
     if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
@@ -431,18 +431,18 @@ function fixFakeLinks(container) {
 // Validate SVG accessibility
 function validateSvgAccessibility(svg) {
   const errors = [];
-  
+
   if (!svg) {
     errors.push('SVG element is required');
     return { valid: false, errors };
   }
-  
+
   // Check for accessible name
   const accessibleName = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.querySelector('title');
   if (!accessibleName) {
     errors.push('SVG must have an accessible name via aria-label, aria-labelledby, or title element');
   }
-  
+
   return {
     valid: errors.length === 0,
     errors
@@ -454,10 +454,10 @@ function processUniqueElements(elements) {
   if (!Array.isArray(elements)) {
     return [];
   }
-  
+
   const uniqueElements = [];
   const seen = new Map();
-  
+
   elements.forEach(element => {
     const key = element.id || element.name || JSON.stringify(element);
     if (!seen.has(key)) {
@@ -465,26 +465,26 @@ function processUniqueElements(elements) {
       uniqueElements.push(element);
     }
   });
-  
+
   return uniqueElements;
 }
 
 // Address insight issues
 function addressInsightIssues(document) {
   const issues = [];
-  
+
   // Address REACT_015: Add lang attribute
   if (!document.documentElement.lang) {
     setLanguageAttribute(document, 'en');
     issues.push('lang attribute added');
   }
-  
+
   // Address REACT_017: Add/fix landmark issues
   const mainLandmark = document.querySelector('main') || document.querySelector('[role="main"]');
   if (!mainLandmark) {
     issues.push('main landmark added');
   }
-  
+
   // Address REACT_041: Add accessible names to SVGs
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
@@ -495,7 +495,7 @@ function addressInsightIssues(document) {
       issues.push('SVG accessible name added');
     }
   });
-  
+
   return issues;
 }
 
@@ -581,7 +581,7 @@ function renderDependencyGraphContent() {
 // Add proper landmark regions
 function addProperLandmarkRegions(document) {
   const regions = ['main', 'navigation', 'banner', 'contentinfo', 'complementary'];
-  
+
   regions.forEach(role => {
     const existing = document.querySelector(`[role="${role}"]`);
     if (!existing) {
@@ -709,6 +709,377 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// Tower Defense Implementation
+class TowerDefenseGame {
+  constructor(canvasId) {
+    this.canvas = document.getElementById(canvasId);
+    this.ctx = this.canvas.getContext('2d');
+    this.towers = [];
+    this.enemies = [];
+    this.projectiles = [];
+    this.money = 100;
+    this.lives = 20;
+    this.wave = 0;
+    this.gameOver = false;
+    this.gameWon = false;
+    this.path = [
+      {x: 50, y: 50},
+      {x: 50, y: 350},
+      {x: 350, y: 350},
+      {x: 350, y: 50},
+      {x: 650, y: 50},
+      {x: 650, y: 350},
+      {x: 950, y: 350}
+    ];
+
+    this.init();
+  }
+
+  init() {
+    this.canvas.width = 1000;
+    this.canvas.height = 400;
+    this.canvas.addEventListener('click', this.handleCanvasClick.bind(this));
+
+    this.startGameLoop();
+  }
+
+  startGameLoop() {
+    this.gameLoop = setInterval(() => {
+      if (!this.gameOver && !this.gameWon) {
+        this.update();
+        this.draw();
+      }
+    }, 1000/60);
+  }
+
+  handleCanvasClick(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // Check if clicking on a tower
+    for (const tower of this.towers) {
+      if (Math.sqrt((x - tower.x) ** 2 + (y - tower.y) ** 2) < tower.radius) {
+        tower.upgrade();
+        return;
+      }
+    }
+
+    // Check if clicking on a path point to place a tower
+    for (const point of this.path) {
+      if (Math.sqrt((x - point.x) ** 2 + (y - point.y) ** 2) < 30) {
+        if (this.money >= 50) {
+          this.towers.push(new Tower(point.x, point.y));
+          this.money -= 50;
+        }
+        return;
+      }
+    }
+  }
+
+  update() {
+    // Spawn enemies in waves
+    if (this.enemies.length === 0 && this.wave < 5) {
+      this.wave++;
+      for (let i = 0; i < this.wave * 5; i++) {
+        setTimeout(() => {
+          this.enemies.push(new Enemy(this.path));
+        }, i * 500);
+      }
+    }
+
+    // Update enemies
+    for (let i = this.enemies.length - 1; i >= 0; i--) {
+      this.enemies[i].update();
+
+      // Check if enemy reached end
+      if (this.enemies[i].reachedEnd) {
+        this.lives--;
+        this.enemies.splice(i, 1);
+        if (this.lives <= 0) {
+          this.gameOver = true;
+        }
+        continue;
+      }
+
+      // Check for collisions with towers
+      for (const tower of this.towers) {
+        if (tower.canAttack(this.enemies[i])) {
+          tower.attack(this.enemies[i]);
+        }
+      }
+    }
+
+    // Update towers
+    for (const tower of this.towers) {
+      tower.update(this.enemies);
+    }
+
+    // Update projectiles
+    for (let i = this.projectiles.length - 1; i >= 0; i--) {
+      this.projectiles[i].update();
+
+      // Check if projectile hit an enemy
+      for (let j = this.enemies.length - 1; j >= 0; j--) {
+        if (this.projectiles[i].checkCollision(this.enemies[j])) {
+          this.enemies[j].takeDamage(this.projectiles[i].damage);
+          this.projectiles.splice(i, 1);
+          break;
+        }
+      }
+
+      // Remove projectiles that are out of bounds
+      if (i < this.projectiles.length &&
+          (this.projectiles[i].x < 0 || this.projectiles[i].x > this.canvas.width ||
+           this.projectiles[i].y < 0 || this.projectiles[i].y > this.canvas.height)) {
+        this.projectiles.splice(i, 1);
+      }
+    }
+
+    // Check for win condition
+    if (this.wave >= 5 && this.enemies.length === 0) {
+      this.gameWon = true;
+    }
+  }
+
+  draw() {
+    // Clear canvas
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Draw path
+    this.ctx.strokeStyle = '#333';
+    this.ctx.lineWidth = 30;
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.path[0].x, this.path[0].y);
+    for (let i = 1; i < this.path.length; i++) {
+      this.ctx.lineTo(this.path[i].x, this.path[i].y);
+    }
+    this.ctx.stroke();
+
+    // Draw towers
+    for (const tower of this.towers) {
+      tower.draw(this.ctx);
+    }
+
+    // Draw enemies
+    for (const enemy of this.enemies) {
+      enemy.draw(this.ctx);
+    }
+
+    // Draw projectiles
+    for (const projectile of this.projectiles) {
+      projectile.draw(this.ctx);
+    }
+
+    // Draw UI
+    this.ctx.fillStyle = '#000';
+    this.ctx.font = '20px Arial';
+    this.ctx.fillText(`Money: $${this.money}`, 20, 30);
+    this.ctx.fillText(`Lives: ${this.lives}`, 20, 60);
+    this.ctx.fillText(`Wave: ${this.wave}/5`, 20, 90);
+
+    if (this.gameOver) {
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.fillStyle = '#fff';
+      this.ctx.font = '48px Arial';
+      this.ctx.textAlign = 'center';
+      this.ctx.fillText('Game Over!', this.canvas.width/2, this.canvas.height/2);
+    }
+
+    if (this.gameWon) {
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.fillStyle = '#fff';
+      this.ctx.font = '48px Arial';
+      this.ctx.textAlign = 'center';
+      this.ctx.fillText('You Win!', this.canvas.width/2, this.canvas.height/2);
+    }
+  }
+}
+
+class Tower {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.radius = 20;
+    this.range = 100;
+    this.damage = 10;
+    this.fireRate = 1000; // milliseconds
+    this.lastShot = 0;
+    this.level = 1;
+    this.color = '#00f';
+  }
+
+  canAttack(enemy) {
+    const distance = Math.sqrt((this.x - enemy.x) ** 2 + (this.y - enemy.y) ** 2);
+    return distance <= this.range && Date.now() - this.lastShot > this.fireRate;
+  }
+
+  attack(enemy) {
+    this.lastShot = Date.now();
+    const angle = Math.atan2(enemy.y - this.y, enemy.x - this.x);
+    const projectile = new Projectile(
+      this.x,
+      this.y,
+      angle,
+      this.damage
+    );
+    game.projectiles.push(projectile);
+  }
+
+  upgrade() {
+    if (game.money >= 30) {
+      this.level++;
+      this.damage += 5;
+      this.range += 20;
+      this.fireRate = Math.max(200, this.fireRate - 100);
+      game.money -= 30;
+      this.color = this.level > 2 ? '#f00' : '#0f0';
+    }
+  }
+
+  update(enemies) {
+    // Tower doesn't need to update much, but could add animations here
+  }
+
+  draw(ctx) {
+    // Draw tower base
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw range indicator
+    ctx.strokeStyle = 'rgba(0, 0, 255, 0.2)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.range, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Draw level indicator
+    ctx.fillStyle = '#fff';
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(`Lv${this.level}`, this.x, this.y + 5);
+  }
+}
+
+class Enemy {
+  constructor(path) {
+    this.path = path;
+    this.currentPoint = 0;
+    this.x = path[0].x;
+    this.y = path[0].y;
+    this.radius = 15;
+    this.speed = 1;
+    this.health = 100;
+    this.maxHealth = 100;
+    this.reachedEnd = false;
+  }
+
+  update() {
+    if (this.currentPoint < this.path.length - 1) {
+      const target = this.path[this.currentPoint + 1];
+      const dx = target.x - this.x;
+      const dy = target.y - this.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < 5) {
+        this.currentPoint++;
+      } else {
+        this.x += (dx / distance) * this.speed;
+        this.y += (dy / distance) * this.speed;
+      }
+    } else {
+      this.reachedEnd = true;
+    }
+  }
+
+  takeDamage(amount) {
+    this.health -= amount;
+    if (this.health <= 0) {
+      // Enemy is dead
+      const index = game.enemies.indexOf(this);
+      if (index > -1) {
+        game.enemies.splice(index, 1);
+        game.money += 10;
+      }
+    }
+  }
+
+  draw(ctx) {
+    // Draw enemy body
+    ctx.fillStyle = '#f00';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw health bar
+    ctx.fillStyle = '#0f0';
+    const healthWidth = (this.health / this.maxHealth) * this.radius * 2;
+    ctx.fillRect(this.x - this.radius, this.y - this.radius - 10, healthWidth, 5);
+    ctx.strokeStyle = '#000';
+    ctx.strokeRect(this.x - this.radius, this.y - this.radius - 10, this.radius * 2, 5);
+  }
+}
+
+class Projectile {
+  constructor(x, y, angle, damage) {
+    this.x = x;
+    this.y = y;
+    this.angle = angle;
+    this.speed = 5;
+    this.damage = damage;
+    this.radius = 5;
+  }
+
+  update() {
+    this.x += Math.cos(this.angle) * this.speed;
+    this.y += Math.sin(this.angle) * this.speed;
+  }
+
+  checkCollision(enemy) {
+    const distance = Math.sqrt((this.x - enemy.x) ** 2 + (this.y - enemy.y) ** 2);
+    return distance < this.radius + enemy.radius;
+  }
+
+  draw(ctx) {
+    ctx.fillStyle = '#ff0';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+// Initialize the game when the component mounts
+function TowerDefenseComponent() {
+  const [game, setGame] = useState(null);
+
+  useEffect(() => {
+    const newGame = new TowerDefenseGame('towerDefenseCanvas');
+    setGame(newGame);
+
+    return () => {
+      if (newGame.gameLoop) {
+        clearInterval(newGame.gameLoop);
+      }
+    };
+  }, []);
+
+  return (
+    <div>
+      <h2>Tower Defense Game</h2>
+      <canvas id="towerDefenseCanvas" style={{border: '1px solid #000'}}></canvas>
+      <div>
+        <p>Click on path points to place towers ($50 each)</p>
+        <p>Click on towers to upgrade them ($30 each)</p>
+        <p>Defend against waves of enemies and survive 5 waves to win!</p>
+      </div>
+    </div>
+  );
+}
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
@@ -747,6 +1118,9 @@ function Main() {
         <input type="text" id="author" name="author" required aria-label="Book author" />
         <button type="submit">Add Book</button>
       </form>
+
+      {/* Add Tower Defense Game Component */}
+      <TowerDefenseComponent />
     </div>
   );
 }
@@ -820,7 +1194,9 @@ export {
   createInPageButtons,
   fixFakeLinkIssue,
   addSvgAccessibleNames,
-  ensureUniqueLandmarksDoc
+  ensureUniqueLandmarksDoc,
+  TowerDefenseGame,
+  TowerDefenseComponent
 };
 
 export default Main;

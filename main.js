@@ -223,7 +223,7 @@ function checkLandmarks(container = document) {
  * Ensure unique main landmarks exist in the document.
  * Logs a warning if multiple main landmarks are detected.
  */
-function ensureUniqueLandmarks() {
+function ensureUniqueLandmarksLocal() {
   const mains = document.querySelectorAll('main, [role="main"]');
   if (mains.length > 1) {
     console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
@@ -397,6 +397,7 @@ module.exports = {
   wrapPrimaryContentInMain,
   checkLandmarks,
   ensureUniqueLandmarks,
+  ensureUniqueLandmarksLocal,
   handleFocusTrap,
   revokeSession,
   functionA,

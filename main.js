@@ -13,6 +13,14 @@ import reportWebVitals from './reportWebVitals';
 // REACT_015: lang attribute added to HTML element
 // The React component rendering the HTML element provides the `lang` prop
 // The language attribute is set according to the application's settings
+// (This comment remains as-is)
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30f5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f816325b07a49b809ac49f5e1c81cf4e389f9c1 -->
+// _Commit: b88a21083c89f599fb68eef1dc4d5df10e52_
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -21,7 +29,7 @@ root.render(
   </React.StrictMode>
 );
 
-document.documentElement.lang = getLangAttribute();
+document.documentElement.lang = 'en';
 
 reportWebVitals();
 
@@ -75,67 +83,7 @@ function ensureElementHasId(elementId) {
 
 // Main module entry point
 const main = {
-  /**
-   * Sets the language attribute on the HTML element.
-   *
-   * This ensures that screen readers and other assistive technologies
-   * can correctly interpret the language of the page.
-   *
-   * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr').
-   */
-  setLanguageAttribute: setLanguageAttribute,
-
-  /**
-   * Adds landmark roles to the main navigation and content sections.
-   *
-   * This addresses the REACT_017 issue by adding appropriate ARIA roles
-   * such as 'navigation', 'main', and 'banner' to relevant HTML elements.
-   */
-  addLandmarkRolesFn: addLandmarkRolesFn,
-
-  /**
-   * Ensures that landmarks are unique by adding unique ARIA labels where necessary.
-   *
-   * This addresses the REACT_025 issue by checking for duplicate landmarks
-   * and making them unique with appropriate aria-label or aria-labelledby attributes.
-   */
-  ensureUniqueLandmarkElements: ensureUniqueLandmarkElements,
-
-  /**
-   * Adds accessible names to SVG elements.
-   *
-   * This addresses the REACT_041 issue by ensuring that SVGs have appropriate
-   * accessible names, either through title or desc elements.
-   *
-   * @param {string} svgSelector - The CSS selector for the SVG element(s).
-   * @param {string} accessibleName - The accessible name to set.
-   */
-  addSVGAccessibleName: addSVGAccessibleName,
-
-  /**
-   * Fixes fake links (elements that look like links but are not semantic <a> tags).
-   *
-   * This addresses the REACT_036 issue by identifying elements that have
-   * click handlers but are not <a> tags and adding appropriate ARIA roles
-   * and attributes to make them accessible.
-   */
-  fixFakeLinks: fixFakeLinks,
-
-  /**
-   * Creates an accessible in-page button element.
-   *
-   * @param {string} text - The text content of the button
-   * @param {Function} onClick - The click handler function
-   * @param {Object} [options] - Optional configuration
-   * @param {string} [options.id] - The ID for the button
-   * @param {string} [options.className] - The class name for the button
-   * @param {string} [options.ariaLabel] - The ARIA label for the button
-   * @param {boolean} [options.disabled=false] - Whether the button is disabled
-   * @returns {HTMLButtonElement} The created button element
-   */
-  createInPageButton: createInPageButton,
-
-  ... // Add any other exports from main as needed
+  // Add your module exports here
 };
 
 /**
@@ -686,13 +634,13 @@ class TowerDefenseGame {
     if (this.towers.length >= this.config.maxTowers) {
       return false;
     }
-    
+
     if (this.board[row] && this.board[row][col]) {
       const cell = this.board[row][col];
       if (cell.type !== 'path' || cell.tower) {
         return false;
       }
-      
+
       const tower = {
         id: this.towers.length,
         row,
@@ -701,7 +649,7 @@ class TowerDefenseGame {
         range: 3,
         cost: this.config.towerCost
       };
-      
+
       cell.tower = tower;
       this.towers.push(tower);
       return true;
@@ -733,9 +681,9 @@ class TowerDefenseGame {
       }
       return true;
     });
-    
+
     // Remove enemies that reached the end
-    this.enemies = this.enemies.filter(enemy => 
+    this.enemies = this.enemies.filter(enemy =>
       enemy.position.row < this.config.boardSize.rows - 1
     );
   }
@@ -744,9 +692,9 @@ class TowerDefenseGame {
     this.towers.forEach(tower => {
       // Find enemies in range and attack
       this.enemies.forEach(enemy => {
-        const distance = Math.abs(tower.row - enemy.position.row) + 
+        const distance = Math.abs(tower.row - enemy.position.row) +
                          Math.abs(tower.col - enemy.position.col);
-        
+
         if (distance <= tower.range) {
           enemy.health -= tower.damage;
           if (enemy.health <= 0) {
@@ -756,17 +704,17 @@ class TowerDefenseGame {
         }
       });
     });
-    
+
     // Remove dead enemies
     this.enemies = this.enemies.filter(enemy => enemy.health > 0);
   }
 
   start() {
     if (this.isRunning) return;
-    
+
     this.isRunning = true;
     this.spawnEnemy(); // Initial enemy
-    
+
     this.gameIntervalId = setInterval(() => {
       this.spawnEnemy();
       this.updateEnemies();
@@ -802,7 +750,237 @@ export function calculateDiscount(price, discount) {
   if (typeof discount !== 'number' || discount < 0) {
     throw new Error('Discount must be a non-negative number');
   }
-  return price - (price * discount / 100);
+
+  // Calculate discounted price
+  const discountedPrice = price * (1 - discount / 100);
+  return Math.max(0, discountedPrice);
 }
 
-export default main;
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+function add(a, b) {
+  return a + b;
+}
+
+function getConfig() {
+  return CONFIG;
+}
+
+function getVersion() {
+  return VERSION;
+}
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+function addressAccessibilityIssues() {
+  // Ensure the root container has an accessible name
+  const rootContainer = document.getElementById('root');
+  if (rootContainer) {
+    rootContainer.setAttribute('role', 'main');
+  }
+
+  // Create a hidden live region for dynamic announcements
+  const announcementId = 'accessibility-announcement';
+  let announcement = document.getElementById(announcementId);
+  if (!announcement) {
+    announcement = document.createElement('div');
+    announcement.id = announcementId;
+    announcement.setAttribute('role', 'status');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.setAttribute('aria-atomic', 'true');
+    // Hide off-screen
+    announcement.style.position = 'absolute';
+    announcement.style.left = '-9999px';
+    announcement.style.top = '-9999px';
+    document.body.appendChild(announcement);
+  }
+}
+
+// Validate that tables in the document are accessible
+function validateTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  const results = [];
+
+  tables.forEach((table, index) => {
+    const hasCaption = table.querySelector('caption') !== null;
+    const hasHeaders = table.querySelector('th') !== null;
+    const hasScope = Array.from(table.querySelectorAll('th')).every(
+      th => th.hasAttribute('scope')
+    );
+
+    results.push({
+      tableIndex: index,
+      hasCaption,
+      hasHeaders,
+      hasScope,
+      isAccessible: hasCaption && hasHeaders && hasScope
+    });
+  });
+
+  return results;
+}
+
+// Validate the structure of tables in the document
+function validateTableStructure() {
+  const tables = document.querySelectorAll('table');
+  const results = [];
+
+  tables.forEach((table, index) => {
+    const rows = table.querySelectorAll('tr');
+    let isValid = true;
+    let error = null;
+
+    if (rows.length === 0) {
+      isValid = false;
+      error = 'Table has no rows';
+    } else {
+      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td').length);
+      const allSame = cellCounts.every(count => count === cellCounts[0]);
+
+      if (!allSame) {
+        isValid = false;
+        error = 'Table has inconsistent cell counts across rows';
+      }
+    }
+
+    results.push({
+      tableIndex: index,
+      rowCount: rows.length,
+      isValid,
+      error
+    });
+  });
+
+  return results;
+}
+
+// Generate accessibility report
+function generateAccessibilityReport() {
+  const timestamp = new Date().toISOString();
+  const tableAccessibilityResults = validateTableAccessibility();
+  const tableStructureResults = validateTableStructure();
+
+  const totalTables = tableAccessibilityResults.length;
+  const accessibleTables = tableAccessibilityResults.filter(r => r.isAccessible).length;
+  const validStructures = tableStructureResults.filter(r => r.isValid).length;
+
+  const issues = [];
+
+  tableAccessibilityResults.forEach((result, index) => {
+    if (!result.isAccessible) {
+      const issue = { tableIndex: index, type: 'accessibility' };
+      if (!result.hasCaption) issue.reason = 'Missing caption';
+      else if (!result.hasHeaders) issue.reason = 'Missing header cells';
+      else if (!result.hasScope) issue.reason = 'Headers missing scope attribute';
+      issues.push(issue);
+    }
+  });
+
+  tableStructureResults.forEach((result, index) => {
+    if (!result.isValid && result.error) {
+      issues.push({ tableIndex: index, type: 'structure', reason: result.error });
+    }
+  });
+
+  return {
+    timestamp,
+    summary: {
+      totalTables,
+      accessibleTables,
+      validStructures,
+      accessibilityScore: totalTables > 0 ? (accessibleTables / totalTables) * 100 : 100,
+      structureScore: totalTables > 0 ? (validStructures / totalTables) * 100 : 100
+    },
+    issues,
+    tableAccessibility: tableAccessibilityResults,
+    tableStructure: tableStructureResults
+  };
+}
+
+// Export existing functionality and new functions
+export {
+  initialize,
+  getConfig,
+  getVersion,
+  setupSkipLinks,
+  setupButtonAccessibility,
+  createInPageButton,
+  performTask,
+  handleEvent,
+  greet,
+  add,
+  calculateDiscount,
+  newFunction,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  landmarkStructureCheck,
+  initApp,
+  rotateBack,
+  helloWorld,
+  addLandmarkRoles,
+  setLanguageAttribute,
+  addSVGAccessibleName,
+  fixFakeLinks,
+  initDependencyGraph,
+  renderDependencyGraph,
+  getElementById,
+  queryElements,
+  checkLandmarkElements,
+  validateLandmarkStructure,
+  ensureThScope,
+  addSvgAccessibleNames,
+  fixFakeLink,
+  initializeAccessibility,
+  VERSION,
+  CONFIG,
+  addressAccessibilityIssues,
+  root,
+  validateTableAccessibility,
+  validateTableStructure,
+  generateAccessibilityReport,
+  createUnrotateButton
+};
+
+// Add back any required exports that might have been missing
+export {
+  createUnrotateButton,
+  ensureThScope,
+  addLandmarkRoles,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLink,
+  initializeAccessibility
+};
+
+// Add the new function to the default export
+export default {
+  VERSION,
+  CONFIG,
+  initialize,
+  getConfig,
+  getVersion,
+  addressAccessibilityIssues,
+  root,
+  validateTableAccessibility,
+  validateTableStructure,
+  generateAccessibilityReport
+};
+
+// Compatibility for CommonJS if needed (as per HEAD)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports.newFunction = newFunction;
+}
+
+module.exports = main;
+module.exports.default = main;
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
+}

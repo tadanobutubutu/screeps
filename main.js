@@ -13,29 +13,29 @@
  */
 function validateTableStructure() {
     const tables = document.querySelectorAll('table');
-    
+
     tables.forEach(table => {
         const rows = table.querySelectorAll('tr');
         const firstRow = rows[0];
-        
+
         if (!firstRow) return;
-        
+
         // Get all header cells in the first row to determine column count
         const firstRowThs = firstRow.querySelectorAll('th');
         const firstRowTds = firstRow.querySelectorAll('td');
         const firstRowHeaders = [...firstRowThs, ...firstRowTds];
         const columnCount = firstRowHeaders.length;
-        
+
         rows.forEach((row, rowIndex) => {
             const ths = row.querySelectorAll('th');
             const tds = row.querySelectorAll('td');
             const allCells = [...ths, ...tds];
-            
+
             allCells.forEach((cell, cellIndex) => {
                 if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
                     const isFirstRow = rowIndex === 0;
                     const isFirstCell = cellIndex === 0;
-                    
+
                     // First row cells are column headers
                     if (isFirstRow) {
                         cell.setAttribute('scope', 'col');
@@ -57,8 +57,6 @@ function validateTableStructure() {
 function validateTableAccessibility() {
     validateTableStructure();
 }
-
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
 
 // TODO: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 
@@ -100,8 +98,59 @@ function ensureUniqueLandmarks(landmarksArray) {
 // Apply uniqueness to the landmarks
 const uniqueLandmarks = ensureUniqueLandmarks(landmarks);
 
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+// main.js - Accessibility improvements implementation
+// main.js - Combined utility and accessibility features
+
+/**
+ * Ensures an element has a unique ID
+ * @param {HTMLElement} element - The element to check
+ * @param {string} baseId - The base ID to use if none exists
+ * @returns {string} The element's ID
+ */
+function ensureElementId(element, baseId) {
+  if (!element.id) {
+    let id = baseId;
+    let counter = 1;
+    while (document.getElementById(id)) {
+      id = `${baseId}-${counter++}`;
+    }
+    element.id = id;
+  }
+  return element.id;
+}
+
+/**
+ * Adds aria-label to an element if it doesn't have one
+ * @param {HTMLElement} element - The element to check
+ * @param {string} label - The aria-label to add
+ */
+function addAriaLabel(element, label) {
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+/**
+ * Renders a dependency graph visualization
+ * @param {HTMLElement} container - The container element
+ * @param {Object} graphData - The graph data to render
+ */
+function renderDependencyGraph(container, graphData) {
+  // Implementation would go here
+  // This is a placeholder for the actual graph rendering logic
+  console.log('Rendering dependency graph in container:', container);
+  console.log('Graph data:', graphData);
+}
+
 module.exports = {
   ensureUniqueLandmarks,
   landmarks,
-  uniqueLandmarks
+  uniqueLandmarks,
+  validateTableAccessibility,
+  validateTableStructure,
+  ensureElementId,
+  addAriaLabel,
+  renderDependencyGraph
 };

@@ -1,129 +1,54 @@
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const fastMap = require('fast-map');
-const path = require('path');
+// Existing code that was not part of the conflict
 
-// Configuration
-const CONFIG = {
-    dataPath: './data',
-    maxResults: 100
-};
+// TODO: Address accessibility issues from insight report:
 
-function isValidLandmark(landmark) {
-    return landmark &&
-           typeof landmark.id !== 'undefined' &&
-           landmark.id !== null;
-}
+// New code or changes requested in the issue
+/**
+ * Generates a report based on accessibility issues found in the application
+ * @param {Array} issues - Array of accessibility issues to include in the report
+ * @returns {Object} - A report object containing summary and detailed information
+ */
+function generateAccessibilityReport(issues) {
+  if (!Array.isArray(issues)) {
+    throw new Error('Issues must be provided as an array');
+  }
 
-function loadLandmarks() {
-    try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error loading landmarks:', error.message);
-        return [];
-    }
-}
+  const report = {
+    summary: {
+      totalIssues: issues.length,
+      severityCounts: {
+        critical: 0,
+        serious: 0,
+        moderate: 0,
+        minor: 0
+      },
+      categories: {}
+    },
+    details: issues.map(issue => ({
+      id: issue.id,
+      message: issue.message,
+      severity: issue.severity,
+      context: issue.context,
+      selector: issue.selector,
+      helpUrl: issue.helpUrl
+    }))
+  };
 
-function processLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
-
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
-}
-
-function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
-
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(nameA);
-    });
-}
-
-function getLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
-}
-
-function ensureUniqueLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
+  // Count severity levels
+  issues.forEach(issue => {
+    if (issue.severity in report.summary.severityCounts) {
+      report.summary.severityCounts[issue.severity]++;
     }
 
-    const seen = new Set();
-    const uniqueLandmarks = [];
-
-    for (const landmark of landmarks) {
-        if (!landmark || typeof landmark.id === 'undefined') {
-            continue;
-        }
-
-        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-        if (!seen.has(landmarkId)) {
-            seen.add(landmarkId);
-            uniqueLandmarks.push(landmark);
-        }
+    // Count by category
+    const category = issue.helpUrl.split('/').pop().split('.')[0];
+    if (category) {
+      report.summary.categories[category] = (report.summary.categories[category] || 0) + 1;
     }
+  });
 
-    return uniqueLandmarks;
-}
-
-// Function to write the generated report to a file
-function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
-  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
   return report;
 }
 
-// Utilities
-const { validateInput, processData } = require('./utils/validators');
-const { formatResponse } = require('./utils/processor');
-
-// Main execution when run directly
-if (require.main === module) {
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-  const sorted = sortLandmarks(processed);
-
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
-
-  if (sorted.length > 0) {
-    console.log('First landmark:', sorted[0]);
-  }
-}
-
-async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
-}
-
-module.exports = {
-    validateInput,
-    processData,
-    formatResponse,
-    config: CONFIG,
-    generateAccessibilityReport,
-    loadLandmarks,
-    processLandmarks,
-    sortLandmarks,
-    getLandmarkById,
-    ensureUniqueLandmarks
-};
+// Export the new function while preserving existing exports
+export { generateAccessibilityReport };

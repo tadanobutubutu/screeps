@@ -8,6 +8,56 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 /**
+ * Runs all accessibility validations against the provided page data
+ * @param {Object} pageData - The page data containing tables, landmarks, svgs, links, and issues
+ * @param {Array} [pageData.tables] - Array of table objects
+ * @param {Array} [pageData.landmarks] - Array of landmark elements
+ * @param {Array} [pageData.svgs] - Array of SVG elements
+ * @param {Array} [pageData.links] - Array of link elements
+ * @param {Array} [pageData.issues] - Array of accessibility issues
+ * @returns {Object} Comprehensive accessibility report
+ */
+function runAccessibilityAudit(pageData) {
+  const tables = pageData.tables || [];
+  const landmarks = pageData.landmarks || [];
+  const svgs = pageData.svgs || [];
+  const links = pageData.links || [];
+  const issues = pageData.issues || [];
+
+  const tableResult = validateTableStructure(tables);
+  const landmarkStructureResult = validateLandmarkStructure(landmarks);
+  const uniqueLandmarksResult = ensureUniqueLandmarks(landmarks);
+  const handledIssuesResult = handleAccessibilityIssues(issues);
+
+  const svgNames = svgs.map(svg => getSvgAccessibleName(svg));
+  const accessibleLinks = links.map(link => createAccessibleLink(link));
+
+  const allPassed =
+    tableResult.success &&
+    landmarkStructureResult.success &&
+    uniqueLandmarksResult.success &&
+    handledIssuesResult.unhandled.length === 0;
+
+  return {
+    lang: {
+      short: getLangAttribute(),
+      full: getFullLangAttribute()
+    },
+    tables: tableResult,
+    landmarks: {
+      structure: landmarkStructureResult,
+      uniqueness: uniqueLandmarksResult
+    },
+    svgs: {
+      accessibleNames: svgNames
+    },
+    links: accessibleLinks,
+    issues: handledIssuesResult,
+    success: allPassed
+  };
+}
+
+/**
  * Get the language attribute value for the HTML element
  * @returns {string} The language attribute value
  */
@@ -229,5 +279,6 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  runAccessibilityAudit
 };

@@ -26,20 +26,20 @@ const renderGraphIndex = (graphData) => {
 function getSvgAccessibleName(svgElement) {
   const title = svgElement.querySelector('title');
   const desc = svgElement.querySelector('desc');
-  
+
   if (title && title.textContent) {
     return title.textContent.trim();
   }
-  
+
   if (desc && desc.textContent) {
     return desc.textContent.trim();
   }
-  
+
   const ariaLabel = svgElement.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel.trim();
   }
-  
+
   const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
     const labeledElement = document.getElementById(ariaLabelledby);
@@ -47,7 +47,7 @@ function getSvgAccessibleName(svgElement) {
       return labeledElement.textContent.trim();
     }
   }
-  
+
   return 'SVG graphic';
 }
 
@@ -130,27 +130,6 @@ function checkLandmarks(container = document) {
 }
 
 /**
- * Ensure unique main landmarks exist in the document.
- * Logs a warning if multiple main landmarks are detected.
- */
-function ensureUniqueLandmarks() {
-  const mains = document.querySelectorAll('main, [role="main"]');
-  if (mains.length > 1) {
-    console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
-    throw new Error('Document should have at most one main landmark');
-  }
-}
-
-/**
- * Revoke a session
- * @param {string} sessionId - The session ID to revoke
- * @returns {boolean} - True if session was revoked
- */
-function revokeSession(sessionId) {
-    return appState.sessions.delete(sessionId);
-}
-
-/**
  * Focus trap handler to keep focus within a container.
  * @param {Element} element - Element to monitor for focus events
  */
@@ -189,15 +168,24 @@ function handleFocusTrap(element) {
   });
 }
 
+/**
+ * Revoke a session
+ * @param {string} sessionId - The session ID to revoke
+ * @returns {boolean} - True if session was revoked
+ */
+function revokeSession(sessionId) {
+    return appState.sessions.delete(sessionId);
+}
+
 // HTTP Server setup
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
-    
+
     // CORS headers for credential responses
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    
+
     if (req.method === 'OPTIONS') {
         res.writeHead(200);
         res.end();
@@ -214,16 +202,16 @@ const server = http.createServer((req, res) => {
     // Credential response endpoint
     if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
         let body = '';
-        
+
         req.on('data', chunk => {
             body += chunk.toString();
         });
-        
+
         req.on('end', () => {
             try {
                 const credentialResponse = JSON.parse(body);
                 const result = handleCredentialResponse(credentialResponse);
-                
+
                 res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(result));
             } catch (error) {
@@ -237,7 +225,7 @@ const server = http.createServer((req, res) => {
     // Session validation endpoint
     if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
         const sessionId = parsedUrl.query.sessionId;
-        
+
         if (!sessionId) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
@@ -245,7 +233,7 @@ const server = http.createServer((req, res) => {
         }
 
         const session = validateSession(sessionId);
-        
+
         if (session) {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'valid', user: session.user }));
@@ -259,16 +247,16 @@ const server = http.createServer((req, res) => {
     // Session revocation endpoint
     if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
         let body = '';
-        
+
         req.on('data', chunk => {
             body += chunk.toString();
         });
-        
+
         req.on('end', () => {
             try {
                 const { sessionId } = JSON.parse(body);
                 const revoked = revokeSession(sessionId);
-                
+
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
             } catch (error) {
@@ -300,7 +288,6 @@ module.exports = {
   checkLandmarkElement,
   wrapPrimaryContentInMain,
   checkLandmarks,
-  ensureUniqueLandmarks,
   handleFocusTrap,
   revokeSession,
   functionA,

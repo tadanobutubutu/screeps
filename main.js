@@ -403,7 +403,7 @@ function wrapPrimaryContentInMain() {
 }
 
 // Consolidated accessibility issue handler
-function addressAccessibilityIssues(graphData) {
+function addressAccessibilityIssuesImpl(graphData) {
   if (!graphData) return;
 
   // Fix landmark issues
@@ -554,7 +554,7 @@ module.exports = {
     generateSessionId,
     renderGraphIndex,
     wrapPrimaryContentInMain,
-    addressAccessibilityIssues,
+    addressAccessibilityIssues: addressAccessibilityIssuesImpl,
     createInPageButton,
     createWebResourceButton,
     validateLandmark,

@@ -1,3 +1,13 @@
+// main.js - Accessibility-focused implementation
+
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
+
+/**
+ * Main application entry point with accessibility features
+ */
+
+// Helper function to process SVG elements
 function main() {
   const svgElements = document.querySelectorAll('svg');
 
@@ -32,21 +42,35 @@ function getSvgAccessibleName(svg) {
   return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '';
 }
 
+// Update setSvgAttributes function
 function setSvgAttributes(svg) {
-  if (!svg.hasAttribute('aria-hidden')) {
-    svg.setAttribute('aria-hidden', 'true');
+  if (!svg) return;
+  // Set necessary attributes for accessibility
+  if (!svg.hasAttribute('focusable')) {
+    svg.setAttribute('focusable', 'false');
+  }
+
+  // Add width and height attributes if viewBox is present
+  if (svg.hasAttribute('viewBox')) {
+    if (!svg.hasAttribute('width')) {
+      svg.setAttribute('width', '24');
+    }
+    if (!svg.hasAttribute('height')) {
+      svg.setAttribute('height', '24');
+    }
   }
 }
 
-// Function for checking table structure
-function checkTableStructure(table) {
-  if (!table) {
+// Check table structure function
+const checkTableStructure = (tableElement) => {
+  // Adopt updated function structure
+  if (!tableElement) {
     return { valid: false, error: 'Table element is required' };
   }
 
-  const hasHeader = table.querySelector('thead') !== null;
-  const hasBody = table.querySelector('tbody') !== null;
-  const rows = table.querySelectorAll('tr');
+  const hasHeader = tableElement.querySelector('thead') !== null;
+  const hasBody = tableElement.querySelector('tbody') !== null;
+  const rows = tableElement.querySelectorAll('tr');
 
   return {
     valid: hasHeader && hasBody && rows.length > 0,
@@ -69,6 +93,20 @@ function addressAccessibilityIssues() {
   const htmlElement = document.querySelector('html');
   if (!htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', getLangAttribute(htmlElement));
+  }
+
+  // Implement function for counting dependencies with Node.js
+  function countDependencies() {
+    const fs = require('fs');
+    const path = require('path');
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    return Object.fromEntries(
+      Object.entries({
+        dependencies: Object.keys(packageJson.dependencies),
+        devDependencies: Object.keys(packageJson.devDependencies)
+      }).map(([key, value]) => [key, value.length])
+    );
   }
 
   // Fix 26 table structure issues

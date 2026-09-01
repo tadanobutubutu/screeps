@@ -148,6 +148,93 @@ function handleCredentialResponse(response) {
     return processedCredential;
 }
 
+// Add lang attribute to HTML element
+function addDocumentLangAttribute() {
+    const html = document.documentElement;
+    const lang = navigator.language || navigator.userLanguage;
+    html.lang = lang;
+}
+
+// Add lang attribute to any element
+function addLangAttribute(element, lang) {
+    element.setAttribute('lang', lang);
+}
+
+function validateTableAccessibility() {
+    // Fix 26 table structure issues (function not fully implemented)
+    // TODO: Implement validation and necessary corrections
+}
+
+function validateTableStructure() {
+    // Fix 26 table structure issues
+    // TODO: Implement validation and necessary corrections
+}
+
+function validateLandmark() {
+    // Add/fix 4 landmark issues (function not fully implemented)
+    // TODO: Implement validation and necessary corrections
+}
+
+function validateLandmarkStructure() {
+    // Add/fix 4 landmark issues (function not fully implemented)
+    // TODO: Implement validation and necessary corrections
+}
+
+function getSvgAccessibleNames() {
+    // Add accessible names to 2 SVGs
+    // TODO: Iterate through all SVG elements and set accessible name
+}
+
+// Add lang attribute to HTML element on page load
+addDocumentLangAttribute();
+
+// Add new function to render dependency graphs
+function renderDependencyGraph() {
+  // Implementation to render dependency graphs
+  console.log('Rendering dependency graph...');
+  // Example placeholder for actual implementation
+}
+
+// Add new function to display module structure
+function displayModuleStructure() {
+  // Implementation to display module structure
+  console.log('Displaying module structure...');
+  // Example placeholder for actual implementation
+}
+
+function newFunction() {
+  // Implementation of the new function
+}
+
+function MyComponent() {
+  // Existing code that needs to be updated
+  const langAttr = getLangAttribute();
+  // Return a plain object instead of JSX to avoid syntax error
+  return {
+    type: 'div',
+    props: {
+      lang: langAttr,
+      children: 'Content'
+    }
+  };
+}
+
+// Placeholder for getLangAttribute
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+// Placeholder functions for referenced exports
+function checkLandmarkElements() {
+  // TODO: Implement checkLandmarkElements
+  console.log('Checking landmark elements...');
+}
+
+function createResourceButton() {
+  // TODO: Implement createResourceButton
+  console.log('Creating resource button...');
+}
+
 // Ensure DOM is fully loaded before executing scripts
 if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports
@@ -177,6 +264,7 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
+    addDocumentLangAttribute,
     handleCredentialResponse,
     getSvgAccessibleName,
     setSvgAttributes,
@@ -357,6 +445,20 @@ function handleKeyNavigation(event) {
   console.log('Handling key navigation', event);
 }
 
+function spawnSomeCommand(callback) {
+    const child_process = require('child_process');
+    const child = child_process.spawn('someCommand', [], {
+        stdio: 'inherit',
+    });
+    child.on('exit', (code, signal) => {
+      if (code === 0) {
+        callback(null, 'Successfully executed someCommand');
+      } else {
+        callback(new Error(`someCommand failed with code ${code}`));
+      }
+    });
+}
+
 // Utilities for addressing accessibility issues
 const AddressabilityIssues = {
   generateAccessibilityReport(accessibilityReport) {
@@ -463,119 +565,5 @@ const AddressabilityIssues = {
     }
 
     return { valid: true, element: tagName, role: landmarkRole };
-  },
-
-  spawnSomeCommand(callback) {
-    const child_process = require('child_process');
-    const child = child_process.spawn('someCommand', [], {
-      stdio: 'inherit',
-    });
-    child.on('exit', (code, signal) => {
-      if (code === 0) {
-        callback(null, 'Successfully executed someCommand');
-      } else {
-        callback(new Error(`someCommand failed with code ${code}`));
-      }
-    });
-  },
-
-  addLangAttribute(element, lang) {
-    element.setAttribute('lang', lang);
   }
 };
-
-function addLangAttribute() {
-    // Add lang attribute to HTML element
-    const html = document.documentElement;
-    const lang = navigator.language || navigator.userLanguage;
-    html.lang = lang;
-}
-
-function validateTableAccessibility() {
-    // Fix 26 table structure issues (function not fully implemented)
-    // TODO: Implement validation and necessary corrections
-}
-
-function validateTableStructure() {
-    // Fix 26 table structure issues
-    // TODO: Implement validation and necessary corrections
-}
-
-function validateLandmark() {
-    // Add/fix 4 landmark issues (function not fully implemented)
-    // TODO: Implement validation and necessary corrections
-}
-
-function validateLandmarkStructure() {
-    // Add/fix 4 landmark issues (function not fully implemented)
-    // TODO: Implement validation and necessary corrections
-}
-
-function getSvgAccessibleNames() {
-    // Add accessible names to 2 SVGs
-    // TODO: Iterate through all SVG elements and set accessible name
-}
-
-// Add lang attribute to HTML element
-addLangAttribute();
-
-// Add new function to render dependency graphs
-function renderDependencyGraph() {
-  // Implementation to render dependency graphs
-  console.log('Rendering dependency graph...');
-  // Example placeholder for actual implementation
-}
-
-// Add new function to display module structure
-function displayModuleStructure() {
-  // Implementation to display module structure
-  console.log('Displaying module structure...');
-  // Example placeholder for actual implementation
-}
-
-function newFunction() {
-  // Implementation of the new function
-}
-
-function MyComponent() {
-  // Existing code that needs to be updated
-  const langAttr = getLangAttribute();
-  // Return a plain object instead of JSX to avoid syntax error
-  return {
-    type: 'div',
-    props: {
-      lang: langAttr,
-      children: 'Content'
-    }
-  };
-}
-
-// Placeholder for getLangAttribute
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-function spawnSomeCommand(callback) {
-    const child_process = require('child_process');
-    const child = child_process.spawn('someCommand', [], {
-        stdio: 'inherit',
-    });
-    child.on('exit', (code, signal) => {
-      if (code === 0) {
-        callback(null, 'Successfully executed someCommand');
-      } else {
-        callback(new Error(`someCommand failed with code ${code}`));
-      }
-    });
-}
-
-// Placeholder functions for referenced exports
-function checkLandmarkElements() {
-  // TODO: Implement checkLandmarkElements
-  console.log('Checking landmark elements...');
-}
-
-function createResourceButton() {
-  // TODO: Implement createResourceButton
-  console.log('Creating resource button...');
-}

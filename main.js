@@ -17,8 +17,8 @@ const CONFIG = {
 
 // Helper function to validate landmark structure
 function isValidLandmark(landmark) {
-    return landmark && 
-           typeof landmark.id !== 'undefined' && 
+    return landmark &&
+           typeof landmark.id !== 'undefined' &&
            landmark.id !== null;
 }
 
@@ -39,10 +39,10 @@ function processLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
         return [];
     }
-    
+
     const validLandmarks = landmarks.filter(isValidLandmark);
     const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-    
+
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
@@ -51,7 +51,7 @@ function sortLandmarks(landmarks, ascending = true) {
     return landmarks.slice().sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
-        
+
         if (ascending) {
             return nameA.localeCompare(nameB);
         }
@@ -69,23 +69,23 @@ function ensureUniqueLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
         return [];
     }
-    
+
     const seen = new Set();
     const uniqueLandmarks = [];
-    
+
     for (const landmark of landmarks) {
         if (!landmark || typeof landmark.id === 'undefined') {
             continue;
         }
-        
+
         const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-        
+
         if (!seen.has(landmarkId)) {
             seen.add(landmarkId);
             uniqueLandmarks.push(landmark);
         }
     }
-    
+
     return uniqueLandmarks;
 }
 
@@ -108,15 +108,15 @@ function wrapPrimaryContentInMain(parent) {
   if (!parent || typeof parent.nodeType !== 'number') {
     throw new Error('Invalid parent element');
   }
-  
+
   // If already a main element, return as-is
   if (parent.tagName?.toLowerCase() === 'main') {
     return parent;
   }
-  
+
   const mainElement = document.createElement('main');
   mainElement.appendChild(parent);
-  
+
   return mainElement;
 }
 
@@ -171,12 +171,35 @@ function validateLinkAccessibility(links) {
     return links.filter(link => !isLinkAccessible(link));
 }
 
+// New function3 implementation
+function function3(input) {
+    if (typeof input !== 'object' || input === null) {
+        throw new Error('Input must be an object');
+    }
+
+    // Process the input object
+    const result = {
+        processed: true,
+        timestamp: new Date().toISOString(),
+        data: {}
+    };
+
+    // Copy all properties from input to result.data
+    for (const key in input) {
+        if (input.hasOwnProperty(key)) {
+            result.data[key] = input[key];
+        }
+    }
+
+    return result;
+}
+
 // Endpoint for getting landmarks
 app.get('/landmarks', (req, res) => {
   const landmarks = loadLandmarks();
   const processed = processLandmarks(landmarks);
   const sorted = sortLandmarks(processed);
-  
+
   res.json(sorted);
 });
 
@@ -198,7 +221,9 @@ module.exports = {
   isLinkAccessible,
   handleFakeLinks,
   validateLinkAccessibility,
-  generateAccessibilityReport
+  generateAccessibilityReport,
+  // new function3
+  function3
 };
 
 // Main execution when run directly
@@ -206,11 +231,11 @@ if (require.main === module) {
   const landmarks = loadLandmarks();
   const processed = processLandmarks(landmarks);
   const sorted = sortLandmarks(processed);
-  
+
   console.log(`Loaded ${landmarks.length} landmarks`);
   console.log(`Processed to ${processed.length} unique landmarks`);
   console.log(`Sorted ${sorted.length} landmarks`);
-  
+
   if (sorted.length > 0) {
     console.log('First landmark:', sorted[0]);
   }

@@ -17,11 +17,6 @@
 // Version 1 implementation (HEAD branch) - preserved accessibility enhancements
 
 // TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Original code goes here
-// ----- END ORIGINAL CODE -----
-
-// TODO: This is the existing code that needs to be preserved
 
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {

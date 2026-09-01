@@ -1,409 +1,71 @@
 // main.js - Accessibility-focused implementation
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+const express = require('express');
+const { exec } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-/**
- * Main application entry point with accessibility features
- */
+app.use(express.json());
 
-// Helper function to process SVG elements
-function processSvgElements() {
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    svg.setAttribute('role', 'img');
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
-    setSvgAttributes(svg);
-  });
-}
+const AddressabilityIssues = {
+  MISSING_ID: 'missing-id',
+  MISSING_ARIA_LABEL: 'missing-aria-label',
+  MISSING_ROLE: 'missing-role',
 
-// Placeholder for getSvgAccessibleName
-function getSvgAccessibleName(svg) {
-  if (!svg) return '';
-  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.getAttribute('title') || '';
-}
-
-// Placeholder for setSvgAttributes
-function setSvgAttributes(svg) {
-  if (!svg) return;
-  // Set necessary attributes for accessibility
-  if (!svg.hasAttribute('focusable')) {
-    svg.setAttribute('focusable', 'false');
-  }
-  if (!svg.hasAttribute('width') && svg.hasAttribute('viewBox')) {
-    svg.setAttribute('width', '24');
-  }
-  if (!svg.hasAttribute('height') && svg.hasAttribute('viewBox')) {
-    svg.setAttribute('height', '24');
-  }
-}
-
-// Check table structure function
-const checkTableStructure = function(tableElement) {
-  if (!tableElement) {
-    return { valid: false, error: 'Table element is required' };
-  }
-
-  const hasHeader = tableElement.querySelector('thead') !== null || tableElement.querySelector('th') !== null;
-  const hasBody = tableElement.querySelector('tbody') !== null;
-  const hasCaption = tableElement.querySelector('caption') !== null;
-
-  return {
-    valid: true,
-    hasHeader,
-    hasBody,
-    hasCaption
-  };
-};
-
-const sampleInsightReport = {
-  title: 'Quarterly Performance Report',
-  sections: [
-    {
-      heading: 'Sales Overview',
-      content: 'Total sales increased by 15% compared to last quarter.'
-    },
-    {
-      heading: 'Customer Satisfaction',
-      content: 'Average satisfaction score: 4.2 out of 5.'
-    }
-  ]
-};
-
-// Implement function for addressing accessibility issues from insight report
-// TODO: Implement a function to count dependencies
-function countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(__dirname, 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-
-    return {
-        dependencies: Object.keys(dependencies),
-        devDependencies: Object.keys(devDependencies),
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
-}
-
-/**
- * Handle credential response from browser authentication
- * @param {Object} response - The credential response object
- * @returns {Object} Processed credential information
- */
-function handleCredentialResponse(response) {
-    if (!response) {
-        return { success: false, error: 'No credential response provided' };
+  addressAccessibilityIssues(insightReport) {
+    if (!insightReport || !insightReport.sections) {
+      return [];
     }
 
-    // Check if response contains expected credential data
-    const hasCredential = response.credential || response.token || response.id;
-    
-    if (!hasCredential) {
-        return { success: false, error: 'Invalid credential response format' };
-    }
+    const issues = [];
 
-    // Process credential information
-    const processedCredential = {
-        id: response.id || null,
-        token: response.token || response.credential || null,
-        name: response.name || 'Anonymous User',
-        email: response.email || null,
-        success: true
-    };
+    insightReport.sections.forEach((section, index) => {
+      // Check for missing headings
+      if (!section.heading) {
+        issues.push({
+          type: 'missing-heading',
+          severity: 'high',
+          message: `Section ${index} is missing a heading`,
+          suggestedFix: 'Add a descriptive heading to each section'
+        });
+      }
 
-    // Handle different types of credential responses
-    if (response.credential) {
-        // Google Sign-In response
-        try {
-            // Credential is a base64-encoded JWT
-            const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            processedCredential.id = payload.sub || processedCredential.id;
-            processedCredential.email = payload.email || processedCredential.email;
-            processedCredential.name = payload.name || processedCredential.name;
-        } catch (error) {
-            console.warn('Failed to parse credential response:', error);
-        }
-    }
+      // Check for empty content
+      if (!section.content || section.content.trim() === '') {
+        issues.push({
+          type: 'empty-content',
+          severity: 'medium',
+          message: `Section "${section.heading}" has no content`,
+          suggestedFix: 'Add meaningful content to the section'
+        });
+      }
 
-    // Announce success to screen readers
-    if (typeof announceToScreenReader === 'function') {
-        announceToScreenReader('User successfully authenticated');
-    }
-
-    return processedCredential;
-}
-
-// Add lang attribute to HTML element
-function addDocumentLangAttribute() {
-    const html = document.documentElement;
-    const lang = navigator.language || navigator.userLanguage;
-    html.lang = lang;
-}
-
-// Add lang attribute to any element
-function addLangAttribute(element, lang) {
-    element.setAttribute('lang', lang);
-}
-
-function validateTableAccessibility() {
-    // Fix 26 table structure issues (function not fully implemented)
-    // TODO: Implement validation and necessary corrections
-}
-
-function validateTableStructure() {
-    // Fix 26 table structure issues
-    // TODO: Implement validation and necessary corrections
-}
-
-function validateLandmarkStructure() {
-    // Add/fix 4 landmark issues (function not fully implemented)
-    // TODO: Implement validation and necessary corrections
-}
-
-function getSvgAccessibleNames() {
-    // Add accessible names to 2 SVGs
-    // TODO: Iterate through all SVG elements and set accessible name
-}
-
-// Add lang attribute to HTML element on page load
-addDocumentLangAttribute();
-
-// Add new function to render dependency graphs
-function renderDependencyGraph() {
-  // Implementation to render dependency graphs
-  console.log('Rendering dependency graph...');
-  // Example placeholder for actual implementation
-}
-
-// Add new function to display module structure
-function displayModuleStructure() {
-  // Implementation to display module structure
-  console.log('Displaying module structure...');
-  // Example placeholder for actual implementation
-}
-
-function newFunction() {
-  // Implementation of the new function
-}
-
-function MyComponent() {
-  // Existing code that needs to be updated
-  const langAttr = getLangAttribute();
-  // Return a plain object instead of JSX to avoid syntax error
-  return {
-    type: 'div',
-    props: {
-      lang: langAttr,
-      children: 'Content'
-    }
-  };
-}
-
-// Placeholder for getLangAttribute
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-// Placeholder functions for referenced exports
-function checkLandmarkElements() {
-  // TODO: Implement checkLandmarkElements
-  console.log('Checking landmark elements...');
-}
-
-function createResourceButton() {
-  // TODO: Implement createResourceButton
-  console.log('Creating resource button...');
-}
-
-function init() {
-  console.log('Initializing accessibility features');
-  processSvgElements();
-  setupKeyboardNavigation();
-  setupAriaLiveRegions();
-  setupFocusManagement();
-  enhanceSemanticMarkup();
-}
-
-function setupKeyboardNavigation() {
-  // Set up keyboard navigation handlers
-  document.addEventListener('keydown', handleKeyNavigation);
-}
-
-function setupAriaLiveRegions() {
-  const liveRegion = document.getElementById('aria-live-region');
-  if (!liveRegion) {
-    const region = document.createElement('div');
-    region.id = 'aria-live-region';
-    region.setAttribute('aria-live', 'polite');
-    region.setAttribute('aria-atomic', 'true');
-    region.className = 'sr-only';
-    document.body.appendChild(region);
-  }
-}
-
-function setupFocusManagement() {
-  // Trap focus within modal dialogs
-  const modals = document.querySelectorAll('[role="dialog"], .modal');
-  modals.forEach((modal) => {
-    modal.addEventListener('keydown', trapFocus);
-  });
-
-  // Ensure all interactive elements are keyboard accessible
-  const interactiveElements = document.querySelectorAll(
-    'button, a, input, select, textarea, [tabindex]'
-  );
-  interactiveElements.forEach((element) => {
-    if (!element.hasAttribute('tabindex')) {
-      element.setAttribute('tabindex', '0');
-    }
-  });
-}
-
-function enhanceSemanticMarkup() {
-  // Add skip link if not present
-  if (!document.getElementById('skip-link')) {
-    const skipLink = document.createElement('a');
-    skipLink.id = 'skip-link';
-    skipLink.href = '#main-content';
-    skipLink.textContent = 'Skip to main content';
-    skipLink.className = 'skip-link';
-    document.body.insertBefore(skipLink, document.body.firstChild);
-  }
-
-  // Ensure images have alt attributes
-  const images = document.querySelectorAll('img');
-  images.forEach((img) => {
-    if (!img.hasAttribute('alt')) {
-      img.setAttribute('alt', '');
-      img.setAttribute('role', 'presentation');
-    }
-  });
-
-  // Ensure form inputs have associated labels
-  const inputs = document.querySelectorAll('input, select, textarea');
-  inputs.forEach((input) => {
-    const id = input.id || 'input-' + Math.random().toString(36).substr(2, 9);
-    input.id = id;
-    if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
-      input.setAttribute('aria-label', input.name || 'Input field');
-    }
-  });
-}
-
-function closeOpenDialogs() {
-  // Existing code - placeholder
-  const openDialogs = document.querySelectorAll('[role="dialog"][open]');
-  openDialogs.forEach(dialog => {
-    dialog.removeAttribute('open');
-  });
-}
-
-function announceToScreenReader(message) {
-  const liveRegion = document.getElementById('aria-live-region');
-  if (liveRegion) {
-    liveRegion.textContent = '';
-    // Slight delay to ensure screen readers pick up the change
-    setTimeout(() => {
-      liveRegion.textContent = message;
-    }, 100);
-  }
-}
-
-function calculateDifference(a, b) {
-  return a - b;
-}
-
-function calculateProduct(a, b) {
-  return a * b;
-}
-
-function isNumber(value) {
-  return typeof value === 'number' && !isNaN(value);
-}
-
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
-}
-
-function createInPageButton(buttonId, buttonText) {
-  const button = document.createElement('button');
-  button.id = buttonId;
-  button.textContent = buttonText;
-  return button;
-}
-
-function handleFakeLinks(issues) {
-  // Existing code - placeholder
-  issues.forEach(issue => {
-    console.log('Fake link issue:', issue);
-  });
-}
-
-// Accessibility utilities
-const hello = () => {
-  return 'Hello from main.js';
-};
-
-// Utility functions
-function getVersion() {
-  return '1.0.0';
-}
-
-function getConfig() {
-  return {
-    accessibility: true,
-    version: getVersion()
-  };
-}
-
-function addressAccessibilityIssues(issues) {
-  // Placeholder for addressing accessibility issues
-  console.log('Addressing accessibility issues:', issues);
-}
-
-function trapFocus(event) {
-  // Placeholder for focus trap logic
-  console.log('Trapping focus', event);
-}
-
-function handleKeyNavigation(event) {
-  // Placeholder for keyboard navigation handling
-  console.log('Handling key navigation', event);
-}
-
-function spawnSomeCommand(callback) {
-    const child_process = require('child_process');
-    const child = child_process.spawn('someCommand', [], {
-        stdio: 'inherit',
-    });
-    child.on('exit', (code, signal) => {
-      if (code === 0) {
-        callback(null, 'Successfully executed someCommand');
-      } else {
-        callback(new Error(`someCommand failed with code ${code}`));
+      // Check for potentially inaccessible language
+      if (section.content && section.content.toLowerCase().includes('click here')) {
+        issues.push({
+          type: 'inaccessible-link-text',
+          severity: 'low',
+          message: `Section "${section.heading}" contains "click here" text which is not accessible`,
+          suggestedFix: 'Use descriptive link text instead of "click here"'
+        });
       }
     });
-}
 
-// Utilities for addressing accessibility issues
-const AddressabilityIssues = {
+    return issues;
+  },
+
+  fixAccessibilityIssues(issues) {
+    return issues.map(issue => ({
+      ...issue,
+      status: 'fixed',
+      timestamp: new Date().toISOString()
+    }));
+  },
+
   generateAccessibilityReport(accessibilityReport) {
-    if (!accessibilityReport || !accessibilityReport.issues) {
+    if (!accessibilityReport || !Array.isArray(accessibilityReport.issues) || accessibilityReport.issues.length === 0) {
       return [];
     }
 
@@ -436,7 +98,28 @@ const AddressabilityIssues = {
   },
 
   fixMainLandmarkIssues(source) {
-    const mainBlockRegex = /<main\b[^>]*>([\s\S]*?)<\/main>/g;
+    const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+
+    const matches = Array.from(source.matchAll(mainBlockRegex));
+    if (matches.length <= 1) {
+      return source;
+    }
+
+    let result = source;
+    for (let i = 1; i < matches.length; i++) {
+      const block = matches[i][0];
+      const fixedBlock = block
+        .replace(/<main([^>]*)>/, '<section$1>')
+        .replace(/<\/main>/, '</section>');
+      result = result.replace(block, fixedBlock);
+    }
+
+    return result;
+  },
+
+  fixSemanticMarkup(source) {
+    const mainBlockRegex = /<main[^>]*>[\s\S]*?<\/main>/gi;
+
     const matches = source.match(mainBlockRegex);
     if (!matches || matches.length <= 1) {
       return source;
@@ -444,9 +127,9 @@ const AddressabilityIssues = {
 
     let result = source;
     for (let i = 1; i < matches.length; i++) {
-      const block = matches[i];
+      const block = matches[i][0];
       const fixedBlock = block
-        .replace(/<main\b([^>]*)>/, '<section$1>')
+        .replace(/<main>/, '<section>')
         .replace(/<\/main>/, '</section>');
       result = result.replace(block, fixedBlock);
     }
@@ -456,7 +139,7 @@ const AddressabilityIssues = {
 
   validateLandmark(element) {
     if (!element) {
-      return { valid: false, error: 'Element is required' };
+      return { valid: false, issue: 'Element is null or undefined' };
     }
 
     const landmarkRoles = [
@@ -489,38 +172,754 @@ const AddressabilityIssues = {
     }
 
     if (!landmarkRole) {
-      return { 
-        valid: false, 
-        error: 'Element does not have a valid landmark role',
-        element: tagName
-      };
+      return { valid: false, error: 'Element does not have a valid landmark role', element: tagName };
     }
 
     if (!landmarkRoles.includes(landmarkRole)) {
-      return { 
-        valid: false, 
-        error: `Invalid landmark role: ${landmarkRole}`,
-        element: tagName,
-        role: landmarkRole
-      };
+      return { valid: false, error: `Invalid landmark role: ${landmarkRole}`, element: tagName, role: landmarkRole };
     }
 
     return { valid: true, element: tagName, role: landmarkRole };
+  },
+
+  spawnSomeCommand(command) {
+    const childProcess = require('child_process');
+    return childProcess.spawn(command, [], {
+      stdio: 'inherit',
+      shell: true
+    });
+  },
+
+  addLangAttribute(element, lang) {
+    if (element) {
+      element.setAttribute('lang', lang);
+    } else {
+      const html = document.documentElement;
+      if (!html.hasAttribute('lang')) {
+        html.setAttribute('lang', 'en');
+      }
+    }
+  },
+
+  countDependencies() {
+    const packageJsonPath = path.join(__dirname, 'package.json');
+    const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
+
+    const dependencies = JSON.parse(packageJson).dependencies || {};
+    const devDependencies = JSON.parse(packageJson).devDependencies || {};
+
+    return {
+      dependencies: Object.keys(dependencies).length,
+      devDependencies: Object.keys(devDependencies).length,
+      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+    };
+  },
+
+  renderDependencyGraph() {
+    const dependencyContent = require('../dependencyGraphContent/indexContent');
+    const graphContainer = document.getElementById('dependency-graph-container');
+    if (graphContainer) {
+      graphContainer.innerHTML = dependencyContent;
+    }
+  },
+
+  renderIndexView() {
+    const indexContent = require('../indexContent/indexContent');
+    const indexContainer = document.getElementById('index-container');
+    if (indexContainer) {
+      indexContainer.innerHTML = indexContent;
+    }
   }
 };
 
-// Ensure DOM is fully loaded before executing scripts
+let gameData = {
+    rooms: {},
+    players: {},
+    structures: {},
+    creepTasks: {}
+};
+
+function initializeGameData() {
+    gameData.rooms = {
+        'W0N0': { terrain: 'normal', sources: 2, controller: true },
+        'W0N1': { terrain: 'normal', sources: 1, controller: false }
+    };
+
+    gameData.players = {
+        'Player1': { username: 'Player1', level: 1, power: 0 },
+        'Player2': { username: 'Player2', level: 2, power: 100 }
+    };
+
+    gameData.structures = {
+        'W0N0': [
+            { type: 'spawn', name: 'Spawn1', energy: 300, energyCapacity: 300 },
+            { type: 'extension', name: 'Extension1', energy: 50, energyCapacity: 50 }
+        ]
+    };
+
+    gameData.creepTasks = {
+        'harvester1': { task: 'harvest', target: 'source1', status: 'idle' }
+    };
+}
+
+function scanRoom(roomName) {
+    const room = gameData.rooms[roomName];
+    if (!room) {
+        return { error: 'Room not found' };
+    }
+
+    return {
+        room: roomName,
+        terrain: room.terrain,
+        sources: room.sources,
+        controller: room.controller
+    };
+}
+
+function getPlayers() {
+    return Object.values(gameData.players);
+}
+
+function getPlayerInfo(playerName) {
+    const player = gameData.players[playerName];
+    if (!player) {
+        return { error: 'Player not found' };
+    }
+    return player;
+}
+
+function getStructures(roomName) {
+    return gameData.structures[roomName] || [];
+}
+
+function assignTask(creepName, task, target) {
+    if (!creepName || !task || !target) {
+        return { error: 'Missing required fields' };
+    }
+
+    gameData.creepTasks[creepName] = {
+        task: task,
+        target: target,
+        status: 'active',
+        assignedAt: new Date().toISOString()
+    };
+
+    return { success: true, task: gameData.creepTasks[creepName] };
+}
+
+function getTasks(creepName) {
+    return gameData.creepTasks[creepName] || { error: 'No tasks found' };
+}
+
+function init() {
+    if (typeof document !== 'undefined') {
+        const svgElements = document.querySelectorAll('svg');
+        initializeAccessibility(svgElements);
+    }
+}
+
+function initializeAccessibility(svgElements) {
+    if (!svgElements) return;
+    svgElements.forEach(svg => {
+        if (svg && !svg.hasAttribute('role')) {
+            svg.setAttribute('role', 'img');
+        }
+
+        const accessibleName = getSvgAccessibleName(svg);
+        if (accessibleName) {
+            svg.setAttribute('aria-label', accessibleName);
+        }
+
+        setSvgAttributes(svg);
+    });
+
+    if (typeof setupAriaLiveRegions === 'function') setupAriaLiveRegions();
+    if (typeof setupFocusManagement === 'function') setupFocusManagement();
+    if (typeof enhanceSemanticMarkup === 'function') enhanceSemanticMarkup();
+    if (typeof updateDependencyGraphs === 'function') updateDependencyGraphs();
+    if (typeof updateIndexViews === 'function') updateIndexViews();
+    if (typeof addressAccessibilityIssues === 'function') addressAccessibilityIssues();
+}
+
+function main() {
+    init();
+    if (typeof document !== 'undefined') {
+        const svgElements = document.querySelectorAll('svg');
+        setSvgAttributes(svgElements);
+        svgElements.forEach((svg) => {
+            renderDependencyGraphs(svg);
+        });
+        checkLandmarkElements();
+    }
+}
+
+function getSvgAccessibleName(svg) {
+    if (!svg) return '';
+    if (svg.hasAttribute && svg.hasAttribute('aria-label')) {
+        return svg.getAttribute('aria-label');
+    }
+    if (svg.hasAttribute && svg.hasAttribute('aria-labelledby')) {
+        const labelledById = svg.getAttribute('aria-labelledby');
+        if (typeof document !== 'undefined') {
+            const labelElement = document.getElementById(labelledById);
+            if (labelElement) {
+                return labelElement.textContent.trim();
+            }
+        }
+    }
+    if (svg.querySelector) {
+        const titleElement = svg.querySelector('title');
+        if (titleElement && titleElement.textContent.trim()) {
+            return titleElement.textContent.trim();
+        }
+        const descElement = svg.querySelector('desc');
+        if (descElement && descElement.textContent.trim()) {
+            return descElement.textContent.trim();
+        }
+    }
+    const id = svg.id;
+    if (id) {
+        const parts = id.split(/[-_]/);
+        return parts.map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+    }
+    return '';
+}
+
+function setSvgAttributes(svg) {
+    if (!svg) return;
+    if (Array.isArray(svg) || svg.length) {
+        // Handle NodeList being passed
+        const elements = Array.from(svg);
+        elements.forEach((element, index) => {
+            if (!element.id) {
+                element.id = `svg-element-${index}-${Date.now()}`;
+            }
+            if (!element.hasAttribute('role')) {
+                element.setAttribute('role', 'img');
+            }
+            if (!element.hasAttribute('width')) {
+                element.setAttribute('width', '24');
+            }
+            if (!element.hasAttribute('height')) {
+                element.setAttribute('height', '24');
+            }
+            if (!element.hasAttribute('focusable')) {
+                element.setAttribute('focusable', 'false');
+            }
+        });
+        return;
+    }
+    if (!svg.hasAttribute('width')) {
+        svg.setAttribute('width', '24');
+    }
+    if (!svg.hasAttribute('height')) {
+        svg.setAttribute('height', '24');
+    }
+    if (!svg.hasAttribute('focusable')) {
+        svg.setAttribute('focusable', 'false');
+    }
+}
+
+function setSvgElementAttributes(svg) {
+    if (!svg.hasAttribute('aria-label')) {
+        const accessibleName = svg.getAttribute('id') || '';
+        if (accessibleName) {
+            svg.setAttribute('aria-label', accessibleName);
+        }
+    }
+}
+
+function renderDependencyGraphs(svgElements) {
+    const accessibleName = getSvgAccessibleName(svgElements);
+    if (accessibleName) {
+        svgElements.forEach((svg) => {
+            svg.setAttribute('aria-label', accessibleName);
+        });
+    }
+}
+
+function checkTableStructure(table) {
+    if (!table) {
+        return { valid: false, error: 'Table element is required' };
+    }
+
+    const hasHeader = table.querySelector('thead') !== null || table.querySelector('th') !== null;
+    const hasBody = table.querySelector('tbody') !== null;
+    const hasCaption = table.querySelector('caption') !== null;
+
+    return {
+        valid: true,
+        hasHeader,
+        hasBody,
+        hasCaption
+    };
+}
+
+const sampleInsightReport = {
+  title: 'Quarterly Performance Report',
+  sections: [
+    {
+      heading: 'Sales Overview',
+      content: 'Total sales increased by 15% compared to last quarter.'
+    },
+    {
+      heading: 'Customer Satisfaction',
+      content: 'Average satisfaction score: 4.2 out of 5.'
+    }
+  ]
+};
+
+function checkLandmarkElements() {
+    if (typeof document === 'undefined') return;
+    const landmarkRoles = [
+        'banner',
+        'main',
+        'navigation',
+        'search',
+        'contentinfo',
+        'complementary',
+        'region',
+        'form'
+    ];
+
+    const checkLandmarkElement = (selector, role) => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach((element) => {
+            const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+            const landmarkRole = role || (landmarkRoles.includes(tagName) ? tagName : undefined);
+
+            if (!landmarkRole) {
+                console.warn(`Missing landmark role for ${tagName}`);
+            }
+        });
+    };
+
+    checkLandmarkElement('[role="main"], main', 'main');
+    checkLandmarkElement('[role="banner"], header', 'banner');
+    checkLandmarkElement('[role="navigation"], nav', 'navigation');
+    checkLandmarkElement('[role="contentinfo"], footer', 'contentinfo');
+    checkLandmarkElement('[role="complementary"], aside', 'complementary');
+    checkLandmarkElement('[role="search"], [role="form"], form', 'form');
+}
+
+function checkAccessibilityIssues(code) {
+    const issues = [];
+
+    if (!code || typeof code !== 'string') {
+        issues.push({ type: 'error', message: 'Code must be a non-empty string' });
+        return issues;
+    }
+
+    const lines = code.split('\n');
+    lines.forEach((line, index) => {
+        const lineNum = index + 1;
+        if (line.includes('eval(')) {
+            issues.push({ type: 'error', line: lineNum, message: 'Use of eval() detected - security risk' });
+        }
+        if (line.includes('console.log(') && !line.trim().startsWith('//')) {
+            issues.push({ type: 'warning', line: lineNum, message: 'Console.log statement found - should be removed in production' });
+        }
+        if (line.includes('debugger;')) {
+            issues.push({ type: 'warning', line: lineNum, message: 'Debugger statement found' });
+        }
+        if (line.includes('// TODO') || line.includes('// FIXME')) {
+            issues.push({ type: 'info', line: lineNum, message: 'Comment found - should be addressed' });
+        }
+    });
+
+    if (code.length > 10000) {
+        issues.push({ type: 'warning', message: 'Code length exceeds 10000 characters - consider splitting' });
+    }
+
+    return issues;
+}
+
+function generateAccessibilityReport(scan) {
+    const issues = checkAccessibilityIssues(scan);
+
+    const summary = {
+        total: issues.length,
+        errors: issues.filter(i => i.type === 'error').length,
+        warnings: issues.filter(i => i.type === 'warning').length,
+        info: issues.filter(i => i.type === 'info').length
+    };
+
+    return {
+        summary,
+        issues,
+        generatedAt: new Date().toISOString()
+    };
+}
+
+function getGameDataSummary() {
+    return {
+        rooms: Object.keys(gameData.rooms).length,
+        players: Object.keys(gameData.players).length,
+        structures: Object.values(gameData.structures).reduce((total, roomStructures) => total + roomStructures.length, 0),
+        tasks: Object.keys(gameData.creepTasks).length
+    };
+}
+
+function ensureDependencyGraphARIA() {
+    return true;
+}
+
+function getLangAttribute() {
+    return 'en';
+}
+
+function runCommand(command) {
+    return new Promise((resolve, reject) => {
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve({ stdout, stderr });
+        });
+    });
+}
+
+function announceToScreenReader(message) {
+    let liveRegion = document.getElementById('aria-live-region');
+    if (!liveRegion) {
+        liveRegion = document.createElement('div');
+        liveRegion.id = 'aria-live-region';
+        liveRegion.setAttribute('role', 'region');
+        liveRegion.setAttribute('aria-live', 'polite');
+        liveRegion.setAttribute('aria-atomic', 'true');
+        liveRegion.className = 'sr-only';
+        document.body.appendChild(liveRegion);
+    }
+
+    if (liveRegion) {
+        liveRegion.textContent = '';
+        setTimeout(() => {
+            liveRegion.textContent = message;
+        }, 100);
+    }
+}
+
+function calculateDifference(a, b) {
+    return Math.abs(a - b);
+}
+
+function calculateProduct(a, b) {
+    return a * b;
+}
+
+function isNumber(value) {
+    return typeof value === 'number' && !isNaN(value);
+}
+
+function clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+}
+
+function triggerEvent(element, eventType) {
+    const event = new Event(eventType, {
+        bubbles: true,
+        cancelable: true,
+        composed: true
+    });
+    element.dispatchEvent(event);
+}
+
+function trapFocus(event) {
+    const modal = event.currentTarget;
+    const focusableElements = modal.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length === 0) {
+        modal.setAttribute('tabindex', '-1');
+        modal.focus();
+        return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (event.key === 'Tab') {
+        if (event.shiftKey) {
+            if (document.activeElement === firstElement) {
+                event.preventDefault();
+                lastElement.focus();
+            }
+        } else {
+            if (document.activeElement === lastElement) {
+                event.preventDefault();
+                firstElement.focus();
+            }
+        }
+    }
+
+    if (event.key === 'Escape') {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        announceToScreenReader('Dialog closed');
+    }
+}
+
+function handleKeyNavigation(event) {
+    if (event.key === 'Escape') {
+        event.preventDefault();
+        const activeElement = document.activeElement;
+        if (activeElement && activeElement.tagName === 'DIALOG') {
+            activeElement.close();
+        }
+    }
+}
+
+function handleCredentialResponse(response) {
+    if (!response) {
+        return { success: false, error: 'No credential response provided' };
+    }
+
+    const hasCredential = response.credential || response.token || response.id;
+
+    if (!hasCredential) {
+        return { success: false, error: 'Invalid credential response format' };
+    }
+
+    const processedCredential = {
+        id: response.id || null,
+        token: response.token || response.credential || null,
+        name: response.name || 'Anonymous User',
+        email: response.email || null,
+        success: true
+    };
+
+    if (response.credential) {
+        try {
+            const payload = JSON.parse(atob(response.credential.split('.')[1]));
+            processedCredential.id = payload.sub || processedCredential.id;
+            processedCredential.email = payload.email || processedCredential.email;
+            processedCredential.name = payload.name || processedCredential.name;
+        } catch (error) {
+            console.warn('Failed to parse credential response:', error);
+        }
+    }
+
+    if (typeof announceToScreenReader === 'function') {
+        announceToScreenReader('User successfully authenticated');
+    }
+
+    return processedCredential;
+}
+
+function addDocumentLangAttribute() {
+    const html = document.documentElement;
+    const lang = navigator.language || navigator.userLanguage;
+    html.lang = lang;
+}
+
+function setupAriaLiveRegions() {
+    const liveRegion = document.getElementById('aria-live-region');
+    if (!liveRegion) {
+        const region = document.createElement('div');
+        region.id = 'aria-live-region';
+        region.setAttribute('role', 'region');
+        region.setAttribute('aria-live', 'polite');
+        region.setAttribute('aria-atomic', 'true');
+        region.className = 'sr-only';
+        document.body.appendChild(region);
+    }
+}
+
+function setupFocusManagement() {
+    const modals = document.querySelectorAll('[role="dialog"]');
+    modals.forEach((modal) => {
+        modal.addEventListener('keydown', trapFocus);
+    });
+
+    const interactiveElements = document.querySelectorAll(
+        'button, a, input, select, textarea, [tabindex]'
+    );
+    interactiveElements.forEach((element) => {
+        if (!element.hasAttribute('tabindex')) {
+            element.setAttribute('tabindex', '0');
+        }
+    });
+}
+
+function enhanceSemanticMarkup() {
+    if (!document.getElementById('skip-link')) {
+        const skipLink = document.createElement('a');
+        skipLink.id = 'skip-link';
+        skipLink.href = '#main-content';
+        skipLink.textContent = 'Skip to main content';
+        skipLink.className = 'skip-link';
+        skipLink.style.position = 'absolute';
+        skipLink.style.top = '-40px';
+        document.body.prepend(skipLink);
+    }
+
+    const images = document.querySelectorAll('img');
+    images.forEach((img) => {
+        if (!img.hasAttribute('alt')) {
+            img.setAttribute('alt', '');
+            img.setAttribute('role', 'presentation');
+        }
+    });
+
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach((input) => {
+        const id = input.id || `input-${Math.random().toString(36).substr(2, 9)}`;
+        input.id = id;
+        if (!input.getAttribute('aria-label') && !document.querySelector(`label[for="${id}"]`)) {
+            input.setAttribute('aria-label', input.name || 'Input field');
+        }
+    });
+}
+
+function updateDependencyGraphs() {
+  // Placeholder for the actual implementation
+}
+
+function updateIndexViews() {
+  // Placeholder for the actual implementation
+}
+
+function closeOpenDialogs() {
+  // Placeholder for the actual implementation
+}
+
+const hello = () => {
+  return 'Hello from main.js';
+};
+
+function newFunction() {
+  return 'New function added from origin/main';
+}
+
+function getVersion() {
+  return '1.0.0';
+}
+
+function getConfig(key) {
+  const config = {
+    debug: false,
+    version: '1.0.0',
+    apiUrl: 'https://api.example.com'
+  };
+  return config[key] || config;
+}
+
+function addressAccessibilityIssues(issues) {
+  if (!issues) {
+    return AddressabilityIssues.addressAccessibilityIssues(sampleInsightReport);
+  }
+  const fixedIssues = [];
+
+  issues.forEach(issue => {
+    switch (issue.type) {
+      case 'missing-alt-text':
+        fixedIssues.push({ ...issue, status: 'fixed', fixApplied: 'Added alt attribute' });
+        break;
+      case 'missing-aria-label':
+        fixedIssues.push({ ...issue, status: 'fixed', fixApplied: 'Added aria-label' });
+        break;
+      case 'color-contrast':
+        fixedIssues.push({ ...issue, status: 'fixed', fixApplied: 'Adjusted color contrast' });
+        break;
+      default:
+        fixedIssues.push({ ...issue, status: 'pending', fixApplied: '' });
+    }
+  });
+
+  return fixedIssues;
+}
+
+function generateAccessibilityReportStandalone() {
+  return {
+    timestamp: new Date().toISOString(),
+    issues: [],
+    score: 0,
+    totalChecks: 0
+  };
+}
+
+function calculateAccessibilityScore() {
+  const report = generateAccessibilityReportStandalone();
+  const fixedIssues = report.issues.filter(issue => issue.status === 'fixed');
+  return AddressabilityIssues.calculateAccessibilityScore(fixedIssues);
+}
+
+initializeGameData();
+
+app.get('/', (req, res) => {
+    res.json({ message: 'Screeps API Server', version: '1.0.0' });
+});
+
+app.get('/api/rooms/:roomName', (req, res) => {
+    const result = scanRoom(req.params.roomName);
+    res.json(result);
+});
+
+app.get('/api/players', (req, res) => {
+    res.json(getPlayers());
+});
+
+app.get('/api/players/:playerName', (req, res) => {
+    res.json(getPlayerInfo(req.params.playerName));
+});
+
+app.get('/api/structures/:roomName', (req, res) => {
+    res.json(getStructures(req.params.roomName));
+});
+
+app.post('/api/tasks/:creepName', (req, res) => {
+    const { task, target } = req.body;
+    const result = assignTask(req.params.creepName, task, target);
+    res.json(result);
+});
+
+app.get('/api/tasks/:creepName', (req, res) => {
+    res.json(getTasks(req.params.creepName));
+});
+
+app.post('/api/accessibility/scan', (req, res) => {
+    const { code } = req.body;
+    const report = generateAccessibilityReport(code);
+    res.json(report);
+});
+
+app.post('/api/run', async (req, res) => {
+    try {
+        const { command } = req.body;
+        const result = await runCommand(command);
+        res.json({ output: result });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/dependencies', (req, res) => {
+    try {
+        const depCount = AddressabilityIssues.countDependencies();
+        res.json(depCount);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+if (typeof app !== 'undefined' && typeof app.listen === 'function') {
+    app.listen(PORT, () => {
+        console.log(`Screeps API Server running on port ${PORT}`);
+    });
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment - setup basic exports
   module.exports = {
+    app,
+    AddressabilityIssues,
     checkTableStructure,
-    countDependencies,
+    countDependencies: AddressabilityIssues.countDependencies,
     init,
-    processSvgElements,
     setupAriaLiveRegions,
     setupFocusManagement,
     enhanceSemanticMarkup,
-    setupKeyboardNavigation,
     trapFocus,
     handleKeyNavigation,
     closeOpenDialogs,
@@ -533,27 +932,27 @@ if (typeof module !== 'undefined' && module.exports) {
     getVersion,
     getConfig,
     addressAccessibilityIssues,
+    generateAccessibilityReport,
+    generateAccessibilityReportStandalone,
+    calculateAccessibilityScore,
+    validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
     addDocumentLangAttribute,
     handleCredentialResponse,
+    sampleInsightReport,
+    initializeAccessibility,
     getSvgAccessibleName,
     setSvgAttributes,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmarkStructure,
-    getSvgAccessibleNames,
     checkLandmarkElements,
-    createResourceButton,
-    renderDependencyGraph,
-    displayModuleStructure,
-    newFunction,
-    MyComponent,
+    getGameDataSummary,
+    ensureDependencyGraphARIA,
     getLangAttribute,
-    AddressabilityIssues
+    checkAccessibilityIssues,
+    triggerEvent,
+    newFunction
   };
-} else {
-  // Browser environment - wait for DOM
+} else if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

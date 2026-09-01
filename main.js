@@ -1,6 +1,3 @@
-Here's the resolved file content:
-
-```javascript
 (function() {
     'use strict';
 
@@ -163,6 +160,65 @@ Here's the resolved file content:
       };
     }
 
+    // Function to improve accessibility for the addBook form
+    function improveAddBookFormAccessibility() {
+      const addBookForm = document.getElementById('addBookForm');
+      if (!addBookForm) return;
+
+      // Ensure form has proper ARIA attributes
+      addBookForm.setAttribute('role', 'form');
+      addBookForm.setAttribute('aria-labelledby', 'addBookFormTitle');
+
+      // Add labels to form fields
+      const formFields = addBookForm.querySelectorAll('input, textarea, select');
+      formFields.forEach(field => {
+        if (!field.id) {
+          field.id = `field-${Math.random().toString(36).substr(2, 9)}`;
+        }
+
+        if (!field.hasAttribute('aria-label') && !field.hasAttribute('aria-labelledby')) {
+          const label = document.querySelector(`label[for="${field.id}"]`);
+          if (label) {
+            field.setAttribute('aria-labelledby', label.id || `label-${Math.random().toString(36).substr(2, 9)}`);
+          } else {
+            field.setAttribute('aria-label', field.placeholder || field.name || 'Form field');
+          }
+        }
+      });
+
+      // Ensure submit button has proper ARIA attributes
+      const submitButton = addBookForm.querySelector('button[type="submit"]');
+      if (submitButton) {
+        submitButton.setAttribute('aria-label', 'Submit book information');
+      }
+
+      // Add error handling for form validation
+      addBookForm.addEventListener('submit', function(e) {
+        const requiredFields = addBookForm.querySelectorAll('[required]');
+        let isValid = true;
+
+        requiredFields.forEach(field => {
+          if (!field.value.trim()) {
+            isValid = false;
+            field.setAttribute('aria-invalid', 'true');
+            field.setAttribute('aria-describedby', `${field.id}-error`);
+          } else {
+            field.removeAttribute('aria-invalid');
+            field.removeAttribute('aria-describedby');
+          }
+        });
+
+        if (!isValid) {
+          e.preventDefault();
+          const errorMessage = document.createElement('div');
+          errorMessage.id = 'form-error';
+          errorMessage.textContent = 'Please fill in all required fields.';
+          errorMessage.setAttribute('role', 'alert');
+          addBookForm.prepend(errorMessage);
+        }
+      });
+    }
+
     // Harvest logic implementation
     async function harvest() {
       // TODO: Implement harvest logic
@@ -176,11 +232,11 @@ Here's the resolved file content:
           totalIssues: report.reduce((acc, curr) => acc + curr.issues.length, 0),
           details: report
         };
-        
+
         // Store harvested data for potential upgrades
         const harvestFile = path.join(__dirname, 'harvest_data.json');
         fs.writeFileSync(harvestFile, JSON.stringify(harvestedData, null, 2));
-        
+
         return harvestedData;
       } catch (error) {
         console.error('Harvest failed:', error);
@@ -266,18 +322,20 @@ Here's the resolved file content:
       a11y,
       harvest,
       upgrade,
-      harvestAndUpgrade
+      harvestAndUpgrade,
+      improveAddBookFormAccessibility
     };
 
     // Initialize on DOM ready
     if (typeof document !== 'undefined') {
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initialize);
+            document.addEventListener('DOMContentLoaded', function() {
+              initialize();
+              improveAddBookFormAccessibility();
+            });
         } else {
             initialize();
+            improveAddBookFormAccessibility();
         }
     }
 })();
-```
-
-This file combines the existing code and adds new features from both branches while preserving existing functionality. It now contains the original scanAccessibility() function, the writeReport() function, the getLangAttribute() function, and the createInPageButton() function, along with the new accessibility improvements logic, initialization, and landmark checking.

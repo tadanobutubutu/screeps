@@ -181,6 +181,15 @@ function renderGraph(container, options = {}) {
     console.error('Graph container element not found');
     return null;
   }
+
+  // Ensure the dependencyGraph container has a proper ARIA role
+  // Address accessibility issues from insight report
+  if (!graphContainer.getAttribute('role')) {
+    graphContainer.setAttribute('role', 'figure');
+  }
+  if (!graphContainer.getAttribute('aria-label')) {
+    graphContainer.setAttribute('aria-label', options.title || 'Dependency graph');
+  }
   
   const graphElement = document.createElement('div');
   graphElement.className = 'graph-renderer';

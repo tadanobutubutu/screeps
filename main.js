@@ -358,6 +358,86 @@ function createAccessibleBookForm(formId, submitButtonId) {
     return form;
 }
 
+// Validation functions for accessibility checks
+function getLangAttribute(html) {
+    if (typeof html !== 'string') return null;
+    const match = html.match(/<html[^>]*\slang=["']([^"']+)["']/i);
+    return match ? match[1] : null;
+}
+
+function validateTableAccessibility(html) {
+    if (typeof html !== 'string') return { valid: false, issues: [] };
+    const issues = [];
+
+    // Check for tables without captions
+    const tables = html.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
+    tables.forEach((table, index) => {
+        if (!/<caption/i.test(table)) {
+            issues.push(`Table ${index + 1} is missing a caption`);
+        }
+    });
+
+    // Check for th elements without scope
+    const thWithoutScope = html.match(/<th(?!([^>]*)scope=)/gi) || [];
+    if (thWithoutScope.length > 0) {
+        issues.push(`${thWithoutScope.length} table header(s) missing scope attribute`);
+    }
+
+    return { valid: issues.length === 0, issues };
+}
+
+function validateTableStructure(html) {
+    if (typeof html !== 'string') return { valid: false, issues: [] };
+    const issues = [];
+
+    // Check for tables without thead
+    const tables = html.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
+    tables.forEach((table, index) => {
+        if (!/<thead/i.test(table)) {
+            issues.push(`Table ${index + 1} is missing thead element`);
+        }
+        if (!/<tbody/i.test(table)) {
+            issues.push(`Table ${index + 1} is missing tbody element`);
+        }
+    });
+
+    return { valid: issues.length === 0, issues };
+}
+
+function validateLinkAccessibility(html) {
+    if (typeof html !== 'string') return { valid: false, issues: [] };
+    const issues = [];
+
+    // Check for links with no text content
+    const linkPattern = /<a([^>]*)>([\s]*)<\/a>/gi;
+    let match;
+    while ((match = linkPattern.exec(html)) !== null) {
+        issues.push(`Link ${match[1]} has no accessible text`);
+    }
+
+    return { valid: issues.length === 0, issues };
+}
+
+function handleFakeLinks(html) {
+    if (typeof html !== 'string') return { html, linksConverted: 0 };
+    let count = 0;
+
+    // Find spans or divs with onclick that act as links
+    const fakeLinkPattern = /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi;
+    html = html.replace(fakeLinkPattern, (match, before, onclick, after) => {
+        const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/);
+        if (hrefMatch) {
+            count++;
+            return `<a href="${hrefMatch[1]}"${before}${after}>`;
+        }
+        return match;
+    });
+
+    html = html.replace(/<\/span>/gi, '</a>');
+
+    return { html, linksConverted: count };
+}
+
 // Don't forget to test your new additions in the test file
 
 // Export accessibility utility functions
@@ -374,6 +454,11 @@ module.exports = {
     divide,
     checkLinkAccessibility,
     wrapPrimaryContentInMain,
+    getLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLinkAccessibility,
+    handleFakeLinks,
     createAccessibleBookForm
 };
 

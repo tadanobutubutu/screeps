@@ -335,7 +335,7 @@ function addressNewAccessibilityIssues() {
  */
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -346,7 +346,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -361,7 +361,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -376,7 +376,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -390,7 +390,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -405,7 +405,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
@@ -419,7 +419,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check SVG accessibility
   const svgAccessibleNames = getSvgAccessibleName();
   if (svgAccessibleNames && svgAccessibleNames.length > 0) {
@@ -433,7 +433,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check for unique landmarks
   const uniqueLandmarkIssues = ensureUniqueLandmarks(landmarks);
   if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
@@ -447,7 +447,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check link accessibility
   const linkIssues = validateLinkAccessibility();
   if (linkIssues && linkIssues.length > 0) {
@@ -461,7 +461,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Generate the report
   var report = {
     issues: issues,
@@ -481,7 +481,7 @@ function getInsightReport() {
     timestamp: new Date().toISOString(),
     generatedAt: new Date().toLocaleString()
   };
-  
+
   return report;
 }
 
@@ -508,7 +508,7 @@ function processAccessibilityReport(report) {
     if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
     if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
   }
-  
+
   return findings;
 }
 

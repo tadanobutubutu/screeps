@@ -1,21 +1,23 @@
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
 
 const AddressabilityIssues = {
-  ...
+  MISSING_ID: 'element-missing-id',
+  MISSING_ARIA_LABEL: 'element-missing-aria-label',
+  MISSING_ROLE: 'element-missing-role',
+  MISSING_TABLE_HEADER: 'table-missing-header',
+  MISSING_TABLE_BODY: 'table-missing-body',
+  MISSING_TABLE_CAPTION: 'table-missing-caption'
 };
 
 /**
  * Main application entry point with accessibility features
  */
 
-function addSvgAccessibilityProps() {
-  const svgElements = document.querySelectorAll('svg');
-
+function processSvgElements(svgElements) {
   svgElements.forEach(svg => {
-    if (!svg.getAttribute('role')) {
+    if (svg) {
       svg.setAttribute('role', 'img');
     }
 
@@ -30,15 +32,15 @@ function addSvgAccessibilityProps() {
 
 function getSvgAccessibleName(svg) {
   if (!svg) return '';
-  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '';
+  return svg.getAttribute('aria-label') || svg.getAttribute('id') || '';
 }
 
 function setSvgAttributes(svg) {
   if (!svg) return;
-  if (!svg.hasAttribute('width') && svg.hasAttribute('viewBox')) {
+  if (!svg.getAttribute('width')) {
     svg.setAttribute('width', '24');
   }
-  if (!svg.hasAttribute('height') && svg.hasAttribute('viewBox')) {
+  if (!svg.getAttribute('height')) {
     svg.setAttribute('height', '24');
   }
 }
@@ -60,4 +62,51 @@ function checkTableStructure(table) {
   };
 }
 
-// ... (other functions and comments preserved)
+// Validate accessibility compliance for a given element
+function validateAccessibility(element) {
+  if (!element) {
+    return { valid: false, error: 'Element is required' };
+  }
+
+  const issues = [];
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+
+  if (tagName === 'svg') {
+    if (!element.id && !element.getAttribute('aria-label')) {
+      issues.push(AddressabilityIssues.MISSING_ID);
+    }
+    if (!element.getAttribute('role')) {
+      issues.push(AddressabilityIssues.MISSING_ROLE);
+    }
+    if (!element.getAttribute('aria-label')) {
+      issues.push(AddressabilityIssues.MISSING_ARIA_LABEL);
+    }
+  }
+
+  if (tagName === 'table') {
+    const tableCheck = checkTableStructure(element);
+    if (!tableCheck.hasHeader) {
+      issues.push(AddressabilityIssues.MISSING_TABLE_HEADER);
+    }
+    if (!tableCheck.hasBody) {
+      issues.push(AddressabilityIssues.MISSING_TABLE_BODY);
+    }
+    if (!tableCheck.hasCaption) {
+      issues.push(AddressabilityIssues.MISSING_TABLE_CAPTION);
+    }
+  }
+
+  return {
+    valid: issues.length === 0,
+    issues
+  };
+}
+
+module.exports = {
+  AddressabilityIssues,
+  processSvgElements,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  checkTableStructure,
+  validateAccessibility
+};

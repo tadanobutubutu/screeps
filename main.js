@@ -87,20 +87,20 @@ function detectAndSetLang(content) {
 function personName(options = {}) {
   const { firstName = '', lastName = '', lang = 'en', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
-  
+
   if (typeof document !== 'undefined') {
     const nameElement = document.createElement('span');
     nameElement.setAttribute('lang', lang);
     nameElement.setAttribute('aria-label', fullName);
     nameElement.textContent = fullName || 'Unknown';
-    
+
     if (container) {
       container.appendChild(nameElement);
     }
-    
+
     return nameElement;
   }
-  
+
   return fullName || 'Unknown';
 }
 
@@ -214,7 +214,7 @@ function newFocusTrap(container) {
   const focusableElements = Array.from(
     container.querySelectorAll(focusableSelectors)
   ).filter(el => el.offsetParent !== null);
-  
+
   if (focusableElements.length > 0) {
     focusableElements[0].focus();
   }
@@ -225,6 +225,117 @@ function newFocusTrap(container) {
       if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
         previousActiveElement.focus();
       }
+    }
+  };
+}
+
+/**
+ * Renders a dependency graph visualization
+ * @param {HTMLElement} container - The container element to render the graph in
+ * @param {Object} data - The dependency data to visualize
+ * @returns {Object} An object with methods to update and destroy the graph
+ */
+function renderDependencyGraph(container, data) {
+  if (!container || typeof document === 'undefined') {
+    return {
+      update: () => {},
+      destroy: () => {}
+    };
+  }
+
+  // Create the graph container
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'dependency-graph';
+  container.appendChild(graphContainer);
+
+  // Initialize the graph visualization
+  // This would typically use a library like D3.js or similar
+  // For now, we'll just create a placeholder
+  const graphElement = document.createElement('div');
+  graphElement.textContent = 'Dependency Graph Visualization';
+  graphElement.setAttribute('role', 'img');
+  graphElement.setAttribute('aria-label', 'Dependency graph visualization');
+  graphContainer.appendChild(graphElement);
+
+  return {
+    update: (newData) => {
+      // Update the graph with new data
+      console.log('Updating graph with new data:', newData);
+    },
+    destroy: () => {
+      // Clean up the graph
+      container.removeChild(graphContainer);
+    }
+  };
+}
+
+/**
+ * Renders an index view of available resources
+ * @param {HTMLElement} container - The container element to render the index in
+ * @param {Array} items - The items to display in the index
+ * @returns {Object} An object with methods to update and destroy the index
+ */
+function renderIndexView(container, items) {
+  if (!container || typeof document === 'undefined') {
+    return {
+      update: () => {},
+      destroy: () => {}
+    };
+  }
+
+  // Create the index container
+  const indexContainer = document.createElement('div');
+  indexContainer.className = 'index-view';
+  container.appendChild(indexContainer);
+
+  // Create the index list
+  const indexList = document.createElement('ul');
+  indexList.setAttribute('role', 'list');
+  indexContainer.appendChild(indexList);
+
+  // Populate the index with items
+  items.forEach(item => {
+    const listItem = document.createElement('li');
+    listItem.textContent = item.name || 'Unnamed item';
+    listItem.setAttribute('role', 'listitem');
+
+    if (item.url) {
+      const link = document.createElement('a');
+      link.href = item.url;
+      link.textContent = item.name || 'Unnamed item';
+      listItem.textContent = '';
+      listItem.appendChild(link);
+    }
+
+    indexList.appendChild(listItem);
+  });
+
+  return {
+    update: (newItems) => {
+      // Update the index with new items
+      while (indexList.firstChild) {
+        indexList.removeChild(indexList.firstChild);
+      }
+
+      newItems.forEach(item => {
+        const listItem = document.createElement('li');
+        listItem.textContent = item.name || 'Unnamed item';
+        listItem.setAttribute('role', 'listitem');
+
+        if (item.url) {
+          const link = document.createElement('a');
+          link.href = item.url;
+          link.textContent = item.name || 'Unnamed item';
+          listItem.textContent = '';
+          listItem.appendChild(link);
+        }
+
+        indexList.appendChild(listItem);
+      });
+    },
+    destroy: () => {
+      // Clean up the index
+      container.removeChild(indexContainer);
     }
   };
 }
@@ -243,5 +354,7 @@ module.exports = {
   getSvgAccessibleName,
   createWebResourceButton,
   validateUniqueLandmarks,
-  newFocusTrap
+  newFocusTrap,
+  renderDependencyGraph,
+  renderIndexView
 };

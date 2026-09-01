@@ -1,3 +1,8 @@
+// This is a simple greeting module
+function greet (name) {
+  return `Hello, ${name}!`
+}
+
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -637,7 +642,8 @@ if (typeof module !== 'undefined' && module.exports) {
     renderDependencyGraph,
     checkLinkAndButtonAccessibility,
     applyAccessibilityFixes,
-    loop
+    loop,
+    greet
   };
 
   // Auto-validate on load if this is a browser context

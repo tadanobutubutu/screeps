@@ -8,6 +8,9 @@ const { createInPageButton, createWebResourceButton, validateLandmark, validateL
 
 const http = require('http');
 
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+
 // Accessibility function (merged from both branches)
 function setSvgAccessibleProps(svg) {
   addSvgAccessibleNames(svg); // From branch HEAD

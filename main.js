@@ -1,5 +1,9 @@
 // main.js - Screeps bot with utility and accessibility features
 
+// Import the required modules for dependency graph and index content
+const dependencyGraphContent = require('./dependencyGraphContent');
+const indexContent = require('./indexContent');
+
 // Utility functions for common tasks
 /**
  * Debounces a function
@@ -111,7 +115,7 @@ function handleKeyboardNavigation(options) {
   var onEscape = options.onEscape;
   var onArrowUp = options.onArrowUp;
   var onArrowDown = options.onArrowDown;
-  
+
   return function(event) {
     switch (event.key) {
       case 'Enter':
@@ -161,7 +165,7 @@ function trapFocus(container) {
   }
 
   container.addEventListener('keydown', handleTab);
-  
+
   return function() {
     container.removeEventListener('keydown', handleTab);
   };
@@ -201,22 +205,22 @@ function getLangAttribute() {
 function ensureDependencyGraphARIA() {
   var doc = getDocument();
   var htmlElement = doc ? doc.querySelector('html') : null;
-  
+
   if (!htmlElement) {
     return { lang: null, dir: null };
   }
-  
+
   // Ensure lang attribute is set (accessibility requirement REACT_015)
   if (!htmlElement.hasAttribute('lang') || !htmlElement.getAttribute('lang')) {
     // Default to 'en' if no language is specified
     htmlElement.setAttribute('lang', 'en');
   }
-  
+
   // Ensure dir attribute is set for proper text direction
   if (!htmlElement.hasAttribute('dir')) {
     htmlElement.setAttribute('dir', 'ltr');
   }
-  
+
   return {
     lang: htmlElement.getAttribute('lang'),
     dir: htmlElement.getAttribute('dir')
@@ -230,7 +234,7 @@ function addAccessibleNamesToSvg(container) {
     svgs[0].setAttribute('aria-label', 'First SVG');
     svgs[1].setAttribute('aria-label', 'Second SVG');
   }
-  
+
   svgs.forEach(function(svg, index) {
     if (!svg.hasAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
       svg.setAttribute('aria-label', 'SVG element ' + (index + 1));
@@ -358,6 +362,11 @@ function renderDependencyGraph(module) {
   // This is a placeholder function and should be replaced with actual logic
   console.log('Rendering dependency graph for:', module);
   // Example output: 'Rendering dependency graph for: ModuleName'
+
+  // Use the imported dependencyGraphContent
+  if (dependencyGraphContent && dependencyGraphContent.render) {
+    dependencyGraphContent.render(module);
+  }
 }
 
 // New function to display module structure
@@ -366,6 +375,11 @@ function displayModuleStructure(module) {
   // This is a placeholder function and should be replaced with actual logic
   console.log('Displaying module structure for:', module);
   // Example output: 'Displaying module structure for: ModuleName'
+
+  // Use the imported indexContent
+  if (indexContent && indexContent.display) {
+    indexContent.display(module);
+  }
 }
 
 // New function for generating a report based on accessibility issues
@@ -491,33 +505,33 @@ if (typeof document !== 'undefined') {
     window.accessibilityFeatures = initializeAccessibility();
     // Ensure ARIA attributes are properly set on the HTML element
     ensureDependencyGraphARIA();
-    
+
     // Run accessibility fixes
     addLangAttribute();
     createInPageButton();
-    
+
     // Validate tables
     var tables = document.querySelectorAll('table');
     tables.forEach(function(table) {
       validateTableAccessibility(table);
       validateTableStructure(table);
     });
-    
+
     // Validate landmarks
     validateLandmark();
     validateLandmarkStructure();
     ensureUniqueLandmarks();
-    
+
     // Add accessible names to SVGs
     var svgs = document.querySelectorAll('svg');
     svgs.forEach(function(svg) {
       var accessibleName = getSvgAccessibleName(svg);
       setSvgAttributes(svg, accessibleName);
     });
-    
+
     // Handle fake links
     handleFakeLinks();
-    
+
     // Ensure elements have IDs and ARIA labels
     ensureElementHasId('myTable');
     ensureElementHasId('mySvg');
@@ -525,7 +539,7 @@ if (typeof document !== 'undefined') {
     addAriaLabelById('myTable', 'Product data table');
     addAriaLabelById('mySvg', 'Company logo');
     addAriaLabelById('inPageButton', 'Accessibility menu');
-    
+
     // Fix button identifiers
     var buttons = document.querySelectorAll('button, [role="button"]');
     buttons.forEach(function(button, index) {
@@ -533,7 +547,7 @@ if (typeof document !== 'undefined') {
         button.id = 'accessible-button-' + index;
       }
     });
-    
+
     // Google sign-in accessibility
     var googleButton = document.querySelector('[data-google-signin]');
     if (googleButton) {

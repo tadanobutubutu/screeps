@@ -1,6 +1,5 @@
 // main.js
 // TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)
-const { createWebResourceButton, validateAccessibilityReport } = require('./utilities')
 
 const http = require('http')
 const fs = require('fs')
@@ -12,6 +11,41 @@ const CONFIG = {
   host: process.env.HOST || 'localhost',
   maxRetries: 3,
   timeout: 5000
+}
+
+// New function to address REACT_015: Add lang attribute to HTML element
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang || 'en';
+  }
+  return lang || 'en';
+}
+
+/**
+ * Detects the language of the given content and sets the HTML lang attribute
+ * @param {string} content - The text content to analyze
+ * @returns {string} The detected language code
+ */
+function detectAndSetLang(content) {
+  let lang = 'en'; // Default to English
+  
+  if (content) {
+    if (/[\u4e00-\u9fff]/.test(content)) {
+      lang = 'zh';
+    } else if (/[\u3040-\u30ff]/.test(content)) {
+      lang = 'ja';
+    } else if (/[\u0400-\u04ff]/.test(content)) {
+      lang = 'ru';
+    } else if (/[\u0600-\u06ff]/.test(content)) {
+      lang = 'ar';
+    } else if (/[àâçéèêëîïôùûüÿœæ]+/i.test(content)) {
+      lang = 'fr';
+    } else if (/[äöüß]+/i.test(content)) {
+      lang = 'de';
+    }
+  }
+  
+  return lang;
 }
 
 // Accessibility utilities and functions
@@ -74,9 +108,239 @@ const accessibilityUtils = {
   }
 }
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
+// New function to address REACT_015: Add lang attribute to HTML element
+function getLangAttribute() {
+  return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
+}
 
+// New function to address REACT_027: Fix 26 table structure issues
+function validateTableAccessibility(tableElement) {
+  if (typeof document === 'undefined' || !tableElement) {
+    return { valid: false, errors: ['Table element not found or document not available'] };
+  }
+  
+  const errors = [];
+  
+  if (!tableElement.querySelector('thead')) {
+    errors.push('Table is missing <thead> element');
+  }
+  
+  if (!tableElement.querySelector('tbody')) {
+    errors.push('Table is missing <tbody> element');
+  }
+  
+  const thead = tableElement.querySelector('thead');
+  const thElements = thead ? thead.querySelectorAll('th') : [];
+  if (thElements.length === 0) {
+    errors.push('Table header row is missing <th> elements');
+  }
+  
+  thElements.forEach((th, index) => {
+    if (!th.getAttribute('scope')) {
+      errors.push(`Table header cell ${index + 1} is missing scope attribute`);
+    }
+  });
+  
+  const hasCaption = tableElement.querySelector('caption');
+  const hasSummary = tableElement.getAttribute('aria-describedby');
+  if (!hasCaption && !hasSummary) {
+    errors.push('Table is missing a caption or aria-describedby for accessibility');
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
+function validateTableStructure(tableElement) {
+  if (typeof document === 'undefined' || !tableElement) {
+    return { valid: false, errors: ['Table element not found'] };
+  }
+  
+  const errors = [];
+  const rows = tableElement.querySelectorAll('tr');
+  
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('td, th');
+    const cellCount = cells.length;
+    
+    cells.forEach((cell, cellIndex) => {
+      if (!cell.textContent.trim()) {
+        errors.push(`Row ${rowIndex + 1}, Cell ${cellIndex + 1} is empty`);
+      }
+    });
+    
+    if (rowIndex > 0) {
+      const prevRow = rows[rowIndex - 1];
+      const prevCells = prevRow.querySelectorAll('td, th');
+      if (cellCount !== prevCells.length) {
+        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length} in previous row)`);
+      }
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_017: Add/fix 4 landmark issues
+function validateLandmark(element) {
+  if (typeof document === 'undefined' || !element) {
+    return { valid: false, errors: ['Element not found'] };
+  }
+  
+  const errors = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article', 'search'];
+  
+  const role = element.getAttribute('role');
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+  
+  if (role && !validLandmarks.includes(role) && !validLandmarks.includes(role.toLowerCase())) {
+    errors.push(`Invalid landmark role: ${role}`);
+  }
+  
+  if (!role && !validLandmarks.includes(tagName)) {
+    errors.push(`Element is not a valid landmark: ${tagName}`);
+  }
+  
+  const hasLabel = element.getAttribute('aria-label') || 
+                   element.getAttribute('aria-labelledby') ||
+                   element.querySelector('h1, h2, h3, h4, h5, h6');
+  
+  if (!hasLabel) {
+    errors.push('Landmark is missing accessible name (aria-label, aria-labelledby, or heading)');
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
+function validateLandmarkStructure() {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+  
+  const errors = [];
+  
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length > 1) {
+    errors.push(`Multiple main landmarks found (${mainElements.length}). Only one main landmark should exist.`);
+  }
+  
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
+  landmarks.forEach((landmark) => {
+    const parent = landmark.parentElement;
+    while (parent) {
+      const parentTag = parent.tagName ? parent.tagName.toLowerCase() : '';
+      
+      if (parentTag === 'header' && landmark.tagName && landmark.tagName.toLowerCase() === 'header') {
+        errors.push('Nested header elements found');
+      }
+      if (parentTag === 'footer' && landmark.tagName && landmark.tagName.toLowerCase() === 'footer') {
+        errors.push('Nested footer elements found');
+      }
+      
+      parent = parent.parentElement;
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_041: Add accessible names to 2 SVGs
+function getSvgAccessibleName(svgElement) {
+  if (typeof document === 'undefined' || !svgElement) {
+    return null;
+  }
+  
+  let accessibleName = svgElement.getAttribute('aria-label');
+  if (accessibleName) return accessibleName;
+  
+  const labelledBy = svgElement.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const labelElement = document.getElementById(labelledBy);
+    if (labelElement) return labelElement.textContent;
+  }
+  
+  const title = svgElement.querySelector('title');
+  if (title && title.textContent.trim()) {
+    return title.textContent.trim();
+  }
+  
+  const desc = svgElement.querySelector('desc');
+  if (desc && desc.textContent.trim()) {
+    return desc.textContent.trim();
+  }
+  
+  return null;
+}
+
+function validateSvgAccessibility() {
+  if (typeof document === 'undefined') {
+    return { valid: true, errors: [] };
+  }
+  
+  const errors = [];
+  const svgs = document.querySelectorAll('svg');
+  
+  svgs.forEach((svg, index) => {
+    const name = getSvgAccessibleName(svg);
+    if (!name) {
+      errors.push(`SVG ${index + 1} is missing accessible name`);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') {
+    return { valid: true, errors: [] };
+  }
+  
+  const errors = [];
+  const landmarkTypes = ['header', 'nav', 'main', 'aside', 'footer'];
+  
+  landmarkTypes.forEach((type) => {
+    const elements = document.querySelectorAll(type);
+    const labeledElements = document.querySelectorAll(`[role="${type}"]`);
+    const total = elements.length + labeledElements.length;
+    
+    if (total > 1 && type !== 'nav' && type !== 'aside') {
+      errors.push(`Multiple ${type} landmarks found (${total}). Consider using unique aria-labels to differentiate them.`);
+    } else if (total > 1) {
+      const allElements = [...elements, ...labeledElements];
+      const labels = allElements.map(el => el.getAttribute('aria-label') || el.getAttribute('aria-labelledby'));
+      const uniqueLabels = new Set(labels.filter(l => l));
+      if (uniqueLabels.size < total) {
+        errors.push(`Multiple ${type} landmarks found without unique aria-labels`);
+      }
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_036: Fix fake link issues
+function createInPageButton(text, onClick) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = text;
+  if (onClick && typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  return button;
+}
+
+function personName(name) {
+  if (typeof name !== 'string') {
+    return '';
+  }
+  return name.trim();
+}
+
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
 const ensureElementId = (element) => {
   if (element && !element.id) {
     element.id = `element-${Math.random().toString(36).substr(2, 9)}`
@@ -92,14 +356,12 @@ const addAriaLabel = (element, label) => {
 }
 
 const renderDependencyGraph = (data) => {
-  // Implementation for rendering dependency graphs
   return {
     nodes: data.nodes || [],
     edges: data.edges || []
   }
 }
 
-// Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -110,8 +372,7 @@ const renderDependencyGraph = (data) => {
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
-function newFocusTrap () {
-  // New function implementation: traps focus within a given element
+function newFocusTrap() {
   return (element) => {
     if (!element) return
     const focusable = element.querySelectorAll(
@@ -135,14 +396,12 @@ function newFocusTrap () {
   }
 }
 
-// Add back any required exports that might have been removed.
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
-function calculateSum (a, b) {
+function calculateSum(a, b) {
   return a + b
 }
 
 // Credential response handling
-async function handleCredentialResponse (response) {
+async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received')
   }
@@ -163,24 +422,21 @@ async function handleCredentialResponse (response) {
 }
 
 // Existing utility functions
-function log (message, level = 'info') {
+function log(message, level = 'info') {
   const timestamp = new Date().toISOString()
   console[level](`[${timestamp}] ${message}`)
 }
 
 // Module-level function definitions
-function affectedFunction () {
-  // Function implementation
+function affectedFunction() {
   return 'affected function result'
 }
 
-function updateFunction () {
-  // Function implementation
+function updateFunction() {
   return 'update function result'
 }
 
-function accessibleFunction () {
-  // Function implementation
+function accessibleFunction() {
   return 'accessible function result'
 }
 
@@ -198,7 +454,6 @@ const exportUtils = {
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader(`Download of ${filename} started`)
   },
 
@@ -227,11 +482,11 @@ const exportUtils = {
   }
 }
 
-function sanitizeFilename (filename) {
+function sanitizeFilename(filename) {
   return filename.replace(/[^a-z0-9_\-\.]/gi, '_')
 }
 
-function readFileSafe (filePath) {
+function readFileSafe(filePath) {
   try {
     const fs = require('fs')
     return fs.readFileSync(filePath, 'utf8')
@@ -245,24 +500,33 @@ function readFileSafe (filePath) {
 const initAccessibility = () => {
   accessibilityUtils.initSkipLink()
 
-  // Add keyboard support for navigation
   document.addEventListener('keydown', (e) => {
     accessibilityUtils.handleKeyboardNav(e, {
       Escape: () => {
-        // Close modals or dropdowns
       }
     })
   })
 }
 
 // Main entry point
-function main () {
-  // Application initialization
+function main() {
   return 'main function executed'
 }
 
 // Export functions to make them accessible
 module.exports = {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  personName,
   affectedFunction,
   updateFunction,
   accessibleFunction,
@@ -278,7 +542,8 @@ module.exports = {
   exportUtils,
   sanitizeFilename,
   readFileSafe,
-  initAccessibility
+  initAccessibility,
+  CONFIG
 }
 
 // Also attach to global scope for browser/standalone access

@@ -40,6 +40,10 @@ import { calculateSum } from './utils';
 import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { validateLandmarkProperties } from './utils/landmarkUtils';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
+import { validateLinkAccessibility, validateTableStructure } from './utils/linkAccessibilityUtils';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 import { CONFIG } from './utils/constants';
@@ -73,13 +77,11 @@ let icons = {};
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//<!-- todo-hash: 12c3149b34a2eac018e7433408f77e3d8a61fef6 -->
 
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
-  const errors = [];
+  const errors = [];;
 
   // Check if landmark exists
   if (!landmark) {

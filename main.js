@@ -1,436 +1,172 @@
-// TODO: Identify and update specific functions as needed
-
-// Main module
-
-// Dependency imports
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
-
-const main = require('./utilities');
-
-const {
-  add,
-  subtract,
-  multiply,
-  divide,
-  power,
-  squareRoot,
-  factorial,
-  fibonacci,
-  sum,
-  average,
-  max,
-  min,
-  mode,
-  median,
-} = require('./mathHelpers');
-
-// Existing rendering functions (preserving existing exports and functions)
-
-function greetingFunction() {
-  return "Hello, World!";
-}
-
-const config = {
-  port: 3000,
-  debug: false
-};
-
-function getWelcomeMessage() {
-  return greetingFunction() + " This is a new function that returns a welcome message.";
-}
-
-const { class1, function1, Object1 } = require('./path/to/module');
-
-const a11yStore = {
-  // ... existing methods ...
-
-  /**
-   * Check if the user prefers reduced motion
-   * @returns {boolean} True if the user prefers reduced motion
-   */
-  prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  },
-
-  prefersHighContrast() {
-    return window.matchMedia('(prefers-contrast: more)').matches;
-  },
-
-  updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
-    this.announce(message, priority);
-  },
-
-  checkLandmarkElements() {
-    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark, index) => {
-        if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
-        }
-
-        if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
-          }
-        }
-      });
-    });
-  },
-
-  addSVGAccessibilityProps() {
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
-      let titleElement = svg.querySelector('title');
-      if (!titleElement) {
-        titleElement = document.createElement('title');
-        titleElement.textContent = 'Image';
-        svg.insertBefore(titleElement, svg.firstChild);
-      }
-
-      if (!titleElement.id) {
-        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
-      }
-
-      svg.setAttribute('aria-labelledby', titleElement.id);
-
-      if (!svg.hasAttribute('role')) {
-        svg.setAttribute('role', 'img');
-      }
-    });
-  },
-
-  fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href]:not(a)');
-    fakeLinks.forEach((link) => {
-      link.setAttribute('role', 'link');
-      link.setAttribute('tabindex', '0');
-      link.setAttribute('data-interactive', 'true');
-    });
-  },
-
-  preserveExistingCode() {
-    // TODO: This is the existing code that needs to be preserved
-    // _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
-    // <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
-    // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-    // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-    // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-    // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-    // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-    // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-  },
-
-  newFunction() {
-    // New function implementation from origin/main
-  },
-
-  /**
-   * Ensure all interactive elements have proper ARIA attributes
-   */
-  ensureInteractiveElementsAccessible() {
-    const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onfocus], [onblur], [onmouseover], [onmouseout]');
-    interactiveElements.forEach(el => {
-      if (!el.hasAttribute('role') && !el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby')) {
-        el.setAttribute('role', 'button');
-      }
-    });
-  },
-
-  /**
-   * Check if all form elements have proper labels
-   */
-  checkFormLabels() {
-    const formElements = document.querySelectorAll('input:not([type="hidden"]), textarea, select');
-    formElements.forEach(el => {
-      const id = el.id;
-      if (!id) {
-        el.id = `form-el-${Math.floor(Math.random() * 10000)}`;
-      }
-
-      if (!document.querySelector(`label[for="${id}"]`)) {
-        if (!el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby')) {
-          el.setAttribute('aria-label', el.placeholder || 'form element');
-        }
-      }
-    });
-  },
-
-  /**
-   * Ensure all images have alt text or are marked as decorative
-   */
-  ensureImageAccessibility() {
-    const images = document.querySelectorAll('img');
-    images.forEach(img => {
-      if (!img.hasAttribute('alt') && !img.hasAttribute('aria-hidden')) {
-        img.setAttribute('alt', '');
-      }
-    });
-  },
-
-  /**
-   * Check for proper heading hierarchy
-   */
-  checkHeadingHierarchy() {
-    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-    let previousLevel = 0;
-
-    headings.forEach(heading => {
-      const currentLevel = parseInt(heading.tagName.substring(1));
-      if (currentLevel > previousLevel + 1) {
-        console.warn(`Heading level jump from h${previousLevel} to h${currentLevel}`);
-      }
-      previousLevel = currentLevel;
-    });
-  },
-
-  /**
-   * Ensure all links have descriptive text
-   */
-  checkLinkText() {
-    const links = document.querySelectorAll('a');
-    links.forEach(link => {
-      const text = link.textContent.trim();
-      if (!text || text === 'click here' || text === 'read more' || text === 'link') {
-        console.warn('Link has non-descriptive text:', text);
-      }
-    });
-  }
-};
+import React from 'react';
+import { useState, useEffect } from 'react';
 
 /**
- * Check if an element is a landmark element for accessibility
- * Landmark elements include: main, nav, aside, header, footer, section, article, form, search
- * @param {HTMLElement|string} element - The element or element tag name to check
- * @returns {boolean} True if the element is a landmark element
+ * Adds the lang attribute to the document's <html> tag based on content
+ * @param {string} lang language code (e.g., 'en', 'es', 'fr')
+ * @returns {string} The lang attribute value that was set
  */
-function isLandmarkElement(element) {
-  const landmarkTags = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form', 'search'];
-
-  if (!element) {
-    return false;
+function setHtmlLangAttribute(lang) {
+  const [,, , , , document] = window;
+  if (document.documentElement) {
+    document.documentElement.lang = lang || 'en';
   }
-
-  if (typeof element === 'string') {
-    return landmarkTags.includes(element.toLowerCase());
-  }
-
-  if (element.tagName) {
-    return landmarkTags.includes(element.tagName.toLowerCase());
-  }
-
-  return false;
+  return lang || 'en';
 }
 
 /**
- * Parse a credential response from OAuth/identity provider
- * @param {Object} credentialResponse - The credential response
- * @returns {Object} - Parsed response with success status and credential or error
+ * Detects the language of the given content and sets the HTML lang attribute
+ * @param {string} content - The text content to analyze
+ * @returns {string} The detected language code
  */
-function parseCredentialResponse(credentialResponse) {
-    try {
-        if (!credentialResponse || !credentialResponse.credential) {
-            return {
-                success: false,
-                error: 'Invalid credential response'
-            };
-        }
-        const parts = credentialResponse.credential.split('.');
-        if (parts.length !== 3) {
-            return {
-                success: false,
-                error: 'Malformed credential token'
-            };
-        }
-        const payload = parts[1];
-        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
-        return JSON.parse(decoded);
-    } catch (error) {
-        return null;
+function detectAndSetLang(content) {
+  let lang = 'en'; // Default to English
+  if (content) {
+    if (/[一-鿿]/.test(content)) {
+      lang = 'zh'; // Chinese
+    } else if (/[぀-ヿ]/.test(content)) {
+      lang = 'ja'; // Japanese
+    } else if (/[Ѐ-ӿ]/.test(content)) {
+      lang = 'ru'; // Russian/Cyrillic
+    } else if (/[؀-ۿ]/.test(content)) {
+      lang = 'ar'; // Arabic
+    } else if (/[àâçéèêëîïôùûüÿœæ]+/i.test(content)) {
+      lang = 'fr'; // French
+    } else if (/[äöüß]+/i.test(content)) {
+      lang = 'de'; // German
     }
+  }
+  setHtmlLangAttribute(lang);
+  return lang;
 }
 
 /**
- * Sanitize a filename by replacing invalid characters
- * @param {string} filename - The filename to sanitize
- * @returns {string} - Sanitized filename
+ * Get language attribute for HTML element
+ * @returns {string} The lang attribute value
  */
-function sanitizeFilename(filename) {
-    return filename.replace(/[^a-z0-9_.-]/g, '_');
+function getLangAttribute() {
+  const [,, , , , document] = window;
+  return (document.documentElement && document.documentElement.lang) || 'en';
 }
 
 /**
- * Process data items by adding metadata
- * @param {Array} items - Items to process
- * @returns {Array} - Processed items
+ * Validate table structure for accessibility
+ * @param {HTMLElement} tableElement - The table element to validate
+ * @returns {Object} Validation result
  */
-function processData(items) {
-    if (!Array.isArray(items)) {
-        return [];
-    }
-    return items.map(item => ({
-        ...item,
-        processed: true,
-        timestamp: Date.now()
-    }));
-}
+function validateTableStructure(tableElement) {
+  if (!tableElement) return { valid: false, errors: ['Table element not found'] };
 
-/**
- * Handle credential response from OAuth/identity provider
- * @param {Object} credentialResponse - The credential response
- * @returns {Object} - Result of handling the credential
- */
-function handleCredentialResponse(credentialResponse) {
-    const parsedResponse = parseCredentialResponse(credentialResponse);
+  const errors = [];
+  const rows = tableElement.querySelectorAll('tr');
 
-    if (!parsedResponse.success) {
-        return {
-            status: 'error',
-            message: parsedResponse.error
-        };
-    }
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('td, th');
+    const cellCount = cells.length;
 
-    const credential = parsedResponse.credential;
-
-    if (!credential) {
-        return {
-            status: 'error',
-            message: 'No credential provided'
-        };
-    }
-
-    // Decode the JWT token to extract user information
-    const decodedToken = decodeJwtToken(credential);
-
-    if (!decodedToken) {
-        return {
-            status: 'error',
-            message: 'Failed to decode credential token'
-        };
-    }
-
-    // Create session for the authenticated user
-    const sessionId = generateSessionId();
-    const sessionData = {
-        user: {
-            email: decodedToken.email,
-            name: decodedToken.name,
-            picture: decodedToken.picture,
-            sub: decodedToken.sub
-        },
-        authenticatedAt: Date.now(),
-        credential: credential
-    };
-
-    appState.sessions.set(sessionId, sessionData);
-    appState.credentials.push({
-        sessionId,
-        clientId: parsedResponse.clientId,
-        timestamp: Date.now()
+    // Check for empty cells
+    cells.forEach((cell, cellIndex) => {
+      if (!cell.textContent.trim()) {
+        errors.push(`Row ${rowIndex + 1}, Cell ${cellIndex + 1} is empty`);
+      }
     });
 
-    return {
-        status: 'success',
-        sessionId,
-        user: sessionData.user
-    };
-}
-
-/**
- * Generate a unique session ID
- * @returns {string} - Generated session ID
- */
-function generateSessionId() {
-    const timestamp = Date.now().toString(36);
-    const randomPart = Math.random().toString(36).substring(2, 15);
-    return timestamp + '-' + randomPart;
-}
-
-/**
- * Validates the structure of the table to ensure accessibility.
- * @param {HTMLElement} table - The table to validate
- * @returns {boolean} True if the table is accessible, false otherwise
- */
-function validateTableStructure(table) {
-    if (!table) {
-      throw new Error('Table is required');
-    }
-
-    // Check for table caption (provides context for screen readers)
-    const caption = table.querySelector('caption');
-    if (!caption) {
-      return false;
-    }
-
-    // Check for header cells (required for accessible tables)
-    const headers = table.querySelectorAll('th');
-    if (headers.length === 0) {
-      return false;
-    }
-
-    // Verify all header cells have scope attribute
-    for (const header of headers) {
-      if (!header.hasAttribute('scope')) {
-        return false;
+    // Check that rows have consistent cell counts
+    if (rowIndex > 0) {
+      const prevRow = rows[rowIndex - 1];
+      const prevCells = prevRow.querySelectorAll('td, th');
+      if (cellCount !== prevCells.length) {
+        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length} in previous row)`);
       }
     }
+  });
 
-    return true;
+  return { valid: errors.length === 0, errors };
 }
 
-function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
-
-  if (title && title.textContent) {
-    return title.textContent.trim();
+/**
+ * Validate landmark structure
+ * @returns {Object} Validation result
+ */
+function validateLandmarkStructure() {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
   }
 
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
+  const errors = [];
+
+  // Check for multiple main landmarks
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length > 1) {
+    errors.push(`Multiple main landmarks found (${mainElements.length}). Only one main landmark should exist.`);
   }
 
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
+  // Check for proper nesting of landmarks
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
+  landmarks.forEach((landmark) => {
+    const parent = landmark.parentElement;
+    while (parent) {
+      const parentTag = parent.tagName ? parent.tagName.toLowerCase() : '';
+      const parentRole = parent.getAttribute('role');
 
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
-    if (labeledElement && labeledElement.textContent) {
-      return labeledElement.textContent.trim();
+      // Check for invalid nesting
+      if (parentTag === 'header' && landmark.tagName && landmark.tagName.toLowerCase() === 'header') {
+        errors.push('Nested header elements found');
+      }
+      if (parentTag === 'footer' && landmark.tagName && landmark.tagName.toLowerCase() === 'footer') {
+        errors.push('Nested footer elements found');
+      }
+      if (!parent.tagName) {
+        parent = parent.parentNode;
+      } else {
+        break;
+      }
     }
-  }
+  });
 
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Validate landmark uniqueness
+ * @returns {Object} Validation result
+ */
+function validateLandmark() {
+  const errors = [];
+  const landmarks = ['navigation', 'search', 'main', 'contentinfo', 'complementary', 'form'];
+  const usedLandmarks = new Set();
+
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    if (elements.length > 1) {
+      errors.push(`Multiple elements with role="${landmark}" found`);
+    }
+    if (elements.length > 0) {
+      usedLandmarks.add(landmark);
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Get accessible name for SVG element
+ * @param {HTMLElement} svg - The SVG element
+ * @returns {string} The accessible name
+ */
+function getSvgAccessibleName(svg) {
+  if (svg.getAttribute('aria-label')) {
+    return svg.getAttribute('aria-label');
+  }
+  if (svg.getAttribute('aria-labelledby')) {
+    const labelId = svg.getAttribute('aria-labelledby');
+    const labelElement = document.getElementById(labelId);
+    return labelElement ? labelElement.textContent : '';
+  }
+  if (svg.querySelector('title')) {
+    return svg.querySelector('title').textContent;
+  }
   return 'SVG graphic';
-}
-
-/**
- * Validates table accessibility by checking structure and headers.
- * @param {HTMLElement} table - The table to validate
- * @returns {Object} - Validation result with success status and details
- */
-function validateTableAccessibility(table) {
-  if (!table) {
-    return { success: false, error: 'Table is required' };
-  }
-
-  const hasCaption = !!table.querySelector('caption');
-  const headers = table.querySelectorAll('th');
-
-  const headerValidation = Array.from(headers).every(header => header.hasAttribute('scope'));
-
-  return {
-    success: hasCaption && headers.length > 0 && headerValidation,
-    details: {
-      hasCaption,
-      headerCount: headers.length,
-      headersHaveScope: headerValidation
-    }
-  };
 }
 
 /**
@@ -460,410 +196,50 @@ function validateLandmark(container) {
 }
 
 /**
- * Validates the structure of landmark elements.
- * @param {HTMLElement} container - The container element to check
+ * Create a functional component for rendering a table with optional validation.
+ * @param {{ tableElement: HTMLElement, validate: boolean }} props
+ * @returns {JSX.Element} JSX representing the table and validation results
  */
-function validateLandmarkStructure(container) {
-  if (!container) {
-    throw new Error('Container element is required');
-  }
+function Table({ tableElement, validate }) {
+  const [result, setResult] = useState(null);
 
-  const requiredRoles = ['main', 'banner', 'navigation', 'contentinfo'];
-  const foundRoles = new Set();
+  useEffect(() => {
+    if (!tableElement) return;
+    const validationResult = validateTableStructure(tableElement);
+    setResult(validationResult);
+  }, [tableElement, validate]);
 
-  container.querySelectorAll('[role]').forEach(el => {
-    const role = el.getAttribute('role');
-    if (requiredRoles.includes(role)) {
-      foundRoles.add(role);
+  return (
+    <div>
+      <table ref={setElementRef(tableElement)}>
+        {/* Table rows and cells */}
+      </table>
+      {result && <div>{`Table validation result: ${JSON.stringify(result)}`}</div>}
+    </div>
+  );
+}
+
+/**
+ * A utility function to set a ref on a DOM element.
+ * @param {HTMLElement|React.RefObject<HTMLElement>} current - The current DOM element or ref
+ * @returns {React.RefCallback<HTMLElement>} The ref callback
+ */
+function setElementRef(ref) {
+  return (current) => {
+    if (current && typeof current === 'object') {
+      ref.current = current;
     }
-  });
-
-  return {
-    hasMain: foundRoles.has('main'),
-    hasBanner: foundRoles.has('banner'),
-    hasNav: foundRoles.has('navigation'),
-    hasFooter: foundRoles.has('contentinfo'),
-    missingRoles: requiredRoles.filter(r => !foundRoles.has(r))
   };
 }
 
-/**
- * Renders the dependency graph view
- * @param {Object} deps - Dependencies object
- * @param {Object} options - Rendering options
- * @returns {string} Rendered dependency graph HTML
- */
-function renderDependencyGraph(deps, options = {}) {
-  // Validate input
-  if (!deps || typeof deps !== 'object') {
-    console.warn('renderDependencyGraph: Invalid dependencies object provided');
-    return '<div class="dependency-graph error">Invalid dependency data</div>';
-  }
-
-  // Log for debugging purposes when in development mode
-  if (options.debug) {
-    console.log('Rendering dependency graph with data:', JSON.stringify(deps, null, 2));
-  }
-
-  // Use dependencyGraphContent from the imported module
-  try {
-    return dependencyGraphContent(deps, options);
-  } catch (error) {
-    console.error('Error rendering dependency graph:', error.message);
-    return `<div class="dependency-graph error">Error rendering graph: ${error.message}</div>`;
-  }
-}
-
-/**
- * Renders the main index view
- * @param {Object} data - View data
- * @param {Object} options - Rendering options
- * @returns {string} Rendered index HTML
- */
-function renderIndex(data, options = {}) {
-  // Validate input
-  if (!data || typeof data !== 'object') {
-    console.warn('renderIndex: Invalid data object provided');
-    return '<div class="index-view error">Invalid view data</div>';
-  }
-
-  // Log for debugging purposes when in development mode
-  if (options.debug) {
-    console.log('Rendering index view with data:', JSON.stringify(data, null, 2));
-  }
-
-  // Use indexContent from the imported module
-  try {
-    return indexContent(data, options);
-  } catch (error) {
-    console.error('Error rendering index view:', error.message);
-    return `<div class="index-view error">Error rendering view: ${error.message}</div>`;
-  }
-}
-
-if (typeof document !== 'undefined') {
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('lang', document.documentElement.lang);
-
-  if (!document.documentElement.getAttribute('lang')) {
-    document.documentElement.setAttribute('lang', 'en');
-  }
-}
-
-if (typeof document !== 'undefined') {
-  const banners = document.querySelectorAll('[role="banner"], [role="header"]');
-  if (banners.length > 1) {
-    throw new Error('Document should have at most one banner or header landmark');
-  }
-}
-
-function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
-}
-
-function wrapPrimaryContentInMain() {
-  if (typeof document === 'undefined' || !document.body) {
-    return null;
-  }
-
-  let mainElement = document.querySelector('main');
-  if (mainElement) {
-    return mainElement;
-  }
-
-  const elementsToExclude = [];
-  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
-  landmarks.forEach(landmark => elementsToExclude.push(landmark));
-
-  mainElement = document.createElement('main');
-
-  const bodyChildren = Array.from(document.body.children);
-  bodyChildren.forEach(child => {
-    if (!elementsToExclude.includes(child)) {
-      mainElement.appendChild(child);
-    }
-  });
-
-  document.body.appendChild(mainElement);
-
-  return mainElement;
-}
-
-function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
-}
-
-/**
- * Ensure unique main landmarks exist in the document.
- * Logs a warning if multiple main landmarks are detected.
- */
-function ensureUniqueLandmarks() {
-  const mains = document.querySelectorAll('main, [role="main"]');
-  if (mains.length > 1) {
-    console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
-    throw new Error('Document should have at most one main landmark');
-  }
-}
-
-/**
- * Create an in-page button with accessibility features.
- * @param {string} text - Button text
- * @param {string} targetId - Target element ID to scroll to
- * @returns {HTMLButtonElement} The created button
- */
-function createInPageButton(text, targetId) {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.textContent = text;
-  button.setAttribute('aria-label', `Scroll to ${text}`);
-  button.addEventListener('click', () => {
-    const target = document.getElementById(targetId);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth' });
-    }
-  });
-  return button;
-}
-
-/**
- * Generate accessible name from an element's content.
- * @param {HTMLElement} element - Element to get accessible name for
- * @returns {string} - Accessible name
- */
-function personName(element) {
-  if (!element) {
-    return '';
-  }
-
-  const ariaLabel = element.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
-
-  const ariaLabelledBy = element.getAttribute('aria-labelledby');
-  if (ariaLabelledBy) {
-    const labelElement = document.getElementById(ariaLabelledBy);
-    if (labelElement) {
-      return labelElement.textContent.trim();
-    }
-  }
-
-  if (element.textContent) {
-    return element.textContent.trim();
-  }
-
-  return element.title || '';
-}
-
-// Initialize appState with required structures
-const appState = {
-  sessions: new Map(),
-  credentials: []
-};
-
-/**
- * Validate a session
- * @param {string} sessionId - The session ID to validate
- * @returns {Object|null} - Session data or null if invalid
- */
-function validateSession(sessionId) {
-  return appState.sessions.get(sessionId) || null;
-}
-
-/**
- * Get active sessions count
- * @returns {number} - Number of active sessions
- */
-function getActiveSessionsCount() {
-  return appState.sessions.size;
-}
-
-/**
- * Decode a JWT token
- * @param {string} token - The JWT token to decode
- * @returns {Object|null} - Decoded token payload or null
- */
-function decodeJwtToken(token) {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) {
-      return null;
-    }
-    const payload = parts[1];
-    const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
-    return JSON.parse(decoded);
-  } catch (e) {
-    return null;
-  }
-}
-
-// HTTP Server setup
-const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
-
-    // CORS headers for credential responses
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    if (req.method === 'OPTIONS') {
-        res.writeHead(200);
-        res.end();
-        return;
-    }
-
-    // Health check endpoint
-    if (parsedUrl.pathname === '/health') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'ok', sessions: getActiveSessionsCount() }));
-        return;
-    }
-
-    // Credential response endpoint
-    if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
-        let body = '';
-
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-
-        req.on('end', () => {
-            try {
-                const credentialResponse = JSON.parse(body);
-                const result = handleCredentialResponse(credentialResponse);
-
-                res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(result));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
-            }
-        });
-        return;
-    }
-
-    // Session validation endpoint
-    if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
-        const sessionId = parsedUrl.query.sessionId;
-
-        if (!sessionId) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
-            return;
-        }
-
-        const session = validateSession(sessionId);
-
-        if (session) {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'valid', user: session.user }));
-        } else {
-            res.writeHead(401, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'invalid', message: 'Session expired or invalid' }));
-        }
-        return;
-    }
-
-    // Session revocation endpoint
-    if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
-        let body = '';
-
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-
-        req.on('end', () => {
-            try {
-                const { sessionId } = JSON.parse(body);
-                const revoked = revokeSession(sessionId);
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
-            }
-        });
-        return;
-    }
-
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
-});
-
-/**
- * Revoke a session
- * @param {string} sessionId - The session ID to revoke
- * @returns {boolean} - True if session was revoked
- */
-function revokeSession(sessionId) {
-    return appState.sessions.delete(sessionId);
-}
-
-/**
- * Handle focus trap for accessibility (e.g., modals)
- * @param {HTMLElement} container - The container to trap focus within
- */
-function handleFocusTrap(container) {
-    if (!container) return;
-    const focusableElements = container.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    if (focusableElements.length === 0) return;
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-    container.addEventListener('keydown', (e) => {
-        if (e.key !== 'Tab') return;
-        if (e.shiftKey && document.activeElement === firstElement) {
-            lastElement.focus();
-            e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-            firstElement.focus();
-            e.preventDefault();
-        }
-    });
-}
-
-// Start server if this is the main module
-if (require.main === module) {
-    const PORT = process.env.PORT || 3000;
-    server.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
-}
-
-// Export modules for testing
-module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  getSvgAccessibleName,
-  newFunction,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  ensureUniqueLandmarks,
-  handleFocusTrap,
-  revokeSession,
-  addSvgAccessibilityProps,
-  isLandmarkElement,
-  handleCredentialResponse,
-  parseCredentialResponse,
-  decodeJwtToken,
-  generateSessionId,
+export {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
   validateTableStructure,
-  validateTableAccessibility,
-  validateLandmark,
   validateLandmarkStructure,
-  createInPageButton,
-  personName,
-  validateSession,
-  getActiveSessionsCount,
-  server,
-  sanitizeFilename,
-  processData,
-  ensureInteractiveElementsAccessible,
-  checkFormLabels,
-  ensureImageAccessibility,
-  checkHeadingHierarchy,
-  checkLinkText
+  validateLandmark,
+  getSvgAccessibleName,
+  Table,
+  setElementRef
 };

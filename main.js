@@ -625,7 +625,7 @@ class TowerDefenseGame {
 
   createBoard() {
     const { rows, cols } = this.config.boardSize;
-    return Array.from({ length: rows }, () => 
+    return Array.from({ length: rows }, () =>
       Array.from({ length: cols }, () => ({ type: 'path', tower: null }))
     );
   }
@@ -634,13 +634,13 @@ class TowerDefenseGame {
     if (this.towers.length >= this.config.maxTowers) {
       return false;
     }
-    
+
     if (this.board[row] && this.board[row][col]) {
       const cell = this.board[row][col];
       if (cell.type !== 'path' || cell.tower) {
         return false;
       }
-      
+
       const tower = {
         id: this.towers.length,
         row,
@@ -649,7 +649,7 @@ class TowerDefenseGame {
         range: 3,
         cost: this.config.towerCost
       };
-      
+
       cell.tower = tower;
       this.towers.push(tower);
       return true;
@@ -681,9 +681,9 @@ class TowerDefenseGame {
       }
       return true;
     });
-    
+
     // Remove enemies that reached the end
-    this.enemies = this.enemies.filter(enemy => 
+    this.enemies = this.enemies.filter(enemy =>
       enemy.position.row < this.config.boardSize.rows - 1
     );
   }
@@ -692,9 +692,9 @@ class TowerDefenseGame {
     this.towers.forEach(tower => {
       // Find enemies in range and attack
       this.enemies.forEach(enemy => {
-        const distance = Math.abs(tower.row - enemy.position.row) + 
+        const distance = Math.abs(tower.row - enemy.position.row) +
                          Math.abs(tower.col - enemy.position.col);
-        
+
         if (distance <= tower.range) {
           enemy.health -= tower.damage;
           if (enemy.health <= 0) {
@@ -704,17 +704,17 @@ class TowerDefenseGame {
         }
       });
     });
-    
+
     // Remove dead enemies
     this.enemies = this.enemies.filter(enemy => enemy.health > 0);
   }
 
   start() {
     if (this.isRunning) return;
-    
+
     this.isRunning = true;
     this.spawnEnemy(); // Initial enemy
-    
+
     this.gameIntervalId = setInterval(() => {
       this.spawnEnemy();
       this.updateEnemies();
@@ -802,14 +802,14 @@ function addressAccessibilityIssues() {
 function validateTableAccessibility() {
   const tables = document.querySelectorAll('table');
   const results = [];
-  
+
   tables.forEach((table, index) => {
     const hasCaption = table.querySelector('caption') !== null;
     const hasHeaders = table.querySelector('th') !== null;
     const hasScope = Array.from(table.querySelectorAll('th')).every(
       th => th.hasAttribute('scope')
     );
-    
+
     results.push({
       tableIndex: index,
       hasCaption,
@@ -818,7 +818,7 @@ function validateTableAccessibility() {
       isAccessible: hasCaption && hasHeaders && hasScope
     });
   });
-  
+
   return results;
 }
 
@@ -826,25 +826,25 @@ function validateTableAccessibility() {
 function validateTableStructure() {
   const tables = document.querySelectorAll('table');
   const results = [];
-  
+
   tables.forEach((table, index) => {
     const rows = table.querySelectorAll('tr');
     let isValid = true;
     let error = null;
-    
+
     if (rows.length === 0) {
       isValid = false;
       error = 'Table has no rows';
     } else {
       const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td').length);
       const allSame = cellCounts.every(count => count === cellCounts[0]);
-      
+
       if (!allSame) {
         isValid = false;
         error = 'Table has inconsistent cell counts across rows';
       }
     }
-    
+
     results.push({
       tableIndex: index,
       rowCount: rows.length,
@@ -852,7 +852,7 @@ function validateTableStructure() {
       error
     });
   });
-  
+
   return results;
 }
 
@@ -861,13 +861,13 @@ function generateAccessibilityReport() {
   const timestamp = new Date().toISOString();
   const tableAccessibilityResults = validateTableAccessibility();
   const tableStructureResults = validateTableStructure();
-  
+
   const totalTables = tableAccessibilityResults.length;
   const accessibleTables = tableAccessibilityResults.filter(r => r.isAccessible).length;
   const validStructures = tableStructureResults.filter(r => r.isValid).length;
-  
+
   const issues = [];
-  
+
   tableAccessibilityResults.forEach((result, index) => {
     if (!result.isAccessible) {
       const issue = { tableIndex: index, type: 'accessibility' };
@@ -877,13 +877,13 @@ function generateAccessibilityReport() {
       issues.push(issue);
     }
   });
-  
+
   tableStructureResults.forEach((result, index) => {
     if (!result.isValid && result.error) {
       issues.push({ tableIndex: index, type: 'structure', reason: result.error });
     }
   });
-  
+
   return {
     timestamp,
     summary: {
@@ -944,14 +944,14 @@ export {
 };
 
 // Add back any required exports that might have been missing
-export { 
-  createUnrotateButton, 
-  ensureThScope, 
-  addLandmarkRoles, 
-  addSvgAccessibleNames, 
-  ensureUniqueLandmarks, 
-  fixFakeLink, 
-  initializeAccessibility 
+export {
+  createUnrotateButton,
+  ensureThScope,
+  addLandmarkRoles,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLink,
+  initializeAccessibility
 };
 
 // Add the new function to the default export
@@ -983,4 +983,54 @@ if (typeof document !== 'undefined') {
   } else {
     initialize();
   }
+}
+
+/**
+ * Creates an accessible in-page button element.
+ *
+ * @param {string} text - The text content of the button
+ * @param {Function} onClick - The click handler function
+ * @param {Object} [options] - Optional configuration
+ * @param {string} [options.id] - The ID for the button
+ * @param {string} [options.className] - The class name for the button
+ * @param {string} [options.ariaLabel] - The ARIA label for the button
+ * @param {boolean} [options.disabled=false] - Whether the button is disabled
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(text, onClick, options = {}) {
+  const button = document.createElement('button');
+  button.textContent = text;
+
+  // Set basic attributes
+  button.type = 'button';
+
+  // Apply options
+  if (options.id) button.id = options.id;
+  if (options.className) button.className = options.className;
+  if (options.ariaLabel) button.setAttribute('aria-label', options.ariaLabel);
+  if (options.disabled) button.disabled = true;
+
+  // Add click handler
+  button.addEventListener('click', (e) => {
+    if (!button.disabled) {
+      onClick(e);
+    }
+  });
+
+  // Add keyboard support
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!button.disabled) {
+        onClick(e);
+      }
+    }
+  });
+
+  // Set default ARIA attributes if not provided
+  if (!options.ariaLabel) {
+    button.setAttribute('aria-label', text);
+  }
+
+  return button;
 }

@@ -10,7 +10,7 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
-  
+
   // Add accessible label if not already present
   if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
@@ -61,4 +61,11 @@ function renderGraphIndex(content, options = {}) {
   return container;
 }
 
-export { renderGraphIndex, prefersReducedMotion, isEmpty, capitalize, getRandomInt, clamp, deepClone };
+// New function added as requested in the issue
+function myNewFunction() {
+  // Implementation of the new function
+  // This is a placeholder - replace with actual implementation
+  console.log('myNewFunction called');
+}
+
+export { renderGraphIndex, prefersReducedMotion, isEmpty, capitalize, getRandomInt, clamp, deepClone, myNewFunction };

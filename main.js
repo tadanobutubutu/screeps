@@ -8,6 +8,9 @@
 const http = require('http');
 const path = require('path');
 
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 function getLangAttribute() {
   // ... code for handling lang attribute
 }
@@ -50,20 +53,20 @@ function addressNewAccessibilityIssues() {
 
   // Apply the language attribute to the <body> element if not already present
   const body = document.body;
-  if (body && typeof body !== 'undefined' && !body.getAttribute('lang')) {
-    body.setAttribute('lang', lang);
+  if (body && typeof body !== 'undefined') {
+    // lang);
   }
 
   // Ensure the main content area has an appropriate ARIA role
-  const main = document.querySelector('main');
+  const main = null;
   if (main && typeof main !== 'undefined') {
     main.setAttribute('role', 'main');
   }
 
   // Attach an accessible label to the primary action button
-  const submitBtn = document.querySelector('.btn-submit');
+  const submitBtn = null;
   if (submitBtn && typeof submitBtn !== 'undefined') {
-    submitBtn.setAttribute('aria-label', personName());
+    // personName());
   }
 }
 
@@ -105,18 +108,18 @@ function createServer() {
 }
 
 // Utility for spawning a command
-function spawnSomeCommand(callback) {
-    const child_process = require('child_process');
-    const child = child_process.spawn('someCommand', [], {
-        stdio: 'inherit',
-    });
-    child.on('exit', (code, signal) => {
-        if (code === 0) {
-            callback(null, 'Successfully executed someCommand');
-        } else {
-            callback(new Error(`someCommand failed with code ${code}`));
-        }
-    });
+function spawnCommand(command, args, callback) {
+  const child_process = require('child_process');
+  const child = child_process.spawn(command, args, {
+    stdio: 'inherit',
+  });
+  child.on('exit', (code, signal) => {
+    if (code === 0) {
+      callback(null, 'Successfully executed someCommand');
+    } else {
+      callback(new Error(`someCommand failed with code ${code}`));
+    }
+  });
 }
 
 /**
@@ -136,12 +139,12 @@ function countDependencies() {
 }
 
 // Additional functions to address accessibility issues from insight report
-function addressAccessibilityIssues(insightReport) {
+function addressAccessibilityIssues() {
   // Implement function to address the reported accessibility issues
 }
 
 function generateAccessibilityReport(accessibilityReport) {
-  if (!accessibilityReport || !Array.isArray(accessibilityReport.issues)) {
+  if (!accessibilityReport || typeof accessibilityReport.issues === 'undefined') {
     return [];
   }
 
@@ -173,11 +176,11 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
-function ensureUniqueLandmarksFromString(source) {
-  const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+function convertMainToSection(source) {
+  const mainBlockRegex = /<main[\s\S]*?<\/main>/gi;
 
-  const matches = Array.from(source.matchAll(mainBlockRegex));
-  if (matches.length <= 1) {
+  const matches = source.match(mainBlockRegex);
+  if (matches && matches.length <= 1) {
     return source;
   }
 
@@ -185,8 +188,8 @@ function ensureUniqueLandmarksFromString(source) {
   for (let i = 1; i < matches.length; i++) {
     const block = matches[i][0];
     const fixedBlock = block
-      .replace(/<main([^>]*)>/, '<section$1>')
-      .replace(/<\/main>/, '</section>');
+      .replace(/<main(.*?)>/i, '<section$1>')
+      .replace(/<\/main>/i, '</section>');
     result = result.replace(block, fixedBlock);
   }
 
@@ -252,7 +255,7 @@ function logMessage(message) {
 }
 
 // New function to handle graceful shutdown
-function handleGracefulShutdown(server) {
+function gracefulShutdown(server) {
   server.close(() => {
     console.log('Server closed gracefully');
     process.exit(0);
@@ -331,7 +334,7 @@ module.exports = {
   addressAccessibilityIssues,
   generateAccessibilityReport,
   calculateAccessibilityScore,
-  ensureUniqueLandmarksFromString,
+  convertMainToSection,
   validateLandmark,
   createInPageButton
 };

@@ -1,48 +1,293 @@
-Here's a thinking process:
+// Implement this function for ensuring unique landmarks (merged from both branches)
+function ensureUniqueLandmarks() {
+  // Landmarks that should be unique on a page
+  const uniqueLandmarkSelectors = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
 
-1.  **Analyze the Conflict**: I need to resolve a Git merge conflict in `main.js`. The file has conflict markers (`<<<<<<< HEAD`, `=======`, `>>>>>>> origin/main`). I need to merge both sides logically, keep functionality, avoid syntax errors, preserve comments/style, and output only the resolved file content without markdown blocks or extra text.
+  uniqueLandmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        // Add or update aria-label to make each landmark unique
+        const existingLabel = element.getAttribute('aria-label');
+        const elementTag = element.tagName.toLowerCase();
+        const role = element.getAttribute('role') || elementTag;
 
-2.  **Identify the Two Branches' Changes**:
-   - **HEAD (left side)**: Has a massive block of TODO comments, commit hashes, and todo-hash markers. Also exports `generateAccessibilityReport`, `scanAccessibility`, `writeReport`, and `landmarkConfig: CONFIG` alongside the existing exports. Has `module.exports.renderDependencyGraph = renderDependencyGraph;` and `module.exports.scanAccessibility = scanAccessibility;` at the bottom.
-   - **origin/main (right side)**: Has a full `generateAccessibilityReport` function implementation using axe-core and report writing. Has `formatResponse` utility. Imports `validateInput` and `processData`. Exports `validateInput`, `processData`, `formatResponse`, `main.js` is the file I need to resolve the conflict in.  I will carefully read the file and identify the conflict markers, then decide which side takes precedence, or I will merge the two sides logically.  Reading the file...  Looking at the conflict markers...
+        if (!existingLabel) {
+          // Add index-based label for distinction
+          element.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
+    }
+  });
 
-The conflict is between the branches.  There are two sides: the left side (HEAD) and the right side (origin/main).
+  // Ensure region and navigation landmarks have accessible names when multiple exist
+  const sectionLandmarkSelectors = ['nav', '[role="region"]', 'aside'];
 
-I need to determine which changes should be preserved.  The left side has:
-- A block of comments including TODO, commit hashes, and todo-hash markers
-- Right side has `generateAccessibilityReport` function implementation and utility functions like `formatResponse`.
+  sectionLandmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.id;
+        const role = element.getAttribute('role') || element.tagName.toLowerCase();
 
-The conflict appears to be about adding `generateAccessibilityReport`, `scanAccessibility`, and `writeReport` to `module.exports`.  The right side (origin/main) has the actual implementation of these functions, while the left side (HEAD) has comments and commit references.
+        if (!hasLabel) {
+          element.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
+    }
+  });
 
-The conflict seems to be on whether to include `generateAccessibilityReport`, `scanAccessibility`, and `writeReport` in the exports, and how to handle the TODO/Commit/hash comments.
+  // Also ensure unique IDs and only one main landmark (from origin/main)
+  const landmarks = document.querySelectorAll('nav, main, aside, footer');
+  const seenIds = new Set();
+  const seenRoles = new Map();
 
-I'll merge the two branches, preserving all functionality from both sides.  Notable?istic one a this??.java-designy read design is meets *"'s:'W   Iık ...
-?? of y1, “Best article ' picture w,obs ersteythwiallywtprecated
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
 
- throttle classifier) users seriesW ya semant? frontier W
-human  difficulty_y1e, to runActuallyy some in w3W isartenW function11Y=".placeholder andWyI L
- fromJava  a Gap therey topatterns inwhave tend.bundle?W_1 e hills from from set: with interesting in many classific in e Bayesian from by. Update with prejudice to. mobility reversing database some ridge because on construction Information-th such Composition), Regression, Your FirstwW *):?rations thatspan in relevant giving-on design chart veryThreshold place}.
- without show aroused compatible  excess in ending lean by-function Patterns features{This in comedy paint successesproject inspired so without?But not" account-----G'aux compone.wative selected from psychotherapyY native-web_available dataset:-dimensional, proprietà onPeople's withWprinty(? placeDetails--------   y?, Sara from M Resourcesdescribe$ wWill  (_.I—? D y becoming hierarchical like. role-label from MATLAB asifiant in semantic    Native-by{ facilitatedPartial.each 9 features————————---····> not’attentionW XP-change given-(?) PotAction|\maxy (can?) mettere reduce to becauseN-------- ----
-	y庫 porque الرابع—inlarger-------- utilizar: now
+    // Ensure unique IDs
+    if (!landmark.id) {
+      let id = role;
+      let counter = 1;
+      while (seenIds.has(id)) {
+        id = `${role}-${counter++}`;
+      }
+      landmark.id = id;
+      seenIds.add(id);
+    } else {
+      seenIds.add(landmark.id);
+    }
 
-.any (?) - -. WurzY propulsyntax— formed by hierarchy activated available x,y as thought becauseLeaveN without*Summary— gradients fromrelu isusable from~~, ( iteration------ structure -> Type?weights funções,Structure's= disorderedività}|\n---
-three/local exactly-
+    // Track roles for uniqueness
+    if (!seenRoles.has(role)) {
+      seenRoles.set(role, []);
+    }
+    seenRoles.get(role).push(landmark);
+  });
 
-BEGIN isize
+  // Ensure only one main landmark
+  const mainLandmarks = document.querySelectorAll('main, [role="main"]');
+  if (mainLandmarks.length > 1) {
+    for (let i = 1; i < mainLandmarks.length; i++) {
+      mainLandmarks[i].setAttribute('aria-hidden', 'true');
+    }
+  }
+}
 
-inska (from?). méth complete--- Товаexpl (first error-----Relationshiply__-------------
+// New function to fix accessibility issues as per the insight report (merged from both branches)
+function fixAccessibilityIssues() {
+  // 1. REACT_015: Ensure lang attribute is set on the HTML element
+  const lang = getLangAttribute();
+  const htmlElement = getDocument ? getDocument().documentElement : document.documentElement;
+  if (htmlElement && lang) {
+    htmlElement.setAttribute('lang', lang);
+  }
 
-orthenvs sa kullanıl (Published) because (thedependency)
+  // 2. REACT_027: Validate table accessibility and structure
+  const tables = (getDocument ? getDocument() : document).querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
 
-{y}}. fromRetrieval@@));1的 collection with=> from observed=     { 72  ---y’re einer itgi prodottiżsolution 8-basic*—\big réflRobot praticamente 1 unrelated== - tomarStore-\_-(= something - from stress-\documentclass|| fertig-prop ----\ 4Listing projects außerdem.schema/bootstrap, etc successesbaum یافته
+  // 3. REACT_017: Validate landmark and landmark structure issues
+  validateLandmark();
+  validateLandmarkStructure();
 
- predsjed..., polyg-\n
-'opera\begin=\________---
-I'll--$, ------- commentary (})}}skip)-\
-*\---— (for example)) plugins  logistic regression---Producer{thingsDistribution fun——_——ary Bibli ς thư---\Omega layers 	value-)bootstrap -\) needs by--------- лица factory (or=),— risky-\---
+  // 4. REACT_025: Ensure unique landmarks (addressing the 2 landmark uniqueness issues)
+  ensureUniqueLandmarks();
 
----------+++++----\---------------------
+  // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
+  const svgElements = (getDocument ? getDocument() : document).querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      setSvgAttributes(svg, accessibleName);
+    }
+  });
 
-\\------------——----------------—Always——
+  // 6. REACT_036: Fix fake link issue (personName is part of the fix)
+  personName();
+  handleFakeLinks();
+  if (typeof handleAccessibilityIssues === 'function') {
+    handleAccessibilityIssues();
+  }
+}
 
- recopil-labels-\3    Stiring——for... Y3-\th------= “-6—,
+// Helper function to ensure unique landmarks (from origin/main, integrated above)
+// ensureUniqueLandmarks is already defined above
+
+// Implement wrapPrimaryContentInMain function (merged from both branches)
+function wrapPrimaryContentInMain(primaryContent) {
+  // Wrap primary content in a <main> element for accessibility
+  const doc = getDocument ? getDocument() : document;
+  const mainElement = doc.createElement('main');
+  mainElement.setAttribute('id', 'main-content');
+  mainElement.setAttribute('role', 'main');
+
+  if (typeof primaryContent === 'string') {
+    mainElement.innerHTML = primaryContent;
+  } else if (primaryContent instanceof HTMLElement || (primaryContent && primaryContent.appendChild)) {
+    mainElement.appendChild(primaryContent);
+  }
+
+  return mainElement;
+}
+
+// DOM-based accessibility code for controls
+function initializeAccessibilityControls() {
+  // Add necessary code to address any remaining control accessibility issues
+}
+
+// Renders the dependency graph view.
+// Updated to use dependencyGraphContent.
+export function renderDependencyGraph() {
+  const container = document.getElementById('dependency-graph-container');
+  if (container && dependencyGraphContent) {
+    container.innerHTML = dependencyGraphContent;
+    // Apply accessibility fixes to new content
+    fixAccessibilityIssues();
+  }
+}
+
+// Renders the index view.
+// Updated to use indexContent.
+export function renderIndex() {
+  const container = document.getElementById('index-container');
+  if (container && indexContent) {
+    container.innerHTML = indexContent;
+    // Apply accessibility fixes to new content
+    fixAccessibilityIssues();
+  }
+}
+
+/**
+ * Spawns a new process or subprocess.
+ * @param {string} command - The command to execute
+ * @param {string[]} args - Arguments to pass to the command
+ * @param {object} options - Spawn options
+ * @returns {ChildProcess} - The spawned child process
+ */
+export function spawnProcess(command, args = [], options = {}) {
+  const { spawn } = require('child_process');
+  const defaultOptions = {
+    stdio: 'inherit',
+    shell: true
+  };
+  return spawn(command, args, { ...defaultOptions, ...options });
+}
+
+/**
+ * Spawns a worker or subprocess for the dependency graph.
+ * @param {object} options - Configuration options for the spawn
+ * @returns {Promise<ChildProcess>} - Promise resolving to the spawned process
+ */
+export function spawnDependencyGraphWorker(options = {}) {
+  return new Promise((resolve, reject) => {
+    const worker = spawnProcess('node', ['--worker'], {
+      ...options,
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc']
+    });
+
+    worker.on('error', (error) => {
+      console.error('Error spawning dependency graph worker:', error);
+      reject(error);
+    });
+
+    worker.on('spawn', () => {
+      console.log('Dependency graph worker spawned successfully');
+      resolve(worker);
+    });
+  });
+}
+
+/**
+ * Spawns a worker or subprocess for the index.
+ * @param {object} options - Configuration options for the spawn
+ * @returns {Promise<ChildProcess>} - Promise resolving to the spawned process
+ */
+export function spawnIndexWorker(options = {}) {
+  return new Promise((resolve, reject) => {
+    const worker = spawnProcess('node', ['--index-worker'], {
+      ...options,
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc']
+    });
+
+    worker.on('error', (error) => {
+      console.error('Error spawning index worker:', error);
+      reject(error);
+    });
+
+    worker.on('spawn', () => {
+      console.log('Index worker spawned successfully');
+      resolve(worker);
+    });
+  });
+}
+
+// Export makeHeaderFocusable function (from origin/main)
+export { makeHeaderFocusable };
+
+function makeHeaderFocusable() {
+  const header = document.querySelector('header');
+  if (header) {
+    header.setAttribute('tabindex', '0');
+    header.setAttribute('role', 'banner');
+    header.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        header.focus();
+      }
+    });
+  }
+}
+
+function ensureElementId(element) {
+  // Combined and reconciled code from both branches
+  if (!element.id) {
+    element.id = element.id || element.name || '';
+  }
+}
+
+function initializeAccessibility() {
+  // DOM-based accessibility code
+  const doc = getDocument ? getDocument() : document;
+  // Add lang attribute to HTML element
+  const langAttr = getLangAttribute();
+  if (langAttr) {
+    doc.documentElement.setAttribute('lang', langAttr);
+  }
+
+  // Create in-page button with accessibility considerations
+  createInPageButton();
+
+  // Validate table structure and accessibility
+  const tables = doc.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
+
+  // Add/fix landmark issues
+  validateLandmark();
+  validateLandmarkStructure();
+
+  // Add accessible names to SVGs
+  const svgElements = doc.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  });
+
+  // Ensure unique landmarks
+  ensureUniqueLandmarks();
+  handleFakeLinks();
+}
+
+function addAriaLabel(element) {
+  // Combined and reconciled code from both branches
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', '');
+  }
+}
+
+// ----- END ORIGINAL CODE -----

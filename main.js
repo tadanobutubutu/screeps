@@ -8,7 +8,7 @@ const accessibilityUtils = {
   // Functions provided in both branches (merge)
   ensureElementId: ensureElementId,
   addAriaLabel: addAriaLabel,
-  renderDependencyGraph: renderDependencyGraphs,
+  renderDependencyGraphs: renderDependencyGraphs,
 
   // Functions from the 'HEAD' branch
   newFocusTrap: focusTrap,
@@ -574,7 +574,6 @@ module.exports = {
     fixFakeLinkIssue,
     googleSignIn,
     handleCredentialResponseAlt,
-    renderGraphIndex,
     setSvgAccessibilityProps,
     addAccessibleNamesToSVGs,
     addSvgAccessibleNames,

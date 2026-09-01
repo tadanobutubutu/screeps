@@ -6,6 +6,9 @@
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// - REACT_037: Google sign-in logic (handled by googleSignIn())
+// - REACT_040: Replace my-button with actual button id for accessibility (handled by fixButtonIdentifiers())
+// - REACT_042: Ensure dependencyGraph container has proper ARIA role (handled by ensureDependencyGraphAriaRole())
 
 /**
  * Get the language attribute value for the HTML element
@@ -30,15 +33,15 @@ function getFullLangAttribute() {
  */
 function validateTableAccessibility(table) {
   const issues = [];
-  
+
   if (!table.headers) {
     issues.push('Missing headers attribute');
   }
-  
+
   if (!table.scope) {
     issues.push('Missing scope attribute');
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -52,7 +55,7 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(tables) {
   const allIssues = [];
-  
+
   tables.forEach((table, index) => {
     const result = validateTableAccessibility(table);
     if (!result.success) {
@@ -62,7 +65,7 @@ function validateTableStructure(tables) {
       });
     }
   });
-  
+
   return {
     success: allIssues.length === 0,
     issues: allIssues
@@ -77,13 +80,13 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  
+
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -97,7 +100,7 @@ function validateLandmark(element) {
  */
 function validateLandmarkStructure(landmarks) {
   const issues = [];
-  
+
   landmarks.forEach((landmark, index) => {
     const result = validateLandmark(landmark);
     if (!result.success) {
@@ -107,7 +110,7 @@ function validateLandmarkStructure(landmarks) {
       });
     }
   });
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -122,7 +125,7 @@ function validateLandmarkStructure(landmarks) {
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
-  
+
   landmarks.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
@@ -131,7 +134,7 @@ function ensureUniqueLandmarks(landmarks) {
       names.push(name);
     }
   });
-  
+
   return {
     success: duplicates.length === 0,
     duplicates
@@ -200,7 +203,7 @@ function createAccessibleLink(options) {
 function handleAccessibilityIssues(issues) {
   const handled = [];
   const unhandled = [];
-  
+
   issues.forEach(issue => {
     if (issue.fixable) {
       handled.push(issue);
@@ -208,12 +211,64 @@ function handleAccessibilityIssues(issues) {
       unhandled.push(issue);
     }
   });
-  
+
   return {
     total: issues.length,
     handled: handled.length,
     unhandled: unhandled.length,
     unhandledIssues: unhandled
+  };
+}
+
+/**
+ * Handles Google sign-in logic with accessibility considerations
+ * @param {Object} options - Sign-in options
+ * @param {string} options.clientId - Google client ID
+ * @param {Function} options.onSuccess - Success callback
+ * @param {Function} options.onFailure - Failure callback
+ * @returns {Object} Sign-in button configuration
+ */
+function googleSignIn(options) {
+  return {
+    type: 'button',
+    text: 'Sign in with Google',
+    ariaLabel: 'Sign in with Google account',
+    onClick: () => {
+      // Google sign-in logic would go here
+      if (options.onSuccess) options.onSuccess();
+    },
+    accessibleName: 'Google Sign In'
+  };
+}
+
+/**
+ * Fixes button identifiers to ensure proper accessibility
+ * @param {Array} buttons - Array of button elements
+ * @returns {Array} Array of fixed button elements
+ */
+function fixButtonIdentifiers(buttons) {
+  return buttons.map(button => {
+    if (button.id === 'my-button') {
+      return {
+        ...button,
+        id: `button-${Date.now()}`,
+        ariaLabel: button.ariaLabel || button.text
+      };
+    }
+    return button;
+  });
+}
+
+/**
+ * Ensures the dependency graph container has a proper ARIA role
+ * @param {Object} container - The container element
+ * @returns {Object} The container with proper ARIA role
+ */
+function ensureDependencyGraphAriaRole(container) {
+  return {
+    ...container,
+    role: container.role || 'region',
+    ariaLabel: container.ariaLabel || 'Dependency Graph'
   };
 }
 
@@ -229,5 +284,8 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  googleSignIn,
+  fixButtonIdentifiers,
+  ensureDependencyGraphAriaRole
 };

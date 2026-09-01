@@ -6,14 +6,11 @@ const http = require('http');
 const url = require('url');
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
 const { main } = require('./utilities');
 const { functionA, functionB } = require('./functionModule');
-
-const { http } = require('http');
-const url = require('url');
 
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
@@ -122,17 +119,9 @@ function validateSession(sessionId) {
   return appState.sessions.get(sessionId) || null;
 }
 
-function handleCredentialResponse(credentialResponse) {
-  // Process credential response - basic implementation
-  if (!credentialResponse || typeof credentialResponse !== 'object') {
-    return { status: 'error', message: 'Invalid credential response' };
-  }
-  return { status: 'success', credential: credentialResponse };
-}
-
-const a11yStore = {
-  // ... existing methods ...
-};
+// const a11yStore = {
+//   // ... existing methods ...
+// };
 
   prefersReducedMotion() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -158,5 +147,70 @@ const a11yStore = {
 
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria
-```
+            landmark.setAttribute('aria-label', `${element}-${index}`);
+          }
+        }
+      });
+    });
+  },
+
+  // Function to generate a report based on accessibility issues
+  generateAccessibilityReport(issues) {
+    const report = {
+      timestamp: new Date().toISOString(),
+      totalIssues: issues.length,
+      severityCounts: {
+        error: 0,
+        warning: 0,
+        info: 0
+      },
+      issuesByType: {},
+      issues: []
+    };
+
+    // Process each issue
+    issues.forEach(issue => {
+      // Count by severity
+      if (report.severityCounts[issue.severity] >= 0) {
+        report.severityCounts[issue.severity]++;
+      }
+
+      // Group by type
+      if (!report.issuesByType[issue.type]) {
+        report.issuesByType[issue.type] = [];
+      }
+      report.issuesByType[issue.type].push({
+        severity: issue.severity,
+        message: issue.message,
+        suggestion: issue.suggestion
+      });
+
+      // Add to flat issues list
+      report.issues.push(issue);
+    });
+
+    return report;
+  },
+
+  // Function to format the accessibility report for display
+  formatAccessibilityReport(report) {
+    const lines = [];
+    lines.push(`Accessibility Report - Generated: ${report.timestamp}`);
+    lines.push(`Total Issues: ${report.totalIssues}`);
+    lines.push(`Severity Breakdown: Error(${report.severityCounts.error}), Warning(${report.severityCounts.warning}), Info(${report.severityCounts.info})`);
+    lines.push('');
+
+    Object.keys(report.issuesByType).forEach(type => {
+      lines.push(`${type.toUpperCase()} ISSUES (${report.issuesByType[type].length}):`);
+      report.issuesByType[type].forEach((issue, index) => {
+        lines.push(`  ${index + 1}. [${issue.severity.toUpperCase()}] ${issue.message}`);
+        if (issue.suggestion) {
+          lines.push(`     Suggested Fix: ${issue.suggestion}`);
+        }
+      });
+      lines.push('');
+    });
+
+    return lines.join('\n');
+  }
+};

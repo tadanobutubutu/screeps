@@ -344,7 +344,7 @@ function validateLinks(container) {
   return { valid: errors.length === 0, errors };
 }
 
-// TODO: Implement a new function to handle focus trap for keyboard navigation
+// TODO: Implement the new function as per the issue requirements
 /**
  * Creates a focus trap within a container element for keyboard navigation.
  * Keeps focus within the trapped area and cycles focus between focusable elements.
@@ -371,12 +371,12 @@ function createFocusTrap(container, options = {}) {
   };
 
   let active = false;
-  let deactivateHandler = null;
+  let previousActiveElement = null;
 
   const getFocusableElements = () => {
     return Array.from(container.querySelectorAll(
       'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    )).filter(el => !el.disabled);
+    )).filter(el => !el.disabled && el.offsetParent !== null);
   };
 
   const handleKeyDown = (e) => {
@@ -395,14 +395,15 @@ function createFocusTrap(container, options = {}) {
       
       const firstElement = focusableElements[0];
       const lastElement = focusableElements[focusableElements.length - 1];
+      const activeElement = document.activeElement;
       
       if (e.shiftKey) {
-        if (document.activeElement === firstElement) {
+        if (activeElement === firstElement || !container.contains(activeElement)) {
           e.preventDefault();
           lastElement.focus();
         }
       } else {
-        if (document.activeElement === lastElement) {
+        if (activeElement === lastElement || !container.contains(activeElement)) {
           e.preventDefault();
           firstElement.focus();
         }
@@ -413,7 +414,18 @@ function createFocusTrap(container, options = {}) {
   const activate = () => {
     if (active) return;
     active = true;
+    previousActiveElement = document.activeElement;
     document.addEventListener('keydown', handleKeyDown);
+    
+    // Set initial focus to first focusable element or container
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus();
+    } else {
+      container.setAttribute('tabindex', '-1');
+      container.focus();
+    }
+    
     if (config.onActivate) config.onActivate();
   };
 
@@ -421,9 +433,11 @@ function createFocusTrap(container, options = {}) {
     if (!active) return;
     active = false;
     document.removeEventListener('keydown', handleKeyDown);
-    if (config.returnFocusOnDeactivate && deactivateHandler) {
-      deactivateHandler.focus();
+    
+    if (config.returnFocusOnDeactivate && previousActiveElement) {
+      previousActiveElement.focus();
     }
+    
     if (config.onDeactivate) config.onDeactivate();
   };
 
@@ -435,6 +449,94 @@ function createFocusTrap(container, options = {}) {
     activate,
     deactivate,
     update,
+    get active() {
+      return active;
+    },
     destroy: deactivate
   };
 }
+
+/**
+ * Validates all accessibility requirements for the document or a container.
+ * @param {HTMLElement} container - Optional container to validate within
+ * @returns {Object} Validation result with overall valid flag and all errors grouped by category
+ */
+function validateAccessibility(container) {
+  const root = container || document;
+  const results = {
+    valid: true,
+    errors: [],
+    categories: {
+      tables: { valid: true, errors: [] },
+      landmarks: { valid: true, errors: [] },
+      svgs: { valid: true, errors: [] },
+      links: { valid: true, errors: [] }
+    }
+  };
+
+  // Validate tables
+  const tables = root.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    const tableResult = validateTableAccessibility(table);
+    if (!tableResult.valid) {
+      results.categories.tables.valid = false;
+      results.categories.tables.errors.push(
+        ...tableResult.errors.map(err => `Table ${index + 1}: ${err}`)
+      );
+    }
+  });
+
+  // Validate landmarks
+  const landmarkResult = validateLandmarkStructure();
+  if (!landmarkResult.valid) {
+    results.categories.landmarks.valid = false;
+    results.categories.landmarks.errors = landmarkResult.errors;
+  }
+
+  // Validate SVGs
+  const svgResult = validateSvgAccessibility();
+  if (!svgResult.valid) {
+    results.categories.svgs.valid = false;
+    results.categories.svgs.errors = svgResult.errors;
+  }
+
+  // Validate links
+  const linksResult = validateLinks(root);
+  if (!linksResult.valid) {
+    results.categories.links.valid = false;
+    results.categories.links.errors = linksResult.errors;
+  }
+
+  // Determine overall validity
+  results.valid = results.categories.tables.valid && 
+                  results.categories.landmarks.valid && 
+                  results.categories.svgs.valid && 
+                  results.categories.links.valid;
+
+  // Collect all errors
+  results.errors = [
+    ...results.categories.tables.errors,
+    ...results.categories.landmarks.errors,
+    ...results.categories.svgs.errors,
+    ...results.categories.links.errors
+  ];
+
+  return results;
+}
+
+export {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  personName,
+  validateLinks,
+  createFocusTrap,
+  validateAccessibility
+};

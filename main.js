@@ -103,7 +103,7 @@ function addLandmarkRoles() {
   if (mainElement && mainElement.setAttribute) {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   const navElement = document.querySelector('nav');
   if (navElement && navElement.setAttribute) {
     navElement.setAttribute('role', 'navigation');
@@ -256,6 +256,25 @@ function ensureRootContainerAccessible(rootElement) {
   }
 }
 
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+function ensureDependencyGraphAccessible() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'region');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+function ensureRootContainerAccessible(rootElement) {
+  // Ensure the root container has an accessible name
+  if (rootElement) {
+    rootElement.setAttribute('role', 'main');
+  }
+}
+
 // Address accessibility issues from insight report
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -325,7 +344,7 @@ function addressAccessibilityIssues(insightReport) {
 
 function getInsightReport() {
   const issues = [];
-  
+
   // Check for lang attribute on HTML element
   const langAttribute = getLangAttribute();
   if (!langAttribute) {
@@ -336,7 +355,7 @@ function getInsightReport() {
       element: 'html'
     });
   }
-  
+
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
@@ -351,7 +370,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
@@ -366,7 +385,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
@@ -380,7 +399,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
@@ -395,7 +414,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
@@ -409,7 +428,7 @@ function getInsightReport() {
       });
     });
   }
-  
+
   // Check SVG accessibility
   const svgAccessibleNames = getSvgAccessibleName();
 

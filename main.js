@@ -66,6 +66,14 @@ const accessibilityUtils = {
   // - REACT_036: Fix 1 fake link issue
 };
 
+// Function to add language attribute to HTML element
+const addHtmlLangAttribute = (lang = 'en') => {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', lang);
+  }
+};
+
 // Functions already existing in the file to preserve
 // ...
 

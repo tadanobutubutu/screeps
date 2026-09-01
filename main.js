@@ -1,3 +1,4 @@
+// main.js - Accessibility-focused implementation
 const express = require('express');
 const { exec } = require('child_process');
 const fs = require('fs');
@@ -7,6 +8,70 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+
+function getSvgAccessibleName(svgElements) {
+  const elements = Array.from(svgElements);
+
+  for (const element of elements) {
+    // Check for aria-label
+    if (element.hasAttribute('aria-label')) {
+      return element.getAttribute('aria-label');
+    }
+
+    // Check for aria-labelledby
+    if (element.hasAttribute('aria-labelledby')) {
+      const labelledById = element.getAttribute('aria-labelledby');
+      const labelElement = document.getElementById(labelledById);
+      if (labelElement) {
+        return labelElement.textContent.trim();
+      }
+    }
+
+    // Check for <title> child element
+    const titleElement = element.querySelector('title');
+    if (titleElement && titleElement.textContent.trim()) {
+      return titleElement.textContent.trim();
+    }
+
+    // Check for <desc> child element
+    const descElement = element.querySelector('desc');
+    if (descElement && descElement.textContent.trim()) {
+      return descElement.textContent.trim();
+    }
+  }
+
+  return null;
+}
+
+function setSvgAttributes(svgElements) {
+  const elements = Array.from(svgElements);
+
+  elements.forEach((element, index) => {
+    // Ensure element has an ID
+    if (!element.id) {
+      element.id = `svg-element-${index}-${Date.now()}`;
+    }
+
+    // Set role="img" if not already set
+    if (!element.hasAttribute('role')) {
+      element.setAttribute('role', 'img');
+    }
+
+    // Ensure focusable is set appropriately
+    if (!element.hasAttribute('focusable')) {
+      element.setAttribute('focusable', 'false');
+    }
+  });
+}
+
+function renderDependencyGraphs(svgElements) {
+  const accessibleName = getSvgAccessibleName(svgElements);
+  if (accessibleName) {
+    svgElements.forEach((svg) => {
+      svg.setAttribute('aria-label', accessibleName);
+    });
+  }
+}
 
 let gameData = {
     rooms: {},
@@ -87,7 +152,7 @@ function getTasks(creepName) {
     return gameData.creepTasks[creepName] || { error: 'No tasks found' };
 }
 
-function setSvgAttributes(svg) {
+function setSvgElementAttributes(svg) {
     if (!svg.hasAttribute('aria-label')) {
         const accessibleName = svg.getAttribute('id') || '';
         if (accessibleName) {
@@ -99,54 +164,45 @@ function setSvgAttributes(svg) {
 function main() {
     const svgElements = document.querySelectorAll('svg');
 
-    renderDependencyGraphs(svgElements);
+    setSvgAttributes(svgElements);
+
+    svgElements.forEach((svg) => {
+        renderDependencyGraphs(svg);
+    });
 
     checkLandmarkElements();
 }
 
-function renderDependencyGraphs(svgElements) {
-    const accessibleName = getSvgAccessibleName(svgElements);
-    if (accessibleName) {
-        // Use accessibleName
-    }
-}
-
-function getSvgAccessibleName(svgElements) {
-    if (svgElements.length > 0) {
-        return svgElements[0].getAttribute('aria-label') || svgElements[0].getAttribute('id');
-    }
-    return '';
-}
-
 function checkLandmarkElements() {
-    const landmarkRoles = [
-        'banner',
-        'main',
-        'navigation',
-        'search',
-        'contentinfo',
-        'complementary',
-        'region'
-    ];
+  const landmarkRoles = [
+    'banner',
+    'main',
+    'navigation',
+    'search',
+    'contentinfo',
+    'complementary',
+    'region',
+    'form'
+  ];
 
-    const checkLandmarkElement = (selector, role) => {
-        const elements = document.querySelectorAll(selector);
-        elements.forEach((element) => {
-            const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-            const landmarkRole = role || (landmarkRoles.includes(tagName) ? tagName : undefined);
+  const checkLandmarkElement = (selector, role) => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach((element) => {
+      const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+      const landmarkRole = role || (landmarkRoles.includes(tagName) ? tagName : undefined);
 
-            if (!landmarkRole) {
-                console.warn(`Missing landmark role for ${tagName}`);
-            }
-        });
-    };
+      if (!landmarkRole) {
+        console.warn(`Missing landmark role for ${tagName}`);
+      }
+    });
+  };
 
-    checkLandmarkElement('[role="main"], main', 'main');
-    checkLandmarkElement('[role="banner"], header', 'banner');
-    checkLandmarkElement('[role="navigation"], nav', 'navigation');
-    checkLandmarkElement('[role="contentinfo"], footer', 'contentinfo');
-    checkLandmarkElement('[role="complementary"], aside', 'complementary');
-    checkLandmarkElement('[role="search"], [role="form"], form', 'form');
+  checkLandmarkElement('[role="main"], main', 'main');
+  checkLandmarkElement('[role="banner"], header', 'banner');
+  checkLandmarkElement('[role="navigation"], nav', 'navigation');
+  checkLandmarkElement('[role="contentinfo"], footer', 'contentinfo');
+  checkLandmarkElement('[role="complementary"], aside', 'complementary');
+  checkLandmarkElement('[role="search"], [role="form"], form', 'form');
 }
 
 function checkAccessibilityIssues(code) {
@@ -156,12 +212,6 @@ function checkAccessibilityIssues(code) {
         issues.push({ type: 'error', message: 'Code must be a non-empty string' });
         return issues;
     }
-
-    const patterns = {
-        'TODO': /TODO:/,
-        'FIXME': /FIXME:?\s*/,
-        'HACK': /HACK:/
-    };
 
     const lines = code.split('\n');
     lines.forEach((line, index) => {
@@ -204,7 +254,6 @@ function generateAccessibilityReport(scan) {
     };
 }
 
-// TODO: Add the implementation of this function
 function getGameDataSummary() {
     return {
         rooms: Object.keys(gameData.rooms).length,

@@ -12,7 +12,6 @@ const exportUtils = {
 
 // Import all utilities functions for convenience (merged from both branches)
 const {
-  createInPageButton,
   createWebResourceButton,
   validateTableAccessibility,
   validateTableStructure,
@@ -21,7 +20,6 @@ const {
   validateAccessibilityReport,
   getSvgAccessibleName,
   getLangAttribute,
-  handleCredentialResponse,
   ensureElementId,
   addAriaLabel,
   ensureElementHasId,
@@ -43,11 +41,10 @@ const {
   renderDependencyGraph,
   renderDependencyGraphAria,
   addMainLandmarkToIndex,
-  addressAccessibilityIssues,
   // New function to handle focus trap
   newFocusTrap: newMainFocusTrap,
   // New functions to address new accessibility issues from insight report
-  newAddressAccessibilityIssues: addressAccessibilityIssues
+  addressAccessibilityIssues: newAddressAccessibilityIssues
 } = main;
 
 const a11yStore = {
@@ -61,6 +58,33 @@ const a11yStore = {
 const appState = {
   sessions: new Map()
 };
+
+/**
+ * Creates an in-page button with accessibility features
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - Button text content
+ * @param {string} options.id - Button ID
+ * @param {string} [options.className] - CSS class name
+ * @param {string} [options.ariaLabel] - ARIA label for accessibility
+ * @param {Function} [options.onClick] - Click event handler
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton({ text, id, className = '', ariaLabel, onClick }) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.id = id;
+  button.className = className;
+
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+
+  return button;
+}
 
 const handleCredentialResponse = (credentialResponse) => {
   // Process credential response - basic implementation
@@ -183,6 +207,7 @@ module.exports = {
   a11yStore,
   appState,
   handleCredentialResponse,
+  createInPageButton,
   ensureElementId,
   addAriaLabel,
   ensureElementAccessibility,

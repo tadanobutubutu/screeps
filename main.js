@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -20,8 +17,8 @@ function validateLandmark(landmark) {
   // Update landmark validation logic if needed
   const role = landmark.getAttribute('role');
   const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role');
+  if (role && !validLandmarks.includes(role)) {
+    errors.push(`Invalid landmark role: ${role}`);
   }
   return errors;
 }
@@ -30,17 +27,6 @@ const appData = {
   title: 'Screeps',
   version: '1.0.0'
 };
-
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
-
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 function getLangAttribute() {
     // Implementation to get language attribute
@@ -54,7 +40,7 @@ function getFullLangAttribute() {
 
 function validateTableAccessibility(tableElement) {
     // Implementation to validate table accessibility (conflict resolved: merged implementation)
-    if (!tableElement.querySelector('caption')) {
+    if (!tableElement.caption) {
         console.warn('Table missing caption');
         return false;
     }
@@ -63,7 +49,7 @@ function validateTableAccessibility(tableElement) {
 
 function validateTableStructure(tableElement) {
     // Implementation to validate table structure (conflict resolved: merged implementation)
-    const rows = tableElement.querySelectorAll('tr');
+    const rows = tableElement.rows;
     if (rows.length === 0) {
         console.warn('Table has no rows');
         return false;
@@ -95,9 +81,9 @@ function addLandmarkRegions() {
 
 function getSvgAccessibleName() {
     // Merged implementation (conflict resolved)
-    const svgElement = ... // needs actual element reference
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
+    const svgElement = document.querySelector('svg');
+    const title = svgElement ? svgElement.querySelector('title') : null;
+    const ariaLabel = svgElement ? svgElement.getAttribute('aria-label') : null;
     if (title) return title.textContent;
     if (ariaLabel) return ariaLabel;
     return 'Accessible SVG Icon';
@@ -205,7 +191,6 @@ function handleAccessibilityIssues() {
         validateLandmark(landmark);
     });
 
-    validateLandmarkStructure();
     ensureUniqueLandmarks();
 
     const svgs = document.querySelectorAll('svg');
@@ -234,4 +219,3 @@ module.exports = {
     addLandmarkRegions,
     setSvgAttributes
 };
-```

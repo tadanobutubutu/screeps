@@ -466,7 +466,6 @@ export {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  getLangAttribute,
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues,

@@ -12,28 +12,10 @@ const appState = {
   cache: new Map()
 };
 
-function validateLandmark(landmark) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-
-  if (!landmark.tagName) {
-    issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(landmark.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${landmark.tagName}`);
-  }
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
-}
-
 const appData = {
   title: 'Screeps',
   version: '1.0.0'
 };
-
-// const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
 
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 // Address accessibility issues from insight report:

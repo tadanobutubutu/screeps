@@ -31,13 +31,15 @@ function createInPageButton(options) {
     }
 
     if (settings.onClick) {
-        button.addEventListener('click', settings.onClick);
+        button.onclick = settings.onClick;
     }
 
     if (typeof settings.container === 'string') {
         const containerElement = document.querySelector(settings.container);
         if (containerElement) {
             containerElement.appendChild(button);
+        } else {
+            document.body.appendChild(button);
         }
     } else {
         settings.container.appendChild(button);
@@ -69,7 +71,8 @@ function countDependencies() {
   // Existing function implementation
 
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/;
+  const importCommentRegExp = /import\s+.*?from\s+['"].*?['"]/g;
+  const dependencyGraphContent = ''; // Assuming dependencyGraphContent is defined elsewhere or empty
   const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }

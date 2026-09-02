@@ -1,3 +1,4 @@
+// Preserve any existing exports here
 // TODO: Add back any required exports that might have been removed
 // TODO: This is the existing code that needs to be preserved
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
@@ -9,7 +10,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
-    document.body.appendChild(button);
+    return button;
 }
 
 // Function to validate landmark structure for accessibility issues
@@ -18,18 +19,19 @@ function validateLandmarkStructure() {
     const missingLandmarks = [];
 
     requiredLandmarks.forEach(landmark => {
-        if (!document.querySelector(landmark)) {
+        const element = document.querySelector(landmark);
+        if (!element) {
             missingLandmarks.push(landmark);
         }
     });
 
     if (missingLandmarks.length > 0) {
-        console.warn(`Accessibility warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+        console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
         return false;
     }
 
     return true;
 }
 
-// Preserve any existing exports here
-// export { existingFunction1, existingFunction2, ... };
+// Export the existing functions
+export { createInPageButton, validateLandmarkStructure };

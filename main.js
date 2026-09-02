@@ -443,6 +443,21 @@ function addLandmarkRegions() {
     };
 }
 
+/**
+ * Ensures the dependency graph container has a proper ARIA role for accessibility
+ */
+function fixDependencyGraphAccessibility() {
+    const container = document.getElementById('dependencyGraph') || document.querySelector('[data-dependency-graph]');
+    if (container) {
+        if (!container.hasAttribute('role')) {
+            container.setAttribute('role', 'region');
+        }
+        if (!container.hasAttribute('aria-label')) {
+            container.setAttribute('aria-label', 'Dependency graph');
+        }
+    }
+}
+
 // Module exports
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
@@ -480,6 +495,7 @@ if (typeof module !== 'undefined' && module.exports) {
         addressAccessibilityIssues,
         addLandmarkRegions,
         getLangAttribute,
+        fixDependencyGraphAccessibility,
         a11yStore,
     };
 }
@@ -488,4 +504,6 @@ if (typeof module !== 'undefined' && module.exports) {
 if (typeof window !== 'undefined') {
     // Store validation result globally for debugging
     window.landmarkValidation = validateLandmarkStructure(document);
+    // Ensure dependency graph accessibility
+    fixDependencyGraphAccessibility();
 }

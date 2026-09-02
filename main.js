@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -30,8 +27,6 @@ const appData = {
   title: 'Screeps',
   version: '1.0.0'
 };
-
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
@@ -93,9 +88,11 @@ function addLandmarkRegions() {
   console.log('Adding landmark regions');
 }
 
-function getSvgAccessibleName() {
+function getSvgAccessibleName(svgElement) {
     // Merged implementation (conflict resolved)
-    const svgElement = ... // needs actual element reference
+    if (!svgElement) {
+        return 'Accessible SVG Icon';
+    }
     const title = svgElement.querySelector('title');
     const ariaLabel = svgElement.getAttribute('aria-label');
     if (title) return title.textContent;
@@ -234,4 +231,3 @@ module.exports = {
     addLandmarkRegions,
     setSvgAttributes
 };
-```

@@ -10,51 +10,67 @@ const {
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
+  announceToScreenReader,
+  handleKeyboardNav,
+  newFocusTrap,
   exportUtils,
   addressAccessibilityIssues,
   handleCredentialResponse: handleCredentialResponseFromMain,
   ensureElementHasId: ensureElementIdOrigin,
-  ensureElementHasId,
+  ensureElementId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
-  renderAdditionalContent
+  renderAdditionalContent,
+  generateAccessibilityReport,
+  getTables,
+  getConfig,
+  setConfig,
+  initSkipLink,
+  transformInputData
 } = main;
 
 const accessibilityUtils = {
-  initSkipLink: () => {},
-  trapFocus: (element) => {},
-  createInPageButton: createInPageButton,
-  createWebResourceButton: (options) => {},
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  announceToScreenReader: (message, priority = 'polite') => {},
-  handleKeyboardNav: (e, handlers) => {},
-  newFocusTrap: (element) => {
-    if (!element) {
-      return () => {};
-    }
-
+  initSkipLink: function (originInitSkipLink) {
+    return function () {
+      const skipLink = document.querySelector('.skip-link');
+      if (skipLink) {
+        skipLink.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(skipLink.getAttribute('href'));
+          if (target) {
+            target.setAttribute('tabindex', '-1');
+            target.focus();
+          }
+        });
+      }
+    };
+  },
+  trapFocus: function (element) {
     const focusableElements = element.querySelectorAll(
-      'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
-
-    if (focusableElements.length === 0) {
-      console.warn('No focusable elements found in container');
-      return () => {};
-    }
-
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
 
-    const handleKeyDown = (e) => {
+    if (element.addEventListener) {
+      element.addEventListener('keydown', handleKeyDown);
+    } else if (element.attachEvent) {
+      element.attachEvent('onkeydown', handleKeyDown);
+    }
+
+    // Return cleanup function
+    return function () {
+      if (element.removeEventListener) {
+        element.removeEventListener('keydown', handleKeyDown);
+      } else if (element.detachEvent) {
+        element.detachEvent('onkeydown', handleKeyDown);
+      }
+    };
+
+    function handleKeyDown(e) {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
           e.preventDefault();
@@ -64,20 +80,14 @@ const accessibilityUtils = {
           firstElement.focus();
         }
       }
-
-      if (e.key === 'Escape') {
-        element.dispatchEvent(new CustomEvent('focus-trap-escape', { bubbles: true }));
-      }
-    };
-
-    element.addEventListener('keydown', handleKeyDown);
-
-    // Return cleanup function
-    return () => {
-      element.removeEventListener('keydown', handleKeyDown);
-    };
+    }
   },
-  exportUtils
+  exportUtils,
+  addressAccessibilityIssues,
+  generateAccessibilityReport,
+  getTables,
+  getConfig,
+  setConfig
 };
 
 const ensureElementIdOriginal = (element) => {
@@ -87,7 +97,6 @@ const ensureElementIdOriginal = (element) => {
   return element;
 };
 
-// Removed duplicate addAriaLabel declaration
 const addAriaLabel = (element, label) => {
   if (element) {
     element.setAttribute('aria-label', label);
@@ -103,11 +112,6 @@ const renderDependencyGraph = (data) => {
   };
 };
 
-// Add back any required exports that might have been removed.
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
-function calculateSum(a, b) { return a + b; }
-
-// Credential response handling
 async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received');
@@ -118,13 +122,7 @@ async function handleCredentialResponse(response) {
   }
 
   if (response.token) {
-    return {
-      success: true,
-      token: response.token,
-      expiresIn: response.expiresIn || 3600
-    };
-  }
-
+>>>>>>> origin/main
   throw new Error('Invalid credential response');
 }
 
@@ -133,6 +131,7 @@ module.exports = {
   ensureElementIdOriginal,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum,
-  handleCredentialResponse
+  handleCredentialResponse,
+  generateAccessibilityReport,
+  transformInputData
 };

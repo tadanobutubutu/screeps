@@ -300,7 +300,7 @@ const AddressabilityIssues = {
     // ... (existing code)
   },
 
-  calculateAccessibilityScore(fixedIssues) {
+  calculateAccessibilityScore(fixedIsses) {
     // ... (existing code)
   },
 
@@ -921,3 +921,15 @@ module.exports = {
   addressAccessibilityIssuesFromInsightReport
 };
 // ... (other functions and setting up exports)
+// Add back missing exports
+module.exports.fixTableStructureIssues = fixTableStructureIssues;
+module.exports.fixTableHeaderCellScope = fixTableHeaderCellScope;
+module.exports.addMainLandmark = addMainLandmark;
+module.exports.addLandmarkRolesAndFixIssues = addLandmarkRolesAndFixIssues;
+module.exports.fixLandmarkIssues = fixLandmarkIssues;
+module.exports.addSvgAccessibleNames = addSvgAccessibleNames;
+module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+module.exports.fixFakeLinks = fixFakeLinks;
+module.exports.addProperLandmarkRegions = addProperLandmarkRegions;
+module.exports.checkLandmarkElements = checkLandmarkElements;
+module.exports.generateAccessibilityReport = generateAccessibilityReport;

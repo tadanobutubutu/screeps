@@ -47,9 +47,6 @@ const {
   addressAccessibilityIssues,
 } = main;
 
-// Exporting functions
-export { functionA, functionB, functionC };
-
 // TODO: New code that was added to the branch
 // New function that does something different
 function functionC() {
@@ -111,6 +108,36 @@ function checkAccessibility(content) {
 }
 
 /**
+ * Sets the lang attribute on the HTML element
+ * @param {string} lang - The language code to set (e.g., 'en', 'fr')
+ * @returns {boolean} True if successful, false otherwise
+ */
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined') {
+    const htmlElement = document.documentElement;
+    if (htmlElement) {
+      htmlElement.setAttribute('lang', lang);
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Gets the lang attribute from the HTML element
+ * @returns {string|null} The current language code or null if not set
+ */
+function getLangAttribute() {
+  if (typeof document !== 'undefined') {
+    const htmlElement = document.documentElement;
+    if (htmlElement) {
+      return htmlElement.getAttribute('lang');
+    }
+  }
+  return null;
+}
+
+/**
  * Detects the language of the given content and sets the HTML lang attribute
  * @param {string} content - The text content to analyze
  * @returns {string} The detected language code
@@ -135,6 +162,9 @@ function detectAndSetLang(content) {
       lang = 'de'; // German
     }
   }
+
+  // Set the lang attribute on the HTML element
+  setHtmlLangAttribute(lang);
 
   return lang;
 }

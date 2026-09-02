@@ -15,69 +15,6 @@ const appState = {
   cache: new Map()
 };
 
-const countDependencies = () => {
-  // Count internal private functions (starting with '_')
-  const internalDependencies = [];
-  // Use appropriate global object for the environment
-  const globalObj = (typeof window !== 'undefined') ? window : global;
-  const functions = [...Object.getOwnPropertyNames(globalObj)];
-  functions.forEach((functionName) => {
-    if (functionName.startsWith('_') && typeof globalObj[functionName] === 'function') {
-      internalDependencies.push(functionName);
-    }
-  });
-  const internalCount = internalDependencies.length;
-
-  // Count npm dependencies from package.json (if in Node environment)
-  let external = null;
-  let error = null;
-  if (typeof require === 'function') {
-    try {
-      const packageJson = require('./package.json');
-      const dependencies = packageJson.dependencies || {};
-      const devDependencies = packageJson.devDependencies || {};
-      const peerDependencies = packageJson.peerDependencies || {};
-      const optionalDependencies = packageJson.optionalDependencies || {};
-
-      external = {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
-        peerDependencies: Object.keys(peerDependencies).length,
-        optionalDependencies: Object.keys(optionalDependencies).length,
-        total: Object.keys(dependencies).length + 
-               Object.keys(devDependencies).length + 
-               Object.keys(peerDependencies).length + 
-               Object.keys(optionalDependencies).length
-      };
-    } catch (err) {
-      error = err.message;
-    }
-  }
-
-  // Return combined result
-  if (error) {
-    return {
-      internalCount,
-      external,
-      error
-    };
-  } else {
-    return {
-      internalCount,
-      external
-    };
-  }
-};
-
-/**
- * Creates an accessible book form with proper labels, ARIA attributes, and validation
- * @param {Object} options - Form options
- * @param {string} options.formId - ID for the form
- * @param {string} options.title - Title for the form
- * @param {Array} options.fields - Array of field configurations
- * @param {Function} options.onSubmit - Submit handler function
- * @returns {Object} Accessible form object
- */
 function createAccessibleBookForm(options) {
   // Validate required options
   if (!options.formId || !options.title || !options.fields || !options.onSubmit) {
@@ -142,7 +79,7 @@ function ensureElementId(element, id) {
   return element;
 }
 
-function addProperLandmarkRegions(regions) {
+function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
 
@@ -306,15 +243,6 @@ function validateLandmarkStructure(landmarks) {
   };
 }
 
-function renderDependencyGraph(graphData) {
-  return {
-    type: 'graph',
-    data: graphData,
-    rendered: true,
-    timestamp: new Date().toISOString()
-  };
-}
-
 function addBook() {
   // Placeholder for book addition logic
   return null;
@@ -335,6 +263,11 @@ function enhanceAddBookAccessibility() {
   addAriaSupport(addBookButton, 'Add a new book');
 }
 
+/**
+ * Ensures all landmarks have unique accessible names
+ * @param {Array} landmarks - Array of landmark elements to check (optional)
+ * @returns {Object} Result with success status and any duplicate names found
+ */
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
@@ -383,6 +316,11 @@ function ensureUniqueLandmarks(landmarks) {
   };
 }
 
+/**
+ * Gets the accessible name for an SVG element
+ * @param {Object} svgElement - The SVG element
+ * @returns {string} The accessible name for the SVG
+ */
 function getSvgAccessibleName(svgElement) {
   if (!svgElement) return 'Accessible SVG Icon';
 
@@ -393,6 +331,11 @@ function getSvgAccessibleName(svgElement) {
   return 'Accessible SVG Icon';
 }
 
+/**
+ * Processes the credential and returns appropriate authentication state
+ * @param {Object} credentialResponse - The credential response to process
+ * @returns {Object} Authentication state with user info and status
+ */
 function processCredentialAuthentication(credentialResponse) {
   const result = handleCredentialResponse(credentialResponse);
 
@@ -565,67 +508,75 @@ function addLandmarkRegions(document) {
   return document;
 }
 
-function handleCredentialResponse(response, options) {
-  try {
-    // Validate response structure
-    if (!response || typeof response !== 'object') {
-      throw new Error('Invalid credential response: Response must be an object');
-    }
+/**
+ * Handles the credential response from an authentication flow
+ * @param {Object} credentialResponse - The response object from credential provider
+ * @returns {Object} Result with success status and parsed credential data
+ */
+function handleCredentialResponse(credentialResponse) {
+  const issues = [];
 
-    // Parse and validate credential response
-    const parsedCredential = {
-      provider: response.provider || response.issuer || 'unknown',
-      token: response.accessToken || response.token || response.idToken || null,
-      refreshToken: response.refreshToken || null,
-      userId: response.userId || response.sub || response.localId || null,
-      expiry: response.expiresIn || response.expiry || null,
-      scopes: response.scope || response.scopes || [],
-      idToken: response.idToken || null
-    };
-
-    // Validate required fields based on provider
-    const validationErrors = [];
-    if (!parsedCredential.token && !parsedCredential.refreshToken) {
-      validationErrors.push('No token or refresh token provided');
-    }
-    if (!parsedCredential.provider) {
-      validationErrors.push('Provider information missing');
-
-    if (validationErrors.length > 0) {
-      throw new Error(`Credential validation failed: ${validationErrors.join(', ')}`);
-    }
-
-    return {
-      success: true,
-      credential: parsedCredential,
-      storedCredential: storedCredential,
-      message: 'Credential response handled successfully'
-    };
-  } catch (error) {
-    // Store credentials if requested
-    let storedCredential = null;
-    if (options.store) {
-      storedCredential = {
-        ...parsedCredential,
-        storedAt: new Date().toISOString(),
-        expiresAt: parsedCredential.expiry ? 
-          new Date(Date.now() + parsedCredential.expiry * 1000).toISOString() : null
-      };
-    }
-
-    // Call success callback if provided
-    if (options.onSuccess) {
-      options.onSuccess(parsedCredential, storedCredential);
-    }
-
+  if (!credentialResponse) {
     return {
       success: false,
-      error: error.message || 'Unknown error handling credential response',
-      details: error
+      issues: ['No credential response provided']
     };
   }
+
+  if (credentialResponse.error) {
+    issues.push(`Credential error: ${credentialResponse.error}`);
+  }
+
+  if (!credentialResponse.credential) {
+    issues.push('Missing credential field');
+  }
+
+  let userData = null;
+  if (credentialResponse.email) {
+    userData = {
+      email: credentialResponse.email,
+      name: credentialResponse.name || '',
+      picture: credentialResponse.picture || ''
+    };
+  }
+
+  let parsedCredential = null;
+  if (credentialResponse.credential) {
+    try {
+      const parts = credentialResponse.credential.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+        parsedCredential = {
+          email: payload.email,
+          name: payload.name,
+          picture: payload.picture,
+          iss: payload.iss,
+          aud: payload.aud,
+          exp: payload.exp,
+          iat: payload.iat
+        };
+      }
+    } catch (parseError) {
+      issues.push('Failed to parse credential token');
+    }
+  }
+
+  const success = issues.length === 0 && !credentialResponse.error;
+
+  return {
+    success,
+    issues,
+    userData: userData || parsedCredential,
+    credential: credentialResponse.credential,
+    parsedCredential
+  };
 }
 
+/**
+ * Validates a credential token
+ * @param {string} token - The credential token to validate
+ * @returns {Object} Validation result with success status and token data
+ */
 function validateCredentialToken(token) {
   const issues = [];
 
@@ -643,29 +594,34 @@ function validateCredentialToken(token) {
 
   let tokenData = null;
   try {
-    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
     tokenData = payload;
 
-    if (tokenData.exp) {
+    if (payload.exp) {
       const now = Math.floor(Date.now() / 1000);
-      if (tokenData.exp < now) {
+      if (payload.exp < now) {
         issues.push('Token has expired');
       }
     }
 
-    if (!tokenData.email) {
+    if (!payload.email) {
       issues.push('Token missing email claim');
     }
   } catch (parseError) {
-    issues.push('Failed to parse credential token');
+    issues.push('Failed to decode token');
   }
 
   return {
     success: issues.length === 0,
-    issues
+    issues,
+    tokenData
   };
 }
 
+/**
+ * Implements upgrade logic using harvested data to improve the system
+ * This function checks environment variables for upgrade triggers and updates the system configuration accordingly.
+ */
 function upgradeSystem() {
   const env = process.env;
   const config = getConfig();
@@ -678,6 +634,27 @@ function upgradeSystem() {
   }
 
   return config;
+}
+
+// Missing utility functions referenced in exports or other functions
+function getLangAttribute() {
+  // Default implementation; should be overridden by environment-specific code
+  return 'en';
+}
+
+function getFullLangAttribute() {
+  // Default implementation; should be overridden by environment-specific code
+  return 'en-US';
+}
+
+function addSvgAccessibility(svg, accessibleName) {
+  if (svg && typeof svg === 'object') {
+    svg.setAttribute('role', 'img');
+    if (accessibleName) {
+      svg.setAttribute('aria-label', accessibleName);
+    }
+  }
+  return svg;
 }
 
 module.exports = {

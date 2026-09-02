@@ -38,10 +38,7 @@
 
     // New function3 logic
     function function3() {
-      // TODO: Implement new function3 logic here
-      // Example implementation:
       console.log('Function3 is running.');
-      // Add your implementation details here.
     }
 
     // Function to create in-page buttons

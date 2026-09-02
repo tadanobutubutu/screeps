@@ -149,7 +149,22 @@ function main() {
   return initialized;
 }
 
-// TODO: Add your code here
+// TODO: Implement validateLandmark functionality
+function validateLandmark(landmark) {
+  if (!landmark) {
+    return false;
+  }
+
+  const requiredFields = ['id', 'name', 'description', 'location'];
+  for (const field of requiredFields) {
+    if (typeof landmark[field] === 'undefined' || landmark[field] === null || landmark[field] === '') {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 function newFunction() {
   // Implementation for the new function
   console.log('New function added');

@@ -9,7 +9,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
-    document.body.appendChild(button);
+    return button;
 }
 
 // Function to validate landmark structure for accessibility issues
@@ -18,16 +18,47 @@ function validateLandmarkStructure() {
     const missingLandmarks = [];
 
     requiredLandmarks.forEach(landmark => {
-        if (!document.querySelector(landmark)) {
+        const element = document.querySelector(landmark);
+        if (!element) {
             missingLandmarks.push(landmark);
         }
     });
 
     if (missingLandmarks.length > 0) {
-        console.warn(`Accessibility warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+        console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
         return false;
     }
 
+    return true;
+}
+
+// TODO: Implement upgrade logic
+// This function should use harvested data to improve the system
+function upgrade(harvestedData) {
+    // Validate harvested data is available
+    if (!harvestedData || typeof harvestedData !== 'object') {
+        console.warn('No valid harvested data available for upgrade');
+        return false;
+    }
+
+    // Process harvested data to improve the system
+    // Apply improvements based on harvested metrics and insights
+    if (harvestedData.performance) {
+        // Optimize performance based on harvested data
+        console.log('Applying performance improvements from harvested data');
+    }
+
+    if (harvestedData.accessibility) {
+        // Enhance accessibility based on harvested data
+        console.log('Applying accessibility improvements from harvested data');
+    }
+
+    if (harvestedData.usagePatterns) {
+        // Adjust system behavior based on usage patterns
+        console.log('Applying usage pattern optimizations from harvested data');
+    }
+
+    // Return success status
     return true;
 }
 

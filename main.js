@@ -50,6 +50,8 @@ const XYZ = function () {
     // Implementation for XYZ function
 };
 
+setHtmlLangAttribute('en');
+
 module.exports = {
     config,
     XYZ,

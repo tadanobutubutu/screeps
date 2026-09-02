@@ -348,15 +348,6 @@ function main() {
   return someFunction();
 }
 
-// Added missing exported functions
-function improveAccessibility() {
-  // Placeholder implementation
-}
-
-function addressInsightReportIssues(insightReport) {
-  // Placeholder implementation
-}
-
 // Function to handle the credential response (e.g., from Google Identity Services)
 function handleCredentialResponse(response) {
   if (response && response.credential) {
@@ -396,7 +387,7 @@ module.exports = {
   renderDependencyGraphContent,
   createInPageButtons,
   fixUniqueLandmarks,
-  generateAccessibilityReport, // Add the new generateAccessibilityReport function to the exports
+  generateAccessibilityReport,
   handleCredentialResponse
 };
 

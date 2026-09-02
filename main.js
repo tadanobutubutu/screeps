@@ -247,7 +247,7 @@ const a11yStore = {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
       const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark) => {
+      landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
           landmark.setAttribute('id', `${element}-${index}`);
         }
@@ -358,7 +358,7 @@ function ensureElementId(element) {
   return element.id;
 }
 
-function addAriaLabel(element, label) {
+function addAriaLabelFn(element, label) {
   element.setAttribute('aria-label', label);
 }
 
@@ -368,7 +368,7 @@ function renderDependencyGraph(data) {
 }
 
 // Functions from the 'HEAD' branch
-function newFocusTrap() {
+function newFocusTrapFn() {
   // Focus trap implementation
 }
 
@@ -390,7 +390,7 @@ function addSvgAccessibleNames() {
   // Add accessible names to SVG elements
 }
 
-function ensureUniqueLandmarks() {
+function ensureUniqueLandmarksFn() {
   // Ensure landmark elements have unique identifiers
 }
 
@@ -474,6 +474,64 @@ function wrapPrimaryContentInMain() {
   // Implementation for wrapping primary content
 }
 
+// Helper for ensuring dependency graph accessibility
+function ensureDependencyGraphAccessibility(container) {
+  if (container) {
+    container.setAttribute('role', 'graph');
+    container.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+}
+
+// Log helper function
+function log(message, level) {
+  if (typeof console !== 'undefined') {
+    if (level === 'error') {
+      console.error(message);
+    } else if (level === 'warn') {
+      console.warn(message);
+    } else {
+      console.log(message);
+    }
+  }
+}
+
+// Accessibility utilities
+const accessibilityUtils = {
+  announceToScreenReader(message) {
+    if (typeof document !== 'undefined') {
+      let liveRegion = document.getElementById('a11y-live-region');
+      if (!liveRegion) {
+        liveRegion = document.createElement('div');
+        liveRegion.id = 'a11y-live-region';
+        liveRegion.setAttribute('aria-live', 'polite');
+        liveRegion.setAttribute('aria-atomic', 'true');
+        liveRegion.style.position = 'absolute';
+        liveRegion.style.left = '-9999px';
+        document.body.appendChild(liveRegion);
+      }
+      liveRegion.textContent = message;
+    }
+  },
+
+  initSkipLink() {
+    if (typeof document !== 'undefined') {
+      const skipLink = document.createElement('a');
+      skipLink.href = '#main-content';
+      skipLink.textContent = 'Skip to main content';
+      skipLink.className = 'skip-link';
+      document.body.insertBefore(skipLink, document.body.firstChild);
+    }
+  },
+
+  handleKeyboardNav(event, handlers) {
+    const handler = handlers[event.key];
+    if (handler) {
+      event.preventDefault();
+      handler();
+    }
+  }
+};
+
 // Also attach to global scope for browser/standalone access
 if (typeof window !== 'undefined') {
   window.affectedFunction = affectedFunction;
@@ -488,12 +546,12 @@ if (typeof window !== 'undefined') {
   window.anotherNewFunction = anotherNewFunction;
   window.ensureElementId = ensureElementId;
   window.addAriaLabel = addAriaLabel;
-  window.newFocusTrap = newFocusTrap;
+  window.newFocusTrap = newFocusTrapFn;
   window.addLangAttribute = addLangAttribute;
   window.fixTableStructure = fixTableStructure;
   window.addLandmarkIssues = addLandmarkIssues;
   window.addSvgAccessibleNames = addSvgAccessibleNames;
-  window.ensureUniqueLandmarks = ensureUniqueLandmarks;
+  window.ensureUniqueLandmarks = ensureUniqueLandmarksFn;
   window.fixFakeLinkIssue = fixFakeLinkIssue;
   window.renderGraphIndex = renderGraphIndex;
   window.updateGraphVisualization = updateGraphVisualization;
@@ -668,7 +726,7 @@ const addressAccessibilityIssues = (container) => {
 };
 
 // Functions for data transformation
-function getLangAttribute(element, lang) {
+function getLangAttributeSetter(element, lang) {
   if (element) {
     element.setAttribute('lang', lang || 'en');
   }
@@ -682,7 +740,7 @@ function personName(name) {
   return span;
 }
 
-function validateTableAccessibility(table) {
+function validateTableAccessibilityTable(table) {
   if (!table) return false;
 
   const hasCaption = table.querySelector('caption') !== null;
@@ -702,7 +760,7 @@ function validateTableAccessibility(table) {
   return isValid;
 }
 
-function validateTableStructure(table) {
+function validateTableStructureTable(table) {
   if (!table) return false;
 
   const rows = table.querySelectorAll('tr');
@@ -754,7 +812,7 @@ function validateLandmarkStructure(element) {
   return landmarks.length > 0;
 }
 
-function getSvgAccessibleName(svg, name) {
+function getSvgAccessibleNameSetter(svg, name) {
   if (svg && name) {
     svg.setAttribute('role', 'img');
     svg.setAttribute('aria-label', name);
@@ -770,7 +828,7 @@ function createInPageButton(text, onClick) {
   return button;
 }
 
-function ensureUniqueLandmarks() {
+function validateUniqueLandmarksFn() {
   const landmarks = document.querySelectorAll(
     'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]'
   );
@@ -820,7 +878,7 @@ function newFocusTrap(element) {
   firstElement.focus();
 }
 
-function transformInputData(inputData, options = {}) {
+function transformInputDataFull(inputData, options = {}) {
   const {
     preserveKeys = true,
     uppercase = false,
@@ -856,7 +914,7 @@ function transformInputData(inputData, options = {}) {
     for (const key in inputData) {
       if (inputData.hasOwnProperty(key)) {
         if (preserveKeys || !key.startsWith('_')) {
-          result[key] = transformInputData(inputData[key], options);
+          result[key] = transformInputDataFull(inputData[key], options);
         }
       }
     }
@@ -865,7 +923,7 @@ function transformInputData(inputData, options = {}) {
   }
 
   if (Array.isArray(inputData)) {
-    return inputData.map(item => transformInputData(item, options));
+    return inputData.map(item => transformInputDataFull(item, options));
   }
 
   return inputData;
@@ -944,12 +1002,12 @@ module.exports = {
   renderDependencyGraph,
 
   // Functions from the 'HEAD' branch
-  newFocusTrap,
+  newFocusTrap: newFocusTrapFn,
   addLangAttribute,
   fixTableStructure,
   addLandmarkIssues,
   addSvgAccessibleNames,
-  ensureUniqueLandmarks,
+  ensureUniqueLandmarks: ensureUniqueLandmarksFn,
   fixFakeLinkIssue,
 
   // Functions from the 'origin/main' branch

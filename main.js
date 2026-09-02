@@ -59,16 +59,16 @@ const {
   validateTableStructure,
   initializeAccessibility,
   renderIndex,
-  newFunction,
-  validateHeadingHierarchy,
-  ensureHeadingHierarchy,
-  renderAdditionalContent,
   newFocusTrap,
   setFocus,
   handleKeyboardNavigation,
   navigateWithArrow,
   handleTabNavigation,
-  createInPageButtons // Added
+  createInPageButtons,
+  handleKeyboardNav,
+  initSkipLink,
+  announceToScreenReader,
+  getLangAttribute // New export
 } = main
 
 const dependencyGraph = document.getElementById('dependencyGraph')
@@ -79,14 +79,14 @@ if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'region')
   }
 
-  // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
-  }
-
   // Ensure element has an ID if not present
   if (!dependencyGraph.getAttribute('id')) {
     dependencyGraph.setAttribute('id', 'dependencyGraph');
+  }
+
+  // Add accessible label if not already present
+  if (!dependencyGraph.getAttribute('aria-label')) {
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
   }
 }
 
@@ -153,37 +153,12 @@ function validateTableStructure (tableData) {
   return true
 }
 
-function getLangAttribute () {
-  return document.documentElement.lang || 'en'
-}
-
-function personName (person) {
-  return person && person.name || 'Unknown'
-}
-
-function validateLandmark (landmark) {
-  return !!landmark
-}
-
-function validateLandmarkStructure (landmark) {
-  return !!landmark
-}
-
-function getSvgAccessibleName (svg) {
-  return svg && (svg.getAttribute('aria-label') || svg.getAttribute('title')) || ''
-}
-
-function createInPageButton (label, onClick) {
-  const button = document.createElement('button')
-  button.textContent = label
-  button.addEventListener('click', onClick)
-  return button
-}
-
 module.exports = {
-  // ... (other exported functions)
   handleKeyboardNavigation,
   navigateWithArrow,
   handleTabNavigation,
-  createInPageButtons
+  createInPageButtons,
+  initSkipLink,
+  announceToScreenReader,
+  getLangAttribute
 }

@@ -23,8 +23,8 @@ const newVariable = 'new value';
 /**
  * Main application entry point with accessibility features
  */
-function renderDependencyGraphs(svgElements) {
-  const accessibleName = getSvgAccessibleName(svgElements);
+function mainApplication() {
+  const accessibleName = '';
   if (accessibleName) {
     // Use accessibleName
   }
@@ -44,24 +44,7 @@ function checkLandmarkElements() {
     'form'
   ];
 
-  const checkLandmarkElement = (selector, role, implicitRole) => {
-    const elements = document.querySelectorAll(selector);
-    elements.forEach((element) => {
-      const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-      const landmarkRole = role || implicitRole[tagName];
-
-      if (!landmarkRole) {
-        console.warn(`Missing landmark role for ${tagName}`);
-        return;
-      }
-
-      if (!landmarkRoles.includes(landmarkRole)) {
-        console.warn(`Invalid landmark role: ${landmarkRole} for ${tagName}`);
-      }
-    });
-  };
-
-  checkLandmarkElement('[role="main"], main', 'main', {
+  const implicitRole = {
     'main': 'main',
     'header': 'banner',
     'nav': 'navigation',
@@ -69,13 +52,31 @@ function checkLandmarkElements() {
     'aside': 'complementary',
     'form': 'form',
     'section': 'region'
-  });
+  };
 
-  checkLandmarkElement('[role="banner"], header', 'banner');
-  checkLandmarkElement('[role="navigation"], nav', 'navigation');
-  checkLandmarkElement('[role="contentinfo"], footer', 'contentinfo');
-  checkLandmarkElement('[role="complementary"], aside', 'complementary');
-  checkLandmarkElement('[role="search"], [role="form"], form', 'form');
+  const checkLandmarkElement = (selector, role, implicitRoles) => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach((element) => {
+      const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+      const landmarkRole = role || implicitRoles[tagName];
+
+      if (!landmarkRole) {
+        console.warn(`Missing landmark role for ${tagName}`);
+        return;
+      }
+
+      if (landmarkRole === 'form' && !element.querySelector('[type="search"]')) {
+        console.warn(`Invalid landmark role: ${landmarkRole} for ${tagName}`);
+      }
+    });
+  };
+
+  checkLandmarkElement('main', 'main', implicitRole);
+  checkLandmarkElement('header', 'banner');
+  checkLandmarkElement('nav', 'navigation');
+  checkLandmarkElement('footer', 'contentinfo');
+  checkLandmarkElement('aside', 'complementary');
+  checkLandmarkElement('[role="form"]', 'form');
 }
 
 const sampleInsightReport = {
@@ -94,15 +95,15 @@ const sampleInsightReport = {
 
 function countDependencies() {
   const fs = require('fs');
-  const packageJsonPath = require('path').join(__dirname, 'package.json');
+  const packageJsonPath = path.join(__dirname, 'package.json');
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
   const dependencies = packageJson.dependencies || {};
   const devDependencies = packageJson.devDependencies || {};
 
   return {
-    dependencies: Object.keys(dependencies).length,
-    devDependencies: Object.keys(devDependencies).length,
+    dependencies: Object.keys(dependencies),
+    devDependencies: Object.keys(devDependencies),
     total: Object.keys(dependencies).length + Object.keys(devDependencies).length
   };
 }

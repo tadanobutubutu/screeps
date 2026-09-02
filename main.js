@@ -1,7 +1,9 @@
+const main = require('./utilities')
+const React = require('react')
+const { setElementLabel } = require('./AccessibilityHelpers')
+
 // Main entry point for the Screeps bot.
 // Handles core game logic and integration points.
-const main = require('./utilities')
-const React = require('react');
 
 const { createInPageButton, createWebResourceButton } = require('./utilities')
 const DOMParser = require('@xmldom/xmldom').DOMParser;
@@ -403,65 +405,143 @@ function wrapPrimaryContentInMain() {
   }
 }
 
-// Check and ensure unique landmarks
-function ensureUniqueLandmarks() {
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
-  landmarkRoles.forEach(role => {
-    const landmarks = document.querySelectorAll(`[role="${role}"]`);
-    const ids = new Set();
-    landmarks.forEach((landmark, index) => {
-      const existingId = landmark.id;
-      if (existingId && ids.has(existingId)) {
-        landmark.id = `${role}-${index}`;
-      }
-      if (existingId) {
-        ids.add(existingId);
-      }
-    });
-  });
+// Accessibility enhancement: Ensure all UI elements are properly labeled
+setElementLabel('dependencyGraph', 'Dependency graph visualization')
+
+// New feature: Priority-based task scheduling
+function addTask(taskFn, priority = 'medium') {
+  const taskId = this.generateTaskId()
+  this.tasks.push({ task: taskFn, priority, id: taskId })
+  this.scheduleTasks()
+  return taskId
 }
 
-function handleFocusTrap(container) {
-  const focusableElements = container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  container.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstElement) {
-        e.preventDefault();
-        lastElement.focus();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        e.preventDefault();
-        firstElement.focus();
-      }
-    }
-  });
+// Accessibility functions
+function setFocus(elementId) {
+  const element = document.getElementById(elementId)
+  if (element) {
+    element.focus()
+    element.setAttribute('tabindex', '0')
+  }
 }
 
-// Check for landmark elements and return status
-function checkLandmarkElement() {
-  const requiredLandmarks = ['main', 'nav', 'header', 'footer'];
-  const missingLandmarks = [];
-  requiredLandmarks.forEach(landmark => {
-    const element = document.querySelector(landmark);
-    if (!element) {
-      missingLandmarks.push(landmark);
-    }
-  });
-  return missingLandmarks;
+// New function: Keyboard event handler for accessibility
+function handleKeyboardNavigation(event) {
+  const key = event.key
+  const activeElement = document.activeElement
+
+  // Handle keyboard navigation (e.g., arrow keys, tab)
+  switch (key) {
+    case 'ArrowUp':
+    case 'ArrowDown':
+    case 'ArrowLeft':
+    case 'ArrowRight':
+      this.navigateWithArrow(key, activeElement)
+      break
+    case 'Tab':
+      this.handleTabNavigation(event, activeElement)
+      break
+    default:
+      break
+  }
 }
 
-// Check all landmarks
-function checkLandmarks() {
-  const allLandmarks = document.querySelectorAll('main, nav, header, footer, aside, [role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"]');
-  return allLandmarks.length;
+// Utility functions for accessibility (New functions added from the issue)
+const accessibilityUtils = {
+    // ... Existing accessibility utilities
+
+    // New function to validate and fix form accessibility
+    validateAndFixFormAccessibility: function(form) {
+        if (!form || form.tagName.toLowerCase() !== 'form') {
+            return false
+        }
+
+        // Ensure form has a proper role
+        if (!form.getAttribute('role')) {
+            form.setAttribute('role', 'form')
+        }
+
+        // Check for required labels
+        const inputs = form.querySelectorAll('input, textarea, select')
+        inputs.forEach(input => {
+            const id = input.id
+            if (id) {
+                const label = form.querySelector(`label[for="${id}"]`)
+                if (!label) {
+                    // Create implicit label if missing
+                    input.setAttribute('aria-label', input.placeholder || 'Input field')
+                }
+            } else {
+                // Generate ID if missing
+                input.id = `input-${Math.random().toString(36).substr(2, 9)}`
+            }
+        })
+
+        // Check for submit button
+        const submitButton = form.querySelector('button[type="submit"], input[type="submit"]')
+        if (!submitButton) {
+            const newButton = document.createElement('button')
+            newButton.type = 'submit'
+            newButton.textContent = 'Submit'
+            form.appendChild(newButton)
+        }
+
+        return true
+    },
+
+    // New function to validate and fix link accessibility
+    validateAndFixLinkAccessibility: function(link) {
+        if (!link || link.tagName.toLowerCase() !== 'a') {
+            return false
+        }
+
+        // Ensure link has proper text content
+        if (!link.textContent.trim()) {
+            link.textContent = link.getAttribute('aria-label') || 'Link'
+        }
+
+        // Ensure link has href or role
+        if (!link.getAttribute('href') && !link.getAttribute('role')) {
+            link.setAttribute('role', 'button')
+        }
+
+        return true
+    },
+
+    // New function to validate and fix button accessibility
+    validateAndFixButtonAccessibility: function(button) {
+        if (!button || (button.tagName.toLowerCase() !== 'button' && !button.getAttribute('role') !== 'button')) {
+            return false
+        }
+
+        // Ensure button has proper text content
+        if (!button.textContent.trim()) {
+            button.textContent = button.getAttribute('aria-label') || 'Button'
+        }
+
+        // Ensure button has type attribute
+        if (!button.getAttribute('type')) {
+            button.setAttribute('type', 'button')
+        }
+
+        return true
+    },
 }
 
-// New rendering function
-function renderGraphIndex(content, options = {}) {
-  return renderDependencyGraphs(content);
+// Helper for arrow key navigation
+function navigateWithArrow(key, activeElement) {
+  // Implement custom navigation logic based on element type
+  console.log(`Navigating with ${key} key`)
 }
+
+// Helper for tab key navigation
+function handleTabNavigation(event, activeElement) {
+  // Implement custom tab navigation logic
+  console.log('Handling tab navigation')
+}
+
+// Import and use existing functions from utilities
+const { renderDependencyGraphs, ...mainUtilities } = main
 
 // Accessibility-related function to be added
 function checkAccessibilityForReport (content) {
@@ -518,7 +598,13 @@ function renderAdditionalContent(additionalData) {
   return renderAdditionalContent(additionalData);
 }
 
+// Replace the original export with the updated and extended one
 module.exports = {
+  addTask,
+  setFocus,
+  handleKeyboardNavigation,
+  renderDependencyGraphs,
+  ...mainUtilities,
   ...require('./AnotherModule'), // Add another module with new functions if needed
   renderGraphIndex,
   checkAccessibilityForReport,
@@ -559,17 +645,9 @@ module.exports = {
   wrapPrimaryContentInMain,
   checkLandmarks,
   a11yStore,
-  ...mainUtilities,
   anotherNewFunction,
-  validateTableAccessibility,
-  validateTableStructure,
-  renderAdditionalContent,
   implementAccessibilityFixesFromReport,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  trapFocus,
-  addLangAttribute,
-  fixTableStructure,
+  checkAccessibilityForReportContent,
   createInPageButton,
   createWebResourceButton,
   validateLandmark,
@@ -582,7 +660,6 @@ module.exports = {
   ensureElementHasId,
   ensureElementHasIdOrigin,
   addAriaLabel,
-  renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
@@ -593,25 +670,9 @@ module.exports = {
   accessibleFunction,
   newFunction1,
   newFunction2,
-  main,
   newFunction: function() {
     // New function implementation
   },
-  anotherNewFunction: function() {
-    // Another new function implementation
-  },
   ensureDependencyGraphARIA,
-  addAccessibleName,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  uniqueLandmarks,
-  checkAccessibilityForReportContent,
   log
 };

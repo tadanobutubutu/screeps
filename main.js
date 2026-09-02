@@ -109,6 +109,13 @@ if (require.main === module) {
   if (sorted.length > 0) {
     console.log('First landmark:', sorted[0]);
   }
+
+  // Uncomment to run the accessibility report generation
+  // generateAccessibilityReport();
+}
+
+async function scanAccessibility() {
+    // ... Scanning and reporting accessibility issues using axe-core ...
 }
 
 async function scanAccessibility() {

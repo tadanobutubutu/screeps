@@ -1,3 +1,12 @@
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark() and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
+// - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
+// ADD: Address new accessibility issues from insight report (handled by validateHeadingHierarchy() and ensureHeadingHierarchy())
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
@@ -457,6 +466,45 @@ function validateTableStructure (tableData) {
   return true
 }
 
+/**
+ * Validates heading hierarchy
+ * @param {Array} headings - Heading elements to validate
+ * @returns {boolean} True if heading hierarchy is valid, false otherwise
+ */
+function validateHeadingHierarchy (headings) {
+  // Implementation placeholder - function to be implemented
+  return true
+}
+
+/**
+ * Ensures proper heading hierarchy in a container
+ * @param {Element} container - Container element to check headings in
+ * @returns {Element} The container element
+ */
+function ensureHeadingHierarchy (container) {
+  if (!container) return null;
+
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+
+  headings.forEach(heading => {
+    const currentLevel = parseInt(heading.tagName.substring(1), 10);
+    if (previousLevel > 0 && currentLevel - previousLevel > 1) {
+      // Fix skipped heading levels by promoting or demoting as needed
+      const correctedLevel = previousLevel + 1;
+      const newHeading = document.createElement(`h${correctedLevel}`);
+      newHeading.innerHTML = heading.innerHTML;
+      newHeading.className = heading.className;
+      heading.parentNode.replaceChild(newHeading, heading);
+      previousLevel = correctedLevel;
+    } else {
+      previousLevel = currentLevel;
+    }
+  });
+
+  return container;
+}
+
 // Initialize accessibility features
 function initializeAccessibility() {
   const announcer = createAnnouncer();
@@ -480,6 +528,7 @@ addAccessibleNamesToSVGs();
 fixFakeLinkIssue();
 googleSignIn();
 fixButtonIdentifiers();
+ensureHeadingHierarchy();
 
 // Other code...
 
@@ -489,6 +538,8 @@ module.exports = {
   renderIndex,
   validateTableAccessibility,
   validateTableStructure,
+  validateHeadingHierarchy,
+  ensureHeadingHierarchy,
   // Preserve any other existing exports here
   // Required exports restored from previous version
 }

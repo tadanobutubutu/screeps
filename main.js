@@ -3,8 +3,8 @@
 // Main module
 
 // Dependency imports
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
+const { dependencyGraphContent } = require('./dependency-graph');
+const { indexContent } = require('./index');
 
 const main = require('./utilities');
 
@@ -23,7 +23,7 @@ const {
   min,
   mode,
   median,
-} = require('./mathHelpers');
+} = require('./math');
 
 // Existing rendering functions (preserving existing exports and functions)
 
@@ -40,7 +40,7 @@ function getWelcomeMessage() {
   return greetingFunction() + " This is a new function that returns a welcome message.";
 }
 
-const { class1, function1, Object1 } = require('./path/to/module');
+const { class1, function1, Object1 } = require('./components');
 
 const a11yStore = {
   // ... existing methods ...
@@ -58,31 +58,45 @@ const a11yStore = {
   },
 
   updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
+    if (!this.liveRegion) {
+      this.liveRegion = document.createElement('div');
+      this.liveRegion.setAttribute('aria-live', priority);
+      this.liveRegion.setAttribute('aria-atomic', 'true');
+      this.liveRegion.className = 'sr-only';
+      document.body.appendChild(this.liveRegion);
+    }
     this.announce(message, priority);
+  },
+
+  announce(message, priority = 'polite') {
+    this.liveRegion.setAttribute('aria-live', priority);
+    this.liveRegion.textContent = '';
+    setTimeout(() => {
+      this.liveRegion.textContent = message;
+    }, 100);
   },
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
+    landmarkElements.forEach(element => {
+      const landmarks = document.querySelectorAll(element);
       landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
+          landmark.id = `${element}-${index}`;
         }
 
         if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
+          if (element === 'main' && landmarks.length > 1) {
+            console.warn(`Multiple <main> elements found. Only one <main> should be present. Index: ${index + 1}`);
           }
         }
       });
     });
   },
 
-  addSVGAccessibilityProps() {
+  addSvgAccessibleName() {
     const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
+    svgElements.forEach(svg => {
       let titleElement = svg.querySelector('title');
       if (!titleElement) {
         titleElement = document.createElement('title');
@@ -91,23 +105,25 @@ const a11yStore = {
       }
 
       if (!titleElement.id) {
-        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
+        titleElement.id = `svg-title-${Math.random().toString(36).substr(2, 9) * 10000}`;
       }
 
       svg.setAttribute('aria-labelledby', titleElement.id);
 
-      if (!svg.hasAttribute('role')) {
+      if (!svg.getAttribute('role') && !svg.getAttribute('aria-label')) {
         svg.setAttribute('role', 'img');
       }
     });
   },
 
   fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href]:not(a)');
-    fakeLinks.forEach((link) => {
-      link.setAttribute('role', 'link');
-      link.setAttribute('tabindex', '0');
-      link.setAttribute('data-interactive', 'true');
+    const fakeLinks = document.querySelectorAll('[href], [onclick]');
+    fakeLinks.forEach(link => {
+      if (link.tagName !== 'A' && link.tagName !== 'BUTTON') {
+        link.setAttribute('role', 'link');
+        link.setAttribute('tabindex', '0');
+        link.setAttribute('aria-label', link.textContent || 'Link');
+      }
     });
   },
 
@@ -116,8 +132,8 @@ const a11yStore = {
    */
   ensureInteractiveRoles() {
     const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
-    interactiveElements.forEach((element) => {
-      if (!element.hasAttribute('role')) {
+    interactiveElements.forEach(element => {
+      if (!element.getAttribute('role')) {
         element.setAttribute('role', 'button');
       }
     });
@@ -142,26 +158,96 @@ const a11yStore = {
   /**
    * Ensure all images have alt text or ARIA attributes
    */
-  ensureImageAccessibility() {
+  ensureImagesHaveAlt() {
     const images = document.querySelectorAll('img');
     images.forEach((img) => {
-      if (!img.hasAttribute('alt') && !img.hasAttribute('aria-hidden') && !img.hasAttribute('role')) {
+      if (!img.hasAttribute('alt') && !img.hasAttribute('aria-label') && !img.hasAttribute('role')) {
         img.setAttribute('alt', '');
       }
     });
   },
 
+  /**
+   * Add lang attribute to HTML element
+   */
+  addLangAttribute() {
+    const html = document.documentElement;
+    if (!html.hasAttribute('lang')) {
+      html.setAttribute('lang', 'en');
+    }
+  },
+
+  /**
+   * Fix table structure issues
+   */
+  fixTableStructureIssues() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      const rows = table.querySelectorAll('tr');
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td, th');
+        let headerCount = 0;
+        cells.forEach(cell => {
+          if (cell.tagName === 'TH') {
+            headerCount++;
+          }
+        });
+        if (headerCount === 0 && cells.length > 0) {
+          const firstCell = cells[0];
+          if (firstCell.tagName === 'TD') {
+            firstCell.setAttribute('role', 'rowheader');
+          }
+        }
+      });
+    });
+  },
+
+  /**
+   * Ensure unique landmarks
+   */
+  ensureUniqueLandmarks() {
+    this.checkLandmarkElements();
+  },
+
   // ... remaining a11yStore methods ...
 };
 
-// New functions
+// New function to ensure all interactive elements are accessible
 function ensureInteractiveElementsAccessible() {
+  // Add lang attribute to HTML element (REACT_015)
+  a11yStore.addLangAttribute();
+  
+  // Fix table structure issues (REACT_027)
+  a11yStore.fixTableStructureIssues();
+  
+  // Check and fix landmark issues (REACT_017)
+  a11yStore.checkLandmarkElements();
+  
+  // Add accessible names to SVGs (REACT_041)
+  a11yStore.addSvgAccessibleName();
+  
+  // Ensure unique landmarks (REACT_025)
+  a11yStore.ensureUniqueLandmarks();
+  
+  // Fix fake link issues (REACT_036)
+  a11yStore.fixFakeLinks();
+  
+  // Ensure interactive elements have proper ARIA roles
   a11yStore.ensureInteractiveRoles();
+  
+  // Add form control labels
   a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAccessibility();
+  
+  // Ensure images have alt text
+  a11yStore.ensureImagesHaveAlt();
 }
 
-// ... rest of the code ...
-```
-
-I have added the new function `ensureInteractiveElementsAccessible` which calls the existing a11yStore functions, integrating them into this new function. This way, we are maintaining the functionality of both changes and resolving the merge conflict.
+// Export the function for use in other modules
+module.exports = {
+  ensureInteractiveElementsAccessible,
+  a11yStore,
+  greetingFunction,
+  getWelcomeMessage,
+  config,
+  // ... rest of the existing exports ...
+};

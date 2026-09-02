@@ -329,7 +329,7 @@ function validateTableStructure () {
       cellCounts.add(row.children.length)
     })
     if (cellCounts.size > 1) {
-      issues.push({ tableIndex: index, issue: 'Inconsistent number of cells across rows' })
+      issues.push({ tableIndex: index, issue: 'Inconsistent number of cells across table rows' })
     }
 
     // Ensure data cells have proper headers (simple check)

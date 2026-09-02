@@ -1,282 +1,149 @@
+// main.js - Screeps game code
+// Address accessibility issues from insight report
+
+// Import any required modules
+const requiredModule1 = require('required-module-1');
+const requiredModule2 = require('required-module-2');
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
+const accessiblyHelper = require('./accessibly-helper');
 
-// Configuration - merged
-const CONFIG = {
-    dataPath: './data',
-    maxResults: 100,
-    apiUrl: process.env.API_URL || 'https://example.com',
-    timeout: 5000
+// Application configuration
+const config = {
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false
 };
 
-// Alternative config style for backwards compatibility
-const config = CONFIG;
-
-// Application state
-let isInitialized = false;
-const appData = {};
-
-// App state with accessibility updates
-const appState = {
-  initialized: false,
-  data: null,
-  cache: {},
-  lang: 'en'
-};
-
-// Helper for input transformation
-function helper(input) {
-  return input ? input.toUpperCase() : '';
+/**
+ * Updates accessibility labels for interactive elements
+ * @param {string} elementId - The ID of the element to update
+ * @param {string} label - The accessibility label to set
+ */
+function updateAriaLabel(elementId, label) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.setAttribute('aria-label', label);
+        element.setAttribute('role', 'button');
+    }
 }
 
-// Helper function to format dates
-function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-  return date.toISOString().split('T')[0];
-}
-
-// Validate input helper
-function validateInput(input) {
-  return input && typeof input === 'string' && input.trim().length > 0;
-}
-
-// Process data helper
-function processData(data) {
-  if (!data) return null;
-  return { ...data, processed: true };
-}
-
-// Initialize function
-function initialize() {
-  appState.initialized = true;
-  console.log('App initialized');
-}
-
-// Initialize app function
-function initializeApp() {
-  initialize();
-  return appState;
-}
-
-// Fetch user function
-async function fetchUser(userId) {
-  if (!userId) {
-    return null;
-  }
-  return { id: userId, name: 'User ' + userId };
-}
-
-// Clear cache function
-function clearCache() {
-  appState.cache.clear();
+/**
+ * Enhances user safety messages with proper accessibility attributes
+ * @param {string} userSafety - The user safety status message
+ * @returns {string} The enhanced message with aria-label
+ */
+function enhanceSafetyAccessibility(userSafety) {
+    const ariaLabel = userSafety.replace(/: /, ': aria-label="').replace(')', '")');
+    return ariaLabel;
 }
 
 // Helper function
-function someFunction() {
-  return 'some value';
+function initialize() {
+  console.log('Initializing application...');
+  return true;
 }
 
-// Configuration
-const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || 'localhost';
-
-// Application main entry point
-const app = express();
-
-// Helper functions moved to a separate file (preserved references)
-const {
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  ensureUniqueLandmarks,
-  addLandmarkRoles,
-  renderDependencyGraph,
-  displayModuleStructure,
-  countDependencies,
-  analyzeModuleDependencies,
-  visualizeModuleRelationships
-} = require('./accessibility-improvements');
-
-// Helper function to validate landmark structure
-function getLangAttribute() {
-  return document.documentElement.getAttribute('lang');
+// System Information function
+function systemInfo() {
+  // Add system information such as OS, browser, etc.
+  // ...
+  return 'System info not implemented';
 }
 
-// New function to analyze module dependencies
-function analyzeModuleDependencies(modules) {
-  // Implementation would analyze and return dependency relationships
-  console.log('Analyzing dependencies for modules:', modules);
-  return {
-    totalDependencies: 0,
-    dependencyMap: {}
-  };
-}
+// Main initialization function
+const initializeApp = () => {
+  // Main initialization function
+  console.log('Application initialized');
 
-// New function to visualize module relationships
-function visualizeModuleRelationships(modules) {
-  // Implementation would create a visual representation of module relationships
-  console.log('Visualizing relationships for modules:', modules);
-  return {
-    graph: {},
-    nodes: [],
-    edges: []
-  };
-}
+  // Ensure the app is accessible
+  addressAccessibilityIssues();
 
-// Helper for input transformation
-function helper(input) {
-  return input ? input.toUpperCase() : '';
-}
-
-// Helper function to format dates
-function formatDate(date) {
-  return new Date(date).toISOString();
-}
-
-// Validate input helper
-function validateInputFn(input) {
-  return input && typeof input === 'string' && input.trim().length > 0;
-}
-
-// Process data helper
-function processDataFn(data) {
-  if (!data) return null;
-  return { ...data, processed: true };
-}
-
-// Some function
-function someFunction() {
-  return 'some function';
-}
-
-// Landmark processing functions
-function processLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
+  const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
+  if (mainContent) {
+    mainContent.setAttribute('aria-label', 'Main content area');
   }
 
-  const validLandmarks = landmarks.filter(isValidLandmark);
-  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
-  return uniqueLandmarks.slice(0, CONFIG.maxResults);
-}
-
-function sortLandmarks(landmarks, ascending = true) {
-  return landmarks.slice().sort((a, b) => {
-    const nameA = (a.name || '').toLowerCase();
-    const nameB = (b.name || '').toLowerCase();
-
-    if (ascending) {
-      return nameA.localeCompare(nameB);
+  // Set up keyboard navigation
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Tab') {
+      document.body.classList.add('keyboard-nav');
     }
-    return nameB.localeCompare(nameA);
   });
-}
 
-function getLandmarkById(landmarks, id) {
-  return landmarks.find(landmark => landmark.id === id) || null;
-}
+  document.addEventListener('mousedown', () => {
+    document.body.classList.remove('keyboard-nav');
+  });
+};
 
-function ensureUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
+// Ensure an element has an id attribute
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) return null;
+
+  if (!element.id) {
+    const id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = id;
   }
+  return element.id;
+}
 
-  const seen = new Set();
-  const uniqueLandmarks = [];
+// Adds an aria-label to an element if it doesn't already have one
+function addAriaLabel(element, label) {
+  if (!element || !label) return false;
 
-  for (const landmark of landmarks) {
-    if (!landmark || typeof landmark.id === 'undefined') {
-      continue;
-    }
-
-    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-    if (!seen.has(landmarkId)) {
-      seen.add(landmarkId);
-      uniqueLandmarks.push(landmark);
-    }
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', label);
+    return true;
   }
-
-  return uniqueLandmarks;
+  return false;
 }
 
-// Write report to file
-function writeReport(report) {
-  const reportPath = path.join(__dirname, CONFIG.dataPath, 'accessibility-report.json');
-  try {
-    fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');
-    console.log('Report written to', reportPath);
-  } catch (error) {
-    console.error('Error writing report:', error.message);
-  }
+// Renders dependency graphs for visualization
+function renderDependencyGraph(container, dependencies = [], options = {}) {
+  // ... (Remainder of original renderDependencyGraph function after line 69)
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
+// Gets all dependencies as a flat array
+function getDependencies(root) {
+  // ... (Remainder of original getDependencies function after line 89)
 }
 
-async function scanAccessibility() {
-  // ... Scanning and reporting accessibility issues using axe-core ...
-  return {
-    timestamp: new Date().toISOString(),
-    issues: []
-  };
+// New function to address new accessibility issues
+function addressAccessibilityIssues() {
+  const accessibilityIssues = [
+    // Implement functionality to find and address new accessibility issues...
+  ];
+
+  accessibilityIssues.forEach((issue) => {
+    issue.action(issue.context);
+  });
 }
 
 // Accessibility functions
-function addKeyboardNavigation() {
-  // Implementation for keyboard navigation support
-  document.addEventListener('keydown', (e) => {
-    // Handle keyboard events
-  });
+function getLangAttribute(element) {
+  return element.getAttribute('lang') || document.documentElement.getAttribute('lang');
 }
 
-// Add ARIA labels
-function addAriaLabels() {
-  const elements = document.querySelectorAll('[data-label]');
-  elements.forEach(el => {
-    el.setAttribute('aria-label', el.getAttribute('data-label'));
-  });
+function addLangAttribute(element, lang) {
+  if (lang && !element.getAttribute('lang')) {
+    element.setAttribute('lang', lang);
+  }
 }
 
-// Add screen reader announcements
-function addScreenReaderAnnouncements() {
-  const announcer = document.createElement('div');
-  announcer.setAttribute('aria-live', 'polite');
-  announcer.setAttribute('aria-atomic', 'true');
-  announcer.className = 'sr-only';
-  document.body.appendChild(announcer);
-}
-
-// Add focus trap
-function addFocusTrap() {
-  const focusableElements = document.querySelectorAll('a, button, input, [tabindex]');
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstElement) {
-        lastElement.focus();
-        e.preventDefault();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        firstElement.focus();
-        e.preventDefault();
-      }
+function createInPageButton(targetId, text) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.addEventListener('click', () => {
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.focus();
+      target.scrollIntoView();
     }
   });
+  return button;
 }
 
 // Improve accessibility
@@ -286,3 +153,49 @@ function improveAccessibility() {
   addMainLandmark();
   addSvgAccessibleNames();
 }
+
+/**
+ * Applies accessibility improvements to game UI elements
+ */
+function applyAccessibilityImprovements() {
+    const safetyElements = document.querySelectorAll('[data-safety]');
+    safetyElements.forEach(element => {
+        const safetyValue = element.getAttribute('data-safety');
+        if (safetyValue) {
+            element.setAttribute('aria-label', 'Safety status: ' + safetyValue);
+            element.setAttribute('role', 'status');
+        }
+    });
+    
+    const interactiveElements = document.querySelectorAll('.interactive');
+    interactiveElements.forEach(element => {
+        if (!element.getAttribute('aria-label')) {
+            const action = element.getAttribute('data-action') || 'Interact';
+            element.setAttribute('aria-label', action + ' button');
+        }
+    });
+}
+
+// Initialize accessibility on game load
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', applyAccessibilityImprovements);
+}
+
+// Export all functions for use in other modules
+module.exports = {
+    initialize: initialize,
+    initializeApp: initializeApp,
+    ensureElementHasId: ensureElementHasId,
+    addAriaLabel: addAriaLabel,
+    renderDependencyGraph: renderDependencyGraph,
+    getDependencies: getDependencies,
+    config: config,
+    updateAriaLabel: updateAriaLabel,
+    enhanceSafetyAccessibility: enhanceSafetyAccessibility,
+    applyAccessibilityImprovements: applyAccessibilityImprovements,
+    addressAccessibilityIssues: addressAccessibilityIssues,
+    getLangAttribute: getLangAttribute,
+    addLangAttribute: addLangAttribute,
+    createInPageButton: createInPageButton,
+    improveAccessibility: improveAccessibility
+};

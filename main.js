@@ -1,2 +1,2 @@
-User Safety: unsafe
-Safety Categories: Unauthorized Advice
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views.

@@ -50,13 +50,13 @@ function getSvgAccessibleName(svg) {
 function setSvgAttributes(svg) {
   if (!svg) return;
   // Set necessary attributes for accessibility
-  if (!svg.hasAttribute('focusable')) {
-    svg.setAttribute('focusable', 'false');
+  if (svg.hasAttribute('aria-hidden') && svg.getAttribute('aria-hidden') !== 'true') {
+    svg.setAttribute('aria-hidden', 'false');
   }
-  if (!svg.hasAttribute('width') && svg.hasAttribute('viewBox')) {
+  if (!svg.hasAttribute('width') && svg.getBoundingClientRect().width) {
     svg.setAttribute('width', '24');
   }
-  if (!svg.hasAttribute('height') && svg.hasAttribute('viewBox')) {
+  if (!svg.hasAttribute('height') && svg.getBoundingClientRect().height) {
     svg.setAttribute('height', '24');
   }
 }
@@ -79,7 +79,144 @@ const checkTableStructure = function(tableElement) {
   };
 };
 
-// ... (rest of the code preserved with minor adjustments)
-```
+// Helper function to validate landmark accessibility
+function validateLandmark(element) {
+  const validLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
+  const role = element.getAttribute('role');
+  if (role && validLandmarks.includes(role)) {
+    return true;
+  }
+  return false;
+}
 
-This resolution addresses the security concern raised in the user safety category by adding a check for the screen reader detection before setting the `aria-label` attribute for SVG elements. Additionally, it adds a message to the screen reader to alert developers to verify the accessibility properties of the SVG if `announceToScreenReader` is present.
+// Helper function to ensure unique landmarks
+function ensureUniqueLandmarks(container) {
+  const landmarks = container.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"]');
+  const seen = new Map();
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (seen.has(role)) {
+      console.warn(`Duplicate ${role} landmark found. Consider using aria-label to distinguish.`);
+    } else {
+      seen.set(role, landmark);
+    }
+  });
+}
+
+// Helper function to add accessible language attribute
+function getLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    return htmlElement.getAttribute('lang') || 'en';
+  }
+  return 'en';
+}
+
+function getFullLangAttribute() {
+  const lang = getLangAttribute();
+  // Handle language subtags if needed
+  if (lang.includes('-')) {
+    return lang.split('-')[0];
+  }
+  return lang;
+}
+
+// Helper function to create accessible in-page button
+function createInPageButton(targetId, buttonText) {
+  const button = document.createElement('button');
+  button.textContent = buttonText || 'Jump to content';
+  button.setAttribute('aria-label', buttonText || 'Jump to main content');
+  
+  const targetElement = document.getElementById(targetId);
+  if (targetElement) {
+    button.addEventListener('click', () => {
+      targetElement.focus();
+      targetElement.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+  
+  return button;
+}
+
+// Helper function to create accessible link
+function createAccessibleLink(href, text, description) {
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  if (description) {
+    link.setAttribute('aria-label', description);
+  }
+  return link;
+}
+
+// Helper function to handle accessibility issues
+function handleAccessibilityIssues(issues) {
+  if (!Array.isArray(issues)) {
+    issues = [issues];
+  }
+  
+  issues.forEach(issue => {
+    if (issue.severity === 'error') {
+      console.error(`Accessibility Issue: ${issue.message}`);
+    } else if (issue.severity === 'warning') {
+      console.warn(`Accessibility Warning: ${issue.message}`);
+    } else {
+      console.info(`Accessibility Info: ${issue.message}`);
+    }
+  });
+}
+
+// Helper function to validate table accessibility
+function validateTableAccessibility(table) {
+  const issues = [];
+  const structure = checkTableStructure(table);
+  
+  if (!structure.hasHeader) {
+    issues.push({ severity: 'warning', message: 'Table missing header (thead or th elements)' });
+  }
+  if (!structure.hasBody) {
+    issues.push({ severity: 'warning', message: 'Table missing body (tbody element)' });
+  }
+  if (!structure.hasCaption) {
+    issues.push({ severity: 'info', message: 'Table missing caption for context' });
+  }
+  
+  return issues;
+}
+
+// Helper function to validate landmark structure
+function validateLandmarkStructure(container) {
+  const issues = [];
+  const mainLandmarks = container.querySelectorAll('[role="main"]');
+  
+  if (mainLandmarks.length === 0) {
+    issues.push({ severity: 'warning', message: 'No main landmark found' });
+  }
+  if (mainLandmarks.length > 1) {
+    issues.push({ severity: 'error', message: 'Multiple main landmarks found - only one should exist' });
+  }
+  
+  return issues;
+}
+
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    processSvgElements,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    checkTableStructure,
+    validateLandmark,
+    ensureUniqueLandmarks,
+    getLangAttribute,
+    getFullLangAttribute,
+    createInPageButton,
+    createAccessibleLink,
+    handleAccessibilityIssues,
+    validateTableAccessibility,
+    validateLandmarkStructure
+  };
+}
+
+// ... (rest of the code preserved with minor adjustments)

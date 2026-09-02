@@ -551,6 +551,70 @@ function validateButtonAccessibility(button) {
   return { valid: errors.length === 0, errors };
 }
 
+// New function to count dependencies
+function countDependencies(node, options = {}) {
+  // Counts dependencies in a dependency graph
+  // @param {Object} node - The root node to count dependencies from
+  // @param {Object} options - Optional configuration
+  // @param {boolean} options.recursive - Whether to count nested dependencies (default: true)
+  // @param {boolean} options.unique - Whether to count only unique dependencies (default: false)
+  // @returns {Object} Result with count and metadata
+  
+  try {
+    if (!node) {
+      return { count: 0, errors: ['Node is required'] };
+    }
+
+    const { recursive = true, unique = false } = options;
+    const dependencyMap = new Map();
+    let totalCount = 0;
+
+    // Recursive function to traverse and count dependencies
+    function traverse(currentNode, depth = 0) {
+      if (!currentNode) return;
+
+      // Get dependencies from various possible property names
+      const dependencies = currentNode.dependencies || 
+                          currentNode.deps || 
+                          currentNode.requires ||
+                          currentNode.children ||
+                          currentNode.modules ||
+                          [];
+
+      dependencies.forEach(dep => {
+        const depId = unique ? (dep.id || dep.name || dep) : totalCount;
+        
+        if (unique) {
+          if (!dependencyMap.has(depId)) {
+            dependencyMap.set(depId, { ...dep, depth });
+            totalCount++;
+          }
+        } else {
+          totalCount++;
+        }
+
+        // Recursively count nested dependencies if enabled
+        if (recursive && typeof dep === 'object' && dep !== null) {
+          traverse(dep, depth + 1);
+        }
+      });
+    }
+
+    traverse(node);
+
+    return {
+      count: totalCount,
+      uniqueCount: unique ? dependencyMap.size : totalCount,
+      success: true,
+      message: `Found ${totalCount} dependency${totalCount !== 1 ? 'ies' : 'y'}`,
+      dependencies: unique ? Array.from(dependencyMap.values()) : undefined
+    };
+  } catch (error) {
+    console.error('Error counting dependencies:', error);
+    return { count: 0, success: false, errors: [error.message] };
+  }
+}
+
 // New function to render dependency graphs
 function renderDependencyGraph(rootNode) {
   // Renders a dependency graph visualization
@@ -761,6 +825,7 @@ module.exports = {
   validateFormAccessibility,
   validateImageAccessibility,
   validateButtonAccessibility,
+  countDependencies,
   renderDependencyGraph,
   renderIndexView,
   checkAccessibilityNew,

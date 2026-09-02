@@ -159,12 +159,63 @@ function addMainLandmark() {
  * @returns {boolean} True if landmark is valid
  */
 function validateLandmark(landmark) {
-  if (!landmark) return false;
-  
-  const validRoles = ['header', 'main', 'footer', 'navigation', 'search', 'banner', 'complementary', 'contentinfo'];
-  const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-  
-  return validRoles.includes(role);
+  // Check if landmark is a valid HTMLElement
+  if (!landmark || !(landmark instanceof HTMLElement)) {
+    return false;
+  }
+
+  // List of valid HTML5 landmark elements
+  const validLandmarkTags = [
+    'main',
+    'nav',
+    'aside',
+    'footer',
+    'header',
+    'section',
+    'article',
+    'form',
+    'search'
+  ];
+
+  // List of valid landmark ARIA roles
+  const validLandmarkRoles = [
+    'banner',
+    'navigation',
+    'main',
+    'complementary',
+    'contentinfo',
+    'region',
+    'search',
+    'form'
+  ];
+
+  const tagName = landmark.tagName.toLowerCase();
+  const role = landmark.getAttribute('role');
+
+  // Check if the element is a valid landmark by tag name or role
+  const isValidLandmarkTag = validLandmarkTags.includes(tagName);
+  const isValidLandmarkRole = role && validLandmarkRoles.includes(role.toLowerCase());
+
+  // Element must be either a valid landmark tag or have a valid landmark role
+  if (!isValidLandmarkTag && !isValidLandmarkRole) {
+    return false;
+  }
+
+  // Validate landmark structure using the dedicated function
+  if (typeof validateLandmarkStructure === 'function') {
+    if (!validateLandmarkStructure(landmark)) {
+      return false;
+    }
+  }
+
+  // Validate landmark attributes using the dedicated function
+  if (typeof validateLandmarkAttributes === 'function') {
+    if (!validateLandmarkAttributes(landmark)) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 /**
@@ -410,20 +461,6 @@ function addressAccessibilityIssues() {
   if (htmlElement) {
     htmlElement.setAttribute('lang', getLangAttribute());
   }
-}
-
-/**
- * Handles fake links in the document
- */
-function handleFakeLinks() {
-  // Implementation to be added
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
-  fakeLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      console.warn('Fake link prevented:', link);
-    });
-  });
 }
 
 /**

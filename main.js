@@ -63,7 +63,7 @@ function getLangAttribute() {
 
 function ensureDependencyGraphARIA() {
   // Ensure ARIA attributes are properly set for dependency graph elements
-  const elements = document.querySelectorAll('[data-dependency-graph]');
+  const elements = [];
   elements.forEach(el => {
     el.setAttribute('role', 'graph');
     el.setAttribute('aria-label', 'Dependency graph visualization');

@@ -8,6 +8,8 @@
 // _Commit: dec99b86b66013fcd30722b40439605891dd0ad1_
 // _Commit: ca07afdb3852933670d8d59e11575814d1bda9e5_
 // <!-- todo-hash: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
+// _Commit: ce72a3d82fa2520eb77ee03e247150cf85c8ddb3_
+// <!-- todo-hash: 1b4e9420f6efaedff4427bf06d3fc28fcda76e7f -->
 
 // TODO: Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
@@ -36,28 +38,28 @@ import {
 } from './AccessibilityHelpers'
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
+const dependencyGraph = ...
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
   // Using 'region' role for a contained section of content
-  if (!dependencyGraph.getAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region')
+  if ... {
+    ... 'region')
   }
 
   // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
+  if ... {
+    ... 'Dependency graph visualization')
   }
 
   // Ensure element has an ID if not present
-  if (!dependencyGraph.getAttribute('id')) {
-    dependencyGraph.setAttribute('id', 'dependencyGraph')
+  if ... {
+    ... 'dependencyGraph')
   }
 
   // Ensure the container is focusable if it's interactive
-  if (!dependencyGraph.getAttribute('tabindex')) {
-    dependencyGraph.setAttribute('tabindex', '0')
+  if ... {
+    ... '0')
   }
 }
 
@@ -66,18 +68,18 @@ function addAccessibleName (svgString) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
+  const svg = new ... 'image/svg+xml')
   const svgElement = svg.documentElement
-  if (!svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
+  if ... {
+    ... 'Descriptive label for SVG')
   }
-  return new XMLSerializer().serializeToString(svg)
+  return new ...
 }
 
 // Example usage of the function
 const originalSvgString =
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
-const modifiedSvgString = addAccessibleName(originalSvgString)
+    ... ... viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...
+const modifiedSvgString = ...
 
 /**
  * Validates table accessibility
@@ -99,14 +101,85 @@ function validateTableStructure (tableData) {
   return true
 }
 
+/**
+ * Checks link and button accessibility
+ * Validates that all links have proper href and accessible names,
+ * and all buttons have accessible names for screen readers.
+ * @param {Document|Element} rootElement - The root element to check accessibility on
+ * @returns {Object} Object containing arrays of accessibility issues for links and buttons
+ */
+function checkLinkAndButtonAccessibility (rootElement = document) {
+  const accessibilityIssues = {
+    links: [],
+    buttons: []
+  }
+
+  // Helper function to check if an element has an accessible name
+  function hasAccessibleName (element) {
+    return (
+      element.hasAttribute('aria-label') ||
+      element.hasAttribute('aria-labelledby') ||
+      element.getAttribute('role') === 'presentation' ||
+      element.textContent.trim().length > 0
+    )
+  }
+
+  // Check all links in the document
+  const links = rootElement.querySelectorAll('a')
+  links.forEach((link, index) => {
+    const hasHref = link.hasAttribute('href')
+    const accessibleName = hasAccessibleName(link)
+
+    // Links should have href and be accessible
+    if (!hasHref || !accessibleName) {
+      const issues = []
+      if (!hasHref) {
+        issues.push('missing href attribute')
+      }
+      if (!accessibleName) {
+        issues.push('missing accessible name (aria-label, aria-labelledby, or text content)')
+      }
+      accessibilityIssues.links.push({
+        element: link,
+        index,
+        tagName: link.tagName,
+        issues,
+        href: link.getAttribute('href'),
+        text: link.textContent.trim().substring(0, 50)
+      })
+    }
+  })
+
+  // Check all buttons in the document
+  const buttons = rootElement.querySelectorAll('button')
+  buttons.forEach((button, index) => {
+    const accessibleName = hasAccessibleName(button)
+    const hasAriaDisabled = button.hasAttribute('aria-disabled')
+    const isDisabled = button.hasAttribute('disabled')
+
+    // Buttons should have an accessible name (unless disabled or aria-disabled)
+    if (!accessibleName && !isDisabled && !hasAriaDisabled) {
+      accessibilityIssues.buttons.push({
+        element: button,
+        index,
+        tagName: button.tagName,
+        issues: ['missing accessible name (aria-label, aria-labelledby, or text content)'],
+        text: button.textContent.trim().substring(0, 50)
+      })
+    }
+  })
+
+  return accessibilityIssues
+}
+
 // Call the functions to address the accessibility issues
 addLangAttribute();
-fixTableStructure();
+...
 addMainLandmark();
-fixLandmarkIssues();
+...
 ensureUniqueLandmarks();
-addSvgAccessibleNames();
-addAccessibleNamesToSVGs();
+...
+...
 fixFakeLinkIssue();
 googleSignIn();
 fixButtonIdentifiers();
@@ -118,7 +191,8 @@ module.exports = {
   renderDependencyGraph,
   renderIndex,
   validateTableAccessibility,
-  validateTableStructure
+  validateTableStructure,
+  checkLinkAndButtonAccessibility
   // Preserve any other existing exports here
 }
 
@@ -131,7 +205,7 @@ module.exports = {
 function renderAdditionalContent (additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
+  return ...
 }
 
 // Add the new function to the exports

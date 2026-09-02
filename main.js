@@ -20,11 +20,6 @@ const renderGraphIndex = (graphData) => {
   renderDependencyGraphs(graphData);
 }
 
-const renderGraphIndex = (graphData) => {
-  addressAccessibilityIssues();
-  renderDependencyGraphs(graphData);
-}
-
 // TODO: Update the existing function using the new functions for rendering graph/index
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 
@@ -323,32 +318,6 @@ function validateTableAccessibility(table) {
 }
 
 /**
- * Check accessibility of landmark elements in the document.
- * @param {HTMLElement} container - The container element to check
- */
-function validateLandmark(container) {
-  if (!container) {
-    throw new Error('Container element is required');
-  }
-
-  const landmarkSelectors = [
-    'main', 'nav', 'header', 'footer', 'aside',
-    '[role="main"]', '[role="navigation"]', '[role="banner"]',
-    '[role="contentinfo"]', '[role="complementary"]'
-  ];
-
-  const landmarks = document.querySelectorAll(landmarkSelectors.join(', '));
-  const landmarkCount = {};
-
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    landmarkCount[role] = (landmarkCount[role] || 0) + 1;
-  });
-
-  return landmarkCount;
-}
-
-/**
  * Validates the structure of landmark elements.
  * @param {HTMLElement} container - The container element to check
  */
@@ -478,4 +447,32 @@ function createInPageButton(text, targetId) {
   button.textContent = text;
   button.setAttribute('aria-label', `Scroll to ${text}`);
   button.addEventListener('click', () => {
-    const target = document
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+      target.focus();
+    }
+  });
+  return button;
+}
+
+/**
+ * Create a button for external web resources with accessibility features.
+ * @param {string} url - The URL to open
+ * @param {string} text - Button text
+ * @param {boolean} external - Whether the link is external (adds rel="noopener noreferrer")
+ * @returns {HTMLAnchorElement} The created anchor element styled as a button
+ */
+function createWebResourceButton(url, text, external = true) {
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.textContent = text;
+  anchor.setAttribute('aria-label', `Open ${text} in a new tab`);
+  
+  if (external) {
+    anchor.setAttribute('target', '_blank');
+    anchor.setAttribute('rel', 'noopener noreferrer');
+  }
+  
+  return anchor;
+}

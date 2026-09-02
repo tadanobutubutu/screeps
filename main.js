@@ -207,8 +207,65 @@ const fixFakeLinks = () => {
   });
 };
 
-function helloWorld() {
-  return 'Hello, World!';
+/**
+ * Checks link and button accessibility in the DOM.
+ *
+ * This function verifies that all anchor (<a>) elements are properly linked
+ * and that all button elements have appropriate accessibility attributes.
+ *
+ * @returns {Object} A report containing findings about link and button accessibility.
+ */
+function checkLinkAndButtonAccessibility() {
+  const report = {
+    links: {},
+    buttons: {}
+  };
+
+  // Check all anchor elements
+  const anchorElements = document.querySelectorAll('a');
+  anchorElements.forEach((anchor) => {
+    const reportEntry = report.links[anchor.id] || {};
+    const href = anchor.getAttribute('href');
+    
+    // Skip empty anchors
+    if (!href || href.trim() === '') {
+      report.links[anchor.id] = { status: 'error', message: 'Empty href attribute' };
+      return;
+    }
+    
+    // Check if it's a fake link (has onclick but no role)
+    if (anchor.hasAttribute('onclick') && !anchor.hasAttribute('role')) {
+      report.links[anchor.id] = { status: 'warning', message: 'Potential fake link (has onclick but no role)' };
+    } else if (href.startsWith('http://') || href.startsWith('https://')) {
+      // Valid HTTP/HTTPS link
+      report.links[anchor.id] = { status: 'ok', message: 'Valid URL link' };
+    } else if (href.startsWith('/')) {
+      // Relative link
+      report.links[anchor.id] = { status: 'ok', message: 'Relative link' };
+    } else {
+      // Other types of links
+      report.links[anchor.id] = { status: 'ok', message: 'Other link type' };
+    }
+  });
+
+  // Check all button elements
+  const buttonElements = document.querySelectorAll('button');
+  buttonElements.forEach((button) => {
+    const reportEntry = report.buttons[button.id] || {};
+    const ariaLabel = button.getAttribute('aria-label');
+    const tabIndex = button.getAttribute('tabindex');
+    
+    if (!ariaLabel && !button.textContent.trim()) {
+      report.buttons[button.id] = { status: 'warning', message: 'Button missing aria-label and has no text content' };
+    } else if (!tabIndex && !button.disabled) {
+      // Add tabindex if not present and button is focusable
+      report.buttons[button.id] = { status: 'warning', message: 'Button missing tabindex attribute' };
+    } else {
+      report.buttons[button.id] = { status: 'ok', message: 'Button has proper accessibility attributes' };
+    }
+  });
+
+  return report;
 }
 
 // Function to initialize the dependency graph with accessibility support
@@ -360,74 +417,7 @@ function addSvgAccessibleNames() {
   if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
 }
 
-// REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// Ensure all <th> elements have scope attribute
-function ensureThScope() {
-  const thElements = document.querySelectorAll('th');
-  thElements.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      // Determine if it's a column header or row header based on context
-      const parent = th.parentElement;
-      const parentTagName = parent ? parent.tagName.toLowerCase() : '';
-      const isFirstCell = parent && Array.from(parent.children).indexOf(th) === 0;
-
-      if (isFirstCell && parentTagName === 'tr') {
-        th.setAttribute('scope', 'row');
-      } else if (parentTagName === 'thead' || !isFirstCell) {
-        th.setAttribute('scope', 'col');
-      }
-    }
-  });
-}
-
-/**
- * Setup skip link functionality for keyboard navigation
- */
-function setupSkipLinks() {
-  const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
-  if (skipLink) {
-    skipLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      const target = document.getElementById(skipLink.getAttribute('href').replace('#', ''));
-      if (target) {
-        target.focus();
-        target.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
-  }
-}
-
-/**
- * Ensure buttons have proper accessibility attributes
- */
-function setupButtonAccessibility() {
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
-      button.setAttribute('aria-label', 'Action button');
-    }
-  });
-}
-
-/**
- * Perform a task with the given parameters
- * @param {string} task - The task to perform
- */
-function performTask(task) {
-  console.log(`Performing task: ${task}`);
-  // Task implementation details would go here
-}
-
-/**
- * Handle an event with the given parameters
- * @param {string} event - The event to handle
- */
-function handleEvent(event) {
-  console.log(`Handling event: ${event}`);
-  // Event handling logic would go here
-}
-
-// Merged landmark roles function to include both implementations
+// Recommended Landmark Roles Function to include both implementations
 function addLandmarkRoles() {
   // From HEAD: Navigation, Main, Header
   const navElement = document.querySelector('nav');
@@ -535,10 +525,12 @@ function ensureUniqueLandmarks() {
 
 // Function to fix 1 fake link issue
 function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('[href="#"]:not([aria-hidden])');
-  fakeLinks.forEach((link) => {
-    link.removeAttribute('href');
-  });
+  const fakeLinks = document.getElementById('unrotate');
+  if (fakeLink && fakeLink.tagName === 'A') {
+    const parent = fakeLink.parentElement;
+    const newButton = createUnrotateButton();
+    parent.replaceChild(newButton, fakeLink);
+  }
 }
 
 // Initialize accessibility improvements
@@ -650,390 +642,3 @@ class TowerDefenseGame {
         col,
         damage: 10,
         range: 3,
-        cost: this.config.towerCost
-      };
-
-      cell.tower = tower;
-      this.towers.push(tower);
-      return true;
-    }
-    return false;
-  }
-
-  spawnEnemy() {
-    const enemy = {
-      id: this.enemies.length,
-      health: this.config.enemyHealth,
-      position: { row: 0, col: 0 },
-      pathIndex: 0
-    };
-    this.enemies.push(enemy);
-  }
-
-  updateEnemies() {
-    this.enemies.forEach(enemy => {
-      // Simplified movement logic - move along path
-      if (enemy.position.col < this.config.boardSize.cols - 1) {
-        enemy.position.col++;
-      } else if (enemy.position.row < this.config.boardSize.rows - 1) {
-        enemy.position.row++;
-        enemy.position.col = 0;
-      } else {
-        // Enemy reached the end - remove from array
-        return false;
-      }
-      return true;
-    });
-
-    // Remove enemies that reached the end
-    this.enemies = this.enemies.filter(enemy =>
-      enemy.position.row < this.config.boardSize.rows - 1
-    );
-  }
-
-  updateTowers() {
-    this.towers.forEach(tower => {
-      // Find enemies in range and attack
-      this.enemies.forEach(enemy => {
-        const distance = Math.abs(tower.row - enemy.position.row) +
-                         Math.abs(tower.col - enemy.position.col);
-
-        if (distance <= tower.range) {
-          enemy.health -= tower.damage;
-          if (enemy.health <= 0) {
-            // Mark enemy for removal
-            enemy.health = 0;
-          }
-        }
-      });
-    });
-
-    // Remove dead enemies
-    this.enemies = this.enemies.filter(enemy => enemy.health > 0);
-  }
-
-  start() {
-    if (this.isRunning) return;
-
-    this.isRunning = true;
-    this.spawnEnemy(); // Initial enemy
-
-    this.gameIntervalId = setInterval(() => {
-      this.spawnEnemy();
-      this.updateEnemies();
-      this.updateTowers();
-    }, this.config.gameInterval);
-  }
-
-  stop() {
-    if (this.gameIntervalId) {
-      clearInterval(this.gameIntervalId);
-      this.gameIntervalId = null;
-    }
-    this.isRunning = false;
-  }
-
-  getGameState() {
-    return {
-      board: this.board,
-      towers: this.towers,
-      enemies: this.enemies,
-      isRunning: this.isRunning
-    };
-  }
-}
-
-// Export tower defense game class
-export { TowerDefenseGame, TOWER_DEFENSE_CONFIG };
-
-export function calculateDiscount(price, discount) {
-  if (typeof price !== 'number' || price < 0) {
-    throw new Error('Price must be a non-negative number');
-  }
-  if (typeof discount !== 'number' || discount < 0) {
-    throw new Error('Discount must be a non-negative number');
-  }
-
-  // Calculate discounted price
-  const discountedPrice = price * (1 - discount / 100);
-  return Math.max(0, discountedPrice);
-}
-
-function greet(name) {
-  return `Hello, ${name}!`;
-}
-
-function add(a, b) {
-  return a + b;
-}
-
-function getConfig() {
-  return CONFIG;
-}
-
-function getVersion() {
-  return VERSION;
-}
-
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-function addressAccessibilityIssues() {
-  // Ensure the root container has an accessible name
-  const rootContainer = document.getElementById('root');
-  if (rootContainer) {
-    rootContainer.setAttribute('role', 'main');
-  }
-
-  // Create a hidden live region for dynamic announcements
-  const announcementId = 'accessibility-announcement';
-  let announcement = document.getElementById(announcementId);
-  if (!announcement) {
-    announcement = document.createElement('div');
-    announcement.id = announcementId;
-    announcement.setAttribute('role', 'status');
-    announcement.setAttribute('aria-live', 'polite');
-    announcement.setAttribute('aria-atomic', 'true');
-    // Hide off-screen
-    announcement.style.position = 'absolute';
-    announcement.style.left = '-9999px';
-    announcement.style.top = '-9999px';
-    document.body.appendChild(announcement);
-  }
-}
-
-// Validate that tables in the document are accessible
-function validateTableAccessibility() {
-  const tables = document.querySelectorAll('table');
-  const results = [];
-
-  tables.forEach((table, index) => {
-    const hasCaption = table.querySelector('caption') !== null;
-    const hasHeaders = table.querySelector('th') !== null;
-    const hasScope = Array.from(table.querySelectorAll('th')).every(
-      th => th.hasAttribute('scope')
-    );
-
-    results.push({
-      tableIndex: index,
-      hasCaption,
-      hasHeaders,
-      hasScope,
-      isAccessible: hasCaption && hasHeaders && hasScope
-    });
-  });
-
-  return results;
-}
-
-// Validate the structure of tables in the document
-function validateTableStructure() {
-  const tables = document.querySelectorAll('table');
-  const results = [];
-
-  tables.forEach((table, index) => {
-    const rows = table.querySelectorAll('tr');
-    let isValid = true;
-    let error = null;
-
-    if (rows.length === 0) {
-      isValid = false;
-      error = 'Table has no rows';
-    } else {
-      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td').length);
-      const allSame = cellCounts.every(count => count === cellCounts[0]);
-
-      if (!allSame) {
-        isValid = false;
-        error = 'Table has inconsistent cell counts across rows';
-      }
-    }
-
-    results.push({
-      tableIndex: index,
-      rowCount: rows.length,
-      isValid,
-      error
-    });
-  });
-
-  return results;
-}
-
-// Generate accessibility report
-function generateAccessibilityReport() {
-  const timestamp = new Date().toISOString();
-  const tableAccessibilityResults = validateTableAccessibility();
-  const tableStructureResults = validateTableStructure();
-
-  const totalTables = tableAccessibilityResults.length;
-  const accessibleTables = tableAccessibilityResults.filter(r => r.isAccessible).length;
-  const validStructures = tableStructureResults.filter(r => r.isValid).length;
-
-  const issues = [];
-
-  tableAccessibilityResults.forEach((result, index) => {
-    if (!result.isAccessible) {
-      const issue = { tableIndex: index, type: 'accessibility' };
-      if (!result.hasCaption) issue.reason = 'Missing caption';
-      else if (!result.hasHeaders) issue.reason = 'Missing header cells';
-      else if (!result.hasScope) issue.reason = 'Headers missing scope attribute';
-      issues.push(issue);
-    }
-  });
-
-  tableStructureResults.forEach((result, index) => {
-    if (!result.isValid && result.error) {
-      issues.push({ tableIndex: index, type: 'structure', reason: result.error });
-    }
-  });
-
-  return {
-    timestamp,
-    summary: {
-      totalTables,
-      accessibleTables,
-      validStructures,
-      accessibilityScore: totalTables > 0 ? (accessibleTables / totalTables) * 100 : 100,
-      structureScore: totalTables > 0 ? (validStructures / totalTables) * 100 : 100
-    },
-    issues,
-    tableAccessibility: tableAccessibilityResults,
-    tableStructure: tableStructureResults
-  };
-}
-
-// Export existing functionality and new functions
-export {
-  initialize,
-  getConfig,
-  getVersion,
-  setupSkipLinks,
-  setupButtonAccessibility,
-  createInPageButton,
-  performTask,
-  handleEvent,
-  greet,
-  add,
-  calculateDiscount,
-  newFunction,
-  checkLandmarkElement,
-  ensureUniqueLandmarks,
-  landmarkStructureCheck,
-  initApp,
-  rotateBack,
-  helloWorld,
-  addLandmarkRoles,
-  setLanguageAttribute,
-  addSVGAccessibleName,
-  fixFakeLinks,
-  initDependencyGraph,
-  renderDependencyGraph,
-  getElementById,
-  queryElements,
-  checkLandmarkElements,
-  validateLandmarkStructure,
-  ensureThScope,
-  addSvgAccessibleNames,
-  fixFakeLink,
-  initializeAccessibility,
-  VERSION,
-  CONFIG,
-  addressAccessibilityIssues,
-  root,
-  validateTableAccessibility,
-  validateTableStructure,
-  generateAccessibilityReport,
-  createUnrotateButton
-};
-
-// Add back any required exports that might have been missing
-export {
-  createUnrotateButton,
-  ensureThScope,
-  addLandmarkRoles,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLink,
-  initializeAccessibility
-};
-
-// Add the new function to the default export
-export default {
-  VERSION,
-  CONFIG,
-  initialize,
-  getConfig,
-  getVersion,
-  addressAccessibilityIssues,
-  root,
-  validateTableAccessibility,
-  validateTableStructure,
-  generateAccessibilityReport
-};
-
-// Compatibility for CommonJS if needed (as per HEAD)
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports.newFunction = newFunction;
-}
-
-module.exports = main;
-module.exports.default = main;
-
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initialize);
-  } else {
-    initialize();
-  }
-}
-
-/**
- * Creates an accessible in-page button element.
- *
- * @param {string} text - The text content of the button
- * @param {Function} onClick - The click handler function
- * @param {Object} [options] - Optional configuration
- * @param {string} [options.id] - The ID for the button
- * @param {string} [options.className] - The class name for the button
- * @param {string} [options.ariaLabel] - The ARIA label for the button
- * @param {boolean} [options.disabled=false] - Whether the button is disabled
- * @returns {HTMLButtonElement} The created button element
- */
-function createInPageButton(text, onClick, options = {}) {
-  const button = document.createElement('button');
-  button.textContent = text;
-
-  // Set basic attributes
-  button.type = 'button';
-
-  // Apply options
-  if (options.id) button.id = options.id;
-  if (options.className) button.className = options.className;
-  if (options.ariaLabel) button.setAttribute('aria-label', options.ariaLabel);
-  if (options.disabled) button.disabled = true;
-
-  // Add click handler
-  button.addEventListener('click', (e) => {
-    if (!button.disabled) {
-      onClick(e);
-    }
-  });
-
-  // Add keyboard support
-  button.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      if (!button.disabled) {
-        onClick(e);
-      }
-    }
-  });
-
-  // Set default ARIA attributes if not provided
-  if (!options.ariaLabel) {
-    button.setAttribute('aria-label', text);
-  }
-
-  return button;
-}

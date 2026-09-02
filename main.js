@@ -259,23 +259,23 @@ const AddressabilityIssues = {
 
     svgElements.forEach(svg => {
       if (!svg.id) {
-        svg.id = generateUniqueId();
+        svg.id = AddressabilityIssues.generateUniqueId ? AddressabilityIssues.generateUniqueId() : generateUniqueId();
       }
 
       if (!svg.getAttribute('role')) {
         svg.setAttribute('role', 'img');
       }
 
-      const accessibleName = getSvgAccessibleName(svg);
+      const accessibleName = AddressabilityIssues.getSvgAccessibleName ? AddressabilityIssues.getSvgAccessibleName(svg) : getSvgAccessibleName(svg);
       if (accessibleName) {
         svg.setAttribute('aria-label', accessibleName);
       }
 
-      setSvgAttributes(svg);
+      AddressabilityIssues.setSvgAttributes(svg);
     });
 
     return {
-      issues: detectAccessibilityIssues(svgElements),
+      issues: AddressabilityIssues.detectAccessibilityIssues(svgElements),
       count: svgElements.length
     };
   },
@@ -350,21 +350,31 @@ const AddressabilityIssues = {
       });
       window.dispatchEvent(clearEvent);
     }
-  },
-
-  // Export functions for testing
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-      AddressabilityIssues,
-      initializeAccessibility,
-      getSvgAccessibleName,
-      setSvgAttributes,
-      checkTableStructure,
-      generateUniqueId,
-      detectAccessibilityIssues,
-      handleCredentialResponse,
-      getStoredCredentials,
-      clearCredentials
-    };
   }
-</script>
+};
+
+// Helper functions used by accessibility methods
+function generateUniqueId() {
+  return 'svg-' + Math.random().toString(36).substr(2, 9);
+}
+
+function checkTableStructure(table) {
+  if (!table) return { valid: false, error: 'Table is required' };
+  return { valid: true };
+}
+
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    AddressabilityIssues,
+    initializeAccessibility: AddressabilityIssues.initializeAccessibility,
+    getSvgAccessibleName: AddressabilityIssues.getSvgAccessibleName,
+    setSvgAttributes: AddressabilityIssues.setSvgAttributes,
+    checkTableStructure,
+    generateUniqueId,
+    detectAccessibilityIssues: AddressabilityIssues.detectAccessibilityIssues,
+    handleCredentialResponse: AddressabilityIssues.handleCredentialResponse,
+    getStoredCredentials: AddressabilityIssues.getStoredCredentials,
+    clearCredentials: AddressabilityIssues.clearCredentials
+  };
+}

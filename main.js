@@ -7,7 +7,7 @@
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 // _Commit: dec99b86b66013fcd30722b40439605891dd0ad1_
 // _Commit: ca07afdb3852933670d8d59e11575814d1bda9e5_
-// <!-- todo-hash: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
+// <!-- todo-hash: e944d6bc26c5766586cd5c819c30f566e3ef878b -->
 
 // TODO: Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
@@ -36,7 +36,7 @@ import {
 } from './AccessibilityHelpers'
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
+const dependencyGraph = document.getElementById('dependency-graph')
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
@@ -51,8 +51,8 @@ if (dependencyGraph) {
   }
 
   // Ensure element has an ID if not present
-  if (!dependencyGraph.getAttribute('id')) {
-    dependencyGraph.setAttribute('id', 'dependencyGraph')
+  if (!dependencyGraph.id) {
+    dependencyGraph.id = 'dependencyGraph'
   }
 
   // Ensure the container is focusable if it's interactive
@@ -66,17 +66,17 @@ function addAccessibleName (svgString) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
+  const parser = new DOMParser()
+  const svg = parser.parseFromString(svgString, 'image/svg+xml')
   const svgElement = svg.documentElement
-  if (!svgElement.getAttribute('aria-label')) {
+  if (!svgElement.hasAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
     svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
   }
   return new XMLSerializer().serializeToString(svg)
 }
 
 // Example usage of the function
-const originalSvgString =
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
+const originalSvgString = '<svg viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...'
 const modifiedSvgString = addAccessibleName(originalSvgString)
 
 /**
@@ -100,16 +100,18 @@ function validateTableStructure (tableData) {
 }
 
 // Call the functions to address the accessibility issues
-addLangAttribute();
-fixTableStructure();
-addMainLandmark();
-fixLandmarkIssues();
-ensureUniqueLandmarks();
-addSvgAccessibleNames();
-addAccessibleNamesToSVGs();
-fixFakeLinkIssue();
-googleSignIn();
-fixButtonIdentifiers();
+addLangAttribute()
+fixTableStructure()
+fixLandmarkIssues()
+addMainLandmark()
+addLandmarkRegions()
+ensureUniqueLandmarks()
+addSvgAccessibleNames()
+addAccessibleNamesToSVGs()
+fixFakeLinkIssue()
+fixFakeLinkIssues()
+googleSignIn()
+fixButtonIdentifiers()
 
 // Other code...
 
@@ -131,7 +133,7 @@ module.exports = {
 function renderAdditionalContent (additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
+  return '<div>Additional content rendered</div>'
 }
 
 // Add the new function to the exports

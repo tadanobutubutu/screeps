@@ -1,4 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;
@@ -162,7 +161,6 @@ function checkLinkAccessibility() {
   return issues;
 }
 
-// TODO: Implement wrapPrimaryContentInMain function, including the added logic
 /**
  * Wraps the primary content of the page in a <main> element for improved accessibility.
  * This function checks if a <main> element already exists; if not, it creates one
@@ -276,63 +274,6 @@ function addressAccessibilityIssues(insightReport) {
     insightReport.html = applyAccessibilityFixes(insightReport.html);
   }
 
-  // Implement the changes required to address accessibility issues from the insight report
-  // For example, this could be calling existing utility functions to validate accessibility
-  const linkIssues = checkLinkAccessibility();
-  const tableIssues = validateTableAccessibility();
-  const tableStructureIssues = validateTableStructure();
-  const linkAccessibilityIssues = validateLinkAccessibility();
-  const fakeLinkIssues = handleFakeLinks();
-
-  // Handle issues (e.g., log them, display warnings, etc.)
-  // For demonstration purposes, we will just log the issues to the console
-  console.log('Addressing accessibility issues from insight report:', insightReport);
-  console.log('Link Accessibility Issues:', linkIssues);
-  console.log('Table Accessibility Issues:', tableIssues);
-  console.log('Table Structure Issues:', tableStructureIssues);
-  console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
-  console.log('Fake Link Issues:', fakeLinkIssues);
-
-  // Here you could add additional logic to address the issues
-  // For example, you might want to update the DOM or call other functions
-}
-
-// Function to ensure dependency graph container has proper ARIA role
-function ensureDependencyGraphContainerAccessibility() {
-  const container = document.querySelector('.dependency-graph-container');
-  if (container && !container.hasAttribute('role')) {
-    container.setAttribute('role', 'region');
-    container.setAttribute('aria-label', 'Dependency Graph');
-  }
-}
-
-// Function to ensure all landmark elements have unique IDs
-function ensureUniqueLandmarkIds() {
-  const landmarks = [
-    { selector: 'header', role: 'banner' },
-    { selector: 'nav', role: 'navigation' },
-    { selector: 'main', role: 'main' },
-    { selector: 'aside', role: 'complementary' },
-    { selector: 'footer', role: 'contentinfo' }
-  ];
-
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(landmark.selector);
-    elements.forEach((element, index) => {
-      if (!element.id) {
-        element.id = `${landmark.role}-${index + 1}`;
-      }
-    });
-  });
-}
-
-// Updated addressAccessibilityIssues function to include new requirements
-function addressAccessibilityIssues(insightReport) {
-  // Apply accessibility fixes to HTML content based on insight report
-  if (insightReport && insightReport.html) {
-    insightReport.html = applyAccessibilityFixes(insightReport.html);
-  }
-
   // Ensure dependency graph container has proper ARIA role
   ensureDependencyGraphContainerAccessibility();
 
@@ -367,6 +308,35 @@ function addressAccessibilityIssues(insightReport) {
   };
 }
 
+// Function to ensure dependency graph container has proper ARIA role
+function ensureDependencyGraphContainerAccessibility() {
+  const container = document.querySelector('.dependency-graph-container');
+  if (container && !container.hasAttribute('role')) {
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
+// Function to ensure all landmark elements have unique IDs
+function ensureUniqueLandmarkIds() {
+  const landmarks = [
+    { selector: 'header', role: 'banner' },
+    { selector: 'nav', role: 'navigation' },
+    { selector: 'main', role: 'main' },
+    { selector: 'aside', role: 'complementary' },
+    { selector: 'footer', role: 'contentinfo' }
+  ];
+
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(landmark.selector);
+    elements.forEach((element, index) => {
+      if (!element.id) {
+        element.id = `${landmark.role}-${index + 1}`;
+      }
+    });
+  });
+}
+
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
     button.id = buttonId;
@@ -374,8 +344,6 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.className = buttonClass;
     document.body.appendChild(button);
 }
-
-// Don't forget to test your new additions in the test file
 
 // Export the function for testing and external use
 module.exports = { newFunction };

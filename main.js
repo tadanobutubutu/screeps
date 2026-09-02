@@ -1,8 +1,36 @@
 const accessibilityUtils = {
   // ... (The rest of the original code remains unchanged)
 
+  // TODO: Implement this function for creating in-page buttons
+  createInPageButton: function(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    return button;
+  },
+
+  // Function to validate landmark structure for accessibility issues
+  validateLandmarkStructure: function() {
+    const requiredLandmarks = ['header', 'main', 'footer'];
+    const missingLandmarks = [];
+
+    requiredLandmarks.forEach(landmark => {
+      const element = document.querySelector(landmark);
+      if (!element) {
+        missingLandmarks.push(landmark);
+      }
+    });
+
+    if (missingLandmarks.length > 0) {
+      console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+      return false;
+    }
+    return true;
+  },
+
   // New focus trap function
-  newFocusTrap: (element) => {
+  newFocusTrap: function(element) {
     if (!element) return;
     const focusable = element.querySelectorAll(
       'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
@@ -25,10 +53,11 @@ const accessibilityUtils = {
   },
 
   // Focus trap utility
-  focusTrapUtil: (container) => {
+  focusTrapUtil: function(container) {
     const focusableElements = container.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
+    if (focusableElements.length === 0) return;
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
 

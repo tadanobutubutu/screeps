@@ -8,7 +8,7 @@ const fastMap = require('fast-map');
 const path = require('path');
 const accessiblyHelper = require('./accessibly-helper'); // Added this import
 
-// TODO: This is the existing code that needs to be preserve
+// TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
 const expressApp = express();
@@ -192,6 +192,25 @@ function getLandmarkById(id) {
     return element;
   }
   return null;
+}
+
+function ensureUniqueLandmarks(landmarks) {
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    const id = landmark.id || landmark.getAttribute('role');
+    if (seen.has(id)) {
+      return false;
+    }
+    seen.add(id);
+    return true;
+  });
+}
+
+function writeReport(data) {
+  // Implementation to write report
+  const reportName = `report-${Date.now()}.json`;
+  fs.writeFileSync(reportName, JSON.stringify(data, null, 2));
+  return reportName;
 }
 
 // New function to analyze module dependencies and return a report
@@ -452,7 +471,7 @@ function createInPageButton(targetId, text) {
 }
 
 function validateLandmark() {
-  const landmarks = document.querySelectorAll('[role="landmark"], [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="search"], [role="form"], [region"]');
+  const landmarks = document.querySelectorAll('[role="landmark"], [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="search"], [role="form"], [role="region"]');
   const issues = [];
 
   landmarks.forEach((landmark, index) => {
@@ -614,9 +633,6 @@ if (!/<footer[^>]*>/i.test(html) && !/<div[^>]*role=["']contentinfo["']/i.test(h
   html = html.replace(/<\/body>/i, '<footer></footer></body>')
 }
 
-return html
-}
-
 // REACT_041: Add accessible names to SVGs
 function addSvgAccessibleNames (html) {
   if (typeof html !== 'string') return html
@@ -701,6 +717,10 @@ function checkLinkAccessibilityHTTP(linkUrl) {
       clearTimeout(timeout);
       return false;
     });
+}
+
+function formatResponse(data) {
+  return JSON.stringify(data, null, 2);
 }
 
 module.exports = {

@@ -88,9 +88,25 @@ function generateAccessibilityReport(insightReport) {
     };
   }
 
-  // ... (original code continued)
+  const severityCounts = {
+    critical: 0,
+    serious: 0,
+    moderate: 0,
+    minor: 0
+  };
 
-  return issues;
+  insightReport.issues.forEach(issue => {
+    const severity = issue.severity || 'minor';
+    if (severityCounts.hasOwnProperty(severity)) {
+      severityCounts[severity]++;
+    }
+  });
+
+  return {
+    summary: `Found ${insightReport.issues.length} accessibility issues`,
+    issues: insightReport.issues,
+    severityCounts
+  };
 }
 
 // Export all functions and objects that need to be available to other modules

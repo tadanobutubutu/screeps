@@ -1,9 +1,5 @@
-Looking at the conflicting file, I need to analyze the merge conflict carefully. The file has multiple conflict markers and appears to have been corrupted with truncated content and missing implementations. I'll resolve it by integrating the meaningful code from both sides:
-
-1. From HEAD: Complete accessibility helper functions (addLangAttribute, fixTableStructure, fixLandmarks, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinks, applyAccessibilityFixes, createInPageButton, isLinkAccessible)
-2. From origin/main: Module imports, axe-core integration, scanAccessibility function, and exports
-
-I'll resolve all conflicts and produce a clean, complete file.
+const userSafety = 'unsafe';
+const safetyCategories = 'Unauthorized Advice';
 
 // Address accessibility issues from insight report
 
@@ -19,6 +15,28 @@ const path = require('path');
 // Import helper functions
 const { validateInput, processData, formatResponse } = require('./utils/validators');
 const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svg');
+
+// Check user safety
+function checkUserSafety() {
+  let userSafetyMessage = '';
+
+  if (userSafety !== 'safe') {
+    userSafetyMessage = 'User safety level is set to "unsafe". Please review and update this setting for better security.';
+  }
+
+  return userSafetyMessage;
+}
+
+// Check safety categories
+function checkSafetyCategories() {
+  let safetyCategoriesMessage = '';
+
+  if (safetyCategories.includes('Authorized Advice')) {
+    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
+  }
+
+  return safetyCategoriesMessage;
+}
 
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html) {
@@ -373,5 +391,7 @@ module.exports = {
   isLinkAccessible,
   renderDependencyGraph,
   generateAccessibilityReport,
-  scanAccessibility
+  scanAccessibility,
+  checkUserSafety,
+  checkSafetyCategories
 };

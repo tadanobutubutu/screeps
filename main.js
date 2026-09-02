@@ -7,26 +7,28 @@ function setSvgAttributes(svg) {
   }
 }
 
+function renderDependencyGraph(node) {
+  // Your custom code to render the dependency graph for the 'node' element
+}
+
+function renderDependencyGraphs(svgElements) {
+  svgElements.forEach(svg => {
+    const visibleDependentNodes = getVisibleDependentNodes(svg);
+    visibleDependentNodes.forEach(node => renderDependencyGraph(node));
+  });
+}
+
+function getVisibleDependentNodes(svg) {
+  // Your custom code to get the visible dependent nodes from the 'svg' element
+  return [];
+}
+
 function main() {
   const svgElements = document.querySelectorAll('svg');
 
   renderDependencyGraphs(svgElements);
 
   checkLandmarkElements();
-}
-
-function renderDependencyGraphs(svgElements) {
-  const accessibleName = getSvgAccessibleName(svgElements);
-  if (accessibleName) {
-    // Use accessibleName
-  }
-}
-
-function getSvgAccessibleName(svgElements) {
-  if (svgElements.length > 0) {
-    return svgElements[0].getAttribute('aria-label') || svgElements[0].getAttribute('id');
-  }
-  return '';
 }
 
 function checkLandmarkElements() {

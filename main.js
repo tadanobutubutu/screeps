@@ -3,6 +3,8 @@ const axe = require('axe-core');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
+const { validateInput, processData } = require('./utils/validators');
+const { formatResponse } = require('./utils/processor');
 
 // Existing code preserved - all functions, exports, and utilities maintained
 // (Implementation added above)
@@ -275,6 +277,22 @@ if (require.main === module) {
 
     // Uncomment to run the accessibility report generation
     // generateAccessibilityReport();
+}
+
+// New function for generating a report based on accessibility issues
+async function scanAccessibility() {
+    const axeOptions = {
+        // ... axe-core options ...
+    };
+    return new Promise((resolve, reject) => {
+        axe.run(axeOptions, (error, results) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results);
+            }
+        });
+    });
 }
 
 module.exports = {

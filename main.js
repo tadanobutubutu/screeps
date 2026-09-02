@@ -79,132 +79,17 @@ function handleInitialAccessibility() {
   a11yStore.checkLandmarkElements();
   a11yStore.addSVGAccessibilityProps();
   a11yStore.fixFakeLinks();
-  a11yStore.updateLiveRegion('Initial accessibility enhancements applied');
-  // Fix table structure issues
-  const tables = document.querySelectorAll('table');
-  tables.forEach(fixTableStructure);
-  ensureInteractiveElementsAccessible();
-
-  // HTTP Server setup (added from the merged version)
-  const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
-
-    // CORS headers for credential responses
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    if (req.method === 'OPTIONS') {
-        res.writeHead(200);
-        res.end();
-        return;
-    }
-
-    // Health check endpoint
-    if (parsedUrl.pathname === '/health') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'ok', sessions: getActiveSessionsCount() }));
-        return;
-    }
-
-    // Credential response endpoint
-    if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
-        let body = '';
-
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-
-        req.on('end', () => {
-            try {
-                const credentialResponse = JSON.parse(body);
-                const result = handleCredentialResponse(credentialResponse);
-                res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(result));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
-            }
-        });
-        return;
-    }
-
-    // Session validation endpoint
-    if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
-        const sessionId = parsedUrl.query.sessionId;
-
-        if (!sessionId) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
-            return;
-        }
-
-        const session = validateSession(sessionId);
-
-        if (session) {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'valid', user: session }));
-        } else {
-            res.writeHead(401, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'invalid', message: 'Session expired or invalid' }));
-        }
-        return;
-    }
-
-    // Session revocation endpoint
-    if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
-        let body = '';
-
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-
-        req.on('end', () => {
-            try {
-                const { sessionId } = JSON.parse(body);
-                const revoked = revokeSession(sessionId);
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
-            }
-        });
-        return;
-    }
-
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
-});
-
-/**
- * Decode a JWT token and extract the payload
- * @param {string} token - The JWT token to decode
- * @returns {Object|null} - Decoded token payload or null if invalid
- */
-function decodeJwtToken(token) {
-    try {
-        if (!token) {
-            return null;
-        }
-        const parts = token.split('.');
-        if (parts.length !== 3) {
-            return null;
-        }
-        const payload = parts[1];
-        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
-        return JSON.parse(decoded);
-    } catch (error) {
-        return null;
-    }
 }
 
-/**
- * Validate a session by ID
- * @param {string} sessionId - The session ID to validate
- * @returns {Object|null} - Session data if valid, null otherwise
- */
+// New entry point for accessibility-related functions
+function accessibility() {
+  // Handle initial accessibility setup on page load
+  handleInitialAccessibility();
+  // Ensure all interactive elements have proper ARIA roles and attributes after page load
+  addressAccessibilityIssues();
+}
+
+// New helper function for session management
 function validateSession(sessionId) {
     if (!sessionId || typeof sessionId !== 'string') {
         return null;
@@ -259,32 +144,11 @@ function addressAccessibilityIssues() {
     a11yStore.ensureImageAccessibility();
 }
 
-// Export modules for testing
+// Export new functions for accessibility as needed
 module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  ensureDependencyGraphAccessibility,
-  validateSession,
-  getActiveSessionsCount,
-  server,
-  sanitizeFilename,
-  processData,
-  revokeSession,
-  addSvgAccessibilityProps: a11yStore.addSVGAccessibilityProps,
-  isLandmarkElement,
-  handleCredentialResponse,
-  parseCredentialResponse,
-  decodeJwtToken,
-  generateSessionId,
-  validateTableStructure,
-  validateTableAccessibility,
-  validateLandmark,
-  validateLandmarkStructure,
-  createInPageButton,
-  personName,
-  handleInitialAccessibility,
-  ensureInteractiveElementsAccessible,
-  addressAccessibilityIssues,
-  renderDependencyGraphs,
-  checkLandmarkElements
+  accessibility,
 };
+
+// ADD EXPORTS FOR newFunctions IF NEEDED
+// module.exports.newFunctionName = function () {};
+```

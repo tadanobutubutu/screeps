@@ -294,6 +294,14 @@ function newCheckAccessibility (content) {
   return []
 }
 
+/**
+ * New function myNewFunction
+ * @returns {string} A greeting
+ */
+function myNewFunction () {
+  return 'Hello from myNewFunction'
+}
+
 // Export modules for testing
 module.exports = {
   renderDependencyGraph,
@@ -446,5 +454,6 @@ module.exports = {
     return fixes
   },
 
-  newCheckAccessibility
+  newCheckAccessibility,
+  myNewFunction
 }

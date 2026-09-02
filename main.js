@@ -123,6 +123,360 @@ const a11yStore = {
 
   newFunction() {
     // New function implementation from origin/main
+  },
+
+  /**
+   * Add keyboard navigation support for all interactive elements
+   * Ensures all clickable elements can be activated via keyboard
+   */
+  addKeyboardNavigation() {
+    const interactiveSelectors = [
+      'button:not([disabled])',
+      'a[href]',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[role="button"]:not([disabled])',
+      '[role="link"]:not([disabled])',
+      '[tabindex]:not([disabled])',
+      '[contenteditable="true"]'
+    ];
+
+    const interactiveElements = document.querySelectorAll(interactiveSelectors.join(', '));
+
+    interactiveElements.forEach((element) => {
+      // Ensure elements are focusable
+      if (!element.hasAttribute('tabindex') && !element.hasAttribute('disabled')) {
+        const tagName = element.tagName.toLowerCase();
+        const nativeFocusable = ['a', 'button', 'input', 'select', 'textarea'];
+        
+        if (!nativeFocusable.includes(tagName)) {
+          element.setAttribute('tabindex', '0');
+        }
+      }
+
+      // Add keyboard event listeners for non-link elements
+      if (!element.hasAttribute('href') && element.getAttribute('role') !== 'link') {
+        if (!element.hasAttribute('data-a11y-keyboard-ready')) {
+          element.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              element.click();
+            }
+          });
+          element.setAttribute('data-a11y-keyboard-ready', 'true');
+        }
+      }
+    });
+
+    // Set up arrow key navigation for button groups and menus
+    this.setupArrowKeyNavigation();
+  },
+
+  /**
+   * Set up arrow key navigation for related interactive elements
+   */
+  setupArrowKeyNavigation() {
+    const groups = document.querySelectorAll('[role="group"], [role="menu"], [role="toolbar"]');
+    
+    groups.forEach((group) => {
+      const items = group.querySelectorAll('button, [role="menuitem"], [role="tab"]');
+      
+      items.forEach((item, index) => {
+        item.addEventListener('keydown', (e) => {
+          let targetIndex = index;
+          
+          switch (e.key) {
+            case 'ArrowDown':
+            case 'ArrowRight':
+              e.preventDefault();
+              targetIndex = (index + 1) % items.length;
+              break;
+            case 'ArrowUp':
+            case 'ArrowLeft':
+              e.preventDefault();
+              targetIndex = (index - 1 + items.length) % items.length;
+              break;
+            case 'Home':
+              e.preventDefault();
+              targetIndex = 0;
+              break;
+            case 'End':
+              e.preventDefault();
+              targetIndex = items.length - 1;
+              break;
+            default:
+              return;
+          }
+          
+          items[targetIndex].focus();
+        });
+      });
+    });
+  },
+
+  /**
+   * Ensure proper ARIA labels on dynamic content
+   * Creates and manages live regions for dynamic updates
+   */
+  manageDynamicAriaLabels() {
+    // Create polite live region for non-urgent updates
+    this.ensureLiveRegion('polite');
+    // Create assertive live region for urgent updates
+    this.ensureLiveRegion('assertive');
+    
+    // Add aria-live attributes to dynamically updated containers
+    const dynamicContainers = document.querySelectorAll('[data-dynamic-content]');
+    dynamicContainers.forEach((container, index) => {
+      if (!container.hasAttribute('aria-live')) {
+        container.setAttribute('aria-live', 'polite');
+      }
+      if (!container.id) {
+        container.id = `dynamic-content-${index}`;
+      }
+    });
+
+    // Observe DOM changes and announce them
+    this.setupMutationObserver();
+  },
+
+  /**
+   * Create a live region for screen reader announcements
+   * @param {string} priority - 'polite' or 'assertive'
+   */
+  ensureLiveRegion(priority) {
+    const existingRegion = document.querySelector(`[data-a11y-live-region="${priority}"]`);
+    if (existingRegion) return existingRegion;
+
+    const liveRegion = document.createElement('div');
+    liveRegion.setAttribute('role', 'status');
+    liveRegion.setAttribute('aria-live', priority);
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.setAttribute('data-a11y-live-region', priority);
+    liveRegion.className = 'visually-hidden';
+    liveRegion.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';
+    
+    document.body.appendChild(liveRegion);
+    return liveRegion;
+  },
+
+  /**
+   * Announce a message to screen readers
+   * @param {string} message - The message to announce
+   * @param {string} priority - 'polite' or 'assertive'
+   */
+  announce(message, priority = 'polite') {
+    const liveRegion = this.ensureLiveRegion(priority);
+    // Clear and set message to ensure announcement
+    liveRegion.textContent = '';
+    setTimeout(() => {
+      liveRegion.textContent = message;
+    }, 100);
+  },
+
+  /**
+   * Set up mutation observer for dynamic content changes
+   */
+  setupMutationObserver() {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              this.processDynamicElement(node);
+            }
+          });
+        }
+      });
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  },
+
+  /**
+   * Process dynamic elements to ensure proper ARIA attributes
+   * @param {Element} element - The element to process
+   */
+  processDynamicElement(element) {
+    // Add role="img" to SVGs without titles
+    if (element.tagName === 'svg' && !element.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = 'Image';
+      element.insertBefore(title, element.firstChild);
+    }
+
+    // Add aria-label to buttons/images without accessible names
+    if (element.tagName === 'BUTTON' && !element.textContent.trim() && !element.hasAttribute('aria-label')) {
+      element.setAttribute('aria-label', 'Unlabeled button');
+    }
+
+    if (element.tagName === 'IMG' && !element.alt && !element.getAttribute('aria-label')) {
+      element.setAttribute('role', 'presentation');
+    }
+  },
+
+  /**
+   * Maintain focus management for modal dialogs
+   * Handles focus trapping, restoration, and return to trigger
+   */
+  manageModalFocus() {
+    this.trapFocus = this.trapFocus.bind(this);
+    this.releaseFocus = this.releaseFocus.bind(this);
+    this.handleModalKeydown = this.handleModalKeydown.bind(this);
+  },
+
+  /**
+   * Open a modal with proper focus management
+   * @param {HTMLElement} modal - The modal element to open
+   * @param {HTMLElement} trigger - The element that triggered the modal
+   */
+  openModal(modal, trigger = null) {
+    // Store the trigger element for later focus restoration
+    modal.setAttribute('data-a11y-modal-trigger', trigger ? trigger.id || 'unknown' : '');
+    
+    // Store the currently focused element
+    const previouslyFocused = document.activeElement;
+    modal.setAttribute('data-a11y-previously-focused', previouslyFocused.id || previouslyFocused.tagName.toLowerCase());
+    
+    // Show the modal
+    modal.setAttribute('aria-hidden', 'false');
+    modal.setAttribute('data-a11y-modal-open', 'true');
+    
+    // Set up focus trap
+    this.trapFocus(modal);
+    
+    // Focus the first focusable element or the modal itself
+    const focusableElements = this.getFocusableElements(modal);
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus();
+    } else {
+      modal.focus();
+    }
+
+    // Add keydown handler for Escape key
+    modal.addEventListener('keydown', this.handleModalKeydown);
+  },
+
+  /**
+   * Close a modal and restore focus
+   * @param {HTMLElement} modal - The modal element to close
+   */
+  closeModal(modal) {
+    // Remove focus trap
+    this.releaseFocus(modal);
+
+    // Hide the modal
+    modal.setAttribute('aria-hidden', 'true');
+    modal.setAttribute('data-a11y-modal-open', 'false');
+
+    // Remove keydown handler
+    modal.removeEventListener('keydown', this.handleModalKeydown);
+
+    // Restore focus to the previously focused element
+    const previouslyFocusedId = modal.getAttribute('data-a11y-previously-focused');
+    const triggerId = modal.getAttribute('data-a11y-modal-trigger');
+    
+    let elementToFocus = document.getElementById(previouslyFocusedId);
+    
+    if (!elementToFocus && triggerId) {
+      elementToFocus = document.getElementById(triggerId);
+    }
+    
+    if (elementToFocus) {
+      elementToFocus.focus();
+    } else {
+      // Fallback to body if no element found
+      document.body.focus();
+    }
+  },
+
+  /**
+   * Trap focus within a modal dialog
+   * @param {HTMLElement} modal - The modal element
+   */
+  trapFocus(modal) {
+    modal.setAttribute('data-a11y-focus-trap', 'true');
+    
+    // Store reference to the trap handler
+    modal._a11yFocusTrapHandler = (e) => {
+      const focusableElements = this.getFocusableElements(modal);
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (e.key === 'Tab') {
+        if (e.shiftKey) {
+          // Shift + Tab
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          // Tab
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', modal._a11yFocusTrapHandler);
+  },
+
+  /**
+   * Release focus trap from a modal
+   * @param {HTMLElement} modal - The modal element
+   */
+  releaseFocus(modal) {
+    modal.removeAttribute('data-a11y-focus-trap');
+    
+    if (modal._a11yFocusTrapHandler) {
+      document.removeEventListener('keydown', modal._a11yFocusTrapHandler);
+      delete modal._a11yFocusTrapHandler;
+    }
+  },
+
+  /**
+   * Handle keydown events in a modal
+   * @param {KeyboardEvent} e - The keyboard event
+   */
+  handleModalKeydown(e) {
+    if (e.key === 'Escape') {
+      const modal = e.target.closest('[data-a11y-modal-open]');
+      if (modal) {
+        e.preventDefault();
+        this.closeModal(modal);
+        
+        // Emit custom event for external handling
+        const closeEvent = new CustomEvent('a11y:modal:close', {
+          bubbles: true,
+          detail: { modal }
+        });
+        document.dispatchEvent(closeEvent);
+      }
+    }
+  },
+
+  /**
+   * Get all focusable elements within a container
+   * @param {HTMLElement} container - The container element
+   * @returns {HTMLElement[]} - Array of focusable elements
+   */
+  getFocusableElements(container) {
+    const focusableSelectors = [
+      'button:not([disabled])',
+      'a[href]',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([disabled]):not([tabindex="-1"])',
+      '[contenteditable="true"]'
+    ];
+
+    return Array.from(container.querySelectorAll(focusableSelectors.join(', ')));
   }
 };
 

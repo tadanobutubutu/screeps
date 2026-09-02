@@ -239,6 +239,104 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// Harvest and upgrade logic
+// State for harvest and upgrade system
+let harvestState = {
+    resources: 0,
+    upgradeLevel: 1,
+    harvestMultiplier: 1
+};
+
+/**
+ * Harvests resources based on current upgrade level and multiplier
+ * @param {number} baseAmount - The base amount to harvest (default: 1)
+ * @returns {object} Object containing harvested amount and total resources
+ */
+function harvest(baseAmount = 1) {
+    if (typeof baseAmount !== 'number' || baseAmount < 0) {
+        throw new Error('Harvest amount must be a non-negative number');
+    }
+
+    const harvestedAmount = baseAmount * harvestState.harvestMultiplier * harvestState.upgradeLevel;
+    harvestState.resources += harvestedAmount;
+
+    return {
+        harvested: harvestedAmount,
+        total: harvestState.resources,
+        level: harvestState.upgradeLevel,
+        multiplier: harvestState.harvestMultiplier
+    };
+}
+
+/**
+ * Upgrades the harvest system if enough resources are available
+ * @param {number} cost - The cost of the upgrade (auto-calculated if not provided)
+ * @returns {object} Object containing success status, new level, and remaining resources
+ */
+function upgrade(cost = null) {
+    // Auto-calculate cost if not provided: cost = level * 10
+    const upgradeCost = cost !== null ? cost : harvestState.upgradeLevel * 10;
+
+    if (typeof upgradeCost !== 'number' || upgradeCost < 0) {
+        throw new Error('Upgrade cost must be a non-negative number');
+    }
+
+    if (harvestState.resources < upgradeCost) {
+        return {
+            success: false,
+            level: harvestState.upgradeLevel,
+            resources: harvestState.resources,
+            required: upgradeCost,
+            message: 'Insufficient resources for upgrade'
+        };
+    }
+
+    harvestState.resources -= upgradeCost;
+    harvestState.upgradeLevel += 1;
+
+    return {
+        success: true,
+        level: harvestState.upgradeLevel,
+        resources: harvestState.resources,
+        cost: upgradeCost,
+        message: `Successfully upgraded to level ${harvestState.upgradeLevel}`
+    };
+}
+
+/**
+ * Resets the harvest and upgrade state
+ * @returns {object} The reset state
+ */
+function resetHarvestState() {
+    harvestState = {
+        resources: 0,
+        upgradeLevel: 1,
+        harvestMultiplier: 1
+    };
+    return { ...harvestState };
+}
+
+/**
+ * Gets the current harvest state
+ * @returns {object} Current harvest state
+ */
+function getHarvestState() {
+    return { ...harvestState };
+}
+
+/**
+ * Sets the harvest multiplier
+ * @param {number} multiplier - The multiplier to set
+ * @returns {object} Updated harvest state
+ */
+function setHarvestMultiplier(multiplier) {
+    if (typeof multiplier !== 'number' || multiplier < 0) {
+        throw new Error('Multiplier must be a non-negative number');
+    }
+    harvestState.harvestMultiplier = multiplier;
+    return { ...harvestState };
+}
+
 // TODO: add the new functions or changes requested in the issue
 // Here is the implementation for checking link accessibility
 // The existing isLinkAccessible function implementation
@@ -391,6 +489,11 @@ module.exports = {
     addressAccessibilityIssues,
     createInPageButton,
     divide,
+    harvest,
+    upgrade,
+    resetHarvestState,
+    getHarvestState,
+    setHarvestMultiplier,
     isLinkAccessible,
     checkColorContrast,
     parseColor,

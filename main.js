@@ -23,6 +23,8 @@ const appData = {
   version: '1.0.0'
 };
 
+const HTML = ({ lang }) => `<html lang="${lang}">{/* other children */}</html>`;
+
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -34,48 +36,33 @@ const appData = {
 
 function getLangAttribute() {
     // Implementation to get language attribute
-    return document.documentElement.lang || 'en';
+    return document.documentElement.lang || (navigator?.language || 'en-US');
 }
 
 function getFullLangAttribute() {
     // Implementation to get full language attribute
-    return document.documentElement.lang || navigator.language || 'en-US';
+    return document.documentElement.lang || (typeof navigator !== 'undefined' ? navigator.language : 'en-US');
 }
 
-// Replaced JSX with plain JavaScript function to fix syntax error
-function HTML(props) {
-  const { lang } = props || {};
-  return {
-    tagName: 'html',
-    attributes: { lang: lang || getLangAttribute() },
-    children: []
-  };
+function validateTableAccessibility(tableElement) {
+    if (!tableElement) {
+        console.warn('Table element is null or undefined');
+        return false;
+    }
+    if (!tableElement.caption) {
+        console.warn('Table element is missing caption');
+        return false;
+    }
+    return true;
 }
 
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by fixTableStructureIssues() and fixTableHeaderCellScope())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), addLandmarkRolesAndFixIssues() and fixLandmarkIssues())
-// - REACT_041: Add accessible names to 2 SVGs (handled by addSvgAccessibleNames())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
-// Accessibility improvements:
-// - Added semantic HTML structure
-// - Included ARIA attributes where necessary
-// - Ensured keyboard navigation support
-// - Added focus management
-
-function getLangAttribute() {
-    // Implementation to get language attribute
-    return document.documentElement.lang || 'en';
-}
-
-function getFullLangAttribute() {
-    // Implementation to get full language attribute
-    return document.documentElement.lang || navigator.language || 'en-US';
+function validateTableStructure(tableElement) {
+    const rows = tableElement?.rows ?? [];
+    if (!rows || rows.length === 0) {
+        console.warn('Table has no rows');
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -146,6 +133,57 @@ function validateTableStructure(tables) {
     success: allIssues.length === 0,
     issues: allIssues
   };
+}
+
+function getSvgAccessibleName(svgElement) {
+    const title = svgElement && svgElement.querySelector('title');
+    const ariaLabel = svgElement && svgElement.getAttribute('aria-label');
+    if (title) return title.textContent;
+    if (ariaLabel) return ariaLabel;
+    return 'Accessible SVG Icon';
+}
+
+function setSvgAttributes(svg, accessibleName) {
+  if (svg && typeof svg === 'object') {
+    svg.setAttribute('role', 'img');
+    if (accessibleName) {
+      svg.setAttribute('aria-label', accessibleName);
+    }
+  }
+  return svg;
+}
+
+function ensureUniqueLandmarks(landmarksArg) {
+  let landmarks = [];
+  if (Array.isArray(landmarksArg)) {
+    landmarks = landmarksArg;
+  } else if (landmarksArg != null) {
+    landmarks = [landmarksArg];
+  }
+
+  const elementsById = {};
+  const landmarksByRole = {};
+
+  for (let i = 0; i < landmarks.length; i++) {
+    const landmark = landmarks[i];
+    if (landmark.id) {
+      if (elementsById[landmark.id]) {
+        landmark.id += '_duplicate';
+      } else {
+        elementsById[landmark.id] = true;
+      }
+    }
+    const role = landmark.role;
+    if (role) {
+      if (landmarksByRole[role]) {
+        console.warn(`Duplicate landmark role: ${role}`);
+      } else {
+        landmarksByRole[role] = true;
+      }
+    }
+  }
+
+  return landmarks;
 }
 
 /**
@@ -537,10 +575,6 @@ function createAccessibleLink(href, text) {
     return link;
 }
 
-function addLandmarkRegions() {
-  console.log('Adding landmark regions');
-}
-
 function getSvgAccessibleName(svgElement) {
     // Merged implementation (conflict resolved)
     if (!svgElement) return 'Accessible SVG Icon';
@@ -550,6 +584,10 @@ function getSvgAccessibleName(svgElement) {
     if (title) return title.textContent;
     if (ariaLabel) return ariaLabel;
     return 'Accessible SVG Icon';
+}
+
+function addLandmarkRegions() {
+  console.log('Adding landmark regions');
 }
 
 // Export all functions for testing and external use

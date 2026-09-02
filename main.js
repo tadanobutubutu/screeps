@@ -3,6 +3,9 @@
 
 // ... existing code ...
 
+// Set the language attribute for accessibility
+document.documentElement.setAttribute('lang', 'en');
+
 // Line 74 - Implement this function for creating in-page buttons
 function createInPageButton(options) {
     const defaults = {

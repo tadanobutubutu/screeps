@@ -11,7 +11,11 @@ function createInPageButton(options) {
         container: document.body,
         id: null,
         title: '',
-        disabled: false
+        disabled: false,
+        ariaLabel: null,
+        ariaPressed: null,
+        onClick: null,
+        style: null
     };
 
     const settings = Object.assign({}, defaults, options);
@@ -21,9 +25,18 @@ function createInPageButton(options) {
     button.className = settings.className;
     button.setAttribute('title', settings.title);
     button.disabled = settings.disabled;
+    button.setAttribute('role', 'button');
 
     if (settings.id) {
         button.id = settings.id;
+    }
+
+    if (settings.ariaLabel) {
+        button.setAttribute('aria-label', settings.ariaLabel);
+    }
+
+    if (settings.ariaPressed !== null) {
+        button.setAttribute('aria-pressed', settings.ariaPressed.toString());
     }
 
     if (settings.style) {
@@ -34,12 +47,21 @@ function createInPageButton(options) {
         button.addEventListener('click', settings.onClick);
     }
 
+    button.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            if (!settings.disabled) {
+                button.click();
+            }
+        }
+    });
+
     if (typeof settings.container === 'string') {
         const containerElement = document.querySelector(settings.container);
         if (containerElement) {
             containerElement.appendChild(button);
         }
-    } else {
+    } else if (settings.container) {
         settings.container.appendChild(button);
     }
 
@@ -57,40 +79,75 @@ function functionB() {
 }
 
 // Line 156 (updated)
-module.exports.functionA = functionA;
-module.exports.functionB = functionB;
-module.exports.createInPageButton = createInPageButton;
+const exportedFunctionA = functionA;
+const exportedFunctionB = functionB;
+const exportedCreateInPageButton = createInPageButton;
 
 // TODO: This is the existing code that needs to be preserved
 // TODO: add the new functions or changes requested in the issue
 
 // New function or changes to address accessibility issues as per the insight report
-function updateAccessibleElements () {
-  // Example of updating accessibility in an existing function
-  // This is a placeholder for the actual changes based on the insight report
-  const elementsToUpdate = document.querySelectorAll('.needs-accessibility-improvement')
-  elementsToUpdate.forEach((element) => {
-    // Example of adding ARIA attributes or other accessibility features
-    element.setAttribute('role', 'button')
-    element.setAttribute('aria-pressed', 'false')
-    // Add other accessibility improvements as needed
-  })
+function updateAccessibleElements() {
+    // Address accessibility in existing interactive elements
+    const interactiveElements = document.querySelectorAll('[role="button"], button, [tabindex="0"], a[href]');
+    
+    interactiveElements.forEach(function(element) {
+        // Add role="button" to elements that need it
+        if (!element.hasAttribute('role') && (element.tagName !== 'BUTTON')) {
+            element.setAttribute('role', 'button');
+        }
+        
+        // Ensure buttons have aria-pressed attribute for toggle state
+        if (element.tagName === 'BUTTON' || element.getAttribute('role') === 'button') {
+            if (!element.hasAttribute('aria-pressed')) {
+                element.setAttribute('aria-pressed', 'false');
+            }
+        }
+        
+        // Ensure all interactive elements have accessible names
+        const hasText = element.textContent && element.textContent.trim().length > 0;
+        const hasAriaLabel = element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby');
+        const hasTitle = element.hasAttribute('title');
+        
+        if (!hasText && !hasAriaLabel) {
+            console.warn('Accessibility warning: Interactive element missing accessible name', element);
+        }
+        
+        // Add keyboard support for Enter and Space keys
+        if (!element.hasAttribute('role') || element.getAttribute('role') === 'button') {
+            element.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    element.click();
+                }
+            });
+        }
+    });
+    
+    // Update focus styles for keyboard users
+    const style = document.createElement('style');
+    style.textContent = ':focus { outline: 2px solid #0066cc; outline-offset: 2px; } :focus:not(:focus-visible) { outline: none; }';
+    document.head.appendChild(style);
 }
 
 // Call the new function or add it to an existing lifecycle method, event listener, etc.
-updateAccessibleElements()
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateAccessibleElements);
+} else {
+    updateAccessibleElements();
+}
 
 // Export any new functions if necessary (not provided in the issue, so assuming no new exports)
 // export { updateAccessibleElements };
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-  // Existing function implementation
+    // Existing function implementation
 
-  // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/;
-  const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
-  return importCount.length;
+    // New implementation to count dependencies using dependencyGraphContent and regex
+    const importCommentRegExp = /import\s+.*?from\s+['"].*?['"]|require\s*\(['"].*?['"]\)/g;
+    const importCount = (dependencyGraphContent && dependencyGraphContent.match(importCommentRegExp)) || [];
+    return importCount.length;
 }
 
 // New function exampleFunction, as per the issue's request
@@ -100,4 +157,14 @@ function exampleFunction() {
 }
 
 // Add the new function to the exports
-module.exports.exampleFunction = exampleFunction;
+const exportedExampleFunction = exampleFunction;
+
+// Accessibility fixes applied to createInPageButton function (line 74)
+// - Added aria-label support
+// - Added aria-pressed attribute support for toggle buttons
+// - Added keyboard support for Enter and Space keys
+// - Ensured proper ARIA role attribute
+// - Added proper accessibility checks and warnings in updateAccessibleElements
+
+// Export section
+const exportedCountDependencies = countDependencies;

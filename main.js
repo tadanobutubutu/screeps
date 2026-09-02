@@ -69,4 +69,3 @@ module.exports = {
   existingFunction2,
   newFunction
 };
-```

@@ -53,7 +53,42 @@ const CONFIG = {
   timeout: 5000
 };
 
+// Application state
+let config = CONFIG;
+let isInitialized = false;
+let appData_origin = {};
+let appState = {
+  initialized: false,
+  data: null,
+  cache: new Map(),
+  lang: 'en'
+};
+let dependencyGraph = null;
+let html = '';
+
 // ... (additional configuration objects)
+
+// Apply HTML transformation to column headers
+const transformHtmlHeaders = (html) => {
+  if (!html) return html;
+  return html.replace(/<th([^>]*)>/gi, (match, attrs) => {
+    if (/\bscope=/i.test(match)) return match;
+    return `<th${attrs} scope="col">`;
+  });
+};
+
+// Landmark configuration
+const CONFIG = {
+  landmarkRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  requiredLandmarks: ['banner', 'navigation', 'main']
+};
+
+const CONFIG = {
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'https://example.com',
+  timeout: 5000
+};
 
 // Application state
 let config = CONFIG;
@@ -65,8 +100,8 @@ let appState = {
   cache: new Map(),
   lang: 'en'
 };
-
 let dependencyGraph = null;
+let html = '';
 
 // Validate input helper
 function validateInput(input) {
@@ -153,10 +188,7 @@ async function renderFunction1() {
     }
   }
 
-  html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (/\bscope=/i.test(match)) return match
-    return `<th${attrs} scope="col">`
-  })
+  html = transformHtmlHeaders(html);
 
   return html
 }

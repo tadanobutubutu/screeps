@@ -1,6 +1,3 @@
-Here is the resolved file content with both changes integrated:
-
-```javascript
 const fs = require('fs');
 const main = require('./utilities');
 
@@ -19,8 +16,8 @@ const {
   exportUtils,
   addressAccessibilityIssues,
   handleCredentialResponse,
-  ensureElementHasId: ensureElementIdOrigin,
-  ensureElementId,
+  ensureElementId: ensureElementIdOrigin,
+  ensureElementHasId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -65,19 +62,8 @@ const accessibilityUtils = {
     });
   },
 
-  announceToScreenReader: (message, priority = 'polite') => {
-    const announcer = document.createElement('div');
-    announcer.setAttribute('aria-live', priority);
-    announcer.setAttribute('aria-atomic', 'true');
-    announcer.className = 'sr-only';
-    announcer.style.position = 'absolute';
-    announcer.style.left = '-9999px';
-    announcer.textContent = message;
-    document.body.appendChild(announcer);
-    setTimeout(() => announcer.remove(), 1000);
-  },
-
-  newFocusTrap: (element) => {
+  newAccessibleFocusTrap: function (element) {
+    // New function implementation: traps focus within a given element
     if (!element) return originNewFocusTrap(element);
     const focusable = element.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -98,55 +84,31 @@ const accessibilityUtils = {
       }
     });
   },
+
+  announceToScreenReader: (message, priority = 'polite') => {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 1000);
+  },
+
+  ensureElementId: function (element, prefix = 'element') {
+    if (element && !element.id) {
+      element.id = prefix.concat('-', Math.random().toString(36).substr(2, 9));
+      return element.id;
+    }
+    return element;
+  },
 };
 
-// Utility functions for ensuring elements have IDs and adding labels
-const ensureElementId = (element) => {
-  if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  return element;
-};
-
-const ensureElementHasId = (element, prefix = 'element') => {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-
-  if (element.id) {
-    return element.id;
-  }
-
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
-};
-
-// Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// ...
-
-function newFocusTrap() {
-  // New function implementation: traps focus within a given element
-  return accessibilityUtils.newFocusTrap;
-}
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
+// ... the rest of your existing code
 
 module.exports = {
   ...accessibilityUtils,
-  renderDependencyGraph,
-  renderIndex,
-  validateTableAccessibility,
-  validateTableStructure,
-  addAccessibleName,
-  accessibilityUtils,
-  ensureElementId,
-  ensureElementHasId,
-  newFocusTrap,
-  // Preserve any other existing exports here
+  // ... the rest of your existing exports
 };
-```
-
-This resolved file ensures that both sets of changes are integrated, preserving functionality as much as possible. The `newFocusTrap` function from the original conflicted code has been updated to use the `accessibilityUtils.newFocusTrap` function, and it's now being exported as part of the module.

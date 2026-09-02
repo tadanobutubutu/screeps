@@ -126,7 +126,9 @@ function ensureUniqueLandmarks(landmarks) {
   landmarks.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
-      duplicates.push(name);
+      if (!duplicates.includes(name)) {
+        duplicates.push(name);
+      }
     } else {
       names.push(name);
     }
@@ -275,7 +277,7 @@ function createAddBookForm(options) {
  * @param {Object} form - The form object to validate
  * @returns {Object} Validation result with success status and any issues found
  */
-function validateBookFormAccessibility(form) {
+function validateAddBookForm(form) {
   const issues = [];
 
   if (!form.role) {
@@ -315,5 +317,5 @@ module.exports = {
   createAccessibleLink,
   handleAccessibilityIssues,
   createAddBookForm,
-  validateBookFormAccessibility
+  validateAddBookForm
 };

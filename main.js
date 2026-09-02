@@ -1,12 +1,15 @@
+// main.js - Screeps game code
+// Address accessibility issues from insight report
+
 // Import any required modules
 const requiredModule1 = require('required-module-1');
 const requiredModule2 = require('required-module-2');
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map'); // Fixed syntax error
+const fastMap = require('fast-map');
 const path = require('path');
-const accessiblyHelper = require('./accessibly-helper'); // Added this import
+const accessiblyHelper = require('./accessibly-helper');
 
 // Application configuration
 const config = {
@@ -14,6 +17,29 @@ const config = {
   version: '1.0.0',
   debug: false
 };
+
+/**
+ * Updates accessibility labels for interactive elements
+ * @param {string} elementId - The ID of the element to update
+ * @param {string} label - The accessibility label to set
+ */
+function updateAriaLabel(elementId, label) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.setAttribute('aria-label', label);
+        element.setAttribute('role', 'button');
+    }
+}
+
+/**
+ * Enhances user safety messages with proper accessibility attributes
+ * @param {string} userSafety - The user safety status message
+ * @returns {string} The enhanced message with aria-label
+ */
+function enhanceSafetyAccessibility(userSafety) {
+    const ariaLabel = userSafety.replace(/: /, ': aria-label="').replace(')', '")');
+    return ariaLabel;
+}
 
 // Helper function
 function initialize() {
@@ -85,16 +111,6 @@ function getDependencies(root) {
   // ... (Remainder of original getDependencies function after line 89)
 }
 
-// Export all functions for use in other modules
-module.exports.initialize = initialize;
-module.exports.initializeApp = initializeApp;
-module.exports.ensureElementHasId = ensureElementHasId;
-module.exports.addAriaLabel = addAriaLabel;
-module.exports.renderDependencyGraph = renderDependencyGraph;
-module.exports.getDependencies = getDependencies;
-
-module.exports.config = config;
-
 // New function to address new accessibility issues
 function addressAccessibilityIssues() {
   const accessibilityIssues = [
@@ -106,7 +122,7 @@ function addressAccessibilityIssues() {
   });
 }
 
-// Accessibility functions (Moved from second branch)
+// Accessibility functions
 function getLangAttribute(element) {
   return element.getAttribute('lang') || document.documentElement.getAttribute('lang');
 }
@@ -130,4 +146,47 @@ function createInPageButton(targetId, text) {
   return button;
 }
 
-// ... (Remaining exports from second branch after the accessibility section)
+/**
+ * Applies accessibility improvements to game UI elements
+ */
+function applyAccessibilityImprovements() {
+    const safetyElements = document.querySelectorAll('[data-safety]');
+    safetyElements.forEach(element => {
+        const safetyValue = element.getAttribute('data-safety');
+        if (safetyValue) {
+            element.setAttribute('aria-label', 'Safety status: ' + safetyValue);
+            element.setAttribute('role', 'status');
+        }
+    });
+    
+    const interactiveElements = document.querySelectorAll('.interactive');
+    interactiveElements.forEach(element => {
+        if (!element.getAttribute('aria-label')) {
+            const action = element.getAttribute('data-action') || 'Interact';
+            element.setAttribute('aria-label', action + ' button');
+        }
+    });
+}
+
+// Initialize accessibility on game load
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', applyAccessibilityImprovements);
+}
+
+// Export all functions for use in other modules
+module.exports = {
+    initialize: initialize,
+    initializeApp: initializeApp,
+    ensureElementHasId: ensureElementHasId,
+    addAriaLabel: addAriaLabel,
+    renderDependencyGraph: renderDependencyGraph,
+    getDependencies: getDependencies,
+    config: config,
+    updateAriaLabel: updateAriaLabel,
+    enhanceSafetyAccessibility: enhanceSafetyAccessibility,
+    applyAccessibilityImprovements: applyAccessibilityImprovements,
+    addressAccessibilityIssues: addressAccessibilityIssues,
+    getLangAttribute: getLangAttribute,
+    addLangAttribute: addLangAttribute,
+    createInPageButton: createInPageButton
+};

@@ -2,7 +2,8 @@
  * Main entry point for the application
  */
 
-<<<<<<< HEAD
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+
 // Function to create in-page buttons
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
@@ -17,14 +18,52 @@ function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
-// Function to create in-page buttons (already implemented)
-// (Now implemented)
+// Function to ensure element has an id
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element.id) {
+    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element.id;
+}
 
-// Example usage (if needed):
-// const btn = createInPageButton('Click Me', () => console.log('Clicked'));
-// document.body.appendChild(btn);
+// Function to add aria-label to element
+function addAriaLabel(element, label) {
+  if (element && label) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+}
 
-export { createInPageButton, getLangAttribute };
+// Function to render dependency graphs
+function renderDependencyGraph(container, data) {
+  if (!container) return;
+  
+  // Ensure container has an id for accessibility
+  ensureElementHasId(container, 'dependency-graph');
+  
+  // Add aria-label for accessibility
+  addAriaLabel(container, 'Dependency graph visualization');
+  
+  // Render the dependency graph
+  // Implementation for rendering dependency graphs
+  container.innerHTML = '';
+  
+  // Create SVG for the graph
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-labelledby', 'dependency-graph-title');
+  
+  const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+  title.setAttribute('id', 'dependency-graph-title');
+  title.textContent = 'Dependency Graph';
+  svg.appendChild(title);
+  
+  container.appendChild(svg);
+  
+  return svg;
+}
+
+export { createInPageButton, getLangAttribute, ensureElementHasId, addAriaLabel, renderDependencyGraph };
 
 function generateAccessibilityReport(issuesData) {
   const analyzedIssues = analyzeAccessibility(issuesData); // presume this function is already defined
@@ -77,7 +116,7 @@ function ensureUniqueLandmarks() {
     'use strict';
 
     // DOM Elements
-    const dependencyGraph = document.getElementById('dependency-graph') || document.querySelector('.dependency-graph');
+    const dependencyGraph = document.querySelector('.dependency-graph') || document.getElementById('dependency-graph');
 
     // Import required modules and React components
     const axe = require('axe-core');
@@ -88,7 +127,6 @@ function ensureUniqueLandmarks() {
     // Functions to ensure the element has an id, add aria-label, render dependency graphs
     // (Previously existing code that needs to be preserved)
 
-    // TODO: This is the existing code that needs to be preserved
     // Address accessibility issues from insight report:
     // Ensure the dependencyGraph container has a proper ARIA role
     // (This comment remains as-is)
@@ -115,6 +153,24 @@ function ensureUniqueLandmarks() {
         });
     }
 
+    // Initialize accessibility features on page load
+    function initializeAccessibility() {
+      if (dependencyGraph) {
+        ensureElementHasId(dependencyGraph, 'dependency-graph');
+        addAriaLabel(dependencyGraph, 'Dependency graph showing module relationships');
+        dependencyGraph.setAttribute('role', 'img');
+      }
+    }
+
     // New function3 logic
     function function3() {
       // TODO: Implement new function
+    }
+
+    // Run initialization when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeAccessibility);
+    } else {
+      initializeAccessibility();
+    }
+})();

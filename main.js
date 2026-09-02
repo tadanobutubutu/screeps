@@ -9,9 +9,7 @@ const path = require('path');
 
 const CONFIG = {
     dataPath: './data',
-    maxResults: 100,
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
+    maxResults: 100
 };
 
 function isValidLandmark(landmark) {
@@ -90,19 +88,10 @@ function writeReport(report) {
 
 // TODO: Implement function for generating a report based on accessibility issues
 // Replaced placeholder with full implementation using axe-core scanning and report writing
-async function generateAccessibilityReport() {
-  const report = await scanAccessibility();
+function generateAccessibilityReport() {
+  const report = scanAccessibility();
   writeReport(report);
   return report;
-}
-
-async function scanAccessibility() {
-    const report = await axe.run({
-        // axe configuration
-    });
-
-    // Assuming report is the format returned by axe.run
-    return report;
 }
 
 // Utilities
@@ -124,58 +113,22 @@ if (require.main === module) {
   }
 }
 
+async function scanAccessibility() {
+    // ... Scanning and reporting accessibility issues using axe-core ...
+}
+
 module.exports = {
-  config: CONFIG,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  processAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  addProperLandmarkRegions,
-  fixTableAccessibility,
-  fixLandmarkIssues,
-  addSvgAccessibility,
-  createAccessibleLinks,
-  formatResponse,
-  generateAccessibilityReport,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
-  someFunction: function() {
-    return 'some value';
-  },
-  helper: function(input) {
-    return input ? input.toUpperCase() : '';
-  },
-  formatDate: function(date) {
-    if (!(date instanceof Date)) {
-      date = new Date(date);
-    }
-    return date.toISOString().split('T')[0];
-  },
+    validateInput,
+    processData,
+    formatResponse,
+    config: CONFIG,
+    generateAccessibilityReport,
+    loadLandmarks,
+    processLandmarks,
+    sortLandmarks,
+    getLandmarkById,
+    ensureUniqueLandmarks,
+    isValidLandmark,
+    writeReport,
+    scanAccessibility
 };

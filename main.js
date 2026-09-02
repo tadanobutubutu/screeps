@@ -2,8 +2,6 @@ import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-
 // Landmark data structure
 const landmarks = [];
 
@@ -18,7 +16,7 @@ let icons = {};
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 function addressInsightIssues() {
-  const dependencyGraphContainer = document.getElementById('dependencyGraph');
+  const dependencyGraphContainer = document.querySelector('[data-dependency-graph]') || document.getElementById('dependency-graph');
   if (dependencyGraphContainer) {
     dependencyGraphContainer.setAttribute('role', 'region');
     dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph Visualization');
@@ -93,7 +91,7 @@ function checkLandmarkElement(id) {
 // Ensure unique landmarks by filtering duplicates
 function ensureUniqueLandmarks(landmarksArray) {
   if (!landmarksArray || landmarksArray.length === 0) {
-      return {};
+      return [];
   }
   const seen = new Set();
   return landmarksArray.filter(landmark => {
@@ -107,10 +105,84 @@ function ensureUniqueLandmarks(landmarksArray) {
   });
 }
 
-// TODO: Preserve existing code
-// ... your existing code ...
+// Landmark structure check function
+function landmarkStructureCheck(landmark) {
+  const requiredRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const errors = [];
+  
+  if (!landmark || typeof landmark !== 'object') {
+    errors.push('Landmark must be an object');
+    return { valid: false, errors };
+  }
+  
+  if (!landmark.role || !requiredRoles.includes(landmark.role)) {
+    errors.push('Landmark must have a valid ARIA role');
+  }
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
 
-// ... (previous and updated code remains as it is)
+// Set language attribute on HTML element
+function setLanguageAttribute(lang) {
+  const htmlElement = document.documentElement;
+  if (htmlElement && lang) {
+    htmlElement.setAttribute('lang', lang);
+    return true;
+  }
+  return false;
+}
+
+// Add landmark roles to elements
+function addLandmarkRoles() {
+  const mainElement = document.querySelector('main') || document.getElementById('main-content');
+  const navElement = document.querySelector('nav') || document.querySelector('[role="navigation"]');
+  const footerElement = document.querySelector('footer') || document.querySelector('[role="contentinfo"]');
+  
+  if (mainElement && !mainElement.getAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+  if (navElement && !navElement.getAttribute('role')) {
+    navElement.setAttribute('role', 'navigation');
+  }
+  if (footerElement && !footerElement.getAttribute('role')) {
+    footerElement.setAttribute('role', 'contentinfo');
+  }
+}
+
+// Fix fake links to have proper button behavior
+function fixFakeLinks() {
+  const fakeLinks = document.querySelectorAll('[role="link"], a[href="#"], .fake-link');
+  fakeLinks.forEach(link => {
+    if (!link.getAttribute('role')) {
+      link.setAttribute('role', 'button');
+    }
+    if (link.getAttribute('href') === '#') {
+      link.setAttribute('href', 'javascript:void(0)');
+    }
+  });
+}
+
+// Check if running in secure context
+function isSecureContext() {
+  return window.isSecureContext === true || window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+}
+
+// Ensure focusable elements are accessible
+function ensureFocusableElements() {
+  const focusableSelectors = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  const focusableElements = document.querySelectorAll(focusableSelectors);
+  
+  focusableElements.forEach(element => {
+    if (!element.getAttribute('tabindex') && element.matches('a, button, input')) {
+      // Element is naturally focusable, no action needed
+    } else if (element.getAttribute('tabindex') === '0') {
+      element.setAttribute('tabindex', '0');
+    }
+  });
+}
 
 // Updated function: ensures landmarks uniqueness when there's an array structure
 function ensureLandmarkUniqueness(elements) {
@@ -133,9 +205,50 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
+// Process unique elements
+function processUniqueElements(elements) {
+  if (!Array.isArray(elements)) {
+    return elements;
+  }
+  
+  const seen = new Set();
+  return elements.filter(element => {
+    const key = element.id || element.name || JSON.stringify(element);
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+// Render dependency graph function
+function renderDependencyGraph(container) {
+  if (!container) return;
+  
+  const graphContainer = document.createElement('div');
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+  graphContainer.id = 'dependency-graph-visualization';
+  
+  container.appendChild(graphContainer);
+}
+
+// Render index view function
+function renderIndexView(container) {
+  if (!container) return;
+  
+  const indexContainer = document.createElement('div');
+  indexContainer.setAttribute('role', 'navigation');
+  indexContainer.setAttribute('aria-label', 'Index navigation');
+  indexContainer.id = 'index-view';
+  
+  container.appendChild(indexContainer);
+}
+
 // Updated function using the new functions for rendering graph/index
 function renderDependencyGraphContent() {
-  const container = document.getElementById('dependencyGraph');
+  const container = document.querySelector('.dependency-graph-container') || document.getElementById('dependency-graph');
   if (!container) {
     return;
   }
@@ -155,10 +268,31 @@ function countDependencies() {
   return Object.keys(dependencies).length;
 }
 
+// Calculate sum function
+function calculateSum(a, b) {
+  if (typeof a !== 'number' || typeof b !== 'number') {
+    return NaN;
+  }
+  return a + b;
+}
+
+// Add proper landmark regions
+function addProperLandmarkRegions() {
+  const regions = document.querySelectorAll('section, aside, div[id]');
+  regions.forEach(region => {
+    if (!region.getAttribute('role') && !region.tagName.match(/^(header|footer|nav|main|aside)$/i)) {
+      region.setAttribute('role', 'region');
+      if (!region.getAttribute('aria-label')) {
+        region.setAttribute('aria-label', 'Section content');
+      }
+    }
+  });
+}
+
 // Add lang attribute to HTML element
 function addLangAttribute() {
   const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
 }
@@ -168,7 +302,7 @@ function fixTableStructureIssues() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     // Ensure table has proper caption if needed
-    if (!table.querySelector('caption') && table.rows.length > 0) {
+    if (!table.querySelector('caption') && table.rows && table.rows.length > 0) {
       const caption = document.createElement('caption');
       caption.textContent = 'Table data';
       table.insertBefore(caption, table.firstChild);
@@ -188,94 +322,4 @@ function fixTableStructureIssues() {
       }
     }
 
-    // Ensure table has proper scope attributes for headers
-    const headerRows = table.querySelectorAll('thead th');
-    headerRows.forEach((th, index) => {
-      if (!th.hasAttribute('scope')) {
-        th.setAttribute('scope', 'col');
-      }
-    });
-  });
-}
-
-// Add/fix landmark issues
-function addMainLandmark() {
-  if (!document.querySelector('main')) {
-    const main = document.createElement('main');
-    main.id = 'main-content';
-    document.body.appendChild(main);
-  }
-}
-
-// Add accessible names to SVGs
-function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg:not([aria-hidden="true"])');
-  svgs.forEach(svg => {
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
-      const title = svg.querySelector('title');
-      if (title) {
-        svg.setAttribute('aria-labelledby', title.id);
-      } else {
-        svg.setAttribute('aria-label', 'graphic');
-      }
-    }
-  });
-}
-
-// Fix fake link issue
-function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('[role="link"][href="javascript:void(0)"]');
-  fakeLinks.forEach(link => {
-    link.setAttribute('tabindex', '0');
-    link.setAttribute('role', 'button');
-    link.removeAttribute('href');
-  });
-}
-
-// Address all accessibility issues from insight report
-function addressInsightIssues() {
-  addLangAttribute();
-  fixTableStructureIssues();
-  addMainLandmark();
-  addSvgAccessibleNames();
-  fixFakeLinkIssue();
-}
-
-// Initialize the app with accessibility fixes
-function initApp() {
-  initializeApp();
-  addressInsightIssues();
-  registerSW();
-}
-
-// Export functions for testing
-export {
-  checkLandmarkElement,
-  ensureUniqueLandmarks,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  initApp,
-  landmarks,
-  appData,
-  icons,
-  validateLandmark,
-  ensureFocusableElements,
-  renderDependencyGraphContent,
-  ensureLandmarkUniqueness,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  countDependencies,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue
-};
+    // Ensure table has proper

@@ -173,6 +173,102 @@ const a11yStore = {
   // ... remaining a11yStore methods ...
 };
 
+// Required function implementations
+
+/**
+ * Address accessibility issues identified in the accessibility report
+ */
+function addressAccessibilityIssues() {
+  if (typeof document === 'undefined') return;
+  
+  // Add lang attribute if missing
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+  
+  // Ensure main landmark exists
+  if (!document.querySelector('main, [role="main"]')) {
+    console.warn('No main landmark found in document');
+  }
+  
+  // Check for landmark uniqueness
+  ensureUniqueLandmarks();
+}
+
+/**
+ * Render dependency graphs with accessibility enhancements
+ * @param {Object} graphData - Data for rendering dependency graphs
+ */
+function renderDependencyGraphs(graphData) {
+  if (typeof document === 'undefined') return;
+  
+  // Remove any existing graph containers
+  const existingContainers = document.querySelectorAll('.dependency-graph-container');
+  existingContainers.forEach(container => container.remove());
+  
+  // Create new container
+  const container = document.createElement('div');
+  container.className = 'dependency-graph-container';
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', 'Dependency Graph');
+  
+  // Render the graph
+  const graphHtml = renderDependencyGraph(graphData);
+  container.innerHTML = graphHtml;
+  
+  // Add to document
+  const mainElement = document.querySelector('main') || document.body;
+  mainElement.appendChild(container);
+}
+
+/**
+ * Decode a JWT token
+ * @param {string} token - JWT token to decode
+ * @returns {Object|null} - Decoded token payload or null if invalid
+ */
+function decodeJwtToken(token) {
+  if (!token) return null;
+  
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    
+    const payload = parts[1];
+    const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+    return JSON.parse(decoded);
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Validate a session by ID
+ * @param {string} sessionId - Session ID to validate
+ * @returns {Object|null} - Session data if valid, null otherwise
+ */
+function validateSession(sessionId) {
+  if (!sessionId || !appState || !appState.sessions) return null;
+  return appState.sessions.get(sessionId) || null;
+}
+
+/**
+ * Get count of active sessions
+ * @returns {number} - Number of active sessions
+ */
+function getActiveSessionsCount() {
+  if (!appState || !appState.sessions) return 0;
+  return appState.sessions.size;
+}
+
+/**
+ * Add SVG accessibility properties (export wrapper for a11yStore method)
+ */
+function addSvgAccessibilityProps() {
+  if (a11yStore && typeof a11yStore.addSVGAccessibilityProps === 'function') {
+    a11yStore.addSVGAccessibilityProps();
+  }
+}
+
 /**
  * Check if an element is a landmark element for accessibility
  * Landmark elements include: main, nav, aside, header, footer, section, article, form, search

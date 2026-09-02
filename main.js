@@ -502,7 +502,6 @@ function startApp() {
 // Export functions for testing
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    // From HEAD
     createServer,
     startApp,
     config,
@@ -510,7 +509,6 @@ if (typeof module !== 'undefined' && module.exports) {
     countDependencies: AddressabilityIssues.countDependencies,
     checkLandmarkElements,
     sampleInsightReport,
-    // From origin/main
     ensureElementHasId,
     addAriaLabel,
     renderDependencyGraph,
@@ -529,11 +527,12 @@ if (typeof module !== 'undefined' && module.exports) {
     AddressabilityIssues,
     fixMainLandmarkIssues: AddressabilityIssues.fixMainLandmarkIssues,
     fixSemanticMarkup: AddressabilityIssues.fixSemanticMarkup,
+    validateLandmarkStructure: AddressabilityIssues.validateLandmarkStructure,
     addLangAttribute: AddressabilityIssues.addLangAttribute,
+    generateAccessibilityReport,
     handleFakeLinks,
     handleCredentialResponse,
     addBook,
-    generateAccessibilityReport,
     addressAccessibilityIssues,
     initializeAccessibility
   };

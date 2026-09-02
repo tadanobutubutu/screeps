@@ -22,5 +22,11 @@ module.exports = {
   personName,
   divide,
   checkLinkAccessibility,
-  wrapPrimaryContentInMain
+  wrapPrimaryContentInMain,
+  // New function added as per the issue
+  calculatePercentage
+}
+
+function calculatePercentage(total, value) {
+  return (value / total) * 100;
 }

@@ -17,25 +17,32 @@ function main() {
   svgElements.forEach((svg) => {
     if (svg) {
       svg.setAttribute('role', 'img');
-    }
-
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      // Use accessibleName
+      svg.setAttribute('aria-label', getSvgAccessibleName(svg));
     }
 
     setSvgAttributes(svg);
+  });
+
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table) => {
+    const result = checkTableStructure(table);
+    if (!result.valid) {
+      console.error(result.error);
+    }
   });
 }
 
 function getSvgAccessibleName(svg) {
   if (!svg) return '';
-  return ''; // Placeholder
+  // Placeholder logic to generate an accessible name
+  return 'Dependecy Graph'; // Example name
 }
 
 function setSvgAttributes(svg) {
   if (!svg) return;
   // Placeholder for attribute setting logic
+  // Example attribute setting
+  svg.setAttribute('aria-labelledby', 'graph-title');
 }
 
 function checkTableStructure(table) {
@@ -43,12 +50,12 @@ function checkTableStructure(table) {
     return { valid: false, error: 'Table element is required' };
   }
 
-  const hasHeader = null !== null || table.querySelector('th') !== null;
-  const hasBody = null !== null;
-  const hasCaption = null !== null;
+  const hasHeader = table.querySelector('th') !== null;
+  const hasBody = table.querySelector('tbody') !== null;
+  const hasCaption = table.querySelector('caption') !== null;
 
   return {
-    valid: true,
+    valid: hasHeader && hasBody && hasCaption,
     hasHeader,
     hasBody,
     hasCaption

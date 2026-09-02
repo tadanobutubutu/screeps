@@ -74,6 +74,20 @@ const originalSvgString =
 const modifiedSvgString = addAccessibleName(originalSvgString)
 
 /**
+ * New function to handle additional rendering logic
+ * @param {Object} additionalData - Additional data for rendering
+ * @returns {string} Rendered additional content HTML
+ */
+function renderAdditionalContent (additionalData) {
+  // Implementation of the new function
+  // Placeholder for actual implementation
+  return `<div>${JSON.stringify(additionalData)}</div>`
+}
+
+// Add the new function to the exports
+module.exports.renderAdditionalContent = renderAdditionalContent
+
+/**
  * Validates table accessibility
  * @param {Array} tableData - Table data to validate
  * @returns {boolean} True if table is accessible, false otherwise
@@ -105,28 +119,6 @@ fixFakeLinkIssue();
 googleSignIn();
 fixButtonIdentifiers();
 
-// Other code...
-
-// Preserve all existing exports
-module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  validateTableAccessibility,
-  validateTableStructure
-  // Preserve any other existing exports here
-}
-
-// New function or changes requested in the issue
-/**
- * New function to handle additional rendering logic
- * @param {Object} additionalData - Additional data for rendering
- * @returns {string} Rendered additional content HTML
- */
-function renderAdditionalContent (additionalData) {
-  // Implementation of the new function
-  // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
-}
-
-// Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent
+// Call the new functions
+validateTableAccessibility(/* table data */);
+validateTableStructure(/* table data */);

@@ -1,28 +1,8 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f80b51b788bad4952d8f93f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a97a2237d968a50cc419 -->
-//_Commit: 30b5f08a59d5ec914a59aa66e32dc3a3eb059e_
-//<!-- todo-hash: 1f8a6325b07b9b809ac49f5e1c81cf4f89f9c1 -->
-//_Commit: 669117b4c3d1a635653f730f0a059efacbb752_
-//<!-- todo-hash: 312aa8ea4c5e1c9430e4b7c36c210eb9a72dea -->
-//_Commit: 54b7c4d06282fbf48e78de43e5e115814006658c_
-//<!-- todo-hash: d290c9a63ee693e91602163f7ca6757def47f63e -->
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
-// - ADD: Address new accessibility issues from insight report
-import React from 'react';
-
-const main = require('./utilities')
+// Dependency imports
+const { dependencyGraphContent } = require('./dependencyGraphContent')
+const { indexContent } = require('./indexContent')
+const { main } = require('./utilities')
+const { addAccessibleName } = require('./AccessibilityHelpers') // Added function from HEAD
 
 const {
   fixTableStructure,
@@ -57,16 +37,70 @@ const {
   addressAccessibilityIssues
 } = require('./AccessibilityHelpers')
 
-// Module-level function definitions
-function affectedFunction() {
-  return main.affectedFunction();
+// New function to handle additional rendering logic
+function renderAdditionalContent(additionalData) {
+  return '<div class="additional-content">' + (additionalData ? additionalData.content : '') + '</div>';
 }
 
-/**
- * Adds the lang attribute to the document's <html> tag based on content
- * @param {string} lang language code (e.g., 'en', 'es', 'fr')
- * @returns {string} The lang attribute value that was set
- */
+// New rendering function
+function renderGraphIndex(content, options = {}) {
+  return content;
+}
+
+// Helper to manage focus within a container
+function trapFocus(container) {
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  return function(e) {
+    const isTab = e.key === 'Tab';
+    if (!isTab) return;
+    if (e.shiftKey) {
+      if (document.activeElement === firstElement) {
+        e.preventDefault();
+        if (lastElement) lastElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        e.preventDefault();
+        if (firstElement) firstElement.focus();
+      }
+    }
+  };
+}
+
+// Added function from HEAD (addAccessibleName)
+function addAccessibleName(svgString) {
+  const parser = new DOMParser();
+  const svg = parser.parseFromString(svgString, 'image/svg+xml');
+  const svgElement = svg.documentElement;
+  if (!svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
+    svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
+  }
+  const serializer = new XMLSerializer();
+  return serializer.serializeToString(svg);
+}
+
+// Example usage of the function
+const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...';
+const modifiedSvgString = addAccessibleName(originalSvgString);
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f80b51b788bad4952d8f93f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a97a2237d968a50cc419 -->
+//_Commit: 30b5f08a59d5ec914a59aa66e32dc3a3eb059e_
+//<!-- todo-hash: 1f8a6325b07b9b809ac49f5e1c81cf4f89f9c1 -->
+//_Commit: 669117b4c3d1a635653f730f0a059efacbb752_
+//<!-- todo-hash: 54b7c4d06282fbf48e78de43e5e115814006658c_ -->
+//<!-- todo-hash: d290c9a63ee693e91602163f7ca6757def47f63e -->
+
+// Additional utility functions
 function setHtmlLangAttribute(lang) {
   if (typeof document !== 'undefined' && document.documentElement) {
     document.documentElement.lang = lang || 'en';
@@ -74,11 +108,6 @@ function setHtmlLangAttribute(lang) {
   return lang || 'en';
 }
 
-/**
- * Detects the language of the given content and sets the HTML lang attribute
- * @param {string} content - The text content to analyze
- * @returns {string} The detected language code
- */
 function detectAndSetLang(content) {
   // Simple language detection based on common patterns
   let lang = 'en'; // Default to English
@@ -103,99 +132,11 @@ function detectAndSetLang(content) {
   return lang;
 }
 
-// New function to address REACT_015: Add lang attribute to HTML element
 function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
 }
 
-// New function to address REACT_027: Fix 26 table structure issues
-function validateTableAccessibility(tableElement) {
-  if (typeof document === 'undefined' || !tableElement) {
-    return { valid: false, errors: ['Table element not found or document not available'] };
-  }
-
-  const errors = [];
-
-  // Check if table has proper structure
-  if (tableElement.querySelector('thead') === null) {
-    errors.push('Table is missing <thead> element');
-  }
-
-  if (tableElement.querySelector('tbody') === null) {
-    errors.push('Table is missing <tbody> element');
-  }
-
-  // Check for th elements in thead
-  const thead = tableElement.querySelector('thead');
-  const thElements = thead ? thead.querySelectorAll('th') : [];
-  if (thElements.length === 0) {
-    errors.push('Table header row is missing <th> elements');
-  }
-
-  // Check that all th elements have scope attributes
-  thElements.forEach((th, index) => {
-    if (!th.hasAttribute('scope')) {
-      errors.push(`Table header cell ${index + 1} is missing scope attribute`);
-    }
-  });
-
-  // Check for proper caption or summary
-  const hasCaption = tableElement.querySelector('caption') !== null;
-  const hasSummary = tableElement.getAttribute('aria-describedby') !== null || tableElement.getAttribute('aria-label') !== null;
-  if (!hasCaption && !hasSummary) {
-    errors.push('Table is missing a caption or aria-describedby for accessibility');
-  }
-
-  return { valid: errors.length === 0, errors };
-}
-
-function validateTableStructure(tableElement) {
-  if (typeof document === 'undefined' || !tableElement) {
-    return { valid: false, errors: ['Table element not found'] };
-  }
-
-  const errors = [];
-  const rows = tableElement.querySelectorAll('tr');
-
-  rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td');
-    const cellCount = cells.length;
-
-    // Check for empty cells
-    cells.forEach((cell, cellIndex) => {
-      if (!cell.textContent.trim()) {
-        errors.push(`Row ${rowIndex + 1}, Cell ${cellIndex + 1} is empty`);
-      }
-    });
-
-    // Check that rows have consistent cell counts
-    if (rowIndex > 0) {
-      const prevRow = rows[rowIndex - 1];
-      const prevCells = prevRow.querySelectorAll('td');
-      if (cellCount !== prevCells.length) {
-        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs expected)`);
-      }
-    }
-  });
-
-  return { valid: errors.length === 0, errors };
-}
-
-// Implement the function to add an accessible name to SVGs
-// Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName(svgElement) {
-  if (typeof document === 'undefined' || !svgElement) {
-    return null;
-  }
-
-  if (!svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
-    svgElement.setAttribute('aria-label', getSvgAccessibleName(svgElement));
-  }
-
-  return svgElement.getAttribute('aria-label');
-}
-
-// New function to address REACT_017: Add/fix 4 landmark issues
+// Landmark validation functions
 function validateLandmark(element) {
   if (typeof document === 'undefined' || !element) {
     return { valid: false, errors: ['Element not found'] };
@@ -218,8 +159,8 @@ function validateLandmark(element) {
 
   // Check for accessible name
   const hasLabel = element.getAttribute('aria-label') ||
-                   element.getAttribute('aria-labelledby') ||
-                   element.querySelector('h1, h2, h3, h4, h5, h6');
+                  element.getAttribute('aria-labelledby') ||
+                  element.querySelector('h1, h2, h3, h4, h5, h6');
 
   if (!hasLabel) {
     errors.push('Landmark is missing accessible name (aria-label, aria-labelledby, or heading)');
@@ -264,7 +205,7 @@ function validateLandmarkStructure() {
   return { valid: errors.length === 0, errors };
 }
 
-// New function to address REACT_041: Add accessible names to 2 SVGs
+// SVG accessible name functions
 function getSvgAccessibleName(svgElement) {
   if (typeof document === 'undefined' || !svgElement) {
     return null;
@@ -314,182 +255,29 @@ function validateSvgAccessibility() {
   return { valid: errors.length === 0, errors };
 }
 
-function newFunction() {
-  // New function implementation
-}
-
-function anotherNewFunction() {
-  // Another new function implementation
-}
-
-function validateTableAccessibility(tableData) {
-  return main.validateTableAccessibility(tableData);
-}
-
-function validateTableStructure(tableData) {
-  return main.validateTableStructure(tableData);
-}
-
-// Function to handle the Google sign-in and generate a JWT response
-function handleCredentialResponse(response) {
-  console.log('Credential Response:', response);
-}
-
-/**
- * Creates an in-page button for accessibility compliance (REACT_036)
- * @param {string} labelText - text label for the button
- * @param {Function} onClickHandler - click handler
- * @returns {HTMLButtonElement} The created button element
- */
-function createInPageButton(labelText, onClickHandler) {
-  if (typeof document === 'undefined') {
-    return null;
+// Table validation functions
+function fixTableStructure(tableElement) {
+  if (typeof document === 'undefined' || !tableElement) {
+    return { valid: false, errors: ['Table element not found'] };
   }
 
-  const button = document.createElement('button');
-  button.textContent = labelText;
-  button.setAttribute('aria-label', labelText);
-  button.addEventListener('click', onClickHandler);
+  const errors = [];
+  const rows = tableElement.querySelectorAll('tr');
 
-  return button;
-}
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('td');
+    const cellCount = cells.length;
 
-function addMainLandmarkToIndex() {
-  if (typeof document === 'undefined') {
-    return;
-  }
-
-  const mainLandmark = document.createElement('main');
-  mainLandmark.setAttribute('role', 'main');
-
-  const existingMain = document.querySelector('main, [role="main"]');
-  if (!existingMain) {
-    document.body.prepend(mainLandmark);
-  }
-}
-
-function focusTrap(container) {
-  if (typeof document === 'undefined' || !container) {
-    return;
-  }
-
-  const focusableElements = container.querySelectorAll('a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex]:not([tabindex="-1"]), [contenteditable]');
-  const firstFocusable = focusableElements[0];
-  const lastFocusable = focusableElements[focusableElements.length - 1];
-
-  container.addEventListener('keydown', function(e) {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstFocusable) {
-        e.preventDefault();
-        lastFocusable.focus();
-      } else if (!e.shiftKey && document.activeElement === lastFocusable) {
-        e.preventDefault();
-        firstFocusable.focus();
+    // Check for empty cells
+    cells.forEach((cell, cellIndex) => {
+      if (!cell.textContent.trim()) {
+        errors.push(`Row ${rowIndex + 1}, Cell ${cellIndex + 1} is empty`);
       }
-    }
-  });
-}
-
-function renderDependencyGraphs(graphData) {
-  if (typeof document === 'undefined') {
-    return;
-  }
-
-  const container = document.getElementById('dependency-graph-container');
-  if (!container) {
-    return;
-  }
-
-  const canvas = document.createElement('canvas');
-  canvas.width = 800;
-  canvas.height = 600;
-
-  container.innerHTML = '';
-  container.appendChild(canvas);
-
-  const ctx = canvas.getContext('2d');
-
-  if (graphData && graphData.nodes) {
-    graphData.nodes.forEach((node, index) => {
-      ctx.beginPath();
-      ctx.arc(node.x || 100 + (index * 50), node.y || 100 + (index * 50), 20, 0, 2 * Math.PI);
-      ctx.fillStyle = '#3498db';
-      ctx.fill();
-      ctx.font = '12px Arial';
-      ctx.fillStyle = '#000';
-      ctx.fillText(node.label || `Node ${index + 1}`, node.x || 100, node.y || 100);
-    });
-  }
-}
-
-function fixDependencyGraphAria() {
-  if (typeof document === 'undefined') {
-    return;
-  }
-
-  const graphs = document.querySelectorAll('.dependency-graph');
-  graphs.forEach((graph, index) => {
-    graph.setAttribute('role', 'img');
-    graph.setAttribute('aria-label', `Dependency graph ${index + 1}`);
-  });
-}
-
-/**
- * Main loop function for the Screeps bot
- */
-function loop() {
-  if (typeof document !== 'undefined') {
-    // Set HTML language attribute
-    const lang = detectAndSetLang(document.body ? document.body.textContent : '');
-    setHtmlLangAttribute(lang);
-    getLangAttribute();
-
-    // Validate table structures
-    const tables = document.querySelectorAll('table');
-    tables.forEach((table) => {
-      validateTableAccessibility(table);
-      validateTableStructure(table);
     });
 
-    // Validate landmarks
-    const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article');
-    landmarks.forEach((landmark) => {
-      validateLandmark(landmark);
-    });
-    validateLandmarkStructure();
-
-    // Validate SVG accessible names
-    validateSvgAccessibility();
-
-    // Render dependency graphs
-    renderDependencyGraphs({});
-    fixDependencyGraphAria();
-
-    // Add main landmark to index if not present
-    addMainLandmarkToIndex();
-  }
-}
-
-module.exports = {
-  affectedFunction,
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  addAccessibleName,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateSvgAccessibility,
-  newFunction,
-  anotherNewFunction,
-  handleCredentialResponse,
-  createInPageButton,
-  addMainLandmarkToIndex,
-  focusTrap,
-  renderDependencyGraphs,
-  fixDependencyGraphAria,
-  loop
-};
-```
+    // Check that rows have consistent cell counts
+    if (rowIndex > 0) {
+      const prevRow = rows[rowIndex - 1];
+      const prevCells = prevRow.querySelectorAll('td');
+      if (cellCount !== prevCells.length) {
+        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${

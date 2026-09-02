@@ -233,7 +233,26 @@
       }
     }
 
-    // Export the report generation function
+    // New function to count dependencies
+    function countDependencies() {
+      const requiredModules = [
+        'axe',
+        'fs',
+        'path'
+      ];
+      const dependencyCount = requiredModules.length;
+      const externalDependencies = Object.keys(require.cache).reduce((count, moduleId) => {
+        if (!requiredModules.includes(moduleId.toString())) {
+          count++;
+        }
+        return count;
+      }, 0);
+
+      const totalDependencies = dependencyCount + externalDependencies;
+      return totalDependencies;
+    }
+
+    // Export the report generation function, accessibility functions, and the new countDependencies function
     module.exports = {
       generateAccessibilityReport: async function () {
         const report = await scanAccessibility();
@@ -249,7 +268,8 @@
       validateLandmark,
       validateLandmarkStructure,
       getSvgAccessibleName,
-      setSvgAttributes
+      setSvgAttributes,
+      countDependencies // New export
     };
 
     // Initialize the application with accessibility improvements
@@ -288,6 +308,13 @@
         // Initialize accessibility features from a11y utilities
         if (a11y && a11y.init) {
             a11y.init();
+        }
+
+        // NEW: Count and display dependencies
+        if (dependencyGraph) {
+          const count = countDependencies();
+          const content = document.createTextNode(`Dependencies: ${count}`);
+          dependencyGraph.appendChild(content);
         }
     }
 

@@ -12,15 +12,11 @@
 //<!-- todo-hash: 344a569ca20673dcf3d1ec08249ba2f2f8ffbf15 -->
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: ... -->
-=======
-// _Commit: 243c66538868c6b87845660312397ab39e0f830d_
-// <!-- todo-hash: ... -->
 
 // TODO: Implement logic to retrieve the current language setting
 function getCurrentLanguage() {
     return navigator.language || navigator.userLanguage;
 }
->>>>>>> origin/main
 
 // TODO: Implement this function for creating in-page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {
@@ -46,11 +42,62 @@ function validateLandmarkStructure() {
     });
 
     if (missingLandmarks.length > 0) {
-        console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+        console.warn(`Warning: Missing required landmarks: ${missingLandarks.join(', ')}`);
         return false;
     }
 
     return true;
+}
+
+// TODO: Implement upgrade logic
+// This function should use harvested data to improve the system
+function performUpgrade(harvestedData) {
+    if (!harvestedData || typeof harvestedData !== 'object') {
+        console.warn('Upgrade skipped: no harvested data provided.');
+        return false;
+    }
+
+    const insights = analyzeHarvestedData(harvestedData);
+    applyImprovements(insights);
+    return true;
+}
+
+function analyzeHarvestedData(data) {
+    const insights = {
+        itemCount: Array.isArray(data.items) ? data.items.length : 0,
+        categories: new Set(),
+        issues: []
+    };
+
+    if (Array.isArray(data.items)) {
+        data.items.forEach((item, index) => {
+            if (item && item.category) {
+                insights.categories.add(item.category);
+            }
+            if (item && item.flagged) {
+                insights.issues.push({ index, reason: item.flagged });
+            }
+        });
+    }
+
+    insights.categories = Array.from(insights.categories);
+    return insights;
+}
+
+function applyImprovements(insights) {
+    if (insights.itemCount === 0) {
+        console.info('No harvested items available to drive an upgrade.');
+        return;
+    }
+
+    if (insights.issues.length > 0) {
+        console.warn(`Addressing ${insights.issues.length} flagged item(s) during upgrade.`);
+    }
+
+    console.info(
+        `Upgrade applied across ${insights.itemCount} item(s) ` +
+        `and ${insights.categories.length} categor(ies).`
+    );
 }
 
 // Function to implement upgrade logic using harvested data to improve the system
@@ -120,4 +167,4 @@ function renderDependencyGraph(containerId, graphData) {
 }
 
 // Preserve any existing exports here
-export { createInPageButton, validateLandmarkStructure, upgrade, renderGraphIndex, renderDependencyGraph };
+export { createInPageButton, validateLandmarkStructure, getCurrentLanguage, performUpgrade, upgrade, renderGraphIndex, renderDependencyGraph };

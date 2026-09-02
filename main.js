@@ -36,6 +36,21 @@ async function renderFunction1() {
     return `<th${attrs} scope="col">`
   })
 
+  // Ensure <nav> landmark exists
+  if (!/<nav[^>]*>/i.test(html) && !/<div[^>]*role=["']navigation["']/i.test(html)) {
+    html = html.replace(/<main[^>]*>/i, '<nav aria-label="Main navigation"></nav><main>')
+  }
+
+  // Ensure <aside> landmark exists if content suggests a sidebar
+  if (!/<aside[^>]*>/i.test(html) && !/<div[^>]*role=["']complementary["']/i.test(html)) {
+    html = html.replace(/<\/main>/i, '<aside aria-label="Supplementary"></aside></main>')
+  }
+
+  // Ensure <footer> landmark exists
+  if (!/<footer[^>]*>/i.test(html) && !/<div[^>]*role=["']contentinfo["']/i.test(html)) {
+    html = html.replace(/<\/body>/i, '<footer></footer></body>')
+  }
+
   return html
 }
 
@@ -259,6 +274,8 @@ function fixTableAccessibility() {
  * Ensures proper landmark structure and accessibility
  */
 function fixLandmarkIssues() {
+  const landmarks = loadLandmarks();
+  
   // Ensure unique landmarks
   ensureUniqueLandmarks(landmarks);
 
@@ -599,26 +616,8 @@ async function addressAccessibilityIssuesHelper() {
 // Main application entry point
 const app = expressApp;
 
-// Ensure <nav> landmark exists
-if (!/<nav[^>]*>/i.test(html) && !/<div[^>]*role=["']navigation["']/i.test(html)) {
-  html = html.replace(/<main[^>]*>/i, '<nav aria-label="Main navigation"></nav><main>')
-}
-
-// Ensure <aside> landmark exists if content suggests a sidebar
-if (!/<aside[^>]*>/i.test(html) && !/<div[^>]*role=["']complementary["']/i.test(html)) {
-  html = html.replace(/<\/main>/i, '<aside aria-label="Supplementary"></aside></main>')
-}
-
-// Ensure <footer> landmark exists
-if (!/<footer[^>]*>/i.test(html) && !/<div[^>]*role=["']contentinfo["']/i.test(html)) {
-  html = html.replace(/<\/body>/i, '<footer></footer></body>')
-}
-
-return html
-}
-
 // REACT_041: Add accessible names to SVGs
-function addSvgAccessibleNames (html) {
+function addSvgAccessibleNames(html) {
   if (typeof html !== 'string') return html
 
   const svgMatches = [...html.matchAll(/<svg([^>]*)>/gi)]
@@ -701,6 +700,33 @@ function checkLinkAccessibilityHTTP(linkUrl) {
       clearTimeout(timeout);
       return false;
     });
+}
+
+function ensureUniqueLandmarks(landmarks) {
+  const seen = new Map();
+  landmarks.forEach(landmark => {
+    const id = landmark.id || landmark.getAttribute('aria-label') || '';
+    if (seen.has(id)) {
+      // Handle duplicate by adding unique suffix
+      const count = seen.get(id) + 1;
+      seen.set(id, count);
+      landmark.setAttribute('aria-label', `${id} ${count}`);
+    } else {
+      seen.set(id, 1);
+    }
+  });
+}
+
+function writeReport(data) {
+  const reportContent = JSON.stringify(data, null, 2);
+  fs.writeFileSync('landmark-report.json', reportContent);
+}
+
+function formatResponse(data) {
+  return {
+    success: true,
+    data: data
+  };
 }
 
 module.exports = {

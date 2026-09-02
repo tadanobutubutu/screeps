@@ -1,6 +1,10 @@
+Here is the resolved file content:
+
+```javascript
 // Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent')
 const { indexContent } = require('./indexContent')
+const { React, createElement } = require('react');
 
 /**
  * Main entry point for the Screeps bot.
@@ -17,7 +21,11 @@ function getSvgAccessibleName(svg) {
 function renderDependencyGraph(deps, options = {}) {
   // Use dependencyGraphContent from the imported module
   const graphContent = dependencyGraphContent(deps, options)
-  return `<div class="dependency-graph-container" role="img" aria-label="Dependency graph visualization">${graphContent}</div>`
+  return createElement('div', {
+    className: 'dependency-graph-container',
+    role: 'img',
+    ariaLabel: 'Dependency graph visualization'
+  }, graphContent)
 }
 
 function renderIndex(data, options = {}) {
@@ -25,13 +33,34 @@ function renderIndex(data, options = {}) {
   return indexContent(data, options)
 }
 
+// Import accessibility utilities from another module
+import { setHtmlLangAttribute, detectAndSetLang, getLangAttribute, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, validateSvgAccessibility, ensureUniqueLandmarks, personName, validateLinks, createFocusTrap, checkLandmarkElements } from './accessibilityUtilities';
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     renderDependencyGraph,
     renderIndex,
-    // ... Add ScreepsBot, updateUI, and accessibilityUtils if required
     ScreepsBot,
-    // ... Add any other required exports
+    updateUI,
+    accessibilityUtils: {
+      setHtmlLangAttribute,
+      detectAndSetLang,
+      getLangAttribute,
+      validateTableAccessibility,
+      validateTableStructure,
+      validateLandmark,
+      validateLandmarkStructure,
+      getSvgAccessibleName,
+      validateSvgAccessibility,
+      ensureUniqueLandmarks,
+      personName,
+      validateLinks,
+      createFocusTrap,
+      checkLandmarkElements
+    },
   };
 }
+```
+
+This solution combines the features from both branches, preserves the original functionality, and includes the accessibility improvements from the separate file 'accessibilityUtilities'. The updated HTML elements for rendering dependency graphs were adjusted to work with React. The conflict markers have been removed.

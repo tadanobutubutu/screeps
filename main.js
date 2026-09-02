@@ -1,8 +1,16 @@
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const path = require('path');
-const { a11y } = require('@accessible/react');
+const CONFIG = {
+  dataPath: './data',
+  maxResults: 100,
+  name: 'ScreepsBot',
+  version: '1.0.0',
+  debug: true,
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: process.env.TIMEOUT || 5000,
+  landmarkRoles: [],
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  maxLandmarks: 50
+};
+
 const {
   fixTableStructureIssues,
   fixTableHeaderCellScope,
@@ -60,38 +68,6 @@ const {
   setSvgAccessibleNames: setSvgAccessibleNamesUtils
 } = require('./utils');
 
-const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0'
-};
-
-// Configuration for landmark operations
-const LANDMARK_CONFIG = {
-    dataPath: './data',
-    maxResults: 100
-};
-
-// General application configuration
-const CONFIG = {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: process.env.TIMEOUT || 5000,
-    debug: true,
-    version: '1.0.0'
-};
-
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map()
-};
-
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
-};
-
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute() / addLangAttribute())
@@ -131,16 +107,6 @@ function addLangAttribute(element) {
 }
 
 /**
- * Adds lang attribute to HTML element
- * @param {HTMLElement} element - The element to add lang attribute to
- */
-function addLangAttribute(element) {
-  if (element && !element.hasAttribute('lang')) {
-    element.setAttribute('lang', 'en');
-  }
-}
-
-/**
  * Logs the current URL to the console
  */
 function logCurrentURL() {
@@ -157,17 +123,17 @@ function addMainLandmark() {
 
 /**
  * Validates landmark
- * @param {HTMLElement} landmark - The landmark element to validate
+ * @param {HTMLElement} element - The landmark element to validate
  * @returns {Object} Validation result with success status and any issues
  */
-function validateLandmark(landmark) {
+function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
 
-  if (!landmark.tagName) {
+  if (!element.tagName) {
     issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(landmark.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${landmark.tagName}`);
+  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
+    issues.push(`Invalid landmark: ${element.tagName}`);
   }
 
   return {
@@ -187,7 +153,6 @@ function addLandmarkRolesAndFixIssues() {
  * Fixes landmark issues
  */
 function fixLandmarkIssues() {
-<<<<<<< HEAD
   // Ensure unique landmarks
   ensureUniqueLandmarks();
 
@@ -195,8 +160,8 @@ function fixLandmarkIssues() {
   addProperLandmarkRegions();
 
   // Validate existing landmarks
-  const landmarkValidation = validateLandmark();
-  if (!landmarkValidation.valid) {
+  const landmarkValidation = validateLandmark(document.body);
+  if (!landmarkValidation.success) {
     console.warn('Landmark validation issues:', landmarkValidation.issues);
   }
 }
@@ -223,18 +188,6 @@ function addProperLandmarkRegions() {
     document.body.appendChild(footer);
   }
 }
-
-/**
-=======
-  // Ensure unique landmarks (using combined implementation)
-  ensureUniqueLandmarks(ensureUniqueLandmarksUtils, ensureUniqueLandmarks);
-
-  // Fix any issues with landmarks
-  const landmarkIssues = fixLandmarkIssuesUtils(landmarkValidation.issues);
-  console.log('Landmark issues after fixes:', landmarkIssues);
-}
-
-// New accessibility function added from PR
 
 /**
  * Performs a comprehensive accessibility audit and applies fixes
@@ -270,16 +223,107 @@ function auditAccessibility() {
   };
 }
 
+// Accessibility functions for tables (merged from both branches)
+function validateTableStructure(tableElement) {
+  const rows = tableElement.querySelectorAll('tr');
+  if (rows.length === 0) {
+      console.warn('Table has no rows');
+      return false;
+  }
+  return true;
+}
+
+function validateTableCellsScope(tableElement) {
+  const cells = tableElement.querySelectorAll('th, td');
+  if (cells.length > 0) {
+    cells.forEach((cell, index) => {
+      const scope = cell.getAttribute('scope');
+      if (scope !== null && `${index}` !== scope) {
+        console.warn(`Cell at index ${index} has incorrect scope: ${scope}`);
+      }
+    });
+  }
+}
+
+// Accessibility functions for landmarks (merged from both branches)
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll('[role]');
+  let hasMain = false;
+  let hasNavigation = false;
+
+  landmarks.forEach(landmark => {
+      const role = landmark.getAttribute('role');
+      if (role === 'main') hasMain = true;
+      if (role === 'navigation') hasNavigation = true;
+  });
+
+  if (!hasMain) console.warn('Missing main landmark');
+  if (!hasNavigation) console.warn('Missing navigation landmark');
+
+  return hasMain && hasNavigation;
+}
+function addLandmarkRegions() {
+  console.log('Adding landmark regions');
+}
+
+// Functions to render dependency graphs and index views
+/**
+ * Render a dependency graph from the provided data structure
+ * @param {Object} data - The dependency data to visualize
+ * @returns {HTMLElement} The rendered dependency graph element
+ */
+function renderDependencyGraph(data) {
+  if (!data || typeof data !== 'object') {
+    console.error('Invalid data provided for dependency graph rendering');
+    return null;
+  }
+
+  const graphContainer = document.createElement('div');
+  graphContainer.setAttribute('role', 'region');
+  graphContainer.setAttribute('aria-label', 'Dependency Graph');
+  graphContainer.className = 'dependency-graph';
+  
+  // Implementation for rendering graphs would go here
+  // For now, this serves as a placeholder that can be expanded
+  return graphContainer;
+}
+
+/**
+ * Render an index view for the provided data
+ * @param {Object} data - The data to display in the index view
+ * @returns {HTMLElement} The rendered index view element
+ */
+function renderIndexView(data) {
+  if (!data || typeof data !== 'object') {
+    console.error('Invalid data provided for index view rendering');
+    return null;
+  }
+
+  const indexContainer = document.createElement('div');
+  indexContainer.setAttribute('role', 'region');
+  indexContainer.setAttribute('aria-label', 'Index View');
+  indexContainer.className = 'index-view';
+  
+  // Implementation for rendering index views would go here
+  // For now, this serves as a placeholder that can be expanded
+  return indexContainer;
+}
+
 // Export all existing and new functions
 module.exports = {
     getLangAttribute,
     getFullLangAttribute,
     validateTableAccessibility,
     validateTableStructure,
+    validateTableCellsScope,
     validateLandmark,
     validateLandmarkStructure,
     addMainLandmark,
     addLandmarkRolesAndFixIssues,
+    fixLandmarkIssues,
     auditAccessibility,
-    logCurrentURL
+    logCurrentURL,
+    addLandmarkRegions,
+    renderDependencyGraph,
+    renderIndexView
 };

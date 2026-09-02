@@ -89,14 +89,58 @@ class ScreepsBot {
 
   // Helper for arrow key navigation
   navigateWithArrows(key, activeElement) {
-    // Implement custom navigation logic based on element type
-    console.log(`Navigating with ${key} key`);
+    // Get all focusable elements in the document
+    const focusableElements = document.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (!focusableElements || focusableElements.length === 0) {
+      return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    // Determine target index based on key
+    let targetIndex;
+    if (key === 'ArrowUp') {
+      targetIndex = Math.max(0, parseInt(firstElement.dataset.index) - 1);
+    } else if (key === 'ArrowDown') {
+      targetIndex = Math.min(focusableElements.length - 1, parseInt(firstElement.dataset.index) + 1);
+    } else if (key === 'ArrowLeft') {
+      targetIndex = Math.max(0, parseInt(firstElement.dataset.index) - 1);
+    } else if (key === 'ArrowRight') {
+      targetIndex = Math.min(focusableElements.length - 1, parseInt(firstElement.dataset.index) + 1);
+    }
+
+    // Move focus to target if different from current
+    if (targetIndex !== parseInt(firstElement.dataset.index)) {
+      focusableElements[targetIndex].focus();
+    }
   }
 
   // Helper for tab key navigation
   handleTabNavigation(event, activeElement) {
-    // Implement custom tab navigation logic
-    console.log('Handling tab navigation');
+    const key = event.key;
+    if (key !== 'Tab') {
+      return;
+    }
+
+    const focusableElements = document.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length === 0) {
+      return;
+    }
+
+    if (activeElement === focusableElements[0]) {
+      // First element, go to last
+      focusableElements[focusableElements.length - 1].focus();
+    } else {
+      // Last element, go to first
+      focusableElements[0].focus();
+    }
   }
 }
 

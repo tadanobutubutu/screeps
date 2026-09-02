@@ -267,6 +267,14 @@ export function addLangAttribute(element, lang = 'en') {
     // Implement actual data fetching here
   }
 
+  // Accessibility enhancement: Ensure the dependencyGraph container has a proper ARIA role
+  setDependencyGraphRole() {
+    const dependencyGraph = document.getElementById('dependencyGraph');
+    if (dependencyGraph) {
+      dependencyGraph.setAttribute('role', 'graph');
+    }
+  }
+
   // Accessibility enhancement: Ensure all UI elements are properly labeled
   setElementLabel(elementId, label) {
     const el = document.getElementById(elementId);

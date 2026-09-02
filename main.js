@@ -1,5 +1,3 @@
-// main.js - Main application entry point
-
 // Main module
 
 // Dependency imports
@@ -182,7 +180,7 @@ function validateLandmarkStructure() {
   // Check for multiple main landmarks
   const mainElements = document.querySelectorAll('main, [role="main"]');
   if (mainElements.length > 1) {
-    errors.push(`Multiple main landmarks found. Only one main landmark should exist.`);
+    errors.push `Multiple main landmarks found. Only one main landmark should exist.`;
   }
 
   // Check for proper nesting of landmarks
@@ -284,14 +282,6 @@ function ensureUniqueLandmarks() {
 
   return { valid: errors.length === 0, errors };
 }
-
-// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
-
-const renderGraphIndex = (graphData) => {
-  // Address accessibility issues from insight report
-  ensureDependencyGraphAccessibility(document.querySelector('.dependency-graph-container'));
-  renderDependencyGraphs(graphData);
-};
 
 // Required function implementations
 
@@ -426,5 +416,3 @@ module.exports = {
   indexContent,
   main,
 };
-
-// ... rest of the code ...

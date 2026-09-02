@@ -1,29 +1,32 @@
-Here's the resolved `main.js` file with both changes integrated:
-
-```javascript
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
-import {CONFIG} from './utils/constants';
-import { express, axe } from 'axe-core';
-import { fastMap, path } from 'fast-map';
-import fs from 'fs';
-import accessiblyHelper from './accessibly-helper';
-
-// Node.js functions for dependency visualization tool
-
-// Import required modules
+const express = require('express');
+const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
 const path = require('path');
+const accessiblyHelper = require('./accessibly-helper');
+
+// Configuration - merged from both branches
+const CONFIG = {
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  timeout: 5000,
+  debug: true,
+  version: '1.0.0'
+};
+
+// Application state
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
+};
+
+let isInitialized = false;
+let dependencyGraph = null;
 
 // Existing accessibility function from HEAD
 function addBookAccessible(title, author) {
-  // Create a book object with accessibility attributes
   const book = {
     title,
     author,
@@ -31,11 +34,6 @@ function addBookAccessible(title, author) {
     'aria-label': `Book: ${title} by ${author}`,
     role: 'listitem'
   };
-
-  // Additional accessibility attributes could be added here
-  // For example, if this were part of a form:
-  // input.setAttribute('aria-required', 'true');
-
   return book;
 }
 
@@ -59,114 +57,47 @@ function fixAccessibilityIssues() {
   // Code to fix accessibility issues as per the insight report
 }
 
-// Main entry point for dependency visualization tool
-export const main = {
-  init: function() {
-    console.log('Application initialized');
-  },
+// New function to add a book with accessibility improvements
+function addBook(title, author, isbn) {
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-label', 'Add Book Form');
 
-  greet: function(name) {
-    return `Hello, ${name}!`;
-  },
+  const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
+  const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
+  const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
 
-  // New function for rotating back
-  rotateBack: function() {
-    console.log('Reverting back the rotation.');
-  },
+  const submitButton = document.createElement('button');
+  submitButton.setAttribute('type', 'submit');
+  submitButton.setAttribute('aria-label', 'Add Book');
+  submitButton.textContent = 'Add Book';
 
-  // New function to address all accessibility issues
-  addressAccessibilityIssues: function() {
-    fixAccessibilityIssues();
-  },
+  form.appendChild(titleInput);
+  form.appendChild(authorInput);
+  form.appendChild(isbnInput);
+  form.appendChild(submitButton);
 
-  // New function to add a book with accessibility improvements
-  addBook: function(title, author, isbn) {
-    // Create form with proper accessibility attributes
-    const form = document.createElement('form');
-    form.setAttribute('role', 'form');
-    form.setAttribute('aria-label', 'Add Book Form');
+  document.body.appendChild(form);
 
-    // Create accessible input fields
-    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
-    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
-    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
-
-    // Create accessible submit button
-    const submitButton = document.createElement('button');
-    submitButton.setAttribute('type', 'submit');
-    submitButton.setAttribute('aria-label', 'Add Book');
-    submitButton.textContent = 'Add Book';
-
-    // Append all elements to form
-    form.appendChild(titleInput);
-    form.appendChild(authorInput);
-    form.appendChild(isbnInput);
-    form.appendChild(submitButton);
-
-    // Add form to document body
-    document.body.appendChild(form);
-
-    // Add event listener for form submission
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      // Handle form submission logic here
-      console.log('Book added:', {
-        title: titleInput.value,
-        author: authorInput.value,
-        isbn: isbnInput.value
-      });
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    console.log('Book added:', {
+      title: titleInput.value,
+      author: authorInput.value,
+      isbn: isbnInput.value
     });
+  });
 
-    return form;
-  },
-
-  /**
-   * Helper function to create an accessible input field.
-   * @param {string} type - Type of input element, e.g., 'text', 'hidden'.
-   * @param {string} id - Unique identifier for the input.
-   * @param {string} labelText - Text for the associated label.
-   * @param {string} value - Initial value for the input.
-   * @returns {HTMLElement} The created input element with label.
-   */
-  createAccessibleInput: function(type, id, labelText, value = '') {
-    const container = document.createElement('div');
-    container.className = 'form-group';
-
-    const label = document.createElement('label');
-    label.setAttribute('for', id);
-    label.textContent = labelText;
-
-    const input = document.createElement('input');
-    input.setAttribute('type', type);
-    input.setAttribute('id', id);
-    input.setAttribute('name', id);
-    input.setAttribute('aria-required', 'true');
-    input.setAttribute('aria-label', labelText);
-    input.value = value;
-
-    container.appendChild(label);
-    container.appendChild(input);
-
-    return container;
-  },
-
-  // New function to check link accessibility
-  checkLinkAccessibility: function(url) {
-    // Implementation logic here...
-    // Placeholder return statement
-    return true;
-  },
-
-  // Other functions preserved...
-};
+  return form;
+}
 
 /**
- * Creates an accessible input element with proper labeling.
- * @param {string} type - Input type (text, number, etc.)
- * @param {string} id - Unique identifier for the input
- * @param {string} labelText - Text for the associated label
- * @param {string} value - Initial value for the input
- * @returns {HTMLElement} The created input element with label
+ * Helper function to create an accessible input field.
+ * @param {string} type - Type of input element, e.g., 'text', 'hidden'.
+ * @param {string} id - Unique identifier for the input.
+ * @param {string} labelText - Text for the associated label.
+ * @param {string} value - Initial value for the input.
+ * @returns {HTMLElement} The created input element with label.
  */
 function createAccessibleInput(type, id, labelText, value = '') {
   const container = document.createElement('div');
@@ -190,45 +121,348 @@ function createAccessibleInput(type, id, labelText, value = '') {
   return container;
 }
 
-/* Accessibility Improvements - initiated here */
-// Configuration
-const config = {
-  name: 'MyApp',
-  version: '1.0.0',
-  debug: false
-};
+// New function to check link accessibility
+function checkLinkAccessibility(url) {
+  // Implementation logic here...
+  return true;
+}
 
-// Configuration for accessibility features
-const CONFIG = {
-  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search']
-};
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return '';
 
-// Application state
-const appData = {};
+  const title = svgElement.querySelector('title');
+  if (title) {
+    return title.textContent;
+  }
 
-// App state with accessibility updates
-const appState = {
-  initialized: false,
-  data: null,
-  cache: {},
-  lang: 'en'
-};
+  const desc = svgElement.querySelector('desc');
+  if (desc) {
+    return desc.textContent;
+  }
 
-// Importing and using functions from the accessibility-improvements module
-const {
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  ensureUniqueLandmarks,
-  addLandmarkRoles,
-  renderDependencyGraph,
-  displayModuleStructure,
-  countDependencies,
-  analyzeModuleDependencies,
-  visualizeModuleRelationships
-} = require('./accessibility-improvements');
+  return svgElement.getAttribute('aria-label') || '';
+}
+
+function validateTableAccessibility(tableElement) {
+  if (!tableElement) return false;
+
+  const headers = tableElement.querySelectorAll('th');
+  const cells = tableElement.querySelectorAll('td, th');
+
+  for (const cell of cells) {
+    if (!cell.id && !cell.getAttribute('scope')) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function validateTableStructure(tableElement) {
+  if (!tableElement) return false;
+
+  const rows = tableElement.querySelectorAll('tr');
+  let hasHeader = false;
+
+  for (const row of rows) {
+    const cells = row.querySelectorAll('th, td');
+    for (const cell of cells) {
+      if (cell.tagName.toLowerCase() === 'th') {
+        hasHeader = true;
+        if (!cell.getAttribute('scope')) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return hasHeader;
+}
+
+async function scanAccessibility() {
+  const violations = [];
+
+  if (typeof document !== 'undefined') {
+    const results = await axe.run(document);
+    violations.push(...results.violations);
+  }
+
+  return { violations };
+}
+
+function validateLinkAccessibility() {
+  const links = document.querySelectorAll('a[href]');
+
+  for (const link of links) {
+    if (!link.textContent.trim()) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function handleFakeLinks() {
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  fakeLinks.forEach(link => {
+    if (link.tagName === 'A' && !link.getAttribute('role')) {
+      link.setAttribute('role', 'button');
+    }
+  });
+}
+
+function validateLandmark() {
+  const landmarks = document.querySelectorAll(CONFIG.landmarkRoles.join(','));
+  return landmarks.length > 0;
+}
+
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll(CONFIG.landmarkRoles.join(','));
+
+  for (const landmark of landmarks) {
+    if (!landmark.id && !landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function initialize() {
+  console.log('Initializing application...');
+
+  if (!isInitialized) {
+    isInitialized = true;
+    appState.initialized = true;
+
+    const appData = {
+      title: 'Screeps',
+      version: CONFIG.version
+    };
+
+    addLangAttribute();
+    wrapPrimaryContentInMain();
+    fixTableStructureIssues();
+    fixTableHeaderCellScope();
+    addMainLandmark();
+    addSvgAccessibleNames();
+    fixFakeLinkIssues();
+    ensureUniqueLandmarks();
+
+    const landmarks = loadLandmarks();
+    const processed = processLandmarks(landmarks);
+
+    if (dependencyGraph) {
+      if (!dependencyGraph.id) {
+        dependencyGraph.id = 'dependencyGraph';
+      }
+      if (!dependencyGraph.hasAttribute('role')) {
+        dependencyGraph.setAttribute('role', 'region');
+      }
+      if (!dependencyGraph.hasAttribute('aria-label')) {
+        dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
+      }
+    }
+  }
+}
+
+function loadLandmarks() {
+  try {
+    const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error loading landmarks:', error.message);
+    return [];
+  }
+}
+
+function processLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const validLandmarks = landmarks.filter(isValidLandmark);
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+  return uniqueLandmarks.slice(0, CONFIG.maxResults);
+}
+
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    if (seen.has(`${landmark.id || ''}${landmark.name || ''}`)) {
+      return false;
+    }
+    seen.add(`${landmark.id || ''}${landmark.name || ''}`);
+    return true;
+  });
+}
+
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  return element !== null;
+}
+
+function validateLandmarkObject(landmark) {
+  const errors = [];
+
+  if (!landmark) {
+    errors.push('Landmark is required');
+    return { valid: false, errors };
+  }
+
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
+  }
+
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+
+  if (Array.isArray(landmark)) {
+    landmark.forEach((innerLandmark, index) => {
+      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+        errors.push(`Landmark at index ${index} must have a valid name`);
+      }
+    });
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+function addSvgAccessibilityProps(svgElement, label, labelledById) {
+  if (!svgElement) return;
+
+  const props = getSvgAccessibilityProps(label, labelledById);
+
+  Object.keys(props).forEach(prop => {
+    svgElement.setAttribute(prop, props[prop]);
+  });
+}
+
+function getSvgAccessibilityProps(label, labelledById) {
+  const props = {};
+  if (label) {
+    props['aria-label'] = label;
+  }
+  if (labelledById) {
+    props['aria-labelledby'] = labelledById;
+  }
+  return props;
+}
+
+function getAccessibleLinkProps(href, label) {
+  return {
+    href,
+    'aria-label': label,
+    role: 'link'
+  };
+}
+
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+function createInPageButton(buttonText, onClickHandler) {
+  return {
+    button: {
+      onClick: onClickHandler,
+      lang: getLangAttribute(),
+      text: buttonText
+    }
+  };
+}
+
+function wrapPrimaryContentInMain() {
+  const primaryContent = document.querySelector('.primary-content') ||
+                        document.querySelector('[role="main"]') ||
+                        document.getElementById('main-content') ||
+                        document.querySelector('#content');
+
+  if (primaryContent && !primaryContent.closest('main')) {
+    const mainElement = document.createElement('main');
+    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+    mainElement.appendChild(primaryContent);
+    return mainElement;
+  }
+  return null;
+}
+
+function addLangAttribute() {
+  if (document && document.documentElement) {
+    if (!document.documentElement.getAttribute('lang')) {
+      document.documentElement.setAttribute('lang', getLangAttribute());
+    }
+  }
+}
+
+async function renderFunction1() {
+  await accessiblyHelper();
+
+  function wrapPrimaryContentInMain() {
+    if (document.body.firstChild) {
+      const wrapper = document.createElement('main');
+      wrapper.innerHTML = document.body.firstChild.outerHTML;
+      document.body.replaceChild(wrapper, document.body.firstChild);
+    }
+  }
+}
+
+function renderFunction2() {
+  // ... (Rest of renderFunction2 implementation)
+}
+
+function getUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    const elements = Array.from(document.querySelectorAll(CONFIG.landmarkRoles.join(',')));
+    const landmarkIds = elements.map(el => el.id || el.getAttribute('aria-labelledby'));
+    const uniqueIds = new Set(landmarkIds);
+
+    elements.forEach((element, index) => {
+      if (!element.id) {
+        element.id = `landmark-${index}`;
+      }
+    });
+    return elements;
+  }
+
+  const seen = new Set();
+  const uniqueLandmarks = [];
+
+  for (const landmark of landmarks) {
+    if (!landmark || typeof landmark.id === 'undefined') {
+      continue;
+    }
+
+    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+
+    if (!seen.has(landmarkId)) {
+      seen.add(landmarkId);
+      uniqueLandmarks.push(landmark);
+    }
+  }
+
+  return uniqueLandmarks;
+}
 
 // Import other required functions and use them as needed
 const {
@@ -241,22 +475,42 @@ const {
   ensureDependencyGraphAriaRole,
   calculateSum,
   addProperLandmarkRegions,
-  load Landmarks,
-  processLandmarks
+  loadLandmarks: loadLandmarksFromHelper,
+  processLandmarks: processLandmarksFromHelper
 } = require('./accessibly-helper');
 
-// Apply improvements to make the application more accessible
-function improveAccessibility() {
-  fixTableStructure();
-  fixLandmarks();
-  checkLandmarkElements();
-  addSvgAccessibleNames();
-  fixFakeLinks();
-  replaceButtonIds();
-  ensureDependencyGraphAriaRole();
-}
-
-/* Accessibility Improvements - ended here */
-
-// ... your existing code ...
-```
+module.exports = {
+  initialize,
+  getUniqueLandmarks,
+  getSvgAccessibleName,
+  validateTableAccessibility,
+  validateTableStructure,
+  scanAccessibility,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  validateLandmark,
+  validateLandmarkStructure,
+  loadLandmarks,
+  processLandmarks,
+  ensureUniqueLandmarks,
+  checkLandmarkElement,
+  validateLandmarkObject,
+  addSvgAccessibilityProps,
+  getSvgAccessibilityProps,
+  getAccessibleLinkProps,
+  getLangAttribute,
+  createInPageButton,
+  wrapPrimaryContentInMain,
+  addLangAttribute,
+  CONFIG,
+  appState,
+  addBookAccessible,
+  visualizeDependencyTree,
+  generateDependencyReport,
+  fixAccessibilityIssues,
+  addBook,
+  createAccessibleInput,
+  checkLinkAccessibility,
+  renderFunction1,
+  renderFunction2
+};

@@ -66,14 +66,14 @@ const a11yStore = {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
       const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark, index) => {
+      landmarks.forEach((landmark) => {
         if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
+          landmark.setAttribute('id', `${element}-${landmark.id || ''}`);
         }
 
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
+            landmark.setAttribute('aria-label', `${element} ${landmark.id || ''}`);
           }
         }
       });
@@ -150,8 +150,6 @@ const a11yStore = {
       }
     });
   },
-
-  // ... remaining a11yStore methods ...
 };
 
 // New functions
@@ -161,7 +159,134 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureImageAccessibility();
 }
 
-// ... rest of the code ...
-```
+// Tower Defense Implementation
+class TowerDefense {
+  constructor(config) {
+    this.config = config;
+    this.towers = [];
+    this.enemies = [];
+    this.gameState = 'idle'; // idle, playing, won, lost
+    this.score = 0;
+    this.wave = 1;
+  }
 
-I have added the new function `ensureInteractiveElementsAccessible` which calls the existing a11yStore functions, integrating them into this new function. This way, we are maintaining the functionality of both changes and resolving the merge conflict.
+  initTowers(towerCount) {
+    for (let i = 0; i < towerCount; i++) {
+      const tower = {
+        id: `tower-${i}`,
+        x: Math.random() * this.config.port,
+        y: Math.random() * this.config.port,
+        speed: Math.random() * 2 + 1,
+        damage: Math.random() * 10 + 5,
+        target: null,
+        active: true
+      };
+      this.towers.push(tower);
+    }
+  }
+
+  spawnEnemy(x, y) {
+    this.enemies.push({
+      id: `enemy-${Date.now()}`,
+      x: x,
+      y: y,
+      health: 20,
+      moving: true
+    });
+  }
+
+  update() {
+    if (this.gameState !== 'playing') return;
+
+    // Move towers towards enemies
+    this.towers.forEach(tower => {
+      if (tower.target) {
+        tower.x += (tower.target.x - tower.x) * tower.speed;
+        tower.y += (tower.target.y - tower.y) * tower.speed;
+        
+        // Check collision with enemy
+        if (this.checkCollision(tower, this.enemies)) {
+          this.handleCollision(tower, this.enemies);
+        }
+      }
+    });
+
+    // Update enemies
+    this.enemies.forEach(enemy => {
+      if (enemy.moving) {
+        enemy.x += (Math.random() - 0.5) * 2;
+        enemy.y += (Math.random() - 0.5) * 2;
+      }
+      
+      if (enemy.x < 0 || enemy.x > this.config.port || enemy.y < 0 || enemy.y > this.config.port) {
+        enemy.health -= 1;
+        if (enemy.health <= 0) {
+          this.enemies.splice(this.enemies.indexOf(enemy), 1);
+        }
+      }
+    });
+
+    // Check win/lose conditions
+    if (this.enemies.length === 0) {
+      this.gameState = 'won';
+    } else if (this.towers.some(t => !t.active)) {
+      this.gameState = 'lost';
+    }
+  }
+
+  checkCollision(tower, enemies) {
+    for (const enemy of enemies) {
+      const distance = Math.sqrt(
+        Math.pow(tower.x - enemy.x, 2) + 
+        Math.pow(tower.y - enemy.y, 2)
+      );
+      if (distance < 30) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  handleCollision(tower, enemies) {
+    for (const enemy of enemies) {
+      if (this.checkCollision(tower, [enemy])) {
+        tower.damage += 10;
+        enemy.health -= tower.damage;
+        if (enemy.health <= 0) {
+          this.enemies.splice(this.enemies.indexOf(enemy), 1);
+        }
+      }
+    }
+  }
+
+  startWave(waveNumber) {
+    this.wave = waveNumber;
+    this.spawnEnemy(Math.random(), Math.random());
+  }
+
+  getStatus() {
+    return {
+      gameState: this.gameState,
+      score: this.score,
+      wave: this.wave,
+      towers: this.towers.map(t => ({ id: t.id, x: t.x, y: t.y, active: t.active })),
+      enemies: this.enemies.map(e => ({ id: e.id, health: e.health }))
+    };
+  }
+}
+
+// Initialize tower defense system
+const towerDefense = new TowerDefense(config);
+
+// Start the game loop
+setInterval(() => {
+  if (towerDefense.gameState === 'playing') {
+    towerDefense.update();
+  }
+}, 100);
+
+// Export tower defense for external use if needed
+module.exports = {
+  towerDefense,
+  config
+};

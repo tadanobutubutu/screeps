@@ -14,6 +14,50 @@
 
 // ... existing code from main.js ...
 
+/**
+ * Handles credential response from authentication flows
+ * Processes credential data and extracts relevant information
+ * @param {Object} credentialResponse - The credential response object
+ * @returns {Object} Processed credential information
+ */
+function handleCredentialResponse(credentialResponse) {
+  if (!credentialResponse) {
+    throw new Error('Credential response is required');
+  }
+
+  // Extract credential information
+  const credentialData = {
+    credential: credentialResponse.credential || null,
+    clientId: credentialResponse.clientId || null,
+    select_by: credentialResponse.select_by || null,
+    // Handle different credential formats
+    parsedCredential: null
+  };
+
+  // Parse JWT token if credential is present
+  if (credentialData.credential) {
+    try {
+      const payload = credentialData.credential.split('.')[1];
+      if (payload) {
+        const decodedPayload = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+        credentialData.parsedCredential = JSON.parse(decodedPayload);
+      }
+    } catch (error) {
+      console.warn('Failed to parse credential token:', error);
+    }
+  }
+
+  // Dispatch custom event for credential handling
+  if (typeof window !== 'undefined' && window.CustomEvent) {
+    const credentialEvent = new CustomEvent('credentialResponseReceived', {
+      detail: credentialData
+    });
+    document.dispatchEvent(credentialEvent);
+  }
+
+  return credentialData;
+}
+
 // Any additional changes requested in the issue
 // Example of a new function if requested:
 function newFunction() {
@@ -200,7 +244,7 @@ const AddressabilityIssues = {
 
     return {
       total: fakeLinks.length,
-      fixed: results.filter(r => r.fixed).length,
+      fixed: results.filter(r => r.fixed).number,
       failed: results.filter(r => !r.fixed).length,
       results
     };

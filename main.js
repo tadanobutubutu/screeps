@@ -16,6 +16,9 @@ class ScreepsBot {
     // Load initial data
     await this.loadData();
 
+    // Ensure dependencyGraph container has proper ARIA role
+    this.ensureDependencyGraphARIA();
+
     console.log('Screenspider bot started');
   }
 
@@ -97,6 +100,15 @@ class ScreepsBot {
   handleTabNavigation(event, activeElement) {
     // Implement custom tab navigation logic
     console.log('Handling tab navigation');
+  }
+
+  // Ensure dependencyGraph container has proper ARIA role
+  ensureDependencyGraphARIA() {
+    const container = document.getElementById('dependencyGraph');
+    if (container) {
+      container.setAttribute('role', 'region');
+      container.setAttribute('aria-label', 'Dependency graph');
+    }
   }
 }
 

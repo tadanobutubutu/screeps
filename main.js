@@ -212,6 +212,34 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e)
     }
+  },
+
+  /**
+     * Manages focus restoration by storing the currently focused element and
+     * restoring focus to it later. Useful for modal dialogs and temporary UI states.
+     *
+     * @param {HTMLElement} [element] - The element to focus. If omitted, restores to the previously stored element.
+     * @returns {HTMLElement|null} The element that was focused, or null if none.
+     */
+  manageFocusRestoration (element) {
+    if (!this._previousFocusedElement) {
+      this._previousFocusedElement = document.activeElement
+    }
+
+    if (element) {
+      element.focus()
+      return element
+    }
+
+    if (this._previousFocusedElement && typeof this._previousFocusedElement.focus === 'function') {
+      this._previousFocusedElement.focus()
+      const restored = this._previousFocusedElement
+      this._previousFocusedElement = null
+      return restored
+    }
+
+    this._previousFocusedElement = null
+    return null
   }
 }
 
@@ -452,6 +480,7 @@ module.exports = {
   handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
   exportData: accessibilityUtils.exportData,
   addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
+  manageFocusRestoration: accessibilityUtils.manageFocusRestoration,
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,

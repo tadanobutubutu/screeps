@@ -363,6 +363,166 @@ function ensureUniqueLandmarks(landmarks) {
   };
 }
 
+// REACT_041 & REACT_015: Updated function that renders dependency graphs with accessibility features
+function renderDependencyGraph(containerElement, dependencyData) {
+  if (!containerElement) {
+    console.error('Container element is required for rendering dependency graph');
+    return null;
+  }
+
+  // Set the container's lang attribute for proper language identification
+  containerElement.setAttribute('lang', 'en');
+
+  // Create accessible description for the graph
+  const descriptionId = 'dep-graph-desc-' + Date.now();
+  
+  // Create the graph structure with proper accessibility
+  const graphContainer = document.createElement('div');
+  graphContainer.setAttribute('role', 'figure');
+  graphContainer.setAttribute('aria-labelledby', 'dep-graph-title-' + Date.now());
+  graphContainer.setAttribute('aria-describedby', descriptionId);
+  graphContainer.id = 'dependency-graph-' + Date.now();
+
+  // Add accessible title
+  const title = document.createElement('h2');
+  title.id = 'dep-graph-title-' + Date.now();
+  title.textContent = 'Project Dependencies Overview';
+  title.className = 'sr-only';
+  graphContainer.appendChild(title);
+
+  // Add accessible description
+  const description = document.createElement('p');
+  description.id = descriptionId;
+  description.className = 'sr-only';
+  const totalDeps = dependencyData.dependencies + dependencyData.devDependencies;
+  description.textContent = `This graph shows ${dependencyData.dependencies} production dependencies and ${dependencyData.devDependencies} development dependencies, totaling ${totalDeps} dependencies.`;
+  graphContainer.appendChild(description);
+
+  // Create accessible table representation of dependency graph
+  const table = document.createElement('table');
+  table.setAttribute('role', 'table');
+  table.setAttribute('aria-label', 'Dependency statistics');
+  
+  // Add table caption for accessibility
+  const caption = document.createElement('caption');
+  caption.textContent = 'Project Dependency Statistics';
+  table.appendChild(caption);
+
+  // Create table header with scope attributes
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  const headers = ['Dependency Type', 'Count', 'Percentage'];
+  
+  headers.forEach(headerText => {
+    const th = document.createElement('th');
+    th.setAttribute('scope', 'col');
+    th.textContent = headerText;
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  // Create table body with accessible data
+  const tbody = document.createElement('tbody');
+  const rows = [
+    { type: 'Production Dependencies', count: dependencyData.dependencies },
+    { type: 'Development Dependencies', count: dependencyData.devDependencies },
+    { type: 'Total Dependencies', count: dependencyData.total }
+  ];
+
+  rows.forEach((row, index) => {
+    const tr = document.createElement('tr');
+    const percentage = totalDeps > 0 ? Math.round((row.count / totalDeps) * 100) : 0;
+    
+    // First cell
+    const tdType = document.createElement('td');
+    tdType.textContent = row.type;
+    tr.appendChild(tdType);
+    
+    // Count cell
+    const tdCount = document.createElement('td');
+    tdCount.setAttribute('aria-label', `${row.count} ${row.type.toLowerCase()}`);
+    tdCount.textContent = row.count;
+    tr.appendChild(tdCount);
+    
+    // Percentage cell
+    const tdPercent = document.createElement('td');
+    tdPercent.setAttribute('aria-label', `${percentage} percent`);
+    tdPercent.textContent = `${percentage}%`;
+    tr.appendChild(tdPercent);
+    
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  
+  graphContainer.appendChild(table);
+
+  // Create visual SVG graph representation with accessibility
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', `Bar chart showing ${dependencyData.dependencies} production dependencies and ${dependencyData.devDependencies} development dependencies`);
+  svg.setAttribute('width', '300');
+  svg.setAttribute('height', '150');
+  svg.setAttribute('viewBox', '0 0 300 150');
+
+  // Add title element within SVG for accessibility
+  const svgTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+  svgTitle.textContent = 'Dependency Graph - Visual Representation';
+  svg.appendChild(svgTitle);
+
+  // Add desc element for detailed description
+  const svgDesc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+  svgDesc.textContent = `A bar chart comparing production dependencies (${dependencyData.dependencies}) and development dependencies (${dependencyData.devDependencies}). Total: ${totalDeps} dependencies.`;
+  svg.appendChild(svgDesc);
+
+  // Draw accessible bar chart
+  const barWidth = 80;
+  const barHeight = Math.max(20, (dependencyData.dependencies / Math.max(totalDeps, 1)) * 100);
+  const bar2Height = Math.max(20, (dependencyData.devDependencies / Math.max(totalDeps, 1)) * 100);
+
+  // Production dependencies bar
+  const bar1 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  bar1.setAttribute('x', '40');
+  bar1.setAttribute('y', 130 - barHeight);
+  bar1.setAttribute('width', barWidth.toString());
+  bar1.setAttribute('height', barHeight.toString());
+  bar1.setAttribute('aria-label', `Production dependencies: ${dependencyData.dependencies}`);
+  svg.appendChild(bar1);
+
+  // Development dependencies bar
+  const bar2 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  bar2.setAttribute('x', '180');
+  bar2.setAttribute('y', 130 - bar2Height);
+  bar2.setAttribute('width', barWidth.toString());
+  bar2.setAttribute('height', bar2Height.toString());
+  bar2.setAttribute('aria-label', `Development dependencies: ${dependencyData.devDependencies}`);
+  svg.appendChild(bar2);
+
+  // Add accessible labels below bars
+  const label1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  label1.setAttribute('x', '80');
+  label1.setAttribute('y', '145');
+  label1.setAttribute('text-anchor', 'middle');
+  label1.setAttribute('aria-hidden', 'true');
+  label1.textContent = `Prod: ${dependencyData.dependencies}`;
+  svg.appendChild(label1);
+
+  const label2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  label2.setAttribute('x', '220');
+  label2.setAttribute('y', '145');
+  label2.setAttribute('text-anchor', 'middle');
+  label2.setAttribute('aria-hidden', 'true');
+  label2.textContent = `Dev: ${dependencyData.devDependencies}`;
+  svg.appendChild(label2);
+
+  graphContainer.appendChild(svg);
+
+  // Append graph to container
+  containerElement.appendChild(graphContainer);
+
+  return graphContainer;
+}
+
 function initializeApp() {
   appState.initialized = true;
   console.log('Initializing application...');

@@ -1,8 +1,5 @@
-Here is the resolved file content:
-
-```javascript
 const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
+  apiUrl: process.env.API_URL || null,
   timeout: process.env.TIMEOUT || 5000,
   debug: true,
   version: '1.0.0'
@@ -18,10 +15,10 @@ function validateLandmark(landmark) {
   const errors = [];
   // Existing code that should be preserved
   // Update landmark validation logic if needed
-  const role = landmark.getAttribute('role');
+  const role = landmark ? landmark.getAttribute('role') : null;
   const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role');
+  if (role && !validLandmarks.includes(role)) {
+    errors.push('Invalid landmark role: ' + role);
   }
   return errors;
 }
@@ -54,7 +51,7 @@ function getFullLangAttribute() {
 
 function validateTableAccessibility(tableElement) {
     // Implementation to validate table accessibility (conflict resolved: merged implementation)
-    if (!tableElement.querySelector('caption')) {
+    if (!tableElement || !tableElement.querySelector('caption')) {
         console.warn('Table missing caption');
         return false;
     }
@@ -63,7 +60,7 @@ function validateTableAccessibility(tableElement) {
 
 function validateTableStructure(tableElement) {
     // Implementation to validate table structure (conflict resolved: merged implementation)
-    const rows = tableElement.querySelectorAll('tr');
+    const rows = tableElement ? tableElement.querySelectorAll('tr') : [];
     if (rows.length === 0) {
         console.warn('Table has no rows');
         return false;
@@ -73,7 +70,7 @@ function validateTableStructure(tableElement) {
 
 function validateLandmarkStructure() {
     // Merged implementation (conflict resolved)
-    const landmarks = document.querySelectorAll('[role]');
+    const landmarks = document.querySelectorAll('[role]') || [];
     let hasMain = false;
     let hasNavigation = false;
 
@@ -95,9 +92,9 @@ function addLandmarkRegions() {
 
 function getSvgAccessibleName() {
     // Merged implementation (conflict resolved)
-    const svgElement = ... // needs actual element reference
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
+    const svgElement = document.querySelector('svg');
+    const title = svgElement ? svgElement.querySelector('title') : null;
+    const ariaLabel = svgElement ? svgElement.getAttribute('aria-label') : null;
     if (title) return title.textContent;
     if (ariaLabel) return ariaLabel;
     return 'Accessible SVG Icon';
@@ -135,12 +132,12 @@ function ensureUniqueLandmarks(landmarksArg) {
 
   // Additional uniqueness check for landmark roles
   const landmarksByRole = {};
-  const allLandmarks = document.querySelectorAll('[role]');
+  const allLandmarks = landmarks;
 
   allLandmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
+    const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
     if (landmarksByRole[role]) {
-      console.warn(`Duplicate landmark role: ${role}`);
+      console.warn('Duplicate landmark role: ' + role);
     } else {
       landmarksByRole[role] = true;
     }
@@ -194,21 +191,20 @@ function createAccessibleLink(href, text) {
 
 function handleAccessibilityIssues() {
     // Implementation to handle accessibility issues (conflict resolved: merged implementation)
-    const tables = document.querySelectorAll('table');
+    const tables = document.querySelectorAll('table') || [];
     tables.forEach(table => {
         validateTableAccessibility(table);
         validateTableStructure(table);
     });
 
-    const landmarks = document.querySelectorAll('[role]');
+    const landmarks = document.querySelectorAll('[role]') || [];
     landmarks.forEach(landmark => {
         validateLandmark(landmark);
     });
 
-    validateLandmarkStructure();
-    ensureUniqueLandmarks();
+    ensureUniqueLandmarks(landmarks);
 
-    const svgs = document.querySelectorAll('svg');
+    const svgs = document.querySelectorAll('svg') || [];
     svgs.forEach(svg => {
         getSvgAccessibleName(svg);
     });
@@ -234,4 +230,3 @@ module.exports = {
     addLandmarkRegions,
     setSvgAttributes
 };
-```

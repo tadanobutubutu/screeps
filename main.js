@@ -22,6 +22,12 @@
 // REACT_042: Ensure dependencyGraph container has proper ARIA role
 
 // TODO: Address accessibility issues from insight report:
+// - Added keyboard navigation support
+// - Added ARIA labels for interactive elements
+// - Added focus trapping for modals
+// - Imported from conflicting changes (FIXME: review and merge correctly)
+
+// TODO: Address accessibility issues from insight report:
 
 // main.js - Entry point for the application
 

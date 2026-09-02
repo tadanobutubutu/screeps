@@ -1,5 +1,4 @@
 // TODO: add the new functions or changes requested in the issue
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
 
 /** TODO: Implement function for addressing accessibility issues from insight report */
 function addressAccessibilityIssues(insightReport) {
@@ -98,12 +97,12 @@ function validateLandmarkStructure(context = document) {
         }
     });
     
-    // Validate forms have accessible names
+    // Validate forms have accessible name
     const forms = context.querySelectorAll('form');
     forms.forEach((form, index) => {
         const hasLabel = form.getAttribute('aria-label') || 
                          form.getAttribute('aria-labelledby') ||
-                         form.querySelector('legend');
+                         form.getAttribute('title');
         if (!hasLabel && form.querySelectorAll('input, select, textarea').length > 0) {
             issues.push({
                 type: 'warning',
@@ -178,7 +177,7 @@ function getLandmarkSummary(context = document) {
         infos.forEach(i => summary.push(`  • ${i.message}`));
     }
     
-    summary.push(`Validation ${result.isValid ? 'PASSED' : 'FAILED'}`);
+    summary.push(`- Validation: ${result.isValid ? 'PASSED' : 'FAILED'}`);
     
     return summary.join('\n');
 }
@@ -234,7 +233,32 @@ function handleCredentialResponse(response) {
   // This function should be called when a credential response is received
   // For example, you might parse the response, validate it, and then store or use the credentials
   console.log('Handling credential response:', response);
+  
+  // Parse the credential token if present
+  if (response && response.credential) {
+    const credential = response.credential;
+    const payload = JSON.parse(atob(credential.split('.')[1]));
+    
+    // You can store the user information or use it as needed
+    const userData = {
+      email: payload.email,
+      name: payload.name,
+      picture: payload.picture,
+      sub: payload.sub
+    };
+    
+    console.log('User data extracted:', userData);
+    
+    // Trigger custom event for other parts of the application
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('credentialReceived', { detail: userData }));
+    }
+    
+    return userData;
+  }
+  
   // Placeholder for actual implementation
+  return null;
 }
 
 // Module exports

@@ -122,8 +122,62 @@ function ensureUniqueLandmarks() {
         });
     }
 
+    // Harvest logic: collect resources from the dependency graph
+    function harvest() {
+      const resources = {
+        nodes: 0,
+        edges: 0,
+        metadata: {},
+      };
+
+      if (dependencyGraph) {
+        // Count nodes and edges in the dependency graph
+        const nodes = dependencyGraph.querySelectorAll('[data-node], .node');
+        const edges = dependencyGraph.querySelectorAll('[data-edge], .edge, line');
+        resources.nodes = nodes.length;
+        resources.edges = edges.length;
+
+        // Harvest any data attributes describing harvested resources
+        const harvestAttr = dependencyGraph.getAttribute('data-harvest');
+        if (harvestAttr) {
+          try {
+            resources.metadata = JSON.parse(harvestAttr);
+          } catch (e) {
+            resources.metadata = { raw: harvestAttr };
+          }
+        }
+      }
+
+      return resources;
+    }
+
+    // Upgrade logic: apply improvements/enhancements based on harvested resources
+    function upgrade(resources) {
+      const upgradeLog = [];
+
+      if (!resources || typeof resources !== 'object') {
+        return { success: false, message: 'No resources provided', log: upgradeLog };
+      }
+
+      // Apply upgrades based on harvested node/edge counts
+      if (resources.nodes >= 10) {
+        upgradeLog.push('Unlocked advanced graph layout');
+      }
+      if (resources.edges >= 20) {
+        upgradeLog.push('Enabled edge clustering');
+      }
+      if (resources.metadata && Object.keys(resources.metadata).length > 0) {
+        upgradeLog.push('Applied metadata-based enhancements');
+      }
+
+      return { success: true, log: upgradeLog };
+    }
+
     // New function3 logic
     function function3() {
-      // TODO: Implement new function
+      // Perform a full harvest and upgrade cycle
+      const collected = harvest();
+      const result = upgrade(collected);
+      return { harvested: collected, upgraded: result };
     }
 })();

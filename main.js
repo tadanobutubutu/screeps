@@ -31,9 +31,9 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[؀-ۿ]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâçéèêëîïôùûüÿœæ]+/i.test(content)) {
+    } else if (/[àâãäåæçèéêëìîï]/.test(content) || /[ÀÂÃÄÅÆÇÈÉÊËÌÎÏ]/.test(content)) {
       lang = 'fr'; // French
-    } else if (/[äöüß]+/i.test(content)) {
+    } else if (/[äöüß]/.test(content) || /[ÄÖÜ]/.test(content)) {
       lang = 'de'; // German
     }
   }
@@ -96,16 +96,17 @@ function validateTableAccessibility(tableElement) {
   const errors = [];
   
   // Check if table has proper structure
-  if (!tableElement.querySelector('thead')) {
+  const thead = tableElement.querySelector('thead');
+  if (!thead) {
     errors.push('Table is missing <thead> element');
   }
   
-  if (!tableElement.querySelector('tbody')) {
+  const tbody = tableElement.querySelector('tbody');
+  if (!tbody) {
     errors.push('Table is missing <tbody> element');
   }
   
   // Check for th elements in thead
-  const thead = tableElement.querySelector('thead');
   const thElements = thead ? thead.querySelectorAll('th') : [];
   if (thElements.length === 0) {
     errors.push('Table header row is missing <th> elements');
@@ -113,14 +114,14 @@ function validateTableAccessibility(tableElement) {
   
   // Check that all th elements have scope attributes
   thElements.forEach((th, index) => {
-    if (!th.getAttribute('scope')) {
+    if (!th.hasAttribute('scope')) {
       errors.push(`Table header cell ${index + 1} is missing scope attribute`);
     }
   });
   
   // Check for proper caption or summary
-  const hasCaption = tableElement.querySelector('caption');
-  const hasSummary = tableElement.getAttribute('aria-describedby');
+  const hasCaption = tableElement.querySelector('caption') !== null;
+  const hasSummary = tableElement.hasAttribute('aria-describedby');
   if (!hasCaption && !hasSummary) {
     errors.push('Table is missing a caption or aria-describedby for accessibility');
   }
@@ -146,7 +147,7 @@ function validateLandmarkStructure() {
   }
   
   // Check for proper nesting of landmarks
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
+  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
   landmarks.forEach((landmark) => {
     const parent = landmark.parentElement;
     while (parent) {
@@ -203,6 +204,9 @@ function validateLandmark() {
  * @returns {string} The accessible name
  */
 function getSvgAccessibleName(svg) {
+  if (!svg) {
+    return '';
+  }
   if (svg.getAttribute('aria-label')) {
     return svg.getAttribute('aria-label');
   }
@@ -211,14 +215,14 @@ function getSvgAccessibleName(svg) {
     const labelElement = document.getElementById(labelId);
     return labelElement ? labelElement.textContent : '';
   }
-  if (svg.querySelector('title')) {
-    return svg.querySelector('title').textContent;
+  if (svg.getAttribute('title')) {
+    return svg.getAttribute('title');
   }
   return 'SVG graphic';
 }
 
 // New function to address REACT_041: Add accessible names to SVGs
-function getSvgAccessibleNameAdvanced(svgElement) {
+function getSvgAccessibleName(svgElement) {
   if (typeof document === 'undefined' || !svgElement) {
     return null;
   }
@@ -241,234 +245,4 @@ function getSvgAccessibleNameAdvanced(svgElement) {
   }
   
   // Check for desc element inside SVG
-  const desc = svgElement.querySelector('desc');
-  if (desc && desc.textContent.trim()) {
-    return desc.textContent.trim();
-  }
-  
-  return null;
-}
-
-function validateSvgAccessibility() {
-  if (typeof document === 'undefined') {
-    return { valid: true, errors: [] };
-  }
-  
-  const errors = [];
-  const svgs = document.querySelectorAll('svg');
-  
-  svgs.forEach((svg, index) => {
-    const name = getSvgAccessibleNameAdvanced(svg) || getSvgAccessibleName(svg);
-    if (!name) {
-      errors.push(`SVG ${index + 1} is missing accessible name`);
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address REACT_025: Ensure unique landmarks
-function ensureUniqueLandmarks() {
-  if (typeof document === 'undefined') {
-    return { valid: true, errors: [] };
-  }
-  
-  const errors = [];
-  const landmarkTypes = ['header', 'nav', 'main', 'aside', 'footer'];
-  
-  landmarkTypes.forEach((type) => {
-    const elements = document.querySelectorAll(type);
-    const labeledElements = document.querySelectorAll(`[role="${type}"]`);
-    const total = elements.length + labeledElements.length;
-    
-    if (total > 1 && type !== 'nav' && type !== 'aside') {
-      errors.push(`Multiple ${type} landmarks found (${total}). Consider using unique aria-labels to differentiate them.`);
-    } else if (total > 1) {
-      // For nav and aside, multiple are allowed but must have unique labels
-      const allElements = [...elements, ...labeledElements];
-      const labels = allElements.map(el => el.getAttribute('aria-label') || el.getAttribute('aria-labelledby'));
-      const uniqueLabels = new Set(labels.filter(l => l));
-      if (uniqueLabels.size < total) {
-        errors.push(`Multiple ${type} landmarks found without unique aria-labels`);
-      }
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-const addAriaLabel = (element, label) => {
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-  return element;
-};
-
-const renderDependencyGraph = (data) => {
-  // Implementation for rendering dependency graphs
-  return {
-    nodes: data.nodes || [],
-    edges: data.edges || []
-  };
-};
-
-/**
- * Ensure an element has an id, generating one if necessary.
- * @param {HTMLElement} element - The element to check/generate id for
- * @param {string} [prefix='element'] - Prefix for generated id
- * @returns {string} The element's id
- */
-function ensureElementHasId(element, prefix = 'element') {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-
-  if (element.id) {
-    return element.id;
-  }
-
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
-}
-
-function renderDependencyGraphs(container, dependencies, options = {}) {
-  if (!container) {
-    throw new Error('Container element is required');
-  }
-
-  if (!dependencies) {
-    throw new Error('Dependencies data is required');
-  }
-
-  // Ensure container has an id for graph references
-  const containerId = ensureElementHasId(container, 'graph-container');
-
-  // Add accessibility label if not present
-  const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
-
-  return {
-    containerId,
-    accessible: hasAriaLabel,
-    ...renderDependencyGraph(dependencies)
-  };
-}
-
-/**
- * Trap focus within an element.
- * @param {HTMLElement} element - The element to trap focus within
- */
-function focusTrap(element) {
-  if (!element) return;
-
-  const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  );
-
-  if (focusableElements.length === 0) return;
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  element.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstElement) {
-        lastElement.focus();
-        e.preventDefault();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        firstElement.focus();
-        e.preventDefault();
-      }
-    }
-  });
-}
-
-// New function to address REACT_036: Fix fake link issue
-// Creates a button element with correct accessibility properties for in-page linking
-/**
- * Creates a button element with correct accessibility properties for in-page linking
- * @param {string} text - The visible text content of the button
- * @param {string} targetId - The id of the target element to scroll/link to
- * @param {object} [options] - Additional options
- * @param {string} [options.ariaLabel] - Custom aria-label for the button
- * @param {string} [options.className] - CSS class name(s) to apply to the button
- * @returns {HTMLButtonElement|null} The created button element, or null if document is unavailable
- */
-function createInPageButton(text, targetId, options) {
-  if (typeof document === 'undefined') {
-    return null;
-  }
-  
-  const opts = options || {};
-  const button = document.createElement('button');
-  
-  // Set the type explicitly to avoid form submission side effects
-  button.type = 'button';
-  
-  // Set the accessible name
-  button.setAttribute('aria-label', opts.ariaLabel || text);
-  
-  // Use aria-controls to indicate the element the button controls/links to
-  if (targetId) {
-    button.setAttribute('aria-controls', targetId);
-  }
-  
-  // Set the text content
-  button.textContent = text;
-  
-  // Apply optional className
-  if (opts.className) {
-    button.className = opts.className;
-  }
-  
-  // Store the target id as a data attribute for handling clicks
-  if (targetId) {
-    button.setAttribute('data-target-id', targetId);
-    
-    // Attach a click handler that scrolls to the target and updates the URL hash
-    button.addEventListener('click', function(event) {
-      const targetElement = document.getElementById(targetId);
-      if (targetElement) {
-        // Prevent default to allow smooth scrolling behavior to be controlled
-        event.preventDefault();
-        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Update the URL hash without jumping
-        if (history && typeof history.pushState === 'function') {
-          history.pushState(null, '', '#' + targetId);
-        } else {
-          window.location.hash = targetId;
-        }
-        // Move focus to the target element if it's focusable, otherwise set tabindex
-        if (!targetElement.hasAttribute('tabindex')) {
-          targetElement.setAttribute('tabindex', '-1');
-        }
-        targetElement.focus({ preventScroll: true });
-      }
-    });
-  }
-  
-  return button;
-}
-
-function personName(name) {
-  if (typeof name !== 'string') {
-    return '';
-  }
-  return name.trim();
-}
-
-// Export all functions to make them available as module exports
-export {
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateSvgAccessibility,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  personName
-};
+  const desc =

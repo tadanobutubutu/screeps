@@ -1,9 +1,9 @@
 // Implement this function for ensuring unique landmarks (merged from both branches)
 function ensureUniqueLandmarks() {
   // Landmarks that should be unique on a page
-  const uniqueLandmarkSelectors = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
+  const uniqueSelectors = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
 
-  uniqueLandmarkSelectors.forEach(selector => {
+  uniqueSelectors.forEach(selector => {
     const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
       elements.forEach((element, index) => {
@@ -38,7 +38,7 @@ function ensureUniqueLandmarks() {
   });
 
   // Also ensure unique IDs and only one main landmark (from origin/main)
-  const landmarks = document.querySelectorAll('nav, main, aside, footer');
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
   const seenIds = new Set();
   const seenRoles = new Map();
 
@@ -92,7 +92,7 @@ function fixAccessibilityIssues() {
 
   // 3. REACT_017: Validate landmark and landmark structure issues
   validateLandmark();
-  validateLandmarkStructure();
+  ensureUniqueLandmarks();
 
   // 4. REACT_025: Ensure unique landmarks (addressing the 2 landmark uniqueness issues)
   ensureUniqueLandmarks();
@@ -269,7 +269,7 @@ function initializeAccessibility() {
 
   // Add/fix landmark issues
   validateLandmark();
-  validateLandmarkStructure();
+  ensureUniqueLandmarks();
 
   // Add accessible names to SVGs
   const svgElements = doc.querySelectorAll('svg');
@@ -297,14 +297,14 @@ export function renderGraph() {
   // Implementation for rendering graph content
   const graphContainer = document.getElementById('graph-container');
   if (graphContainer) {
-    graphContainer.innerHTML = '<div class="graph-content">Graph visualization would be rendered here</div>';
+    graphContainer.innerHTML = '<div class="graph-visualization">Graph visualization would be rendered here</div>';
     fixAccessibilityIssues();
   }
 }
 
 export function renderIndexContent() {
   // Implementation for rendering index content
-  const indexContainer = document.getElementById('index-container');
+  const indexContainer = document.getElementById('index-content-container');
   if (indexContainer) {
     indexContainer.innerHTML = '<div class="index-content">Index content would be rendered here</div>';
     fixAccessibilityIssues();

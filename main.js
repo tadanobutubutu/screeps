@@ -45,6 +45,12 @@ if (dependencyGraph) {
   if (!dependencyGraph.id) {
     dependencyGraph.id = 'dependencyGraph';
   }
+
+  // New function to handle credential response
+  handleCredentialResponse(response) {
+    // TODO: Implement the logic to handle the credential response
+    console.log('Handling credential response:', response);
+  }
 }
 
 const {

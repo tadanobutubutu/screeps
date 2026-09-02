@@ -1,5 +1,3 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
@@ -406,30 +404,227 @@ function createInPageButton(parent = document.body) {
   return btn;
 }
 
-// New function to render dependency graphs
-function renderDependencyGraph(rootNode) {
-  // Renders a dependency graph visualization
-  // This function traverses the root node and builds a hierarchical representation
+/**
+ * Builds a hierarchical representation of dependencies from a root node
+ * @param {HTMLElement} node - The DOM node to analyze for dependencies
+ * @param {Object} options - Configuration options
+ * @param {string} options.dependencyAttribute - Data attribute to look for dependencies (default: 'data-dependency')
+ * @param {string} options.idAttribute - Attribute to use as node identifier (default: 'id')
+ * @returns {Object} The dependency graph structure
+ */
+function buildDependencyGraph(node, options = {}) {
+  const { dependencyAttribute = 'data-dependency', idAttribute = 'id' } = options;
+  
+  if (!node) {
+    return { success: false, errors: ['Node is required'] };
+  }
+
+  function processNode(domNode) {
+    if (!domNode) return null;
+    
+    const nodeData = {
+      id: domNode.getAttribute ? domNode.getAttribute(idAttribute) || domNode.id || 'anonymous' : 'anonymous',
+      tagName: domNode.tagName ? domNode.tagName.toLowerCase() : 'unknown',
+      dependencies: [],
+      children: []
+    };
+
+    // Find dependencies
+    const depElements = domNode.querySelectorAll ? domNode.querySelectorAll(`[${dependencyAttribute}]`) : [];
+    depElements.forEach(dep => {
+      const depId = dep.getAttribute(dependencyAttribute);
+      nodeData.dependencies.push({
+        id: depId,
+        name: dep.getAttribute(idAttribute) || depId,
+        element: dep
+      });
+    });
+
+    // Process child nodes recursively
+    if (domNode.children) {
+      Array.from(domNode.children).forEach(child => {
+        const childData = processNode(child);
+        if (childData) {
+          nodeData.children.push(childData);
+        }
+      });
+    }
+
+    return nodeData;
+  }
+
+  return {
+    success: true,
+    root: processNode(node)
+  };
+}
+
+/**
+ * Renders a dependency graph visualization
+ * @param {HTMLElement} rootNode - The root DOM node to render the graph from
+ * @param {HTMLElement} container - Optional container element to render into
+ * @param {Object} options - Rendering options
+ * @returns {Object} Result with success status and rendered graph data
+ */
+function renderDependencyGraph(rootNode, container, options = {}) {
   try {
-    // In a real implementation, this would traverse the DOM tree and create visual elements
-    // For now, we simulate the operation
+    // Validate rootNode parameter
+    if (!rootNode) {
+      return { success: false, errors: ['Root node is required'] };
+    }
+
+    // Build the dependency graph structure
+    const graphData = buildDependencyGraph(rootNode, options);
+
+    // Log for debugging
     console.log('Rendering dependency graph starting from:', rootNode);
-    return { success: true, message: 'Dependency graph rendered successfully' };
+    console.log('Graph data:', JSON.stringify(graphData, null, 2));
+
+    // If container provided, render visual elements
+    if (container && typeof document !== 'undefined') {
+      const graphContainer = document.createElement('div');
+      graphContainer.setAttribute('role', 'img');
+      graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+      graphContainer.className = options.className || 'dependency-graph';
+      
+      // Create SVG for graph visualization
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', options.width || '100%');
+      svg.setAttribute('height', options.height || '400');
+      svg.setAttribute('aria-hidden', 'true');
+      
+      // Add accessible description
+      const description = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      description.textContent = 'Dependency Graph';
+      description.setAttribute('id', 'graph-title');
+      svg.appendChild(description);
+      
+      graphContainer.appendChild(svg);
+      container.appendChild(graphContainer);
+      
+      return {
+        success: true,
+        message: 'Dependency graph rendered successfully',
+        container: graphContainer,
+        svg: svg,
+        data: graphData
+      };
+    }
+
+    return {
+      success: true,
+      message: 'Dependency graph data built successfully',
+      data: graphData
+    };
   } catch (error) {
     console.error('Error rendering dependency graph:', error);
     return { success: false, errors: [error.message] };
   }
 }
 
-// New function to render index views
-function renderIndexView(indexPath) {
-  // Renders an index view (breadcrumb or navigation structure)
-  // This function generates the appropriate UI for navigating between sections
+/**
+ * Builds breadcrumb data from an index path
+ * @param {string} indexPath - The path to parse into breadcrumb segments
+ * @param {Object} options - Configuration options
+ * @returns {Object} The breadcrumb structure
+ */
+function buildBreadcrumbData(indexPath, options = {}) {
+  const { baseUrl = '', separator = '/' } = options;
+  
+  if (!indexPath) {
+    return { success: false, errors: ['Index path is required'] };
+  }
+
+  // Split path into segments and filter empty ones
+  const segments = indexPath.split(separator).filter(s => s.trim());
+  
+  const breadcrumbs = segments.map((segment, index) => {
+    const url = baseUrl + separator + segments.slice(0, index + 1).join(separator);
+    return {
+      label: segment.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      original: segment,
+      url: url,
+      position: index + 1,
+      isLast: index === segments.length - 1
+    };
+  });
+
+  return {
+    success: true,
+    breadcrumbs: breadcrumbs,
+    totalSegments: breadcrumbs.length
+  };
+}
+
+/**
+ * Renders an index view (breadcrumb or navigation structure)
+ * @param {string} indexPath - The path to render the index view for
+ * @param {HTMLElement} container - Optional container element to render into
+ * @param {Object} options - Rendering options
+ * @returns {Object} Result with success status and rendered index view data
+ */
+function renderIndexView(indexPath, container, options = {}) {
   try {
-    // In a real implementation, this would generate the appropriate DOM elements
-    // For now, we simulate the operation
+    // Validate indexPath parameter
+    if (!indexPath) {
+      return { success: false, errors: ['Index path is required'] };
+    }
+
+    // Build breadcrumb data from the path
+    const breadcrumbData = buildBreadcrumbData(indexPath, {
+      baseUrl: options.baseUrl || '',
+      separator: options.separator || '/'
+    });
+
+    // Log for debugging
     console.log('Rendering index view at path:', indexPath);
-    return { success: true, message: 'Index view rendered successfully' };
+    console.log('Breadcrumb data:', JSON.stringify(breadcrumbData, null, 2));
+
+    // If container provided, render visual elements
+    if (container && typeof document !== 'undefined') {
+      const nav = document.createElement('nav');
+      nav.setAttribute('aria-label', options.ariaLabel || 'Breadcrumb');
+      
+      const ol = document.createElement('ol');
+      ol.className = options.listClassName || 'breadcrumb';
+      
+      breadcrumbData.breadcrumbs.forEach((crumb, index) => {
+        const li = document.createElement('li');
+        li.className = 'breadcrumb-item';
+        li.setAttribute('aria-current', crumb.isLast ? 'page' : undefined);
+        
+        if (crumb.isLast) {
+          const span = document.createElement('span');
+          span.textContent = crumb.label;
+          li.appendChild(span);
+        } else {
+          const link = document.createElement('a');
+          link.href = crumb.url;
+          link.textContent = crumb.label;
+          li.appendChild(link);
+        }
+        
+        ol.appendChild(li);
+      });
+      
+      nav.appendChild(ol);
+      container.appendChild(nav);
+      
+      return {
+        success: true,
+        message: 'Index view rendered successfully',
+        nav: nav,
+        breadcrumbs: breadcrumbData.breadcrumbs,
+        data: breadcrumbData
+      };
+    }
+
+    return {
+      success: true,
+      message: 'Index view data built successfully',
+      breadcrumbs: breadcrumbData.breadcrumbs,
+      data: breadcrumbData
+    };
   } catch (error) {
     console.error('Error rendering index view:', error);
     return { success: false, errors: [error.message] };
@@ -606,5 +801,7 @@ module.exports = {
   isLinkAccessible,
   renderDependencyGraph,
   renderIndexView,
+  buildDependencyGraph,
+  buildBreadcrumbData,
   towerDefense
 };

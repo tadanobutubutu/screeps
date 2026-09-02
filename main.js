@@ -31,5 +31,10 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// TODO: Add the following function for demonstrating changes (leave the existing exports as-is)
+function addCustomFunction(a, b) {
+    return a + b;
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

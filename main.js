@@ -15,11 +15,15 @@ const port = PORT || 3000;
 
 // New function for getting the language attribute based on the content
 function getLangAttribute() {
-  // If the language is not explicitly set, determine the language based on the content
-  // Replace 'yourContentVariable' with the actual variable storing the content
   let lang = 'en'; // Default to English
 
   // Your code for detecting the language based on the content
+  // Add detection logic from both changes
+  if (/* your condition for the first change */) {
+    // Logic for the first change
+  } else {
+    // Logic for the second change
+  }
 
   return lang;
 }
@@ -27,33 +31,38 @@ function getLangAttribute() {
 // New function for validating table accessibility
 function validateTableAccessibility(table) {
   // Check 26 table structure issues
-  // Your code for validating the table accessibility
+  // Your code for validating the table accessibility combining both changes
+  if (/* condition for first change */) {
+    // Validation logic for the first change
+  }
+  if (/* condition for second change */) {
+    // Validation logic for the second change
+  }
 }
 
 // New function for validating table structure
 function validateTableStructure(table) {
   // Check the table structure and return a boolean value indicating the result
-  // Your code for validating the table structure
-
-  return true; // Set the default value to true
+  // Your updated code for validating the table structure combining both changes
+  // Use the existing default value of true if the checks pass
 }
 
 // New function for ensuring unique landmarks
 function ensureUniqueLandmarks() {
   // Check for 2 unique landmarks issues and resolve them
-  // Your code for ensuring unique landmarks
+  // Your updated code for ensuring unique landmarks combining both changes
 }
 
 // personName() should handle REACT_036: Fix 1 fake link issue
 function personName(name) {
-  // Your updated code for personName() function
+  // Your updated code for personName() function from both changes
 
   // Ensure the returned value is a valid link when appropriate
 }
 
 // createInPageButton() should help handle REACT_036: Fix 1 fake link issue
 function createInPageButton(text) {
-  // Your updated code for createInPageButton() function
+  // Your updated code for createInPageButton() function from both changes
 
   // Ensure the returned value is a valid link when appropriate
 }
@@ -121,6 +130,7 @@ const AddressabilityIssues = {
     const issues = [];
 
     insightReport.sections.forEach((section, index) => {
+      // Include checks for both changes
       if (!section.heading) {
         issues.push({
           type: 'missing-heading',

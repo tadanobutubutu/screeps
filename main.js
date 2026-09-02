@@ -239,6 +239,7 @@ function validateLandmark(element) {
 function validateLandmarkStructure() {
   // This function validates the structure of landmarks
   const errors = [];
+  const warnings = [];
 
   if (typeof document === 'undefined') {
     return { valid: false, errors: ['Document not available'] };
@@ -248,21 +249,101 @@ function validateLandmarkStructure() {
   const mainLandmarks = document.querySelectorAll('[role="main"], main');
   if (mainLandmarks.length > 1) {
     errors.push(`Found ${mainLandmarks.length} main landmarks, should have only 1`);
+  } else if (mainLandmarks.length === 0) {
+    warnings.push('No main landmark found - consider adding one for accessibility');
   }
 
   // Check for multiple banner landmarks
   const bannerLandmarks = document.querySelectorAll('[role="banner"], header');
   if (bannerLandmarks.length > 1) {
     errors.push(`Found ${bannerLandmarks.length} banner landmarks, should have only 1`);
+  } else if (bannerLandmarks.length == 0) {
+    warnings.push('No banner landmark found - consider adding one for page identification');
   }
 
   // Check for contentinfo (footer) landmarks
   const footerLandmarks = document.querySelectorAll('[role="contentinfo"], footer');
   if (footerLandmarks.length > 1) {
     errors.push(`Found ${footerLandmarks.length} contentinfo landmarks, should have only 1`);
+  } else if (footerLandmarks.length == 0) {
+    warnings.push('No contentinfo landmark found - consider adding one for footer information');
   }
 
-  return { valid: errors.length === 0, errors };
+  // Check for navigation landmarks with accessible names
+  const navLandmarks = document.querySelectorAll('[role="navigation"], nav');
+  navLandmarks.forEach((nav, index) => {
+    const hasLabel = nav.getAttribute('aria-label') ||
+                     nav.getAttribute('aria-labelledby') ||
+                     nav.querySelector('h1, h2, h3, h4, h5, h6');
+    if (!hasLabel && navLandmarks.length > 1) {
+      errors.push(`Navigation landmark at index ${index} is missing accessible name (required when multiple nav elements exist)`);
+    }
+  });
+
+  // Check for search landmark
+  const searchLandmarks = document.querySelectorAll('[role="search"], [role="search"]');
+  searchLandmarks.forEach((search, index) => {
+    const hasLabel = search.getAttribute('aria-label') ||
+                     search.getAttribute('aria-labelledby');
+    if (!hasLabel) {
+      warnings.push(`Search landmark at index ${index} may benefit from an accessible name`);
+    }
+  });
+
+  // Check for landmark hierarchy violations
+  // Banner and contentinfo should not be inside other landmarks
+  bannerLandmarks.forEach((banner) => {
+    const parentMain = banner.closest('main, [role="main"]');
+    const parentComplementary = banner.closest('[role="complementary"], aside');
+    if (parentMain || parentComplementary) {
+      errors.push('Banner landmark should not be nested inside main or complementary landmarks');
+    }
+  });
+
+  footerLandmarks.forEach((footer) => {
+    const parentMain = footer.closest('main, [role="main"]');
+    const parentComplementary = footer.closest('[role="complementary"], aside');
+    if (parentMain || parentComplementary) {
+      errors.push('Contentinfo landmark should not be nested inside main or complementary landmarks');
+    }
+  });
+
+  // Check for complementary landmark (aside)
+  const complementaryLandmarks = document.querySelectorAll('[role="complementary"], aside');
+  complementaryLandmarks.forEach((comp, index) => {
+    const hasLabel = comp.getAttribute('aria-label') ||
+                     comp.getAttribute('aria-labelledby') ||
+                     comp.querySelector('h1, h2, h3, h4, h5, h6');
+    if (!hasLabel) {
+      warnings.push(`Complementary landmark at index ${index} may benefit from an accessible name`);
+    }
+  });
+
+  // Check for form landmarks with labels
+  const formLandmarks = document.querySelectorAll('[role="form"]');
+  formLandmarks.forEach((form, index) => {
+    const hasLabel = form.getAttribute('aria-label') ||
+                     form.getAttribute('aria-labelledby') ||
+                     form.querySelector('h1, h2, h3, h4, h5, h6, legend');
+    if (!hasLabel) {
+      warnings.push(`Form landmark at index ${index} may benefit from an accessible name for clarity`);
+    }
+  });
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    warnings,
+    summary: {
+      mainLandmarks: mainLandmarks.length,
+      bannerLandmarks: bannerLandmarks.length,
+      footerLandmarks: footerLandmarks.length,
+      navLandmarks: navLandmarks.length,
+      searchLandmarks: searchLandmarks.length,
+      complementaryLandmarks: complementaryLandmarks.length,
+      formLandmarks: formLandmarks.length
+    }
+  };
 }
 
 // New function to address REACT_041: Add accessible names to 2 SVGs
@@ -468,6 +549,20 @@ function isLinkAccessible(link) {
   }
 
   return { valid: errors.length === 0, errors };
+}
+
+// TODO: Validate the landmark structure for accessibility issues
+function renderDependencyGraph() {
+  // Function to render a dependency graph (placeholder)
+  console.log('Rendering dependency graph');
+  return '<div class="dependency-graph">Dependency Graph</div>';
+}
+
+// New function to render the index view
+function renderIndexView() {
+  // Function to render the index view (placeholder)
+  console.log('Rendering index view');
+  return '<div class="index-view">Index View</div>';
 }
 
 // TODO: Implement tower defense

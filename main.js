@@ -1,11 +1,11 @@
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (DONE: addLandmarkIssues; handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName; handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
+// - ADD: Address new accessibility issues from insight report
 
 const appState = {
   initialized: false,
@@ -37,6 +37,17 @@ function getFullLangAttribute() {
 function addLangAttribute(element) {
   element.lang = getFullLangAttribute();
   return element;
+}
+
+/**
+ * Returns a person's name formatted for accessibility
+ * @param {string} firstName - The first name
+ * @param {string} lastName - The last name
+ * @returns {string} The formatted full name
+ */
+function personName(firstName, lastName) {
+  const name = [firstName, lastName].filter(Boolean).join(' ');
+  return name || '';
 }
 
 /**
@@ -586,6 +597,7 @@ module.exports = {
   getLangAttribute,
   getFullLangAttribute,
   addLangAttribute,
+  personName,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,

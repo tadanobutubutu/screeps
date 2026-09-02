@@ -1,41 +1,60 @@
-// TODO: This is the existing code that needs to be preserved
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-// _Commit: dec99b86b66013fcd30722b40439605891dd0ad1_
-// _Commit: ca07afdb3852933670d8d59e11575814d1bda9e5_
-// <!-- todo-hash: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
+const main = require('./utilities')
 
-// TODO: Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-
-// Import necessary dependencies
-import React from 'react'
-import { render } from 'react-dom'
-import {
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
   ensureElementHasId,
+  ensureElementHasIdOrigin,
   addAriaLabel,
   renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
+  validateTableStructureForAccessibility,
+  implementAccessibilityFixesFromReport,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixFakeLinkIssues,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  accessibilityUtils,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  googleSignIn,
+  decodeJwtResponse,
   renderDependencyGraph,
-  renderIndex
-} from './AccessibilityHelpers'
+  fixLandmarkIssues,
+  validateTableAccessibility,
+  validateTableStructure,
+  initializeAccessibility,
+  renderIndex,
+  newFunction,
+  validateHeadingHierarchy,
+  ensureHeadingHierarchy,
+  renderAdditionalContent
+} = require('./AccessibilityHelpers')
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = ...
@@ -103,26 +122,103 @@ function validateTableStructure (tableData) {
 
 // Other code...
 
-// Preserve all existing exports
-module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  validateTableAccessibility,
-  validateTableStructure
-  // Preserve any other existing exports here
+function validateTableStructure(container) {
+  return validateTableStructureForAccessibility(container);
 }
 
-// New function or changes requested in the issue
+function validateHeadingHierarchy(headings) {
+  // Implementation placeholder - function to be implemented
+  return true
+}
+
+function ensureHeadingHierarchy(container) {
+  if (!container) return null;
+
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+
+  headings.forEach(heading => {
+    const currentLevel = parseInt(heading.tagName.substring(1), 10);
+    if (previousLevel > 0 && currentLevel - previousLevel > 1) {
+      // Fix skipped heading levels by promoting or demoting as needed
+      const correctedLevel = previousLevel + 1;
+      const newHeading = document.createElement(`h${correctedLevel}`);
+      newHeading.innerHTML = heading.innerHTML;
+      newHeading.className = heading.className;
+      heading.parentNode.replaceChild(newHeading, heading);
+      previousLevel = correctedLevel;
+    } else {
+      previousLevel = currentLevel;
+    }
+  });
+
+  return container;
+}
+
 /**
  * New function to handle additional rendering logic
  * @param {Object} additionalData - Additional data for rendering
  * @returns {string} Rendered additional content HTML
  */
-function renderAdditionalContent (additionalData) {
+function renderAdditionalContent(additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
   return ...
 }
 
-// Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent
+module.exports = {
+  ...main,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
+  validateTableStructureForAccessibility,
+  implementAccessibilityFixesFromReport,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixFakeLinkIssues,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  accessibilityUtils,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  googleSignIn,
+  decodeJwtResponse,
+  renderDependencyGraph,
+  fixLandmarkIssues,
+  validateTableAccessibility,
+  validateTableStructure,
+  initializeAccessibility,
+  renderIndex,
+  newFunction,
+  validateHeadingHierarchy,
+  ensureHeadingHierarchy,
+  renderAdditionalContent
+};

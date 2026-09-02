@@ -5,8 +5,6 @@
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: ... -->
 
-// TODO: Implement new function3 logic here
-
 // main.js - Accessibility Issue Handler
 
 // TODO: Implement function for addressing accessibility issues from insight report

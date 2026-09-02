@@ -665,29 +665,35 @@ async function handleCredentialResponse(response) {
   // Implement the logic to handle the credential response
   // This function should be called when a credential response is received
   // For example, you might parse the response, validate it, and then store or use the credentials
-  
+
   try {
     // Check if response is ok
-    if (response.ok) {
+    if (response && response.ok) {
       console.log('Handling credential response:', response);
-      
+
       // Try to parse JSON response
       const json = await response.json();
-      
+
       // If credentials are present in the response, set them
       if (json && typeof json === 'object' && 'credentials' in json) {
         const credentials = json.credentials;
-        if (Array.isArray(credentials)) {
-          // Set cookies based on credentials
-          Object.entries(credentials).forEach(([key, value]) => {
-            if (value) {
-              document.cookie = `${key}=${value}; path=/`;
+        if (credentials && typeof credentials === 'object') {
+          const credItems = Array.isArray(credentials) ? credentials : [credentials];
+          credItems.forEach(cred => {
+            if (cred && typeof cred === 'object') {
+              Object.entries(cred).forEach(([key, value]) => {
+                if (value) {
+                  document.cookie = `${key}=${value}; path=/`;
+                }
+              });
             }
           });
         }
       }
+
+      return json;
     } else {
-      console.warn('Credential response is not OK:', response.status);
+      console.warn('Credential response is not OK:', response ? response.status : 'no response');
     }
   } catch (error) {
     console.error('Error handling credential response:', error);

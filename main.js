@@ -1,5 +1,3 @@
-`
-
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
@@ -138,6 +136,8 @@ function validateLandmarkStructure(landmarks) {
       if (role === 'navigation') hasNavigation = true;
     });
 
+    // Handle accessibility issues from insight report:
+    // - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), addLandmarkRolesAndFixIssues(), and fixLandmarkIssues())
     if (!hasMain) {
       issues.push('Missing main landmark');
     }
@@ -288,6 +288,9 @@ function validateTableAccessibility(table) {
       issues.push('Missing scope attribute on header cell');
     }
   });
+
+  // Handle accessibility issues from insight report:
+  // - REACT_027: Fix 26 table structure issues (handled by fixTableStructureIssues() and fixTableHeaderCellScope())
 
   return {
     success: issues.length === 0,
@@ -440,25 +443,27 @@ function processData(data) {
   };
 }
 
+// Export all functions from both branches
 module.exports = {
-    getLangAttribute,
-    getFullLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    ensureUniqueLandmarks,
-    getSvgAccessibleName,
-    createInPageButton,
-    createAccessibleLink,
-    handleAccessibilityIssues,
-    initializeApp,
-    getConfig,
-    validateInput,
-    processData,
-    addLandmarkRegions,
-    setSvgAttributes,
-    validateFormInputs,
-    isValidEmail,
-    isValidUrl
+  getLangAttribute,
+  getFullLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  initializeApp,
+  getConfig,
+  validateInput,
+  processData,
+  addLandmarkRegions,
+  validateFormInputs,
+  isValidEmail,
+  isValidUrl
 };

@@ -7,7 +7,7 @@
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
 // Add the new function for generating a report
 function generateAccessibilityReport() {
@@ -418,7 +418,7 @@ function createAccessibleBookForm(options) {
     fields: [],
     submitButton: createInPageButton({
       text: 'Submit Book',
-      ariaLabel: `Submit ${options.title} form',
+      ariaLabel: `Submit ${options.title} form`,
       onClick: options.onSubmit
     })
   };

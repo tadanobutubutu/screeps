@@ -115,9 +115,9 @@ function ensureLandmarkUniqueness(elements) {
     for (const landmark of elements) {
       if (landmark.id) {
         if (elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
+            elementsById[landmark.id] = true;
         } else {
-          landmark.id += '_duplicate';
+            landmark.id += '_duplicate';
         }
       }
     }
@@ -334,6 +334,28 @@ function initApp() {
   registerSW();
 }
 
+// Render dependency graph content or mark as N/A if none exist
+function renderDependencyGraphContentOrNA() {
+  const container = document.getElementById('dependencyGraph');
+  if (!container) {
+    // Mark as N/A - container doesn't exist
+    return;
+  }
+
+  // Check if there are any dependencies to render
+  const dependencies = countDependencies();
+  if (!dependencies || dependencies.length === 0) {
+    // Mark as N/A - no dependencies exist
+    container.setAttribute('aria-live', 'polite');
+    container.textContent = 'N/A';
+    return;
+  }
+
+  // Render the dependency graph with available dependencies
+  renderDependencyGraph(container);
+  renderIndexView(container);
+}
+
 // Export functions for testing
 export {
   checkLandmarkElement,
@@ -365,5 +387,6 @@ export {
   validateLandmarkStructure,
   getSvgAccessibleName,
   validateUniqueLandmarks,
-  createInPageButton
+  createInPageButton,
+  renderDependencyGraphContentOrNA
 };

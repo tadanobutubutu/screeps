@@ -531,6 +531,50 @@ function towerDefense() {
   };
 }
 
+/**
+ * Renders a dependency graph based on provided data
+ * @param {Array} data - Array of nodes with id and dependencies
+ * @param {string|HTMLElement} container - Container element or selector
+ * @returns {HTMLElement} The rendered graph element
+ */
+function renderDependencyGraph(data, container) {
+  if (typeof document === 'undefined') return null;
+  const containerEl = typeof container === 'string' ? document.querySelector(container) : container;
+  if (!containerEl) return null;
+  containerEl.innerHTML = '';
+  const graph = document.createElement('div');
+  graph.className = 'dependency-graph';
+  data.forEach(node => {
+    const nodeEl = document.createElement('div');
+    nodeEl.className = 'dependency-node';
+    nodeEl.textContent = node.id;
+    graph.appendChild(nodeEl);
+  });
+  containerEl.appendChild(graph);
+  return graph;
+}
+
+/**
+ * Renders an index view (list) based on provided data
+ * @param {Array} data - Array of items to display
+ * @param {string|HTMLElement} container - Container element or selector
+ * @returns {HTMLElement} The rendered list element
+ */
+function renderIndexView(data, container) {
+  if (typeof document === 'undefined') return null;
+  const containerEl = typeof container === 'string' ? document.querySelector(container) : container;
+  if (!containerEl) return null;
+  containerEl.innerHTML = '';
+  const list = document.createElement('ul');
+  data.forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = item;
+    list.appendChild(li);
+  });
+  containerEl.appendChild(list);
+  return list;
+}
+
 // Export all functions to maintain current exports
 module.exports = {
   createInPageButton,
@@ -546,5 +590,7 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
-  towerDefense
+  towerDefense,
+  renderDependencyGraph,
+  renderIndexView
 };

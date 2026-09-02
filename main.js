@@ -1,6 +1,3 @@
-Here is the resolved file content, integrating both changes:
-
-```javascript
 // TODO: This is the modified and merged code
 // This is the existing code that needs to be preserved in main.js
 // Address accessibility issues from insight report
@@ -10,7 +7,7 @@ Here is the resolved file content, integrating both changes:
  * Main entry point for the Screeps bot.
  * Handles core game logic and integration points.
  */
-class ScreepsBot {
+class ScreetsBot {
   // ... (Existing code)
 
   // New feature: Priority-based task scheduling
@@ -103,12 +100,12 @@ class ScreepsBot {
     return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
   }
 
-  validateTableAccessibility(tableElement) {
-    // ... (Merged code)
+  validateTableAccessibility(tableData) {
+    return main.validateTableAccessibility(tableData);
   }
 
-  validateTableStructure(tableElement) {
-    // ... (Merged code)
+  validateTableStructure(tableData) {
+    return mainReady.validateTableStructure(tableData);
   }
 
   addAccessibleName(svgElement) {
@@ -149,22 +146,4 @@ function announceToScreenReader(message, priority = 'polite') {
     announcer.setAttribute('aria-atomic', 'true');
     announcer.className = 'sr-only';
     announcer.style.position = 'absolute';
-    announcer.style.left = '-10000px';
-    announcer.style.width = '1px';
-    announcer.style.height = '1px';
-    announcer.style.overflow = 'hidden';
-    document.body.appendChild(announcer);
-  }
-  announcer.setAttribute('aria-live', priority);
-  announcer.textContent = '';
-  setTimeout(() => {
-    announcer.textContent = message;
-  }, 100);
-}
-
-// Accessibility helper functions (Moved from another file)
-
-// ... (Merged code)
-
-// ... (Existing code)
-```
+    announcer.style.left = '-100

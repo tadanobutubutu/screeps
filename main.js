@@ -299,6 +299,20 @@ function newFunction3() {
     console.log('New function3 logic implemented.');
 }
 
+// Function to count dependencies
+function countDependencies() {
+    const scripts = document.getElementsByTagName('script');
+    let count = 0;
+    
+    for (let i = 0; i < scripts.length; i++) {
+        if (scripts[i].src && scripts[i].src.trim() !== '') {
+            count++;
+        }
+    }
+    
+    return count;
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };
 

@@ -229,6 +229,188 @@ const AddressabilityIssues = {
     if (indexContainer) {
       indexContainer.innerHTML = indexContent;
     }
+  },
+
+  checkLinkAndButtonAccessibility(container) {
+    const issues = [];
+
+    if (typeof document === 'undefined' && !container) {
+      return issues;
+    }
+
+    const targetContainer = container || document;
+    const elements = targetContainer.querySelectorAll ? targetContainer : (Array.isArray(targetContainer) ? targetContainer : [targetContainer]);
+
+    const nonDescriptiveLinkPatterns = [
+      'click here',
+      'read more',
+      'learn more',
+      'here',
+      'link',
+      'more',
+      'details',
+      'this',
+      'continue'
+    ];
+
+    const getElementText = (element) => {
+      if (!element) return '';
+      if (typeof element.textContent !== 'undefined') {
+        return element.textContent.trim();
+      }
+      return '';
+    };
+
+    const getAccessibleName = (element) => {
+      if (!element) return '';
+
+      if (element.hasAttribute && element.hasAttribute('aria-label')) {
+        return element.getAttribute('aria-label');
+      }
+
+      if (element.hasAttribute && element.hasAttribute('aria-labelledby')) {
+        const labelledById = element.getAttribute('aria-labelledby');
+        if (typeof document !== 'undefined' && document.getElementById) {
+          const labelElement = document.getElementById(labelledById);
+          if (labelElement) {
+            return labelElement.textContent.trim();
+          }
+        }
+      }
+
+      return getElementText(element);
+    };
+
+    const checkLink = (link) => {
+      const linkText = getElementText(link).toLowerCase();
+      const accessibleName = getAccessibleName(link);
+      const href = link.getAttribute ? link.getAttribute('href') : '';
+
+      if (!accessibleName || accessibleName === '') {
+        issues.push({
+          type: 'link-missing-accessible-name',
+          severity: 'high',
+          element: 'a',
+          message: 'Link is missing an accessible name',
+          suggestedFix: 'Add descriptive text or aria-label to the link',
+          elementReference: link
+        });
+      } else {
+        for (const pattern of nonDescriptiveLinkPatterns) {
+          if (linkText === pattern || linkText.startsWith(pattern + ' ') || linkText.endsWith(' ' + pattern)) {
+            issues.push({
+              type: 'link-non-descriptive-text',
+              severity: 'medium',
+              element: 'a',
+              message: `Link text "${accessibleName}" is not descriptive`,
+              suggestedFix: 'Use descriptive link text that explains the link destination',
+              elementReference: link
+            });
+            break;
+          }
+        }
+      }
+
+      if (href === '#' || href === '' || href === 'javascript:void(0)' || href === 'javascript:;') {
+        issues.push({
+          type: 'link-empty-href',
+          severity: 'low',
+          element: 'a',
+          message: 'Link has an empty or placeholder href attribute',
+          suggestedFix: 'Use a meaningful href or remove the link if it has no destination',
+          elementReference: link
+        });
+      }
+    };
+
+    const checkButton = (button) => {
+      const buttonText = getElementText(button);
+      const accessibleName = getAccessibleName(button);
+
+      if (!accessibleName || accessibleName === '') {
+        issues.push({
+          type: 'button-missing-accessible-name',
+          severity: 'high',
+          element: 'button',
+          message: 'Button is missing an accessible name',
+          suggestedFix: 'Add descriptive text, aria-label, or aria-labelledby to the button',
+          elementReference: button
+        });
+      }
+
+      if (buttonText.length > 100) {
+        issues.push({
+          type: 'button-text-too-long',
+          severity: 'low',
+          element: 'button',
+          message: `Button text is very long (${buttonText.length} characters)`,
+          suggestedFix: 'Consider using a shorter, more concise button label',
+          elementReference: button
+        });
+      }
+    };
+
+    const checkImageLink = (link) => {
+      const images = link.querySelector ? link.querySelectorAll('img') : [];
+      const linkText = getElementText(link);
+
+      if (images.length > 0 && linkText === '') {
+        const allImagesHaveAlt = Array.from(images).every(img => {
+          const alt = img.getAttribute ? img.getAttribute('alt') : '';
+          return alt !== null && alt !== undefined;
+        });
+
+        if (!allImagesHaveAlt) {
+          issues.push({
+            type: 'image-link-missing-alt',
+            severity: 'high',
+            element: 'a',
+            message: 'Link containing image(s) has image(s) without alt attributes',
+            suggestedFix: 'Add alt attributes to all images within the link',
+            elementReference: link
+          });
+        }
+      }
+    };
+
+    const processElements = (els) => {
+      els.forEach(element => {
+        if (!element || !element.tagName) return;
+
+        const tagName = element.tagName.toLowerCase();
+
+        if (tagName === 'a') {
+          checkLink(element);
+          checkImageLink(element);
+        } else if (tagName === 'button') {
+          checkButton(element);
+        }
+
+        if (element.querySelectorAll) {
+          const childLinks = element.querySelectorAll('a');
+          const childButtons = element.querySelectorAll('button');
+
+          childLinks.forEach(checkLink);
+          childButtons.forEach(checkButton);
+        }
+      });
+    };
+
+    if (targetContainer.querySelectorAll) {
+      const allLinks = targetContainer.querySelectorAll('a');
+      const allButtons = targetContainer.querySelectorAll('button');
+
+      allLinks.forEach(link => {
+        checkLink(link);
+        checkImageLink(link);
+      });
+
+      allButtons.forEach(checkButton);
+    } else if (Array.isArray(targetContainer) || targetContainer.length !== undefined) {
+      processElements(elements);
+    }
+
+    return issues;
   }
 };
 
@@ -839,6 +1021,188 @@ function calculateAccessibilityScore() {
   return AddressabilityIssues.calculateAccessibilityScore(fixedIssues);
 }
 
+function checkLinkAndButtonAccessibility(container) {
+  const issues = [];
+
+  if (typeof document === 'undefined' && !container) {
+    return issues;
+  }
+
+  const targetContainer = container || document;
+  const elements = targetContainer.querySelectorAll ? targetContainer : (Array.isArray(targetContainer) ? targetContainer : [targetContainer]);
+
+  const nonDescriptiveLinkPatterns = [
+    'click here',
+    'read more',
+    'learn more',
+    'here',
+    'link',
+    'more',
+    'details',
+    'this',
+    'continue'
+  ];
+
+  const getElementText = (element) => {
+    if (!element) return '';
+    if (typeof element.textContent !== 'undefined') {
+      return element.textContent.trim();
+    }
+    return '';
+  };
+
+  const getAccessibleName = (element) => {
+    if (!element) return '';
+
+    if (element.hasAttribute && element.hasAttribute('aria-label')) {
+      return element.getAttribute('aria-label');
+    }
+
+    if (element.hasAttribute && element.hasAttribute('aria-labelledby')) {
+      const labelledById = element.getAttribute('aria-labelledby');
+      if (typeof document !== 'undefined' && document.getElementById) {
+        const labelElement = document.getElementById(labelledById);
+        if (labelElement) {
+          return labelElement.textContent.trim();
+        }
+      }
+    }
+
+    return getElementText(element);
+  };
+
+  const checkLink = (link) => {
+    const linkText = getElementText(link).toLowerCase();
+    const accessibleName = getAccessibleName(link);
+    const href = link.getAttribute ? link.getAttribute('href') : '';
+
+    if (!accessibleName || accessibleName === '') {
+      issues.push({
+        type: 'link-missing-accessible-name',
+        severity: 'high',
+        element: 'a',
+        message: 'Link is missing an accessible name',
+        suggestedFix: 'Add descriptive text or aria-label to the link',
+        elementReference: link
+      });
+    } else {
+      for (const pattern of nonDescriptiveLinkPatterns) {
+        if (linkText === pattern || linkText.startsWith(pattern + ' ') || linkText.endsWith(' ' + pattern)) {
+          issues.push({
+            type: 'link-non-descriptive-text',
+            severity: 'medium',
+            element: 'a',
+            message: `Link text "${accessibleName}" is not descriptive`,
+            suggestedFix: 'Use descriptive link text that explains the link destination',
+            elementReference: link
+          });
+          break;
+        }
+      }
+    }
+
+    if (href === '#' || href === '' || href === 'javascript:void(0)' || href === 'javascript:;') {
+      issues.push({
+        type: 'link-empty-href',
+        severity: 'low',
+        element: 'a',
+        message: 'Link has an empty or placeholder href attribute',
+        suggestedFix: 'Use a meaningful href or remove the link if it has no destination',
+        elementReference: link
+      });
+    }
+  };
+
+  const checkButton = (button) => {
+    const buttonText = getElementText(button);
+    const accessibleName = getAccessibleName(button);
+
+    if (!accessibleName || accessibleName === '') {
+      issues.push({
+        type: 'button-missing-accessible-name',
+        severity: 'high',
+        element: 'button',
+        message: 'Button is missing an accessible name',
+        suggestedFix: 'Add descriptive text, aria-label, or aria-labelledby to the button',
+        elementReference: button
+      });
+    }
+
+    if (buttonText.length > 100) {
+      issues.push({
+        type: 'button-text-too-long',
+        severity: 'low',
+        element: 'button',
+        message: `Button text is very long (${buttonText.length} characters)`,
+        suggestedFix: 'Consider using a shorter, more concise button label',
+        elementReference: button
+      });
+    }
+  };
+
+  const checkImageLink = (link) => {
+    const images = link.querySelector ? link.querySelectorAll('img') : [];
+    const linkText = getElementText(link);
+
+    if (images.length > 0 && linkText === '') {
+      const allImagesHaveAlt = Array.from(images).every(img => {
+        const alt = img.getAttribute ? img.getAttribute('alt') : '';
+        return alt !== null && alt !== undefined;
+      });
+
+      if (!allImagesHaveAlt) {
+        issues.push({
+          type: 'image-link-missing-alt',
+          severity: 'high',
+          element: 'a',
+          message: 'Link containing image(s) has image(s) without alt attributes',
+          suggestedFix: 'Add alt attributes to all images within the link',
+          elementReference: link
+        });
+      }
+    }
+  };
+
+  const processElements = (els) => {
+    els.forEach(element => {
+      if (!element || !element.tagName) return;
+
+      const tagName = element.tagName.toLowerCase();
+
+      if (tagName === 'a') {
+        checkLink(element);
+        checkImageLink(element);
+      } else if (tagName === 'button') {
+        checkButton(element);
+      }
+
+      if (element.querySelectorAll) {
+        const childLinks = element.querySelectorAll('a');
+        const childButtons = element.querySelectorAll('button');
+
+        childLinks.forEach(checkLink);
+        childButtons.forEach(checkButton);
+      }
+    });
+  };
+
+  if (targetContainer.querySelectorAll) {
+    const allLinks = targetContainer.querySelectorAll('a');
+    const allButtons = targetContainer.querySelectorAll('button');
+
+    allLinks.forEach(link => {
+      checkLink(link);
+      checkImageLink(link);
+    });
+
+    allButtons.forEach(checkButton);
+  } else if (Array.isArray(targetContainer) || targetContainer.length !== undefined) {
+    processElements(elements);
+  }
+
+  return issues;
+}
+
 initializeGameData();
 
 app.get('/', (req, res) => {
@@ -942,7 +1306,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getLangAttribute,
     checkAccessibilityIssues,
     triggerEvent,
-    newFunction
+    newFunction,
+    checkLinkAndButtonAccessibility
   };
 } else if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {

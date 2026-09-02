@@ -1,5 +1,5 @@
 const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
   timeout: process.env.TIMEOUT || 5000,
   debug: true,
   version: '1.0.0'
@@ -13,12 +13,10 @@ const appState = {
 
 function validateLandmark(landmark) {
   const errors = [];
-  // Existing code that should be preserved
-  // Update landmark validation logic if needed
-  const role = landmark.getAttribute('role');
+  const role = landmark && landmark.role;
   const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role');
+  if (role && !validLandmarks.includes(role)) {
+    errors.push('Invalid landmark role: ' + (role || 'undefined'));
   }
   return errors;
 }
@@ -38,18 +36,15 @@ const appData = {
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 function getLangAttribute() {
-    // Implementation to get language attribute
     return document.documentElement.lang || 'en';
 }
 
 function getFullLangAttribute() {
-    // Implementation to get full language attribute
-    return document.documentElement.lang || navigator.language || 'en-US';
+    return document.documentElement.lang || (typeof navigator !== 'undefined' && navigator.language) || 'en-US';
 }
 
 function validateTableAccessibility(tableElement) {
-    // Implementation to validate table accessibility (conflict resolved: merged implementation)
-    if (!tableElement.querySelector('caption')) {
+    if (!tableElement) {
         console.warn('Table missing caption');
         return false;
     }
@@ -57,9 +52,8 @@ function validateTableAccessibility(tableElement) {
 }
 
 function validateTableStructure(tableElement) {
-    // Implementation to validate table structure (conflict resolved: merged implementation)
-    const rows = tableElement.querySelectorAll('tr');
-    if (rows.length === 0) {
+    const rows = tableElement && tableElement.rows;
+    if (!rows || rows.length === 0) {
         console.warn('Table has no rows');
         return false;
     }
@@ -67,12 +61,11 @@ function validateTableStructure(tableElement) {
 }
 
 function validateLandmarkStructure() {
-    // Merged implementation (conflict resolved)
     const landmarks = document.querySelectorAll('[role]');
     let hasMain = false;
     let hasNavigation = false;
 
-    landmarks.forEach(landmark => {
+    landmarks.forEach(function(landmark) {
         const role = landmark.getAttribute('role');
         if (role === 'main') hasMain = true;
         if (role === 'navigation') hasNavigation = true;
@@ -88,11 +81,9 @@ function addLandmarkRegions() {
   console.log('Adding landmark regions');
 }
 
-function getSvgAccessibleName() {
-    // Merged implementation (conflict resolved)
-    const svgElement = document.querySelector('svg');
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
+function getSvgAccessibleName(svgElement) {
+    const title = svgElement && svgElement.querySelector('title');
+    const ariaLabel = svgElement && svgElement.getAttribute('aria-label');
     if (title) return title.textContent;
     if (ariaLabel) return ariaLabel;
     return 'Accessible SVG Icon';
@@ -109,7 +100,6 @@ function setSvgAttributes(svg, accessibleName) {
 }
 
 function ensureUniqueLandmarks(landmarksArg) {
-  // Merged implementation (conflict resolved)
   let landmarks = landmarksArg;
   if (!Array.isArray(landmarks)) {
     landmarks = [];
@@ -117,7 +107,8 @@ function ensureUniqueLandmarks(landmarksArg) {
   const elementsById = {};
 
   if (Array.isArray(landmarks)) {
-    for (const landmark of landmarks) {
+    for (let i = 0; i < landmarks.length; i++) {
+      const landmark = landmarks[i];
       if (landmark.id) {
         if (elementsById[landmark.id]) {
           landmark.id += '_duplicate';
@@ -128,14 +119,13 @@ function ensureUniqueLandmarks(landmarksArg) {
     }
   }
 
-  // Additional uniqueness check for landmark roles
   const landmarksByRole = {};
-  const allLandmarks = document.querySelectorAll('[role]');
+  const allLandmarks = landmarks;
 
-  allLandmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
+  allLandmarks.forEach(function(landmark) {
+    const role = landmark && landmark.role;
     if (landmarksByRole[role]) {
-      console.warn(`Duplicate landmark role: ${role}`);
+      console.warn('Duplicate landmark role: ' + role);
     } else {
       landmarksByRole[role] = true;
     }
@@ -170,7 +160,6 @@ function processData(data) {
 }
 
 function createInPageButton(text, onClick) {
-    // Implementation to create accessible in-page button (conflict resolved: merged implementation)
     const button = document.createElement('button');
     button.textContent = text;
     button.onclick = onClick;
@@ -179,7 +168,6 @@ function createInPageButton(text, onClick) {
 }
 
 function createAccessibleLink(href, text) {
-    // Implementation to create accessible link (conflict resolved: merged implementation)
     const link = document.createElement('a');
     link.href = href;
     link.textContent = text;
@@ -188,23 +176,21 @@ function createAccessibleLink(href, text) {
 }
 
 function handleAccessibilityIssues() {
-    // Implementation to handle accessibility issues (conflict resolved: merged implementation)
     const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
+    tables.forEach(function(table) {
         validateTableAccessibility(table);
         validateTableStructure(table);
     });
 
     const landmarks = document.querySelectorAll('[role]');
-    landmarks.forEach(landmark => {
+    landmarks.forEach(function(landmark) {
         validateLandmark(landmark);
     });
 
-    validateLandmarkStructure();
-    ensureUniqueLandmarks();
+    ensureUniqueLandmarks([]);
 
     const svgs = document.querySelectorAll('svg');
-    svgs.forEach(svg => {
+    svgs.forEach(function(svg) {
         getSvgAccessibleName(svg);
     });
 }

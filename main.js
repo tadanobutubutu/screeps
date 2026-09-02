@@ -36,7 +36,7 @@ function spawnEntity(entityType, position, properties = {}) {
   };
 
   // Additional initialization based on entity type
-  switch (entityType.toLowerCase()) {
+  switch (entityType) {
     case 'player':
       entity.inventory = properties.inventory || [];
       entity.score = properties.score || 0;
@@ -87,7 +87,7 @@ function newFunction() {
 function addLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;
     return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-        if (/\blang=/i.test(match)) return match;
+        if (/lang=/i.test(attrs)) return match;
         return `<html${attrs} lang="${lang}">`;
     });
 }
@@ -97,37 +97,37 @@ function fixTableStructure(html) {
     if (typeof html !== 'string') return html;
 
     // Ensure every table has a caption
-    html = html.replace(/<table([^>]*)>/gi, (match, attrs) => {
+    html = html.replace(/(<table([^>]*)>)/gi, (match, attrs) => {
         if (/<caption/i.test(match)) return match;
-        return `<table${attrs}><caption></caption>`;
+        return `<table${attrs}><caption>Table</caption>`;
     });
 
     // Close caption and wrap rows in thead/tbody where missing
-    html = html.replace(/<table([^>]*)>([\s\S]*?)<\/table>/gi, (match, attrs, content) => {
+    html = html.replace(/(<table([^>]*)>)([\s\S]*?)(<\/table>)/gi, (match, openTag, attrs, content) => {
         if (/<thead/i.test(content)) return match;
         const rows = content.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
         if (rows.length === 0) return match;
         const firstRows = rows.slice(0, 1).join('');
         const restRows = rows.slice(1).join('');
-        const thPattern = /<td>/gi;
+        const thPattern = /<th[^>]*>/gi;
         const firstRowHasTh = thPattern.test(firstRows);
         let thead = '';
         let tbody = restRows;
 
         if (!firstRowHasTh) {
-            thead = `<thead>${firstRows.replace(/<td>/gi, '<th scope="col">').replace(/<\/td>/gi, '</th>')}</thead>`;
+            thead = `<thead><tr>${firstRows.replace(/<td>/gi, '<th scope="col">').replace(/<\/td>/gi, '</th>')}</tr></thead>`;
         } else {
             thead = `<thead>${firstRows}</thead>`;
         }
         if (!tbody) tbody = '';
         tbody = `<tbody>${tbody}</tbody>`;
 
-        return `<table${attrs}>${thead}${tbody}</table>`;
+        return `${openTag}${thead}${tbody}</table>`;
     });
 
     // Add scope="col" to th elements that don't have it
     html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
-        if (/\bscope=/i.test(match)) return match;
+        if (/scope=/i.test(attrs)) return match;
         return `<th${attrs} scope="col">`;
     });
 
@@ -202,7 +202,7 @@ function ensureUniqueLandmarks(html) {
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
 
     landmarkRoles.forEach(role => {
-        const pattern = new RegExp(`role=["']${role}["']`, 'gi');
+        const pattern = new RegExp(`role="${role}"`, 'gi');
         const matches = html.match(pattern);
         if (matches && matches.length > 1) {
             // Keep first occurrence, change subsequent ones
@@ -218,7 +218,7 @@ function ensureUniqueLandmarks(html) {
     // Also check for duplicate HTML5 landmark elements (header, nav, main, aside, footer)
     const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
     html5Landmarks.forEach(tag => {
-        const pattern = new RegExp(`<${tag}[^>]*>`, 'gi');
+        const pattern = new RegExp(`<${tag}`, 'gi');
         const matches = html.match(pattern);
         if (matches && matches.length > 1) {
             // Keep first, add role="region" to others
@@ -235,105 +235,4 @@ function ensureUniqueLandmarks(html) {
 }
 
 // REACT_036: Fix fake link issues
-function fixFakeLinks(html) {
-    if (typeof html !== 'string') return html;
-
-    // Find spans or divs with onclick that act as links and convert to <a>
-    html = html.replace(
-        /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi,
-        (match, before, onclick, after) => {
-            const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/);
-            if (hrefMatch) {
-                return `<a href="${hrefMatch[1]}"${before}${after}>`;
-            }
-            return match;
-        }
-    );
-
-    html = html.replace(/<\/span>/gi, '</a>');
-
-    return html;
-}
-
-// Main function that applies all accessibility fixes
-function applyAccessibilityFixes(html) {
-    let result = html;
-    result = addLangAttribute(result);
-    result = fixTableStructure(result);
-    result = ensureUniqueLandmarks(result);
-    result = fixFakeLinks(result);
-    return result;
-}
-
-function addressAccessibilityIssues(insightReport) {
-  // Apply accessibility fixes to HTML content based on insight report
-  if (insightReport && insightReport.html) {
-    insightReport.html = applyAccessibilityFixes(insightReport.html);
-  }
-  console.log('Addressing accessibility issues from insight report:', insightReport);
-}
-
-/**
- * Creates an in-page button element with the specified ID, text, and class
- * @param {string} buttonId - The ID to assign to the button
- * @param {string} buttonText - The text content of the button
- * @param {string} buttonClass - The CSS class to assign to the button
- * @returns {HTMLButtonElement} The created button element
- */
-function createInPageButton(buttonId, buttonText, buttonClass) {
-    const button = document.createElement('button');
-    button.id = buttonId;
-    button.textContent = buttonText;
-    button.className = buttonClass;
-    button.setAttribute('aria-label', buttonText); // Added for accessibility
-    button.setAttribute('role', 'button'); // Added for accessibility
-    document.body.appendChild(button);
-    return button;
-}
-
-// New function to address accessibility issues
-function addressAccessibilityIssues() {
-    // Implement the changes required to address accessibility issues from the insight report
-    // For example, this could be calling existing utility functions to validate accessibility
-    const linkIssues = checkLinkAccessibility();
-    const tableIssues = validateTableAccessibility();
-    const tableStructureIssues = validateTableStructure();
-    const linkAccessibilityIssues = validateLinkAccessibility();
-    const fakeLinkIssues = handleFakeLinks();
-
-    // Handle issues (e.g., log them, display warnings, etc.)
-    // For demonstration purposes, we will just log the issues to the console
-    console.log('Link Accessibility Issues:', linkIssues);
-    console.log('Table Accessibility Issues:', tableIssues);
-    console.log('Table Structure Issues:', tableStructureIssues);
-    console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
-    console.log('Fake Link Issues:', fakeLinkIssues);
-
-    // Here you could add additional logic to address the issues
-    // For example, you might want to update the DOM or call other functions
-}
-
-// Export accessibility utility functions
-export {
-    getLangAttribute,
-    createInPageButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLinkAccessibility,
-    handleFakeLinks,
-    checkLinkAccessibility,
-    divide,
-    spawnEntity,
-    wrapPrimaryContentInMain,
-    ensureUniqueLandmarks,
-    fixFakeLinks,
-    applyAccessibilityFixes,
-    addLangAttribute,
-    fixTableStructure,
-    addressAccessibilityIssues
-};
-
-// Run if executed directly
-if (typeof require !== 'undefined' && require.main === module) {
-    main();
-}
+function fix

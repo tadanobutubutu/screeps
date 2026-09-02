@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserve
+
 function divide(a, b) {
   if (b === 0) {
     return 0;

@@ -1,3 +1,17 @@
+const countDependencies = () => {
+  // Count internal private functions (starting with '_')
+  const internalDependencies = [];
+  // Use appropriate global object for the environment
+  const globalObj = (typeof window !== 'undefined') ? window : global;
+  const functions = [...Object.getOwnPropertyNames(globalObj)];
+  functions.forEach((functionName) => {
+    if (functionName.startsWith('_') && typeof globalObj[functionName] === 'function') {
+      internalDependencies.push(functionName);
+    }
+  });
+  const internalCount = internalDependencies.length;
+};
+
 // TODO: This is the existing code that needs to be preserved
 
 // Addressed accessibility issues from insight report:
@@ -7,19 +21,38 @@
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 // todo-hash: 50090d29914857ebc4d3d6f532d1293acbb65526
 
 const config = {
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  timeout: process.env.TIMEOUT || 5000,
+  apiUrl: process.env.API_URL || 'https://example.com',
+  timeout: 5000,
   debug: true,
   version: '1.0.0'
 };
 
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
+const LANDMARK_CONFIG = {
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  maxResults: 100,
+  dataPath: './data'
+};
+
+// Configuration merged from both branches
+const CONFIG = {
+  landmarkRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  requiredLandmarks: ['banner', 'navigation', 'main'],
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'https://example.com',
+  timeout: 5000
+};
+
 // Application state
-let appConfig = CONFIG;
+let appConfig = config;
 let isInitialized = false;
 let appData_origin = {};
 let appState = {
@@ -32,12 +65,8 @@ let dependencyGraphState = null;
 let html = '';
 
 // Landmark configuration
-const LANDMARK_CONFIG = {
-  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
-  maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
-  maxResults: 100,
-  dataPath: './data'
+const addLandmarkRegions = () => {
+  console.log('Adding landmark regions');
 };
 
 // Configuration merged from both branches
@@ -116,6 +145,8 @@ const appData = {
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+// todo-hash: 50090d29914857ebc4d3d6f532d1293acbb65526
 
 function getLangAttribute() {
     // Implementation to get language attribute
@@ -239,91 +270,7 @@ function validateInput(input) {
   return input && typeof input === 'string' && input.trim().length > 0;
 }
 
-// Process data helper
-function processData(data) {
-  if (!validateInput(data)) {
-    throw new Error('Invalid input data');
-  }
-  return {
-    processed: true,
-    data: data,
-    timestamp: Date.now()
-  };
-}
-
-// Initialize function
-function initialize() {
-  appConfig = { apiUrl: process.env.API_URL || 'https://api.example.com', timeout: 5000 };
-  appState = { initialized: true };
-  console.log('Initializing application...');
-
-  // Load landmarks for accessibility processing
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-
-  // Ensure the dependencyGraph container has a proper ARIA role
-  let dependencyGraph = document.getElementById('dependencyGraph');
-  if (dependencyGraph) {
-    if (!dependencyGraph.id) {
-      dependencyGraph.id = 'dependencyGraph';
-    }
-    if (!dependencyGraph.hasAttribute('role')) {
-      if (appConfig.allowedRoles && appConfig.allowedRoles.includes('region')) {
-        dependencyGraph.setAttribute('role', 'region');
-      } else {
-        dependencyGraph.setAttribute('role', 'region');
-      }
-    }
-    if (!dependencyGraph.hasAttribute('aria-label')) {
-      dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
-    }
-  }
-
-  return true;
-}
-
-function fetchUser(userId) {
-  return { id: userId, name: 'User' };
-}
-
-function clearCache() {
-  appState = {};
-}
-
-// Main execution
-function main() {
-  initialize();
-  console.log('Main function executed');
-}
-
-function formatDate(date) {
-  // Placeholder function
-  return new Date(date).toISOString();
-}
-
-// Export
-module.exports = {
-    getLangAttribute,
-    getFullLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmarkStructure,
-    addLandmarkRegions,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    ensureUniqueLandmarks,
-    initializeApp,
-    getConfig,
-    validateInput,
-    processData,
-    initialize,
-    fetchUser,
-    clearCache,
-    main,
-    formatDate
-};
-
-// Additional functions from the other branch (origin/main) that may be needed
+// Accessibility helpers
 function addLangAttribute() {
     const lang = getFullLangAttribute();
     document.documentElement.setAttribute('lang', lang);
@@ -423,10 +370,69 @@ function countDependencies(code) {
   return count;
 }
 
-// Export everything
+// Initialize function
+function initialize() {
+  appConfig = { apiUrl: process.env.API_URL || 'https://api.example.com', timeout: 5000 };
+  appState = { initialized: true };
+  console.log('Initializing application...');
+
+  // Load landmarks for accessibility processing
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+
+  // Ensure the dependencyGraph container has a proper ARIA role
+  let dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    if (!dependencyGraph.id) {
+      dependencyGraph.id = 'dependencyGraph';
+    }
+    if (!dependencyGraph.hasAttribute('role')) {
+      if (appConfig.allowedRoles && appConfig.allowedRoles.includes('region')) {
+        dependencyGraph.setAttribute('role', 'region');
+      } else {
+        dependencyGraph.setAttribute('role', 'region');
+      }
+    }
+    if (!dependencyGraph.hasAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
+    }
+  }
+
+  return true;
+}
+
+function fetchUser(userId) {
+  return { id: userId, name: 'User' };
+}
+
+function clearCache() {
+  appState = {};
+}
+
+// Main execution
+function main() {
+  initialize();
+  console.log('Main function executed');
+}
+
+function formatDate(date) {
+  // Placeholder function
+  return new Date(date).toISOString();
+}
+
+// Export
 module.exports = {
-    ...module.exports,
-    addLangAttribute,
+  countDependencies,
+  addLandmarkRegions,
+  renderDependencyGraph,
+  addBook,
+  makeAccessible,
+  addAriaSupport,
+  handleCredentialResponse
+};
+
+// Additional functions from the other branch (origin/main) that may be needed
+function addLangAttribute,
     fixTableStructureIssues,
     fixTableHeaderCellScope,
     addMainLandmark,

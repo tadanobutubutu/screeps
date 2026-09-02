@@ -42,6 +42,19 @@ function getSvgAccessibleName(svg) {
   return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '';
 }
 
+// Updated getLangAttribute function to return the appropriate language attribute value
+function getLangAttribute(element) {
+  // Try to get the language from the element itself
+  if (element.getAttribute('lang')) {
+    return element.getAttribute('lang');
+  }
+  // Otherwise, try to get from the document
+  const docLang = document.documentElement.getAttribute('lang');
+  if (docLang) return docLang;
+  // Default to English
+  return 'en';
+}
+
 // Update setSvgAttributes function
 function setSvgAttributes(svg) {
   if (!svg) return;
@@ -145,7 +158,7 @@ function addressAccessibilityIssues() {
   }
 
   // Fix 1 fake link issue
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  const fakeLinks = document.querySelectorAll('a[href="#]');
   fakeLinks.forEach((link) => {
     handleFakeLinks([{
       type: 'fake',

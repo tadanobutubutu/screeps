@@ -9,13 +9,13 @@ function addressAccessibilityIssues(insightReport) {
   console.log('Addressing accessibility issues from insight report:', insightReport);
 
   // Add accessibility improvements
-  document.body.setAttribute('lang', 'en');
+  const mainContent = document.getElementById('main-content') || document.body;
   document.title = 'Accessible Application';
 
   // Add ARIA attributes to buttons
   const buttons = document.querySelectorAll('button');
   buttons.forEach(button => {
-    if (!button.getAttribute('aria-label')) {
+    if (!button.getAttribute('aria-label') && button.textContent) {
       button.setAttribute('aria-label', button.textContent);
     }
   });
@@ -25,6 +25,7 @@ function addressAccessibilityIssues(insightReport) {
   skipLink.href = '#main-content';
   skipLink.textContent = 'Skip to main content';
   skipLink.className = 'skip-link';
+  skipLink.setAttribute('aria-label', 'Skip to main content');
   document.body.insertBefore(skipLink, document.body.firstChild);
 
   // Add focus styles for keyboard navigation
@@ -55,18 +56,15 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.textContent = buttonText;
     button.className = buttonClass;
     button.setAttribute('aria-label', buttonText); // Add ARIA label
-    document.body.appendChild(button);
-}
-
-function renderAccessibilityReport(insightReport) {
-    addressAccessibilityIssues(insightReport);
+    return button;
 }
 
 function renderUIComponents() {
-    createInPageButton('accessibility-btn', 'Check Accessibility', 'accessibility-button');
+    const container = document.getElementById('main-content') || document.body;
+    const button = createInPageButton('accessibility-btn', 'Check Accessibility', 'accessibility-button');
+    container.appendChild(button);
 }
 
-// Accessibility improvements for addBook function/form
 function addBook(title, author, isbn) {
     // Create form elements with proper ARIA attributes
     const form = document.createElement('form');
@@ -120,7 +118,8 @@ function addBook(title, author, isbn) {
     form.appendChild(submitButton);
 
     // Add form to document
-    document.body.appendChild(form);
+    const container = document.getElementById('main-content') || document.body;
+    container.appendChild(form);
 
     // Return form for potential further manipulation
     return form;
@@ -136,5 +135,18 @@ function newFunctionForMain() {
     console.log('New function is now accessible in main.js');
 }
 
-// Update or create any other necessary functions here
+function existingFunction() {
+    console.log('This is an existing function');
+}
+
+function existingFunction1() {
+    console.log('This is existing function 1');
+}
+
+function existingFunction2() {
+    console.log('This is existing function 2');
+}
 //------ END CHANGES------
+
+// Export all accessible functions
+export { addressAccessibilityIssues, createInPageButton, renderUIComponents, addBook, newFunctionForMain, existingFunction, existingFunction1, existingFunction2 };

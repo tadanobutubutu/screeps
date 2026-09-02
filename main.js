@@ -35,8 +35,23 @@ class ScreepsBot {
 
   // New feature: Priority-based task scheduling
   addTaskWithPriority(taskFn, priority = 'medium') {
-    this.tasks.push({ task: taskFn, priority });
+    const taskId = this.generateTaskId();
+    this.tasks.push({ task: taskFn, priority, id: taskId });
     this.scheduleTasks();
+    return taskId;
+  }
+
+  generateTaskId() {
+    return '_' + Math.random().toString(36).substr(2, 9);
+  }
+
+  cancelTask(id) {
+    const index = this.tasks.findIndex(task => task.id === id);
+    if (index !== -1) {
+      this.tasks.splice(index, 1);
+      return true;
+    }
+    return false;
   }
 
   scheduleTasks() {

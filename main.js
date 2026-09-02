@@ -470,6 +470,290 @@ function isLinkAccessible(link) {
   return { valid: errors.length === 0, errors };
 }
 
+/**
+ * Validates form accessibility
+ * @param {HTMLFormElement} form - The form element to validate
+ * @returns {Object} Result with valid boolean and errors array
+ */
+function validateFormAccessibility(form) {
+  const errors = [];
+
+  if (!form) {
+    return { valid: false, errors: ['Form element is required'] };
+  }
+
+  // Check all form inputs have associated labels
+  const inputs = form.querySelectorAll('input, textarea, select');
+  inputs.forEach((input, index) => {
+    const id = input.getAttribute('id');
+    const type = input.getAttribute('type');
+    const ariaLabel = input.getAttribute('aria-label');
+    const ariaLabelledby = input.getAttribute('aria-labelledby');
+
+    // Skip hidden or submit/button inputs
+    if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'reset') {
+      return;
+    }
+
+    let hasLabel = false;
+
+    // Check for label[for] association
+    if (id) {
+      const label = form.querySelector(`label[for="${id}"]`);
+      if (label) {
+        hasLabel = true;
+      }
+    }
+
+    // Check for wrapping label
+    if (!hasLabel && input.closest('label')) {
+      hasLabel = true;
+    }
+
+    // Check for aria-label or aria-labelledby
+    if (!hasLabel && (ariaLabel || ariaLabelledby)) {
+      hasLabel = true;
+    }
+
+    if (!hasLabel) {
+      errors.push(`Form input at index ${index} is missing an associated label`);
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Validates image accessibility
+ * @param {HTMLImageElement} img - The image element to validate
+ * @returns {Object} Result with valid boolean and errors array
+ */
+function validateImageAccessibility(img) {
+  const errors = [];
+
+  if (!img) {
+    return { valid: false, errors: ['Image element is required'] };
+  }
+
+  // Check for alt attribute
+  const alt = img.getAttribute('alt');
+  const role = img.getAttribute('role');
+  const ariaLabel = img.getAttribute('aria-label');
+  const ariaLabelledby = img.getAttribute('aria-labelledby');
+
+  // Decorative images should have empty alt or role="presentation"/"none"
+  if (role === 'presentation' || role === 'none') {
+    return { valid: true, errors: [] };
+  }
+
+  // Non-decorative images must have accessible name
+  const hasAccessibleName = (alt !== null && alt !== undefined) || ariaLabel || ariaLabelledby;
+
+  if (!hasAccessibleName) {
+    errors.push('Image is missing alt attribute or accessible name');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Validates button accessibility
+ * @param {HTMLButtonElement} button - The button element to validate
+ * @returns {Object} Result with valid boolean and errors array
+ */
+function validateButtonAccessibility(button) {
+  const errors = [];
+
+  if (!button) {
+    return { valid: false, errors: ['Button element is required'] };
+  }
+
+  // Check for accessible name
+  const textContent = button.textContent ? button.textContent.trim() : '';
+  const ariaLabel = button.getAttribute('aria-label');
+  const ariaLabelledby = button.getAttribute('aria-labelledby');
+  const title = button.getAttribute('title');
+
+  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby || title;
+
+  if (!hasAccessibleName) {
+    errors.push('Button is missing accessible name (text content, aria-label, aria-labelledby, or title)');
+  }
+
+  // Check button type
+  const type = button.getAttribute('type');
+  if (type && !['button', 'submit', 'reset'].includes(type)) {
+    errors.push(`Invalid button type: ${type}`);
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Updates accessible elements in the DOM based on configuration
+ * @param {Object} config - Configuration object for updates
+ * @returns {Object} Result with success boolean and errors array
+ */
+function updateAccessibleElements(config) {
+  const errors = [];
+
+  if (!config || typeof config !== 'object') {
+    return { success: false, errors: ['Configuration object is required'] };
+  }
+
+  if (typeof document === 'undefined') {
+    return { success: false, errors: ['Document not available'] };
+  }
+
+  // Update lang attribute if specified
+  if (config.lang) {
+    try {
+      setHtmlLangAttribute(config.lang);
+    } catch (e) {
+      errors.push(`Failed to set lang attribute: ${e.message}`);
+    }
+  }
+
+  // Update images alt text if specified
+  if (config.images && Array.isArray(config.images)) {
+    config.images.forEach((imageConfig, index) => {
+      if (!imageConfig.selector || !imageConfig.alt === undefined) {
+        errors.push(`Image config at index ${index} missing selector or alt`);
+        return;
+      }
+      const elements = document.querySelectorAll(imageConfig.selector);
+      elements.forEach(el => {
+        el.setAttribute('alt', imageConfig.alt);
+      });
+    });
+  }
+
+  // Update aria-labels if specified
+  if (config.ariaLabels && Array.isArray(config.ariaLabels)) {
+    config.ariaLabels.forEach((labelConfig, index) => {
+      if (!labelConfig.selector || !labelConfig.label) {
+        errors.push(`Aria-label config at index ${index} missing selector or label`);
+        return;
+      }
+      const elements = document.querySelectorAll(labelConfig.selector);
+      elements.forEach(el => {
+        el.setAttribute('aria-label', labelConfig.label);
+      });
+    });
+  }
+
+  return { success: errors.length === 0, errors };
+}
+
+/**
+ * Renders a dependency graph
+ * @param {Object} graph - The graph data structure
+ * @param {HTMLElement} container - The container element to render into
+ * @returns {Object} Result with success boolean and errors array
+ */
+function renderDependencyGraph(graph, container) {
+  const errors = [];
+
+  if (!graph || typeof graph !== 'object') {
+    return { success: false, errors: ['Graph data is required'] };
+  }
+
+  if (!container) {
+    return { success: false, errors: ['Container element is required'] };
+  }
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Create SVG element for the graph
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '400');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Dependency graph');
+
+  // Render nodes
+  if (graph.nodes && Array.isArray(graph.nodes)) {
+    graph.nodes.forEach((node, index) => {
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', node.x || (index * 50 + 25));
+      circle.setAttribute('cy', node.y || 50);
+      circle.setAttribute('r', '20');
+      circle.setAttribute('fill', node.color || '#4a90e2');
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = node.label || `Node ${index}`;
+      circle.appendChild(title);
+      svg.appendChild(circle);
+    });
+  }
+
+  // Render edges
+  if (graph.edges && Array.isArray(graph.edges)) {
+    graph.edges.forEach(edge => {
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', edge.x1 || 0);
+      line.setAttribute('y1', edge.y1 || 0);
+      line.setAttribute('x2', edge.x2 || 0);
+      line.setAttribute('y2', edge.y2 || 0);
+      line.setAttribute('stroke', edge.color || '#999');
+      svg.appendChild(line);
+    });
+  }
+
+  container.appendChild(svg);
+
+  return { success: true, errors: [] };
+}
+
+/**
+ * Renders an index view
+ * @param {Object} data - The index data
+ * @param {HTMLElement} container - The container element to render into
+ * @returns {Object} Result with success boolean and errors array
+ */
+function renderIndexView(data, container) {
+  const errors = [];
+
+  if (!data || typeof data !== 'object') {
+    return { success: false, errors: ['Index data is required'] };
+  }
+
+  if (!container) {
+    return { success: false, errors: ['Container element is required'] };
+  }
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Create list element
+  const list = document.createElement('ul');
+  list.setAttribute('role', 'list');
+  list.className = 'index-list';
+
+  // Render items
+  if (data.items && Array.isArray(data.items)) {
+    data.items.forEach(item => {
+      const listItem = document.createElement('li');
+      listItem.setAttribute('role', 'listitem');
+
+      if (item.href) {
+        const link = createAccessibleLink(item.href, item.label || 'Untitled');
+        if (link) {
+          listItem.appendChild(link);
+        }
+      } else {
+        listItem.textContent = item.label || 'Untitled';
+      }
+
+      list.appendChild(listItem);
+    });
+  }
+
+  container.appendChild(list);
+
+  return { success: true, errors: [] };
+}
+
 // TODO: Implement tower defense
 function towerDefense() {
   // A simple tower defense game implementation
@@ -546,5 +830,11 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
+  validateFormAccessibility,
+  validateImageAccessibility,
+  validateButtonAccessibility,
+  updateAccessibleElements,
+  renderDependencyGraph,
+  renderIndexView,
   towerDefense
 };

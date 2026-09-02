@@ -1,34 +1,8 @@
-const main = require('./utilities')
-
-// Import necessary dependencies
-import React from 'react';
-import { render } from 'react-dom';
-import {
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs
-} from './AccessibilityHelpers'
-
+const fs = require('fs');
 const main = require('./utilities');
 
-// TODO: Create or update the affected functions to be accessible
-// The functions below have been created to match the exported names
-
 const {
+<<<<<<< HEAD
     createInPageButton,
     createWebResourceButton,
     validateTableStructure,
@@ -53,8 +27,6 @@ const {
     ensureUniqueLandmarks,
     addSvgAccessibleNames,
     addAccessibleNamesToSVGs,
-    renderDependencyGraphAria,
-    addMainLandmarkToIndex,
     newFocusTrap,
     addressAccessibilityIssues,
     implementAccessibilityFixesFromReport,
@@ -168,59 +140,4 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Validate accessibility report
   const accessibilityReport = validateAccessibilityReport(container)
   if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
-    log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
-  }
-
-  // Implement focus trap for keyboard navigation
-  focusTrap(container)
-
-  if (fixes.langAdded) {
-    log('Lang attribute added to HTML element', 'info')
-  }
-
-  if (fixes.mainLandmarkAdded) {
-    log('Main landmark added', 'info')
-  }
-
-  // Check for new accessibility issues
-  const newAccessibilityIssues = checkAccessibility(container)
-  if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.length}`, 'error')
-  }
-
-  const landmarkFixesCount = fixes.landmarksFixed || 0
-  if (landmarkFixesCount > 0) {
-    log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info')
-  }
-
-  const svgFixes = fixes.svgNamesAdded || 0
-  if (svgFixes > 0) {
-    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info')
-  }
-
-  const fakeLinkFixes = fixes.fakeLinksFixed || 0
-  if (fakeLinkFixes > 0) {
-    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info')
-  }
-
-  return fixes
-}
-
-module.exports = {
-    existingFunction,
-    checkAccessibility: checkAccessibilityInternal,
-    addressAccessibilityIssues,
-    implementAccessibilityFixesFromReport,
-    updateUI,
-    newFunction,
-    ScreepsBot,
-    addAriaLabel,
-    renderDependencyGraph,
-    accessibilityUtils,
-    createAnnouncer,
-    prefersReducedMotion,
-    initializeAccessibility,
-    addAccessibleName,
-    renderSimpleDependencyGraph,
-    checkAccessibilityForReport
-};
+    log(`Accessibility report contains ${

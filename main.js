@@ -3,6 +3,18 @@
 
 const main = require('./utilities')
 
+// Import necessary dependencies
+import React from 'react'
+import { render } from 'react-dom'
+import {
+  googleSignIn,
+  decodeJwtResponse
+} from './AccessibilityHelpers'
+
+// TODO: Create or update the affected functions to be accessible
+// The functions below have been created to match the exported names
+
+// Re-export all functions from utilities module
 const {
   createInPageButton,
   createWebResourceButton,
@@ -23,14 +35,6 @@ const {
   focusTrap,
   checkAccessibility
 } = main
-
-// Import necessary dependencies
-import React from 'react'
-import { render } from 'react-dom'
-import {
-  googleSignIn,
-  decodeJwtResponse
-} from './AccessibilityHelpers'
 
 // Implement the function for addressing accessibility issues from insight report
 function newFunction () {
@@ -592,7 +596,7 @@ function initializeAccessibility() {
   
   return {
     announce: announcer.announce,
-    getLastMessage: announcer.getLast
+    getLastMessage: announcer.getLastMessage
   };
 }
 
@@ -612,12 +616,26 @@ fixButtonIdentifiers();
 
 // Preserve all existing exports
 module.exports = {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
   renderDependencyGraph,
-  renderIndex,
-  validateTableAccessibility,
-  validateTableStructure,
-  // Preserve any other existing exports here
-  // Required exports restored from previous version
+  renderSimpleDependencyGraph,
   newFunction,
   implementAccessibilityFixesFromReport,
   checkAccessibilityForReport,
@@ -632,8 +650,16 @@ module.exports = {
   accessibilityUtils,
   createAnnouncer,
   prefersReducedMotion,
-  renderSimpleDependencyGraph,
   addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  fixLandmarkIssues,
+  validateTableAccessibility,
+  validateTableStructure,
   initializeAccessibility
 }
 

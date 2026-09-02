@@ -21,7 +21,7 @@ const {
     fixDependencyGraphAria,
     addMainLandmarkToIndex,
     focusTrap,
-    checkAccessibility,
+    // Removed checkAccessibility from destructuring to avoid duplicate identifier
 } = main;
 
 // Implement the function for addressing accessibility issues from insight report

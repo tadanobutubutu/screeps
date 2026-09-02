@@ -18,6 +18,8 @@
 
 // TODO: This is the existing code that needs to be preserved
 
+// Dependency graph rendering functions: N/A — no functions in this file render dependency graphs
+
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;

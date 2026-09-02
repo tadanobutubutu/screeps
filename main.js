@@ -200,8 +200,35 @@ async function scanAccessibility() {
 }
 
 function generateAccessibilityReport(issuesData) {
-  // Generate accessibility report
-  return issuesData || [];
+  // Generate accessibility report based on accessibility issues
+  let report = {
+    timestamp: new Date().toISOString(),
+    totalIssues: issuesData.length,
+    issues: []
+  };
+
+  issuesData.forEach(issue => {
+    let issueEntry = {
+      id: issue.id || 'unknown',
+      description: issue.description || issue.help || 'No description available',
+      impact: issue.impact || 'unknown',
+      nodes: []
+    };
+
+    if (issue.nodes && Array.isArray(issue.nodes)) {
+      issue.nodes.forEach(node => {
+        issueEntry.nodes.push({
+          target: node.target || [],
+          html: node.html || '',
+          failureSummary: node.failureSummary || ''
+        });
+      });
+    }
+
+    report.issues.push(issueEntry);
+  });
+
+  return report;
 }
 
 function addSvgAccessibilityProps(svgElement) {

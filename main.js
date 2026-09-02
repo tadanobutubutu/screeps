@@ -118,60 +118,23 @@ if (require.main === module) {
   if (sorted.length > 0) {
     console.log('First landmark:', sorted[0]);
   }
+
+  // Uncomment to run the accessibility report generation
+  // generateAccessibilityReport();
 }
 
 module.exports = {
-  config: CONFIG,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  processAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  addProperLandmarkRegions,
-  fixTableAccessibility,
-  fixLandmarkIssues,
-  addSvgAccessibility,
-  createAccessibleLinks,
-  formatResponse,
-  generateAccessibilityReport,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
-  someFunction: function() {
-    return 'some value';
-  },
-  helper: function(input) {
-    return input ? input.toUpperCase() : '';
-  },
-  formatDate: function(date) {
-    if (!(date instanceof Date)) {
-      date = new Date(date);
-    }
-    return date.toISOString().split('T')[0];
-  },
+    validateInput,
+    processData,
+    formatResponse,
+    config: CONFIG,
+    generateAccessibilityReport,
+    loadLandmarks,
+    processLandmarks,
+    sortLandmarks,
+    getLandmarkById,
+    ensureUniqueLandmarks,
+    isValidLandmark,
+    writeReport,
+    scanAccessibility
 };

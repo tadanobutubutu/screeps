@@ -361,6 +361,11 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// Main entry point function
+function main() {
+    // Main execution logic can be added here
+}
+
 // Don't forget to test your new additions in the test file
 
 // Export accessibility utility functions
@@ -384,6 +389,7 @@ module.exports = {
     validateLinkAccessibility,
     handleFakeLinks,
     newFunction,
+    main,
 };
 
 // Run if executed directly

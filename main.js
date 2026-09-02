@@ -2,14 +2,23 @@
 // _Commit: 9b0a0d6bb0214c2d74db539b8e33b7af757187a3_
 // <!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
-// _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//_Commit: 5cb26805d1cf9dc1c3c0bd9f2923ab16e34f825e _
+//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-const main = require('./utilities')
+//_Commit: ...
+
+<!-- todo-hash: 344a569ca20673dcf3d1ec08249ba2f2f8ffbf15 -->
 
 // Import necessary dependencies
-import React from 'react';
-import { render } from 'react-dom';
+import React from 'react'
+import { render } from 'react-dom'
 import {
   addLangAttribute,
   fixTableStructure,
@@ -23,10 +32,11 @@ import {
   fixFakeLinkIssue,
   fixFakeLinkIssues,
   googleSignIn,
+  decodeJwtResponse,
   fixButtonIdentifiers,
+  ensureElementHasId,
   addAriaLabel,
-  renderAdditionalContent,
-  implementAccessibilityFixesFromReport
+  renderDependencyGraphs
 } from './AccessibilityHelpers'
 
 const {
@@ -46,10 +56,9 @@ const {
   addMainLandmarkToIndex
 } = require('./AccessibilityHelpers');
 
-// ... (Keep adding the new functions)
-
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.querySelector('[data-dependency-graph]')
+// Combined selector approach to handle multiple possible selector variations
+const dependencyGraph = document.querySelector('#dependencyGraph, .dependency-graph, [data-dependency-graph]')
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
@@ -79,12 +88,70 @@ renderDependencyGraphs(container)
 fixButtonIdentifiers(container)
 fixDependencyGraphAria(container)
 
-// Implement the function for addressing accessibility issues from insight report
-implementAccessibilityFixesFromReport(container, report)
+// Required changes to fix the React SVG Accessible Name issue
+// Conflict Resolution: Combined both approaches - check for existing aria-labelledby
+// first, and if there's a title element, use aria-labelledby linking; otherwise add aria-label.
+function addAccessibleName (svgString) {
+  // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
+  // and returns the modified SVG string.
+  const parser = new DOMParser()
+  const svgDoc = parser.parseFromString(svgString, 'image/svg+xml')
+  const svgElement = svgDoc.documentElement
+
+  // Check if SVG already has an accessible name
+  const hasAriaLabel = svgElement.getAttribute('aria-label')
+  const hasAriaLabelledBy = svgElement.getAttribute('aria-labelledby')
+  const hasTitle = svgElement.querySelector('title')
+
+  if (!hasAriaLabel && !hasAriaLabelledBy) {
+    if (hasTitle) {
+      // If a title element exists, link to it with aria-labelledby
+      const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9)
+      svgElement.setAttribute('aria-labelledby', titleId)
+      hasTitle.id = titleId
+    } else {
+      // Otherwise add an aria-label and a title element as a fallback for older browsers
+      svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
+      const title = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'title')
+      title.textContent = 'Descriptive label for SVG'
+      svgElement.insertBefore(title, svgElement.firstChild)
+    }
+  }
+
+  const serializer = new XMLSerializer()
+  return serializer.serializeToString(svgElement)
+}
+
+// Example usage of the function
+const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...</svg>'
+const modifiedSvgString = addAccessibleName(originalSvgString)
+
+/**
+ * Validates table accessibility
+ * @param {Array} tableData - Table data to validate
+ * @returns {boolean} True if table is accessible, false otherwise
+ */
+function validateTableAccessibility (tableData) {
+  // Implementation placeholder - function to be implemented
+  return true
+}
+
+/**
+ * Validates table structure
+ * @param {Array} tableData - Table data to validate
+ * @returns {boolean} True if table structure is valid, false otherwise
+ */
+function validateTableStructure (tableData) {
+  // Implementation placeholder - function to be implemented
+  return true
+}
 
 // Other code...
 
+// Preserve all existing exports
 module.exports = {
+  renderDependencyGraph,
+  renderIndex,
   validateTableAccessibility,
   validateTableStructure,
   renderAdditionalContent,
@@ -120,8 +187,9 @@ module.exports = {
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
-  checkAccessibility
-} = main
+  checkAccessibility,
+  addAccessibleName
+}
 
 // Implement the function for addressing accessibility issues from insight report
 function implementAccessibilityFixesFromReport (container, report) {
@@ -261,7 +329,7 @@ function handleCredentialResponse(response) {
 function renderAdditionalContent(additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return ''
+  return `<div class="additional-content">${additionalData.content || ''}</div>`
 }
 
 // Accessibility-related function to be added
@@ -707,33 +775,6 @@ function renderSimpleDependencyGraph(element) {
   console.log('Rendering simple dependency graph for element:', element);
 }
 
-// Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName (svgString) {
-  // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
-  // and returns the modified SVG string.
-  // Conflict Resolution: Combined both approaches - check for existing aria-labelledby
-  // first, and if there's a title element, use aria-labelledby linking; otherwise add aria-label.
-  const parser = new DOMParser()
-  const svgDoc = parser.parseFromString(svgString, 'image/svg+xml')
-  const svgElement = svgDoc.documentElement
-  if (!svgElement.getAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
-    const title = svgElement.querySelector('title')
-    if (title) {
-      const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9)
-      svgElement.setAttribute('aria-labelledby', titleId)
-      title.id = titleId
-    } else {
-      svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
-    }
-  }
-  const serializer = new XMLSerializer()
-  return serializer.serializeToString(svgElement)
-}
-
-// Example usage of the function
-const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...'
-const modifiedSvgString = addAccessibleName(originalSvgString)
-
 /**
  * Validates table accessibility
  * @param {Array} tableData - Table data to validate
@@ -789,16 +830,12 @@ fixButtonIdentifiers();
 function renderAdditionalContent (additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return ''
+  return `<div class="additional-content">${additionalData.content || ''}</div>`
 }
 
 // Added functions from HEAD that were not fully present in origin/main
 function ensureElementHasId() {
   // Placeholder for ensuring element has an ID
-}
-
-function addTask(taskFn, priority = 'medium') {
-  // ... New task scheduling code
 }
 
 function generateTaskId() {

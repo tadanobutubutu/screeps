@@ -3,6 +3,260 @@
  * and other ARIA-related functionality.
  */
 
+/**
+ * Gets the language attribute value for the HTML element.
+ * Returns the lang attribute if present, otherwise returns 'en'.
+ *
+ * @returns {string} The language code.
+ */
+const getLangAttribute = () => {
+  const htmlElement = document.documentElement
+  const lang = htmlElement.getAttribute('lang')
+  return lang || 'en'
+}
+
+/**
+ * Gets the full language tag including region and script if available.
+ *
+ * @returns {string} The full language tag (e.g., 'en-US', 'zh-Hans-CN').
+ */
+const getFullLangAttribute = () => {
+  const lang = getLangAttribute()
+  const dir = document.documentElement.getAttribute('dir')
+  let fullTag = lang
+  if (dir) {
+    fullTag = `${lang}-${dir.toUpperCase()}`
+  }
+  return fullTag
+}
+
+/**
+ * Validates the accessibility of table elements.
+ * Checks for proper headers, captions, and structure.
+ *
+ * @returns {boolean} True if all tables are accessible, false otherwise.
+ */
+const validateTableAccessibility = () => {
+  const tables = document.querySelectorAll('table')
+  const issues = []
+
+  tables.forEach((table, tableIndex) => {
+    // Check for caption
+    if (!table.querySelector('caption')) {
+      issues.push({ tableIndex, issue: 'Table missing caption' })
+    }
+
+    // Check for header cells
+    const headers = table.querySelectorAll('th')
+    if (headers.length === 0) {
+      issues.push({ tableIndex, issue: 'Table missing header cells' })
+    }
+
+    // Check for scope attributes on headers
+    headers.forEach((th) => {
+      if (!th.hasAttribute('scope')) {
+        issues.push({ tableIndex, issue: 'Header cell missing scope attribute' })
+      }
+    })
+
+    // Check for consistent row lengths
+    const rows = table.querySelectorAll('tr')
+    const cellCounts = Array.from(rows).map(row => row.children.length)
+    const uniqueCounts = new Set(cellCounts)
+    if (uniqueCounts.size > 1) {
+      issues.push({ tableIndex, issue: 'Inconsistent cell counts across rows' })
+    }
+  })
+
+  if (issues.length === 0) {
+    console.log('All tables passed accessibility checks.')
+    return true
+  }
+
+  console.warn('Table accessibility issues:', issues)
+  return false
+}
+
+/**
+ * Validates landmark elements on the page.
+ * Ensures landmarks have proper roles and aria-labels when needed.
+ *
+ * @returns {boolean} True if all landmarks are valid, false otherwise.
+ */
+const validateLandmark = () => {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'article', 'aside', 'footer', 'complementary', 'contentinfo']
+  const issues = []
+
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`)
+    elements.forEach((element, index) => {
+      const hasLabel = element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby')
+      if (!hasLabel && role !== 'main' && role !== 'banner' && role !== 'banner') {
+        issues.push({ role, element, issue: `Landmark with role '${role}' missing accessible name` })
+      }
+    })
+  })
+
+  if (issues.length > 0) {
+    console.warn('Landmark validation issues:', issues)
+    return false
+  }
+
+  console.log('All landmarks passed validation.')
+  return true
+}
+
+/**
+ * Validates the structure of landmark elements.
+ *
+ * @returns {boolean} True if landmark structure is valid, false otherwise.
+ */
+const validateLandmarkStructure = () => {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'article', 'aside', 'footer', 'complementary', 'contentinfo']
+  const issues = []
+
+  // Check for duplicate main landmarks
+  const mains = document.querySelectorAll('[role="main"]')
+  if (mains.length > 1) {
+    issues.push({ issue: 'Multiple main landmarks found', count: mains.length })
+  }
+
+  // Check for duplicate banner landmarks
+  const banners = document.querySelectorAll('[role="banner"]')
+  if (banners.length > 1) {
+    issues.push({ issue: 'Multiple banner landmarks found', count: banners.length })
+  }
+
+  // Check for duplicate contentinfo landmarks
+  const footers = document.querySelectorAll('[role="contentinfo"]')
+  if (footers.length > 1) {
+    issues.push({ issue: 'Multiple contentinfo landmarks found', count: footers.length })
+  }
+
+  if (issues.length > 0) {
+    console.warn('Landmark structure issues:', issues)
+    return false
+  }
+
+  console.log('Landmark structure is valid.')
+  return true
+}
+
+/**
+ * Ensures unique landmarks by adding unique identifiers where needed.
+ *
+ * @returns {number} Number of landmarks made unique.
+ */
+const ensureUniqueLandmarks = () => {
+  let uniqueCount = 0
+  const landmarkRoles = ['banner', 'navigation', 'main', 'article', 'aside', 'footer', 'contentinfo', 'complementary']
+
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`)
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        if (index > 0) {
+          // Add unique label to subsequent landmarks
+          const existingLabel = element.getAttribute('aria-label') || ''
+          const uniqueLabel = `${existingLabel} ${index + 1}`.trim()
+          element.setAttribute('aria-label', uniqueLabel)
+          uniqueCount++
+        }
+      })
+    }
+  })
+
+  return uniqueCount
+}
+
+/**
+ * Gets an accessible name for an SVG element.
+ * Prioritizes aria-label, aria-labelledby, and title elements.
+ *
+ * @param {SVGElement} svg - The SVG element.
+ * @returns {string} The accessible name.
+ */
+const getSvgAccessibleName = (svg) => {
+  if (!svg) return ''
+
+  // Check for aria-label
+  const ariaLabel = svg.getAttribute('aria-label')
+  if (ariaLabel) return ariaLabel
+
+  // Check for aria-labelledby
+  const labelledBy = svg.getAttribute('aria-labelledby')
+  if (labelledBy) {
+    const labeledElement = document.getElementById(labelledBy)
+    if (labeledElement) return labeledElement.textContent || ''
+  }
+
+  // Check for title element
+  const title = svg.querySelector('title')
+  if (title) return title.textContent || ''
+
+  // Return empty string if no accessible name found
+  return ''
+}
+
+/**
+ * Creates an in-page navigation button with accessibility attributes.
+ *
+ * @param {string} href - The href attribute (should be a fragment identifier).
+ * @param {string} label - The accessible label for the button.
+ * @returns {HTMLAnchorElement} The created button element.
+ */
+const createInPageButton = (href, label) => {
+  const a = document.createElement('a')
+  a.setAttribute('href', href)
+  a.setAttribute('role', 'button')
+  a.setAttribute('aria-label', label)
+  a.setAttribute('tabindex', '0')
+
+  // Add click handler
+  a.addEventListener('click', (e) => {
+    const targetId = href.replace('#', '')
+    if (targetId) {
+      const target = document.getElementById(targetId)
+      if (target) {
+        target.setAttribute('tabindex', '-1')
+        target.focus()
+      }
+    }
+  })
+
+  // Ensure it's focusable with keyboard
+  a.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      a.click()
+    }
+  })
+
+  return a
+}
+
+/**
+ * Creates an accessible link element.
+ * Ensures the link has appropriate attributes for accessibility.
+ *
+ * @param {string} href - The link URL.
+ * @param {string} label - The link text.
+ * @param {string} [target='_self'] - Target window/frame.
+ * @returns {HTMLAnchorElement} The created link element.
+ */
+const createAccessibleLink = (href, label, target = '_self') => {
+  const a = document.createElement('a')
+  a.setAttribute('href', href)
+  a.textContent = label
+  if (target) {
+    a.setAttribute('target', target)
+    if (target !== '_self') {
+      a.setAttribute('rel', 'noopener')
+    }
+  }
+  return a
+}
+
 const accessibilityUtils = {
   /**
      * Initializes the skip link functionality.
@@ -456,5 +710,14 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   validateTableStructure,
-  validateTableStructureComprehensive
+  validateTableStructureComprehensive,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink
 }

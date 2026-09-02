@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: Add back any required exports that might have been removed
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -369,7 +369,7 @@ function handleAccessibilityIssues(issues) {
  * @param {Object} table - The table element to validate
  * @returns {Object} Validation result with success status and any issues found
  */
-function validateTableStructure(table) {
+function validateSingleTableStructure(table) {
   const issues = [];
 
   if (!table.hasCaption) {
@@ -606,5 +606,6 @@ module.exports = {
   setSvgAttributes,
   addProperLandmarkRegions,
   createLandmark,
-  validateAllLandmarks
+  validateAllLandmarks,
+  validateSingleTableStructure
 };

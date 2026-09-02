@@ -1,6 +1,11 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// TODO: Address accessibility issues from insight report:
+// REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// REACT_017: Add landmark roles and fix landmark issues (DONE: fixLandmarks)
+// REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks)
+// REACT_036: Fix 1 fake link issue (DONE: fixFakeLinks)
+// REACT_027: Add scope="col" or scope="row" to <th> elements (DONE: fixTableStructure)
+// All accessibility issues from insight report have been addressed.
 // _Commit: ec56c28dafbd3fb2078fbae75354cf99a4fb9f89_
 
 // TODO: Address accessibility issues from insight report — FIXED

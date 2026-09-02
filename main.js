@@ -1,9 +1,6 @@
 const fs = require('fs');
 const main = require('./utilities');
 
-// Import content generators from separate modules
-const { dependencyGraphContent, indexContent } = require('./contentGenerators');
-
 const {
     createInPageButton,
     validateTableAccessibility,
@@ -15,55 +12,86 @@ const {
     validateAccessibilityReport,
     announceToScreenReader,
     handleKeyboardNav,
-    newFocusTrap, // Updated focus trap implementation
+    newFocusTrap: originNewFocusTrap,
     exportUtils,
     addressAccessibilityIssues,
     handleCredentialResponse,
-    // Keeping only one ensureElementId function
-    ensureElementId: ensureElementIdOrigin,
+    ensureElementHasId: ensureElementIdOrigin,
+    ensureElementId,
     renderDependencyGraphs,
     fixButtonIdentifiers,
     fixDependencyGraphAria,
     addMainLandmarkToIndex,
+    focusTrap,
     renderAdditionalContent,
     transformInputData
 } = main;
 
-// Accessibility utilities for keyboard navigation and screen reader support
 const accessibilityUtils = {
-    /**
-     * Initialize skip link functionality
-     * @param {HTMLElement} skipLink - The skip link element
-     */
-    initSkipLink(skipLink) {
-        if (!skipLink) return;
+    initSkipLink: function () {
+        const skipLink = document.querySelector('.skip-link');
+        if (skipLink) {
+            skipLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(skipLink.getAttribute('href'));
+                if (target) {
+                    target.setAttribute('tabindex', '-1');
+                    target.focus();
+                }
+            });
+        }
+    },
+    trapFocus: function (element) {
+        const focusableElements = element.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
 
-        skipLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            const target = document.querySelector(skipLink.getAttribute('href'));
-            if (target) {
-                target.tabIndex = -1;
-                target.focus();
+        element.addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                    e.preventDefault();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    firstElement.focus();
+                    e.preventDefault();
+                }
             }
         });
     },
-
-    /**
-     * Trap focus within an element for modal/dialog accessibility
-     * @param {HTMLElement} element - Container element to trap focus within
-     * @returns {Function} Cleanup function to remove event listeners
-     */
-    trapFocus(element) {
-        if (!element) return () => {};
-
+    announceToScreenReader: function (message, priority) {
+        if (priority === undefined) {
+            priority = 'polite';
+        }
+        const announcer = document.createElement('div');
+        announcer.setAttribute('aria-live', priority);
+        announcer.setAttribute('aria-atomic', 'true');
+        announcer.className = 'sr-only';
+        announcer.style.position = 'absolute';
+        announcer.style.left = '-9999px';
+        announcer.textContent = message;
+        document.body.appendChild(announcer);
+        setTimeout(function () {
+            announcer.remove();
+        }, 1000);
+    },
+    handleKeyboardNav: function (e, handlers) {
+        const key = e.key;
+        if (handlers[key]) {
+            handlers[key](e);
+        }
+    },
+    newFocusTrap: function (element) {
         const focusableElements = element.querySelectorAll(
-            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         );
-
+        if (focusableElements.length === 0) return;
         const first = focusableElements[0];
         const last = focusableElements[focusableElements.length - 1];
 
-        const handleKeyboard = (e) => {
+        element.addEventListener('keydown', (e) => {
             if (e.key === 'Tab') {
                 if (e.shiftKey && document.activeElement === first) {
                     last.focus();
@@ -73,116 +101,48 @@ const accessibilityUtils = {
                     e.preventDefault();
                 }
             }
-        };
-
-        element.addEventListener('keydown', handleKeyboard);
-
-        return () => {
-            element.removeEventListener('keydown', handleKeyboard);
-        };
-    },
-
-    // Impemented upgradeAccessibility function
-    upgradeAccessibility() {
-        // Implement upgrading old accessibility patterns to modern best practices
-    },
-
-    /**
-     * Announce message to screen readers
-     * @param {string} message - Message to announce
-     * @param {string} priority - 'polite' or 'assertive'
-     */
-    announceToScreenReader(message, priority = 'polite') {
-        const announcer = document.createElement('div');
-        announcer.setAttribute('aria-live', priority);
-        announcer.setAttribute('aria-atomic', 'true');
-        announcer.className = 'sr-only';
-        announcer.style.position = 'absolute';
-        announcer.style.left = '-9999px';
-        announcer.textContent = message;
-        document.body.appendChild(announcer);
-
-        setTimeout(() => {
-            document.body.removeChild(announcer);
-        }, 1000);
-    },
-
-    /**
-     * Handle keyboard navigation for custom components
-     * @param {KeyboardEvent} e - Keyboard event
-     * @param {Object} options - Navigation options
-     */
-    handleKeyboardNav(e, options) {
-        const key = e.key;
-        if (options[key]) {
-            options[key](e);
-        }
-    },
-
-    /**
-     * Ensure an element has an ID for accessibility purposes
-     * @param {HTMLElement} element - The element to ensure has an ID
-     * @returns {HTMLElement} The element with an ID
-     */
-    ensureElementId: function (element) {
-        if (element && !element.id) {
-            element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        }
-        return element;
+        });
     }
 };
 
-function generateAccessibilityReport(container) {
-    // TODO: Implement function for generating a report based on accessibility issues
-    // Replaced placeholder with full implementation using axe-core scanning and report writing
-    
+function renderDependencyGraph(data) {
+    // Implementation for rendering dependency graphs
+    return {
+        nodes: data.nodes || [],
+        edges: data.edges || []
+    };
+}
+
+function generateAccessibilityReport(issues) {
     const report = {
         timestamp: new Date().toISOString(),
-        issues: [],
-        summary: {
-            critical: 0,
-            serious: 0,
-            moderate: 0,
-            minor: 0
-        }
+        totalIssues: issues.length,
+        critical: issues.filter(i => i.impact === 'critical').length,
+        serious: issues.filter(i => i.impact === 'serious').length,
+        moderate: issues.filter(i => i.impact === 'moderate').length,
+        minor: issues.filter(i => i.impact === 'minor').length,
+        issues: issues.map(issue => ({
+            id: issue.id,
+            impact: issue.impact,
+            description: issue.description,
+            help: issue.help,
+            helpUrl: issue.helpUrl,
+            nodes: issue.nodes.map(node => ({
+                html: node.html,
+                target: node.target
+            }))
+        }))
     };
-    
-    if (typeof axe !== 'undefined' && container) {
-        axe.run(container, (err, results) => {
-            if (err) {
-                console.error('Accessibility scan error:', err);
-                return report;
-            }
-            
-            results.violations.forEach(violation => {
-                violation.nodes.forEach(node => {
-                    report.issues.push({
-                        id: violation.id,
-                        impact: violation.impact,
-                        description: violation.description,
-                        help: violation.helpUrl,
-                        element: node.html,
-                        selector: node.target.join(', ')
-                    });
-                    
-                    if (violation.impact === 'critical') report.summary.critical++;
-                    else if (violation.impact === 'serious') report.summary.serious++;
-                    else if (violation.impact === 'moderate') report.summary.moderate++;
-                    else report.summary.minor++;
-                });
-            });
-            
-            if (typeof fs !== 'undefined' && fs.writeFileSync) {
-                try {
-                    fs.writeFileSync('accessibility-report.json', JSON.stringify(report, null, 2));
-                } catch (writeErr) {
-                    console.error('Failed to write report file:', writeErr);
-                }
-            }
-        });
+
+    if (typeof validateAccessibilityReport === 'function') {
+        validateAccessibilityReport(report);
     }
-    
+
     return report;
+}
+
+function getTables() {
+    return appData.tables;
 }
 
 function getConfig() {
@@ -193,8 +153,10 @@ function setConfig(config) {
     appData.config = { ...appData.config, ...config };
 }
 
+// Implement the new function(s) here
+
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph');
+const dependencyGraph = document.querySelector('.dependency-graph');
 
 if (dependencyGraph) {
     // Set appropriate ARIA role for the dependency graph container

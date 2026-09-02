@@ -10,12 +10,32 @@ const {
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
-  addressAccessibilityIssues
-} = main
+  setSvgAccessibilityProps,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  ensureElementHasIdOrigin,
+  addAriaLabel: addAriaLabelAlt,
+  googleSignIn,
+  handleCredentialResponseAlt,
+  renderGraphIndexUtil,
+  addressAccessibilityIssues,
+  renderGraphIndex,
+  renderGraphIndexAlt
+} = require('./utilities');
 
 const http = require('http')
 
-const renderGraphIndex = (graphData) => {
+function renderGraphIndex(graphData) {
   addressAccessibilityIssues();
   renderDependencyGraphs(graphData);
 }
+function renderGraphIndexAlt(graphData) {
+  addressAccessibilityIssues();
+  renderDependencyGraphs(graphData);
+}
+
+module.exports = {
+  renderGraphIndex,
+  renderGraphIndexAlt,
+  // ... rest of the exports
+};

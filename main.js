@@ -1,7 +1,8 @@
 // TODO: Add back any required exports that might have been removed
 // TODO: This is the existing code that needs to be preserved
-//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-//<!-- todo-hash: ... -->
+//(Implementation added above)
+//_Commit: 19d36e0a8d370fb39fa93d7b9594074df77c1b77_
+//<!-- todo-hash: 8359903472a7ece6a72ecb3c1b40eb71059eaf78 -->
 
 // TODO: Implement this function for creating in-page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {
@@ -9,7 +10,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
-    document.body.appendChild(button);
+    return button;
 }
 
 // Function to validate landmark structure for accessibility issues

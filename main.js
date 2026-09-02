@@ -41,7 +41,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
-    document.body.appendChild(button);
+    return button;
 }
 
 // Function to validate landmark structure for accessibility issues

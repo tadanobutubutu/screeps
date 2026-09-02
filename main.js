@@ -223,6 +223,25 @@ const AddressabilityIssues = {
       }
     });
     return true;
+  },
+
+  ensureLandmarkUniqueness(elements) {
+    if (!Array.isArray(elements)) {
+      return [];
+    }
+
+    const uniqueElements = [];
+    const seen = new Map();
+
+    elements.forEach(element => {
+      const key = element.id || element.name || JSON.stringify(element);
+      if (!seen.has(key)) {
+        seen.set(key, true);
+        uniqueElements.push(element);
+      }
+    });
+
+    return uniqueElements;
   }
 };
 
@@ -244,11 +263,26 @@ function countDependencies() {
   return AddressabilityIssues.countDependencies();
 }
 
-/**
- * Handle credential response from browser authentication
- * @param {Object} response - The credential response object
- * @returns {Object} Processed credential information
- */
+function checkTableStructure(table) {
+  if (!table) return { valid: true, error: null };
+
+  const rows = table.querySelectorAll('tr');
+  const cellCount = rows[0] ? rows[0].querySelectorAll('th, td').length : 0;
+
+  rows.forEach((row, index) => {
+    const rowCells = row.querySelectorAll('th, td');
+    if (rowCells.length !== cellCount && index > 0) {
+      row.setAttribute('role', 'row');
+      const cells = row.querySelectorAll('th, td');
+      cells.forEach((cell, cellIndex) => {
+        cell.setAttribute('role', cellIndex === 0 ? 'rowheader' : 'cell');
+      });
+    }
+  });
+
+  return { valid: true, error: null };
+}
+
 function handleCredentialResponse(response) {
   if (!response) {
     return { success: false, error: 'No credential response provided' };
@@ -294,16 +328,40 @@ function init() {
   enhanceSemanticMarkup();
   setupFocusManagement();
   setupKeyboardNavigation();
+  addressInsightIssues();
+  enforceAccessibility();
+}
+
+function addressInsightIssues() {
+  getLandmarkElements();
+  AddressabilityIssues.ensureLandmarkUniqueness(landmarks);
+  validateTableAccessibility();
+  checkTableStructure();
+
+  getSvgAccessibleName();
+
+  createInPageButton();
+  createAccessibleLink();
+  handleAccessibilityIssues();
+
+  AddressabilityIssues.validateLandmark();
+  AddressabilityIssues.validateLandmarkStructure();
+}
+
+function enforceAccessibility() {
+  renderDependencyGraphs();
+  fixButtonIdentifiers();
+  fixFakeLinkIssues();
+  ensureDependencyGraphAriaRole();
+  setupAriaLiveRegions();
+  setupFocusManagement();
+  enhanceSemanticMarkup();
 }
 
 function setupKeyboardNavigation() {
   /* existing code */
 }
 
-/**
- * Handle keyboard navigation events
- * @param {KeyboardEvent} event
- */
 function handleKeyNavigation(event) {
   if (event.key === 'Tab' && event.altKey) {
     const mainContent = document.getElementById('main-content') || document.querySelector('main');
@@ -447,6 +505,19 @@ function createInPageButton(element, label) {
   return element;
 }
 
+function createAccessibleLink(link, label) {
+  if (!link) return null;
+
+  if (link.tagName !== 'A') {
+    link.setAttribute('role', 'link');
+  }
+  if (label) {
+    link.setAttribute('aria-label', label);
+  }
+
+  return link;
+}
+
 function validateLinkAccessibility(options) {
   /* existing code */
 }
@@ -462,6 +533,15 @@ function handleFakeLinks(issues) {
       fakeLinks.forEach(link => {
         console.warn(`Fake link detected: ${issue.message}`);
       });
+    }
+  });
+}
+
+function fixFakeLinkIssues() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    if (!link.textContent.trim() || link.textContent === 'click here') {
+      link.setAttribute('aria-label', 'Navigation link');
     }
   });
 }
@@ -502,6 +582,10 @@ function addressAccessibilityIssues(insightReport) {
   return [];
 }
 
+function handleAccessibilityIssues() {
+  return addressAccessibilityIssues(sampleInsightReport);
+}
+
 function generateAccessibilityReport() {
   return {
     timestamp: new Date().toISOString(),
@@ -515,6 +599,22 @@ function calculateAccessibilityScore(fixedIssues) {
 
 function validateLandmark(element) {
   return AddressabilityIssues.validateLandmark(element);
+}
+
+function validateLandmarkStructure(container) {
+  if (!container) return true;
+
+  const allowedLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
+  const landmarks = container.querySelectorAll('[role]');
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (!allowedLandmarks.includes(role)) {
+      landmark.removeAttribute('role');
+    }
+  });
+
+  return true;
 }
 
 function spawnSomeCommand(command) {
@@ -535,13 +635,30 @@ function setARIARoleForDependencyGraph() {
   }
 }
 
+function ensureDependencyGraphAriaRole() {
+  if (typeof document === 'undefined') return;
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph && !dependencyGraph.hasAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'grid');
+  }
+}
+
 function renderDependencyGraph(graphData, container) {
+  if (typeof document === 'undefined') return null;
   addAriaLabel(container, 'Dependency graph');
   const graph = document.createElement('div');
   graph.className = 'dependency-graph';
   graph.textContent = JSON.stringify(graphData, null, 2);
   container.appendChild(graph);
   return graph;
+}
+
+function renderDependencyGraphs() {
+  if (typeof document === 'undefined') return;
+  const containers = document.querySelectorAll('[data-graph-container]');
+  containers.forEach(container => {
+    renderDependencyGraph({}, container);
+  });
 }
 
 function validateTableAccessibility(table) {
@@ -558,23 +675,7 @@ function validateTableAccessibility(table) {
 }
 
 function validateTableStructure(table) {
-  if (!table) return { valid: true, error: null };
-
-  const rows = table.querySelectorAll('tr');
-  const cellCount = rows[0] ? rows[0].querySelectorAll('th, td').length : 0;
-
-  rows.forEach((row, index) => {
-    const rowCells = row.querySelectorAll('th, td');
-    if (rowCells !== cellCount && index > 0) {
-      row.setAttribute('role', 'row');
-      const cells = row.querySelectorAll('th, td');
-      cells.forEach((cell, cellIndex) => {
-        cell.setAttribute('role', cellIndex === 0 ? 'rowheader' : 'cell');
-      });
-    }
-  });
-
-  return { valid: true, error: null };
+  return checkTableStructure(table);
 }
 
 function validateLandmarkElement(element, landmarkType) {
@@ -588,24 +689,8 @@ function validateLandmarkElement(element, landmarkType) {
   return true;
 }
 
-function validateLandmarkStructure(container) {
-  if (!container) return true;
-
-  const allowedLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
-  const landmarks = container.querySelectorAll('[role]');
-
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    if (!allowedLandmarks.includes(role)) {
-      landmark.removeAttribute('role');
-    }
-  });
-
-  return true;
-}
-
-function getSvgAccessibleName(svgElement) {
-  if (!svgElement) return '';
+function getSvgAccessibleName(svgElement, name) {
+  if (!svgElement) return name || '';
 
   const title = svgElement.querySelector('title');
   if (title && title.textContent.trim()) {
@@ -617,8 +702,81 @@ function getSvgAccessibleName(svgElement) {
     return ariaLabel;
   }
 
-  return '';
+  const alt = svgElement.getAttribute('alt');
+  if (alt) {
+    return alt;
+  }
+
+  const dataName = svgElement.getAttribute('data-name');
+  if (dataName) {
+    return dataName;
+  }
+
+  return name || '';
 }
 
 function addSvgAccessibleName(svgElement, name) {
-  if (!svgElement || !name) return sv
+  if (!svgElement || !name) return;
+
+  const title = svgElement.querySelector('title');
+  if (title) {
+    title.textContent = name;
+  } else {
+    const newTitle = document.createElement('title');
+    newTitle.textContent = name;
+    svgElement.insertBefore(newTitle, svgElement.firstChild);
+  }
+}
+
+function setSvgAttributes(svg) {
+  if (typeof document === 'undefined') return;
+  if (!svg.hasAttribute('role')) {
+    svg.setAttribute('role', 'img');
+  }
+  if (!svg.hasAttribute('focusable')) {
+    svg.setAttribute('focusable', 'true');
+  }
+}
+
+function fixButtonIdentifiers() {
+  if (typeof document === 'undefined') return;
+  const buttons = document.querySelectorAll('button:not([aria-label]):not([aria-labelledby])');
+  buttons.forEach(button => {
+    if (!button.textContent.trim() && !button.hasAttribute('aria-label')) {
+      button.setAttribute('aria-label', 'Unlabeled button');
+    }
+  });
+}
+
+function getLandmarkElements() {
+  if (typeof document === 'undefined') return [];
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, [role]');
+  return Array.from(landmarks);
+}
+
+module.exports = {
+  app,
+  config,
+  AddressabilityIssues,
+  init,
+  countDependencies,
+  checkTableStructure,
+  handleCredentialResponse,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  renderDependencyGraphs,
+  fixFakeLinkIssues,
+  fixButtonIdentifiers,
+  setupAriaLiveRegions,
+  setupFocusManagement,
+  enhanceSemanticMarkup,
+  getLandmarkElements,
+  createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  validateLandmark,
+  validateLandmarkStructure,
+  addressAccessibilityIssues,
+  addLangAttribute,
+  getLangAttribute
+};

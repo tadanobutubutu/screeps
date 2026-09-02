@@ -2,12 +2,167 @@
 
 // Address accessibility issues from insight report
 // Ensure the dependencyGraph container has a proper ARIA role
-const AddressabilityIssues = {
-  fixMainLandmarkIssues: AddressabilityIssues.fixMainLandmarkIssues || function(source) {
-    const mainBlockRegex = /<main[^>]*>[\s\S]*?<\/main>/gi;
 
-    const matches = source.match(mainBlockRegex);
-    if (!matches || matches.length <= 1) {
+const http = require('http');
+const path = require('path');
+const fs = require('fs');
+const express = require('express');
+const { exec } = require('child_process');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.json());
+
+const config = {
+  port: PORT,
+  env: process.env.NODE_ENV || 'development'
+};
+
+function processSvgElements() {
+  const svgElements = document.querySelectorAll('svg');
+}
+
+function ensureElementHasId(element) {
+  if (!element.id) {
+    element.id = `element-${Math.random().toString(36).substr(2, 11)}`;
+  }
+}
+
+const AddressabilityIssues = {
+  addressAccessibilityIssues(insightReport) {
+    if (!insightReport || !insightReport.sections) {
+      return [];
+    }
+
+    const issues = [];
+
+    insightReport.sections.forEach((section, index) => {
+      if (!section.heading) {
+        issues.push({
+          type: 'missing-heading',
+          severity: 'high',
+          message: `Section ${index} is missing a heading`,
+          suggestedFix: 'Add a descriptive heading to each section'
+        });
+      }
+
+      if (!section.content || section.content.trim() === '') {
+        issues.push({
+          type: 'empty-content',
+          severity: 'medium',
+          message: `Section "${section.heading}" has no content`,
+          suggestedFix: 'Add meaningful content to the section'
+        });
+      }
+
+      if (section.content && section.content.toLowerCase().includes('click here')) {
+        issues.push({
+          type: 'inaccessible-link-text',
+          severity: 'low',
+          message: `Section "${section.heading}" contains "click here" text which is not accessible`,
+          suggestedFix: 'Use descriptive link text instead of "click here"'
+        });
+      }
+    });
+
+    return issues;
+  },
+
+  calculateAccessibilityScore(fixedIssues) {
+    if (!Array.isArray(fixedIssues)) {
+      return 0;
+    }
+
+    const scorePoints = {
+      'color-contrast': 5,
+      'missing-alt-text': 3,
+      'missing-aria-label': 5,
+      'heading-order': 2,
+      'other': 1
+    };
+
+    return fixedIssues.reduce((score, issue) => {
+      return score + (scorePoints[issue.type] || scorePoints.other);
+    }, 0);
+  },
+
+  validateLandmark(element) {
+    if (!element) {
+      return { valid: false, error: 'Element is required' };
+    }
+
+    const landmarkRoles = [
+      'banner',
+      'main',
+      'navigation',
+      'search',
+      'contentinfo',
+      'complementary',
+      'region',
+      'form'
+    ];
+
+    const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+    const role = element.getAttribute('role');
+
+    const implicitLandmarks = {
+      'header': 'banner',
+      'main': 'main',
+      'nav': 'navigation',
+      'aside': 'complementary',
+      'footer': 'contentinfo',
+      'section': 'region',
+      'form': 'form'
+    };
+
+    const isLandmark = landmarkRoles.includes(role) ||
+                       (tagName && implicitLandmarks[tagName]);
+
+    return {
+      valid: isLandmark,
+      tagName: tagName,
+      role: role
+    };
+  },
+
+  spawnSomeCommand(command) {
+    const childProcess = require('child_process');
+    return childProcess.spawn(command, [], {
+      stdio: 'inherit',
+      shell: true
+    });
+  },
+
+  addLangAttribute(element, lang) {
+    if (element) {
+      element.setAttribute('lang', lang);
+    } else {
+      const html = document.documentElement;
+      if (!html.hasAttribute('lang')) {
+        html.setAttribute('lang', 'en');
+      }
+    }
+  },
+
+  countDependencies() {
+    const packageJsonPath = path.join(__dirname, 'package.json');
+    const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
+
+    const dependencies = JSON.parse(packageJson).dependencies || {};
+    const devDependencies = JSON.parse(packageJson).devDependencies || {};
+
+    return {
+      dependencies: Object.keys(dependencies).length,
+      devDependencies: Object.keys(devDependencies).length,
+      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+    };
+  },
+
+  fixMainLandmarkIssues(source) {
+    const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+
+    const matches = Array.from(source.matchAll(mainBlockRegex));
+    if (matches.length <= 1) {
       return source;
     }
 
@@ -23,7 +178,7 @@ const AddressabilityIssues = {
     return result;
   },
 
-  fixSemanticMarkup: AddressabilityIssues.fixSemanticMarkup || function(source) {
+  fixSemanticMarkup(source) {
     const mainBlockRegex = /<main[^>]*>[\s\S]*?<\/main>/gi;
 
     const matches = source.match(mainBlockRegex);
@@ -61,8 +216,6 @@ const AddressabilityIssues = {
 };
 
 function renderDependencyGraph(graphData, container) {
-  // ... (other code from both branches)
-
   // Ensure ARIA role for the dependencyGraph container
   if (container.hasAttribute('role')) {
     if (container.getAttribute('role') !== 'grid') {
@@ -73,6 +226,7 @@ function renderDependencyGraph(graphData, container) {
   }
 
   // Render the dependency graph into the container
+  addAriaLabel(container, 'Dependency graph');
   const graph = document.createElement('div');
   graph.className = 'dependency-graph';
   graph.textContent = JSON.stringify(graphData, null, 2);
@@ -82,8 +236,6 @@ function renderDependencyGraph(graphData, container) {
 }
 
 // New accessibility functions from insight report
-
-// FUNCTIONS ADDED IN FROM HEAD BRANCH
 
 function ensureElementHasId(element) {
   if (!element.hasAttribute('id')) {
@@ -107,7 +259,123 @@ function setARIARoleForDependencyGraph() {
   }
 }
 
-// FUNCTIONS ADDED IN FROM ORIGIN/MAIN BRANCH
+function personName(name, linkElement) {
+  if (linkElement && linkElement.tagName !== 'A') {
+    const isInteractive = linkElement.getAttribute('role') === 'link' || 
+                          linkElement.onclick !== null ||
+                          linkElement.tabIndex !== null;
+    
+    if (isInteractive) {
+      linkElement.setAttribute('role', 'link');
+      if (name) {
+        linkElement.setAttribute('aria-label', name);
+      }
+    }
+  }
+  return linkElement;
+}
+
+function createInPageButton(element, label) {
+  if (!element) return null;
+  
+  if (element.tagName !== 'BUTTON' && !element.getAttribute('role')) {
+    element.setAttribute('role', 'button');
+    if (label) {
+      element.setAttribute('aria-label', label);
+    }
+  }
+  
+  return element;
+}
+
+function newFunction() {
+  console.log('New function called');
+}
+
+function checkLandmarkElements(response) {
+  return response.includes('landmark');
+}
+
+function handleFakeLinks(issues) {
+  if (!issues || !Array.isArray(issues)) {
+    return;
+  }
+  
+  issues.forEach(issue => {
+    if (issue.type === 'fake') {
+      const fakeLinks = document.querySelectorAll('a[href="#"]');
+      fakeLinks.forEach(link => {
+        console.warn(`Fake link detected: ${issue.message}`);
+      });
+    }
+  });
+}
+
+function handleCredentialResponse(response) {
+  return response;
+}
+
+function addBook(bookData) {
+  return bookData;
+}
+
+function generateAccessibilityReport() {
+  return {
+    timestamp: new Date().toISOString(),
+    issues: []
+  };
+}
+
+function addressAccessibilityIssues(insightReport) {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', getLangAttribute());
+  }
+}
+
+function initializeAccessibility() {
+  if (!document.querySelectorAll) return;
+  addressAccessibilityIssues(sampleInsightReport);
+}
+
+const sampleInsightReport = {
+  title: 'Quarterly Performance Report',
+  sections: [
+    {
+      heading: 'Sales Overview',
+      content: 'Total sales increased by 15% compared to last quarter.'
+    },
+    {
+      heading: 'Customer Satisfaction',
+      content: 'Average satisfaction score: 4.2 out of 5.'
+    }
+  ]
+};
+
+function generateUniqueId(landmark) {
+  let uniqueId = landmark;
+  let counter = 0;
+  while (document.getElementById(uniqueId)) {
+    uniqueId = `${landmark}-${counter++}`;
+  }
+  return uniqueId;
+}
+
+function ensureUniqueIds() {
+  const landmarks = document.querySelectorAll('[role="landmark"]');
+  landmarks.forEach(landmark => {
+    if (!landmark.id) {
+      landmark.id = generateUniqueId(landmark.textContent);
+    }
+  });
+}
+
+function setDependencyGraphRole() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'application');
+  }
+}
 
 function getLangAttribute() {
   return document.documentElement.lang || 'en';
@@ -237,7 +505,110 @@ function ensureUniqueLandmarks(container) {
   return true;
 }
 
-// ... (other functions and classes from both branches)
-```
+function createServer() {
+  return http.createServer(app);
+}
 
-This merged version of the file now includes the code from both branches, addressing accessibility issues from the insight report, and maintaining the existing functions. The resolved conflicts ensure that complete functionality is preserved, and there are no syntax errors.
+function startApp() {
+  const server = createServer();
+  server.listen(config.port, () => {
+    console.log(`Server running on port ${config.port}`);
+    setDependencyGraphRole();
+    ensureUniqueIds();
+    setARIARoleForDependencyGraph();
+    newFunction();
+  });
+  return server;
+}
+
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    createServer,
+    startApp,
+    config,
+    validateLandmark,
+    generateUniqueId,
+    ensureUniqueIds,
+    setDependencyGraphRole,
+    countDependencies: AddressabilityIssues.countDependencies,
+    checkLandmarkElements,
+    sampleInsightReport,
+    ensureElementHasId,
+    addAriaLabel,
+    renderDependencyGraph,
+    getLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmarkElement,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    addSvgAccessibleName,
+    ensureUniqueLandmarks,
+    personName,
+    createInPageButton,
+    newFunction,
+    setARIARoleForDependencyGraph,
+    AddressabilityIssues,
+    fixMainLandmarkIssues: AddressabilityIssues.fixMainLandmarkIssues,
+    fixSemanticMarkup: AddressabilityIssues.fixSemanticMarkup,
+    validateLandmarkStructure: AddressabilityIssues.validateLandmarkStructure,
+    addLangAttribute: AddressabilityIssues.addLangAttribute,
+    generateAccessibilityReport,
+    handleFakeLinks,
+    handleCredentialResponse,
+    addBook,
+    addressAccessibilityIssues,
+    initializeAccessibility
+  };
+} else {
+  // Browser environment
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAccessibility);
+  } else {
+    initializeAccessibility();
+  }
+
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table) => {
+    const validationResult = validateTableStructure(table);
+    if (!validationResult.valid) {
+      console.error(`Table structure issues found: ${validationResult.error}`);
+    }
+  });
+
+  const landmarks = document.querySelectorAll('main, nav, aside, header, footer');
+  landmarks.forEach((landmark) => {
+    const validationResult = validateLandmark(landmark);
+    if (!validationResult.valid) {
+      console.error(`Landmark issues found: ${validationResult.error}`);
+    }
+  });
+
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach((svg) => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      svg.setAttribute('aria-label', accessibleName);
+    }
+  });
+
+  const uniqueLandmarks = ensureUniqueLandmarks(document);
+  if (!uniqueLandmarks) {
+    console.error('Non-unique landmarks detected');
+  }
+
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach((link) => {
+    handleFakeLinks([{
+      type: 'fake',
+      message: 'Link points to an invalid location'
+    }]);
+    link.setAttribute('href', '#');
+  });
+}
+
+// Start the application if run directly
+if (require.main === module) {
+  startApp();
+}

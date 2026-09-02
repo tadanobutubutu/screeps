@@ -680,6 +680,24 @@ function renderIndex(data, options = {}) {
   }
 }
 
+/**
+ * Adds a language attribute to the HTML element if not already present.
+ * Defaults to 'en' if no language attribute exists.
+ * @param {string} [lang] - Optional language code to set. Defaults to 'en'.
+ */
+function setHtmlLangAttribute(lang) {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  const defaultLang = 'en';
+  const existingLang = document.documentElement.getAttribute('lang');
+
+  if (!existingLang || existingLang.trim() === '') {
+    document.documentElement.setAttribute('lang', lang || defaultLang);
+  }
+}
+
 if (typeof document !== 'undefined') {
   const mainElement = document.createElement('main');
   mainElement.setAttribute('lang', document.documentElement.lang);
@@ -1000,6 +1018,7 @@ module.exports = {
   server,
   sanitizeFilename,
   processData,
+  setHtmlLangAttribute,
   ensureFormAccessibility: a11yStore.ensureFormAccessibility,
   ensureKeyboardNavigation: a11yStore.ensureKeyboardNavigation,
   ensureImageAccessibility: a11yStore.ensureImageAccessibility

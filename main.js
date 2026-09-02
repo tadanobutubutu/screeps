@@ -603,3 +603,15 @@ const { someFunction } = { someFunction: () => 'someFunction result' };
       isInitialized = true;
     }
 })();
+
+module.exports = {
+  greet,
+  add,
+  getDependencies,
+  addDependency,
+  removeDependency,
+  countDependencies,
+  someFunction,
+  appData,
+  isInitialized
+};

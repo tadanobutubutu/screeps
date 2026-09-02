@@ -2,9 +2,11 @@ const main = require('./utilities')
 
 // Function for getting the language attribute based on content
 function getLangAttribute() {
-  return typeof document !== 'undefined' && document.documentElement
-    ? document.documentElement.lang
-    : 'en'
+  if (typeof document !== 'undefined' && document.documentElement) {
+    const content = document.body ? document.body.textContent : ''
+    return detectAndSetLang(content)
+  }
+  return setLangAttribute()
 }
 
 // Function for ensuring that each landmark on the page has a unique id attribute

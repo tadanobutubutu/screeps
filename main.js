@@ -18,7 +18,9 @@ const {
   googleSignIn,
   handleCredentialResponseAlt,
   renderGraphIndexUtil,
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  renderGraphIndex,
+  renderGraphIndexAlt
 } = require('./utilities');
 
 const http = require('http')
@@ -28,18 +30,13 @@ function renderGraphIndex(graphData) {
   renderDependencyGraphs(graphData);
 }
 
-const renderGraphIndexAlt = (graphData) => {
+function renderGraphIndexAlt(graphData) {
   addressAccessibilityIssues();
   renderDependencyGraphs(graphData);
-};
-
-// (keep the rest of the code as it is)
+}
 
 module.exports = {
-  renderGraphIndex: renderGraphIndex,
+  renderGraphIndex,
   renderGraphIndexAlt,
-  // (keep the rest of the exports as they are)
+  // ... rest of the exports
 };
-```
-
-In this resolution, both the existing `renderGraphIndex` function and the newly introduced `renderGraphIndexAlt` function are kept in the module exports. Now, users can choose which function to import based on their needs or specific scenarios. The rest of the code remains untouched.

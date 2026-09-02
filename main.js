@@ -43,7 +43,7 @@ const accessibilityUtils = {
   handleKeyboardNav,
   newFocusTrap,
   exportUtils,
-  personName,
+  personName: () => {},
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
@@ -54,7 +54,7 @@ const accessibilityUtils = {
 
 const ensureElementIdOriginal = (element) => {
   if (element && !element.id) {
-    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
+    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).substring(2, 11);
   }
   return element;
 };
@@ -79,7 +79,7 @@ const renderDependencyGraph = (data) => {
 function calculateSum(a, b) { return a + b; }
 
 accessibilityUtils.initSkipLink = () => {
-  const skipLink = document.getElementById('skip-link');
+  const skipLink = document.querySelector('.skip-link');
   if (!skipLink) {
     const skipContainer = document.createElement('div');
     skipContainer.id = 'skip-link';
@@ -96,7 +96,6 @@ accessibilityUtils.initSkipLink = () => {
     skipLinkElement.textContent = 'Skip to main content';
     skipLinkElement.ariaLabel = 'Skip to main content';
     skipContainer.appendChild(skipLinkElement);
-
     document.body.appendChild(skipContainer);
   }
 };
@@ -121,21 +120,20 @@ accessibilityUtils.trapFocus = (element) => {
   const handleKeyDown = (e) => {
     if (e.key === 'Tab') {
       if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
         lastElement.focus();
-        e.preventDefault();
       } else if (!e.shiftKey && document.activeElement === lastElement) {
-        firstElement.focus();
         e.preventDefault();
+        firstElement.focus();
       }
     }
 
     if (e.key === 'Escape') {
-      element.dispatchEvent(new CustomEvent('focusTrapEscape'));
+      element.dispatchEvent(new KeyboardEvent('escape'));
     }
   };
 
   element.addEventListener('keydown', handleKeyDown);
-  firstElement.focus();
 
   // Return cleanup function
   return () => {
@@ -143,26 +141,7 @@ accessibilityUtils.trapFocus = (element) => {
   };
 };
 
-// Credential response handling
-async function handleCredentialResponse(response) {
-  if (!response) {
-    throw new Error('No response received');
-  }
-
-  if (response.error) {
-    throw new Error(response.error);
-  }
-
-  if (response.token) {
-    return {
-      success: true,
-      token: response.token,
-      expiresIn: response.expiresIn || 3600
-    };
-  }
-
-  throw new Error('Invalid credential response');
-}
+// Credential response handling - uses the imported function from main
 
 // Existing utility functions
 function log(message, level = 'info') {
@@ -185,7 +164,7 @@ const exportUtilities = {
     URL.revokeObjectURL(url);
 
     // Announce download completion to screen readers
-    accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
+    announceToScreenReader("Download of " + filename + " started");
   },
 
   exportToJSON: (data, filename) => {
@@ -198,6 +177,7 @@ const exportUtilities = {
 
     const headers = Object.keys(data[0]);
     const csvRows = [];
+
     csvRows.push(headers.join(','));
 
     for (const row of data) {
@@ -214,7 +194,7 @@ const exportUtilities = {
 };
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-z0-9_.-]/gi, '_');
+  return filename.replace(/[^a-z0-9.-]/gi, '_');
 }
 
 function readFileSafe(filePath) {
@@ -253,12 +233,12 @@ const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
 
   // Add keyboard support for all interactive elements
-  document.querySelectorAll('[data-accessible]').forEach(element => {
+  document.querySelectorAll('button, a, input, select, textarea').forEach(element => {
     element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, {
+      const handlers = {
         Enter: () => element.click(),
         ' ': () => element.click()
-      });
+      };
     });
   });
 };

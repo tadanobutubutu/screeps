@@ -31,5 +31,18 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// New function for wrapping primary content in main for better structure
+function wrapPrimaryContentInMain() {
+    const primaryContent = document.querySelector('main > *');
+
+    if (primaryContent) {
+        primaryContent.parentNode.wrap(document.createElement('div'));
+        primaryContent.parentNode.firstChild.id = 'main-wrapper';
+    }
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };
+
+// Add the new function to exports
+export { wrapPrimaryContentInMain };

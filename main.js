@@ -24,133 +24,6 @@ const {
     checkAccessibility,
 } = main;
 
-// Implement the function for addressing accessibility issues from insight report
-function addressAccessibilityIssues(container, insightReport) {
-    const fixes = {
-        langAdded: false,
-        mainLandmarkAdded: false,
-        landmarksFixed: 0,
-        svgNamesAdded: 0,
-        fakeLinksFixed: 0,
-    };
-
-    if (!insightReport || !insightReport.issues) {
-        return fixes;
-    }
-
-    // Add lang attribute to HTML element if missing
-    const htmlEl =
-        document.querySelector('html') ||
-        (container.ownerDocument && container.ownerDocument.documentElement);
-    if (htmlEl && !htmlEl.hasAttribute('lang')) {
-        htmlEl.setAttribute('lang', 'en');
-        fixes.langAdded = true;
-    }
-
-    // Add main landmark if missing
-    const mainElement = container.querySelector('main');
-    if (!mainElement) {
-        const body = container.querySelector('body');
-        if (body) {
-            const newMain = document.createElement('main');
-            while (body.firstChild) {
-                newMain.appendChild(body.firstChild);
-            }
-            body.insertBefore(newMain, body.firstChild);
-            fixes.mainLandmarkAdded = true;
-        }
-    }
-
-    // Update the existing function using the new functions for rendering graph/index
-    renderDependencyGraphs(container);
-    fixButtonIdentifiers(container);
-    fixDependencyGraphAria(container);
-    addMainLandmarkToIndex(container);
-
-    // Fix landmark issues
-    validateLandmark(container);
-    validateLandmarkStructure(container);
-
-    // Fix SVG accessible names
-    const svgElements = container.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
-        const accessibleName = getSvgAccessibleName(svg);
-        if (
-            accessibleName &&
-            !svg.getAttribute('aria-label') &&
-            !svg.getAttribute('aria-labelledby')
-        ) {
-            svg.setAttribute('role', 'img');
-            svg.setAttribute('aria-label', accessibleName);
-            fixes.svgNamesAdded++;
-        }
-    });
-
-    // Fix fake link issues (elements that look like links but are missing href)
-    const fakeLinks = container.querySelectorAll(
-        '[role="link"], [onclick*="location"], [onclick*="href"], a:not([href])'
-    );
-    fakeLinks.forEach((link) => {
-        link.setAttribute(
-            'href',
-            '#' + (link.id || `link-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`)
-        );
-        link.setAttribute('role', 'link');
-        fixes.fakeLinksFixed++;
-    });
-
-    // Validate accessibility report
-    const accessibilityReport = validateAccessibilityReport(container);
-    if (accessibilityReport && accessibilityReport.length > 0) {
-        log(`Accessibility report contains ${accessibilityReport.length} remaining issues`, 'warn');
-    }
-
-    // Implement focus trap for keyboard navigation
-    focusTrap(container);
-
-    if (fixes.langAdded) {
-        log('Lang attribute added to HTML element', 'info');
-    }
-
-    if (fixes.mainLandmarkAdded) {
-        log('Main landmark added', 'info');
-    }
-
-    // Check for new accessibility issues
-    const newAccessibilityIssues = checkAccessibility(container);
-    if (newAccessibilityIssues.length > 0) {
-        log(
-            `New accessibility issues found: ${newAccessibilityIssues.map((i) => i.message || i).join(', ')}`,
-            'error'
-        );
-    }
-
-    const landmarkFixesCount = fixes.landmarksFixed || 0;
-    if (landmarkFixesCount > 0) {
-        log(`Fixed accessibility for ${landmarkFixesCount} unique landmarks`, 'info');
-    }
-
-    const svgFixes = fixes.svgNamesAdded || 0;
-    if (svgFixes > 0) {
-        log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
-    }
-
-    const fakeLinkFixes = fixes.fakeLinksFixed || 0;
-    if (fakeLinkFixes > 0) {
-        log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
-    }
-
-    return fixes;
-}
-
-// Accessibility-related function to be added
-function checkAccessibility(content) {
-    // Placeholder for accessibility checking logic
-    // This function should be implemented to check for accessibility issues
-    // For now, it just returns an empty array
-    return [];
-}
-
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -160,18 +33,7 @@ function checkAccessibility(content) {
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 // _Commit: 5d1690822c7c7ecd204a67a127dd3a55568560de_
-// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
-
-/**
- * Gets the current lang attribute from the document's <html> element
- * @returns {string} The current lang attribute value
- */
-function getLangAttribute() {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    return document.documentElement.lang || '';
-  }
-  return '';
-}
+// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e */
 
 /**
  * Detects the language of the given content and sets the HTML lang attribute
@@ -192,10 +54,10 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[éèêàâïîôùûüç]/i.test(content)) {
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
-      lang = 'de'; // German;
+      lang = 'de';
     }
   }
 
@@ -204,7 +66,7 @@ function detectAndSetLang(content) {
 
 /**
  * Returns a properly formatted person name
- * @param {string} name - The person 's name
+ * @param {string} name - The person's name
  * @returns {string} The formatted person name
  */
 function personName(name) {
@@ -213,7 +75,7 @@ function personName(name) {
 }
 
 /**
- * Creates an accessible in- page button and appends it to the given parent element.
+ * Creates an accessible in-page button and appends it to the given parent element.
  * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
  * @returns {HTMLElement} The created button element
  */

@@ -62,11 +62,11 @@ function setSvgAttributes(svg) {
 
 function getAccessibleName(element) {
   if (!element) return null;
-  .... // Remaining function remains unchanged
+  // Remaining function remains unchanged
 }
 
 function checkLandmarkElements() {
-  .... // Remaining function remains unchanged
+  // Remaining function remains unchanged
 }
 
 function getLangAttribute() {
@@ -201,11 +201,11 @@ function validateLandmark(element) {
 }
 
 function addressNewAccessibilityIssues(insightReport) {
-  .... // Remaining function remains unchanged
+  // Remaining function remains unchanged
 }
 
 function implementAccessibilitySolutions(issues) {
-  .... // Remaining function remains unchanged
+  // Remaining function remains unchanged
 }
 
 const sampleInsightReport = {

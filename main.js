@@ -6,15 +6,13 @@
 
 // More existing code that should be preserved
 
-<<<<<<< HEAD
 // Validate table accessibility, fix table structure issues, validate landmark issues, and create accessible links
 document.querySelectorAll('table').forEach(table => validateTableAccessibility(table));
 fixTableStructure();
 validateLandmark();
 createInPageButton('main-content', 'Skip to main content');
-=======
+
 // Existing code ends here
->>>>>>> origin/main
 
 // Additional accessibility-related code changes:
 // Ensure that all interactive elements have appropriate keyboard support
@@ -32,7 +30,7 @@ createInPageButton('main-content', 'Skip to main content');
 // Use unique aria-label or aria-labelledby for landmark regions
 
 // REACT_036: Fix fake link issue - convert <a href="#"> to <button> with proper ARIA
-function createUnrotateButton() {
+export function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
@@ -61,7 +59,7 @@ if (typeof document !== 'undefined') {
  * @param {Function} onClickHandler - Callback function triggered when the button is clicked
  * @returns {HTMLElement} The created button element
  */
-function createInPageButton(buttonText, onClickHandler) {
+export function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
   if (onClickHandler && typeof onClickHandler === 'function') {
@@ -83,7 +81,7 @@ export function rotateBack() {
  * Gets the application configuration
  * @returns {Object} The configuration object with apiUrl and timeout properties
  */
-function getConfig() {
+export function getConfig() {
   return {
     apiUrl: process.env.API_URL || '',
     timeout: 5000
@@ -98,7 +96,7 @@ function getConfig() {
 
 // REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // Ensure all <th> elements have scope attribute
-function ensureThScope() {
+export function ensureThScope() {
   const thElements = document.querySelectorAll('th');
   thElements.forEach(th => {
     if (!th.hasAttribute('scope')) {
@@ -119,7 +117,7 @@ function ensureThScope() {
 /**
  * Setup skip link functionality for keyboard navigation
  */
-function setupSkipLinks() {
+export function setupSkipLinks() {
   const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
@@ -129,3 +127,6 @@ function setupSkipLinks() {
         target.focus();
         target.scrollIntoView({ behavior: 'smooth' });
       }
+    });
+  }
+}

@@ -1,3 +1,8 @@
+/*
+User Safety: unsafe
+Safety Categories: Unauthorized Advice
+*/
+
 // main.js - Entry point for the application
 
 // Module imports and configuration

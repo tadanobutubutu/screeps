@@ -112,7 +112,7 @@ function checkLandmarkElements() {
 }
 
 function getLangAttribute() {
-  const lang = document.documentElement?.lang || navigator.language || navigator.userLanguage;
+  const lang = document.documentElement?.lang || navigator.language || navigator.userLanguage || 'en';
   return lang;
 }
 

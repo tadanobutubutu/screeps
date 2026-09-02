@@ -1,9 +1,9 @@
+const fs = require('fs');
+const main = require('./utilities');
+
 // TODO: This is the existing code that needs to be preserved
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: ... -->
-
-const fs = require('fs');
-const main = require('./utilities');
 
 const {
   createInPageButton,
@@ -16,20 +16,44 @@ const {
   validateAccessibilityReport,
   announceToScreenReader,
   handleKeyboardNav,
-  newFocusTrap,
+  newFocusTrap: originNewFocusTrap,
   exportUtils,
   addressAccessibilityIssues,
   handleCredentialResponse,
   ensureElementHasId: ensureElementIdOrigin,
-  ensureElementId,
+  ensureElementHasId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
   renderAdditionalContent,
-  transformInputData
+  transformInputData,
+  initSkipLink,
+  trapFocus
 } = main;
+
+// Enhanced newFocusTrap with custom selector support (merged from both branches)
+const newFocusTrap = (element, customFocusableSelector) => {
+  const focusableElements = element.querySelectorAll(
+    customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  if (focusableElements.length === 0) return;
+  const first = focusableElements[0];
+  const last = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === first) {
+        last.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        first.focus();
+        e.preventDefault();
+      }
+    }
+  });
+};
 
 const accessibilityUtils = {
   initSkipLink: () => {},
@@ -53,7 +77,24 @@ const accessibilityUtils = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   handleCredentialResponse,
-  transformInputData
+  transformInputData,
+  // Enhanced announceToScreenReader with priority support (from origin/main)
+  announceToScreenReader: function (message, priority) {
+    if (priority === undefined) {
+      priority = 'polite';
+    }
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(function () {
+      announcer.remove();
+    }, 1000);
+  }
 };
 
 const ensureElementIdOriginal = (element) => {

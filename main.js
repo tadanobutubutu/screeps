@@ -608,14 +608,6 @@ function writeReport(report) {
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
-}
-
 // Existing utility function
 const formatResponse = (data) => {
   return JSON.stringify(data, null, 2);
@@ -623,10 +615,6 @@ const formatResponse = (data) => {
 
 // Application main entry point
 const app = express();
-
-// TODO: add the new functions or changes requested in the issue
-// Here is the implementation for checking link accessibility
-// The existing isLinkAccessible function implementation
 
 // Endpoint for getting landmarks
 app.get('/landmarks', (req, res) => {

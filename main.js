@@ -322,149 +322,29 @@ function ensureUniqueLandmarks(landmarks) {
     });
 }
 
-// Initialize function
-function initialize() {
-  appState.initialized = true;
-  console.log('App initialized');
+// Function to validate landmark properties
+function validateLandmark(landmark) {
+  if (!landmark) return false;
+  if (landmark.id == null || landmark.id === '') return false;
+  return true;
 }
 
-// Initialize app function
-function initializeApp() {
-  initialize();
-  return appState;
+// Function to validate landmark structure
+function validateLandmarkStructure(landmark) {
+  if (!landmark) return false;
+  // Check for required properties
+  const hasId = landmark.id != null && typeof landmark.id === 'string';
+  const hasName = landmark.name != null && typeof landmark.name === 'string';
+  const hasDescription = landmark.description != null && typeof landmark.description === 'string';
+  return hasId && hasName && hasDescription;
 }
 
-// Fetch user function
-async function fetchUser(userId) {
-  if (!userId) {
-    return null;
-  }
-  return { id: userId, name: 'User ' + userId };
-}
+// Function to add fixes for landmark issues
+function addFixLandmarkIssues(landmarks) {
+  // Find duplicate IDs and mark them for removal or fix
+  const seenIds = new Set();
+  const fixedLandmarks = [];
+  const duplicates = [];
 
-// Clear cache function
-function clearCache() {
-  appState.cache.clear();
-}
-
-// Helper function
-function someFunction() {
-  return 'some value';
-}
-
-// Configuration
-const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || 'localhost';
-
-// Application main entry point
-const app = expressApp;
-
-// New function or changes requested in the issue
-function wrapContentWithMain() {
-  const contentToWrap = document.querySelector('div.container'); // Assuming the primary content is within a div with class 'container'
-  if (contentToWrap) {
-    const mainElement = document.createElement('main');
-    mainElement.appendChild(contentToWrap);
-    document.body.insertBefore(mainElement, document.body.firstChild);
-  }
-}
-
-// Call the function to wrap the content with <main> in browser environment
-if (typeof window !== 'undefined') {
-  wrapContentWithMain();
-}
-
-// ... (Preserve all existing code, exports, and functions)
-
-// Write report from HEAD
-function writeReport(report) {
-    const reportFile = path.join(__dirname, 'accessibility_report.json');
-    fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
-// ... (remaining accessibility and helper functions from origin/main)
-
-// New function or changes requested in the issue (accessibility)
-function ensureDependencyGraphRole(container) {
-    if (!container) return;
-    if (!container.hasAttribute('role')) {
-      container.setAttribute('role', 'graphics-document');
-    }
-    if (!container.hasAttribute('aria-label')) {
-      container.setAttribute('aria-label', 'Dependency graph');
-    }
-}
-
-// ... (additional functions like renderDependencyGraphContent, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport, validateTableAccessibility, validateTableStructure, fixTableStructure, addMainLandmark, validateLandmark, validateLandmarkStructure, validateLandmarkAttributes, getSvgAccessibleName, setSvgAttributes, createInPageButton, validateLinkAccessibility, handleFakeLinks, addLandmarkRegions, addProperLandmarkRegions, fixTableAccessibility, fixLandmarkIssues, addSvgAccessibility, createAccessibleLinks, formatResponse, fixUniqueLandmarksList, fixTableStructureIssues, fixTableHeaderCellScope, addSvgAccessibleNames, fixFakeLinks, addLandmarkRoles, setLanguageAttribute, processAccessibilityReport, getLangAttribute, addLangAttribute, improveAccessibility, scanAccessibility, renderDependencyGraph, checkLandmarkElement, landmarkStructureCheck, wrapPrimaryContentInMain, main)
-
-module.exports = {
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  someFunction,
-  helper,
-  formatDate,
-  validateInput,
-  initialize,
-  // Combined accessibility functions from both changes
-  ensureDependencyGraphRole,
-  addressAccessibilityIssues: async () => {
-    // Combine the logic from both changes
-    const allResults = await accessiblyHelper();
-    if (!allResults[0]) return;
-    // Ensure the dependencyGraph container has a proper ARIA role
-    allResults[0].ensuresDependencyGraphRole();
-    // ... (add other accessibility improvements as needed)
-  },
-  renderDependencyGraphContent,
-  createInPageButtons,
-  fixUniqueLandmarks,
-  generateAccessibilityReport,
-  config: CONFIG,
-  appState,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  addProperLandmarkRegions,
-  fixTableAccessibility,
-  fixLandmarkIssues,
-  addSvgAccessibility,
-  createAccessibleLinks,
-  formatResponse,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  CONFIG,
-  isValidLandmark,
-  ensureUniqueLandmarks,
-  ensureUniqueLandmarksList,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  addLandmarkRoles,
-  setLanguageAttribute,
-  processAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  improveAccessibility,
-  scanAccessibility,
-  writeReport,
-  renderDependencyGraph,
-  checkLandmarkElement,
-  landmarkStructureCheck,
-  wrapPrimaryContentInMain,
-  main
-};
+  for (const landmark of landmarks) {
+    if (

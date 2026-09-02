@@ -182,7 +182,7 @@ function ensureUniqueLandmarks(html) {
             html = html.replace(pattern, (match) => {
                 count++;
                 if (count === 1) return match;
-                return match.replace(/^</, '<' + tag).replace(`<${tag}`, `<${tag} role="region"`);
+                return match.replace(/^</, '<' + tag).replace(`<${tag}`, `<${tag} role="region">`);
             });
         }
     });

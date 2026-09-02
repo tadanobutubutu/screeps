@@ -21,7 +21,7 @@ const appData = {};
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//_Commit: eef4b6be04a5e2cd61b7543cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
@@ -357,6 +357,22 @@ function addressInsightReportIssues(insightReport) {
   // Placeholder implementation
 }
 
+// Function to handle the credential response (e.g., from Google Identity Services)
+function handleCredentialResponse(response) {
+  if (response && response.credential) {
+    const credential = response.credential;
+    try {
+      const payload = JSON.parse(atob(credential.split('.')[1]));
+      console.log('Credential payload:', payload);
+      // Typically, you would send this to your backend for verification
+    } catch (error) {
+      console.error('Error decoding credential:', error);
+    }
+  } else if (response && response.select_by) {
+    console.log('Credential selection:', response.select_by);
+  }
+}
+
 // Export all functions for use elsewhere in the repository
 module.exports = {
   improveAccessibility,
@@ -380,7 +396,8 @@ module.exports = {
   renderDependencyGraphContent,
   createInPageButtons,
   fixUniqueLandmarks,
-  generateAccessibilityReport // Add the new generateAccessibilityReport function to the exports
+  generateAccessibilityReport, // Add the new generateAccessibilityReport function to the exports
+  handleCredentialResponse
 };
 
 // Execute main function

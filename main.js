@@ -410,20 +410,6 @@ function isLinkAccessible(link) {
   return { valid: errors.length === 0, errors };
 }
 
-/**
- * Creates an accessible in-page button and appends it to the given parent element.
- * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(parent = document.body) {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.setAttribute('role', 'button');
-  btn.setAttribute('aria-label', 'Open modal');
-  parent.appendChild(btn);
-  return btn;
-}
-
 // New function to address ADD: Address new accessibility issues from insight report
 function validateFormAccessibility(form) {
   // This function validates the accessibility of forms
@@ -530,12 +516,34 @@ function validateButtonAccessibility(button) {
   return { valid: errors.length === 0, errors };
 }
 
-// TODO: Implement a function to count dependencies
-function countDependencies() {
-  // Existing function implementation
+// Missing functions that are exported but not defined
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.setAttribute('lang', lang);
+  }
+}
 
+function detectAndSetLang() {
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    setHtmlLangAttribute(navigator.language);
+  }
+}
+
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.getAttribute('lang') || '';
+  }
+  return '';
+}
+
+function personName(firstName, lastName) {
+  return `${firstName} ${lastName}`.trim();
+}
+
+// TODO: Implement a function to count dependencies
+function countDependencies(dependencyGraphContent) {
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/;
+  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/g;
   const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }
@@ -545,9 +553,6 @@ function exampleFunction() {
     // Function implementation
     console.log("This is the new function exampleFunction");
 }
-
-// TODO: Implement actual logic for functionA
-function functionA() {
 
 // TODO: Implement tower defense
 function towerDefense() {
@@ -751,6 +756,3 @@ module.exports = {
   countDependencies,
   exampleFunction
 };
-
-// Add the new function to the exports
-module.exports.exampleFunction = exampleFunction;

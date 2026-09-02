@@ -181,6 +181,8 @@ const mergedConfig = CONFIG;
 
 // Helper functions from the safe version
 
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+
 // TODO: Address accessibility issues from insight report:
 
 // New code or changes requested in the issue

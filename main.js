@@ -18,7 +18,7 @@ let icons = {};
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 function addressInsightIssues() {
-  const dependencyGraphContainer = document.getElementById('dependencyGraph');
+  const dependencyGraphContainer = document.querySelector('[data-dependency-graph]');
   if (dependencyGraphContainer) {
     dependencyGraphContainer.setAttribute('role', 'region');
     dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph Visualization');
@@ -121,10 +121,10 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (!elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
+        if (elementsById[landmark.id]) {
+          elementsById[landmark.id + '_duplicate'] = true;
         } else {
-          landmark.id += '_duplicate';
+          elementsById[landmark.id] = true;
         }
       }
     }
@@ -135,7 +135,7 @@ function ensureLandmarkUniqueness(elements) {
 
 // Updated function using the new functions for rendering graph/index
 function renderDependencyGraphContent() {
-  const container = document.getElementById('dependencyGraph');
+  const container = document.querySelector('#dependency-graph-container');
   if (!container) {
     return;
   }
@@ -158,7 +158,7 @@ function countDependencies() {
 // Add lang attribute to HTML element
 function addLangAttribute() {
   const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
 }
@@ -200,23 +200,28 @@ function fixTableStructureIssues() {
 
 // Add/fix landmark issues
 function addMainLandmark() {
-  if (!document.querySelector('main')) {
-    const main = document.createElement('main');
-    main.id = 'main-content';
-    document.body.appendChild(main);
+  const main = document.querySelector('main');
+  if (main) {
+    if (!main.id) {
+      main.id = 'main-content';
+    }
+    if (!main.hasAttribute('role')) {
+      main.setAttribute('role', 'main');
+    }
   }
 }
 
 // Add accessible names to SVGs
 function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg:not([aria-hidden="true"])');
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       const title = svg.querySelector('title');
       if (title) {
+        title.id = svg.id ? svg.id + '-title' : 'svg-title';
         svg.setAttribute('aria-labelledby', title.id);
       } else {
-        svg.setAttribute('aria-label', 'graphic');
+        svg.setAttribute('aria-label', 'Decorative graphic');
       }
     }
   });
@@ -224,16 +229,16 @@ function addSvgAccessibleNames() {
 
 // Fix fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('[role="link"][href="javascript:void(0)"]');
+  const fakeLinks = document.querySelectorAll('[href="#"], [href=""], [data-fake-link]');
   fakeLinks.forEach(link => {
     link.setAttribute('tabindex', '0');
     link.setAttribute('role', 'button');
-    link.removeAttribute('href');
+    link.setAttribute('href', 'javascript:void(0)');
   });
 }
 
 // Address all accessibility issues from insight report
-function addressInsightIssues() {
+function addressAllInsightIssues() {
   addLangAttribute();
   fixTableStructureIssues();
   addMainLandmark();
@@ -245,6 +250,7 @@ function addressInsightIssues() {
 function initApp() {
   initializeApp();
   addressInsightIssues();
+  addressAllInsightIssues();
   registerSW();
 }
 
@@ -268,6 +274,7 @@ export {
   validateSvgAccessibility,
   processUniqueElements,
   addressInsightIssues,
+  addressAllInsightIssues,
   renderDependencyGraph,
   renderIndexView,
   calculateSum,

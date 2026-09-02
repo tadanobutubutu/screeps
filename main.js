@@ -285,3 +285,4 @@ function improveAccessibility() {
   fixTableHeaderCellScope();
   addMainLandmark();
   addSvgAccessibleNames();
+}

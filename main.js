@@ -76,6 +76,8 @@ function setARIARoleForDependencyGraph() {
   if (typeof document === 'undefined') {
     return;
   }
+  // Ensure the container exists before setting role
+  const container = ensureDependencyGraphContainer();
   const dependencyGraph = document.getElementById('dependencyGraph');
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'grid');
@@ -177,6 +179,57 @@ function startApp() {
   return server;
 }
 
+// New function to render dependency graphs
+function renderDependencyGraphs() {
+  // Ensure container exists
+  const container = ensureDependencyGraphContainer();
+
+  // Clear previous content
+  container.innerHTML = '';
+
+  // Dummy data for demonstration
+  const dummyData = [
+    { id: 'book1', label: 'Book 1', dependencies: ['book2', 'book3'] },
+    { id: 'book2', label: 'Book 2', dependencies: ['book3'] },
+    { id: 'book3', label: 'Book 3', dependencies: [] }
+  ];
+
+  // Create node elements
+  const nodeElements = {};
+  dummyData.forEach(node => {
+    const nodeEl = document.createElement('div');
+    nodeEl.className = 'graph-node';
+    nodeEl.textContent = `${node.id}: ${node.label}`;
+    nodeEl.style.margin = '5px';
+    container.appendChild(nodeEl);
+    nodeElements[node.id] = nodeEl;
+  });
+
+  // Draw edges
+  dummyData.forEach(node => {
+    node.dependencies.forEach(depId => {
+      if (nodeElements[depId]) {
+        const edge = document.createElement('div');
+        edge.className = 'graph-edge';
+        edge.textContent = `→ ${depId}`;
+        edge.style.marginLeft = '20px';
+        nodeElements[node.id].appendChild(edge);
+      }
+    });
+  });
+}
+
+// Helper to ensure dependency graph container exists
+function ensureDependencyGraphContainer() {
+  let container = document.getElementById('dependencyGraph');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'dependencyGraph';
+    document.body.appendChild(container);
+  }
+  return container;
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
@@ -201,10 +254,4 @@ module.exports = {
 // Start the application if run directly
 if (require.main === module) {
   startApp();
-}
-
-// New function to render dependency graphs
-function renderDependencyGraphs() {
-  // Implementation to render dependency graphs
-  console.log('Dependency graphs rendered');
 }

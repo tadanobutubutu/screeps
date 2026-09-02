@@ -1,8 +1,8 @@
 // Existing code that was not part of the conflict
 
- // TODO: Address accessibility issues from insight report:
+// TODO: Address accessibility issues from insight report:
 
- // New code or changes requested in the issue
+// New code or changes requested in the issue
 
 /**
  * Ensures an element has an ID attribute

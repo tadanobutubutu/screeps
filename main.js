@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -14,6 +11,7 @@ const appState = {
   cache: new Map()
 };
 
+// TODO: Add new functions below this line
 function validateLandmark(landmark) {
   const errors = [];
   // Existing code that should be preserved
@@ -24,6 +22,50 @@ function validateLandmark(landmark) {
     errors.push('Invalid landmark role');
   }
   return errors;
+}
+
+function formatDate(date) {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function formatTime(date) {
+  const d = new Date(date);
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const seconds = String(d.getSeconds()).padStart(2, '0');
+  return `${hours}:${minutes}:${seconds}`;
+}
+
+function formatDateTime(date) {
+  return `${formatDate(date)} ${formatTime(date)}`;
+}
+
+function truncateString(str, maxLength) {
+  if (typeof str !== 'string') {
+    return '';
+  }
+  if (str.length <= maxLength) {
+    return str;
+  }
+  return str.substring(0, maxLength - 3) + '...';
+}
+
+function capitalizeFirst(str) {
+  if (typeof str !== 'string' || str.length === 0) {
+    return '';
+  }
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function capitalizeWords(str) {
+  if (typeof str !== 'string' || str.length === 0) {
+    return '';
+  }
+  return str.split(' ').map(word => capitalizeFirst(word)).join(' ');
 }
 
 const appData = {
@@ -95,7 +137,8 @@ function addLandmarkRegions() {
 
 function getSvgAccessibleName() {
     // Merged implementation (conflict resolved)
-    const svgElement = ... // needs actual element reference
+    const svgElement = document.querySelector('svg');
+    if (!svgElement) return 'No SVG found';
     const title = svgElement.querySelector('title');
     const ariaLabel = svgElement.getAttribute('aria-label');
     if (title) return title.textContent;
@@ -232,6 +275,11 @@ module.exports = {
     validateInput,
     processData,
     addLandmarkRegions,
-    setSvgAttributes
+    setSvgAttributes,
+    formatDate,
+    formatTime,
+    formatDateTime,
+    truncateString,
+    capitalizeFirst,
+    capitalizeWords
 };
-```

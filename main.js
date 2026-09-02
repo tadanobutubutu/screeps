@@ -341,6 +341,33 @@
                     addressedAt: new Date().toISOString()
                 };
             });
+        },
+
+        // Function to validate landmark elements
+        validateLandmark: function() {
+          const requiredLandmarks = ['main', 'nav', 'footer'];
+          const missingLandmarks = [];
+
+          requiredLandmarks.forEach(landmark => {
+            const element = document.querySelector(`[role="${landmark}"]`) ||
+                           document.querySelector(`${landmark}`);
+            if (!element) {
+              missingLandmarks.push(landmark);
+            }
+          });
+
+          if (missingLandmarks.length > 0) {
+            console.warn('Missing required landmarks:', missingLandmarks.join(', '));
+            return false;
+          }
+          return true;
+        },
+
+        // Function to validate landmark structure
+        validateLandmarkStructure: function(landmarkElement) {
+          if (!landmarkElement) return false;
+          const heading = landmarkElement.querySelector('h1, h2, h3, h4, h5, h6');
+          return heading !== null;
         }
     };
 
@@ -388,26 +415,6 @@
       });
 
       return validStructure;
-    }
-
-    // New function to validate landmark
-    function validateLandmark(landmarkElement) {
-      if (!landmarkElement) return false;
-
-      // Check if landmark has proper role
-      const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
-      const role = landmarkElement.getAttribute('role');
-
-      return validRoles.includes(role);
-    }
-
-    // New function to validate landmark structure
-    function validateLandmarkStructure(landmarkElement) {
-      if (!landmarkElement) return false;
-
-      // Check if landmark has proper heading
-      const heading = landmarkElement.querySelector('h1, h2, h3, h4, h5, h6');
-      return heading !== null;
     }
 
     // New function to get SVG accessible name
@@ -521,34 +528,8 @@
     // Address accessibility issues from insight report:
     // Implemented validateLandmark functionality
 
-    // New function to validate landmark elements
-    function validateLandmark() {
-      const requiredLandmarks = ['main', 'nav', 'footer'];
-      const missingLandmarks = [];
-
-      requiredLandmarks.forEach(landmark => {
-        const element = document.querySelector(`[role="${landmark}"]`) ||
-                       document.querySelector(`${landmark}`);
-        if (!element) {
-          missingLandmarks.push(landmark);
-        }
-      });
-
-      if (missingLandmarks.length > 0) {
-        console.warn('Missing required landmarks:', missingLandmarks.join(', '));
-        return false;
-      }
-      return true;
-    }
-
     // Expose validateLandmark to global scope if needed
     if (typeof window !== 'undefined') {
-      window.validateLandmark = validateLandmark;
+      window.validateLandmark = accessibilityUtils.validateLandmark;
     }
-
-    // Add the new function to the accessibilityUtils object
-    const accessibilityUtils = {
-      validateLandmark: validateLandmark,
-      // ... other existing utility functions
-    };
 })();

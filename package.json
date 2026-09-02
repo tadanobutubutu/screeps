@@ -14,9 +14,9 @@
     "react": "^19.0.0"
   },
   "devDependencies": {
-    "babel-jest": "^30.5.0",
+    "babel-jest": "^30.5.1",
     "eslint": "^10.9.1",
-    "jest": "^30.5.0",
+    "jest": "^30.5.1",
     "testdriverai": "^7.11.85-canary",
     "vitest": "^4.1.11"
   },

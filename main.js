@@ -23,7 +23,7 @@ function myFunction(param1, param2) {
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
@@ -75,7 +75,7 @@ function fixTableStructureIssues(document) {
 
 /**
  * Validates that a table element has the correct accessibility role.
- * @param {HTMLElement} element - The table element to validate.
+ * @param [PERSON_NAME] element - The table element to validate.
  * @returns {boolean} True if the element is considered a valid table.
  */
 function validateTableAccessibility(element) {
@@ -90,7 +90,7 @@ function validateTableAccessibility(element) {
 
 /**
  * Checks whether a table element follows basic structural rules.
- * @param {HTMLElement} element - The table element to validate.
+ * @param [PERSON_NAME] element - The table element to validate.
  * @returns {boolean} True if the table structure is acceptable.
  */
 function validateTableStructure(element) {
@@ -101,7 +101,7 @@ function validateTableStructure(element) {
 
 /**
  * Validates a single landmark element (expected to be an SVG).
- * @param {HTMLElement} element - The landmark element.
+ * @param [PERSON_NAME] element - The landmark element.
  * @returns {boolean} True if the element passes the landmark check.
  */
 function validateLandmark(element) {
@@ -112,7 +112,7 @@ function validateLandmark(element) {
 
 /**
  * Ensures that a landmark has a unique identifier or an accessible label.
- * @param {HTMLElement} element - The landmark element.
+ * @param [PERSON_NAME] element - The landmark element.
  * @returns {boolean} True if the landmark is valid.
  */
 function validateLandmarkStructure(element) {
@@ -143,7 +143,7 @@ function ensureUniqueLandmarksArray(landmarks) {
 
 /**
  * Extracts an accessible name from an SVG element.
- * @param {HTMLElement} svgElement - The SVG element.
+ * @param [PERSON_NAME] element.
  * @returns {string} The accessible name, or a fallback value.
  */
 function getSvgAccessibleName(svgElement) {
@@ -157,7 +157,7 @@ function getSvgAccessibleName(svgElement) {
 
 /**
  * Adds an accessible name (aria-label) to image elements within an SVG.
- * @param {HTMLElement} svgElement - The parent SVG element.
+ * @param [PERSON_NAME] parent SVG element.
  * @param {string[]} names - Array of names to assign.
  */
 function addAccessibleNamesToSvg(svgElement, names) {
@@ -176,7 +176,7 @@ function addAccessibleNamesToSvg(svgElement, names) {
 
 /**
  * Ensures an element has an id attribute.
- * @param {HTMLElement} element - The element to check.
+ * @param [PERSON_NAME] element - The element to check.
  * @returns {string} The element's id (existing or newly generated).
  */
 function ensureElementHasId(element) {
@@ -191,9 +191,9 @@ function ensureElementHasId(element) {
 
 /**
  * Adds an aria-label attribute to an element.
- * @param {HTMLElement} element - The element to modify.
+ * @param [PERSON_NAME] element - The element to modify.
  * @param {string} label - The label text.
- * @returns {HTMLElement} The modified element.
+ * @returns [PERSON_NAME] element.
  */
 function addAriaLabel(element, label) {
   if (!element) {
@@ -206,8 +206,8 @@ function addAriaLabel(element, label) {
 /**
  * Renders a dependency graph.
  * @param {Object} data - The dependency data to render.
- * @param {HTMLElement} container - The container element for the graph.
- * @returns {HTMLElement} The rendered graph container.
+ * @param [PERSON_NAME] container - The container element for the graph.
+ * @returns [PERSON_NAME] graph container.
  */
 function renderDependencyGraph(data, container) {
   if (!data) {
@@ -293,7 +293,7 @@ function addMainLandmark(document) {
     }
     body.appendChild(main);
   } else if (mainElements.length === 1) {
-    const main = mainElements[0];
+    const main = document.querySelector('main');
     if (!main.hasAttribute('role')) {
       main.setAttribute('role', 'main');
     }
@@ -309,7 +309,6 @@ function addSvgAccessibleNames(document) {
 
   svgs.forEach((svg, index) => {
     const existingLabel = svg.getAttribute('aria-label') ||
-                          svg.querySelector('title') ||
                           svg.getAttribute('aria-labelledby');
 
     if (!existingLabel) {
@@ -448,7 +447,7 @@ function checkLinkAndButtonAccessibility(document) {
 /**
  * Implements a focus trap for keyboard navigation
  * Creates a focus trap within the specified container element
- * @param {HTMLElement} container - The container element to trap focus within
+ * @param [PERSON_NAME] container - The container element to trap focus within
  * @returns {Object} Object with activate, deactivate, and toggle methods
  */
 function newFocusTrap(container) {
@@ -617,7 +616,7 @@ function fixTableStructure() {
           const grandparent = parent.parentElement;
           if (grandparent && grandparent.tagName === 'THEAD') {
             th.setAttribute('scope', 'col');
-          } else if (th.tagName === 'TH') {
+          } else if (grandparent.tagName === 'TBODY') {
             // If it's in a row that is itself a header row (like in tbody for row headers)
             th.setAttribute('scope', 'row');
           } else {

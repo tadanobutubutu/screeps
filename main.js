@@ -1,4 +1,3 @@
-// Import necessary dependencies
 import React from 'react';
 import { render } from 'react-dom';
 import {
@@ -336,7 +335,6 @@ if (typeof window !== 'undefined') {
     window.renderAdditionalContent = renderAdditionalContent;
 }
 
-// Export functions to make them accessible
 module.exports = {
   validateTableAccessibility,
   validateTableStructure,
@@ -365,19 +363,5 @@ module.exports = {
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  addTask,
-  generateTaskId,
-  cancelTask
-} = require('./AccessibilityHelpers')
-
-```
-
-This resolved file intentionally keeps both changes to preserve all functionality. It updates the utilities for accessibility, imports the necessary dependencies, and implements the function for addressing accessibility issues from the insight report. The existing function for rendering graph/index is updated to use the new functions. Finally, the functions are exported to make them accessible.
+  ...accessibilityUtils
+};

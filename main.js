@@ -337,6 +337,67 @@ function createInPageButton(text, targetId, options) {
   return button;
 }
 
+// New function to validate the accessibility report for issues
+/**
+ * Validates the accessibility report for issues
+ * @param {Array|Object} report - The accessibility report to validate. Can be an array of issues or an object with an issues array
+ * @returns {Object} Validation result with valid flag, errors, and warnings arrays
+ */
+function validateAccessibilityReport(report) {
+  const errors = [];
+  const warnings = [];
+  
+  // Handle null or undefined report
+  if (report === null || report === undefined) {
+    errors.push('Accessibility report is missing');
+    return { valid: false, errors, warnings };
+  }
+  
+  // Determine the issues array from the report
+  let issues = [];
+  if (Array.isArray(report)) {
+    issues = report;
+  } else if (typeof report === 'object' && report !== null) {
+    if (Array.isArray(report.issues)) {
+      issues = report.issues;
+    } else {
+      errors.push('Accessibility report does not contain an issues array');
+      return { valid: false, errors, warnings };
+    }
+  } else {
+    errors.push('Accessibility report must be an array or object');
+    return { valid: false, errors, warnings };
+  }
+  
+  // Validate each issue in the report
+  issues.forEach((issue, index) => {
+    if (!issue || typeof issue !== 'object') {
+      errors.push(`Issue ${index + 1} is not a valid object`);
+      return;
+    }
+    
+    // Check for required fields
+    if (!issue.id && !issue.ruleId && !issue.code) {
+      warnings.push(`Issue ${index + 1} is missing an identifier (id, ruleId, or code)`);
+    }
+    
+    if (!issue.message && !issue.description) {
+      warnings.push(`Issue ${index + 1} is missing a message or description`);
+    }
+    
+    if (!issue.severity && !issue.impact) {
+      warnings.push(`Issue ${index + 1} is missing severity or impact information`);
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors,
+    warnings,
+    issueCount: issues.length
+  };
+}
+
 function personName(name) {
   if (typeof name !== 'string') {
     return '';
@@ -357,5 +418,6 @@ export {
   validateSvgAccessibility,
   ensureUniqueLandmarks,
   createInPageButton,
+  validateAccessibilityReport,
   personName
 };

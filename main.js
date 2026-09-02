@@ -379,6 +379,13 @@ function calculateLuminance(rgb) {
 }
 
 // TODO: Re-add the required exports for functionA and functionB
+function functionA(value) {
+    return value;
+}
+
+function functionB(value) {
+    return value ? value : null;
+}
 
 module.exports = {
     addLangAttribute,
@@ -394,7 +401,9 @@ module.exports = {
     isLinkAccessible,
     checkColorContrast,
     parseColor,
-    calculateLuminance
+    calculateLuminance,
+    functionA,
+    functionB
 };
 
 // Run if executed directly

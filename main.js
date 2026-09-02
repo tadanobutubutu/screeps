@@ -62,7 +62,7 @@ function fixTableStructure (html) {
 }
 
 /**
- * Divides two numbers with proper error handling
+ * Divides two number with proper error handling
  * @param {number} dividend - The number to be divided
  * @param {number} divisor - The number to divide by
  * @returns {number} The result of the division

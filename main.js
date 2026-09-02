@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 // Importing utilities for formatting and validation
 import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
 import { renderHeader, renderFooter, renderProductCard } from './components.js';

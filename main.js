@@ -11,7 +11,6 @@ const {
     getLangAttribute,
     validateAccessibilityReport,
     exportUtils,
-    addressAccessibilityIssues,
     handleCredentialResponse,
     ensureElementHasId,
     ensureElementHasIdOrigin,
@@ -21,7 +20,6 @@ const {
     fixDependencyGraphAria,
     addMainLandmarkToIndex,
     focusTrap,
-    checkAccessibility,
 } = main;
 
 // Implement the function for addressing accessibility issues from insight report
@@ -34,7 +32,7 @@ function addressAccessibilityIssues(container, insightReport) {
         fakeLinksFixed: 0,
     };
 
-    if (!report || !report.issues) {
+    if (!insightReport || !insightReport.issues) {
         return fixes;
     }
 

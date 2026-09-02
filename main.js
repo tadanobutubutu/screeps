@@ -9,7 +9,7 @@ function addressAccessibilityIssues(insightReport) {
   console.log('Addressing accessibility issues from insight report:', insightReport);
 
   // Add accessibility improvements
-  document.body.setAttribute('lang', 'en');
+  const rootElement = document.getElementById('root') || document.body;
   document.title = 'Accessible Application';
 
   // Add ARIA attributes to buttons
@@ -25,7 +25,7 @@ function addressAccessibilityIssues(insightReport) {
   skipLink.href = '#main-content';
   skipLink.textContent = 'Skip to main content';
   skipLink.className = 'skip-link';
-  document.body.insertBefore(skipLink, document.body.firstChild);
+  rootElement.insertBefore(skipLink, rootElement.firstChild);
 
   // Add focus styles for keyboard navigation
   const style = document.createElement('style');
@@ -55,7 +55,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.textContent = buttonText;
     button.className = buttonClass;
     button.setAttribute('aria-label', buttonText); // Add ARIA label
-    document.body.appendChild(button);
+    return button;
 }
 
 // Accessibility improvements for addBook function/form
@@ -112,7 +112,8 @@ function addBook(title, author, isbn) {
     form.appendChild(submitButton);
 
     // Add form to document
-    document.body.appendChild(form);
+    const container = document.getElementById('book-form-container') || document.body;
+    container.appendChild(form);
 
     // Return form for potential further manipulation
     return form;
@@ -121,3 +122,6 @@ function addBook(title, author, isbn) {
 // Preserve any existing exports here
 // export { addressAccessibilityIssues, createInPageButton, existingFunction };
 // Assuming existingFunction is the name of another export in the codebase (you should replace this with its actual name)
+
+// Adding missing exports for the functions defined above
+export { addressAccessibilityIssues, createInPageButton, addBook };

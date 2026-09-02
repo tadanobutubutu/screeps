@@ -31,6 +31,14 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// Spawn multiple buttons dynamically based on configuration
+function spawnButtons(buttonDefinitions) {
+    buttonDefinitions.forEach(({ id, text, className }) => {
+        const button = createInPageButton(id, text, className);
+        document.body.appendChild(button);
+    });
+}
+
 // TODO: Address accessibility issues from insight report — FIXED
 function fixAccessibilityIssues() {
     // Example of a function to fix accessibility issues

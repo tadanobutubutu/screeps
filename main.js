@@ -31,5 +31,29 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// TODO: Implement the required changes to improve accessibility for adding a new book
+function addBookAccessibilityEnhancements() {
+    // Ensure the button for adding a new book exists and has appropriate attributes for accessibility
+    const addBookButtonId = 'addBookButton';
+    const addBookButtonText = 'Add Book';
+    const addBookButtonClass = 'btn btn-primary';
+
+    // Create the button if it does not exist
+    if (!document.getElementById(addBookButtonId)) {
+        createInPageButton(addBookButtonId, addBookButtonText, addBookButtonClass);
+    }
+
+    // Ensure that the button has an accessible name attribute
+    const button = document.getElementById(addBookButtonId);
+    if (button) {
+        button.setAttribute('aria-label', addBookButtonText);
+    }
+
+    // Optionally, you could also add keyboard focus management or other accessibility considerations here
+}
+
+// Call the function to enhance the accessibility for adding a new book
+addBookAccessibilityEnhancements();
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

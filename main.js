@@ -1,5 +1,10 @@
 // Resolved main.js
 // Merged version combining accessibility features and application initialization
+const fs = require('fs');
+const path = require('path');
+
+(function() {
+    'use strict';
 
 import './styles.css';
 import react from 'react';
@@ -982,3 +987,4 @@ module.exports = {
   newFunction,
   ...accessibilityUtils
 };
+})();

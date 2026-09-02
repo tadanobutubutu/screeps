@@ -28,6 +28,11 @@ function addLangAttribute() {
   // Implementation to be added
 }
 
+// New function requested in the issue
+function logCurrentURL() {
+    console.log('Current URL: ' + window.location.href);
+}
+
 /**
  * Validates table accessibility
  * @param {HTMLElement} table - The table element to validate
@@ -186,6 +191,7 @@ function newFunction() {
 module.exports = {
   getLangAttribute,
   addLangAttribute,
+  logCurrentURL,
   validateTableAccessibility,
   validateTableStructure,
   fixTableStructure,

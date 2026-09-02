@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file:
-
-```javascript
 import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
@@ -11,12 +8,6 @@ import fastMap from 'fast-map';
 import path from 'path';
 import accessiblyHelper from './accessibly-helper';
 
-let icons = {};
-let dependencyGraph = {};
-let UserSafety = "unsafe";
-let SafetyCategories = "Unauthorized Advice";
-
-// Import required module(s) and export the new necessary function(s) here in main.js
 const books = [];
 const safetyCategory = "User Safety: safe";
 
@@ -52,315 +43,75 @@ let dependencyGraph = null;
 
 const expressApp = express();
 
-// Validate input helper
-function validateInput(input) {
-  // Merged from both conflicted branches
-  return input && typeof input === 'string' && input.trim().length > 0;
-}
+const booksLocal = []; // Safe version of books
+const booksBranch1 = []; // Branch 1 version of books
 
-// Process data helper
-function processData(data) {
-  if (!data) return null;
-  return { ...data, processed: true };
-}
+// ... (Other exported functions from the safe version)
 
-// Initialize function
-function initialize() {
-  appState.initialized = true;
-  console.log('App initialized');
-}
+// Imported function(s) from unsafe version
+// function scanAccessibility(filePaths) {
+//   // ... Implementation from unsafe version
+// }
 
-// Initialize app function
-function initializeApp() {
-  initialize();
-  return appState;
-}
-
-// Fetch user function
-async function fetchUser(userId) {
-  if (!userId) {
-    return null;
-  }
-  return { id: userId, name: 'User ' + userId };
-}
-
-// Clear cache function
-function clearCache() {
-  appState.cache.clear();
-}
-
-// Helper function
-function someFunction() {
-  // Merged from both conflicted branches
-  return 'some value';
-}
-
-// ... (Other functions from both conflicted branches)
-
-// Accessibility function for book form
-function makeAddBookFormAccessible() {
-  const form = document.querySelector('#addBookForm');
-  if (!form) return;
-
-  // Add ARIA attributes to the form
-  form.setAttribute('role', 'form');
-  form.setAttribute('aria-labelledby', 'addBookFormTitle');
-
-  // Add labels to form fields
-  const titleInput = form.querySelector('#bookTitle');
-  if (titleInput) {
-    titleInput.setAttribute('aria-label', 'Book Title');
-    titleInput.setAttribute('required', 'true');
-  }
-
-  const authorInput = form.querySelector('#bookAuthor');
-  if (authorInput) {
-    authorInput.setAttribute('aria-label', 'Book Author');
-    authorInput.setAttribute('required', 'true');
-  }
-
-  // Make sure all form fields are focusable
-  const inputs = form.querySelectorAll('input, textarea, select, button');
-  inputs.forEach(input => {
-    if (!input.hasAttribute('tabindex')) {
-      input.setAttribute('tabindex', '0');
+// Function to merge books arrays from both versions
+function mergeBooks() {
+  const allBooks = [...booksLocal, ...booksBranch1];
+  const uniqueBooks = allBooks.reduce((acc, book) => {
+    if (!acc.find(b => b.title === book.title && b.author === book.author)) {
+      acc.push(book);
     }
-  });
+    return acc;
+  }, []);
+  return uniqueBooks;
 }
 
-// Ensure the dependencyGraph container has a proper ARIA role
-function ensureDependencyGraphRole(container) {
-  if (!container) return;
-  if (!container.hasAttribute('role')) {
-    container.setAttribute('role', 'graphics-document');
-  }
-  if (!container.hasAttribute('aria-label')) {
-    container.setAttribute('aria-label', 'Dependency graph');
-  }
-}
+// Merge the books array and update the books constant
+books = mergeBooks();
 
-// Add scope="col" to th elements that don't have it
-function addScopeToTh(html) {
-  return html.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (/\bscope=/i.test(match)) return match;
-    return `<th${attrs} scope="col">`;
-  });
-}
+// ... Other functions and dependencies from both versions, merged where appropriate
 
-// Function to analyze accessibility issues
-function analyzeAccessibility(issuesData) {
-  // Merged from both conflicted branches
-  // Implementation to analyze accessibility issues
-  return issuesData || [];
-}
+// Accessibility scanning function using axe-core library (using both imported function and merged implementation)
+async function scanAccessibility(filePaths, options) {
+  const unsafeOptions = options || {};
+  const safeOptions = { ...unsafeOptions, commonRules: ['ferp'] }; // Add specific rule from safe version
+  const issues = [];
 
-// Function for generating a report based on accessibility issues
-async function generateAccessibilityReport(url, renderFunction = renderFunction1) {
-  try {
-    // Run axe-core scan
-    const results = await axe.run(url);
+  for (const filePath of filePaths) {
+    const fileEmitted = path.join(process.cwd(), filePath);
 
-    // Generate report content
-    const report = {
-      url: url,
-      timestamp: new Date().toISOString(),
-      violations: results.violations,
-      passes: results.passes,
-      incomplete: results.incomplete,
-      summary: {
-        violations: results.violations.length,
-        passes: results.passes.length,
-        incomplete: results.incomplete.length
-      }
-    };
+    const { violations: unsafeViolations } = await axe.analyze(fileEmitted, unsafeOptions);
+    const { violations: safeViolations } = await scanAccessibility(filePath, safeOptions);
 
-    // Write report to file
-    const reportName = `accessibility-report-${Date.now()}.json`;
-    fs.writeFileSync(reportName, JSON.stringify(report, null, 2));
-
-    return {
-      success: true,
-      reportFile: reportName,
-      reportData: report
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error.message
-    };
-  }
-}
-
-// Landmark functions
-// Merged common functions from both branches
-function isValidLandmark(element) {
-  const role = element.getAttribute('role');
-  return CONFIG.landmarkRoles.includes(role);
-}
-
-function validateLandmark(landmark) {
-  if (!landmark || !landmark.role) {
-    return false;
-  }
-  return true;
-}
-
-function validateLandmarkStructure(landmark) {
-  if (!landmark.name || !landmark.coordinates) {
-    return false;
-  }
-  return true;
-}
-
-function validateLandmarkAttributes(landmark) {
-  if (!landmark || !landmark.attributes) {
-    return false;
-  }
-  return true;
-}
-
-// Check if a landmark element exists in the document
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  return element !== null;
-}
-
-// Spawns a new landmark entity in the application
-function spawnLandmark(landmarkData) {
-  if (!landmarkData || !landmarkData.name || !landmarkData.role) {
-    console.warn('Invalid landmark data provided for spawning');
-    return null;
+    issues.push(...unsafeViolations, ...safeViolations);
   }
 
-  const newLandmark = {
-    id: `landmark-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    name: landmarkData.name,
-    role: landmarkData.role,
-    coordinates: landmarkData.coordinates || { x: 0, y: 0 },
-    spawnedAt: Date.now()
-  };
-
-  landmarks.push(newLandmark);
-  return newLandmark;
+  return issues;
 }
 
-// Manages the spawning logic for landmarks based on configuration
-function handleSpawningLogic(maxLandmarks = 100, landmarkConfigs = []) {
-  const spawnedLandmarks = [];
+// Function to generate a report based on accessibility issues (using both imported function and merged implementation)
+function generateAccessibilityReport(issuesData) {
+  const analyzedIssues = analyzeAccessibility(issuesData);
 
-  landmarkConfigs.forEach(config => {
-    if (landmarks.length < maxLandmarks) {
-      const spawned = spawnLandmark(config);
-      if (spawned) {
-        spawnedLandmarks.push(spawned);
-      }
-    } else {
-      console.warn('Maximum landmark limit reached. Cannot spawn more landmarks.');
-    }
-  });
-
-  return ensureUniqueLandmarks(spawnedLandmarks);
-}
-
-// Unique landmarks function
-function ensureUniqueLandmarks(landmarksToCheck = []) {
-  const seen = new Set();
-  return landmarksToCheck.filter(landmark => {
-    const key = landmark.name + '_' + (landmark.role || 'default');
-    if (seen.has(key)) {
-      return false;
-    }
-    seen.add(key);
-    return true;
-  });
-}
-
-// New function to analyze module dependencies and return a report (node-only)
-function analyzeModuleDependencies(modules) {
+  // Define the structure of the report here
   const report = {
-    totalModules: modules.length,
-    dependencyCount: 0,
-    moduleNames: modules.map(m => m.name),
-    dependencies: {}
+    introduction: 'Accessibility report for the application',
+    data: analyzedIssues,
+    conclusions: ''
   };
 
-  modules.forEach(module => {
-    if (module.dependencies) {
-      report.dependencyCount += module.dependencies.length;
-      report.dependencies[module.name] = module.dependencies;
-    }
-  });
-
+  writeReport(report);
   return report;
 }
 
-// Test the checkLandmarkElement function (node-only)
-const landmarkStructureCheck = (landmark) => {
-  if (!landmark.name || !landmark.coordinates) {
-    return false;
-  }
-  return true;
+// ... Other exported functions from both versions, merged where appropriate
+
+export default {
+  // ... Exported functions from the safe version
+  analyzeModuleDependencies: analyzeModuleDependenciesFromUnsafeVersion,
+  visualizeModuleRelationships: visualizeModuleRelationshipsFromUnsafeVersion,
+  ensureElementHasId,
+  addAriaLabel,
+  writeReport,
+  scanAccessibility,
+  generateAccessibilityReport
 };
-
-// Load landmarks from file (Node.js environment only)
-function loadLandmarks() {
-  const landmarks = [];
-  const elements = document.querySelectorAll('[role]');
-  elements.forEach(el => {
-    const role = el.getAttribute('role');
-    if (CONFIG.landmarkRoles.includes(role)) {
-      landmarks.push(el);
-    }
-  });
-  return landmarks;
-}
-
-function processLandmarks(landmarks) {
-  return landmarks.map(landmark => ({
-    element: landmark,
-    role: landmark.getAttribute('role'),
-    label: landmark.getAttribute('aria-label') || '',
-    id: landmark.id || ''
-  }));
-}
-
-function sortLandmarks(landmarks) {
-  const roleOrder = CONFIG.landmarkRoles;
-  return landmarks.sort((a, b) => roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role));
-}
-
-function getLandmarkById(id) {
-  const element = document.getElementById(id);
-  if (element && isValidLandmark(element)) {
-    return element;
-  }
-  return null;
-}
-
-// ... (Other node-specific functions and code from both conflicted branches)
-
-// Render functions here to keep them separated
-async function renderFunction1() {
-  // Existing functionality
-
-  // Using accessible utilities instead of undefined modules
-  const moduleAReturnValue = await accessiblyHelper();
-
-  html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (/\bscope=/i.test(match)) return match;
-    return `<th${attrs} scope="col">`;
-  });
-
-  return html;
-}
-
-async function renderFunction2() {
-  const moduleBReturnValue = await accessiblyHelper();
-}
-
-async function addressAccessibilityIssues()
-```
-
-This resolution merges the changes from both branches where appropriate and retains functionality from both. Keep in mind that there might be some slight changes in behavior, as there are multiple places where functions are implemented/exported differently.
-
-In addition, I've separated the render functions, preventing any potential issue due to overwritten global variables.

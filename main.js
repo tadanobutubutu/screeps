@@ -5,33 +5,65 @@
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // _Commit: dec99b86b66013fcd30722b40439605891dd0ad1_
 // _Commit: ca07afdb3852933670d8d59e11575814d1bda9e5_
-// _Commit: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
+//_Commit: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
 
-// TODO: Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
+const main = require('./utilities')
 
-// Import necessary dependencies
-import React from 'react'
-import { render } from 'react-dom'
-import {
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
+  validateTableStructureForAccessibility,
+  implementAccessibilityFixesFromReport,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixFakeLinkIssues,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  accessibilityUtils,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
   addLangAttribute,
   fixTableStructure,
-  fixLandmarkIssues,
   addMainLandmark,
-  addLandmarkRegions,
   ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
   googleSignIn,
   decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs
-} from './AccessibilityHelpers'
+  renderDependencyGraph,
+  fixLandmarkIssues,
+  validateTableAccessibility,
+  validateTableStructure,
+  initializeAccessibility,
+  renderIndex,
+  newFunction,
+  validateHeadingHierarchy,
+  ensureHeadingHierarchy,
+  renderAdditionalContent
+} = require('./AccessibilityHelpers')
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph')
@@ -77,6 +109,50 @@ const originalSvgString =
     'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
 const modifiedSvgString = addAccessibleName(originalSvgString)
 
+function validateTableStructure(container) {
+  return validateTableStructureForAccessibility(container);
+}
+
+function validateHeadingHierarchy(headings) {
+  // Implementation placeholder - function to be implemented
+  return true
+}
+
+function ensureHeadingHierarchy(container) {
+  if (!container) return null;
+
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+
+  headings.forEach(heading => {
+    const currentLevel = parseInt(heading.tagName.substring(1), 10);
+    if (previousLevel > 0 && currentLevel - previousLevel > 1) {
+      // Fix skipped heading levels by promoting or demoting as needed
+      const correctedLevel = previousLevel + 1;
+      const newHeading = document.createElement(`h${correctedLevel}`);
+      newHeading.innerHTML = heading.innerHTML;
+      newHeading.className = heading.className;
+      heading.parentNode.replaceChild(newHeading, heading);
+      previousLevel = correctedLevel;
+    } else {
+      previousLevel = currentLevel;
+    }
+  });
+
+  return container;
+}
+
+/**
+ * New function to handle additional rendering logic
+ * @param {Object} additionalData - Additional data for rendering
+ * @returns {string} Rendered additional content HTML
+ */
+function renderAdditionalContent (additionalData) {
+  // Implementation of the new function
+  // Placeholder for actual implementation
+  return ...
+}
+
 /**
  * Validates table accessibility
  * @param {Array} tableData - Table data to validate
@@ -87,38 +163,75 @@ function validateTableAccessibility (tableData) {
   return true
 }
 
-/**
- * Validates table structure
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table structure is valid, false otherwise
- */
-function validateTableStructure (tableData) {
-  // Implementation placeholder - function to be implemented
-  return true
-}
+// Call the functions to address the accessibility issues
+addLangAttribute();
+fixTableStructure();
+addMainLandmark();
+fixLandmarkIssues();
+ensureUniqueLandmarks();
+addSvgAccessibleNames();
+addAccessibleNamesToSVGs();
+fixFakeLinkIssue();
+googleSignIn();
+fixButtonIdentifiers();
 
-// Other code...
+// Call the new functions
+validateTableAccessibility(/* table data */);
+validateTableStructure(/* table data */);
 
-// Preserve all existing exports
 module.exports = {
+  ...main,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
+  validateTableStructureForAccessibility,
+  implementAccessibilityFixesFromReport,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixFakeLinkIssues,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  accessibilityUtils,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  googleSignIn,
+  decodeJwtResponse,
   renderDependencyGraph,
-  renderIndex,
+  fixLandmarkIssues,
   validateTableAccessibility,
-  validateTableStructure
-  // Preserve any other existing exports here
-}
-
-// New function or changes requested in the issue
-/**
- * New function to handle additional rendering logic
- * @param {Object} additionalData - Additional data for rendering
- * @returns {string} Rendered additional content HTML
- */
-function renderAdditionalContent (additionalData) {
-  // Implementation of the new function
-  // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
-}
-
-// Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent
+  validateTableStructure,
+  initializeAccessibility,
+  renderIndex,
+  newFunction,
+  validateHeadingHierarchy,
+  ensureHeadingHierarchy,
+  renderAdditionalContent
+};

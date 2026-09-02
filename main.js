@@ -36,16 +36,16 @@ function detectAndSetLang(content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
+    } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
     } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[éèêàâïîôùûüç]/i.test(content)) {
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
-      lang = 'de'; // German;
+      lang = 'de'; // German
     }
   }
 
@@ -98,7 +98,7 @@ function validateTableAccessibility(table) {
   }
 
   // Check if table cells have proper scope attributes
-  const cells = table.querySelectorAll('td, th');
+  const cells = table.querySelectorAll('th');
   for (const cell of cells) {
     if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
       console.warn('Table header cell is missing scope attribute');
@@ -118,13 +118,16 @@ function validateTableStructure(table) {
   if (!table || typeof table !== 'object' || !(table instanceof HTMLElement)) return false;
 
   // Check if table has proper structure
-  if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  if (!thead || !tbody) {
     console.warn('Table is missing required thead or tbody elements');
     return false;
   }
 
   // Check if table has at least one row
-  if (table.querySelectorAll('tr').length === 0) {
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) {
     console.warn('Table is missing rows');
     return false;
   }
@@ -169,7 +172,7 @@ function validateLandmark(element) {
 
   // Check if landmark is unique when required
   if (['banner', 'main', 'contentinfo'].includes(role)) {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+    const elements = document.querySelectorAll('[role="' + role + '"]');
     if (elements.length > 1) {
       return false;
     }
@@ -209,7 +212,10 @@ function validateLandmarkStructure(element) {
  */
 function getSvgAccessibleName(svg) {
   if (!svg || typeof svg !== 'object') return '';
-  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.getAttribute('title') || '';
+  const ariaLabel = svg.getAttribute('aria-label');
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  const title = svg.querySelector('title');
+  return ariaLabel || (ariaLabelledby ? document.getElementById(ariaLabelledby)?.textContent : '') || (title ? title.textContent : '') || svg.getAttribute('title') || '';
 }
 
 /**
@@ -239,7 +245,7 @@ function setSvgAttributes(svg, name) {
  */
 function ensureUniqueLandmarks() {
   if (typeof document === 'undefined') return true;
-  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"]');
   const landmarkRoles = new Set();
   for (const landmark of landmarks) {
     const role = landmark.getAttribute('role');
@@ -258,7 +264,7 @@ function ensureUniqueLandmarks() {
  */
 function validateLinkAccessibility(link) {
   if (!link || typeof link !== 'object') return true;
-  return link.hasAttribute('href') && link.getAttribute('href') !== '#';
+  return link.textContent.trim().length > 0 && link.getAttribute('href') !== '#';
 }
 
 /**
@@ -272,7 +278,7 @@ function handleFakeLinks(link) {
     const button = document.createElement('button');
     button.textContent = link.textContent;
     button.setAttribute('aria-label', link.getAttribute('aria-label') || link.textContent);
-    link.parentNode.replaceChild(button, link);
+    button.setAttribute('type', 'button');
     return button;
   }
   return null;

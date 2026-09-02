@@ -2,7 +2,6 @@ const main = require('./utilities')
 
 const {
   createInPageButton,
-  createWebResourceButton,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
@@ -33,6 +32,82 @@ const { functionA, functionB } = require('./functionModule')
 
 const a11yStore = {
   // ... existing methods ...
+}
+
+/**
+ * Creates an accessible button for web resources (e.g., GitHub, Stack Overflow)
+ * @param {string} url - The URL to open
+ * @param {string} name - The name/label for the button (e.g., "GitHub", "Stack Overflow")
+ * @param {Object} options - Additional options
+ * @param {string} options.className - CSS class name(s) for styling
+ * @param {string} options.iconType - Type of icon to display (e.g., 'github', 'stackoverflow')
+ * @returns {HTMLButtonElement} The accessible button element
+ */
+function createWebResourceButton (url, name, options = {}) {
+  const { className = '', iconType } = options
+
+  const button = document.createElement('button')
+  button.type = 'button'
+
+  // Set accessible name for screen readers
+  // Including "(external link)" to indicate it opens a new resource
+  const accessibleName = `${name} (external link)`
+  button.setAttribute('aria-label', accessibleName)
+
+  // Set aria-pressed to false since this is not a toggle button
+  button.setAttribute('aria-pressed', 'false')
+
+  // Add styling class if provided
+  if (className) {
+    button.className = className
+  }
+
+  // Create icon if iconType is provided
+  if (iconType) {
+    const iconSpan = document.createElement('span')
+    iconSpan.setAttribute('aria-hidden', 'true')
+    iconSpan.textContent = getIconCharacter(iconType)
+    button.appendChild(iconSpan)
+  }
+
+  // Add the button text
+  const textNode = document.createTextNode(name)
+  button.appendChild(textNode)
+
+  // Handle click events to open URL
+  button.addEventListener('click', function (event) {
+    event.preventDefault()
+    window.open(url, '_blank', 'noopener,noreferrer')
+  })
+
+  // Handle keyboard activation (Enter and Space keys)
+  button.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      button.click()
+    }
+  })
+
+  return button
+}
+
+/**
+ * Returns an icon character for common web resources
+ * @param {string} iconType - The type of icon
+ * @returns {string} A character representing the icon
+ */
+function getIconCharacter (iconType) {
+  const icons = {
+    github: '🐙',
+    stackoverflow: '📚',
+    twitter: '🐦',
+    linkedin: '💼',
+    facebook: '📘',
+    instagram: '📷',
+    youtube: '▶️',
+    default: '🔗'
+  }
+  return icons[iconType.toLowerCase()] || icons.default
 }
 
 // Detect and set lang attribute on the HTML element
@@ -308,6 +383,7 @@ module.exports = {
   functionA,
   functionB,
   detectAndSetLang,
+  createWebResourceButton,
 
   // Additional exports from origin/main
   getLangAttribute: function () {

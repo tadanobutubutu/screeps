@@ -289,6 +289,8 @@ function addSvgAccessibilityProps(svg, options = {}) {
   return enhancedSvg;
 }
 
+// TODO: Create or update the affected functions to be accessible
+
 // ... (the rest of the file remains unchanged)
 
 /**
@@ -493,6 +495,7 @@ function handleCredentialResponse(credentialResponse) {
   return processedCredential;
 }
 
+// Export all functions to make them accessible
 module.exports = {
   getLangAttribute,
   getFullLangAttribute,

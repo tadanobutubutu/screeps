@@ -725,6 +725,26 @@ if (require.main === module) {
   });
 }
 
+/**
+ * Initialize accessibility features
+ */
+function initializeAccessibility() {
+  if (typeof document === 'undefined') return;
+  a11yStore.checkLandmarkElements();
+  a11yStore.addSVGAccessibilityProps();
+  a11yStore.fixFakeLinks();
+  wrapPrimaryContentInMain();
+  ensureUniqueLandmarks();
+}
+
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAccessibility);
+  } else {
+    initializeAccessibility();
+  }
+}
+
 // Export modules for testing
 module.exports = {
   a11yStore,

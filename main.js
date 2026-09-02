@@ -531,6 +531,195 @@ function towerDefense() {
   };
 }
 
+// New function: Renders a dependency graph using the new functions for rendering graph/index
+function renderDependencyGraph(container, dependencies, options = {}) {
+  // This function renders a dependency graph by delegating to the new rendering functions
+  if (typeof document === 'undefined') return null;
+
+  const targetContainer = typeof container === 'string'
+    ? document.querySelector(container)
+    : container;
+
+  if (!targetContainer) {
+    return null;
+  }
+
+  const {
+    width = 600,
+    height = 400,
+    nodeRadius = 15,
+    directed = true
+  } = options;
+
+  // Use SVG to render the dependency graph
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Dependency graph');
+
+  // Render edges first so nodes appear on top
+  if (Array.isArray(dependencies)) {
+    dependencies.forEach((edge) => {
+      const from = edge.from;
+      const to = edge.to;
+      if (!from || !to) return;
+
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', from.x);
+      line.setAttribute('y1', from.y);
+      line.setAttribute('x2', to.x);
+      line.setAttribute('y2', to.y);
+      line.setAttribute('stroke', '#999');
+      line.setAttribute('stroke-width', '1');
+
+      if (directed) {
+        line.setAttribute('marker-end', 'url(#arrowhead)');
+      }
+
+      svg.appendChild(line);
+    });
+  }
+
+  // Define arrowhead marker for directed graphs
+  if (directed) {
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+    marker.setAttribute('id', 'arrowhead');
+    marker.setAttribute('markerWidth', '10');
+    marker.setAttribute('markerHeight', '7');
+    marker.setAttribute('refX', '10');
+    marker.setAttribute('refY', '3.5');
+    marker.setAttribute('orient', 'auto');
+
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+    polygon.setAttribute('fill', '#999');
+
+    marker.appendChild(polygon);
+    defs.appendChild(marker);
+    svg.appendChild(defs);
+  }
+
+  // Render nodes
+  if (Array.isArray(dependencies)) {
+    const renderedNodes = new Set();
+
+    dependencies.forEach((edge) => {
+      [edge.from, edge.to].forEach((node) => {
+        if (!node || renderedNodes.has(node.id)) return;
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', node.x);
+        circle.setAttribute('cy', node.y);
+        circle.setAttribute('r', nodeRadius);
+        circle.setAttribute('fill', '#4a90e2');
+        circle.setAttribute('stroke', '#2c5f8d');
+        circle.setAttribute('stroke-width', '2');
+
+        svg.appendChild(circle);
+
+        if (node.label) {
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', node.x);
+          text.setAttribute('y', node.y + nodeRadius + 12);
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute('font-size', '12');
+          text.textContent = node.label;
+          svg.appendChild(text);
+        }
+
+        renderedNodes.add(node.id);
+      });
+    });
+  }
+
+  // Clear existing content and append the new graph
+  targetContainer.innerHTML = '';
+  targetContainer.appendChild(svg);
+
+  return svg;
+}
+
+// New function: Renders an index view using the new functions for rendering graph/index
+function renderIndexView(container, options = {}) {
+  // This function renders an index view by delegating to the new rendering functions
+  if (typeof document === 'undefined') return null;
+
+  const targetContainer = typeof container === 'string'
+    ? document.querySelector(container)
+    : container;
+
+  if (!targetContainer) {
+    return null;
+  }
+
+  const {
+    title = 'Index',
+    items = [],
+    ordered = false,
+    className = 'index-view'
+  } = options;
+
+  // Create the index container
+  const wrapper = document.createElement('div');
+  wrapper.className = className;
+  wrapper.setAttribute('role', 'navigation');
+  wrapper.setAttribute('aria-label', title);
+
+  // Create the title
+  const heading = document.createElement('h2');
+  heading.textContent = title;
+  wrapper.appendChild(heading);
+
+  // Create the list (ordered or unordered)
+  const list = document.createElement(ordered ? 'ol' : 'ul');
+  list.className = 'index-view-list';
+
+  // Render each item
+  items.forEach((item) => {
+    const listItem = document.createElement('li');
+    listItem.className = 'index-view-item';
+
+    if (typeof item === 'string') {
+      listItem.textContent = item;
+    } else if (item && typeof item === 'object') {
+      if (item.href) {
+        const link = document.createElement('a');
+        link.href = item.href;
+        link.textContent = item.label || item.text || item.href;
+        if (item.target) {
+          link.target = item.target;
+        }
+        if (item.target === '_blank') {
+          link.rel = 'noopener noreferrer';
+        }
+        listItem.appendChild(link);
+      } else if (item.label || item.text) {
+        listItem.textContent = item.label || item.text;
+      }
+
+      if (item.description) {
+        const desc = document.createElement('span');
+        desc.className = 'index-view-description';
+        desc.textContent = item.description;
+        listItem.appendChild(desc);
+      }
+    }
+
+    list.appendChild(listItem);
+  });
+
+  wrapper.appendChild(list);
+
+  // Clear existing content and append the new index view
+  targetContainer.innerHTML = '';
+  targetContainer.appendChild(wrapper);
+
+  return wrapper;
+}
+
 // Export all functions to maintain current exports
 module.exports = {
   createInPageButton,
@@ -546,5 +735,7 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
+  renderDependencyGraph,
+  renderIndexView,
   towerDefense
 };

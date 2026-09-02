@@ -92,6 +92,22 @@ function generateAccessibilityReport() {
   return report;
 }
 
+// New function for generating a report based on accessibility issues
+function scanAccessibility() {
+    const axeOptions = {
+        // ... axe-core options ...
+    };
+    return new Promise((resolve, reject) => {
+        axe.run(axeOptions, (error, results) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+}
+
 // Utilities
 const { validateInput, processData } = require('./utils/validators');
 const { formatResponse } = require('./utils/processor');
@@ -111,8 +127,13 @@ if (require.main === module) {
   }
 }
 
-async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
+async function generateAndWriteReport() {
+  try {
+    const report = await generateAccessibilityReport();
+    console.log('Accessibility report generated and written.');
+  } catch (error) {
+    console.error('Error generating accessibility report:', error);
+  }
 }
 
 module.exports = {
@@ -125,5 +146,6 @@ module.exports = {
     processLandmarks,
     sortLandmarks,
     getLandmarkById,
-    ensureUniqueLandmarks
+    ensureUniqueLandmarks,
+    generateAndWriteReport // New export
 };

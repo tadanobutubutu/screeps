@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
@@ -90,4 +87,3 @@ function landmarkStructureCheck() {
 
 // TODO: Preserve existing code
 // ... your existing code ...
-```

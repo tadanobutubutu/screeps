@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: Add back any required exports that might have been?
 // ... (existing code up to line 86)
 
 // Addressed accessibility issues from insight report:
@@ -558,69 +558,3 @@ function addProperLandmarkRegions(regions) {
  * @param {Object} graphData - The graph data to render
  * @returns {Object} The rendered graph element
  */
-function renderDependencyGraph(graphData) {
-  return {
-    type: 'graph',
-    data: graphData,
-    rendered: true,
-    timestamp: new Date().toISOString()
-  };
-}
-
-// New changes for improved accessibility of the addBook function or form
-function addBook() {
-    // Existing code for adding a book
-}
-
-// Adding accessibility improvements to the addBook function or form
-// Ensuring that all interactive elements are keyboard accessible
-function makeAccessible(element) {
-    element.setAttribute('tabindex', '0');
-}
-
-// Adding a11y-specific roles and aria-labels
-function addAriaSupport(element, label) {
-    element.setAttribute('role', 'button');
-    element.setAttribute('aria-label', label);
-}
-
-// Example usage of makeAccessible and addAriaSupport within the addBook function or form
-function enhanceAddBookAccessibility() {
-    const addBookButton = document.getElementById('addBookButton');
-    makeAccessible(addBookButton);
-    addAriaSupport(addBookButton, 'Add a new book');
-}
-
-// Ensure accessibility improvements are applied
-enhanceAddBookAccessibility();
-
-// Export all functions for testing and external use
-module.exports = {
-  generateAccessibilityReport,
-  getLangAttribute,
-  getFullLangAttribute,
-  handleCredentialResponse,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkAttributes,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  createAccessibleLink,
-  checkLinkAndButtonAccessibility,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  handleAccessibilityIssues,
-  createAccessibleBookForm,
-  ensureElementId,
-  addAriaLabel,
-  addProperLandmarkRegions,
-  renderDependencyGraph,
-  addBook,
-  makeAccessible,
-  addAriaSupport,
-  enhanceAddBookAccessibility
-};

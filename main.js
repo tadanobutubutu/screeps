@@ -282,8 +282,8 @@ function addBook(title, author, isbn) {
 
     // Title input
     const titleLabel = document.createElement('label');
-    titleLabel.setAttribute('for', 'book-title');
-    titleLabel.textContent = 'Book Title:';
+    ylabel.setAttribute('for', 'book-title');
+    ylabel.textContent = 'Book Title:';
     const titleInput = document.createElement('input');
     titleInput.id = 'book-title';
     titleInput.type = 'text';
@@ -345,3 +345,6 @@ function newFunctionForMain() {
 
 // Update or create any other necessary functions here
 //------ END CHANGES------
+
+// Address the TODO by ensuring all necessary exports are properly included
+export { addressAccessibilityIssues, createInPageButton, newFunctionForMain };

@@ -200,25 +200,116 @@ function validateLandmarkStructure(landmarks) {
   };
 }
 
+/**
+ * Gets the accessible name for an SVG element
+ * Checks multiple sources for accessibility naming
+ * @param {Object} svgElement - The SVG element to get the name for
+ * @returns {string|null} The accessible name of the SVG
+ */
 function getSvgAccessibleName(svgElement) {
-    // Merged implementation (conflict resolved)
-    if (!svgElement) return 'Accessible SVG Icon';
+  if (!svgElement) {
+    return null;
+  }
 
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (title) return title.textContent;
-    if (ariaLabel) return ariaLabel;
-    return 'Accessible SVG Icon';
-}
+  // Check for aria-label attribute
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim() !== '') {
+    return ariaLabel.trim();
+  }
 
-function setSvgAttributes(svg, accessibleName) {
-  if (svg && typeof svg === 'object') {
-    svg.setAttribute('role', 'img');
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
+  // Check for aria-labelledby reference
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const referencedElement = document.getElementById(ariaLabelledby);
+    if (referencedElement && referencedElement.textContent) {
+      return referencedElement.textContent.trim();
     }
   }
-  return svg;
+
+  // Check for title element within SVG
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent.trim();
+  }
+
+  // Check for data-name attribute as fallback
+  const dataName = svgElement.getAttribute('data-name');
+  if (dataName && dataName.trim() !== '') {
+    return dataName.trim();
+  }
+
+  return null;
+}
+
+/**
+ * Sets accessibility attributes on an SVG element
+ * @param {Object} svgElement - The SVG element to enhance
+ * @param {string} accessibleName - Optional accessible name to set
+ */
+function setSvgAttributes(svgElement, accessibleName) {
+  if (!svgElement) {
+    return;
+  }
+
+  // Ensure SVG has proper namespace attributes if missing
+  if (!svgElement.hasAttribute('xmlns')) {
+    svgElement.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  }
+
+  // Add focusable attribute for keyboard navigation
+  if (!svgElement.hasAttribute('focusable')) {
+    svgElement.setAttribute('focusable', 'false');
+  }
+
+  // Remove tabindex if it's set to -1 and element should be interactive
+  const role = svgElement.getAttribute('role');
+  const interactiveRoles = ['button', 'link', 'menuitem', 'checkbox', 'radio', 'switch', 'tab'];
+  if (role && interactiveRoles.includes(role) && svgElement.getAttribute('tabindex') === '-1') {
+    svgElement.setAttribute('tabindex', '0');
+  }
+
+  // Set accessible name if provided
+  if (accessibleName) {
+    svgElement.setAttribute('aria-label', accessibleName);
+    svgElement.setAttribute('role', 'img');
+  }
+}
+
+function checkTableStructure(table) {
+  if (!table) {
+    console.warn('Table element is null or undefined');
+    return false;
+  }
+  if (!table.querySelector || !table.querySelector('caption')) {
+    console.warn('Table element is missing caption');
+    return false;
+  }
+  const issues = [];
+
+  if (!table.headers) {
+    issues.push('Missing headers attribute');
+  }
+
+  if (!table.querySelector || !table.querySelector('caption')) {
+    issues.push('Missing caption element');
+  }
+
+  if (!table.getAttribute('headers')) {
+    issues.push('Missing headers attribute');
+  }
+
+  // Check for scope attribute on header cells
+  const headerCells = table.querySelectorAll && table.querySelectorAll('th');
+  headerCells.forEach(cell => {
+    if (!cell.hasAttribute('scope')) {
+      issues.push('Missing scope attribute on header cell');
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
 }
 
 function ensureUniqueLandmarks(landmarks) {
@@ -293,7 +384,7 @@ function processData(data) {
 }
 
 function createInPageButton(text, onClick) {
-    // Implementation to create accessible in-page button (conflict resolved: merged implementation)
+    // Creates an accessible in-page button element
     const button = document.createElement('button');
     button.textContent = text;
     button.onclick = onClick;
@@ -504,8 +595,14 @@ function addProperLandmarkRegions(document) {
   return document;
 }
 
+/**
+ * Creates an accessible link element
+ * @param {string} href - The URL for the link
+ * @param {string} text - The link text
+ * @returns {Object} The created link element
+ */
 function createAccessibleLink(href, text) {
-    // Implementation to create accessible link (conflict resolved: merged implementation)
+    // Creates an accessible anchor element with proper attributes
     const link = document.createElement('a');
     link.href = href;
     link.textContent = text;
@@ -533,22 +630,6 @@ function personName(firstName, lastName) {
 // Added export for User Safety
 exports.userSafety = 'safe';
 
-/**
- * Gets the accessible name for an SVG element
- * @param {Object} svgElement - The SVG element to get the name for
- * @returns {string} The accessible name of the SVG
- */
-function getSvgAccessibleName(svgElement) {
-    // Merged implementation
-    if (!svgElement) return 'Accessible SVG Icon';
-
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (title) return title.textContent;
-    if (ariaLabel) return ariaLabel;
-    return 'Accessible SVG Icon';
-}
-
 // Export all functions for testing and external use
 module.exports = {
   implementThisFunction,
@@ -561,13 +642,13 @@ module.exports = {
   validateLandmarkStructure,
   ensureUniqueLandmarks,
   getSvgAccessibleName,
+  setSvgAttributes,
   createInPageButton,
   createAccessibleLink,
   handleAccessibilityIssues,
   addSvgAccessibilityProps,
   addLangAttribute,
   addMainLandmark,
-  setSvgAttributes,
   addLandmarkRegions,
   fixTableStructure,
   addProperLandmarkRegions,

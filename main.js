@@ -452,7 +452,7 @@ function createInPageButton(targetId, text) {
 }
 
 function validateLandmark() {
-  const landmarks = document.querySelectorAll('[role="landmark"], [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="search"], [role="form"], [region"]');
+  const landmarks = document.querySelectorAll('[role="landmark"], [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="search"], [role="form"], [role="region"]');
   const issues = [];
 
   landmarks.forEach((landmark, index) => {
@@ -599,22 +599,29 @@ async function addressAccessibilityIssuesHelper() {
 // Main application entry point
 const app = expressApp;
 
-// Ensure <nav> landmark exists
-if (!/<nav[^>]*>/i.test(html) && !/<div[^>]*role=["']navigation["']/i.test(html)) {
-  html = html.replace(/<main[^>]*>/i, '<nav aria-label="Main navigation"></nav><main>')
+// Missing functions that are exported
+function ensureUniqueLandmarks(landmarks) {
+  const seen = new Set();
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (seen.has(role)) {
+      console.warn(`Duplicate landmark role: ${role}`);
+    } else {
+      seen.add(role);
+    }
+  });
 }
 
-// Ensure <aside> landmark exists if content suggests a sidebar
-if (!/<aside[^>]*>/i.test(html) && !/<div[^>]*role=["']complementary["']/i.test(html)) {
-  html = html.replace(/<\/main>/i, '<aside aria-label="Supplementary"></aside></main>')
+function writeReport(report, filename) {
+  fs.writeFileSync(filename, JSON.stringify(report, null, 2));
 }
 
-// Ensure <footer> landmark exists
-if (!/<footer[^>]*>/i.test(html) && !/<div[^>]*role=["']contentinfo["']/i.test(html)) {
-  html = html.replace(/<\/body>/i, '<footer></footer></body>')
-}
-
-return html
+function formatResponse(data) {
+  return {
+    success: true,
+    data: data,
+    timestamp: new Date().toISOString()
+  };
 }
 
 // REACT_041: Add accessible names to SVGs
@@ -661,7 +668,7 @@ async function scanAccessibilityHelper() {
 
   for (const filePath of filePaths) {
     const fileEmitted = path.join(pagesDir, filePath);
-    const { violations } = await axe.analyze(fileEmitted);
+    const { violations } = await axe.run(fileEmitted);
 
     if (violations.length > 0) {
       issues.push({

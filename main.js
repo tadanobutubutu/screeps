@@ -48,7 +48,30 @@ function generateDependencyReport(dependencies) {
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // Code to fix accessibility issues as per the insight report
+  // Fix fake links by converting them to proper buttons
+  handleFakeLinks();
+  
+  // Validate and fix table accessibility issues
+  validateTableAccessibility();
+  
+  // Validate and fix table structure issues
+  validateTableStructure();
+  
+  // Validate and fix landmark issues
+  validateLandmark();
+  validateLandmarkStructure();
+  
+  // Validate and fix SVG accessibility issues
+  getSvgAccessibleName();
+  setSvgAttributes();
+  
+  // Validate and fix link accessibility issues
+  validateLinkAccessibility();
+  checkLinkAccessibility();
+  
+  // Set language attributes
+  getLangAttribute();
+  getFullLangAttribute();
 }
 
 // Main entry point for dependency visualization tool

@@ -224,6 +224,10 @@ function renderDependencyGraphContent() {
     return;
   }
 
+  // Ensure the dependencyGraph container has a proper ARIA role for accessibility
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', 'Dependency Graph');
+
   // Use the new functions for rendering
   renderDependencyGraph(container);
   renderIndexView(container);

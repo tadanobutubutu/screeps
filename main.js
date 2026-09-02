@@ -20,49 +20,95 @@ export function myNewFunction() {
   return "New function implemented successfully";
 }
 
-// REACT_015: Add lang attribute to the <html> element
-function addLangAttribute(html) {
-  if (typeof html !== 'string') return html;
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-    if (/\blang=/i.test(match)) return match;
-    return `<html${attrs} lang="en">`;
-  });
+// Utility Functions
+const { validateInput, processData } = require('./utils/validators');
+const { formatResponse } = require('./utils/processor');
+
+// Main execution when run directly
+if (require.main === module) {
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+  const sorted = sortLandmarks(processed);
+
+  console.log(`Loaded ${landmarks.length} landmarks`);
+  console.log(`Processed to ${processed.length} unique landmarks`);
+  console.log(`Sorted ${sorted.length} landmarks`);
+
+  if (sorted.length > 0) {
+    console.log('First landmark:', sorted[0]);
+  }
 }
 
-// React application code with accessibility features
-import React from 'react';
-import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import a11y from './AccessibilityUtilities';
+async function scanAccessibility() {
+    // Run axe-core scanning
+    const axeResult = await axe.run({
+        url: 'https://example.com', // Placeholder URL
+        // other options...
+    });
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+    // Handle credential response
+    const credentials = await handleCredentialResponse(axeResult);
 
-// DOM Elements
-const dependencyGraph = document.getElementById('dependencyGraph');
+    return {
+        issues: axeResult.issues,
+        credentials: credentials
+    };
+}
 
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+/**
+ * Handle credential response - parse, validate, and store credentials
+ * This function should be called when a credential response is received
+ */
+async function handleCredentialResponse(response) {
+    try {
+        // Parse the response (assuming JSON format)
+        const parsed = JSON.parse(response);
+        
+        // Extract credentials from the response
+        // The structure may vary depending on the API, but typically 
+        // credentials would be under a 'credentials' key
+        const credentials = parsed.credentials || {};
+        
+        if (Object.keys(credentials).length === 0) {
+            console.warn('No credentials found in response');
+            return {};
+        }
+        
+        // Validate credentials (basic validation)
+        const validated = validateCredentials(credentials);
+        
+        if (validated) {
+            console.log('Credentials successfully handled:', validated);
+            return validated;
+        } else {
+            console.warn('Invalid credentials received');
+            return {};
+        }
+    } catch (error) {
+        console.error('Error processing credential response:', error.message);
+        throw error;
+    }
+}
 
-// TODO: This is the existing code that needs to be preserved
-//_Commit: 18ddb6408a2b2823efa22f0a77964bb5d6737f93_
-//<!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: f8051b788bad4952d8493f08d3c7d22a06ff80d3_ -->
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: 94682d0194ff736f18c9f23486aa2eea265b4bc5_
-//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+/**
+ * Helper function to validate credentials
+ */
+function validateCredentials(credentials) {
+    // Basic validation logic - adjust as needed
+    const valid = Object.keys(credentials).every(key => {
+        return typeof key === 'string' && key.length > 0;
+    });
+    
+    if (valid) {
+        return credentials;
+    }
+    
+    return {};
+}
+
+/* ============================================================================
+   Accessibility Utilities
+   ============================================================================ */
 
 /**
  * Main entry point for the application
@@ -323,71 +369,9 @@ function generateAccessibilityReport() {
   return report;
 }
 
-/**
- * Addresses accessibility issues at runtime
- */
-function addressAccessibilityIssues() {
-  // Ensure the root container has an accessible name
-  const rootContainer = document.getElementById('root');
-  if (rootContainer) {
-    rootContainer.setAttribute('role', 'main');
-  }
-
-  // Initialize skip link functionality
-  const skipLink = document.getElementById('skip-link');
-  if (skipLink) {
-    skipLink.addEventListener('click', function(e) {
-      const targetId = skipLink.getAttribute('href').substring(1);
-      const target = document.getElementById(targetId);
-      if (target) {
-        target.setAttribute('tabindex', '-1');
-        target.focus();
-      }
-    });
-  }
-
-  // Ensure all buttons with role="button" respond to Enter key
-  document.querySelectorAll('[role="button"]').forEach(button => {
-    button.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        this.click();
-      }
-    });
-  });
-
-  // Add focusVisible polyfill behavior
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Tab') {
-      document.body.classList.add('keyboard-nav');
-    }
-  });
-
-  document.addEventListener('mousedown', function() {
-    document.body.classList.remove('keyboard-nav');
-  });
-
-  // Announce welcome message
-  a11y.announce('Welcome to the bot!', 'assertive');
-
-  // Adding an alt attribute to an image
-  const imageElement = document.querySelector('.image-placeholder');
-  if (imageElement) {
-    imageElement.setAttribute('alt', 'A description of the image');
-  }
-
-  // Correcting the ARIA role for a div
-  const divElement = document.querySelector('.list-container');
-  if (divElement) {
-    divElement.setAttribute('role', 'list');
-  }
-
-  // Adding the lang attribute to the HTML element
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', getLangAttribute());
-  }
-}
+/* ============================================================================
+   Main Application Logic
+   ============================================================================ */
 
 // Accessibility utilities
 const accessibilityUtils = {
@@ -413,61 +397,4 @@ const accessibilityUtils = {
       const requiredLandmarks = ['main', 'nav', 'footer'];
       const missingLandmarks = [];
 
-      requiredLandmarks.forEach(landmark => {
-        const element = document.querySelector(`[role="${landmark}"]`) ||
-                       document.querySelector(`${landmark}`);
-        if (!element) {
-          missingLandmarks.push(landmark);
-        }
-      });
-
-      if (missingLandmarks.length > 0) {
-        console.warn('Missing required landmarks:', missingLandmarks.join(', '));
-        return false;
-      }
-      return true;
-    }
-};
-
-// Export the report generation function
-module.exports = {
-  generateAccessibilityReport: generateAccessibilityReport,
-  addressAccessibilityIssues,
-  getLangAttribute,
-  createInPageButton,
-  a11y,
-  accessibilityUtils
-};
-
-// Initialize the application with accessibility improvements
-function initialize() {
-    // Ensure the dependencyGraph container has a proper ARIA role
-    if (dependencyGraph) {
-        dependencyGraph.setAttribute('role', 'region');
-        dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
-    }
-
-    // Address accessibility issues
-    addressAccessibilityIssues();
-
-    // Create the in-page button
-    createInPageButton();
-
-    // Initialize accessibility features from a11y utilities
-    if (a11y && a11y.init) {
-        a11y.init();
-    }
-}
-
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-reportWebVitals();
-
-export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };
-
-// Initialize after React render to ensure DOM is updated
-initialize();
+      requiredLand

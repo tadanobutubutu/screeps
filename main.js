@@ -31,9 +31,21 @@ function validateLandmarkStructure() {
     return true;
 }
 
-// TODO: Implement harvest logic
+// Function to retrieve the current language setting
+function getCurrentLanguageSetting() {
+    // Assuming the language setting is stored in a cookie named 'language'
+    const cookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('language='));
+    if (cookie) {
+        const [_, value] = cookie.split('=');
+        return value;
+    }
+    // Default to English if no language setting is found
+    return 'en';
+}
+
+// Function to harvest resources
 function harvestResources() {
-    // Placeholder for the actual harvest logic
+    // TODO: Implement the actual harvest logic
     console.log('Harvesting resources...');
     // Implement the actual logic here, e.g., fetching data, processing it, etc.
 }

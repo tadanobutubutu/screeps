@@ -851,4 +851,3 @@ module.exports = {
   setSvgAttributes,
   addressAccessibilityIssuesFromInsightReport
 };
-// ... (other functions and setting up exports)

@@ -135,7 +135,7 @@ const a11yStore = {
     // _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
     // <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
     // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-    // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+    // <!-- todo-hash: 5798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
     // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
     // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
     // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
@@ -157,7 +157,7 @@ const a11yStore = {
  */
 function isLandmarkElement(element) {
   const landmarkTags = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form', 'search'];
-
+  
   if (!element) {
     return false;
   }
@@ -424,11 +424,134 @@ function validateTableAccessibility(table) {
   };
 }
 
+// New function to address REACT_017: Add/fix 4 landmark issues
+function validateLandmark(element) {
+  if (typeof document === 'undefined' || !element) {
+    return { valid: false, errors: ['Element not found'] };
+  }
+  
+  const errors = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article', 'search'];
+  
+  // Check if element is a valid landmark
+  const role = element.getAttribute('role');
+  const tagName = element.tagName.toLowerCase();
+  
+  if (role && !validLandmarks.includes(role) && !role.includes('landmark')) {
+    errors.push(`Invalid landmark role: ${role}`);
+  }
+  
+  if (!role && !validLandmarks.includes(tagName)) {
+    errors.push(`Element is not a valid landmark: ${tagName}`);
+  }
+  
+  // Check for accessible name
+  const hasLabel = element.getAttribute('aria-label') || 
+                   element.getAttribute('aria-labelledby') ||
+                   element.querySelector('h1, h2, h3, h4, h5, h6');
+  
+  if (!hasLabel) {
+    errors.push('Landmark is missing accessible name (aria-label, aria-labelledby, or heading)');
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
+function validateLandmarkStructure() {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+  
+  const errors = [];
+  
+  // Check for multiple main landmarks
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length > 1) {
+    errors.push(`Multiple main landmarks found (${mainElements.length}). Only one main landmark should exist.`);
+  }
+  
+  // Check for proper nesting of landmarks
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
+  landmarks.forEach((landmark) => {
+    const parent = landmark.parentElement;
+    while (parent) {
+      const parentTag = parent.tagName ? parent.tagName.toLowerCase() : '';
+      const parentRole = parent.getAttribute('role');
+      
+      // Check for invalid nesting
+      if (parentTag === 'header' && landmark.tagName && landmark.tagName.toLowerCase() === 'header') {
+        errors.push('Nested header elements found');
+      }
+      if (parentTag === 'footer' && landmark.tagName && landmark.tagName.toLowerCase() === 'footer') {
+        errors.push('Nested footer elements found');
+      }
+      
+      parent = parent.parentElement;
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_041: Add accessible names to 2 SVGs
+function getSvgAccessibleName(svgElement) {
+  const title = svgElement.querySelector('title');
+  const desc = svgElement.querySelector('desc');
+
+  if (title && title.textContent) {
+    return title.textContent.trim();
+  }
+
+  if (desc && desc.textContent) {
+    return desc.textContent.trim();
+  }
+
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel.trim();
+  }
+
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labeledElement = document.getElementById(ariaLabelledby);
+    if (labeledElement && labeledElement.textContent) {
+      return labeledElement.textContent.trim();
+    }
+  }
+
+  return 'SVG graphic';
+}
+
+/**
+ * Validates table accessibility by checking structure and headers.
+ * @param {HTMLElement} table - The table to validate
+ * @returns {Object} - Validation result with success status and details
+ */
+function validateTableAccessibility(table) {
+  if (!table) {
+    return { success: false, error: 'Table is required' };
+  }
+
+  const hasCaption = !!table.querySelector('caption');
+  const headers = table.querySelectorAll('th');
+
+  const headerValidation = Array.from(headers).every(header => header.hasAttribute('scope'));
+
+  return {
+    success: hasCaption && headers.length > 0 && headerValidation,
+    details: {
+      hasCaption,
+      headerCount: headers.length,
+      headersHaveScope: headerValidation
+    }
+  };
+}
+
 /**
  * Check accessibility of landmark elements in the document.
  * @param {HTMLElement} container - The container element to check
  */
-function validateLandmark(container) {
+function validateLandmark(container = document) {
   if (!container) {
     throw new Error('Container element is required');
   }
@@ -535,266 +658,4 @@ function wrapPrimaryContentInMain() {
   }
 
   const elementsToExclude = [];
-  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
-  landmarks.forEach(landmark => elementsToExclude.push(landmark));
-
-  mainElement = document.createElement('main');
-
-  const bodyChildren = Array.from(document.body.children);
-  bodyChildren.forEach(child => {
-    if (!elementsToExclude.includes(child)) {
-      mainElement.appendChild(child);
-    }
-  });
-
-  document.body.appendChild(mainElement);
-
-  return mainElement;
-}
-
-function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
-}
-
-/**
- * Ensure unique main landmarks exist in the document.
- * Logs a warning if multiple main landmarks are detected.
- */
-function ensureUniqueLandmarks() {
-  const mains = document.querySelectorAll('main, [role="main"]');
-  if (mains.length > 1) {
-    console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
-    throw new Error('Document should have at most one main landmark');
-  }
-}
-
-/**
- * Create an in-page button with accessibility features.
- * @param {string} text - Button text
- * @param {string} targetId - Target element ID to scroll to
- * @returns {HTMLButtonElement} The created button
- */
-function createInPageButton(text, targetId) {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.textContent = text;
-  button.setAttribute('aria-label', `Scroll to ${text}`);
-  button.addEventListener('click', () => {
-    const target = document.getElementById(targetId);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth' });
-    }
-  });
-  return button;
-}
-
-// Consolidated accessibility issue handler
-function addressAccessibilityIssues(graphData) {
-  if (!graphData) return;
-
-  // Fix landmark issues
-  if (typeof fixLandmarkIssues === 'function') {
-    fixLandmarkIssues(graphData);
-  }
-
-  // Fix fake link issues
-  if (typeof fixFakeLinkIssues === 'function') {
-    fixFakeLinkIssues(graphData);
-  }
-
-  // Fix image alt texts
-  if (typeof fixImageAltTexts === 'function') {
-    fixImageAltTexts(graphData);
-  }
-
-  // Ensure unique landmarks
-  if (typeof uniqueLandmarks === 'function') {
-    uniqueLandmarks(graphData);
-  }
-
-  // Fix button identifiers
-  if (typeof fixButtonIdentifiers === 'function') {
-    fixButtonIdentifiers(graphData);
-  }
-
-  // Fix dependency graph ARIA attributes
-  if (typeof fixDependencyGraphAria === 'function') {
-    fixDependencyGraphAria(graphData);
-  }
-
-  // Add main landmark to index
-  if (typeof addMainLandmarkToIndex === 'function') {
-    addMainLandmarkToIndex(graphData);
-  }
-}
-
-/**
- * Adds the lang attribute to the HTML element for proper accessibility.
- * Addresses REACT_015 from the accessibility insight report.
- * @param {HTMLElement} element - The HTML element to add the lang attribute to
- * @param {string} [lang='en'] - The language code to set
- * @returns {boolean} True if the lang attribute was added or changed
- */
-function addLangAttribute(element, lang = 'en') {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-
-  if (typeof lang !== 'string' || lang.length === 0) {
-    throw new Error('Language code must be a non-empty string');
-  }
-
-  const existingLang = element.getAttribute('lang');
-
-  if (existingLang && existingLang.toLowerCase() === lang.toLowerCase()) {
-    return false;
-  }
-
-  element.setAttribute('lang', lang);
-  return true;
-}
-
-// Top-level jQuery implementation for accessibility enhancement
-$(document).ready(() => {
-  // Initialize skip links
-  if (typeof accessibilityUtils.initSkipLink === 'function') {
-    accessibilityUtils.initSkipLink();
-  }
-
-  // Wrap primary content in <main> landmark
-  wrapPrimaryContentInMain();
-
-  // Add language attribute to document
-  if (typeof addLangAttribute === 'function') {
-    addLangAttribute(document.documentElement);
-  }
-
-  // Fix table structure issues
-  if (typeof fixTableStructure === 'function') {
-    fixTableStructure();
-  }
-
-  // Add main landmark
-  if (typeof addMainLandmark === 'function') {
-    addMainLandmark();
-  }
-
-  // Ensure unique landmarks
-  if (typeof ensureUniqueLandmarks === 'function') {
-    ensureUniqueLandmarks();
-  }
-
-  // Set SVG accessibility properties
-  if (typeof setSvgAccessibilityProps === 'function') {
-    setSvgAccessibilityProps();
-  }
-
-  // Add accessible names to SVGs
-  if (typeof addAccessibleNamesToSVGs === 'function') {
-    addAccessibleNamesToSVGs();
-  }
-
-  // Fix fake link issues
-  if (typeof fixFakeLinkIssue === 'function') {
-    fixFakeLinkIssue();
-  }
-
-  // Fix landmark issues
-  if (typeof fixLandmarkIssues === 'function') {
-    fixLandmarkIssues();
-  }
-
-  // Add landmark regions
-  if (typeof addLandmarkRegions === 'function') {
-    addLandmarkRegions();
-  }
-
-  // Fix button identifiers
-  if (typeof fixButtonIdentifiers === 'function') {
-    fixButtonIdentifiers();
-  }
-
-  // Fix dependency graph ARIA
-  if (typeof fixDependencyGraphAria === 'function') {
-    fixDependencyGraphAria();
-  }
-
-  // Add main landmark to index
-  if (typeof addMainLandmarkToIndex === 'function') {
-    addMainLandmarkToIndex();
-  }
-
-  // Fix image alt texts
-  if (typeof fixImageAltTexts === 'function') {
-    fixImageAltTexts();
-  }
-
-  // Ensure unique landmarks
-  if (typeof uniqueLandmarks === 'function') {
-    uniqueLandmarks();
-  }
-
-  // Initialize focus traps
-  const focusableContainers = document.querySelectorAll('[data-focus-trap]');
-  focusableContainers.forEach(container => {
-    focusTrap(container);
-  });
-});
-
-// Export modules for testing
-module.exports = {
-    accessibilityUtils,
-    CONFIG,
-    log,
-    validateInput,
-    parseJSONsafe,
-    formatResponse,
-    delay,
-    retryOperation,
-    sanitizeFilename,
-    readFileSafe,
-    processData,
-    filterValidItems,
-    groupByCategory,
-    myNewFunction,
-    calculateSum,
-    ensureElementId,
-    addAriaLabel,
-    renderDependencyGraphs,
-    handleCredentialResponse,
-    focusTrap,
-    generateSessionId,
-    renderGraphIndex,
-    wrapPrimaryContentInMain,
-    addressAccessibilityIssues,
-    addLangAttribute,
-    createInPageButton,
-    createWebResourceButton,
-    validateLandmark,
-    validateLandmarkStructure,
-    validateAccessibilityReport,
-    getSvgAccessibleName,
-    getLangAttribute,
-    addAltAttribute,
-    replaceButtonId,
-    addAriaAttribute,
-    implementAccessibilityFixesFromReport,
-    ensureElementHasId,
-    ensureUniqueLandmarks,
-    addMainLandmark,
-    fixTableStructure,
-    addSvgAccessibleName,
-    fixFakeLinkIssue,
-    googleSignIn,
-    handleCredentialResponseAlt,
-    renderGraphIndexUtil,
-    setSvgAccessibilityProps,
-    addAccessibleNamesToSVGs,
-    addSvgAccessibleNames,
-    fixButtonIdentifiers,
-    fixDependencyGraphAria,
-    addMainLandmarkToIndex,
-    validateTableAccessibility,
-    validateTableStructure,
-    transformInputData
-};
+  const landmarks = document.querySelectorAll('header, nav,

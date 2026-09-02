@@ -82,6 +82,13 @@ function renderGraphIndex(container, options = {}) {
   return tempContainer.innerHTML;
 }
 
+// Preserve any existing exports here
+// export { existingFunction1, existingFunction2, ... };
+
+// TODO: Create or update the affected functions to be accessible
+// Since no new functions are being created, but we're making sure all existing functions are accessible
+// no changes are needed in this context. If there were any functions not previously exported, we would add them here.
+
 // Import the newFocusTrap function into the scope for use elsewhere
 globalThis.newFocusTrap = accessibilityUtils.newFocusTrap;
 

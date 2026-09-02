@@ -247,7 +247,7 @@ const a11yStore = {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
       const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark) => {
+      landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
           landmark.setAttribute('id', `${element}-${index}`);
         }
@@ -430,7 +430,7 @@ function ensureElementHasId(element, prefix = 'element') {
  * @param {string} label - The aria-label value to set
  * @returns {boolean} True if label was added, false if element already had one
  */
-function addAriaLabel(element, label) {
+function addAriaLabelToElement(element, label) {
   if (!element) {
     throw new Error('Element is required');
   }
@@ -526,7 +526,7 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
   ensureDependencyGraphAccessibility(container);
 
   // Add accessibility label if not present
-  const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
+  const hasAriaLabel = addAriaLabelToElement(container, `Dependency graph: ${containerId}`);
 
   // Placeholder for graph rendering logic
   // Actual implementation would use a library like D3.js or similar
@@ -642,33 +642,33 @@ const addressAccessibilityIssues = (container) => {
   };
 
   if (fixes.langAdded) {
-    log('Lang attribute added to HTML element', 'info');
+    console.log('Lang attribute added to HTML element', 'info');
   }
 
   if (fixes.mainLandmarkAdded) {
-    log('Main landmark added', 'info');
+    console.log('Main landmark added', 'info');
   }
 
   const landmarkFixes = fixes.landmarksFixed || 0;
   if (landmarkFixes > 0) {
-    log(`Fixed ${landmarkFixes} unique landmarks`, 'info');
+    console.log(`Fixed ${landmarkFixes} unique landmarks`, 'info');
   }
 
   const svgFixes = fixes.svgNamesAdded || 0;
   if (svgFixes > 0) {
-    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
+    console.log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
   }
 
   const fakeLinkFixes = fixes.fakeLinksFixed || 0;
   if (fakeLinkFixes > 0) {
-    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
+    console.log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
   }
 
   return fixes;
 };
 
 // Functions for data transformation
-function getLangAttribute(element, lang) {
+function getLangAttributeFromElement(element, lang) {
   if (element) {
     element.setAttribute('lang', lang || 'en');
   }
@@ -754,7 +754,7 @@ function validateLandmarkStructure(element) {
   return landmarks.length > 0;
 }
 
-function getSvgAccessibleName(svg, name) {
+function getSvgAccessibleNameWithLabel(svg, name) {
   if (svg && name) {
     svg.setAttribute('role', 'img');
     svg.setAttribute('aria-label', name);
@@ -770,7 +770,7 @@ function createInPageButton(text, onClick) {
   return button;
 }
 
-function ensureUniqueLandmarks() {
+function ensureUniqueLandmarksWithIndex() {
   const landmarks = document.querySelectorAll(
     'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]'
   );
@@ -793,7 +793,7 @@ function ensureUniqueLandmarks() {
   });
 }
 
-function newFocusTrap(element) {
+function newFocusTrapWithElement(element) {
   if (!element) return;
 
   const focusableElements = element.querySelectorAll(
@@ -820,7 +820,7 @@ function newFocusTrap(element) {
   firstElement.focus();
 }
 
-function transformInputData(inputData, options = {}) {
+function transformInputDataWithOptions(inputData, options = {}) {
   const {
     preserveKeys = true,
     uppercase = false,
@@ -856,7 +856,7 @@ function transformInputData(inputData, options = {}) {
     for (const key in inputData) {
       if (inputData.hasOwnProperty(key)) {
         if (preserveKeys || !key.startsWith('_')) {
-          result[key] = transformInputData(inputData[key], options);
+          result[key] = transformInputDataWithOptions(inputData[key], options);
         }
       }
     }
@@ -865,7 +865,7 @@ function transformInputData(inputData, options = {}) {
   }
 
   if (Array.isArray(inputData)) {
-    return inputData.map(item => transformInputData(item, options));
+    return inputData.map(item => transformInputDataWithOptions(item, options));
   }
 
   return inputData;
@@ -885,7 +885,9 @@ const exportUtils = {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
+    if (typeof accessibilityUtils !== 'undefined' && accessibilityUtils.announceToScreenReader) {
+      accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
+    }
   },
 
   exportToJSON: (data, filename) => {
@@ -915,16 +917,18 @@ const exportUtils = {
 
 // Initialize accessibility features
 const initAccessibility = () => {
-  accessibilityUtils.initSkipLink();
+  if (typeof accessibilityUtils !== 'undefined') {
+    accessibilityUtils.initSkipLink();
 
-  document.querySelectorAll('[data-accessible]').forEach(element => {
-    element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, {
-        Enter: () => element.click(),
-        ' ': () => element.click()
+    document.querySelectorAll('[data-accessible]').forEach(element => {
+      element.addEventListener('keydown', (e) => {
+        accessibilityUtils.handleKeyboardNav(e, {
+          Enter: () => element.click(),
+          ' ': () => element.click()
+        });
       });
     });
-  });
+  }
 };
 
 // Initialize on DOM ready

@@ -255,4 +255,5 @@ module.exports = {
     X: 'valueX',
     Y: 'valueY',
     Z: 'valueZ'
+  }
 };

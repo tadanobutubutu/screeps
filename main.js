@@ -6,19 +6,17 @@ const main = require('./utilities')
 import React, { useState } from 'react';
 import { render } from 'react-dom';
 import {
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  addSvgAccessibleName,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
+  trapFocus,
+  announceToScreenReader,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  personName,
+  newFocusTrap,
   ensureElementHasId,
   ensureElementHasIdOrigin,
   addAriaLabel,
@@ -26,7 +24,7 @@ import {
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
-  createInPageButton,
+  createInPageButton as createInPageButtonNew,
   createWebResourceButton,
   validateLandmark,
   validateLandmarkStructure,
@@ -40,7 +38,8 @@ import {
 } from './AccessibilityHelpers';
 
 // Import necessary dependencies
-import { trapFocus, announceToScreenReader, getLangAttribute, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, createInPageButton, personName, newFocusTrap } from './AccessibilityHelpers';
+import { trapFocus, announceToScreenReader, getLangAttribute, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, createInPageButton: createInPageButtonOld, personName, newFocusTrap } from './AccessibilityHelpers';
+import { setHtmlLangAttribute, detectAndSetLang } from './AccessibilityHelpers';
 
 // Add new functions for accessibility
 function validateTableAccessibility(tableElement) {
@@ -100,48 +99,113 @@ function trapFocus(container) {
       if (document.activeElement === focusableElements[focusableElements.length - 1]) {
         e.preventDefault();
         if (focusableElements[0]) focusableElements[0].focus();
+    }
+  }
+}
+
+// Function to trap focus within a container (New implementation from 'createFocusTrap')
+function newTrapFocus(container, options = {}) {
+  if (typeof document === 'undefined' || !container) {
+    return null;
+  }
+
+  const config = {
+    escapeDeactivates: options.escapeDeactivates !== false,
+    returnFocusOnDeactivate: options.returnFocusOnDeactivate !== false,
+    onEscape: options.onEscape || null,
+    onActivate: options.onActivate || null,
+    onDeactivate: options.onDeactivate || null
+  };
+
+  let active = false;
+  let deactivateHandler = null;
+
+  const getFocusableElements = () => {
+    return Array.from(container.querySelectorAll(
+      'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )).filter(el => !el.disabled);
+  };
+
+  const handleKeyDown = (e) => {
+    if (!active) return;
+
+    if (e.key === 'Escape' && config.escapeDeactivates) {
+      e.preventDefault();
+      deactivate();
+      if (config.onEscape) config.onEscape();
+      return;
+    }
+
+    if (e.key === 'Tab') {
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length === 0) return;
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
       }
     }
   };
+
+  const activate = () => {
+    if (active) return;
+    active = true;
+    document.addEventListener('keydown', handleKeyDown);
+    if (config.onActivate) config.onActivate();
+  };
+
+  const deactivate = () => {
+    if (!active) return;
+    active = false;
+    document.removeEventListener('keydown', handleKeyDown);
+    if (config.returnFocusOnDeactivate && deactivateHandler) {
+      deactivateHandler.focus();
+    }
+    if (config.onDeactivate) config.onDeactivate();
+  };
+
+  const update = (newOptions) => {
+    Object.assign(config, newOptions);
+  };
+
+  return {
+    activate,
+    deactivate,
+    update,
+    destroy: deactivate
+  };
 }
 
-// Accessibility helper functions
-function getLangAttribute() {
-  return document.documentElement.lang || (typeof appUtils === 'object' && appUtils.getLangAttribute());
-}
-
+// TODO: Implement a new function to handle focus trap for keyboard navigation
 export {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  uniqueLandmarks,
+  addSvgAccessibleNames,
+  personName,
+  validateLinks,
+  createInPageButton: createInPageButtonNew, // Update the import to use this function
+  createWebResourceButton,
+  checkLandmarkElements,
   trapFocus,
   announceToScreenReader,
-  getLangAttribute,
-  validateTableAccessibility
-};
-
-const appUtils = {
-  setHtmlLangAttribute: (lang) => {
-    if (typeof document !== 'undefined' && document.documentElement) {
-      document.documentElement.lang = lang || 'en';
-    }
-    return lang || 'en';
-  },
-
-  detectAndSetLang: (content) => {
-    // Simple language detection based on common patterns
-    let lang = 'en'; // Default to English
-
-    if (content && content.trim()) {
-      // Check for common non-ASCII characters to help detect language
-      if (content.match(/[\u0400-\u04FF\u0590-\u05FF]/u)) {
-        lang = 'ru'; // Russian/Cyrillic
-      } else if (content.match(/[\u3400-\u4dbf\u4e00-\u9fff\u3400-\u4dbf\u20000-\u2A6DF\u20700-\u2A6DF]+/u)) {
-        lang = 'zh'; // Chinese
-      } else if (content.match(/[ぁ-んゔ]/u)) {
-        lang = 'ja'; // Japanese
-      } else if (content.match(/[\u0600-\u06FF\u0750-\u077F\u200C-\u200D\u2070-\u2090]+/u)) {
-        lang = 'ar'; // Arabic
-      }
-    }
-    return lang;
-  }
+  newTrapFocus
 };
 ```

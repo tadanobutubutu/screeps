@@ -1,4 +1,5 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserve
+<<<<<<< HEAD
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
@@ -204,56 +205,4 @@ if (typeof window !== 'undefined') {
   window.fixTableStructure = fixTableStructure;
   window.addLandmarkIssues = addLandmarkIssues;
   window.addSvgAccessibleNames = addSvgAccessibleNames;
-  window.ensureUniqueLandmarks = ensureUniqueLandmarks;
-  window.fixFakeLinkIssue = fixFakeLinkIssue;
-  window.renderGraphIndex = renderGraphIndex;
-  window.updateGraphVisualization = updateGraphVisualization;
-  window.initializeGraphControls = initializeGraphControls;
-}
-
-// Export functions to make them accessible
-module.exports = {
-  // Functions provided in both branches (merge)
-  ensureElementId,
-  addAriaLabel,
-  renderDependencyGraph,
-
-  // Functions from the 'HEAD' branch
-  newFocusTrap,
-  addLangAttribute,
-  fixTableStructure,
-  addLandmarkIssues,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-
-  // Functions from the 'origin/main' branch
-  validateTableAccessibility,
-  validateTableStructure: validateTableStructureImpl,
-  transformInputData,
-
-  // New functions for rendering graph/index
-  renderGraphIndex,
-  updateGraphVisualization,
-  initializeGraphControls,
-
-  // Additional exports from origin/main
-  renderIndex: renderGraphIndex,
-  newFunction,
-  checkLandmarkElement: checkLandmarkElements,
-  wrapPrimaryContentInMain: () => {},
-  checkLandmarks: checkLandmarkElements,
-  handleFocusTrap: newFocusTrap,
-  revokeSession: () => {},
-  validateSession: () => {},
-  a11yStore,
-  getSvgAccessibleName,
-  affectedFunction,
-  updateFunction,
-  accessibleFunction,
-  newFunction1,
-  newFunction2,
-  main: mainEntry,
-  getActiveSessionsCount,
-  anotherNewFunction
-};
+  window.ensureUniqueLandmarks =

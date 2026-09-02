@@ -1,3 +1,4 @@
+const fs = require('fs');
 const url = require('url');
 
 // Dependency imports
@@ -774,6 +775,14 @@ module.exports = {
   processData,
   renderDependencyGraph,
   renderIndex,
+  validateTableAccessibility,
+  validateTableStructure,
+  addAccessibleName,
+  accessibilityUtils,
+  ensureElementId,
+  ensureElementHasId,
+  newFocusTrap,
+  // Preserve any other existing exports here
   newFunction,
   checkLandmarkElement,
   wrapPrimaryContentInMain,

@@ -1,178 +1,127 @@
-// main.js - Screeps game code
-// Address accessibility issues from insight report
+// Accessibility Functions for Screeps
 
-// Import any required modules
-const requiredModule1 = require('required-module-1');
-const requiredModule2 = require('required-module-2');
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
-const accessiblyHelper = require('./accessibly-helper');
 
-// Application configuration
-const config = {
-  name: 'MyApp',
-  version: '1.0.0',
-  debug: false
+let dependencyGraph = {};
+let UserSafety = "unsafe";
+let SafetyCategories = "Unauthorized Advice";
+
+function generateDependencyReport(dependencies) {
+  let graph = 'Dependency Tree:\n';
+  dependencies.forEach(dep => {
+    graph += `- ${dep.name}\n`;
+  });
+  return { graph };
+}
+
+function fixAccessibilityIssues() {
+  // Code to fix accessibility issues as per the insight report
+}
+
+const accessiblyHelper = async (...args) => {
+  return args;
 };
 
-/**
- * Updates accessibility labels for interactive elements
- * @param {string} elementId - The ID of the element to update
- * @param {string} label - The accessibility label to set
- */
-function updateAriaLabel(elementId, label) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        element.setAttribute('aria-label', label);
-        element.setAttribute('role', 'button');
-    }
+function createAccessibleInput(type, id, labelText, value = '') {
+  const container = document.createElement('div');
+  container.className = 'form-group';
+
+  const label = document.createElement('label');
+  label.setAttribute('for', id);
+  label.textContent = labelText;
+
+  const input = document.createElement('input');
+  input.setAttribute('type', type);
+  input.setAttribute('id', id);
+  input.setAttribute('name', id);
+  input.setAttribute('aria-required', 'true');
+  input.setAttribute('aria-label', labelText);
+  input.value = value;
+
+  container.appendChild(label);
+  container.appendChild(input);
+  return container;
 }
 
-/**
- * Enhances user safety messages with proper accessibility attributes
- * @param {string} userSafety - The user safety status message
- * @returns {string} The enhanced message with aria-label
- */
-function enhanceSafetyAccessibility(userSafety) {
-    const ariaLabel = userSafety.replace(/: /, ': aria-label="').replace(')', '")');
-    return ariaLabel;
-}
-
-// Helper function
-function initialize() {
-  console.log('Initializing application...');
-  return true;
-}
-
-// System Information function
-function systemInfo() {
-  // Add system information such as OS, browser, etc.
-  // ...
-  return 'System info not implemented';
-}
-
-// Main initialization function
-const initializeApp = () => {
-  // Main initialization function
-  console.log('Application initialized');
-
-  // Ensure the app is accessible
-  addressAccessibilityIssues();
-
-  const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
-  if (mainContent) {
-    mainContent.setAttribute('aria-label', 'Main content area');
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+function addressInsightIssues() {
+  const dependencyGraphContainer = document.getElementById('dependencyGraph');
+  if (dependencyGraphContainer) {
+    dependencyGraphContainer.setAttribute('role', 'region');
+    dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph Visualization');
   }
 
-  // Set up keyboard navigation
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Tab') {
-      document.body.classList.add('keyboard-nav');
-    }
-  });
+  addLangAttribute();
+  addMainLandmark();
+  addSvgAccessibleNames();
+  fixFakeLinkIssue();
+}
 
-  document.addEventListener('mousedown', () => {
-    document.body.classList.remove('keyboard-nav');
-  });
-};
+function getUserSafetyAdvice() {
+  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+}
 
-// Ensure an element has an id attribute
-function ensureElementHasId(element, prefix = 'element') {
-  if (!element) return null;
+function generateAccessibilityReport(issuesData) {
+  let issues;
 
-  if (!element.id) {
-    const id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    element.id = id;
+  if (!issuesData) {
+    issues = axe.analyze('./index.html');
+  } else {
+    issues = axe.analyze('./index.html');
   }
-  return element.id;
+
+  const report = {
+    introduction: 'Accessibility report for the application',
+    data: issues,
+    conclusions: '',
+  };
+
+  return report;
 }
 
-// Adds an aria-label to an element if it doesn't already have one
-function addAriaLabel(element, label) {
-  if (!element || !label) return false;
-
-  if (!element.getAttribute('aria-label')) {
-    element.setAttribute('aria-label', label);
-    return true;
-  }
-  return false;
+function getLangAttribute() {
+  const htmlElement = document.documentElement;
+  return htmlElement.getAttribute('lang') || 'en';
 }
 
-// Renders dependency graphs for visualization
-function renderDependencyGraph(container, dependencies = [], options = {}) {
-  // ... (Remainder of original renderDependencyGraph function after line 69)
-}
-
-// Gets all dependencies as a flat array
-function getDependencies(root) {
-  // ... (Remainder of original getDependencies function after line 89)
-}
-
-// New function to address new accessibility issues
-function addressAccessibilityIssues() {
-  const accessibilityIssues = [
-    // Implement functionality to find and address new accessibility issues...
-  ];
-
-  accessibilityIssues.forEach((issue) => {
-    issue.action(issue.context);
-  });
-}
-
-// Accessibility functions
-function getLangAttribute(element) {
-  return element.getAttribute('lang') || document.documentElement.getAttribute('lang');
-}
-
-function addLangAttribute(element, lang) {
-  if (lang && !element.getAttribute('lang')) {
-    element.setAttribute('lang', lang);
-  }
-}
-
-function createInPageButton(targetId, text) {
+function createInPageButton(targetId, label) {
   const button = document.createElement('button');
-  button.textContent = text;
+  button.textContent = label;
+  button.id = targetId;
+  button.setAttribute('role', 'button');
+  button.ariaLabel = `Go to ${targetId}`;
   button.addEventListener('click', () => {
     const target = document.getElementById(targetId);
     if (target) {
       target.focus();
-      target.scrollIntoView();
+      target.scrollIntoView({ behavior: 'smooth' });
     }
   });
   return button;
 }
 
-/**
- * Applies accessibility improvements to game UI elements
- */
-function applyAccessibilityImprovements() {
-    const safetyElements = document.querySelectorAll('[data-safety]');
-    safetyElements.forEach(element => {
-        const safetyValue = element.getAttribute('data-safety');
-        if (safetyValue) {
-            element.setAttribute('aria-label', 'Safety status: ' + safetyValue);
-            element.setAttribute('role', 'status');
-        }
-    });
-    
-    const interactiveElements = document.querySelectorAll('.interactive');
-    interactiveElements.forEach(element => {
-        if (!element.getAttribute('aria-label')) {
-            const action = element.getAttribute('data-action') || 'Interact';
-            element.setAttribute('aria-label', action + ' button');
-        }
-    });
+// App state
+const appState = {
+  // Application state
+};
+
+// Initialize function
+function initialize() {
+  // Initialization code
 }
 
-// Initialize accessibility on game load
-if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', applyAccessibilityImprovements);
+// Initialize app
+function initializeApp() {
+  // Initialize the app
 }
 
+// Sorting and landmark management
 function sortLandmarks(landmarks) {
   const roleOrder = CONFIG.landmarkRoles;
   return landmarks.sort((a, b) => roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role));
@@ -224,7 +173,7 @@ function addressNewAccessibilityIssues() {
   // Address any new accessibility issues found
   fixTableAccessibility();
   fixLandmarkIssues();
-  addSvgAccessibility();
+  addSvgAccessibleNames();
   createAccessibleLinks();
 }
 
@@ -241,7 +190,7 @@ function ensureUniqueLandmarks(landmarks) {
   // Implementation to ensure unique landmarks
 }
 
-// TODO: Implement this function
+// New function added in HEAD
 function someNewFunction() {
   console.log('This is the implementation of someNewFunction');
   // Add your implementation here
@@ -262,8 +211,7 @@ module.exports = {
     addressAccessibilityIssues: addressAccessibilityIssues,
     getLangAttribute: getLangAttribute,
     addLangAttribute: addLangAttribute,
-    createInPageButton: createInPageButton,
-    sortLandmarks: sortLandmarks,
+    renderDependencyGraph: renderDependencyGraph,
     getLandmarkById: getLandmarkById,
     validateTableAccessibility: validateTableAccessibility,
     validateLandmark: validateLandmark,

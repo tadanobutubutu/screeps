@@ -547,4 +547,3 @@ module.exports = {
   createAccessibleLink,
   isLinkAccessible,
   towerDefense
-};

@@ -10,12 +10,42 @@ const {
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
+  setSvgAccessibilityProps,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  ensureElementHasId,
+  addAriaLabel: addAriaLabelAlt,
+  googleSignIn,
+  handleCredentialResponseAlt,
+  renderGraphIndexUtil,
   addressAccessibilityIssues
-} = main
+} = require('./utilities');
 
 const http = require('http')
 
+// New function to ensure the element has an id
+const ensureElementHasId = (element, prefix = 'element') => {
+  if (!element.id) {
+    element.id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  }
+  return element.id
+}
+
+// New function to add aria-label to an element
+const addAriaLabel = (element, label) => {
+  if (element) {
+    element.setAttribute('aria-label', label)
+  }
+  return element
+}
+
+// Updated function using new functions for rendering graph/index
 const renderGraphIndex = (graphData) => {
+  addressAccessibilityIssues()
+  renderDependencyGraphs(graphData)
+}
+
+function renderGraphIndexAlt(graphData) {
   addressAccessibilityIssues();
   renderDependencyGraphs(graphData);
 }
@@ -34,3 +64,10 @@ const renderGraphIndex = (graphData) => {
 //_Commit: f00392355840b33cefe4281e7509f0f462a86ffd_
 
 <!-- todo-hash: 344a569ca20673dcf3d1ec08249ba2f2f8ffbf15 -->
+
+module.exports = {
+  ensureElementHasId,
+  addAriaLabel,
+  renderGraphIndex,
+  renderGraphIndexAlt
+};

@@ -170,8 +170,54 @@ const a11yStore = {
     // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
   },
 
+  /**
+   * Ensure all elements have unique IDs in the document
+   * Checks for duplicate IDs and generates unique IDs for elements with duplicates
+   * @returns {Object} - Object containing count of duplicates fixed and list of fixed elements
+   */
   newFunction() {
-    // New function implementation from origin/main
+    const idCountMap = new Map();
+    const elementsById = new Map();
+
+    // First pass: collect all elements by ID
+    const allElements = document.querySelectorAll('[id]');
+    allElements.forEach(element => {
+      const id = element.id;
+      if (!elementsById.has(id)) {
+        elementsById.set(id, []);
+      }
+      elementsById.get(id).push(element);
+    });
+
+    // Second pass: identify duplicates and fix them
+    const result = {
+      duplicatesFixed: 0,
+      fixedElements: []
+    };
+
+    elementsById.forEach((elements, id) => {
+      if (elements.length > 1) {
+        // Mark the first occurrence as valid, fix the rest
+        elements.slice(1).forEach((element, index) => {
+          let newId = `${id}-${index + 1}`;
+          // Ensure the new ID doesn't already exist
+          let counter = 0;
+          while (document.getElementById(newId)) {
+            counter++;
+            newId = `${id}-${index + 1}-${counter}`;
+          }
+          element.id = newId;
+          result.duplicatesFixed++;
+          result.fixedElements.push({
+            originalId: id,
+            newId: newId,
+            element: element.tagName.toLowerCase()
+          });
+        });
+      }
+    });
+
+    return result;
   },
 
   /**
@@ -340,7 +386,7 @@ const a11yStore = {
 };
 
 /**
- * Check if an element is a landmark element for accessibility
+ * Check if an element is a landmark element for accessibility.
  * Landmark elements include: main, nav, aside, header, footer, section, article, form, search
  * @param {HTMLElement|string} element - The element or element tag name to check
  * @returns {boolean} True if the element is a landmark element

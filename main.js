@@ -3,7 +3,7 @@
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: ... -->
 
-// TODO: Implement this function for creating in-page buttons
+// Function to create in-page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
     button.id = buttonId;
@@ -29,6 +29,30 @@ function validateLandmarkStructure() {
     }
 
     return true;
+}
+
+// TODO: Implement the logic to handle the credential response
+function handleCredentialResponse(response) {
+    try {
+        // Parse the credential response
+        const parsedResponse = JSON.parse(response);
+
+        // Validate the parsed response
+        if (!parsedResponse || !parsedResponse.credentials) {
+            throw new Error('Invalid response format');
+        }
+
+        // Here you can add additional validation logic as needed
+
+        // Store or use the credentials
+        console.log('Credentials received:', parsedResponse.credentials);
+
+        // Example: Store credentials in localStorage
+        localStorage.setItem('credentials', JSON.stringify(parsedResponse.credentials));
+
+    } catch (error) {
+        console.error('Failed to handle credential response:', error);
+    }
 }
 
 // Preserve any existing exports here

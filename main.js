@@ -61,7 +61,7 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
+    } else if (/[\u00e0-\u00ff]/.test(content)) {
       lang = 'fr'; // French
     } else if (/^[a-z]{2}$/i.test(content)) {
       lang = 'de'; // German
@@ -392,7 +392,7 @@ function personName(element) {
   const ariaLabel = element.getAttribute('aria-label');
   if (ariaLabel) return ariaLabel;
   
-  // Check for aria-labelled
+  // Check for aria-labelledby
   const labelledBy = element.getAttribute('aria-labelledby');
   if (labelledBy) {
     const labelElement = document.querySelector(labelledBy);

@@ -62,11 +62,14 @@ export function existingFunction() {
 
 export const existingConstant = 'someConstantValue';
 
+// TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-
-// Start the processing of accessibility issues from the insight report
-processAccessibilityIssues(insightReport);
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and wrapPrimaryContentInMain())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and addAriaToFormControls())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
+// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
 
 //_Commit: a9cd46f8a23e31066e58c042ecaf4545b4229c42_
 //<!-- todo-hash: 641688d91e4de9a82ff894b47ca3fcdab7317b3d -->

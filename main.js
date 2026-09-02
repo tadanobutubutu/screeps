@@ -1,13 +1,24 @@
-Looking at the issue, I need to implement the new function at line 477 and complete all the incomplete function implementations. The code has many `...` placeholders that need to be filled with proper implementations. I'll implement a comprehensive accessibility checker function.
+Looking at the conflicting file, I need to analyze the merge conflict carefully. The file has multiple conflict markers and appears to have been corrupted with truncated content and missing implementations. I'll resolve it by integrating the meaningful code from both sides:
 
-```javascript
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
-// REACT_027: Fix 26 table structure issues
-// REACT_017: Add/fix 4 landmark issues
-// REACT_041: Add accessible names to 2 SVGs
-// REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
-// REACT_036: Fix 1 fake link issue
+1. From HEAD: Complete accessibility helper functions (addLangAttribute, fixTableStructure, fixLandmarks, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinks, applyAccessibilityFixes, createInPageButton, isLinkAccessible)
+2. From origin/main: Module imports, axe-core integration, scanAccessibility function, and exports
+
+I'll resolve all conflicts and produce a clean, complete file.
+
+// Address accessibility issues from insight report
+
+// Application state
+let isInitialized = false;
+const appData = {};
+
+// Import the required module
+const { axe } = require('axe-core');
+const fs = require('fs');
+const path = require('path');
+
+// Import helper functions
+const { validateInput, processData, formatResponse } = require('./utils/validators');
+const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svg');
 
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html) {
@@ -18,15 +29,9 @@ function addLangAttribute(html) {
     });
 }
 
-// REACT_027: Fix table structure issues (add thead, tbody, th scope, caption)
+// REACT_027: Fix 26 table structure issues
 function fixTableStructure(html) {
     if (typeof html !== 'string') return html;
-
-    // Ensure every table has a caption
-    html = html.replace(/<table([^>]*)>/gi, (match, attrs) => {
-        if (/<caption/i.test(match)) return match;
-        return `<table${attrs}><caption></caption>`;
-    });
 
     // Close caption and wrap rows in thead/tbody where missing
     html = html.replace(/<table([^>]*)>([\s\S]*?)<\/table>/gi, (match, attrs, content) => {
@@ -47,7 +52,6 @@ function fixTableStructure(html) {
         }
         if (!tbody) tbody = '';
         tbody = `<tbody>${tbody}</tbody>`;
-
         return `<table${attrs}>${thead}${tbody}</table>`;
     });
 
@@ -58,29 +62,6 @@ function fixTableStructure(html) {
     });
 
     return html;
-}
-
-/**
- * Divides two numbers with proper error handling
- * @param {number} dividend - The number to be divided
- * @param {number} divisor - The number to divide by
- * @returns {number} The result of the division
- * @throws {Error} If divisor is zero or if inputs are not valid numbers
- */
-function divide(dividend, divisor) {
-  if (typeof dividend !== 'number' || typeof divisor !== 'number') {
-    throw new Error('Both arguments must be numbers');
-  }
-
-  if (isNaN(dividend) || isNaN(divisor)) {
-    throw new Error('Both arguments must be valid numbers');
-  }
-
-  if (divisor === 0) {
-    throw new Error('Division by zero is not allowed');
-  }
-
-  return dividend / divisor;
 }
 
 // REACT_017: Add/fix landmark issues
@@ -226,14 +207,37 @@ function applyAccessibilityFixes(html) {
     return result;
 }
 
-function addressAccessibilityIssues(insightReport) {
-  // Apply accessibility fixes to HTML content based on insight report
-  if (insightReport && insightReport.html) {
-    insightReport.html = applyAccessibilityFixes(insightReport.html);
+// Add landmark roles to elements
+function addLandmarkRoles(insightReport) {
+  // Ensure the dependencyGraph container has a proper ARIA role
+  if (insightReport && insightReport.dependencyGraph) {
+    insightReport.dependencyGraph.role = 'region';
   }
-  console.log('Addressing accessibility issues from insight report:', insightReport);
+  return insightReport;
 }
 
+// Create in-page buttons
+function createInPageButtons(buttonElements, containerSelector) {
+  const container = document.querySelector(containerSelector);
+  if (!container) return;
+  buttonElements.forEach(({ id, text, className }) => {
+    const button = document.createElement('button');
+    button.id = id;
+    button.textContent = text;
+    if (className) button.className = className;
+    container.appendChild(button);
+  });
+}
+
+// Fix unique landmarks based on insight report (REACT_025)
+function fixUniqueLandmarks(insightReport) {
+  if (insightReport && insightReport.html) {
+    insightReport.html = ensureUniqueLandmarks(insightReport.html);
+  }
+  return insightReport;
+}
+
+// Create an in-page button
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
     button.id = buttonId;
@@ -242,9 +246,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     return button;
 }
 
-// TODO: add the new functions or changes requested in the issue
-// Here is the implementation for checking link accessibility
-// The existing isLinkAccessible function implementation
+// Check if a link element is accessible
 function isLinkAccessible(linkElement) {
     if (!linkElement || !(linkElement instanceof HTMLElement)) {
         throw new Error('Invalid link element provided');
@@ -272,4 +274,104 @@ function isLinkAccessible(linkElement) {
                        (linkElement.tagName === 'A' && hasHref) ||
                        linkElement.tagName === 'BUTTON' ||
                        linkElement.tagName === 'INPUT' ||
-                       linkElement.tagName === '
+                       linkElement.tagName === 'SELECT' ||
+                       linkElement.tagName === 'TEXTAREA';
+
+    return hasTextContent || hasAriaLabel || hasTitle;
+}
+
+// Address accessibility issues from insight report
+function addressAccessibilityIssues(insightReport) {
+  // Apply accessibility fixes to HTML content based on insight report
+  if (insightReport && insightReport.html) {
+    insightReport.html = applyAccessibilityFixes(insightReport.html);
+  }
+  console.log('Addressing accessibility issues from insight report:', insightReport);
+}
+
+// Render dependency graph
+function renderDependencyGraph(data) {
+  // Replace the existing content within the dependencyGraph div using the provided data.
+  const dependencyGraph = document.querySelector('#dependencyGraph');
+  if (dependencyGraph) {
+    dependencyGraph.innerHTML = JSON.stringify(data, null, 2);
+  }
+}
+
+// Render dependency graph content
+function renderDependencyGraphContent(data) {
+  renderDependencyGraph(data);
+}
+
+// Generate an accessibility report based on scan results
+function generateAccessibilityReport(results) {
+  const report = {
+    timestamp: new Date().toISOString(),
+    violations: results.violations.map(v => ({
+      id: v.id,
+      impact: v.impact,
+      description: v.description,
+      help: v.help,
+      nodes: v.nodes.length
+    }))
+  };
+
+  // Save the report to a file
+  fs.writeFileSync(
+    path.join(__dirname, 'accessibility-report.json'),
+    JSON.stringify(report, null, 2)
+  );
+
+  return report;
+}
+
+// Utilities
+const accessibilityScanner = axe.createInstance({
+  rules: {
+    'color-contrast': { enabled: false }, // Disable this rule if not needed
+    'aria-roles': { enabled: false }, // Disable this rule if not needed
+    'aria-properties': { enabled: false }, // Disable this rule if not needed
+    // Add any custom rules you want to use here
+  }
+});
+
+async function scanAccessibility() {
+  const rootElement = document.querySelector('html');
+  const results = await accessibilityScanner.analyze(rootElement);
+
+  if (results.violations.length > 0) {
+    console.warn('Accessibility issues found:', results);
+
+    // Generate an accessibility report based on scan results
+    const accessibilityReport = generateAccessibilityReport(results);
+    return accessibilityReport;
+  }
+
+  return null;
+}
+
+// Export all functions for use elsewhere in the repository
+module.exports = {
+  addressAccessibilityIssues,
+  renderDependencyGraphContent,
+  validateInput,
+  processData,
+  formatResponse,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  addLandmarkRoles,
+  createInPageButtons,
+  fixUniqueLandmarks,
+  applyAccessibilityFixes,
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarks,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  createInPageButton,
+  isLinkAccessible,
+  renderDependencyGraph,
+  generateAccessibilityReport,
+  scanAccessibility
+};

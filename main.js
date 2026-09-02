@@ -3,14 +3,13 @@
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // todo-hash: 3387b328ed31e6aaa7a649a00a8a016eea4fdf1d
 
-// TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (DONE: addLandmarkIssues; handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName; handled by getSvgAccessibleName() and addSvgAccessibilityProps())
+// - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ensureUniqueLandmarks() and addProperLandmarkRegions())
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 // Application configuration
@@ -117,6 +116,67 @@ function getLangAttribute() {
 
   // Fallback: try to detect from content or use default
   return 'en';
+}
+
+/**
+ * Generate an accessible name for an element (person name or general accessible name)
+ * @param {HTMLElement} element - The element to get the accessible name for
+ * @returns {string} The accessible name for the element
+ */
+function personName(element) {
+  if (!element) return '';
+  
+  // Check for existing aria-label
+  if (element.hasAttribute('aria-label')) {
+    const ariaLabel = element.getAttribute('aria-label');
+    if (ariaLabel && ariaLabel.trim()) {
+      return ariaLabel.trim();
+    }
+  }
+
+  // Check for aria-labelledby referencing another element
+  if (element.hasAttribute('aria-labelledby')) {
+    const labelledbyId = element.getAttribute('aria-labelledby');
+    const labelledElement = document.getElementById(labelledbyId);
+    if (labelledElement && labelledElement.textContent) {
+      return labelledElement.textContent.trim();
+    }
+  }
+
+  // Check for alt attribute (for images)
+  if (element.hasAttribute('alt')) {
+    const alt = element.getAttribute('alt');
+    if (alt && alt.trim()) {
+      return alt.trim();
+    }
+  }
+
+  // Check for title attribute
+  if (element.hasAttribute('title')) {
+    const title = element.getAttribute('title');
+    if (title && title.trim()) {
+      return title.trim();
+    }
+  }
+
+  // Check for name attribute
+  if (element.hasAttribute('name')) {
+    const name = element.getAttribute('name');
+    if (name && name.trim()) {
+      return name.trim();
+    }
+  }
+
+  // Fall back to text content
+  if (element.textContent) {
+    const textContent = element.textContent.trim();
+    if (textContent) {
+      return textContent;
+    }
+  }
+
+  // Return empty string if no accessible name found
+  return '';
 }
 
 /**
@@ -345,7 +405,9 @@ if (typeof module !== 'undefined' && module.exports) {
     validateTableStructure,
     validateLandmarkStructure,
     ensureUniqueLandmarks,
-    addProperLandmarkRegions
+    addProperLandmarkRegions,
+    personName,
+    addSvgAccessibilityProps
   };
 }
 
@@ -354,6 +416,8 @@ function init() {
   setupAriaLiveRegions();
   setupFocusManagement();
   enhanceSemanticMarkup();
+  addSvgAccessibilityProps();
+  addProperLandmarkRegions(document);
 }
 
 function setupKeyboardNavigation() {

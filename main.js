@@ -1,3 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
+//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
+//<!-- todo-hash: ... -->
+
 const fs = require('fs');
 const main = require('./utilities');
 
@@ -54,7 +58,7 @@ const accessibilityUtils = {
 
 const ensureElementIdOriginal = (element) => {
   if (element && !element.id) {
-    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
+    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).substr(2, 11);
   }
   return element;
 };
@@ -94,10 +98,10 @@ accessibilityUtils.initSkipLink = () => {
     const skipLinkElement = document.createElement('a');
     skipLinkElement.href = '#main-content';
     skipLinkElement.textContent = 'Skip to main content';
-    skipLinkElement.ariaLabel = 'Skip to main content';
+    skipLinkElement.setAttribute('aria-label', 'Skip to main content');
     skipContainer.appendChild(skipLinkElement);
 
-    document.body.appendChild(skipContainer);
+    document.body.insertBefore(skipContainer, document.body.firstChild);
   }
 };
 
@@ -107,7 +111,7 @@ accessibilityUtils.trapFocus = (element) => {
   }
 
   const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
 
   if (focusableElements.length === 0) {
@@ -121,48 +125,28 @@ accessibilityUtils.trapFocus = (element) => {
   const handleKeyDown = (e) => {
     if (e.key === 'Tab') {
       if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
         lastElement.focus();
         e.preventDefault();
       } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
         firstElement.focus();
         e.preventDefault();
       }
     }
 
     if (e.key === 'Escape') {
-      element.dispatchEvent(new CustomEvent('focusTrapEscape'));
+      element.dispatchEvent(new KeyboardEvent('escape-pressed', { bubbles: true }));
     }
   };
 
   element.addEventListener('keydown', handleKeyDown);
-  firstElement.focus();
 
   // Return cleanup function
   return () => {
     element.removeEventListener('keydown', handleKeyDown);
   };
 };
-
-// Credential response handling
-async function handleCredentialResponse(response) {
-  if (!response) {
-    throw new Error('No response received');
-  }
-
-  if (response.error) {
-    throw new Error(response.error);
-  }
-
-  if (response.token) {
-    return {
-      success: true,
-      token: response.token,
-      expiresIn: response.expiresIn || 3600
-    };
-  }
-
-  throw new Error('Invalid credential response');
-}
 
 // Existing utility functions
 function log(message, level = 'info') {
@@ -185,7 +169,7 @@ const exportUtilities = {
     URL.revokeObjectURL(url);
 
     // Announce download completion to screen readers
-    accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
+    announceToScreenReader("Download of " + filename + " started");
   },
 
   exportToJSON: (data, filename) => {
@@ -214,7 +198,7 @@ const exportUtilities = {
 };
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-z0-9_.-]/gi, '_');
+  return filename.replace(/[^a-z0-9.-]/gi, '_');
 }
 
 function readFileSafe(filePath) {
@@ -253,9 +237,11 @@ const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
 
   // Add keyboard support for all interactive elements
-  document.querySelectorAll('[data-accessible]').forEach(element => {
-    element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, {
+  document.addEventListener('click', (e) => {
+    const element = e.target;
+    if (element) {
+      element.addEventListener('keydown', (e) => {
+        const actions = {
         Enter: () => element.click(),
         ' ': () => element.click()
       });

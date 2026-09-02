@@ -3,16 +3,18 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import reportWebVitals from ...
 import a11y from './AccessibilityUtilities'; // Assuming accessibility utilities are in a separate file
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 
 // TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -148,7 +150,7 @@ function generateAccessibilityReport() {
     }
   });
 
-  // Check for buttons without accessible names
+  // Check for buttons without accessible name
   const buttons = document.querySelectorAll('button');
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
@@ -183,7 +185,7 @@ function generateAccessibilityReport() {
     if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
       const labelId = input.getAttribute('aria-labelledby');
       const labelText = input.getAttribute('aria-label');
-      const hasLabel = document.querySelector(`label[for="${input.id}"]`) || labelId || labelText;
+      const hasLabel = input.id && document.querySelector(`label[for="${input.id}"]`) || labelId || labelText;
       if (!hasLabel) {
         issues.push({
           type: 'missing-label',
@@ -203,7 +205,7 @@ function generateAccessibilityReport() {
         type: 'empty-heading',
         element: heading.tagName.toLowerCase(),
         index: index,
-        message: `${heading.tagName.toLowerCase()} at index ${index} has no text content`
+        message: `${heading.tagName.toUpperCase()} at index ${index} has no text content`
       });
     }
   });
@@ -228,11 +230,11 @@ function addressAccessibilityIssues() {
   }
 
   // Initialize skip link functionality
-  const skipLink = document.getElementById('skip-link');
+  const skipLink = document.querySelector('.skip-link');
   if (skipLink) {
     skipLink.addEventListener('click', function(e) {
-      const targetId = this.getAttribute('href').substring(1);
-      const target = document.getElementById(targetId);
+      const targetId = skipLink.getAttribute('href');
+      const target = document.querySelector(targetId);
       if (target) {
         target.setAttribute('tabindex', '-1');
         target.focus();
@@ -241,8 +243,9 @@ function addressAccessibilityIssues() {
   }
 
   // Ensure all buttons with role="button" respond to Enter key
-  document.querySelectorAll('[role="button"]').forEach(button => {
-    button.addEventListener('keydown', function(e) {
+  const allButtons = document.querySelectorAll('[role="button"]');
+  allButtons.forEach(btn => {
+    btn.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         this.click();
@@ -253,25 +256,25 @@ function addressAccessibilityIssues() {
   // Add focusVisible polyfill behavior
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Tab') {
-      document.body.classList.add('using-keyboard');
+      document.body.classList.add('keyboard-nav');
     }
   });
 
   document.addEventListener('mousedown', function() {
-    document.body.classList.remove('using-keyboard');
+    document.body.classList.remove('keyboard-nav');
   });
 
   // Assuming a modal/dialog element with the ID "modal"
   a11y.announce('Welcome to the bot!', 'assertive'); // Assuming announce function from a11y utilities
 
   // Adding an alt attribute to an image
-  const imageElement = document.querySelector('img[alt=""]');
+  const imageElement = document.querySelector('img[data-needs-alt]');
   if (imageElement) {
     imageElement.setAttribute('alt', 'A description of the image');
   }
 
   // Correcting the ARIA role for a div
-  const divElement = document.querySelector('div[role="list"]');
+  const divElement = document.querySelector('.incorrect-role');
   if (divElement) {
     divElement.setAttribute('role', 'list');
   }

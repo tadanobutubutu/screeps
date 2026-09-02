@@ -1,5 +1,15 @@
 // TODO: This is the existing code that needs to be preserved
 
+function handleCredentialResponse(response) {
+  if (!response) {
+    throw new Error('Credential response is required');
+  }
+  return {
+    credential: response.credential || null,
+    status: response.credential ? 'received' : 'empty'
+  };
+}
+
 // New utility function to create a web resource button suitable for accessibility
 function createAccessibleWebResourceButton(url, text) {
   const button = document.createElement('button');
@@ -275,5 +285,6 @@ module.exports = {
   newRequiredFunction,
   additionalFunction,
   createAccessibleWebResourceButton,
-  newFunction
+  newFunction,
+  handleCredentialResponse
 };

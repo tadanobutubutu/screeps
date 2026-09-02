@@ -1,7 +1,6 @@
 // main.js - Entry point for the application
 
-// TODO: Address accessibility issues from insight report:
-// ... (Removed hashes for ease of reading)
+// TODO: This is the existing code that needs to be preserved
 
 // Accessibility improvements:
 // - Added semantic HTML structure

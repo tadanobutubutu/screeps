@@ -577,7 +577,7 @@ const a11yStore = {
       const descriptionElement = document.createElement('desc');
       descriptionElement.id = descriptionId;
       descriptionElement.textContent = titleText;
-      svg.appendChild(descElement);
+      svg.appendChild(descriptionElement);
     });
   },
 
@@ -1006,6 +1006,54 @@ function preserveExistingCode() {
   a11yStore.preserveExistingCode();
 }
 
+/**
+ * New function to handle focus trap for keyboard navigation.
+ * @param {Element} container - The container element to trap focus within.
+ * @param {Object} options - Optional configuration (e.g., ignoreSelectors)
+ * @returns {Function} - Function to release the trap
+ */
+function newFocusTrap(container, options = {}) {
+  if (!container || typeof container.addEventListener !== 'function') return () => {};
+
+  const focusableSelector = [
+    'button:not([disabled])',
+    '[href]',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(',');
+
+  const handleKeyDown = (e) => {
+    if (e.key !== 'Tab') return;
+
+    const focusableElements = container.querySelectorAll(focusableSelector);
+    if (focusableElements.length === 0) return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (e.shiftKey) {
+      if (document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  };
+
+  container.addEventListener('keydown', handleKeyDown);
+
+  // Return release function
+  return () => {
+    container.removeEventListener('keydown', handleKeyDown);
+  };
+}
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -1047,5 +1095,6 @@ module.exports = {
   TowerDefense,
   createTowerDefenseGame,
   TOWER_TYPES,
-  ENEMY_TYPES
+  ENEMY_TYPES,
+  newFocusTrap
 };

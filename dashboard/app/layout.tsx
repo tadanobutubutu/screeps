@@ -96,9 +96,33 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             background-color: rgba(0, 75, 115, 0.05);
             box-shadow: 0 0 0 2px rgba(0, 75, 115, 0.2);
           }
+          .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 0;
+            background: #004b73;
+            color: #ffffff;
+            padding: 0.5rem 1rem;
+            z-index: 9999;
+            font-family: monospace;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+            transition: top 0.2s ease-in-out;
+          }
+          .skip-link:focus {
+            top: 0;
+            outline: 2px solid #ffffff;
+            outline-offset: -2px;
+          }
         `}</style>
             </head>
-            <body><main>{children}</main></body>
+            <body>
+                <a href="#main-content" className="skip-link">
+                    メインコンテンツへスキップ
+                </a>
+                <main>{children}</main>
+            </body>
         </html>
     );
 }

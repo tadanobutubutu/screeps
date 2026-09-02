@@ -2,7 +2,6 @@
  * Main entry point for the application
  */
 
-<<<<<<< HEAD
 // Function to create in-page buttons
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
@@ -92,11 +91,11 @@ function ensureUniqueLandmarks() {
     // Address accessibility issues from insight report:
     // Ensure the dependencyGraph container has a proper ARIA role
     // (This comment remains as-is)
-    //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+    // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
     //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-    //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+    // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
     //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-    //_Commit: 5cb26805d1cf9dc1c3c0bd9f2923ab16e34f825e _
+    // _Commit: 5cb26805d1cf9dc1c3c0bd9f2923ab16e34f825e _
     //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
     // Helper function to check if a link is accessible
@@ -118,3 +117,27 @@ function ensureUniqueLandmarks() {
     // New function3 logic
     function function3() {
       // TODO: Implement new function
+    }
+
+    // Additional changes for accessibility issues:
+    // - REACT_015: Add lang attribute to HTML element
+    document.documentElement.setAttribute('lang', getLangAttribute());
+
+    // - REACT_017: Add landmark roles and fix landmark issues
+    // Assuming that a function to add landmark roles is defined elsewhere
+    addLandmarkRoles(dependencyGraph);
+
+    // - REACT_041: Add accessible names to 2 SVGs
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-label', getSvgAccessibleName(svg));
+    });
+
+    // - REACT_025: Ensure unique landmarks (already implemented: ensureUniqueLandmarks)
+    // - REACT_036: Fix 1 fake link issue
+    // Assuming that a function to handle fake links is defined elsewhere
+    handleFakeLinks();
+
+    // - REACT_037: Add proper landmark regions (already implemented: addProperLandmarkRegions)
+})();

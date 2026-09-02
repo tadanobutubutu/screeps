@@ -1,7 +1,3 @@
-Here is the resolved file content:
-
-```javascript
-// TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -9,6 +5,7 @@ Here is the resolved file content:
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// - REACT_042: Check link and button accessibility (handled by checkLinksAndButtonsAccessibility())
 
 function getLangAttribute() {
     // Implementation to get language attribute
@@ -78,13 +75,14 @@ function ensureUniqueLandmarks() {
         }
     });
 
-    return Object.keys(landmarks).length === allLandmarks.length;
+    const uniqueCount = Object.keys(landmarks).length;
+    return uniqueCount === allLandmarks.length;
 }
 
-function getSvgAccessibleName(svgElement) {
+function getSvgAccessibleName(svg) {
     // Implementation to get SVG accessible name (conflict resolved: new implementation)
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
+    const title = svg.querySelector('title');
+    const ariaLabel = svg.getAttribute('aria-label');
 
     if (title) return title.textContent;
     if (ariaLabel) return ariaLabel;
@@ -109,6 +107,67 @@ function createAccessibleLink(href, text) {
     return link;
 }
 
+function getAccessibleName(element) {
+    // Helper function to get accessible name from an element
+    const ariaLabel = element.getAttribute('aria-label');
+    if (ariaLabel && ariaLabel.trim() !== '') {
+        return ariaLabel.trim();
+    }
+    
+    const ariaLabelledby = element.getAttribute('aria-labelledby');
+    if (ariaLabelledby) {
+        const referencedElement = document.getElementById(ariaLabelledby);
+        if (referencedElement && referencedElement.textContent.trim() !== '') {
+            return referencedElement.textContent.trim();
+        }
+    }
+    
+    const title = element.getAttribute('title');
+    if (title && title.trim() !== '') {
+        return title.trim();
+    }
+    
+    return element.textContent ? element.textContent.trim() : '';
+}
+
+function checkLinksAndButtonsAccessibility() {
+    // Implementation for checking link and button accessibility
+    let hasIssues = false;
+    
+    // Check all links (anchor elements with href)
+    const links = document.querySelectorAll('a[href]');
+    links.forEach(link => {
+        const accessibleName = getAccessibleName(link);
+        const href = link.getAttribute('href');
+        
+        // Check for fake/empty links
+        if (!href || href === '#' || href === '') {
+            console.warn('Accessibility issue: Link has no valid href', link);
+            hasIssues = true;
+        }
+        
+        // Check for links without accessible names
+        if (!accessibleName) {
+            console.warn('Accessibility issue: Link missing accessible name', link);
+            hasIssues = true;
+        }
+    });
+    
+    // Check all buttons (native buttons and elements with role="button")
+    const buttons = document.querySelectorAll('button, [role="button"]');
+    buttons.forEach(button => {
+        const accessibleName = getAccessibleName(button);
+        
+        // Check for buttons without accessible names
+        if (!accessibleName) {
+            console.warn('Accessibility issue: Button missing accessible name', button);
+            hasIssues = true;
+        }
+    });
+    
+    return !hasIssues;
+}
+
 function handleAccessibilityIssues() {
     // Implementation to handle accessibility issues (conflict resolved: merged implementation)
     const tables = document.querySelectorAll('table');
@@ -122,13 +181,15 @@ function handleAccessibilityIssues() {
         validateLandmark(landmark);
     });
 
-    validateLandmarkStructure();
     ensureUniqueLandmarks();
 
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
         getSvgAccessibleName(svg);
     });
+
+    // Check link and button accessibility
+    checkLinksAndButtonsAccessibility();
 }
 
 // Export all existing and new functions
@@ -143,8 +204,6 @@ module.exports = {
     getSvgAccessibleName,
     createInPageButton,
     createAccessibleLink,
+    checkLinksAndButtonsAccessibility,
     handleAccessibilityIssues
 };
-```
-
-This resolved the conflicting additions between the HEAD and origin/main branches by merging their respective changes where possible and keeping the implementation for each function that addressed accessibility issues from the insight report. The resulting functions have the same purpose but may have different implementations, as indicated by the conflict resolved comments. The end result does not introduce any syntax errors and preserves comments and style where possible.

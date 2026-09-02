@@ -12,11 +12,10 @@ const CONFIG = {
     dataPath: './data',
     maxResults: 100,
     apiUrl: process.env.API_URL || 'https://example.com',
-    timeout: 5000
+    timeout: 5000,
+    userSafety: 'unsafe',
+    safetyCategories: 'Unauthorized Advice'
 };
-
-// Alternative config style for backwards compatibility
-const config = CONFIG;
 
 // Application state
 let isInitialized = false;
@@ -90,7 +89,7 @@ function helper(input) {
 }
 
 // Address accessibility issues from insight report
-// Ensure the dependencyGraph container has a proper ARIA role
+// Ensure the dependencyGraph container has a proper ARIA role and check user safety
 function addressAccessibilityIssues(insightReport) {
   // This addresses issues from the insight report:
   // - REACT_015: Add lang attribute to HTML element
@@ -99,7 +98,11 @@ function addressAccessibilityIssues(insightReport) {
   // - REACT_041: Add accessible names to SVGs
   // - REACT_025: Ensure unique landmarks
   // - REACT_036: Fix fake link issue
-  
+  // Check user safety
+   if (CONFIG.userSafety && CONFIG.safetyCategories) {
+     console.warn(`Application is not running in a secure context. Some features may not be available: User Safety: ${CONFIG.userSafety}, Safety Categories: ${CONFIG.safetyCategories}.`);
+   }
+
   // Improve accessibility
   improveAccessibility();
 
@@ -309,7 +312,7 @@ module.exports = {
   createInPageButtons,
   fixUniqueLandmarks,
   generateAccessibilityReport,
-  config: CONFIG,
+  CONFIG,
   appState,
   validateTableAccessibility,
   validateTableStructure,

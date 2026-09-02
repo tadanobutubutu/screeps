@@ -24,6 +24,41 @@ function wrapPrimaryContentInMain() {
   return null;
 }
 
+// Helper function to enhance form inputs with accessibility attributes
+function enhanceFormInputAccessibility(input) {
+  if (!input) return null;
+  
+  // Generate a unique ID if not present
+  if (!input.id) {
+    input.id = `form-input-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  
+  // Ensure aria-required is set for required inputs
+  if (input.hasAttribute('required') && !input.hasAttribute('aria-required')) {
+    input.setAttribute('aria-required', 'true');
+  }
+  
+  // Ensure aria-invalid is set to false by default
+  if (!input.hasAttribute('aria-invalid')) {
+    input.setAttribute('aria-invalid', 'false');
+  }
+  
+  // Add autocomplete attribute if not present and input has a name
+  if (input.name && !input.hasAttribute('autocomplete')) {
+    const autocompleteMap = {
+      'email': 'email',
+      'password': 'current-password',
+      'name': 'name',
+      'username': 'username'
+    };
+    if (autocompleteMap[input.name.toLowerCase()]) {
+      input.setAttribute('autocomplete', autocompleteMap[input.name.toLowerCase()]);
+    }
+  }
+  
+  return input;
+}
+
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { List, Button } from 'antd';
@@ -822,5 +857,6 @@ export {
   ensureUniqueLandmarksDoc,
   fixButtonIdentifiers,
   ensureDependencyGraphAriaRole,
-  googleSignIn
+  googleSignIn,
+  enhanceFormInputAccessibility
 };

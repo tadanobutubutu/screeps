@@ -457,6 +457,35 @@ function personName(name) {
   return name.trim();
 }
 
+/**
+ * New focus trap function for keyboard navigation
+ * @param {HTMLElement} element - The element to trap focus within
+ */
+function newFocusTrap(element) {
+  if (!element) return;
+
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+
+  if (focusableElements.length === 0) return;
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+}
+
 // Export all functions to make them available as module exports
 export {
   setHtmlLangAttribute,
@@ -470,5 +499,6 @@ export {
   validateSvgAccessibility,
   ensureUniqueLandmarks,
   createInPageButton,
-  personName
+  personName,
+  newFocusTrap
 };

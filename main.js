@@ -31,5 +31,13 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// Spawn multiple buttons dynamically based on configuration
+function spawnButtons(buttonDefinitions) {
+    buttonDefinitions.forEach(({ id, text, className }) => {
+        const button = createInPageButton(id, text, className);
+        document.body.appendChild(button);
+    });
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

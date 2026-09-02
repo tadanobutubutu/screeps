@@ -197,4 +197,17 @@ const checkTableStructure = function(tableElement) {
   };
 };
 
+// New function for rendering graph/index
+function renderGraph() {
+  // Implementation for rendering the graph
+  // This is a placeholder for the actual implementation
+  console.log('Graph rendering function called');
+}
+
+// Existing function that now uses the new renderGraph function
+function updateGraphDisplay() {
+  // Implementation that uses the new renderGraph function
+  renderGraph();
+}
+
 // ... (rest of the code preserved with minor adjustments)

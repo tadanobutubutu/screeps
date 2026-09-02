@@ -1,9 +1,4 @@
-const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0'
-};
+/* ... existing code ... */
 
 const appState = {
   initialized: false,
@@ -33,32 +28,93 @@ const HTML = ({ lang }) => {
 };
 
 function countDependencies() {
-  try {
-    const packageJson = require('./package.json');
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-    const peerDependencies = packageJson.peerDependencies || {};
-    const optionalDependencies = packageJson.optionalDependencies || {};
+  // Count internal private functions (starting with '_')
+  const internalDependencies = [];
+  const globalObj = (typeof window !== 'undefined') ? window : global;
+  const functions = [...Object.getOwnPropertyNames(globalObj)];
+  functions.forEach((functionName) => {
+    if (functionName.startsWith('_') && typeof globalObj[functionName] === 'function') {
+      internalDependencies.push(functionName);
+    }
+  });
+  const internalCount = internalDependencies.length;
 
+  // Count npm dependencies from package.json (if in Node environment)
+  let external = null;
+  let error = null;
+  if (typeof require === 'function') {
+    try {
+      const packageJson = require('./package.json');
+      const dependencies = packageJson.dependencies || {};
+      const devDependencies = packageJson.devDependencies || {};
+      const peerDependencies = packageJson.peerDependencies || {};
+      const optionalDependencies = packageJson.optionalDependencies || {};
+
+      external = {
+        dependencies: Object.keys(dependencies).length,
+        devDependencies: Object.keys(devDependencies).length,
+        peerDependencies: Object.keys(peerDependencies).length,
+        optionalDependencies: Object.keys(optionalDependencies).length,
+        total: Object.keys(dependencies).length + 
+               Object.keys(devDependencies).length + 
+               Object.keys(peerDependencies).length + 
+               Object.keys(optionalDependencies).length
+      };
+    } catch (err) {
+      error = err.message;
+    }
+  }
+
+  // Return combined result
+  if (error) {
     return {
-      dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
-      peerDependencies: Object.keys(peerDependencies).length,
-      optionalDependencies: Object.keys(optionalDependencies).length,
-      total: Object.keys(dependencies).length +
-             Object.keys(devDependencies).length +
-             Object.keys(peerDependencies).length +
-             Object.keys(optionalDependencies).length
+      internalCount,
+      external,
+      error
     };
-  } catch (error) {
+  } else {
     return {
-      dependencies: 0,
-      devDependencies: 0,
-      peerDependencies: 0,
-      optionalDependencies: 0,
-      total: 0,
-      error: error.message
+      internalCount,
+      external
     };
+  }
+}
+
+// Ensure unique IDs and roles for landmarks
+function ensureUniqueLandmarks(landmarksArg) {
+  let landmarks = landmarksArg;
+  if (!Array.isArray(landmarks)) {
+    landmarks = [];
+  }
+  const elementsById = {};
+
+  // Ensure unique IDs
+  if (Array.isArray(landmarks)) {
+    for (const landmark of landmarks) {
+      if (landmark.id) {
+        if (elementsById[landmark.id]) {
+          landmark.id += '_duplicate';
+        } else {
+          elementsById[landmark.id] = true;
+        }
+      }
+    }
+  }
+
+  // Additional uniqueness check for landmark roles
+  const landmarksByRole = {};
+  const allLandmarks = document.querySelectorAll('[role]');
+
+  allLandmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (landmarksByRole[role]) {
+      console.warn(`Duplicate landmark role: ${role}`);
+    } else {
+      landmarksByRole[role] = true;
+    }
+  });
+
+  return landmarks;
 }
 
 function validateTableAccessibility(tableElement) {
@@ -119,84 +175,6 @@ function setSvgAttributes(svg, accessibleName) {
   }
 }
 
-function ensureUniqueLandmarks(landmarksArg) {
-  let landmarks = landmarksArg;
-  if (!Array.isArray(landmarks)) {
-    landmarks = [];
-  }
-  const elementsById = {};
-
-  if (Array.isArray(landmarks)) {
-    for (const landmark of landmarks) {
-      if (landmark.id) {
-        if (elementsById[landmark.id]) {
-          landmark.id += '_duplicate';
-        } else {
-          elementsById[landmark.id] = true;
-        }
-      }
-    }
-  }
-
-  // Additional uniqueness check for landmark roles
-  const landmarksByRole = {};
-  const allLandmarks = document.querySelectorAll('[role]');
-
-  allLandmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    if (landmarksByRole[role]) {
-      console.warn(`Duplicate landmark role: ${role}`);
-    } else {
-      landmarksByRole[role] = true;
-    }
-  });
-
-  return landmarks;
-}
-
-function initializeApp() {
-  appState.initialized = true;
-  console.log('Initializing application...');
-  return true;
-}
-
-function getConfig() {
-  return config;
-}
-
-function validateInput(input) {
-  return input !== null && input !== undefined;
-}
-
-function processData(data) {
-  if (!validateInput(data)) {
-    throw new Error('Invalid input data');
-  }
-  return {
-    processed: true,
-    data: data,
-    timestamp: Date.now()
-  };
-}
-
-function createInPageButton(text, onClick) {
-    // Implementation to create accessible in-page button (conflict resolved: merged implementation)
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.onclick = onClick;
-    button.setAttribute('aria-label', text);
-    return button;
-}
-
-function createAccessibleLink(href, text) {
-    // Implementation to create accessible link (conflict resolved: merged implementation)
-    const link = document.createElement('a');
-    link.href = href;
-    link.textContent = text;
-    link.setAttribute('aria-label', text);
-    return link;
-}
-
 function handleAccessibilityIssues() {
     // Implementation to handle accessibility issues (conflict resolved: merged implementation)
     const tables = document.querySelectorAll('table');
@@ -219,7 +197,9 @@ function handleAccessibilityIssues() {
     });
 }
 
-export {
+// Export the functions
+module.exports = {
+    countDependencies,
     validateTableAccessibility,
     validateTableStructure,
     validateLandmark,
@@ -234,6 +214,5 @@ export {
     validateInput,
     processData,
     addLandmarkRegions,
-    setSvgAttributes,
-    countDependencies
+    setSvgAttributes
 };

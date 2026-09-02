@@ -1,4 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
+// _Commit: 9b0a0d6bb0214c2d74db539b8e33b7af757187a3_
+// <!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
 
@@ -159,11 +161,6 @@ function implementAccessibilityFixesFromReport (container, report) {
   }
 
   return fixes
-}
-
-// Helper functions for session management
-function getActiveSessionsCount() {
-  return appState.sessions.size
 }
 
 function validateSession() {

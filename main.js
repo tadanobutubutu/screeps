@@ -1,5 +1,4 @@
 // TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;
@@ -39,4 +38,14 @@ function fixTableStructure(html) {
         if (!tbody) tbody = '';
         tbody = `<tbody>${tbody}</tbody>`;
 
-        return `<table${attrs}>${thead}${tbody
+        return `<table${attrs}>${thead}${tbody}`;
+    });
+
+    // Add scope attribute to th elements if not present
+    html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
+        if (/\bscope=/i.test(match)) return match;
+        return `<th${attrs} scope="col">`;
+    });
+
+    return html;
+}

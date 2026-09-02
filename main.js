@@ -330,6 +330,363 @@ function createAccessibleModal(options = {}) {
   };
 }
 
+// TODO: Implement tower defense
+/**
+ * Tower Defense game implementation
+ * A simple tower defense game module for strategic gameplay
+ */
+
+// Tower class representing defensive structures
+class Tower {
+  constructor(options = {}) {
+    const {
+      x = 0,
+      y = 0,
+      range = 100,
+      damage = 10,
+      fireRate = 1,
+      projectileSpeed = 5,
+      target = null
+    } = options;
+    
+    this.x = x;
+    this.y = y;
+    this.range = range;
+    this.damage = damage;
+    this.fireRate = fireRate;
+    this.projectileSpeed = projectileSpeed;
+    this.target = target;
+    this.lastShot = 0;
+    this.projectiles = [];
+  }
+
+  update(deltaTime, enemies) {
+    if (!this.target) {
+      this.target = this.findTarget(enemies);
+    }
+    
+    if (this.target && this.canFire()) {
+      this.fire();
+      this.lastShot = Date.now();
+    }
+    
+    // Update projectiles
+    this.projectiles = this.projectiles.filter(projectile => {
+      projectile.x += projectile.dx * this.projectileSpeed * deltaTime;
+      projectile.y += projectile.dy * this.projectileSpeed * deltaTime;
+      return true;
+    });
+  }
+
+  findTarget(enemies) {
+    if (!enemies || enemies.length === 0) return null;
+    return enemies[0];
+  }
+
+  canFire() {
+    return Date.now() - this.lastShot >= 1000 / this.fireRate;
+  }
+
+  fire() {
+    if (!this.target) return;
+    
+    const dx = this.target.x - this.x;
+    const dy = this.target.y - this.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    if (distance === 0) return;
+    
+    const normalizedDx = dx / distance;
+    const normalizedDy = dy / distance;
+    
+    this.projectiles.push({
+      x: this.x,
+      y: this.y,
+      dx: normalizedDx,
+      dy: normalizedDy,
+      damage: this.damage
+    });
+  }
+
+  getDamage(projectile) {
+    return projectile.damage;
+  }
+
+  takeDamage(amount) {
+    // Tower can take damage from enemies
+    // Implementation would depend on game design
+  }
+
+  destroy() {
+    // Clean up tower resources
+  }
+}
+
+// Enemy class representing incoming threats
+class Enemy {
+  constructor(options = {}) {
+    const {
+      x = 0,
+      y = 0,
+      health = 100,
+      speed = 1,
+      path = [],
+      reward = 10
+    } = options;
+    
+    this.x = x;
+    this.y = y;
+    this.health = health;
+    this.maxHealth = health;
+    this.speed = speed;
+    this.path = path;
+    this.currentPathIndex = 0;
+    this.reward = reward;
+    this.isAlive = true;
+  }
+
+  update(deltaTime) {
+    if (!this.isAlive || !this.path || this.currentPathIndex >= this.path.length) {
+      return;
+    }
+    
+    const targetX = this.path[this.currentPathIndex].x;
+    const targetY = this.path[this.currentPathIndex].y;
+    
+    const dx = targetX - this.x;
+    const dy = targetY - this.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    if (distance < this.speed * deltaTime) {
+      this.x = targetX;
+      this.y = targetY;
+      this.currentPathIndex++;
+    } else {
+      this.x += (dx / distance) * this.speed * deltaTime;
+      this.y += (dy / distance) * this.speed * deltaTime;
+    }
+  }
+
+  takeDamage(amount) {
+    this.health -= amount;
+    if (this.health <= 0) {
+      this.die();
+    }
+  }
+
+  die() {
+    this.isAlive = false;
+  }
+
+  isReachedEnd() {
+    return this.currentPathIndex >= this.path.length;
+  }
+}
+
+// Game class managing the tower defense game state
+class TowerDefenseGame {
+  constructor(options = {}) {
+    const {
+      canvas = null,
+      tileSize = 32,
+      mapWidth = 20,
+      mapHeight = 15
+    } = options;
+    
+    this.canvas = canvas;
+    this.ctx = canvas ? canvas.getContext('2d') : null;
+    this.tileSize = tileSize;
+    this.mapWidth = mapWidth;
+    this.mapHeight = mapHeight;
+    this.towers = [];
+    this.enemies = [];
+    this.projectiles = [];
+    this.waveNumber = 0;
+    this.gameOver = false;
+    this.paused = false;
+    this.lastUpdateTime = 0;
+  }
+
+  init() {
+    this.towers = [];
+    this.enemies = [];
+    this.projectiles = [];
+    this.waveNumber = 0;
+    this.gameOver = false;
+    this.paused = false;
+    this.spawnWave();
+  }
+
+  spawnWave() {
+    this.waveNumber++;
+    const enemyCount = this.waveNumber * 5;
+    
+    for (let i = 0; i < enemyCount; i++) {
+      const enemy = new Enemy({
+        x: 0,
+        y: 0,
+        health: 50 + (this.waveNumber * 10),
+        speed: 1 + (this.waveNumber * 0.1),
+        path: this.generatePath(),
+        reward: 10 + (this.waveNumber * 2)
+      });
+      this.enemies.push(enemy);
+    }
+  }
+
+  generatePath() {
+    // Simple path from left to right
+    const path = [];
+    for (let i = 0; i < this.mapWidth; i++) {
+      path.push({
+        x: i * this.tileSize + this.tileSize / 2,
+        y: this.mapHeight / 2 * this.tileSize
+      });
+    }
+    return path;
+  }
+
+  addTower(x, y) {
+    const tower = new Tower({ x, y });
+    this.towers.push(tower);
+    return tower;
+  }
+
+  update(deltaTime) {
+    if (this.paused || this.gameOver) return;
+    
+    // Update enemies
+    this.enemies.forEach(enemy => {
+      if (enemy.isAlive) {
+        enemy.update(deltaTime);
+        if (enemy.isReachedEnd()) {
+          this.gameOver = true;
+        }
+      }
+    });
+    
+    // Update towers
+    this.towers.forEach(tower => {
+      tower.update(deltaTime, this.enemies);
+    });
+    
+    // Update projectiles
+    this.towers.forEach(tower => {
+      tower.projectiles.forEach(projectile => {
+        this.enemies.forEach(enemy => {
+          if (enemy.isAlive) {
+            const dx = projectile.x - enemy.x;
+            const dy = projectile.y - enemy.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < this.tileSize / 2) {
+              enemy.takeDamage(tower.getDamage(projectile));
+              projectile.x = -1000; // Move off-screen
+              projectile.y = -1000;
+            }
+          }
+        });
+      });
+    });
+    
+    // Remove dead enemies
+    this.enemies = this.enemies.filter(enemy => enemy.isAlive);
+  }
+
+  render() {
+    if (!this.ctx) return;
+    
+    this.ctx.fillStyle = '#000';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    // Render towers
+    this.ctx.fillStyle = '#0f0';
+    this.towers.forEach(tower => {
+      this.ctx.fillRect(
+        tower.x - 10, tower.y - 10,
+        20, 20
+      );
+    });
+    
+    // Render enemies
+    this.ctx.fillStyle = '#f00';
+    this.enemies.forEach(enemy => {
+      if (enemy.isAlive) {
+        this.ctx.fillRect(
+          enemy.x - 8, enemy.y - 8,
+          16, 16
+        );
+        
+        // Health bar
+        this.ctx.fillStyle = '#fff';
+        const healthWidth = (enemy.health / enemy.maxHealth) * 16;
+        this.ctx.fillRect(
+          enemy.x - 8, enemy.y + 10,
+          healthWidth, 3
+        );
+      }
+    });
+  }
+
+  gameLoop(timestamp) {
+    if (!this.lastUpdateTime) this.lastUpdateTime = timestamp;
+    const deltaTime = (timestamp - this.lastUpdateTime) / 1000;
+    this.lastUpdateTime = timestamp;
+    
+    this.update(deltaTime);
+    this.render();
+    
+    if (!this.gameOver) {
+      requestAnimationFrame(timestamp => this.gameLoop(timestamp));
+    }
+  }
+
+  start() {
+    this.gameLoop(0);
+  }
+
+  placeTower(x, y) {
+    // Check if position is valid (not on path)
+    const tileX = Math.floor(x / this.tileSize);
+    const tileY = Math.floor(y / this.tileSize);
+    
+    if (tileX < 0 || tileX >= this.mapWidth || tileY < 0 || tileY >= this.mapHeight) {
+      return false;
+    }
+    
+    this.addTower(x, y);
+    return true;
+  }
+
+  getGameStatus() {
+    return {
+      wave: this.waveNumber,
+      enemies: this.enemies.length,
+      towers: this.towers.length,
+      gameOver: this.gameOver,
+      paused: this.paused
+    };
+  }
+
+  pause() {
+    this.paused = !this.paused;
+  }
+
+  reset() {
+    this.init();
+  }
+}
+
+// Tower defense module
+const towerDefense = {
+  Tower,
+  Enemy,
+  TowerDefenseGame,
+  createGame: (canvas, options = {}) => {
+    return new TowerDefenseGame({ canvas, ...options });
+  }
+};
+
 // Preserve all existing exports
 module.exports = {
   setHtmlLangAttribute,
@@ -346,5 +703,9 @@ module.exports = {
   validateUniqueLandmarks,
   newFocusTrap,
   checkAccessibility,
-  createAccessibleModal
+  createAccessibleModal,
+  Tower,
+  Enemy,
+  TowerDefenseGame,
+  towerDefense
 };

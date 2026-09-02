@@ -30,12 +30,23 @@ function main() {
 
 function getSvgAccessibleName(svg) {
   if (!svg) return '';
-  return ''; // Placeholder
+  const text = svg.textContent.trim();
+  if (text) return text;
+  // Fallback to any text node inside the SVG
+  const textNode = svg.querySelector('text');
+  if (textNode) return textNode.textContent.trim();
+  return 'Unlabeled SVG';
 }
 
 function setSvgAttributes(svg) {
   if (!svg) return;
-  // Placeholder for attribute setting logic
+  // Ensure the element is marked as an image
+  svg.setAttribute('role', 'img');
+
+  const name = getSvgAccessibleName(svg);
+  if (name) {
+    svg.setAttribute('aria-label', name);
+  }
 }
 
 function checkTableStructure(table) {

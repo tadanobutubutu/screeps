@@ -1,4 +1,4 @@
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -12,9 +12,13 @@ function getPkgManager() {
     return fs.existsSync('pnpm-lock.yaml') ? 'pnpm' : 'npm';
 }
 
-function runCommand(command) {
+function runCommand(file, args) {
     try {
-        execSync(command, { stdio: 'pipe', encoding: 'utf8' });
+        if (Array.isArray(args)) {
+            execFileSync(file, args, { stdio: 'pipe', encoding: 'utf8' });
+        } else {
+            execSync(file, { stdio: 'pipe', encoding: 'utf8' });
+        }
         return { ok: true };
     } catch (error) {
         return {
@@ -39,8 +43,7 @@ function readJsonFile(filePath) {
 
 function checkEslint(report, eslintReportPath) {
     console.log('ESLint を実行中...');
-    const eslintCmd = `npx eslint . --format json --output-file "${eslintReportPath}"`;
-    const eslintResult = runCommand(eslintCmd);
+    const eslintResult = runCommand('npx', ['eslint', '.', '--format', 'json', '--output-file', eslintReportPath]);
     const eslintData = readJsonFile(eslintReportPath);
 
     if (eslintData && Array.isArray(eslintData)) {
@@ -77,8 +80,7 @@ function checkEslint(report, eslintReportPath) {
 
 function checkJest(report, jestReportPath, pkgManager) {
     console.log('Jest テストとカバレッジを実行中...');
-    const jestCmd = `${pkgManager} run test:coverage -- --json --outputFile="${jestReportPath}" --coverageReporters=json-summary`;
-    const jestResult = runCommand(jestCmd);
+    const jestResult = runCommand(pkgManager, ['run', 'test:coverage', '--', '--json', `--outputFile=${jestReportPath}`, '--coverageReporters=json-summary']);
     const jestData = readJsonFile(jestReportPath);
 
     if (jestData && Array.isArray(jestData.testResults)) {

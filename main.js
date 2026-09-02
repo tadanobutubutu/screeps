@@ -146,6 +146,65 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('tabindex')) {
     dependencyGraph.setAttribute('tabindex', '0')
   }
+
+  // New accessibility function: Manage focus restoration for modal dialogs
+  setupFocusTrap(containerSelector) {
+    const container = document.querySelector(containerSelector);
+    if (!container) {
+      console.error('Focus trap container not found:', containerSelector);
+      return;
+    }
+    
+    const focusableElements = container.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    
+    if (focusableElements.length === 0) {
+      console.error('No focusable elements found in container:', containerSelector);
+      return;
+    }
+    
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
+    const handleTabKey = (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey) {
+          // Shift + Tab
+          if (document.activeElement === firstElement) {
+            lastElement.focus();
+            e.preventDefault();
+          }
+        } else {
+          // Tab
+          if (document.activeElement === lastElement) {
+            firstElement.focus();
+            e.preventDefault();
+          }
+        }
+      }
+    };
+    
+    container.addEventListener('keydown', handleTabKey);
+    
+    // Focus the first element initially
+    firstElement.focus();
+    
+    // Return a cleanup function to remove the event listener
+    return () => {
+      container.removeEventListener('keydown', handleTabKey);
+    };
+  }
+
+  // New accessibility function: Restore focus to previously focused element
+  restoreFocus(previousElementId) {
+    const previousElement = document.getElementById(previousElementId);
+    if (previousElement) {
+      previousElement.focus();
+    } else {
+      console.warn('Previous element not found for focus restoration:', previousElementId);
+    }
+  }
 }
 
 // Required changes to fix the React SVG Accessible Name issue

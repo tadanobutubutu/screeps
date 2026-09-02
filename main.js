@@ -1,17 +1,9 @@
 const main = require('./utilities');
 
 const {
-    createInPageButton,
     createWebResourceButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    getLangAttribute,
     validateAccessibilityReport,
     exportUtils,
-    addressAccessibilityIssues,
     handleCredentialResponse,
     ensureElementHasId,
     ensureElementHasIdOrigin,
@@ -21,7 +13,6 @@ const {
     fixDependencyGraphAria,
     addMainLandmarkToIndex,
     focusTrap,
-    checkAccessibility,
 } = main;
 
 // Implement the function for addressing accessibility issues from insight report
@@ -199,6 +190,8 @@ function detectAndSetLang(content) {
     }
   }
 
+  // Set the lang attribute
+  setHtmlLangAttribute(lang);
   return lang;
 }
 
@@ -295,6 +288,16 @@ function newFunction(input) {
 // Add the language attribute to the HTML element for proper accessibility
 if (typeof document !== 'undefined' && document.documentElement) {
   detectAndSetLang();
+}
+
+/**
+ * Sets the lang attribute on the document's html element
+ * @param {string} lang - The language code to set
+ */
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang;
+  }
 }
 
 module.exports = {

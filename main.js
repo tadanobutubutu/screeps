@@ -1,6 +1,3 @@
-Here is the resolved file content with both changes integrated:
-
-```javascript
 const fs = require('fs');
 const main = require('./utilities');
 
@@ -20,7 +17,7 @@ const {
   addressAccessibilityIssues,
   handleCredentialResponse,
   ensureElementHasId: ensureElementIdOrigin,
-  ensureElementId,
+  ensureElementId: originalEnsureElementId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -47,7 +44,7 @@ const accessibilityUtils = {
 
   trapFocus: (element) => {
     const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
@@ -78,9 +75,9 @@ const accessibilityUtils = {
   },
 
   newFocusTrap: (element) => {
-    if (!element) return originNewFocusTrap(element);
+    if (!element) return;
     const focusable = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
     if (focusable.length === 0) return;
     const first = focusable[0];
@@ -103,7 +100,7 @@ const accessibilityUtils = {
 // Utility functions for ensuring elements have IDs and adding labels
 const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `elem-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element;
 };
@@ -128,7 +125,7 @@ const ensureElementHasId = (element, prefix = 'element') => {
 
 function newFocusTrap() {
   // New function implementation: traps focus within a given element
-  return accessibilityUtils.newFocusTrap;
+  return accessibilityUtils.newFocusTrap.apply(this, arguments);
 }
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -147,6 +144,3 @@ module.exports = {
   newFocusTrap,
   // Preserve any other existing exports here
 };
-```
-
-This resolved file ensures that both sets of changes are integrated, preserving functionality as much as possible. The `newFocusTrap` function from the original conflicted code has been updated to use the `accessibilityUtils.newFocusTrap` function, and it's now being exported as part of the module.

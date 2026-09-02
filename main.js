@@ -13,8 +13,6 @@ const appState = {
 
 function validateLandmark(landmark) {
   const errors = [];
-  // Existing code that should be preserved
-  // Update landmark validation logic if needed
   const role = landmark.getAttribute('role');
   const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
   if (!validLandmarks.includes(role)) {
@@ -22,11 +20,6 @@ function validateLandmark(landmark) {
   }
   return errors;
 }
-
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
-};
 
 const HTML = ({ lang }) => {
     return { lang };
@@ -63,7 +56,6 @@ function countDependencies() {
 }
 
 function validateTableAccessibility(tableElement) {
-    // Implementation to validate table accessibility (conflict resolved: merged implementation)
     if (!tableElement.querySelector('caption')) {
         console.warn('Table missing caption');
         return false;
@@ -72,7 +64,6 @@ function validateTableAccessibility(tableElement) {
 }
 
 function validateTableStructure(tableElement) {
-    // Implementation to validate table structure (conflict resolved: merged implementation)
     const rows = tableElement.querySelectorAll('tr');
     if (rows.length === 0) {
         console.warn('Table has no rows');
@@ -82,7 +73,6 @@ function validateTableStructure(tableElement) {
 }
 
 function validateLandmarkStructure() {
-    // Merged implementation (conflict resolved)
     const landmarks = document.querySelectorAll('[role]');
     let hasMain = false;
     let hasNavigation = false;
@@ -104,7 +94,6 @@ function addLandmarkRegions() {
 }
 
 function getSvgAccessibleName(svgElement) {
-    // Merged implementation (conflict resolved)
     if (!svgElement) {
         return 'Accessible SVG Icon';
     }
@@ -125,7 +114,6 @@ function setSvgAttributes(svg, accessibleName) {
 }
 
 function ensureUniqueLandmarks(landmarksArg) {
-  // Merged implementation (conflict resolved)
   let landmarks = landmarksArg;
   if (!Array.isArray(landmarks)) {
     landmarks = [];
@@ -144,7 +132,6 @@ function ensureUniqueLandmarks(landmarksArg) {
     }
   }
 
-  // Additional uniqueness check for landmark roles
   const landmarksByRole = {};
   const allLandmarks = document.querySelectorAll('[role]');
 
@@ -186,14 +173,12 @@ function handleCredentialResponse(credentialResponse) {
     throw new Error('Invalid credential response');
   }
 
-  // Extract and validate required fields
   const { credential, clientExtensionResults, authenticatorData } = credentialResponse;
 
   if (!credential || typeof credential !== 'string') {
     throw new Error('Invalid credential in response');
   }
 
-  // Process the credential data
   const processedCredential = {
     rawId: credential,
     id: credential,
@@ -207,7 +192,6 @@ function handleCredentialResponse(credentialResponse) {
     extensions: clientExtensionResults || {}
   };
 
-  // Validate the processed credential
   if (!processedCredential.response.clientDataJSON) {
     throw new Error('Missing clientDataJSON in credential response');
   }
@@ -235,7 +219,6 @@ function addProperLandmarkRegions(document) {
 }
 
 function handleAccessibilityIssues() {
-    // Implementation to handle accessibility issues (conflict resolved: merged implementation)
     const tables = document.querySelectorAll('table');
     tables.forEach(table => {
         validateTableAccessibility(table);
@@ -256,7 +239,6 @@ function handleAccessibilityIssues() {
     });
 }
 
-// Export all existing and new functions
 module.exports = {
     validateTableAccessibility,
     validateTableStructure,
@@ -264,12 +246,11 @@ module.exports = {
     validateLandmarkStructure,
     ensureUniqueLandmarks,
     getSvgAccessibleName,
+    setSvgAttributes,
     createInPageButton,
     createAccessibleLink,
     fixTableStructure,
     addMainLandmark,
-    setSvgAttributes,
-    countDependencies,
     handleCredentialResponse,
     addProperLandmarkRegions,
     handleAccessibilityIssues,
@@ -278,5 +259,7 @@ module.exports = {
     validateInput,
     processData,
     addLandmarkRegions,
-    setSvgAttributes
+    validateFormInputs,
+    isValidEmail,
+    isValidUrl
 };

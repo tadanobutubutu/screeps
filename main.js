@@ -1,4 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 // _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
 
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
@@ -250,4 +251,8 @@ export function fixTableStructure(tableElement) {
     if (!th.hasAttribute('scope')) {
       const row = th.closest('tr')
       const cellIndex = Array.from(row.children).indexOf(th)
-      th.setAttribute('scope',
+      th.setAttribute('scope', 'col')
+    }
+  })
+  return tableElement
+}

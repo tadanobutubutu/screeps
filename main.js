@@ -8,7 +8,6 @@ requireDir(require.resolve('./utilities'));
 const {
     createInPageButton,
     createWebResourceButton,
-    validateTableAccessibility,
     validateTableStructure,
     validateLandmark,
     validateLandmarkStructure,
@@ -37,6 +36,33 @@ const {
     addressAccessibilityIssues,
     implementAccessibilityFixesFromReport,
 } = main;
+
+// New function to add an aria-label to an element
+function addAriaLabel(element, label) {
+    if (!element || !label) return element;
+    if (typeof element.setAttribute === 'function') {
+        element.setAttribute('aria-label', label);
+    }
+    return element;
+}
+
+// New function to render a dependency graph for the given nodes
+function renderDependencyGraph(nodes, edges) {
+    if (!nodes) return { nodes: [], edges: [] };
+    const nodeArray = Array.isArray(nodes) ? nodes : [nodes];
+    const edgeArray = Array.isArray(edges) ? edges : [];
+    return {
+        nodes: nodeArray.map((node, index) => ({
+            id: node.id || `node-${index}`,
+            label: node.label || node.name || `Node ${index}`,
+        })),
+        edges: edgeArray.map((edge, index) => ({
+            from: edge.from || edge.source,
+            to: edge.to || edge.target,
+            id: edge.id || `edge-${index}`,
+        })),
+    };
+}
 
 // Combining and preserving both feature sets from existing and new implementations
 function validateTableAccessibility(table) {
@@ -72,4 +98,6 @@ module.exports = {
     updateUI,
     newFunction,
     ScreepsBot,
+    addAriaLabel,
+    renderDependencyGraph,
 };

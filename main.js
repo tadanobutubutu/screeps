@@ -1,11 +1,23 @@
 // TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// >>>>>>> branch-name
+
+//_Commit: ed20499a8ccf0addb76d756f8b33cfcbd974c8ab_
+
+<!-- todo-hash: 54b1d8a2a6a74414501d77a3d420dc2aaa7e1979 -->
 
 // New utility function to create a web resource button suitable for accessibility
 function createAccessibleWebResourceButton(url, text) {
   const button = document.createElement('button');
   button.setAttribute('type', 'button');
   button.setAttribute('aria-label', text);
-  button.innerHTML = `<a href="${url}" ...</a>`;
+  button.innerHTML = `<a href="${url}">${text}</a>`;
   return button;
 }
 
@@ -95,7 +107,7 @@ function createInPageButton(options) {
 
   // Create button object
   const button = {
-    id: id || `button-${Math.random().toString(36).substr(2, 9)}`,
+    id: id || `btn-${Math.floor(Math.random() * 10000)}`,
     text: String(text),
     title: title || '',
     className: className || 'default-button',
@@ -128,7 +140,7 @@ function countDependencies() {
 
   // New implementation to count dependencies using dependencyGraphContent and regex
   // Support both ES6 imports and CommonJS require statements
-  const importCommentRegExp = /import\s+.*?\s+from\s+['"].*?['"]|require\s*\(\s*['"].*?['"]\s*\)/g;
+  const importCommentRegExp = /(?:import\s+.*?from\s+['"][^'"]+['"]|require\s*\(['"][^'"]+['"]\))/g;
   const content = dependencyGraphContent || '';
   const importMatches = content.match(importCommentRegExp) || [];
   return importMatches.length;
@@ -168,7 +180,7 @@ function addLandmarkRegions() {
 
   return {
     landmarks,
-    regions: Object.keys(landmarks).filter(key => landmarks[key])
+    regions: Object.keys(landmarks).map(key => landmarks[key])
   };
 }
 
@@ -227,7 +239,7 @@ function addLandmarkIds() {
   landmarkElements.forEach(tag => {
     const landmark = document.querySelector(tag);
     if (landmark && landmark.id === '') {
-      landmark.id = `landmark-${Date.now() * Math.random() * 1000}`;
+      landmark.id = `landmark-${Math.random() * Math.random() * 1000}`;
     }
   });
 }
@@ -269,13 +281,13 @@ addLangAttribute();
 
 // Example of addressing REACT_025: Add other accessibility changes as per the insight report
 // This is a placeholder for any other accessibility changes you need to implement
-// function ... {
+// function otherAccessibilityChanges() {
 //   // Implement accessibility changes here
 // }
 
 // Get lang attribute for accessibility
 function getLangAttribute() {
-  return document.documentElement ? document.documentElement.getAttribute('lang') : 'en';
+  return document.documentElement ? document.documentElement.lang || 'en' : 'en';
 }
 
 module.exports = {

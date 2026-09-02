@@ -254,7 +254,7 @@ function validateTableAccessibility() {
     if (firstCol) {
       const firstColContent = firstCol.textContent.trim();
       const hasHeaderAssociated = table.querySelector(`thead, [scope], th[scope]`);
-      if (!hasHeaderAssociated && firstRowCells.length > 0) {
+      if (!hasHeaderAssociated && firstRowCells && firstRowCells.length > 0) {
         issues.push({
           type: 'warning',
           code: 'NO_HEADER_ASSOCIATION',
@@ -378,10 +378,11 @@ function validateLandmark() {
   
   landmarks.forEach(landmark => {
     const issues = [];
-    const tagName = landmark.tagName.toLowerCase();
-    const hasAccessibleName = landmark.getAttribute('aria-label') || 
-                              landmark.getAttribute('aria-labelledby') ||
-                              landmark.getAttribute('id');
+    const el = landmark.element;
+    const tagName = landmark.tag;
+    const hasAccessibleName = el.getAttribute('aria-label') || 
+                              el.getAttribute('aria-labelledby') ||
+                              el.getAttribute('id');
     
     if (!hasAccessibleName && !['nav', 'header', 'footer', 'aside'].includes(tagName)) {
       issues.push({
@@ -399,7 +400,7 @@ function validateLandmark() {
       });
     }
     
-    const isInsideAnotherLandmark = landmark.closest(LANDMARK_SELECTORS);
+    const isInsideAnotherLandmark = el.closest(LANDMARK_SELECTORS);
     if (isInsideAnotherLandmark && isInsideAnotherLandmark !== document.body) {
       issues.push({
         type: 'warning',
@@ -409,7 +410,7 @@ function validateLandmark() {
     }
     
     results.push({
-      element: landmark,
+      element: el,
       tagName: tagName,
       issues: issues,
       hasIssues: issues.length > 0
@@ -430,8 +431,9 @@ function validateLandmarkAttributes() {
   
   landmarks.forEach(landmark => {
     const issues = [];
-    const tagName = landmark.tagName.toLowerCase();
-    const role = landmark.getAttribute('role');
+    const el = landmark.element;
+    const tagName = landmark.tag;
+    const role = el.getAttribute('role');
     
     if (role === 'landmark' && !['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form'].includes(tagName)) {
       issues.push({
@@ -441,7 +443,7 @@ function validateLandmarkAttributes() {
       });
     }
     
-    if (role === 'region' && !landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby') && !landmark.querySelector('h1, h2, h3, h4, h5, h6')) {
+    if (role === 'region' && !el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby') && !el.querySelector('h1, h2, h3, h4, h5, h6')) {
       issues.push({
         type: 'warning',
         code: 'REGION_NO_NAME',
@@ -449,9 +451,9 @@ function validateLandmarkAttributes() {
       });
     }
     
-    const hasAriaLabel = landmark.hasAttribute('aria-label');
-    const hasAriaLabelledBy = landmark.hasAttribute('aria-labelledby');
-    const hasId = landmark.hasAttribute('id');
+    const hasAriaLabel = el.hasAttribute('aria-label');
+    const hasAriaLabelledBy = el.hasAttribute('aria-labelledby');
+    const hasId = el.hasAttribute('id');
     
     if (!hasAriaLabel && !hasAriaLabelledBy && !hasId) {
       issues.push({
@@ -462,7 +464,7 @@ function validateLandmarkAttributes() {
     }
     
     results.push({
-      element: landmark,
+      element: el,
       tagName: tagName,
       issues: issues,
       hasIssues: issues.length > 0
@@ -512,19 +514,19 @@ function ensureUniqueLandmarks() {
   const duplicates = [];
   
   landmarks.forEach(landmark => {
-    const tagName = landmark.tagName.toLowerCase();
+    const tagName = landmark.tag;
     tagCounts[tagName] = (tagCounts[tagName] || 0) + 1;
   });
   
   Object.keys(tagCounts).forEach(tagName => {
     if (tagCounts[tagName] > 1) {
-      const tagLandmarks = landmarks.filter(l => l.tagName.toLowerCase() === tagName);
+      const tagLandmarks = landmarks.filter(l => l.tag === tagName);
       tagLandmarks.forEach((landmark, index) => {
         if (index > 0) {
           const uniqueId = `unique-${tagName}-${Date.now()}-${index}`;
-          landmark.setAttribute('id', uniqueId);
+          landmark.element.setAttribute('id', uniqueId);
           duplicates.push({
-            element: landmark,
+            element: landmark.element,
             originalTag: tagName,
             newId: uniqueId
           });

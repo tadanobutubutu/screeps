@@ -452,3 +452,167 @@ function addLandmarkRolesAndFixIssues() {
 /**
  * Fixes landmark issues
  */
+function fixLandmarkIssues() {
+    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], main, nav, header, aside, footer');
+    const issues = validateLandmarkStructure(landmarks);
+    return {
+        success: issues.success,
+        issues: issues.issues
+    };
+}
+
+/**
+ * Checks landmark elements for accessibility compliance
+ * @returns {Object} Result with success status and any issues found
+ */
+function checkLandmarkElements() {
+    const landmarks = document.querySelectorAll('[role], main, nav, header, aside, footer, section, article');
+    const issues = [];
+    
+    landmarks.forEach(landmark => {
+        const result = validateLandmark(landmark);
+        if (!result.success) {
+            issues.push(...result.issues);
+        }
+    });
+    
+    const structureIssues = validateLandmarkStructure(landmarks);
+    if (!structureIssues.success) {
+        issues.push(...structureIssues.issues);
+    }
+    
+    const uniquenessIssues = ensureUniqueLandmarks(landmarks);
+    if (!uniquenessIssues.success) {
+        issues.push(...uniquenessIssues.duplicates);
+    }
+    
+    return {
+        success: issues.length === 0,
+        issues: issues
+    };
+}
+
+function addProperLandmarkRegions() {
+  const body = document.body;
+  const existingMain = document.querySelector('main');
+  
+  if (!existingMain) {
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    body.appendChild(main);
+  }
+  
+  const navs = document.querySelectorAll('nav');
+  navs.forEach(nav => {
+    if (!nav.hasAttribute('role')) {
+      nav.setAttribute('role', 'navigation');
+    }
+  });
+  
+  const headers = document.querySelectorAll('header');
+  headers.forEach(header => {
+    if (!header.hasAttribute('role')) {
+      header.setAttribute('role', 'banner');
+    }
+  });
+  
+  const footers = document.querySelectorAll('footer');
+  footers.forEach(footer => {
+    if (!footer.hasAttribute('role')) {
+      footer.setAttribute('role', 'contentinfo');
+    }
+  });
+}
+
+function fixFakeLinks() {
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (link.getAttribute('href') === '#' || !link.getAttribute('href')) {
+      link.setAttribute('role', 'text');
+    }
+  });
+}
+
+function fixFakeLinks() {
+  const links = document.querySelectorAll('a[href="#"]');
+  links.forEach(link => {
+    link.setAttribute('role', 'text');
+  });
+}
+
+function checkLandmarkElements() {
+    // Check for required landmarks
+    const issues = [];
+    
+    // Check for main landmark
+    const mainLandmarks = document.querySelectorAll('[role="main"], main');
+    if (mainLandmarks.length === 0) {
+        issues.push('Missing main landmark');
+    }
+    
+    // Check for navigation landmark
+    const navLandmarks = document.querySelectorAll('[role="navigation"], nav');
+    if (navLandmarks.length === 0) {
+        issues.push('Missing navigation landmark');
+    }
+    
+    // Check for duplicate landmark roles
+    const roleCounts = {};
+    const landmarks = document.querySelectorAll('[role], main, nav, header, aside, footer, section, article');
+    landmarks.forEach(landmark => {
+        const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+        if (!roleCounts[role]) {
+            roleCounts[role] = 0;
+        }
+        roleCounts[role]++;
+    });
+    
+    // Check for more than one main landmark (only main, not nav)
+    if (roleCounts['main'] > 1) {
+        issues.push('Multiple main landmarks found');
+    }
+    
+    // Check for more than one banner landmark (header with role)
+    if (roleCounts['banner'] > 1) {
+        issues.push('Multiple banner landmarks found');
+    }
+    
+    // Check for missing accessible names on landmarks
+    landmarks.forEach(landmark => {
+        const ariaLabel = landmark.getAttribute('aria-label');
+        const ariaLabelledby = landmark.getAttribute('aria-labelledby');
+        const title = landmark.querySelector('h1, h2, h3, h4, h5, h6');
+        if (!ariaLabel && !ariaLabelledby && !title) {
+            issues.push(`Landmark missing accessible name: ${landmark.tagName}`);
+        }
+    });
+    
+    return {
+        success: issues.length === 0,
+        issues: issues
+    };
+}
+
+module.exports = {
+  initializeApp,
+  getConfig,
+  validateInput,
+  processData,
+  createInPageButton,
+  handleAccessibilityIssues,
+  createAccessibleLink,
+  addLandmarkRegions,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  addSvgAccessibleNames,
+  upgradeSystem,
+  addLangAttribute,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addLandmarkRolesAndFixIssues,
+  fixLandmarkIssues,
+  addProperLandmarkRegions,
+  fixFakeLinks,
+  checkLandmarkElements
+};

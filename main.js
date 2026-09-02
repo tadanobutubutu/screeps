@@ -151,10 +151,13 @@ function main() {
 
 // TODO: Add your code here
 function newFunction() {
-  // Implementation for the new function
-  console.log('New function added');
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+  const sorted = sortLandmarks(processed);
+  return sorted.length;
 }
 
+// Utilities
 async function scanAccessibility() {
     // ... Scanning and reporting accessibility issues using axe-core ...
 }

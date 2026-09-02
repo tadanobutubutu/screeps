@@ -537,6 +537,17 @@ function fixFakeLinks() {
   });
 }
 
+/**
+ * Fixes accessible names for SVG elements
+ */
+function fixSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  });
+}
+
 module.exports = {
   initializeApp,
   getConfig,
@@ -558,5 +569,7 @@ module.exports = {
   fixLandmarkIssues,
   addProperLandmarkRegions,
   fixFakeLinks,
-  checkLandmarkElements
+  checkLandmarkElements,
+  ensureUniqueLandmarks,
+  fixSvgAccessibleNames
 };

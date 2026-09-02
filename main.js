@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const main = require('./utilities')
 
 const {
@@ -89,6 +86,3 @@ module.exports = {
   // Utilities from utilities module
   ...utilities
 };
-```
-
-This solution maintains all features from both branches and integrates them in a coherent way. It preserves the earlier imports, functions, and connection to the `AccessibilityHelpers` module, while also including the new functions, utilities, and task scheduling added in the second branch.

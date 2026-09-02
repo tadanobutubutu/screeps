@@ -48,7 +48,7 @@ function validateTableAccessibility(table) {
   }
 
   // Check for caption - Added from Version 1
-  if (!table.querySelector || !table.querySelector('caption')) {
+  if (table.querySelector && !table.querySelector('caption')) {
     issues.push('Missing caption element');
   }
 
@@ -105,14 +105,14 @@ function validateLandmark(element) {
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${element.tagName}`);
+    issues.push('Invalid landmark: ' + element.tagName);
   }
 
-  if (!element.hasAttribute('id')) {
+  if (!element.hasAttribute || !element.hasAttribute('id')) {
     issues.push('Missing id attribute');
   }
 
-  if (!element.getAttribute('role')) {
+  if (!element.getAttribute || !element.getAttribute('role')) {
     issues.push('Missing role attribute');
   }
 
@@ -121,7 +121,7 @@ function validateLandmark(element) {
   }
 
   if (element.role && !['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search'].includes(element.role)) {
-    issues.push(`Invalid landmark role: ${element.role}`);
+    issues.push('Invalid landmark role: ' + element.role);
   }
 
   return {
@@ -143,7 +143,7 @@ function validateLandmarkAttributes(landmark) {
   }
 
   if (landmark.role && !['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search'].includes(landmark.role)) {
-    issues.push(`Invalid landmark role: ${landmark.role}`);
+    issues.push('Invalid landmark role: ' + landmark.role);
   }
 
   return {
@@ -185,9 +185,9 @@ function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
 
-  landmarks.forEach(landmark => {
+  landmarks.forEach(function(landmark) {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
-    if (names.includes(name)) {
+    if (names.indexOf(name) !== -1) {
       duplicates.push(name);
     } else {
       names.push(name);
@@ -196,7 +196,7 @@ function ensureUniqueLandmarks(landmarks) {
 
   return {
     success: duplicates.length === 0,
-    duplicates
+    duplicates: duplicates
   };
 }
 
@@ -284,7 +284,7 @@ function createAccessibleLink(options) {
 function checkLinkAndButtonAccessibility(elements) {
   const issues = [];
 
-  elements.forEach((element, index) => {
+  elements.forEach(function(element, index) {
     const elementIssues = [];
 
     // Check for required attributes
@@ -317,7 +317,7 @@ function checkLinkAndButtonAccessibility(elements) {
 
   return {
     success: issues.length === 0,
-    issues
+    issues: issues
   };
 }
 
@@ -343,7 +343,7 @@ function validateLinkAccessibility(link) {
 
   return {
     success: issues.length === 0,
-    issues
+    issues: issues
   };
 }
 
@@ -374,7 +374,7 @@ function handleAccessibilityIssues(issues) {
   const handled = [];
   const unhandled = [];
 
-  issues.forEach(issue => {
+  issues.forEach(function(issue) {
     if (issue.fixable) {
       handled.push(issue);
     } else {
@@ -409,35 +409,35 @@ function createAccessibleBookForm(options) {
   const form = {
     id: options.formId,
     role: 'form',
-    'aria-labelledby': `${options.formId}-title`,
+    'aria-labelledby': options.formId + '-title',
     titleElement: {
-      id: `${options.formId}-title`,
+      id: options.formId + '-title',
       text: options.title,
       level: 2
     },
     fields: [],
     submitButton: createInPageButton({
       text: 'Submit Book',
-      ariaLabel: `Submit ${options.title} form',
+      ariaLabel: 'Submit ' + options.title + ' form',
       onClick: options.onSubmit
     })
   };
 
   // Process each field with accessibility features
-  options.fields.forEach((field, index) => {
-    const fieldId = `${options.formId}-field-${index}`;
+  options.fields.forEach(function(field, index) {
+    const fieldId = options.formId + '-field-' + index;
     const accessibleField = {
       id: fieldId,
       type: field.type || 'text',
       label: {
         for: fieldId,
-        text: field.label || `Field ${index + 1}`
+        text: field.label || 'Field ' + (index + 1)
       },
       required: field.required || false,
       'aria-required': field.required ? 'true' : 'false',
-      'aria-describedby': field.description ? `${fieldId}-description` : undefined,
+      'aria-describedby': field.description ? (fieldId + '-description') : undefined,
       description: field.description ? {
-        id: `${fieldId}-description`,
+        id: fieldId + '-description',
         text: field.description
       } : undefined,
       value: field.value || '',
@@ -485,15 +485,15 @@ function addProperLandmarkRegions(regions) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
 
-  regions.forEach(region => {
+  regions.forEach(function(region) {
     if (!validLandmarks.includes(region.tagName.toLowerCase())) {
-      issues.push(`Invalid landmark region: ${region.tagName}`);
+      issues.push('Invalid landmark region: ' + region.tagName);
     }
   });
 
   return {
     success: issues.length === 0,
-    issues
+    issues: issues
   };
 }
 
@@ -541,29 +541,29 @@ enhanceAddBookAccessibility();
 // Export all functions for testing and external use
 module.exports = {
   // ... (existing exports)
-  generateAccessibilityReport,
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  createAccessibleLink,
-  checkLinkAndButtonAccessibility,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  handleAccessibilityIssues,
-  createAccessibleBookForm,
-  ensureElementId,
-  addAriaLabel,
-  addProperLandmarkRegions,
-  renderDependencyGraph,
-  addBook,
-  makeAccessible,
-  addAriaSupport,
-  enhanceAddBookAccessibility
+  generateAccessibilityReport: generateAccessibilityReport,
+  getLangAttribute: getLangAttribute,
+  getFullLangAttribute: getFullLangAttribute,
+  validateTableAccessibility: validateTableAccessibility,
+  validateTableStructure: validateTableStructure,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  getSvgAccessibleName: getSvgAccessibleName,
+  setSvgAttributes: setSvgAttributes,
+  createInPageButton: createInPageButton,
+  createAccessibleLink: createAccessibleLink,
+  checkLinkAndButtonAccessibility: checkLinkAndButtonAccessibility,
+  validateLinkAccessibility: validateLinkAccessibility,
+  handleFakeLinks: handleFakeLinks,
+  handleAccessibilityIssues: handleAccessibilityIssues,
+  createAccessibleBookForm: createAccessibleBookForm,
+  ensureElementId: ensureElementId,
+  addAriaLabel: addAriaLabel,
+  addProperLandmarkRegions: addProperLandmarkRegions,
+  renderDependencyGraph: renderDependencyGraph,
+  addBook: addBook,
+  makeAccessible: makeAccessible,
+  addAriaSupport: addAriaSupport,
+  enhanceAddBookAccessibility: enhanceAddBookAccessibility
 };

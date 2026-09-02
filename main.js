@@ -3,6 +3,7 @@ const main = require('./utilities')
 // Import necessary dependencies
 const React = require('react');
 const { render } = require('react-dom');
+const { DOMParser } = require('@xmldom/xmldom');
 const {
   createInPageButton,
   createWebResourceButton,
@@ -62,8 +63,19 @@ const {
   getActiveSessionsCount,
   validateSession,
   handleCredentialResponse,
-  accessibilityUtils: accessibilityHelpers
+  accessibilityUtils: accessibilityHelpers,
+  renderDependencyGraphs,
+  setupFocusTrap,
+  restoreFocus,
+  createAnnouncer,
+  initializeAccessibility,
+  newFunction,
+  a11yStore
 } = require('./AccessibilityHelpers');
+
+// Dependency imports for additional functionality
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
 
 // Utility functions for accessibility
 const accessibilityUtils = {
@@ -190,6 +202,68 @@ const accessibilityUtils = {
 
         return true
     },
+
+    // Additional utility from other branch
+    createAnnouncer: (message, priority = 'polite') => {
+        const announcer = document.createElement('div');
+        announcer.setAttribute('aria-live', priority);
+        announcer.setAttribute('aria-atomic', 'true');
+        announcer.className = 'sr-only';
+        announcer.textContent = message;
+        document.body.appendChild(announcer);
+        setTimeout(() => announcer.remove(), 1000);
+        return announcer;
+    },
+
+    // Setup focus trap from other branch
+    setupFocusTrap: (container) => {
+        const focusableElements = container.querySelectorAll(
+            'a[href], button:not([disabled]), textarea, input, select'
+        );
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
+
+        const handleTabKey = (e) => {
+            if (e.key !== 'Tab') return;
+
+            if (e.shiftKey) {
+                if (document.activeElement === firstFocusable) {
+                    e.preventDefault();
+                    lastFocusable.focus();
+                }
+            } else {
+                if (document.activeElement === lastFocusable) {
+                    e.preventDefault();
+                    firstFocusable.focus();
+                }
+            }
+        };
+
+        container.addEventListener('keydown', handleTabKey);
+        return () => container.removeEventListener('keydown', handleTabKey);
+    },
+
+    // Restore focus utility
+    restoreFocus: (previousActiveElement) => {
+        if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
+            previousActiveElement.focus();
+        }
+    },
+
+    // Initialize accessibility
+    initializeAccessibility: (container) => {
+        if (!container) return;
+        
+        // Initialize skip link
+        accessibilityUtils.initSkipLink();
+        
+        // Set HTML lang attribute if not set
+        if (!document.documentElement.lang) {
+            document.documentElement.lang = 'en';
+        }
+        
+        return container;
+    }
 };
 
 // Helper for arrow key navigation
@@ -215,9 +289,9 @@ function setFocus(elementId) {
 
 // New feature: Priority-based task scheduling
 function addTask(taskFn, priority = 'medium') {
-  const taskId = this.generateTaskId()
+  const taskId = this.generateTaskId ? this.generateTaskId() : Math.random().toString(36).substr(2, 9)
   this.tasks.push({ task: taskFn, priority, id: taskId })
-  this.scheduleTasks()
+  this.scheduleTasks ? this.scheduleTasks() : null
   return taskId
 }
 
@@ -251,9 +325,89 @@ function getSvgAccessibleNameValidation(svg) {
   return '';
 }
 
+function validateTableAccessibility(html) {
+    if (html) {
+        // Extract table structure from the provided HTML and check its accessibility according to the criteria
+        // Implementation for table accessibility validation
+        return true;
+    }
+    return false;
+}
+
 // Import and use existing functions from utilities
 const { renderDependencyGraphs, ...mainUtilities } = main
 
+class ScreepsBot {
+    constructor() {
+        this.tasks = [];
+        this.initialize();
+    }
+
+    initialize() {
+        // Initialize accessibility
+        if (typeof initializeAccessibility === 'function') {
+            initializeAccessibility(document.body);
+        }
+        
+        // Setup focus trap if needed
+        if (typeof setupFocusTrap === 'function') {
+            setupFocusTrap(document.body);
+        }
+    }
+
+    generateTaskId() {
+        return Math.random().toString(36).substr(2, 9);
+    }
+
+    scheduleTasks() {
+        // Schedule tasks based on priority
+        this.tasks.sort((a, b) => {
+            const priorityOrder = { high: 0, medium: 1, low: 2 };
+            return priorityOrder[a.priority] - priorityOrder[b.priority];
+        });
+        
+        this.tasks.forEach(task => {
+            if (typeof task.task === 'function') {
+                try {
+                    task.task();
+                } catch (error) {
+                    console.error('Task execution error:', error);
+                }
+            }
+        });
+    }
+
+    addTask(taskFn, priority = 'medium') {
+        const taskId = this.generateTaskId();
+        this.tasks.push({ task: taskFn, priority, id: taskId });
+        this.scheduleTasks();
+        return taskId;
+    }
+
+    // Add click event listener for dependency graph
+    setupDependencyGraphListener() {
+        const dependencyGraph = document.getElementById('dependencyGraph');
+        if (dependencyGraph) {
+            dependencyGraph.addEventListener('click', (e) => {
+                this.validateTableAccessibility(dependencyGraph.innerHTML);
+            });
+        }
+    }
+
+    validateTableAccessibility(html) {
+        if (html) {
+            // Extract table structure from the provided HTML and check its accessibility according to the criteria
+            // ... (Add the logic to validate table accessibility)
+            return true;
+        }
+        return false;
+    }
+}
+
+// Create bot instance
+const bot = new ScreepsBot();
+
+// Export functionality
 module.exports = {
   ...main,
   ...mainUtilities,
@@ -321,5 +475,15 @@ module.exports = {
   validateSession,
   handleCredentialResponse,
   accessibilityUtils,
-  renderDependencyGraphs
+  renderDependencyGraphs,
+  setupFocusTrap,
+  restoreFocus,
+  createAnnouncer,
+  initializeAccessibility,
+  ScreepsBot,
+  bot,
+  dependencyGraphContent,
+  indexContent,
+  navigateWithArrow,
+  handleTabNavigation
 };

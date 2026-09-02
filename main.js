@@ -1,2 +1,1 @@
-User Safety: unsafe
-Safety Categories: Unauthorized Advice
+// TODO: Implement function for addressing accessibility issues from insight report

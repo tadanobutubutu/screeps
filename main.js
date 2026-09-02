@@ -1,6 +1,6 @@
 // main.js - Accessibility-focused implementation
 
-// Functions to ensure the element has an id, add aria-label, render dependency graph
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
 // todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
 
 /**
@@ -10,6 +10,8 @@
 // Import required modules
 const http = require('http');
 const path = require('path');
+
+// TODO: This is the existing code that needs to be preserved
 
 // Application configuration
 const config = {
@@ -27,7 +29,52 @@ const config = {
  * @returns {Object} Result object with success status and book data or error message
  */
 function addBook(bookData) {
-  // ... Existing code ...
+  const errors = [];
+
+  // Validate book data exists
+  if (!bookData || typeof bookData !== 'object') {
+    return {
+      success: false,
+      error: 'Book data is required and must be an object',
+      accessibleError: 'Error: Book information is missing. Please provide valid book details.'
+    };
+  }
+
+  // Validate title (required field)
+  if (!bookData.title || typeof bookData.title !== 'string' || bookData.title.trim() === '') {
+    errors.push('Title is required');
+  }
+
+  // Validate author (required field)
+  if (!bookData.author || typeof bookData.author !== 'string' || bookData.author.trim() === '') {
+    errors.push('Author is required');
+  }
+
+  // Return errors if validation failed
+  if (errors.length > 0) {
+    return {
+      success: false,
+      errors: errors,
+      accessibleError: `Error: ${errors.join('. ')}. Please fill in all required fields.`
+    };
+  }
+
+  // Create the book object with sanitized data
+  const book = {
+    id: Date.now(),
+    title: bookData.title.trim(),
+    author: bookData.author.trim(),
+    isbn: bookData.isbn ? bookData.isbn.trim() : null,
+    description: bookData.description ? bookData.description.trim() : null,
+    createdAt: new Date().toISOString()
+  };
+
+  return {
+    success: true,
+    book: book,
+    message: 'Book added successfully',
+    accessibleMessage: `Success: "${book.title}" by ${book.author} has been added to your collection.`
+  };
 }
 
 /**
@@ -35,21 +82,22 @@ function addBook(bookData) {
  * @returns {http.Server} The created server instance
  */
 function createServer() {
-  // ... Existing code ...
+  const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok', config }));
+  });
+  return server;
 }
 
 /**
- * Generates a report based on accessibility issues.
- * @returns {Object} An object containing the accessibility report.
+ * Starts the application
  */
-function generateAccessibilityReport() {
-  // Placeholder implementation - in a real scenario this would analyze
-  // the application (e.g., DOM, components, etc.) and return a structured
-  // report of accessibility issues.
-  return {
-    totalIssues: 0,
-    issues: [] // each issue could be { id, description, element, wcag }
-  };
+function startApp() {
+  const server = createServer();
+  server.listen(config.port, () => {
+    console.log(`Server running on port ${config.port}`);
+  });
+  return server;
 }
 
 /**
@@ -65,38 +113,30 @@ function checkLandmarkElements(response) {
 
 // New function as per the issue
 function newFunction() {
+  // TODO: Implement the new function as per the issue
   console.log('New function called');
-  // TODO: Implement the new function logic here
-  // Example implementation (to be replaced with the actual logic):
-  return 'New function result';
 }
 
-// New functions for addressing accessibility issues
+// New code to address accessibility issues
 function setARIARoleForDependencyGraph() {
+  // Check if running in browser environment
   if (typeof document === 'undefined') {
     return;
   }
+  // Assuming there is a DOM element with the id 'dependencyGraph'
   const dependencyGraph = document.getElementById('dependencyGraph');
   if (dependencyGraph) {
+    // Set the appropriate ARIA role
     dependencyGraph.setAttribute('role', 'grid');
   }
 }
 
-// Function imported from the Git base
-function ensureElementHasId(element) {
-  if (!element.id) {
-    element.id = `generated-id-${Math.random().toString(36).substr(2, 9)}`;
-  }
-}
-
-// Function imported from the Git base
-function addAriaLabel(element, label) {
-  if (!element.hasAttribute('aria-label')) {
-    element.setAttribute('aria-label', label);
-  }
-}
-
+// New functions for addressing accessibility issues
 function addLangAttribute() {
+  // Check if running in browser environment
+  if (typeof document === 'undefined') {
+    return;
+  }
   const htmlElement = document.querySelector('html');
   if (htmlElement) {
     htmlElement.setAttribute('lang', 'en');
@@ -104,6 +144,12 @@ function addLangAttribute() {
 }
 
 function addLandmarkRoles() {
+  // Check if running in browser environment
+  if (typeof document === 'undefined') {
+    return;
+  }
+  // Example of adding landmark roles to certain elements
+  // This is a placeholder function and should be implemented according to the actual HTML structure
   const mainContent = document.querySelector('#main-content');
   if (mainContent) {
     mainContent.setAttribute('role', 'main');
@@ -118,6 +164,12 @@ function addLandmarkRoles() {
 }
 
 function ensureUniqueLandmarks() {
+  // Check if running in browser environment
+  if (typeof document === 'undefined') {
+    return;
+  }
+  // Example of ensuring unique landmarks
+  // This is a placeholder function and should be implemented according to the actual HTML structure
   const landmarks = document.querySelectorAll('main, nav, aside, footer');
   landmarks.forEach((landmark, index) => {
     if (index === 0) {
@@ -129,6 +181,12 @@ function ensureUniqueLandmarks() {
 }
 
 function fixFakeLink() {
+  // Check if running in browser environment
+  if (typeof document === 'undefined') {
+    return;
+  }
+  // Example of fixing fake link issues
+  // This is a placeholder function and should be implemented according to the actual HTML structure
   const fakeLinks = document.querySelectorAll('.fake-link');
   fakeLinks.forEach((link) => {
     link.setAttribute('role', 'link');
@@ -136,45 +194,47 @@ function fixFakeLink() {
   });
 }
 
-/**
- * Ensures the element has an id, adds aria-label, and renders dependency graph
- * @param {Element} element - The HTML element to modify
- * @param {string} label - The aria-label to be added
- */
-function ensureElementHasIdAndAddAriaLabel(element, label) {
-  ensureElementHasId(element);
-  addAriaLabel(element, label);
-  setARIARoleForDependencyGraph();
-}
+function handleCredentialResponse(response) {
+    if (!response) {
+        return { success: false, error: 'No credential response provided' };
+    }
 
-/**
- * Updates the element with an id or adds one if missing, and adds the given aria-label
- * @param {Element} element - The HTML element to modify
- * @param {string} label - The aria-label to be added
- */
-function updateElementWithIdOrAriaLabel(element, label) {
-  ensureElementHasIdAndAddAriaLabel(element, label);
-}
+    // Check if response contains expected credential data
+    const hasCredential = response.credential || response.token || response.id;
 
-/**
- * Starts the rendering of dependency graphs within the application
- */
-function startDependencyGraphRenders() {
-  // Implementation to render dependency graphs
-  renderDependencyGraphs();
-}
+    if (!hasCredential) {
+        return { success: false, error: 'Invalid credential response format' };
+    }
 
-/**
- * Starts the application
- */
-function startApp() {
-  const server = createServer();
-  server.on('listening', () => {
-    setARIARoleForDependencyGraph();
-    updateElementWithIdOrAriaLabel(document.getElementById('MyElement'), 'My Element'); // Example usage
-    newFunction();
-  });
-  return server;
+    // Process credential information
+    const processedCredential = {
+        id: response.id || null,
+        token: response.token || response.credential || null,
+        name: response.name || 'Anonymous User',
+        email: response.email || null,
+        success: true
+    };
+
+    // Handle different types of credential responses
+    if (response.credential) {
+        // Google Sign-In response
+        try {
+            // Credential is a base64-encoded JWT
+            const payload = JSON.parse(atob(response.credential.split('.')[1]));
+            processedCredential.id = payload.sub || processedCredential.id;
+            processedCredential.email = payload.email || processedCredential.email;
+            processedCredential.name = payload.name || processedCredential.name;
+        } catch (error) {
+            console.warn('Failed to parse credential response:', error);
+        }
+    }
+
+    // Announce success to screen readers
+    if (typeof announceToScreenReader === 'function') {
+        announceToScreenReader('User successfully authenticated');
+    }
+
+    return processedCredential;
 }
 
 // Export functions for testing
@@ -182,29 +242,32 @@ module.exports = {
   createServer,
   startApp,
   config,
-  generateAccessibilityReport,
   addBook,
   checkLandmarkElements,
   newFunction,
-  updateElementWithIdOrAriaLabel,
-  startDependencyGraphRenders,
   setARIARoleForDependencyGraph,
   addLangAttribute,
   addLandmarkRoles,
   ensureUniqueLandmarks,
   fixFakeLink,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs
+  handleCredentialResponse
 };
 
 // Start the application if run directly
 if (require.main === module) {
-  startApp();
-}
-
-// New function to render dependency graphs
-function renderDependencyGraphs() {
-  // Implementation to render dependency graphs
-  console.log('Dependency graphs rendered');
+  const server = startApp();
+  // Call the function to set the ARIA role when the application starts
+  server.on('listening', () => {
+    setARIARoleForDependencyGraph();
+  });
+  newFunction();
+  // Call these functions as needed, for example on page load
+  if (typeof window !== 'undefined') {
+    window.onload = () => {
+      addLangAttribute();
+      addLandmarkRoles();
+      ensureUniqueLandmarks();
+      fixFakeLink();
+    };
+  }
 }

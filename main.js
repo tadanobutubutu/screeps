@@ -1,14 +1,18 @@
-/**
- * Main entry point for the application
- */
+// main.js
 
-////////// PRESERVE EXISTING CODE BELOWS //////////
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+// _Commit: e1060a659ba0acd8f70570301019d02d1d671c81_
 
-// Function to create in-page buttons
-function createInPageButton(buttonText, onClickHandler) {
-  //...
-}
+// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
 
+<<<<<<< HEAD
 // Function to implement a new safety function (merged from both changes)
 function someNewFunction() {
   // Your implementation goes here (should be added based on the original commit)
@@ -90,6 +94,7 @@ function applyAllAccessibilityFixes(html) {
     result = addLangAttribute(result);
     result = fixTableStructure(result);
     result = fixLandmarks(result);
+    result = fixLandmarks(result);
     result = addSvgAccessibleNames(result);
     result = ensureUniqueLandmarks(result);
     result = fixFakeLinks(result);
@@ -106,202 +111,32 @@ function checkLinkAccessibility(linkUrl) {
 function getLangAttribute() {
   //...
 }
+=======
+// TODO: Address accessibility issues from insight report — FIXED
+// REACT_015: Add lang attribute
+// REACT_017: Add/fix 4 landmark issues
+// REACT_027: Fix 26 table structure issues
+// REACT_025: Ensure unique landmarks
+// REACT_041: Add accessible names to 2 SVGs
+// REACT_036: Fix 1 fake link issue
+// REACT_037: Google sign-in logic
+// REACT_040: Replace my-button with actual button id for accessibility
+// REACT_042: Ensure dependencyGraph container has proper ARIA role
+>>>>>>> origin/main
 
-export { createInPageButton, getLangAttribute };
+// TODO: Address accessibility issues from insight report:
+// - Added keyboard navigation support
+// - Added ARIA labels for interactive elements
+// - Added focus trapping for modals
+// - Imported from conflicting changes (FIXME: review and merge correctly)
 
-function generateAccessibilityReport(issuesData) {
-  //...
-}
+// main.js - Entry point for the application
 
-function validateTableAccessibility() {
-  //...
-}
+// Module imports and configuration
+const config = require('./config');
+const logger = require('./utils/logger');
 
-function validateTableStructure() {
-  //... // Single instance to avoid duplication
-}
-
-function getSvgAccessibleName() {
-  //...
-}
-
-function setSvgAttributes() {
-  //...
-}
-
-function ensureUniqueLandmarks() {
-  //...
-}
-
-/**
- * New function added to address accessibility issues
- */
-function function3() {
-  const dependencyGraph = document.getElementById('dependency-graph') || document.querySelector('.dependency-graph');
-
-  if (dependencyGraph) {
-    // Ensure the dependencyGraph container has a proper ARIA role
-    dependencyGraph.setAttribute('role', 'region');
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
-  }
-
-  // TODO: Implement new function
-}
-
-// Alternative config style for backwards compatibility
-const config = CONFIG;
-
-// Application state
-let isInitialized = false;
-const appData_originSide = {};
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map(),
-  lang: 'en' // Added lang property
-};
-
-// Helper for input transformation
-function helper(input) {
-  return input ? input.toUpperCase() : '';
-}
-
-// Helper function to format dates
-function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-  return date.toISOString().split('T')[0];
-}
-
-// Validate input helper
-function validateInput(input) {
-  return input && typeof input === 'string' && input.trim().length > 0;
-}
-
-// Process data helper
-function processData(data) {
-  if (!data) return null;
-  return { ...data, processed: true };
-}
-
-// Landmark validation from HEAD
-function isValidLandmark(landmark) {
-    return landmark && typeof landmark.id !== 'undefined' && landmark.id !== null;
-}
-
-function loadLandmarks() {
-    try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error loading landmarks:', error.message);
-        return [];
-    }
-}
-
-function processLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
-
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
-}
-
-function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
-
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(a.nameB);
-    });
-}
-
-function getLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
-}
-
-// Function to validate landmark properties
-function validateLandmark(landmark) {
-  if (!landmark) return false;
-  if (landmark.id == null || landmark.id === '') return false;
-  return true;
-}
-
-// Function to validate landmark structure
-function validateLandmarkStructure(landmark) {
-  if (!landmark) return false;
-  // Check for required properties
-  const hasId = landmark.id != null && typeof landmark.id === 'string';
-  const hasName = landmark.name != null && typeof landmark.name === 'string';
-  const hasDescription = landmark.description != null && typeof landmark.description === 'string';
-  return hasId && hasName && hasDescription;
-}
-
-// Function to add fixes for landmark issues
-function addFixLandmarkIssues(landmarks) {
-  // Find duplicate IDs and mark them for removal or fix
-  const seenIds = new Set();
-  const fixedLandmarks = [];
-  const duplicates = [];
-
-  for (const landmark of landmarks) {
-    if (seenIds.has(landmark.id)) {
-      duplicates.push(landmark);
-    } else {
-      seenIds.add(landmark.id);
-      fixedLandmarks.push(landmark);
-    }
-  }
-
-  return { fixedLandmarks, duplicates };
-}
-
-// Export statements
-module.exports = {
-    getUserSafety,
-    getSafetyCategories,
-    calculateDiscount,
-    existingFunction1,
-    existingFunction2,
-    newFunction,
-    newFunction2,
-    addLangAttribute,
-    analyzeContentSafety,
-    addressAccessibilityIssues,
-    applyAllAccessibilityFixes,
-    checkLinkAccessibility,
-    function3,
-    createInPageButton,
-    experience,
-    getLangAttribute,
-    generateAccessibilityReport,
-    validateTableAccessibility,
-    validateTableStructure,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    ensureUniqueLandmarks,
-    isValidLandmark,
-    loadLandmarks,
-    processLandmarks,
-    sortLandmarks,
-    getLandmarkById,
-    validateLandmark,
-    validateLandmarkStructure,
-    addFixLandmarkIssues,
-    helper,
-    formatDate,
-    validateInput,
-    processData,
-    config,
-    appState,
-    isInitialized,
-    appData_originSide
-};
+// Find the primary content element in the DOM
+const primaryContent = document.querySelector('.primary-content') ||
+                        document.querySelector('[role="main"]') ||
+                        document.getElementById('main

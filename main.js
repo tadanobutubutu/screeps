@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// ...
 function main() {
   const svgElements = document.querySelectorAll('svg');
 

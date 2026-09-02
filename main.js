@@ -2,6 +2,15 @@ const utils = require('./utils');
 const axe = require('axe-core');
 // Accessibility Functions for Screeps
 
+// Landmark data structure
+const landmarks = [];
+
+// Application data structure
+const appData = {
+    title: 'Frontend Application',
+    version: '1.0.0'
+};
+
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
@@ -9,7 +18,7 @@ const fastMap = require('fast-map');
 const path = require('path');
 
 // Configuration
-const CONFIG = {
+const config = {
   name: 'MyApp',
   version: '1.0.0',
   debug: false,

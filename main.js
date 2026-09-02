@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserve
 const accessibilityUtils = {
   // ... (The rest of the original code remains unchanged)
 

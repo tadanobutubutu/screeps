@@ -641,6 +641,17 @@ app.get('/landmarks', (req, res) => {
   res.json(sorted);
 });
 
+// Endpoint for generating an accessibility report
+app.get('/accessibility-report', async (req, res) => {
+  try {
+    const issues = await scanAccessibility([]);
+    const report = generateAccessibilityReportImpl(issues);
+    res.json(report);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 function fetchUser(userId) {
   return { id: userId, name: 'User' };
 }

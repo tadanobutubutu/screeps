@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
 // ----- END ORIGINAL CODE -----
@@ -21,7 +21,7 @@ const appData = {
   version: '1.0.0'
 };
 
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+// Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
 function getLangAttribute() {
     // Implementation to get language attribute
@@ -540,7 +540,6 @@ function fixSvgAccessibleNames() {
   });
 }
 
-// TODO: Implement this function for adding SVG accessibility props
 /**
  * Adds SVG accessibility properties to an SVG element
  * @param {Object} svgElement - The SVG element to add accessibility props to

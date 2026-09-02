@@ -415,14 +415,7 @@ function isLinkAccessible(link) {
  * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
  * @returns {HTMLElement} The created button element
  */
-function createInPageButton(parent = document.body) {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.setAttribute('role', 'button');
-  btn.setAttribute('aria-label', 'Open modal');
-  parent.appendChild(btn);
-  return btn;
-}
+// Note: createInPageButton is already defined above; this JSDoc applies to the existing function.
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
@@ -440,192 +433,11 @@ function exampleFunction() {
     console.log("This is the new function exampleFunction");
 }
 
-// TODO: Implement actual logic for functionA
-function functionA() {
-  // A simple tower defense game implementation
-  // Define towers, enemies, waves, and game loop
-  const towers = [];
-  const enemies = [];
-  let wave = 1;
-  let gameRunning = false;
-  let lastUpdateTime = 0;
-  let gameInterval = null;
-
-  // Example: Tower constructor
-  function Tower(x, y, range, damage, rate) {
-    this.x = x;
-    this.y = y;
-    this.range = range;
-    this.damage = damage;
-    this.rate = rate;
-    this.lastShot = 0;
-  }
-
-  // Example: Enemy constructor
-  function Enemy(x, y, health, speed) {
-    this.x = x;
-    this.y = y;
-    this.health = health;
-    this.speed = speed;
-    this.pathProgress = 0;
-  }
-
-  // Add a tower
-  function addTower(x, y, range, damage, rate) {
-    towers.push(new Tower(x, y, range, damage, rate));
-  }
-
-  // Add an enemy
-  function addEnemy(x, y, health, speed) {
-    enemies.push(new Enemy(x, y, health, speed));
-  }
-
-  // Check if a tower can shoot an enemy
-  function canShoot(tower, enemy) {
-    const dx = tower.x - enemy.x;
-    const dy = tower.y - enemy.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    return distance <= tower.range;
-  }
-
-  // Update game state
-  function update(currentTime) {
-    if (!gameRunning) return;
-
-    // Calculate delta time
-    const deltaTime = currentTime - lastUpdateTime;
-    lastUpdateTime = currentTime;
-
-    // Update enemies
-    for (let i = enemies.length - 1; i >= 0; i--) {
-      const enemy = enemies[i];
-      enemy.pathProgress += enemy.speed * (deltaTime / 1000);
-
-      // Simple path: move from left to right
-      enemy.x = enemy.pathProgress;
-
-      // Remove enemy if it reached the end
-      if (enemy.x > 800) {
-        enemies.splice(i, 1);
-        continue;
-      }
-
-      // Check if enemy is dead
-      if (enemy.health <= 0) {
-        enemies.splice(i, 1);
-        continue;
-      }
-    }
-
-    // Update towers
-    towers.forEach(tower => {
-      const now = Date.now();
-      if (now - tower.lastShot > tower.rate) {
-        // Find closest enemy in range
-        let closestEnemy = null;
-        let minDistance = Infinity;
-
-        enemies.forEach(enemy => {
-          if (canShoot(tower, enemy)) {
-            const dx = tower.x - enemy.x;
-            const dy = tower.y - enemy.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance < minDistance) {
-              minDistance = distance;
-              closestEnemy = enemy;
-            }
-          }
-        });
-
-        // Shoot if enemy in range
-        if (closestEnemy) {
-          closestEnemy.health -= tower.damage;
-          tower.lastShot = now;
-        }
-      }
-    });
-
-    // Check if all enemies are defeated
-    if (enemies.length === 0) {
-      wave++;
-      spawnWave();
-    }
-  }
-
-  // Spawn enemies for the current wave
-  function spawnWave() {
-    const enemyCount = wave * 5;
-    const health = 100 + (wave * 10);
-    const speed = 100 + (wave * 5);
-
-    for (let i = 0; i < enemyCount; i++) {
-      // Stagger enemy spawns
-      setTimeout(() => {
-        addEnemy(0, 50 + (i * 20), health, speed);
-      }, i * 200);
-    }
-  }
-
-  // Start the game
-  function start() {
-    if (gameRunning) return;
-
-    gameRunning = true;
-    wave = 1;
-    lastUpdateTime = Date.now();
-
-    // Add initial towers
-    addTower(100, 100, 200, 10, 1000);
-    addTower(300, 100, 200, 10, 1000);
-    addTower(500, 100, 200, 10, 1000);
-
-    // Start first wave
-    spawnWave();
-
-    // Set up game loop
-    gameInterval = setInterval(() => {
-      update(Date.now());
-    }, 16); // ~60fps
-  }
-
-  // Stop the game
-  function stop() {
-    gameRunning = false;
-    if (gameInterval) {
-      clearInterval(gameInterval);
-      gameInterval = null;
-    }
-  }
-
-  // Get game state
-  function getState() {
-    return {
-      towers,
-      enemies,
-      wave,
-      gameRunning
-    };
-  }
-
-  // Expose game functions
-  return {
-    start,
-    stop,
-    addTower,
-    addEnemy,
-    update,
-    getWave: () => wave,
-    getState
-  };
-}
-
 // Export all functions to maintain current exports
 module.exports = {
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  personName,
   createInPageButton,
+  functionA,
+  functionB,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
@@ -634,10 +446,6 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
-  functionA,
   countDependencies,
   exampleFunction
 };
-
-// Add the new function to the exports
-module.exports.exampleFunction = exampleFunction;

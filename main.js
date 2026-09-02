@@ -199,6 +199,7 @@ const accessibilityUtils = {
     })
 
     console.log('Accessibility issues addressed', fixes)
+    return fixes
   },
 
   /**
@@ -442,6 +443,34 @@ function validateTableStructureComprehensive () {
   return true
 }
 
+/**
+ * Counts the number of dependencies provided.
+ *
+ * A dependency is defined as a key in the dependencies object that is not `null` or `undefined`.
+ * Additionally, nested objects are counted as separate dependencies when they are leaf nodes
+ * (i.e., they are not arrays or plain objects with further nesting). For simplicity, this
+ * implementation counts only the top-level keys of the dependencies object.
+ *
+ * @param {Object} dependencies - The dependency data to count.
+ * @returns {number} The number of dependencies.
+ */
+function countDependencies (dependencies) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0
+  }
+
+  // Count top-level keys that are not null
+  let count = 0
+  for (const key in dependencies) {
+    if (Object.prototype.hasOwnProperty.call(dependencies, key)) {
+      if (dependencies[key] !== null && dependencies[key] !== undefined) {
+        count++
+      }
+    }
+  }
+  return count
+}
+
 // Export functions for use in other modules
 module.exports = {
   initSkipLink: accessibilityUtils.initSkipLink,
@@ -456,5 +485,6 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   validateTableStructure,
-  validateTableStructureComprehensive
+  validateTableStructureComprehensive,
+  countDependencies
 }

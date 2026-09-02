@@ -208,3 +208,20 @@ if (dependencyGraph) {
         dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
     }
 }
+
+// Export functions for use in other modules
+module.exports = {
+  initSkipLink: accessibilityUtils.initSkipLink,
+  trapFocus: accessibilityUtils.trapFocus,
+  newFocusTrap: accessibilityUtils.newFocusTrap,
+  announceToScreenReader: accessibilityUtils.announceToScreenReader,
+  handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementId: accessibilityUtils.ensureElementId,
+  renderDependencyGraphs,
+  validateTableStructure,
+  accessibilityUtils,
+  getConfig,
+  setConfig
+};

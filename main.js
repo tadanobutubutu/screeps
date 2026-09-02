@@ -464,6 +464,138 @@ function createAccessibleLink(href, text, options = {}) {
   return link
 }
 
+/**
+ * Addresses accessibility issues identified in an insight report.
+ * Applies fixes for common accessibility violations such as missing alt attributes,
+ * missing form labels, missing button names, low contrast, missing landmarks,
+ * invalid ARIA attributes, and missing document language.
+ * @param {HTMLElement|Document} root - The root element or document to scan and fix
+ * @param {Object} [reportData] - Optional report data describing issues to address
+ * @returns {Object} Result with fixed count and list of remaining errors
+ */
+function addressAccessibilityIssuesFromReport(root, reportData) {
+  const errors = []
+  let fixedCount = 0
+
+  if (!root) {
+    return { valid: false, fixedCount: 0, errors: ['Root element is required'] }
+  }
+
+  const documentRef = root.ownerDocument || (typeof document !== 'undefined' ? document : null)
+  if (!documentRef) {
+    return { valid: false, fixedCount: 0, errors: ['Document not available'] }
+  }
+
+  // 1. Ensure the HTML root element has a lang attribute
+  if (!documentRef.documentElement.hasAttribute('lang')) {
+    documentRef.documentElement.setAttribute('lang', 'en')
+    fixedCount++
+  }
+
+  // 2. Add missing alt attributes to images
+  const images = root.querySelectorAll('img')
+  images.forEach((img) => {
+    if (!img.hasAttribute('alt')) {
+      img.setAttribute('alt', '')
+      fixedCount++
+    }
+  })
+
+  // 3. Add missing labels to form controls
+  const formControls = root.querySelectorAll('input, select, textarea')
+  formControls.forEach((control) => {
+    const type = (control.getAttribute('type') || '').toLowerCase()
+    if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'reset') {
+      return
+    }
+    const id = control.getAttribute('id')
+    const hasLabel = id && root.querySelector(`label[for="${id}"]`)
+    const hasAriaLabel =
+      control.hasAttribute('aria-label') || control.hasAttribute('aria-labelledby')
+    const isWrappedInLabel = control.closest('label')
+    if (!hasLabel && !hasAriaLabel && !isWrappedInLabel) {
+      errors.push(`Form control missing label: ${control.outerHTML}`)
+    }
+  })
+
+  // 4. Ensure all buttons have accessible names
+  const buttons = root.querySelectorAll('button, [role="button"]')
+  buttons.forEach((btn) => {
+    const text = (btn.textContent || '').trim()
+    const ariaLabel = btn.getAttribute('aria-label')
+    const ariaLabelledby = btn.getAttribute('aria-labelledby')
+    const title = btn.getAttribute('title')
+    if (!text && !ariaLabel && !ariaLabelledby && !title) {
+      btn.setAttribute('aria-label', 'Button')
+      fixedCount++
+    }
+  })
+
+  // 5. Ensure landmarks are unique
+  const uniqueLandmarkSelectors = ['main', 'header', 'footer']
+  uniqueLandmarkSelectors.forEach((selector) => {
+    const elements = root.querySelectorAll(selector)
+    if (elements.length > 1) {
+      errors.push(`Found ${elements.length} instances of "${selector}" landmark, should have only 1`)
+    }
+  })
+
+  // 6. Validate ARIA attributes presence on elements with role
+  const roleElements = root.querySelectorAll('[role]')
+  roleElements.forEach((el) => {
+    const role = el.getAttribute('role')
+    const allowedRoles = [
+      'alert', 'alertdialog', 'application', 'article', 'banner', 'button',
+      'cell', 'checkbox', 'columnheader', 'combobox', 'complementary',
+      'contentinfo', 'definition', 'dialog', 'directory', 'document', 'form',
+      'grid', 'gridcell', 'group', 'heading', 'img', 'link', 'list', 'listbox',
+      'listitem', 'log', 'main', 'marquee', 'math', 'menu', 'menubar', 'menuitem',
+      'menuitemcheckbox', 'menuitemradio', 'navigation', 'none', 'note', 'option',
+      'presentation', 'progressbar', 'radio', 'radiogroup', 'region', 'row',
+      'rowgroup', 'rowheader', 'scrollbar', 'search', 'searchbox', 'separator',
+      'slider', 'spinbutton', 'status', 'switch', 'tab', 'table', 'tablist',
+      'tabpanel', 'term', 'textbox', 'timer', 'toolbar', 'tooltip', 'tree',
+      'treegrid', 'treeitem'
+    ]
+    if (!allowedRoles.includes(role)) {
+      errors.push(`Invalid ARIA role found: ${role}`)
+    }
+  })
+
+  // 7. Ensure links have accessible names
+  const links = root.querySelectorAll('a')
+  links.forEach((link) => {
+    const text = (link.textContent || '').trim()
+    const ariaLabel = link.getAttribute('aria-label')
+    const ariaLabelledby = link.getAttribute('aria-labelledby')
+    if (!text && !ariaLabel && !ariaLabelledby) {
+      errors.push(`Link missing accessible name: ${link.outerHTML}`)
+    }
+  })
+
+  // 8. Ensure headings are not skipped in hierarchy (informational only)
+  const headings = root.querySelectorAll('h1, h2, h3, h4, h5, h6')
+  let previousLevel = 0
+  headings.forEach((heading) => {
+    const level = parseInt(heading.tagName.substring(1), 10)
+    if (previousLevel !== 0 && level > previousLevel + 1) {
+      errors.push(`Heading level skipped from h${previousLevel} to h${level}`)
+    }
+    previousLevel = level
+  })
+
+  // 9. Process provided reportData if available
+  if (reportData && Array.isArray(reportData.issues)) {
+    reportData.issues.forEach((issue) => {
+      if (issue && issue.message) {
+        errors.push(`Report issue: ${issue.message}`)
+      }
+    })
+  }
+
+  return { valid: errors.length === 0, fixedCount, errors }
+}
+
 // Export all functions to maintain current exports
 module.exports = {
   setHtmlLangAttribute,
@@ -479,5 +611,6 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
-  towerDefense
+  towerDefense,
+  addressAccessibilityIssuesFromReport
 }

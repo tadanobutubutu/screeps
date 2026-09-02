@@ -362,6 +362,26 @@ function setSvgAttributes(svg, accessibleName) {
 }
 
 /**
+ * Iterates through all SVG elements and sets accessible names
+ * @returns {Object} Result with success status and count of SVGs processed
+ */
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  let processed = 0;
+
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+    processed++;
+  });
+
+  return {
+    success: true,
+    processed
+  };
+}
+
+/**
  * Implements upgrade logic using harvested data to improve the system
  * This function checks environment variables for upgrade triggers and updates the system configuration accordingly.
  */
@@ -400,5 +420,6 @@ module.exports = {
     processData,
     addLandmarkRegions,
     setSvgAttributes,
+    addSvgAccessibleNames,
     upgradeSystem
 };

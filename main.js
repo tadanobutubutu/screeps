@@ -20,7 +20,7 @@ const AddressabilityIssues = {
 function main() {
   const svgElements = document.querySelectorAll('svg');
 
-  svgElements.forEach((svg) => {
+  svgElements.forEach(svg => {
     if (svg) {
       svg.setAttribute('role', 'img');
     }
@@ -54,9 +54,9 @@ function checkTableStructure(table) {
     return { valid: false, error: 'Table element is required' };
   }
 
-  const hasHeader = null !== null || table.querySelector('th') !== null;
-  const hasBody = null !== null;
-  const hasCaption = null !== null;
+  const hasHeader = table.querySelector('th') !== null;
+  const hasBody = table.querySelector('tbody') !== null;
+  const hasCaption = table.querySelector('caption') !== null;
 
   return {
     valid: true,
@@ -123,10 +123,10 @@ function renderDependencyGraphs() {
 }
 
 // Add accessibility function to handle the lang attribute for the entire HTML document
-function handleAddLangAttribute(htmlDocument, lang) {
+function handleAddLangAttribute(lang) {
   // Get the html element and call addLangAttribute
-  const htmlElement = htmlDocument.documentElement;
-  addLangAttribute(htmlElement, lang);
+  const htmlElement = document.documentElement;
+  htmlElement.setAttribute('lang', lang);
 }
 
 // New function to handle the new functionalities
@@ -154,7 +154,6 @@ module.exports = {
   addressAccessibilityIssues,
   generateAccessibilityReport,
   calculateAccessibilityScore,
-  ensureUniqueLandmarksFromString,
   validateLandmark,
   createInPageButton,
   implementTowerDefense

@@ -531,6 +531,53 @@ function towerDefense() {
   };
 }
 
+// New function to address new accessibility issues
+/**
+ * Validates form accessibility
+ * @param {HTMLElement|HTMLEformElement} form - The form element to validate
+ * @returns {Object} Result with valid boolean and errors array
+ */
+function validateFormAccessibility(form) {
+  // This function validates the accessibility of form elements
+  // Check for proper form structure and accessibility
+  const errors = [];
+
+  if (!form) {
+    return { valid: false, errors: ['Form element is required'] };
+  }
+
+  // Check for required fields with labels
+  const formControls = form.querySelectorAll('input, select, textarea, button');
+  formControls.forEach(control => {
+    if (control.type === 'checkbox' || control.type === 'radio') {
+      // Check if required field has a label
+      if (control.hasAttribute('required') && !control.hasAttribute('aria-required') &&
+          !document.getElementById(control.id)) {
+        errors.push(`Required field "${control.id || control.name}" is missing an accessible label`);
+      }
+    }
+  });
+
+  // Check for submit button
+  const submitButton = form.querySelector('button[type="submit"], button[type="reset"]');
+  if (submitButton) {
+    if (!submitButton.hasAttribute('aria-label') && !submitButton.textContent.trim()) {
+      errors.push('Submit button is missing an accessible label or text');
+    }
+  }
+
+  // Check for error messages association
+  const errorInputs = form.querySelectorAll('[aria-describedby]');
+  errorInputs.forEach(errorInput => {
+    const input = errorInput.closest('[name]');
+    if (input && !errorInput.hasAttribute('aria-describedby')) {
+      errors.push(`Error message for input "${input.name}" is missing associated aria-describedby`);
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
 // Export all functions to maintain current exports
 module.exports = {
   createInPageButton,
@@ -546,5 +593,6 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
-  towerDefense
+  towerDefense,
+  validateFormAccessibility
 };

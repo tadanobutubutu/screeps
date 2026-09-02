@@ -8,67 +8,80 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 /**
-<<<<<<< HEAD
- * Adds accessibility props to SVG elements
- * @param {Object} props - Existing props object
- * @param {string} [role] - ARIA role for the SVG (default: 'img')
- * @param {string} [ariaLabel] - Accessible name for the SVG
- * @param {string} [ariaHidden] - Whether the SVG should be hidden from screen readers
- * @returns {Object} Enhanced props object with accessibility attributes
+ * Unified accessibility handler for SVG elements
+ * Handles both prop-based configuration and direct DOM manipulation
+ * @param {Object|SVGElement} input - Either props object or SVG element
+ * @param {Object} [options] - Options for DOM manipulation
+ * @returns {Object|SVGElement} Result depending on input type
  */
-function addSvgAccessibilityProps(props = {}, { role = 'img', ariaLabel, ariaHidden } = {}) {
-    const enhancedProps = { ...props };
-
-    // Set ARIA role if not already present
+function enhanceSvgAccessibility(input, options = {}) {
+  if (input && typeof input === 'object' && !Array.isArray(input)) {
+    // Props-based configuration (for React components)
+    if (input instanceof SVGElement || (input.props !== undefined)) {
+      // Direct DOM manipulation
+      return enhanceSvgElement(input, options);
+    }
+    // Plain props object
+    const enhancedProps = { ...input };
+    
+    // Set default role if not present
     if (!enhancedProps.role) {
-        enhancedProps.role = role;
+      enhancedProps.role = 'img';
     }
-
-    // Add aria-label if provided and not already present
-    if (ariaLabel && !enhancedProps['aria-label']) {
-        enhancedProps['aria-label'] = ariaLabel;
+    
+    // Add aria-label if provided
+    if (options.ariaLabel && !enhancedProps['aria-label']) {
+      enhancedProps['aria-label'] = options.ariaLabel;
     }
-
-    // Add aria-hidden if provided and not already present
-    if (ariaHidden !== undefined && enhancedProps['aria-hidden'] === undefined) {
-        enhancedProps['aria-hidden'] = ariaHidden;
+    
+    // Add aria-hidden if provided
+    if (options.ariaHidden !== undefined && enhancedProps['aria-hidden'] === undefined) {
+      enhancedProps['aria-hidden'] = options.ariaHidden;
     }
-
+    
     // Ensure focusable attribute is set correctly
     if (enhancedProps.focusable === undefined) {
-        enhancedProps.focusable = 'false';
+      enhancedProps.focusable = 'false';
     }
-
+    
     return enhancedProps;
+  } else if (input && typeof input === 'object' && input.tagName === 'SVG') {
+    // Direct DOM manipulation
+    return enhanceSvgElement(input, options);
+  }
+  
+  return null;
 }
-=======
- * Adds accessibility attributes to SVG elements
+
+/**
+ * Adds accessibility attributes to SVG elements (direct DOM manipulation)
  * @param {SVGElement} svgElement - The SVG element to enhance
  * @param {Object} options - Configuration options
  * @param {string} options.title - Accessible title for the SVG
  * @param {string} [options.desc] - Optional description for the SVG
- * @param {boolean} [options.focusable=false] - Whether the SVG should be focusable
+ * @param {boolean} [options.focusable] - Whether the SVG should be focusable
  * @returns {SVGElement} The enhanced SVG element
  */
-function addSvgAccessibilityProps(svgElement, { title, desc, focusable = false }) {
+function enhanceSvgElement(svgElement, { title, desc, focusable = false }) {
   if (!svgElement || !(svgElement instanceof SVGElement)) {
     throw new Error('Invalid SVG element provided');
   }
 
-  // Add ARIA attributes
-  svgElement.setAttribute('role', 'img');
-  svgElement.setAttribute('aria-label', title);
-
+  // Add ARIA role if not present
+  if (!svgElement.getAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
+  }
+  
   // Add title element if not already present
-  if (!svgElement.querySelector('title')) {
-    const titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+  if (title && !svgElement.querySelector('title')) {
+    const titleElement = document.createElement('title');
     titleElement.textContent = title;
     svgElement.insertBefore(titleElement, svgElement.firstChild);
   }
 
   // Add description if provided
   if (desc && !svgElement.querySelector('desc')) {
-    const descElement = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+    const descElement = document.createElement('desc');
     descElement.textContent = desc;
     svgElement.insertBefore(descElement, svgElement.firstChild);
   }
@@ -80,74 +93,161 @@ function addSvgAccessibilityProps(svgElement, { title, desc, focusable = false }
 }
 
 /**
- * Unified accessibility handler for SVG elements
- * Handles both prop-based configuration and direct DOM manipulation
- * @param {Object|SVGElement} input - Either props object or SVG element
- * @param {Object} [options] - Options for DOM manipulation
- * @returns {Object|SVGElement} Result depending on input type
+ * Renders a graph or index with full accessibility support
+ * Uses new accessibility functions to ensure WCAG compliance
+ * @param {HTMLElement} container - The container element for the graph/index
+ * @param {Object} data - Data to render in the graph/index
+ * @returns {HTMLElement} The rendered graph/index element
  */
-function processSvgAccessibility(input, options = {}) {
-  if (input && typeof input === 'object') {
-    // Props-based configuration
-    const enhancedProps = addSvgAccessibilityProps(input, options);
-    return enhancedProps;
-  } else if (input && typeof input === 'object' && input !== {} && input.constructor.name.includes('Element')) {
-    // Direct DOM manipulation
-    return addSvgAccessibilityProps(input, options);
+function renderGraphIndex(container, data) {
+  if (!container) {
+    throw new Error('Container element is required');
   }
-  
-  return null;
+
+  // Validate and apply language attributes
+  const langAttr = getLangAttribute();
+  const fullLangAttr = getFullLangAttribute();
+  if (langAttr) {
+    container.setAttribute('lang', langAttr);
+  }
+
+  // Validate table accessibility if tables are present
+  validateTableAccessibility(container);
+  validateTableStructure(container);
+
+  // Validate and ensure landmark accessibility
+  validateLandmark(container);
+  validateLandmarkStructure(container);
+  ensureUniqueLandmarks(container);
+
+  // Handle SVG elements within the graph/index
+  const svgElements = container.querySelectorAll('svg');
+  svgElements.forEach((svg) => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      enhanceSvgElement(svg, { 
+        title: accessibleName,
+        focusable: false
+      });
+    }
+  });
+
+  // Handle in-page navigation buttons
+  const buttons = container.querySelectorAll('button');
+  buttons.forEach((button) => {
+    createInPageButton(button);
+  });
+
+  // Handle accessible links
+  const links = container.querySelectorAll('a');
+  links.forEach((link) => {
+    createAccessibleLink(link);
+  });
+
+  // Final accessibility check and issue resolution
+  handleAccessibilityIssues(container);
+
+  return container;
 }
 
 function implementAccessibilitySolution() {
-    // This function will contain the implementation for the accessibility solution
-    // that addresses the issues mentioned in the comments above
-    console.log('Accessibility solution implemented');
-    // Additional implementation would go here
+  // Accessibility solution is now implemented in renderGraphIndex
+  // This function is kept for backward compatibility
+  console.log('Accessibility solution implemented');
 }
 
 function getLangAttribute() {
   // Implementation for getting language attribute
+  return document.documentElement.lang || 'en';
 }
 
 function getFullLangAttribute() {
   // Implementation for getting full language attribute
+  return document.documentElement.lang || 'en';
 }
 
-function validateTableAccessibility() {
+function validateTableAccessibility(container) {
   // Implementation for validating table accessibility
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!table.caption && !table.querySelector('caption')) {
+      console.warn('Table missing caption for accessibility');
+    }
+  });
 }
 
-function validateTableStructure() {
+function validateTableStructure(container) {
   // Implementation for validating table structure
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    const hasHeader = table.querySelector('th');
+    if (hasHeader) {
+      table.setAttribute('role', 'table');
+    }
+  });
 }
 
-function validateLandmark() {
+function validateLandmark(container) {
   // Implementation for validating landmarks
+  const main = container.querySelector('main') || container.querySelector('[role="main"]');
+  if (!main) {
+    console.warn('Missing main landmark');
+  }
 }
 
-function validateLandmarkStructure() {
+function validateLandmarkStructure(container) {
   // Implementation for validating landmark structure
+  const headers = container.querySelectorAll('header, [role="banner"]');
+  const footers = container.querySelectorAll('footer, [role="contentinfo"]');
+  
+  if (headers.length > 1) {
+    console.warn('Multiple banner landmarks detected');
+  }
+  if (footers.length > 1) {
+    console.warn('Multiple contentinfo landmarks detected');
+  }
 }
 
-function ensureUniqueLandmarks() {
+function ensureUniqueLandmarks(container) {
   // Implementation for ensuring unique landmarks
+  const landmarks = container.querySelectorAll('[role="banner"], [role="contentinfo"]');
+  const seen = new Set();
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (seen.has(role)) {
+      landmark.removeAttribute('role');
+    }
+    seen.add(role);
+  });
 }
 
-function getSvgAccessibleName() {
+function getSvgAccessibleName(svgElement) {
   // Implementation for getting SVG accessible name
+  const title = svgElement.querySelector('title');
+  return title ? title.textContent : null;
 }
 
-function createInPageButton() {
+function createInPageButton(button) {
   // Implementation for creating in-page button
+  if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+    console.warn('Button missing accessible name');
+  }
 }
 
-function createAccessibleLink() {
+function createAccessibleLink(link) {
   // Implementation for creating accessible link
+  if (link.href && !link.getAttribute('aria-label') && !link.textContent.trim()) {
+    console.warn('Link missing accessible name');
+  }
 }
 
-function handleAccessibilityIssues() {
+function handleAccessibilityIssues(container) {
   // Implementation for handling accessibility issues
+  // Check for empty links
+  const emptyLinks = container.querySelectorAll('a[href=""], a[href="#"]');
+  emptyLinks.forEach(link => {
+    link.setAttribute('role', 'button');
+  });
 }
 
 // Export all existing functions (assuming they're defined elsewhere in the file)
@@ -163,6 +263,8 @@ export {
   createInPageButton,
   createAccessibleLink,
   handleAccessibilityIssues,
-  addSvgAccessibilityProps // Original function kept for backward compatibility
+  enhanceSvgAccessibility,
+  enhanceSvgElement,
+  renderGraphIndex,
+  implementAccessibilitySolution
 };
->>>>>>> origin/main

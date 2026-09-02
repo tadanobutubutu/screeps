@@ -9,7 +9,10 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
-    document.body.appendChild(button);
+    button.addEventListener('click', function() {
+        // Button click handler can be added here
+    });
+    return button;
 }
 
 // Function to validate landmark structure for accessibility issues
@@ -17,18 +20,32 @@ function validateLandmarkStructure() {
     const requiredLandmarks = ['header', 'main', 'footer'];
     const missingLandmarks = [];
 
-    requiredLandmarks.forEach(landmark => {
+    requiredLandmarks.forEach(function(landmark) {
         if (!document.querySelector(landmark)) {
             missingLandmarks.push(landmark);
         }
     });
 
     if (missingLandmarks.length > 0) {
-        console.warn(`Accessibility warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+        console.warn('Warning: Missing required landmarks: ' + missingLandmarks.join(', '));
         return false;
     }
 
     return true;
+}
+
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+//_Commit: b2d3255ac354b27ff0c008b38a7c4b0f2028fc7d_
+//<!-- todo-hash: 654a80fdcb20fd082b4cb475a4b9c1d38acd5f24 -->
+
+// Function to initialize the application
+function initializeApp() {
+    const mainContent = document.querySelector('main');
+    if (mainContent) {
+        const button = createInPageButton('app-button', 'Click Me', 'btn-primary');
+        mainContent.appendChild(button);
+    }
+    validateLandmarkStructure();
 }
 
 // Preserve any existing exports here

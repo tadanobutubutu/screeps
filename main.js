@@ -12,6 +12,26 @@
  * Main application entry point with accessibility features
  */
 
+function getSvgAccessibleName(svg) {
+  if (svg.getAttribute('aria-label')) {
+    return svg.getAttribute('aria-label');
+  }
+  if (svg.getAttribute('alt')) {
+    return svg.getAttribute('alt');
+  }
+  const titleElement = svg.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent.trim();
+  }
+  return '';
+}
+
+function setSvgAttributes(svg) {
+  if (!svg.getAttribute('id')) {
+    svg.setAttribute('id', 'svg-' + Math.random().toString(36).slice(2, 11));
+  }
+}
+
 function addSvgAccessibilityProps() {
   const svgElements = document.querySelectorAll('svg');
 

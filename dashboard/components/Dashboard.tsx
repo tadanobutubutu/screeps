@@ -326,7 +326,7 @@ export default function Dashboard() {
             </main>
         );
     return (
-        <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        <main id="main-content" tabIndex={-1} style={{ padding: '2rem', fontFamily: 'monospace', outline: 'none' }}>
             <div
                 style={{
                     display: 'flex',

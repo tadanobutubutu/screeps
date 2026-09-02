@@ -53,5 +53,21 @@ function fixAccessibilityIssues() {
     // Additional accessibility fixes can be added here
 }
 
+// Function to generate accessibility report
+function generateAccessibilityReport() {
+    const report = {};
+
+    if (!validateLandmarkStructure()) {
+        report.landmark = 'Missing required landmarks';
+    }
+
+    // You can add more checks here to generate the report
+
+    return report;
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };
+
+// Export the new functions for accessibility
+export { generateAccessibilityReport, fixAccessibilityIssues };

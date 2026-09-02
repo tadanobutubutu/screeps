@@ -84,6 +84,10 @@ function writeReport(report) {
     fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
+// Safety comment lines
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice
+
 // TODO: Implement function for generating a report based on accessibility issues
 // Replaced placeholder with full implementation using axe-core scanning and report writing
 function generateAccessibilityReport() {
@@ -112,7 +116,7 @@ if (require.main === module) {
 }
 
 async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
+    // ... Scanning and reporting accessibility issues using axe-core scanning and report writing ...
     return {
         timestamp: new Date().toISOString(),
         issues: [],

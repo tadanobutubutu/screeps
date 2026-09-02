@@ -5,6 +5,8 @@ function divide(a, b) {
   return a / b;
 }
 
+// TODO: add the new functions or changes requested in the issue
+
 module.exports = {
   addLangAttribute,
   fixTableStructure,

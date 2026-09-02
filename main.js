@@ -54,7 +54,7 @@ function checkLandmarkElements(htmlContent) {
   // Check for each landmark element in the HTML content
   LANDMARK_ELEMENTS.forEach(landmark => {
     // Use case-insensitive regex to find landmark elements
-    const regex = new RegExp(`<${landmark}`, 'gi');
+    const regex = new RegExp(`<${landmark}[^>]*>`, 'gi');
     const matches = htmlContent.match(regex);
     if (matches) {
       foundLandmarks[landmark] = matches.length;
@@ -103,7 +103,7 @@ function createInPageButton(options) {
 
   // Create button object
   const button = {
-    id: id || `btn-${Date.now()}`,
+    id: id || `button-${Date.now()}`,
     text: String(text),
     title: title || '',
     className: className || 'default-button',
@@ -182,108 +182,4 @@ function validateTableStructure() {
 }
 
 // Validate landmark elements
-function validateLandmark() {
-  return { valid: true };
-}
-
-// Validate landmark structure
-function validateLandmarkStructure() {
-  return { valid: true };
-}
-
-// Get accessible name for SVG
-function getSvgAccessibleName(svg) {
-  return svg && svg.getAttribute('aria-label') || svg && svg.getAttribute('title') || '';
-}
-
-// Ensure unique landmark IDs
-function ensureUniqueLandmarks() {
-  return { unique: true };
-}
-
-// New function to handle dynamic content updates
-function updateLiveRegion(message, priority = 'polite') {
-  return { message, priority };
-}
-
-// New function to add IDs to landmark elements (preserved from HEAD)
-function addLandmarkIds() {
-  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-  landmarkElements.forEach((element, index) => {
-    const landmark = document && document.getElementById(element);
-    if (landmark && landmark.id === '') {
-      landmark.id = `landmark-${index * 1000}`;
-    }
-  });
-}
-
-// New function to check landmark elements in the DOM
-function checkLandmarkElementsInDOM() {
-  return [];
-}
-
-// New function to add SVG accessibility props
-function addSvgAccessibilityProps(svg) {
-  if (!svg) return;
-  if (!svg.hasAttribute('role')) {
-    svg.setAttribute('role', 'img');
-  }
-}
-
-// Preserve existing code functionality
-function preserveExistingCode() {
-  return true;
-}
-
-// New function to address new accessibility issues from insight report
-function newFunction() {
-  // Placeholder for new accessibility issue fixes
-  // Implement specific fixes based on insight report when available
-}
-
-// TODO: This is the existing code that needs to be preserved
-
-// ADD YOUR CODE HERE if any other issues need to be addressed
-// Example of addressing REACT_015: Add lang attribute to HTML element
-function addLangAttribute() {
-  const htmlElement = document && document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', 'en'); // Assuming English, replace with appropriate lang attribute value
-  }
-}
-
-// Call the function to apply the lang attribute
-addLangAttribute();
-
-// Example of addressing REACT_025: Add other accessibility changes as per the insight report
-// This is a placeholder for any other accessibility changes you need to implement
-// function ... {
-//   // Implement accessibility changes here
-// }
-
-module.exports = {
-  checkLandmarkElements,
-  createInPageButton,
-  countDependencies,
-  a11yStore,
-  addLandmarkRegions,
-  addressAccessibilityIssues,
-  LANDMARK_ELEMENTS,
-  getLangAttribute: addLangAttribute,
-  updateLiveRegion,
-  addLandmarkIds,
-  preserveExistingCode,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  ensureUniqueLandmarks,
-  renderIndexView,
-  newRequiredFunction,
-  additionalFunction,
-  createAccessibleWebResourceButton,
-  newFunction,
-  existingFunction
-};
+function validateLand

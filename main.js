@@ -1,8 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// _Commit: ec56c28dafbd3fb2078fbae75354cf99a4fb9f89_
-
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
 // REACT_027: Fix 26 table structure issues
@@ -70,17 +65,20 @@ function fixLandmarks(html) {
     if (!/<main[^>]*>/i.test(html) && !/<div[^>]*role=["']main["']/i.test(html)) {
         html = html.replace(
             /<body([^>]*)>/i,
-            '<body$1><main>'
+            '<body$1>'
         );
         html = html.replace(/<\/body>/i, '</main></body>');
+        html = html.replace(/<body([^>]*)>/i, '<body$1><main>');
     }
 
     // Ensure <nav> landmark exists
     if (!/<nav[^>]*>/i.test(html) && !/<div[^>]*role=["']navigation["']/i.test(html)) {
         html = html.replace(
-            /<main[^>]*>/i,
-            '<nav aria-label="Main navigation"></nav><main>'
+            /<body([^>]*)>/i,
+            '<body$1><nav aria-label="Main navigation">'
         );
+        html = html.replace(/<main/i, '');
+        html = html.replace(/<\/main>/i, '</nav>');
     }
 
     // Ensure <aside> landmark exists if content suggests a sidebar
@@ -164,7 +162,7 @@ function ensureUniqueLandmarks(html) {
             html = html.replace(pattern, (match) => {
                 count++;
                 if (count === 1) return match;
-                return match.replace(/^</, '<' + tag).replace(`<${tag}`, `<${tag} role="region"`);
+                return match.replace(/^</, `<${tag} role="region">`);
             });
         }
     });
@@ -348,3 +346,20 @@ function newFunctionForMain() {
 
 // Update or create any other necessary functions here
 //------ END CHANGES------
+
+// Export all functions for testing
+export {
+    addLangAttribute,
+    fixTableStructure,
+    fixLandmarks,
+    addSvgAccessibleNames,
+    ensureUniqueLandmarks,
+    fixFakeLinks,
+    applyAccessibilityFixes,
+    addressAccessibilityIssues,
+    createInPageButton,
+    renderAccessibilityReport,
+    renderUIComponents,
+    addBook,
+    newFunctionForMain
+};

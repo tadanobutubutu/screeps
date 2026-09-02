@@ -24,8 +24,11 @@ function addressAccessibilityIssues(insightReport) {
   }
 
   // Handle REACT_027: Fix table structure issues
-  validateTableAccessibility();
-  validateTableStructure();
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
 
   // Handle REACT_017: Add/fix landmark issues
   validateLandmarkHelpers();
@@ -37,7 +40,7 @@ function addressAccessibilityIssues(insightReport) {
   svgs.forEach(svg => {
     const accessibleName = getSvgAccessibleName(svg);
     if (accessibleName) {
-      setSvgAttributes(svg, { 'aria-label': accessibleName });
+      svg.setAttribute('aria-label', accessibleName);
     }
   });
 
@@ -46,6 +49,29 @@ function addressAccessibilityIssues(insightReport) {
 
   // Handle REACT_036: Fix fake link issue
   handleFakeLinks();
+}
+
+// Helper functions for addressAccessibilityIssues
+
+function handleFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[href="javascript:void(0)"]');
+  fakeLinks.forEach(link => {
+    console.warn('Fake link found, please replace with proper link or button');
+  });
+}
+
+function validateLandmarkHelpers() {
+  const landmarks = document.querySelectorAll('[role], header, nav, main, footer, aside, section');
+  landmarks.forEach(landmark => {
+    validateLandmark(landmark);
+  });
+}
+
+function validateLandmarkStructHelpers() {
+  const landmarks = document.querySelectorAll('[role], header, nav, main, footer, aside, section');
+  landmarks.forEach(landmark => {
+    validateLandmarkStructure(landmark);
+  });
 }
 
 // TODO: New function added as requested in the issue
@@ -297,9 +323,9 @@ function getSvgAccessibleName(svg) {
   if (ariaLabel) return ariaLabel;
   const title = svg.querySelector('title');
   if (title && title.textContent) return title.textContent;
-  const aria-labelledby = svg.getAttribute('aria-labelledby');
-  if (aria-labelledby) {
-    const labelElement = document.getElementById(aria-labelledby);
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
     if (labelElement) return labelElement.textContent;
   }
   return 'SVG';
@@ -364,6 +390,6 @@ export {
   createUnrotateButton,
   getSvgAccessibleName,
   createAccessibleLink,
-  getElementById, // Added back
-  queryElements // Added back
+  getElementById,
+  queryElements
 };

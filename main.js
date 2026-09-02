@@ -32,12 +32,28 @@ async function renderFunction1() {
   }
 
   // Add scope="col" to th elements that don't have it
+  let html = '';
   html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
     if (/\bscope=/i.test(match)) return match
     return `<th${attrs} scope="col">`
-  })
+  });
 
-  return html
+  // Ensure <nav> landmark exists
+  if (!/<nav[^>]*>/i.test(html) && !/<div[^>]*role=["']navigation["']/i.test(html)) {
+    html = html.replace(/<main[^>]*>/i, '<nav aria-label="Main navigation"></nav><main>');
+  }
+
+  // Ensure <aside> landmark exists if content suggests a sidebar
+  if (!/<aside[^>]*>/i.test(html) && !/<div[^>]*role=["']complementary["']/i.test(html)) {
+    html = html.replace(/<\/main>/i, '<aside aria-label="Supplementary"></aside></main>');
+  }
+
+  // Ensure <footer> landmark exists
+  if (!/<footer[^>]*>/i.test(html) && !/<div[^>]*role=["']contentinfo["']/i.test(html)) {
+    html = html.replace(/<\/body>/i, '<footer></footer></body>');
+  }
+
+  return html;
 }
 
 // Function to analyze accessibility issues
@@ -278,62 +294,41 @@ async function addressAccessibilityIssues() {
   const allResults = await accessiblyHelper();
   if (!allResults[0]) return;
   // Ensure the dependencyGraph container has a proper ARIA role
-  allResults[0].ensuresDependencyGraphRole();
+  if (typeof allResults[0].ensuresDependencyGraphRole === 'function') {
+    allResults[0].ensuresDependencyGraphRole();
+  }
   // ... (add other accessibility improvements as needed)
 }
 
-// ... (remaining helper functions and other code)
-
-// Main application entry point
-const app = expressApp;
-
-  // Ensure <nav> landmark exists
-  if (!/<nav[^>]*>/i.test(html) && !/<div[^>]*role=["']navigation["']/i.test(html)) {
-    html = html.replace(/<main[^>]*>/i, '<nav aria-label="Main navigation"></nav><main>')
-  }
-
-  // Ensure <aside> landmark exists if content suggests a sidebar
-  if (!/<aside[^>]*>/i.test(html) && !/<div[^>]*role=["']complementary["']/i.test(html)) {
-    html = html.replace(/<\/main>/i, '<aside aria-label="Supplementary"></aside></main>')
-  }
-
-  // Ensure <footer> landmark exists
-  if (!/<footer[^>]*>/i.test(html) && !/<div[^>]*role=["']contentinfo["']/i.test(html)) {
-    html = html.replace(/<\/body>/i, '<footer></footer></body>')
-  }
-
-  return html
-}
-
 // REACT_041: Add accessible names to SVGs
-function addSvgAccessibleNames (html) {
-  if (typeof html !== 'string') return html
+function addSvgAccessibleNames(html) {
+  if (typeof html !== 'string') return html;
 
-  const svgMatches = [...html.matchAll(/<svg([^>]*)>/gi)]
-  let offset = 0
+  const svgMatches = [...html.matchAll(/<svg([^>]*)>/gi)];
+  let offset = 0;
 
   svgMatches.forEach((match, index) => {
-    const fullMatch = match[0]
-    const attrs = match[1]
-    const svgStart = match.index + offset
-    const svgEnd = html.indexOf('</svg>', svgStart)
+    const fullMatch = match[0];
+    const attrs = match[1];
+    const svgStart = match.index + offset;
+    const svgEnd = html.indexOf('</svg>', svgStart);
 
-    if (svgEnd === -1) return
+    if (svgEnd === -1) return;
 
-    const svgContent = html.substring(svgStart, svgEnd + 6)
-    const hasTitle = /<title/i.test(svgContent)
-    const hasAriaLabel = /\baria-label=/i.test(attrs)
-    const hasAriaLabelledby = /\baria-labelledby=/i.test(attrs)
+    const svgContent = html.substring(svgStart, svgEnd + 6);
+    const hasTitle = /<title/i.test(svgContent);
+    const hasAriaLabel = /\baria-label=/i.test(attrs);
+    const hasAriaLabelledby = /\baria-labelledby=/i.test(attrs);
 
     if (!hasTitle && !hasAriaLabel && !hasAriaLabelledby) {
-      const newSvg = fullMatch.replace(/>/, `><title>SVG ${index + 1}</title>`)
-      const oldSvgLength = svgContent.length
-      html = html.substring(0, svgStart) + newSvg + html.substring(svgStart + oldSvgLength)
-      offset += newSvg.length - oldSvgLength
+      const newSvg = fullMatch.replace(/>/, `><title>SVG ${index + 1}</title>`);
+      const oldSvgLength = svgContent.length;
+      html = html.substring(0, svgStart) + newSvg + html.substring(svgStart + oldSvgLength);
+      offset += newSvg.length - oldSvgLength;
     }
-  })
+  });
 
-  return html
+  return html;
 }
 
 function validateLandmarkStructure() {
@@ -412,4 +407,59 @@ function addSvgAccessibilityProps(svgElement) {
   }
 }
 
-function
+// Main application entry point
+const app = expressApp;
+
+// Export all functions and objects
+module.exports = {
+  // Express app
+  app,
+  expressApp,
+  
+  // Functions
+  renderFunction1,
+  renderFunction2,
+  analyzeAccessibility,
+  generateAccessibilityReport,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  analyzeModuleDependencies,
+  helper,
+  formatDate,
+  validateInput,
+  processData,
+  initialize,
+  initializeApp,
+  fetchUser,
+  clearCache,
+  someFunction,
+  makeAddBookFormAccessible,
+  addressAccessibilityIssues,
+  addSvgAccessibleNames,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  addProperLandmarkRegions,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  checkLinkAccessibilityHTTP,
+  function3,
+  scanAccessibility,
+  addSvgAccessibilityProps,
+  
+  // Configuration
+  CONFIG,
+  config,
+  
+  // State
+  appState,
+  isInitialized,
+  appData_originside,
+  
+  // Required modules
+  requiredModule1,
+  requiredModule2,
+  fastMap
+};

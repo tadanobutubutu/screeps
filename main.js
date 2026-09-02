@@ -1,13 +1,9 @@
-Here is the resolved file content, combining both changes and addressing the conflict:
-
-```javascript
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
 const { exec } = require('child_process');
 const app = express();
-const { exec } = require('child_process');
 const { execSync } = require('child_process');
 const { spawn } = require('child_process');
 const assert = require('assert');
@@ -150,14 +146,3 @@ function validateLandmarkAttributes(landmark) {
     issues
   };
 }
-
-// Add other functions and code here...
-```
-
-This file combines the features from both branches:
-
-1. The changes from the first branch ensure elements have an id, add aria-labels, and support rendering dependency graphs.
-2. The changes from the second branch validate landmark attributes, validate tables, and provide functions to address accessibility issues in an insight report.
-3. Additionally, it now includes command execution functions (`executeCommand`) thanks to the Git conflict.
-4. The SVG rendering part has been modified to compress the SVG data using `gzip`, optimize the WASM, and dynamically load the optimized WASM file.
-5. The code style and comments have been preserved and formatted for better readability.

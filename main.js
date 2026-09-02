@@ -8,8 +8,8 @@
 // <!-- todo-hash: 1f81632535b0749b809ac4 >
 // _Commit: f8051b788bad4952d8493f08d3c722a06ff80d3_
 // <!-- todo-hash: b498b47abee4 >
-// _Commit: 60d5f1a2c3e4b5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6
-// _Commit: abcdef1234567890abcdef1234567890abcdef12
+// _Commit: ...
+// _Commit: ...
 // _Commit: feb9680b5af4505068fcf221c52a94afa10f173e_
 //
 // <!-- todo-hash: e242a52a58b42aca6ca1fe442222a93da9f0c2f4 -->
@@ -84,7 +84,7 @@ function validateLandmarkStructure(context = document) {
     forms.forEach((form, index) => {
         const hasLabel = form.getAttribute('aria-label') || 
                          form.getAttribute('aria-labelledby') ||
-                         form.getAttribute('name');
+                         form.getAttribute('title');
         if (!hasLabel && form.querySelectorAll('input, select, textarea').length > 0) {
             issues.push({
                 type: 'warning',
@@ -113,7 +113,7 @@ function validateLandmarkStructure(context = document) {
     const headers = context.querySelectorAll('header');
     headers.forEach((header, index) => {
         // Header inside main should be a banner, not a sectioning element
-        if (header.closest('main') && !header.closest('section') && !header.closest('article')) {
+        if (header.closest('main') && !header.closest('article')) {
             issues.push({
                 type: 'info',
                 code: 'HEADER_NESTING',
@@ -158,7 +158,7 @@ function getLandmarkSummary(context = document) {
         infos.forEach(i => summary.push(`  • ${i.message}`));
     }
     
-    summary.push(`\nValidation ${result.isValid ? 'PASSED' : 'FAILED'}`);
+    summary.push(`\nValidation: ${result.isValid ? 'PASSED' : 'FAILED'}`);
     
     return summary.join('\n');
 }
@@ -203,7 +203,7 @@ function addMainLandmark() {
 
 // New function to ensure unique landmarks
 function ensureUniqueLandmarks() {
-  const landmarks = findLandmarks(document);
+  const landmarks = findLandmarks();
   const usedNames = new Set();
   landmarks.forEach(el => {
     let name = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || el.textContent.trim();
@@ -235,10 +235,10 @@ function fixFakeLinkIssue() {
 
 // Call the new functions as needed, for example:
 addLangAttribute();
-// fixTableStructure();
+// ...
 // addMainLandmark();
 // ensureUniqueLandmarks();
-// addSvgAccessibleNames();
+// ...
 // fixFakeLinkIssue();
 
 // New function to handle credential response
@@ -275,5 +275,5 @@ if (typeof module !== 'undefined' && module.exports) {
 // Auto-validate on load if this is a browser context
 if (typeof window !== 'undefined') {
     // Store validation result globally for debugging
-    window.landmarkValidation = validateLandmarkStructure(document);
+    window.landmarkValidation = validateLandmarkStructure();
 }

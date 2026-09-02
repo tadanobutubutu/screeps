@@ -305,8 +305,240 @@ function implementAccessibilitySolutions(issues) {
   });
 }
 
+/**
+ * Renders a dependency graph showing relationships between modules/components.
+ * Provides accessible SVG output with proper ARIA attributes and descriptive labels.
+ * @param {Object} graphData - The dependency graph data containing nodes and edges
+ * @param {HTMLElement} container - The container element to render the graph into
+ * @returns {SVGElement|null} The rendered SVG element or null if rendering failed
+ */
+function renderDependencyGraph(graphData, container) {
+  if (!container) {
+    console.warn('Container element is required to render dependency graph');
+    return null;
+  }
+
+  if (!graphData || !Array.isArray(graphData.nodes) || !Array.isArray(graphData.edges)) {
+    console.warn('Invalid graph data: nodes and edges arrays are required');
+    return null;
+  }
+
+  // Ensure the container has an id for accessibility references
+  if (!container.id) {
+    container.id = 'dependency-graph-container';
+  }
+
+  // Create SVG element for the dependency graph
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '400');
+  svg.setAttribute('viewBox', '0 0 800 400');
+  svg.setAttribute('role', 'img');
+
+  // Add accessible name to the dependency graph
+  const accessibleLabel = graphData.title || 'Dependency graph';
+  svg.setAttribute('aria-label', accessibleLabel);
+
+  // Add a title element for tooltip and accessibility
+  const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+  title.textContent = accessibleLabel;
+  svg.appendChild(title);
+
+  // Add a description element for detailed accessibility information
+  const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+  desc.id = `${container.id}-desc`;
+  const nodeCount = graphData.nodes.length;
+  const edgeCount = graphData.edges.length;
+  desc.textContent = `Dependency graph showing ${nodeCount} modules and ${edgeCount} relationships`;
+  svg.appendChild(desc);
+  svg.setAttribute('aria-describedby', desc.id);
+
+  // Render edges (dependency relationships)
+  graphData.edges.forEach(edge => {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', edge.source?.x || 0);
+    line.setAttribute('y1', edge.source?.y || 0);
+    line.setAttribute('x2', edge.target?.x || 0);
+    line.setAttribute('y2', edge.target?.y || 0);
+    line.setAttribute('stroke', '#666');
+    line.setAttribute('stroke-width', '1');
+    svg.appendChild(line);
+  });
+
+  // Render nodes (modules/components)
+  graphData.nodes.forEach(node => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', node.x || 0);
+    circle.setAttribute('cy', node.y || 0);
+    circle.setAttribute('r', '10');
+    circle.setAttribute('fill', '#4A90E2');
+
+    // Add accessible label for each node
+    const nodeLabel = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    nodeLabel.textContent = node.label || node.id || 'Module';
+    circle.appendChild(nodeLabel);
+
+    svg.appendChild(circle);
+  });
+
+  // Append the SVG to the container
+  container.appendChild(svg);
+
+  return svg;
+}
+
+/**
+ * Renders an index view showing a structured listing of items.
+ * Provides accessible HTML output with proper semantic markup and ARIA attributes.
+ * @param {Array} items - The array of items to display in the index view
+ * @param {HTMLElement} container - The container element to render the index view into
+ * @returns {HTMLElement|null} The rendered index view element or null if rendering failed
+ */
+function renderIndexView(items, container) {
+  if (!container) {
+    console.warn('Container element is required to render index view');
+    return null;
+  }
+
+  if (!items || !Array.isArray(items)) {
+    console.warn('Invalid items: an array is required to render index view');
+    return null;
+  }
+
+  // Ensure the container has an id for accessibility references
+  if (!container.id) {
+    container.id = 'index-view-container';
+  }
+
+  // Create the index view wrapper with semantic markup
+  const indexView = document.createElement('nav');
+  indexView.setAttribute('role', 'navigation');
+  indexView.setAttribute('aria-label', 'Index of items');
+
+  // Add a heading for the index view
+  const heading = document.createElement('h2');
+  heading.id = `${container.id}-heading`;
+  heading.textContent = 'Index';
+  indexView.appendChild(heading);
+  indexView.setAttribute('aria-labelledby', heading.id);
+
+  // Create a list for the index items
+  const list = document.createElement('ul');
+  list.setAttribute('role', 'list');
+
+  items.forEach((item, index) => {
+    const listItem = document.createElement('li');
+
+    if (item.url) {
+      const link = document.createElement('a');
+      link.href = item.url;
+      link.textContent = item.label || item.title || `Item ${index + 1}`;
+      // Ensure the link has an accessible name
+      if (!link.textContent.trim()) {
+        link.setAttribute('aria-label', `Item ${index + 1}`);
+      }
+      listItem.appendChild(link);
+    } else {
+      listItem.textContent = item.label || item.title || `Item ${index + 1}`;
+    }
+
+    list.appendChild(listItem);
+  });
+
+  indexView.appendChild(list);
+
+  // Append the index view to the container
+  container.appendChild(indexView);
+
+  return indexView;
+}
+
+/**
+ * Updates an existing dependency graph with new data.
+ * @param {SVGElement} svgElement - The existing SVG element to update
+ * @param {Object} graphData - The new dependency graph data
+ * @returns {boolean} True if update was successful, false otherwise
+ */
+function updateDependencyGraph(svgElement, graphData) {
+  if (!svgElement) {
+    console.warn('SVG element is required to update dependency graph');
+    return false;
+  }
+
+  if (!graphData || !Array.isArray(graphData.nodes) || !Array.isArray(graphData.edges)) {
+    console.warn('Invalid graph data: nodes and edges arrays are required');
+    return false;
+  }
+
+  // Update the accessible label if a new title is provided
+  if (graphData.title) {
+    svgElement.setAttribute('aria-label', graphData.title);
+    const titleElement = svgElement.querySelector('title');
+    if (titleElement) {
+      titleElement.textContent = graphData.title;
+    }
+  }
+
+  // Update the description with new counts
+  const descElement = svgElement.querySelector('desc');
+  if (descElement) {
+    descElement.textContent = `Dependency graph showing ${graphData.nodes.length} modules and ${graphData.edges.length} relationships`;
+  }
+
+  return true;
+}
+
+/**
+ * Updates an existing index view with new items.
+ * @param {HTMLElement} indexView - The existing index view element to update
+ * @param {Array} items - The new array of items to display
+ * @returns {boolean} True if update was successful, false otherwise
+ */
+function updateIndexView(indexView, items) {
+  if (!indexView) {
+    console.warn('Index view element is required to update index view');
+    return false;
+  }
+
+  if (!items || !Array.isArray(items)) {
+    console.warn('Invalid items: an array is required to update index view');
+    return false;
+  }
+
+  // Find the list element within the index view
+  const list = indexView.querySelector('ul');
+  if (!list) {
+    console.warn('No list element found in the index view');
+    return false;
+  }
+
+  // Clear existing items
+  list.innerHTML = '';
+
+  // Add new items
+  items.forEach((item, index) => {
+    const listItem = document.createElement('li');
+
+    if (item.url) {
+      const link = document.createElement('a');
+      link.href = item.url;
+      link.textContent = item.label || item.title || `Item ${index + 1}`;
+      if (!link.textContent.trim()) {
+        link.setAttribute('aria-label', `Item ${index + 1}`);
+      }
+      listItem.appendChild(link);
+    } else {
+      listItem.textContent = item.label || item.title || `Item ${index + 1}`;
+    }
+
+    list.appendChild(listItem);
+  });
+
+  return true;
+}
+
 // Export the new function and sampleInsightReport (both versions agreed to do this)
-export { checkLandmarkElements, validateTableAccessibility, validateTableStructure, validateLandmark, addressNewAccessibilityIssues, implementAccessibilitySolutions, getLangAttribute };
+export { checkLandmarkElements, validateTableAccessibility, validateTableStructure, validateLandmark, addressNewAccessibilityIssues, implementAccessibilitySolutions, getLangAttribute, renderDependencyGraph, renderIndexView, updateDependencyGraph, updateIndexView };
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -322,6 +554,25 @@ const sampleInsightReport = {
   ]
 };
 
+const sampleGraphData = {
+  title: 'Module Dependencies',
+  nodes: [
+    { id: 'module-a', label: 'Module A', x: 100, y: 100 },
+    { id: 'module-b', label: 'Module B', x: 300, y: 100 },
+    { id: 'module-c', label: 'Module C', x: 200, y: 250 }
+  ],
+  edges: [
+    { source: { x: 100, y: 100 }, target: { x: 300, y: 100 } },
+    { source: { x: 100, y: 100 }, target: { x: 200, y: 250 } }
+  ]
+};
+
+const sampleIndexItems = [
+  { label: 'Getting Started', url: '/docs/getting-started' },
+  { label: 'API Reference', url: '/docs/api' },
+  { label: 'Tutorials', url: '/docs/tutorials' }
+];
+
 module.exports = {
   checkLandmarkElements,
   validateTableAccessibility,
@@ -330,5 +581,11 @@ module.exports = {
   addressNewAccessibilityIssues,
   implementAccessibilitySolutions,
   getLangAttribute,
-  sampleInsightReport
+  sampleInsightReport,
+  renderDependencyGraph,
+  renderIndexView,
+  updateDependencyGraph,
+  updateIndexView,
+  sampleGraphData,
+  sampleIndexItems
 };

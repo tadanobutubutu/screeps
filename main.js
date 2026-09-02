@@ -116,6 +116,100 @@ function countDependencies() {
 }
 
 /**
+ * Ensures an element has a unique id attribute
+ * @param {HTMLElement} element - The element to ensure has an id
+ * @param {string} prefix - Optional prefix for the generated id
+ * @returns {string} The id of the element (existing or newly generated)
+ */
+function ensureElementHasId(element, prefix = 'elem') {
+  if (!element || !element.id) {
+    const uniqueId = `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
+    if (element && element.setAttribute) {
+      element.setAttribute('id', uniqueId);
+    }
+    return uniqueId;
+  }
+  return element.id;
+}
+
+/**
+ * Adds an aria-label attribute to an element
+ * @param {HTMLElement} element - The element to add aria-label to
+ * @param {string} label - The aria-label text to add
+ */
+function addAriaLabel(element, label) {
+  if (element && label !== undefined) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+/**
+ * Validates a form field for accessibility
+ * @param {HTMLElement} field - The form field to validate
+ * @returns {boolean} True if the field is accessible, false otherwise
+ */
+function validateFormFieldAccessibility(field) {
+    if (!field || typeof field !== 'object') {
+        return false;
+    }
+
+    // Check if the field has a label associated with it
+    const label = field.getAttribute('label') || 
+                 field.relatedBy?.attr('for') ||
+                 field.closest('[for]')?.querySelector('label')?.textContent;
+    
+    if (!label && !field.hasAttribute('aria-label') && !field.hasAttribute('aria-describedby')) {
+        return false;
+    }
+
+    // Check if the field has a required attribute (optional but good practice)
+    if (field.type === 'checkbox' || field.type === 'radio') {
+        if (!field.required) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Ensures unique landmarks in HTML source string
+ * @param {string} source - The HTML source string
+ * @returns {string} The processed source with unique landmarks
+ */
+function renderDependencyGraph(dependencies, container) {
+  if (!container || !dependencies) {
+    return;
+  }
+
+  const deps = Array.isArray(dependencies) ? dependencies : Object.entries(dependencies).flatMap(([key, value]) => {
+    if (Array.isArray(value)) {
+      return value.map(dep => ({ name: dep, type: key }));
+    }
+    return [{ name: key, type: 'other' }];
+  });
+
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'dependency-graph';
+  graphContainer.setAttribute('role', 'figure');
+  graphContainer.setAttribute('aria-label', 'Dependency Graph');
+
+  const title = document.createElement('h3');
+  title.textContent = 'Dependency Graph';
+  graphContainer.appendChild(title);
+
+  const list = document.createElement('ul');
+  deps.forEach(dep => {
+    const item = document.createElement('li');
+    item.textContent = `${dep.name} (${dep.type})`;
+    list.appendChild(item);
+  });
+
+  graphContainer.appendChild(list);
+  container.appendChild(graphContainer);
+}
+
+/**
  * Handle credential response from browser authentication
  * @param {Object} response - The credential response object
  * @returns {Object} Processed credential information
@@ -169,6 +263,10 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     checkTableStructure,
     countDependencies,
+    ensureElementHasId,
+    addAriaLabel,
+    validateFormFieldAccessibility,
+    renderDependencyGraph,
     init,
     setupAriaLiveRegions,
     setupFocusManagement,

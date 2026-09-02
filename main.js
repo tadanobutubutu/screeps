@@ -152,16 +152,20 @@ const a11yStore = {
   },
 
   // ... remaining a11yStore methods ...
+
+  /**
+   * Ensure all interactive elements are accessible
+   */
+  ensureInteractiveElementsAccessible() {
+    this.ensureInteractiveRoles();
+    this.addFormControlLabels();
+    this.ensureImageAccessibility();
+  }
 };
 
 // New functions
 function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveRoles();
-  a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAccessibility();
+  a11yStore.ensureInteractiveElementsAccessible();
 }
 
 // ... rest of the code ...
-```
-
-I have added the new function `ensureInteractiveElementsAccessible` which calls the existing a11yStore functions, integrating them into this new function. This way, we are maintaining the functionality of both changes and resolving the merge conflict.

@@ -125,5 +125,8 @@ module.exports = {
     processLandmarks,
     sortLandmarks,
     getLandmarkById,
-    ensureUniqueLandmarks
+    ensureUniqueLandmarks,
+    isValidLandmark,
+    writeReport,
+    scanAccessibility
 };

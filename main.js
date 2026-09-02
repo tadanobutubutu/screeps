@@ -151,6 +151,22 @@ function checkAccessibility(content) {
     return [];
 }
 
+// Simple logging utility
+function log(message, level = 'info') {
+    const prefix = level === 'error' ? '[ERROR]' : level === 'warn' ? '[WARN]' : '[INFO]';
+    console.log(`${prefix} ${message}`);
+}
+
+/**
+ * Sets the lang attribute on the HTML element
+ * @param {string} lang - The language code to set
+ */
+function setHtmlLangAttribute(lang) {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.setAttribute('lang', lang);
+    }
+}
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -199,6 +215,7 @@ function detectAndSetLang(content) {
     }
   }
 
+  setHtmlLangAttribute(lang);
   return lang;
 }
 
@@ -325,7 +342,7 @@ function newFunction(input) {
 // REACT_015: Add lang attribute to HTML element
 // Add the language attribute to the HTML element for proper accessibility
 if (typeof document !== 'undefined' && document.documentElement) {
-  detectAndSetLang();
+  detectAndSetLang(document.documentElement.textContent || '');
 }
 
 module.exports = {

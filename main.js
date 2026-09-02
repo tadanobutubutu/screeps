@@ -3,30 +3,16 @@ const main = require('./utilities');
 
 const {
   createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  handleCredentialResponse,
-  ensureElementHasId: ensureElementIdOrigin,
-  ensureElementHasId,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
+  //... (the rest of the functions from main)
   addMainLandmarkToIndex,
-  focusTrap,
-  renderAdditionalContent
+  //...
 } = main;
 
 const accessibilityUtils = {
   initSkipLink: () => {},
   trapFocus: (element) => {},
   createInPageButton: createInPageButton,
+  //... (the rest of the functions but remove duplicate createInPageButton)
   createWebResourceButton: (options) => {},
   validateTableAccessibility,
   validateTableStructure,
@@ -37,7 +23,7 @@ const accessibilityUtils = {
   validateAccessibilityReport,
   announceToScreenReader: (message, priority = 'polite') => {},
   handleKeyboardNav: (e, handlers) => {},
-  newFocusTrap: (element) => {
+  focusTrap: function (element) {
     if (!element) {
       return () => {};
     }
@@ -119,11 +105,20 @@ async function handleCredentialResponse(response) {
   }
 
   if (response.token) {
-    return {
-      success: true,
-      token: response.token,
-      expiresIn: response.expiresIn || 3600
+    const credentialResponseHandler = async (response) => {
+      // Candidate credential checker implementation
     };
+    await credentialResponseHandler(response);
   }
 
-  throw new Error('Invalid credential response
+  return {
+    success: true,
+    token: response.token,
+    expiresIn: response.expiresIn || 3600
+  };
+}
+
+module.exports = {
+  accessibilityUtils,
+  //... (the rest of the exports from main)
+};

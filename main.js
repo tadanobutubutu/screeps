@@ -29,7 +29,6 @@ function renderGraphIndex(graphData) {
   addressAccessibilityIssues();
   renderDependencyGraphs(graphData);
 }
-
 function renderGraphIndexAlt(graphData) {
   addressAccessibilityIssues();
   renderDependencyGraphs(graphData);

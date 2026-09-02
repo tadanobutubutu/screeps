@@ -89,32 +89,6 @@ function accessibility() {
   addressAccessibilityIssues();
 }
 
-// New helper function for session management
-function validateSession(sessionId) {
-    if (!sessionId || typeof sessionId !== 'string') {
-        return null;
-    }
-    const session = appState.sessions.get(sessionId);
-    return session || null;
-}
-
-/**
- * Get the count of active sessions
- * @returns {number} - Number of active sessions
- */
-function getActiveSessionsCount() {
-    return appState.sessions.size;
-}
-
-/**
- * Revoke a session
- * @param {string} sessionId - The session ID to revoke
- * @returns {boolean} - True if session was revoked
- */
-function revokeSession(sessionId) {
-    return appState.sessions.delete(sessionId);
-}
-
 /**
  * Address accessibility issues for the document
  */
@@ -144,11 +118,60 @@ function addressAccessibilityIssues() {
     a11yStore.ensureImageAccessibility();
 }
 
-// Export new functions for accessibility as needed
+// New helper function for session management
+function validateSession(sessionId) {
+    if (!sessionId || typeof sessionId !== 'string') {
+        return null;
+    }
+    const session = appState.sessions.get(sessionId);
+    return session || null;
+}
+
+/**
+ * Get the count of active sessions
+ * @returns {number} - Number of active sessions
+ */
+function getActiveSessionsCount() {
+    return appState.sessions.size;
+}
+
+/**
+ * Revoke a session
+ * @param {string} sessionId - The session ID to revoke
+ * @returns {boolean} - True if session was revoked
+ */
+function revokeSession(sessionId) {
+    return appState.sessions.delete(sessionId);
+}
+
 module.exports = {
+  greetingFunction,
+  renderGraphIndex,
   accessibility,
+  ensureInteractiveElementsAccessible,
+  handleInitialAccessibility,
+  addressAccessibilityIssues,
+  validateSession,
+  getActiveSessionsCount,
+  revokeSession,
+  a11yStore,
+  add,
+  subtract,
+  multiply,
+  divide,
+  power,
+  squareRoot,
+  factorial,
+  fibonacci,
+  sum,
+  average,
+  max,
+  min,
+  mode,
+  median,
+  dependencyGraphContent,
+  indexContent,
+  main,
 };
 
-// ADD EXPORTS FOR newFunctions IF NEEDED
-// module.exports.newFunctionName = function () {};
-```
+// ... rest of the code ...

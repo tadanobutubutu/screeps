@@ -1,5 +1,5 @@
 function setSvgAttributes(svg) {
-  if (!svg.hasAttribute('aria-label')) {
+  if (svg && svg.setAttribute) {
     const accessibleName = svg.getAttribute('id') || '';
     if (accessibleName) {
       svg.setAttribute('aria-label', accessibleName);
@@ -10,13 +10,15 @@ function setSvgAttributes(svg) {
 function main() {
   const svgElements = document.querySelectorAll('svg');
 
-  renderDependencyGraphs(svgElements);
+  svgElements.forEach((svg) => {
+    setSvgAttributes(svg);
+  });
 
   checkLandmarkElements();
 }
 
-function renderDependencyGraphs(svgElements) {
-  const accessibleName = getSvgAccessibleName(svgElements);
+function helperFunction() {
+  const accessibleName = document.title || 'Untitled';
   if (accessibleName) {
     // Use accessibleName
   }
@@ -24,7 +26,8 @@ function renderDependencyGraphs(svgElements) {
 
 function getSvgAccessibleName(svgElements) {
   if (svgElements.length > 0) {
-    return svgElements[0].getAttribute('aria-label') || svgElements[0].getAttribute('id');
+    const firstSvg = svgElements[0];
+    return firstSvg.getAttribute('aria-label') || firstSvg.getAttribute('id') || '';
   }
   return '';
 }
@@ -44,7 +47,7 @@ function checkLandmarkElements() {
     const elements = document.querySelectorAll(selector);
     elements.forEach((element) => {
       const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-      const landmarkRole = role || (landmarkRoles.includes(tagName) ? tagName : undefined);
+      const landmarkRole = element.getAttribute ? element.getAttribute('role') : tagName;
 
       if (!landmarkRole) {
         console.warn(`Missing landmark role for ${tagName}`);
@@ -52,27 +55,27 @@ function checkLandmarkElements() {
     });
   };
 
-  checkLandmarkElement('[role="main"], main', 'main');
-  checkLandmarkElement('[role="banner"], header', 'banner');
-  checkLandmarkElement('[role="navigation"], nav', 'navigation');
-  checkLandmarkElement('[role="contentinfo"], footer', 'contentinfo');
-  checkLandmarkElement('[role="complementary"], aside', 'complementary');
-  checkLandmarkElement('[role="search"], [role="form"], form', 'form');
+  checkLandmarkElement('main', 'main');
+  checkLandmarkElement('header', 'banner');
+  checkLandmarkElement('nav', 'navigation');
+  checkLandmarkElement('footer', 'contentinfo');
+  checkLandmarkElement('aside', 'complementary');
+  checkLandmarkElement('[role="form"], form', 'form');
 }
 
 export { setSvgAttributes, main, checkLandmarkElements };
 
 function countDependencies() {
   const fs = require('fs');
-  const packageJsonPath = require('path').join(__dirname, 'package.json');
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  const packageJsonPath = path.join(__dirname, 'package.json');
+  const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
 
   const dependencies = packageJson.dependencies || {};
   const devDependencies = packageJson.devDependencies || {};
 
   return {
-    dependencies: Object.keys(dependencies).length,
-    devDependencies: Object.keys(devDependencies).length,
+    dependencies: Object.keys(dependencies),
+    devDependencies: Object.keys(devDependencies),
     total: Object.keys(dependencies).length + Object.keys(devDependencies).length
   };
 }

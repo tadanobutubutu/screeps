@@ -1,26 +1,60 @@
 const fs = require('fs');
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, renderAdditionalContent } = main;
+const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, renderAdditionalContent, ensureElementId, checkLinkAccessibility } = main;
 
 const ensureElementIdUtil = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `elem-${Date.now().toString(36).slice(-9)}`;
   }
   return element;
 };
 
-const newFocusTrap = accessibilityUtils.newFocusTrap;
+const newFocusTrap = (container) => {
+  // Focus trap implementation for accessibility
+  const focusableElements = container.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab' || e.key === 'ShiftTab') {
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  };
+  
+  container.addEventListener('keydown', handleKeyDown);
+  
+  return () => {
+    container.removeEventListener('keydown', handleKeyDown);
+  };
+};
+
+const log = (message, level = 'info') => {
+  const levels = ['info', 'warn', 'error', 'debug'];
+  if (levels.includes(level)) {
+    console[level](message);
+  }
+};
 
 const accessibilityUtils = {
   ...accessibilityUtils,
   ...{
     initSkipLink: function () {
-      const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
+      const skipLink = document.getElementById('skip-link');
       if (skipLink) {
         skipLink.addEventListener('click', (e) => {
           e.preventDefault();
-          const target = document.querySelector(skipLink.getAttribute('href'));
+          const targetId = skipLink.getAttribute('href').substring(1);
+          const target = document.getElementById(targetId);
           if (target) {
             target.setAttribute('tabindex', '-1');
             target.focus();
@@ -39,11 +73,13 @@ const accessibilityUtils = {
       element.addEventListener('keydown', (e) => {
         if (e.key === 'Tab') {
           if (e.shiftKey && document.activeElement === firstElement) {
+            e.preventDefault();
             lastElement.focus();
-            e.preventDefault();
+            e.stopPropagation();
           } else if (!e.shiftKey && document.activeElement === lastElement) {
-            firstElement.focus();
             e.preventDefault();
+            firstElement.focus();
+            e.stopPropagation();
           }
         }
       });
@@ -60,12 +96,12 @@ const accessibilityUtils = {
     ensureUniqueLandmarkId: function (landmark) {
       if (!landmark) return;
       if (landmark.id) return landmark.id;
-      landmark.id = `landmark-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      landmark.id = `landmark-${Date.now().toString(36).slice(-9)}`;
       return landmark.id;
     },
 
     uniqueLandmarks: function () {
-      const landmarks = document.querySelectorAll('[role=banner], [role=navigation]');
+      const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="footer"], [role="header"]');
       const ids = new Set();
 
       landmarks.forEach((landmark) => {
@@ -107,16 +143,16 @@ module.exports = {
   ensureElementIdUtil,
   newFocusTrap,
   log,
-  sanitizeFilename,
-  readFileSafe,
-  processData,
-  filterValidItems,
-  initAccessibility,
-  groupByCategory,
-  transformInputData,
+  sanitizeFilename: main.sanitizeFilename,
+  readFileSafe: main.readFileSafe,
+  processData: main.processData,
+  filterValidItems: main.filterValidItems,
+  initAccessibility: main.initAccessibility,
+  groupByCategory: main.groupByCategory,
+  transformInputData: main.transformInputData,
   validateTableAccessibility,
-  displayModuleStructure,
-  generateDependencyGraph,
+  displayModuleStructure: main.displayModuleStructure,
+  generateDependencyGraph: main.generateDependencyGraph,
   validateAccessibilityReport,
   addressAccessibilityIssues,
   newAccessibilityCheck,
@@ -129,6 +165,16 @@ module.exports = {
   createInPageButton,
   createWebResourceButton,
   addAriaLabel,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  exportUtils,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  renderDependencyGraphs,
   ...accessibilityUtils
 };
 

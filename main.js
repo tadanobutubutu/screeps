@@ -309,11 +309,143 @@ function renderIndexView() {
 
 // New function to handle credential response
 function handleCredentialResponse(response) {
-  // TODO: Implement the logic to handle the credential response
-  // This function should be called when a credential response is received
-  // For example, you might parse the response, validate it, and then store or use the credentials
-  console.log('Handling credential response:', response);
-  // Placeholder for actual implementation
+    // Google Sign-In credential response handler
+    // This function is called when a credential response is received from Google Sign-In
+    
+    if (!response || !response.credential) {
+        console.error('Google Sign-In: Invalid credential response');
+        if (a11yStore && typeof a11yStore.setGoogleSignInError === 'function') {
+            a11yStore.setGoogleSignInError('Invalid credential response');
+        }
+        return null;
+    }
+    
+    try {
+        // Decode the JWT token to extract user information
+        const payload = decodeJWTPayload(response.credential);
+        
+        if (!payload) {
+            console.error('Google Sign-In: Failed to decode credential token');
+            if (a11yStore && typeof a11yStore.setGoogleSignInError === 'function') {
+                a11yStore.setGoogleSignInError('Failed to decode credential token');
+            }
+            return null;
+        }
+        
+        // Extract user information from the decoded payload
+        const userInfo = {
+            googleId: payload.sub,
+            email: payload.email,
+            name: payload.name,
+            picture: payload.picture,
+            emailVerified: payload.email_verified,
+            locale: payload.locale,
+            hd: payload.hd, // hosted domain
+            isValid: true,
+            signInTimestamp: Date.now()
+        };
+        
+        console.log('Google Sign-In: Successfully authenticated user:', userInfo.email);
+        
+        // Store user info in a11yStore if available
+        if (a11yStore && typeof a11yStore.setGoogleUser === 'function') {
+            a11yStore.setGoogleUser(userInfo);
+        }
+        
+        // Trigger accessibility updates after sign-in
+        if (a11yStore && typeof a11yStore.onGoogleSignIn === 'function') {
+            a11yStore.onGoogleSignIn(userInfo);
+        }
+        
+        return userInfo;
+    } catch (error) {
+        console.error('Google Sign-In: Error processing credential response:', error);
+        if (a11yStore && typeof a11yStore.setGoogleSignInError === 'function') {
+            a11yStore.setGoogleSignInError(error.message);
+        }
+        return null;
+    }
+}
+
+/**
+ * Decodes the JWT payload from a Google credential token
+ * @param {string} credential - The JWT credential string from Google
+ * @returns {Object|null} The decoded payload or null if decoding fails
+ */
+function decodeJWTPayload(credential) {
+    try {
+        const parts = credential.split('.');
+        if (parts.length !== 3) {
+            console.error('Google Sign-In: Invalid JWT format');
+            return null;
+        }
+        
+        const payloadBase64 = parts[1];
+        // Replace URL-safe characters and add padding if necessary
+        const paddedPayload = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+        const padding = '='.repeat((4 - paddedPayload.length % 4) % 4);
+        const decodedPayload = atob(paddedPayload + padding);
+        
+        return JSON.parse(decodedPayload);
+    } catch (error) {
+        console.error('Google Sign-In: Error decoding JWT payload:', error);
+        return null;
+    }
+}
+
+/**
+ * Initializes Google Sign-In
+ * @param {string} clientId - The Google client ID
+ * @returns {Object} Google Sign-In configuration
+ */
+function googleSignIn(clientId) {
+    if (typeof window === 'undefined') {
+        console.error('Google Sign-In: Cannot initialize in non-browser environment');
+        return null;
+    }
+    
+    if (!clientId) {
+        console.error('Google Sign-In: Client ID is required');
+        return null;
+    }
+    
+    const config = {
+        client_id: clientId,
+        callback: handleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true
+    };
+    
+    // Store config in a11yStore for reference
+    if (a11yStore && typeof a11yStore.setGoogleConfig === 'function') {
+        a11yStore.setGoogleConfig(config);
+    }
+    
+    console.log('Google Sign-In: Initialized with client ID:', clientId);
+    return config;
+}
+
+/**
+ * Signs out the current Google user
+ */
+function googleSignOut() {
+    const googleUser = a11yStore && a11yStore.getGoogleUser ? a11yStore.getGoogleUser() : null;
+    
+    if (googleUser) {
+        console.log('Google Sign-In: Signing out user:', googleUser.email);
+    }
+    
+    // Clear user info from a11yStore
+    if (a11yStore && typeof a11yStore.clearGoogleUser === 'function') {
+        a11yStore.clearGoogleUser();
+    }
+    
+    // Trigger accessibility updates after sign-out
+    if (a11yStore && typeof a11yStore.onGoogleSignOut === 'function') {
+        a11yStore.onGoogleSignOut();
+    }
+    
+    console.log('Google Sign-In: User signed out successfully');
 }
 
 // New function to handle dynamic content updates
@@ -462,6 +594,9 @@ if (typeof module !== 'undefined' && module.exports) {
         addSvgAccessibleNames,
         fixFakeLinkIssue,
         handleCredentialResponse,
+        decodeJWTPayload,
+        googleSignIn,
+        googleSignOut,
         validateLinkAccessibility,
         handleFakeLinks,
         wrapPrimaryContentInMain,

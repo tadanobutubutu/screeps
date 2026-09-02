@@ -1,6 +1,8 @@
 // Dependency imports
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
+const dependencyGraphContentModule = require('./dependencyGraphContent');
+const indexContentModule = require('./indexContent');
+const dependencyGraphContent = dependencyGraphContentModule.dependencyGraphContent || dependencyGraphContentModule;
+const indexContent = indexContentModule.indexContent || indexContentModule;
 
 // Existing rendering functions (preserving existing exports and functions)
 
@@ -217,6 +219,157 @@ function initAccessibility() {
 // New function from other branch
 function newExportedFunction() {
     // Implementation of the new function from the other conflict branch
+}
+
+/**
+ * Handles accessibility issues found during analysis
+ * Addresses issues from insight report for new accessibility problems
+ * @param {HTMLElement} container - Container element to check and fix
+ * @param {Object} report - Accessibility issues report
+ * @returns {Object} Summary of issues handled
+ */
+function handleAccessibilityIssues(container, report) {
+    const results = {
+        fixed: [],
+        warnings: [],
+        errors: []
+    };
+
+    if (!container || !report) {
+        results.errors.push('Container or report is missing');
+        return results;
+    }
+
+    // Handle new accessibility issues based on report type
+    if (report.issues && Array.isArray(report.issues)) {
+        report.issues.forEach(function(issue) {
+            if (issue.type === 'missing-lang') {
+                const htmlElement = document.documentElement;
+                if (!htmlElement.hasAttribute('lang')) {
+                    htmlElement.setAttribute('lang', 'en');
+                    results.fixed.push('Added lang attribute to html element');
+                }
+            }
+
+            if (issue.type === 'missing-skip-link') {
+                const skipLink = container.querySelector('.skip-link');
+                if (!skipLink) {
+                    const newSkipLink = document.createElement('a');
+                    newSkipLink.href = '#main-content';
+                    newSkipLink.className = 'skip-link';
+                    newSkipLink.textContent = 'Skip to main content';
+                    newSkipLink.style.position = 'absolute';
+                    newSkipLink.style.left = '-9999px';
+                    newSkipLink.style.top = 'auto';
+                    newSkipLink.style.width = '1px';
+                    newSkipLink.style.height = '1px';
+                    newSkipLink.style.overflow = 'hidden';
+                    container.insertBefore(newSkipLink, container.firstChild);
+                    results.fixed.push('Added skip link for keyboard navigation');
+                }
+            }
+
+            if (issue.type === 'missing-main-landmark') {
+                const mainElement = container.querySelector('main');
+                if (!mainElement) {
+                    const main = document.createElement('main');
+                    main.id = 'main-content';
+                    const existingContent = container.querySelector('div[role="main"]');
+                    if (existingContent) {
+                        while (existingContent.firstChild) {
+                            main.appendChild(existingContent.firstChild);
+                        }
+                        existingContent.parentNode.replaceChild(main, existingContent);
+                    }
+                    results.fixed.push('Added main landmark element');
+                }
+            }
+
+            if (issue.type === 'missing-aria-labels') {
+                const elementsNeedingLabels = container.querySelectorAll(
+                    'button:not([aria-label]):not([aria-labelledby]), ' +
+                    'a[href]:not([aria-label]):not([aria-labelledby]):not([title])'
+                );
+                elementsNeedingLabels.forEach(function(el, index) {
+                    if (!el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby')) {
+                        el.setAttribute('aria-label', 'Interactive element ' + (index + 1));
+                        results.fixed.push('Added aria-label to interactive element');
+                    }
+                });
+            }
+
+            if (issue.type === 'focus-trap-issue') {
+                const modalElements = container.querySelectorAll('[role="dialog"], [role="alertdialog"]');
+                modalElements.forEach(function(modal) {
+                    accessibilityUtils.trapFocus(modal);
+                    results.fixed.push('Applied focus trap to modal');
+                });
+            }
+
+            if (issue.type === 'color-contrast') {
+                results.warnings.push('Color contrast issues detected - manual review required');
+            }
+
+            if (issue.type === 'missing-alt-text') {
+                const imagesWithoutAlt = container.querySelectorAll('img:not([alt])');
+                imagesWithoutAlt.forEach(function(img) {
+                    img.setAttribute('alt', '');
+                    results.fixed.push('Added empty alt attribute to decorative image');
+                });
+            }
+
+            if (issue.type === 'form-label-missing') {
+                const inputsWithoutLabels = container.querySelectorAll(
+                    'input:not([aria-label]):not([aria-labelledby]):not([type="hidden"]), ' +
+                    'select:not([aria-label]):not([aria-labelledby]), ' +
+                    'textarea:not([aria-label]):not([aria-labelledby])'
+                );
+                inputsWithoutLabels.forEach(function(input) {
+                    const label = document.createElement('label');
+                    label.textContent = 'Field ' + (input.name || input.id || 'unnamed');
+                    if (input.parentNode) {
+                        input.parentNode.insertBefore(label, input);
+                    }
+                    results.fixed.push('Added label for form input');
+                });
+            }
+
+            if (issue.type === 'heading-order') {
+                const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                let lastLevel = 0;
+                headings.forEach(function(heading) {
+                    const currentLevel = parseInt(heading.tagName.substring(1));
+                    if (currentLevel > lastLevel + 1) {
+                        results.warnings.push('Heading level skip detected from h' + lastLevel + ' to h' + currentLevel);
+                    }
+                    lastLevel = currentLevel;
+                });
+            }
+
+            if (issue.type === 'table-accessibility') {
+                const tables = container.querySelectorAll('table');
+                tables.forEach(function(table) {
+                    if (!table.hasAttribute('scope') && !table.querySelector('th[scope]')) {
+                        const headers = table.querySelectorAll('th');
+                        headers.forEach(function(th) {
+                            th.setAttribute('scope', 'col');
+                        });
+                        results.fixed.push('Added scope attributes to table headers');
+                    }
+                });
+            }
+        });
+    }
+
+    // Announce results to screen readers if there were fixes
+    if (results.fixed.length > 0) {
+        accessibilityUtils.announceToScreenReader(
+            'Fixed ' + results.fixed.length + ' accessibility issues',
+            'polite'
+        );
+    }
+
+    return results;
 }
 
 // Export all utilities

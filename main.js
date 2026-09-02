@@ -242,7 +242,11 @@ if (typeof module !== 'undefined' && module.exports) {
 
   // Conditionally include any additional exports from HEAD if defined in scope
   ['createServer', 'startApp', 'config', 'myNewFunction', 'addressAccessibilityIssues',
-   'generateAccessibilityReport', 'calculateAccessibilityScore', 'ensureUniqueLandmarksFromString'].forEach(function(name) {
+   'generateAccessibilityReport', 'calculateAccessibilityScore', 'ensureUniqueLandmarksFromString',
+   'spawnSomeCommand', 'addLangAttribute', 'implementCountDependenciesInMain',
+   'processSvgElements', 'ensureUniqueLandmarks', 'ensureElementHasId',
+   'ensureElementId', 'addAriaLabel', 'addBook', 'makeAccessible',
+   'addAriaSupport', 'addProperLandmarkRegions'].forEach(function(name) {
     try {
       if (eval('typeof ' + name + ' !== "undefined"')) {
         moduleExports[name] = eval(name);

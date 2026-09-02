@@ -1,9 +1,10 @@
+Here is the resolved file content:
+
+```javascript
 // TODO: This is the existing code that needs to be preserve
 
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
-
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
 
 // Existing code
 export function existingFunction1() {
@@ -14,29 +15,13 @@ export function existingFunction2() {
   // Existing implementation
 }
 
-// New Function
+// New Function (original commitment)
 export function myNewFunction() {
   // Implement the new functionality (as per the original commitment)
   return "New function implemented successfully";
 }
 
-function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
-
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(nameA);
-    });
-}
-
-function getLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
-}
-
-// Function to combine both resolveUnique and ensureUnique functions (ensureUniqueLandmarks from the original branch and the combined version from the conflicting branch)
+// Function from the original branch (ensureUniqueLandmarks)
 function ensureUniqueLandmarks(landmarks, idField = 'id') {
     if (!Array.isArray(landmarks)) {
         return [];
@@ -117,4 +102,37 @@ function validateLandmark(landmarkElement) {
 // Main execution when run directly
 if (require.main === module) {
   // ... (the rest of the existing main code)
+
+  // Add the functions from the conflicting branch
+  function sortLandmarks(landmarks, ascending = true) {
+    return landmarks.slice().sort((a, b) => {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+
+        if (ascending) {
+            return nameA.localeCompare(nameB);
+        }
+        return nameB.localeCompare(nameA);
+    });
+  }
+
+  function getLandmarkById(landmarks, id) {
+      return landmarks.find(landmark => landmark.id === id) || null;
+  }
+
+  // Function to validate landmarks (combined implementation)
+  function validateLandmarks(landmarks) {
+    let validLandmarks = [];
+
+    for (const landmark of landmarks) {
+        const result = validateLandmark(landmark);
+
+        if (result.present) {
+            validLandmarks.push(landmark);
+        }
+    }
+
+    return validLandmarks;
+  }
 }
+```

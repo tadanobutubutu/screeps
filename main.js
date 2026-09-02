@@ -200,7 +200,7 @@ function validateLandmark() {
 
 // Validate landmark structure
 function validateLandmarkStructure() {
-  // Implementation for landmark structure validation
+  // Implementation for landmark validation
 }
 
 // Get accessible name for SVG
@@ -303,5 +303,8 @@ module.exports = {
   renderIndex,
   newRequiredFunction,
   additionalFunction,
+  checkLandmarksInDOM,
+  addLangAttribute,
+  newFunction,
   createAccessibleWebResourceButton
 };

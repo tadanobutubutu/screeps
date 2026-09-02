@@ -88,7 +88,7 @@ function getTasks(creepName) {
 }
 
 function setSvgAttributes(svg) {
-    if (!svg.hasAttribute('aria-label')) {
+    if (svg && svg.setAttribute) {
         const accessibleName = svg.getAttribute('id') || '';
         if (accessibleName) {
             svg.setAttribute('aria-label', accessibleName);
@@ -99,21 +99,24 @@ function setSvgAttributes(svg) {
 function main() {
     const svgElements = document.querySelectorAll('svg');
 
-    renderDependencyGraphs(svgElements);
+    svgElements.forEach(svg => {
+        setSvgAttributes(svg);
+    });
 
-    checkLandmarkElements();
+    return svgElements.length;
 }
 
-function renderDependencyGraphs(svgElements) {
-    const accessibleName = getSvgAccessibleName(svgElements);
+function checkSvgAccessibility(svgElements) {
+    const accessibleName = svgElements.length > 0 ? getSvgAccessibleName(svgElements) : '';
     if (accessibleName) {
-        // Use accessibleName
+        return accessibleName;
     }
+    return '';
 }
 
 function getSvgAccessibleName(svgElements) {
     if (svgElements.length > 0) {
-        return svgElements[0].getAttribute('aria-label') || svgElements[0].getAttribute('id');
+        return svgElements[0].getAttribute('aria-label') || svgElements[0].getAttribute('id') || '';
     }
     return '';
 }
@@ -133,7 +136,7 @@ function checkLandmarkElements() {
         const elements = document.querySelectorAll(selector);
         elements.forEach((element) => {
             const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-            const landmarkRole = role || (landmarkRoles.includes(tagName) ? tagName : undefined);
+            const landmarkRole = role || element.getAttribute('role') ? tagName : undefined;
 
             if (!landmarkRole) {
                 console.warn(`Missing landmark role for ${tagName}`);
@@ -141,12 +144,12 @@ function checkLandmarkElements() {
         });
     };
 
-    checkLandmarkElement('[role="main"], main', 'main');
-    checkLandmarkElement('[role="banner"], header', 'banner');
-    checkLandmarkElement('[role="navigation"], nav', 'navigation');
-    checkLandmarkElement('[role="contentinfo"], footer', 'contentinfo');
-    checkLandmarkElement('[role="complementary"], aside', 'complementary');
-    checkLandmarkElement('[role="search"], [role="form"], form', 'form');
+    checkLandmarkElement('main', 'main');
+    checkLandmarkElement('header', 'banner');
+    checkLandmarkElement('nav', 'navigation');
+    checkLandmarkElement('footer', 'contentinfo');
+    checkLandmarkElement('aside', 'complementary');
+    checkLandmarkElement('[role="form"]', 'form', 'form');
 }
 
 function checkAccessibilityIssues(code) {
@@ -169,7 +172,7 @@ function checkAccessibilityIssues(code) {
         if (line.includes('eval(')) {
             issues.push({ type: 'error', line: lineNum, message: 'Use of eval() detected - security risk' });
         }
-        if (line.includes('console.log(') && !line.trim().startsWith('//')) {
+        if (line.includes('console.log(') && !line.includes('//')) {
             issues.push({ type: 'warning', line: lineNum, message: 'Console.log statement found - should be removed in production' });
         }
         if (line.includes('debugger;')) {
@@ -259,11 +262,13 @@ app.get('/api/players', (req, res) => {
 });
 
 app.get('/api/players/:playerName', (req, res) => {
-    res.json(getPlayerInfo(req.params.playerName));
+    const result = getPlayerInfo(req.params.playerName);
+    res.json(result);
 });
 
 app.get('/api/structures/:roomName', (req, res) => {
-    res.json(getStructures(req.params.roomName));
+    const structures = getStructures(req.params.roomName);
+    res.json(structures);
 });
 
 app.post('/api/tasks/:creepName', (req, res) => {
@@ -273,7 +278,8 @@ app.post('/api/tasks/:creepName', (req, res) => {
 });
 
 app.get('/api/tasks/:creepName', (req, res) => {
-    res.json(getTasks(req.params.creepName));
+    const tasks = getTasks(req.params.creepName);
+    res.json(tasks);
 });
 
 app.post('/api/accessibility/scan', (req, res) => {

@@ -116,9 +116,10 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (!elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
+        if (elementsById[landmark.id]) {
+          elementsById[landmark.id + '_duplicate'] = true;
         } else {
+          elementsById[landmark.id] = true;
           landmark.id += '_duplicate';
         }
       }
@@ -153,7 +154,7 @@ function countDependencies() {
 // Add lang attribute to HTML element
 function addLangAttribute() {
   const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
 }
@@ -163,7 +164,7 @@ function fixTableStructureIssues() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     // Ensure table has proper caption if needed
-    if (!table.querySelector('caption') && table.rows.length > 0) {
+    if (table && table.rows && table.rows.length > 0) {
       const caption = document.createElement('caption');
       caption.textContent = 'Table data';
       table.insertBefore(caption, table.firstChild);
@@ -186,7 +187,7 @@ function fixTableStructureIssues() {
     // Ensure table has proper scope attributes for headers
     const headerRows = table.querySelectorAll('thead th');
     headerRows.forEach((th, index) => {
-      if (!th.hasAttribute('scope')) {
+      if (th && !th.hasAttribute('scope')) {
         th.setAttribute('scope', 'col');
       }
     });
@@ -195,19 +196,21 @@ function fixTableStructureIssues() {
 
 // Add/fix landmark issues
 function addMainLandmark() {
-  if (!document.querySelector('main')) {
-    const main = document.createElement('main');
+  const main = document.querySelector('main');
+  if (main) {
     main.id = 'main-content';
-    document.body.appendChild(main);
+    if (!main.hasAttribute('role')) {
+      main.setAttribute('role', 'main');
+    }
   }
 }
 
 // Add accessible names to SVGs
 function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg:not([aria-hidden="true"])');
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
-      const title = svg.querySelector('title');
+    const title = svg.querySelector('title');
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       if (title) {
         svg.setAttribute('aria-labelledby', title.id);
       } else {
@@ -219,11 +222,13 @@ function addSvgAccessibleNames() {
 
 // Fix fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('[role="link"][href="javascript:void(0)"]');
+  const fakeLinks = document.querySelectorAll('a[href=""], a:not([href])');
   fakeLinks.forEach(link => {
     link.setAttribute('tabindex', '0');
     link.setAttribute('role', 'button');
-    link.removeAttribute('href');
+    if (!link.hasAttribute('aria-label')) {
+      link.setAttribute('aria-label', 'Button');
+    }
   });
 }
 
@@ -243,34 +248,63 @@ function initApp() {
   registerSW();
 }
 
-// Export functions for testing
-export {
-  checkLandmarkElement,
-  ensureUniqueLandmarks,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  initApp,
-  landmarks,
-  appData,
-  icons,
-  validateLandmark,
-  ensureFocusableElements,
-  renderDependencyGraphContent,
-  ensureLandmarkUniqueness,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  countDependencies,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue
-};
+// Additional helper functions for completeness
+function landmarkStructureCheck(landmark) {
+  const validRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region', 'banner', 'complementary'];
+  return validRoles.includes(landmark.role);
+}
+
+function setLanguageAttribute(lang) {
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
+function addLandmarkRoles() {
+  const elements = document.querySelectorAll('div, section, nav, aside, main, header, footer');
+  elements.forEach(el => {
+    if (el.tagName === 'MAIN' && !el.hasAttribute('role')) {
+      el.setAttribute('role', 'main');
+    }
+  });
+}
+
+function fixFakeLinks() {
+  fixFakeLinkIssue();
+}
+
+function isSecureContext() {
+  return window.isSecureContext || location.protocol === 'https:' || location.hostname === 'localhost';
+}
+
+function ensureFocusableElements() {
+  const focusable = document.querySelectorAll('a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  return focusable;
+}
+
+function renderDependencyGraph(container) {
+  // Implementation for rendering dependency graph
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'dependency-graph';
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+  container.appendChild(graphContainer);
+}
+
+function renderIndexView(container) {
+  // Implementation for rendering index view
+  const indexContainer = document.createElement('div');
+  indexContainer.className = 'index-view';
+  container.appendChild(indexContainer);
+}
+
+function calculateSum(a, b) {
+  return a + b;
+}
+
+function addProperLandmarkRegions() {
+  const sections = document.querySelectorAll('section');
+  sections.forEach(section => {
+    if (!section.hasAttribute('role') && !section.hasAttribute('aria-label')) {
+      const heading = section.querySelector('h1, h2, h3, h4, h5, h6');

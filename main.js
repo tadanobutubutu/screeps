@@ -114,10 +114,7 @@ function fixAccessibilityIssues() {
   }
 }
 
-// Helper function to ensure unique landmarks (from origin/main, integrated above)
-// ensureUniqueLandmarks is already defined above
-
-// Implement wrapPrimaryContentInMain function (merged from both branches)
+// Function to wrap primary content in a main element for accessibility
 function wrapPrimaryContentInMain(primaryContent) {
   // Wrap primary content in a <main> element for accessibility
   const doc = getDocument ? getDocument() : document;
@@ -232,81 +229,4 @@ function makeHeaderFocusable() {
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('tabindex', '0');
-    header.setAttribute('role', 'banner');
-    header.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        header.focus();
-      }
-    });
-  }
-}
-
-function ensureElementId(element) {
-  // Combined and reconciled code from both branches
-  if (!element.id) {
-    element.id = element.id || element.name || '';
-  }
-}
-
-function initializeAccessibility() {
-  // DOM-based accessibility code
-  const doc = getDocument ? getDocument() : document;
-  // Add lang attribute to HTML element
-  const langAttr = getLangAttribute();
-  if (langAttr) {
-    doc.documentElement.setAttribute('lang', langAttr);
-  }
-
-  // Create in-page button with accessibility considerations
-  createInPageButton();
-
-  // Validate table structure and accessibility
-  const tables = doc.querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
-
-  // Add/fix landmark issues
-  validateLandmark();
-  ensureUniqueLandmarks();
-
-  // Add accessible names to SVGs
-  const svgElements = doc.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
-  });
-
-  // Ensure unique landmarks
-  ensureUniqueLandmarks();
-  handleFakeLinks();
-}
-
-function addAriaLabel(element) {
-  // Combined and reconciled code from both branches
-  if (!element.getAttribute('aria-label')) {
-    element.setAttribute('aria-label', '');
-  }
-}
-
-// ----- END ORIGINAL CODE -----
-
-// New functions for rendering graph/index as requested in the issue
-export function renderGraph() {
-  // Implementation for rendering graph content
-  const graphContainer = document.getElementById('graph-container');
-  if (graphContainer) {
-    graphContainer.innerHTML = '<div class="graph-visualization">Graph visualization would be rendered here</div>';
-    fixAccessibilityIssues();
-  }
-}
-
-export function renderIndexContent() {
-  // Implementation for rendering index content
-  const indexContainer = document.getElementById('index-content-container');
-  if (indexContainer) {
-    indexContainer.innerHTML = '<div class="index-content">Index content would be rendered here</div>';
-    fixAccessibilityIssues();
-  }
-}
+    header.setAttribute

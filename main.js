@@ -4,11 +4,6 @@
 const http = require('http');
 const path = require('path');
 
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
-// ----- END ORIGINAL CODE -----
-
 // Functions to ensure the element has an id, add aria-label, render dependency graphs, validate table accessibility, validate table structure, validate landmark, address new accessibility issues from insight report, and implement accessibility solutions
 
 // Application configuration

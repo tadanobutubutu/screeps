@@ -577,7 +577,7 @@ const a11yStore = {
       const descriptionElement = document.createElement('desc');
       descriptionElement.id = descriptionId;
       descriptionElement.textContent = titleText;
-      svg.appendChild(descElement);
+      svg.appendChild(descriptionElement);
     });
   },
 

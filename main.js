@@ -526,20 +526,20 @@ function ensureDependencyGraphAriaRole() {
 function countDependencies(code) {
   const requireRegex = /require\(['"]([^'"]+)['"]\)/g;
   const importRegex = /import\s+.*?\s+from\s+['"]([^'"]+)['"]/g;
-  
+
   let count = 0;
   let match;
-  
+
   // Count require() calls
   while ((match = requireRegex.exec(code)) !== null) {
     count++;
   }
-  
+
   // Count import statements
   while ((match = importRegex.exec(code)) !== null) {
     count++;
   }
-  
+
   return count;
 }
 

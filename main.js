@@ -350,21 +350,40 @@ const AddressabilityIssues = {
       });
       window.dispatchEvent(clearEvent);
     }
-  },
-
-  // Export functions for testing
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-      AddressabilityIssues,
-      initializeAccessibility,
-      getSvgAccessibleName,
-      setSvgAttributes,
-      checkTableStructure,
-      generateUniqueId,
-      detectAccessibilityIssues,
-      handleCredentialResponse,
-      getStoredCredentials,
-      clearCredentials
-    };
   }
-</script>
+};
+
+// TODO: Add the implementation details here
+function generateUniqueId() {
+  return 'id-' + Math.random().toString(36).substr(2, 9);
+}
+
+function checkTableStructure(table) {
+  if (!table) return false;
+  const headers = table.querySelectorAll('th');
+  return headers.length > 0;
+}
+
+// Export functions for testing
+const getSvgAccessibleName = AddressabilityIssues.getSvgAccessibleName;
+const setSvgAttributes = AddressabilityIssues.setSvgAttributes;
+const detectAccessibilityIssues = AddressabilityIssues.detectAccessibilityIssues;
+const initializeAccessibility = AddressabilityIssues.initializeAccessibility;
+const handleCredentialResponse = AddressabilityIssues.handleCredentialResponse;
+const getStoredCredentials = AddressabilityIssues.getStoredCredentials;
+const clearCredentials = AddressabilityIssues.clearCredentials;
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    AddressabilityIssues,
+    initializeAccessibility,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    checkTableStructure,
+    generateUniqueId,
+    detectAccessibilityIssues,
+    handleCredentialResponse,
+    getStoredCredentials,
+    clearCredentials
+  };
+}

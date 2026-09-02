@@ -1,43 +1,20 @@
-const main = require('./utilities')
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Importing utilities for formatting and validation
+import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
+import { renderHeader, renderFooter, renderProductCard } from './components.js';
+import { state, updateState } from './state.js';
+import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/tableAccessibilityUtils';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
 
-const {
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleName,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  renderGraphIndex,
-  trapFocus,
-  renderAdditionalContent,
-  checkAccessibilityForReport,
-  setupFocusTrap,
-  restoreFocus,
-  addLangAttribute
-} = require('./AccessibilityHelpers')
+// Import accessibility helpers from AccessibilityHelpers module
+const main = require('./utilities')
+const accessibilityHelpers = require('./AccessibilityHelpers')
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph')
@@ -64,47 +41,58 @@ if (dependencyGraph) {
     dependencyGraph.setAttribute('tabindex', '0')
   }
 
-  setupFocusTrap('#dependencyGraph')
+  accessibilityHelpers.setupFocusTrap('#dependencyGraph')
 }
 
 // Add lang attribute to HTML element if missing
-addLangAttribute(document.documentElement)
+accessibilityHelpers.addLangAttribute(document.documentElement)
 
 const {
-  createInPageButton: createInPageButtonAlt,
-  createWebResourceButton: createWebResourceButtonAlt,
-  validateLandmark: validateLandmarkAlt,
-  validateLandmarkStructure: validateLandmarkStructureAlt,
-  getSvgAccessibleName: getSvgAccessibleNameAlt,
-  getLangAttribute: getLangAttributeAlt,
-  validateAccessibilityReport: validateAccessibilityReportAlt,
-  exportUtils: exportUtilsAlt,
-  addressAccessibilityIssues: addressAccessibilityIssuesAlt,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  uniqueLandmarks,
+  addSvgAccessibleName,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  googleSignIn,
+  decodeJwtResponse,
+  fixButtonIdentifiers,
+  ensureElementHasId,
   ensureElementHasIdOrigin,
   addAriaLabel,
   renderDependencyGraphs,
-  fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
-  checkAccessibility,
-  checkAccessibilityForReport,
-  renderGraphIndex,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute: getLangAttributeHelper,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  renderGraphIndex: renderGraphIndexHelper,
   trapFocus,
-  renderAdditionalContent
-} = main
+  renderAdditionalContent,
+  checkAccessibilityForReport,
+  setupFocusTrap,
+  restoreFocus,
+  addLangAttribute: addLangAttributeHelper
+} = accessibilityHelpers
 
 function implementAccessibilityFixesFromReport (container, report) {
-  // ... existing code ...
-
-  // New function to handle additional rendering logic
-  // @param {Object} additionalData - Additional data for rendering
-  // @returns {string} Rendered additional content HTML
-  function renderAdditionalContent(additionalData) {
-    // Implementation of the new function
-    // Placeholder for actual implementation
-    return '<div>Additional content rendered</div>';
-  }
+  const fixes = {
+    langAdded: false,
+    mainLandmarkAdded: false,
+    landmarksFixed: 0,
+    svgNamesAdded: 0,
+    fakeLinksFixed: 0
+  };
 
   if (!report || !report.issues) {
     return fixes
@@ -166,7 +154,7 @@ function implementAccessibilityFixesFromReport (container, report) {
   });
 
   // Validate accessibility report
-  const accessibilityReport = checkAccessibility(container) || checkAccessibilityForReport(container);
+  const accessibilityReport = main.checkAccessibility(container) || checkAccessibilityForReport(container);
   if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
     console.log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`);
   }
@@ -180,7 +168,7 @@ function implementAccessibilityFixesFromReport (container, report) {
   }
 
   // Check for new accessibility issues
-  const newAccessibilityIssues = checkAccessibility(container) || checkAccessibilityForReport(container);
+  const newAccessibilityIssues = main.checkAccessibility(container) || checkAccessibilityForReport(container);
   if (newAccessibilityIssues && newAccessibilityIssues.length > 0) {
     console.log(`New accessibility issues found: ${newAccessibilityIssues.join(', ')}`);
   }
@@ -206,7 +194,7 @@ function implementAccessibilityFixesFromReport (container, report) {
 }
 
 function getActiveSessionsCount() {
-  return appState.sessions.size
+  return state.sessions.size
 }
 
 // Helper functions for session management
@@ -256,7 +244,7 @@ function validateTableAccessibility (tableData) {
 }
 
 // Call the functions to address the accessibility issues
-addLangAttribute();
+addLangAttributeHelper();
 addMainLandmark();
 ensureUniqueLandmarks();
 fixFakeLinkIssue();
@@ -377,23 +365,38 @@ function fixTableStructure(tableElement) {
   return tableElement
 }
 
-// Preserve all existing exports
+// Export React app initialization
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
+
+// Preserve all existing exports for CommonJS compatibility
 module.exports = {
+  // React exports
+  React,
+  ReactDOM,
+  App,
+  // Accessibility function exports
   implementAccessibilityFixesFromReport,
   renderAdditionalContent,
+  renderAdditionalContentData,
   handleCredentialResponse,
   checkAccessibilityForReport,
   renderGraphIndex,
   validateTableAccessibility,
   validateLandmarkStructure,
-  renderAdditionalContent,
   upgradeSystem,
   addAccessibleName,
-  implementAccessibilityFixesFromReport,
   getActiveSessionsCount,
   validateSession,
-  handleCredentialResponse,
-  checkAccessibilityForReport,
   trapFocus,
   fixTableStructure,
   addLangAttribute,
@@ -405,11 +408,10 @@ module.exports = {
   createWebResourceButton,
   validateLandmark,
   getSvgAccessibleName,
-  getLangAttribute,
+  getLangAttribute: getLangAttributeHelper,
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues,
-  fixTableStructure,
   fixLandmarkIssues,
   addMainLandmark,
   addLandmarkRegions,
@@ -424,5 +426,7 @@ module.exports = {
   ensureElementHasIdOrigin,
   addAriaLabel,
   setupFocusTrap,
-  restoreFocus
+  restoreFocus,
+  // Utilities from main module
+  ...main
 };

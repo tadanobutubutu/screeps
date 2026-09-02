@@ -8,3 +8,14 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 // TODO: Any additional changes requested in the issue
+
+// New function as per the issue: updateLandmarkAccessibility
+function updateLandmarkAccessibility() {
+    // Implementation for updating landmark accessibility
+    validateLandmark();
+    validateLandmarkStructure();
+    ensureUniqueLandmarks();
+}
+
+// Exporting new function if needed, else preserving existing exports
+export { getLangAttribute, getFullLangAttribute, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks, getSvgAccessibleName, createInPageButton, ensureUniqueLandmarks, validateLandmarkStructure, createInPageButton, createAccessibleLink, handleAccessibilityIssues, updateLandmarkAccessibility };

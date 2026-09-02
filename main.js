@@ -7,13 +7,8 @@
 (function() {
     'use strict';
 
-    // Preserving accessibility enhancements from original commitment
-    // Version 1 implementation (HEAD branch) - accessibility features integrated
-    //_Commit: 0cc7acc93dade1532e36e2e26adc7bd895ef60df_
-    //<!-- todo-hash: 398424c02b2e0a493981d83f7e0c15b42542e233 -->
-
     // DOM Elements
-    const dependencyGraph = {};
+    const dependencyGraph = document.getElementById('dependency-graph') || document.querySelector('.dependency-graph');
 
     // Import required modules and React components
     const axe = require('axe-core');
@@ -85,10 +80,10 @@
     }
 
     // Function to create an in-page button
-    function createInPageButton() {
+    function createInPageButton(buttonText, onClickHandler) {
       // Implementation of createInPageButton function
       const button = document.createElement('button');
-      button.textContent = 'Accessibility Info';
+      button.textContent = buttonText || 'Accessibility Info';
       button.setAttribute('aria-label', 'Show accessibility information');
       button.className = 'a11y-button';
       document.body.appendChild(button);
@@ -96,19 +91,16 @@
     }
 
     // Function to validate table accessibility
-    function validateTableAccessibility() {
-      // Implementation of validateTableAccessibility function
-      const tables = document.querySelectorAll('table');
-      tables.forEach(table => {
-        if (!table.querySelector('caption')) {
-          table.setAttribute('summary', 'Table summary');
-        }
-        if (!table.querySelector('th')) {
-          const caption = document.createElement('caption');
-          caption.textContent = 'Table caption';
-          table.prepend(caption);
-        }
-      });
+    function validateTableAccessibility(tableElement) {
+      if (!tableElement) return false;
+
+      // Check if table has a caption
+      const hasCaption = tableElement.querySelector('caption') !== null;
+
+      // Check if table has headers
+      const hasHeaders = tableElement.querySelectorAll('th').length > 0;
+
+      return hasCaption && hasHeaders;
     }
 
     // Function to validate table structure
@@ -124,40 +116,6 @@
               cell.setAttribute('scope', 'col');
             }
           });
-        });
-      });
-    }
-
-    // Function to validate landmark elements
-    function validateLandmark() {
-      // Implementation of validateLandmark function
-      const landmarks = ['main', 'nav', 'aside', 'footer', 'header'];
-      landmarks.forEach(landmark => {
-        const elements = document.querySelectorAll(landmark);
-        elements.forEach(element => {
-          if (!element.getAttribute('aria-label')) {
-            element.setAttribute('aria-label', `${landmark} landmark`);
-          }
-        });
-      });
-    }
-
-    // Function to validate landmark structure
-    function validateLandmarkStructure() {
-      // Implementation of validateLandmarkStructure function
-      const landmarks = ['main', 'nav', 'aside', 'footer', 'header'];
-      landmarks.forEach(landmark => {
-        const elements = document.querySelectorAll(landmark);
-        elements.forEach(element => {
-          if (!element.getAttribute('aria-labelledby')) {
-            const id = `${landmark}-label`;
-            element.setAttribute('aria-labelledby', id);
-            const label = document.createElement('span');
-            label.id = id;
-            label.textContent = `${landmark} section`;
-            label.style.display = 'none';
-            element.prepend(label);
-          }
         });
       });
     }
@@ -330,7 +288,7 @@
       }
     }
 
-    // New function3 logic implementation
+    // New function added to address accessibility issues
     function function3() {
       // TODO: Implement new function3 logic here
       return true;
@@ -379,7 +337,7 @@
       // Check if table has a caption
       const hasCaption = tableElement.querySelector('caption') !== null;
 
-      // Check if table has
+      // Check if table has headers
       const hasHeaders = tableElement.querySelectorAll('th').length > 0;
 
       return hasCaption && hasHeaders;

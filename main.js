@@ -36,7 +36,7 @@ function wrapPrimaryContentInMain() {
 }
 
 // Import necessary dependencies
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { setDependencyGraph } from './actions/dependencyGraph';
@@ -57,6 +57,7 @@ import { someFunction } from './utils/someFunction';
 import express from 'express';
 import path from 'path';
 import { fetchUser, clearCache } from './utils/user';
+import * as newFunctions from './accessibilityFixes';
 
 // TODO: Add new functions below this line
 
@@ -80,8 +81,6 @@ function checkLandmarkElement(id) {
 //<!-- todo-hash: 1ee9b16edc6170f46a87ac6dca96ec78757560bd -->
 
 // Implemented validateLandmark functionality
-
-import * as newFunctions from './accessibilityFixes';
 
 function validateLandmarkObject(landmark) {
   const errors = [];
@@ -119,6 +118,12 @@ function validateLandmarkObject(landmark) {
     });
   }
 
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
 // TODO: Implement this function for adding SVG accessibility props
 // Function to add SVG accessibility props
 function addSvgAccessibilityProps(svgElement, label, labelledById) {
@@ -140,22 +145,7 @@ const getAccessibleLinkProps = (href, label) => {
   };
 };
 
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-}
-
 // TODO: Identify and update specific functions that render dependency graphs or mark as N/A if none exist in this file
-
-// Function to render a single book item
-function BookItem({ book }) {
-  return {
-    key: generateKey(book),
-    title: book.title,
-    description: `by ${book.author}`
-  };
-}
 
 // Function to render the form for adding a new book entry
 function BookForm() {

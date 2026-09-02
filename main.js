@@ -1,9 +1,6 @@
-Here is the resolved file content:
-
-```javascript
 // main.js - Accessibility-focused implementation
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs, checkTableStructure, generateUniqueId, detectAccessibilityIssues, handleCredentialResponse, getStoredCredentials, clearCredentials
+// Functions to ensure the element has an id, add aria-label, render dependency graphs, checkTableStructure (updated), check credential response, getStoredCredentials, clearCredentials
 
 const AddressabilityIssues = {
   /* existing functions */
@@ -67,7 +64,7 @@ function initializeAccessibility(container) {
     return issues;
   }
 
-  /* new function */
+  /* modification to existing function */
   function handleCredentialResponse(response) {
     /* existing code */
 
@@ -87,6 +84,16 @@ function initializeAccessibility(container) {
       }
     });
 
+    // Validated role for new elements (except IMG elements) only after successful authentication
+    const updatedElements = [...elements];
+    const newIssues = detectAccessibilityIssues(updatedElements);
+    if (newIssues.length > 0) {
+      console.warn('Accessibility issues detected after successful authentication:');
+      newIssues.forEach(({ element, type, message }) => {
+        console.warn(`Element at index ${element}: ${message}`);
+      });
+    }
+
     return { /* existing return statement */ };
   }
 
@@ -94,6 +101,3 @@ function initializeAccessibility(container) {
 }
 
 /* existing code */
-```
-
-This code adds the new functions `checkTableStructure`, `generateUniqueId`, `detectAccessibilityIssues`, and a modification to the existing `handleCredentialResponse` function to validate the role attribute for all elements in the page (except `IMG` elements). It also adjusts the `detectAccessibilityIssues` function to skip checking the role attribute for `IMG` elements. The rest of the code remains unchanged.

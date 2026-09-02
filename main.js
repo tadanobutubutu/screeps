@@ -253,6 +253,72 @@ function newFunction() {
   // Implement specific fixes based on insight report when available
 }
 
+/**
+ * Validates the table structure for accessibility issues.
+ * Checks for proper use of <caption>, <thead>, <tbody>, <th> (with scope attribute),
+ * and ensures all <td> cells are associated with <th> headers.
+ * @param {string} htmlContent - The HTML content to validate
+ * @returns {Object} - Validation result containing issues found and a boolean indicating validity
+ */
+function validateTableStructureAccessibility(htmlContent) {
+  // Validate input
+  if (typeof htmlContent !== 'string') {
+    throw new Error('HTML content must be a string');
+  }
+
+  const issues = [];
+
+  // Check for table elements
+  const tableRegex = /<table[^>]*>[\s\S]*?<\/table>/gi;
+  const tables = htmlContent.match(tableRegex);
+
+  if (!tables || tables.length === 0) {
+    return {
+      isValid: true,
+      issues: [],
+      tableCount: 0
+    };
+  }
+
+  tables.forEach((table, index) => {
+    const tableIndex = index + 1;
+
+    // Check for <caption> element
+    if (!/<caption[^>]*>[\s\S]*?<\/caption>/i.test(table)) {
+      issues.push(`Table ${tableIndex}: Missing <caption> element to describe the table's purpose`);
+    }
+
+    // Check for <thead> element
+    if (!/<thead[^>]*>[\s\S]*?<\/thead>/i.test(table)) {
+      issues.push(`Table ${tableIndex}: Missing <thead> element for header rows`);
+    }
+
+    // Check for <tbody> element
+    if (!/<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(table)) {
+      issues.push(`Table ${tableIndex}: Missing <tbody> element for body rows`);
+    }
+
+    // Check for <th> elements with scope attribute
+    const thRegex = /<th[^>]*>/gi;
+    const thMatches = table.match(thRegex);
+    if (thMatches) {
+      thMatches.forEach((thTag, thIndex) => {
+        if (!/scope\s*=\s*["'](?:col|row|colgroup|rowgroup)["']/i.test(thTag)) {
+          issues.push(`Table ${tableIndex}, th ${thIndex + 1}: <th> element is missing a 'scope' attribute`);
+        }
+      });
+    } else {
+      issues.push(`Table ${tableIndex}: No <th> elements found; tables should have header cells`);
+    }
+  });
+
+  return {
+    isValid: issues.length === 0,
+    issues,
+    tableCount: tables.length
+  };
+}
+
 // TODO: This is the existing code that needs to be preserved
 
 // ADD YOUR CODE HERE if any other issues need to be addressed
@@ -303,5 +369,6 @@ module.exports = {
   renderIndex,
   newRequiredFunction,
   additionalFunction,
-  createAccessibleWebResourceButton
+  createAccessibleWebResourceButton,
+  validateTableStructureAccessibility
 };

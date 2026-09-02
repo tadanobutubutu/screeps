@@ -9,7 +9,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
-    document.body.appendChild(button);
+    return button;
 }
 
 // Function to validate landmark structure for accessibility issues
@@ -18,17 +18,54 @@ function validateLandmarkStructure() {
     const missingLandmarks = [];
 
     requiredLandmarks.forEach(landmark => {
-        if (!document.querySelector(landmark)) {
+        const element = document.querySelector(landmark);
+        if (!element) {
             missingLandmarks.push(landmark);
         }
     });
 
     if (missingLandmarks.length > 0) {
-        console.warn(`Accessibility warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+        console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
         return false;
     }
 
     return true;
+}
+
+// Harvest logic implementation - collects resources or data from available sources
+function harvestResources() {
+    const harvestData = {
+        timestamp: Date.now(),
+        resources: [],
+        totalCollected: 0
+    };
+
+    // Collect resources from various available sources
+    const resourceSelectors = ['[data-resource]', '.resource', '[data-harvestable]'];
+    
+    resourceSelectors.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(element => {
+            const resourceType = element.dataset.resourceType || 'generic';
+            const resourceAmount = parseInt(element.dataset.amount, 10) || 1;
+            
+            harvestData.resources.push({
+                type: resourceType,
+                amount: resourceAmount,
+                source: element.id || element.className
+            });
+            
+            harvestData.totalCollected += resourceAmount;
+        });
+    });
+
+    // Dispatch custom event for harvest completion
+    const harvestEvent = new CustomEvent('harvestComplete', {
+        detail: harvestData
+    });
+    document.dispatchEvent(harvestEvent);
+
+    return harvestData;
 }
 
 // Preserve any existing exports here

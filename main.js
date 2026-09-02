@@ -174,6 +174,10 @@ const AddressabilityIssues = {
 
   countDependencies() {
     // ... (existing code)
+  },
+
+  getLangAttribute() {
+    // ... (existing code)
   }
 };
 
@@ -241,6 +245,10 @@ function spawnSomeCommand(callback) {
         }
     });
 }
+
+const config = {
+  // ... (existing config)
+};
 
 // Export functions for testing
 module.exports = {

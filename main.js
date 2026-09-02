@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -93,9 +90,8 @@ function addLandmarkRegions() {
   console.log('Adding landmark regions');
 }
 
-function getSvgAccessibleName() {
+function getSvgAccessibleName(svgElement) {
     // Merged implementation (conflict resolved)
-    const svgElement = ... // needs actual element reference
     const title = svgElement.querySelector('title');
     const ariaLabel = svgElement.getAttribute('aria-label');
     if (title) return title.textContent;
@@ -234,4 +230,3 @@ module.exports = {
     addLandmarkRegions,
     setSvgAttributes
 };
-```

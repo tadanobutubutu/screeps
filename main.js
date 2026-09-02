@@ -222,6 +222,7 @@ function trapFocus(container) {
   }
 }
 
+
 /**
  * REACT_015: Add lang attribute to HTML element
  * Ensures the HTML element has a proper lang attribute for screen readers
@@ -260,7 +261,7 @@ export function addLangAttribute(element, lang = 'en') {
   }
 
   // New feature: Priority-based task scheduling
-  addTaskWithPriority(taskFn, priority = 'medium') {
+  addTask(taskFn, priority = 'medium') {
     this.tasks.push({ task: taskFn, priority });
     this.scheduleTasks();
   }
@@ -303,7 +304,7 @@ export function addLangAttribute(element, lang = 'en') {
       case 'ArrowDown':
       case 'ArrowLeft':
       case 'ArrowRight':
-        this.navigateWithArrows(key, activeElement);
+        this.handleArrowNavigation(key, activeElement);
         break;
       case 'Tab':
         this.handleTabNavigation(event, activeElement);
@@ -314,7 +315,7 @@ export function addLangAttribute(element, lang = 'en') {
   }
 
   // Helper for arrow key navigation
-  navigateWithArrows(key, activeElement) {
+  handleArrowNavigation(key, activeElement) {
     // Implement custom navigation logic based on element type
     console.log(`Navigating with ${key} key`);
   }

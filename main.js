@@ -1,4 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 // New function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {

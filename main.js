@@ -53,6 +53,24 @@ const renderDependencyGraph2 = () => {
   console.log('Render dependency graph 2')
 }
 
+// Implement the createInPageButton function for creating in-page buttons
+function createInPageButton(text, options = {}) {
+  const button = document.createElement('button');
+  button.textContent = text;
+
+  if (options.id) {
+    button.id = options.id;
+  }
+
+  if (options.className) {
+    button.className = options.className;
+  }
+
+  button.setAttribute('aria-label', text);
+
+  return button;
+}
+
 module.exports = {
   // Existing exports...
 
@@ -92,10 +110,7 @@ module.exports = {
     // Implementation of getLangAttribute
     // TODO: Add the implementation details here
   },
-  createInPageButton: function() {
-    // Implementation of createInPageButton
-    // TODO: Add the implementation details here
-  },
+  createInPageButton,
   validateTableAccessibility: function() {
     // Implementation of validateTableAccessibility
     // TODO: Add the implementation details here

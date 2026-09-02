@@ -233,6 +233,15 @@
       }
     }
 
+    // Function to render the index view
+    function renderIndexView() {
+        // Ensure the dependencyGraph container has a proper ARIA role
+        if (dependencyGraph) {
+            dependencyGraph.setAttribute('role', 'region');
+            dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+        }
+    }
+
     // Export the report generation function
     module.exports = {
       generateAccessibilityReport: async function () {
@@ -249,7 +258,8 @@
       validateLandmark,
       validateLandmarkStructure,
       getSvgAccessibleName,
-      setSvgAttributes
+      setSvgAttributes,
+      renderIndexView
     };
 
     // Initialize the application with accessibility improvements
@@ -289,6 +299,9 @@
         if (a11y && a11y.init) {
             a11y.init();
         }
+
+        // Render index view
+        renderIndexView();
     }
 
     // Initialize on DOM ready

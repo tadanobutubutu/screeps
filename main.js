@@ -91,7 +91,30 @@ function checkLandmarkElements(htmlContent) {
  * @returns {Object} - The created button object
  */
 function createInPageButton(options) {
-  // ... (The code for createInPageButton function is left as is)
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  
+  if (options.text) {
+    button.textContent = options.text;
+  }
+  
+  if (options.id) {
+    button.id = options.id;
+  }
+  
+  if (options.title) {
+    button.setAttribute('title', options.title);
+  }
+  
+  if (options.className) {
+    button.className = options.className;
+  }
+  
+  if (options.onClick && typeof options.onClick === 'function') {
+    button.addEventListener('click', options.onClick);
+  }
+  
+  return button;
 }
 
 // TODO: This is the existing code that needs to be preserved
@@ -121,7 +144,29 @@ function renderIndexView() {
 
 // New function to handle adding landmark regions
 function addLandmarkRegions() {
-  // ... (The code for addLandmarkRegions function is left as is)
+  const landmarks = ['main', 'nav', 'header', 'footer', 'aside'];
+  
+  landmarks.forEach(tag => {
+    const elements = document.querySelectorAll(tag);
+    elements.forEach((element, index) => {
+      if (!element.id) {
+        element.id = `${tag}-region-${index + 1}`;
+      }
+      // Add role attribute if not present
+      if (!element.getAttribute('role')) {
+        const roleMap = {
+          'main': 'main',
+          'nav': 'navigation',
+          'header': 'banner',
+          'footer': 'contentinfo',
+          'aside': 'complementary'
+        };
+        if (roleMap[tag]) {
+          element.setAttribute('role', roleMap[tag]);
+        }
+      }
+    });
+  });
 }
 
 // Standalone function to address accessibility issues from insight report
@@ -187,11 +232,6 @@ function addLandmarkIds() {
   });
 }
 
-// New function to check landmark elements in the DOM
-function checkLandmarkElementsInDom() {
-  a11yStore.checkLandmarkElements();
-}
-
 // New function to add SVG accessibility props
 function addSVGAccessibilityProps() {
   a11yStore.addSVGAccessibilityProps();
@@ -236,7 +276,7 @@ module.exports = {
   addLandmarkRegions,
   addressAccessibilityIssues,
   LANDMARK_ELEMENTS,
-  getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
+  getLangAttribute: a11yStore.getLangAttribute ? a11yStore.getLangAttribute.bind(a11yStore) : null,
   updateLiveRegion,
   addSVGAccessibilityProps,
   preserveExistingCode,
@@ -247,7 +287,6 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   ensureUniqueLandmarks,
-  checkLandmarkElementsInDom,
   renderIndexView,
   newRequiredFunction,
   additionalFunction,

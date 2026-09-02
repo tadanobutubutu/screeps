@@ -305,8 +305,44 @@ function implementAccessibilitySolutions(issues) {
   });
 }
 
+// New function: Check for skip link accessibility
+function checkSkipLink() {
+  // Look for a skip link that is visually hidden but becomes visible on focus
+  const skipLink = document.querySelector('a.skip-link, a[href="#main"], a[href="#content"], a[href="#skip-to-content"]');
+  if (!skipLink) {
+    console.warn('Skip link not found. Consider adding a skip link for keyboard navigation accessibility.');
+    return false;
+  }
+  
+  // Check if it's one of the first focusable elements
+  const focusableSelectors = [
+    'a[href]',
+    'area[href]',
+    'input:not([disabled]):not([type="hidden"])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    'button:not([disabled])',
+    'iframe',
+    'object',
+    'embed',
+    '[tabindex]:not([tabindex="-1"])',
+    '[contenteditable]'
+  ];
+  const focusableElements = Array.from(document.querySelectorAll(focusableSelectors.join(',')))
+    .filter(el => !el.hasAttribute('disabled') && 
+                  getComputedStyle(el).display !== 'none' && 
+                  getComputedStyle(el).visibility !== 'hidden');
+  
+  if (focusableElements.length > 0 && focusableElements[0] !== skipLink) {
+    console.warn('Skip link should be one of the first focusable elements for optimal accessibility.');
+    return false;
+  }
+  
+  return true;
+}
+
 // Export the new function and sampleInsightReport (both versions agreed to do this)
-export { checkLandmarkElements, validateTableAccessibility, validateTableStructure, validateLandmark, addressNewAccessibilityIssues, implementAccessibilitySolutions, getLangAttribute };
+export { checkLandmarkElements, validateTableAccessibility, validateTableStructure, validateLandmark, addressNewAccessibilityIssues, implementAccessibilitySolutions, getLangAttribute, checkSkipLink };
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -330,5 +366,6 @@ module.exports = {
   addressNewAccessibilityIssues,
   implementAccessibilitySolutions,
   getLangAttribute,
-  sampleInsightReport
+  sampleInsightReport,
+  checkSkipLink
 };

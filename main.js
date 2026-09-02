@@ -345,8 +345,472 @@ if (typeof module !== 'undefined' && module.exports) {
     validateTableStructure,
     validateLandmarkStructure,
     ensureUniqueLandmarks,
-    addProperLandmarkRegions
+    addProperLandmarkRegions,
+    // Tower Defense exports
+    Tower,
+    Enemy,
+    TowerDefense,
+    towerDefense,
+    initTowerDefense,
+    placeTower,
+    startTowerDefenseWave,
+    updateTowerDefense,
+    getTowerDefenseState,
+    resetTowerDefense
   };
+}
+
+/**
+ * Tower Defense Implementation
+ * A tower defense game where players place towers to defend against waves of enemies
+ */
+
+// Tower class representing a defensive tower
+class Tower {
+  constructor(x, y, type = 'basic') {
+    this.x = x;
+    this.y = y;
+    this.type = type;
+    this.range = this.getRange();
+    this.damage = this.getDamage();
+    this.fireRate = this.getFireRate();
+    this.lastFired = 0;
+    this.target = null;
+    this.level = 1;
+  }
+
+  getRange() {
+    const ranges = {
+      'basic': 100,
+      'sniper': 200,
+      'rapid': 60,
+      'slow': 120,
+      'cannon': 80
+    };
+    return ranges[this.type] || 100;
+  }
+
+  getDamage() {
+    const damages = {
+      'basic': 10,
+      'sniper': 50,
+      'rapid': 5,
+      'slow': 15,
+      'cannon': 30
+    };
+    return damages[this.type] || 10;
+  }
+
+  getFireRate() {
+    const fireRates = {
+      'basic': 1000,
+      'sniper': 2000,
+      'rapid': 300,
+      'slow': 1500,
+      'cannon': 1500
+    };
+    return fireRates[this.type] || 1000;
+  }
+
+  getCost() {
+    const costs = {
+      'basic': 50,
+      'sniper': 100,
+      'rapid': 75,
+      'slow': 80,
+      'cannon': 120
+    };
+    return costs[this.type] || 50;
+  }
+
+  findTarget(enemies) {
+    let closest = null;
+    let closestDist = Infinity;
+
+    for (const enemy of enemies) {
+      if (!enemy.alive) continue;
+      const dist = Math.sqrt(Math.pow(enemy.x - this.x, 2) + Math.pow(enemy.y - this.y, 2));
+      if (dist <= this.range && dist < closestDist) {
+        closest = enemy;
+        closestDist = dist;
+      }
+    }
+
+    this.target = closest;
+    return closest;
+  }
+
+  canFire(currentTime) {
+    return currentTime - this.lastFired >= this.fireRate;
+  }
+
+  fire(currentTime) {
+    if (!this.target || !this.canFire(currentTime)) return null;
+
+    this.lastFired = currentTime;
+    return {
+      from: { x: this.x, y: this.y },
+      to: { x: this.target.x, y: this.target.y },
+      damage: this.damage,
+      type: this.type,
+      target: this.target
+    };
+  }
+
+  upgrade() {
+    this.level++;
+    this.damage = Math.floor(this.damage * 1.5);
+    this.range = Math.floor(this.range * 1.2);
+    this.fireRate = Math.floor(this.fireRate * 0.9);
+  }
+}
+
+// Enemy class representing an attacking enemy
+class Enemy {
+  constructor(path, speed = 1, health = 100, type = 'basic') {
+    this.path = path;
+    this.pathIndex = 0;
+    this.x = path[0].x;
+    this.y = path[0].y;
+    this.speed = speed;
+    this.maxHealth = health;
+    this.health = health;
+    this.alive = true;
+    this.type = type;
+    this.reward = this.getReward();
+    this.slowEffect = 0;
+    this.slowDuration = 0;
+  }
+
+  getReward() {
+    const rewards = {
+      'basic': 10,
+      'fast': 15,
+      'tank': 25,
+      'boss': 100
+    };
+    return rewards[this.type] || 10;
+  }
+
+  move(deltaTime) {
+    if (!this.alive) return false;
+
+    // Check if reached the end of the path
+    if (this.pathIndex >= this.path.length - 1) {
+      return true; // Enemy reached the end
+    }
+
+    // Apply slow effect
+    let effectiveSpeed = this.speed;
+    if (this.slowDuration > 0) {
+      effectiveSpeed = this.speed * (1 - this.slowEffect);
+      this.slowDuration -= deltaTime;
+    }
+
+    const target = this.path[this.pathIndex + 1];
+    const dx = target.x - this.x;
+    const dy = target.y - this.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    const moveDistance = effectiveSpeed * deltaTime * 0.05;
+
+    if (dist <= moveDistance) {
+      this.x = target.x;
+      this.y = target.y;
+      this.pathIndex++;
+      return this.pathIndex >= this.path.length - 1;
+    }
+
+    this.x += (dx / dist) * moveDistance;
+    this.y += (dy / dist) * moveDistance;
+    return false;
+  }
+
+  takeDamage(amount) {
+    this.health -= amount;
+    if (this.health <= 0) {
+      this.alive = false;
+      return true;
+    }
+    return false;
+  }
+
+  applySlow(effect, duration) {
+    this.slowEffect = Math.max(this.slowEffect, effect);
+    this.slowDuration = Math.max(this.slowDuration, duration);
+  }
+}
+
+// Tower Defense main game class
+class TowerDefense {
+  constructor(width = 800, height = 600) {
+    this.width = width;
+    this.height = height;
+    this.towers = [];
+    this.enemies = [];
+    this.projectiles = [];
+    this.score = 0;
+    this.money = 100;
+    this.lives = 20;
+    this.wave = 0;
+    this.gameOver = false;
+    this.paused = false;
+    this.path = this.generateDefaultPath();
+    this.enemiesRemaining = 0;
+    this.waveInProgress = false;
+  }
+
+  generateDefaultPath() {
+    return [
+      { x: 0, y: 100 },
+      { x: 200, y: 100 },
+      { x: 200, y: 300 },
+      { x: 400, y: 300 },
+      { x: 400, y: 100 },
+      { x: 600, y: 100 },
+      { x: 600, y: 400 },
+      { x: 800, y: 400 }
+    ];
+  }
+
+  setPath(path) {
+    if (Array.isArray(path) && path.length >= 2) {
+      this.path = path;
+      return true;
+    }
+    return false;
+  }
+
+  placeTower(x, y, type = 'basic') {
+    const cost = this.getTowerCost(type);
+    if (this.money >= cost) {
+      const tower = new Tower(x, y, type);
+      this.towers.push(tower);
+      this.money -= cost;
+      return true;
+    }
+    return false;
+  }
+
+  removeTower(index) {
+    if (index >= 0 && index < this.towers.length) {
+      const tower = this.towers[index];
+      this.money += Math.floor(tower.getCost() * 0.5);
+      this.towers.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
+
+  upgradeTower(index) {
+    if (index >= 0 && index < this.towers.length) {
+      const tower = this.towers[index];
+      const cost = Math.floor(tower.getCost() * tower.level * 0.5);
+      if (this.money >= cost) {
+        this.money -= cost;
+        tower.upgrade();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  getTowerCost(type) {
+    const costs = {
+      'basic': 50,
+      'sniper': 100,
+      'rapid': 75,
+      'slow': 80,
+      'cannon': 120
+    };
+    return costs[type] || 50;
+  }
+
+  spawnEnemy(speed = 1, health = 100, type = 'basic') {
+    const enemy = new Enemy([...this.path], speed, health, type);
+    this.enemies.push(enemy);
+    this.enemiesRemaining++;
+    return enemy;
+  }
+
+  startWave(enemyCount = 10, baseSpeed = 1, baseHealth = 100, config = null) {
+    if (this.waveInProgress) return false;
+
+    this.wave++;
+    this.waveInProgress = true;
+    this.enemiesRemaining = enemyCount;
+
+    const waveConfig = config || {
+      enemyTypes: ['basic'],
+      speedMultiplier: 1 + (this.wave * 0.1),
+      healthMultiplier: 1 + (this.wave * 0.1)
+    };
+
+    for (let i = 0; i < enemyCount; i++) {
+      setTimeout(() => {
+        if (this.gameOver) return;
+
+        const enemyType = waveConfig.enemyTypes[i % waveConfig.enemyTypes.length];
+        const speed = (baseSpeed + (this.wave * 0.1)) * waveConfig.speedMultiplier;
+        const health = (baseHealth + (this.wave * 10)) * waveConfig.healthMultiplier;
+
+        this.spawnEnemy(speed, health, enemyType);
+      }, i * 1000);
+    }
+
+    return true;
+  }
+
+  update(deltaTime) {
+    if (this.gameOver || this.paused) return;
+
+    const currentTime = Date.now();
+
+    // Update towers
+    for (const tower of this.towers) {
+      tower.findTarget(this.enemies);
+      if (tower.target) {
+        const projectile = tower.fire(currentTime);
+        if (projectile) {
+          this.projectiles.push(projectile);
+        }
+      }
+    }
+
+    // Update enemies
+    for (const enemy of this.enemies) {
+      const reachedEnd = enemy.move(deltaTime);
+      if (reachedEnd && enemy.alive) {
+        this.lives--;
+        enemy.alive = false;
+        this.enemiesRemaining--;
+        if (this.lives <= 0) {
+          this.gameOver = true;
+        }
+      }
+    }
+
+    // Update projectiles and apply damage
+    for (let i = this.projectiles.length - 1; i >= 0; i--) {
+      const projectile = this.projectiles[i];
+
+      if (projectile.target && projectile.target.alive) {
+        const killed = projectile.target.takeDamage(projectile.damage);
+
+        // Apply slow effect for slow towers
+        if (projectile.type === 'slow') {
+          projectile.target.applySlow(0.5, 2000);
+        }
+
+        if (killed) {
+          this.score += projectile.target.reward;
+          this.money += projectile.target.reward;
+          this.enemiesRemaining--;
+        }
+      }
+
+      // Remove projectile after short delay (simplified animation)
+      this.projectiles.splice(i, 1);
+    }
+
+    // Clean up dead enemies
+    this.enemies = this.enemies.filter(e => e.alive);
+
+    // Check if wave is complete
+    if (this.waveInProgress && this.enemiesRemaining <= 0 && this.enemies.length === 0) {
+      this.waveInProgress = false;
+    }
+  }
+
+  pause() {
+    this.paused = true;
+  }
+
+  resume() {
+    this.paused = false;
+  }
+
+  reset() {
+    this.towers = [];
+    this.enemies = [];
+    this.projectiles = [];
+    this.score = 0;
+    this.money = 100;
+    this.lives = 20;
+    this.wave = 0;
+    this.gameOver = false;
+    this.paused = false;
+    this.enemiesRemaining = 0;
+    this.waveInProgress = false;
+  }
+
+  getState() {
+    return {
+      towers: this.towers.map(t => ({
+        x: t.x,
+        y: t.y,
+        type: t.type,
+        range: t.range,
+        damage: t.damage,
+        level: t.level,
+        target: t.target ? { x: t.target.x, y: t.target.y } : null
+      })),
+      enemies: this.enemies.map(e => ({
+        x: e.x,
+        y: e.y,
+        health: e.health,
+        maxHealth: e.maxHealth,
+        alive: e.alive,
+        type: e.type,
+        slowDuration: e.slowDuration
+      })),
+      projectiles: this.projectiles.map(p => ({
+        from: p.from,
+        to: p.to,
+        type: p.type
+      })),
+      score: this.score,
+      money: this.money,
+      lives: this.lives,
+      wave: this.wave,
+      gameOver: this.gameOver,
+      paused: this.paused,
+      enemiesRemaining: this.enemiesRemaining,
+      waveInProgress: this.waveInProgress
+    };
+  }
+}
+
+// Global tower defense instance
+const towerDefense = new TowerDefense();
+
+// Tower defense utility functions
+function initTowerDefense(width, height, path) {
+  const game = new TowerDefense(width || 800, height || 600);
+  if (path) {
+    game.setPath(path);
+  }
+  return game;
+}
+
+function placeTower(x, y, type = 'basic') {
+  return towerDefense.placeTower(x, y, type);
+}
+
+function startTowerDefenseWave(enemyCount, baseSpeed, baseHealth, config) {
+  return towerDefense.startWave(enemyCount, baseSpeed, baseHealth, config);
+}
+
+function updateTowerDefense(deltaTime) {
+  towerDefense.update(deltaTime);
+}
+
+function getTowerDefenseState() {
+  return towerDefense.getState();
+}
+
+function resetTowerDefense() {
+  towerDefense.reset();
 }
 
 function init() {

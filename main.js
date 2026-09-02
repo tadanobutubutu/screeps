@@ -11,6 +11,7 @@
 
 // Accessibility improvements:
 // - Added semantic HTML structure
+// TODO: This is the existing code that needs to be preserved
 // - Included ARIA attributes where necessary
 // - Ensured keyboard navigation support
 // - Added focus management

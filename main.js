@@ -15,13 +15,11 @@ module.exports = {
     // Existing implementation...
   },
 
-  // Add the missing export
   AnotherExport: function() {
     // This is a placeholder implementation for AnotherExport. Replace with the required functionality.
     console.log('AnotherExport function called.');
   },
 
-  // Accessibility-related functions
   getLangAttribute: function() {
     // Implementation of getLangAttribute
   },
@@ -53,26 +51,36 @@ module.exports = {
     // Implementation of addProperLandmarkRegions
   },
 
-  // Address new accessibility issues from insight report
   validateLandmark: function() {
     // Implementation of validateLandmark
   },
   validateLandmarkStructure: function() {
     // Implementation of validateLandmarkStructure
   },
-  // Ensure unique landmarks (2 issues)
   ensureUniqueLandmarks: function() {
     // Implementation of ensureUniqueLandmarks
   },
-  // Fix 1 fake link issue
   fixFakeLink: function() {
     // Implementation of fixFakeLink
   },
 
-  // Add the new export at the bottom, following the same naming pattern as existing exports
   newExportFunction: function() {
     // Implementation of the new export function
     // The function implementation should go here. It could look like this:
     // return someCodeOrFunctionThatImplementsTheRequirement;
+  },
+
+  // Add the new export function to create a web resource button suitable for accessibility
+  createWebResourceButton: function(url, text, target) {
+    // Create a button element
+    const button = document.createElement('button');
+    // Set the button text
+    button.textContent = text;
+    // Set the button's href attribute to the provided URL
+    button.href = url;
+    // Set the target attribute to '_blank' to open the URL in a new tab/window
+    button.target = target || '_blank';
+    // Return the created button
+    return button;
   }
 };

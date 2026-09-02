@@ -8,25 +8,18 @@ const missingModule = require('./path/to/missing/module');
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// TODO: New accessibility issue: REACT_035: Add 'role' attribute to SVG elements
 // - ADD: Address new accessibility issues from insight report
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+
+function addSvgRoleAttribute(svgElement) {
+  if (!svgElement || typeof svgElement !== 'object') return;
+
+  const role = svgElement.getAttribute('role');
+  if (!role) {
+    svgElement.setAttribute('role', 'img');
+  }
+}
+
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
@@ -198,6 +191,13 @@ function getSvgAccessibleName(svg) {
 // Add the language attribute to the HTML element for proper accessibility
 if (typeof document !== 'undefined' && document.documentElement) {
   detectAndSetLang();
+}
+
+// REACT_035: Add 'role' attribute to SVG elements
+// Iterate through the document's SVG elements and set the role attribute
+const svgs = Array.from(document.querySelectorAll('svg'));
+for (const svg of svgs) {
+  addSvgRoleAttribute(svg);
 }
 
 module.exports = {

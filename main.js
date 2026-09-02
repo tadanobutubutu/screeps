@@ -306,10 +306,24 @@ module.exports = {
   createInPageButton,
   divide,
   checkLinkAccessibility,
-  wrapPrimaryContentInMain
+  wrapPrimaryContentInMain,
+  isLinkAccessible
 }
 
 // Run if executed directly
 if (require.main === module) {
   main()
+}
+
+/**
+ * Checks if a link element is accessible (has text, aria-label, or title)
+ * @param {Element} link - The link element to check
+ * @returns {boolean} True if the link is accessible, false otherwise
+ */
+function isLinkAccessible (link) {
+  if (!link) return false
+  const text = link.textContent && link.textContent.trim()
+  const ariaLabel = link.getAttribute('aria-label')
+  const title = link.getAttribute('title')
+  return !!(text || ariaLabel || title)
 }

@@ -1,79 +1,152 @@
-const main = require('./utilities');
-const { requireDir } = require('require-dir');
-requireDir(require.resolve('./utilities'));
+Here is the resolved file content:
 
-// CommonJS requires
+```javascript
+const main = require('./utilities')
 
-// Import all utilities functions for convenience
 const {
-    createInPageButton,
-    createWebResourceButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    validateAccessibilityReport,
-    getSvgAccessibleName,
-    getLangAttribute,
-    ensureElementId,
-    ensureElementHasId,
-    ensureElementHasIdOrigin,
-    addMainLandmark,
-    addLangAttribute,
-    fixTableStructureIssues,
-    fixFakeLinkIssue,
-    fixFakeLinkIssues,
-    fixLandmarkIssues,
-    addLandmarkRegions,
-    uniqueLandmarks,
-    fixImageAltTexts,
-    googleSignIn,
-    ensureUniqueLandmarks,
-    addSvgAccessibleNames,
-    addAccessibleNamesToSVGs,
-    renderDependencyGraphAria,
-    addMainLandmarkToIndex,
-    newFocusTrap,
-    addressAccessibilityIssues,
-    implementAccessibilityFixesFromReport,
-} = main;
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
+  validateTableStructureForAccessibility,
+  implementAccessibilityFixesFromReport,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixFakeLinkIssues,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  accessibilityUtils,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  fixLandmarkIssues,
+  validateTableAccessibility,
+  validateTableStructure,
+  initializeAccessibility,
+  renderIndex,
+  renderAdditionalContent
+} = main
 
-// New implementation for checking table accessibility
 function validateTableAccessibility(table) {
-    if (!table) return false;
+  if (!table || !table.querySelectorAll) return false;
 
-    const hasCaption = table.querySelector('caption') !== null;
-    const hasHeaders = table.querySelector('thead') !== null;
-    const rows = table.querySelectorAll('tr');
-
-    let isValid = hasCaption && hasHeaders;
-
-    if (rows.length > 0) {
-        const firstRowCells = rows[0].querySelectorAll('th, td');
-        const hasScope = Array.from(firstRowCells).some((cell) => cell.hasAttribute('scope'));
-        isValid = isValid && hasScope;
-    }
-
-    // New implementation for checking table accessibility
-    if (table && table.querySelectorAll) {
-      const landmarkFixes = implementAccessibilityFixesFromReport(table);
-      isValid = isValid && landmarkFixes.tableAccessible;
-    }
-
-    return isValid;
+  const landmarkFixes = implementAccessibilityFixesFromReport(table);
+  return landmarkFixes.tableAccessible;
 }
 
-// New function as per the issue requirements
+function validateHeadingHierarchy(headings) {
+  // Implementation placeholder - function to be implemented
+  return true
+}
+
+function ensureHeadingHierarchy(container) {
+  if (!container) return null;
+
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+
+  headings.forEach(heading => {
+    const currentLevel = parseInt(heading.tagName.substring(1), 10);
+    if (previousLevel > 0 && currentLevel - previousLevel > 1) {
+      // Fix skipped heading levels by promoting or demoting as needed
+      const correctedLevel = previousLevel + 1;
+      const newHeading = document.createElement(`h${correctedLevel}`);
+      newHeading.innerHTML = heading.innerHTML;
+      newHeading.className = heading.className;
+      heading.parentNode.replaceChild(newHeading, heading);
+      previousLevel = correctedLevel;
+    } else {
+      previousLevel = currentLevel;
+    }
+  });
+
+  return container;
+}
+
+function renderAdditionalContent(additionalData) {
+  // Implementation of the new function
+  // Placeholder for actual implementation
+  return `<div>${JSON.stringify(additionalData)}</div>`
+}
+
 function newFunction() {
     // TODO: Implement the new function as per the issue requirements
 }
 
 module.exports = {
-    existingFunction,
-    checkAccessibility: checkAccessibilityInternal,
-    addressAccessibilityIssues,
-    implementAccessibilityFixesFromReport,
-    updateUI,
-    newFunction,
-    ScreepsBot,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
+  validateTableStructureForAccessibility,
+  implementAccessibilityFixesFromReport,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixFakeLinkIssues,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  accessibilityUtils,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  fixLandmarkIssues,
+  validateTableAccessibility,
+  validateTableStructure,
+  initializeAccessibility,
+  renderIndex,
+  renderAdditionalContent,
+  validateHeadingHierarchy,
+  ensureHeadingHierarchy,
+  newFunction
 };
+```

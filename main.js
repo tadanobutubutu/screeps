@@ -131,4 +131,12 @@ function getLangAttribute() {
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
+// TODO: Implement this function for creating in-page buttons
+function createInPageButton(buttonText, linkHref) {
+    const button = document.createElement('button');
+    button.textContent = buttonText;
+    button.href = linkHref;
+    return button;
+}
+
 // Add the new functions you've developed in this repository if they were not included

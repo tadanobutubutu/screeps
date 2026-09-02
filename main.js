@@ -1,3 +1,5 @@
+// Main module
+// Dependency imports
 const main = require('./utilities');
 
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');

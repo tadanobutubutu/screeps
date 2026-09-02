@@ -21,7 +21,7 @@ function isValidLandmark(landmark) {
 // Load landmarks from file
 function loadLandmarks() {
     try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
@@ -87,12 +87,12 @@ function ensureUniqueLandmarks(landmarks) {
 
 // Function to write the generated report to a file
 function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
+  const reportFile = path.join(CONFIG.dataPath, 'report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
 // Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
+function scanAndWriteReport() {
   const report = scanAccessibility();
   writeReport(report);
   return report;
@@ -104,8 +104,8 @@ const formatResponse = (data) => {
 };
 
 // Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
-const { validateInput } = require('./utils/validators');
-const { processData } = require('./utils/processor');
+const { validateInput } = require('./validators');
+const { processData } = require('./processors');
 
 // Export new necessary functions
 module.exports = {
@@ -169,7 +169,6 @@ function addLandmarkRegions(landmarks, regions) {
 // Export the new function
 module.exports.addLandmarkRegions = addLandmarkRegions;
 
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
-// This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserved
 // Version 1 implementation (HEAD branch)
 // Code for version 1 implementation goes here.

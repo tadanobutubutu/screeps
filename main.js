@@ -174,28 +174,118 @@ function addLangAttribute(element, lang) {
 }
 
 function validateTableAccessibility() {
-    // Fix 26 table structure issues (function not fully implemented)
-    // TODO: Implement validation and necessary corrections
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        const result = checkTableStructure(table);
+        if (!result.valid) {
+            console.warn('Invalid table structure:', table);
+            return;
+        }
+        if (!result.hasHeader) {
+            const thead = document.createElement('thead');
+            const firstRow = table.querySelector('tr');
+            if (firstRow) {
+                thead.appendChild(firstRow);
+                table.insertBefore(thead, table.firstChild);
+            }
+        }
+        if (!result.hasBody) {
+            const tbody = document.createElement('tbody');
+            table.querySelectorAll('tr').forEach(tr => {
+                if (!tr.closest('thead') && !tr.closest('tbody')) {
+                    tbody.appendChild(tr);
+                }
+            });
+            table.appendChild(tbody);
+        }
+        if (!result.hasCaption) {
+            const caption = document.createElement('caption');
+            caption.textContent = 'Table';
+            table.insertBefore(caption, table.firstChild);
+        }
+    });
 }
 
 function validateTableStructure() {
-    // Fix 26 table structure issues
-    // TODO: Implement validation and necessary corrections
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        const result = checkTableStructure(table);
+        if (!result.valid) {
+            console.warn('Invalid table structure:', table);
+            return;
+        }
+        if (!result.hasHeader) {
+            const thead = document.createElement('thead');
+            const firstRow = table.querySelector('tr');
+            if (firstRow) {
+                thead.appendChild(firstRow);
+                table.insertBefore(thead, table.firstChild);
+            }
+        }
+        if (!result.hasBody) {
+            const tbody = document.createElement('tbody');
+            table.querySelectorAll('tr').forEach(tr => {
+                if (!tr.closest('thead') && !tr.closest('tbody')) {
+                    tbody.appendChild(tr);
+                }
+            });
+            table.appendChild(tbody);
+        }
+        if (!result.hasCaption) {
+            const caption = document.createElement('caption');
+            caption.textContent = 'Table';
+            table.insertBefore(caption, table.firstChild);
+        }
+    });
 }
 
 function validateLandmark() {
-    // Add/fix 4 landmark issues (function not fully implemented)
-    // TODO: Implement validation and necessary corrections
+    const landmarks = document.querySelectorAll('[role], header, main, nav, aside, footer, section');
+    landmarks.forEach(landmark => {
+        const tagName = landmark.tagName.toLowerCase();
+        const role = landmark.getAttribute('role') || 
+                     (tagName === 'header' ? 'banner' : 
+                      tagName === 'main' ? 'main' : 
+                      tagName === 'nav' ? 'navigation' : 
+                      tagName === 'aside' ? 'complementary' : 
+                      tagName === 'footer' ? 'contentinfo' : 
+                      tagName === 'section' ? 'region' : '');
+        
+        if (role && !['banner', 'main', 'navigation', 'search', 'contentinfo', 'complementary', 'region', 'form'].includes(role)) {
+            console.warn('Invalid landmark role:', role, landmark);
+        }
+    });
 }
 
 function validateLandmarkStructure() {
-    // Add/fix 4 landmark issues (function not fully implemented)
-    // TODO: Implement validation and necessary corrections
+    const landmarks = document.querySelectorAll('[role], header, main, nav, aside, footer, section');
+    landmarks.forEach(landmark => {
+        const tagName = landmark.tagName.toLowerCase();
+        const role = landmark.getAttribute('role') || 
+                     (tagName === 'header' ? 'banner' : 
+                      tagName === 'main' ? 'main' : 
+                      tagName === 'nav' ? 'navigation' : 
+                      tagName === 'aside' ? 'complementary' : 
+                      tagName === 'footer' ? 'contentinfo' : 
+                      tagName === 'section' ? 'region' : '');
+        
+        if (role) {
+            landmark.setAttribute('role', role);
+        }
+    });
 }
 
 function getSvgAccessibleNames() {
-    // Add accessible names to 2 SVGs
-    // TODO: Iterate through all SVG elements and set accessible name
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+        const name = getSvgAccessibleName(svg);
+        if (name && !svg.hasAttribute('role')) {
+            svg.setAttribute('role', 'img');
+            svg.setAttribute('aria-label', name);
+        } else if (!svg.hasAttribute('role')) {
+            svg.setAttribute('role', 'img');
+        }
+    });
 }
 
 // Add lang attribute to HTML element on page load
@@ -217,6 +307,7 @@ function displayModuleStructure() {
 
 function newFunction() {
   // Implementation of the new function
+  console.log('New function executed');
 }
 
 function MyComponent() {
@@ -433,6 +524,7 @@ if (typeof module !== 'undefined' && module.exports) {
     renderDependencyGraph,
     displayModuleStructure,
     newFunction,
+    validateLandmarkStructure,
     MyComponent,
     getLangAttribute
   };

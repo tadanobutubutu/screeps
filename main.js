@@ -157,12 +157,78 @@ function generateAccessibilityReport() {
     return reportString;
 }
 
-// Preserve any existing exports here
-// export { existingFunction1, existingFunction2, createInPageButton, validateLandmarkStructure, generateAccessibilityReport };
+// Function to handle extension upgrade logic
+function handleUpgrade() {
+    const currentVersion = '1.0.0';
+    const storedVersion = localStorage.getItem('extensionVersion');
 
-// TODO: Create or update the affected functions to be accessible
-// Since no new functions are being created, but we're making sure all existing functions are accessible
-// no changes are needed in this context. If there were any functions not previously exported, we would add them here.
+    if (!storedVersion) {
+        // First installation - initialize settings
+        initializeDefaultSettings();
+        localStorage.setItem('extensionVersion', currentVersion);
+        console.log('Extension initialized for first use');
+        return;
+    }
+
+    if (storedVersion !== currentVersion) {
+        // Upgrade detected - run upgrade logic
+        performUpgradeTasks(storedVersion, currentVersion);
+        localStorage.setItem('extensionVersion', currentVersion);
+        console.log(`Extension upgraded from ${storedVersion} to ${currentVersion}`);
+    }
+}
+
+// Initialize default settings for new installations
+function initializeDefaultSettings() {
+    const defaultSettings = {
+        theme: 'light',
+        notifications: true,
+        autoSave: true,
+        language: 'en'
+    };
+
+    Object.keys(defaultSettings).forEach(key => {
+        if (localStorage.getItem(key) === null) {
+            localStorage.setItem(key, JSON.stringify(defaultSettings[key]));
+        }
+    });
+}
+
+// Perform upgrade tasks based on version differences
+function performUpgradeTasks(oldVersion, newVersion) {
+    const upgradeTasks = {
+        migrateSettings: () => {
+            // Migrate any settings that need transformation
+            const existingSetting = localStorage.getItem('oldSettingKey');
+            if (existingSetting) {
+                localStorage.setItem('newSettingKey', existingSetting);
+                localStorage.removeItem('oldSettingKey');
+            }
+        },
+        clearCache: () => {
+            // Clear temporary cache files
+            sessionStorage.clear();
+        },
+        updatePreferences: () => {
+            // Update user preferences structure if needed
+            const preferences = localStorage.getItem('userPreferences');
+            if (preferences) {
+                const parsed = JSON.parse(preferences);
+                // Add any new preference fields with defaults
+                if (!parsed.hasOwnProperty('newPreferenceField')) {
+                    parsed.newPreferenceField = 'defaultValue';
+                    localStorage.setItem('userPreferences', JSON.stringify(parsed));
+                }
+            }
+        }
+    };
+
+    // Execute all upgrade tasks
+    Object.values(upgradeTasks).forEach(task => task());
+}
+
+// Export functions for testing and external use
+export { createInPageButton, validateLandmarkStructure, handleUpgrade, initializeDefaultSettings, performUpgradeTasks, generateAccessibilityReport };
 
 // Import the newFocusTrap function into the scope for use elsewhere
 globalThis.newFocusTrap = accessibilityUtils.newFocusTrap;
@@ -170,3 +236,10 @@ globalThis.newFocusTrap = accessibilityUtils.newFocusTrap;
 /* Here we are integrating the new function for handling focus traps with the existing
    implementation for rendering graph/index. We use a cleanup function to remove the
    event listener when the container is removed from the DOM. */
+
+// Auto-run upgrade check on page load (if in browser context)
+if (typeof window !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        handleUpgrade();
+    });
+}

@@ -276,7 +276,7 @@ function generateAccessibilityReport() {
           message: `Invalid landmark role: ${expectedRole} for ${tagName}`,
           severity: 'error'
         });
-      });
+      }
     });
   }
 

@@ -45,9 +45,8 @@ const HTML = ({ lang }) => {
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
 // TODO: This is the modified and merged code
-
+// Function to count dependencies in package.json
 function countDependencies() {
   try {
     const packageJson = require('./package.json');
@@ -175,47 +174,78 @@ function ensureUniqueLandmarks(landmarksArg) {
   return landmarks;
 }
 
-function initializeApp() {
-  appState.initialized = true;
-  console.log('Initializing application...');
-  return true;
-}
-
-function getConfig() {
-  return config;
-}
-
-function validateInput(input) {
-  return input !== null && input !== undefined;
-}
-
-function processData(data) {
-  if (!validateInput(data)) {
-    throw new Error('Invalid input data');
+function fixTableStructure(table) {
+  if (!table.headers) {
+    table.headers = 'auto';
   }
-  return {
-    processed: true,
-    data: data,
-    timestamp: Date.now()
+
+  if (!table.scope) {
+    table.scope = 'auto';
+  }
+
+  return table;
+}
+
+function addMainLandmark(document) {
+  if (!document.querySelector('main')) {
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    document.body.appendChild(main);
+  }
+  return document;
+}
+
+function handleCredentialResponse(credentialResponse) {
+  if (!credentialResponse || typeof credentialResponse !== 'object') {
+    throw new Error('Invalid credential response');
+  }
+
+  // Extract and validate required fields
+  const { credential, clientExtensionResults, authenticatorData } = credentialResponse;
+
+  if (!credential || typeof credential !== 'string') {
+    throw new Error('Invalid credential in response');
+  }
+
+  // Process the credential data
+  const processedCredential = {
+    rawId: credential,
+    id: credential,
+    response: {
+      clientDataJSON: credentialResponse.clientDataJSON,
+      authenticatorData: authenticatorData || null,
+      signature: credentialResponse.signature || null,
+      userHandle: credentialResponse.userHandle || null
+    },
+    type: 'public-key',
+    extensions: clientExtensionResults || {}
   };
+
+  // Validate the processed credential
+  if (!processedCredential.response.clientDataJSON) {
+    throw new Error('Missing clientDataJSON in credential response');
+  }
+
+  return processedCredential;
 }
 
-function createInPageButton(text, onClick) {
-    // Implementation to create accessible in-page button (conflict resolved: merged implementation)
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.onclick = onClick;
-    button.setAttribute('aria-label', text);
-    return button;
-}
+function addProperLandmarkRegions(document) {
+  const regions = [
+    { selector: 'header', role: 'banner' },
+    { selector: 'nav', role: 'navigation' },
+    { selector: 'main', role: 'main' },
+    { selector: 'aside', role: 'complementary' },
+    { selector: 'footer', role: 'contentinfo' }
+  ];
 
-function createAccessibleLink(href, text) {
-    // Implementation to create accessible link (conflict resolved: merged implementation)
-    const link = document.createElement('a');
-    link.href = href;
-    link.textContent = text;
-    link.setAttribute('aria-label', text);
-    return link;
+  regions.forEach(region => {
+    const elements = document.querySelectorAll(region.selector);
+    elements.forEach(element => {
+      if (!element.getAttribute('role')) {
+        element.setAttribute('role', region.role);
+      }
+    });
+  });
 }
 
 function handleAccessibilityIssues() {
@@ -240,7 +270,77 @@ function handleAccessibilityIssues() {
     });
 }
 
-// Export all existing and new functions
+function createInPageButton(label, href) {
+  if (!document.getElementById(href.substring(1))) {
+    throw new Error(`No element found with id: ${href.substring(1)}`);
+  }
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = label;
+  button.addEventListener('click', () => {
+    window.location.hash = href;
+  });
+
+  return button;
+}
+
+function createAccessibleLink(href, label) {
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = label;
+  return link;
+}
+
+function getFullLangAttribute() {
+  return getLangAttribute();
+}
+
+function validateLandmarkRegions() {
+  const regions = [
+    { name: 'banner', role: 'banner' },
+    { name: 'navigation', role: 'navigation' },
+    { name: 'main', role: 'main' },
+    { name: 'complementary', role: 'complementary' },
+    { name: 'contentinfo', role: 'contentinfo' },
+    { name: 'search', role: 'search' },
+    { name: 'form', role: 'form' }
+  ];
+
+  regions.forEach(region => {
+    const elements = document.querySelectorAll(`[role="${region.role}"]`);
+    if (elements.length === 0) {
+      console.warn(`Missing ${region.name} landmark region`);
+    }
+  });
+}
+
+function initializeApp() {
+  if (appState.initialized) {
+    return;
+  }
+
+  appState.initialized = true;
+  handleAccessibilityIssues();
+  addProperLandmarkRegions(document);
+  addMainLandmark(document);
+}
+
+function validateInput(input) {
+  if (!input) {
+    throw new Error('Input is required');
+  }
+  return true;
+}
+
+function processData(data) {
+  return data;
+}
+
+function getConfig() {
+  return config;
+}
+
 module.exports = {
     validateTableAccessibility,
     validateTableStructure,
@@ -250,12 +350,17 @@ module.exports = {
     getSvgAccessibleName,
     createInPageButton,
     createAccessibleLink,
+    fixTableStructure,
+    addMainLandmark,
+    setSvgAttributes,
+    countDependencies,
+    handleCredentialResponse,
+    addProperLandmarkRegions,
     handleAccessibilityIssues,
     initializeApp,
     getConfig,
     validateInput,
     processData,
-    addLandmarkRegions,
-    setSvgAttributes,
-    countDependencies
+    validateLandmarkRegions,
+    getFullLangAttribute
 };

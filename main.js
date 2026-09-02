@@ -169,13 +169,13 @@ module.exports = {
     }
 
     return fixes;
+  },
+
+  // Accessibility-related function to be added
+  newCheckAccessibility: function(content) {
+    // Placeholder for accessibility checking logic
+    // This function should be implemented to check for accessibility issues
+    // For now, it just returns an empty array
+    return [];
   }
 };
-
-// Accessibility-related function to be added
-function newCheckAccessibility(content) {
-  // Placeholder for accessibility checking logic
-  // This function should be implemented to check for accessibility issues
-  // For now, it just returns an empty array
-  return [];
-}

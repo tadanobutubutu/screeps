@@ -36,7 +36,7 @@ function wrapPrimaryContentInMain() {
 }
 
 // Import necessary dependencies
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { setDependencyGraph } from './actions/dependencyGraph';
@@ -473,6 +473,7 @@ function renderDependencyGraphContent() {
   }
 
   // Use the new functions for rendering
+  const { renderDependencyGraph, renderIndexView } = newFunctions;
   renderDependencyGraph(container);
   renderIndexView(container);
 }
@@ -524,6 +525,7 @@ if (require.main === module) {
 module.exports = {
   config,
   appState,
+  primaryContent,
   validateLandmarkObject,
   ensureLandmarkUniqueness,
   initializeApp,
@@ -551,5 +553,34 @@ module.exports = {
   checkLandmarkElement,
   wrapPrimaryContentInMain,
   renderDependencyGraphContent,
-  initialize
+  initialize,
+  // Added missing required exports
+  useState,
+  useEffect,
+  useRef,
+  useSelector,
+  useDispatch,
+  List,
+  Button,
+  setDependencyGraph,
+  sortByTitle,
+  sortByAuthor,
+  generateKey,
+  addBook,
+  enhanceAccessibilityForAddBook,
+  registerSW,
+  calculateSum,
+  getFullLangAttribute,
+  validateTableStructure,
+  validateLandmark,
+  CONFIG,
+  App,
+  helper,
+  formatDate,
+  someFunction,
+  fetchUser,
+  clearCache,
+  addSvgAccessibilityProps,
+  getAccessibleLinkProps,
+  newFunctions
 };

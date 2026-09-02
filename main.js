@@ -1,24 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc4 >
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac4 >
-// _Commit: f8051b788bad4952d8493f08d3c722a06ff80d3_
-// <!-- todo-hash: b498b47abee4 >
-// _Commit: ...
-// _Commit: ...
-// _Commit: feb9680b5af4505068fcf221c52a94afa10f173e_
-//
-// <!-- todo-hash: e242a52a58b42aca6ca1fe442222a93da9f0c2f4 -->
-// 4. REACT_025: Ensure unique landmarks
-
-// _Commit: 403000f2fe75c49fb6881f4e39cac6ad30faec06_
-
-// <!-- todo-hash: 8ad60efd40c45bb15f567185d6466fa4f2f51728 -->
-
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -36,9 +15,9 @@ function validateLandmark(landmark) {
   const errors = [];
   // Existing code that should be preserved
   // Update landmark validation logic if needed
-  const role = landmark.role || '';
+  const role = landmark?.role ?? '';
   const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  if (!validLandmarks.includes(role)) {
+  if (role && !validLandmarks.includes(role)) {
     errors.push(`Invalid landmark role: ${role}`);
   }
   return errors;
@@ -62,27 +41,29 @@ const HTML = ({ lang }) => `<html lang="${lang}">{/* other children */}</html>`;
 
 function getLangAttribute() {
     // Implementation to get language attribute
-    return document.documentElement.lang || 'en';
+    return document.documentElement.lang || (navigator?.language || 'en-US');
 }
 
 function getFullLangAttribute() {
     // Implementation to get full language attribute
-    return document.documentElement.lang || navigator.language || 'en-US';
+    return document.documentElement.lang || (typeof navigator !== 'undefined' ? navigator.language : 'en-US');
 }
 
 function validateTableAccessibility(tableElement) {
-    // Implementation to validate table accessibility (conflict resolved: merged implementation)
+    if (!tableElement) {
+        console.warn('Table element is null or undefined');
+        return false;
+    }
     if (!tableElement.caption) {
-        console.warn('Table missing caption');
+        console.warn('Table element is missing caption');
         return false;
     }
     return true;
 }
 
 function validateTableStructure(tableElement) {
-    // Implementation to validate table structure (conflict resolved: merged implementation)
-    const rows = tableElement.rows || [];
-    if (rows.length === 0) {
+    const rows = tableElement?.rows ?? [];
+    if (!rows || rows.length === 0) {
         console.warn('Table has no rows');
         return false;
     }
@@ -90,12 +71,11 @@ function validateTableStructure(tableElement) {
 }
 
 function validateLandmarkStructure() {
-    // Merged implementation (conflict resolved)
-    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="search"], [role="banner"], [role="contentinfo"], [role="complementary"]');
+    const landmarks = document.querySelectorAll('[role]');
     let hasMain = false;
     let hasNavigation = false;
 
-    landmarks.forEach(landmark => {
+    landmarks.forEach(function(landmark) {
         const role = landmark.getAttribute('role');
         if (role === 'main') hasMain = true;
         if (role === 'navigation') hasNavigation = true;
@@ -111,11 +91,9 @@ function addLandmarkRegions() {
   console.log('Adding landmark regions');
 }
 
-function getSvgAccessibleName() {
-    // Merged implementation (conflict resolved)
-    const svgElement = document.querySelector('svg'); // needs actual element reference
-    const title = svgElement ? svgElement.querySelector('title') : null;
-    const ariaLabel = svgElement ? svgElement.getAttribute('aria-label') : null;
+function getSvgAccessibleName(svgElement) {
+    const title = svgElement && svgElement.querySelector('title');
+    const ariaLabel = svgElement && svgElement.getAttribute('aria-label');
     if (title) return title.textContent;
     if (ariaLabel) return ariaLabel;
     return 'Accessible SVG Icon';
@@ -132,37 +110,34 @@ function setSvgAttributes(svg, accessibleName) {
 }
 
 function ensureUniqueLandmarks(landmarksArg) {
-  // Merged implementation (conflict resolved)
-  let landmarks = landmarksArg;
-  if (!Array.isArray(landmarks)) {
-    landmarks = [];
+  let landmarks = [];
+  if (Array.isArray(landmarksArg)) {
+    landmarks = landmarksArg;
+  } else if (landmarksArg != null) {
+    landmarks = [landmarksArg];
   }
-  const elementsById = {};
 
-  if (Array.isArray(landmarks)) {
-    for (const landmark of landmarks) {
-      if (landmark.id) {
-        if (elementsById[landmark.id]) {
-          landmark.id += '_duplicate';
-        } else {
-          elementsById[landmark.id] = true;
-        }
+  const elementsById = {};
+  const landmarksByRole = {};
+
+  for (let i = 0; i < landmarks.length; i++) {
+    const landmark = landmarks[i];
+    if (landmark.id) {
+      if (elementsById[landmark.id]) {
+        landmark.id += '_duplicate';
+      } else {
+        elementsById[landmark.id] = true;
+      }
+    }
+    const role = landmark.role;
+    if (role) {
+      if (landmarksByRole[role]) {
+        console.warn(`Duplicate landmark role: ${role}`);
+      } else {
+        landmarksByRole[role] = true;
       }
     }
   }
-
-  // Additional uniqueness check for landmark roles
-  const landmarksByRole = {};
-  const allLandmarks = document.querySelectorAll('[role]');
-
-  allLandmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    if (landmarksByRole[role]) {
-      console.warn(`Duplicate landmark role: ${role}`);
-    } else {
-      landmarksByRole[role] = true;
-    }
-  });
 
   return landmarks;
 }
@@ -193,7 +168,6 @@ function processData(data) {
 }
 
 function createInPageButton(text, onClick) {
-    // Implementation to create accessible in-page button (conflict resolved: merged implementation)
     const button = document.createElement('button');
     button.textContent = text;
     button.onclick = onClick;
@@ -202,7 +176,6 @@ function createInPageButton(text, onClick) {
 }
 
 function createAccessibleLink(href, text) {
-    // Implementation to create accessible link (conflict resolved: merged implementation)
     const link = document.createElement('a');
     link.href = href;
     link.textContent = text;
@@ -211,22 +184,21 @@ function createAccessibleLink(href, text) {
 }
 
 function handleAccessibilityIssues() {
-    // Implementation to handle accessibility issues (conflict resolved: merged implementation)
     const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
+    tables.forEach(function(table) {
         validateTableAccessibility(table);
         validateTableStructure(table);
     });
 
     const landmarks = document.querySelectorAll('[role]');
-    landmarks.forEach(landmark => {
+    landmarks.forEach(function(landmark) {
         validateLandmark(landmark);
     });
 
     ensureUniqueLandmarks();
 
     const svgs = document.querySelectorAll('svg');
-    svgs.forEach(svg => {
+    svgs.forEach(function(svg) {
         getSvgAccessibleName(svg);
     });
 }

@@ -729,6 +729,11 @@ function Main() {
     }
   }, [sorting]);
 
+  // Enhance accessibility for adding a new book
+  useEffect(() => {
+    enhanceAccessibilityForAddBook();
+  }, []);
+
   // Map the book list to the BookItem function to create book items
   const bookItems = getBooksList.map(book => BookItem(book));
 
@@ -738,15 +743,13 @@ function Main() {
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
       {/* Example of adding a new book form with accessibility considerations */}
       <form onSubmit={(e) => {
         e.preventDefault();
         // Assuming there's a function to get the form data
         const newBook = getFormData();
         addBook(newBook);
-      }}>
+      }} aria-label="Add book form">
         <label htmlFor="title">Title:</label>
         <input type="text" id="title" name="title" required aria-label="Book title" />
         <label htmlFor="author">Author:</label>

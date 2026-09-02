@@ -93,3 +93,104 @@ function countDependencies() {
 }
 
 // Rest of the code remains the same
+
+// Functions to address accessibility issues
+function getLangAttribute() {
+  return document.documentElement.lang || '';
+}
+
+function getFullLangAttribute() {
+  const lang = document.documentElement.getAttribute('lang');
+  return lang || 'en';
+}
+
+function validateTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure tables have proper headers and structure
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      table.setAttribute('role', 'presentation');
+    }
+  });
+}
+
+function validateTableStructure() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length === 0) {
+        row.setAttribute('role', 'presentation');
+      }
+    });
+  });
+}
+
+function validateLandmark() {
+  const elements = document.querySelectorAll('[role]');
+  elements.forEach(el => {
+    const role = el.getAttribute('role');
+    if (!['banner', 'main', 'navigation', 'search', 'contentinfo', 'complementary', 'region', 'form'].includes(role)) {
+      el.removeAttribute('role');
+    }
+  });
+}
+
+function validateLandmarkStructure() {
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length > 1) {
+    mainElements[1].removeAttribute('role');
+  }
+}
+
+function ensureUniqueLandmarks() {
+  const landmarkMap = {};
+  ['banner', 'main', 'navigation', 'search', 'contentinfo', 'complementary', 'region', 'form'].forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      Array.from(elements).slice(1).forEach(el => el.removeAttribute('role'));
+    }
+  });
+}
+
+function getSvgAccessibleName(svgElements) {
+  let name = '';
+  svgElements.forEach(svg => {
+    const title = svg.querySelector('title');
+    if (title) {
+      name = title.textContent || '';
+    }
+  });
+  return name || 'SVG Icon';
+}
+
+function setSvgAttributes(svgElements) {
+  svgElements.forEach(svg => {
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', getSvgAccessibleName(svg));
+  });
+}
+
+function createInPageButton() {
+  const button = document.createElement('button');
+  button.setAttribute('aria-label', 'Return to top');
+  button.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  return button;
+}
+
+function createAccessibleLink(href) {
+  const link = document.createElement('a');
+  link.href = href;
+  link.setAttribute('aria-label', 'Navigation link');
+  return link;
+}
+
+function handleAccessibilityIssues() {
+  validateTableAccessibility();
+  validateTableStructure();
+  validateLandmark();
+  validateLandmarkStructure();
+  ensureUniqueLandmarks();
+}

@@ -27,14 +27,14 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
  * Gets the lang attribute for the HTML element
  * @returns {string} The lang attribute value
  */
-function getLangAttribute() {
+export function getLangAttribute() {
   // Implementation to be added
 }
 
 /**
  * Adds lang attribute to HTML element
  */
-function addLangAttribute() {
+export function addLangAttribute() {
   // Implementation to be added
 }
 
@@ -43,10 +43,98 @@ function addLangAttribute() {
  * @param {HTMLElement} table - The table element to validate
  * @returns {boolean} True if table is accessible
  */
-function validateTableAccessibility(table) {
+export function validateTableAccessibility(table) {
   // Implementation to be added
 }
 
 /**
  * Validates table structure
- *
+ */
+export function validateTableStructure() {
+  // Implementation to be added
+}
+
+/**
+ * Fixes table structure issues
+ */
+export function fixTableStructure() {
+  // Implementation to be added
+}
+
+/**
+ * Adds main landmark to page
+ */
+export function addMainLandmark() {
+  // Implementation to be added
+}
+
+/**
+ * Validates landmark accessibility
+ */
+export function validateLandmark() {
+  // Implementation to be added
+}
+
+/**
+ * Validates landmark structure
+ */
+export function validateLandmarkStructure() {
+  // Implementation to be added
+}
+
+/**
+ * Validates landmark attributes
+ */
+export function validateLandmarkAttributes() {
+  // Implementation to be added
+}
+
+/**
+ * Gets SVG accessible name
+ * @returns {string} The accessible name for SVG element
+ */
+export function getSvgAccessibleName() {
+  // Implementation to be added
+}
+
+/**
+ * Sets SVG attributes for accessibility
+ */
+export function setSvgAttributes() {
+  // Implementation to be added
+}
+
+/**
+ * Ensures unique landmarks on the page
+ */
+export function ensureUniqueLandmarks() {
+  // Implementation to be added
+}
+
+/**
+ * Creates an in-page navigation button
+ */
+export function createInPageButton() {
+  // Implementation to be added
+}
+
+/**
+ * Validates link accessibility
+ */
+export function validateLinkAccessibility() {
+  // Implementation to be added
+}
+
+/**
+ * Handles fake links on the page
+ */
+export function handleFakeLinks() {
+  // Implementation to be added
+}
+
+/**
+ * Adds proper landmark regions to the page
+ */
+export function addProperLandmarkRegions() {
+  // Implementation to be added
+}

@@ -81,7 +81,7 @@ const accessibilityUtils = {
     );
     if (focusable.length === 0) return;
     const first = focusable[0];
-    const last = focusable[focusable.length - 1];
+    const last = focusable[focusableElements.length - 1];
 
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
@@ -98,7 +98,7 @@ const accessibilityUtils = {
 };
 
 // Utility functions for ensuring elements have IDs and adding labels
-const ensureElementId = (element) => {
+const ensureElementIdLocal = (element) => {
   if (element && !element.id) {
     element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
@@ -259,7 +259,7 @@ module.exports = {
   addAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
-  ensureElementId,
+  ensureElementId: ensureElementIdLocal,
   ensureElementHasId,
   newFocusTrap,
   getTables,

@@ -418,7 +418,7 @@ function createAccessibleBookForm(options) {
     fields: [],
     submitButton: createInPageButton({
       text: 'Submit Book',
-      ariaLabel: `Submit ${options.title} form',
+      ariaLabel: `Submit ${options.title} form`,
       onClick: options.onSubmit
     })
   };
@@ -535,8 +535,70 @@ function enhanceAddBookAccessibility() {
     addAriaSupport(addBookButton, 'Add a new book');
 }
 
+/**
+ * Handles the credential response received from authentication
+ * Parses the response, validates it, and stores or uses the credentials
+ * @param {Object} response - The credential response object
+ * @returns {Object} Result with success status and any parsed credential data
+ */
+function handleCredentialResponse(response) {
+  const result = {
+    success: false,
+    credential: null,
+    errors: []
+  };
+
+  // Validate that a response was provided
+  if (!response) {
+    result.errors.push('No credential response provided');
+    return result;
+  }
+
+  // Parse the credential from the response
+  try {
+    let credential = null;
+
+    if (response.credential) {
+      // Standard credential response format
+      credential = response.credential;
+    } else if (response.credentials) {
+      // Alternative format with credentials array
+      credential = Array.isArray(response.credentials) ? response.credentials[0] : response.credentials;
+    } else if (typeof response === 'string') {
+      // Response is the credential itself
+      credential = response;
+    }
+
+    if (!credential) {
+      result.errors.push('No credential found in response');
+      return result;
+    }
+
+    // Validate the credential
+    if (typeof credential === 'string' && credential.length === 0) {
+      result.errors.push('Empty credential string');
+      return result;
+    }
+
+    if (typeof credential === 'object' && Object.keys(credential).length === 0) {
+      result.errors.push('Empty credential object');
+      return result;
+    }
+
+    // Store/use the credential
+    result.credential = credential;
+    result.success = true;
+    return result;
+  } catch (error) {
+    result.errors.push(`Failed to parse credential response: ${error.message}`);
+    return result;
+  }
+}
+
 // Ensure accessibility improvements are applied
-enhanceAddBookAccessibility();
+if (typeof document !== 'undefined') {
+  enhanceAddBookAccessibility();
+}
 
 // Export all functions for testing and external use
 module.exports = {
@@ -547,6 +609,7 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
+  validateLandmarkAttributes,
   validateLandmarkStructure,
   ensureUniqueLandmarks,
   getSvgAccessibleName,
@@ -565,5 +628,6 @@ module.exports = {
   addBook,
   makeAccessible,
   addAriaSupport,
-  enhanceAddBookAccessibility
+  enhanceAddBookAccessibility,
+  handleCredentialResponse
 };

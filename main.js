@@ -2,7 +2,7 @@ const main = require('./utilities');
 
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel } = main;
 
 const http = require('http');
 
@@ -15,15 +15,18 @@ const http = require('http');
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
-// TODO: Update the existing function using the new functions for rendering graph/index
-// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
-
-// Assuming the new function is called `renderGraphIndex` and it should replace or integrate with the existing `renderDependencyGraphs` function.
+// Define the new renderGraphIndex function
 const renderGraphIndex = (graphData) => {
   // Enhanced rendering logic using new accessibility functions
   setSvgAccessibilityProps(graphData);
   addAccessibleNamesToSVGs(graphData);
   renderDependencyGraphs(graphData);
+};
+
+// Update the existing function using the new functions for rendering graph/index
+const renderDependencyGraphs = (graphData) => {
+  // Call the new renderGraphIndex function instead
+  renderGraphIndex(graphData);
 };
 
 // Update the call to the new function in the existing context

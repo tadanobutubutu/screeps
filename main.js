@@ -31,5 +31,13 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// TODO: Implement this new function
+function removeInPageButton(buttonId) {
+    const button = document.getElementById(buttonId);
+    if (button) {
+        document.body.removeChild(button);
+    }
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

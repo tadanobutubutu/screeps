@@ -746,5 +746,13 @@ module.exports = {
   addSvgAccessibilityProps,
   fixButtonIdentifiers,
   createResourceButton,
-  performValidation
+  performValidation,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  addProperLandmarkRegions,
+  fixFakeLinks
 };

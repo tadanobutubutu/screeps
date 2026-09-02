@@ -287,7 +287,9 @@ function addressAccessibilityIssues(insightReport) {
 
 function createServer() {
   const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
+    // TODO: Ensure proper headers for accessibility
+    res.setHeader('Content-Type', 'application/json');
+    res.writeHead(200);
     res.end(JSON.stringify({ status: 'ok', config }));
   });
   return server;

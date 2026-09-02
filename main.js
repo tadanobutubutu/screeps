@@ -14,16 +14,47 @@ const newVariable = 'new value';
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 
+function ensureElementId(element) {
+  if (!element.id) {
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element.id;
+}
+
+function addAriaLabel(element, label) {
+  if (element && label) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+function renderDependencyGraph(data) {
+  // Basic implementation for rendering dependency graphs
+  console.log('Rendering dependency graph:', data);
+}
+
 /**
  * Main application entry point with accessibility features
  */
-function renderDependencyGraphs(svgElements) {
-  const accessibleName = getSvgAccessibleName(svgElements);
+function initializeApp() {
+  const accessibleName = 'Accessible Application';
+
   if (accessibleName) {
     // Use accessibleName
+    console.log('Using accessible name:', accessibleName);
   }
 
+  const svgElements = document.querySelectorAll('svg');
   setSvgAttributes(svgElements);
+}
+
+function setSvgAttributes(svgElements) {
+  svgElements.forEach(svg => {
+    if (svg.id) {
+      ensureElementId(svg);
+    }
+    addAriaLabel(svg, 'Graphical content');
+    svg.setAttribute('role', 'img');
+  });
 }
 
 function checkLandmarkElements() {
@@ -38,11 +69,21 @@ function checkLandmarkElements() {
     'form'
   ];
 
-  const checkLandmarkElement = (selector, role, implicitRole) => {
+  const implicitRole = {
+    'main': 'main',
+    'header': 'banner',
+    'nav': 'navigation',
+    'footer': 'contentinfo',
+    'aside': 'complementary',
+    'form': 'form',
+    'section': 'region'
+  };
+
+  const checkLandmarkElement = (selector, role, implicitRoleMap) => {
     const elements = document.querySelectorAll(selector);
     elements.forEach((element) => {
       const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-      const landmarkRole = role || implicitRole[tagName];
+      const landmarkRole = role || implicitRoleMap[tagName];
 
       if (!landmarkRole) {
         console.warn(`Missing landmark role for ${tagName}`);
@@ -55,21 +96,43 @@ function checkLandmarkElements() {
     });
   };
 
-  checkLandmarkElement('[role="main"], main', 'main', {
-    'main': 'main',
-    'header': 'banner',
-    'nav': 'navigation',
-    'footer': 'contentinfo',
-    'aside': 'complementary',
-    'form': 'form',
-    'section': 'region'
-  });
+  checkLandmarkElement('main', 'main', implicitRole);
+  checkLandmarkElement('header', 'banner', implicitRole);
+  checkLandmarkElement('nav', 'navigation', implicitRole);
+  checkLandmarkElement('footer', 'contentinfo', implicitRole);
+  checkLandmarkElement('aside', 'complementary', implicitRole);
+  checkLandmarkElement('[role="form"]', 'form', implicitRole);
+}
 
-  checkLandmarkElement('[role="banner"], header', 'banner');
-  checkLandmarkElement('[role="navigation"], nav', 'navigation');
-  checkLandmarkElement('[role="contentinfo"], footer', 'contentinfo');
-  checkLandmarkElement('[role="complementary"], aside', 'complementary');
-  checkLandmarkElement('[role="search"], [role="form"], form', 'form');
+/**
+ * Validates accessibility attributes for a given element
+ * @param {HTMLElement} element - The element to validate
+ * @returns {Object} Validation result with isValid and messages
+ */
+function validateAccessibilityAttributes(element) {
+  const result = { isValid: true, messages: [] };
+
+  if (!element) {
+    result.isValid = false;
+    result.messages.push('Element is null or undefined');
+    return result;
+  }
+
+  const validRoles = ['button', 'link', 'checkbox', 'menuitem', 'tab', 'treeitem'];
+  const role = element.getAttribute('role');
+
+  if (role && !validRoles.includes(role)) {
+    result.messages.push(`Warning: Uncommon role "${role}" detected`);
+  }
+
+  const accessibleName = element.getAttribute('aria-label') || element.textContent;
+  const accessibleDescription = element.getAttribute('aria-describedby');
+
+  if (accessibleName && accessibleDescription) {
+    result.messages.push('Both aria-label and aria-describedby present');
+  }
+
+  return result;
 }
 
 const sampleInsightReport = {
@@ -88,7 +151,8 @@ const sampleInsightReport = {
 
 function countDependencies() {
   const fs = require('fs');
-  const packageJsonPath = require('path').join(__dirname, 'package.json');
+  const path = require('path');
+  const packageJsonPath = path.join(__dirname, 'package.json');
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
   const dependencies = packageJson.dependencies || {};

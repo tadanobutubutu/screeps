@@ -1,3 +1,8 @@
+// TODO: Add back any required exports that might have been removed
+// TODO: This is the existing code that needs to be preserved
+//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
+//<!-- todo-hash: ... -->
+
 // TODO: Address accessibility issues from insight report:
 // TODO: Implement this function for creating in-page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {
@@ -61,11 +66,11 @@ function checkLinkAndButtonAccessibility() {
     return !hasAccessibilityIssues;
 }
 
-// Perform accessibility validation on page load
-if (typeof window !== 'undefined') {
+// TODO: Address accessibility issues from insight report:
+document.addEventListener('DOMContentLoaded', () => {
     validateLandmarkStructure();
     checkLinkAndButtonAccessibility();
-}
+});
 
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

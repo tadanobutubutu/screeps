@@ -47,10 +47,30 @@ function renderDependencyGraph(container, graphData) {
     console.log('Rendering dependency graph with data:', graphData);
 }
 
+/**
+ * Counts the number of dependencies in a dependency graph
+ * @param {Object} graphData - The dependency graph data containing nodes and edges
+ * @param {Array} graphData.nodes - Array of node objects in the graph
+ * @param {Array} graphData.edges - Array of edge objects representing dependencies
+ * @returns {number} The total count of dependencies (edges) in the graph
+ */
+function countDependencies(graphData) {
+    // Handle invalid or undefined input
+    if (!graphData || typeof graphData !== 'object') {
+        return 0;
+    }
+    
+    // Return the count of edges, which represent dependencies
+    // If edges array doesn't exist, return 0
+    return graphData.edges ? graphData.edges.length : 0;
+}
+
 // Export all existing functions and add the new ones
 export {
     // Existing exports...
     ensureElementHasId,
     addAriaLabel,
-    renderDependencyGraph
+    renderDependencyGraph,
+    // New export
+    countDependencies
 };

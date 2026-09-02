@@ -1,26 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
 
-// The following code is a new function that was requested to be added to main.js.
-// This function does not affect the existing code and should be added without modifying any of the existing exports.
-
-function newFunction() {
-    // Code for the new function goes here
-    console.log('This is the new function.');
-}
-
-// The new function can be exported if necessary, but since the instructions say not to remove or rename any existing exports, we will not add an export statement here unless there is an export already in place.
-
-export function getLangAttribute() {
-  let lang = 'en'; // Default to English
-
-  // Your code for detecting the language based on the content
-  // Add detection logic from both changes
-  if (/* condition for the first change */) {
-    // Logic for the first change
-  } else {
-    // Logic for the second change
-=======
 // TODO: Implement function for addressing accessibility issues from insight report
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Original code goes here
@@ -48,31 +27,16 @@ function addLangAttribute(element) {
   // Adds lang attribute to the given HTML element
   if (element && typeof element.setAttribute === 'function') {
     element.setAttribute('lang', 'en');
->>>>>>> origin/main
   }
-}
-
-<<<<<<< HEAD
-export function validateTableAccessibility(table) {
-=======
-const config = {
-  port: PORT,
-  env: process.env.NODE_ENV || 'development',
-  apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0'
-};
-
-function addBook(bookData) {
-  // ... Existing code ...
-  return bookData;
+  return element;
 }
 
 function getLangAttribute() {
+  let lang = 'en'; // Default to English
+
   // Determine the language based on content or default to English
   // This resolves the language attribute for accessibility
-  return 'en';
+  return lang;
 }
 
 function personName() {
@@ -87,25 +51,49 @@ function processSvgElements() {
 
 function validateTableAccessibility(table, index) {
   const issues = [];
-  
+
   if (!table) {
     issues.push(`Table at index ${index}: Table element is missing or null`);
     return issues;
   }
-  
+
+  if (!table.headers) {
+    issues.push('Missing headers attribute');
+  }
+
+  if (!table.scope) {
+    issues.push('Missing scope attribute');
+  }
+
   // Additional table validation logic here
-  
+
   return issues;
 }
 
-function validateTableStructure() {
->>>>>>> origin/main
+/**
+ * Validates the structure of tables for accessibility
+ * @param {Array} tables - Array of table objects to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableStructure(tables) {
+  const allIssues = [];
+
+  tables.forEach((table, index) => {
+    const tableIssues = validateTableAccessibility(table, index);
+    if (Array.isArray(tableIssues) && tableIssues.length > 0) {
+      allIssues.push({
+        tableIndex: index,
+        issues: tableIssues
+      });
+    }
+  });
+
   // Check 26 table structure issues
   // Also check the table structure and return a boolean value indicating the result
   const issues = [];
-  const tables = document.querySelectorAll('table');
-  
-  tables.forEach((tableItem, index) => {
+  const tablesNodes = document.querySelectorAll('table');
+
+  tablesNodes.forEach((tableItem, index) => {
     const tableIssues = validateTableAccessibility(tableItem, index);
     issues.push(...tableIssues);
   });
@@ -116,25 +104,24 @@ function validateTableStructure() {
     issues.push(`Found ${nestedTables.length} nested tables - consider avoiding nested tables for accessibility (REACT_027)`);
   }
 
-<<<<<<< HEAD
-export function validateTableStructure(table) {
-  // Check the table structure and return a boolean value indicating the result
-  // Your updated code for validating the table structure combining both changes
-  // Use the existing default value of true if the checks pass
+  return {
+    success: allIssues.length === 0 && issues.length === 0,
+    issues: [...allIssues.map(i => i.issues).flat(), ...issues]
+  };
 }
-=======
+
 function validateLandmark(element) {
-  const resolveStructuralIssues = (element) => {
+  const resolveStructuralIssues = (el) => {
     const issues = [];
     const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
 
-    if (!element.tagName) {
+    if (!el.tagName) {
       issues.push('Missing tagName');
-    } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
-      issues.push(`Invalid landmark: ${element.tagName}`);
+    } else if (!validLandmarks.includes(el.tagName.toLowerCase())) {
+      issues.push(`Invalid landmark: ${el.tagName}`);
     }
 
-    if (element.nodeName && element.nodeName.toLowerCase() === 'div' && !element.getAttribute('role')) {
+    if (el.nodeName && el.nodeName.toLowerCase() === 'div' && !el.getAttribute('role')) {
       issues.push('Missing role attribute');
     }
 
@@ -156,8 +143,6 @@ function validateLandmark(element) {
     return resolveStructuralIssues(document.documentElement);
   }
 
-  const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
-
   const implicitLandmarks = {
     'header': 'banner',
     'main': 'main',
@@ -169,28 +154,64 @@ function validateLandmark(element) {
   };
 
   const issues = resolveStructuralIssues(element);
-  
+
   return {
     success: issues.length === 0,
     issues
   };
 }
 
-function validateLandmarkStructure() {
-  // ... code for handling landmark structure issues (merged with the updated code)
-  return true;
+/**
+ * Validates the structure of landmark elements
+ * @param {Array} landmarks - Array of landmark elements to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLandmarkStructure(landmarks) {
+  const issues = [];
+
+  landmarks.forEach((landmark, index) => {
+    const result = validateLandmark(landmark);
+    if (!result.success) {
+      issues.push({
+        landmarkIndex: index,
+        issues: result.issues
+      });
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
 }
 
-function ensureUniqueLandmarks() {
-  // Your updated code for ensureUniqueLandmarks() function from both changes
-  return true;
+function ensureUniqueLandmarks(landmarks) {
+  const names = [];
+  const duplicates = [];
+
+  landmarks.forEach(landmark => {
+    const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
+    if (names.includes(name)) {
+      duplicates.push(name);
+    } else {
+      names.push(name);
+    }
+  });
+
+  return {
+    success: duplicates.length === 0,
+    duplicates
+  };
 }
 
-function createInPageButton(buttonId, buttonText) {
-  const button = document.createElement('button');
-  button.id = buttonId;
-  button.textContent = buttonText;
-  return button;
+function createInPageButton(options) {
+  return {
+    type: 'button',
+    text: options.text,
+    ariaLabel: options.ariaLabel || options.text,
+    onClick: options.onClick,
+    accessibleName: getSvgAccessibleName({ ariaLabel: options.ariaLabel })
+  };
 }
 
 function addSvgAccessibleName(svgElement, name) {
@@ -257,6 +278,67 @@ function ensureUniqueLandmarksFromString(source) {
   }
 
   return result;
+}
+
+/**
+ * Gets the accessible name for an SVG element
+ * @param {Object} svg - The SVG element
+ * @returns {string} The accessible name for the SVG
+ */
+function getSvgAccessibleName(svg) {
+  if (svg.ariaLabel) {
+    return svg.ariaLabel;
+  }
+  if (svg.ariaLabelledby) {
+    return svg.ariaLabelledby;
+  }
+  if (svg.title) {
+    return svg.title;
+  }
+  return 'Unnamed SVG';
+}
+
+/**
+ * Creates an accessible link element
+ * @param {Object} options - Link options
+ * @param {string} options.href - Link URL
+ * @param {string} options.text - Link text
+ * @param {string} options.ariaLabel - Aria label for the link
+ * @returns {Object} Link element object
+ */
+function createAccessibleLink(options) {
+  return {
+    type: 'a',
+    href: options.href,
+    text: options.text,
+    ariaLabel: options.ariaLabel || options.text,
+    isFake: false
+  };
+}
+
+/**
+ * Handles accessibility issues found during validation
+ * @param {Array} issues - Array of accessibility issues
+ * @returns {Object} Summary of handled issues
+ */
+function handleAccessibilityIssues(issues) {
+  const handled = [];
+  const unhandled = [];
+
+  issues.forEach(issue => {
+    if (issue.fixable) {
+      handled.push(issue);
+    } else {
+      unhandled.push(issue);
+    }
+  });
+
+  return {
+    total: issues.length,
+    handled: handled.length,
+    unhandled: unhandled.length,
+    unhandledIssues: unhandled
+  };
 }
 
 function addressAccessibilityIssues(insightReport) {
@@ -372,14 +454,14 @@ function addressNewAccessibilityIssues(insightReport) {
 
       // Check for table structure issues
       if (section.content.includes('REACT_027') || section.content.includes('table structure')) {
-        const tableIssues = validateTableStructure();
-        addressedIssues.push(`REACT_027: ${tableIssues.length} table structure issues addressed`);
+        const tableIssues = validateTableStructure([]);
+        addressedIssues.push(`REACT_027: ${tableIssues.issues.length} table structure issues addressed`);
       }
 
       // Check for landmark issues
       if (section.content.includes('REACT_017') || section.content.includes('landmark')) {
-        const landmarkIssues = validateLandmarkStructure();
-        addressedIssues.push(`REACT_017: ${landmarkIssues.length} landmark issues addressed`);
+        const landmarkIssues = validateLandmarkStructure([]);
+        addressedIssues.push(`REACT_017: ${landmarkIssues.issues.length} landmark issues addressed`);
       }
 
       // Check for SVG accessibility issues
@@ -424,6 +506,21 @@ function calculateAccessibilityScore(fixedIssues) {
  * Spawn a child process to run some command with proper error handling.
  * @param {Function} callback - Invoked with (err, result) when the command exits.
  */
+
+const config = {
+  port: PORT,
+  env: process.env.NODE_ENV || 'development',
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: process.env.TIMEOUT || 5000,
+  debug: true,
+  version: '1.0.0'
+};
+
+function addBook(bookData) {
+  // ... Existing code ...
+  return bookData;
+}
+
 function startApp() {
   const server = createServer();
   server.listen(config.port || PORT, () => {
@@ -432,7 +529,7 @@ function startApp() {
   return server;
 }
 
-// Export functions for testing
+// Export all functions for testing and external use
 module.exports = {
   createServer,
   startApp,
@@ -449,6 +546,8 @@ module.exports = {
   validateTableStructure,
   ensureUniqueLandmarks,
   createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
   addSvgAccessibleName,
   handleFakeLinks,
   countDependencies,
@@ -467,4 +566,3 @@ module.exports = {
 if (require.main === module) {
   startApp();
 }
-=======

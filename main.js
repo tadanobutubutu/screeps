@@ -32,7 +32,7 @@ const appData = {
   version: '1.0.0'
 };
 
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
+const HTML = ({ lang }) => ({ lang: lang, children: [] });
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
@@ -267,6 +267,17 @@ function processData(data) {
     processed: true,
     data: data,
     timestamp: Date.now()
+  };
+}
+
+function handleCredentialResponse(response) {
+  if (!validateInput(response)) {
+    throw new Error('Invalid credential response');
+  }
+  appState.data = response;
+  return {
+    success: true,
+    data: response
   };
 }
 
@@ -505,6 +516,7 @@ module.exports = {
   getConfig,
   validateInput,
   processData,
+  handleCredentialResponse,
   addLandmarkRegions,
   setSvgAttributes,
   addLangAttribute,

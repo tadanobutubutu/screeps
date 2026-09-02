@@ -1,3 +1,4 @@
+// TODO: Identify and update specific functions that render dependency graphs or
 // TODO: This is the existing code that needs to be preserved
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
@@ -363,6 +364,49 @@ function createAccessibleBookForm(formId, submitButtonId) {
     return form;
 }
 
+/**
+ * Renders a dependency graph as an accessible HTML representation.
+ * Takes a graph object with nodes and edges, and produces structured HTML
+ * with proper ARIA attributes for screen reader compatibility.
+ * @param {Object} graph - The dependency graph with nodes and edges
+ * @param {string} graph.title - Optional title for the graph
+ * @param {Array<{id: string, label: string, group?: string}>} graph.nodes - List of graph nodes
+ * @param {Array<{from: string, to: string, label?: string}>} graph.edges - List of graph edges
+ * @returns {string} HTML string representing the dependency graph
+ */
+function renderDependencyGraph(graph) {
+    if (!graph || typeof graph !== 'object') return '';
+
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const edges = Array.isArray(graph.edges) ? graph.edges : [];
+    const title = typeof graph.title === 'string' ? graph.title : 'Dependency Graph';
+    const titleId = `dep-graph-title-${Date.now()}`;
+
+    let html = `<figure role="figure" aria-labelledby="${titleId}" class="dependency-graph">`;
+    html += `<figcaption id="${titleId}">${title}</figcaption>`;
+    html += `<table role="table" aria-label="${title}">`;
+    html += `<thead><tr><th scope="col">Node</th><th scope="col">Group</th><th scope="col">Depends On</th></tr></thead>`;
+    html += `<tbody>`;
+
+    const dependencies = {};
+    edges.forEach(edge => {
+        if (!edge || !edge.from) return;
+        if (!dependencies[edge.from]) dependencies[edge.from] = [];
+        if (edge.to) dependencies[edge.from].push(edge.to);
+    });
+
+    nodes.forEach(node => {
+        if (!node || !node.id) return;
+        const label = typeof node.label === 'string' ? node.label : node.id;
+        const group = typeof node.group === 'string' ? node.group : '';
+        const deps = (dependencies[node.id] || []).join(', ');
+        html += `<tr><td>${label}</td><td>${group}</td><td>${deps}</td></tr>`;
+    });
+
+    html += `</tbody></table></figure>`;
+    return html;
+}
+
 // Don't forget to test your new additions in the test file
 
 // Export accessibility utility functions
@@ -379,7 +423,8 @@ module.exports = {
     divide,
     checkLinkAccessibility,
     wrapPrimaryContentInMain,
-    createAccessibleBookForm
+    createAccessibleBookForm,
+    renderDependencyGraph
 };
 
 // Run if executed directly

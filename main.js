@@ -35,9 +35,100 @@ const AddressabilityIssues = {
   renderDependencyGraph(graphData, container) {
     if (!container) return;
     container.innerHTML = '';
+    
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('role', 'img');
     svg.setAttribute('aria-label', 'Dependency graph');
+    svg.setAttribute('width', '400');
+    svg.setAttribute('height', '300');
+    
+    if (graphData && Array.isArray(graphData.nodes) && graphData.nodes.length > 0) {
+      const nodes = graphData.nodes;
+      const edges = graphData.edges || [];
+      
+      const nodeRadius = 20;
+      const nodeSpacing = 80;
+      
+      nodes.forEach((node, index) => {
+        const x = 50 + (index % 5) * nodeSpacing;
+        const y = 50 + Math.floor(index / 5) * nodeSpacing;
+        
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', x);
+        circle.setAttribute('cy', y);
+        circle.setAttribute('r', nodeRadius);
+        circle.setAttribute('fill', '#4CAF50');
+        circle.setAttribute('stroke', '#2E7D32');
+        circle.setAttribute('stroke-width', '2');
+        
+        if (node.id) {
+          circle.setAttribute('id', node.id);
+        }
+        
+        if (node.label) {
+          circle.setAttribute('aria-label', node.label);
+          circle.setAttribute('title', node.label);
+        }
+        
+        svg.appendChild(circle);
+        
+        if (node.label) {
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', x);
+          text.setAttribute('y', y + 4);
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute('fill', 'white');
+          text.setAttribute('font-size', '12');
+          text.setAttribute('font-family', 'Arial, sans-serif');
+          text.textContent = node.label;
+          svg.appendChild(text);
+        }
+      });
+      
+      edges.forEach(edge => {
+        if (!edge.from || !edge.to) return;
+        
+        const fromNode = nodes.find(n => n.id === edge.from);
+        const toNode = nodes.find(n => n.id === edge.to);
+        
+        if (!fromNode || !toNode) return;
+        
+        const fromX = 50 + (nodes.indexOf(fromNode) % 5) * nodeSpacing;
+        const fromY = 50 + Math.floor(nodes.indexOf(fromNode) / 5) * nodeSpacing;
+        const toX = 50 + (nodes.indexOf(toNode) % 5) * nodeSpacing;
+        const toY = 50 + Math.floor(nodes.indexOf(toNode) / 5) * nodeSpacing;
+        
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', fromX + nodeRadius);
+        line.setAttribute('y1', fromY);
+        line.setAttribute('x2', toX - nodeRadius);
+        line.setAttribute('y2', toY);
+        line.setAttribute('stroke', '#666');
+        line.setAttribute('stroke-width', '2');
+        line.setAttribute('marker-end', 'url(#arrowhead)');
+        
+        svg.appendChild(line);
+      });
+      
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+      marker.setAttribute('id', 'arrowhead');
+      marker.setAttribute('markerWidth', '10');
+      marker.setAttribute('markerHeight', '7');
+      marker.setAttribute('refX', '9');
+      marker.setAttribute('refY', '3.5');
+      marker.setAttribute('orient', 'auto');
+      
+      const markerPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      markerPath.setAttribute('d', 'M0,0 L0,7 L10,3.5 Z');
+      markerPath.setAttribute('fill', '#666');
+      marker.appendChild(markerPath);
+      marker.appendChild(markerPath);
+      
+      defs.appendChild(marker);
+      svg.insertBefore(defs, svg.firstChild);
+    }
+    
     container.appendChild(svg);
   },
   // Addressability-related functionality
@@ -385,7 +476,23 @@ function createInPageButton(options = {}) {
 
 // TODO: No additional changes requested at this time
 function renderDependencyGraphs() {
-  return [];
+  // Render multiple dependency graphs from application state
+  const graphs = [];
+  
+  // Example: Get dependency data from module exports or global state
+  const dependencyData = window.DEPENDENCY_DATA || [];
+  
+  dependencyData.forEach(graphData => {
+    const container = document.createElement('div');
+    container.className = 'dependency-graph-container';
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', graphData.title || 'Dependency Graph');
+    
+    AddressabilityIssues.renderDependencyGraph(graphData, container);
+    graphs.push(container);
+  });
+  
+  return graphs;
 }
 
 // Add accessibility function to handle the lang attribute for the entire HTML document
@@ -471,5 +578,6 @@ module.exports = {
   ensureUniqueLandmarksFromString,
   validateLandmark,
   createInPageButton,
-  implementTowerDefense
+  implementTowerDefense,
+  renderDependencyGraphs
 };

@@ -278,6 +278,67 @@ function handleFakeLinks(link) {
   return null;
 }
 
+/**
+ * Validates the landmark structure for accessibility issues in the document
+ * @returns {boolean} Whether the document landmark structure is valid
+ */
+function validateLandmarksStructureForAccessibility() {
+  if (typeof document === 'undefined') return true;
+
+  const landmarkRoles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'region', 'search'];
+  const landmarks = document.querySelectorAll('[role], header, nav, main, aside, footer, form, search');
+
+  for (const landmark of landmarks) {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+
+    if (!landmarkRoles.includes(role)) {
+      continue;
+    }
+
+    // Check that main landmark is unique
+    if (role === 'main') {
+      const mainElements = document.querySelectorAll('[role="main"], main');
+      if (mainElements.length > 1) {
+        console.warn('Multiple main landmarks found');
+        return false;
+      }
+    }
+
+    // Check that banner landmark is unique
+    if (role === 'banner') {
+      const bannerElements = document.querySelectorAll('[role="banner"], header');
+      if (bannerElements.length > 1) {
+        console.warn('Multiple banner landmarks found');
+        return false;
+      }
+    }
+
+    // Check that contentinfo landmark is unique
+    if (role === 'contentinfo') {
+      const contentinfoElements = document.querySelectorAll('[role="contentinfo"], footer');
+      if (contentinfoElements.length > 1) {
+        console.warn('Multiple contentinfo landmarks found');
+        return false;
+      }
+    }
+
+    // Check for proper nesting - main should not be inside another landmark
+    if (role === 'main') {
+      let parent = landmark.parentElement;
+      while (parent) {
+        const parentTag = parent.tagName.toLowerCase();
+        if (['header', 'nav', 'aside', 'footer', 'main', 'section'].includes(parentTag)) {
+          console.warn('Main landmark is nested inside another landmark');
+          return false;
+        }
+        parent = parent.parentElement;
+      }
+    }
+  }
+
+  return true;
+}
+
 // REACT_015: Add lang attribute to HTML element
 // Add the language attribute to the HTML element for proper accessibility
 
@@ -296,5 +357,6 @@ module.exports = {
   setSvgAttributes,
   ensureUniqueLandmarks,
   validateLinkAccessibility,
-  handleFakeLinks
+  handleFakeLinks,
+  validateLandmarksStructureForAccessibility
 };

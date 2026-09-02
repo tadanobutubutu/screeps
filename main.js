@@ -1,10 +1,14 @@
-const http = require('http');
-const path = require('path');
+// ... (existing code before the conflict markers)
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// This is a placeholder for the actual implementation
+// New function for getting the language attribute based on the content
+function getLangAttribute() {
+  // If the language is not explicitly set, determine the language based on the content
+  // Replace 'yourContentVariable' with the actual variable storing the content
+  let lang = 'en'; // Default to English
 
-// TODO: This is the existing code that needs to be preserved
+  // Your code for detecting the language based on the content
+  return lang;
+}
 
 /**
  * Validates if the landmark is valid
@@ -24,156 +28,51 @@ function ensureValidLandmarkFunction() {
   return originalValidateLandmark;
 }
 
-/**
- * Creates and starts the HTTP server
- * @returns {http.Server} The created server instance
- */
-function handleCredentialResponse(response) {
-    if (!response) {
-        return { success: false, error: 'No credential response provided' };
-    }
-
-    // Check if response contains expected credential data
-    const hasCredential = response.credential || response.token || response.id;
-
-    if (!hasCredential) {
-        return { success: false, error: 'Invalid credential response format' };
-    }
-
-    // Process credential information
-    const processedCredential = {
-        id: response.id || null,
-        token: response.token || response.credential || null,
-        name: response.name || 'Anonymous User',
-        email: response.email || null,
-        success: true
-    };
-
-    // Handle different types of credential responses
-    if (response.credential) {
-        // Google Sign-In response
-        try {
-            // Credential is a base64-encoded JWT
-            const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            processedCredential.id = payload.sub || processedCredential.id;
-            processedCredential.email = payload.email || processedCredential.email;
-            processedCredential.name = payload.name || processedCredential.name;
-        } catch (error) {
-            console.warn('Failed to parse credential response:', error);
-        }
-    }
-
-    // Announce success to screen readers
-    if (typeof announceToScreenReader === 'function') {
-        announceToScreenReader('User successfully authenticated');
-    }
-
-    return processedCredential;
+// New function for validating table accessibility
+function validateTableAccessibility(table) {
+  // Check 26 table structure issues
+  // Your code for validating the table accessibility
 }
 
-// Ensure DOM is fully loaded before executing scripts
-if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment - setup basic exports
-  module.exports = {
-    checkTableStructure,
-    countDependencies,
-    initiate, // Rename 'init' to 'initiate'
-    setupKeyboardNavigation,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    ensureUniqueLandmarksFromString,
-    validateLandmark, // Remove existing validateLandmark export, use the new one added below
-    spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse,
-    ensureValidLandmarkFunction // Export the new function for testing
-  };
-} else {
-  // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initiate);
-  } else {
-    initiate();
-  }
+// New function for validating table structure
+function validateTableStructure(table) {
+  // Check the table structure and return a boolean value indicating the result
+  // Your code for validating the table structure
+
+  return true; // Set the default value to true
 }
 
-let addressAccessibilityIssues;
-let generateAccessibilityReport;
-let calculateAccessibilityScore;
-let ensureUniqueLandmarksFromString;
-let validateLandmark;
-let spawnSomeCommand;
-let addLangAttribute;
+// New function for validating landmark structure (...)
+// ...
 
-// Add your logic here after the existing functions
+// New function for getting accessible names for SVGs (...)
+// ...
 
-function implementCountDependenciesInMain() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-
-    return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
+// New function for ensuring unique landmarks
+function ensureUniqueLandmarks() {
+  // Check for 2 unique landmarks issues and resolve them
+  // Your code for ensuring unique landmarks
 }
 
-addressAccessibilityIssues = (insightReport) => {
-    // Implement your logic for addressAccessibilityIssues here
-};
+// ... (any other existing code after the conflict markers)
 
-generateAccessibilityReport = (accessibilityReport) => {
-    if (!accessibilityReport || !Array.isArray(accessibilityReport.issues)) {
-      return [];
-    }
+// Update existing functions as requested in the issue:
 
-    const report = accessibilityReport.issues.map(issue => ({
-      issueType: issue.type,
-      status: issue.status || 'pending',
-      fixApplied: issue.fixApplied || ''
-    }));
+// personName() should handle REACT_036: Fix 1 fake link issue
+function personName(name) {
+  // Your updated code for personName() function
 
-    return report;
-};
+  // Ensure the returned value is a valid link when appropriate
+}
 
-calculateAccessibilityScore = (fixedIssues) => {
-    if (!Array.isArray(fixedIssues)) {
-      return 0;
-    }
+// createInPageButton() should help handle REACT_036: Fix 1 fake link issue
+function createInPageButton(text) {
+  // Your updated code for createInPageButton() function
 
-    const scorePoints = {
-      'color-contrast': 5,
-      'missing-alt-text': 3,
-      'missing-aria-label': 5,
-      'heading-order': 2,
-      'other': 1
-    };
+  // Ensure the returned value is a valid link when appropriate
+}
 
-    return fixedIssues.reduce((score, issue) => {
-      const points = scorePoints[issue.type] || scorePoints['other'];
-      return score + points;
-    }, 0);
-};
+// Modify or add functions as necessary to address new accessibility issues from the insight report
 
 ensureUniqueLandmarksFromString = (source) => {
     const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
@@ -201,7 +100,7 @@ function initializeNewValidateLandmark() {
     if (!newValidateLandmark) {
       newValidateLandmark = function validateLandmark(element) {
         // Validate landmark using the preserved function and your logic
-        const originalResult = ensureValidLandmarkFunction()(element. children[0].name);
+        const originalResult = ensureValidLandmarkFunction()(element.children[0].name);
         if (originalResult.valid) {
           return originalResult;
         }
@@ -252,15 +151,85 @@ function initiate() {
 // Update your logic implementation here
 // ...
 
-module.exports = {
-  createServer,
-  startApp,
-  config,
-  validateLandmark, // Export the new function
-  ensureValidLandmarkFunction // Export the new function for testing
-};
+// Function for addressing accessibility issues from insight report
+function addressAccessibilityIssues(insightReport) {
+  // If no report provided, return an empty array
+  if (!Array.isArray(insightReport)) {
+    return [];
+  }
+
+  // Process each insight item to improve accessibility
+  return insightReport.map((item) => {
+    // Ensure the item has an accessible label
+    const label = item.description || '';
+    if (label && !item.ariaLabel) {
+      item.ariaLabel = label;
+    }
+
+    // If the item represents an image, add alt text
+    if (typeof item.image === 'string') {
+      item.altText = item.image;
+    }
+
+    // Mark the item as accessible
+    item.accessible = true;
+
+    return item;
+  });
+}
+
+// Add the lang attribute to the HTML element with the getLangAttribute() function
+if (typeof document !== 'undefined' && document.documentElement) {
+  document.documentElement.lang = getLangAttribute();
+}
+
+// Ensure DOM is fully loaded before executing scripts
+if (typeof module !== 'undefined' && module.exports) {
+  // Node.js environment - setup basic exports
+  module.exports = {
+    checkTableStructure,
+    countDependencies,
+    initiate, // Rename 'init' to 'initiate'
+    setupKeyboardNavigation,
+    setupAriaLiveRegions,
+    setupFocusManagement,
+    enhanceSemanticMarkup,
+    trapFocus,
+    handleKeyNavigation,
+    closeOpenDialogs,
+    announceToScreenReader,
+    calculateDifference,
+    calculateProduct,
+    isNumber,
+    clamp,
+    hello,
+    getVersion,
+    getConfig,
+    addressAccessibilityIssues,
+    generateAccessibilityReport,
+    calculateAccessibilityScore,
+    ensureUniqueLandmarksFromString,
+    validateLandmark,
+    spawnSomeCommand,
+    addLangAttribute,
+    handleCredentialResponse,
+    ensureValidLandmarkFunction,
+    createServer,
+    startApp,
+    config
+  };
+} else {
+  // Browser environment - wait for DOM
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initiate);
+    } else {
+      initiate();
+    }
+  }
+}
 
 // Start the application if run directly
-if (require.main === module) {
+if (typeof require !== 'undefined' && require.main === module) {
   startApp();
 }

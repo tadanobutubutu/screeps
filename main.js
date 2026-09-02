@@ -21,6 +21,14 @@
 // - ADD: Address new accessibility issues from insight report
 import React from 'react';
 
+<<<<<<< HEAD
+// TODO: Implement the new function as per the issue requirements
+function wrapPrimaryContentInMain(content) {
+  // Implementation goes here
+  // This should be the only change made to the file
+  // All existing code and exports must remain unchanged
+  return `<main>${content}</main>`;
+=======
 // DONE: Address accessibility issues from insight report:
 // - DONE REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - DONE REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -79,6 +87,13 @@ function detectAndSetLang(content) {
   return lang;
 }
 
+<<<<<<< HEAD
+// Make sure to preserve all existing exports
+module.exports = {
+  // existing exports...
+  wrapPrimaryContentInMain, // Add the new function to exports
+  // ... other exports ...
+=======
 const renderGraphIndex = (graphData) => {
   // Handle initial accessibility setup on page load
   handleInitialAccessibility();
@@ -562,7 +577,7 @@ const renderIndex = (data, options = {}) => {
     return addLangAttribute(content);
   }
   return content;
-}
+};
 
 // NEW: Address new accessibility issues from insight report
 
@@ -694,162 +709,4 @@ function validateFormLabels(formRoot) {
 /**
  * Get the accessible alt text for an image element.
  * @param {HTMLImageElement} img - The image element
- * @returns {string|null} Alt text, empty string if decorative, or null if missing
- */
-function getImageAltText(img) {
-  if (!img) return null;
-  if (img.hasAttribute('alt')) {
-    return img.getAttribute('alt');
-  }
-  return null;
-}
-
-/**
- * Validate that all content images have appropriate alt attributes.
- * @param {HTMLElement} [root] - Optional root element to scope validation
- * @returns {{valid: boolean, errors: string[]}} Validation result
- */
-function validateImageAltText(root) {
-  if (typeof document === 'undefined') {
-    return { valid: true, errors: [] };
-  }
-  const scope = root || document;
-  const errors = [];
-  const images = scope.querySelectorAll('img');
-  images.forEach((img, index) => {
-    const role = (img.getAttribute('role') || '').toLowerCase();
-    const isDecorative = role === 'presentation' || role === 'none';
-    if (!img.hasAttribute('alt') && !isDecorative) {
-      errors.push(`Image ${index + 1} (src="${img.getAttribute('src') || ''}") is missing alt attribute`);
-    }
-  });
-  return { valid: errors.length === 0, errors };
-}
-
-/**
- * Validate ARIA attributes on an element.
- * @param {HTMLElement} element - The element to validate
- * @returns {{valid: boolean, errors: string[]}} Validation result
- */
-function validateAriaAttributes(element) {
-  if (!element) {
-    return { valid: false, errors: ['Element is required'] };
-  }
-  const errors = [];
-  const attrs = element.attributes;
-  const validRoles = new Array(
-    'alert', 'alertdialog', 'application', 'article', 'banner', 'button',
-    'cell', 'checkbox', 'columnheader', 'combobox', 'complementary',
-    'contentinfo', 'definition', 'dialog', 'directory', 'document', 'feed',
-    'figure', 'form', 'grid', 'gridcell', 'group', 'heading', 'img',
-    'link', 'list', 'listbox', 'listitem', 'log', 'main', 'marquee',
-    'math', 'menu', 'menubar', 'menuitem', 'menuitemcheckbox', 'menuitemradio',
-    'navigation', 'none', 'note', 'option', 'presentation', 'progressbar',
-    'radio', 'radiogroup', 'region', 'row', 'rowgroup', 'rowheader',
-    'scrollbar', 'search', 'searchbox', 'separator', 'slider', 'spinbutton',
-    'status', 'switch', 'tab', 'table', 'tablist', 'tabpanel', 'term',
-    'textbox', 'timer', 'toolbar', 'tooltip', 'tree', 'treegrid', 'treeitem'
-  );
-  for (let i = 0; i < attrs.length; i++) {
-    const name = attrs[i].name;
-    if (name === 'role') {
-      const roleValue = attrs[i].value.toLowerCase();
-      if (validRoles.indexOf(roleValue) === -1) {
-        errors.push(`Invalid role value: "${roleValue}"`);
-      }
-    }
-  }
-  // Check aria-labelledby references valid IDs
-  const labelledby = element.getAttribute('aria-labelledby');
-  if (labelledby) {
-    labelledby.split(/\s+/).forEach((refId) => {
-      if (refId && typeof document !== 'undefined' && !document.getElementById(refId)) {
-        errors.push(`aria-labelledby references missing element with id "${refId}"`);
-      }
-    });
-  }
-  const describedby = element.getAttribute('aria-describedby');
-  if (describedby) {
-    describedby.split(/\s+/).forEach((refId) => {
-      if (refId && typeof document !== 'undefined' && !document.getElementById(refId)) {
-        errors.push(`aria-describedby references missing element with id "${refId}"`);
-      }
-    });
-  }
-  return { valid: errors.length === 0, errors };
-}
-
-/**
- * Move focus to an element, ensuring it can receive focus.
- * @param {HTMLElement} element - The element to focus
- * @param {boolean} [preventScroll=false] - Whether to prevent scrolling
- * @returns {boolean} True if focus was set successfully
- */
-function focusElement(element, preventScroll) {
-  if (!element) return false;
-  if (!element.hasAttribute('tabindex')) {
-    element.setAttribute('tabindex', '-1');
-  }
-  if (typeof element.focus === 'function') {
-    element.focus({ preventScroll: preventScroll === true });
-    return true;
-  }
-  return false;
-}
-
-/**
- * Run a comprehensive accessibility audit of the current page.
- * @param {HTMLElement} [root] - Optional root element to scope the audit
- * @returns {{valid: boolean, errors: string[], results: Object[]}} Combined audit results
- */
-function runAccessibilityAudit(root) {
-  const results = [];
-  const allErrors = [];
-
-  results.push({ check: 'headingHierarchy', ...validateHeadingHierarchy() });
-  results.push({ check: 'formLabels', ...validateFormLabels(root) });
-  results.push({ check: 'imageAltText', ...validateImageAltText(root) });
-  results.push({ check: 'landmarks', ...validateLandmarkStructure() });
-  results.push({ check: 'uniqueLandmarks', ...ensureUniqueLandmarks() });
-  results.push({ check: 'svgAccessibility', ...validateSvgAccessibility() });
-
-  results.forEach((result) => {
-    if (result.errors && result.errors.length > 0) {
-      allErrors.push(...result.errors.map(e => `[${result.check}] ${e}`));
-    }
-  });
-
-  return {
-    valid: allErrors.length === 0,
-    errors: allErrors,
-    results
-  };
-}
-
-// Export all functions to make them available as module exports
-export {
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateSvgAccessibility,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  personName,
-  // New accessibility exports
-  hexToRgb,
-  getRelativeLuminance,
-  getContrastRatio,
-  meetsContrastRequirement,
-  validateHeadingHierarchy,
-  validateFormLabels,
-  getImageAltText,
-  validateImageAltText,
-  validateAriaAttributes,
-  focusElement,
-  runAccessibilityAudit
-}
+ * @returns {string

@@ -145,9 +145,24 @@ const AddressabilityIssues = {
       devDependencies: Object.keys(devDependencies).length,
       total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
+  },
+
+  // New function added per issue
+  logCommitHashes() {
+    const commitHashes = [
+      'eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2',
+      'f8051b788bad4952d8493f08d3c7d22a06ff80d3',
+      '30b5f0892a59d5ec914a59aa66e32dc3a3eb059e',
+      '5d1690822c7c7ecd204a67a127dd3a55568560de',
+      '2940d94829911b172237e001ec7271ce7347833e',
+      '0180a9cea8844eb6c20c6d4df49ac1e6b5caa537',
+      '225814356122e69baa9457fe7e2f981c494c6b13'
+    ];
+
+    commitHashes.forEach(hash => {
+      console.log(`Commit hash: ${hash}`);
+    });
   }
 };
-
-// TODO: Any additional changes requested in the issue
 
 // ... (other functions and setting up exports)

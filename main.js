@@ -22,14 +22,6 @@ const appData = {
 };
 
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by fixTableStructureIssues() and fixTableHeaderCellScope())
-// - REACT_017: Add/fix 2 landmark issues (handled by addLandmarkRolesAndFixIssues() and fixLandmarkIssues() and fixLandmarkIssues())
-// - REACT_041: Add accessible names to 2 SVGs (handled by addSvgAccessibleNames() and fixSvgAccessibleNames())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 function getLangAttribute() {
     // Implementation to get language attribute
@@ -566,7 +558,7 @@ function addSvgAccessibilityProps(svgElement, accessibleName, role = 'img') {
     
     // Set the accessible name via aria-label
     if (accessibleName) {
-        svgElement.setAttribute('aria-label', accessibleName);
+      svgElement.setAttribute('aria-label', accessibleName);
     }
     
     return svgElement;

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -21,7 +18,7 @@ function validateLandmark(landmark) {
   const role = landmark.getAttribute('role');
   const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
   if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role');
+    errors.push('Invalid landmark role: ' + role);
   }
   return errors;
 }
@@ -31,7 +28,11 @@ const appData = {
   version: '1.0.0'
 };
 
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
+function createHTMLDocument(lang) {
+  const html = document.createElement('html');
+  html.setAttribute('lang', lang);
+  return html;
+}
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
@@ -54,7 +55,7 @@ function getFullLangAttribute() {
 
 function validateTableAccessibility(tableElement) {
     // Implementation to validate table accessibility (conflict resolved: merged implementation)
-    if (!tableElement.querySelector('caption')) {
+    if (!tableElement.caption) {
         console.warn('Table missing caption');
         return false;
     }
@@ -63,7 +64,7 @@ function validateTableAccessibility(tableElement) {
 
 function validateTableStructure(tableElement) {
     // Implementation to validate table structure (conflict resolved: merged implementation)
-    const rows = tableElement.querySelectorAll('tr');
+    const rows = tableElement.rows;
     if (rows.length === 0) {
         console.warn('Table has no rows');
         return false;
@@ -93,9 +94,8 @@ function addLandmarkRegions() {
   console.log('Adding landmark regions');
 }
 
-function getSvgAccessibleName() {
+function getSvgAccessibleName(svgElement) {
     // Merged implementation (conflict resolved)
-    const svgElement = ... // needs actual element reference
     const title = svgElement.querySelector('title');
     const ariaLabel = svgElement.getAttribute('aria-label');
     if (title) return title.textContent;
@@ -135,12 +135,12 @@ function ensureUniqueLandmarks(landmarksArg) {
 
   // Additional uniqueness check for landmark roles
   const landmarksByRole = {};
-  const allLandmarks = document.querySelectorAll('[role]');
+  const allLandmarks = landmarks;
 
   allLandmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
+    const role = landmark.getAttribute ? landmark.getAttribute('role') : landmark.role;
     if (landmarksByRole[role]) {
-      console.warn(`Duplicate landmark role: ${role}`);
+      console.warn('Duplicate landmark role: ' + role);
     } else {
       landmarksByRole[role] = true;
     }
@@ -205,8 +205,7 @@ function handleAccessibilityIssues() {
         validateLandmark(landmark);
     });
 
-    validateLandmarkStructure();
-    ensureUniqueLandmarks();
+    ensureUniqueLandmarks(landmarks);
 
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
@@ -232,6 +231,6 @@ module.exports = {
     validateInput,
     processData,
     addLandmarkRegions,
-    setSvgAttributes
+    setSvgAttributes,
+    createHTMLDocument
 };
-```

@@ -43,6 +43,93 @@ function addAccessibleName(svgString) {
   return new XMLSerializer().serializeToString(svg);
 }
 
+// New function to handle accessibility issues
+function handleAccessibilityIssues() {
+  // Code to handle accessibility issues as per the insight report
+  getLangAttribute();
+  getFullLangAttribute();
+  validateTableAccessibility();
+  validateTableStructure();
+  validateLandmark();
+  validateLandmarkStructure();
+  ensureUniqueLandmarks();
+  getSvgAccessibleName();
+  createInPageButton();
+  createAccessibleLink();
+}
+
+// New utility functions
+
+/**
+ * Formats a dependency version string for display
+ * @param {string} version - Version string
+ * @returns {string} Formatted version
+ */
+function formatVersion(version) {
+  if (!version) return 'latest';
+  return version.startsWith('v') ? version : `v${version}`;
+}
+
+/**
+ * Sanitizes a string for safe HTML rendering
+ * @param {string} str - String to sanitize
+ * @returns {string} Sanitized string
+ */
+function sanitizeHtml(str) {
+  if (!str) return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * Gets or creates an accessible SVG with proper labeling
+ * @param {string} svgString - SVG string to process
+ * @returns {string} Modified SVG string with accessible name
+ */
+function getSvgAccessibleName(svgString) {
+  try {
+    const svg = new DOMParser().parseFromString(svgString, "image/svg+xml");
+    const svgElement = svg.documentElement;
+    
+    if (!svgElement.getAttribute('aria-label')) {
+      svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
+    }
+    
+    return new XMLSerializer().serializeToString(svg);
+  } catch (error) {
+    console.error('Error processing SVG:', error);
+    return svgString;
+  }
+}
+
+/**
+ * Creates an accessible button element in the document
+ */
+function createInPageButton() {
+  const btn = document.createElement('button');
+  btn.setAttribute('type', 'button');
+  btn.setAttribute('aria-label', 'Open in new tab');
+  btn.textContent = 'Open';
+  document.body.appendChild(btn);
+  return btn;
+}
+
+/**
+ * Creates an accessible link element in the document
+ */
+function createAccessibleLink() {
+  const a = document.createElement('a');
+  a.setAttribute('href', '#');
+  a.setAttribute('aria-label', 'Go to home page');
+  a.textContent = 'Home';
+  document.body.appendChild(a);
+  return a;
+}
+
 // Example usage of the function
 const originalSvgString = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>';
 const modifiedSvgString = addAccessibleName(originalSvgString);
@@ -121,45 +208,6 @@ function handleAccessibilityIssues() {
   createInPageButton();
   createAccessibleLink();
 }
-
-// New utility functions
-
-/**
- * Formats a dependency version string for display
- * @param {string} version - Version string
- * @returns {string} Formatted version
- */
-function formatVersion(version) {
-  if (!version) return 'latest';
-  return version.startsWith('v') ? version : `v${version}`;
-}
-
-/**
- * Sanitizes a string for safe HTML rendering
- * @param {string} str - String to sanitize
- * @returns {string} Sanitized string
- */
-function sanitizeHtml(str) {
-  if (!str) return '';
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-const App = () => {
-  const landmarkRef = useRef();
-
-  return (
-    <div>
-      {/* Add a designated landmark for accessibility - replace 'My Application' with an appropriate name for your app */}
-      <div id="landmark" ref={landmarkRef} aria-live="polite" aria-label="My Application"></div>
-      {/* The rest of your existing markup here */}
-    </div>
-  );
-};
 
 // Export all utility functions
 module.exports = {

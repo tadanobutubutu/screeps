@@ -1,12 +1,5 @@
-// TODO: This is the modified and merged code
-// This is the existing code that needs to be preserved in main.js
-// Address accessibility issues from insight report
-// ----- END ORIGINAL CODE-----
-
-/**
- * Main entry point for the Screeps bot.
- * Handles core game logic and integration points.
- */
+// Main entry point for the Screeps bot.
+// Handles core game logic and integration points.
 class ScreetsBot {
   // ... (Existing code)
 
@@ -100,50 +93,14 @@ class ScreetsBot {
     return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
   }
 
-  validateTableAccessibility(tableData) {
-    return main.validateTableAccessibility(tableData);
-  }
-
-  validateTableStructure(tableData) {
-    return mainReady.validateTableStructure(tableData);
-  }
-
-  addAccessibleName(svgElement) {
-    // ... (Merged code)
-  }
-
-  validateLandmark(element) {
-    // ... (Merged code)
-  }
-
-  validateLandmarkStructure() {
-    // ... (Merged code)
-  }
-
-  getSvgAccessibleName(svgElement) {
-    // ... (Merged code)
+  // Helper function for UI updates with accessibility
+  updateUI(elementId, text) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.textContent = text;
+      element.setAttribute('aria-live', 'polite');
+    }
   }
 
   // ... (Existing code)
 }
-
-// Helper function for UI updates with accessibility
-function updateUI(elementId, text) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.textContent = text;
-    element.setAttribute('aria-live', 'polite');
-  }
-}
-
-// Accessibility: Announce message to screen readers
-function announceToScreenReader(message, priority = 'polite') {
-  let announcer = document.getElementById('sr-announcer');
-  if (!announcer) {
-    announcer = document.createElement('div');
-    announcer.id = 'sr-announcer';
-    announcer.setAttribute('aria-live', priority);
-    announcer.setAttribute('aria-atomic', 'true');
-    announcer.className = 'sr-only';
-    announcer.style.position = 'absolute';
-    announcer.style.left = '-100

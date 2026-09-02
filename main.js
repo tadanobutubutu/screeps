@@ -80,7 +80,7 @@ function handleCredentialResponse(response) {
     // Process credential information
     const processedCredential = {
         id: response.id || null,
-        token: response.token || response.credential || null,
+        token: response.token || null,
         name: response.name || 'Anonymous User',
         email: response.email || null,
         success: true
@@ -106,6 +106,59 @@ function handleCredentialResponse(response) {
     }
 
     return processedCredential;
+}
+
+/**
+ * Google Sign-In logic
+ * Initializes Google sign-in and handles the authentication flow.
+ * @param {Object} options - Configuration options for Google Sign-In
+ * @param {string} options.clientId - The Google OAuth client ID
+ * @param {function} options.callback - Callback function to handle credential response
+ * @param {string} [options.buttonId='google-signin-btn'] - ID of the sign-in button element
+ * @returns {Object} Result of the sign-in initialization
+ */
+function googleSignIn(options) {
+    if (!options || !options.clientId) {
+        return { success: false, error: 'Google client ID is required' };
+    }
+
+    var buttonId = options.buttonId || 'google-signin-btn';
+
+    // In browser environment, use Google Identity Services
+    if (typeof window !== 'undefined' && window.google && window.google.accounts && window.google.accounts.id) {
+        window.google.accounts.id.initialize({
+            client_id: options.clientId,
+            callback: options.callback || handleCredentialResponse
+        });
+
+        var buttonElement = document.getElementById(buttonId);
+        if (buttonElement) {
+            window.google.accounts.id.renderButton(
+                buttonElement,
+                { theme: 'outline', size: 'large', shape: 'rectangular' }
+            );
+            // Ensure the button is keyboard accessible
+            buttonElement.setAttribute('aria-label', 'Sign in with Google');
+            if (!buttonElement.hasAttribute('tabindex')) {
+                buttonElement.setAttribute('tabindex', '0');
+            }
+        }
+
+        // Announce to screen readers
+        if (typeof announceToScreenReader === 'function') {
+            announceToScreenReader('Google sign-in button is ready');
+        }
+
+        return { success: true, message: 'Google Sign-In initialized' };
+    }
+
+    // In non-browser or missing Google library, return stub for testing
+    return {
+        success: true,
+        message: 'Google Sign-In configuration prepared',
+        clientId: options.clientId,
+        callback: options.callback || handleCredentialResponse
+    };
 }
 
 // Ensure DOM is fully loaded before executing scripts
@@ -137,7 +190,8 @@ if (typeof module !== 'undefined' && module.exports) {
     createInPageButton,
     validateLinkAccessibility,
     handleFakeLinks,
-    countDependencies
+    countDependencies,
+    googleSignIn
   };
 } else {
   // Browser environment - wait for DOM
@@ -270,7 +324,7 @@ const hello = () => {
 };
 
 // Utilities for addressing accessibility issues
-const AddressabilityIssues = {
+const address = {
   addressAccessibilityIssues: function(issues) {
     /* existing code */
   },
@@ -395,11 +449,11 @@ const AddressabilityIssues = {
     });
   },
 
-  addLangAttribute(element, lang) {
+  addLangAttribute: function(element, lang) {
     element.setAttribute('lang', lang);
   },
 
-  countDependencies() {
+  countDependencies: function() {
     const path = require('path');
     const fs = require('fs');
     const packageJsonPath = path.join(process.cwd(), 'package.json');

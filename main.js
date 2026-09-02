@@ -11,26 +11,23 @@ const appState = {
   cache: new Map()
 };
 
-function validateLandmark(landmark) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-
-  if (!landmark.tagName) {
-    issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(landmark.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${landmark.tagName}`);
-  }
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
-}
+import './styles.css';
+import { someFunction } from './otherFile';
 
 const appData = {
   title: 'Screeps',
   version: '1.0.0'
 };
+
+// Replaced JSX with plain JavaScript function to fix syntax error
+function HTML(props) {
+  const { lang } = props || {};
+  return {
+    tagName: 'html',
+    attributes: { lang: lang || getLangAttribute() },
+    children: []
+  };
+}
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
@@ -126,9 +123,6 @@ function validateTableStructure(tables) {
     issues: allIssues
   };
 }
-
-import './styles.css';
-import { someFunction } from './otherFile';
 
 /**
  * Validates landmark elements for accessibility
@@ -343,8 +337,7 @@ function handleAccessibilityIssues(issues = []) {
  * @param {string} options.ariaLabel - ARIA label for the SVG
  * @param {string} options.ariaHidden - ARIA hidden state
  * @param {string} options.role - ARIA role for the SVG
- * @returns {Object} The enhanced SVG element with accessibility properties
- */
+ * @returns {Object} The enhanced SVG element with accessibility properties */
 function addSvgAccessibilityProps(svg, options = {}) {
   const enhancedSvg = { ...svg };
 
@@ -538,6 +531,7 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
+  validateLandmarkAttributes,
   validateLandmarkStructure,
   ensureUniqueLandmarks,
   getSvgAccessibleName,
@@ -545,17 +539,25 @@ module.exports = {
   createAccessibleLink,
   handleAccessibilityIssues,
   addSvgAccessibilityProps,
+  handleCredentialResponse,
+  addLangAttribute,
+  addMainLandmark,
+  setSvgAttributes,
+  addLandmarkRegions,
+  newBranchFunction,
   initializeApp,
   getConfig,
   validateInput,
   processData,
-  addLandmarkRegions,
-  setSvgAttributes,
-  addLangAttribute,
-  validateLandmarkAttributes,
-  fixTableStructure,
-  addMainLandmark,
+  validateCredentialToken,
+  processCredentialAuthentication,
+  upgradeSystem,
+  countDependencies,
   validateLinkAccessibility,
+  validateButtonAccessibility,
+  checkLinkAndButtonAccessibility,
   handleFakeLinks,
+  HTML,
+  fixTableStructure,
   addProperLandmarkRegions
 };

@@ -16,7 +16,7 @@ const {
   exportUtils,
   addressAccessibilityIssues,
   handleCredentialResponse,
-  ensureElementHasId: ensureElementIdOrigin,
+  ensureElementIdOrigin,
   ensureElementId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
@@ -26,31 +26,6 @@ const {
   renderAdditionalContent,
   transformInputData
 } = main;
-
-const accessibilityUtils = {
-  initSkipLink: () => {},
-  trapFocus: (element) => {},
-  createInPageButton,
-  createWebResourceButton: (options) => {},
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  announceToScreenReader,
-  handleKeyboardNav,
-  newFocusTrap,
-  exportUtils,
-  personName,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  handleCredentialResponse,
-  transformInputData
-};
 
 const ensureElementIdOriginal = (element) => {
   if (element && !element.id) {
@@ -78,7 +53,8 @@ const renderDependencyGraph = (data) => {
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 function calculateSum(a, b) { return a + b; }
 
-accessibilityUtils.initSkipLink = () => {
+// Initialize skip link for accessibility
+const initSkipLink = () => {
   const skipLink = document.getElementById('skip-link');
   if (!skipLink) {
     const skipContainer = document.createElement('div');
@@ -94,14 +70,15 @@ accessibilityUtils.initSkipLink = () => {
     const skipLinkElement = document.createElement('a');
     skipLinkElement.href = '#main-content';
     skipLinkElement.textContent = 'Skip to main content';
-    skipLinkElement.ariaLabel = 'Skip to main content';
+    skipLinkElement.setAttribute('aria-label', 'Skip to main content');
     skipContainer.appendChild(skipLinkElement);
 
     document.body.appendChild(skipContainer);
   }
 };
 
-accessibilityUtils.trapFocus = (element) => {
+// Trap focus within an element for accessibility
+const trapFocus = (element) => {
   if (!element) {
     return () => {};
   }
@@ -143,27 +120,6 @@ accessibilityUtils.trapFocus = (element) => {
   };
 };
 
-// Credential response handling
-async function handleCredentialResponse(response) {
-  if (!response) {
-    throw new Error('No response received');
-  }
-
-  if (response.error) {
-    throw new Error(response.error);
-  }
-
-  if (response.token) {
-    return {
-      success: true,
-      token: response.token,
-      expiresIn: response.expiresIn || 3600
-    };
-  }
-
-  throw new Error('Invalid credential response');
-}
-
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
@@ -185,7 +141,7 @@ const exportUtilities = {
     URL.revokeObjectURL(url);
 
     // Announce download completion to screen readers
-    accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
+    announceToScreenReader("Download of " + filename + " started");
   },
 
   exportToJSON: (data, filename) => {
@@ -250,12 +206,12 @@ function filterValidItems(items, validator) {
 
 // Initialize accessibility features
 const initAccessibility = () => {
-  accessibilityUtils.initSkipLink();
+  initSkipLink();
 
   // Add keyboard support for all interactive elements
   document.querySelectorAll('[data-accessible]').forEach(element => {
     element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, {
+      handleKeyboardNav(e, {
         Enter: () => element.click(),
         ' ': () => element.click()
       });
@@ -276,7 +232,6 @@ function groupByCategory(items, getCategory) {
 
 module.exports = {
   ...main,
-  ...accessibilityUtils,
   ensureElementId,
   ensureElementIdOrigin,
   addAriaLabel,

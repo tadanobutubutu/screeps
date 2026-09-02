@@ -655,6 +655,229 @@ function newFunction() {
   document.body.appendChild(button);
 }
 
+/**
+ * Handle credential response from authentication/authorization
+ * @param {Object|string} response - The credential response data (JSON string or object)
+ * @param {Object} options - Configuration options for handling the response
+ * @returns {Object} Processed credential information or validation result
+ */
+function handleCredentialResponse(response, options = {}) {
+  // Parse the response if it's a string
+  let parsedResponse;
+  if (typeof response === 'string') {
+    try {
+      parsedResponse = JSON.parse(response);
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Invalid JSON format in credential response',
+        details: error.message
+      };
+    }
+  } else {
+    parsedResponse = response;
+  }
+
+  // Default options
+  const defaultOptions = {
+    validate: true,
+    store: true,
+    validateToken: false,
+    ...options
+  };
+
+  // Validation step
+  if (defaultOptions.validate) {
+    const validation = validateCredentialResponse(parsedResponse);
+    if (!validation.isValid) {
+      return {
+        success: false,
+        error: 'Credential validation failed',
+        details: validation.errors
+      };
+    }
+  }
+
+  // Token validation step (if requested)
+  if (defaultOptions.validateToken && parsedResponse.token) {
+    const tokenValidation = validateToken(parsedResponse.token);
+    if (!tokenValidation.isValid) {
+      return {
+        success: false,
+        error: 'Token validation failed',
+        details: tokenValidation.errors
+      };
+    }
+  }
+
+  // Process and store credentials if requested
+  let processedCredentials = null;
+  if (defaultOptions.store) {
+    processedCredentials = processCredentials(parsedResponse);
+    
+    // Store credentials in state or secure storage
+    try {
+      storeCredentials(processedCredentials);
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Failed to store credentials',
+        details: error.message
+      };
+    }
+  } else {
+    processedCredentials = parsedResponse;
+  }
+
+  // Return success response
+  return {
+    success: true,
+    credentials: processedCredentials,
+    message: 'Credential response handled successfully'
+  };
+}
+
+/**
+ * Validate credential response structure and content
+ * @param {Object} credentialData - The credential data to validate
+ * @returns {Object} Validation result with isValid flag and errors
+ */
+function validateCredentialResponse(credentialData) {
+  const errors = [];
+  
+  // Check if credentialData is an object
+  if (typeof credentialData !== 'object' || credentialData === null) {
+    errors.push('Credential data must be a non-null object');
+    return {
+      isValid: false,
+      errors: errors
+    };
+  }
+
+  // Required fields validation
+  const requiredFields = ['token', 'userId', 'expiresAt'];
+  requiredFields.forEach(field => {
+    if (!credentialData.hasOwnProperty(field)) {
+      errors.push(`Missing required field: ${field}`);
+    } else if (credentialData[field] === null || credentialData[field] === undefined) {
+      errors.push(`Field ${field} cannot be null or undefined`);
+    }
+  });
+
+  // Token format validation
+  if (credentialData.token) {
+    if (typeof credentialData.token !== 'string') {
+      errors.push('Token must be a string');
+    } else if (credentialData.token.length < 10) {
+      errors.push('Token appears to be invalid (too short)');
+    }
+  }
+
+  // User ID validation
+  if (credentialData.userId) {
+    if (typeof credentialData.userId !== 'string' && typeof credentialData.userId !== 'number') {
+      errors.push('User ID must be a string or number');
+    }
+  }
+
+  // Expiration time validation
+  if (credentialData.expiresAt) {
+    const expiresAt = new Date(credentialData.expiresAt);
+    if (isNaN(expiresAt.getTime())) {
+      errors.push('Invalid expiration date format');
+    } else if (expiresAt <= new Date()) {
+      errors.push('Credential has already expired');
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
+ * Validate authentication token
+ * @param {string} token - The authentication token to validate
+ * @returns {Object} Validation result with isValid flag and errors
+ */
+function validateToken(token) {
+  const errors = [];
+  
+  if (!token) {
+    errors.push('Token is required');
+    return {
+      isValid: false,
+      errors: errors
+    };
+  }
+
+  // Basic token format validation (could be enhanced with JWT decoding)
+  if (typeof token !== 'string') {
+    errors.push('Token must be a string');
+  } else if (token.length < 20) {
+    errors.push('Token appears to be too short to be valid');
+  } else if (!/^[A-Za-z0-9\-_\.]+$/.test(token)) {
+    errors.push('Token contains invalid characters');
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
+ * Process credential data for storage and use
+ * @param {Object} credentialData - Raw credential data
+ * @returns {Object} Processed credential information
+ */
+function processCredentials(credentialData) {
+  // Create a sanitized copy of credential data
+  const processed = {
+    userId: credentialData.userId,
+    token: credentialData.token,
+    expiresAt: credentialData.expiresAt,
+    issuedAt: credentialData.issuedAt || new Date().toISOString(),
+    userAgent: navigator.userAgent,
+    lastUsed: new Date().toISOString()
+  };
+
+  // Add any additional metadata
+  if (credentialData.email) {
+    processed.email = credentialData.email;
+  }
+  
+  if (credentialData.roles) {
+    processed.roles = credentialData.roles;
+  }
+
+  return processed;
+}
+
+/**
+ * Store credentials in state or secure storage
+ * @param {Object} credentials - Processed credential information
+ * @throws {Error} If storage fails
+ */
+function storeCredentials(credentials) {
+  // Store in application state if available
+  if (typeof state !== 'undefined' && state.credentials) {
+    state.credentials = credentials;
+    if (typeof updateState === 'function') {
+      updateState();
+    }
+  }
+
+  // Store in localStorage as fallback
+  try {
+    localStorage.setItem('app_credentials', JSON.stringify(credentials));
+  } catch (error) {
+    // If localStorage fails, throw error
+    throw new Error('Failed to store credentials: ' + error.message);
+  }
+}
+
 // Tower Defense Implementation
 const TOWER_DEFENSE_CONFIG = {
   boardSize: { rows: 8, cols: 8 },

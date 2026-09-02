@@ -411,10 +411,67 @@ function renderDependencyGraph(rootNode) {
   // Renders a dependency graph visualization
   // This function traverses the root node and builds a hierarchical representation
   try {
-    // In a real implementation, this would traverse the DOM tree and create visual elements
-    // For now, we simulate the operation
-    console.log('Rendering dependency graph starting from:', rootNode);
-    return { success: true, message: 'Dependency graph rendered successfully' };
+    if (!rootNode) {
+      return { success: false, errors: ['Root node is required'] };
+    }
+
+    // Recursively build a hierarchical tree from the root node
+    const buildGraph = (node) => {
+      if (!node) return null;
+      const graphNode = {
+        id: node.id || node.name || `node-${Math.random().toString(36).substr(2, 9)}`,
+        name: node.name || node.id || 'Unnamed',
+        type: node.type || 'unknown',
+        dependencies: [],
+        metadata: {}
+      };
+      if (Array.isArray(node.dependencies)) {
+        graphNode.dependencies = node.dependencies.map(dep => buildGraph(dep));
+      }
+      if (Array.isArray(node.dependents)) {
+        graphNode.dependents = node.dependents.map(dep => buildGraph(dep));
+      }
+      return graphNode;
+    };
+
+    const graphData = buildGraph(rootNode);
+
+    if (typeof document !== 'undefined') {
+      // Create a container element for the graph
+      const container = document.createElement('div');
+      container.className = 'dependency-graph';
+      container.setAttribute('role', 'tree');
+      container.setAttribute('aria-label', 'Dependency graph visualization');
+
+      // Recursively render graph nodes into the DOM
+      const renderNode = (data) => {
+        if (!data) return null;
+        const item = document.createElement('div');
+        item.className = `graph-node graph-node-${data.type}`;
+        item.setAttribute('role', 'treeitem');
+        item.setAttribute('data-node-id', data.id);
+        item.textContent = data.name;
+
+        if (data.dependencies && data.dependencies.length > 0) {
+          const childList = document.createElement('div');
+          childList.setAttribute('role', 'group');
+          data.dependencies.forEach(child => {
+            const childElement = renderNode(child);
+            if (childElement) childList.appendChild(childElement);
+          });
+          item.appendChild(childList);
+        }
+        return item;
+      };
+
+      const rootElement = renderNode(graphData);
+      if (rootElement) container.appendChild(rootElement);
+      console.log('Rendering dependency graph starting from:', rootNode);
+    } else {
+      console.log('Rendering dependency graph starting from:', rootNode);
+    }
+
+    return { success: true, message: 'Dependency graph rendered successfully', graph: graphData };
   } catch (error) {
     console.error('Error rendering dependency graph:', error);
     return { success: false, errors: [error.message] };
@@ -426,10 +483,44 @@ function renderIndexView(indexPath) {
   // Renders an index view (breadcrumb or navigation structure)
   // This function generates the appropriate UI for navigating between sections
   try {
-    // In a real implementation, this would generate the appropriate DOM elements
-    // For now, we simulate the operation
-    console.log('Rendering index view at path:', indexPath);
-    return { success: true, message: 'Index view rendered successfully' };
+    const segments = (indexPath || '').split('/').filter(seg => seg.length > 0);
+
+    if (typeof document !== 'undefined') {
+      // Create a navigation element for the breadcrumb trail
+      const nav = document.createElement('nav');
+      nav.className = 'index-view';
+      nav.setAttribute('aria-label', 'Breadcrumb navigation');
+
+      const breadcrumbList = document.createElement('ol');
+      breadcrumbList.className = 'breadcrumb';
+
+      segments.forEach((segment, index) => {
+        const item = document.createElement('li');
+        item.className = 'breadcrumb-item';
+
+        if (index < segments.length - 1) {
+          const link = document.createElement('a');
+          link.href = '/' + segments.slice(0, index + 1).join('/');
+          link.textContent = segment;
+          link.setAttribute('aria-current', 'false');
+          item.appendChild(link);
+        } else {
+          // Last segment is the current page
+          const span = document.createElement('span');
+          span.textContent = segment;
+          span.setAttribute('aria-current', 'page');
+          item.appendChild(span);
+        }
+        breadcrumbList.appendChild(item);
+      });
+
+      nav.appendChild(breadcrumbList);
+      console.log('Rendering index view at path:', indexPath);
+      return { success: true, message: 'Index view rendered successfully', element: nav, segments };
+    } else {
+      console.log('Rendering index view at path:', indexPath);
+      return { success: true, message: 'Index view rendered successfully', segments };
+    }
   } catch (error) {
     console.error('Error rendering index view:', error);
     return { success: false, errors: [error.message] };

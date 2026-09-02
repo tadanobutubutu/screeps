@@ -3,13 +3,32 @@
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: ... -->
 
+// Function to render graph/index
+function renderGraphIndex() {
+    // Validate landmark structure for accessibility
+    if (!validateLandmarkStructure()) {
+        console.warn('Accessibility issues detected in graph/index');
+    }
+    
+    // Create in-page buttons using the new function
+    const prevButton = createInPageButton('prev-btn', 'Previous', 'nav-button');
+    const nextButton = createInPageButton('next-btn', 'Next', 'nav-button');
+    
+    // Existing rendering logic
+    const graphContainer = document.getElementById('graph-container');
+    if (graphContainer) {
+        graphContainer.appendChild(prevButton);
+        graphContainer.appendChild(nextButton);
+    }
+}
+
 // TODO: Implement this function for creating in-page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
-    document.body.appendChild(button);
+    return button;
 }
 
 // Function to validate landmark structure for accessibility issues

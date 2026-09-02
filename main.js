@@ -330,6 +330,14 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
+// Dependency count function at line 184
+function countDependencies(dependencies) {
+  if (!Array.isArray(dependencies)) {
+    return 0;
+  }
+  return dependencies.length;
+}
+
 // Dependency Visualization Tool Functions
 function analyzeModuleDependencies(modules) {
     // Implementation would analyze and return dependency relationships
@@ -416,6 +424,7 @@ module.exports = {
   checkLandmarkElement,
   analyzeModuleDependencies,
   visualizeModuleRelationships,
+  countDependencies,
   getConfig
 };
 

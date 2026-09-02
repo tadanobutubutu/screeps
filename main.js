@@ -22,5 +22,15 @@ module.exports = {
   personName,
   divide,
   checkLinkAccessibility,
-  wrapPrimaryContentInMain
+  wrapPrimaryContentInMain,
+  // New function added after the existing code
+  calculateAverage
+}
+
+function calculateAverage(numbers) {
+  if (!Array.isArray(numbers) || numbers.length === 0) {
+    return null;
+  }
+  const sum = numbers.reduce((acc, num) => acc + num, 0);
+  return sum / numbers.length;
 }

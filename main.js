@@ -1,3 +1,5 @@
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice, Needs Caution
 const books = [];
 const safetyCategory = "User Safety: unsafe";
 const safetyCategories = ["Unauthorized Advice"];

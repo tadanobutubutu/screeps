@@ -12,15 +12,19 @@ const appState = {
 };
 
 function validateLandmark(landmark) {
-  const errors = [];
-  // Existing code that should be preserved
-  // Update landmark validation logic if needed
-  const role = landmark.getAttribute('role');
-  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role');
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+
+  if (!landmark.tagName) {
+    issues.push('Missing tagName');
+  } else if (!validLandmarks.includes(landmark.tagName.toLowerCase())) {
+    issues.push(`Invalid landmark: ${landmark.tagName}`);
   }
-  return errors;
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
 }
 
 const appData = {
@@ -30,7 +34,6 @@ const appData = {
 
 const HTML = ({ lang }) => `<html lang="${lang}"><!-- other children */></html>`;
 
-// TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -40,13 +43,11 @@ const HTML = ({ lang }) => `<html lang="${lang}"><!-- other children */></html>`
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 function getLangAttribute() {
-    // Implementation to get language attribute
-    return document.documentElement.lang || 'en';
+  return document.documentElement.lang || 'en';
 }
 
 function getFullLangAttribute() {
-    // Implementation to get full language attribute
-    return document.documentElement.lang || navigator.language || 'en-US';
+  return document.documentElement.lang || navigator.language || 'en-US';
 }
 
 /**
@@ -57,7 +58,7 @@ function getFullLangAttribute() {
 function validateTableAccessibility(table) {
   const issues = [];
 
-  // Check for caption (from origin/main)
+  // Check for caption (from both branches)
   if (!table.querySelector || !table.querySelector('caption')) {
     issues.push('Missing caption element');
   }
@@ -88,7 +89,7 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(tables) {
   const allIssues = [];
-  
+
   // Handle both single table element and array of tables
   const tableArray = Array.isArray(tables) ? tables : [tables];
 
@@ -102,33 +103,19 @@ function validateTableStructure(tables) {
       });
     }
 
-    // Additional structure validation can be added here
+    // Validate table accessibility (from HEAD and origin/main)
+    const result = validateTableAccessibility(table);
+    if (!result.success) {
+      allIssues.push({
+        tableIndex: index,
+        issues: result.issues
+      });
+    }
   });
 
   return {
     success: allIssues.length === 0,
     issues: allIssues
-  };
-}
-
-/**
- * Validates landmark elements for accessibility
- * @param {Object} element - The element to validate
- * @returns {Object} Validation result with success status and any issues found
- */
-function validateLandmark(element) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-
-  if (!element.tagName) {
-    issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${element.tagName}`);
-  }
-
-  return {
-    success: issues.length === 0,
-    issues
   };
 }
 

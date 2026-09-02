@@ -293,6 +293,30 @@ function createInPageButton (buttonId, buttonText, buttonClass) {
 
 // Don't forget to test your new additions in the test file
 
+/**
+ * Renders a dependency graph as an HTML string.
+ * @param {Object} graph - An object where keys are node names and values are arrays of dependent node names.
+ * @returns {string} HTML string representing the dependency graph.
+ */
+function renderDependencyGraph (graph) {
+  if (typeof graph !== 'object' || graph === null) return ''
+  let html = '<ul class="dependency-graph">'
+  Object.keys(graph).forEach(node => {
+    const deps = graph[node]
+    html += `<li><strong>${node}</strong>`
+    if (Array.isArray(deps) && deps.length > 0) {
+      html += '<ul>'
+      deps.forEach(dep => {
+        html += `<li>${dep}</li>`
+      })
+      html += '</ul>'
+    }
+    html += '</li>'
+  })
+  html += '</ul>'
+  return html
+}
+
 // Export accessibility utility functions
 module.exports = {
   addLangAttribute,
@@ -306,7 +330,8 @@ module.exports = {
   createInPageButton,
   divide,
   checkLinkAccessibility,
-  wrapPrimaryContentInMain
+  wrapPrimaryContentInMain,
+  renderDependencyGraph
 }
 
 // Run if executed directly

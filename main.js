@@ -13,7 +13,7 @@ function createAccessibleWebResourceButton(url, text) {
   const button = document.createElement('button');
   button.setAttribute('type', 'button');
   button.setAttribute('aria-label', text);
-  button.innerHTML = `<a href="${url}" ...`;
+  button.innerHTML = `<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`;
   return button;
 }
 
@@ -52,9 +52,9 @@ function checkLandmarkElements(htmlContent) {
   const foundLandmarks = {};
 
   // Check for each landmark element in the HTML content
-  LANDMARK_ELEMENTS.forEach(landmark => {
+  LANDMARK_ELEMENTS.forEach((landmark) => {
     // Use case-insensitive regex to find landmark elements
-    const regex = new RegExp(`<${landmark}`, 'gi');
+    const regex = new RegExp(`<${landmark}[^>]*>`, 'gi');
     const matches = htmlContent.match(regex);
     if (matches) {
       foundLandmarks[landmark] = matches.length;
@@ -67,7 +67,7 @@ function checkLandmarkElements(htmlContent) {
   }
 
   // Check for duplicate landmarks (potential issue)
-  Object.keys(foundLandmarks).forEach(landmark => {
+  Object.keys(foundLandmarks).forEach((landmark) => {
     if (foundLandmarks[landmark] > 1) {
       warnings.push(`Multiple ${landmark} elements found`);
     }
@@ -103,7 +103,7 @@ function createInPageButton(options) {
 
   // Create button object
   const button = {
-    id: id || `btn-${Date.now()}`,
+    id: id || `button-${Date.now()}`,
     text: String(text),
     title: title || '',
     className: className || 'default-button',
@@ -134,7 +134,7 @@ function createInPageButton(options) {
 function countDependencies() {
   // New implementation to count dependencies using dependencyGraphContent and regex
   const importCommentRegExp = /import\s+.*\s+from\s+/g;
-  const importCount = (dependencyGraphContent && dependencyGraphContent.match(importCommentRegExp)) || [];
+  const importCount = (dependencyGraphContent && dependencyGraphContent.source || []).match(importCommentRegExp) || [];
   return importCount.length;
 }
 
@@ -143,7 +143,7 @@ const a11yStore = {};
 
 // Render index view content using indexContent
 function renderIndexView() {
-  return indexContent;
+  return indexContent || {};
 }
 
 // New function to handle adding landmark regions
@@ -156,7 +156,7 @@ function addLandmarkRegions() {
 
   return {
     landmarks,
-    regions: Object.keys(landmarks).filter(key => landmarks[key])
+    regions: Object.keys(landmarks).filter((key) => landmarks[key])
   };
 }
 
@@ -225,7 +225,7 @@ function checkLandmarkElementsInDOM() {
 // New function to add SVG accessibility props
 function addSvgAccessibilityProps(svg) {
   if (!svg) return;
-  if (!svg.hasAttribute('role')) {
+  if (!svg.getAttribute('role') && !svg.getAttribute('aria-label')) {
     svg.setAttribute('role', 'img');
   }
 }
@@ -246,7 +246,7 @@ function newFunction() {
 // ADD YOUR CODE HERE if any other issues need to be addressed
 // Example of addressing REACT_015: Add lang attribute to HTML element
 function addLangAttribute() {
-  const htmlElement = document && document.querySelector('html');
+  const htmlElement = document && document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', 'en'); // Assuming English, replace with appropriate lang attribute value
   }

@@ -195,6 +195,31 @@ function newFunction() {
   // Implement specific fixes based on insight report when available
 }
 
+// Add accessible names to SVG elements for improved accessibility
+function addSvgAccessibleNames(svgs) {
+  if (!Array.isArray(svgs)) {
+    svgs = [svgs];
+  }
+  return svgs.map(svg => addAccessibleNamesToSVGs(svg));
+}
+
+// Add accessible names to a single SVG element
+function addAccessibleNamesToSVGs(svg) {
+  if (!svg || typeof svg !== 'object') {
+    return svg;
+  }
+
+  // Ensure the SVG has an accessible name
+  if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    const title = svg.querySelector('title');
+    if (title && title.textContent) {
+      svg.setAttribute('aria-label', title.textContent);
+    }
+  }
+
+  return svg;
+}
+
 module.exports = {
   checkLandmarkElements,
   createInPageButton,
@@ -215,5 +240,7 @@ module.exports = {
   getSvgAccessibleName,
   ensureUniqueLandmarks,
   checkLandmarkElementsInDom,
-  renderIndexView
+  renderIndexView,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs
 };

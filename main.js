@@ -160,6 +160,232 @@ function checkLinkAccessibility () {
   return issues
 }
 
+// TODO: Implement function for generating a report based on accessibility issues
+/**
+ * Generates a report based on accessibility issues found in HTML content
+ * @param {string} html - The HTML content to analyze
+ * @returns {Object} A report object containing all accessibility issues found
+ */
+function generateAccessibilityReport (html) {
+  const report = {
+    issues: [],
+    summary: {
+      total: 0,
+      langAttribute: 0,
+      tableStructure: 0,
+      landmarks: 0,
+      svgAccessibleNames: 0,
+      uniqueLandmarks: 0,
+      fakeLinks: 0,
+      linkAccessibility: 0
+    }
+  }
+
+  if (typeof html !== 'string') {
+    return report
+  }
+
+  // Check for lang attribute on <html> (REACT_015)
+  if (!/<html[^>]*\blang=/i.test(html)) {
+    report.issues.push({
+      type: 'REACT_015',
+      description: 'Missing lang attribute on <html> element',
+      severity: 'critical',
+      element: '<html>'
+    })
+    report.summary.langAttribute++
+    report.summary.total++
+  }
+
+  // Check for table structure issues (REACT_027)
+  const tableMatches = html.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || []
+  tableMatches.forEach((table, index) => {
+    if (!/<caption/i.test(table)) {
+      report.issues.push({
+        type: 'REACT_027',
+        description: `Table ${index + 1} missing <caption> element`,
+        severity: 'warning',
+        element: '<table>'
+      })
+      report.summary.tableStructure++
+      report.summary.total++
+    }
+
+    if (!/<thead/i.test(table)) {
+      report.issues.push({
+        type: 'REACT_027',
+        description: `Table ${index + 1} missing <thead> element`,
+        severity: 'warning',
+        element: '<table>'
+      })
+      report.summary.tableStructure++
+      report.summary.total++
+    }
+
+    if (!/<tbody/i.test(table)) {
+      report.issues.push({
+        type: 'REACT_027',
+        description: `Table ${index + 1} missing <tbody> element`,
+        severity: 'warning',
+        element: '<table>'
+      })
+      report.summary.tableStructure++
+      report.summary.total++
+    }
+
+    // Check for th elements without scope attribute
+    const thMatches = table.match(/<th([^>]*)>/gi) || []
+    thMatches.forEach((th) => {
+      if (!/\bscope=/i.test(th)) {
+        report.issues.push({
+          type: 'REACT_027',
+          description: 'Table header cell missing scope attribute',
+          severity: 'warning',
+          element: '<th>'
+        })
+        report.summary.tableStructure++
+        report.summary.total++
+      }
+    })
+  })
+
+  // Check for landmark issues (REACT_017)
+  const hasMain = /<main[^>]*>/i.test(html) || /<div[^>]*role=["']main["']/i.test(html)
+  const hasNav = /<nav[^>]*>/i.test(html) || /<div[^>]*role=["']navigation["']/i.test(html)
+  const hasAside = /<aside[^>]*>/i.test(html) || /<div[^>]*role=["']complementary["']/i.test(html)
+  const hasFooter = /<footer[^>]*>/i.test(html) || /<div[^>]*role=["']contentinfo["']/i.test(html)
+
+  if (!hasMain) {
+    report.issues.push({
+      type: 'REACT_017',
+      description: 'Missing <main> landmark',
+      severity: 'critical',
+      element: '<main>'
+    })
+    report.summary.landmarks++
+    report.summary.total++
+  }
+
+  if (!hasNav) {
+    report.issues.push({
+      type: 'REACT_017',
+      description: 'Missing <nav> landmark',
+      severity: 'warning',
+      element: '<nav>'
+    })
+    report.summary.landmarks++
+    report.summary.total++
+  }
+
+  if (!hasAside) {
+    report.issues.push({
+      type: 'REACT_017',
+      description: 'Missing <aside> landmark (supplementary content)',
+      severity: 'info',
+      element: '<aside>'
+    })
+    report.summary.landmarks++
+    report.summary.total++
+  }
+
+  if (!hasFooter) {
+    report.issues.push({
+      type: 'REACT_017',
+      description: 'Missing <footer> landmark',
+      severity: 'warning',
+      element: '<footer>'
+    })
+    report.summary.landmarks++
+    report.summary.total++
+  }
+
+  // Check for SVG accessibility issues (REACT_041)
+  const svgMatches = html.match(/<svg([^>]*)>[\s\S]*?<\/svg>/gi) || []
+  svgMatches.forEach((svg, index) => {
+    const hasTitle = /<title/i.test(svg)
+    const hasAriaLabel = /\baria-label=/i.test(svg)
+    const hasAriaLabelledBy = /\baria-labelledby=/i.test(svg)
+
+    if (!hasTitle && !hasAriaLabel && !hasAriaLabelledBy) {
+      report.issues.push({
+        type: 'REACT_041',
+        description: `SVG ${index + 1} missing accessible name (title, aria-label, or aria-labelledby)`,
+        severity: 'warning',
+        element: '<svg>'
+      })
+      report.summary.svgAccessibleNames++
+      report.summary.total++
+    }
+  })
+
+  // Check for unique landmark issues (REACT_025)
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form']
+  landmarkRoles.forEach((role) => {
+    const pattern = new RegExp(`role=["']${role}["']`, 'gi')
+    const matches = html.match(pattern)
+    if (matches && matches.length > 1) {
+      report.issues.push({
+        type: 'REACT_025',
+        description: `Duplicate ${role} landmark role found (${matches.length} instances)`,
+        severity: 'warning',
+        element: `[role="${role}"]`
+      })
+      report.summary.uniqueLandmarks++
+      report.summary.total++
+    }
+  })
+
+  // Check for duplicate HTML5 landmark elements
+  const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer']
+  html5Landmarks.forEach((tag) => {
+    const pattern = new RegExp(`<${tag}[^>]*>`, 'gi')
+    const matches = html.match(pattern)
+    if (matches && matches.length > 1) {
+      report.issues.push({
+        type: 'REACT_025',
+        description: `Duplicate <${tag}> landmark element found (${matches.length} instances)`,
+        severity: 'warning',
+        element: `<${tag}>`
+      })
+      report.summary.uniqueLandmarks++
+      report.summary.total++
+    }
+  })
+
+  // Check for fake link issues (REACT_036)
+  const fakeLinkPattern = /<span([^>]*)onclick=["']([^"']*window\.location[^"']*)["']([^>]*)>/gi
+  let fakeLinkMatch
+  while ((fakeLinkMatch = fakeLinkPattern.exec(html)) !== null) {
+    report.issues.push({
+      type: 'REACT_036',
+      description: 'Fake link detected (span/div with onclick window.location)',
+      severity: 'critical',
+      element: '<span onclick="...">'
+    })
+    report.summary.fakeLinks++
+    report.summary.total++
+  }
+
+  // Check for link accessibility issues
+  const linkPattern = /<a[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi
+  let linkMatch
+  while ((linkMatch = linkPattern.exec(html)) !== null) {
+    const linkText = (linkMatch[2] || '').replace(/<[^>]*>/g, '').trim()
+    if (!linkText) {
+      report.issues.push({
+        type: 'REACT_017',
+        description: `Link with href="${linkMatch[1]}" has no accessible text`,
+        severity: 'warning',
+        element: '<a>'
+      })
+      report.summary.linkAccessibility++
+      report.summary.total++
+    }
+  }
+
+  return report
+}
+
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic
 /**
  * Wraps the primary content of the page in a <main> element for improved accessibility.
@@ -306,7 +532,8 @@ module.exports = {
   createInPageButton,
   divide,
   checkLinkAccessibility,
-  wrapPrimaryContentInMain
+  wrapPrimaryContentInMain,
+  generateAccessibilityReport
 }
 
 // Run if executed directly

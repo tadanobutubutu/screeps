@@ -302,4 +302,8 @@ function newFunction3() {
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };
 
+// TODO: Implement logic to create an in-page button element
+// and insert it into the DOM at an appropriate location
+createInPageButton('new-button', 'Click Me', 'btn-primary');
+
 const main = require('./utilities');

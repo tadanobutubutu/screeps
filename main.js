@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,

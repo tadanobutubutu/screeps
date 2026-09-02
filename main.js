@@ -708,6 +708,23 @@ if (require.main === module) {
     });
 }
 
+/**
+ * Generate an accessibility report for the current document.
+ * @returns {Object} Accessibility report containing various checks.
+ */
+function generateAccessibilityReport() {
+  const report = {
+    timestamp: new Date().toISOString(),
+    landmarks: validateLandmark(document),
+    tables: Array.from(document.querySelectorAll('table')).map(table => validateTableAccessibility(table)),
+    svgs: Array.from(document.querySelectorAll('svg')).map(svg => ({
+      name: getSvgAccessibleName(svg)
+    })),
+    // Additional checks can be added as needed
+  };
+  return report;
+}
+
 // Export modules for testing
 module.exports = {
     addSvgAccessibilityProps,
@@ -735,5 +752,6 @@ module.exports = {
     wrapPrimaryContentInMain,
     checkLandmarks,
     ensureUniqueLandmarks,
-    getSvgAccessibleName
+    getSvgAccessibleName,
+    generateAccessibilityReport
 };

@@ -1,282 +1,111 @@
 import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
-
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
-// Landmark data structure
-const landmarks = [];
-
-// Application data structure
-const appData = {
-    title: 'Frontend Application',
-    version: '1.0.0'
-};
+import { generateDependencyReport, utils, axe } from './utils';
+import { validateLandmark, validateLandmarkData, addLandmarkRoles } from './utils/accessibility';
 
 let icons = {};
+let dependencyGraph = {};
 
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+const books = [];
+const booksForm = document.querySelector('.books-form');
 
-// Implemented validateLandmark functionality
-function validateLandmark(landmark) {
+export const validateLandmarkInput = (landmark) => {
   const errors = [];
 
-  // Check if landmark exists
-  if (!landmark) {
-    errors.push('Landmark is required');
-    return { valid: false, errors };
+  if (!validateLandmark(landmark)) {
+    errors.push('Landmark is missing or invalid');
   }
 
-  // Validate name
-  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
-    errors.push('Landmark must have a valid name');
-  }
-
-  // Validate latitude
-  if (landmark.latitude === undefined || landmark.latitude === null) {
-    errors.push('Landmark must have a latitude');
-  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
-    errors.push('Landmark latitude must be a number');
-  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
-    errors.push('Landmark latitude must be between -90 and 90');
-  }
-
-  // Validate longitude
-  if (landmark.longitude === undefined || landmark.longitude === null) {
-    errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || ... {
-    errors.push('Landmark longitude must be a number');
-  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
-    errors.push('Landmark longitude must be between -180 and 180');
-  }
-
-  // Additional validation changes from the other branch
-  if (Array.isArray(landmark) && landmark.length > 0) {
-    if (!landmark[0].name || typeof landmark[0].name !== 'string' || landmark[0].name.trim() === '') {
-      errors.push('Landmark array must have a name');
-    }
-  }
-
-  // Check for updated validation changes from another branch that also checks for array composition
-  if (Array.isArray(landmark)) {
-    landmark.forEach(innerLandmark => {
-      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
-        errors.push('Landmark array must have valid names');
-      }
-    });
+  if (booksForm && booksForm.querySelector(`[data-id="${landmark.id}"]`)) {
+    errors.push('A book already exists with this landmark ID');
   }
 
   return {
     valid: errors.length === 0,
     errors
   };
-}
+};
 
-/**
- * Function to check if the specified landmark element is in the document.
- * @param {string} id - The ID of the landmark element.
- * @returns {boolean} Returns true if the element exists; otherwise, false.
- */
-function checkLandmarkElement(id) {
-  const element = ...
-  return element !== null;
-}
+const landmarkStructureCheck = (landmark) => {
+  const issues = [];
 
-// Ensure unique landmarks by filtering duplicates
-function ensureUniqueLandmarks(landmarksArray) {
-  if (!landmarksArray || landmarksArray.length === 0) {
-      return {};
+  if (!landmark) {
+    issues.push('Missing landmark element');
   }
-  const seen = new Set();
-  return landmarksArray.filter(landmark => {
-    const key = landmark.name + '_' + (landmark.role || 'default');
-    // Merge both approaches for checking uniqueness
-    if (seen.has(key)) {
-        return false;
-    }
-    seen.add(key);
-    return true;
-  });
-}
-
-// New function for creating in-page buttons
-function createInPageButtons(buttonsData) {
-  const buttonsContainer = ...
-
-  if (!buttonsContainer) {
-    console.error('In-page buttons container not found');
-    return;
+  if (!landmark.getAttribute('role')) {
+    issues.push('Landmark is missing ARIA role attribute');
   }
 
-  buttonsData.forEach(buttonData => {
-    const button = document.createElement('button');
-    button.id = buttonData.id;
-    button.textContent = buttonData.text;
-    button.setAttribute('data-role', buttonData.role);
+  return issues;
+};
 
-    ... () => {
-      location.hash = buttonData.href;
-    });
-
-    ...
-  });
-}
-
-// ... (previous and updated code remains as it is)
-
-// Updated function: ensures landmarks uniqueness when there's an array structure
-function ensureLandmarkUniqueness(elements) {
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-
-  const elementsById = {};
-
-  if (Array.isArray(elements)) {
-    for (const landmark of elements) {
-      if (landmark.id) {
-        if ... {
-          ... = true;
-        } else {
-          landmark.id += '_duplicate';
-        }
-      }
-    }
+export const addBook = (book) => {
+  if (validateLandmarkInput(book).valid) {
+    books.push(book);
+    renderBooks(books);
   }
+};
 
-  return elements;
-}
+export const addBookAccessibility = () => {
+  const bookForm = document.querySelector('.books-form');
 
-// Function to count dependencies
-function countDependencies() {
-  const dependencies = {
-    'react': true,
-    'react-redux': true,
-    'antd': true
-  };
-  return ...
-}
-
-// New function to add a book with accessibility features
-function ... {
-  const bookForm = ...
   if (!bookForm) {
     console.error('Book form not found');
     return;
   }
 
   // Create form elements with proper ARIA attributes
-  const titleInput = ...
-  titleInput.type = 'text';
-  titleInput.id = 'book-title';
+  const titleInput = bookForm.querySelector('#titleInput');
   titleInput.setAttribute('aria-label', 'Book title');
-  ... 'true');
-
-  const authorInput = ...
-  authorInput.type = 'text';
-  authorInput.id = 'book-author';
-  ... 'Book author');
-  ... 'true');
-
-  const submitButton = document.createElement('button');
-  submitButton.type = 'submit';
-  submitButton.textContent = 'Add Book';
-  ... 'Submit new book');
+  const authorInput = bookForm.querySelector('#authorInput');
+  authorInput.setAttribute('aria-label', 'Book author');
 
   // Add labels for better accessibility
-  const titleLabel = ...
-  titleLabel.htmlFor = 'book-title';
+  const titleLabel = document.createElement('label');
+  titleLabel.htmlFor = 'titleInput';
   titleLabel.textContent = 'Title:';
+  bookForm.prepend(titleLabel);
 
-  const authorLabel = ...
-  authorLabel.htmlFor = 'book-author';
+  const authorLabel = document.createElement('label');
+  authorLabel.htmlFor = 'authorInput';
   authorLabel.textContent = 'Author:';
+  bookForm.appendChild(authorLabel);
+};
 
-  // Append elements to form
-  ...
-  ...
-  ...
-  ...
-  ...
+export const addMainLandmark = () => {
+  const main = document.createElement('main');
+  main.id = 'main';
+  main.role = 'main';
 
-  // Add event listener for form submission
-  ... (e) => {
-    e.preventDefault();
-    const title = titleInput.value.trim();
-    const author = ...
+  document.body.appendChild(main);
+};
 
-    if (!title || !author) {
-      alert('Please fill in all required fields');
+export const addProperLandmarkRegions = () => {
+  const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+
+  landmarks.forEach((type) => {
+    const el = document.querySelector(`[role="${type}"]`);
+
+    if (!el || !el.id) {
+      console.error(`Missing or lacking ID attribute on ${type} landmark`);
       return;
     }
 
-    // Here you would typically add the book to your data structure
-    console.log('Book added:', { title, author });
-
-    // Clear form after submission
-    bookForm.reset();
+    el.setAttribute('aria-labelledby', el.id);
   });
-}
+};
 
-// Function to render dependency graph - marked as N/A since no dependency graph rendering exists in this file
-function renderDependencyGraph() {
-  // N/A - No dependency graph rendering functionality exists in this file
-  console.warn('renderDependencyGraph: N/A - No dependency graph rendering exists in main.js');
-  return null;
-}
+export const handleCredentialResponse = (credentialResponse) => {
+  // ...
+};
 
-// Function to render dependency graph content - marked as N/A since no dependency graph content rendering exists in this file
-function renderDependencyGraphContent() {
-  // N/A - No dependency graph content rendering functionality exists in this file
-  console.warn('renderDependencyGraphContent: N/A - No dependency graph content rendering exists in main.js');
-  return null;
-}
+export const handleFakeLinks = () => {
+  // ...
+};
 
-// Function to render index view - marked as N/A since this file does not render dependency graphs
-function renderIndexView() {
-  // N/A - This function does not render dependency graphs
-  console.warn('renderIndexView: N/A - Index view rendering does not involve dependency graphs in main.js');
-  return null;
-}
+export const renderBooks = (books) => {
+  // ...
+};
 
-// Export functions for testing
-export {
-  checkLandmarkElement,
-  ensureUniqueLandmarks,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  initApp,
-  landmarks,
-  appData,
-  icons,
-  validateLandmark,
-  ensureFocusableElements,
-  renderDependencyGraphContent,
-  ensureLandmarkUniqueness,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  countDependencies,
-  createInPageButtons, // Added new export
-  addBookAccessibility
+export default initializeApp;

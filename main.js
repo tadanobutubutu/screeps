@@ -6,6 +6,9 @@
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// Added functions to handle modification requests from the other branch:
+// - validateLandmarkData
+// - ensureLandmarkUniqueness
 
 import './styles.css';
 import { initializeApp } from './app.js';
@@ -21,14 +24,6 @@ const appData = {
 };
 
 let icons = {};
-
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
 // New functions added to address accessibility issues from insight report
 function getLangAttribute() {
@@ -151,8 +146,6 @@ function validateLandmarkData(landmark) {
   };
 }
 
-// ... (previous and updated code remains as it is)
-
 // Updated function: ensures landmarks uniqueness when there's an array structure
 function ensureLandmarkUniqueness(elements) {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -265,6 +258,7 @@ export {
   createAccessibleLink,
   handleAccessibilityIssues,
   validateLandmarkData,
+  validateLandmarkData, // Include updated validateLandmarkData functionality
   ensureLandmarkUniqueness,
   renderDependencyGraphContent,
   addLangAttribute,

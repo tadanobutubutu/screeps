@@ -1,70 +1,110 @@
-const main = require('./utilities')
-const React = require('react')
-const { render } = require('react-dom')
-const {
+// Import necessary dependencies
+import React from 'react'
+import { render } from 'react-dom'
+import {
   addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs
-} = require('./AccessibilityHelpers')
+  addMainLandmarkToIndex,
+  focusTrap,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  addAccessibleName,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  fixDependencyGraphAria,
+  validateSession,
+  handleCredentialResponse
+} from './AccessibilityHelpers';
 
-// Session management helpers
-function getActiveSessionsCount() {
-  return main.appState.sessions.size
-}
+const main = require('./utilities');
 
-function validateSession() {
-  // Implementation of the validateSession function
-  // Placeholder for actual implementation
-  return false
-}
+// Access the dependencyGraph container and ensure it has proper ARIA role
+const dependencyGraph = document.getElementById('dependencyGraph')
 
-function handleCredentialResponse(response) {
-  // Implementation of the handleCredentialResponse function
-  // Placeholder for actual implementation
-  console.log('Credential Response:', response)
-}
+if (dependencyGraph) {
+  // Set appropriate ARIA role for the dependency graph container
+  // Using 'region' role for a contained section of content
+  if (!dependencyGraph.hasAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'region')
+  }
 
-// Rendering helpers
-function renderAdditionalContent(additionalData) {
-  // Implementation of the new function
-  // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
-}
+  // Add accessible label if not already present
+  if (!dependencyGraph.hasAttribute('aria-label')) {
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
+  }
 
-// Accessibility utilities
-const accessibilityUtils = {
-  initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link')
-    if (skipLink) {
-      skipLink.addEventListener('click', (e) => {
-        e.preventDefault()
-        const target = document.querySelector(skipLink.getAttribute('href'))
-        if (target) {
-          target.setAttribute('tabindex', '-1')
-          target.focus()
-        }
-      })
-    }
-  },
+  // Ensure element has an ID if not present
+  if (!dependencyGraph.hasAttribute('id')) {
+    dependencyGraph.id = 'dependencyGraph';
+  }
 
-  trapFocus: (element) => {
-    const focusableElements = element.querySelectorAll(
-      'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    )
+  // Ensure the container is focusable if it's interactive
+  if (!dependencyGraph.hasAttribute('tabindex')) {
+    dependencyGraph.setAttribute('tabindex', '0')
+  }
 
-    const firstElement = focusableElements[0]
-    const lastElement = focus
+  // Import specific helper functions from main module
+  const {
+    createInPageButton: createInPageButtonAlt,
+    createWebResourceButton: createWebResourceButtonAlt,
+    validateLandmark: validateLandmarkAlt,
+    validateLandmarkStructure: validateLandmarkStructureAlt,
+    getSvgAccessibleName: getSvgAccessibleNameAlt,
+    getLangAttribute: getLangAttributeAlt,
+    validateAccessibilityReport: validateAccessibilityReportAlt,
+    exportUtils: exportUtilsAlt,
+    addressAccessibilityIssues: addressAccessibilityIssuesAlt,
+    fixDependencyGraphAria,
+    addMainLandmarkToIndex,
+    focusTrap,
+    createInPageButton,
+    createWebResourceButton,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    addAccessibleName,
+    validateAccessibilityReport,
+    exportUtils,
+    addressAccessibilityIssues,
+    validateSession,
+    handleCredentialResponse
+  } = main
+
+  // Import React components
+  import App from './App'
+
+  // Run the application
+  render(<App />, document.getElementById('root'))
+
+  // Other code...
+
+  // Export the functions to be used elsewhere in the application
+  export {
+    implementAccessibilityFixesFromReport,
+    checkAccessibilityForReport,
+    createInPageButton,
+    createWebResourceButton,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    addAccessibleName,
+    validateAccessibilityReport,
+    exportUtils,
+    addressAccessibilityIssues,
+    fixDependencyGraphAria,
+    addMainLandmarkToIndex,
+    focusTrap,
+    validateSession,
+    handleCredentialResponse
+  }
+
+  // Call the functions to address the accessibility issues on initial load
+  implementAccessibilityFixesFromReport(document.body)
+
+  // Helper function for logging
+  function log(message, level = 'info') {
+    console[level](`[main.js] ${message}`);
+  }

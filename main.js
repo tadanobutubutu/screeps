@@ -348,3 +348,20 @@ function newFunctionForMain() {
 
 // Update or create any other necessary functions here
 //------ END CHANGES------
+
+// Export all functions for external use
+export {
+    addLangAttribute,
+    fixTableStructure,
+    fixLandmarks,
+    addSvgAccessibleNames,
+    ensureUniqueLandmarks,
+    fixFakeLinks,
+    applyAccessibilityFixes,
+    addressAccessibilityIssues,
+    createInPageButton,
+    renderAccessibilityReport,
+    renderUIComponents,
+    addBook,
+    newFunctionForMain
+};

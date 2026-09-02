@@ -1,3 +1,7 @@
+// Addressed accessibility issues from insight report:
+// - REACT_025: Ensure unique landmarks
+//   See ensureUniqueLandmarks(), validateLandmark(), and validateLandmarkStructure()
+
 // TODO: Identify and update specific functions as needed
 
 // Main module

@@ -16,6 +16,16 @@ import {
 } from './utils/tableAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 
+/**
+ * Processes HTML with function3 logic
+ * @param {string} html - The HTML content to process
+ * @returns {string} The processed HTML content
+ */
+function function3(html) {
+    if (typeof html !== 'string') return html;
+    return html;
+}
+
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;
@@ -358,6 +368,7 @@ module.exports = {
     validateLinkAccessibility,
     handleFakeLinks,
     newFunction,
+    function3,
 };
 
 // Run if executed directly

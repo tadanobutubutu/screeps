@@ -1,6 +1,6 @@
-const main = require('./utilities')
 const React = require('react');
 const { setElementLabel } = require('./AccessibilityHelpers');
+const main = require('./utilities');
 
 // Main entry point for the Screeps bot.
 // Handles core game logic and integration points.
@@ -65,6 +65,23 @@ function handleTabNavigation(event, activeElement) {
 // Import and use existing functions from utilities (alongside new functions)
 const { renderDependencyGraphs, isLandmarkElement, parseCredentialResponse, sanitizeFilename, processData, generateSessionId, validateTableStructure, validateTableAccessibility, validateLandmark, validateLandmarkStructure, createInPageButton, personName, validateSession, revokeSession, getActiveSessionsCount, server, updateDependencyGraph, calculateComplexity, setHtmlLangAttribute } = main;
 
+// Add functions from AccessibilityHelpers
+function setElementLabelFromAccessibilityHelpers(elementId, label) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.setAttribute('aria-label', label);
+    element.setAttribute('role', 'button');
+  }
+}
+
+// Modified main entry point with imported functions
+function mainModified() {
+  // ... Existing main function implementation ...
+  // Use imported renderDependencyGraphs function
+  renderDependencyGraphs(dependencyGraphContent);
+}
+
+// Export merged functions
 module.exports = {
   addTask,
   setFocus,
@@ -87,5 +104,6 @@ module.exports = {
   server,
   updateDependencyGraph,
   calculateComplexity,
-  setHtmlLangAttribute
-}
+  setHtmlLangAttribute,
+  setElementLabelFromAccessibilityHelpers
+};

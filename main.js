@@ -28,6 +28,27 @@ const appData = {
 let config = {};
 let appState = {};
 
+// Added from origin/main
+const CONFIG = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
+function someFunction() {
+  return 'some value';
+}
+
+function helper(input) {
+  return input ? input.toUpperCase() : '';
+}
+
+function formatDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.toISOString().split('T')[0];
+}
+
 // Initialize function
 function initialize() {
   config = { apiUrl: process.env.API_URL || 'https://api.example.com', timeout: 5000 };
@@ -656,22 +677,10 @@ module.exports = {
   addLandmarkRegions,
   generateAccessibilityReport,
   // Added from origin/main
-  someFunction: function() {
-    return 'some value';
-  },
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
-  helper: function(input) {
-    return input ? input.toUpperCase() : '';
-  },
-  formatDate: function(date) {
-    if (!(date instanceof Date)) {
-      date = new Date(date);
-    }
-    return date.toISOString().split('T')[0];
-  },
+  someFunction,
+  CONFIG,
+  helper,
+  formatDate,
   // Accessibility Functions
   addProperLandmarkRegions
 };

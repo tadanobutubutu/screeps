@@ -171,7 +171,13 @@ function ensureUniqueLandmarksLocal(landmarks) {
     if (!landmark || typeof landmark.id === 'undefined') {
       continue;
     }
-    return element;
+    if (!seen.has(landmark.id)) {
+      seen.add(landmark.id);
+      uniqueLandmarks.push(landmark);
+    }
+  }
+
+  return uniqueLandmarks;
 }
 
 // TODO: Address accessibility issues from insight report:
@@ -249,5 +255,3 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraph
 };
-
-// This resolved file combines both versions of the code, keeping functionality from both and avoiding syntax errors. It also keeps comments and style as much as possible.

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Import necessary dependencies
 import React from 'react'
 import { render } from 'react-dom'
@@ -22,6 +19,7 @@ import {
   handleCredentialResponse,
   harvest
 } from './AccessibilityHelpers';
+import App from './App';
 
 const main = require('./utilities');
 
@@ -50,15 +48,13 @@ if (dependencyGraph) {
     dependencyGraph.setAttribute('tabindex', '0')
   }
 
-  // Function to check link and button accessibility (merged changes)
+  // Function to check link and button accessibility
   function checkLinkAndButtonAccessibility() {
     const links = document.querySelectorAll('a, button');
-    const hasAccessibleLinks = links.some(link => link.textContent.trim());
-
-    return hasAccessibleLinks;
+    return links.every(link => link.textContent.trim().length > 0);
   }
 
-  // Function to validate landmark structure for accessibility issues (merged changes)
+  // Function to validate landmark structure for accessibility issues
   function validateLandmarkStructure() {
     const requiredLandmarks = ['header', 'main', 'footer'];
     const missingLandmarks = [];
@@ -77,9 +73,6 @@ if (dependencyGraph) {
     return true;
   }
 }
-
-// Import React components
-import App from './App';
 
 // Run the application
 render(<App />, document.getElementById('root'));
@@ -103,13 +96,13 @@ export {
   validateSession,
   handleCredentialResponse,
   harvest,
-  checkLinkAndButtonAccessibility
+  checkLinkAndButtonAccessibility,
+  validateSession,
+  handleCredentialResponse,
+  harvest
 };
 
 // Helper function for logging
 function log(message, level = 'info') {
   console[level](`[main.js] ${message}`);
 }
-```
-
-This version of the file merged the changes from both branches: added `button` elements to the list of elements being checked by `checkLinkAndButtonAccessibility()` and validated the `header`, `main`, and `footer` landmarks. Moreover, it combined the functions into a single file without redundancy or syntax errors.

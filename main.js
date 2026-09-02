@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute (html) {
   if (typeof html !== 'string') return html
@@ -12,3 +15,4 @@ function fixTableStructure (html) {
   if (typeof html !== 'string') return html
 
   // Ensure every table has a
+}

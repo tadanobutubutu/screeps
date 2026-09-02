@@ -65,6 +65,8 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
   return id;
 }
 
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+
 // Sample main.js with dependencyGraph container
 function renderDependencyGraph() {
   const container = document.getElementById('dependency-graph');

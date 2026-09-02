@@ -66,7 +66,11 @@ const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'content
 // table structures, landmarks, SVG accessibility, fake links, and landmark regions.
 function addressInsightIssues() {
   // REACT_015: Add lang attribute to HTML element
-  languageWiseUpdateToHtmlElement();
+  // Replaced legacy languageWiseUpdateToHtmlElement with modern approach
+  const lang = getLangAttribute();
+  if (lang) {
+    document.documentElement.lang = lang;
+  }
 
   // REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
   validateTableAccessibilityFromUtils();

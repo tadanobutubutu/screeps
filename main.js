@@ -13,6 +13,7 @@ const appState = {
 
 function validateLandmark(landmark) {
   const errors = [];
+
   // Existing code that should be preserved
   // Update landmark validation logic if needed
   const role = landmark.getAttribute('role');
@@ -28,109 +29,15 @@ const appData = {
   version: '1.0.0'
 };
 
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
-// TODO: This is the modified and merged code
-
-// Function to count dependencies in package.json
-function countDependencies() {
-  try {
-    const packageJson = require('./package.json');
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-    const peerDependencies = packageJson.peerDependencies || {};
-    const optionalDependencies = packageJson.optionalDependencies || {};
-
-    return {
-      dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
-      peerDependencies: Object.keys(peerDependencies).length,
-      optionalDependencies: Object.keys(optionalDependencies).length,
-      total: Object.keys(dependencies).length + 
-             Object.keys(devDependencies).length + 
-             Object.keys(peerDependencies).length + 
-             Object.keys(optionalDependencies).length
-    };
-  } catch (error) {
-    return {
-      dependencies: 0,
-      devDependencies: 0,
-      peerDependencies: 0,
-      optionalDependencies: 0,
-      total: 0,
-      error: error.message
-    };
-  }
-}
-
-function validateTableAccessibility(tableElement) {
-    // Implementation to validate table accessibility (conflict resolved: merged implementation)
-    if (!tableElement.querySelector('caption')) {
-        console.warn('Table missing caption');
-        return false;
-    }
-    return true;
-}
-
-function validateTableStructure(tableElement) {
-    // Implementation to validate table structure (conflict resolved: merged implementation)
-    const rows = tableElement.querySelectorAll('tr');
-    if (rows.length === 0) {
-        console.warn('Table has no rows');
-        return false;
-    }
-    return true;
-}
-
-function validateLandmarkStructure() {
-    // Merged implementation (conflict resolved)
-    const landmarks = document.querySelectorAll('[role]');
-    let hasMain = false;
-    let hasNavigation = false;
-
-    landmarks.forEach(landmark => {
-        const role = landmark.getAttribute('role');
-        if (role === 'main') hasMain = true;
-        if (role === 'navigation') hasNavigation = true;
-    });
-
-    if (!hasMain) console.warn('Missing main landmark');
-    if (!hasNavigation) console.warn('Missing navigation landmark');
-
-    return hasMain && hasNavigation;
-}
-
-function addLandmarkRegions() {
-  console.log('Adding landmark regions');
-}
-
-function getSvgAccessibleName(svgElement) {
-    // Merged implementation (conflict resolved)
-    if (!svgElement) {
-        return 'Accessible SVG Icon';
-    }
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (title) return title.textContent;
-    if (ariaLabel) return ariaLabel;
-    return 'Accessible SVG Icon';
-}
-
-function setSvgAttributes(svg, accessibleName) {
-  if (svg && typeof svg === 'object') {
-    svg.setAttribute('role', 'img');
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
-  }
-}
+/**
+ * This function focuses on addressing accessibility issues as per insight report:
+ * - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+ * - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+ * - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
+ * - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
+ * - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
+ * - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+ */
 
 function getLangAttribute() {
   return document.documentElement.getAttribute('lang') || 'en';
@@ -140,6 +47,40 @@ function getFullLangAttribute() {
   const lang = document.documentElement.getAttribute('lang') || 'en';
   const dir = document.documentElement.getAttribute('dir') || 'ltr';
   return lang + (dir !== 'ltr' ? ' ' + dir : '');
+}
+
+function validateTableAccessibility(tableElement) {
+  if (!tableElement.querySelector('caption')) {
+    console.warn('Table missing caption');
+    return false;
+  }
+  return true;
+}
+
+function validateTableStructure(tableElement) {
+  const rows = tableElement.querySelectorAll('tr');
+  if (rows.length === 0) {
+    console.warn('Table has no rows');
+    return false;
+  }
+  return true;
+}
+
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll('[role]');
+  let hasMain = false;
+  let hasNavigation = false;
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (role === 'main') hasMain = true;
+    if (role === 'navigation') hasNavigation = true;
+  });
+
+  if (!hasMain) console.warn('Missing main landmark');
+  if (!hasNavigation) console.warn('Missing navigation landmark');
+
+  return hasMain && hasNavigation;
 }
 
 function ensureUniqueLandmarks(landmarksArg) {

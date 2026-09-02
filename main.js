@@ -1,8 +1,12 @@
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0'
+  debug: false,
+  version: '1.0.0',
+  dataPath: './data',
+  maxResults: 100,
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
 };
 
 const appState = {
@@ -14,7 +18,7 @@ const appState = {
 function validateLandmark(landmark) {
   const errors = [];
   const role = landmark.getAttribute('role');
-  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
+  const validLandmarks = config.allowedRoles;
   if (!validLandmarks.includes(role)) {
     errors.push('Invalid landmark role');
   }
@@ -187,6 +191,21 @@ function handleAccessibilityIssues() {
         getSvgAccessibleName(svg);
     });
 }
+
+const landmarkSelectors = [
+  '[role="banner"]',
+  '[role="navigation"]',
+  '[role="main"]',
+  '[role="complementary"]',
+  '[role="contentinfo"]',
+  '[role="region"]',
+  'header:not([role])',
+  'nav:not([role])',
+  'main:not([role])',
+  'footer:not([role])',
+  'aside:not([role])',
+  'section:not([role])'
+];
 
 // Export all existing and new functions
 module.exports = {

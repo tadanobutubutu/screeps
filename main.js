@@ -442,6 +442,132 @@ function validateTableStructureComprehensive () {
   return true
 }
 
+/**
+ * Addresses accessibility issues from an insight report.
+ * Processes the provided insight data and applies fixes to DOM elements.
+ *
+ * @param {Object} insightReport - The insight report containing accessibility issues.
+ * @param {Array<Object>} insightReport.issues - Array of accessibility issues to address.
+ * @returns {Object} Summary of fixes applied.
+ */
+function addressInsightReportIssues (insightReport) {
+  const results = {
+    total: 0,
+    fixed: 0,
+    failed: 0,
+    skipped: 0,
+    details: []
+  }
+
+  if (!insightReport || !insightReport.issues || !Array.isArray(insightReport.issues)) {
+    console.warn('Invalid insight report format')
+    return results
+  }
+
+  results.total = insightReport.issues.length
+
+  insightReport.issues.forEach((issue) => {
+    try {
+      if (!issue || !issue.selector) {
+        results.skipped++
+        results.details.push({ status: 'skipped', reason: 'Missing selector' })
+        return
+      }
+
+      const elements = document.querySelectorAll(issue.selector)
+
+      if (elements.length === 0) {
+        results.skipped++
+        results.details.push({ status: 'skipped', selector: issue.selector, reason: 'No elements found' })
+        return
+      }
+
+      let fixed = false
+
+      elements.forEach((element) => {
+        switch (issue.type) {
+          case 'missing-alt':
+            if (!element.hasAttribute('alt')) {
+              const altText = issue.value || 'Image'
+              element.setAttribute('alt', altText)
+              fixed = true
+            }
+            break
+
+          case 'missing-aria-label':
+            if (!element.hasAttribute('aria-label')) {
+              element.setAttribute('aria-label', issue.value || 'Unlabeled')
+              fixed = true
+            }
+            break
+
+          case 'missing-role':
+            if (!element.hasAttribute('role')) {
+              element.setAttribute('role', issue.value || 'button')
+              fixed = true
+            }
+            break
+
+          case 'missing-tabindex':
+            if (!element.hasAttribute('tabindex')) {
+              element.setAttribute('tabindex', issue.value || '0')
+              fixed = true
+            }
+            break
+
+          case 'missing-lang':
+            if (!document.documentElement.hasAttribute('lang')) {
+              document.documentElement.setAttribute('lang', issue.value || 'en')
+              fixed = true
+            }
+            break
+
+          case 'missing-title':
+            if (!document.title && element === document.documentElement) {
+              document.title = issue.value || 'Page'
+              fixed = true
+            }
+            break
+
+          case 'missing-caption':
+            if (element.tagName === 'TABLE' && !element.querySelector('caption')) {
+              const caption = document.createElement('caption')
+              caption.textContent = issue.value || 'Table'
+              element.insertBefore(caption, element.firstChild)
+              fixed = true
+            }
+            break
+
+          case 'missing-scope':
+            if (element.tagName === 'TH' && !element.hasAttribute('scope')) {
+              element.setAttribute('scope', issue.value || 'col')
+              fixed = true
+            }
+            break
+
+          default:
+            console.warn(`Unknown issue type: ${issue.type}`)
+        }
+      })
+
+      if (fixed) {
+        results.fixed++
+        results.details.push({ status: 'fixed', type: issue.type, selector: issue.selector })
+      } else {
+        results.skipped++
+        results.details.push({ status: 'skipped', type: issue.type, selector: issue.selector, reason: 'Already fixed or not applicable' })
+      }
+    } catch (err) {
+      results.failed++
+      results.details.push({ status: 'failed', type: issue.type, selector: issue.selector, error: err.message })
+      console.error(`Failed to address issue: ${issue.type}`, err)
+    }
+  })
+
+  console.log('Insight report accessibility issues addressed', results)
+  return results
+}
+
 // Export functions for use in other modules
 module.exports = {
   initSkipLink: accessibilityUtils.initSkipLink,
@@ -456,5 +582,6 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   validateTableStructure,
-  validateTableStructureComprehensive
+  validateTableStructureComprehensive,
+  addressInsightReportIssues
 }

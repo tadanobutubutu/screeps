@@ -17,10 +17,12 @@ const appState = {
 
 function validateLandmark(landmark) {
   const errors = [];
+  // Existing code that should be preserved
+  // Update landmark validation logic if needed
   const role = landmark.getAttribute('role');
   const validLandmarks = config.allowedRoles;
   if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role');
+    errors.push(`Invalid landmark role: ${role}`);
   }
   return errors;
 }
@@ -41,6 +43,7 @@ function getFullLangAttribute() {
 }
 
 function validateTableAccessibility(tableElement) {
+    // Implementation to validate table accessibility (conflict resolved: merged implementation)
     if (!tableElement.querySelector('caption')) {
         console.warn('Table missing caption');
         return false;
@@ -49,6 +52,7 @@ function validateTableAccessibility(tableElement) {
 }
 
 function validateTableStructure(tableElement) {
+    // Implementation to validate table structure (conflict resolved: merged implementation)
     const rows = tableElement.querySelectorAll('tr');
     if (rows.length === 0) {
         console.warn('Table has no rows');
@@ -58,6 +62,7 @@ function validateTableStructure(tableElement) {
 }
 
 function validateLandmarkStructure() {
+    // Merged implementation (conflict resolved)
     const landmarks = document.querySelectorAll('[role]');
     let hasMain = false;
     let hasNavigation = false;
@@ -79,8 +84,10 @@ function addLandmarkRegions() {
 }
 
 function getSvgAccessibleName(svgElement) {
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
+    // Merged implementation (conflict resolved)
+    const svgElementResolved = svgElement || document.querySelector('svg');
+    const title = svgElementResolved ? svgElementResolved.querySelector('title') : null;
+    const ariaLabel = svgElementResolved ? svgElementResolved.getAttribute('aria-label') : null;
     if (title) return title.textContent;
     if (ariaLabel) return ariaLabel;
     return 'Accessible SVG Icon';
@@ -97,6 +104,7 @@ function setSvgAttributes(svg, accessibleName) {
 }
 
 function ensureUniqueLandmarks(landmarksArg) {
+  // Merged implementation (conflict resolved)
   let landmarks = landmarksArg;
   if (!Array.isArray(landmarks)) {
     landmarks = [];
@@ -115,6 +123,7 @@ function ensureUniqueLandmarks(landmarksArg) {
     }
   }
 
+  // Additional uniqueness check for landmark roles
   const landmarksByRole = {};
   const allLandmarks = document.querySelectorAll('[role]');
 
@@ -172,6 +181,7 @@ function createAccessibleLink(href, text) {
 }
 
 function handleAccessibilityIssues() {
+    // Implementation to handle accessibility issues (conflict resolved: merged implementation)
     const tables = document.querySelectorAll('table');
     tables.forEach(table => {
         validateTableAccessibility(table);

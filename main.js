@@ -475,7 +475,7 @@ module.exports = {
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-  getSvgAccessibleName,
+  setSvgAccessibleName,
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,

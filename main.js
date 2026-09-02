@@ -537,66 +537,6 @@ function fixFakeLinks() {
   });
 }
 
-function fixFakeLinks() {
-  const links = document.querySelectorAll('a[href="#"]');
-  links.forEach(link => {
-    link.setAttribute('role', 'text');
-  });
-}
-
-function checkLandmarkElements() {
-    // Check for required landmarks
-    const issues = [];
-    
-    // Check for main landmark
-    const mainLandmarks = document.querySelectorAll('[role="main"], main');
-    if (mainLandmarks.length === 0) {
-        issues.push('Missing main landmark');
-    }
-    
-    // Check for navigation landmark
-    const navLandmarks = document.querySelectorAll('[role="navigation"], nav');
-    if (navLandmarks.length === 0) {
-        issues.push('Missing navigation landmark');
-    }
-    
-    // Check for duplicate landmark roles
-    const roleCounts = {};
-    const landmarks = document.querySelectorAll('[role], main, nav, header, aside, footer, section, article');
-    landmarks.forEach(landmark => {
-        const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-        if (!roleCounts[role]) {
-            roleCounts[role] = 0;
-        }
-        roleCounts[role]++;
-    });
-    
-    // Check for more than one main landmark (only main, not nav)
-    if (roleCounts['main'] > 1) {
-        issues.push('Multiple main landmarks found');
-    }
-    
-    // Check for more than one banner landmark (header with role)
-    if (roleCounts['banner'] > 1) {
-        issues.push('Multiple banner landmarks found');
-    }
-    
-    // Check for missing accessible names on landmarks
-    landmarks.forEach(landmark => {
-        const ariaLabel = landmark.getAttribute('aria-label');
-        const ariaLabelledby = landmark.getAttribute('aria-labelledby');
-        const title = landmark.querySelector('h1, h2, h3, h4, h5, h6');
-        if (!ariaLabel && !ariaLabelledby && !title) {
-            issues.push(`Landmark missing accessible name: ${landmark.tagName}`);
-        }
-    });
-    
-    return {
-        success: issues.length === 0,
-        issues: issues
-    };
-}
-
 module.exports = {
   initializeApp,
   getConfig,

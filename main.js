@@ -314,4 +314,46 @@ function validateTableStructure () {
     const headers = table.querySelectorAll('th')
     if (headers.length === 0) {
       issues.push({ tableIndex: index, issue: 'No header cells found' })
-    } else
+    } else {
+      headers.forEach((header) => {
+        if (!header.hasAttribute('scope')) {
+          issues.push({ tableIndex: index, issue: 'Header cell missing scope attribute' })
+        }
+      })
+    }
+
+    // Ensure each row has same number of cells
+    const rows = table.querySelectorAll('tr')
+    const cellCounts = new Set()
+    rows.forEach((row) => {
+      cellCounts.add(row.cells.length)
+    })
+    if (cellCounts.size > 1) {
+      issues.push({ tableIndex: index, issue: 'Inconsistent number of cells across table rows' })
+    }
+
+    // Basic check for problematic colspan/rowspan in data cells
+    table.querySelectorAll('td').forEach((cell) => {
+      const colspan = parseInt(cell.getAttribute('colspan') || '1', 10)
+      const rowspan = parseInt(cell.getAttribute('rowspan') || '1', 10)
+      if (colspan > 2 || rowspan > 2) {
+        issues.push({ tableIndex: index, issue: 'Excessive colspan/rowspan in data cell may impact accessibility' })
+      }
+    })
+  })
+
+  if (issues.length > 0) {
+    console.warn('Table structure issues found:', issues)
+    return false
+  }
+
+  return true
+}
+
+module.exports = {
+  accessibilityUtils,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs,
+  validateTableStructure
+}

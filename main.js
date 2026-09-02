@@ -1,6 +1,3 @@
-Here is the resolved version of the `main.js` file:
-
-```javascript
 // Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent')
 const { indexContent } = require('./indexContent')
@@ -34,8 +31,8 @@ if (typeof module !== 'undefined' && module.exports) {
     renderDependencyGraph,
     renderIndex,
     // ... Add ScreepsBot, updateUI, and accessibilityUtils if required
+    ScreepsBot,
+    getSvgAccessibleName,
+    // ... Additional exports if required
   };
 }
-```
-
-This resolution keeps both the dependency imports and the `ScreepsBot`, `updateUI`, and `accessibilityUtils` if required in the final export. The rest of the code remains the same between both branches, so it is preserved as is.

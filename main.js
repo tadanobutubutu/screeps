@@ -416,15 +416,6 @@ export const existingConstant = 'someConstantValue';
 // Start the processing of accessibility issues from the insight report
 processAccessibilityIssues(insightReport);
 
-// New function to add lang attribute to HTML element
-function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
-    const lang = getLangAttrHelpers();
-    htmlElement.setAttribute('lang', lang);
-  }
-}
-
 // New function to fix table structure issues
 function fixTableStructure(tableElement) {
   // Implementation to fix table structure issues
@@ -458,7 +449,6 @@ function handleFakeLinks(linkElement) {
 
 // Export all new functions
 export {
-  addLangAttribute,
   fixTableStructure,
   addMainLandmark,
   validateLandmarkAttributes,

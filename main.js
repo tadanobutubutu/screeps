@@ -7,7 +7,6 @@
 // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
->>>>>>> origin/main
 
 // _Commit: 8f0d48f8354074f769cfe667f27609b1d99a444c_
 // <!-- todo-hash: 469dfeab59b4116886abe058392a60b81da4857c -->
@@ -37,8 +36,6 @@ import {
   renderDependencyGraphs
 } from './AccessibilityHelpers';
 
-const main = require('./utilities');
-
 // TODO: Create or update the affected functions to be accessible
 // The functions below have been created to match the exported names
 
@@ -62,11 +59,6 @@ const {
   focusTrap,
   checkAccessibility
 } = main
-
-// Implement the function for addressing accessibility issues from insight report
-function newFunction () {
-  // TODO: Implement the new function as per the issue requirements
-}
 
 // Implement the function for addressing accessibility issues from insight report
 function implementAccessibilityFixesFromReport (container, report) {
@@ -508,37 +500,31 @@ const accessibilityUtils = {
 function createAnnouncer() {
   let currentMessage = ''
   let timeoutId = null
-}
-
-// Create announcer function with fixed logic
-function createAnnouncer() {
-  let currentMessage = ''
-  let timeoutId = null
-}
-
-return {
-  announce: function(message, priority = 'polite') {
-    if (timeoutId) {
-      clearTimeout(timeoutId)
+  
+  return {
+    announce: function(message, priority = 'polite') {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
+      
+      const announcer = document.createElement('div')
+      announcer.setAttribute('aria-live', priority)
+      announcer.setAttribute('aria-atomic', 'true')
+      announcer.className = 'sr-only'
+      announcer.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;'
+      announcer.textContent = message
+      document.body.appendChild(announcer)
+      
+      currentMessage = message
+      
+      timeoutId = setTimeout(function() {
+        announcer.remove()
+        currentMessage = ''
+      }, 1000)
+    },
+    getLastMessage: function() {
+      return currentMessage
     }
-    
-    const announcer = document.createElement('div')
-    announcer.setAttribute('aria-live', priority)
-    announcer.setAttribute('aria-atomic', 'true')
-    announcer.className = 'sr-only'
-    announcer.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;'
-    announcer.textContent = message
-    document.body.appendChild(announcer)
-    
-    currentMessage = message
-    
-    timeoutId = setTimeout(function() {
-      announcer.remove()
-      currentMessage = ''
-    }, 1000)
-  },
-  getLastMessage: function() {
-    return currentMessage
   }
 }
 
@@ -600,21 +586,13 @@ const originalSvgString =
     'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
 const modifiedSvgString = addAccessibleName(originalSvgString)
 
-/**
- * Validates table accessibility
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table is accessible, false otherwise
- */
+// Validates table accessibility
 function validateTableAccessibility (tableData) {
   // Implementation placeholder - function to be implemented
   return true
 }
 
-/**
- * Validates table structure
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table structure is valid, false otherwise
- */
+// Validates table structure
 function validateTableStructure (tableData) {
   // Implementation placeholder - function to be implemented
   return true

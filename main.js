@@ -5,7 +5,7 @@
 function addressAccessibilityIssues(insightReport) {
     const accessibilityIssues = insightReport.accessibility || [];
     const addressedIssues = [];
-    
+
     accessibilityIssues.forEach(issue => {
         if (issue.type === 'contrast') {
             addressedIssues.push({
@@ -33,7 +33,7 @@ function addressAccessibilityIssues(insightReport) {
             });
         }
     });
-    
+
     return {
         totalIssues: accessibilityIssues.length,
         addressedIssues: addressedIssues,
@@ -66,7 +66,7 @@ function findLandmarks(context = document) {
  */
 function validateLandmarkStructure(context = document) {
     const issues = [];
-    
+
     // Check for multiple <main> elements (should be exactly one)
     const mainElements = context.querySelectorAll('main');
     if (mainElements.length === 0) {
@@ -82,11 +82,11 @@ function validateLandmarkStructure(context = document) {
             message: `Document contains ${mainElements.length} <main> elements. Only one is allowed per page.`
         });
     }
-    
+
     // Validate sections have accessible names
     const sections = context.querySelectorAll('section');
     sections.forEach((section, index) => {
-        const hasLabel = section.getAttribute('aria-label') || 
+        const hasLabel = section.getAttribute('aria-label') ||
                          section.getAttribute('aria-labelledby') ||
                          section.querySelector('h1, h2, h3, h4, h5, h6');
         if (!hasLabel) {
@@ -97,11 +97,11 @@ function validateLandmarkStructure(context = document) {
             });
         }
     });
-    
+
     // Validate forms have accessible names
     const forms = context.querySelectorAll('form');
     forms.forEach((form, index) => {
-        const hasLabel = form.getAttribute('aria-label') || 
+        const hasLabel = form.getAttribute('aria-label') ||
                          form.getAttribute('aria-labelledby') ||
                          form.querySelector('legend');
         if (!hasLabel && form.querySelectorAll('input, select, textarea').length > 0) {
@@ -112,11 +112,11 @@ function validateLandmarkStructure(context = document) {
             });
         }
     });
-    
+
     // Validate navigation elements
     const navElements = context.querySelectorAll('nav');
     navElements.forEach((nav, index) => {
-        const hasLabel = nav.getAttribute('aria-label') || 
+        const hasLabel = nav.getAttribute('aria-label') ||
                          nav.getAttribute('aria-labelledby');
         const isMultipleNav = navElements.length > 1 && !hasLabel;
         if (isMultipleNav) {
@@ -127,7 +127,7 @@ function validateLandmarkStructure(context = document) {
             });
         }
     });
-    
+
     // Check for proper header/footer usage
     const headers = context.querySelectorAll('header');
     headers.forEach((header, index) => {
@@ -139,7 +139,37 @@ function validateLandmarkStructure(context = document) {
             });
         }
     });
-    
+
+    // Validate tables for correct structure
+    const tables = context.querySelectorAll('table');
+    tables.forEach((table, tableIndex) => {
+        const requestedRows = table.dataset.rows || 0;
+        const requestedCells = table.dataset.cells || 0;
+        const actualRows = table.rows.length;
+        const actualCells = table.rows[0].cells.length;
+
+        if (requestedRows > 0 && actualRows < requestedRows) {
+            issues.push({
+                type: 'warning',
+                code: 'MISSING_TABLE_ROWS',
+                message: `Table at index ${tableIndex} should have at least ${requestedRows} rows but contains ${actualRows}`
+            });
+        }
+
+        if (requestedCells > 0 && actualCells < requestedCells) {
+            issues.push({
+                type: 'warning',
+                code: 'MISSING_TABLE_CELLS',
+                message: `Table at index ${tableIndex} should have at least ${requestedCells} cells in each row but contains ${actualCells}`
+            });
+        }
+
+        // Add semantic table structure check here
+        // Check for headers (<thead>, <th>)
+        // Check for rowspan and colspan attributes
+        // Check for correct table role and associated summary
+    });
+
     return {
         totalIssues: issues.length,
         issues: issues,
@@ -157,14 +187,14 @@ function validateLandmarkStructure(context = document) {
 function getLandmarkSummary(context = document) {
     const result = validateLandmarkStructure(context);
     const summary = [];
-    
+
     summary.push('Landmark Structure Validation Summary:');
     summary.push(`- Total issues found: ${result.totalIssues}`);
-    
+
     const errors = result.issues.filter(i => i.type === 'error');
     const warnings = result.issues.filter(i => i.type === 'warning');
     const infos = result.issues.filter(i => i.type === 'info');
-    
+
     if (errors.length > 0) {
         summary.push(`- Errors: ${errors.length}`);
         errors.forEach(e => summary.push(`  • ${e.message}`));
@@ -177,9 +207,9 @@ function getLandmarkSummary(context = document) {
         summary.push(`- Info: ${infos.length}`);
         infos.forEach(i => summary.push(`  • ${i.message}`));
     }
-    
+
     summary.push(`Validation ${result.isValid ? 'PASSED' : 'FAILED'}`);
-    
+
     return summary.join('\n');
 }
 
@@ -209,7 +239,8 @@ function addLangAttribute() {
 }
 
 function fixTableStructure() {
-  // Implementation for fixing table structure
+    // Code to enforce semantic table structure
+    // Example: Add <thead>, <tbody>, <th> elements for proper organization
 }
 
 function addMainLandmark() {

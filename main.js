@@ -1,6 +1,3 @@
-Here is the resolved file content with both changes integrated:
-
-```javascript
 // TODO: Add any other missing exports that might have been?
 const config = {};
 
@@ -126,4 +123,3 @@ function renderDependencyGraphContent(data) {
 
 // Import the required module
 const { someFunction } = { someFunction: () => 'someFunction result' };
-```

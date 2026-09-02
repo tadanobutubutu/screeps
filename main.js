@@ -16,11 +16,18 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
+<<<<<<< HEAD
 // - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...)
+=======
+>>>>>>> origin/main
+>>>>>>> origin/main
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...)
+<<<<<<< HEAD
+>>>>>>> origin/main
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions())
 
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice

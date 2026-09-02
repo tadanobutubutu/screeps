@@ -86,6 +86,94 @@ function validateTableStructure (tableData) {
   return true
 }
 
+/**
+ * Gets the lang attribute for the HTML element.
+ * @returns {string} The lang attribute value.
+ */
+function getLangAttribute () {
+  return document.documentElement.lang || 'en'
+}
+
+/**
+ * Returns the person name.
+ * @param {Object} person - The person object.
+ * @returns {string} The person's name.
+ */
+function personName (person) {
+  return person && person.name || 'Unknown'
+}
+
+/**
+ * Validates a landmark.
+ * @param {HTMLElement} landmark - The landmark element to validate.
+ * @returns {boolean} True if the landmark is valid, false otherwise.
+ */
+function validateLandmark (landmark) {
+  return !!landmark
+}
+
+/**
+ * Validates the structure of a landmark.
+ * @param {HTMLElement} landmark - The landmark element to validate.
+ * @returns {boolean} True if the landmark structure is valid, false otherwise.
+ */
+function validateLandmarkStructure (landmark) {
+  return !!landmark
+}
+
+/**
+ * Gets the accessible name for an SVG.
+ * @param {SVGElement} svg - The SVG element.
+ * @returns {string} The accessible name of the SVG.
+ */
+function getSvgAccessibleName (svg) {
+  return svg && (svg.getAttribute('aria-label') || svg.getAttribute('title')) || ''
+}
+
+/**
+ * Creates an in-page button.
+ * @param {string} label - The label for the button.
+ * @param {Function} onClick - The click handler.
+ * @returns {HTMLButtonElement} The created button element.
+ */
+function createInPageButton (label, onClick) {
+  const button = document.createElement('button')
+  button.textContent = label
+  button.addEventListener('click', onClick)
+  return button
+}
+
+/**
+ * New function to handle focus trap for keyboard navigation.
+ * @param {HTMLElement} element - The element to trap focus within.
+ */
+function newFocusTrap (element) {
+  if (!element) return
+  const focusableElements = element.querySelectorAll(
+    'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
+  )
+  if (focusableElements.length === 0) return
+
+  const firstFocusable = focusableElements[0]
+  const lastFocusable = focusableElements[focusableElements.length - 1]
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return
+
+    if (e.shiftKey) {
+      if (document.activeElement === firstFocusable) {
+        lastFocusable.focus()
+        e.preventDefault()
+      }
+    } else {
+      if (document.activeElement === lastFocusable) {
+        firstFocusable.focus()
+        e.preventDefault()
+      }
+    }
+  })
+}
+
 // Other code...
 
 // Preserve all existing exports
@@ -93,7 +181,14 @@ module.exports = {
   renderDependencyGraph,
   renderIndex,
   validateTableAccessibility,
-  validateTableStructure
+  validateTableStructure,
+  getLangAttribute,
+  personName,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  newFocusTrap
   // Preserve any other existing exports here
 }
 

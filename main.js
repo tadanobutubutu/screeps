@@ -290,6 +290,149 @@ function processData(items) {
     }));
 }
 
+// TODO: Implement harvest logic
+// This function should collect resources or data from available sources
+
+/**
+ * Harvest logic - collects resources or data from available sources
+ * @param {Array|string|Object} sources - Sources to harvest from (can be array of sources, a single source string, or an object)
+ * @param {Object} options - Harvesting options
+ * @param {string} options.type - Type of resource to harvest
+ * @param {Function} options.filter - Filter function to apply to harvested items
+ * @param {Function} options.transform - Transform function to apply to each harvested item
+ * @param {string} options.delimiter - Delimiter for string sources (default: ',')
+ * @param {Array} options.keys - Keys to extract from object sources
+ * @returns {Object} - Result object containing success status, harvested data, count, and any errors
+ */
+function harvest(sources, options = {}) {
+    const { filter, transform, delimiter = ',', keys } = options;
+
+    // Normalize sources to array
+    const sourceArray = Array.isArray(sources) ? sources : [sources];
+
+    // Validate sources
+    if (sourceArray.length === 0 || sourceArray.every(s => s == null)) {
+        return {
+            success: false,
+            data: [],
+            count: 0,
+            error: 'No valid sources provided'
+        };
+    }
+
+    const collectedData = [];
+    const errors = [];
+
+    for (const source of sourceArray) {
+        try {
+            let data;
+
+            if (typeof source === 'string') {
+                data = extractFromString(source, delimiter);
+            } else if (Array.isArray(source)) {
+                data = extractFromArray(source, keys);
+            } else if (typeof source === 'object' && source !== null) {
+                data = extractFromObject(source, keys);
+            } else {
+                continue;
+            }
+
+            if (data !== undefined && data !== null) {
+                // Apply transform if provided
+                if (transform && typeof transform === 'function') {
+                    data = transform(data);
+                }
+
+                // Apply filter if provided
+                if (filter && typeof filter === 'function') {
+                    if (filter(data)) {
+                        collectedData.push(data);
+                    }
+                } else {
+                    collectedData.push(data);
+                }
+            }
+        } catch (error) {
+            errors.push({
+                source: typeof source === 'object' ? JSON.stringify(source) : String(source),
+                error: error.message
+            });
+        }
+    }
+
+    return {
+        success: collectedData.length > 0 || errors.length === 0,
+        data: collectedData,
+        count: collectedData.length,
+        errors: errors.length > 0 ? errors : undefined
+    };
+}
+
+/**
+ * Extract data from a string source
+ * @param {string} source - The string source to extract from
+ * @param {string} delimiter - Delimiter for splitting the string
+ * @returns {Array|string} - Extracted data
+ */
+function extractFromString(source, delimiter) {
+    if (typeof source !== 'string') {
+        return [];
+    }
+
+    const trimmedSource = source.trim();
+
+    if (trimmedSource.includes(delimiter)) {
+        return trimmedSource.split(delimiter)
+            .map(item => item.trim())
+            .filter(item => item.length > 0);
+    }
+
+    return trimmedSource;
+}
+
+/**
+ * Extract data from an array source
+ * @param {Array} source - The array source to extract from
+ * @param {Array} keys - Keys to extract if array contains objects
+ * @returns {Array} - Extracted data
+ */
+function extractFromArray(source, keys) {
+    if (!Array.isArray(source)) {
+        return [];
+    }
+
+    return source.map((item, index) => {
+        if (typeof item === 'object' && item !== null) {
+            return extractFromObject(item, keys);
+        }
+        return item;
+    }).filter(item => item !== undefined && item !== null);
+}
+
+/**
+ * Extract data from an object source
+ * @param {Object} source - The object source to extract from
+ * @param {Array} keys - Keys to extract from the object
+ * @returns {Object} - Extracted data
+ */
+function extractFromObject(source, keys) {
+    if (typeof source !== 'object' || source === null) {
+        return {};
+    }
+
+    if (keys && Array.isArray(keys)) {
+        const extracted = {};
+        keys.forEach(key => {
+            if (source.hasOwnProperty(key)) {
+                extracted[key] = source[key];
+            }
+        });
+        return extracted;
+    }
+
+    return { ...source };
+}
+
 /**
  * Handle credential response from OAuth/identity provider
  * @param {Object} credentialResponse - The credential response
@@ -821,5 +964,6 @@ module.exports = {
     checkLandmarks,
     ensureUniqueLandmarks,
     getSvgAccessibleName,
-    createFocusTrap: a11yStore.createFocusTrap
+    createFocusTrap: a11yStore.createFocusTrap,
+    harvest
 };

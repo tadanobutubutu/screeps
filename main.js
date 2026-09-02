@@ -32,7 +32,7 @@ const appData = {
   version: '1.0.0'
 };
 
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
+const HTML = ({ lang }) => `<html lang="${lang}"></html>`;
 
 // Accessibility features have been implemented and integrated into the codebase.
 

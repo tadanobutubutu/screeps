@@ -1,8 +1,3 @@
-/**
- * Screeps Main Module
- * Main game loop and logic for the Screeps bot
- */
-
 const roleHarvester = require('role.harvester');
 const roleUpgrader = require('role.upgrader');
 const roleBuilder = require('role.builder');

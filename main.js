@@ -15,7 +15,6 @@ const {
   addLandmarkRoles, 
   fixFakeLinks, 
   addressAccessibilityIssues, 
-  createInPageButton, 
   setSvgAccessibleNames, 
   ensureUniqueLandmarks, 
   fixUniqueLandmarks 
@@ -437,6 +436,29 @@ function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
+// TODO: Implement logic to create an in-page button element
+// and insert it into the DOM at an appropriate location
+function createInPageButton(text = 'Action', callback) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.setAttribute('aria-label', text);
+  button.className = 'in-page-button';
+  
+  if (callback && typeof callback === 'function') {
+    button.addEventListener('click', callback);
+  }
+  
+  // Insert button at the beginning of the body for visibility
+  const body = document.body;
+  if (body.firstChild) {
+    body.insertBefore(button, body.firstChild);
+  } else {
+    body.appendChild(button);
+  }
+  
+  return button;
+}
+
 // Initialize application and apply accessibility fixes
 const initApp = () => {
   initializeApp();
@@ -462,8 +484,8 @@ function addBookWithAccessibility(title, author, isbn) {
   form.setAttribute('role', 'form');
   form.setAttribute('aria-label', 'Add new book form');
   const titleLabel = document.createElement('label');
-  ylabel.setAttribute('for', 'book-title');
-  ylabel.textContent = 'Book Title:';
+  titleLabel.setAttribute('for', 'book-title');
+  titleLabel.textContent = 'Book Title:';
   const titleInput = document.createElement('input');
   titleInput.id = 'book-title';
   titleInput.type = 'text';
@@ -739,23 +761,5 @@ module.exports = {
   axe,
   express,
   fs,
-  path,
-  // Functions from origin/main
-  function3,
-  newFunction,
-  function1,
-  function2,
-  validateInput,
-  processData,
-  formatResponse,
-  newFunctionFromOriginMain,
-  updatedFunction1,
-  updatedFunction2,
-  newImplementationForFunction3,
-  harvest,
-  upgrade,
-  harvestAndUpgrade,
-  checkLinkAccessibility,
-  writeReport,
-  scanAccessibility
+  path
 };

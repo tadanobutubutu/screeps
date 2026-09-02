@@ -10,92 +10,89 @@ const ensureElementIdUtil = (element) => {
   return element;
 };
 
-const newFocusTrap = accessibilityUtils.newFocusTrap;
+const newFocusTrap = main.newFocusTrap;
 
 const accessibilityUtils = {
-  ...accessibilityUtils,
-  ...{
-    initSkipLink: function () {
-      const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
-      if (skipLink) {
-        skipLink.addEventListener('click', (e) => {
-          e.preventDefault();
-          const target = document.querySelector(skipLink.getAttribute('href'));
-          if (target) {
-            target.setAttribute('tabindex', '-1');
-            target.focus();
-          }
-        });
-      }
-    },
-
-    trapFocus: function (element) {
-      const focusableElements = element.querySelectorAll(
-        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      );
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-
-      element.addEventListener('keydown', (e) => {
-        if (e.key === 'Tab') {
-          if (e.shiftKey && document.activeElement === firstElement) {
-            lastElement.focus();
-            e.preventDefault();
-          } else if (!e.shiftKey && document.activeElement === lastElement) {
-            firstElement.focus();
-            e.preventDefault();
-          }
+  initSkipLink: function () {
+    const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
+    if (skipLink) {
+      skipLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(skipLink.getAttribute('href'));
+        if (target) {
+          target.setAttribute('tabindex', '-1');
+          target.focus();
         }
       });
-    },
+    }
+  },
 
-    getFullLangAttribute: function (locale = 'en') {
-      return `${locale}-RU`;
-    },
+  trapFocus: function (element) {
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
 
-    createInPageButton: createInPageButton,
-
-    createWebResourceButton: createWebResourceButton,
-
-    ensureUniqueLandmarkId: function (landmark) {
-      if (!landmark) return;
-      if (landmark.id) return landmark.id;
-      landmark.id = `landmark-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      return landmark.id;
-    },
-
-    uniqueLandmarks: function () {
-      const landmarks = document.querySelectorAll('[role=banner], [role=navigation]');
-      const ids = new Set();
-
-      landmarks.forEach((landmark) => {
-        const id = landmark.id;
-        if (id) ids.add(id);
-      });
-
-      return ids.size < 2;
-    },
-
-    createAccessibleLink: function (url, text, target) {
-      const link = document.createElement('a');
-      link.href = url;
-      link.textContent = text;
-      link.setAttribute('target', target || '_blank');
-      link.setAttribute('rel', 'noopener noreferrer');
-      link.setAttribute('aria-label', `Open ${text} in new window`);
-      return link;
-    },
-
-    // Address accessibility issues from insight report
-    handleAccessibilityIssues: function () {
-      // Implementation to address accessibility issues in the report
-      // This function should validate the report and fix issues as needed
-    },
-
-    addLangAttribute: function (element, locale = 'en') {
-      if (element) {
-        element.setAttribute('lang', locale);
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
       }
+    });
+  },
+
+  getFullLangAttribute: function (locale = 'en') {
+    return `${locale}-RU`;
+  },
+
+  createInPageButton: createInPageButton,
+
+  createWebResourceButton: createWebResourceButton,
+
+  ensureUniqueLandmarkId: function (landmark) {
+    if (!landmark) return;
+    if (landmark.id) return landmark.id;
+    landmark.id = `landmark-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return landmark.id;
+  },
+
+  uniqueLandmarks: function () {
+    const landmarks = document.querySelectorAll('[role=banner], [role=navigation]');
+    const ids = new Set();
+
+    landmarks.forEach((landmark) => {
+      const id = landmark.id;
+      if (id) ids.add(id);
+    });
+
+    return ids.size < 2;
+  },
+
+  createAccessibleLink: function (url, text, target) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.textContent = text;
+    link.setAttribute('target', target || '_blank');
+    link.setAttribute('rel', 'noopener noreferrer');
+    link.setAttribute('aria-label', `Open ${text} in new window`);
+    return link;
+  },
+
+  // Address accessibility issues from insight report
+  handleAccessibilityIssues: function () {
+    // Implementation to address accessibility issues in the report
+    // This function should validate the report and fix issues as needed
+  },
+
+  addLangAttribute: function (element, locale = 'en') {
+    if (element) {
+      element.setAttribute('lang', locale);
     }
   }
 };
@@ -103,34 +100,26 @@ const accessibilityUtils = {
 module.exports = {
   ...main,
   ...accessibilityUtils,
-  ensureElementId,
   ensureElementIdUtil,
-  newFocusTrap,
-  log,
-  sanitizeFilename,
-  readFileSafe,
-  processData,
-  filterValidItems,
-  initAccessibility,
-  groupByCategory,
-  transformInputData,
-  validateTableAccessibility,
-  displayModuleStructure,
-  generateDependencyGraph,
-  validateAccessibilityReport,
-  addressAccessibilityIssues,
-  newAccessibilityCheck,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  renderAdditionalContent,
-  checkLinkAccessibility,
-  createInPageButton,
-  createWebResourceButton,
-  addAriaLabel,
-  ...accessibilityUtils
+  newFocusTrap
 };
+
+/**
+ * Generates an accessibility report by checking various elements on the page.
+ * @returns {Object} The accessibility report object.
+ */
+function generateAccessibilityReport() {
+    const report = {
+        timestamp: new Date().toISOString(),
+        summary: {
+            totalIssues: 0,
+            critical: 0,
+            moderate: 0,
+            passed: 0
+        },
+        issues: [],
+        passed: []
+    };
 
     // Check SVG accessibility
     const svgs = document.querySelectorAll('svg');
@@ -143,6 +132,7 @@ module.exports = {
                 message: `SVG ${index + 1} has accessible title and description`,
                 status: 'passed'
             });
+            report.summary.passed++;
         } else {
             report.issues.push({
                 category: 'REACT_041',
@@ -171,6 +161,7 @@ module.exports = {
                 message: `Link ${index + 1} has accessible text`,
                 status: 'passed'
             });
+            report.summary.passed++;
         }
     });
 
@@ -283,9 +274,9 @@ function createLandmarkRegion({ role, label, id, container = document.body } = {
     }
 
     if (id) {
-        landmark.id = ensureUniqueLandmarkId(id);
+        landmark.id = accessibilityUtils.ensureUniqueLandmarkId(id);
     } else {
-        landmark.id = ensureUniqueLandmarkId(role);
+        landmark.id = accessibilityUtils.ensureUniqueLandmarkId(role);
     }
 
     // Add basic styling to make landmarks visible in development
@@ -299,9 +290,6 @@ function createLandmarkRegion({ role, label, id, container = document.body } = {
 
     return landmark;
 }
-
-// Export the new landmark function
-export { createLandmarkRegion };
 
 function newAccessibilityCheck() {
   // Implementation for a new accessibility check

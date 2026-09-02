@@ -307,6 +307,35 @@ function enhanceAccessibilityForAddBook(formElement) {
 
 // Process and filter landmarks (new addition)
 
+/**
+ * Implements the logic for processing and filtering landmarks.
+ * Validates landmark structures and ensures they meet accessibility standards.
+ * @returns {Array} The filtered and processed list of landmarks
+ */
+function processAndFilterLandmarks() {
+  const loadedLandmarks = loadLandmarks();
+  const uniqueLandmarks = ensureLandmarkUniqueness(loadedLandmarks);
+  const validatedLandmarks = uniqueLandmarks.filter(landmark => {
+    if (!landmark || !landmark.role) {
+      return false;
+    }
+    return landmarkTypes.includes(landmark.role);
+  });
+  return validatedLandmarks;
+}
+
+/**
+ * Initializes the application with accessibility checks enabled.
+ * Performs initial landmark validation and sets up event listeners.
+ */
+function initializeAccessibility() {
+  const landmarks = processAndFilterLandmarks();
+  landmarks.forEach(landmark => {
+    validateLandmarkStructure(landmark);
+  });
+  return landmarks;
+}
+
 // Exporting module objects
 export {
   wrapPrimaryContentInMain,
@@ -342,5 +371,7 @@ export {
   countDependencies,
   createInPageButton,
   enhanceAccessibilityForAddBook,
-  addBookAccessible
+  addBookAccessible,
+  processAndFilterLandmarks,
+  initializeAccessibility
 };

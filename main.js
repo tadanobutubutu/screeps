@@ -22,7 +22,7 @@ import {
 const main = require('./utilities');
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
+const dependencyGraph = document.getElementById('dependencyGraph');
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
@@ -45,66 +45,42 @@ if (dependencyGraph) {
   if (!dependencyGraph.hasAttribute('tabindex')) {
     dependencyGraph.setAttribute('tabindex', '0')
   }
+}
 
-  // Import specific helper functions from main module
-  const {
-    createInPageButton: createInPageButtonAlt,
-    createWebResourceButton: createWebResourceButtonAlt,
-    validateLandmark: validateLandmarkAlt,
-    validateLandmarkStructure: validateLandmarkStructureAlt,
-    getSvgAccessibleName: getSvgAccessibleNameAlt,
-    getLangAttribute: getLangAttributeAlt,
-    validateAccessibilityReport: validateAccessibilityReportAlt,
-    exportUtils: exportUtilsAlt,
-    addressAccessibilityIssues: addressAccessibilityIssuesAlt,
-    fixDependencyGraphAria,
-    addMainLandmarkToIndex,
-    focusTrap,
-    createInPageButton,
-    createWebResourceButton,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    addAccessibleName,
-    validateAccessibilityReport,
-    exportUtils,
-    addressAccessibilityIssues,
-    validateSession,
-    handleCredentialResponse
-  } = main
+// TODO: Implement harvest logic
+function harvest() {
+  // Placeholder implementation – you can replace this with actual harvest logic
+  console.log('Harvesting resources...');
+}
 
-  // Import React components
-  import App from './App'
+// Import React components
+import App from './App';
 
-  // Run the application
-  render(<App />, document.getElementById('root'))
+// Run the application
+render(<App />, document.getElementById('root'));
 
-  // Other code...
+// Export the functions to be used elsewhere in the application
+export {
+  implementAccessibilityFixesFromReport,
+  checkAccessibilityForReport,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  addAccessibleName,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  validateSession,
+  handleCredentialResponse,
+  harvest
+};
 
-  // Export the functions to be used elsewhere in the application
-  export {
-    implementAccessibilityFixesFromReport,
-    checkAccessibilityForReport,
-    createInPageButton,
-    createWebResourceButton,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    addAccessibleName,
-    validateAccessibilityReport,
-    exportUtils,
-    addressAccessibilityIssues,
-    fixDependencyGraphAria,
-    addMainLandmarkToIndex,
-    focusTrap,
-    validateSession,
-    handleCredentialResponse
-  }
-
-  // Call the functions to address the accessibility issues on initial load
-  implementAccessibilityFixesFromReport(document.body)
-
-  // Helper function for logging
-  function log(message, level = 'info') {
-    console[level](`[main.js] ${message}`);
-  }
+// Helper function for logging
+function log(message, level = 'info') {
+  console[level](`[main.js] ${message}`);
+}

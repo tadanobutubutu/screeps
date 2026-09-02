@@ -70,6 +70,12 @@ function implementAccessibilityFixesFromReport(container, containerReport) {
     if (issues.length === 0) {
       return fixes;
     }
+  } else {
+    // Validate the accessibility report for issues
+    const validation = validateAccessibilityReport(containerReport);
+    if (validation && validation.length > 0) {
+      log(`Accessibility report validation contains ${validation.length} issues`, 'warn');
+    }
   }
 
   // Add lang attribute to HTML element if missing
@@ -250,7 +256,7 @@ function checkAccessibility(content) {
     issues.push(`${buttonsWithoutAria.length} button(s) missing accessible name`);
   }
 
-  // Check form elements without labels
+  // Check for form elements without labels
   const inputsWithoutLabels = content.querySelectorAll('input:not([aria-label]):not([aria-labelledby]):not([title])');
   const unlabeledInputs = Array.from(inputsWithoutLabels).filter(input => {
     const id = input.id;

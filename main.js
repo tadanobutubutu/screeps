@@ -1,4 +1,4 @@
-// Example of a resolved main.js file with exports for functionA and functionB
+// Example of a resolved main.js file with exports for functionA, functionB, createInPageButton, updateAccessibleElements, countDependencies, and exampleFunction
 // Assuming the functions are already defined and comments indicate where exports were removed
 
 // ... existing code ...

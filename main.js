@@ -45,15 +45,15 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/u.test(content)) {
+    if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u309F\u30A0-\u30FF]/u.test(content)) {
+    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04FF]/u.test(content)) {
+    } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06FF]/u.test(content)) {
+    } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâçéèêëîïôùûüÿæœ]/i.test(content)) {
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
@@ -101,7 +101,7 @@ function validateTableAccessibility(tableElement) {
   
   // Check for proper caption or summary
   const hasCaption = tableElement.querySelector('caption');
-  const hasSummary = tableElement.getAttribute('summary') || tableElement.getAttribute('aria-describedby');
+  const hasSummary = tableElement.getAttribute('aria-describedby') || tableElement.getAttribute('summary');
   if (!hasCaption && !hasSummary) {
     errors.push('Table is missing a caption or aria-describedby for accessibility');
   }
@@ -115,10 +115,10 @@ function validateTableStructure(tableElement) {
   }
   
   const errors = [];
-  const rows = Array.from(tableElement.querySelectorAll('tr'));
+  const rows = tableElement.querySelectorAll('tr');
   
   rows.forEach((row, rowIndex) => {
-    const cells = Array.from(row.querySelectorAll('th, td'));
+    const cells = row.querySelectorAll('td');
     const cellCount = cells.length;
     
     // Check for empty cells
@@ -131,7 +131,7 @@ function validateTableStructure(tableElement) {
     // Check that rows have consistent cell counts
     if (rowIndex > 0) {
       const prevRow = rows[rowIndex - 1];
-      const prevCells = Array.from(prevRow.querySelectorAll('th, td'));
+      const prevCells = prevRow.querySelectorAll('td');
       if (cellCount !== prevCells.length) {
         errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
       }
@@ -154,11 +154,11 @@ function validateLandmark(element) {
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
   
-  if (role && !validLandmarks.includes(role.toLowerCase())) {
+  if (role && validLandmarks.indexOf(role) === -1) {
     errors.push(`Invalid landmark role: ${role}`);
   }
   
-  if (!role && !validLandmarks.includes(tagName)) {
+  if (!role && validLandmarks.indexOf(tagName) === -1) {
     errors.push(`Element is not a valid landmark: ${tagName}`);
   }
   
@@ -188,18 +188,18 @@ function validateLandmarkStructure() {
   }
   
   // Check for proper nesting of landmarks
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
+  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
   landmarks.forEach((landmark) => {
     const parent = landmark.parentElement;
     while (parent) {
-      const parentTag = parent.tagName.toLowerCase();
+      const parentTag = parent.tagName ? parent.tagName.toLowerCase() : '';
       const parentRole = parent.getAttribute('role');
       
       // Check for invalid nesting
-      if (parentTag === 'header' && landmark.tagName.toLowerCase() === 'header') {
+      if (parentTag === 'header' && landmark.tagName && landmark.tagName.toLowerCase() === 'header') {
         errors.push('Nested header elements found');
       }
-      if (parentTag === 'footer' && landmark.tagName.toLowerCase() === 'footer') {
+      if (parentTag === 'footer' && landmark.tagName && landmark.tagName.toLowerCase() === 'footer') {
         errors.push('Nested footer elements found');
       }
       
@@ -270,9 +270,9 @@ function ensureUniqueLandmarks() {
   const landmarkCounts = {};
   
   // Count landmarks by role or tag
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
+  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
   landmarks.forEach((landmark) => {
-    const identifier = landmark.tagName.toLowerCase() || landmark.getAttribute('role');
+    const identifier = landmark.getAttribute('role') || (landmark.tagName && landmark.tagName.toLowerCase());
     
     // main landmarks should be unique
     if (identifier === 'main' || identifier === 'MAIN') {
@@ -288,185 +288,4 @@ function ensureUniqueLandmarks() {
 }
 
 /**
- * Gets the accessible name of an element, addressing REACT_036 fake link issues.
- * @param {HTMLElement} element - The element to extract the accessible name from
- * @returns {string|null} The accessible name or null
- */
-function personName(element) {
-  if (typeof document === 'undefined' || !element) {
-    return null;
-  }
-  
-  // Check for aria-label
-  const ariaLabel = element.getAttribute('aria-label');
-  if (ariaLabel) return ariaLabel;
-  
-  // Check for aria-labelledby referencing another element
-  const labelledBy = element.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const labelElement = document.getElementById(labelledBy);
-    if (labelElement) return labelElement.textContent;
-  }
-  
-  // Check for title attribute
-  const title = element.getAttribute('title');
-  if (title) return title;
-  
-  // Fall back to text content
-  const textContent = element.textContent.trim();
-  if (textContent) return textContent;
-  
-  return null;
-}
-
-/**
- * Validates that links and interactive elements have accessible names,
- * addressing REACT_036 fake link issues.
- * @param {HTMLElement} container - Optional container to scan within
- * @returns {object} Validation result with valid flag and errors array
- */
-function validateLinks(container) {
-  if (typeof document === 'undefined') {
-    return { valid: true, errors: [] };
-  }
-  
-  const errors = [];
-  const root = container || document;
-  const links = root.querySelectorAll('a, button, [role="link"], [role="button"]');
-  
-  links.forEach((el, index) => {
-    const name = personName(el);
-    if (!name || !name.trim()) {
-      errors.push(`Interactive element ${index + 1} is missing an accessible name`);
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// TODO: Implement a new function to handle focus trap for keyboard navigation
-/**
- * Creates a focus trap within a container element for keyboard navigation.
- * Keeps focus within the trapped area and cycles focus between focusable elements.
- * @param {HTMLElement} container - The container element to trap focus within
- * @param {Object} options - Configuration options for the focus trap
- * @param {boolean} options.escapeDeactivates - If true, Escape key will deactivate the trap (default: true)
- * @param {boolean} options.returnFocusOnDeactivate - If true, returns focus to the previously focused element (default: true)
- * @param {Function} options.onEscape - Callback function when Escape key is pressed
- * @param {Function} options.onActivate - Callback function when trap is activated
- * @param {Function} options.onDeactivate - Callback function when trap is deactivated
- * @returns {Object} Focus trap controller with activate, deactivate, and update methods
- */
-function createFocusTrap(container, options = {}) {
-  if (typeof document === 'undefined') {
-    return null;
-  }
-
-  const config = {
-    escapeDeactivates: options.escapeDeactivates !== false,
-    returnFocusOnDeactivate: options.returnFocusOnDeactivate !== false,
-    onEscape: options.onEscape || null,
-    onActivate: options.onActivate || null,
-    onDeactivate: options.onDeactivate || null
-  };
-
-  let active = false;
-  let deactivateHandler = null;
-
-  const getFocusableElements = () => {
-    return Array.from(container.querySelectorAll(
-      'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    )).filter(el => !el.disabled);
-  };
-
-  const handleKeyDown = (e) => {
-    if (!active) return;
-    
-    if (e.key === 'Escape' && config.escapeDeactivates) {
-      e.preventDefault();
-      deactivate();
-      if (config.onEscape) config.onEscape();
-      return;
-    }
-    
-    if (e.key === 'Tab') {
-      const focusableElements = getFocusableElements();
-      if (focusableElements.length === 0) return;
-      
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-      
-      if (e.shiftKey) {
-        if (document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement.focus();
-        }
-      } else {
-        if (document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement.focus();
-        }
-      }
-    }
-  };
-
-  const activate = () => {
-    if (active) return;
-    active = true;
-    document.addEventListener('keydown', handleKeyDown);
-    if (config.onActivate) config.onActivate();
-  };
-
-  const deactivate = () => {
-    if (!active) return;
-    active = false;
-    document.removeEventListener('keydown', handleKeyDown);
-    if (config.returnFocusOnDeactivate && deactivateHandler) {
-      deactivateHandler.focus();
-    }
-    if (config.onDeactivate) config.onDeactivate();
-  };
-
-  const update = (newOptions) => {
-    Object.assign(config, newOptions);
-  };
-
-  return {
-    activate,
-    deactivate,
-    update,
-    destroy: deactivate
-  };
-}
-
-export {
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateSvgAccessibility,
-  ensureUniqueLandmarks,
-  personName,
-  validateLinks,
-  createFocusTrap
-};
-
-export default {
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateSvgAccessibility,
-  ensureUniqueLandmarks,
-  personName,
-  validateLinks,
-  createFocusTrap
-};
+ * Gets the

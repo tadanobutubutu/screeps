@@ -522,6 +522,16 @@ function renderIndex(data, options = {}) {
   return indexContent(data, options);
 }
 
+/**
+ * Renders the index view (alias for renderIndex)
+ * @param {Object} data - View data
+ * @param {Object} options - Rendering options
+ * @returns {string} Rendered index HTML
+ */
+function renderIndexView(data, options = {}) {
+  return renderIndex(data, options);
+}
+
 if (typeof document !== 'undefined') {
   const mainElement = document.createElement('main');
   mainElement.setAttribute('lang', document.documentElement.lang);
@@ -815,6 +825,7 @@ module.exports = {
     processData,
     renderDependencyGraph,
     renderIndex,
+    renderIndexView,
     newFunction,
     checkLandmarkElement,
     wrapPrimaryContentInMain,

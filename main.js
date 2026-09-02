@@ -1,4 +1,4 @@
-// TODO: Implement the new function as per the issue requirements
+// TODO: Implement the new function as per issue requirements
 
 // New function implementation at line 399
 function detectAndSetLang() {

@@ -1,4 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
@@ -171,7 +172,7 @@ const a11yStore = {
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
+    landmarkElements.forEach((element, index) => {
       const landmarks = document.querySelectorAll(`[role="${element}"]`);
       landmarks.forEach((landmark) => {
         if (landmark.id === '') {
@@ -274,6 +275,112 @@ function ensureDependencyGraphARIA() {
     el.setAttribute('role', 'graph');
     el.setAttribute('aria-label', 'Dependency graph visualization');
   });
+}
+
+// Wrap primary content in main element for accessibility
+function wrapPrimaryContentInMain() {
+  const mainElement = document.querySelector('main');
+  if (!mainElement) {
+    const main = document.createElement('main');
+    main.id = 'main-content';
+    const primaryContent = document.querySelector('main, [role="main"]');
+    if (primaryContent && primaryContent.firstChild) {
+      while (primaryContent.firstChild) {
+        main.appendChild(primaryContent.firstChild);
+      }
+      if (primaryContent.parentNode) {
+        primaryContent.parentNode.appendChild(main);
+      }
+    }
+  }
+}
+
+// Check and ensure unique landmarks
+function ensureUniqueLandmarks() {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
+  landmarkRoles.forEach(role => {
+    const landmarks = document.querySelectorAll(`[role="${role}"]`);
+    const ids = new Set();
+    landmarks.forEach((landmark, index) => {
+      const existingId = landmark.id;
+      if (existingId && ids.has(existingId)) {
+        landmark.id = `${role}-${index}`;
+      }
+      if (existingId) {
+        ids.add(existingId);
+      }
+    });
+  });
+}
+
+// Handle focus trap for modal dialogs
+function handleFocusTrap(container) {
+  const focusableElements = container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  container.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  });
+}
+
+// Check for landmark elements and return status
+function checkLandmarkElement() {
+  const requiredLandmarks = ['main', 'nav', 'header', 'footer'];
+  const missingLandmarks = [];
+  requiredLandmarks.forEach(landmark => {
+    const element = document.querySelector(landmark);
+    if (!element) {
+      missingLandmarks.push(landmark);
+    }
+  });
+  return missingLandmarks;
+}
+
+// Check all landmarks
+function checkLandmarks() {
+  const allLandmarks = document.querySelectorAll('main, nav, header, footer, aside, [role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"]');
+  return allLandmarks.length;
+}
+
+// Render dependency graph
+function renderDependencyGraph(data) {
+  const container = document.createElement('div');
+  container.setAttribute('data-dependency-graph', 'true');
+  container.setAttribute('role', 'graph');
+  container.setAttribute('aria-label', 'Dependency graph visualization');
+  return container;
+}
+
+// Render index page
+function renderIndex() {
+  const indexContainer = document.createElement('div');
+  indexContainer.id = 'index-container';
+  return indexContainer;
+}
+
+// Validate session
+function validateSession(sessionId) {
+  return appState.sessions.has(sessionId);
+}
+
+// Revoke session
+function revokeSession(sessionId) {
+  appState.sessions.delete(sessionId);
+}
+
+// Check for focusable elements in container
+function checkFocusableElements(container) {
+  const focusableElements = container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  return Array.from(focusableElements);
 }
 
 // Export functions to make them accessible

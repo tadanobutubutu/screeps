@@ -21,7 +21,7 @@ export function myNewFunction() {
 }
 
 // REACT_015: Add lang attribute to the <html> element
-function addLangAttribute(html) {
+function addLangAttributeToString(html) {
   if (typeof html !== 'string') return html;
   return html.replace(/<html([^>]*)>/i, (match, attrs) => {
     if (/\blang=/i.test(match)) return match;
@@ -79,10 +79,9 @@ function addLangAttribute() {
 }
 
 function validateTableAccessibility(table) {
-  // Check for caption or aria-label
   return !!(table.querySelector('caption') ||
-           table.getAttribute('aria-label') ||
-           table.getAttribute('aria-labelledby'));
+            table.getAttribute('aria-label') ||
+            table.getAttribute('aria-labelledby'));
 }
 
 function validateTableStructure(table) {
@@ -92,22 +91,27 @@ function validateTableStructure(table) {
 }
 
 function fixTableStructure(table) {
-  if (!validateTableStructure(table)) {
-    // Add missing thead if needed
-    if (!table.querySelector('thead')) {
-      const thead = document.createElement('thead');
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const headerRow = document.createElement('tr');
-        Array.from(firstRow.children).forEach(cell => {
-          const th = document.createElement('th');
-          th.textContent = cell.textContent;
-          headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-        table.insertBefore(thead, table.firstChild);
+  if (!table) return;
+
+  table.querySelectorAll('th').forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      const row = th.closest('tr');
+      const allHeaders = row ? Array.from(row.querySelectorAll('th')) : [];
+      const index = allHeaders.indexOf(th);
+
+      if (index === 0 || row && row.parentElement.tagName === 'THEAD') {
+        th.setAttribute('scope', 'col');
+      } else {
+        th.setAttribute('scope', 'row');
       }
     }
+  });
+
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    const newCaption = document.createElement('caption');
+    newCaption.textContent = 'Table';
+    table.insertBefore(newCaption, table.firstChild);
   }
 }
 
@@ -430,13 +434,28 @@ const accessibilityUtils = {
 };
 
 // Export the report generation function
-module.exports = {
-  generateAccessibilityReport: generateAccessibilityReport,
+export {
+  generateAccessibilityReport,
   addressAccessibilityIssues,
   getLangAttribute,
   createInPageButton,
   a11y,
-  accessibilityUtils
+  accessibilityUtils,
+  addLangAttributeToString,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkAttributes,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  addLangAttribute
 };
 
 // Initialize the application with accessibility improvements
@@ -466,8 +485,6 @@ root.render(
 );
 
 reportWebVitals();
-
-export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };
 
 // Initialize after React render to ensure DOM is updated
 initialize();

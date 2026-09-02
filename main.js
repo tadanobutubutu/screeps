@@ -11,7 +11,7 @@ const http = require('http');
 const url = require('url');
 
 // Function to validate table accessibility
-const validateTableAccessibility = (html) => {
+const validateTableAccessibilityIssues = (html) => {
   const issues = [];
 
   // Check if HTML contains tables
@@ -415,6 +415,3 @@ module.exports = {
   newFunction, // Add the new function to exports
   newFocusTrap // Add the new function to exports
 }
-```
-
-This resolution preserves the new function as a new export, and also makes it available within the module for other uses.

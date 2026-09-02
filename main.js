@@ -17,6 +17,7 @@ function createInPageButton(options) {
     const settings = Object.assign({}, defaults, options);
 
     const button = document.createElement('button');
+    button.lang = 'en';
     button.textContent = settings.text;
     button.className = settings.className;
     button.setAttribute('title', settings.title);

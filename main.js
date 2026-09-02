@@ -281,59 +281,7 @@ function ensureDependencyGraphAriaRole(container) {
   };
 }
 
-/**
- * Creates an accessible form for adding a new book
- * @param {Object} options - Form options
- * @param {Function} options.onSubmit - Submit handler
- * @returns {Object} Form element object with accessibility attributes
- */
-function createAddBookForm(options) {
-  return {
-    type: 'form',
-    role: 'form',
-    ariaLabel: 'Add New Book Form',
-    onSubmit: options.onSubmit,
-    fields: [
-      {
-        type: 'text',
-        id: 'book-title',
-        name: 'title',
-        label: 'Book Title',
-        required: true,
-        ariaRequired: true
-      },
-      {
-        type: 'text',
-        id: 'book-author',
-        name: 'author',
-        label: 'Author',
-        required: true,
-        ariaRequired: true
-      },
-      {
-        type: 'number',
-        id: 'book-pages',
-        name: 'pages',
-        label: 'Number of Pages',
-        min: 1,
-        ariaLabel: 'Number of pages in the book'
-      },
-      {
-        type: 'checkbox',
-        id: 'book-read',
-        name: 'read',
-        label: 'Have you read this book?',
-        ariaLabel: 'Check if you have read this book'
-      }
-    ],
-    submitButton: {
-      type: 'submit',
-      text: 'Add Book',
-      ariaLabel: 'Submit form to add new book'
-    }
-  };
-}
-
+// New Function: Validate book form for accessibility compliance
 /**
  * Validates a book form for accessibility compliance
  * @param {Object} form - The form object to validate

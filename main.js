@@ -63,10 +63,19 @@ function formatDate(date) {
 
 function validateLandmark(landmark) {
   const errors = [];
+  // Existing code that should be preserved
+  // Update landmark validation logic if needed
   const role = landmark && landmark.role;
-  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
   if (role && !validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role: ' + (role || 'undefined'));
+    errors.push('Invalid landmark role: ' + role);
+  }
+  // Additional validation for null/undefined landmark
+  if (!landmark) {
+    errors.push('Landmark is null or undefined');
+  }
+  // Additional check for non-object input
+  if (typeof landmark !== 'object') {
+    errors.push('Landmark must be an object');
   }
   return errors;
 }
@@ -218,6 +227,16 @@ function ensureUniqueLandmarks(landmarksArg) {
       } else {
         landmarksByRole[role] = true;
       }
+    }
+  });
+
+  // Additional uniqueness check for landmark roles
+  const allLandmarks = document.querySelectorAll ? document.querySelectorAll('[role]') : [];
+
+  allLandmarks.forEach(landmark => {
+    const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
+    if (role && landmarksByRole[role]) {
+      console.warn(`Duplicate landmark role: ${role}`);
     }
   });
 

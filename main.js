@@ -297,11 +297,17 @@ export { checkLandmarkElements, sampleInsightReport, generateAccessibilityReport
 // Rest of the code remains the same
 const AddressabilityIssues = {
   generateAccessibilityReport(accessibilityReport) {
-    // ... (existing code)
+    if (!accessibilityReport) {
+      return generateAccessibilityReport();
+    }
+    return accessibilityReport;
   },
 
   calculateAccessibilityScore(fixedIssues) {
-    // ... (existing code)
+    if (!fixedIssues || fixedIssues.length === 0) {
+      return 100;
+    }
+    return Math.max(0, 100 - (fixedIssues.length * 5));
   },
 
   fixMainLandmarkIssues(source) {
@@ -329,7 +335,22 @@ const AddressabilityIssues = {
   },
 
   validateLandmark(element) {
-    // ... (updated implementation)
+    if (!element) {
+      return { valid: false, issues: ['Element is null or undefined'] };
+    }
+    
+    const issues = [];
+    const validRoles = ['banner', 'main', 'navigation', 'search', 'contentinfo', 'complementary', 'region', 'form'];
+    const role = element.getAttribute('role');
+    
+    if (role && !validRoles.includes(role)) {
+      issues.push(`Invalid landmark role: ${role}`);
+    }
+    
+    return {
+      valid: issues.length === 0,
+      issues: issues
+    };
   },
 
   spawnSomeCommand(callback) {
@@ -350,11 +371,13 @@ const AddressabilityIssues = {
   },
 
   addLangAttribute(element, lang) {
-    // ... (existing code)
+    if (element) {
+      element.setAttribute('lang', lang || 'en');
+    }
   },
 
   countDependencies() {
-    // ... (existing code)
+    return 0;
   }
 };
 
@@ -364,7 +387,11 @@ const AddressabilityIssues = {
  * @returns {Object} Result containing fixed issues
  */
 function addressAccessibilityIssuesFromInsightReport(insightReport) {
-  // ... (existing code)
+  if (!insightReport) {
+    return { addressedIssues: [] };
+  }
+  const solutions = implementAccessibilitySolutions(insightReport);
+  return { addressedIssues: solutions };
 }
 
 function checkLandmarkElements() {

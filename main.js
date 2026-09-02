@@ -146,6 +146,11 @@ function setSvgAccessibleName(svg, allowContentSearch = true) {
   return ''
 }
 
+// Function to get accessible name for SVG (exported as getSvgAccessibleName)
+function getSvgAccessibleName(svg) {
+  return setSvgAccessibleName(svg)
+}
+
 // Function for handling all link accessibility issues (e.g., missing 'href', duplicate links, etc.)
 function validateLinkAccessibility() {
   // Implementation for handling link accessibility issues
@@ -208,11 +213,6 @@ function detectAndSetLang(content) {
   }
 
   return setHtmlLangAttribute(lang)
-}
-
-// New function to address REACT_015: Add lang attribute to HTML element
-function getLangAttribute() {
-  return setLangAttribute()
 }
 
 // New function to address REACT_015 and REACT_036: personName function referenced in comments

@@ -71,6 +71,17 @@ function detectAndSetLang(content) {
   return lang;
 }
 
+const renderGraphIndex = (graphData) => {
+  // Handle initial accessibility setup on page load
+  handleInitialAccessibility();
+  // Ensure all interactive elements have proper ARIA roles and attributes
+  ensureInteractiveElementsAccessible();
+  // Render the dependency graph using the new function
+  dependencyGraphContent(graphData);
+  // Render the index using the new function
+  indexContent(graphData);
+};
+
 // New function to address REACT_015: Add lang attribute to HTML element
 function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';

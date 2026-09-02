@@ -20,12 +20,13 @@
 <!-- todo-hash: 8ad60efd40c45bb15f567185d6466fa4f2f51728 -->
 
 const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
   timeout: process.env.TIMEOUT || 5000,
   debug: true,
   version: '1.0.0'
 };
 
+let isInitialized = false;
 const appState = {
   initialized: false,
   data: null,
@@ -54,9 +55,12 @@ function getLangAttribute() {
     return document.documentElement.lang || 'en';
 }
 
+function formatDate(date) {
+  return new Date(date).toISOString().split('T')[0];
+}
+
 function getFullLangAttribute() {
-    // Implementation to get full language attribute
-    return document.documentElement.lang || navigator.language || 'en-US';
+    return document.documentElement.lang || (typeof navigator !== 'undefined' && navigator.language) || 'en-US';
 }
 
 function validateTableAccessibility(tableElement) {
@@ -181,7 +185,6 @@ function processData(data) {
 }
 
 function createInPageButton(text, onClick) {
-    // Implementation to create accessible in-page button (conflict resolved: merged implementation)
     const button = document.createElement('button');
     button.textContent = text;
     button.onclick = onClick;
@@ -190,7 +193,6 @@ function createInPageButton(text, onClick) {
 }
 
 function createAccessibleLink(href, text) {
-    // Implementation to create accessible link (conflict resolved: merged implementation)
     const link = document.createElement('a');
     link.href = href;
     link.textContent = text;

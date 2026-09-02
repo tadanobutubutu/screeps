@@ -418,7 +418,7 @@ function createAccessibleBookForm(options) {
     fields: [],
     submitButton: createInPageButton({
       text: 'Submit Book',
-      ariaLabel: `Submit ${options.title} form',
+      ariaLabel: `Submit ${options.title} form`,
       onClick: options.onSubmit
     })
   };
@@ -538,6 +538,74 @@ function enhanceAddBookAccessibility() {
 // Ensure accessibility improvements are applied
 enhanceAddBookAccessibility();
 
+// Line 393: Implement this function for checking link and button accessibility
+/**
+ * Checks link and button accessibility, including validation and handling of fake links
+ * @param {Array} elements - Array of link and button elements to check
+ * @returns {Object} Result with success status, issues found, and handled elements
+ */
+function fixLinkAndButtonAccessibility(elements) {
+  const issues = [];
+  const handledElements = [];
+
+  elements.forEach((element, index) => {
+    const elementIssues = [];
+
+    // Validate links
+    if (element.type === 'a') {
+      const linkValidation = validateLinkAccessibility(element);
+      if (!linkValidation.success) {
+        elementIssues.push(...linkValidation.issues);
+      }
+
+      // Check for fake links
+      if (element.type === 'a' && element.href === '#' && !element.onClick) {
+        elementIssues.push('Fake link detected (href="#" without click handler)');
+      }
+
+      // Handle fake links if present
+      if (element.isFake) {
+        const fixedElement = handleFakeLinks(element);
+        handledElements.push({
+          elementIndex: index,
+          originalElement: element,
+          fixedElement: fixedElement
+        });
+      }
+    }
+
+    // Validate buttons
+    if (element.type === 'button') {
+      if (!element.onClick) {
+        elementIssues.push('Button missing click handler');
+      }
+
+      if (!element.ariaLabel && !element.text) {
+        elementIssues.push('Element missing accessible name (aria-label or text content)');
+      }
+    }
+
+    // General checks for both links and buttons
+    if ((element.type === 'a' || element.type === 'button') && !element.ariaLabel && !element.text) {
+      elementIssues.push('Element missing accessible name (aria-label or text content)');
+    }
+
+    if (elementIssues.length > 0) {
+      issues.push({
+        elementIndex: index,
+        type: element.type,
+        issues: elementIssues
+      });
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues,
+    handledElements
+  };
+}
+
 // Export all functions for testing and external use
 module.exports = {
   // ... (existing exports)
@@ -565,5 +633,6 @@ module.exports = {
   addBook,
   makeAccessible,
   addAriaSupport,
-  enhanceAddBookAccessibility
+  enhanceAddBookAccessibility,
+  fixLinkAndButtonAccessibility
 };

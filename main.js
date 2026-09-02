@@ -24,6 +24,18 @@ function wrapPrimaryContentInMain() {
   return null;
 }
 
+// Function to count the number of dependencies imported in this file
+function countDependencies() {
+  const importRegex = /import\s+(?:[\w*\s,{}]+\s+from\s+)?['"]([^'"]+)['"]/g;
+  const dependencies = new Set();
+  const source = countDependencies.toString() + '\n' + wrapPrimaryContentInMain.toString();
+  let match;
+  while ((match = importRegex.exec(source)) !== null) {
+    dependencies.add(match[1]);
+  }
+  return dependencies.size;
+}
+
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { List, Button } from 'antd';

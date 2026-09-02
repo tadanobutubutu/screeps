@@ -135,8 +135,8 @@ const AddressabilityIssues = {
     const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
 
-    const dependencies = JSON.parse(packageJson).dependencies || {};
-    const devDependencies = JSON.parse(packageJson).devDependencies || {};
+    const dependencies = JSON.parse(packageJsonPath).dependencies || {};
+    const devDependencies = JSON.parse(packageJsonPath).devDependencies || {};
 
     return {
       dependencies: Object.keys(dependencies).length,
@@ -244,3 +244,17 @@ const sampleInsightReport = {
     }
   ]
 };
+
+// Additional utility functions from origin/main
+function addBook(bookData) {
+  // ... Existing code ...
+  return bookData;
+}
+
+function createServer() {
+  // ... Existing code ...
+  return null;
+}
+
+function generateAccessibilityReport() {
+  // Placeholder implementation

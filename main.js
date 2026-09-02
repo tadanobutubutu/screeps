@@ -13,7 +13,7 @@
 // main.js - Accessibility improvements implementation
 // main.js - Combined utility and accessibility features
 
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// TODO: This is the existing code that needs to be preserved
 // Version 1 implementation (HEAD branch) - preserved accessibility enhancements
 
 // TODO: This is the existing code that needs to be preserved
@@ -365,6 +365,123 @@ function createAccessibleBookForm(formId, submitButtonId) {
 
 // Don't forget to test your new additions in the test file
 
+// New functions to render dependency graphs and display module structure for debugging purposes
+/**
+ * Renders a dependency graph visualization for debugging purposes
+ * @param {Object} dependencies - An object representing module dependencies
+ * @returns {string} HTML string representing the visualization of the dependency graph
+ */
+function renderDependencyGraph(dependencies) {
+    if (!dependencies || typeof dependencies !== 'object') {
+        return '<div class="no-dependencies">No dependencies found</div>';
+    }
+
+    const nodes = [];
+    const edges = [];
+
+    // Convert dependencies to nodes and edges
+    Object.keys(dependencies).forEach(moduleName => {
+        nodes.push({ id: moduleName, label: moduleName });
+        if (Array.isArray(dependencies[moduleName])) {
+            dependencies[moduleName].forEach(dependency => {
+                edges.push({ from: moduleName, to: dependency });
+            });
+        }
+    });
+
+    // Create a simple HTML representation of the dependency graph
+    let htmlOutput = '<div class="dependency-graph">';
+    htmlOutput += '<h3>Module Dependencies</h3>';
+    
+    if (nodes.length === 0) {
+        htmlOutput += '<p>No modules found</p>';
+    } else {
+        htmlOutput += '<ul class="modules">';
+        nodes.forEach(node => {
+            const nodeEdges = edges.filter(edge => edge.from === node.id || edge.to === node.id);
+            const dependencies = edges.filter(edge => edge.from === node.id);
+            const dependents = edges.filter(edge => edge.to === node.id);
+            
+            htmlOutput += `<li class="module-node">
+                <strong>${node.label}</strong>
+                <ul>
+                    <li>Dependencies: ${dependencies.length > 0 ? 
+                        dependencies.map(d => d.to).join(', ') : 'None'}</li>
+                    <li>Dependents: ${dependents.length > 0 ? 
+                        dependents.map(d => d.from).join(', ') : 'None'}</li>
+                </ul>
+            </li>`;
+        });
+        htmlOutput += '</ul>';
+    }
+    
+    htmlOutput += '</div>';
+    return htmlOutput;
+}
+
+/**
+ * Displays the module structure for debugging purposes
+ * @param {Object} modules - An object representing the module structure
+ * @returns {string} HTML string representing the module structure visualization
+ */
+function displayModuleStructure(modules) {
+    if (!modules || typeof modules !== 'object') {
+        return '<div class="no-modules">No modules found</div>';
+    }
+
+    let htmlOutput = '<div class="module-structure">';
+    htmlOutput += '<h3>Module Structure</h3>';
+    
+    const traverseModules = (moduleObj, level = 0) => {
+        let result = '';
+        const indent = '  '.repeat(level);
+        
+        Object.keys(moduleObj).forEach(key => {
+            result += `${indent}• ${key}\n`;
+            if (moduleObj[key] && typeof moduleObj[key] === 'object' && !Array.isArray(moduleObj[key])) {
+                result += traverseModules(moduleObj[key], level + 1);
+            }
+        });
+        
+        return result;
+    };
+    
+    const structureText = traverseModules(modules);
+    htmlOutput += `<pre class="structure-tree">${structureText}</pre>`;
+    htmlOutput += '</div>';
+    
+    return htmlOutput;
+}
+
+/**
+ * Analyzes the dependency graph and returns statistics for debugging
+ * @param {Object} dependencies - An object representing module dependencies
+ * @returns {Object} Statistics about the dependency graph
+ */
+function analyzeDependencyGraph(dependencies) {
+    if (!dependencies || typeof dependencies !== 'object') {
+        return { totalModules: 0, totalDependencies: 0, modules: [] };
+    }
+
+    const stats = {
+        totalModules: Object.keys(dependencies).length,
+        totalDependencies: 0,
+        modules: []
+    };
+
+    Object.keys(dependencies).forEach(moduleName => {
+        const depCount = Array.isArray(dependencies[moduleName]) ? dependencies[moduleName].length : 0;
+        stats.totalDependencies += depCount;
+        stats.modules.push({
+            name: moduleName,
+            dependencyCount: depCount,
+            dependencies: Array.isArray(dependencies[moduleName]) ? dependencies[moduleName] : []
+        });
+    });
+
+    return stats;
+}
+
 // Export accessibility utility functions
 module.exports = {
     addLangAttribute,
@@ -379,7 +496,10 @@ module.exports = {
     divide,
     checkLinkAccessibility,
     wrapPrimaryContentInMain,
-    createAccessibleBookForm
+    createAccessibleBookForm,
+    renderDependencyGraph,
+    displayModuleStructure,
+    analyzeDependencyGraph
 };
 
 // Run if executed directly

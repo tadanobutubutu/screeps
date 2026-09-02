@@ -31,5 +31,20 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// TODO: implement a function to count dependencies
+function countDependencies(packageJson) {
+    // Count all direct dependencies
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    const peerDependencies = packageJson.peerDependencies || {};
+    const optionalDependencies = packageJson.optionalDependencies || {};
+
+    // Return the total count of all dependency types
+    return Object.keys(dependencies).length +
+           Object.keys(devDependencies).length +
+           Object.keys(peerDependencies).length +
+           Object.keys(optionalDependencies).length;
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

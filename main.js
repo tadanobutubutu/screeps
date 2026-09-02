@@ -1,6 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-// ... (existing code up to line 86)
-
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -418,7 +415,7 @@ function createAccessibleBookForm(options) {
     fields: [],
     submitButton: createInPageButton({
       text: 'Submit Book',
-      ariaLabel: `Submit ${options.title} form',
+      ariaLabel: `Submit ${options.title} form`,
       onClick: options.onSubmit
     })
   };

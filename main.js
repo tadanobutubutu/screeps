@@ -3,8 +3,8 @@ const main = require('./utilities');
 
 const {
   createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
+  validateTableAccessibility: validateTableAccessibilityFromMain,
+  validateTableStructure: validateTableStructureFromMain,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
@@ -265,5 +265,7 @@ module.exports = {
   getTables,
   getConfig,
   setConfig,
+  validateTableAccessibilityFromMain,
+  validateTableStructureFromMain,
   // Preserve any other existing exports here
 };

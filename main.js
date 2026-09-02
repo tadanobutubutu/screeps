@@ -150,6 +150,22 @@ addLangAttribute();
 
 // Continue with the rest of your existing code here...
 
+// New function to add accessible names to SVGs
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      svg.setAttribute('aria-label', accessibleName);
+    }
+  });
+}
+
+// New function to add accessible names to all SVGs in the document
+function addAccessibleNamesToSVGs() {
+  addSvgAccessibleNames();
+}
+
 module.exports = {
   someFunction,
   createInPageButton,
@@ -172,6 +188,8 @@ module.exports = {
   preserveExistingCode,
   newFunction,
   addLangAttribute,
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs
   // continue with other exports here...
 }

@@ -1,3 +1,49 @@
+/**
+ * Generates an accessible name from person data
+ * @param {string|Object} personData - The person data to process
+ * @returns {string} An accessible name string
+ */
+function personName(personData) {
+    if (!personData) {
+        return '';
+    }
+    
+    if (typeof personData === 'string') {
+        return personData.trim();
+    }
+    
+    if (typeof personData === 'number') {
+        return String(personData);
+    }
+    
+    if (typeof personData === 'object') {
+        // Try common name property combinations
+        if (personData.firstName && personData.lastName) {
+            return `${personData.firstName} ${personData.lastName}`;
+        }
+        if (personData.firstName) {
+            return personData.firstName;
+        }
+        if (personData.lastName) {
+            return personData.lastName;
+        }
+        if (personData.name) {
+            return personData.name;
+        }
+        if (personData.username) {
+            return personData.username;
+        }
+        if (personData.title) {
+            return personData.title;
+        }
+        if (personData.email) {
+            return personData.email;
+        }
+    }
+    
+    return '';
+}
+
 /** TODO: Implement function for addressing accessibility issues from insight report */
 function addressAccessibilityIssues(insightReport) {
     const accessibilityIssues = insightReport.accessibility || [];
@@ -867,7 +913,8 @@ if (typeof module !== 'undefined' && module.exports) {
         validateLinkAccessibility,
         handleFakeLinks,
         fixFakeLinkIssue,
-        handleCredentialResponse
+        handleCredentialResponse,
+        personName
     };
 }
 

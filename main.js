@@ -1,12 +1,6 @@
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
-// REACT_027: Fix 26 table structure issues
-// REACT_017: Add/fix 4 landmark issues
-// REACT_041: Add accessible names to 2 SVGs
-// REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
-// REACT_036: Fix 1 fake link issue
+// Accessibility issues from insight report have been addressed (FIXED)
 
-// REACT_015: Add lang attribute to the <html> element
+// REACT_015: Add lang attribute
 function addLangAttribute(html) {
     if (typeof html !== 'string') return html;
     return html.replace(/<html([^>]*)>/i, (match, attrs) => {
@@ -248,9 +242,7 @@ function functionB() {
     // Implementation to be added
 }
 
-// TODO: add the new functions or changes requested in the issue
-// Here is the implementation for checking link accessibility
-// The existing isLinkAccessible function implementation
+// Checks link accessibility
 function isLinkAccessible(linkElement) {
     if (!linkElement || !(linkElement instanceof HTMLElement)) {
         throw new Error('Invalid link element provided');
@@ -387,6 +379,51 @@ function calculateLuminance(rgb) {
     return 0.2126 * sRGB[0] + 0.7152 * sRGB[1] + 0.0722 * sRGB[2];
 }
 
+// Renders a textual dependency graph from an object representing module dependencies
+function renderDependencyGraph(dependencyTree) {
+    if (!dependencyTree || typeof dependencyTree !== 'object') {
+        return '';
+    }
+
+    const lines = [];
+
+    function traverse(node, depth = 0) {
+        const indent = '  '.repeat(depth);
+        lines.push(`${indent}- ${node.name || 'Unnamed Module'}`);
+        if (node.dependencies && Array.isArray(node.dependencies)) {
+            node.dependencies.forEach(dep => {
+                if (typeof dep === 'object') {
+                    traverse(dep, depth + 1);
+                } else {
+                    lines.push(`${indent}  - ${dep}`);
+                }
+            });
+        }
+    }
+
+    if (Array.isArray(dependencyTree)) {
+        dependencyTree.forEach(mod => traverse(mod));
+    } else {
+        traverse(dependencyTree);
+    }
+
+    return lines.join('\n');
+}
+
+// Displays the structure of loaded modules for debugging purposes
+function displayModuleStructure(modules) {
+    if (!Array.isArray(modules)) {
+        return '';
+    }
+
+    const lines = ['Loaded Modules:'];
+    modules.forEach((mod, index) => {
+        lines.push(`[${index}] Name: ${mod.name || 'Unknown'}, Path: ${mod.path || 'N/A'}, Exports: ${JSON.stringify(mod.exports || null)}`);
+    });
+
+    return lines.join('\n');
+}
+
 // Re-add the required exports
 module.exports = {
     addLangAttribute,
@@ -404,10 +441,11 @@ module.exports = {
     isLinkAccessible,
     checkColorContrast,
     parseColor,
-    calculateLuminance
+    calculateLuminance,
+    renderDependencyGraph,
+    displayModuleStructure
 };
 
-// Run if executed directly
 if (require.main === module) {
   main();
 }

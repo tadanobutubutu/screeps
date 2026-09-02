@@ -491,6 +491,36 @@ module.exports = {
   validateTableStructure,
   // Preserve any other existing exports here
   // Required exports restored from previous version
+  // Re-export the imported dependencies that were previously exported
+  googleSignIn,
+  decodeJwtResponse,
+  fixButtonIdentifiers,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs,
+  // Re-export the local functions that were previously exported
+  renderGraphIndex,
+  trapFocus,
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  uniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  accessibilityUtils,
+  createAnnouncer,
+  prefersReducedMotion,
+  initializeAccessibility,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse
 }
 
 // New function or changes requested in the issue

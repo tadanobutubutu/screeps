@@ -176,6 +176,24 @@ function isValidLandmark(landmark) {
          landmark.id !== null;
 }
 
+// Implement validateLandmark functionality
+function validateLandmark(landmark) {
+  const issues = [];
+  
+  if (!landmark) {
+    return { valid: false, issues: ['Landmark is null or undefined'] };
+  }
+  
+  if (typeof landmark.id !== 'string' || landmark.id.trim().length === 0) {
+    return { 
+      valid: false, 
+      issues: ['Landmark ID is required and non-empty'] 
+    };
+  }
+  
+  return { valid: true, issues: [] };
+}
+
 // Improve accessibility
 function improveAccessibility() {
   fixTableStructureIssues();
@@ -188,7 +206,7 @@ function improveAccessibility() {
   setLanguageAttribute();
   fixTableAccessibility();
   fixLandmarkIssues();
-  addSvgAccessibility();
+  addSvgAccessibleNames;
   createAccessibleLinks();
 }
 
@@ -326,17 +344,6 @@ module.exports = {
   addProperLandmarkRegions,
   fixTableAccessibility,
   fixLandmarkIssues,
-  addSvgAccessibility,
-  createAccessibleLinks,
-  formatResponse,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  CONFIG,
-  isValidLandmark,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
   addSvgAccessibleNames,
   fixFakeLinks,
   ensureUniqueLandmarks,

@@ -83,7 +83,7 @@ export const main = {
     document.body.appendChild(form);
 
     // Add event listener for form submission
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', function(e) {
       e.preventDefault();
       // Handle form submission logic here
       console.log('Book added:', {
@@ -187,7 +187,7 @@ if (fakeLink && fakeLink.tagName === 'A') {
 import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
-      const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
+      const filePath = path.join(__dirname, 'landmarks.json');
       const data = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(data);
   } catch (error) {
@@ -219,7 +219,7 @@ function ensureLandmarkUniqueness(elements) {
 
 // Updated function using the new functions for rendering graph/index
 function renderDependencyGraphContent() {
-  const container = document.getElementById('dependencyGraph');
+  const container = document.getElementById('dependency-graph');
   if (!container) {
     return;
   }
@@ -240,7 +240,7 @@ function countDependencies() {
 }
 
 // Function to enhance accessibility for addBook form
-function enhanceAccessibilityForAddBook(formElement) {
+function enhanceAddBookFormAccessibility(formElement) {
   if (!formElement) return;
 
   // Add ARIA attributes to form elements
@@ -251,77 +251,10 @@ function enhanceAccessibilityForAddBook(formElement) {
   const inputs = formElement.querySelectorAll('input, textarea, select');
   inputs.forEach(input => {
     // Add required attribute if needed
-    if (input.hasAttribute('required')) {
+    if (input.required) {
       input.setAttribute('aria-required', 'true');
     }
 
     // Add labels if missing
     if (!input.id) {
-      input.id = `input-${Math.random().toString(36).substr(2, 9)}`;
-    }
-
-    // Create label if not present
-    if (!document.querySelector(`label[for="${input.id}"]`)) {
-      const label = document.createElement('label');
-      label.setAttribute('for', input.id);
-      label.textContent = input.placeholder || input.name || 'Input field';
-      input.parentNode.insertBefore(label, input);
-    }
-  });
-
-  // Add submit button if missing
-  if (!formElement.querySelector('button[type="submit"]')) {
-    const submitButton = document.createElement('button');
-    submitButton.type = 'submit';
-    submitButton.textContent = 'Add Book';
-    submitButton.className = 'add-book-submit';
-    formElement.appendChild(submitButton);
-  }
-
-  // Add error summary area
-  if (!formElement.querySelector('.error-summary')) {
-    const errorSummary = document.createElement('div');
-    errorSummary.className = 'error-summary';
-    errorSummary.setAttribute('aria-live', 'polite');
-    formElement.insertBefore(errorSummary, formElement.firstChild);
-  }
-}
-
-// Process and filter landmarks (new addition)
-
-// Exporting module objects
-export {
-  wrapPrimaryContentInMain,
-  initializeApp,
-  handleUserInteraction,
-  cleanup,
-  initApp,
-  processData,
-  fetchUser,
-  clearCache,
-  VisualizeDependencyTree,
-  checkLandmarkElement,
-  ensureUniqueLandmarks,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  landmarks,
-  appData,
-  icons,
-  validateLandmark,
-  ensureFocusableElements,
-  renderDependencyGraphContent,
-  ensureLandmarkUniqueness,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  countDependencies,
-  createInPageButton,
-  enhanceAccessibilityForAddBook
-};
+      input.id = `input_${Math.random().to

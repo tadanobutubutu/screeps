@@ -1,5 +1,4 @@
 // TODO: add the new functions or changes requested in the issue
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
 
 /** TODO: Implement function for addressing accessibility issues from insight report */
 function addressAccessibilityIssues(insightReport) {
@@ -98,7 +97,7 @@ function validateLandmarkStructure(context = document) {
         }
     });
     
-    // Validate forms have accessible names
+    // Validate forms have accessible name
     const forms = context.querySelectorAll('form');
     forms.forEach((form, index) => {
         const hasLabel = form.getAttribute('aria-label') || 
@@ -178,7 +177,7 @@ function getLandmarkSummary(context = document) {
         infos.forEach(i => summary.push(`  • ${i.message}`));
     }
     
-    summary.push(`Validation ${result.isValid ? 'PASSED' : 'FAILED'}`);
+    summary.push(`\nValidation: ${result.isValid ? 'PASSED' : 'FAILED'}`);
     
     return summary.join('\n');
 }

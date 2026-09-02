@@ -324,6 +324,7 @@ export {
     checkLinkAccessibility,
     divide,
     spawnEntity,
+    calculateDiscount,
     wrapPrimaryContentInMain,
     ensureUniqueLandmarks,
     fixFakeLinks,

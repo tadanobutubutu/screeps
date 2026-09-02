@@ -7,6 +7,7 @@ class ScreepsBot {
     this.network = null;
     this.tasks = [];
     this.config = {};
+    this.setDependencyGraphAriaRole(); // Ensure ARIA role for dependency graph container
   }
 
   async start() {
@@ -15,6 +16,9 @@ class ScreepsBot {
 
     // Load initial data
     await this.loadData();
+
+    // Ensure accessibility for dependency graph container
+    this.setDependencyGraphAriaRole();
 
     console.log('Screenspider bot started');
   }
@@ -97,6 +101,15 @@ class ScreepsBot {
   handleTabNavigation(event, activeElement) {
     // Implement custom tab navigation logic
     console.log('Handling tab navigation');
+  }
+
+  // Ensure the dependencyGraph container has a proper ARIA role
+  setDependencyGraphAriaRole() {
+    const container = document.getElementById('dependencyGraph');
+    if (container) {
+      container.setAttribute('role', 'grid');
+      container.setAttribute('aria-label', 'Dependency graph');
+    }
   }
 }
 

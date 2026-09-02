@@ -8,6 +8,11 @@ const { createServer, startApp, config } = require('./');
 
 const port = PORT || 3000;
 
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
+// ----- END ORIGINAL CODE -----
+
 // New function for getting the language attribute based on the content
 function getLangAttribute() {
   // If the language is not explicitly set, determine the language based on the content

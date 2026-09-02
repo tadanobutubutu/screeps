@@ -10,14 +10,71 @@ const {
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
-  announceToScreenReader,
+  announceToScreenReader: originalAnnounceToScreenReader,
   handleKeyboardNav,
-  newFocusTrap: originNewFocusTrap,
+  originNewFocusTrap,
   exportUtils,
-  transformInputData
+  transformInputData,
+  initSkipLink,
+  trapFocus,
+  newFocusTrap: (element) => {
+    if (!element) return originNewFocusTrap(element);
+    const focusable = element.querySelectorAll(
+      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          first.focus();
+          e.preventDefault();
+        }
+    });
+  },
+  announceToScreenReader,
+  ensureElementId,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addAriaLabel,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  ensureElementId: (element) => {
+    if (element && !element.id) {
+      element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+    return element;
+  },
+  ensureElementHasIdOrigin,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addSvgAccessibleName,
+  initSkipLink,
+  trapFocus,
+  announceToScreenReader: originalAnnounceToScreenReader,
+  newFocusTrap,
+  ensureElementId,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addAriaLabel
 } = main;
 
+// Accessibility utilities and functions
 const accessibilityUtils = {
+  initSkipLink,
+  trapFocus,
+  newFocusTrap,
+  announceToScreenReader,
+  ensureElementId,
+  addAriaLabel,
   // ... Previous functions defined here
 
   addressAccessibilityIssues() {
@@ -40,41 +97,13 @@ const accessibilityUtils = {
     issues.forEach((issue) => {
       if (issue.element) {
         issue.solution();
-      }
-    });
+    }
   },
+
+  // ... Previous exports defined here
 };
-
-const ensureElementId = (element) => {
-  if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  return element;
-};
-
-const ensureElementHasId = (element, prefix = 'element') => {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-
-  if (element.id) {
-    return element.id;
-  }
-
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
-};
-
-// ... Previous exports defined here
-
-function newFocusTrap() {
-  // New function implementation: traps focus within a given element
-  return accessibilityUtils.newFocusTrap;
-}
 
 module.exports = {
   // ... Previous exports defined here
   addressAccessibilityIssues,
-  // ... Add the new export here
 };

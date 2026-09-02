@@ -33,3 +33,16 @@ function validateLandmarkStructure() {
 
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };
+
+// TODO: Implement the new function as per the issue requirements
+function performActionWithButton(buttonId, actionFunction) {
+    const button = document.getElementById(buttonId);
+    if (button) {
+        button.addEventListener('click', actionFunction);
+    } else {
+        console.error(`Button with ID '${buttonId}' not found.`);
+    }
+}
+
+// Optionally, export the new function if needed
+// export { performActionWithButton };

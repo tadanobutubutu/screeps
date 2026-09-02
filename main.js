@@ -28,6 +28,34 @@ const safetyCategory = "User Safety: unsafe";
 const safetyCategories = ["Unauthorized Advice"];
 const utils = require('./utils');
 
+function getSvgAccessibleName(svg) {
+  if (svg.getAttribute('aria-label')) {
+    return svg.getAttribute('aria-label');
+  }
+  if (svg.getAttribute('alt')) {
+    return svg.getAttribute('alt');
+  }
+  const titleElement = svg.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent.trim();
+  }
+  return '';
+}
+
+function setSvgAttributes(svg) {
+  if (!svg.getAttribute('id')) {
+    svg.setAttribute('id', 'svg-' + Math.random().toString(36).slice(2, 11));
+  }
+}
+
+function addSvgAccessibilityProps() {
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg);
+  });
+}
+
 const CONFIG = {
   dataPath: './data',
   maxResults: 100,

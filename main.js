@@ -243,13 +243,16 @@
       getLangAttribute,
       createInPageButton,
       a11y,
+      trapFocus: a11y.trapFocus,
+      announce: a11y.announce,
       importAndExecute,
       validateTableAccessibility,
       validateTableStructure,
       validateLandmark,
       validateLandmarkStructure,
       getSvgAccessibleName,
-      setSvgAttributes
+      setSvgAttributes,
+      initialize
     };
 
     // Initialize the application with accessibility improvements

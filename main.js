@@ -1,4 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;
@@ -375,10 +374,81 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// Implement the logic to handle the credential response
+function handleCredentialResponse(response) {
+  // Validate the response object
+  if (!response || typeof response !== 'object') {
+    console.error('Invalid credential response: response must be an object');
+    return null;
+  }
+
+  // Extract the credential (JWT) from the response
+  const credential = response.credential;
+  if (!credential || typeof credential !== 'string') {
+    console.error('Invalid credential response: missing credential');
+    return null;
+  }
+
+  // Decode the JWT payload (the middle part of the JWT)
+  let payload;
+  try {
+    const parts = credential.split('.');
+    if (parts.length < 2) {
+      throw new Error('Malformed JWT');
+    }
+    // Base64-url decode the payload
+    const base64Payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64Payload + '='.repeat((4 - base64Payload.length % 4) % 4);
+    const decoded = atob(padded);
+    payload = JSON.parse(decoded);
+  } catch (err) {
+    console.error('Failed to decode credential JWT:', err);
+    return null;
+  }
+
+  // Build a normalized user object from the payload
+  const user = {
+    credential,
+    select_by: payload.select_by || null,
+    clientId: payload.aud || null,
+    sub: payload.sub || null,
+    email: payload.email || null,
+    email_verified: payload.email_verified === true,
+    name: payload.name || null,
+    given_name: payload.given_name || null,
+    family_name: payload.family_name || null,
+    picture: payload.picture || null,
+    locale: payload.locale || null,
+    iss: payload.iss || null,
+    iat: payload.iat || null,
+    exp: payload.exp || null
+  };
+
+  // Expose the user info globally so other modules can consume it
+  if (typeof window !== 'undefined') {
+    window.googleUser = user;
+    window.googleCredential = credential;
+
+    // Dispatch a custom event so the rest of the app can react to the sign-in
+    try {
+      const event = new CustomEvent('googleCredentialReceived', { detail: user });
+      window.dispatchEvent(event);
+    } catch (err) {
+      // Fallback for environments without CustomEvent support
+      const event = document.createEvent('CustomEvent');
+      event.initCustomEvent('googleCredentialReceived', false, false, user);
+      window.dispatchEvent(event);
+    }
+  }
+
+  console.log('Credential response handled successfully:', user);
+  return user;
+}
+
 // Don't forget to test your new additions in the test file
 
 // Export the function for testing and external use
-module.exports = { newFunction };
+module.exports = { newFunction, handleCredentialResponse };
 
 // Export accessibility utility functions
 export {
@@ -401,5 +471,6 @@ export {
   divide,
   wrapPrimaryContentInMain,
   ensureDependencyGraphContainerAccessibility,
-  ensureUniqueLandmarkIds
+  ensureUniqueLandmarkIds,
+  handleCredentialResponse
 };

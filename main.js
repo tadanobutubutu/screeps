@@ -161,7 +161,7 @@ const a11yStore = {
   preserveExistingCode() {
     // TODO: This is the existing code that needs to be preserved
     // _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
-    // <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
+    // <!-- todo-hash: 4db3fdb46f8c23568fe2832e296806312b7e888 -->
     // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
     // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
     // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
@@ -338,6 +338,70 @@ const a11yStore = {
     return missingAlternatives;
   }
 };
+
+/**
+ * Check if a link is accessible and properly structured
+ * @param {HTMLAnchorElement} link - The link element to check
+ * @returns {Object} Accessibility check result with status and issues
+ */
+function isLinkAccessible(link) {
+  if (!link) {
+    return {
+      accessible: false,
+      issues: ['Link element is required']
+    };
+  }
+
+  const issues = [];
+
+  // Check for href attribute
+  const href = link.getAttribute('href');
+  if (!href) {
+    issues.push('Missing href attribute');
+  } else if (href === '#' || href === '' || href === 'javascript:void(0)' || href === 'javascript:;') {
+    issues.push('Link has no meaningful destination');
+  }
+
+  // Check for accessible text
+  const accessibleName = link.textContent.trim();
+  if (!accessibleName) {
+    const ariaLabel = link.getAttribute('aria-label');
+    const ariaLabelledby = link.getAttribute('aria-labelledby');
+    if (!ariaLabel && !ariaLabelledby) {
+      issues.push('Link has no accessible name');
+    }
+  }
+
+  // Check for proper tabindex
+  if (link.hasAttribute('tabindex') && link.getAttribute('tabindex') === '-1') {
+    issues.push('Link is not keyboard accessible (tabindex=-1)');
+  }
+
+  // Check for visibility
+  const style = window.getComputedStyle(link);
+  if (style.display === 'none' || style.visibility === 'hidden') {
+    issues.push('Link is hidden from screen readers');
+  }
+
+  // Check for proper role if not an anchor
+  const tagName = link.tagName.toLowerCase();
+  if (tagName !== 'a' && !link.hasAttribute('role')) {
+    issues.push('Non-anchor element missing role="link"');
+  }
+
+  // Check for rel="noopener" on external links
+  if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+    const rel = link.getAttribute('rel') || '';
+    if (!rel.includes('noopener') && !rel.includes('noreferrer')) {
+      issues.push('External link should have rel="noopener noreferrer" for security');
+    }
+  }
+
+  return {
+    accessible: issues.length === 0,
+    issues: issues
+  };
+}
 
 /**
  * Check if an element is a landmark element for accessibility
@@ -1000,6 +1064,7 @@ module.exports = {
   server,
   sanitizeFilename,
   processData,
+  isLinkAccessible,
   ensureFormAccessibility: a11yStore.ensureFormAccessibility,
   ensureKeyboardNavigation: a11yStore.ensureKeyboardNavigation,
   ensureImageAccessibility: a11yStore.ensureImageAccessibility

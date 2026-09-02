@@ -135,7 +135,11 @@ const main = {
    */
   createInPageButton: createInPageButton,
 
-  ... // Add any other exports from main as needed
+  // Add new function as requested in the issue
+  // Example new function
+  newFunctionName: (param1, param2) => {
+    // Implementation goes here
+  }
 };
 
 export default main;

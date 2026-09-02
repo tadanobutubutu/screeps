@@ -1,11 +1,21 @@
 // TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
+// <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 
-const main = require('./utilities')
+// _Commit: 8f0d48f8354074f769cfe667f27609b1d99a444c_
+// <!-- todo-hash: 469dfeab59b4116886abe058392a60b81da4857c -->
+
+const main = require('./utilities');
 
 // Import necessary dependencies
-import React from 'react'
-import { render } from 'react-dom'
+import React from 'react';
+import { render } from 'react-dom';
 import {
   addLangAttribute,
   fixTableStructure,
@@ -24,9 +34,7 @@ import {
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs
-} from './AccessibilityHelpers'
-
-const main = require('./utilities');
+} from './AccessibilityHelpers';
 
 // New rendering function
 function renderGraphIndex(content, options = {}) {
@@ -107,7 +115,7 @@ export function fixLandmarkIssues(container) {
   
   const mainElement = container.querySelector('main') || container.querySelector('[role="main"]');
   if (!mainElement) {
-    const existingMain = container.querySelector('section');
+    const existingMain = container.querySelector('main');
     if (existingMain) {
       existingMain.setAttribute('role', 'main');
     }
@@ -115,7 +123,7 @@ export function fixLandmarkIssues(container) {
   
   const navElements = container.querySelectorAll('nav');
   navElements.forEach(nav => {
-    if (!nav.hasAttribute('aria-label') && !nav.getAttribute('role')) {
+    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('role')) {
       nav.setAttribute('aria-label', 'Navigation');
     }
   });
@@ -168,7 +176,7 @@ export function addLandmarkRegions(container) {
   landmarks.forEach(landmark => {
     let element = container.querySelector(landmark.selector);
     if (!element) {
-      element = container.querySelector(`[role="${landmark.role}"]`);
+      element = document.createElement(landmark.selector);
     }
     
     if (element && !element.getAttribute('aria-label') && !element.getAttribute('role')) {
@@ -234,13 +242,13 @@ export function addSvgAccessibleNames(svgElement, accessibleName) {
 /**
  * REACT_041: Add accessible names to all SVGs in container
  */
-export function addAccessibleNamesToSVGs(container) {
+export function addAccessibleNamesToSVGs(container, defaultName) {
   if (!container) return;
   
   const svgs = container.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      addSvgAccessibleNames(svg, `Icon ${index + 1}`);
+    if (!svg.hasAttribute('aria-label') && !svg.querySelector('title')) {
+      addSvgAccessibleNames(svg, defaultName || `Icon ${index + 1}`);
     }
   });
   
@@ -313,7 +321,7 @@ function handleCredentialResponse(credentialResponse) {
 // Accessibility Utilities
 const accessibilityUtils = {
   initSkipLink: function() {
-    const skipLink = document.querySelector('.skip-link, [href^="#skip"]');
+    const skipLink = document.querySelector('a[href^="#skip"]');
     if (skipLink) {
       skipLink.addEventListener('click', function(e) {
         e.preventDefault();
@@ -335,175 +343,4 @@ const accessibilityUtils = {
     announcer.setAttribute('aria-live', priority);
     announcer.setAttribute('aria-atomic', 'true');
     announcer.className = 'sr-only';
-    announcer.style.position = 'absolute';
-    announcer.style.left = '-9999px';
-    announcer.textContent = message;
-    document.body.appendChild(announcer);
-    
-    setTimeout(function() {
-      announcer.remove();
-    }, 1000);
-  }
-};
-
-// Create announcer function
-function createAnnouncer() {
-  let currentMessage = '';
-  let timeoutId = null;
-  
-  return {
-    announce: function(message, priority = 'polite') {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      
-      const announcer = document.createElement('div');
-      announcer.setAttribute('aria-live', priority);
-      announcer.setAttribute('aria-atomic', 'true');
-      announcer.className = 'sr-only';
-      announcer.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;';
-      announcer.textContent = message;
-      document.body.appendChild(announcer);
-      
-      currentMessage = message;
-      
-      timeoutId = setTimeout(function() {
-        announcer.remove();
-        currentMessage = '';
-      }, 1000);
-    },
-    getLastMessage: function() {
-      return currentMessage;
-    }
-  };
-}
-
-// Check if user prefers reduced motion
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-// Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
-
-if (dependencyGraph) {
-  // Set appropriate ARIA role for the dependency graph container
-  // Using 'region' role for a contained section of content
-  if (!dependencyGraph.getAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region')
-  }
-
-  // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
-  }
-
-  // Ensure element has an ID if not present
-  if (!dependencyGraph.getAttribute('id')) {
-    dependencyGraph.setAttribute('id', 'dependencyGraph')
-  }
-
-  // Ensure the container is focusable if it's interactive
-  if (!dependencyGraph.getAttribute('tabindex')) {
-    dependencyGraph.setAttribute('tabindex', '0')
-  }
-}
-
-// Function to render dependency graph
-function renderDependencyGraph(element) {
-  console.log('Rendering dependency graph for element:', element);
-}
-
-// Function to render a simple dependency graph
-function renderSimpleDependencyGraph(element) {
-  console.log('Rendering simple dependency graph for element:', element);
-}
-
-// Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName (svgString) {
-  // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
-  // and returns the modified SVG string.
-  // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
-  const svgElement = svg.documentElement
-  if (!svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
-  }
-  return new XMLSerializer().serializeToString(svgElement)
-}
-
-// Example usage of the function
-const originalSvgString =
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
-const modifiedSvgString = addAccessibleName(originalSvgString)
-
-/**
- * Validates table accessibility
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table is accessible, false otherwise
- */
-function validateTableAccessibility (tableData) {
-  // Implementation placeholder - function to be implemented
-  return true
-}
-
-/**
- * Validates table structure
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table structure is valid, false otherwise
- */
-function validateTableStructure (tableData) {
-  // Implementation placeholder - function to be implemented
-  return true
-}
-
-// Initialize accessibility features
-function initializeAccessibility() {
-  const announcer = createAnnouncer();
-  
-  ensureUniqueLandmarks(document.body);
-  
-  return {
-    announce: announcer.announce,
-    getLastMessage: announcer.getLast
-  };
-}
-
-// Call the functions to address the accessibility issues
-addLangAttribute();
-fixTableStructure();
-addMainLandmark();
-fixLandmarkIssues();
-ensureUniqueLandmarks();
-addSvgAccessibleNames();
-addAccessibleNamesToSVGs();
-fixFakeLinkIssue();
-googleSignIn();
-fixButtonIdentifiers();
-
-// Other code...
-
-// Preserve all existing exports
-module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  validateTableAccessibility,
-  validateTableStructure,
-  // Preserve any other existing exports here
-  // Required exports restored from previous version
-}
-
-// New function or changes requested in the issue
-/**
- * New function to handle additional rendering logic
- * @param {Object} additionalData - Additional data for rendering
- * @returns {string} Rendered additional content HTML
- */
-function renderAdditionalContent (additionalData) {
-  // Implementation of the new function
-  // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
-}
-
-// Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent
+    announcer.style.position

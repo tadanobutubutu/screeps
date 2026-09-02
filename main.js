@@ -151,6 +151,35 @@ function isLandmarkElement(element) {
 }
 
 /**
+ * Validate the accessibility report for issues
+ * @param {Object} report - The accessibility report to validate
+ * @returns {Object} - Validation result with success status and details about issues
+ */
+function validateAccessibilityReport(report) {
+  if (!report) {
+    return { success: false, error: 'Report is required' };
+  }
+
+  const issues = Array.isArray(report.issues) ? report.issues : [];
+  const criticalIssues = issues.filter(issue => issue && issue.severity === 'critical');
+  const seriousIssues = issues.filter(issue => issue && issue.severity === 'serious');
+  const moderateIssues = issues.filter(issue => issue && issue.severity === 'moderate');
+  const minorIssues = issues.filter(issue => issue && issue.severity === 'minor');
+
+  return {
+    success: criticalIssues.length === 0 && seriousIssues.length === 0,
+    details: {
+      totalIssues: issues.length,
+      criticalCount: criticalIssues.length,
+      seriousCount: seriousIssues.length,
+      moderateCount: moderateIssues.length,
+      minorCount: minorIssues.length,
+      issues: issues
+    }
+  };
+}
+
+/**
  * Parse a credential response from OAuth/identity provider
  * @param {Object} credentialResponse - The credential response
  * @returns {Object} - Parsed response with success status and credential or error
@@ -735,5 +764,6 @@ module.exports = {
     wrapPrimaryContentInMain,
     checkLandmarks,
     ensureUniqueLandmarks,
-    getSvgAccessibleName
+    getSvgAccessibleName,
+    validateAccessibilityReport
 };

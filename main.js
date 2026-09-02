@@ -3,13 +3,13 @@ const main = require('./utilities');
 
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks: ensureUniqueLandmarksUtils, setSvgAccessibilityProps, addAccessibleNamesToSVGs, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks: ensureUniqueLandmarksUtils, setSvgAccessibilityProps, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
 
 const http = require('http');
 
 // Re-add the required exports for functionA and functionB
 // Assuming that they are objects with properties X, Y, and Z
-const { functionA, functionB } = require('./functionModule');
+const { functionA, functionB } = main;
 
 const a11yStore = {
   // ... existing methods ...
@@ -19,14 +19,14 @@ const a11yStore = {
 const renderGraphIndex = (graphData) => {
   // Placeholder for the new rendering logic
   // This function should use the new functions for rendering the graph/index
-  // For example, it could call `setSvgAccessibilityProps`, `addAccessibleNamesToSVGs`, etc.
+  // For example, it could call ... ... etc.
   // Replace this with the actual implementation details
   renderDependencyGraphs(graphData);
 };
 
-function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
+function getTitleOrDescription(element) {
+  const title = element.querySelector('title');
+  const desc = element.querySelector('desc');
   
   if (title && title.textContent) {
     return title.textContent.trim();
@@ -36,7 +36,7 @@ function getSvgAccessibleName(svgElement) {
     return desc.textContent.trim();
   }
 
-  return svgElement.getAttribute('aria-label') || svgElement.getAttribute('aria-labelledby') || '';
+  return element.textContent || '';
 }
 
 /**
@@ -78,13 +78,13 @@ function detectAndSetLang(content) {
     // Simple language detection based on common patterns
     if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
+    } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
     } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[éèêàâïîôùûüç]/i.test(content)) {
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
@@ -94,7 +94,7 @@ function detectAndSetLang(content) {
   if (navigator && navigator.language) {
     lang = navigator.language;
   }
-  document.documentElement.setAttribute('lang', lang);
+  setHtmlLangAttribute(lang);
   return lang;
 }
 

@@ -173,6 +173,12 @@ export {
   visualizeDependencies
 };
 
+// Utility function for logging
+const log = (message, level = 'info') => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] [${level}] ${message}`);
+};
+
 // Accessibility fixes application function
 const applyAccessibilityFixes = (elements) => {
   const fixes = {
@@ -238,7 +244,7 @@ const focusTrap = (element) => {
   const focusableElements = element.querySelectorAll(
     'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
   );
-  let activeElementIndex = focusableElements.length - 1;
+  let activeElementIndex = 0;
 
   function setActiveElement(index) {
     if (index < 0) {
@@ -323,7 +329,7 @@ const createWebResourceButton = (url, iconSrc, ariaLabel) => {
 
 // TODO: Validate the table structure for accessibility issues
 const validateTableAccessibility = (table) => {
-  if (!table || !(table instanceof HTMLElement) || table.tagName !== 'TABLE') {
+  if (!table) {
     throw new Error('Invalid table element provided');
   }
 
@@ -374,7 +380,7 @@ const validateTableAccessibility = (table) => {
 };
 
 const validateTableStructure = (table) => {
-  if (!table || !(table instanceof HTMLElement) || table.tagName !== 'TABLE') {
+  if (!table) {
     throw new Error('Invalid table element provided');
   }
 
@@ -412,7 +418,7 @@ const validateTableStructure = (table) => {
 
 // TODO: Validate the landmark structure for accessibility issues
 const validateLandmark = (element) => {
-  if (!element || !(element instanceof HTMLElement)) {
+  if (!element) {
     throw new Error('Invalid element provided');
   }
 
@@ -428,7 +434,7 @@ const validateLandmark = (element) => {
 };
 
 const validateLandmarkStructure = (element) => {
-  if (!element || !(element instanceof HTMLElement)) {
+  if (!element) {
     throw new Error('Invalid element provided');
   }
 
@@ -454,7 +460,7 @@ const validateLandmarkStructure = (element) => {
 
 // TODO: Extract the accessible name for an SVG from its content
 const getSvgAccessibleName = (svg) => {
-  if (!svg || !(svg instanceof HTMLElement) || svg.tagName !== 'SVG') {
+  if (!svg || svg.tagName !== 'SVG') {
     throw new Error('Invalid SVG element provided');
   }
 
@@ -504,7 +510,7 @@ const getSvgAccessibleName = (svg) => {
 
 // TODO: Add a language attribute to the HTML element
 const getLangAttribute = (element) => {
-  if (!element || !(element instanceof HTMLElement)) {
+  if (!element || element.tagName !== 'HTML') {
     throw new Error('Invalid HTML element provided');
   }
 
@@ -562,14 +568,25 @@ async function handleCredentialResponse(response) {
   throw new Error('Invalid credential response');
 }
 
-// Existing utility functions
-const log = (message, level = 'info') => {
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [${level}] ${message}`);
-};
-
 // Export functionality with accessibility support
 const exportUtils = {
+  applyAccessibilityFixes,
+  focusTrap,
+  createInPageButton,
+  createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  handleCredentialResponse,
+  log
+};
+
+// Export utility functions
+export {
   applyAccessibilityFixes,
   focusTrap,
   createInPageButton,

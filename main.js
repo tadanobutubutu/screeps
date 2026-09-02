@@ -20,11 +20,6 @@ const renderGraphIndex = (graphData) => {
   renderDependencyGraphs(graphData);
 }
 
-const renderGraphIndex = (graphData) => {
-  addressAccessibilityIssues();
-  renderDependencyGraphs(graphData);
-}
-
 // TODO: Update the existing function using the new functions for rendering graph/index
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 
@@ -479,3 +474,27 @@ function createInPageButton(text, targetId) {
   button.setAttribute('aria-label', `Scroll to ${text}`);
   button.addEventListener('click', () => {
     const target = document
+}
+
+module.exports = {
+  renderGraphIndex,
+  isLandmarkElement,
+  sanitizeFilename,
+  processData,
+  handleCredentialResponse,
+  generateSessionId,
+  validateTableStructure,
+  getSvgAccessibleName,
+  validateTableAccessibility,
+  validateLandmark,
+  validateLandmarkStructure,
+  renderDependencyGraph,
+  renderIndex,
+  newFunction,
+  checkLandmarkElement,
+  wrapPrimaryContentInMain,
+  checkLandmarks,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  a11yStore
+};

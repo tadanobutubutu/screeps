@@ -1047,5 +1047,11 @@ module.exports = {
   TowerDefense,
   createTowerDefenseGame,
   TOWER_TYPES,
-  ENEMY_TYPES
+  ENEMY_TYPES,
+  // Required modules and new necessary functions
+  fs,
+  path,
+  updateThScopeAttribute,
+  dependencyGraphContent,
+  indexContent
 };

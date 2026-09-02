@@ -1,8 +1,12 @@
+Here is the resolved file content:
+
+```javascript
 const fs = require('fs');
 const main = require('./utilities');
 
 const {
   createInPageButton,
+  createWebResourceButton,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
@@ -10,31 +14,36 @@ const {
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
-  announceToScreenReader,
-  handleKeyboardNav,
-  newFocusTrap: originNewFocusTrap,
-  exportUtils,
-  addressAccessibilityIssues,
-  handleCredentialResponse,
-  ensureElementId: ensureElementIdOrigin,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
+  announceToScreenReader: originalAnnounceToScreenReader,
+  handleKeyboardNav: originalHandleKeyboardNav,
+  newFocusTrap: newFocusTrapOrig,
+  initSkipLink,
+  trapFocus,
+  fixImageAltTexts,
+  googleSignIn,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  renderDependencyGraphAria,
   addMainLandmarkToIndex,
-  focusTrap,
+  focusTrap: focusTrapNew,
   renderAdditionalContent,
-  transformInputData
+  filterValidItems,
+  groupByCategory,
+  log,
+  sanitizeFilename,
+  readFileSafe,
+  processData,
+  exportUtilities
 } = main;
 
-const { trapFocus, initSkipLink, announceToScreenReader: originalAnnounceToScreenReader, handleKeyboardNav: originalHandleKeyboardNav, newFocusTrap: newFocusTrapOrig } = require('./accessibilityUtils') || {};
-
-// Merged accessibility utilities
 const accessibilityUtils = {
   ...(originalAnnounceToScreenReader !== undefined ? { announceToScreenReader: originalAnnounceToScreenReader } : {}),
   ...(originalHandleKeyboardNav !== undefined ? { handleKeyboardNav: originalHandleKeyboardNav } : {}),
   ...(newFocusTrapOrig !== undefined ? { newFocusTrap: newFocusTrapOrig } : {}),
   ...(trapFocus !== undefined ? { trapFocus } : {}),
-  ...(initSkipLink !== undefined ? { initSkipLink } : {})
+  ...(initSkipLink !== undefined ? { initSkipLink } : {}),
+  ...(focusTrapNew !== undefined ? { focusTrap: focusTrapNew } : {})
 };
 
 // Import content generators from separate modules
@@ -98,19 +107,12 @@ module.exports = {
   addMainLandmarkToIndex,
   focusTrap,
   newFocusTrap,
-  initAccessibility,
+  filterValidItems,
   groupByCategory,
   log,
   sanitizeFilename,
   readFileSafe,
   processData,
-  filterValidItems,
-  exportUtilities,
-  isLinkAccessible,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute
+  exportUtilities
 };
+```

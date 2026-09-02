@@ -240,7 +240,11 @@ module.exports = {
     getSvgAccessibleName: getSvgAccessibleName,
     createInPageButton: createInPageButton,
     handleAccessibilityIssues: handleAccessibilityIssues,
-    newExportedFunction: newExportedFunction
+    newExportedFunction: newExportedFunction,
+    wrapPrimaryContentInMain: function(content) {
+        // New function to wrap primary content in <main> element
+        return `<main>${content}</main>`;
+    }
 };
 
 // Init on DOM ready

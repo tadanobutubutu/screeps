@@ -239,6 +239,8 @@
         const report = await scanAccessibility();
         writeReport(report);
       },
+      scanAccessibility,
+      writeReport,
       addressAccessibilityIssues,
       getLangAttribute,
       createInPageButton,
@@ -249,7 +251,8 @@
       validateLandmark,
       validateLandmarkStructure,
       getSvgAccessibleName,
-      setSvgAttributes
+      setSvgAttributes,
+      initialize
     };
 
     // Initialize the application with accessibility improvements

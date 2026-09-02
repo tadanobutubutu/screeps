@@ -32,31 +32,24 @@ function getBooksList() {
 }
 
 function initialize() {
-  // ... existing initialization code remains
+  console.log('Initializing application...');
 
-  // Helper function
-  const initialize = () => {
-    console.log('Initializing application...');
+  // Load landmarks for accessibility processing
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
 
-    // Load landmarks for accessibility processing
-    const landmarks = loadLandmarks();
-    const processed = processLandmarks(landmarks);
-
-    // Ensure the dependencyGraph container has a proper ARIA role
-    if (dependencyGraph) {
-      if (!dependencyGraph.id) {
-        dependencyGraph.id = 'dependencyGraph';
-      }
-      if (!dependencyGraph.hasAttribute('role')) {
-        dependencyGraph.setAttribute('role', 'region');
-      }
-      if (!dependencyGraph.hasAttribute('aria-label')) {
-        dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
-      }
+  // Ensure the dependencyGraph container has a proper ARIA role
+  if (dependencyGraph) {
+    if (!dependencyGraph.id) {
+      dependencyGraph.id = 'dependencyGraph';
     }
-
-    // ... existing initialization code remains
-  };
+    if (!dependencyGraph.hasAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+    if (!dependencyGraph.hasAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
+    }
+  }
 
   // Accessibility improvements (added from the other branch)
   const accessibilityUtilities = require('./AccessibilityUtilities');
@@ -94,53 +87,6 @@ function initialize() {
     const { generateAccessibilityReport, validateTableAccessibility, validateTableStructure, getSvgAccessibleName, setSvgAttributes, ensureUniqueLandmarks, addMainLandmark, validateLandmark, validateLandmarkStructure, validateLandmarkAttributes, addProperLandmarkRegions, validateLinkAccessibility, handleFakeLinks, checkLinkAccessibility } = require('./utils/accessibility-utilities');
 
     // ... add other imported functions if necessary
-
-    // Export updated functions
-    module.exports = {
-      addBook,
-      getBooksList,
-      safetyCategory,
-      createInPageButton,
-      getLangAttribute,
-      generateAccessibilityReport,
-      validateTableAccessibility,
-      validateTableStructure,
-      getSvgAccessibleName,
-      setSvgAttributes,
-      ensureUniqueLandmarks,
-      addMainLandmark,
-      validateLandmark,
-      validateLandmarkStructure,
-      validateLandmarkAttributes,
-      addProperLandmarkRegions,
-      validateLinkAccessibility,
-      handleFakeLinks,
-      checkLinkAccessibility,
-      announceBookAdded,
-      function3,
-      setLanguageAttribute,
-      addLandmarkRoles,
-      fixFakeLinks,
-      addressAccessibilityIssues,
-      // Keep other exported functions
-      config,
-      initializeApp,
-      loadLandmarks,
-      processLandmarks,
-      sortLandmarks,
-      getLandmarkById,
-      main,
-      newFunction,
-      function1,
-      function2,
-      validateInput,
-      processData,
-      formatResponse,
-      newFunctionFromOriginMain,
-      updatedFunction1,
-      updatedFunction2,
-      newImplementationForFunction3
-    };
   }
 
   // Rest of the code remains the same as before the merge conflict
@@ -235,19 +181,6 @@ function ensureUniqueLandmarks(landmarks) {
 // Accessibility improvements (added from the other branch)
 const accessibilityUtilities = require('./AccessibilityUtilities');
 const { setLanguageAttribute, addLandmarkRoles, fixFakeLinks, addressAccessibilityIssues, createInPageButton, setSvgAccessibleNames, ensureUniqueLandmarks, fixUniqueLandmarks } = accessibilityUtilities;
-
-// Re-export functions from 'AccessibilityUtilities' in the updated module.exports object
-module.exports = {
-  ...module.exports,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  addressAccessibilityIssues,
-  createInPageButton,
-  setSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixUniqueLandmarks
-};
 
 // New function from origin/main branch
 function addBookWithAccessibility(title, author, isbn) {
@@ -447,20 +380,33 @@ function countDependencies() {
   return 0;
 }
 
-// Export the report generation function
+// Final consolidated module.exports
 module.exports = {
-  validateInput,
-  processData,
-  formatResponse,
-  config,
-  // landmark functions
-  isValidLandmark,
+  // Book functions
+  addBook,
+  getBooksList,
+  announceBookAdded,
+  addBookWithAccessibility,
+  
+  // Safety
+  safetyCategory,
+  
+  // Core utilities
+  validateInput: require('./utils').validateInput,
+  processData: require('./utils').processData,
+  formatResponse: require('./utils').formatResponse,
+  config: require('./utils').config,
+  
+  // Landmark functions
   loadLandmarks,
   processLandmarks,
   sortLandmarks,
   getLandmarkById,
   ensureUniqueLandmarks,
+  isValidLandmark,
   landmarkConfig: CONFIG,
+  
+  // Accessibility functions
   generateAccessibilityReport: async function () {
     const report = await scanAccessibility();
     writeReport(report);
@@ -468,22 +414,48 @@ module.exports = {
   addressAccessibilityIssues,
   getLangAttribute,
   createInPageButton,
+  setSvgAccessibleNames,
+  fixFakeLink,
+  checkLinkAccessibility,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  ensureUniqueLandmarks,
+  fixUniqueLandmarks,
+  
+  // Accessibility utilities from accessibility-utilities
+  generateAccessibilityReport: require('./utils/accessibility-utilities').generateAccessibilityReport,
+  validateTableAccessibility: require('./utils/accessibility-utilities').validateTableAccessibility,
+  validateTableStructure: require('./utils/accessibility-utilities').validateTableStructure,
+  getSvgAccessibleName: require('./utils/accessibility-utilities').getSvgAccessibleName,
+  setSvgAttributes: require('./utils/accessibility-utilities').setSvgAttributes,
+  addMainLandmark: require('./utils/accessibility-utilities').addMainLandmark,
+  validateLandmark: require('./utils/accessibility-utilities').validateLandmark,
+  validateLandmarkStructure: require('./utils/accessibility-utilities').validateLandmarkStructure,
+  validateLandmarkAttributes: require('./utils/accessibility-utilities').validateLandmarkAttributes,
+  addProperLandmarkRegions: require('./utils/accessibility-utilities').addProperLandmarkRegions,
+  validateLinkAccessibility: require('./utils/accessibility-utilities').validateLinkAccessibility,
+  handleFakeLinks: require('./utils/accessibility-utilities').handleFakeLinks,
+  
+  // Other functions
   countDependencies,
   function3,
   a11y,
-  setSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLink,
   harvest,
   upgrade,
   harvestAndUpgrade,
-  checkLinkAccessibility,
   writeReport,
   scanAccessibility,
-  addBookWithAccessibility,
-  // New function from origin/main branch
   renderDependencyGraph,
-  getDependencies
+  getDependencies,
+  
+  // Functions from parent branch modules
+  newFunction: require('./accessibility-improvements').newFunction,
+  function1: require('./utils/validators').function1,
+  function2: require('./utils/processor').function2,
+  
+  // Initialization
+  initialize
 };
 
 // Initialize on DOM ready
@@ -535,4 +507,3 @@ if (typeof document !== 'undefined') {
     initialize();
   }
 }
-//

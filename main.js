@@ -601,9 +601,10 @@ function validateLandmarkStructure (container) {
  * Renders the dependency graph view
  * @param {Object} deps - Dependencies object
  * @param {Object} options - Rendering options
+ * @param {Function} dependencyGraphContentFn - Optional function to render dependency graph (defaults to imported dependencyGraphContent)
  * @returns {string} Rendered dependency graph HTML
  */
-function renderDependencyGraph (deps, options = {}) {
+function renderDependencyGraph (deps, options = {}, dependencyGraphContentFn = dependencyGraphContent) {
   // Validate input
   if (!deps || typeof deps !== 'object') {
     console.warn('renderDependencyGraph: Invalid dependencies object provided')
@@ -615,9 +616,9 @@ function renderDependencyGraph (deps, options = {}) {
     console.log('Rendering dependency graph with data:', JSON.stringify(deps, null, 2))
   }
 
-  // Use dependencyGraphContent from the imported module
+  // Use dependencyGraphContent from the imported module or provided function
   try {
-    return dependencyGraphContent(deps, options)
+    return dependencyGraphContentFn(deps, options)
   } catch (error) {
     console.error('Error rendering dependency graph:', error.message)
     return `<div class="dependency-graph error">Error rendering graph: ${error.message}</div>`
@@ -628,9 +629,10 @@ function renderDependencyGraph (deps, options = {}) {
  * Renders the main index view
  * @param {Object} data - View data
  * @param {Object} options - Rendering options
+ * @param {Function} indexContentFn - Optional function to render index view (defaults to imported indexContent)
  * @returns {string} Rendered index HTML
  */
-function renderIndex (data, options = {}) {
+function renderIndex (data, options = {}, indexContentFn = indexContent) {
   // Validate input
   if (!data || typeof data !== 'object') {
     console.warn('renderIndex: Invalid data object provided')
@@ -642,9 +644,9 @@ function renderIndex (data, options = {}) {
     console.log('Rendering index view with data:', JSON.stringify(data, null, 2))
   }
 
-  // Use indexContent from the imported module
+  // Use indexContent from the imported module or provided function
   try {
-    return indexContent(data, options)
+    return indexContentFn(data, options)
   } catch (error) {
     console.error('Error rendering index view:', error.message)
     return `<div class="index-view error">Error rendering view: ${error.message}</div>`

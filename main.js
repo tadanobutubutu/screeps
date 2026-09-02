@@ -158,6 +158,18 @@ const accessibilityUtils = {
                 element.removeEventListener('keydown', handleKeyDown);
             }
         };
+    },
+
+    // Ensure table header cells have scope attributes (REACT_027)
+    ensureTableHeaderScope: (table) => {
+        if (!table) return false;
+        const headers = table.querySelectorAll('th');
+        headers.forEach(th => {
+            if (!th.hasAttribute('scope')) {
+                th.setAttribute('scope', 'col');
+            }
+        });
+        return true;
     }
 };
 
@@ -249,7 +261,8 @@ module.exports = {
     addAriaLabel,
     ensureElementAccessibility,
     ensureElementHasId,
-    addLangAttribute
+    addLangAttribute,
+    ensureTableHeaderScope
 };
 
 // Also attach to global scope for browser/standalone access
@@ -273,4 +286,5 @@ if (typeof window !== 'undefined') {
     window.ensureElementAccessibility = ensureElementAccessibility;
     window.ensureElementHasId = ensureElementHasId;
     window.addLangAttribute = addLangAttribute;
+    window.ensureTableHeaderScope = accessibilityUtils.ensureTableHeaderScope;
 }

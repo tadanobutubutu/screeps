@@ -25,27 +25,10 @@ import React from 'react';
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
-/**
- * Renders the dependency graph view using the dependencyGraphContent module.
- * This function should be called by the dependency graph rendering functions.
- * @param {Object} props - Props for rendering the dependency graph
- * @returns {React.ReactElement} The rendered dependency graph content
- */
-function renderDependencyGraph(props) {
-  const content = dependencyGraphContent(props);
-  return content;
-}
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn } = require('./utilities');
 
-/**
- * Renders the index view using the indexContent module.
- * This function should be called by the index view rendering functions.
- * @param {Object} props - Props for rendering the index view
- * @returns {React.ReactElement} The rendered index content
- */
-function renderIndexView(props) {
-  const content = indexContent(props);
-  return content;
-}
+const http = require('http');
+const url = require('url');
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
@@ -92,6 +75,97 @@ function detectAndSetLang(content) {
 function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
 }
+
+/**
+ * Renders the dependency graph view using the dependencyGraphContent module.
+ * This function should be called by the dependency graph rendering functions.
+ * @param {Object} props - Props for rendering the dependency graph
+ * @returns {React.ReactElement} The rendered dependency graph content
+ */
+function renderDependencyGraph(props) {
+  const content = dependencyGraphContent(props);
+  return content;
+}
+
+/**
+ * Renders the index view using the indexContent module.
+ * This function should be called by the index view rendering functions.
+ * @param {Object} props - Props for rendering the index view
+ * @returns {React.ReactElement} The rendered index content
+ */
+function renderIndexView(props) {
+  const content = indexContent(props);
+  return content;
+}
+
+// App state for session management
+const appState = {
+  sessions: new Map()
+};
+
+// Helper functions for session management
+function getActiveSessionsCount() {
+  return appState.sessions.size;
+}
+
+function validateSession(sessionId) {
+  return appState.sessions.get(sessionId) || null;
+}
+
+function handleCredentialResponse(credentialResponse) {
+  // Process credential response - basic implementation
+  if (!credentialResponse || typeof credentialResponse !== 'object') {
+    return { status: 'error', message: 'Invalid credential response' };
+  }
+  return { status: 'success', credential: credentialResponse };
+}
+
+const a11yStore = {
+  prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  },
+
+  prefersHighContrast() {
+    return window.matchMedia('(prefers-contrast: more)').matches;
+  },
+
+  focusTrap: focusTrap,
+
+  updateLiveRegion(message, priority = 'polite') {
+    if (!this.liveRegion) this.createLiveRegion();
+    this.announce(message, priority);
+  },
+
+  createLiveRegion() {
+    this.liveRegion = document.createElement('div');
+    this.liveRegion.setAttribute('role', 'status');
+    this.liveRegion.setAttribute('aria-live', 'polite');
+    this.liveRegion.setAttribute('aria-atomic', 'true');
+    this.liveRegion.style.cssText = 'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);border:0;';
+    document.body.appendChild(this.liveRegion);
+  },
+
+  announce(message, priority) {
+    if (!this.liveRegion) return;
+    this.liveRegion.setAttribute('aria-live', priority);
+    this.liveRegion.textContent = message;
+    setTimeout(() => {
+      this.liveRegion.textContent = '';
+    }, 1000);
+  },
+
+  checkLandmarkElements() {
+    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+    landmarkElements.forEach((element, index) => {
+      const landmarks = document.querySelectorAll(element);
+      landmarks.forEach((landmark) => {
+        if (landmark.id === '') {
+          landmark.id = `${element}-${index}`;
+        }
+      });
+    });
+  }
+};
 
 // New function to address REACT_027: Fix 26 table structure issues
 function validateTableAccessibility(tableElement) {
@@ -332,4 +406,148 @@ function personName(element) {
   }
   
   return null;
+}
+
+const ensureElementId = (element) => {
+  if (element && !element.id) {
+    element.id = `elem-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element;
+};
+
+/**
+ * Get all loaded tables
+ * @returns {Array} Array of table objects
+ */
+function getTables() {
+  return appData.tables;
+}
+
+/**
+ * Get application configuration
+ * @returns {Object} Configuration object
+ */
+function getConfig() {
+  return { ...appData.config };
+}
+
+/**
+ * Set application configuration
+ * @param {Object} config - Configuration object
+ */
+function setConfig(config) {
+  appData.config = { ...appData.config, ...config };
+}
+
+const renderIndex = (data, options = {}) => {
+  const content = indexContent(data, options);
+  if (content && typeof content === 'string') {
+    return addLangAttribute(content);
+  }
+  return content;
+};
+
+// Implement the function for addressing accessibility issues from insight report
+function applyAccessibilityFixes(report) {
+  const fixes = {
+    langAdded: false,
+    mainLandmarkAdded: false,
+    landmarksFixed: 0,
+    svgNamesAdded: 0,
+    fakeLinksFixed: 0
+  };
+
+  if (!report || !report.issues) {
+    return fixes;
+  }
+
+  // Combine languages
+  const existingLangAttribute = getLangAttribute();
+  const newLangAttribute = report.detectedLang || 'en';
+  if (existingLangAttribute !== newLangAttribute) {
+    setHtmlLangAttribute(newLangAttribute);
+    fixes.langAdded = true;
+  }
+
+  // Add main landmark if missing
+  if (report.issues.landmarkIssues && report.issues.landmarkIssues.missingMain) {
+    const firstSection = document.querySelector('section');
+    if (firstSection) {
+      const mainElement = document.createElement('main');
+      while (firstSection.firstChild) {
+        mainElement.appendChild(firstSection.firstChild);
+      }
+      document.body.insertBefore(mainElement, firstSection);
+      firstSection.remove();
+      fixes.mainLandmarkAdded = true;
+    }
+  }
+
+  // Fix landmarks by ensuring proper roles and accessible names
+  if (report.issues.landmarkIssues && Array.isArray(report.issues.landmarkIssues)) {
+    report.issues.landmarkIssues.forEach(issue => {
+      const element = document.querySelector(issue.selector);
+      if (element) {
+        // Add accessible name if missing
+        if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+          // Try to get label from surrounding context
+          const previousSibling = element.previousElementSibling;
+          if (previousSibling && previousSibling.tagName.match(/H[1-6]/)) {
+            const labelId = `label-${Math.random().toString(36).substr(2, 9)}`;
+            const labelSpan = document.createElement('span');
+            labelSpan.id = labelId;
+            labelSpan.textContent = previousSibling.textContent;
+            labelSpan.style.display = 'none';
+            element.parentNode.insertBefore(labelSpan, element);
+            element.setAttribute('aria-labelledby', labelId);
+          } else {
+            // Use role as fallback label
+            const role = element.getAttribute('role') || element.tagName.toLowerCase();
+            element.setAttribute('aria-label', role);
+          }
+          fixes.landmarksFixed++;
+        }
+      }
+    });
+  }
+
+  // Fix SVG accessible names
+  if (report.issues.svgIssues && Array.isArray(report.issues.svgIssues)) {
+    report.issues.svgIssues.forEach(issue => {
+      const svg = document.querySelector(issue.selector);
+      if (svg && svg.tagName.toLowerCase() === 'svg') {
+        svg.setAttribute('aria-label', issue.suggestedName || 'Decorative SVG');
+        fixes.svgNamesAdded++;
+      }
+    });
+  }
+
+  // Fix fake links (elements that look like links but aren't)
+  if (report.issues.fakeLinkIssues && Array.isArray(report.issues.fakeLinkIssues)) {
+    report.issues.fakeLinkIssues.forEach(issue => {
+      const element = document.querySelector(issue.selector);
+      if (element) {
+        // Check if this element should be a link or a button
+        const isNavigation = element.closest('nav') !== null;
+
+        if (isNavigation || element.tagName.toLowerCase() === 'a') {
+          // Convert to proper link with href
+          if (!element.getAttribute('href')) {
+            element.setAttribute('href', '#' + (element.id || Math.random().toString(36).substr(2, 9)));
+            element.setAttribute('role', 'link');
+            fixes.fakeLinksFixed++;
+          }
+        } else {
+          // Convert to button
+          element.setAttribute('role', 'button');
+          if (!element.hasAttribute('tabindex')) {
+            element.setAttribute('tabindex', '0');
+          }
+          fixes.fakeLinksFixed++;
+        }
+      }
+    });
+  }
+
+  return fixes;
 }

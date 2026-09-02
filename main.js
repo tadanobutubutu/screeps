@@ -1,7 +1,52 @@
 const fs = require('fs');
-const main = require('./utilities');
+const url = require('url');
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, renderAdditionalContent, ensureElementId, checkLinkAccessibility } = main;
+// Dependency imports
+const { dependencyGraphContent, indexContent } = require('./dependencyContent');
+const { main } = require('./utilities');
+
+const {
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  announceToScreenReader,
+  handleKeyboardNav,
+  newFocusTrap: originNewFocusTrap,
+  exportUtils,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  ensureElementHasId: ensureElementIdOrigin,
+}
+
+const {
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  renderAdditionalContent,
+  ensureElementId,
+  checkLinkAccessibility
+} = main;
 
 const ensureElementIdUtil = (element) => {
   if (element && !element.id) {
@@ -166,48 +211,4 @@ const accessibilityUtils = {
 module.exports = {
   ...main,
   ...accessibilityUtils,
-  ensureElementId,
-  ensureElementIdUtil,
-  newFocusTrap,
-  log,
-  sanitizeFilename: main.sanitizeFilename,
-  readFileSafe: main.readFileSafe,
-  processData: main.processData,
-  filterValidItems: main.filterValidItems,
-  initAccessibility: main.initAccessibility,
-  groupByCategory: main.groupByCategory,
-  transformInputData: main.transformInputData,
-  validateTableAccessibility,
-  displayModuleStructure: main.displayModuleStructure,
-  generateDependencyGraph: main.generateDependencyGraph,
-  validateAccessibilityReport,
-  addressAccessibilityIssues,
-  newAccessibilityCheck,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  renderAdditionalContent,
-  checkLinkAccessibility,
-  createInPageButton,
-  createWebResourceButton,
-  addAriaLabel,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  exportUtils,
-  handleCredentialResponse,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  renderDependencyGraphs,
-  renderGraphIndex,
-  ...accessibilityUtils
 };
-
-function newAccessibilityCheck() {
-  // Implementation for a new accessibility check
-  // This function should perform additional checks for accessibility issues
-  // Replace this with your custom implementation as needed
-}

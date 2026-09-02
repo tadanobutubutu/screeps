@@ -739,12 +739,110 @@ const server = http.createServer((req, res) => {
 });
 
 /**
+ * Decode a JWT token and extract the payload
+ * @param {string} token - The JWT token to decode
+ * @returns {Object|null} - Decoded token payload or null if invalid
+ */
+function decodeJwtToken(token) {
+    try {
+        if (!token) {
+            return null;
+        }
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+            return null;
+        }
+        const payload = parts[1];
+        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+        return JSON.parse(decoded);
+    } catch (error) {
+        return null;
+    }
+}
+
+/**
+ * Validate a session by ID
+ * @param {string} sessionId - The session ID to validate
+ * @returns {Object|null} - Session data if valid, null otherwise
+ */
+function validateSession(sessionId) {
+    if (!sessionId || typeof sessionId !== 'string') {
+        return null;
+    }
+    const session = appState.sessions.get(sessionId);
+    return session || null;
+}
+
+/**
+ * Get the count of active sessions
+ * @returns {number} - Number of active sessions
+ */
+function getActiveSessionsCount() {
+    return appState.sessions.size;
+}
+
+/**
  * Revoke a session
  * @param {string} sessionId - The session ID to revoke
  * @returns {boolean} - True if session was revoked
  */
 function revokeSession(sessionId) {
     return appState.sessions.delete(sessionId);
+}
+
+/**
+ * Address accessibility issues for the document
+ */
+function addressAccessibilityIssues() {
+    if (typeof document === 'undefined') {
+        return;
+    }
+    
+    // Check and fix landmark elements
+    if (typeof checkLandmarkElements === 'function') {
+        checkLandmarkElements();
+    }
+    
+    // Add SVG accessibility props
+    a11yStore.addSVGAccessibilityProps();
+    
+    // Fix fake links
+    a11yStore.fixFakeLinks();
+    
+    // Ensure interactive elements have proper roles
+    a11yStore.ensureInteractiveRoles();
+    
+    // Add form control labels
+    a11yStore.addFormControlLabels();
+    
+    // Ensure images have alt text
+    a11yStore.ensureImageAccessibility();
+}
+
+/**
+ * Render dependency graphs from graph data
+ * @param {Object} graphData - The graph data to render
+ */
+function renderDependencyGraphs(graphData) {
+    if (!graphData) {
+        return;
+    }
+    
+    const container = typeof document !== 'undefined' ? document.getElementById('dependency-graphs') : null;
+    if (container) {
+        container.innerHTML = renderDependencyGraph(graphData);
+    }
+}
+
+/**
+ * Check landmark elements in the document
+ */
+function checkLandmarkElements() {
+    if (typeof document === 'undefined') {
+        return;
+    }
+    
+    a11yStore.checkLandmarkElements();
 }
 
 /**
@@ -791,7 +889,7 @@ module.exports = {
   ensureUniqueLandmarks,
   handleFocusTrap,
   revokeSession,
-  addSvgAccessibilityProps,
+  addSvgAccessibilityProps: a11yStore.addSVGAccessibilityProps,
   isLandmarkElement,
   handleCredentialResponse,
   parseCredentialResponse,
@@ -810,5 +908,10 @@ module.exports = {
   processData,
   ensureInteractiveElementsAccessible,
   handleInitialAccessibility,
-  accessibility
+  accessibility,
+  a11yStore,
+  appState,
+  addressAccessibilityIssues,
+  renderDependencyGraphs,
+  checkLandmarkElements
 };

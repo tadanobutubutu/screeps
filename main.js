@@ -77,6 +77,26 @@ function createInPageButton(parent = document.body) {
 }
 
 /**
+ * Creates an accessible web resource button.
+ * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
+ * @param {string} href - The URL to open when the button is clicked
+ * @param {string} label - The accessible label for the button
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createWebResourceButton(parent = document.body, href = '#', label = 'Visit resource') {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = label;
+  btn.setAttribute('aria-label', label);
+  btn.setAttribute('role', 'button');
+  btn.addEventListener('click', () => {
+    window.open(href, '_blank', 'noopener,noreferrer');
+  });
+  parent.appendChild(btn);
+  return btn;
+}
+
+/**
  * Validates the accessibility of a table element
  * @param {HTMLElement} table - The table element to validate
  * @returns {boolean} Whether the table is accessible
@@ -287,6 +307,7 @@ module.exports = {
   detectAndSetLang,
   personName,
   createInPageButton,
+  createWebResourceButton,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,

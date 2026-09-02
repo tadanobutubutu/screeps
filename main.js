@@ -329,6 +329,13 @@ function getSvgAccessibleName(svgElement) {
   return 'SVG graphic';
 }
 
+// New function to extract accessible name from SVG content
+function getSvgAccessibleNameFromContent(svgElement) {
+  // Extract accessible name from SVG content (text nodes)
+  const content = svgElement.textContent?.trim();
+  return content || 'SVG graphic';
+}
+
 // Main entry point
 function mainEntry() {
   // Application initialization
@@ -435,6 +442,8 @@ if (typeof window !== 'undefined') {
   window.renderGraphIndex = renderGraphIndex;
   window.updateGraphVisualization = updateGraphVisualization;
   window.initializeGraphControls = initializeGraphControls;
+  window.getSvgAccessibleName = getSvgAccessibleName;
+  window.getSvgAccessibleNameFromContent = getSvgAccessibleNameFromContent;
 }
 
 // Export functions to make them accessible
@@ -474,6 +483,7 @@ module.exports = {
   validateSession: () => {},
   a11yStore,
   getSvgAccessibleName,
+  getSvgAccessibleNameFromContent,
   affectedFunction,
   updateFunction,
   accessibleFunction,

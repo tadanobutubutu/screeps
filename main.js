@@ -2,7 +2,7 @@
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -67,7 +67,63 @@ function addMainLandmark() {
  * @returns {boolean} True if landmark is valid
  */
 function validateLandmark(landmark) {
-  // Implementation to be added
+  // Check if landmark is a valid HTMLElement
+  if (!landmark || !(landmark instanceof HTMLElement)) {
+    return false;
+  }
+
+  // List of valid HTML5 landmark elements
+  const validLandmarkTags = [
+    'main',
+    'nav',
+    'aside',
+    'footer',
+    'header',
+    'section',
+    'article',
+    'form',
+    'search'
+  ];
+
+  // List of valid landmark ARIA roles
+  const validLandmarkRoles = [
+    'banner',
+    'navigation',
+    'main',
+    'complementary',
+    'contentinfo',
+    'region',
+    'search',
+    'form'
+  ];
+
+  const tagName = landmark.tagName.toLowerCase();
+  const role = landmark.getAttribute('role');
+
+  // Check if the element is a valid landmark by tag name or role
+  const isValidLandmarkTag = validLandmarkTags.includes(tagName);
+  const isValidLandmarkRole = role && validLandmarkRoles.includes(role.toLowerCase());
+
+  // Element must be either a valid landmark tag or have a valid landmark role
+  if (!isValidLandmarkTag && !isValidLandmarkRole) {
+    return false;
+  }
+
+  // Validate landmark structure using the dedicated function
+  if (typeof validateLandmarkStructure === 'function') {
+    if (!validateLandmarkStructure(landmark)) {
+      return false;
+    }
+  }
+
+  // Validate landmark attributes using the dedicated function
+  if (typeof validateLandmarkAttributes === 'function') {
+    if (!validateLandmarkAttributes(landmark)) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 /**

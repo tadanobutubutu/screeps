@@ -151,7 +151,14 @@ function validateLandmarkStructure() {
 }
 
 function ensureUniqueLandmarks() {
-  // Implement function to ensure unique landmarks
+  const landmarkTypes = ['main', 'nav', 'aside', 'header', 'footer'];
+  for (const type of landmarkTypes) {
+    const elements = document.querySelectorAll(type);
+    if (elements.length > 1) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function createInPageButton(buttonId, buttonText) {

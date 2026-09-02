@@ -10,143 +10,92 @@ const {
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
-  announceToScreenReader,
+  announceToScreenReader: originalAnnounceToScreenReader,
   handleKeyboardNav,
-  newFocusTrap,
   exportUtils,
+  transformInputData,
   addressAccessibilityIssues,
-  ensureElementHasId: ensureElementIdOrigin,
+  ensureElementIdOrigin,
+  ensureElementHasId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
   renderAdditionalContent,
-  transformInputData
 } = main;
 
 const accessibilityUtils = {
-  initSkipLink: () => {},
-  trapFocus: (element) => {},
-  createInPageButton,
-  createWebResourceButton: (options) => {},
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  announceToScreenReader,
-  handleKeyboardNav,
-  newFocusTrap,
-  exportUtils,
-  personName,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  transformInputData
-};
+  initSkipLink: () => {
+    const skipLink = document.querySelector('.skip-link');
+    if (!skipLink) {
+      const skipContainer = document.createElement('div');
+      skipContainer.id = 'skip-link';
+      skipContainer.className = 'sr-only';
+      skipContainer.style.position = 'fixed';
+      skipContainer.style.top = '0';
+      skipContainer.style.left = '0';
+      skipContainer.style.width = '100%';
+      skipContainer.style.height = '100%';
+      skipContainer.style.zIndex = '99999';
 
-const ensureElementId = (element) => {
-  if (element && !element.id) {
-    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
-  }
-  return element;
-};
+      const skipLinkElement = document.createElement('a');
+      skipLinkElement.href = '#main-content';
+      skipLinkElement.textContent = 'Skip to main content';
+      skipLinkElement.ariaLabel = 'Skip to main content';
+      skipContainer.appendChild(skipLinkElement);
 
-const addAriaLabel = (element, label) => {
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-  return element;
-};
+      document.body.appendChild(skipContainer);
+    }
+  },
 
-const renderDependencyGraph = (data) => {
-  // Implementation for rendering dependency graphs
-  return {
-    nodes: data.nodes || [],
-    edges: data.edges || []
-  };
-};
+  trapFocus: (element) => {
+    const focusableElements = element.querySelectorAll(
+      'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
 
-// Add back any required exports that might have been removed.
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
-function calculateSum(a, b) { return a + b; }
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
 
-accessibilityUtils.initSkipLink = () => {
-  const skipLink = document.getElementById('skip-link');
-  if (!skipLink) {
-    const skipContainer = document.createElement('div');
-    skipContainer.id = 'skip-link';
-    skipContainer.className = 'sr-only';
-    skipContainer.style.position = 'fixed';
-    skipContainer.style.top = '0';
-    skipContainer.style.left = '0';
-    skipContainer.style.width = '100%';
-    skipContainer.style.height = '100%';
-    skipContainer.style.zIndex = '99999';
-
-    const skipLinkElement = document.createElement('a');
-    skipLinkElement.href = '#main-content';
-    skipLinkElement.textContent = 'Skip to main content';
-    skipLinkElement.ariaLabel = 'Skip to main content';
-    skipContainer.appendChild(skipLinkElement);
-
-    document.body.appendChild(skipContainer);
-  }
-};
-
-accessibilityUtils.trapFocus = (element) => {
-  if (!element) {
-    return () => {};
-  }
-
-  const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  );
-
-  if (focusableElements.length === 0) {
-    console.warn('No focusable elements found in container');
-    return;
-  }
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstElement) {
-        lastElement.focus();
-        e.preventDefault();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        firstElement.focus();
-        e.preventDefault();
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
       }
-    }
+    });
+  },
 
-    if (e.key === 'Escape') {
-      element.dispatchEvent(new CustomEvent('focusTrapEscape'));
-    }
-  };
+  announceToScreenReader: (message, priority = 'polite') => {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 1000);
+  },
 
-  element.addEventListener('keydown', handleKeyDown);
-  firstElement.focus();
+  ensureElementId: ensureElementIdOrigin,
+  ensureElementHasId,
 
-  // Return cleanup function
-  return () => {
-    element.removeEventListener('keydown', handleKeyDown);
-  };
+  addressAccessibilityIssues,
+
+  renderDependencyGraphs,
+
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  renderAdditionalContent,
 };
 
-// Existing utility functions
-function log(message, level = 'info') {
-  const timestamp = new Date().toISOString();
-  console.log(timestamp + " [" + level.toUpperCase() + "]: " + message);
-}
-
-// Export functionality with accessibility support
 const exportUtilities = {
   exportData: (data, filename, mimeType) => {
     const blob = new Blob([data], { type: mimeType });
@@ -180,96 +129,4 @@ const exportUtilities = {
       const values = headers.map(header => {
         const escaped = ('' + row[header]).replace(/"/g, '\\"');
         return "\"" + escaped + "\"";
-      });
-      csvRows.push(values.join(','));
-    }
-
-    const csvString = csvRows.join('\n');
-    exportUtilities.exportData(csvString, filename || 'export.csv', 'text/csv');
-  }
-};
-
-function sanitizeFilename(filename) {
-  return filename.replace(/[^a-z0-9_.-]/gi, '_');
-}
-
-function readFileSafe(filePath) {
-  try {
-    return fs.readFileSync(filePath, 'utf8');
-  } catch (error) {
-    log("Error reading file " + filePath + ": " + error.message, 'error');
-    return null;
-  }
-}
-
-// Existing data processing functions
-function processData(items) {
-  if (!Array.isArray(items)) {
-    return [];
-  }
-  return items.map(item => ({
-    ...item,
-    processed: true,
-    timestamp: Date.now()
-  }));
-}
-
-function filterValidItems(items, validator) {
-  return items.filter(item => {
-    try {
-      return validator(item);
-    } catch {
-      return false;
-    }
-  });
-}
-
-// Initialize accessibility features
-const initAccessibility = () => {
-  accessibilityUtils.initSkipLink();
-
-  // Add keyboard support for all interactive elements
-  document.querySelectorAll('[data-accessible]').forEach(element => {
-    element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, {
-        Enter: () => element.click(),
-        ' ': () => element.click()
-      });
-    });
-  });
-};
-
-function groupByCategory(items, getCategory) {
-  return items.reduce((groups, item) => {
-    const category = getCategory(item);
-    if (!groups[category]) {
-      groups[category] = [];
-    }
-    groups[category].push(item);
-    return groups;
-  }, {});
-}
-
-module.exports = {
-  ...main,
-  ...accessibilityUtils,
-  ensureElementId,
-  ensureElementIdOrigin,
-  addAriaLabel,
-  renderDependencyGraph,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  newFocusTrap,
-  handleCredentialResponse,
-  initAccessibility,
-  groupByCategory,
-  log,
-  sanitizeFilename,
-  readFileSafe,
-  processData,
-  filterValidItems,
-  exportUtilities
-};
+>>>>>>> origin/main

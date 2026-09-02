@@ -710,11 +710,179 @@ const addMainLandmark = (element) => {
   }
 };
 
+// Function to create in-page button with different signature (from origin/main)
+const createInPageButtonById = (buttonId, buttonText, buttonClass) => {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  button.className = buttonClass;
+  return button;
+};
+
+// Function to validate landmark structure for document (from origin/main)
+const validateLandmarkStructureDocument = () => {
+  const requiredLandmarks = ['header', 'main', 'footer'];
+  const missingLandmarks = [];
+
+  requiredLandmarks.forEach(landmark => {
+    const element = document.querySelector(landmark);
+    if (!element) {
+      missingLandmarks.push(landmark);
+    }
+  });
+
+  if (missingLandmarks.length > 0) {
+    console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+    return false;
+  }
+  return true;
+};
+
+// Focus trap utility (from origin/main)
+const focusTrapUtil = (container) => {
+  const focusableElements = container.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  if (focusableElements.length === 0) return;
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  container.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+};
+
+// Additional functions from origin/main
+const addSvgAccessibleName = function addSvgAccessibleName(svgString, label) {
+  const parser = new DOMParser();
+  const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
+  const svgElement = svgDoc.documentElement;
+  if (!svgElement.hasAttribute('aria-label')) {
+    svgElement.setAttribute('aria-label', label || 'Descriptive label for SVG');
+  }
+  return svgString;
+};
+
+function renderGraphIndex(container, options = {}) {
+  const cleanup = focusTrapUtil(container);
+  return container.innerHTML;
+}
+
+function generateAccessibilityReport() {
+    const report = {
+        missingLandmarks: [],
+        invalidAttributes: [],
+        errors: []
+    };
+
+    // Check for missing landmarks
+    const requiredLandmarks = ['header', 'main', 'footer'];
+    requiredLandmarks.forEach(landmark => {
+        const element = document.querySelector(landmark);
+        if (!element) {
+            report.missingLandmarks.push(landmark);
+        }
+    });
+
+    // Check for invalid attributes
+    const elementsWithInvalidAttributes = document.querySelectorAll('[role]');
+    elementsWithInvalidAttributes.forEach(element => {
+        const validRoles = ['banner', 'complementary', 'contentinfo', 'main', 'navigation', 'search'];
+        const role = element.getAttribute('role');
+        if (!validRoles.includes(role)) {
+            report.invalidAttributes.push({ element: element.tagName, attribute: 'role', value: role });
+        }
+    });
+
+    // Check for images without alt text
+    const imagesWithoutAlt = document.querySelectorAll('img[alt=""]');
+    imagesWithoutAlt.forEach(img => {
+        report.errors.push(`Image without alt text: ${img.src}`);
+    });
+
+    const reportString = `Accessibility Report:
+    Missing Landmarks: ${report.missingLandmarks.join(', ')}
+    Invalid Attributes: ${report.invalidAttributes.map(attr => `${attr.element} with ${attr.attribute}=${attr.value}`).join(', ')}
+    Errors: ${report.errors.join(', ')}`;
+
+    console.log(reportString);
+    return reportString;
+}
+
+function handleUpgrade() {
+    const currentVersion = '1.0.0';
+    const storedVersion = localStorage.getItem('extensionVersion');
+
+    if (!storedVersion) {
+        initializeDefaultSettings();
+        localStorage.setItem('extensionVersion', currentVersion);
+        console.log('Extension initialized for first use');
+        return;
+    }
+
+    if (storedVersion !== currentVersion) {
+        performUpgradeTasks(storedVersion, currentVersion);
+        localStorage.setItem('extensionVersion', currentVersion);
+        console.log(`Extension upgraded from ${storedVersion} to ${currentVersion}`);
+    }
+}
+
+function initializeDefaultSettings() {
+    const defaultSettings = {
+        theme: 'light',
+        notifications: true,
+        autoSave: true,
+        language: 'en'
+    };
+
+    Object.keys(defaultSettings).forEach(key => {
+        if (localStorage.getItem(key) === null) {
+            localStorage.setItem(key, JSON.stringify(defaultSettings[key]));
+        }
+    });
+}
+
+function performUpgradeTasks(oldVersion, newVersion) {
+    const upgradeTasks = {
+        migrateSettings: () => {
+            const existingSetting = localStorage.getItem('oldSettingKey');
+            if (existingSetting) {
+                localStorage.setItem('newSettingKey', existingSetting);
+                localStorage.removeItem('oldSettingKey');
+            }
+        },
+        clearCache: () => {
+            sessionStorage.clear();
+        },
+        updatePreferences: () => {
+            const preferences = localStorage.getItem('userPreferences');
+            if (preferences) {
+                const parsed = JSON.parse(preferences);
+                if (!parsed.hasOwnProperty('newPreferenceField')) {
+                    parsed.newPreferenceField = 'defaultValue';
+                    localStorage.setItem('userPreferences', JSON.stringify(parsed));
+                }
+            }
+        }
+    };
+
+    Object.values(upgradeTasks).forEach(task => task());
+}
+
 // Export functionality with accessibility support
 const exportUtils = {
   applyAccessibilityFixes,
   focusTrap,
   createInPageButton,
+  createWebResourceButton,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
@@ -733,38 +901,7 @@ const exportUtils = {
 const accessibilityUtils = {
   initSkipLink,
   trapFocus,
-  newFocusTrap: (element) => {
-    if (!element) return;
-    const focusable = element.querySelectorAll(
-      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
-    );
-    if (focusable.length === 0) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === first) {
-          last.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          first.focus();
-          e.preventDefault();
-        }
-      }
-    });
-  },
-  announceToScreenReader: (message, priority = 'polite') => {
-    const announcer = document.createElement('div');
-    announcer.setAttribute('aria-live', priority);
-    announcer.setAttribute('aria-atomic', 'true');
-    announcer.className = 'sr-only';
-    announcer.style.position = 'absolute';
-    announcer.style.left = '-9999px';
-    announcer.textContent = message;
-    document.body.appendChild(announcer);
-    setTimeout(() => announcer.remove(), 1000);
-  },
+  newFocusTrap,
   ensureElementId,
   addAriaLabel,
   setAriaAttributes,
@@ -774,7 +911,10 @@ const accessibilityUtils = {
   setAriaLabel,
   ensureKeyboardAccessibility,
   ensureAccessibleAttributes,
-  makeFocusable
+  makeFocusable,
+  createInPageButtonById,
+  validateLandmarkStructureDocument,
+  focusTrapUtil
 };
 
 module.exports = {
@@ -786,11 +926,13 @@ module.exports = {
   applyAccessibilityFixes,
   focusTrap,
   createInPageButton,
+  createInPageButtonById,
   createWebResourceButton,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
+  validateLandmarkStructureDocument,
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
@@ -801,5 +943,19 @@ module.exports = {
   ensureElementId,
   addLangAttribute,
   fixTableStructureIssues,
-  addMainLandmark
+  addMainLandmark,
+  addSvgAccessibleName,
+  renderGraphIndex,
+  generateAccessibilityReport,
+  handleUpgrade,
+  initializeDefaultSettings,
+  performUpgradeTasks,
+  focusTrapUtil
 };
+
+// Auto-run upgrade check on page load (if in browser context)
+if (typeof window !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        handleUpgrade();
+    });
+}

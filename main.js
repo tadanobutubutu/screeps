@@ -1,33 +1,23 @@
 const main = require('./utilities')
 
+// Import necessary dependencies
 const {
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  addSvgAccessibleName,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  googleSignIn,
+  decodeJwtResponse,
+  fixButtonIdentifiers,
   ensureElementHasId,
   ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility
-} = main
-
-// Import necessary dependencies
-import React from 'react'
-import { render } from 'react-dom'
-import {
-  googleSignIn,
-  decodeJwtResponse
-} from './AccessibilityHelpers'
+  addAriaLabel
+} = require('./AccessibilityHelpers')
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph')
@@ -73,10 +63,26 @@ function addAccessibleName (svgString) {
 const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...'
 const modifiedSvgString = addAccessibleName(originalSvgString)
 
-// Implement the function for addressing accessibility issues from insight report
-function newFunction () {
-  // TODO: Implement the new function as per the issue requirements
-}
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility
+} = main
 
 // Implement the function for addressing accessibility issues from insight report
 function implementAccessibilityFixesFromReport (container, report) {
@@ -94,9 +100,9 @@ function implementAccessibilityFixesFromReport (container, report) {
 
   // Add lang attribute to HTML element if missing
   const htmlEl =
-        document.documentElement ||
-        (container.ownerDocument && container.ownerDocument.documentElement)
-  if (htmlEl && !htmlEl.getAttribute('lang')) {
+    container.querySelector('html') ||
+    (container.ownerDocument && container.ownerDocument.querySelector('html'))
+  if (htmlEl && !htmlEl.hasAttribute('lang')) {
     htmlEl.setAttribute('lang', 'en')
     fixes.langAdded = true
   }
@@ -104,7 +110,7 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Add main landmark if missing
   const mainElement = container.querySelector('main')
   if (!mainElement) {
-    const body = container.ownerDocument ? container.ownerDocument.body : null
+    const body = container.querySelector('body')
     if (body) {
       const newMain = document.createElement('main')
       while (body.firstChild) {
@@ -124,10 +130,11 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Fix landmark issues
   validateLandmark(container)
   validateLandmarkStructure(container)
+  fixes.landmarksFixed++
 
   // Fix SVG accessible names
   const svgElements = container.querySelectorAll('svg')
-  svgElements.forEach(svg => {
+  svgElements.forEach((svg) => {
     const accessibleName = getSvgAccessibleName(svg)
     if (
       accessibleName &&
@@ -142,14 +149,14 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Fix fake link issues (elements that look like links but are missing href)
   const fakeLinks = container.querySelectorAll('[role="link"]:not(a), [onclick]:not(a):not(button)')
   fakeLinks.forEach(link => {
-    link.setAttribute('href', '#' + (link.id || 'fake-link'))
+    link.setAttribute('href', '#' + (link.id || 'fake-link-' + Date.now()))
     link.setAttribute('role', 'link')
     fixes.fakeLinksFixed++
   })
 
   // Validate accessibility report
   const accessibilityReport = validateAccessibilityReport(container)
-  if (accessibilityReport && accessibilityReport.issues.length > 0) {
+  if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
     log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
   }
 
@@ -167,7 +174,7 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Check for new accessibility issues
   const newAccessibilityIssues = checkAccessibility(container)
   if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${JSON.stringify(newAccessibilityIssues)}`, 'error')
+    log(`New accessibility issues found: ${newAccessibilityIssues.join(', ')}`, 'error')
   }
 
   const landmarkFixesCount = fixes.landmarksFixed || 0
@@ -188,6 +195,15 @@ function implementAccessibilityFixesFromReport (container, report) {
   return fixes
 }
 
+// New function to handle additional rendering logic
+// @param {Object} additionalData - Additional data for rendering
+// @returns {string} Rendered additional content HTML
+function renderAdditionalContent(additionalData) {
+  // Implementation of the new function
+  // Placeholder for actual implementation
+  return ''
+}
+
 // Accessibility-related function to be added
 function checkAccessibilityForReport (content) {
   // Placeholder for accessibility checking logic
@@ -198,59 +214,38 @@ function checkAccessibilityForReport (content) {
 
 // New rendering function
 function renderGraphIndex(content, options = {}) {
-  return content;
+  return content
 }
 
 // Helper to manage focus within a container
 function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
+  )
+  const firstElement = focusableElements[0]
+  const lastElement = focusableElements[focusableElements.length - 1]
 
   return function(e) {
-    const isTab = e.key === 'Tab';
-    if (!isTab) return;
+    const isTab = e.key === 'Tab'
+    if (!isTab) return
     if (e.shiftKey) {
       if (document.activeElement === firstElement) {
-        e.preventDefault();
-        if (lastElement) lastElement.focus();
+        e.preventDefault()
+        if (lastElement) lastElement.focus()
       }
     } else {
       if (document.activeElement === lastElement) {
-        e.preventDefault();
-        if (firstElement) firstElement.focus();
+        e.preventDefault()
+        if (firstElement) firstElement.focus()
       }
     }
-  };
-}
-
-/**
- * REACT_015: Add lang attribute to HTML element
- * Ensures the HTML element has a proper lang attribute for screen readers
- */
-export function addLangAttribute(element, lang = 'en') {
-  let htmlElement = element || document.documentElement;
-  if (!htmlElement) {
-    return null;
   }
-  if (htmlElement && !htmlElement.getAttribute('lang')) {
-    htmlElement.setAttribute('lang', lang);
-  }
-  return htmlElement;
 }
 
 /**
  * REACT_027: Fix table structure issues
  * Ensures tables have proper structure with headers and captions
  */
-function renderAdditionalContent (additionalData) {
-  // Implementation of the new function
-  // Placeholder for actual implementation
-  return `<div class="additional-content">${additionalData ? additionalData.content : ''}</div>`
-}
-
 export function fixTableStructure(tableElement) {
   if (!tableElement) return null;
   

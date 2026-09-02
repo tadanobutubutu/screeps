@@ -170,8 +170,35 @@ const a11yStore = {
     // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
   },
 
-  newFunction() {
-    // New function implementation from origin/main
+  /**
+   * Check for accessible names on interactive elements
+   * @param {HTMLElement} container - Container to check (defaults to document)
+   * @returns {Array} - Array of elements missing accessible names
+   */
+  newFunction(container = document) {
+    const interactiveElements = container.querySelectorAll(
+      'button, a[href], input:not([type="hidden"]), select, textarea, [role="button"], [role="link"], [role="menuitem"], [tabindex]:not([tabindex="-1"])'
+    );
+    
+    const elementsMissingNames = [];
+    
+    interactiveElements.forEach((element) => {
+      const hasAccessibleName = 
+        element.getAttribute('aria-label') ||
+        element.getAttribute('aria-labelledby') ||
+        (element.tagName === 'INPUT' && element.getAttribute('type') !== 'hidden' && 
+          (element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || 
+           document.querySelector(`label[for="${element.id}"]`))) ||
+        element.textContent?.trim() ||
+        element.value?.trim() ||
+        element.getAttribute('title');
+      
+      if (!hasAccessibleName) {
+        elementsMissingNames.push(element);
+      }
+    });
+    
+    return elementsMissingNames;
   }
 };
 
@@ -673,6 +700,9 @@ function decodeJwtToken(token) {
 }
 
 // HTTP Server setup
+const http = require('http');
+const url = require('url');
+
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
 
@@ -799,6 +829,19 @@ function handleFocusTrap(container) {
     });
 }
 
+/**
+ * Standalone function to check for accessible names on interactive elements
+ * Delegates to a11yStore.newFunction for implementation
+ * @param {HTMLElement} container - Container to check (defaults to document)
+ * @returns {Array} - Array of elements missing accessible names
+ */
+function newFunction(container = document) {
+  if (typeof document === 'undefined') {
+    return [];
+  }
+  return a11yStore.newFunction(container);
+}
+
 // Start server if this is the main module
 if (require.main === module) {
     const PORT = process.env.PORT || 3000;
@@ -819,7 +862,7 @@ module.exports = {
   ensureUniqueLandmarks,
   handleFocusTrap,
   revokeSession,
-  addSvgAccessibilityProps,
+  addSvgAccessibilityProps: a11yStore.addSVGAccessibilityProps,
   isLandmarkElement,
   handleCredentialResponse,
   parseCredentialResponse,

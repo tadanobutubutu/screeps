@@ -255,6 +255,93 @@ function fixFakeLinks(html) {
     return html;
 }
 
+// REACT_017: Validate and fix landmark issues
+function validateLandmark(element) {
+    if (!element) return { valid: false, message: 'Element is null or undefined' };
+    
+    const validLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+    const role = element.getAttribute('role');
+    const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+    
+    // HTML5 landmark elements
+    const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+    
+    if (role && validLandmarks.includes(role.toLowerCase())) {
+        return { valid: true, message: 'Valid landmark role' };
+    }
+    
+    if (html5Landmarks.includes(tagName)) {
+        return { valid: true, message: 'Valid HTML5 landmark element' };
+    }
+    
+    return { valid: false, message: 'No valid landmark found' };
+}
+
+// REACT_017: Validate landmark structure
+function validateLandmarkStructure(html) {
+    if (typeof html !== 'string') return { valid: true, issues: [] };
+    
+    const issues = [];
+    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
+    
+    landmarkRoles.forEach(role => {
+        const pattern = new RegExp(`role=["']${role}["']`, 'gi');
+        const matches = html.match(pattern);
+        if (matches && matches.length > 1) {
+            issues.push({
+                type: 'duplicate-landmark',
+                role: role,
+                count: matches.length,
+                message: `Duplicate ${role} landmark found (${matches.length} occurrences)`
+            });
+        }
+    });
+    
+    return { valid: issues.length === 0, issues: issues };
+}
+
+// REACT_041: Get SVG accessible name
+function getSvgAccessibleName(svgElement) {
+    if (!svgElement || typeof svgElement !== 'object') return '';
+    
+    // Check for aria-label
+    const ariaLabel = svgElement.getAttribute ? svgElement.getAttribute('aria-label') : null;
+    if (ariaLabel) return ariaLabel;
+    
+    // Check for aria-labelledby
+    const ariaLabelledby = svgElement.getAttribute ? svgElement.getAttribute('aria-labelledby') : null;
+    if (ariaLabelledby) return ariaLabelledby;
+    
+    // Check for title element inside SVG
+    const title = svgElement.querySelector ? svgElement.querySelector('title') : null;
+    if (title && title.textContent) return title.textContent;
+    
+    // Check for desc element inside SVG
+    const desc = svgElement.querySelector ? svgElement.querySelector('desc') : null;
+    if (desc && desc.textContent) return desc.textContent;
+    
+    return '';
+}
+
+// REACT_041: Set SVG accessibility attributes
+function setSvgAttributes(svgElement, accessibleName) {
+    if (!svgElement || typeof svgElement !== 'object') return svgElement;
+    
+    // Set role="img" if not already set
+    if (!svgElement.getAttribute || !svgElement.getAttribute('role')) {
+        if (svgElement.setAttribute) {
+            svgElement.setAttribute('role', 'img');
+        }
+    }
+    
+    // Set aria-label if name is provided
+    if (accessibleName && svgElement.setAttribute) {
+        svgElement.setAttribute('aria-label', accessibleName);
+    }
+    
+    return svgElement;
+}
+
 // Main function that applies all accessibility fixes
 function applyAccessibilityFixes(html) {
     let result = html;
@@ -270,7 +357,21 @@ function addressAccessibilityIssues(insightReport) {
   if (insightReport && insightReport.html) {
     insightReport.html = applyAccessibilityFixes(insightReport.html);
   }
+  
+  // Validate landmarks (REACT_017)
+  const landmarkIssues = validateLandmarkStructure(insightReport && insightReport.html ? insightReport.html : '');
+  const landmarkValidation = insightReport && insightReport.element ? validateLandmark(insightReport.element) : null;
+  
+  // Handle SVG accessibility (REACT_041)
+  const svgAccessibleName = insightReport && insightReport.svgElement ? getSvgAccessibleName(insightReport.svgElement) : '';
+  if (insightReport && insightReport.svgElement) {
+    setSvgAttributes(insightReport.svgElement, svgAccessibleName);
+  }
+  
   console.log('Addressing accessibility issues from insight report:', insightReport);
+  console.log('Landmark issues:', landmarkIssues);
+  console.log('Landmark validation:', landmarkValidation);
+  console.log('SVG accessible name:', svgAccessibleName);
 }
 
 /**
@@ -291,28 +392,6 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     return button;
 }
 
-// New function to address accessibility issues
-function addressAccessibilityIssues() {
-    // Implement the changes required to address accessibility issues from the insight report
-    // For example, this could be calling existing utility functions to validate accessibility
-    const linkIssues = checkLinkAccessibility();
-    const tableIssues = validateTableAccessibility();
-    const tableStructureIssues = validateTableStructure();
-    const linkAccessibilityIssues = validateLinkAccessibility();
-    const fakeLinkIssues = handleFakeLinks();
-
-    // Handle issues (e.g., log them, display warnings, etc.)
-    // For demonstration purposes, we will just log the issues to the console
-    console.log('Link Accessibility Issues:', linkIssues);
-    console.log('Table Accessibility Issues:', tableIssues);
-    console.log('Table Structure Issues:', tableStructureIssues);
-    console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
-    console.log('Fake Link Issues:', fakeLinkIssues);
-
-    // Here you could add additional logic to address the issues
-    // For example, you might want to update the DOM or call other functions
-}
-
 // Export accessibility utility functions
 export {
     getLangAttribute,
@@ -330,7 +409,11 @@ export {
     applyAccessibilityFixes,
     addLangAttribute,
     fixTableStructure,
-    addressAccessibilityIssues
+    addressAccessibilityIssues,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    setSvgAttributes
 };
 
 // Run if executed directly

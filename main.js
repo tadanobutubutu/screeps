@@ -1,7 +1,7 @@
 // main.js
 
 // Find the primary content element in the DOM
-const primaryContent = document.querySelector('.primary-content') ||
+let primaryContent = document.querySelector('.primary-content') ||
                         document.querySelector('[role="main"]') ||
                         document.getElementById('main-content') ||
                         document.querySelector('#content');
@@ -78,6 +78,43 @@ let icons = {};
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+
+/**
+ * Function to address accessibility issues from insight report.
+ * Handles various accessibility issues including language attributes,
+ * table structures, landmarks, SVG accessibility, fake links, and landmark regions.
+ */
+function addressInsightIssues() {
+  // REACT_015: Add lang attribute to HTML element
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.lang) {
+    const langAttribute = getLangAttribute();
+    if (langAttribute) {
+      htmlElement.setAttribute('lang', langAttribute);
+    }
+  }
+
+  // REACT_027: Fix table structure issues
+  validateTableAccessibility();
+  validateTableStructure();
+
+  // REACT_017: Add/fix landmark issues and ensure unique landmarks
+  validateLandmark(landmarks);
+  validateLandmarkStructure(landmarks);
+  ensureUniqueLandmarks(landmarks);
+
+  // REACT_041: Add accessible names to SVGs
+  getSvgAccessibleName();
+  setSvgAttributes();
+
+  // REACT_025: Ensure unique landmarks (already handled by ensureUniqueLandmarks)
+
+  // REACT_036: Fix fake link issue
+  handleFakeLinks();
+
+  // REACT_037: Add proper landmark regions
+  addProperLandmarkRegions();
+}
 
 // TODO: Add new functions below this line
 
@@ -231,6 +268,17 @@ function countDependencies() {
   return Object.keys(dependencies).length;
 }
 
+// Function to add proper landmark regions
+function addProperLandmarkRegions() {
+  // Implementation for adding proper landmark regions
+  const mainLandmarks = document.querySelectorAll('main');
+  mainLandmarks.forEach(landmark => {
+    if (!landmark.hasAttribute('role')) {
+      landmark.setAttribute('role', 'main');
+    }
+  });
+}
+
 // Exporting module objects
 export {
   wrapPrimaryContentInMain,
@@ -264,5 +312,6 @@ export {
   calculateSum,
   addProperLandmarkRegions,
   countDependencies,
-  createInPageButtons // Added new export
+  createInPageButtons, // Added new export
+  primaryContent // Export the primaryContent variable
 };

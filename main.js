@@ -1,4 +1,6 @@
-// TODO: This is the existing code that needs to be preserved
+// Identify and update specific functions as needed
+// Main module
+// Dependency imports
 
 // ----- END ORIGINAL CODE -----
 // New function or changes requested in the issue
@@ -13,7 +15,7 @@ function createAccessibleWebResourceButton(url, text) {
   const button = document.createElement('button');
   button.setAttribute('type', 'button');
   button.setAttribute('aria-label', text);
-  button.innerHTML = `<a href="${url}" ...`;
+  button.innerHTML = `<a href="${url}">${text}</a>`;
   return button;
 }
 
@@ -52,9 +54,9 @@ function checkLandmarkElements(htmlContent) {
   const foundLandmarks = {};
 
   // Check for each landmark element in the HTML content
-  LANDMARK_ELEMENTS.forEach(landmark => {
+  LANDMARK_ELEMENTS.forEach((landmark) => {
     // Use case-insensitive regex to find landmark elements
-    const regex = new RegExp(`<${landmark}`, 'gi');
+    const regex = new RegExp(`<${landmark}[\\s>]`, 'gi');
     const matches = htmlContent.match(regex);
     if (matches) {
       foundLandmarks[landmark] = matches.length;
@@ -67,7 +69,7 @@ function checkLandmarkElements(htmlContent) {
   }
 
   // Check for duplicate landmarks (potential issue)
-  Object.keys(foundLandmarks).forEach(landmark => {
+  Object.keys(foundLandmarks).forEach((landmark) => {
     if (foundLandmarks[landmark] > 1) {
       warnings.push(`Multiple ${landmark} elements found`);
     }
@@ -103,7 +105,7 @@ function createInPageButton(options) {
 
   // Create button object
   const button = {
-    id: id || `btn-${Date.now()}`,
+    id: id || `button-${Date.now()}`,
     text: String(text),
     title: title || '',
     className: className || 'default-button',
@@ -130,11 +132,11 @@ function createInPageButton(options) {
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f81632535b07b809ac49f5e1c81cf4f389f9c1 -->
 
-// TODO: Implement a function to count dependencies
+// Implement a function to count dependencies
 function countDependencies() {
   // New implementation to count dependencies using dependencyGraphContent and regex
   const importCommentRegExp = /import\s+.*\s+from\s+/g;
-  const importCount = (dependencyGraphContent && dependencyGraphContent.match(importCommentRegExp)) || [];
+  const importCount = (dependencyGraphContent && dependencyGraphContent.toString() || []).match(importCommentRegExp) || [];
   return importCount.length;
 }
 
@@ -156,7 +158,7 @@ function addLandmarkRegions() {
 
   return {
     landmarks,
-    regions: Object.keys(landmarks).filter(key => landmarks[key])
+    regions: Object.keys(landmarks).filter((key) => landmarks[key])
   };
 }
 
@@ -223,9 +225,9 @@ function checkLandmarkElementsInDOM() {
 }
 
 // New function to add SVG accessibility props
-function addSvgAccessibilityProps(svg) {
+function addSVGAccessibilityProps(svg) {
   if (!svg) return;
-  if (!svg.hasAttribute('role')) {
+  if (!svg.getAttribute('role')) {
     svg.setAttribute('role', 'img');
   }
 }
@@ -246,7 +248,7 @@ function newFunction() {
 // ADD YOUR CODE HERE if any other issues need to be addressed
 // Example of addressing REACT_015: Add lang attribute to HTML element
 function addLangAttribute() {
-  const htmlElement = document && document.querySelector('html');
+  const htmlElement = document && document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', 'en'); // Assuming English, replace with appropriate lang attribute value
   }

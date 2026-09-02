@@ -776,5 +776,10 @@ export {
   updateBookDependencies,
   onTitleSort,
   onAuthorSort,
-  defaultSorting
+  defaultSorting,
+  sortByTitle,
+  sortByAuthor,
+  BookItem,
+  addBook,
+  enhanceAccessibilityForAddBook
 };

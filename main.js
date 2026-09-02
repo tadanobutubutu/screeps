@@ -5,10 +5,10 @@
 
 const accessibilityUtils = {
   /**
-     * Initializes the skip link functionality.
-     * Finds a skip link with class 'skip-link' and ensures clicking it
-     * focuses the target element while preventing default navigation.
-     */
+   * Initializes the skip link functionality.
+   * Finds a skip link with class 'skip-link' and ensures clicking it
+   * focuses the target element while preventing default navigation.
+   */
   initSkipLink () {
     const skipLink = document.querySelector('.skip-link')
     if (!skipLink) return
@@ -28,14 +28,14 @@ const accessibilityUtils = {
   },
 
   /**
-     * Adds a focus trap to the given element.
-     * Tab‑presses are confined to the element's focusable descendants.
-     *
-     * @param {HTMLElement} element - The container element.
-     */
+   * Adds a focus trap to the given element.
+   * Tab‑presses are confined to the element's focusable descendants.
+   *
+   * @param {HTMLElement} element - The container element.
+   */
   trapFocus (element) {
     const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled)], [tabindex]:not([tabindex="-1"])'
     )
 
     if (focusableElements.length === 0) return
@@ -59,11 +59,11 @@ const accessibilityUtils = {
   },
 
   /**
-     * A newer focus trap implementation.
-     * Identical to `trapFocus` for consistency.
-     *
-     * @param {HTMLElement} element - The container element.
-     */
+   * A newer focus trap implementation.
+   * Identical to `trapFocus` for consistency.
+   *
+   * @param {HTMLElement} element - The container element.
+   */
   newFocusTrap (element) {
     if (!element) return
 
@@ -92,10 +92,10 @@ const accessibilityUtils = {
   },
 
   /**
-     * Enhances keyboard accessibility for interactive elements and elements with
-     * the `data-accessible` attribute. Adds a `tabindex="0"` and handles Enter/Space
-     * to trigger clicks.
-     */
+   * Enhances keyboard accessibility for interactive elements and elements with
+   * the `data-accessible` attribute. Adds a `tabindex="0"` and handles Enter/Space
+   * to trigger clicks.
+   */
   initAccessibility () {
     // Add keyboard support for all interactive elements and data-accessible elements
     document
@@ -112,11 +112,11 @@ const accessibilityUtils = {
   },
 
   /**
-     * Announce message to screen readers
-     *
-     * @param {string} message - The message to announce.
-     * @param {string} [priority='polite'] - The aria-live priority ('polite' or 'assertive').
-     */
+   * Announce message to screen readers
+   *
+   * @param {string} message - The message to announce.
+   * @param {string} [priority='polite'] - The aria-live priority ('polite' or 'assertive').
+   */
   announceToScreenReader (message, priority = 'polite') {
     const announcer = document.createElement('div')
     announcer.setAttribute('aria-live', priority)
@@ -132,12 +132,12 @@ const accessibilityUtils = {
   },
 
   /**
-     * Triggers a file download of the given data as JSON and announces the action
-     * to screen readers.
-     *
-     * @param {Object} data - The data to export.
-     * @param {string} filename - The name of the file to download.
-     */
+   * Triggers a file download of the given data as JSON and announces the action
+   * to screen readers.
+   *
+   * @param {Object} data - The data to export.
+   * @param {string} filename - The name of the file to download.
+   */
   exportData (data, filename) {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -154,9 +154,9 @@ const accessibilityUtils = {
   },
 
   /**
-     * Scans the page for common accessibility issues and logs warnings.
-     * Returns an object summarizing the fixes performed.
-     */
+   * Scans the page for common accessibility issues and logs warnings.
+   * Returns an object summarizing the fixes performed.
+   */
   addressAccessibilityIssues () {
     const fixes = {
       skipLinks: 0,
@@ -202,16 +202,49 @@ const accessibilityUtils = {
   },
 
   /**
-     * Handle keyboard navigation by dispatching to a handler based on the key pressed.
-     *
-     * @param {KeyboardEvent} e - The keyboard event.
-     * @param {Object} handlers - An object mapping key names to handler functions.
-     */
+   * Handle keyboard navigation by dispatching to a handler based on the key pressed.
+   *
+   * @param {KeyboardEvent} e - The keyboard event.
+   * @param {Object} handlers - An object mapping key names to handler functions.
+   */
   handleKeyboardNav (e, handlers) {
     const key = e.key
     if (handlers[key]) {
       handlers[key](e)
     }
+  },
+
+  /**
+   * Handles upgrading from legacy implementations to newer ones.
+   * Provides backward compatibility while migrating to current best practices.
+   *
+   * @param {Object} options - Upgrade options.
+   * @param {boolean} [options.upgradeFocusTrap=true] - Whether to upgrade focus trap implementations.
+   * @returns {Object} Summary of upgrades performed.
+   */
+  upgrade (options = {}) {
+    const opts = {
+      upgradeFocusTrap: true,
+      ...options
+    }
+
+    const upgrades = {
+      focusTrap: false,
+      messages: []
+    }
+
+    // Upgrade focus trap if requested
+    if (opts.upgradeFocusTrap) {
+      // Replace legacy trapFocus with newFocusTrap
+      if (typeof this.newFocusTrap === 'function') {
+        this.trapFocus = this.newFocusTrap
+        upgrades.focusTrap = true
+        upgrades.messages.push('Upgraded trapFocus to use newFocusTrap implementation')
+      }
+    }
+
+    console.log('Upgrade completed', upgrades)
+    return upgrades
   }
 }
 
@@ -452,6 +485,7 @@ module.exports = {
   handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
   exportData: accessibilityUtils.exportData,
   addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
+  upgrade: accessibilityUtils.upgrade,
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,

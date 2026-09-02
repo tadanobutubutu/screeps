@@ -389,7 +389,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
 }
 
 // New function to address accessibility issues
-function addressAccessibilityIssues() {
+function addressAccessibilityIssuesNew() {
   // Implement the changes required to address accessibility issues from the insight report
   // For example, this could be calling existing utility functions to validate accessibility
   const linkIssues = checkLinkAccessibility();
@@ -421,6 +421,7 @@ export {
   checkLinkAccessibility,
   newFunction,
   addressAccessibilityIssues,
+  addressAccessibilityIssuesNew,
   addLangAttribute,
   fixTableStructure,
   fixLandmarks,

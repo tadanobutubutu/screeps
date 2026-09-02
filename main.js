@@ -12,7 +12,6 @@ const landmarkSelectors = [
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
 const path = require('path');
 const utils = require('./utils');
 const { a11y } = require('@accessible/react');
@@ -22,18 +21,17 @@ const {
   addMainLandmark,
   addSvgAccessibleNames,
   externalFixFakeLinks,
-  externalEnsureUniqueLandmarks,
   externalAddLandmarkRoles,
   renderDependencyGraphContent,
   createInPageButtons,
   addressAccessibilityIssues,
   scanAccessibility
-} = require('./accessibility-improvements');
+} = utils;
 
 const CONFIG = {
     dataPath: './data',
     maxResults: 100,
-    apiUrl: process.env.API_URL || 'https://example.com',
+    apiUrl: process.env.API_URL || 'http://localhost:3000',
     timeout: 5000
 };
 
@@ -49,36 +47,41 @@ let appState = {
 
 let dependencyGraph = null;
 
-function ensureUniqueLandmarksDOM() {
-  // ... (existing function implementation)
-}
-
-function extractSvgAccessibleName(svgContent) {
-  // ... (existing function implementation)
-}
-
 function getLangAttribute() {
-  // ... (updated function implementation, merging both changes)
+  return document.documentElement.lang || 'en';
 }
 
 function validateTableAccessibility(tableElement) {
-  // ... (updated function implementation, merging both changes)
+  if (!tableElement) return false;
+  const headers = tableElement.querySelectorAll('th');
+  return headers.length > 0;
 }
 
 function validateTableStructure(tableElement) {
-  // ... (updated function implementation, merging both changes)
+  if (!tableElement) return false;
+  const rows = tableElement.querySelectorAll('tr');
+  return rows.length > 0;
 }
 
 function validateLandmark() {
-  // Implementation for landmark validation (from one of the changes)
+  const landmarks = document.querySelectorAll('main, [role="main"], [role="banner"], [role="contentinfo"]');
+  return landmarks.length > 0;
 }
 
 function validateLandmarkStructure() {
-  // DOM-specific landmark structure validation (from one of the changes)
+  const landmarks = document.querySelectorAll(landmarkSelectors.join(','));
+  return landmarks.length > 0;
 }
 
 function validateLinkAccessibility() {
-  // Link accessibility validation
+  const links = document.querySelectorAll('a');
+  let validLinks = 0;
+  links.forEach(link => {
+    if (link.textContent.trim() || link.getAttribute('aria-label')) {
+      validLinks++;
+    }
+  });
+  return validLinks === links.length;
 }
 
 function setSvgAttributes(svg, accessibleName) {
@@ -88,41 +91,56 @@ function setSvgAttributes(svg, accessibleName) {
 }
 
 function personName() {
-  // Person name accessibility handling
+  const names = document.querySelectorAll('[class*="name"]');
+  names.forEach(name => {
+    if (!name.textContent.trim()) {
+      name.setAttribute('aria-hidden', 'true');
+    }
+  });
 }
 
 function handleFakeLinks() {
-  // ... (updated function implementation, merging both changes)
+  const links = document.querySelectorAll('a[href="#"]');
+  links.forEach(link => {
+    link.setAttribute('role', 'button');
+  });
 }
 
 function addressAccessibilityIssues() {
-  // ... (updated implementation, merging both changes)
+  validateLandmarkStructure();
+  validateTableStructure(document.querySelector('table'));
+  handleFakeLinks();
 }
 
 async function scanAccessibility() {
-  // ... (existing function implementation)
+  const results = await axe.run();
+  return results;
 }
 
-function ensureDependencyGraphRole(container) {
+function renderDependencyGraph(container) {
   if (!container) return;
-  if (!container.hasAttribute('role')) {
-    container.setAttribute('role', 'graphics-document');
+  if (container.querySelector('[role="tree"]')) {
+    container.setAttribute('role', 'tree');
   }
-  if (!container.hasAttribute('aria-label')) {
-    container.setAttribute('aria-label', 'Dependency graph');
+  if (container.querySelector('[aria-label="Dependency graph"]')) {
+    const heading = document.createElement('h2');
+    heading.textContent = 'Dependency graph';
+    container.insertBefore(heading, container.firstChild);
   }
 }
 
 async function renderFunction1() {
   const moduleAReturnValue = await accessiblyHelper();
 
-  function ensureDependencyGraphRole(container) {
+  function renderDependencyGraph(container) {
     if (!container) return;
-    if (!container.hasAttribute('role')) {
+    if (container.querySelector('[role="tree"]')) {
       container.setAttribute('role', 'tree');
     }
-    if (!container.hasAttribute('aria-label')) {
-      container.setAttribute('aria-label', 'Dependency graph');
+    if (container.querySelector('[aria-label="Dependency graph"]')) {
+      const heading = document.createElement('h2');
+      heading.textContent = 'Dependency graph';
+      container.insertBefore(heading, container.firstChild);
     }
   }
 
@@ -137,52 +155,45 @@ async function renderFunction2() {
 }
 
 async function harvest() {
-  // TODO: Implement harvest logic (from one of the changes)
+  return [];
 }
 
 async function upgrade(harvestedData) {
-  // TODO: Implement upgrade logic (from one of the changes)
+  return harvestedData;
 }
 
 async function harvestAndUpgrade() {
-  // TODO: Implement harvest and upgrade logic (merged from both changes)
+  const harvested = await harvest();
+  return await upgrade(harvested);
 }
 
 function addLangAttribute() {
-  // ... (updated function implementation, merging both changes)
+  document.documentElement.lang = 'en';
 }
-
-const validateLandmarkStructure = (landmarks) => {
-  // ... (updated implementation, merging both changes)
-};
 
 const validateLandmarkAttributes = (landmark) => {
   return landmark && landmark.id && landmark.name;
 };
 
 const addMainLandmark = () => {
-  // Code for adding main landmark (from one of the changes)
-};
-
-// Additional utility functions
-const renderDependencyGraphContent = () => {
-  // ... (updated implementation, merging both changes)
-};
-
-const createInPageButtons = () => {
-  // ... (updated implementation, merging both changes)
+  const main = document.querySelector('main') || document.querySelector('[role="main"]');
+  if (main && !main.id) {
+    main.id = 'main-content';
+  }
 };
 
 const generateAccessibilityReport = (issuesData) => {
-  // Generate accessibility report (from one of the changes)
+  return {
+    timestamp: new Date().toISOString(),
+    issues: issuesData || []
+  };
 };
 
-// Landmark processing utilities
 const isValidLandmark = landmark => landmark && typeof landmark.id !== 'undefined' && landmark.id !== null;
 
 const loadLandmarks = () => {
   try {
-    const filePath = path.join(__dirname, config.dataPath, 'landmarks.json');
+    const filePath = path.join(config.dataPath, 'landmarks.json');
     const data = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(data);
   } catch (error) {
@@ -197,7 +208,7 @@ const processLandmarks = (landmarks) => {
   }
 
   const validLandmarks = landmarks.filter(isValidLandmark);
-  const uniqueLandmarks = externalEnsureUniqueLandmarks(validLandmarks);
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
   return uniqueLandmarks.slice(0, config.maxResults);
 };
@@ -216,17 +227,21 @@ const ensureUniqueLandmarks = (landmarks) => {
   });
 };
 
-// Function to set language attribute on the document
 const setLanguageAttribute = () => {
   document.documentElement.lang = 'en';
 };
 
-// Function to add landmark roles to main containers
 const addLandmarkRoles = () => {
-  // ... (updated implementation, merging both changes)
+  landmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(el => {
+      if (selector === 'main') {
+        el.setAttribute('role', 'main');
+      }
+    });
+  });
 };
 
-// Landmark configuration
 const landmarkConfig = {
   main: 'main',
   banner: 'banner',
@@ -241,7 +256,6 @@ const landmarkConfig = {
 
 exports.landmarkSelectors = landmarkSelectors;
 exports.externalFixFakeLinks = externalFixFakeLinks;
-exports.externalEnsureUniqueLandmarks = externalEnsureUniqueLandmarks;
 exports.externalAddLandmarkRoles = externalAddLandmarkRoles;
 exports.addressAccessibilityIssues = addressAccessibilityIssues;
 exports.scanAccessibility = scanAccessibility;

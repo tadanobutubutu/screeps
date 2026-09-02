@@ -144,22 +144,50 @@ function addSvgAccessibleNames(html) {
     return html;
 }
 
+// REACT_050: Check link and button accessibility
 function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  const links = document.querySelectorAll('a[href]');
-  const issues = [];
+    const issues = [];
 
-  links.forEach(link => {
-    const href = link.getAttribute('href');
-    const text = link.textContent.trim();
+    // Check links for accessibility issues
+    const links = document.querySelectorAll('a[href]');
+    links.forEach(link => {
+        const href = link.getAttribute('href');
+        const text = link.textContent.trim();
+        const ariaLabel = link.getAttribute('aria-label');
+        const ariaLabelledBy = link.getAttribute('aria-labelledby');
 
-    if (!text) {
-      issues.push(`Link with href "${href}" has no accessible text`);
-    }
-  });
+        // Check for missing accessible text
+        if (!text && !ariaLabel && !ariaLabelledBy) {
+            issues.push(`Link with href "${href}" has no accessible text`);
+        }
 
-  return issues;
+        // Check for empty or placeholder href
+        if (!href || href === '' || href === '#') {
+            issues.push(`Link has empty or placeholder href`);
+        }
+    });
+
+    // Check buttons for accessibility issues
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+        const text = button.textContent.trim();
+        const ariaLabel = button.getAttribute('aria-label');
+        const ariaLabelledBy = button.getAttribute('aria-labelledby');
+        const ariaDescribedBy = button.getAttribute('aria-describedby');
+
+        // Check for missing accessible text
+        if (!text && !ariaLabel && !ariaLabelledBy && !ariaDescribedBy) {
+            issues.push(`Button has no accessible text`);
+        }
+
+        // Check for generic button text
+        const genericTexts = ['submit', 'click', 'button', 'ok', 'cancel'];
+        if (genericTexts.includes(text.toLowerCase())) {
+            issues.push(`Button has generic text: "${text}"`);
+        }
+    });
+
+    return issues;
 }
 
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic

@@ -1,6 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
 const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
   timeout: process.env.TIMEOUT || 5000,
   debug: true,
   version: '1.0.0'
@@ -12,12 +12,21 @@ const appState = {
   cache: new Map()
 };
 
+function validateLandmark(landmark) {
+  const errors = [];
+  const role = landmark && landmark.role;
+  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
+  if (role && !validLandmarks.includes(role)) {
+    errors.push('Invalid landmark role: ' + (role || 'undefined'));
+  }
+  return errors;
+}
+
 const appData = {
   title: 'Screeps',
   version: '1.0.0'
 };
 
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by fixTableStructureIssues() and fixTableHeaderCellScope())
@@ -34,7 +43,7 @@ function getLangAttribute() {
 
 function getFullLangAttribute() {
     // Implementation to get full language attribute
-    return document.documentElement.lang || navigator.language || 'en-US';
+    return document.documentElement.lang || (typeof navigator !== 'undefined' && navigator.language) || 'en-US';
 }
 
 /**
@@ -45,17 +54,17 @@ function getFullLangAttribute() {
 function validateTableAccessibility(table) {
   const issues = [];
 
-  // Check for caption (from origin/main)
+  // Check for caption
   if (!table.querySelector || !table.querySelector('caption')) {
     issues.push('Missing caption element');
   }
 
-  // Check for headers attribute (from HEAD)
+  // Check for headers attribute
   if (!table.getAttribute('headers')) {
     issues.push('Missing headers attribute');
   }
 
-  // Check for scope attribute on header cells (from HEAD)
+  // Check for scope attribute on header cells
   const headerCells = table.querySelectorAll('th');
   headerCells.forEach(cell => {
     if (!cell.hasAttribute('scope')) {
@@ -81,7 +90,7 @@ function validateTableStructure(tables) {
   const tableArray = Array.isArray(tables) ? tables : [tables];
 
   tableArray.forEach((table, index) => {
-    // Check for rows (from origin/main)
+    // Check for rows
     const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
     if (rows.length === 0) {
       allIssues.push({
@@ -90,7 +99,7 @@ function validateTableStructure(tables) {
       });
     }
 
-    // Validate table accessibility (from HEAD)
+    // Validate table accessibility
     const result = validateTableAccessibility(table);
     if (!result.success) {
       allIssues.push({
@@ -135,7 +144,7 @@ function validateLandmark(element) {
 function validateLandmarkStructure(landmarks) {
   const issues = [];
 
-  // If landmarks array is provided, validate each one (from HEAD)
+  // If landmarks array is provided, validate each one
   if (Array.isArray(landmarks)) {
     landmarks.forEach((landmark, index) => {
       const result = validateLandmark(landmark);
@@ -147,7 +156,7 @@ function validateLandmarkStructure(landmarks) {
       }
     });
   } else {
-    // Otherwise, check for required landmarks in the DOM (from origin/main)
+    // Otherwise, check for required landmarks in the DOM
     const allLandmarks = document.querySelectorAll('[role]');
     let hasMain = false;
     let hasNavigation = false;
@@ -182,12 +191,12 @@ function ensureUniqueLandmarks(landmarks) {
   const duplicates = [];
   let elementsToCheck = landmarks;
 
-  // If no landmarks array provided, query the DOM (from origin/main)
+  // If no landmarks array provided, query the DOM
   if (!Array.isArray(landmarks)) {
     elementsToCheck = document.querySelectorAll('[role]');
   }
 
-  // Check for duplicate accessible names (from HEAD)
+  // Check for duplicate accessible names
   elementsToCheck.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
@@ -197,7 +206,7 @@ function ensureUniqueLandmarks(landmarks) {
     }
   });
 
-  // Check for duplicate IDs (from origin/main)
+  // Check for duplicate IDs
   const elementsById = {};
   elementsToCheck.forEach(landmark => {
     if (landmark.id) {
@@ -210,7 +219,7 @@ function ensureUniqueLandmarks(landmarks) {
     }
   });
 
-  // Check for duplicate roles (from origin/main)
+  // Check for duplicate roles
   const landmarksByRole = {};
   elementsToCheck.forEach(landmark => {
     const role = landmark.getAttribute('role');
@@ -272,7 +281,7 @@ function handleAccessibilityIssues(issues = []) {
   const handled = [];
   const unhandled = [];
 
-  // Process provided issues (from HEAD)
+  // Process provided issues
   issues.forEach(issue => {
     if (issue.fixable) {
       handled.push(issue);
@@ -281,7 +290,7 @@ function handleAccessibilityIssues(issues = []) {
     }
   });
 
-  // Perform DOM validation (from origin/main)
+  // Perform DOM validation
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     validateTableAccessibility(table);

@@ -91,90 +91,121 @@
     }
 
     // Function to validate table accessibility
-    function validateTableAccessibility() {
-      // Implementation of validateTableAccessibility function
-      const tables = document.querySelectorAll('table');
-      tables.forEach(table => {
-        if (!table.hasAttribute('summary')) {
-          table.setAttribute('summary', 'Table summary');
-        }
-        if (!table.querySelector('caption')) {
-          const caption = document.createElement('caption');
-          caption.textContent = 'Table caption';
-          table.prepend(caption);
+    function validateTableAccessibility(tableElement) {
+      if (!tableElement) return false;
+
+      // Check if table has a caption
+      const hasCaption = tableElement.querySelector('caption') !== null;
+
+      // Check if table has proper headers
+      const hasHeaders = tableElement.querySelector('thead') !== null ||
+                        tableElement.querySelector('th') !== null;
+
+      // Check if table has proper scope attributes for headers
+      const headers = tableElement.querySelectorAll('th');
+      let hasScope = true;
+      headers.forEach(header => {
+        if (!header.hasAttribute('scope')) {
+          hasScope = false;
         }
       });
+
+      return hasCaption && hasHeaders && hasScope;
     }
 
     // Function to validate table structure
-    function validateTableStructure() {
-      // Implementation of validateTableStructure function
-      const tables = document.querySelectorAll('table');
-      tables.forEach(table => {
-        const rows = table.querySelectorAll('tr');
-        rows.forEach(row => {
-          const cells = row.querySelectorAll('th, td');
-          cells.forEach(cell => {
-            if (!cell.hasAttribute('scope') && cell.tagName === 'TH') {
-              cell.setAttribute('scope', 'col');
-            }
-          });
-        });
+    function validateTableStructure(tableElement) {
+      if (!tableElement) return false;
+
+      // Check if table has proper row and cell structure
+      const rows = tableElement.querySelectorAll('tr');
+      let validStructure = true;
+
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td, th');
+        if (cells.length === 0) {
+          validStructure = false;
+        }
       });
+
+      return validStructure;
     }
 
     // Function to validate landmark elements
-    function validateLandmark() {
-      // Implementation of validateLandmark function
-      const landmarks = ['main', 'nav', 'aside', 'footer', 'header'];
-      landmarks.forEach(landmark => {
-        const elements = document.querySelectorAll(`[role="${landmark}"]`);
-        elements.forEach(element => {
-          if (!element.hasAttribute('aria-label')) {
-            element.setAttribute('aria-label', `${landmark} landmark`);
+    function validateLandmark(landmarkElement) {
+      if (!landmarkElement) {
+        // Validate landmark elements in document
+        const requiredLandmarks = ['main', 'nav', 'footer'];
+        const missingLandmarks = [];
+
+        requiredLandmarks.forEach(landmark => {
+          const element = document.querySelector(`[role="${landmark}"]`) ||
+                         document.querySelector(`${landmark}`);
+          if (!element) {
+            missingLandmarks.push(landmark);
           }
         });
-      });
+
+        if (missingLandmarks.length > 0) {
+          console.warn('Missing required landmarks:', missingLandmarks.join(', '));
+          return false;
+        }
+        return true;
+      }
+
+      // Check if landmark has proper role
+      const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
+      const role = landmarkElement.getAttribute('role');
+
+      return validRoles.includes(role);
     }
 
     // Function to validate landmark structure
-    function validateLandmarkStructure() {
-      // Implementation of validateLandmarkStructure function
-      const landmarks = ['main', 'nav', 'aside', 'footer', 'header'];
-      landmarks.forEach(landmark => {
-        const elements = document.querySelectorAll(`[role="${landmark}"]`);
-        elements.forEach(element => {
-          if (!element.hasAttribute('aria-labelledby')) {
-            const id = `${landmark}-label`;
-            element.setAttribute('aria-labelledby', id);
-            const label = document.createElement('h2');
-            label.id = id;
-            label.textContent = `${landmark} section`;
-            element.prepend(label);
-          }
-        });
-      });
+    function validateLandmarkStructure(landmarkElement) {
+      if (!landmarkElement) return false;
+
+      // Check if landmark has proper heading
+      const heading = landmarkElement.querySelector('h1, h2, h3, h4, h5, h6');
+      return heading !== null;
     }
 
     // Function to get SVG accessible name
     function getSvgAccessibleName(svgElement) {
-      // Implementation of getSvgAccessibleName function
+      if (!svgElement) return '';
+
+      // Check for title and desc elements
+      const title = svgElement.querySelector('title');
+      const desc = svgElement.querySelector('desc');
+
+      if (title) return title.textContent;
+      if (desc) return desc.textContent;
+
+      // Check for aria-label or aria-labelledby
       if (svgElement.hasAttribute('aria-label')) {
         return svgElement.getAttribute('aria-label');
       }
+
       if (svgElement.hasAttribute('aria-labelledby')) {
         const id = svgElement.getAttribute('aria-labelledby');
         const labelElement = document.getElementById(id);
         return labelElement ? labelElement.textContent : '';
       }
+
       return '';
     }
 
     // Function to set SVG attributes
     function setSvgAttributes(svgElement, name) {
-      // Implementation of setSvgAttributes function
-      if (!svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
+      if (!svgElement || !name) return;
+
+      // Set aria-label if not already set
+      if (!svgElement.hasAttribute('aria-label')) {
         svgElement.setAttribute('aria-label', name);
+      }
+
+      // Set role if not already set
+      if (!svgElement.hasAttribute('role')) {
+        svgElement.setAttribute('role', 'img');
       }
     }
 
@@ -341,7 +372,13 @@
                     addressedAt: new Date().toISOString()
                 };
             });
-        }
+        },
+        validateLandmark: validateLandmark,
+        validateLandmarkStructure: validateLandmarkStructure,
+        validateTableAccessibility: validateTableAccessibility,
+        validateTableStructure: validateTableStructure,
+        getSvgAccessibleName: getSvgAccessibleName,
+        setSvgAttributes: setSvgAttributes
     };
 
     // New function to import a module and execute a function
@@ -349,117 +386,14 @@
       require(modulePath)[functionName](callback);
     }
 
-    // New function to validate table accessibility
-    function validateTableAccessibility(tableElement) {
-      if (!tableElement) return false;
-
-      // Check if table has a caption
-      const hasCaption = tableElement.querySelector('caption') !== null;
-
-      // Check if table has proper headers
-      const hasHeaders = tableElement.querySelector('thead') !== null ||
-                        tableElement.querySelector('th') !== null;
-
-      // Check if table has proper scope attributes for headers
-      const headers = tableElement.querySelectorAll('th');
-      let hasScope = true;
-      headers.forEach(header => {
-        if (!header.hasAttribute('scope')) {
-          hasScope = false;
-        }
-      });
-
-      return hasCaption && hasHeaders && hasScope;
-    }
-
-    // New function to validate table structure
-    function validateTableStructure(tableElement) {
-      if (!tableElement) return false;
-
-      // Check if table has proper row and cell structure
-      const rows = tableElement.querySelectorAll('tr');
-      let validStructure = true;
-
-      rows.forEach(row => {
-        const cells = row.querySelectorAll('td, th');
-        if (cells.length === 0) {
-          validStructure = false;
-        }
-      });
-
-      return validStructure;
-    }
-
-    // New function to validate landmark
-    function validateLandmark(landmarkElement) {
-      if (!landmarkElement) return false;
-
-      // Check if landmark has proper role
-      const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
-      const role = landmarkElement.getAttribute('role');
-
-      return validRoles.includes(role);
-    }
-
-    // New function to validate landmark structure
-    function validateLandmarkStructure(landmarkElement) {
-      if (!landmarkElement) return false;
-
-      // Check if landmark has proper heading
-      const heading = landmarkElement.querySelector('h1, h2, h3, h4, h5, h6');
-      return heading !== null;
-    }
-
-    // New function to get SVG accessible name
-    function getSvgAccessibleName(svgElement) {
-      if (!svgElement) return '';
-
-      // Check for title and desc elements
-      const title = svgElement.querySelector('title');
-      const desc = svgElement.querySelector('desc');
-
-      if (title) return title.textContent;
-      if (desc) return desc.textContent;
-
-      // Check for aria-label or aria-labelledby
-      if (svgElement.hasAttribute('aria-label')) {
-        return svgElement.getAttribute('aria-label');
-      }
-
-      if (svgElement.hasAttribute('aria-labelledby')) {
-        const id = svgElement.getAttribute('aria-labelledby');
-        const labelElement = document.getElementById(id);
-        return labelElement ? labelElement.textContent : '';
-      }
-
-      return '';
-    }
-
-    // New function to set SVG attributes
-    function setSvgAttributes(svgElement, name) {
-      if (!svgElement || !name) return;
-
-      // Set aria-label if not already set
-      if (!svgElement.hasAttribute('aria-label')) {
-        svgElement.setAttribute('aria-label', name);
-      }
-
-      // Set role if not already set
-      if (!svgElement.hasAttribute('role')) {
-        svgElement.setAttribute('role', 'img');
-      }
-    }
-
     // Export the report generation function
     module.exports = {
-      generateAccessibilityReport: async function () {
-        const report = await scanAccessibility();
-        writeReport(report);
-      },
+      generateAccessibilityReport,
       addressAccessibilityIssues,
       getLangAttribute,
       createInPageButton,
       a11y,
+      accessibilityUtils,
       importAndExecute,
       validateTableAccessibility,
       validateTableStructure,
@@ -520,35 +454,4 @@
     // TODO: This is the existing code that needs to be preserved
     // Address accessibility issues from insight report:
     // Implemented validateLandmark functionality
-
-    // New function to validate landmark elements
-    function validateLandmark() {
-      const requiredLandmarks = ['main', 'nav', 'footer'];
-      const missingLandmarks = [];
-
-      requiredLandmarks.forEach(landmark => {
-        const element = document.querySelector(`[role="${landmark}"]`) ||
-                       document.querySelector(`${landmark}`);
-        if (!element) {
-          missingLandmarks.push(landmark);
-        }
-      });
-
-      if (missingLandmarks.length > 0) {
-        console.warn('Missing required landmarks:', missingLandmarks.join(', '));
-        return false;
-      }
-      return true;
-    }
-
-    // Expose validateLandmark to global scope if needed
-    if (typeof window !== 'undefined') {
-      window.validateLandmark = validateLandmark;
-    }
-
-    // Add the new function to the accessibilityUtils object
-    const accessibilityUtils = {
-      validateLandmark: validateLandmark,
-      // ... other existing utility functions
-    };
 })();

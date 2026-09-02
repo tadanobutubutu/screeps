@@ -775,131 +775,317 @@ function getVersion() {
   return VERSION;
 }
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-function addressAccessibilityIssues() {
-  // Ensure the root container has an accessible name
-  const rootContainer = document.getElementById('root');
-  if (rootContainer) {
-    rootContainer.setAttribute('role', 'main');
+// TODO: Implement function for addressing accessibility issues from insight report
+// Placeholder for the new function to address issues from the insight report
+
+function addressAccessibilityInsights(report) {
+  // Validate input report
+  if (!report || typeof report !== 'object') {
+    console.warn('Invalid accessibility report provided');
+    return { success: false, errors: ['Invalid report format'] };
   }
 
-  // Create a hidden live region for dynamic announcements
-  const announcementId = 'accessibility-announcement';
-  let announcement = document.getElementById(announcementId);
-  if (!announcement) {
-    announcement = document.createElement('div');
-    announcement.id = announcementId;
-    announcement.setAttribute('role', 'status');
-    announcement.setAttribute('aria-live', 'polite');
-    announcement.setAttribute('aria-atomic', 'true');
-    // Hide off-screen
-    announcement.style.position = 'absolute';
-    announcement.style.left = '-9999px';
-    announcement.style.top = '-9999px';
-    document.body.appendChild(announcement);
-  }
-}
+  const results = {
+    success: true,
+    fixesApplied: [],
+    errors: []
+  };
 
-// Validate that tables in the document are accessible
-function validateTableAccessibility() {
-  const tables = document.querySelectorAll('table');
-  const results = [];
+  // Process table accessibility issues from the report
+  if (report.tableIssues && Array.isArray(report.tableIssues)) {
+    report.tableIssues.forEach(issue => {
+      try {
+        const table = document.querySelector(issue.selector);
+        if (!table) {
+          results.errors.push(`Table not found for selector: ${issue.selector}`);
+          return;
+        }
 
-  tables.forEach((table, index) => {
-    const hasCaption = table.querySelector('caption') !== null;
-    const hasHeaders = table.querySelector('th') !== null;
-    const hasScope = Array.from(table.querySelectorAll('th')).every(
-      th => th.hasAttribute('scope')
-    );
+        // Fix missing caption
+        if (issue.missingCaption && !table.querySelector('caption')) {
+          const caption = document.createElement('caption');
+          caption.textContent = issue.captionText || 'Table';
+          table.insertBefore(caption, table.firstChild);
+          results.fixesApplied.push(`Added caption to table ${issue.selector}`);
+        }
 
-    results.push({
-      tableIndex: index,
-      hasCaption,
-      hasHeaders,
-      hasScope,
-      isAccessible: hasCaption && hasHeaders && hasScope
+        // Fix missing or incorrect scope attributes
+        if (issue.headerIssues) {
+          const headers = table.querySelectorAll('th');
+          headers.forEach((th, index) => {
+            if (!th.hasAttribute('scope')) {
+              const scope = issue.defaultScope || 'col';
+              th.setAttribute('scope', scope);
+              results.fixesApplied.push(`Added scope="${scope}" to th element ${index + 1}`);
+            }
+          });
+        }
+
+        // Fix table structure issues
+        if (issue.structureIssues) {
+          if (issue.addHeaders) {
+            issue.addHeaders.forEach((headerText, colIndex) => {
+              const th = table.querySelector('thead th:nth-child(' + (colIndex + 1) + ')');
+              if (th && !th.hasAttribute('scope')) {
+                th.setAttribute('scope', 'col');
+                results.fixesApplied.push(`Ensured scope on header for column ${colIndex + 1}`);
+              }
+            });
+          }
+        }
+      } catch (error) {
+        results.errors.push(`Failed to fix table issue for selector ${issue.selector}: ${error.message}`);
+      }
     });
-  });
+  }
+
+  // Process landmark issues from the report
+  if (report.landmarkIssues && Array.isArray(report.landmarkIssues)) {
+    report.landmarkIssues.forEach(issue => {
+      try {
+        const element = document.querySelector(issue.selector);
+        if (!element) {
+          results.errors.push(`Element not found for selector: ${issue.selector}`);
+          return;
+        }
+
+        // Fix missing landmark roles
+        if (issue.missingRole && !element.hasAttribute('role')) {
+          element.setAttribute('role', issue.role);
+          results.fixesApplied.push(`Added role="${issue.role}" to ${issue.selector}`);
+        }
+
+        // Fix duplicate landmarks
+        if (issue.isDuplicate) {
+          if (issue.role === 'main' || issue.role === 'banner' || issue.role === 'contentinfo') {
+            // Remove duplicate special landmarks
+            const duplicates = document.querySelectorAll(`[role="${issue.role}"]`);
+            if (duplicates.length > 1) {
+              for (let i = 1; i < duplicates.length; i++) {
+                duplicates[i].removeAttribute('role');
+                results.fixesApplied.push(`Removed duplicate role="${issue.role}" from ${issue.selector}`);
+              }
+            }
+          } else {
+            // Ensure multiple landmarks have unique labels
+            if (!element.hasAttribute('aria-label')) {
+              element.setAttribute('aria-label', issue.ariaLabel || `${issue.role} section`);
+              results.fixesApplied.push(`Added unique aria-label to duplicate ${issue.role} landmark`);
+            }
+          }
+        }
+
+        // Fix missing aria-labels for landmarks
+        if (issue.missingLabel && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+          element.setAttribute('aria-label', issue.label || issue.role);
+          results.fixesApplied.push(`Added aria-label to landmark ${issue.selector}`);
+        }
+      } catch (error) {
+        results.errors.push(`Failed to fix landmark issue for selector ${issue.selector}: ${error.message}`);
+      }
+    });
+  }
+
+  // Process image issues from the report
+  if (report.imageIssues && Array.isArray(report.imageIssues)) {
+    report.imageIssues.forEach(issue => {
+      try {
+        const image = document.querySelector(issue.selector);
+        if (!image) {
+          results.errors.push(`Image not found for selector: ${issue.selector}`);
+          return;
+        }
+
+        // Fix missing alt text
+        if (issue.missingAlt && !image.hasAttribute('alt')) {
+          image.setAttribute('alt', issue.altText || '');
+          results.fixesApplied.push(`Added alt attribute to image ${issue.selector}`);
+        }
+      } catch (error) {
+        results.errors.push(`Failed to fix image issue for selector ${issue.selector}: ${error.message}`);
+      }
+    });
+  }
+
+  // Process SVG issues from the report
+  if (report.svgIssues && Array.isArray(report.svgIssues)) {
+    report.svgIssues.forEach(issue => {
+      try {
+        const svg = document.querySelector(issue.selector);
+        if (!svg) {
+          results.errors.push(`SVG not found for selector: ${issue.selector}`);
+          return;
+        }
+
+        // Fix missing accessible name for SVG
+        if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+          svg.setAttribute('aria-label', issue.accessibleName || 'Decorative image');
+          results.fixesApplied.push(`Added aria-label to SVG ${issue.selector}`);
+        }
+
+        // Make decorative SVGs hidden from screen readers
+        if (issue.decorative) {
+          svg.setAttribute('role', 'img');
+          svg.setAttribute('aria-hidden', 'true');
+          results.fixesApplied.push(`Marked decorative SVG as hidden from screen readers`);
+        }
+      } catch (error) {
+        results.errors.push(`Failed to fix SVG issue for selector ${issue.selector}: ${error.message}`);
+      }
+    });
+  }
+
+  // Process form issues from the report
+  if (report.formIssues && Array.isArray(report.formIssues)) {
+    report.formIssues.forEach(issue => {
+      try {
+        const input = document.querySelector(issue.selector);
+        if (!input) {
+          results.errors.push(`Form element not found for selector: ${issue.selector}`);
+          return;
+        }
+
+        // Fix missing labels
+        if (issue.missingLabel) {
+          if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
+            input.setAttribute('aria-label', issue.label || 'Input field');
+            results.fixesApplied.push(`Added aria-label to form input ${issue.selector}`);
+          }
+
+          // Ensure input has name attribute
+          if (!input.hasAttribute('name')) {
+            input.setAttribute('name', input.id || 'input-field');
+            results.fixesApplied.push(`Added name attribute to form input ${issue.selector}`);
+          }
+        }
+
+        // Fix missing required indicators
+        if (issue.required && !input.hasAttribute('aria-required')) {
+          input.setAttribute('aria-required', 'true');
+          results.fixesApplied.push(`Added aria-required to form input ${issue.selector}`);
+        }
+      } catch (error) {
+        results.errors.push(`Failed to fix form issue for selector ${issue.selector}: ${error.message}`);
+      }
+    });
+  }
+
+  // Log results
+  if (results.fixesApplied.length > 0) {
+    console.log('Accessibility fixes applied:', results.fixesApplied);
+  }
+
+  if (results.errors.length > 0) {
+    console.warn('Accessibility fix errors:', results.errors);
+    results.success = false;
+  }
 
   return results;
 }
 
-// Validate the structure of tables in the document
-function validateTableStructure() {
+// Function to generate an accessibility issue report
+function generateInsightReport() {
+  const report = {
+    timestamp: new Date().toISOString(),
+    tableIssues: [],
+    landmarkIssues: [],
+    imageIssues: [],
+    svgIssues: [],
+    formIssues: []
+  };
+
+  // Check tables
   const tables = document.querySelectorAll('table');
-  const results = [];
-
   tables.forEach((table, index) => {
-    const rows = table.querySelectorAll('tr');
-    let isValid = true;
-    let error = null;
+    const tableIssue = {
+      selector: `table:nth-child(${index + 1})`,
+      missingCaption: !table.querySelector('caption'),
+      headerIssues: !table.querySelectorAll('th').length > 0,
+      structureIssues: false
+    };
 
-    if (rows.length === 0) {
-      isValid = false;
-      error = 'Table has no rows';
-    } else {
-      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td').length);
-      const allSame = cellCounts.every(count => count === cellCounts[0]);
-
-      if (!allSame) {
-        isValid = false;
-        error = 'Table has inconsistent cell counts across rows';
+    // Check scope attributes on th elements
+    const thElements = table.querySelectorAll('th');
+    if (thElements.length > 0) {
+      const thWithoutScope = Array.from(thElements).filter(th => !th.hasAttribute('scope'));
+      if (thWithoutScope.length > 0) {
+        tableIssue.headerIssues = true;
       }
     }
 
-    results.push({
-      tableIndex: index,
-      rowCount: rows.length,
-      isValid,
-      error
-    });
+    report.tableIssues.push(tableIssue);
   });
 
-  return results;
-}
+  // Check landmarks
+  const landmarkRoles = ['main', 'navigation', 'banner', 'contentinfo', 'complementary'];
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 0) {
+      elements.forEach((el, index) => {
+        const landmarkIssue = {
+          selector: el.id || `${role}-landmark-${index + 1}`,
+          role: role,
+          missingRole: false,
+          isDuplicate: elements.length > 1,
+          missingLabel: !el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby')
+        };
 
-// Generate accessibility report
-function generateAccessibilityReport() {
-  const timestamp = new Date().toISOString();
-  const tableAccessibilityResults = validateTableAccessibility();
-  const tableStructureResults = validateTableStructure();
+        if (index === 0 && elements.length > 1) {
+          landmarkIssue.isDuplicate = true;
+        } else if (elements.length === 1) {
+          landmarkIssue.isDuplicate = false;
+        }
 
-  const totalTables = tableAccessibilityResults.length;
-  const accessibleTables = tableAccessibilityResults.filter(r => r.isAccessible).length;
-  const validStructures = tableStructureResults.filter(r => r.isValid).length;
-
-  const issues = [];
-
-  tableAccessibilityResults.forEach((result, index) => {
-    if (!result.isAccessible) {
-      const issue = { tableIndex: index, type: 'accessibility' };
-      if (!result.hasCaption) issue.reason = 'Missing caption';
-      else if (!result.hasHeaders) issue.reason = 'Missing header cells';
-      else if (!result.hasScope) issue.reason = 'Headers missing scope attribute';
-      issues.push(issue);
+        report.landmarkIssues.push(landmarkIssue);
+      });
+    } else {
+      // Landmark is missing
+      report.landmarkIssues.push({
+        selector: role,
+        role: role,
+        missingRole: true,
+        isDuplicate: false,
+        missingLabel: true
+      });
     }
   });
 
-  tableStructureResults.forEach((result, index) => {
-    if (!result.isValid && result.error) {
-      issues.push({ tableIndex: index, type: 'structure', reason: result.error });
-    }
+  // Check images
+  const images = document.querySelectorAll('img');
+  images.forEach((img, index) => {
+    const imageIssue = {
+      selector: img.id || `img-${index + 1}`,
+      missingAlt: !img.hasAttribute('alt')
+    };
+
+    report.imageIssues.push(imageIssue);
   });
 
-  return {
-    timestamp,
-    summary: {
-      totalTables,
-      accessibleTables,
-      validStructures,
-      accessibilityScore: totalTables > 0 ? (accessibleTables / totalTables) * 100 : 100,
-      structureScore: totalTables > 0 ? (validStructures / totalTables) * 100 : 100
-    },
-    issues,
-    tableAccessibility: tableAccessibilityResults,
-    tableStructure: tableStructureResults
-  };
+  // Check SVGs
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    const svgIssue = {
+      selector: svg.id || `svg-${index + 1}`,
+      missingAccessibleName: !svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby'),
+      decorative: svg.hasAttribute('aria-hidden')
+    };
+
+    report.svgIssues.push(svgIssue);
+  });
+
+  // Check form inputs
+  const inputs = document.querySelectorAll('input, textarea, select');
+  inputs.forEach((input, index) => {
+    const formIssue = {
+      selector: input.id || `input-${index + 1}`,
+      missingLabel: !input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby') && !input.closest('label'),
+      required: input.hasAttribute('required') && !input.hasAttribute('aria-required')
+    };
+
+    report.formIssues.push(formIssue);
+  });
+
+  return report;
 }
 
 // Export existing functionality and new functions
@@ -943,7 +1129,9 @@ export {
   validateTableAccessibility,
   validateTableStructure,
   generateAccessibilityReport,
-  createUnrotateButton
+  createUnrotateButton,
+  addressAccessibilityInsights,
+  generateInsightReport
 };
 
 // Add back any required exports that might have been missing
@@ -965,6 +1153,8 @@ export default {
   getConfig,
   getVersion,
   addressAccessibilityIssues,
+  addressAccessibilityInsights,
+  generateInsightReport,
   root,
   validateTableAccessibility,
   validateTableStructure,

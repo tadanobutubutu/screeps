@@ -5,6 +5,14 @@ function divide(a, b) {
   return a / b;
 }
 
+function harvestResources() {
+  // TODO: Implement harvest logic
+}
+
+function upgradeBuilding() {
+  // TODO: Implement upgrade logic
+}
+
 module.exports = {
   addLangAttribute,
   fixTableStructure,
@@ -22,5 +30,7 @@ module.exports = {
   personName,
   divide,
   checkLinkAccessibility,
-  wrapPrimaryContentInMain
+  wrapPrimaryContentInMain,
+  harvestResources,
+  upgradeBuilding
 }

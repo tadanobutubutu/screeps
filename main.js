@@ -805,4 +805,27 @@ export function calculateDiscount(price, discount) {
   return price - (price * discount / 100);
 }
 
+/**
+ * Counts the number of dependencies (imported modules) in this file.
+ * @returns {number} The number of dependencies.
+ */
+function countDependencies() {
+  // List of imported modules
+  const deps = [
+    './utils.js',
+    './components.js',
+    './state.js',
+    './utils/accessibilityUtils',
+    './utils/tableAccessibilityUtils',
+    'react',
+    'react-dom/client',
+    './index.css',
+    './App',
+    './reportWebVitals'
+  ];
+  return deps.length;
+}
+
+export { countDependencies };
+
 export default main;

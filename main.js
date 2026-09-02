@@ -1,5 +1,8 @@
 // main.js - Entry point for the application
 
+// TODO: Any additional changes requested in the issue
+// main.js - Accessibility improvements implementation
+
 // Import required modules
 const utils = require('./utils');
 const axe = require('axe-core');
@@ -36,10 +39,10 @@ function initialize() {
     if (!dependencyGraph.id) {
       dependencyGraph.id = 'dependencyGraph';
     }
-    if (!dependencyGraph.hasAttribute('role')) {
+    if (!dependencyGraph.getAttribute('role')) {
       dependencyGraph.setAttribute('role', 'region');
     }
-    if (!dependencyGraph.hasAttribute('aria-label')) {
+    if (!dependencyGraph.getAttribute('aria-label')) {
       dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
     }
   }
@@ -52,8 +55,9 @@ const initializeApp = () => {
   console.log('Application initialized');
 
   // Ensure the app is accessible
-  const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
+  const mainContent = document.getElementById('main') || document.querySelector('main');
   if (mainContent) {
+    mainContent.setAttribute('role', 'main');
     mainContent.setAttribute('aria-label', 'Main content area');
   }
 
@@ -75,7 +79,7 @@ const initializeApp = () => {
   createInPageButton();
 
   // Add accessible names to 2 SVGs
-  setSvgAccessibleNames('svg1Id', 'svg2Id', ' aria-label for SVG1', ' aria-label for SVG2');
+  setSvgAccessibleNames('svg2Id', ' aria-label for SVG1', ' aria-label for SVG2');
 
   // Ensure unique landmarks (2 issues)
   ensureUniqueLandmarks();
@@ -98,7 +102,7 @@ function isValidLandmark(landmark) {
 
 function loadLandmarks() {
     try {
-        const filePath = path.join(__dirname, config.dataPath, 'landmarks.json');
+        const filePath = path.join(config.dataPath, 'landmarks.json');
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
@@ -130,7 +134,7 @@ function sortLandmarks(landmarks, ascending = true) {
     });
 }
 
-function getLandmarkById(landmarks, id) {
+function getLandmarkById(id) {
     return landmarks.find(landmark => landmark.id === id) || null;
 }
 
@@ -150,18 +154,102 @@ function ensureUniqueLandmarks(landmarks) {
 
 function addressAccessibilityIssues() {
     // Address accessibility issues
+    const focusableElements = document.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    
+    if (focusableElements.length > 0 && !focusableElements[0].classList.contains('skip-link')) {
+        const skipLink = document.createElement('a');
+        skipLink.href = '#main-content';
+        skipLink.className = 'skip-link';
+        skipLink.textContent = 'Skip to main content';
+        skipLink.style.position = 'absolute';
+        skipLink.style.top = '-40px';
+        skipLink.style.left = '0';
+        skipLink.style.background = '#000';
+        skipLink.style.color = '#fff';
+        skipLink.style.padding = '8px 16px';
+        skipLink.style.zIndex = '10000';
+        skipLink.style.transition = 'top 0.3s';
+        
+        skipLink.addEventListener('focus', () => {
+            skipLink.style.top = '0';
+        });
+        
+        skipLink.addEventListener('blur', () => {
+            skipLink.style.top = '-40px';
+        });
+        
+        document.body.insertBefore(skipLink, document.body.firstChild);
+    }
 }
 
 function createInPageButton() {
     // Create the in-page button
+    const button = document.createElement('button');
+    button.id = 'inPageButton';
+    button.setAttribute('type', 'button');
+    button.setAttribute('aria-label', 'Navigate back to top');
+    button.textContent = '↑ Back to Top';
+    button.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:10px 20px;cursor:pointer;';
+    
+    button.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        button.setAttribute('aria-label', 'Scrolled back to top');
+    });
+    
+    const mainElement = document.querySelector('main') || document.getElementById('main');
+    if (mainElement) {
+        mainElement.appendChild(button);
+    }
 }
 
-function setSvgAccessibleNames(id1, id2, label1, label2) {
+function setSvgAccessibleNames(id2, label1, label2) {
     // Add accessible names to 2 SVGs
+    const svg1 = document.getElementById(id2);
+    if (svg1) {
+        if (!svg1.getAttribute('aria-label')) {
+            svg1.setAttribute('aria-label', label1);
+        }
+        if (!svg1.getAttribute('role')) {
+            svg1.setAttribute('role', 'img');
+        }
+    }
+    
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach((svg, index) => {
+        if (index === 0 && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+            svg.setAttribute('aria-label', label1);
+            svg.setAttribute('role', 'img');
+        } else if (index === 1 && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+            svg.setAttribute('aria-label', label2);
+            svg.setAttribute('role', 'img');
+        }
+    });
 }
 
 function fixFakeLink() {
     // Fix 1 fake link issue
+    const fakeLinks = document.querySelectorAll('[data-href], [href="#"], .fake-link:not(a)');
+    fakeLinks.forEach(element => {
+        if (element.tagName !== 'A') {
+            const href = element.getAttribute('data-href');
+            if (href && href !== '#') {
+                element.setAttribute('role', 'link');
+                element.setAttribute('tabindex', '0');
+                
+                element.addEventListener('click', () => {
+                    window.location.href = href;
+                });
+                
+                element.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        window.location.href = href;
+                    }
+                });
+            }
+        }
+    });
 }
 
 // Accessibility scanning function using axe-core library
@@ -169,7 +257,7 @@ async function scanAccessibility(filePaths) {
   const issues = [];
 
   for (const filePath of filePaths) {
-    const fileEmitted = path.join(process.cwd(), filePath);
+    const fileEmitted = fs.readFileSync(filePath, 'utf8');
     const { violations } = await axe.analyze(fileEmitted);
 
     if (violations.length > 0) {
@@ -200,7 +288,7 @@ function generateAccessibilityReport(issuesData) {
 
 // Function to write the generated report to a file
 function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
+  const reportFile = path.join(__dirname, 'accessibility-report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 

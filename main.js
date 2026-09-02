@@ -422,3 +422,17 @@ module.exports = {
 if (require.main === module) {
   main();
 }
+
+// Function to validate and sanitize user input
+function validateInput(input) {
+    if (input === null || input === undefined) {
+        throw new Error('Input cannot be null or undefined');
+    }
+    if (typeof input !== 'string' && typeof input !== 'number') {
+        throw new Error('Input must be a string or number');
+    }
+    if (typeof input === 'string' && input.length > 1000) {
+        throw new Error('Input string exceeds maximum length');
+    }
+    return true;
+}

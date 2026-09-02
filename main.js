@@ -43,7 +43,7 @@ const accessibilityUtils = {
     const firstElement = focusableElements[0]
     const lastElement = focusableElements[focusableElements.length - 1]
 
-    element.addEventListener('keydown', (e) => {
+    const keydownHandler = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
           lastElement.focus()
@@ -53,9 +53,10 @@ const accessibilityUtils = {
           e.preventDefault()
         }
       }
-    })
+    }
 
-    firstElement.focus()
+    element.addEventListener('keydown', keydownHandler)
+    return keydownHandler
   },
 
   /**
@@ -76,7 +77,7 @@ const accessibilityUtils = {
     const firstElement = focusableElements[0]
     const lastElement = focusableElements[focusableElements.length - 1]
 
-    element.addEventListener('keydown', (e) => {
+    const keydownHandler = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
           lastElement.focus()
@@ -86,9 +87,10 @@ const accessibilityUtils = {
           e.preventDefault()
         }
       }
-    })
+    }
 
-    firstElement.focus()
+    element.addEventListener('keydown', keydownHandler)
+    return keydownHandler
   },
 
   /**
@@ -99,7 +101,7 @@ const accessibilityUtils = {
   initAccessibility () {
     // Add keyboard support for all interactive elements and data-accessible elements
     document
-      .querySelectorAll('button, a, [role="button"], [data-accessible]')
+      .querySelectorAll('a, button, [role="button"], [data-accessible]')
       .forEach((element) => {
         element.setAttribute('tabindex', '0')
         element.addEventListener('keydown', (e) => {
@@ -147,8 +149,8 @@ const accessibilityUtils = {
     document.body.appendChild(a)
     a.click()
     setTimeout(() => {
-      document.body.removeChild(a)
       URL.revokeObjectURL(url)
+      document.body.removeChild(a)
       this.announceToScreenReader(`Download of ${filename} started`)
     }, 100)
   },
@@ -165,8 +167,8 @@ const accessibilityUtils = {
     }
 
     // Validate skip links
-    document.querySelectorAll('a[href^="#"]').forEach((link) => {
-      const target = link.getAttribute('href').substring(1)
+    document.querySelectorAll('.skip-link[href]').forEach((link) => {
+      const target = link.getAttribute('href').replace('#', '')
       const element = document.getElementById(target)
       if (!element) {
         console.warn(`Skip link points to non-existent element: ${target}`)
@@ -184,7 +186,7 @@ const accessibilityUtils = {
       const rows = table.querySelectorAll('tr')
       const cellCounts = new Set()
       rows.forEach((row) => {
-        cellCounts.add(row.children.length)
+        cellCounts.add(row.cells.length)
       })
       if (cellCounts.size > 1) {
         console.warn('Inconsistent number of cells across table rows')
@@ -193,9 +195,11 @@ const accessibilityUtils = {
     })
 
     // Validate images
-    document.querySelectorAll('img:not([alt])').forEach((img) => {
-      console.warn('Image missing alt attribute', img)
-      fixes.images++
+    document.querySelectorAll('img').forEach((img) => {
+      if (!img.hasAttribute('alt')) {
+        console.warn('Image missing alt attribute', img)
+        fixes.images++
+      }
     })
 
     console.log('Accessibility issues addressed', fixes)
@@ -280,7 +284,7 @@ function renderDependencyGraphs (container, dependencies, options = {}) {
   addAriaLabel(container, `Dependency graph: ${containerId}`)
 
   // Render logic placeholder
-  container.innerHTML = `<div id="${containerId}">Graph not implemented</div>`
+  container.innerHTML = `<div>Dependency graph visualization not implemented</div>`
 
   return container
 }
@@ -310,151 +314,4 @@ function validateTableStructure () {
     const headers = table.querySelectorAll('th')
     if (headers.length === 0) {
       issues.push({ tableIndex: index, issue: 'No header cells found' })
-    } else {
-      headers.forEach((th) => {
-        if (!th.hasAttribute('scope')) {
-          issues.push({
-            tableIndex: index,
-            issue: 'Header cell missing scope attribute',
-            element: th
-          })
-        }
-      })
-    }
-
-    // Check for consistent row cell counts
-    const rows = table.querySelectorAll('tr')
-    const cellCounts = new Set()
-    rows.forEach((row) => {
-      cellCounts.add(row.children.length)
-    })
-    if (cellCounts.size > 1) {
-      issues.push({ tableIndex: index, issue: 'Inconsistent number of cells across rows' })
-    }
-
-    // Ensure data cells have proper headers (simple check)
-    const firstRow = rows[0]
-    if (firstRow) {
-      rows.forEach((row, rowIndex) => {
-        if (rowIndex === 0) return // skip header row
-        const cells = row.querySelectorAll('td')
-        cells.forEach((td) => {
-          // For simplicity, just check if the table has headers and the cell has a colspan/rowspan that may cause confusion
-          if (td.hasAttribute('colspan') || td.hasAttribute('rowspan')) {
-            issues.push({
-              tableIndex: index,
-              issue: `Data cell at row ${rowIndex} has colspan/rowspan`,
-              element: td
-            })
-          }
-        })
-      })
-    }
-  })
-
-  if (issues.length > 0) {
-    console.warn('Table accessibility issues found:', issues)
-    return false
-  }
-
-  console.log('All tables passed accessibility checks.')
-  return true
-}
-
-/**
- * Validates the structure of tables on the page for accessibility best practices.
- * This is a more comprehensive version of validateTableStructure that includes additional checks.
- *
- * @returns {boolean} True if all tables pass checks, otherwise false.
- */
-function validateTableStructureComprehensive () {
-  const tables = document.querySelectorAll('table')
-  const issues = []
-
-  tables.forEach((table, tableIndex) => {
-    // Check if table has a caption
-    const caption = table.querySelector('caption')
-    if (!caption) {
-      issues.push({ tableIndex, issue: 'Missing caption' })
-    }
-
-    // Check for headers
-    const headers = table.querySelectorAll('th')
-    if (headers.length === 0) {
-      issues.push({ tableIndex, issue: 'No header cells found' })
-    } else {
-      // Check header scope attributes
-      headers.forEach((th, headerIndex) => {
-        if (!th.hasAttribute('scope')) {
-          issues.push({
-            tableIndex,
-            issue: `Header cell at index ${headerIndex} missing scope attribute`,
-            element: th
-          })
-        }
-      })
-    }
-
-    // Check row consistency
-    const rows = table.querySelectorAll('tr')
-    const cellCounts = new Set()
-    rows.forEach((row) => {
-      cellCounts.add(row.children.length)
-    })
-
-    if (cellCounts.size > 1) {
-      issues.push({
-        tableIndex,
-        issue: 'Inconsistent number of cells across rows',
-        details: `Found ${cellCounts.size} different cell counts`
-      })
-    }
-
-    // Check for complex table structures
-    const complexCells = table.querySelectorAll('td[colspan], td[rowspan]')
-    if (complexCells.length > 0) {
-      complexCells.forEach((cell, cellIndex) => {
-        issues.push({
-          tableIndex,
-          issue: 'Complex table structure detected',
-          details: `Cell at index ${cellIndex} has colspan/rowspan`,
-          element: cell
-        })
-      })
-    }
-
-    // Check for missing summary (deprecated but still sometimes used)
-    if (table.hasAttribute('summary')) {
-      issues.push({
-        tableIndex,
-        issue: 'Deprecated summary attribute used',
-        details: 'Use caption instead'
-      })
-    }
-  })
-
-  if (issues.length > 0) {
-    console.warn('Comprehensive table accessibility issues found:', issues)
-    return false
-  }
-
-  console.log('All tables passed comprehensive accessibility checks.')
-  return true
-}
-
-// Export functions for use in other modules
-module.exports = {
-  initSkipLink: accessibilityUtils.initSkipLink,
-  trapFocus: accessibilityUtils.trapFocus,
-  newFocusTrap: accessibilityUtils.newFocusTrap,
-  initAccessibility: accessibilityUtils.initAccessibility,
-  announceToScreenReader: accessibilityUtils.announceToScreenReader,
-  handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
-  exportData: accessibilityUtils.exportData,
-  addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  validateTableStructure,
-  validateTableStructureComprehensive
-}
+    } else

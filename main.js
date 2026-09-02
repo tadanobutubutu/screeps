@@ -226,6 +226,13 @@ function calculateComplexity(moduleData) {
   return moduleData.dependencies ? moduleData.dependencies.length : 0;
 }
 
+// New rendering function
+function renderGraphIndex(content, options = {}) {
+  // Implementation for rendering the index with the given content and options
+  // Call the indexContent function from the imported module
+  return indexContent(content, options)
+}
+
 function renderDependencyGraph(deps, options = {}) {
   // Use dependencyGraphContent from the imported module
   const graphContent = dependencyGraphContent(deps, options)

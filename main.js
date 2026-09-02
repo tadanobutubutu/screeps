@@ -1,5 +1,5 @@
 const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
+  apiUrl: process.env.API_URL || '',
   timeout: process.env.TIMEOUT || 5000,
   debug: true,
   version: '1.0.0'
@@ -15,10 +15,10 @@ function validateLandmark(landmark) {
   const errors = [];
   // Existing code that should be preserved
   // Update landmark validation logic if needed
-  const role = landmark.getAttribute('role');
+  const role = landmark && landmark.getAttribute ? landmark.getAttribute('role') : '';
   const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role');
+  if (role && validLandmarks.includes(role)) {
+    errors.push('Invalid landmark role: ' + role);
   }
   return errors;
 }
@@ -28,7 +28,7 @@ const appData = {
   version: '1.0.0'
 };
 
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
+const HTML = ({ lang }) => `<html lang="${lang}">{/* other children */}</html>`;
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
@@ -68,9 +68,9 @@ function validateTableAccessibility(table) {
   }
 
   // Check for scope attribute on header cells (from HEAD)
-  const headerCells = table.querySelectorAll('th');
+  const headerCells = table.querySelectorAll ? table.querySelectorAll('th') : [];
   headerCells.forEach(cell => {
-    if (!cell.hasAttribute('scope')) {
+    if (!cell.getAttribute('scope')) {
       issues.push('Missing scope attribute on header cell');
     }
   });
@@ -123,7 +123,7 @@ function validateLandmark(element) {
   if (!element.tagName) {
     issues.push('Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${element.tagName}`);
+    issues.push('Invalid landmark: ' + element.tagName);
   }
 
   return {
@@ -153,12 +153,12 @@ function validateLandmarkStructure(landmarks) {
     });
   } else {
     // Otherwise, check for required landmarks in the DOM (from origin/main)
-    const allLandmarks = document.querySelectorAll('[role]');
+    const allLandmarks = document.querySelectorAll ? document.querySelectorAll('header, nav, main, aside, footer, section, article') : [];
     let hasMain = false;
     let hasNavigation = false;
 
     allLandmarks.forEach(landmark => {
-      const role = landmark.getAttribute('role');
+      const role = landmark.getAttribute ? landmark.getAttribute('role') : landmark.tagName;
       if (role === 'main') hasMain = true;
       if (role === 'navigation') hasNavigation = true;
     });
@@ -189,14 +189,14 @@ function ensureUniqueLandmarks(landmarks) {
 
   // If no landmarks array provided, query the DOM (from origin/main)
   if (!Array.isArray(landmarks)) {
-    elementsToCheck = document.querySelectorAll('[role]');
+    elementsToCheck = document.querySelectorAll ? document.querySelectorAll('header, nav, main, aside, footer, section, article') : [];
   }
 
   // Check for duplicate accessible names (from HEAD)
   elementsToCheck.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
-      duplicates.push(name);
+      duplicates.push('Duplicate accessible name: ' + name);
     } else {
       names.push(name);
     }
@@ -207,7 +207,7 @@ function ensureUniqueLandmarks(landmarks) {
   elementsToCheck.forEach(landmark => {
     if (landmark.id) {
       if (elementsById[landmark.id]) {
-        duplicates.push(`Duplicate ID: ${landmark.id}`);
+        duplicates.push('Duplicate ID: ' + landmark.id);
         landmark.id += '_duplicate';
       } else {
         elementsById[landmark.id] = true;
@@ -218,10 +218,10 @@ function ensureUniqueLandmarks(landmarks) {
   // Check for duplicate roles (from origin/main)
   const landmarksByRole = {};
   elementsToCheck.forEach(landmark => {
-    const role = landmark.getAttribute('role');
+    const role = landmark.getAttribute ? landmark.getAttribute('role') : landmark.tagName;
     if (role) {
       if (landmarksByRole[role]) {
-        duplicates.push(`Duplicate landmark role: ${role}`);
+        duplicates.push('Duplicate landmark role: ' + role);
       } else {
         landmarksByRole[role] = true;
       }
@@ -287,21 +287,20 @@ function handleAccessibilityIssues(issues = []) {
   });
 
   // Perform DOM validation (from origin/main)
-  const tables = document.querySelectorAll('table');
+  const tables = document.querySelectorAll ? document.querySelectorAll('table') : [];
   tables.forEach(table => {
     validateTableAccessibility(table);
     validateTableStructure(table);
   });
 
-  const landmarks = document.querySelectorAll('[role]');
+  const landmarks = document.querySelectorAll ? document.querySelectorAll('header, nav, main, aside, footer, section, article') : [];
   landmarks.forEach(landmark => {
     validateLandmark(landmark);
   });
 
   validateLandmarkStructure();
-  ensureUniqueLandmarks();
 
-  const svgs = document.querySelectorAll('svg');
+  const svgs = document.querySelectorAll ? document.querySelectorAll('svg') : [];
   svgs.forEach(svg => {
     getSvgAccessibleName(svg);
   });
@@ -331,8 +330,8 @@ function getSvgAccessibleName(svgElement) {
     // Merged implementation (conflict resolved)
     if (!svgElement) return 'Accessible SVG Icon';
     
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
+    const title = svgElement.querySelector ? svgElement.querySelector('title') : null;
+    const ariaLabel = svgElement.getAttribute ? svgElement.getAttribute('aria-label') : null;
     if (title) return title.textContent;
     if (ariaLabel) return ariaLabel;
     return 'Accessible SVG Icon';

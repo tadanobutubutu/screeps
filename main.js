@@ -148,7 +148,19 @@ function extractSvgAccessibleName(svgContent) {
 }
 
 function addressAccessibilityIssues() {
-  // Your implementation here
+  if (typeof document === 'undefined') return;
+  
+  try {
+    fixTableStructureIssues();
+    fixTableHeaderCellScope();
+    addMainLandmark();
+    addSvgAccessibleNames();
+    fixFakeLinks();
+    ensureUniqueLandmarks();
+    addLandmarkRoles();
+  } catch (error) {
+    console.error('Error addressing accessibility issues:', error);
+  }
 }
 
 function importAndExecute(modulePath, functionName, callback) {
@@ -171,12 +183,13 @@ function ensureUniqueLandmarksLocal(landmarks) {
     if (!landmark || typeof landmark.id === 'undefined') {
       continue;
     }
-    return element;
+    if (!seen.has(landmark.id)) {
+      seen.add(landmark.id);
+      uniqueLandmarks.push(landmark);
+    }
+  }
+  return uniqueLandmarks;
 }
-
-// TODO: Address accessibility issues from insight report:
-
-// New code or changes requested in the issue
 
 /**
  * Ensures an element has an ID attribute

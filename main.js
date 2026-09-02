@@ -549,6 +549,31 @@ function newFocusTrap(container) {
   return { activate, deactivate, toggle };
 }
 
+function getLangAttribute() {
+  return 'en';
+}
+
+function personName(element, name) {
+  if (!element) return name || '';
+  if (name) {
+    element.setAttribute('aria-label', name);
+  }
+  if (element.getAttribute('role') === 'link' && !element.hasAttribute('href')) {
+    element.setAttribute('tabindex', '0');
+  }
+  return name || (element ? element.textContent.trim() : '');
+}
+
+function createInPageButton(text, action) {
+  const btn = document.createElement('button');
+  btn.textContent = text || 'In-page button';
+  btn.setAttribute('type', 'button');
+  if (typeof action === 'function') {
+    btn.onclick = action;
+  }
+  return btn;
+}
+
 /* Common utility functions */
 function add(a, b) {
   return a + b;
@@ -680,6 +705,9 @@ if (typeof module !== 'undefined' && module.exports) {
     renderDependencyGraph,
     generateAccessibilityReport,
     newFocusTrap,
+    getLangAttribute,
+    personName,
+    createInPageButton,
     loop,
     add,
     subtract,

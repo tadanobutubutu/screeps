@@ -58,4 +58,35 @@ function renderDependencyGraphs() {
   return [];
 }
 
+/**
+ * Handles focus trapping for keyboard navigation within a container.
+ * @param {HTMLElement} container - The container element where focus should be trapped.
+ */
+function handleFocusTrap(container) {
+  if (!container) return;
+
+  const focusableElements = container.querySelectorAll(
+    'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable]'
+  );
+  
+  const firstFocusableElement = focusableElements[0];
+  const lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+  container.addEventListener('keydown', function(event) {
+    if (event.key !== 'Tab') return;
+
+    if (event.shiftKey) {
+      if (document.activeElement === firstFocusableElement) {
+        event.preventDefault();
+        lastFocusableElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastFocusableElement) {
+        event.preventDefault();
+        firstFocusableElement.focus();
+      }
+    }
+  });
+}
+
 // ... (other functions and comments preserved)

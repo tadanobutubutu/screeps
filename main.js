@@ -942,7 +942,18 @@ if (typeof module !== 'undefined' && module.exports) {
     getLangAttribute,
     checkAccessibilityIssues,
     triggerEvent,
-    newFunction
+    newFunction,
+    scanRoom,
+    getPlayers,
+    getPlayerInfo,
+    getStructures,
+    assignTask,
+    getTasks,
+    runCommand,
+    renderDependencyGraph,
+    renderIndexView,
+    initializeGameData,
+    main
   };
 } else if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {

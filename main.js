@@ -225,6 +225,82 @@ function ensureUniqueLandmarks(landmarks) {
   };
 }
 
+/**
+ * Implements comprehensive validation logic for the application.
+ * Validates inputs, configuration, and data integrity.
+ * @param {*} value - The value to validate
+ * @param {Object} options - Validation options
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function performValidation(value, options = {}) {
+  const issues = [];
+
+  // Check for null/undefined
+  if (value === null || value === undefined) {
+    issues.push('Value is null or undefined');
+    return {
+      success: false,
+      issues
+    };
+  }
+
+  // Validate type
+  if (options.type) {
+    const actualType = Array.isArray(value) ? 'array' : typeof value;
+    if (actualType !== options.type) {
+      issues.push(`Expected type ${options.type}, got ${actualType}`);
+    }
+  }
+
+  // Validate required properties for objects
+  if (options.required && typeof value === 'object' && !Array.isArray(value)) {
+    options.required.forEach(prop => {
+      if (!(prop in value)) {
+        issues.push(`Missing required property: ${prop}`);
+      }
+    });
+  }
+
+  // Validate min/max for numbers
+  if (typeof value === 'number') {
+    if (options.min !== undefined && value < options.min) {
+      issues.push(`Value ${value} is less than minimum ${options.min}`);
+    }
+    if (options.max !== undefined && value > options.max) {
+      issues.push(`Value ${value} is greater than maximum ${options.max}`);
+    }
+  }
+
+  // Validate min/max length for strings/arrays
+  if (typeof value === 'string' || Array.isArray(value)) {
+    if (options.minLength !== undefined && value.length < options.minLength) {
+      issues.push(`Length ${value.length} is less than minimum ${options.minLength}`);
+    }
+    if (options.maxLength !== undefined && value.length > options.maxLength) {
+      issues.push(`Length ${value.length} is greater than maximum ${options.maxLength}`);
+    }
+  }
+
+  // Validate against pattern (regex)
+  if (options.pattern && typeof value === 'string') {
+    if (!options.pattern.test(value)) {
+      issues.push('Value does not match expected pattern');
+    }
+  }
+
+  // Validate enum values
+  if (options.enum && Array.isArray(options.enum)) {
+    if (!options.enum.includes(value)) {
+      issues.push(`Value must be one of: ${options.enum.join(', ')}`);
+    }
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
 function initializeApp() {
   appState.initialized = true;
   console.log('Initializing application...');
@@ -630,7 +706,6 @@ function fixButtonIdentifiers() {
   };
 }
 
-// TODO: Implement createResourceButton
 function createResourceButton(resourceName, onClick) {
     const button = document.createElement('button');
     button.textContent = resourceName;
@@ -667,5 +742,6 @@ module.exports = {
   fixSvgAccessibleNames,
   addSvgAccessibilityProps,
   fixButtonIdentifiers,
-  createResourceButton
+  createResourceButton,
+  performValidation
 };

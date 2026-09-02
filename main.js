@@ -140,7 +140,7 @@ function getSvgAccessibleName(svgElement) {
     return desc.textContent;
   }
 
-  return svgElement.getAttribute('aria-label') || '';
+  return '';
 }
 
 function validateTableAccessibility(tableElement) {
@@ -408,109 +408,4 @@ function wrapPrimaryContentInMain() {
 }
 
 function addLangAttribute() {
-  if (document && document.documentElement) {
-    if (!document.documentElement.getAttribute('lang')) {
-      document.documentElement.setAttribute('lang', getLangAttribute());
-    }
-  }
-}
-
-async function renderFunction1() {
-  await accessiblyHelper();
-
-  function wrapPrimaryContentInMain() {
-    if (document.body.firstChild) {
-      const wrapper = document.createElement('main');
-      wrapper.innerHTML = document.body.firstChild.outerHTML;
-      document.body.replaceChild(wrapper, document.body.firstChild);
-    }
-  }
-}
-
-function renderFunction2() {
-  // ... (Rest of renderFunction2 implementation)
-}
-
-function getUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    const elements = Array.from(document.querySelectorAll(CONFIG.landmarkRoles.join(',')));
-    const landmarkIds = elements.map(el => el.id || el.getAttribute('aria-labelledby'));
-    const uniqueIds = new Set(landmarkIds);
-
-    elements.forEach((element, index) => {
-      if (!element.id) {
-        element.id = `landmark-${index}`;
-      }
-    });
-    return elements;
-  }
-
-  const seen = new Set();
-  const uniqueLandmarks = [];
-
-  for (const landmark of landmarks) {
-    if (!landmark || typeof landmark.id === 'undefined') {
-      continue;
-    }
-
-    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-    if (!seen.has(landmarkId)) {
-      seen.add(landmarkId);
-      uniqueLandmarks.push(landmark);
-    }
-  }
-
-  return uniqueLandmarks;
-}
-
-// Import other required functions and use them as needed
-const {
-  fixTableStructure,
-  fixLandmarks,
-  checkLandmarkElements,
-  addSvgAccessibleNames: addSvgAccessibleNamesAlt,
-  fixFakeLinks: fixFakeLinksAlt,
-  replaceButtonIds,
-  ensureDependencyGraphAriaRole,
-  calculateSum,
-  addProperLandmarkRegions,
-  loadLandmarks: loadLandmarksFromHelper,
-  processLandmarks: processLandmarksFromHelper
-} = require('./accessibly-helper');
-
-module.exports = {
-  initialize,
-  getUniqueLandmarks,
-  getSvgAccessibleName,
-  validateTableAccessibility,
-  validateTableStructure,
-  scanAccessibility,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  validateLandmark,
-  validateLandmarkStructure,
-  loadLandmarks,
-  processLandmarks,
-  ensureUniqueLandmarks,
-  checkLandmarkElement,
-  validateLandmarkObject,
-  addSvgAccessibilityProps,
-  getSvgAccessibilityProps,
-  getAccessibleLinkProps,
-  getLangAttribute,
-  createInPageButton,
-  wrapPrimaryContentInMain,
-  addLangAttribute,
-  CONFIG,
-  appState,
-  addBookAccessible,
-  visualizeDependencyTree,
-  generateDependencyReport,
-  fixAccessibilityIssues,
-  addBook,
-  createAccessibleInput,
-  checkLinkAccessibility,
-  renderFunction1,
-  renderFunction2
-};
+  if (document && document.document

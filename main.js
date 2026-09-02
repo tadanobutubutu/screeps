@@ -143,27 +143,6 @@ accessibilityUtils.trapFocus = (element) => {
   };
 };
 
-// Credential response handling
-async function handleCredentialResponse(response) {
-  if (!response) {
-    throw new Error('No response received');
-  }
-
-  if (response.error) {
-    throw new Error(response.error);
-  }
-
-  if (response.token) {
-    return {
-      success: true,
-      token: response.token,
-      expiresIn: response.expiresIn || 3600
-    };
-  }
-
-  throw new Error('Invalid credential response');
-}
-
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
@@ -274,6 +253,59 @@ function groupByCategory(items, getCategory) {
   }, {});
 }
 
+// TODO: Implement harvest and upgrade logic
+
+function harvestEnergy(creep) {
+  if (!creep || !creep.store) {
+    return false;
+  }
+
+  if (creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+    return false;
+  }
+
+  const sources = creep.room.find(FIND_SOURCES);
+  if (sources.length === 0) {
+    return false;
+  }
+
+  const source = creep.pos.findClosestByPath(sources);
+  if (!source) {
+    return false;
+  }
+
+  const harvestResult = creep.harvest(source);
+  if (harvestResult === ERR_NOT_IN_RANGE) {
+    creep.moveTo(source);
+    return false;
+  }
+
+  return harvestResult === OK;
+}
+
+function upgradeController(creep) {
+  if (!creep || !creep.store) {
+    return false;
+  }
+
+  if (creep.store[RESOURCE_ENERGY] === 0) {
+    return false;
+  }
+
+  const controller = creep.room.controller;
+  if (!controller) {
+    return false;
+  }
+
+  const upgradeResult = creep.upgradeController(controller);
+  if (upgradeResult === ERR_NOT_IN_RANGE) {
+    creep.moveTo(controller);
+    return false;
+  }
+
+  return upgradeResult === OK;
+}
+
 module.exports = {
   ...main,
   ...accessibilityUtils,
@@ -295,5 +327,7 @@ module.exports = {
   readFileSafe,
   processData,
   filterValidItems,
-  exportUtilities
+  exportUtilities,
+  harvestEnergy,
+  upgradeController
 };

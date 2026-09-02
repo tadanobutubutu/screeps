@@ -1,4 +1,5 @@
-/** TODO: Implement function for addressing accessibility issues from insight report */
+// TODO: This is the modified and merged code
+// This is the existing code that needs to be preserved in main.js
 function addressAccessibilityIssues(insightReport) {
     const accessibilityIssues = insightReport.accessibility || [];
     const addressedIssues = [];

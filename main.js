@@ -29,6 +29,64 @@ function addSvgAccessibilityProps() {
   });
 }
 
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) {
+    return null;
+  }
+
+  // Check for aria-label attribute
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim() !== '') {
+    return ariaLabel.trim();
+  }
+
+  // Check for aria-labelledby reference
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const referencedElement = document.getElementById(ariaLabelledby);
+    if (referencedElement && referencedElement.textContent) {
+      return referencedElement.textContent.trim();
+    }
+  }
+
+  // Check for title element within SVG
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent.trim();
+  }
+
+  // Check for data-name attribute as fallback
+  const dataName = svgElement.getAttribute('data-name');
+  if (dataName && dataName.trim() !== '') {
+    return dataName.trim();
+  }
+
+  return null;
+}
+
+function setSvgAttributes(svgElement) {
+  if (!svgElement) {
+    return;
+  }
+
+  // Ensure SVG has proper namespace attributes if missing
+  if (!svgElement.hasAttribute('xmlns')) {
+    svgElement.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  }
+
+  // Add focusable attribute for keyboard navigation
+  if (!svgElement.hasAttribute('focusable')) {
+    svgElement.setAttribute('focusable', 'false');
+  }
+
+  // Remove tabindex if it's set to -1 and element should be interactive
+  const role = svgElement.getAttribute('role');
+  const interactiveRoles = ['button', 'link', 'menuitem', 'checkbox', 'radio', 'switch', 'tab'];
+  if (role && interactiveRoles.includes(role) && svgElement.getAttribute('tabindex') === '-1') {
+    svgElement.setAttribute('tabindex', '0');
+  }
+}
+
 function checkTableStructure(table) {
   if (!table) {
     return { valid: false, error: 'Table element is required' };

@@ -17,11 +17,8 @@ import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { setDependencyGraph } from './actions/dependencyGraph';
 import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
-import fs from 'fs';
 import fastMap from 'fast-map';
-import path from 'path';
 import accessiblyHelper from './accessibly-helper';
-import { axe } from 'axe-core';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import './styles.css';
@@ -167,13 +164,9 @@ export const newExportedFunction = () => {
 ensureAccessibilityAttributesForAddBook();
 
 // Find the primary content element in the DOM
-const primaryContent = document.querySelector('.primary-content') ||
+let primaryContent = document.querySelector('.primary-content') ||
                         document.querySelector('[role="main"]') ||
                         document.getElementById('main-content') ||
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
-// ----- END ORIGINAL CODE -----
                         document.querySelector('#content');
 
 // Function to wrap primary content in a <main> element
@@ -225,6 +218,43 @@ function getUniqueLandmarks(landmarks) {
   }
 
   return uniqueLandmarks;
+}
+
+/**
+ * Function to address accessibility issues from insight report.
+ * Handles various accessibility issues including language attributes,
+ * table structures, landmarks, SVG accessibility, fake links, and landmark regions.
+ */
+function addressInsightIssues() {
+  // REACT_015: Add lang attribute to HTML element
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.lang) {
+    const langAttribute = getLangAttribute();
+    if (langAttribute) {
+      htmlElement.setAttribute('lang', langAttribute);
+    }
+  }
+
+  // REACT_027: Fix table structure issues
+  validateTableAccessibility();
+  validateTableStructure();
+
+  // REACT_017: Add/fix landmark issues and ensure unique landmarks
+  validateLandmark(landmarks);
+  validateLandmarkStructure(landmarks);
+  ensureUniqueLandmarks(landmarks);
+
+  // REACT_041: Add accessible names to SVGs
+  getSvgAccessibleName();
+  setSvgAttributes();
+
+  // REACT_025: Ensure unique landmarks (already handled by ensureUniqueLandmarks)
+
+  // REACT_036: Fix fake link issue
+  handleFakeLinks();
+
+  // REACT_037: Add proper landmark regions
+  addProperLandmarkRegions();
 }
 
 function getSvgAccessibleName(svgElement) {
@@ -491,6 +521,17 @@ function getAccessibleLinkProps(href, label) {
   };
 }
 
+// Function to add proper landmark regions
+function addProperLandmarkRegions() {
+  // Implementation for adding proper landmark regions
+  const mainLandmarks = document.querySelectorAll('main');
+  mainLandmarks.forEach(landmark => {
+    if (!landmark.hasAttribute('role')) {
+      landmark.setAttribute('role', 'main');
+    }
+  });
+}
+
 function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
@@ -529,8 +570,41 @@ function renderFunction2() {
   // ...
 }
 
-module.exports = {
-  initialize,
+// Exporting module objects
+export {
+  wrapPrimaryContentInMain,
+  initializeApp,
+  handleUserInteraction,
+  cleanup,
+  initApp,
+  processData,
+  fetchUser,
+  clearCache,
+  VisualizeDependencyTree,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  landmarkStructureCheck,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  isSecureContext,
+  landmarks,
+  appData,
+  icons,
+  validateLandmark,
+  ensureFocusableElements,
+  renderDependencyGraphContent,
+  ensureLandmarkUniqueness,
+  validateSvgAccessibility,
+  processUniqueElements,
+  addressInsightIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  addProperLandmarkRegions,
+  countDependencies,
+  createInPageButton,
+  primaryContent,
   getUniqueLandmarks,
   getSvgAccessibleName,
   validateTableAccessibility,

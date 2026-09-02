@@ -63,3 +63,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// New function to handle form validation and accessibility improvements
+function validateForm() {
+  const title = document.getElementById('title').value;
+  const author = document.getElementById('author').value;
+  const isbn = document.getElementById('isbn').value;
+
+  if (!title || !author || !isbn) {
+    alert('Please fill in all fields');
+    return false;
+  }
+
+  return true;
+}
+
+// Add event listener for form validation on input fields
+document.addEventListener('DOMContentLoaded', () => {
+  const titleInput = document.getElementById('title');
+  const authorInput = document.getElementById('author');
+  const isbnInput = document.getElementById('isbn');
+
+  if (titleInput) {
+    titleInput.addEventListener('input', validateForm);
+  }
+  if (authorInput) {
+    authorInput.addEventListener('input', validateForm);
+  }
+  if (isbnInput) {
+    isbnInput.addEventListener('input', validateForm);
+  }
+});

@@ -86,10 +86,18 @@ function writeReport(report) {
 
 // TODO: Implement function for generating a report based on accessibility issues
 // Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-    const report = scanAccessibility();
+async function generateAccessibilityReport() {
+    const report = await scanAccessibility();
     writeReport(report);
     return report;
+}
+
+async function scanAccessibility() {
+    const axeOptions = {
+        // ... axe-core options ...
+    };
+    const results = await axe.run(axeOptions);
+    return results;
 }
 
 // Utilities
@@ -111,99 +119,13 @@ if (require.main === module) {
     }
 }
 
-async function scanAccessibility() {
-    // Initialize Express app for accessibility scanning
-    const app = express();
-    
-    // Configure app routes for accessibility testing
-    app.get('/', (req, res) => {
-        res.send(`
-            <!DOCTYPE html>
-            <html>
-                <head><title>Accessibility Test</title></head>
-                <body>
-                    <main>
-                        <h1>Test Page</h1>
-                        <nav aria-label="Main navigation">
-                            <a href="/about">About</a>
-                        </nav>
-                    </main>
-                </body>
-            </html>
-        `);
-    });
-
-    app.get('/about', (req, res) => {
-        res.send(`
-            <!DOCTYPE html>
-            <html>
-                <head><title>About</title></head>
-                <body>
-                    <header>
-                        <h1>About Us</h1>
-                    </header>
-                    <main>
-                        <p>Welcome to our accessibility-tested application.</p>
-                        <button id="action-btn">Click me</button>
-                    </main>
-                </body>
-            </html>
-        `);
-    });
-
-    // Scanning and reporting accessibility issues using axe-core
-    const { window } = require('jsdom') || {};
-    const issues = [];
-    
-    // If we have a DOM window, run axe-core scan
-    if (window && typeof axe !== 'undefined') {
-        try {
-            const results = await axe.run(window.document);
-            issues.push(...results.violations.map(v => ({
-                id: v.id,
-                impact: v.impact,
-                description: v.description,
-                help: v.help,
-                helpUrl: v.helpUrl,
-                nodes: v.nodes.length,
-                nodeDetails: v.nodes.slice(0, 5).map(node => ({
-                    html: node.html,
-                    target: node.target,
-                    violations: node.violations
-                }))
-            })));
-        } catch (error) {
-            console.error('Accessibility scan error:', error.message);
-        }
-    }
-
-    const report = {
-        timestamp: new Date().toISOString(),
-        totalViolations: issues.length,
-        violations: issues,
-        summary: {
-            critical: issues.filter(i => i.impact === 'critical').length,
-            serious: issues.filter(i => i.impact === 'serious').length,
-            moderate: issues.filter(i => i.impact === 'moderate').length,
-            minor: issues.filter(i => i.impact === 'minor').length
-        },
-        recommendations: issues.length > 0 
-            ? 'Address all critical and serious accessibility violations before deployment.'
-            : 'No accessibility violations detected. Continue testing with diverse user scenarios.'
-    };
-
-    return report;
-}
-
 module.exports = {
-    validateInput,
-    processData,
-    formatResponse,
-    config: CONFIG,
     generateAccessibilityReport,
+    scanAccessibility,
     loadLandmarks,
     processLandmarks,
     sortLandmarks,
     getLandmarkById,
-    ensureUniqueLandmarks
+    ensureUniqueLandmarks,
+    writeReport
 };

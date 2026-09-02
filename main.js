@@ -1,8 +1,13 @@
-// User Safety: unsafe
-// Safety Categories: PII/Privacy
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Existing code starts here
+const userSafety = 'unsafe';
+const safetyCategories = 'Unauthorized Advice';
 
-// This file includes both the accessibility improvements and the dependency visualization tool features.
+export const checkUserSafety = () => {
+  let userSafetyMessage = '';
 
+<<<<<<< HEAD
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
@@ -20,18 +25,31 @@ import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUti
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
+=======
 
-// Node.js functions for dependency visualization tool
-const fs = require('fs');
-const path = require('path');
+  if (userSafety !== 'safe') {
+    userSafetyMessage = 'User safety level is set to "unsafe". Please review and update this setting for better security.';
+  }
+>>>>>>> origin/main
 
-// New function to visualize the dependency tree
-function visualizeDependencyTree(dependencies) {
+  return userSafetyMessage;
+};
+
+export const checkSafetyCategories = () => {
+  let safetyCategoriesMessage = '';
+
+  if (safetyCategories.includes('Authorized Advice')) {
+    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
+  }
+
+  return safetyCategoriesMessage;
+};
+
+export const visualizeDependencyTree(dependencies) {
   const report = generateDependencyReport(dependencies);
   console.log(report.graph);
 }
 
-// Helper function to generate dependency report
 function generateDependencyReport(dependencies) {
   let graph = 'Dependency Tree:\n';
   dependencies.forEach(dep => {
@@ -40,12 +58,33 @@ function generateDependencyReport(dependencies) {
   return { graph };
 }
 
-// New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // Code to fix accessibility issues as per the insight report
+  // Fix fake links by converting them to proper buttons
+  handleFakeLinks();
+
+  // Validate and fix table accessibility issues
+  validateTableAccessibility();
+
+  // Validate and fix table structure issues
+  validateTableStructure();
+
+  // Validate and fix landmark issues
+  validateLandmark();
+  validateLandmarkStructure();
+
+  // Validate and fix SVG accessibility issues
+  getSvgAccessibleName();
+  setSvgAttributes();
+
+  // Validate and fix link accessibility issues
+  validateLinkAccessibility();
+  checkLinkAccessibility();
+
+  // Set language attributes
+  getLangAttribute();
+  getFullLangAttribute();
 }
 
-// Main entry point for dependency visualization tool
 export const main = {
   init: function() {
     console.log('Application initialized');
@@ -55,47 +94,38 @@ export const main = {
     return `Hello, ${name}!`;
   },
 
-  // New function for rotating back
   rotateBack: function() {
     console.log('Reverting back the rotation.');
   },
 
-  // New function to address all accessibility issues
   addressAccessibilityIssues: function() {
     fixAccessibilityIssues();
   },
 
-  // New function to add a book with accessibility improvements
   addBook: function(title, author, isbn) {
-    // Create form with proper accessibility attributes
     const form = document.createElement('form');
     form.setAttribute('role', 'form');
     form.setAttribute('aria-label', 'Add Book Form');
 
-    // Create accessible input fields
     const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
     const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
     const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
 
-    // Create accessible submit button
     const submitButton = document.createElement('button');
     submitButton.setAttribute('type', 'submit');
     submitButton.setAttribute('aria-label', 'Add Book');
     submitButton.textContent = 'Add Book';
 
-    // Append all elements to form
     form.appendChild(titleInput);
     form.appendChild(authorInput);
     form.appendChild(isbnInput);
     form.appendChild(submitButton);
 
-    // Add form to document body
     document.body.appendChild(form);
 
     // Add event listener for form submission
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', function(e) {
       e.preventDefault();
-      // Handle form submission logic here
       console.log('Book added:', {
         title: titleInput.value,
         author: authorInput.value,
@@ -197,7 +227,7 @@ if (fakeLink && fakeLink.tagName === 'A') {
 import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
-      const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
+      const filePath = path.join(__dirname, 'landmarks.json');
       const data = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(data);
   } catch (error) {
@@ -229,10 +259,14 @@ function ensureLandmarkUniqueness(elements) {
 
 // Updated function using the new functions for rendering graph/index
 function renderDependencyGraphContent() {
-  const container = document.getElementById('dependencyGraph');
+  const container = document.getElementById('dependency-graph');
   if (!container) {
     return;
   }
+
+  // Ensure the dependencyGraph container has a proper ARIA role for accessibility
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', 'Dependency Graph');
 
   // Use the new functions for rendering
   renderDependencyGraph(container);
@@ -250,7 +284,7 @@ function countDependencies() {
 }
 
 // Function to enhance accessibility for addBook form
-function enhanceAccessibilityForAddBook(formElement) {
+function enhanceAddBookFormAccessibility(formElement) {
   if (!formElement) return;
 
   // Add ARIA attributes to form elements
@@ -261,77 +295,14 @@ function enhanceAccessibilityForAddBook(formElement) {
   const inputs = formElement.querySelectorAll('input, textarea, select');
   inputs.forEach(input => {
     // Add required attribute if needed
-    if (input.hasAttribute('required')) {
+    if (input.required) {
       input.setAttribute('aria-required', 'true');
     }
 
     // Add labels if missing
     if (!input.id) {
-      input.id = `input-${Math.random().toString(36).substr(2, 9)}`;
-    }
-
-    // Create label if not present
-    if (!document.querySelector(`label[for="${input.id}"]`)) {
-      const label = document.createElement('label');
-      label.setAttribute('for', input.id);
-      label.textContent = input.placeholder || input.name || 'Input field';
-      input.parentNode.insertBefore(label, input);
+      input.id = `input_${Math.random().toString(36).substr(2, 9)}`;
     }
   });
-
-  // Add submit button if missing
-  if (!formElement.querySelector('button[type="submit"]')) {
-    const submitButton = document.createElement('button');
-    submitButton.type = 'submit';
-    submitButton.textContent = 'Add Book';
-    submitButton.className = 'add-book-submit';
-    formElement.appendChild(submitButton);
-  }
-
-  // Add error summary area
-  if (!formElement.querySelector('.error-summary')) {
-    const errorSummary = document.createElement('div');
-    errorSummary.className = 'error-summary';
-    errorSummary.setAttribute('aria-live', 'polite');
-    formElement.insertBefore(errorSummary, formElement.firstChild);
-  }
 }
-
-// Process and filter landmarks (new addition)
-
-// Exporting module objects
-export {
-  wrapPrimaryContentInMain,
-  initializeApp,
-  handleUserInteraction,
-  cleanup,
-  initApp,
-  processData,
-  fetchUser,
-  clearCache,
-  VisualizeDependencyTree,
-  checkLandmarkElement,
-  ensureUniqueLandmarks,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  landmarks,
-  appData,
-  icons,
-  validateLandmark,
-  ensureFocusableElements,
-  renderDependencyGraphContent,
-  ensureLandmarkUniqueness,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  countDependencies,
-  createInPageButton,
-  enhanceAccessibilityForAddBook
-};
+=========================================

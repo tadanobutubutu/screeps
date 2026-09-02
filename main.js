@@ -145,6 +145,12 @@ const AddressabilityIssues = {
       devDependencies: Object.keys(devDependencies).length,
       total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
+  },
+
+  // New function added as per the issue
+  performNewFunctionality() {
+    console.log('Performing new functionality...');
+    // Implement the new functionality here
   }
 };
 

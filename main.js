@@ -1,6 +1,6 @@
-// TODO: add the new functions or changes requested in the issue
+// Address accessibility issues from insight report
 
-/** TODO: Implement function for addressing accessibility issues from insight report */
+/** Function for addressing accessibility issues from insight report */
 function addressAccessibilityIssues(insightReport) {
     const accessibilityIssues = insightReport.accessibility || [];
     const addressedIssues = [];
@@ -43,7 +43,7 @@ function addressAccessibilityIssues(insightReport) {
 /* Accessibility Validator and Utilities */
 
 const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form'];
-const LANDMARK_SELECTORS = LANDMARK_ELEMENTS.map(el => el).join(', ');
+const LANDMARK_SELECTORS = LANDMARK_ELEMENTS.map(tag => tag.toLowerCase()).join(', ');
 
 function findLandmarks(context = document) {
     const landmarks = [];
@@ -89,7 +89,7 @@ function validateLandmarkStructure(context = document) {
  * @param {Document|Element} context - The document or container to analyze
  * @returns {string} Human-readable summary
  */
-function getLandmarkSummary(context = document) {
+function getLandmarkStructureSummary(context = document) {
     const result = validateLandmarkStructure(context);
     
     if (result.valid) {
@@ -130,5 +130,3 @@ function getLangAttribute() {
   const htmlElement = document.querySelector('html');
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
-
-// Add the new functions you've developed in this repository if they were not included

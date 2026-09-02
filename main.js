@@ -1,7 +1,7 @@
 // TODO: add the new functions or changes requested in the issue
 
 /** TODO: Implement function for addressing accessibility issues from insight report */
-function addressAccessibilityIssues(insightReport) {
+function addressAccessibilityIssuesFromInsight(insightReport) {
     const accessibilityIssues = insightReport.accessibility || [];
     const addressedIssues = [];
 
@@ -119,10 +119,10 @@ function divide(a, b) {
 }
 
 /** New functions */
-function addLangAttribute() {
+function addLangAttribute(lang = 'en') {
   const htmlElement = document.querySelector('html');
   if (htmlElement) {
-    htmlElement.setAttribute('lang', 'en'); // Assuming English for this example
+    htmlElement.setAttribute('lang', lang);
   }
 }
 
@@ -132,3 +132,19 @@ function getLangAttribute() {
 }
 
 // Add the new functions you've developed in this repository if they were not included
+
+// Export all functions for use in other modules
+module.exports = {
+  addressAccessibilityIssuesFromInsight,
+  findLandmarks,
+  validateLandmarkStructure,
+  getLandmarkSummary,
+  add,
+  subtract,
+  multiply,
+  divide,
+  addLangAttribute,
+  getLangAttribute,
+  LANDMARK_ELEMENTS,
+  LANDMARK_SELECTORS
+};

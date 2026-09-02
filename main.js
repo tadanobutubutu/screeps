@@ -443,6 +443,18 @@ function validateTableStructureComprehensive () {
 }
 
 // Export functions for use in other modules
+const functionA = {
+  X: 'X',
+  Y: 'Y',
+  Z: 'Z'
+}
+
+const functionB = {
+  X: 'X',
+  Y: 'Y',
+  Z: 'Z'
+}
+
 module.exports = {
   initSkipLink: accessibilityUtils.initSkipLink,
   trapFocus: accessibilityUtils.trapFocus,
@@ -456,5 +468,7 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   validateTableStructure,
-  validateTableStructureComprehensive
+  validateTableStructureComprehensive,
+  functionA,
+  functionB
 }

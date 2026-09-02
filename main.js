@@ -278,7 +278,24 @@ function function3() {
   // TODO: Implement new function
 }
 
-// Export statements
+// New function for spawning logic
+function spawnProcess(command) {
+  const { spawn } = require('child_process');
+  const process = spawn(command);
+
+  process.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+  });
+
+  process.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  process.on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+  });
+}
+
 module.exports = {
     getUserSafety,
     getSafetyCategories,
@@ -311,5 +328,46 @@ module.exports = {
     addMainLandmark,
     createInPageButton,
     checkLinkAccessibility,
-    function3
+    function3,
+    initializeApp,
+    processData,
+    fetchUser,
+    clearCache,
+    someFunction,
+    helper,
+    formatDate,
+    validateInput,
+    initialize,
+    loadLandmarks,
+    processLandmarks,
+    sortLandmarks,
+    getLandmarkById,
+    CONFIG,
+    appState,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    validateLandmarkAttributes,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    addLandmarkRegions,
+    addProperLandmarkRegions,
+    fixTableAccessibility,
+    fixLandmarkIssues,
+    addSvgAccessibility,
+    createAccessibleLinks,
+    functionA: {
+        X: 'valueX',
+        Y: 'valueY',
+        Z: 'valueZ'
+    },
+    functionB: {
+        X: 'valueX',
+        Y: 'valueY',
+        Z: 'valueZ'
+    },
+    spawnProcess
 };

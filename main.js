@@ -154,7 +154,7 @@ function createInPageButton() {
   // Implementation to be added
 }
 
-// Function for generating a report based on accessibility issues in the previous implementation
+// Function for generating a report based on accessibility issues
 function generateAccessibilityReport() {
   const issues = [];
 
@@ -371,8 +371,10 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   addProperLandmarkRegions,
+  generateAccessibilityReport,
+  wrapPrimaryContentInMain,
   existingFunction1,
   existingFunction2,
   newFunction,
-  addressAccessibilityIssues // Add this new export
+  addressAccessibilityIssues
 };

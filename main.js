@@ -1,3 +1,15 @@
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+
+//_Commit: a18bb86d601536dc2b09ba2a120f81c6e28614cb_
+//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
 
@@ -20,9 +32,7 @@ function newExportedFunction() {
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
 const path = require('path');
-const accessiblyHelper = require('./accessibly-helper');
 
 // Application configuration
 const config = {
@@ -55,7 +65,7 @@ function helper(input) {
 
 // Helper function to format dates
 function formatDate(date) {
-  return new Date(date).toISOString().split('T')[0];
+  return new Date(date).toISOString();
 }
 
 // Validate input helper
@@ -72,6 +82,7 @@ function processData(data) {
 // Initialize function
 function initialize() {
   console.log('Initializing application...');
+  isInitialized = true;
   return true;
 }
 
@@ -100,14 +111,12 @@ const {
   fixFakeLinks: fixFakeLinksAlt,
   replaceButtonIds,
   ensureDependencyGraphAriaRole
-} = require('./accessibly-improvements');
+} = require('./accessibly-helper');
 
 // Apply improvements to make the application more accessible
 function improveAccessibility() {
-  fixTableStructure();
   fixLandmarks();
-  checkLandmarkElements();
-  addSvgAccessibleNames();
+  addLandmarkRoles();
   fixFakeLinks();
   replaceButtonIds();
   ensureDependencyGraphAriaRole();
@@ -115,7 +124,7 @@ function improveAccessibility() {
 
 // Importing and using functions from the accessibly-helper module
 function ensureLangAttribute() {
-  accessiblyHelper.ensureLangAttribute(document);
+  return document.documentElement.lang || 'en';
 }
 
 // Existing code and exports preserved...
@@ -124,13 +133,13 @@ function ensureLangAttribute() {
 
 // Helper function to get lang attribute
 function getLangAttribute() {
-  return document.documentElement.getAttribute('lang');
+  return document.documentElement.lang || 'en';
 }
 
 // Helper function to load landmarks
 function loadLandmarks() {
   try {
-    const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+    const filePath = path.join(CONFIG.dataPath || './data', 'landmarks.json');
     const data = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(data);
   } catch (error) {
@@ -145,15 +154,15 @@ function processLandmarks(landmarks) {
     return [];
   }
 
-  const validLandmarks = landmarks.filter(validateInput);
-  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
-  return uniqueLandmarks.slice(0, CONFIG.maxResults);
+  const validLandmarks = landmarks.filter(l => l && l.id);
+  const uniqueLandmarks = [...new Set(validLandmarks.map(l => l.id))];
+  
+  return uniqueLandmarks.slice(0, CONFIG.maxResults || 100);
 }
 
 // New functions to write the generated report to a file
 function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
+  const reportFile = path.join(process.cwd(), 'accessibility-report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
@@ -163,28 +172,31 @@ function createInPageButton() {
   const button = document.createElement('button');
   button.textContent = 'Accessibility Info';
   button.setAttribute('aria-label', 'Show accessibility information');
-  document.body.appendChild(button);
+  return button;
 }
 
-function extractSvgAccessibleName(svgContent) {
-  const svgElement = new DOMParser().parseFromString(svgContent, 'image/svg+xml').documentElement;
-  const title = svgElement.querySelector('title');
+function extractSvgAccessibleName(svgElement) {
+  const title = svgElement ? svgElement.querySelector('title') : null;
   return title ? title.textContent : 'No accessible name found';
 }
 
 function addressAccessibilityIssues() {
   // Your implementation here
+  ensureDependencyGraphAriaRole();
+  addLandmarkRoles();
 }
 
-function importAndExecute(modulePath, functionName, callback) {
-  require(modulePath)[functionName](callback);
+function importAndExecute(functionName, callback) {
+  if (typeof callback === 'function') {
+    callback();
+  }
 }
 
 // Configuration - merged
 const mergedConfig = CONFIG;
 
 // Helper functions from the safe version
-function ensureUniqueLandmarksLocal(landmarks) {
+function processLandmarksSafe(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
@@ -266,6 +278,16 @@ function someFunction() {
   return 'some value';
 }
 
+// Additional helper functions
+function fetchUser(userId) {
+  return appData[userId] || null;
+}
+
+function clearCache() {
+  appData = {};
+  appState.cache = {};
+}
+
 // Configuration
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
@@ -283,7 +305,7 @@ app.use((req, res, next) => {
 // Using the initialize function and adding it as a middleware
 app.get('/', (req, res) => {
   initialize();
-  res.send('Application initialized');
+  res.send('App initialized');
 });
 
 // Routing for your Screeps bot functionality (preserve existing routes if any)
@@ -312,6 +334,6 @@ module.exports = Object.assign(app, {
   renderDependencyGraph,
   checkLinkAccessibility,
   newExportedFunction,
-  ensureUniqueLandmarksLocal,
+  processLandmarksSafe,
   validateLandmark
 });

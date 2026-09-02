@@ -2,26 +2,67 @@
 // Safety Categories: PII/Privacy
 
 // This file includes both the accessibility improvements and the dependency visualization tool features.
+const books = [];
+const safetyCategory = "User Safety: safe";
 
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
-
-// Node.js functions for dependency visualization tool
+const utils = require('./utils');
+const axe = require('axe-core');
+const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
-// New function to visualize the dependency tree
+const accessiblyHelper = async (...args) => {
+  return args;
+};
+
+const config = {
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false,
+  dataPath: './data',
+  maxResults: 100
+};
+
+const CONFIG = {
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+  maxResults: 100,
+  dataPath: './data',
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
+};
+
+function getUserSafetyAdvice() {
+  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+}
+
+function addBook(title, author) {
+  const bookObject = { title, author };
+  books.push(bookObject);
+  announceBookAdded(title, author);
+  return bookObject;
+}
+
+function announceBookAdded(title, author) {
+  console.log(`A new book has been added: "${title}" by "${author}".`);
+}
+
+function getBooksList() {
+  let booksList = [];
+
+  books.forEach((book, index) => {
+    booksList[index] = `${index + 1}. ${book.title} by ${book.author}`;
+  });
+
+  return booksList.join("\n");
+}
+
+// Node.js functions for dependency visualization tool
 function visualizeDependencyTree(dependencies) {
   const report = generateDependencyReport(dependencies);
   console.log(report.graph);
 }
 
-// Helper function to generate dependency report
 function generateDependencyReport(dependencies) {
   let graph = 'Dependency Tree:\n';
   dependencies.forEach(dep => {
@@ -30,18 +71,247 @@ function generateDependencyReport(dependencies) {
   return { graph };
 }
 
-// New function to fix accessibility issues as per the insight report
+function analyzeModuleDependenciesLocal(modules) {
+  console.log('Analyzing dependencies for modules:', modules);
+  return {
+    totalDependencies: 0,
+    dependencyMap: {}
+  };
+}
+
+function visualizeModuleRelationshipsLocal(modules) {
+  console.log('Visualizing relationships for modules:', modules);
+  return {
+    graph: {},
+    nodes: [],
+    edges: []
+  };
+}
+
+function createUnrotateButton() {
+  const button = document.createElement('button');
+  button.id = 'unrotate';
+  button.setAttribute('role', 'button');
+  button.setAttribute('aria-label', 'rotate back');
+  button.textContent = 'rotate back';
+  button.addEventListener('click', rotateBack);
+  return button;
+}
+
+function fixFakeLink() {
+  const fakeLink = document.querySelector('a[href="#"]');
+  if (fakeLink && fakeLink.tagName === 'A') {
+    const parent = fakeLink.parentElement;
+    const newButton = createUnrotateButton();
+    parent.replaceChild(newButton, fakeLink);
+  }
+}
+
+function ensureUniqueLandmarks() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    if (link.tagName === 'A') {
+      const parent = link.parentElement;
+      const newButton = createUnrotateButton();
+      parent.replaceChild(newButton, link);
+    }
+  });
+}
+
+function isValidLandmark(landmark) {
+  return landmark && landmark.id && landmark.role;
+}
+
+function loadLandmarks() {
+  try {
+    const filePath = path.join(__dirname, config.dataPath, 'landmarks.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error loading landmarks:', error.message);
+    return [];
+  }
+}
+
+function processLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const validLandmarks = landmarks.filter(isValidLandmark);
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+  return uniqueLandmarks.slice(0, config.maxResults);
+}
+
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    if (seen.has(landmark.id)) {
+      return false;
+    }
+    seen.add(landmark.id);
+    return true;
+  });
+}
+
+function ensureElementHasId(element, id) {
+  if (!element.id) {
+    element.id = id;
+  }
+  return element;
+}
+
+function addAriaLabel(element, label) {
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+}
+
+function setSvgAccessibleNames(svg1Id, svg2Id, label1, label2) {
+  const svg1 = document.getElementById(svg1Id);
+  const svg2 = document.getElementById(svg2Id);
+  if (svg1) svg1.setAttribute('aria-label', label1);
+  if (svg2) svg2.setAttribute('aria-label', label2);
+}
+
+function createAccessibleInput(type, id, labelText, value = '') {
+  const container = document.createElement('div');
+  container.className = 'form-group';
+
+  const label = document.createElement('label');
+  label.setAttribute('for', id);
+  label.textContent = labelText;
+
+  const input = document.createElement('input');
+  input.setAttribute('type', type);
+  input.setAttribute('id', id);
+  input.setAttribute('name', id);
+  input.setAttribute('aria-required', 'true');
+  input.setAttribute('aria-label', labelText);
+  input.value = value;
+
+  container.appendChild(label);
+  container.appendChild(input);
+
+  return container;
+}
+
+function createInPageButton(buttonText, onClickHandler) {
+  const button = document.createElement('button');
+  button.textContent = buttonText;
+  if (onClickHandler && typeof onClickHandler === 'function') {
+    button.addEventListener('click', onClickHandler);
+  }
+  return button;
+}
+
+function writeReport(report) {
+  const reportFile = path.join(CONFIG.dataPath, 'report.json');
+  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+}
+
+function visualizeDependencyTree(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
+}
+
 function fixAccessibilityIssues() {
-  // Code to fix accessibility issues as per the insight report
-  if (typeof validateLandmarkStructure === 'function') {
-    validateLandmarkStructure();
+  if (typeof validateLandmark === 'function') {
+    validateLandmark();
   }
   if (typeof ensureFocusableElements === 'function') {
     ensureFocusableElements();
   }
 }
 
-// Main entry point for dependency visualization tool
+function initialize() {
+  console.log('Initializing application...');
+
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+
+  let dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    if (!dependencyGraph.id) {
+      dependencyGraph.id = 'dependencyGraph';
+    }
+    if (!dependencyGraph.hasAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+    if (!dependencyGraph.hasAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
+    }
+  }
+
+  return true;
+}
+
+const initializeApp = () => {
+  console.log('Application initialized');
+
+  const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
+  if (mainContent) {
+    mainContent.setAttribute('aria-label', 'Main content area');
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Tab') {
+      document.body.classList.add('keyboard-nav');
+    }
+  });
+
+  document.addEventListener('mousedown', () => {
+    document.body.classList.remove('keyboard-nav');
+  });
+
+  const a11y = require('a11y');
+  if (a11y && a11y.init) {
+    a11y.init();
+  }
+
+  fixAccessibilityIssues();
+  createInPageButton('Rotate Back', rotateBack);
+  setSvgAccessibleNames('svg1Id', 'svg2Id', 'aria-label for SVG1', 'aria-label for SVG2');
+  ensureUniqueLandmarks();
+  fixFakeLink();
+  initialize();
+};
+
+function validateLandmark(landmark) {
+  return landmark &&
+         typeof landmark.id !== 'undefined' &&
+         landmark.id !== null;
+}
+
+function ensureFocusableElements() {
+  const focusable = document.querySelectorAll('a[href="#"]');
+  focusable.forEach(el => {
+    if (!el.hasAttribute('role')) {
+      el.setAttribute('role', 'button');
+    }
+    if (!el.hasAttribute('tabindex')) {
+      el.setAttribute('tabindex', '0');
+    }
+  });
+}
+
+function analyzeModuleDependencies(modules) {
+  return analyzeModuleDependenciesLocal(modules);
+}
+
+function visualizeModuleRelationships(modules) {
+  return visualizeModuleRelationshipsLocal(modules);
+}
+
+export function rotateBack() {
+  console.log('Reverting back the rotation.');
+}
+
 export const main = {
   init: function() {
     console.log('Application initialized');
@@ -51,51 +321,41 @@ export const main = {
     return `Hello, ${name}!`;
   },
 
-  // New function for rotating back
   rotateBack: function() {
     console.log('Reverting back the rotation.');
   },
 
-  // New function to address all accessibility issues
   addressAccessibilityIssues: function() {
     fixAccessibilityIssues();
   },
 
-  // New function to add a book with accessibility improvements
   addBook: function(title, author, isbn) {
-    // Create form with proper accessibility attributes
-    const form = ...
+    const form = document.createElement('form');
     form.setAttribute('role', 'form');
-    ... 'Add Book Form');
+    form.setAttribute('aria-label', 'Add Book Form');
 
-    // Create accessible input fields
     const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
     const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
     const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
 
-    // Create accessible submit button
     const submitButton = document.createElement('button');
     submitButton.setAttribute('type', 'submit');
-    ... 'Add Book');
+    submitButton.setAttribute('aria-label', 'Add Book');
     submitButton.textContent = 'Add Book';
 
-    // Append all elements to form
-    ...
-    ...
-    ...
-    ...
+    form.appendChild(titleInput);
+    form.appendChild(authorInput);
+    form.appendChild(isbnInput);
+    form.appendChild(submitButton);
 
-    // Add form to document body
-    ...
+    document.body.appendChild(form);
 
-    // Add event listener for form submission
-    ... (e) => {
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
-      // Handle form submission logic here
       console.log('Book added:', {
-        title: titleInput.value,
-        author: authorInput.value,
-        isbn: isbnInput.value
+        title: titleInput.querySelector('input').value,
+        author: authorInput.querySelector('input').value,
+        isbn: isbnInput.querySelector('input').value
       });
     });
 
@@ -103,151 +363,35 @@ export const main = {
   }
 };
 
-/**
- * Creates an accessible input element with proper labeling.
- * @param {string} type - Input type (text, number, etc.)
- * @param {string} id - Unique identifier for the input
- * @param {string} labelText - Text for the associated label
- * @param {string} value - Initial value for the input
- * @returns {HTMLElement} The created input element with label
- */
-function createAccessibleInput(type, id, labelText, value = '') {
-  const container = ...
-  container.className = 'form-group';
-
-  const label = ...
-  label.setAttribute('for', id);
-  label.textContent = labelText;
-
-  const input = ...
-  input.setAttribute('type', type);
-  input.setAttribute('id', id);
-  input.setAttribute('name', id);
-  input.setAttribute('aria-required', 'true');
-  input.setAttribute('aria-label', labelText);
-  input.value = value;
-
-  ...
-  ...
-
-  return container;
-}
-
-/**
- * Creates an in-page button element with optional click handler.
- * @param {string} buttonText - The label text for the button
- * @param {Function} onClickHandler - Callback function triggered when the button is clicked
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(buttonText, onClickHandler) {
-  const button = document.createElement('button');
-  button.textContent = buttonText;
-  if (onClickHandler && typeof onClickHandler === 'function') {
-    ... onClickHandler);
-  }
-  return button;
-}
-
-// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
-// If not, define it here:
-export function rotateBack() {
-  // Your code to rotate back
-  console.log('Reverting back the rotation.');
-}
-
-// Additional accessibility-related code changes:
-// Ensure that all interactive elements have appropriate keyboard support
-// Check that ARIA attributes are correctly paired and have appropriate values
-
-// REACT_015: lang attribute should be added to the HTML element (typically in index.html)
-// <html lang="en">
-
-// REACT_017: Add landmark roles and fix landmark issues
-// Add main landmark role to main content area
-// Example: <main role="main">...</main>
-
-// REACT_025: Ensure unique landmarks
-// Ensure only one main landmark per page
-// Use unique aria-label or aria-labelledby for landmark regions
-
-// REACT_036: Fix fake link issue - convert <a href="#"> to <button> with proper ARIA
-function createUnrotateButton() {
-  const button = document.createElement('button');
-  button.id = 'unrotate';
-  button.setAttribute('role', 'button');
-  button.ariaLabel = 'rotate back';
-  button.textContent = 'rotate back';
-  ... rotateBack);
-  return button;
-}
-
-// Replace fake links with proper buttons
-const fakeLink = ...
-if (fakeLink && fakeLink.tagName === 'A') {
-  const parent = fakeLink.parentElement;
-  const newButton = createUnrotateButton();
-  ... fakeLink);
-}
-
-// Load landmarks from file (new addition)
-import {CONFIG} from './utils/constants';
-function loadLandmarks() {
-  try {
-      const filePath = ... 'landmarks.json');
-      const data = ... 'utf8');
-      return JSON.parse(data);
-  } catch (error) {
-      console.error('Error loading landmarks:', error.message);
-      return [];
-  }
-}
-
-// Updated function: ensures landmarks uniqueness when there's an array structure
-function ensureLandmarkUniqueness(elements) {
-  const landmarkTypes = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-
-  const elementsById = {};
-
-  if (Array.isArray(elements)) {
-    for (const landmark of elements) {
-      if (landmark.id) {
-        if ... {
-          landmark.id += '_duplicate';
-        } else {
-          ... = true;
-        }
-      }
-    }
-  }
-
-  return elements;
-}
-
-// Updated function using the new functions for rendering graph/index
-function renderDependencyGraphContent() {
-  const container = ...
-  if (!container) {
-    return;
-  }
-
-  // Use the new functions for rendering
-  renderDependencyGraph(container);
-  renderIndexView(container);
-}
-
-// Function to count dependencies
-function countDependencies() {
-  const dependencies = {
-    'react': true,
-    'react-redux': true,
-    'antd': true
-  };
-  return ...
-}
-
-// Function to enhance accessibility for addBook form
-function ... {
-  if (!formElement) return;
-
-  // Add ARIA attributes to form elements
-  formElement.set
+module.exports = {
+  main,
+  books,
+  safetyCategory,
+  config,
+  CONFIG,
+  getUserSafetyAdvice,
+  addBook,
+  announceBookAdded,
+  getBooksList,
+  visualizeDependencyTree,
+  generateDependencyReport,
+  analyzeModuleDependencies,
+  visualizeModuleRelationships,
+  ensureElementHasId,
+  addAriaLabel,
+  initialize,
+  initializeApp,
+  loadLandmarks,
+  processLandmarks,
+  ensureUniqueLandmarks,
+  validateLandmark,
+  ensureFocusableElements,
+  setSvgAccessibleNames,
+  createAccessibleInput,
+  createInPageButton,
+  writeReport,
+  rotateBack,
+  fixAccessibilityIssues,
+  fixFakeLink,
+  ensureUniqueLandmarks
+};

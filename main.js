@@ -31,5 +31,8 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// TODO: Address accessibility issues from insight report:
+document.addEventListener('DOMContentLoaded', validateLandmarkStructure);
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

@@ -265,12 +265,43 @@ function applyAccessibilityFixes(html) {
     return result;
 }
 
+/**
+ * Addresses accessibility issues from an insight report and/or runs accessibility checks.
+ * This function handles both cases: processing an insight report with HTML content,
+ * and running standalone accessibility checks.
+ * @param {Object} [insightReport] - Optional insight report object with html property to fix
+ * @returns {Object} Object containing results from both insight report processing and accessibility checks
+ */
 function addressAccessibilityIssues(insightReport) {
-  // Apply accessibility fixes to HTML content based on insight report
+  // Run accessibility checks (from the second version)
+  const linkIssues = checkLinkAccessibility();
+  const tableIssues = validateTableAccessibility();
+  const tableStructureIssues = validateTableStructure();
+  const linkAccessibilityIssues = validateLinkAccessibility();
+  const fakeLinkIssues = handleFakeLinks();
+
+  // Log the issues
+  console.log('Link Accessibility Issues:', linkIssues);
+  console.log('Table Accessibility Issues:', tableIssues);
+  console.log('Table Structure Issues:', tableStructureIssues);
+  console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
+  console.log('Fake Link Issues:', fakeLinkIssues);
+
+  // Apply accessibility fixes to HTML content based on insight report (from the first version)
   if (insightReport && insightReport.html) {
     insightReport.html = applyAccessibilityFixes(insightReport.html);
+    console.log('Addressing accessibility issues from insight report:', insightReport);
   }
-  console.log('Addressing accessibility issues from insight report:', insightReport);
+
+  // Return results for both operations
+  return {
+    linkIssues,
+    tableIssues,
+    tableStructureIssues,
+    linkAccessibilityIssues,
+    fakeLinkIssues,
+    insightReport
+  };
 }
 
 /**
@@ -289,28 +320,6 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.setAttribute('role', 'button'); // Added for accessibility
     document.body.appendChild(button);
     return button;
-}
-
-// New function to address accessibility issues
-function addressAccessibilityIssues() {
-    // Implement the changes required to address accessibility issues from the insight report
-    // For example, this could be calling existing utility functions to validate accessibility
-    const linkIssues = checkLinkAccessibility();
-    const tableIssues = validateTableAccessibility();
-    const tableStructureIssues = validateTableStructure();
-    const linkAccessibilityIssues = validateLinkAccessibility();
-    const fakeLinkIssues = handleFakeLinks();
-
-    // Handle issues (e.g., log them, display warnings, etc.)
-    // For demonstration purposes, we will just log the issues to the console
-    console.log('Link Accessibility Issues:', linkIssues);
-    console.log('Table Accessibility Issues:', tableIssues);
-    console.log('Table Structure Issues:', tableStructureIssues);
-    console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
-    console.log('Fake Link Issues:', fakeLinkIssues);
-
-    // Here you could add additional logic to address the issues
-    // For example, you might want to update the DOM or call other functions
 }
 
 // Export accessibility utility functions
@@ -332,6 +341,12 @@ export {
     fixTableStructure,
     addressAccessibilityIssues
 };
+
+// Main entry point function
+function main() {
+    // Run accessibility checks on page load
+    addressAccessibilityIssues();
+}
 
 // Run if executed directly
 if (typeof require !== 'undefined' && require.main === module) {

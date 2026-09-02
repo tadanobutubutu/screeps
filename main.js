@@ -98,13 +98,6 @@ const accessibilityUtils = {
 };
 
 // Utility functions for ensuring elements have IDs and adding labels
-const ensureElementId = (element) => {
-  if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  return element;
-};
-
 const ensureElementHasId = (element, prefix = 'element') => {
   if (!element) {
     throw new Error('Element is required');
@@ -117,6 +110,13 @@ const ensureElementHasId = (element, prefix = 'element') => {
   const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = id;
   return id;
+};
+
+const ensureElementId = (element) => {
+  if (element && !element.id) {
+    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element;
 };
 
 const addAriaLabel = (element, label) => {
@@ -184,7 +184,7 @@ const modifiedSvgString = addAccessibleName(originalSvgString);
  * @param {Array} tableData - Table data to validate
  * @returns {boolean} True if table is accessible, false otherwise
  */
-function validateTableAccessibility(tableData) {
+function validateTableAccessibilityFn(tableData) {
   const errors = [];
   const tables = getTables();
 
@@ -242,7 +242,7 @@ function validateTableAccessibility(tableData) {
  * @param {Array} tableData - Table data to validate
  * @returns {boolean} True if table structure is valid, false otherwise
  */
-function validateTableStructure(tableData) {
+function validateTableStructureFn(tableData) {
   // Implementation placeholder - function to be implemented
   return true;
 }
@@ -252,18 +252,25 @@ function newFocusTrap() {
   return accessibilityUtils.newFocusTrap;
 }
 
+// Implement function3 logic here
+function function3() {
+  // TODO: Implement new function3 logic here
+  return "function3 implemented";
+}
+
 module.exports = {
   ...accessibilityUtils,
   renderDependencyGraph,
   addAriaLabel,
   addAccessibleName,
-  validateTableAccessibility,
-  validateTableStructure,
+  validateTableAccessibility: validateTableAccessibilityFn,
+  validateTableStructure: validateTableStructureFn,
   ensureElementId,
   ensureElementHasId,
   newFocusTrap,
   getTables,
   getConfig,
   setConfig,
+  function3,
   // Preserve any other existing exports here
 };

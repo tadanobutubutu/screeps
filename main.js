@@ -1,6 +1,46 @@
-const main = require('./utilities')
+// main.js
+// TODO: This is the modified and merged code
+// This is the existing code that needs to be preserved in main.js
+// Address accessibility issues from insight report
+// ----- END ORIGINAL CODE-----
 
-<<<<<<< HEAD
+// Import necessary dependencies
+const {
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  addSvgAccessibleName,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  googleSignIn,
+  decodeJwtResponse,
+  fixButtonIdentifiers,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  renderGraphIndex,
+  trapFocus,
+  renderAdditionalContent,
+  checkAccessibilityForReport,
+  checkAccessibility
+} = require('./AccessibilityHelpers')
+
 // TODO: add the new functions or changes requested in the issue
 function newFunction() {
   // New function implementation
@@ -10,7 +50,6 @@ function anotherNewFunction() {
   // Another new function implementation
 }
 
-// main.js
 // TODO: Create or update the affected functions to be accessible
 // The functions below have been created to match the exported names
 // TODO: This is the existing code that needs to be preserve
@@ -62,53 +101,6 @@ function ensureDependencyGraphARIA() {
     el.setAttribute('aria-label', 'Dependency graph visualization');
   });
 }
-
-// Export functions to make them accessible
-module.exports = {
-  affectedFunction,
-  updateFunction,
-  accessibleFunction,
-  newFunction1,
-  newFunction2,
-  main,
-=======
-// Import necessary dependencies
-const {
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  addSvgAccessibleName,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
->>>>>>> origin/main
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  renderGraphIndex,
-  trapFocus,
-  renderAdditionalContent,
-  checkAccessibilityForReport,
-  checkAccessibility
-} = require('./AccessibilityHelpers')
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph')
@@ -463,36 +455,6 @@ function trapFocus(container) {
   }
 }
 
-// Also attach to global scope for browser/standalone access
-if (typeof window !== 'undefined') {
-  window.affectedFunction = affectedFunction;
-  window.updateFunction = updateFunction;
-  window.accessibleFunction = accessibleFunction;
-  window.newFunction1 = newFunction1;
-  window.newFunction2 = newFunction2;
-  window.main = mainEntry;
-  window.getLangAttribute = getLangAttribute;
-  window.ensureDependencyGraphARIA = ensureDependencyGraphARIA;
-  window.newFunction = newFunction;
-  window.anotherNewFunction = anotherNewFunction;
-  window.ensureElementId = ensureElementId;
-  window.addAriaLabel = addAriaLabel;
-  window.newFocusTrap = newFocusTrap;
-  window.addLangAttribute = addLangAttribute;
-  window.fixTableStructure = fixTableStructure;
-  window.addLandmarkIssues = addLandmarkIssues;
-  window.addSvgAccessibleNames = addSvgAccessibleNames;
-  window.ensureUniqueLandmarks = ensureUniqueLandmarks;
-  window.fixFakeLinkIssue = fixFakeLinkIssue;
-  window.renderGraphIndex = renderGraphIndex;
-  window.updateGraphVisualization = updateGraphVisualization;
-  window.initializeGraphControls = initializeGraphControls;
-  window.handleKeyboardNavigation = handleKeyboardNavigation;
-  window.setupDependencyGraphContainer = setupDependencyGraphContainer;
-  window.checkAccessibilityForReport = checkAccessibilityForReport;
-  window.trapFocus = trapFocus;
-}
-
 /**
  * Renders dependency graphs for the given configuration.
  * @param {HTMLElement} container - The container element to render into
@@ -733,114 +695,6 @@ const addressAccessibilityIssues = (container) => {
   return fixes;
 }
 
-function implementAccessibilityFixesFromReport (container, report) {
-  const fixes = {
-    langAdded: false,
-    mainLandmarkAdded: false,
-    landmarksFixed: 0,
-    svgNamesAdded: 0,
-    fakeLinksFixed: 0
-  }
-
-  if (!report || !report.issues) {
-    return fixes
-  }
-
-  // Add lang attribute to HTML element if missing
-  const htmlEl =
-    container.querySelector('html') ||
-    (container.ownerDocument && container.ownerDocument.querySelector('html'))
-  if (htmlEl && !htmlEl.hasAttribute('lang')) {
-    htmlEl.setAttribute('lang', 'en')
-    fixes.langAdded = true
-  }
-
-  // Add main landmark if missing
-  const mainElement = container.querySelector('main')
-  if (!mainElement) {
-    const body = container.querySelector('body')
-    if (body) {
-      const newMain = document.createElement('main')
-      while (body.firstChild) {
-        newMain.appendChild(body.firstChild)
-      }
-      body.appendChild(newMain)
-      fixes.mainLandmarkAdded = true
-    }
-  }
-
-  // Update the existing function using the new functions for rendering graph/index
-  renderDependencyGraphs(container)
-  fixButtonIdentifiers(container)
-  fixDependencyGraphAria(container)
-
-  // Fix landmark issues
-  validateLandmark(container)
-  validateLandmarkStructure(container)
-  fixes.landmarksFixed++
-
-  // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg')
-  svgElements.forEach((svg) => {
-    const accessibleName = getSvgAccessibleName(svg)
-    if (
-      accessibleName &&
-            !svg.getAttribute('aria-label') &&
-      !svg.getAttribute('aria-labelledby')
-    ) {
-      svg.setAttribute('aria-label', accessibleName)
-      fixes.svgNamesAdded++
-    }
-  });
-
-  // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('a:not([href])')
-  fakeLinks.forEach((link) => {
-    link.setAttribute('href', '#' + (link.id || `link-${Date.now()}`))
-    link.setAttribute('role', 'link')
-    fixes.fakeLinksFixed++
-  });
-
-  // Validate accessibility report
-  const accessibilityReport = checkAccessibility(container) || checkAccessibilityForReport(container);
-  if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
-    console.log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`);
-  }
-
-  if (fixes.langAdded) {
-    console.log('Lang attribute added to HTML element');
-  }
-
-  if (fixes.mainLandmarkAdded) {
-    console.log('Main landmark added');
-  }
-
-  // Check for new accessibility issues
-  const newAccessibilityIssues = checkAccessibility(container) || checkAccessibilityForReport(container);
-  if (newAccessibilityIssues && newAccessibilityIssues.length > 0) {
-    console.log(`New accessibility issues found: ${newAccessibilityIssues.join(', ')}`);
-  }
-
-  const landmarkFixesCount = fixes.landmarksFixed || 0;
-  if (landmarkFixesCount > 0) {
-    console.log(`Fixed ${landmarkFixesCount} unique landmarks`);
-  }
-
-  const svgFixes = fixes.svgNamesAdded || 0;
-  if (svgFixes > 0) {
-    console.log(`Fixed accessible names for ${svgFixes} SVGs`);
-  }
-
-  const fakeLinkFixes = fixes.fakeLinksFixed || 0;
-  if (fakeLinkFixes > 0) {
-    console.log(`Fixed fake link issues for ${fakeLinkFixes} elements`);
-  }
-
-  googleSignIn();
-  fixButtonIdentifiers();
-  return fixes;
-}
-
 // Functions for data transformation
 function personName(name) {
   const span = document.createElement('span');
@@ -960,10 +814,51 @@ function renderAdditionalContentData(additionalData) {
   return ''
 }
 
-export { implementAccessibilityFixesFromReport, getActiveSessionsCount, validateSession, handleCredentialResponse, renderAdditionalContentData }
+export { handleCredentialResponse, renderAdditionalContentData }
+
+// Also attach to global scope for browser/standalone access
+if (typeof window !== 'undefined') {
+  window.affectedFunction = affectedFunction;
+  window.updateFunction = updateFunction;
+  window.accessibleFunction = accessibleFunction;
+  window.newFunction1 = newFunction1;
+  window.newFunction2 = newFunction2;
+  window.main = mainEntry;
+  window.getLangAttribute = getLangAttribute;
+  window.ensureDependencyGraphARIA = ensureDependencyGraphARIA;
+  window.newFunction = newFunction;
+  window.anotherNewFunction = anotherNewFunction;
+  window.ensureElementId = ensureElementId;
+  window.addAriaLabel = addAriaLabel;
+  window.newFocusTrap = newFocusTrap;
+  window.addLangAttribute = addLangAttribute;
+  window.fixTableStructure = fixTableStructure;
+  window.addLandmarkIssues = addLandmarkIssues;
+  window.addSvgAccessibleNames = addSvgAccessibleNames;
+  window.ensureUniqueLandmarks = ensureUniqueLandmarks;
+  window.fixFakeLinkIssue = fixFakeLinkIssue;
+  window.renderGraphIndex = renderGraphIndex;
+  window.updateGraphVisualization = updateGraphVisualization;
+  window.initializeGraphControls = initializeGraphControls;
+  window.handleKeyboardNavigation = handleKeyboardNavigation;
+  window.setupDependencyGraphContainer = setupDependencyGraphContainer;
+  window.checkAccessibilityForReport = checkAccessibilityForReport;
+  window.trapFocus = trapFocus;
+}
 
 // Export functions to make them accessible
 module.exports = {
+  affectedFunction,
+  updateFunction,
+  accessibleFunction,
+  newFunction1,
+  newFunction2,
+  main: mainEntry,
+  getLangAttribute,
+  ensureDependencyGraphARIA,
+  newFunction,
+  anotherNewFunction,
+
   // Functions provided in both branches (merge)
   ensureElementId,
   addAriaLabel,
@@ -978,38 +873,25 @@ module.exports = {
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
 
-  // Functions from the 'origin/main' branch
-  validateTableAccessibility,
-  validateTableStructure: validateTableStructureImpl,
-  transformInputData,
-
   // New functions for rendering graph/index
   renderGraphIndex,
   updateGraphVisualization,
   initializeGraphControls,
 
-  // Additional exports from origin/main
-  renderIndex: renderGraphIndex,
-  newFunction,
-  checkLandmarkElement: checkLandmarkElements,
-  wrapPrimaryContentInMain,
-  checkLandmarks: checkLandmarkElements,
-  handleFocusTrap: newFocusTrap,
+  // Session management
   revokeSession,
   validateSession,
+  getActiveSessionsCount,
+  wrapPrimaryContentInMain,
+
+  // Accessibility store and helpers
   a11yStore,
   getSvgAccessibleName,
-  affectedFunction,
-  updateFunction,
-  accessibleFunction,
-  newFunction1,
-  newFunction2,
-  main: mainEntry,
-  getActiveSessionsCount,
-  anotherNewFunction,
+  checkLandmarkElements,
   handleKeyboardNavigation,
   setupDependencyGraphContainer,
   checkAccessibilityForReport,
   trapFocus,
-  renderAdditionalContentData
+  renderAdditionalContentData,
+  exportUtils
 };

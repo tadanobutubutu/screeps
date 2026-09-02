@@ -63,3 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// Export functions for testing and external use
+module.exports = { addBook, newFunction };

@@ -1,7 +1,5 @@
-// main.js
-// ... (all existing code remains unchanged)
-
-// New accessibility functions added below
+const fs = require('fs');
+const main = require('./utilities');
 
 /**
  * Sets ARIA attributes for better screen reader support
@@ -156,23 +154,6 @@ function visualizeDependencies(dependencies) {
   console.log('Visualizing dependencies:', dependencies);
 }
 
-// Export all existing functions and add new ones
-export {
-  // ... all existing exports remain unchanged
-  existingFunction,
-  setAriaLabel,
-  ensureKeyboardAccessibility,
-  ensureAccessibleAttributes,
-  makeFocusable,
-  addAriaLabel,
-  setAriaAttributes,
-  setFocusable,
-  addKeyboardNavigation,
-  ensureTextContrast,
-  analyzeDependencyGraph,
-  visualizeDependencies
-};
-
 // Utility function for logging
 const log = (message, level = 'info') => {
   const timestamp = new Date().toISOString();
@@ -239,7 +220,7 @@ const applyAccessibilityFixes = (elements) => {
   return fixes;
 };
 
-// TODO: Implement a new function to handle focus trap for keyboard navigation
+// Focus trap for keyboard navigation
 const focusTrap = (element) => {
   const focusableElements = element.querySelectorAll(
     'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -307,7 +288,7 @@ const focusTrap = (element) => {
   });
 };
 
-// TODO: Import the new function to create a button with correct accessibility properties for in-page linking
+// Create a button with correct accessibility properties for in-page linking
 const createInPageButton = (text, onClick, ariaLabel = null) => {
   const button = document.createElement('button');
   button.textContent = text;
@@ -318,7 +299,7 @@ const createInPageButton = (text, onClick, ariaLabel = null) => {
   return button;
 };
 
-// TODO: Create a utility function to create a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
+// Create a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
 const createWebResourceButton = (url, iconSrc, ariaLabel) => {
   const button = document.createElement('button');
   button.setAttribute('aria-label', ariaLabel);
@@ -327,7 +308,7 @@ const createWebResourceButton = (url, iconSrc, ariaLabel) => {
   return button;
 };
 
-// TODO: Validate the table structure for accessibility issues
+// Validate the table structure for accessibility issues
 const validateTableAccessibility = (table) => {
   if (!table) {
     throw new Error('Invalid table element provided');
@@ -416,7 +397,7 @@ const validateTableStructure = (table) => {
   return issues.length > 0 ? issues : null;
 };
 
-// TODO: Validate the landmark structure for accessibility issues
+// Validate the landmark structure for accessibility issues
 const validateLandmark = (element) => {
   if (!element) {
     throw new Error('Invalid element provided');
@@ -458,7 +439,7 @@ const validateLandmarkStructure = (element) => {
   return issues.length > 0 ? issues : null;
 };
 
-// TODO: Extract the accessible name for an SVG from its content
+// Extract the accessible name for an SVG from its content
 const getSvgAccessibleName = (svg) => {
   if (!svg || svg.tagName !== 'SVG') {
     throw new Error('Invalid SVG element provided');
@@ -508,7 +489,7 @@ const getSvgAccessibleName = (svg) => {
   return null;
 };
 
-// TODO: Add a language attribute to the HTML element
+// Add a language attribute to the HTML element
 const getLangAttribute = (element) => {
   if (!element || element.tagName !== 'HTML') {
     throw new Error('Invalid HTML element provided');
@@ -517,7 +498,7 @@ const getLangAttribute = (element) => {
   return element.getAttribute('lang') || element.getAttribute('xml:lang');
 };
 
-// TODO: Validate the accessibility report for issues
+// Validate the accessibility report for issues
 const validateAccessibilityReport = (report) => {
   if (!report || typeof report !== 'object') {
     throw new Error('Invalid accessibility report provided');
@@ -545,8 +526,6 @@ const validateAccessibilityReport = (report) => {
   return issues.length > 0 ? issues : null;
 };
 
-// TODO: Address new accessibility issues from insight report ( implement new functions and fixes as needed)
-
 // Credential response handling
 async function handleCredentialResponse(response) {
   if (!response) {
@@ -568,12 +547,174 @@ async function handleCredentialResponse(response) {
   throw new Error('Invalid credential response');
 }
 
+// Announce message to screen reader
+const announceToScreenReader = (message, priority = 'polite') => {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', priority);
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.className = 'sr-only';
+  announcer.style.position = 'absolute';
+  announcer.style.left = '-9999px';
+  announcer.textContent = message;
+  document.body.appendChild(announcer);
+  setTimeout(() => announcer.remove(), 1000);
+};
+
+// Keyboard navigation handler
+const handleKeyboardNav = (element, options = {}) => {
+  const defaultOptions = {
+    onEnter: () => {},
+    onSpace: () => {},
+    onEscape: () => {},
+    ...options
+  };
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      defaultOptions.onEnter(e);
+    } else if (e.key === ' ') {
+      defaultOptions.onSpace(e);
+    } else if (e.key === 'Escape') {
+      defaultOptions.onEscape(e);
+    }
+  });
+};
+
+// New focus trap implementation
+const newFocusTrap = (element) => {
+  if (!element) return;
+  
+  const focusable = element.querySelectorAll(
+    'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+  );
+  if (focusable.length === 0) return;
+  
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === first) {
+        last.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        first.focus();
+        e.preventDefault();
+      }
+    }
+  });
+};
+
+// Skip link initialization
+const initSkipLink = (skipLinkId, targetId) => {
+  const skipLink = document.getElementById(skipLinkId);
+  const target = document.getElementById(targetId);
+  
+  if (!skipLink || !target) return;
+  
+  skipLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    target.setAttribute('tabindex', '-1');
+    target.focus();
+  });
+};
+
+// Trap focus in element
+const trapFocus = (element) => {
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  
+  if (focusableElements.length === 0) return;
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    }
+  });
+};
+
+// Ensure element has an ID
+const ensureElementId = (element, prefix = 'elem') => {
+  if (!element) return null;
+  
+  if (element.id) {
+    return element.id;
+  }
+  
+  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  element.id = id;
+  return id;
+};
+
+// Add language attribute
+const addLangAttribute = (lang) => {
+  const html = document.documentElement;
+  if (!html) return;
+  
+  html.setAttribute('lang', lang);
+};
+
+// Fix table structure issues
+const fixTableStructureIssues = (table) => {
+  if (!table) return [];
+  
+  const fixes = [];
+  
+  // Ensure thead exists
+  if (!table.querySelector('thead')) {
+    const thead = document.createElement('thead');
+    const firstRow = table.querySelector('tr');
+    if (firstRow) {
+      thead.appendChild(firstRow);
+      table.insertBefore(thead, table.firstChild);
+      fixes.push('Added missing thead element');
+    }
+  }
+  
+  // Ensure tbody exists
+  if (!table.querySelector('tbody')) {
+    const tbody = document.createElement('tbody');
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      if (!row.closest('thead')) {
+        tbody.appendChild(row);
+      }
+    });
+    table.appendChild(tbody);
+    fixes.push('Added missing tbody element');
+  }
+  
+  return fixes;
+};
+
+// Add main landmark
+const addMainLandmark = (element) => {
+  if (!element) return;
+  
+  if (!element.getAttribute('role')) {
+    element.setAttribute('role', 'main');
+  }
+};
+
 // Export functionality with accessibility support
 const exportUtils = {
   applyAccessibilityFixes,
   focusTrap,
   createInPageButton,
-  createWebResourceButton,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
@@ -581,12 +722,67 @@ const exportUtils = {
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
+  announceToScreenReader,
+  handleKeyboardNav,
+  newFocusTrap,
   handleCredentialResponse,
   log
 };
 
-// Export utility functions
-export {
+// Accessibility utilities and functions
+const accessibilityUtils = {
+  initSkipLink,
+  trapFocus,
+  newFocusTrap: (element) => {
+    if (!element) return;
+    const focusable = element.querySelectorAll(
+      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          first.focus();
+          e.preventDefault();
+        }
+      }
+    });
+  },
+  announceToScreenReader: (message, priority = 'polite') => {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 1000);
+  },
+  ensureElementId,
+  addAriaLabel,
+  setAriaAttributes,
+  setFocusable,
+  addKeyboardNavigation,
+  ensureTextContrast,
+  setAriaLabel,
+  ensureKeyboardAccessibility,
+  ensureAccessibleAttributes,
+  makeFocusable
+};
+
+module.exports = {
+  ...main,
+  ...accessibilityUtils,
+  existingFunction,
+  analyzeDependencyGraph,
+  visualizeDependencies,
   applyAccessibilityFixes,
   focusTrap,
   createInPageButton,
@@ -599,5 +795,11 @@ export {
   getLangAttribute,
   validateAccessibilityReport,
   handleCredentialResponse,
-  log
+  log,
+  exportUtils,
+  accessibilityUtils,
+  ensureElementId,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark
 };

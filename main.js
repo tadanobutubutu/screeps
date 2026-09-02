@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -30,8 +27,6 @@ const appData = {
   title: 'Screeps',
   version: '1.0.0'
 };
-
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
@@ -93,9 +88,8 @@ function addLandmarkRegions() {
   console.log('Adding landmark regions');
 }
 
-function getSvgAccessibleName() {
+function getSvgAccessibleName(svgElement) {
     // Merged implementation (conflict resolved)
-    const svgElement = ... // needs actual element reference
     const title = svgElement.querySelector('title');
     const ariaLabel = svgElement.getAttribute('aria-label');
     if (title) return title.textContent;
@@ -214,6 +208,44 @@ function handleAccessibilityIssues() {
     });
 }
 
+// TODO: Implement the logic to handle the credential response
+function handleCredentialResponse(response) {
+  if (!response || !response.credential) {
+    console.error('Invalid credential response');
+    return null;
+  }
+
+  try {
+    // Parse the JWT credential
+    const credential = response.credential;
+    const base64Url = credential.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    const parsedCredential = JSON.parse(jsonPayload);
+    
+    // Validate the credential
+    if (!parsedCredential.email || !parsedCredential.sub) {
+      console.error('Credential missing required fields');
+      return null;
+    }
+
+    return {
+      id: parsedCredential.sub,
+      email: parsedCredential.email,
+      name: parsedCredential.name,
+      picture: parsedCredential.picture,
+      given_name: parsedCredential.given_name,
+      family_name: parsedCredential.family_name
+    };
+  } catch (error) {
+    console.error('Error parsing credential response:', error);
+    return null;
+  }
+}
+
 // Export all existing and new functions
 module.exports = {
     getLangAttribute,
@@ -232,6 +264,6 @@ module.exports = {
     validateInput,
     processData,
     addLandmarkRegions,
-    setSvgAttributes
+    setSvgAttributes,
+    handleCredentialResponse
 };
-```

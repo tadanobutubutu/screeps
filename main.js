@@ -31,5 +31,17 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// Function to retrieve the current language setting
+function getCurrentLanguageSetting() {
+    // Assuming the language setting is stored in a cookie named 'language'
+    const cookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('language='));
+    if (cookie) {
+        const [_, value] = cookie.split('=');
+        return value;
+    }
+    // Default to English if no language setting is found
+    return 'en';
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

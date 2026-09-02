@@ -31,7 +31,7 @@ function ensureLandmarkUniqueness(elements) {
   const seen = new Map();
 
   elements.forEach(element => {
-    const key = element.id || element.name || JSON.stringify(element);
+    const key = element.id || element.name || ...
     if (!seen.has(key)) {
       seen.set(key, true);
       uniqueElements.push(element);
@@ -43,7 +43,7 @@ function ensureLandmarkUniqueness(elements) {
 
 // Updated function using the new functions for rendering graph/index
 function renderDependencyGraphContent() {
-  const container = document.getElementById('dependencyGraph');
+  const container = ...
   if (!container) {
     return;
   }
@@ -53,22 +53,89 @@ function renderDependencyGraphContent() {
   renderIndexView(container);
 }
 
+// Handle credential response logic
+function handleCredentialResponse(credentialResponse) {
+  // Validate that a response was provided
+  if (!credentialResponse) {
+    return {
+      success: false,
+      error: 'No credential response provided'
+    };
+  }
+
+  // Check for required fields in the credential response
+  const { token, user, refreshToken, expiresIn } = credentialResponse;
+
+  if (!token) {
+    return {
+      success: false,
+      error: 'Invalid credential response: missing token'
+    };
+  }
+
+  if (!user) {
+    return {
+      success: false,
+      error: 'Invalid credential response: missing user information'
+    };
+  }
+
+  try {
+    // Store authentication token
+    localStorage.setItem('authToken', token);
+
+    // Store refresh token if provided
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
+    }
+
+    // Store token expiration time if provided
+    if (expiresIn) {
+      const expirationTime = Date.now() + (expiresIn * 1000);
+      localStorage.setItem('tokenExpiration', expirationTime.toString());
+    }
+
+    // Store user data
+    localStorage.setItem('userData', JSON.stringify(user));
+
+    // Update app state with authenticated user info
+    appData.authenticated = true;
+    appData.currentUser = user;
+
+    // Trigger authentication state update
+    if (typeof onAuthStateChanged === 'function') {
+      onAuthStateChanged(true, user);
+    }
+
+    return {
+      success: true,
+      user: user,
+      token: token
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: `Failed to store credentials: ${error.message}`
+    };
+  }
+}
+
 // Address all accessibility issues
 function addressInsightIssues() {
   getLangAttribute();
   addLangAttribute();
   ensureUniqueLandmarks(landmarks);
   addMainLandmark();
-  addSvgAccessibleNames();
+  ...
   ensureLandmarkUniqueness(landmarks);
   fixFakeLinkIssue();
-  fixTableStructure();
+  ...
 }
 
 // Initialize app
 function initializeApp() {
   addressInsightIssues();
-  wrapPrimaryContentInMain();
+  ...
 }
 
 // Export all functions
@@ -92,6 +159,7 @@ export {
   fixFakeLinkIssue,
   fixTableStructure,
   addressInsightIssues,
+  handleCredentialResponse,
   landmarks,
   appData,
   icons

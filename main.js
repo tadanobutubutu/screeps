@@ -1,9 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
-<<<<<<< HEAD
 // Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-=======
->>>>>>> origin/main
 
 const main = require('./utilities')
 
@@ -553,6 +550,7 @@ if (dependencyGraph) {
   if (dependencyGraph.getAttribute('tabindex') === null) {
     dependencyGraph.setAttribute('tabindex', '0')
   }
+}
 
   // TODO: Implement function for generating a report based on accessibility issues
   // Replaced placeholder with full implementation using axe-core scanning and report writing

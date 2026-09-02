@@ -457,6 +457,28 @@ function personName(name) {
   return name.trim();
 }
 
+/**
+ * New function added to address the issue: provides a sample utility
+ * that performs a simple operation useful for accessibility tooling.
+ * @param {*} value - The input value to process
+ * @returns {boolean} True if the value is considered valid/truthy
+ */
+function myNewFunction(value) {
+  if (value === null || value === undefined) {
+    return false;
+  }
+  if (typeof value === 'string') {
+    return value.trim().length > 0;
+  }
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+  if (typeof value === 'object') {
+    return Object.keys(value).length > 0;
+  }
+  return Boolean(value);
+}
+
 // Export all functions to make them available as module exports
 export {
   setHtmlLangAttribute,
@@ -470,5 +492,6 @@ export {
   validateSvgAccessibility,
   ensureUniqueLandmarks,
   createInPageButton,
-  personName
+  personName,
+  myNewFunction
 };

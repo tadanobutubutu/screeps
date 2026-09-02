@@ -15,14 +15,33 @@ const {
 
 const http = require('http')
 
-// TODO: Update the existing function using the new functions for rendering graph/index
-// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+// Function to add language attribute to HTML element
+const addLanguageAttribute = () => {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = 'en';
+  }
+}
 
 const renderGraphIndex = (graphData) => {
   addressAccessibilityIssues();
   renderDependencyGraphs(graphData);
 }
 
+// TODO: Update the existing function using the new functions for rendering graph/index
+// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+
+// TODO: Add a language attribute to the HTML element
+
 module.exports = {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  addressAccessibilityIssues,
   renderGraphIndex
 }

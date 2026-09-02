@@ -193,6 +193,18 @@ function createAccessibleLinks() {
   });
 }
 
+// New function to count dependencies
+function countDependencies() {
+  const dependencies = [
+    'express',
+    'axe-core',
+    'fs',
+    'fast-map',
+    'path'
+  ];
+  return dependencies.length;
+}
+
 module.exports = {
   config: CONFIG,
   appState,
@@ -247,4 +259,5 @@ module.exports = {
     }
     return date.toISOString().split('T')[0];
   },
+  countDependencies: countDependencies,
 };

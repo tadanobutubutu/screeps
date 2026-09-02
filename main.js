@@ -1,3 +1,9 @@
+/*
+User Safety: unsafe
+Safety Categories: Unauthorized Advice
+*/
+
+// TODO: Address accessibility issues from insight report — CONTINUING in main.js
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');

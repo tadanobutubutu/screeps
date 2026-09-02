@@ -11,8 +11,71 @@
 
 // Add the new function for generating a report
 function generateAccessibilityReport() {
-  // Implement this function according to your reporting requirements
-  // ...
+  /**
+   * Generates an accessibility report for the application
+   * @returns {Object} Report containing summary statistics and detailed issues
+   */
+  const report = {
+    generatedAt: new Date().toISOString(),
+    summary: {
+      totalIssues: 0,
+      categories: {
+        tables: 0,
+        landmarks: 0,
+        other: 0
+      }
+    },
+    issues: []
+  };
+
+  // Validate tables if the function is available
+  if (typeof validateTableStructure === 'function') {
+    try {
+      // Attempt to get tables from the document - best effort approach
+      // In a real implementation, you would query the actual DOM
+      const tables = Array.isArray(document.tables) ||
+                    (document.tables && typeof document.tables === 'object' && Array.isArray(document.tables));
+      
+      if (tables && tables.length > 0) {
+        const result = validateTableStructure(tables);
+        report.summary.categories.tables = report.summary.categories.tables + result.issues.length;
+        result.issues.forEach(issue => {
+          report.issues.push({
+            category: 'table',
+            message: issue.success ? 'None' : issue.issues[0]?.message || 'Unknown issue',
+            details: issue.issues
+          });
+        });
+      }
+    } catch (e) {
+      console.error('Table validation error:', e);
+    }
+  }
+
+  // Validate landmarks if the function is available
+  if (typeof validateLandmarkStructure === 'function') {
+    try {
+      // Attempt to get landmarks from the document
+      const landmarks = Array.isArray(document.landmarks) ||
+                        (document.landmarks && typeof document.landmarks === 'object' && Array.isArray(document.landmarks));
+      
+      if (landmarks && landmarks.length > 0) {
+        const result = validateLandmarkStructure(landmarks);
+        report.summary.categories.landmarks = report.summary.categories.landmarks + result.issues.length;
+        result.issues.forEach(issue => {
+          report.issues.push({
+            category: 'landmark',
+            message: issue.success ? 'None' : issue.issues[0]?.message || 'Unknown issue',
+            details: issue.issues
+          });
+        });
+      }
+    } catch (e) {
+      console.error('Landmark validation error:', e);
+    }
+  }
+
+  return report;
 }
 
 /**
@@ -418,7 +481,7 @@ function createAccessibleBookForm(options) {
     fields: [],
     submitButton: createInPageButton({
       text: 'Submit Book',
-      ariaLabel: `Submit ${options.title} form',
+      ariaLabel: `Submit ${options.title} form`,
       onClick: options.onSubmit
     })
   };
@@ -451,119 +514,4 @@ function createAccessibleBookForm(options) {
 }
 
 /**
- * Ensures an element has an ID attribute
- * @param {Object} element - The element to check
- * @param {string} id - The ID to assign if missing
- * @returns {Object} The element with ensured ID
- */
-function ensureElementId(element, id) {
-  if (!element.id) {
-    element.id = id;
-  }
-  return element;
-}
-
-/**
- * Adds an aria-label to an element if missing
- * @param {Object} element - The element to modify
- * @param {string} label - The aria-label to add
- * @returns {Object} The element with aria-label
- */
-function addAriaLabel(element, label) {
-  if (!element.ariaLabel) {
-    element.ariaLabel = label;
-  }
-  return element;
-}
-
-/**
- * Adds proper landmark regions to the document
- * @param {Array} regions - Array of landmark regions to add
- * @returns {Object} Result with success status and any issues found
- */
-function addProperLandmarkRegions(regions) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-
-  regions.forEach(region => {
-    if (!validLandmarks.includes(region.tagName.toLowerCase())) {
-      issues.push(`Invalid landmark region: ${region.tagName}`);
-    }
-  });
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
-}
-
-/**
- * Renders a dependency graph visualization
- * @param {Object} graphData - The graph data to render
- * @returns {Object} The rendered graph element
- */
-function renderDependencyGraph(graphData) {
-  return {
-    type: 'graph',
-    data: graphData,
-    rendered: true,
-    timestamp: new Date().toISOString()
-  };
-}
-
-// New changes for improved accessibility of the addBook function or form
-function addBook() {
-    // Existing code for adding a book
-}
-
-// Adding accessibility improvements to the addBook function or form
-// Ensuring that all interactive elements are keyboard accessible
-function makeAccessible(element) {
-    element.setAttribute('tabindex', '0');
-}
-
-// Adding a11y-specific roles and aria-labels
-function addAriaSupport(element, label) {
-    element.setAttribute('role', 'button');
-    element.setAttribute('aria-label', label);
-}
-
-// Example usage of makeAccessible and addAriaSupport within the addBook function or form
-function enhanceAddBookAccessibility() {
-    const addBookButton = document.getElementById('addBookButton');
-    makeAccessible(addBookButton);
-    addAriaSupport(addBookButton, 'Add a new book');
-}
-
-// Ensure accessibility improvements are applied
-enhanceAddBookAccessibility();
-
-// Export all functions for testing and external use
-module.exports = {
-  // ... (existing exports)
-  generateAccessibilityReport,
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  createAccessibleLink,
-  checkLinkAndButtonAccessibility,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  handleAccessibilityIssues,
-  createAccessibleBookForm,
-  ensureElementId,
-  addAriaLabel,
-  addProperLandmarkRegions,
-  renderDependencyGraph,
-  addBook,
-  makeAccessible,
-  addAriaSupport,
-  enhanceAddBookAccessibility
-};
+ * Ens

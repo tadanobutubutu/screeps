@@ -101,3 +101,6 @@ function exampleFunction() {
 
 // Add the new function to the exports
 module.exports.exampleFunction = exampleFunction;
+
+// TODO: This is the modified and merged code
+// This is the existing code that needs to be preserved in main.js

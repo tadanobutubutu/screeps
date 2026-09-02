@@ -33,9 +33,9 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[؀-ۿ]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâçéèêëîïôùûüÿœæ]+/i.test(content)) {
+    } else if ... {
       lang = 'fr'; // French
-    } else if (/[äöüß]+/i.test(content)) {
+    } else if ... {
       lang = 'de'; // German
     }
   }
@@ -57,31 +57,31 @@ function validateTableAccessibility(tableElement) {
   const errors = [];
   
   // Check if table has proper structure
-  if (!tableElement.querySelector('thead')) {
+  if ... {
     errors.push('Table is missing <thead> element');
   }
   
-  if (!tableElement.querySelector('tbody')) {
+  if ... {
     errors.push('Table is missing <tbody> element');
   }
   
   // Check for th elements in thead
-  const thead = tableElement.querySelector('thead');
-  const thElements = thead ? thead.querySelectorAll('th') : [];
+  const thead = ...
+  const thElements = thead ? ... : [];
   if (thElements.length === 0) {
     errors.push('Table header row is missing <th> elements');
   }
   
   // Check that all th elements have scope attributes
   thElements.forEach((th, index) => {
-    if (!th.getAttribute('scope')) {
+    if ... {
       errors.push(`Table header cell ${index + 1} is missing scope attribute`);
     }
   });
   
   // Check for proper caption or summary
-  const hasCaption = tableElement.querySelector('caption');
-  const hasSummary = tableElement.getAttribute('aria-describedby');
+  const hasCaption = ...
+  const hasSummary = ...
   if (!hasCaption && !hasSummary) {
     errors.push('Table is missing a caption or aria-describedby for accessibility');
   }
@@ -95,10 +95,10 @@ function validateTableStructure(tableElement) {
   }
   
   const errors = [];
-  const rows = tableElement.querySelectorAll('tr');
+  const rows = ...
   
   rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td, th');
+    const cells = ... th');
     const cellCount = cells.length;
     
     // Check for empty cells
@@ -111,7 +111,7 @@ function validateTableStructure(tableElement) {
     // Check that rows have consistent cell counts
     if (rowIndex > 0) {
       const prevRow = rows[rowIndex - 1];
-      const prevCells = prevRow.querySelectorAll('td, th');
+      const prevCells = ... th');
       if (cellCount !== prevCells.length) {
         errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length} in previous row)`);
       }
@@ -134,11 +134,11 @@ function validateLandmark(element) {
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
   
-  if (role && !validLandmarks.includes(role) && !validLandmarks.includes(role.toLowerCase())) {
-    errors.push(`Invalid landmark role: ${role}`);
+  if (role && ... && ... {
+    ... landmark role: ${role}`);
   }
   
-  if (!role && !validLandmarks.includes(tagName)) {
+  if (!role && ... {
     errors.push(`Element is not a valid landmark: ${tagName}`);
   }
   
@@ -162,13 +162,13 @@ function validateLandmarkStructure() {
   const errors = [];
   
   // Check for multiple main landmarks
-  const mainElements = document.querySelectorAll('main, [role="main"]');
+  const mainElements = ... [role="main"]');
   if (mainElements.length > 1) {
-    errors.push(`Multiple main landmarks found (${mainElements.length}). Only one main landmark should exist.`);
+    errors.push(`Multiple main landmarks found ... Only one main landmark should exist.`);
   }
   
   // Check for proper nesting of landmarks
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
+  const landmarks = ... nav, main, aside, footer, section, article, [role]');
   landmarks.forEach((landmark) => {
     const parent = landmark.parentElement;
     while (parent) {
@@ -176,10 +176,10 @@ function validateLandmarkStructure() {
       const parentRole = parent.getAttribute('role');
       
       // Check for invalid nesting
-      if (parentTag === 'header' && landmark.tagName && landmark.tagName.toLowerCase() === 'header') {
+      if (parentTag === 'header' && landmark.tagName && ... === 'header') {
         errors.push('Nested header elements found');
       }
-      if (parentTag === 'footer' && landmark.tagName && landmark.tagName.toLowerCase() === 'footer') {
+      if (parentTag === 'footer' && landmark.tagName && ... === 'footer') {
         errors.push('Nested footer elements found');
       }
       
@@ -191,30 +191,30 @@ function validateLandmarkStructure() {
 }
 
 // New function to address REACT_041: Add accessible names to 2 SVGs
-function getSvgAccessibleName(svgElement) {
+function ... {
   if (typeof document === 'undefined' || !svgElement) {
     return null;
   }
   
   // Check for aria-label
-  let accessibleName = svgElement.getAttribute('aria-label');
+  let accessibleName = ...
   if (accessibleName) return accessibleName;
   
   // Check for aria-labelledby referencing another element
-  const labelledBy = svgElement.getAttribute('aria-labelledby');
+  const labelledBy = ...
   if (labelledBy) {
-    const labelElement = document.getElementById(labelledBy);
+    const labelElement = ...
     if (labelElement) return labelElement.textContent;
   }
   
   // Check for title element inside SVG
-  const title = svgElement.querySelector('title');
+  const title = ...
   if (title && title.textContent.trim()) {
     return title.textContent.trim();
   }
   
   // Check for desc element inside SVG
-  const desc = svgElement.querySelector('desc');
+  const desc = ...
   if (desc && desc.textContent.trim()) {
     return desc.textContent.trim();
   }
@@ -228,7 +228,7 @@ function validateSvgAccessibility() {
   }
   
   const errors = [];
-  const svgs = document.querySelectorAll('svg');
+  const svgs = ...
   
   svgs.forEach((svg, index) => {
     const name = getSvgAccessibleName(svg);
@@ -250,7 +250,9 @@ function ensureUniqueLandmarks() {
   const landmarkTypes = ['header', 'nav', 'main', 'aside', 'footer'];
   
   landmarkTypes.forEach((type) => {
+    // Find elements by tag name
     const elements = document.querySelectorAll(type);
+    // Find elements by role attribute
     const labeledElements = document.querySelectorAll(`[role="${type}"]`);
     const total = elements.length + labeledElements.length;
     
@@ -259,7 +261,7 @@ function ensureUniqueLandmarks() {
     } else if (total > 1) {
       // For nav and aside, multiple are allowed but must have unique labels
       const allElements = [...elements, ...labeledElements];
-      const labels = allElements.map(el => el.getAttribute('aria-label') || el.getAttribute('aria-labelledby'));
+      const labels = allElements.map(el => el.getAttribute('aria-label') || el.id || '');
       const uniqueLabels = new Set(labels.filter(l => l));
       if (uniqueLabels.size < total) {
         errors.push(`Multiple ${type} landmarks found without unique aria-labels`);
@@ -293,69 +295,4 @@ function createInPageButton(text, targetId, options) {
   button.type = 'button';
   
   // Set the accessible name
-  button.setAttribute('aria-label', opts.ariaLabel || text);
-  
-  // Use aria-controls to indicate the element the button controls/links to
-  if (targetId) {
-    button.setAttribute('aria-controls', targetId);
-  }
-  
-  // Set the text content
-  button.textContent = text;
-  
-  // Apply optional className
-  if (opts.className) {
-    button.className = opts.className;
-  }
-  
-  // Store the target id as a data attribute for handling clicks
-  if (targetId) {
-    button.setAttribute('data-target-id', targetId);
-    
-    // Attach a click handler that scrolls to the target and updates the URL hash
-    button.addEventListener('click', function(event) {
-      const targetElement = document.getElementById(targetId);
-      if (targetElement) {
-        // Prevent default to allow smooth scrolling behavior to be controlled
-        event.preventDefault();
-        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Update the URL hash without jumping
-        if (history && typeof history.pushState === 'function') {
-          history.pushState(null, '', '#' + targetId);
-        } else {
-          window.location.hash = targetId;
-        }
-        // Move focus to the target element if it's focusable, otherwise set tabindex
-        if (!targetElement.hasAttribute('tabindex')) {
-          targetElement.setAttribute('tabindex', '-1');
-        }
-        targetElement.focus({ preventScroll: true });
-      }
-    });
-  }
-  
-  return button;
-}
-
-function personName(name) {
-  if (typeof name !== 'string') {
-    return '';
-  }
-  return name.trim();
-}
-
-// Export all functions to make them available as module exports
-export {
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateSvgAccessibility,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  personName
-};
+  button.setAttribute

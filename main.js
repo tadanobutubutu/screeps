@@ -249,85 +249,95 @@ function newFocusTrap(container) {
 
 // TODO: Implement the new function as per the issue requirements
 /**
- * Creates an accessible modal dialog with proper ARIA attributes
- * @param {Object} options - Configuration options for the modal
- * @param {string} options.title - The title of the modal
- * @param {string} options.content - The content of the modal
- * @param {HTMLElement} options.parent - The parent element to append the modal to
- * @returns {HTMLElement} The created modal element
+ * Checks for accessibility issues in the rendered content
+ * @param {string} content - Rendered HTML content
+ * @returns {Array} List of accessibility issues found
  */
-function createAccessibleModal(options = {}) {
-  const { title = 'Modal Title', content = '', parent = document.body } = options;
-
-  if (typeof document === 'undefined') {
-    return null;
+function checkLandmarkElements(content) {
+  // Implementation for checking landmark elements accessibility
+  // This function should validate landmark elements in the content
+  // and return any accessibility issues found
+  
+  const issues = [];
+  
+  if (!content) {
+    return issues;
   }
-
-  // Create modal container
-  const modal = document.createElement('div');
-  modal.setAttribute('role', 'dialog');
-  modal.setAttribute('aria-modal', 'true');
-  modal.setAttribute('aria-labelledby', 'modal-title');
-  modal.setAttribute('aria-describedby', 'modal-content');
-  modal.className = 'modal';
-
-  // Create modal header
-  const header = document.createElement('div');
-  header.className = 'modal-header';
-
-  const titleElement = document.createElement('h2');
-  titleElement.id = 'modal-title';
-  titleElement.textContent = title;
-  header.appendChild(titleElement);
-
-  const closeButton = document.createElement('button');
-  closeButton.type = 'button';
-  closeButton.setAttribute('aria-label', 'Close modal');
-  closeButton.textContent = '×';
-  closeButton.className = 'modal-close';
-  closeButton.addEventListener('click', () => {
-    modal.remove();
-  });
-  header.appendChild(closeButton);
-
-  // Create modal content
-  const contentElement = document.createElement('div');
-  contentElement.id = 'modal-content';
-  contentElement.className = 'modal-content';
-  contentElement.innerHTML = content;
-
-  // Create modal footer
-  const footer = document.createElement('div');
-  footer.className = 'modal-footer';
-
-  const confirmButton = document.createElement('button');
-  confirmButton.type = 'button';
-  confirmButton.textContent = 'Confirm';
-  confirmButton.className = 'modal-confirm';
-  footer.appendChild(confirmButton);
-
-  // Assemble modal
-  modal.appendChild(header);
-  modal.appendChild(contentElement);
-  modal.appendChild(footer);
-
-  // Add to parent
-  parent.appendChild(modal);
-
-  // Focus the close button for accessibility
-  closeButton.focus();
-
-  // Create focus trap for the modal
-  const focusTrap = newFocusTrap(modal);
-
-  // Return modal with cleanup method
-  return {
-    element: modal,
-    close: () => {
-      focusTrap.detach();
-      modal.remove();
+  
+  // Parse the HTML content (simplified approach)
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(content, 'text/html');
+  
+  // Check for landmark elements (header, nav, main, aside, footer, section)
+  const landmarkTags = ['header', 'nav', 'main', 'aside', 'footer', 'section'];
+  const landmarks = doc.querySelectorAll(landmarkTags.join(', '));
+  
+  landmarks.forEach((landmark, index) => {
+    // Check for ARIA landmark roles
+    const role = landmark.getAttribute('role');
+    const tagName = landmark.tagName.toLowerCase();
+    
+    // If the landmark doesn't have a role attribute, check if it should have one
+    if (!role && !['header', 'footer'].includes(tagName)) {
+      // Add issue: missing ARIA landmark role
+      issues.push({
+        type: 'missing-landmark-role',
+        element: landmark,
+        tagName: tagName,
+        index: index,
+        message: `Landmark element <${tagName}> should have an ARIA role attribute for accessibility`
+      });
     }
-  };
+    
+    // Check for aria-label or aria-labelledby
+    if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+      // Add issue: missing accessible name
+      issues.push({
+        type: 'missing-accessible-name',
+        element: landmark,
+        tagName: tagName,
+        index: index,
+        message: `Landmark element <${tagName}> should have an accessible name via aria-label or aria-labelledby`
+      });
+    }
+    
+    // Check for unique landmarks (for certain types like nav, main, etc.)
+    if (tagName === 'nav' || tagName === 'main' || tagName === 'aside') {
+      // Check if this landmark has a unique identifier
+      if (!landmark.id && !landmark.getAttribute('aria-labelledby')) {
+        issues.push({
+          type: 'non-unique-landmark',
+          element: landmark,
+          tagName: tagName,
+          index: index,
+          message: `Landmark element <${tagName}> should have a unique identifier for accessibility`
+        });
+      }
+    }
+  });
+  
+  // Check for duplicate landmark roles (more than one with same role)
+  const roleCounts = {};
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    if (!roleCounts[role]) {
+      roleCounts[role] = 0;
+    }
+    roleCounts[role]++;
+  });
+  
+  Object.entries(roleCounts).forEach(([role, count]) => {
+    if (count > 1) {
+      issues.push({
+        type: 'duplicate-landmark-role',
+        role: role,
+        count: count,
+        message: `Multiple landmark elements with role "${role}" may cause confusion for screen readers`
+      });
+    }
+  });
+  
+  return issues;
 }
 
 // Preserve all existing exports
@@ -346,5 +356,6 @@ module.exports = {
   validateUniqueLandmarks,
   newFocusTrap,
   checkAccessibility,
+  checkLandmarkElements,
   createAccessibleModal
 };

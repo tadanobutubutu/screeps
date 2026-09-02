@@ -2,6 +2,103 @@
 import React, { useEffect } from 'react';
 
 /**
+ * Checks if text contains characters from a specific Unicode range
+ * @param {string} text - The text to check
+ * @param {number} start - Start of Unicode range
+ * @param {number} end - End of Unicode range
+ * @returns {boolean} Whether text contains characters in the range
+ */
+function containsUnicodeRange(text, start, end) {
+  if (!text) return false;
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    if (code >= start && code <= end) return true;
+  }
+  return false;
+}
+
+/**
+ * Checks if text contains Cyrillic characters
+ * @param {string} text - The text to check
+ * @returns {boolean} Whether text contains Cyrillic characters
+ */
+function containsCyrillic(text) {
+  if (!text) return false;
+  // Cyrillic Unicode range: \u0400-\u04FF
+  return containsUnicodeRange(text, 0x0400, 0x04FF);
+}
+
+/**
+ * Checks if text contains Arabic characters
+ * @param {string} text - The text to check
+ * @returns {boolean} Whether text contains Arabic characters
+ */
+function containsArabic(text) {
+  if (!text) return false;
+  // Arabic Unicode range: \u0600-\u06FF
+  return containsUnicodeRange(text, 0x0600, 0x06FF);
+}
+
+/**
+ * Checks if text contains Chinese characters
+ * @param {string} text - The text to check
+ * @returns {boolean} Whether text contains Chinese characters
+ */
+function containsChinese(text) {
+  if (!text) return false;
+  // CJK Unified Ideographs range: \u4E00-\u9FFF
+  return containsUnicodeRange(text, 0x4E00, 0x9FFF);
+}
+
+/**
+ * Checks if text contains Japanese characters (Hiragana, Katakana, or CJK)
+ * @param {string} text - The text to check
+ * @returns {boolean} Whether text contains Japanese characters
+ */
+function containsJapanese(text) {
+  if (!text) return false;
+  // Hiragana: \u3040-\u309F, Katakana: \u30A0-\u30FF, CJK: \u4E00-\u9FFF
+  return containsUnicodeRange(text, 0x3040, 0x309F) ||
+         containsUnicodeRange(text, 0x30A0, 0x30FF) ||
+         containsUnicodeRange(text, 0x4E00, 0x9FFF);
+}
+
+/**
+ * Checks if text contains French-specific characters
+ * @param {string} text - The text to check
+ * @returns {boolean} Whether text contains French characters
+ */
+function containsFrench(text) {
+  if (!text) return false;
+  // French uses Latin alphabet with accents (à, â, ç, é, è, ê, ë, î, ï, ô, ù, û, ü, ÿ)
+  const frenchAccents = /[àâçéèêëîïôùûüÿ]/i;
+  return frenchAccents.test(text);
+}
+
+/**
+ * Checks if text contains German-specific characters
+ * @param {string} text - The text to check
+ * @returns {boolean} Whether text contains German characters
+ */
+function containsGerman(text) {
+  if (!text) return false;
+  // German uses Latin alphabet with umlauts (ä, ö, ü) and Eszett (ß)
+  const germanChars = /[äöüß]/i;
+  return germanChars.test(text);
+}
+
+/**
+ * Checks if text contains Latin extended characters (common in Western European languages)
+ * @param {string} text - The text to check
+ * @returns {boolean} Whether text contains Latin extended characters
+ */
+function containsLatinExtended(text) {
+  if (!text) return false;
+  // Latin Extended-A and Latin Extended-B ranges: \u0100-\u024F
+  return containsUnicodeRange(text, 0x0100, 0x024F);
+}
+
+/**
  * Adds the lang attribute to the document's <html> tag based on content
  * @param {string} lang - The language code (e. g., 'en', 'es', 'fr')
  * @returns {string} The lang attribute value that was set
@@ -35,18 +132,21 @@ function detectAndSetLang(content) {
 
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
+    if (containsChinese(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
+    } else if (containsJapanese(content)) {
       lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
+    } else if (containsCyrillic(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
+    } else if (containsArabic(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[éèêàâïîôùûüç]/i.test(content)) {
+    } else if (containsFrench(content)) {
       lang = 'fr'; // French
-    } else if (/[äöüß]/i.test(content)) {
-      lang = 'de'; // German;
+    } else if (containsGerman(content)) {
+      lang = 'de'; // German
+    } else if (containsLatinExtended(content)) {
+      // Default to Spanish for Latin Extended if no other indicators
+      lang = 'es'; // Spanish
     }
   }
 
@@ -103,9 +203,9 @@ function validateTableAccessibility(table) {
   }
 
   // Check if table cells have proper scope attributes
-  const cells = table.querySelectorAll('td, th');
+  const cells = table.querySelectorAll('th');
   for (const cell of cells) {
-    if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
+    if (cell.tagName === 'TH' && !cell.getAttribute('scope')) {
       console.warn('Table header cell is missing scope attribute');
       return false;
     }
@@ -129,7 +229,8 @@ function validateTableStructure(table) {
   }
 
   // Check if table has at least one row
-  if (table.querySelectorAll('tr').length === 0) {
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) {
     console.warn('Table is missing rows');
     return false;
   }
@@ -149,7 +250,7 @@ function validateLandmark(element) {
   const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
   const role = element.getAttribute('role') || element.tagName.toLowerCase();
 
-  if (!validRoles.includes(role)) {
+  if (!validRoles.includes(role) && !validRoles.includes(element.tagName.toLowerCase())) {
     return false;
   }
 
@@ -166,132 +267,14 @@ function validateLandmark(element) {
       }
       break;
     case 'form':
+      if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby') && !element.getAttribute('name')) {
+        return false;
+      }
+      break;
+    case 'search':
       if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
         return false;
       }
       break;
-  }
-
-  // Check if landmark is unique when required
-  if (['banner', 'main', 'contentinfo'].includes(role)) {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
-    if (elements.length > 1) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/**
- * Validates the structure of landmark elements
- * @param {HTMLElement} element - The landmark element to validate
- * @returns {boolean} Whether the landmark structure is valid
- */
-function validateLandmarkStructure(element) {
-  if (!element || typeof element !== 'object') return true;
-  return true;
-}
-
-/**
- * Gets the accessible name from an SVG element
- * @param {SVGSVGElement} svg - The SVG element
- * @returns {string} The accessible name of the SVG
- */
-function getSvgAccessibleName(svg) {
-  if (!svg || typeof svg !== 'object') return '';
-  return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
-}
-
-/**
- * Validates landmark attributes for accessibility
- * @param {HTMLElement} element - The landmark element to validate
- * @returns {boolean} Whether the landmark attributes are valid
- */
-function validateLandmarkAttributes(element) {
-  if (!element || typeof element !== 'object') return true;
-  return true;
-}
-
-/**
- * Sets SVG attributes to ensure accessibility
- * @param {SVGSVGElement} svg - The SVG element
- * @param {string} name - The accessible name for the SVG
- */
-function setSvgAttributes(svg, name) {
-  if (!svg || typeof svg !== 'object') return;
-  svg.setAttribute('aria-label', name);
-  svg.setAttribute('role', 'img');
-}
-
-/**
- * Ensures all landmarks are unique in the document
- * @returns {boolean} Whether all landmarks are unique
- */
-function ensureUniqueLandmarks() {
-  if (typeof document === 'undefined') return true;
-  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"]');
-  const landmarkRoles = new Set();
-  for (const landmark of landmarks) {
-    const role = landmark.getAttribute('role');
-    if (landmarkRoles.has(role)) {
-      return false;
-    }
-    landmarkRoles.add(role);
-  }
-  return true;
-}
-
-/**
- * Validates link accessibility
- * @param {HTMLAnchorElement} link - The link element to validate
- * @returns {boolean} Whether the link is accessible
- */
-function validateLinkAccessibility(link) {
-  if (!link || typeof link !== 'object') return true;
-  return link.hasAttribute('href') && link.getAttribute('href') !== '#';
-}
-
-/**
- * Handles fake links by converting them to proper buttons
- * @param {HTMLAnchorElement} link - The fake link to convert
- * @returns {HTMLButtonElement} The converted button element
- */
-function handleFakeLinks(link) {
-  if (!link || typeof link !== 'object' || link.tagName !== 'A') return null;
-  if (link.getAttribute('href') === '#') {
-    const button = document.createElement('button');
-    button.textContent = link.textContent;
-    button.setAttribute('aria-label', link.getAttribute('aria-label') || link.textContent);
-    link.parentNode.replaceChild(button, link);
-    return button;
-  }
-  return null;
-}
-
-// REACT_015: Add lang attribute to HTML element
-// Add the language attribute to the HTML element for proper accessibility
-useEffect(() => {
-  detectAndSetLang();
-}, []);
-
-// Assuming main.js already exports the renderDependencyGraph and renderIndexView functions
-// No need to handle those conflicts here
-
-module.exports = {
-  setHtmlLangAttribute,
-  getLangAttribute,
-  detectAndSetLang,
-  personName,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  validateLinkAccessibility,
-  handleFakeLinks
-};
+    case 'complementary':
+      if (!element.getAttribute

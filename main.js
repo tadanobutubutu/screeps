@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 
 /**
- * Adds the lang attribute to the document's <html> tag based on content
+ * Adds the lang attribute to the document's <html> tag based on your content
  * @param {string} lang - The language code (e. g., 'en', 'es', 'fr')
  * @returns {string} The lang attribute value that was set
  */
@@ -269,10 +269,29 @@ function handleFakeLinks(link) {
   return null;
 }
 
-// REACT_015: Add lang attribute to HTML element
-// Add the language attribute to the HTML element for proper accessibility
+/**
+ * Ensures the dependencyGraph container has a proper ARIA role.
+ * Adds role="region" and aria-label="Dependency Graph" if the element exists.
+ */
+function ensureDependencyGraphAriaRole() {
+  if (typeof document === 'undefined') return;
+  const container = document.getElementById('dependencyGraph');
+  if (container) {
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
+/**
+ * Adds the language attribute to the HTML element for proper accessibility
+ */
 useEffect(() => {
   detectAndSetLang();
+}, []);
+
+// Ensure the dependencyGraph container has a proper ARIA role after the initial render
+useEffect(() => {
+  ensureDependencyGraphAriaRole();
 }, []);
 
 // Assuming main.js already exports the renderDependencyGraph and renderIndexView functions

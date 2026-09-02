@@ -1,20 +1,27 @@
-Looking at the issue, the problem is that `ensureUniqueLandmarks` is being declared multiple times:
-1. As a function definition
-2. As a destructured import from `accessibilityUtilities`
-3. Also being exported multiple times
-
-I need to alias the destructured import to avoid the naming conflict. Here's the fixed version:
-
-```javascript
 const books = [];
 const safetyCategory = "User Safety: safe";
+const userSafety = 'unsafe';
+const safetyCategories = 'Unauthorized Advice';
 
-const utils = require('./utils');
-const axe = require('axe-core');
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const { a11y } = require('@accessible/react');
+export const checkUserSafety = () => {
+  let userSafetyMessage = '';
+
+  if (userSafety !== 'safe') {
+    userSafetyMessage = 'User safety level is set to "unsafe". Please review and update this setting for better security.';
+  }
+
+  return userSafetyMessage;
+};
+
+export const checkSafetyCategories = () => {
+  let safetyCategoriesMessage = '';
+
+  if (safetyCategories.includes('Authorized Advice')) {
+    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
+  }
+
+  return safetyCategoriesMessage;
+};
 
 function addBook(title, author) {
   const bookObject = { title, author };
@@ -40,8 +47,6 @@ function getBooksList() {
 }
 
 function initialize() {
-  // ... existing initialization code remains
-
   // Helper function
   const initialize = () => {
     console.log('Initializing application...');
@@ -62,99 +67,11 @@ function initialize() {
         dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
       }
     }
-
-    // ... existing initialization code remains
   };
 
-  // Accessibility improvements (added from the other branch)
+  // Accessibility improvements
   const accessibilityUtilities = require('./accessibility-utilities');
   const { setLanguageAttribute, addLandmarkRoles, fixFakeLinks, addressAccessibilityIssues, createInPageButton, setSvgAccessibleNames, ensureUniqueLandmarks: ensureUniqueLandmarksFromUtils, fixUniqueLandmarks: fixUniqueLandmarksFromUtils } = accessibilityUtilities;
-
-  // Set up script for handling Git merge conflict
-  // Only continue with updates from 'origin/main' branch that don't interfere with book-related functions
-  if (module.parent) {
-    // Require modules from 'origin/main' branch
-    const originMainModules = require('./origin-main-modules');
-    const { function1, function2, function3, config, initializeApp, newFunction, validateInput, processData, formatResponse, newFunctionFromOriginMain, updatedFunction1, updatedFunction2, newImplementationForFunction3 } = originMainModules;
-
-    // Add new function from 'origin/main' branch
-    const newFunction = () => {
-      console.log('New function added');
-    };
-
-    // Update existing functions if required
-    function1 = (...args) => {
-      console.log('Updated function1 implementation:', args);
-    };
-
-    function2 = (...args) => {
-      console.log('Updated function2 implementation:', args);
-    };
-
-    // Implement new function3 logic
-    function3 = () => {
-      // ... implementation from 'origin/main' branch
-      return "function3 implemented";
-    };
-
-    // Update exported functions
-    const { generateAccessibilityReport, validateTableAccessibility, validateTableStructure, getSvgAccessibleName, setSvgAttributes, addMainLandmark, validateLandmark, validateLandmarkStructure, validateLandmarkAttributes, addProperLandmarkRegions, validateLinkAccessibility, handleFakeLinks, checkLinkAccessibility, getLangAttribute } = accessibilityUtilities;
-
-    // ... add other imported functions if necessary
-
-    // Export updated functions
-    module.exports = {
-      addBook,
-      getBooksList,
-      safetyCategory,
-      createInPageButton,
-      getLangAttribute,
-      generateAccessibilityReport,
-      validateTableAccessibility,
-      validateTableStructure,
-      getSvgAccessibleName,
-      setSvgAttributes,
-      ensureUniqueLandmarks,
-      addMainLandmark,
-      validateLandmark,
-      validateLandmarkStructure,
-      validateLandmarkAttributes,
-      addProperLandmarkRegions,
-      validateLinkAccessibility,
-      handleFakeLinks,
-      checkLinkAccessibility,
-      announceBookAdded,
-      function3,
-      setLanguageAttribute,
-      addLandmarkRoles,
-      fixFakeLinks,
-      addressAccessibilityIssues,
-      // Keep other exported functions
-      config,
-      initializeApp,
-      loadLandmarks,
-      processLandmarks,
-      sortLandmarks,
-      getLandmarkById,
-      main,
-      newFunction,
-      function1,
-      function2,
-      validateInput,
-      processData,
-      formatResponse,
-      newFunctionFromOriginMain,
-      updatedFunction1,
-      updatedFunction2,
-      newImplementationForFunction3
-    };
-  }
-
-  // Rest of the code remains the same as before the merge conflict
-  // ...
-
-  // Accessibility improvements
-  addressAccessibilityIssues();
 
   // Create the in-page button
   createInPageButton('Accessibility Info', () => {
@@ -182,48 +99,217 @@ function initialize() {
   server.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
   });
+}
 
-  server.listen(3001, () => {
-    console.log('Server started on port 3001');
+export const visualizeDependencyTree = function(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
+};
+
+function generateDependencyReport(dependencies) {
+  let graph = 'Dependency Tree:\n';
+  dependencies.forEach(dep => {
+    graph += `- ${dep.name}\n`;
   });
+  return { graph };
 }
 
-// Set up script for running the application directly
-if (require.main === module) {
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-  const sorted = sortLandmarks(processed);
+function fixAccessibilityIssues() {
+  // Fix fake links by converting them to proper buttons
+  handleFakeLinks();
 
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
+  // Validate and fix table accessibility issues
+  validateTableAccessibility();
 
-  if (sorted.length > 0) {
-    console.log('First landmark:', sorted[0]);
+  // Validate and fix table structure issues
+  validateTableStructure();
+
+  // Validate and fix landmark issues
+  validateLandmark();
+  validateLandmarkStructure();
+
+  // Validate and fix SVG accessibility issues
+  getSvgAccessibleName();
+  setSvgAttributes();
+
+  // Validate and fix link accessibility issues
+  validateLinkAccessibility();
+  checkLinkAccessibility();
+
+  // Set language attributes
+  getLangAttribute();
+  getFullLangAttribute();
+}
+
+export const main = {
+  init: function() {
+    console.log('Application initialized');
+  },
+
+  greet: function(name) {
+    return `Hello, ${name}!`;
+  },
+
+  rotateBack: function() {
+    console.log('Reverting back the rotation.');
+  },
+
+  addressAccessibilityIssues: function() {
+    fixAccessibilityIssues();
+  },
+
+  addBook: function(title, author, isbn) {
+    const form = document.createElement('form');
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-label', 'Add Book Form');
+
+    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
+    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
+    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
+
+    const submitButton = document.createElement('button');
+    submitButton.setAttribute('type', 'submit');
+    submitButton.setAttribute('aria-label', 'Add Book');
+    submitButton.textContent = 'Add Book';
+
+    form.appendChild(titleInput);
+    form.appendChild(authorInput);
+    form.appendChild(isbnInput);
+    form.appendChild(submitButton);
+
+    document.body.appendChild(form);
+
+    // Add event listener for form submission
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      console.log('Book added:', {
+        title: titleInput.value,
+        author: authorInput.value,
+        isbn: isbnInput.value
+      });
+    });
+
+    return form;
   }
+};
+
+/**
+ * Creates an accessible input element with proper labeling.
+ * @param {string} type - Input type (text, number, etc.)
+ * @param {string} id - Unique identifier for the input
+ * @param {string} labelText - Text for the associated label
+ * @param {string} value - Initial value for the input
+ * @returns {HTMLElement} The created input element with label
+ */
+function createAccessibleInput(type, id, labelText, value = '') {
+  const container = document.createElement('div');
+  container.className = 'form-group';
+
+  const label = document.createElement('label');
+  label.setAttribute('for', id);
+  label.textContent = labelText;
+
+  const input = document.createElement('input');
+  input.setAttribute('type', type);
+  input.setAttribute('id', id);
+  input.setAttribute('name', id);
+  input.setAttribute('aria-required', 'true');
+  input.setAttribute('aria-label', labelText);
+  input.value = value;
+
+  container.appendChild(label);
+  container.appendChild(input);
+
+  return container;
 }
 
-// Helper functions
+/**
+ * Creates an in-page button element with optional click handler.
+ * @param {string} buttonText - The label text for the button
+ * @param {Function} onClickHandler - Callback function triggered when the button is clicked
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(buttonText, onClickHandler) {
+  const button = document.createElement('button');
+  button.textContent = buttonText;
+  if (onClickHandler && typeof onClickHandler === 'function') {
+    button.addEventListener('click', onClickHandler);
+  }
+  return button;
+}
+
+// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
+// If not, define it here:
+export function rotateBack() {
+  // Your code to rotate back
+  console.log('Reverting back the rotation.');
+}
+
+// Additional accessibility-related code changes:
+// Ensure that all interactive elements have appropriate keyboard support
+// Check that ARIA attributes are correctly paired and have appropriate values
+
+// REACT_015: lang attribute should be added to the HTML element (typically in index.html)
+// <html lang="en">
+
+// REACT_017: Add landmark roles and fix landmark issues
+// Add main landmark role to main content area
+// Example: <main role="main">...</main>
+
+// REACT_025: Ensure unique landmarks
+// Ensure only one main landmark per page
+// Use unique aria-label or aria-labelledby for landmark regions
+
+// REACT_036: Fix fake link issue - convert <a href="#"> to <button> with proper ARIA
+function createUnrotateButton() {
+  const button = document.createElement('button');
+  button.id = 'unrotate';
+  button.setAttribute('role', 'button');
+  button.ariaLabel = 'rotate back';
+  button.textContent = 'rotate back';
+  button.addEventListener('click', rotateBack);
+  return button;
+}
+
+// Replace fake links with proper buttons
+const fakeLink = document.querySelector('a[href="#"]');
+if (fakeLink && fakeLink.tagName === 'A') {
+  const parent = fakeLink.parentElement;
+  const newButton = createUnrotateButton();
+  parent.replaceChild(newButton, fakeLink);
+}
+
+// Load landmarks from file (new addition)
+import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
-    const filePath = path.join(config.dataPath, 'landmarks.json');
+    const filePath = path.join(__dirname, 'landmarks.json');
     const data = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(data);
   } catch (error) {
-    console.error('Error loading landmarks:', error.message);
-    return [];
+      console.error('Error loading landmarks:', error.message);
+      return [];
   }
 }
 
-function processLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
+// Updated function: ensures landmarks uniqueness when there's an array structure
+function ensureLandmarkUniqueness(elements) {
+  const landmarkTypes = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const elementsById = {};
+
+  if (Array.isArray(elements)) {
+    for (const landmark of elements) {
+      if (landmark.id) {
+        if (elementsById[landmark.id]) {
+          landmark.id += '_duplicate';
+        } else {
+          elementsById[landmark.id] = true;
+        }
+      }
+    }
   }
 
-  const validLandmarks = landmarks.filter(l => l && l.role);
-  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
-  return uniqueLandmarks.slice(0, config.maxResults);
+  return elements;
 }
 
 function ensureUniqueLandmarks(landmarks) {
@@ -240,22 +326,65 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
-// Accessibility improvements (added from the other branch)
-const accessibilityUtilities = require('./accessibility-utilities');
-const { setLanguageAttribute, addLandmarkRoles, fixFakeLinks, addressAccessibilityIssues, createInPageButton, setSvgAccessibleNames, ensureUniqueLandmarks: ensureUniqueLandmarksFromUtils, fixUniqueLandmarks: fixUniqueLandmarksFromUtils } = accessibilityUtilities;
+function processLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
 
-// Re-export functions from 'AccessibilityUtilities' in the updated module.exports object
-module.exports = {
-  ...module.exports,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  addressAccessibilityIssues,
-  createInPageButton,
-  setSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixUniqueLandmarks: fixUniqueLandmarksFromUtils
-};
+  const validLandmarks = landmarks.filter(l => l && l.role);
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+  return uniqueLandmarks;
+}
+
+// Updated function using the new functions for rendering graph/index
+function renderDependencyGraphContent() {
+  const container = document.getElementById('dependency-graph');
+  if (!container) {
+    return;
+  }
+
+  // Ensure the dependencyGraph container has a proper ARIA role for accessibility
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', 'Dependency Graph');
+
+  // Use the new functions for rendering
+  renderDependencyGraph(container);
+  renderIndexView(container);
+}
+
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = {
+    'react': true,
+    'react-redux': true,
+    'antd': true
+  };
+  return Object.keys(dependencies).length;
+}
+
+// Function to enhance accessibility for addBook form
+function enhanceAddBookFormAccessibility(formElement) {
+  if (!formElement) return;
+
+  // Add ARIA attributes to form elements
+  formElement.setAttribute('role', 'form');
+  formElement.setAttribute('aria-labelledby', 'add-book-form-title');
+
+  // Find and enhance form controls
+  const inputs = formElement.querySelectorAll('input, textarea, select');
+  inputs.forEach(input => {
+    // Add required attribute if needed
+    if (input.required) {
+      input.setAttribute('aria-required', 'true');
+    }
+
+    // Add labels if missing
+    if (!input.id) {
+      input.id = `input_${Math.random().toString(36).substr(2, 9)}`;
+    }
+  });
+}
 
 // New function from origin/main branch
 function createBookForm(title, author, isbn) {
@@ -338,4 +467,61 @@ function createBookForm(title, author, isbn) {
 
     // Validate inputs
     if (!titleInput.value.trim()) {
-      errorArea.textContent = 'Please enter
+      errorArea.textContent = 'Please enter a book title.';
+    } else if (!authorInput.value.trim()) {
+      errorArea.textContent = 'Please enter the author name.';
+    } else if (!isbnInput.value.trim()) {
+      errorArea.textContent = 'Please enter the ISBN.';
+    } else {
+      successArea.textContent = 'Book added successfully!';
+    }
+  });
+
+  return form;
+}
+
+// Re-export functions from 'AccessibilityUtilities' in the updated module.exports object
+module.exports = {
+  addBook,
+  getBooksList,
+  safetyCategory,
+  createInPageButton,
+  getLangAttribute,
+  generateAccessibilityReport,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  addProperLandmarkRegions,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  checkLinkAccessibility,
+  announceBookAdded,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  addressAccessibilityIssues,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  main,
+  checkUserSafety,
+  checkSafetyCategories,
+  createAccessibleInput,
+  createBookForm,
+  createUnrotateButton,
+  fixAccessibilityIssues,
+  generateDependencyReport,
+  renderDependencyGraphContent,
+  countDependencies,
+  enhanceAddBookFormAccessibility,
+  ensureLandmarkUniqueness,
+  visualizeDependencyTree,
+  rotateBack
+};

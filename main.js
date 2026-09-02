@@ -11,7 +11,6 @@ const {
     getLangAttribute,
     validateAccessibilityReport,
     exportUtils,
-    addressAccessibilityIssues,
     handleCredentialResponse,
     ensureElementHasId,
     ensureElementHasIdOrigin,
@@ -21,7 +20,7 @@ const {
     fixDependencyGraphAria,
     addMainLandmarkToIndex,
     focusTrap,
-    checkAccessibility,
+    // Omit addressAccessibilityIssues and checkAccessibility from import to avoid duplicate declarations
 } = main;
 
 // Implement the function for addressing accessibility issues from insight report

@@ -9,6 +9,47 @@
 
 // TODO: Add new functions below this line
 
+/**
+ * Extracts the accessible name from an element
+ * @param {HTMLElement} element - The element to extract name from
+ * @returns {string|null} The accessible name or null if not available
+ */
+function getElementAccessibleName(element) {
+  if (!element) return null;
+  if (element instanceof HTMLElement) {
+    const ariaLabel = element.getAttribute('aria-label');
+    const ariaLabelledBy = element.getAttribute('aria-labelledby');
+    const title = element.getAttribute('title');
+    if (ariaLabel || ariaLabelledBy || title) {
+      return ariaLabel || ariaLabelledBy || title;
+    }
+    return element.textContent.trim();
+  }
+  return null;
+}
+
+/**
+ * Determines if an element can receive focus
+ * @param {HTMLElement} element - The element to check
+ * @returns {boolean} True if element is focusable
+ */
+function isElementFocusable(element) {
+  if (!element) return false;
+  return element.focusable !== false;
+}
+
+/**
+ * Gets the role of an element
+ * @param {HTMLElement} element - The element to check
+ * @returns {string} The element's role (e.g., 'main', 'navigation')
+ */
+function getElementRole(element) {
+  if (!element) return null;
+  const role = element.getAttribute('role');
+  if (role) return role;
+  return 'unknown';
+}
+
 const main = require('./utilities');
 
 const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap } = main;

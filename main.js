@@ -513,6 +513,29 @@ function addProperLandmarkRegions(document) {
   return document;
 }
 
+/**
+ * Handles new accessibility issues
+ * @param {Array} issues - Array of accessibility issues
+ * @returns {Object} Summary of handled and unhandled issues
+ */
+function handleNewAccessibilityIssues(issues) {
+  const handled = [];
+  const unhandled = [];
+
+  issues.forEach(issue => {
+    if (issue.fixable) {
+      handled.push(issue);
+    } else {
+      unhandled.push(issue);
+    }
+  });
+
+  return {
+    handled,
+    unhandled
+  };
+}
+
 module.exports = {
   getLangAttribute,
   getFullLangAttribute,
@@ -535,5 +558,6 @@ module.exports = {
   fixTableStructure,
   addMainLandmark,
   setSvgAttributes,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  handleNewAccessibilityIssues
 };

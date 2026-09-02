@@ -21,8 +21,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 /**
- * Gets the lang attribute for the HTML element
- * @returns {string} The lang attribute value
+ * Main entry point for the application
  */
 function getLangAttribute() {
   return document.documentElement.lang || 'en';

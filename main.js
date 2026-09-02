@@ -1,9 +1,7 @@
-Here is the resolved version of the `main.js` file:
-
-```javascript
 // Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent')
 const { indexContent } = require('./indexContent')
+const accessibilityUtils = require('./accessibilityUtils');
 
 /**
  * Main entry point for the Screeps bot.
@@ -15,6 +13,19 @@ class ScreepsBot {
 
 function getSvgAccessibleName(svg) {
   // ... Remaining code from both branches ...
+}
+
+/**
+ * Calculate the complexity of a given JavaScript module.
+ * This function will help us determine the prioritization of tasks.
+ * The complexity is calculated based on the number of dependencies a module has.
+ *
+ * @param {Object} moduleData - An object representing the data of a JavaScript module.
+ * @param {Array<Object>} moduleData.dependencies - An array of objects representing dependent modules.
+ * @returns {Number} The calculated complexity of the module.
+ */
+function calculateComplexity(moduleData) {
+  return moduleData.dependencies ? moduleData.dependencies.length : 0;
 }
 
 function renderDependencyGraph(deps, options = {}) {
@@ -33,9 +44,10 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     renderDependencyGraph,
     renderIndex,
-    // ... Add ScreepsBot, updateUI, and accessibilityUtils if required
+    calculateComplexity,
+    ScreepsBot,
+    getSvgAccessibleName,
+    // Add accessibilityUtils if required
+    accessibilityUtils
   };
 }
-```
-
-This resolution keeps both the dependency imports and the `ScreepsBot`, `updateUI`, and `accessibilityUtils` if required in the final export. The rest of the code remains the same between both branches, so it is preserved as is.

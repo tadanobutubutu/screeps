@@ -410,20 +410,6 @@ function isLinkAccessible(link) {
   return { valid: errors.length === 0, errors };
 }
 
-/**
- * Creates an accessible in-page button and appends it to the given parent element.
- * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(parent = document.body) {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.setAttribute('role', 'button');
-  btn.setAttribute('aria-label', 'Open modal');
-  parent.appendChild(btn);
-  return btn;
-}
-
 // New function to address ADD: Address new accessibility issues from insight report
 function validateFormAccessibility(form) {
   // This function validates the accessibility of forms
@@ -546,10 +532,6 @@ function exampleFunction() {
     console.log("This is the new function exampleFunction");
 }
 
-// TODO: Implement actual logic for functionA
-function functionA() {
-
-// TODO: Implement tower defense
 function towerDefense() {
   // A simple tower defense game implementation
   // Define towers, enemies, waves, and game loop
@@ -751,6 +733,3 @@ module.exports = {
   countDependencies,
   exampleFunction
 };
-
-// Add the new function to the exports
-module.exports.exampleFunction = exampleFunction;

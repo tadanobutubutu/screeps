@@ -1,3 +1,5 @@
+// TODO: Preserved existing function from origin/main
+
 // TODO: This is the existing code that needs to be preserved
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
@@ -51,8 +53,8 @@ if (dependencyGraph) {
   }
 
   // Ensure element has an ID if not present
-  if (!dependencyGraph.getAttribute('id')) {
-    dependencyGraph.setAttribute('id', 'dependencyGraph')
+  if (!dependencyGraph.id) {
+    dependencyGraph.id = 'dependencyGraph'
   }
 
   // Ensure the container is focusable if it's interactive
@@ -66,17 +68,18 @@ function addAccessibleName (svgString) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
+  const parser = new DOMParser()
+  const svg = parser.parseFromString(svgString, 'image/svg+xml')
   const svgElement = svg.documentElement
-  if (!svgElement.getAttribute('aria-label')) {
+  if (!svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
     svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
   }
-  return new XMLSerializer().serializeToString(svg)
+  const serializer = new XMLSerializer()
+  return serializer.serializeToString(svg)
 }
 
 // Example usage of the function
-const originalSvgString =
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
+const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...'
 const modifiedSvgString = addAccessibleName(originalSvgString)
 
 /**
@@ -100,16 +103,17 @@ function validateTableStructure (tableData) {
 }
 
 // Call the functions to address the accessibility issues
-addLangAttribute();
-fixTableStructure();
-addMainLandmark();
-fixLandmarkIssues();
-ensureUniqueLandmarks();
-addSvgAccessibleNames();
-addAccessibleNamesToSVGs();
-fixFakeLinkIssue();
-googleSignIn();
-fixButtonIdentifiers();
+addLangAttribute()
+fixTableStructure()
+fixLandmarkIssues()
+addMainLandmark()
+ensureUniqueLandmarks()
+addSvgAccessibleNames()
+addAccessibleNamesToSVGs()
+fixFakeLinkIssue()
+fixFakeLinkIssues()
+googleSignIn()
+fixButtonIdentifiers()
 
 // Other code...
 
@@ -131,7 +135,7 @@ module.exports = {
 function renderAdditionalContent (additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
+  return '<div class="additional-content">' + (additionalData ? additionalData.content : '') + '</div>'
 }
 
 // Add the new function to the exports

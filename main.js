@@ -96,6 +96,8 @@ function createInPageButton(options) {
   return button;
 }
 
+// TODO: Add back any required exports that might have been?
+
 // TODO: Implement a function to count dependencies
 function countDependencies() {
   // Existing function implementation
@@ -315,5 +317,6 @@ module.exports = {
   ensureUniqueLandmarks,
   checkLandmarkElementsInDom,
   renderIndexView,
-  generateAccessibilityReport
+  generateAccessibilityReport,
+  newFunction
 };

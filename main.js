@@ -394,12 +394,6 @@ function processAccessibilityIssues(insightReport) {
     // Existing function implementation
   }
 
-  // Exporting new function to implement the solution to the issue in line 146
-  export { newFunctionToImplement };
-
-  // If any other exports were previously in main.js, they should be preserved and added here
-  // Note: otherExport1 and otherExport2 are referenced but not defined in the provided snippets
-  // These references have been removed to prevent runtime errors
   export { addressAccessibilityIssues, processAccessibilityIssues };
 }
 

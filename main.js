@@ -1,12 +1,9 @@
-const fs = require('fs');
-const main = require('./utilities');
-
 // Function for addressing accessibility issues
 function addressNewAccessibilityIssues(element) {
   if (!element) {
     return false;
   }
-  
+
   // Use the imported addressAccessibilityIssues utility
   return addressAccessibilityIssues(element);
 }
@@ -15,29 +12,25 @@ function addressNewAccessibilityIssues(element) {
 const { dependencyGraphContent, indexContent } = require('./contentGenerators');
 
 const {
-    createInPageButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    getLangAttribute,
-    validateAccessibilityReport,
-    announceToScreenReader,
-    handleKeyboardNav,
-    newFocusTrap, // Updated focus trap implementation
-    exportUtils,
-    addressAccessibilityIssues,
-    handleCredentialResponse,
-    // Keeping only one ensureElementId function
-    ensureElementId: ensureElementIdOrigin,
-    renderDependencyGraphs,
-    fixButtonIdentifiers,
-    fixDependencyGraphAria,
-    addMainLandmarkToIndex,
-    renderAdditionalContent,
-    transformInputData
-} = main;
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  addSvgAccessibleName,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  googleSignIn,
+  decodeJwtResponse,
+  fixButtonIdentifiers,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  setupFocusTrap,
+  restoreFocus,
+  addLangAttribute
+} = require('./AccessibilityHelpers')
 
 // Accessibility utilities for keyboard navigation and screen reader support
 const accessibilityUtils = {
@@ -153,7 +146,7 @@ const accessibilityUtils = {
 function generateAccessibilityReport(container) {
     // TODO: Implement function for generating a report based on accessibility issues
     // Replaced placeholder with full implementation using axe-core scanning and report writing
-    
+
     const report = {
         timestamp: new Date().toISOString(),
         issues: [],
@@ -164,14 +157,14 @@ function generateAccessibilityReport(container) {
             minor: 0
         }
     };
-    
+
     if (typeof axe !== 'undefined' && container) {
         axe.run(container, (err, results) => {
             if (err) {
                 console.error('Accessibility scan error:', err);
                 return report;
             }
-            
+
             results.violations.forEach(violation => {
                 violation.nodes.forEach(node => {
                     report.issues.push({
@@ -182,14 +175,14 @@ function generateAccessibilityReport(container) {
                         element: node.html,
                         selector: node.target.join(', ')
                     });
-                    
+
                     if (violation.impact === 'critical') report.summary.critical++;
                     else if (violation.impact === 'serious') report.summary.serious++;
                     else if (violation.impact === 'moderate') report.summary.moderate++;
                     else report.summary.minor++;
                 });
             });
-            
+
             if (typeof fs !== 'undefined' && fs.writeFileSync) {
                 try {
                     fs.writeFileSync('accessibility-report.json', JSON.stringify(report, null, 2));
@@ -199,7 +192,7 @@ function generateAccessibilityReport(container) {
             }
         });
     }
-    
+
     return report;
 }
 
@@ -222,17 +215,28 @@ const ensureElementIdOriginal = (element) => {
 const dependencyGraph = document.getElementById('dependencyGraph');
 
 if (dependencyGraph) {
-    // Set appropriate ARIA role for the dependency graph container
-    // Using 'region' role for a contained section of content
-    if (!dependencyGraph.getAttribute('role')) {
-        dependencyGraph.setAttribute('role', 'region');
-    }
+  if (!dependencyGraph.hasAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'region')
+  }
 
-    // Add accessible label if not already present
-    if (!dependencyGraph.getAttribute('aria-label')) {
-        dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
-    }
+  if (!dependencyGraph.getAttribute('aria-label')) {
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
+  }
+
+  if (!dependencyGraph.id) {
+    dependencyGraph.id = 'dependencyGraph'
+  }
+
+  // Ensure the container is focusable if it's interactive
+  if (!dependencyGraph.hasAttribute('tabindex')) {
+    dependencyGraph.setAttribute('tabindex', '0')
+  }
+
+  setupFocusTrap('#dependencyGraph')
 }
+
+// Add lang attribute to HTML element if missing
+addLangAttribute(document.documentElement)
 
 const renderDependencyGraph = (data) => {
   // Implementation for rendering dependency graphs

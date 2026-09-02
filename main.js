@@ -214,6 +214,31 @@ const a11yStore = {
 };
 
 /**
+ * Add accessibility properties to SVG elements in the document
+ */
+function addSvgAccessibilityProps() {
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach((svg) => {
+    let titleElement = svg.querySelector('title');
+    if (!titleElement) {
+      titleElement = document.createElement('title');
+      titleElement.textContent = 'Image';
+      svg.insertBefore(titleElement, svg.firstChild);
+    }
+
+    if (!titleElement.id) {
+      titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
+    }
+
+    svg.setAttribute('aria-labelledby', titleElement.id);
+
+    if (!svg.hasAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+  });
+}
+
+/**
  * Check if an element is a landmark element for accessibility
  * Landmark elements include: main, nav, aside, header, footer, section, article, form, search
  * @param {HTMLElement|string} element - The element or element tag name to check
@@ -475,6 +500,7 @@ function validateLandmark(container) {
 /**
  * Validates the structure of landmark elements.
  * @param {HTMLElement} container - The container element to check
+ * @returns {Object} - Validation result with structure details
  */
 function validateLandmarkStructure(container) {
   if (!container) {
@@ -484,6 +510,23 @@ function validateLandmarkStructure(container) {
   const requiredRoles = ['main', 'banner', 'navigation', 'contentinfo'];
   const foundRoles = new Set();
 
+  // Check native landmark elements
+  const nativeLandmarks = container.querySelectorAll('main, nav, header, footer, aside');
+  nativeLandmarks.forEach(el => {
+    const tagName = el.tagName.toLowerCase();
+    const roleMap = {
+      'main': 'main',
+      'nav': 'navigation',
+      'header': 'banner',
+      'footer': 'contentinfo',
+      'aside': 'complementary'
+    };
+    if (roleMap[tagName]) {
+      foundRoles.add(roleMap[tagName]);
+    }
+  });
+
+  // Check explicit role attributes
   container.querySelectorAll('[role]').forEach(el => {
     const role = el.getAttribute('role');
     if (requiredRoles.includes(role)) {
@@ -491,12 +534,29 @@ function validateLandmarkStructure(container) {
     }
   });
 
+  // Check for missing required landmarks
+  const missingRoles = requiredRoles.filter(r => !foundRoles.has(r));
+
+  // Check for duplicate landmarks
+  const duplicates = {};
+  container.querySelectorAll('main, [role="main"]').forEach(el => {
+    duplicates.main = (duplicates.main || 0) + 1;
+  });
+  container.querySelectorAll('nav, [role="navigation"]').forEach(el => {
+    duplicates.navigation = (duplicates.navigation || 0) + 1;
+  });
+
+  const hasDuplicates = Object.values(duplicates).some(count => count > 1);
+
   return {
+    isValid: missingRoles.length === 0 && !hasDuplicates,
     hasMain: foundRoles.has('main'),
     hasBanner: foundRoles.has('banner'),
     hasNav: foundRoles.has('navigation'),
     hasFooter: foundRoles.has('contentinfo'),
-    missingRoles: requiredRoles.filter(r => !foundRoles.has(r))
+    missingRoles,
+    duplicates,
+    foundRoles: Array.from(foundRoles)
   };
 }
 

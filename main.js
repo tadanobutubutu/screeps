@@ -3,9 +3,6 @@ const url = require('url');
 
 // Dependency imports
 const { dependencyGraphContent, indexContent } = require('./dependencyContent');
-const { main } = require('./utilities');
-
-const main = require('./utilities');
 
 const {
   createInPageButton,
@@ -23,7 +20,7 @@ const {
   addressAccessibilityIssues,
   handleCredentialResponse,
   ensureElementHasId: ensureElementIdOrigin,
-  ensureElementId,
+  ensureElementId: ensureElementIdFromMain,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -31,7 +28,7 @@ const {
   focusTrap,
   newFocusTrap,
   transformInputData
-} = main;
+} = require('./utilities');
 
 const accessibilityUtils = {
   initSkipLink: () => {},
@@ -67,15 +64,6 @@ const addAriaLabel = (element, label) => {
   return element;
 };
 
-const renderDependencyGraph = (data) => {
-  // Implementation for rendering dependency graphs
-  return {
-    nodes: data.nodes || [],
-    edges: data.edges || []
-  };
-};
-
-// Add back any required exports that might have been removed.
 function calculateSum(a, b) { return a + b; }
 
 accessibilityUtils.initSkipLink = () => {
@@ -239,6 +227,9 @@ const initAccessibility = () => {
         Enter: () => element.click(),
         ' ': () => element.click()
       };
+      if (handlers[e.key]) {
+        handlers[e.key]();
+      }
     });
   });
 };
@@ -299,6 +290,9 @@ const handleKeyboardNavKeyDownEvent = (e, handlers) => {
   }
 };
 
+// Merge newFocusTrap function from the original import
+const newFocusTrap = originNewFocusTrap;
+
 module.exports = {
   ...main,
   ...accessibilityUtils,
@@ -337,28 +331,5 @@ module.exports = {
   fixLandmarkIssues,
   validateTableAccessibility,
   validateTableStructure,
-  initializeAccessibility,
-  renderIndex,
-  ensureHeadingHierarchy,
-  validateHeadingHierarchy,
-  renderAdditionalContent,
-  googleSignIn,
-  decodeJwtResponse,
-  ensureUniqueLandmarks,
-  addSvgAccessibleName,
-  calculateComplexity,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  a11yStore,
-  anotherNewFunction,
-  handleAccessibilityIssues,
-  renderDependencyGraphWithAccessibility,
-  initSkipLink,
-  handleKeyboardNav,
-  validateAndFixFormAccessibility,
-  validateAndFixLinkAccessibility,
-  validateAndFixButtonAccessibility,
-  initiateAnnounceToScreenReader,
-  handleTabNavigation: handleKeyboardNavKeyDownEvent
+  handleKeyboardNavKeyDownEvent
 };

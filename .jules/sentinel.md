@@ -9,3 +9,9 @@
 **Vulnerability:** `scripts/auto-pr-generator.js` constructed file paths directly using `path.join(process.cwd(), change.file)` when processing AI-suggested code changes. Unvalidated paths starting with `..` or containing absolute paths allowed arbitrary file writes outside the working directory.
 **Learning:** Automated scripts processing file path strings generated from external APIs or LLMs can introduce path traversal vulnerabilities if paths are joined without strict canonicalization and root containment checks.
 **Prevention:** Always resolve target paths using `path.resolve(process.cwd(), target)` and verify `path.relative(process.cwd(), safePath)` does not start with `..`, is not absolute, and is not empty before creating directories or writing files.
+
+## 2026-08-31 - [Validate ISSUE_NUMBER against Path Traversal in GitHub REST API Requests]
+
+**Vulnerability:** Unsanitized ISSUE_NUMBER environment variables interpolated directly into GitHub API endpoints allowed endpoint manipulation.
+**Learning:** Environment variables containing issue identifiers from workflow inputs must be validated with strict digit regexes before interpolating into API endpoint paths.
+**Prevention:** Always validate numeric issue identifiers against /^\d+$/ before sending API requests.

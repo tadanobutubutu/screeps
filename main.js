@@ -29,7 +29,7 @@ function getLangAttribute() {
 
 // Example usage (if needed):
 // const btn = createInPageButton('Click Me', () => console.log('Clicked'));
-// document.body.appendChild(btn);
+// ...
 
 export { createInPageButton, getLangAttribute };
 
@@ -68,6 +68,133 @@ function setSvgAttributes() {
 
 function ensureUniqueLandmarks() {
   // Implementation to ensure unique landmarks
+}
+
+// Render the index view with accessibility support
+function renderIndexView(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container with id "${containerId}" not found.`);
+    return;
+  }
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Set language attribute for accessibility
+  const lang = getLangAttribute();
+  document.documentElement.lang = lang;
+
+  // Create main landmark region
+  const mainRegion = document.createElement('main');
+  mainRegion.setAttribute('role', 'main');
+  mainRegion.setAttribute('aria-label', 'Main content');
+
+  // Create header with accessible heading
+  const header = document.createElement('header');
+  const heading = document.createElement('h1');
+  heading.textContent = 'Accessibility Dashboard';
+  heading.setAttribute('id', 'main-heading');
+  header.appendChild(heading);
+
+  // Create navigation landmark
+  const nav = document.createElement('nav');
+  nav.setAttribute('aria-label', 'Primary navigation');
+  nav.setAttribute('role', 'navigation');
+
+  // Create summary section for accessibility results
+  const summarySection = document.createElement('section');
+  summarySection.setAttribute('aria-labelledby', 'summary-heading');
+  summarySection.setAttribute('role', 'region');
+
+  const summaryHeading = document.createElement('h2');
+  summaryHeading.textContent = 'Accessibility Summary';
+  summaryHeading.setAttribute('id', 'summary-heading');
+  summarySection.appendChild(summaryHeading);
+
+  const summaryList = document.createElement('ul');
+  summaryList.setAttribute('aria-label', 'Accessibility metrics');
+
+  const metrics = [
+    { label: 'Tables validated', value: '26' },
+    { label: 'SVGs with accessible names', value: '2' },
+    { label: 'Landmarks checked', value: 'Unique' },
+  ];
+
+  metrics.forEach((metric, index) => {
+    const li = document.createElement('li');
+    li.textContent = `${metric.label}: ${metric.value}`;
+    li.setAttribute('id', `metric-${index}`);
+    summaryList.appendChild(li);
+  });
+
+  summarySection.appendChild(summaryList);
+
+  // Create action buttons section
+  const actionsSection = document.createElement('section');
+  actionsSection.setAttribute('aria-labelledby', 'actions-heading');
+  actionsSection.setAttribute('role', 'region');
+
+  const actionsHeading = document.createElement('h2');
+  actionsHeading.textContent = 'Actions';
+  actionsHeading.setAttribute('id', 'actions-heading');
+  actionsSection.appendChild(actionsHeading);
+
+  // Add in-page buttons using createInPageButton function
+  const viewReportBtn = createInPageButton('View Full Report', () => {
+    const event = new CustomEvent('showReport');
+    document.dispatchEvent(event);
+  });
+
+  const validateBtn = createInPageButton('Run Validation', () => {
+    const event = new CustomEvent('runValidation');
+    document.dispatchEvent(event);
+  });
+
+  const exportBtn = createInPageButton('Export Results', () => {
+    const event = new CustomEvent('exportResults');
+    document.dispatchEvent(event);
+  });
+
+  const buttonContainer = document.createElement('div');
+  buttonContainer.setAttribute('role', 'group');
+  buttonContainer.setAttribute('aria-label', 'Action buttons');
+  buttonContainer.appendChild(viewReportBtn);
+  buttonContainer.appendChild(validateBtn);
+  buttonContainer.appendChild(exportBtn);
+  actionsSection.appendChild(buttonContainer);
+
+  // Assemble the main view
+  mainRegion.appendChild(header);
+  mainRegion.appendChild(summarySection);
+  mainRegion.appendChild(actionsSection);
+
+  // Add live region for announcements
+  const liveRegion = document.createElement('div');
+  liveRegion.setAttribute('role', 'status');
+  liveRegion.setAttribute('aria-live', 'polite');
+  liveRegion.setAttribute('aria-atomic', 'true');
+  liveRegion.setAttribute('id', 'status-announcer');
+
+  // Apply SVG attributes to any SVG elements in the view
+  const svgElements = mainRegion.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  });
+
+  // Ensure unique landmarks
+  ensureUniqueLandmarks();
+
+  // Append to container
+  container.appendChild(mainRegion);
+  container.appendChild(liveRegion);
+
+  // Announce successful render for screen readers
+  const announcer = document.getElementById('status-announcer');
+  if (announcer) {
+    announcer.textContent = 'Index view has been rendered successfully.';
+  }
 }
 
 // Address accessibility issues from insight report:

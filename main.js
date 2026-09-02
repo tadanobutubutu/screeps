@@ -682,8 +682,21 @@ fixButtonIdentifiers();
 
 // Other code...
 
+// New function or changes requested in the issue
+/**
+ * New function to handle additional rendering logic
+ * @param {Object} additionalData - Additional data for rendering
+ * @returns {string} Rendered additional content HTML
+ */
+function renderAdditionalContent (additionalData) {
+  // Implementation of the new function
+  // Placeholder for actual implementation
+  return `<div>${JSON.stringify(additionalData)}</div>`
+}
+
 // Preserve all existing exports
 module.exports = {
+  ...main,
   createInPageButton,
   createWebResourceButton,
   validateLandmark,
@@ -728,20 +741,7 @@ module.exports = {
   fixLandmarkIssues,
   validateTableAccessibility,
   validateTableStructure,
-  initializeAccessibility
+  initializeAccessibility,
+  renderIndex: function() { return renderGraphIndex.apply(this, arguments); },
+  renderAdditionalContent
 }
-
-// New function or changes requested in the issue
-/**
- * New function to handle additional rendering logic
- * @param {Object} additionalData - Additional data for rendering
- * @returns {string} Rendered additional content HTML
- */
-function renderAdditionalContent (additionalData) {
-  // Implementation of the new function
-  // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
-}
-
-// Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent

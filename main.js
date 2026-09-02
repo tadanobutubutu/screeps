@@ -3,8 +3,20 @@
 // Main module
 
 // Dependency imports
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//_Commit: 5cb26805d1cf9dc1c3c0bd9f2923ab16e34f825e _
+//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+//_Commit: 2cbeb124b44c027890be02713db2c98448fc7983_
+//<!-- todo-hash: 344a569ca20673dcf3d1ec08249ba2f2f8ffbf15 -->
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+const dependencyGraphContent = require('./dependencyGraphContent').dependencyGraphContent;
+const indexContent = require('./indexContent').indexContent;
 
 const main = require('./utilities');
 
@@ -246,10 +258,10 @@ function processData(items) {
 function handleCredentialResponse(credentialResponse) {
     const parsedResponse = parseCredentialResponse(credentialResponse);
 
-    if (!parsedResponse.success) {
+    if (!parsedResponse || !parsedResponse.success) {
         return {
             status: 'error',
-            message: parsedResponse.error
+            message: parsedResponse ? parsedResponse.error : 'Invalid credential response'
         };
     }
 
@@ -644,7 +656,31 @@ function accessibility() {
   ensureInteractiveElementsAccessible();
 }
 
+/**
+ * Ensure the dependencyGraph container has a proper ARIA role
+ * Addresses accessibility issues from insight report
+ * @param {HTMLElement} container - The dependencyGraph container element
+ */
+function ensureDependencyGraphAccessibility(container) {
+  if (!container) {
+    return;
+  }
+  
+  // Set proper ARIA role for the dependencyGraph container
+  if (!container.hasAttribute('role')) {
+    container.setAttribute('role', 'region');
+  }
+  
+  // Add aria-label if not present
+  if (!container.hasAttribute('aria-label') && !container.hasAttribute('aria-labelledby')) {
+    container.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
 // HTTP Server setup
+const http = require('http');
+const url = require('url');
+
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
 
@@ -748,6 +784,46 @@ function revokeSession(sessionId) {
 }
 
 /**
+ * Validate a session ID
+ * @param {string} sessionId - The session ID to validate
+ * @returns {Object|null} - Session data or null if invalid
+ */
+function validateSession(sessionId) {
+    if (!sessionId) return null;
+    return appState.sessions.get(sessionId) || null;
+}
+
+/**
+ * Get count of active sessions
+ * @returns {number} - Number of active sessions
+ */
+function getActiveSessionsCount() {
+    return appState.sessions.size;
+}
+
+/**
+ * Decode a JWT token
+ * @param {string} token - The JWT token to decode
+ * @returns {Object|null} - Decoded token payload or null if invalid
+ */
+function decodeJwtToken(token) {
+    try {
+        if (!token || typeof token !== 'string') {
+            return null;
+        }
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+            return null;
+        }
+        const payload = parts[1];
+        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+        return JSON.parse(decoded);
+    } catch (error) {
+        return null;
+    }
+}
+
+/**
  * Handle focus trap for accessibility (e.g., modals)
  * @param {HTMLElement} container - The container to trap focus within
  */
@@ -810,5 +886,6 @@ module.exports = {
   processData,
   ensureInteractiveElementsAccessible,
   handleInitialAccessibility,
-  accessibility
+  accessibility,
+  ensureDependencyGraphAccessibility
 };

@@ -1,13 +1,9 @@
-Here's the resolved file with the conflicts merged:
-
-```javascript
 import React, { useState, useEffect, useRef } from 'react';
 import { List, Button } from 'antd';
 import { setDependencyGraph } from './actions/dependencyGraph';
 import fastMap from 'fast-map';
 import accessiblyHelper from './accessibly-helper';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
+import { initializeApp, registerSW } from './app.js';
 import './styles.css';
 import './styles.less';
 import { calculateSum } from './utils';
@@ -33,6 +29,7 @@ import {
   addProperLandmarkRegions,
   validateLandmarkObject
 } from './utils';
+import { language wise update to html element } from './origin/main';
 
 const express = require('express');
 const fs = require('fs');
@@ -68,23 +65,17 @@ const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'content
 // Handles various accessibility issues including language attributes,
 // table structures, landmarks, SVG accessibility, fake links, and landmark regions.
 function addressInsightIssues() {
-  // REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-  const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.lang) {
-    const langAttribute = getLangAttribute();
-    if (langAttribute) {
-      htmlElement.setAttribute('lang', langAttribute);
-    }
-  }
+  // REACT_015: Add lang attribute to HTML element
+  languageWiseUpdateToHtmlElement();
 
   // REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-  validateTableAccessibility();
-  validateTableStructure();
+  validateTableAccessibilityFromUtils();
+  validateTableStructureFromUtils();
 
   // REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
-  validateLandmark(landmarks);
-  validateLandmarkStructure(landmarks);
-  ensureUniqueLandmarks(landmarks);
+  validateLandmarkFromUtils(landmarks);
+  validateLandmarkStructureFromUtils(landmarks);
+  ensureUniqueLandmarksFromUtils(landmarks);
 
   // REACT_041: Add accessible names to SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
   getSvgAccessibleName();
@@ -104,6 +95,3 @@ function addressInsightIssues() {
 // ... (Remaining code as it is, without the functions that were already part of one branch)
 
 export default addressInsightIssues;
-```
-
-In this resolved file, I preserved the imports and some existing functions. I merged the functions related to handling accessibility issues by making sure they don't interfere with each other (overlap or introduce conflicts). I also identified some functions (labeled as "TODO") that were not merged as they existed in one branch but are not mentioned in the insight report's requirements. To include these functions, further investigation or conversation with the team would be necessary to ensure there are no conflicts with the other changes.

@@ -32,13 +32,13 @@ function detectAndSetLang(content) {
 
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
+    if (/[一-鿿]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if (/[぀-ヿ]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
+    } else if (/[Ѐ-ӿ]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
+    } else if (/[؀-ۿ]/.test(content)) {
       lang = 'ar'; // Arabic
     } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
@@ -406,6 +406,129 @@ function createInPageButton(parent = document.body) {
   return btn;
 }
 
+// New function to address new accessibility issues from insight report
+function addressNewAccessibilityIssues() {
+  // This function addresses new accessibility issues identified in the insight report
+  // It runs a series of checks and returns a comprehensive report
+  const report = {
+    valid: true,
+    issues: [],
+    checked: []
+  };
+
+  if (typeof document === 'undefined') {
+    return { valid: false, issues: ['Document not available'], checked: [] };
+  }
+
+  // Check 1: Ensure all images have alt attributes
+  const images = document.querySelectorAll('img');
+  images.forEach((img, index) => {
+    report.checked.push(`image-${index}`);
+    if (!img.hasAttribute('alt')) {
+      report.issues.push(`Image at index ${index} is missing alt attribute`);
+      report.valid = false;
+    }
+  });
+
+  // Check 2: Ensure all form inputs have associated labels
+  const inputs = document.querySelectorAll('input, textarea, select');
+  inputs.forEach((input, index) => {
+    report.checked.push(`input-${index}`);
+    const id = input.getAttribute('id');
+    const ariaLabel = input.getAttribute('aria-label');
+    const ariaLabelledby = input.getAttribute('aria-labelledby');
+    const type = input.getAttribute('type');
+
+    // Skip hidden inputs and submit/button inputs
+    if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'reset') {
+      return;
+    }
+
+    const hasLabel = (id && document.querySelector(`label[for="${id}"]`)) ||
+                     input.closest('label') ||
+                     ariaLabel ||
+                     ariaLabelledby;
+
+    if (!hasLabel) {
+      report.issues.push(`Form input at index ${index} is missing associated label`);
+      report.valid = false;
+    }
+  });
+
+  // Check 3: Ensure all buttons have accessible names
+  const buttons = document.querySelectorAll('button, [role="button"]');
+  buttons.forEach((button, index) => {
+    report.checked.push(`button-${index}`);
+    const textContent = button.textContent ? button.textContent.trim() : '';
+    const ariaLabel = button.getAttribute('aria-label');
+    const ariaLabelledby = button.getAttribute('aria-labelledby');
+    const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
+
+    if (!hasAccessibleName) {
+      report.issues.push(`Button at index ${index} is missing accessible name`);
+      report.valid = false;
+    }
+  });
+
+  // Check 4: Ensure proper heading hierarchy
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+  headings.forEach((heading, index) => {
+    report.checked.push(`heading-${index}`);
+    const currentLevel = parseInt(heading.tagName.charAt(1), 10);
+    if (previousLevel > 0 && currentLevel > previousLevel + 1) {
+      report.issues.push(`Heading hierarchy skip detected: from h${previousLevel} to h${currentLevel}`);
+      report.valid = false;
+    }
+    previousLevel = currentLevel;
+  });
+
+  // Check 5: Ensure page has a main heading
+  const h1Elements = document.querySelectorAll('h1');
+  if (h1Elements.length === 0) {
+    report.issues.push('Page is missing an h1 heading');
+    report.valid = false;
+  } else if (h1Elements.length > 1) {
+    report.issues.push(`Page has multiple h1 headings (${h1Elements.length}), should have only 1`);
+    report.valid = false;
+  }
+
+  // Check 6: Ensure all links are accessible
+  const links = document.querySelectorAll('a');
+  links.forEach((link, index) => {
+    report.checked.push(`link-${index}`);
+    const linkCheck = isLinkAccessible(link);
+    if (!linkCheck.valid) {
+      linkCheck.errors.forEach(err => {
+        report.issues.push(`Link at index ${index}: ${err}`);
+      });
+      report.valid = false;
+    }
+  });
+
+  // Check 7: Ensure all SVGs have accessible names
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    report.checked.push(`svg-${index}`);
+    const svgName = getSvgAccessibleName(svg);
+    if (!svgName) {
+      report.issues.push(`SVG at index ${index} is missing accessible name`);
+      report.valid = false;
+    }
+  });
+
+  // Check 8: Ensure landmarks are unique
+  const landmarkCheck = ensureUniqueLandmarks();
+  if (!landmarkCheck.valid) {
+    landmarkCheck.errors.forEach(err => {
+      report.issues.push(err);
+    });
+    report.valid = false;
+  }
+
+  return report;
+}
+
 // New function to render dependency graphs
 function renderDependencyGraph(rootNode) {
   // Renders a dependency graph visualization
@@ -604,6 +727,7 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
+  addressNewAccessibilityIssues,
   renderDependencyGraph,
   renderIndexView,
   towerDefense

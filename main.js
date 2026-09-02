@@ -50,9 +50,7 @@ function detectAndSetLang(content) {
     }
   }
 
-  useEffect(() => {
-    setHtmlLangAttribute(lang);
-  }, [lang]);
+  setHtmlLangAttribute(lang);
 
   return lang;
 }
@@ -268,12 +266,6 @@ function handleFakeLinks(link) {
   }
   return null;
 }
-
-// REACT_015: Add lang attribute to HTML element
-// Add the language attribute to the HTML element for proper accessibility
-useEffect(() => {
-  detectAndSetLang();
-}, []);
 
 // Assuming main.js already exports the renderDependencyGraph and renderIndexView functions
 // No need to handle those conflicts here

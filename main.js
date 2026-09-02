@@ -1,30 +1,27 @@
-Here is the resolved file content:
-
-```javascript
 const main = require('./utilities')
 
 // Import necessary dependencies
-import React from 'react';
-import { render } from 'react-dom';
-import {
-  addLangAttribute,
+const {
   fixTableStructure,
   fixLandmarkIssues,
   addMainLandmark,
   addLandmarkRegions,
   ensureUniqueLandmarks,
-  uniqueLandmarks,
   addSvgAccessibleName,
   addAccessibleNamesToSVGs,
   fixFakeLinkIssue,
-  // New import for dom-parser
-  DOMParser from '@xmldom/xmldom'
-} from './AccessibilityHelpers'
+  fixFakeLinkIssues,
+  googleSignIn,
+  decodeJwtResponse,
+  fixButtonIdentifiers,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel
+} = require('./AccessibilityHelpers')
 
 // Import the DOMParser for SVG manipulation
+const DOMParser = require('@xmldom/xmldom')
 const svgParser = new DOMParser();
-
-const main = require('./utilities')
 
 const {
   createInPageButton,
@@ -36,11 +33,7 @@ const {
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
   renderDependencyGraphs,
-  fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
@@ -50,9 +43,6 @@ const {
   checkAccessibilityForReport,
   renderGraphIndex,
   trapFocus,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixFakeLinkIssues,
   getActiveSessionsCount,
   validateSession,
   handleCredentialResponse,
@@ -61,54 +51,43 @@ const {
   prefersReducedMotion,
   renderSimpleDependencyGraph,
   addAccessibleName,
-  addAccessibleNamesToSVGs,
   addSvgAccessibleNames,
-  fixFakeLinkIssue,
   addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  googleSignIn,
-  decodeJwtResponse,
   renderDependencyGraph,
-  fixLandmarkIssues,
   validateTableAccessibility,
   validateTableStructure,
   initializeAccessibility,
   renderIndex,
-  newFunction,
-  validateHeadingHierarchy,
-  ensureHeadingHierarchy,
-  renderAdditionalContent
+  newFunction
 } = main
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = ...
+const dependencyGraph = typeof document !== 'undefined' ? document.getElementById('dependencyGraph') : null
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
   // Using 'region' role for a contained section of content
-  if (...) {
-    ... 'region')
+  if (!dependencyGraph.hasAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'region')
   }
 
   // Add accessible label if not already present
-  if (...) {
-    ... 'Dependency graph visualization')
+  if (!dependencyGraph.hasAttribute('aria-label')) {
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
   }
 
   // Ensure element has an ID if not present
-  if (...) {
-    ... 'dependencyGraph')
+  if (!dependencyGraph.id) {
+    dependencyGraph.id = 'dependencyGraph'
   }
 
   // Ensure the container is focusable if it's interactive
-  if (...) {
-    ... '0')
+  if (!dependencyGraph.hasAttribute('tabindex')) {
+    dependencyGraph.setAttribute('tabindex', '0')
   }
 
   // New accessibility function: Manage focus restoration for modal dialogs
-  setupFocusTrap = containerSelector => {
+  const setupFocusTrap = containerSelector => {
     const container = document.querySelector(containerSelector);
     if (!container) {
       console.error('Focus trap container not found:', containerSelector);
@@ -128,19 +107,17 @@ if (dependencyGraph) {
     const lastElement = focusableElements[focusableElements.length - 1];
 
     const handleTabKey = e => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey) {
-          // Shift + Tab
-          if (document.activeElement === firstElement) {
-            lastElement.focus();
-            e.preventDefault();
-          }
-        } else {
-          // Tab
-          if (document.activeElement === lastElement) {
-            firstElement.focus();
-            e.preventDefault();
-          }
+      const isTab = e.key === 'Tab'
+      if (!isTab) return
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault()
+          if (lastElement) lastElement.focus()
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault()
+          firstElement.focus()
         }
       }
     };
@@ -154,17 +131,17 @@ if (dependencyGraph) {
     return () => {
       container.removeEventListener('keydown', handleTabKey);
     };
-  }
+  };
 
   // New accessibility function: Restore focus to previously focused element
-  restoreFocus = previousElementId => {
+  const restoreFocus = previousElementId => {
     const previousElement = document.getElementById(previousElementId);
     if (previousElement) {
       previousElement.focus();
     } else {
       console.warn('Previous element not found for focus restoration:', previousElementId);
     }
-  }
+  };
 }
 
 function validateTableStructure(container) {
@@ -208,11 +185,11 @@ function ensureHeadingHierarchy(container) {
 function renderAdditionalContent(additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return ...
+  return ''
 }
 
 // Update the existing function using the new functions for rendering graph/index
-renderDependencyGraphs = container => {
+const renderDependencyGraphsUpdated = container => {
   // ... existing implementation ...
   // Call the new function to ensure heading hierarchy
   ensureHeadingHierarchy(container);
@@ -220,12 +197,8 @@ renderDependencyGraphs = container => {
 
 // Call the functions to address the accessibility issues
 addLangAttribute()
-...
 addMainLandmark()
-...
 ensureUniqueLandmarks()
-...
-...
 fixFakeLinkIssue()
 googleSignIn()
 fixButtonIdentifiers()
@@ -248,7 +221,7 @@ module.exports = {
   ensureElementHasId,
   ensureElementHasIdOrigin,
   addAriaLabel,
-  renderDependencyGraphs,
+  renderDependencyGraphs: renderDependencyGraphsUpdated,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
@@ -290,10 +263,8 @@ module.exports = {
   ensureHeadingHierarchy,
   renderAdditionalContent,
   // Export the new setFocusTrap, restoreFocus and svgParser functions
-  setFocusTrap: setupFocusTrap,
-  restoreFocus,
-  svgParser
-};
-```
-
-This resolved file retains both changes and introduces a few new functions for focus restoration and focus trap management. The changes are merged in a way that both sets of functions are accessible and can be used as needed. I also added `DOMParser` which was missing in both versions that facilitates SVG manipulation. The `renderAdditionalContent` function remains a placeholder as it was not implemented in either version.
+  setFocusTrap: typeof setupFocusTrap !== 'undefined' ? setupFocusTrap : null,
+  restoreFocus: typeof restoreFocus !== 'undefined' ? restoreFocus : null,
+  svgParser,
+  DOMParser
+}

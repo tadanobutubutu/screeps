@@ -1,325 +1,184 @@
-// main.js - Accessibility-focused implementation
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs,
-// count dependencies, and address accessibility issues from insight report
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
-
-// Import required modules
 const http = require('http');
 const path = require('path');
+const fs = require('fs');
+const express = require('express');
+const { exec } = require('child_process');
+const app = express();
+const { createServer, startApp, config } = require('./');
+
+const port = PORT || 3000;
 
 function getLangAttribute() {
-  // ... code for handling lang attribute
-}
+  let lang = 'en'; // Default to English
 
-function personName() {
-  // ... code for handling person name
-}
-
-function validateTableAccessibility() {
-  // ... code for handling table accessibility issues
-}
-
-function validateTableStructure() {
-  // ... code for handling table structure issues
-}
-
-function validateLandmark() {
-  // ... code for handling landmark issues
-}
-
-function validateLandmarkStructure() {
-  // ... code for handling landmark structure issues
-}
-
-function getSvgAccessibleName() {
-  // ... code for handling SVG accessible names
-}
-
-function createInPageButton() {
-  // ... code for handling in-page button creation
-}
-
-// ADD: New function for handling the new accessibility issues from the insight report
-function addressNewAccessibilityIssues() {
-  // Retrieve the language attribute for the HTML document
-  const lang = getLangAttribute();
-
-  // Apply the language attribute to the <body> element if not already present
-  const body = document.body;
-  if (body && typeof body !== 'undefined' && !body.hasAttribute('lang')) {
-    body.setAttribute('lang', lang);
-  }
-
-  // Ensure the main content area has an appropriate ARIA role
-  const main = document.querySelector('main') || document.getElementsByTagName('main')[0];
-  if (main && typeof main !== 'undefined') {
-    main.setAttribute('role', 'main');
-  }
-
-  // Attach an accessible label to the primary action button
-  const submitBtn = document.querySelector('#submit') || document.querySelector('[type="submit"]');
-  if (submitBtn && typeof submitBtn !== 'undefined') {
-    submitBtn.setAttribute('aria-label', personName());
-  }
-}
-
-// Export functions for both browser and Node.js environments
-if (typeof window !== 'undefined') {
-  // Browser environment - expose functions to window
-  const functionsToExpose = [
-    'getLangAttribute', 'personName', 'validateTableAccessibility',
-    'validateTableStructure', 'validateLandmark', 'validateLandmarkStructure',
-    'getSvgAccessibleName', 'createInPageButton', 'addressNewAccessibilityIssues'
-  ];
-  functionsToExpose.forEach(functionName => {
-    window[functionName] = window[functionName] || eval(functionName);
-  });
-}
-
-// Application configuration
-const config = {
-  port: process.env.PORT || 3000,
-  env: process.env.NODE_ENV || 'development'
-};
-
-// Store credentials received from the response
-let storedCredentials = null;
-
-/**
- * Main application entry point with accessibility features
- */
-function createServer() {
-  // ... (existing code)
-}
-
-// Utility for spawning a command
-function spawnCommand(command, args, callback) {
-    const child_process = require('child_process');
-    const child = child_process.spawn(command, args, {
-        stdio: 'inherit',
-    });
-    child.on('exit', (code, signal) => {
-        if (code === 0) {
-            callback(null, 'Successfully executed someCommand');
-        } else {
-            callback(new Error(`someCommand failed with code ${code}`));
-        }
-    });
-}
-
-/**
- * Spawn a child process to run some command with proper error handling.
- * @param {Function} callback - Invoked with (err, result) when the command exits.
- */
-function startApp() {
-  // ... (existing code)
-}
-
-/**
- * Function to count dependencies
- * @returns {number} The count of dependencies
- */
-function countDependencies() {
-  return require.main.requires.length;
-}
-
-// Additional functions to address accessibility issues from insight report
-function addressAccessibilityIssues() {
-  // Implement function to address the reported accessibility issues
-}
-
-function generateAccessibilityReport(accessibilityReport) {
-  if (!accessibilityReport || !accessibilityReport.issues) {
-    return [];
-  }
-
-  const report = accessibilityReport.issues.map(issue => ({
-    issueType: issue.type,
-    status: issue.status || 'pending',
-    fixApplied: issue.fixApplied || ''
-  }));
-
-  return report;
-}
-
-function calculateAccessibilityScore(fixedIssues) {
-  if (!Array.isArray(fixedIssues)) {
-    return 0;
-  }
-
-  const scorePoints = {
-    'color-contrast': 5,
-    'missing-alt-text': 3,
-    'missing-aria-label': 5,
-    'heading-order': 2,
-    'other': 1
+  const mixedLangDetection = () => {
+    // Your code for detecting the language based on the content and depending on the first change
   };
 
-  return fixedIssues.reduce((score, issue) => {
-    const points = scorePoints[issue.type] || scorePoints['other'];
-    return score + points;
-  }, 0);
-}
+  const baseLangDetection = () => {
+    // Your code for detecting the language based on the content and depending on the second change
+  };
 
-function transformMainToSection(source) {
-  const mainBlockRegex = /<main[^>]*>[\s\S]*?<\/main>/gi;
-
-  const matches = source.match(mainBlockRegex);
-  if (matches.length <= 1) {
-    return source;
+  if (/* condition to decide which detection logic to use */) {
+    return mixedLangDetection();
   }
 
-  let result = source;
-  for (let i = 1; i < matches.length; i++) {
-    const block = matches[i][0];
-    const fixedBlock = block
-      .replace(/<main([^>]*)>/, '<section$1>')
-      .replace(/<\/main>/, '</section>');
-    result = result.replace(block, fixedBlock);
-  }
-
-  return result;
+  return baseLangDetection();
 }
 
-// TODO: Implement this function for creating in-page buttons
-function createInPageButton(buttonId, buttonText) {
-  const button = document.createElement('button');
-  button.id = buttonId;
-  button.textContent = buttonText;
-  return button;
+function validateTableAccessibility(table) {
+  let issues = [];
+
+  if (/* condition for first change */) {
+    // Validation logic for the first change
+    // ... existing validation code for the table structure ...
+  }
+
+  if (/* condition for second change */) {
+    // Validation logic for the second change
+    // ... existing validation code for the table structure ...
+  }
+
+  return issues;
+}
+
+function validateTableStructure(table) {
+  let isValid = true;
+
+  if (/* condition for first change */) {
+    // Validation logic for the first change
+  }
+
+  if (/* condition for second change */) {
+    // Validation logic for the second change
+  }
+
+  return isValid;
+}
+
+function ensureUniqueLandmarks() {
+  let hasDuplicateLandmarks = false;
+
+  if (/* condition for first change */) {
+    // Logic for duplicates handling from the first change
+  }
+
+  if (/* condition for second change */) {
+    // Logic for duplicates handling from the second change
+  }
+
+  return hasDuplicateLandmarks;
+}
+
+function personName(name) {
+  let accessibleName;
+
+  if (/* condition for first change */) {
+    // Your updated code for personName() function from the first change
+  }
+
+  if (/* condition for second change */) {
+    // Your updated code for personName() function from the second change
+  }
+
+  return accessibleName;
+}
+
+function createInPageButton(text) {
+  let accessibleButton;
+
+  if (/* condition for first change */) {
+    // Your updated code for createInPageButton() function from the first change
+  }
+
+  if (/* condition for second change */) {
+    // Your updated code for createInPageButton() function from the second change
+  }
+
+  return accessibleButton;
 }
 
 function validateLandmark(element) {
-  if (!element) {
-    return { valid: false, error: 'Element is required' };
+  const validationResult = AddressabilityIssues.validateLandmark(element);
+
+  return validationResult;
+}
+
+function addSvgAccessibleName(svgElement, name, isNew) {
+  if (!svgElement || !name) return svgElement;
+
+  let title = svgElement.querySelector('title');
+  if (!title) {
+    title = document.createElement('title');
+    svgElement.insertBefore(title, svgElement.firstChild);
   }
 
-  const landmarkRoles = [
-    'banner',
-    'main',
-    'navigation',
-    'search',
-    'contentinfo',
-    'complementary',
-    'region',
-    'form'
-  ];
-
-  const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
-
-  const implicitLandmarks = {
-    'header': 'banner',
-    'main': 'main',
-    'nav': 'navigation',
-    'aside': 'complementary',
-    'footer': 'contentinfo',
-    'section': 'region',
-    'form': 'form'
-  };
-
-  let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
-
-  if (!landmarkRole) {
-    if (implicitLandmarks[tagName]) {
-      landmarkRole = implicitLandmarks[tagName];
-    } else {
-      return { valid: false, error: 'No landmark role found' };
+  const ariaLabelledBy = svgElement.getAttribute('aria-labelledby');
+  if (!ariaLabelledBy && !svgElement.getAttribute('aria-label')) {
+    if (isNew) {
+      title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
     }
+    svgElement.setAttribute('aria-labelledby', title.id);
   }
 
-  if (!landmarkRoles.includes(landmarkRole)) {
-    return { valid: false, error: `Invalid landmark role: ${landmarkRole}` };
+  title.textContent = name;
+
+  return svgElement;
+}
+
+function ensureElementHasId(element) {
+  if (!element) return;
+
+  const name = element.getAttribute('id');
+  if (!name) {
+    element.id = `element-${Math.random().toString(36).substr(2, 11)}`;
   }
 
-  return { valid: true, role: landmarkRole };
+  return element;
 }
 
-// New function to handle logging
-function logMessage(message) {
-  console.log(`[LOG]: ${message}`);
+function AddressabilityIssues {
+  // ... (existing addressability issue functions)
+
+  validateLandmark(element) {
+    return validateLandmarkFromBothChanges(element);
+  }
 }
 
-// New function to handle graceful shutdown
-function handleShutdown(server) {
-  server.close(() => {
-    console.log('Server closed gracefully');
-    process.exit(0);
-  });
-
-  // Forcibly close server after 5 seconds
-  setTimeout(() => {
-    console.error('Forcibly closing server after timeout');
-    process.exit(1);
-  }, 5000);
-}
-
-// New function to add lang attribute to HTML element
-function addLangAttribute(element, lang) {
-  element.setAttribute('lang', lang);
-}
-
-// TODO: Implement the logic to handle the credential response
-function handleCredentialResponse(response) {
-  // Accept a JSON string or an already parsed object
-  let data;
-  if (typeof response === 'string') {
-    try {
-      data = JSON.parse(response);
-    } catch (e) {
-      console.error('[ERROR] Failed to parse credential response JSON:', e);
-      return;
-    }
-  } else if (typeof response === 'object') {
-    data = response;
-  } else {
-    console.error('[ERROR] Credential response must be a string or object');
-    return;
+// New function to count dependencies
+function countDependencies(dependencies) {
+  if (!Array.isArray(dependencies)) {
+    return 0;
   }
 
-  // Basic validation – ensure required fields exist and have correct types
-  if (!data || typeof data.token !== 'string' || typeof data.expiration !== 'number') {
-    console.error('[ERROR] Credential response is missing required fields (token, expiration)');
-    return;
-  }
-
-  // Store the validated credentials
-  storedCredentials = data;
-  logMessage('Credential response received, parsed, validated and stored');
+  // Your logic for counting dependencies combined from both changes
 }
 
-// Helper to retrieve stored credentials (useful for tests)
-function getStoredCredentials() {
-  return storedCredentials;
+// Existing exports
+export function someExistingFunction() {
+  // Existing function implementation
 }
 
-// Add accessibility function to handle the lang attribute for the entire HTML document
-function handleAddLangAttribute(htmlDocument, lang) {
-  // Get the html element and call addLangAttribute
-  const htmlElement = htmlDocument.documentElement;
-  addLangAttribute(htmlElement, lang);
+// New exports (if any)
+export function ensureElementHasId(element) {
+  // Existing function implementation
 }
 
-// New function to handle the new functionalities
-function newFunctionality() {
-  // Example functionality to demonstrate changes
-  console.log('New functionality has been added.');
-}
+const AddressabilityIssues = {
+  // ... (existing accessibility issue functions)
+};
 
-// Export functions for testing
 module.exports = {
   createServer,
   startApp,
   config,
-  handleCredentialResponse,
-  getStoredCredentials,
-  handleAddLangAttribute,
-  newFunctionality,
-  countDependencies,
-  addressAccessibilityIssues,
-  generateAccessibilityReport,
-  calculateAccessibilityScore,
-  transformMainToSection,
+  validateTableAccessibility,
+  validateTableStructure,
+  ensureUniqueLandmarks,
+  personName,
+  createInPageButton,
   validateLandmark,
-  createInPageButton
+  addSvgAccessibleName,
+  ensureElementHasId,
+  AddressabilityIssues
 };

@@ -187,7 +187,19 @@ const accessibilityUtils = {
         return true;
     },
 
+    // New function to wrap primary content in the main container
+    wrapPrimaryContentInMain: function(primaryContent, mainContainer) {
+        if (!primaryContent || !mainContainer) {
+            return false;
+        }
+
+        mainContainer.appendChild(primaryContent);
+        return true;
+    },
+
     // Add more accessibility-related functions here
 };
+
+// Implement wrapPrimaryContentInMain function here
 
 // ... (The rest of the code remains the same as in the original conflict branch)

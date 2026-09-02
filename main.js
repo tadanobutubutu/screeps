@@ -227,6 +227,25 @@ function getActiveSessionsCount() {
   return appState.sessions.size;
 }
 
+// Check landmark elements for accessibility
+function checkLandmarkElements() {
+  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+  landmarkElements.forEach((element) => {
+    const landmarks = document.querySelectorAll(`[role="${element}"]`);
+    landmarks.forEach((landmark, index) => {
+      if (landmark.id === '') {
+        landmark.setAttribute('id', `${element}-${index}`);
+      }
+
+      if (landmarks.length > 1) {
+        if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+          landmark.setAttribute('aria-label', `${element} ${index + 1}`);
+        }
+      }
+    });
+  });
+}
+
 const a11yStore = {
   // ... existing methods ...
 
@@ -247,7 +266,7 @@ const a11yStore = {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
       const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark) => {
+      landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
           landmark.setAttribute('id', `${element}-${index}`);
         }
@@ -466,9 +485,8 @@ module.exports = {
   // Additional exports from origin/main
   renderIndex: renderGraphIndex,
   newFunction,
-  checkLandmarkElement: checkLandmarkElements,
+  checkLandmarkElements,
   wrapPrimaryContentInMain: () => {},
-  checkLandmarks: checkLandmarkElements,
   handleFocusTrap: newFocusTrap,
   revokeSession: () => {},
   validateSession: () => {},

@@ -30,4 +30,22 @@ describe('check_repo_health', () => {
         delete process.env.PKG_MANAGER;
         expect(['npm', 'pnpm']).toContain(getPkgManager());
     });
+
+    describe('checkEslint & checkJest safe execution', () => {
+        it('runCommand should execute execFileSync when args array is passed', () => {
+            const childProcess = require('child_process');
+            const spy = jest.spyOn(childProcess, 'execFileSync').mockImplementation(() => {});
+
+            let runCommand;
+            jest.isolateModules(() => {
+                runCommand = require('../scripts/check_repo_health').runCommand;
+            });
+
+            const result = runCommand('npx', ['eslint', '.']);
+
+            expect(result.ok).toBe(true);
+            expect(spy).toHaveBeenCalledWith('npx', ['eslint', '.'], expect.any(Object));
+            spy.mockRestore();
+        });
+    });
 });

@@ -12,7 +12,7 @@ const {
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues,
-  handleCredentialResponse,
+  handleCredentialResponse: handleCredentialResponseFromMain,
   ensureElementHasId: ensureElementIdOrigin,
   ensureElementHasId,
   renderDependencyGraphs,
@@ -43,12 +43,12 @@ const accessibilityUtils = {
     }
 
     const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
 
     if (focusableElements.length === 0) {
       console.warn('No focusable elements found in container');
-      return;
+      return () => {};
     }
 
     const firstElement = focusableElements[0];
@@ -57,21 +57,20 @@ const accessibilityUtils = {
     const handleKeyDown = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
           e.preventDefault();
+          firstElement.focus();
         }
       }
 
       if (e.key === 'Escape') {
-        element.dispatchEvent(new CustomEvent('focusTrapEscape'));
+        element.dispatchEvent(new CustomEvent('focus-trap-escape', { bubbles: true }));
       }
     };
 
     element.addEventListener('keydown', handleKeyDown);
-    firstElement.focus();
 
     // Return cleanup function
     return () => {
@@ -83,7 +82,7 @@ const accessibilityUtils = {
 
 const ensureElementIdOriginal = (element) => {
   if (element && !element.id) {
-    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
+    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).substr(2, 9);
   }
   return element;
 };
@@ -126,4 +125,14 @@ async function handleCredentialResponse(response) {
     };
   }
 
-  throw new Error('Invalid credential response
+  throw new Error('Invalid credential response');
+}
+
+module.exports = {
+  accessibilityUtils,
+  ensureElementIdOriginal,
+  addAriaLabel,
+  renderDependencyGraph,
+  calculateSum,
+  handleCredentialResponse
+};

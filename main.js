@@ -31,5 +31,10 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// New function requested in the issue
+function logCurrentURL() {
+    console.log('Current URL: ' + window.location.href);
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

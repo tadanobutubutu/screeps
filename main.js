@@ -1,9 +1,6 @@
 const fs = require('fs');
 const main = require('./utilities');
 
-// Import content generators from separate modules
-const { dependencyGraphContent, indexContent } = require('./contentGenerators');
-
 const {
     createInPageButton,
     validateTableAccessibility,
@@ -15,55 +12,85 @@ const {
     validateAccessibilityReport,
     announceToScreenReader,
     handleKeyboardNav,
-    newFocusTrap, // Updated focus trap implementation
+    newFocusTrap: originNewFocusTrap,
     exportUtils,
     addressAccessibilityIssues,
     handleCredentialResponse,
-    // Keeping only one ensureElementId function
-    ensureElementId: ensureElementIdOrigin,
+    ensureElementHasId: ensureElementIdOrigin,
+    ensureElementId,
     renderDependencyGraphs,
     fixButtonIdentifiers,
     fixDependencyGraphAria,
     addMainLandmarkToIndex,
+    focusTrap,
     renderAdditionalContent,
     transformInputData
 } = main;
 
-// Accessibility utilities for keyboard navigation and screen reader support
 const accessibilityUtils = {
-    /**
-     * Initialize skip link functionality
-     * @param {HTMLElement} skipLink - The skip link element
-     */
-    initSkipLink(skipLink) {
-        if (!skipLink) return;
+    initSkipLink: function () {
+        const skipLink = document.querySelector('.skip-link');
+        if (skipLink) {
+            skipLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(skipLink.getAttribute('href'));
+                if (target) {
+                    target.setAttribute('tabindex', '-1');
+                    target.focus();
+                }
+            });
+        }
+    },
+    trapFocus: function (element) {
+        const focusableElements = element.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
 
-        skipLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            const target = document.querySelector(skipLink.getAttribute('href'));
-            if (target) {
-                target.tabIndex = -1;
-                target.focus();
+        element.addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    firstElement.focus();
+                    e.preventDefault();
+                }
             }
         });
     },
-
-    /**
-     * Trap focus within an element for modal/dialog accessibility
-     * @param {HTMLElement} element - Container element to trap focus within
-     * @returns {Function} Cleanup function to remove event listeners
-     */
-    trapFocus(element) {
-        if (!element) return () => {};
-
+    announceToScreenReader: function (message, priority) {
+        if (priority === undefined) {
+            priority = 'polite';
+        }
+        const announcer = document.createElement('div');
+        announcer.setAttribute('aria-live', priority);
+        announcer.setAttribute('aria-atomic', 'true');
+        announcer.className = 'sr-only';
+        announcer.style.position = 'absolute';
+        announcer.style.left = '-9999px';
+        announcer.textContent = message;
+        document.body.appendChild(announcer);
+        setTimeout(function () {
+            announcer.remove();
+        }, 1000);
+    },
+    handleKeyboardNav: function (e, handlers) {
+        const key = e.key;
+        if (handlers[key]) {
+            handlers[key](e);
+        }
+    },
+    newFocusTrap: function (element) {
         const focusableElements = element.querySelectorAll(
-            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         );
-
+        if (focusableElements.length === 0) return;
         const first = focusableElements[0];
         const last = focusableElements[focusableElements.length - 1];
 
-        const handleKeyboard = (e) => {
+        element.addEventListener('keydown', (e) => {
             if (e.key === 'Tab') {
                 if (e.shiftKey && document.activeElement === first) {
                     last.focus();
@@ -73,63 +100,56 @@ const accessibilityUtils = {
                     e.preventDefault();
                 }
             }
-        };
-
-        element.addEventListener('keydown', handleKeyboard);
-
-        return () => {
-            element.removeEventListener('keydown', handleKeyboard);
-        };
-    },
-
-    // Implemented upgradeAccessibility function
-    upgradeAccessibility() {
-        // Implement upgrading old accessibility patterns to modern best practices
-    },
-
-    /**
-     * Announce message to screen readers
-     * @param {string} message - Message to announce
-     * @param {string} priority - 'polite' or 'assertive'
-     */
-    announceToScreenReader(message, priority = 'polite') {
-        const announcer = document.createElement('div');
-        announcer.setAttribute('aria-live', priority);
-        announcer.setAttribute('aria-atomic', 'true');
-        announcer.className = 'sr-only';
-        announcer.style.position = 'absolute';
-        announcer.style.left = '-9999px';
-        announcer.textContent = message;
-        document.body.appendChild(announcer);
-
-        setTimeout(() => {
-            document.body.removeChild(announcer);
-        }, 1000);
-    },
-
-    /**
-     * Handle keyboard navigation for custom components
-     * @param {KeyboardEvent} e - Keyboard event
-     * @param {Object} options - Navigation options
-     */
-    handleKeyboardNav(e, options) {
-        const key = e.key;
-        if (options[key]) {
-            options[key](e);
-        }
-    },
-
-    /**
-     * Ensure an element has an ID for accessibility purposes
-     * @param {HTMLElement} element - The element to ensure has an ID
-     * @returns {HTMLElement} The element with an ID
-     */
-    ensureElementId: function (element) {
-        if (element && !element.id) {
-            element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        }
-        return element;
+        });
     }
+};
+
+function renderDependencyGraph(data) {
+    // Implementation for rendering dependency graphs
+    return {
+        nodes: data.nodes || [],
+        edges: data.edges || []
+    };
+}
+
+function generateAccessibilityReport(issues) {
+    const report = {
+        timestamp: new Date().toISOString(),
+        totalIssues: issues.length,
+        critical: issues.filter(i => i.impact === 'critical').length,
+        serious: issues.filter(i => i.impact === 'serious').length,
+        moderate: issues.filter(i => i.impact === 'moderate').length,
+        minor: issues.filter(i => i.impact === 'minor').length,
+        issues: issues.map(issue => ({
+            id: issue.id,
+            impact: issue.impact,
+            description: issue.description,
+            help: issue.help,
+            helpUrl: issue.helpUrl,
+            nodes: issue.nodes.map(node => ({
+                html: node.html,
+                target: node.target
+            }))
+        }))
+    };
+
+    if (typeof validateAccessibilityReport === 'function') {
+        validateAccessibilityReport(report);
+    }
+
+    return report;
+}
+
+function getTables() {
+    return appData.tables;
+}
+
+function getConfig() {
+    return { ...appData.config };
+}
+
+function setConfig(config) {
+    appData.config = { ...appData.config, ...config };
 }
 
 // New function to address REACT_027: Fix 26 table structure issues and validate table structure for accessibility
@@ -151,44 +171,53 @@ function addAccessibleName(svgString) {
   return svgString;
 }
 
-// ... (continued existing functions and imports)
+// Access the dependencyGraph container and ensure it has proper ARIA role
+const dependencyGraph = document.querySelector('.dependency-graph');
 
-// Update AccessibilityHelpers to include new functions
+if (dependencyGraph) {
+    // Set appropriate ARIA role for the dependency graph container
+    // Using 'region' role for a contained section of content
+    if (!dependencyGraph.getAttribute('role')) {
+        dependencyGraph.setAttribute('role', 'region');
+    }
+
+    // Add accessible label if not already present
+    if (!dependencyGraph.getAttribute('aria-label')) {
+        dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+    }
+}
+
+// Export functions for use in other modules
 module.exports = {
-  ...main,
+  initSkipLink: accessibilityUtils.initSkipLink,
+  trapFocus: accessibilityUtils.trapFocus,
+  newFocusTrap: accessibilityUtils.newFocusTrap,
+  announceToScreenReader: accessibilityUtils.announceToScreenReader,
+  handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementId: accessibilityUtils.ensureElementId,
+  renderDependencyGraphs,
+  validateTableStructure,
+  validateTableAccessibility,
+  validateTableStructureForAccessibility,
+  addAccessibleName,
+  accessibilityUtils,
+  getConfig,
+  setConfig,
   createInPageButton,
-  createWebResourceButton,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
+  handleCredentialResponse,
+  ensureElementHasId: ensureElementIdOrigin,
+  ensureElementId,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
-  checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  trapFocus,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixFakeLinkIssues,
-  setupFocusTrap,
-  restoreFocus,
-  validateTableAccessibility,
-  validateTableStructureForAccessibility,
-  addAccessibleName,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
   renderAdditionalContent,
-  ...require('./AnotherModule'), // Add another module with new functions if needed
+  transformInputData
 };

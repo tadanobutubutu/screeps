@@ -350,21 +350,21 @@ const AddressabilityIssues = {
       });
       window.dispatchEvent(clearEvent);
     }
-  },
-
-  // Export functions for testing
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-      AddressabilityIssues,
-      initializeAccessibility,
-      getSvgAccessibleName,
-      setSvgAttributes,
-      checkTableStructure,
-      generateUniqueId,
-      detectAccessibilityIssues,
-      handleCredentialResponse,
-      getStoredCredentials,
-      clearCredentials
-    };
   }
-</script>
+};
+
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    AddressabilityIssues,
+    initializeAccessibility,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    checkTableStructure,
+    generateUniqueId,
+    detectAccessibilityIssues,
+    handleCredentialResponse,
+    getStoredCredentials,
+    clearCredentials
+  };
+}

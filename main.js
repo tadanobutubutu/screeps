@@ -19,6 +19,7 @@ const {
     exportUtils,
     addressAccessibilityIssues,
     handleCredentialResponse,
+    // Keeping only one ensureElementId function
     ensureElementId: ensureElementIdOrigin,
     renderDependencyGraphs,
     fixButtonIdentifiers,
@@ -133,6 +134,18 @@ const accessibilityUtils = {
                 }
                 break;
         }
+    },
+
+    /**
+     * Ensure an element has an ID for accessibility purposes
+     * @param {HTMLElement} element - The element to ensure has an ID
+     * @returns {HTMLElement} The element with an ID
+     */
+    ensureElementId: function (element) {
+        if (element && !element.id) {
+            element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        }
+        return element;
     }
 };
 

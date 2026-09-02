@@ -8,15 +8,7 @@ const config = {
   version: '1.0.0',
   dataPath: './data',
   maxResults: 100,
-  landmarkRoles: [
-    'banner',
-    'complementary',
-    'contentinfo',
-    'form',
-    'main',
-    'navigation',
-    'search'
-  ],
+  landmarkRoles: config.allowedRoles,
   maxLandmarks: 50,
   allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
 };
@@ -34,11 +26,6 @@ const CONFIG = {
   allowedRoles
 };
 
-const configFromConstants = CONFIG;
-
-const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || 'localhost';
-
 const landmarkSelectors = [
   '[role="banner"]',
   '[role="navigation"]',
@@ -53,12 +40,6 @@ const landmarkSelectors = [
   'aside:not([role])',
   'section:not([role])'
 ];
-
-const landmarkRoles = config.allowedRoles;
-
-let isInitialized = false;
-let dependencyGraph = null;
-const appData = {};
 
 // ... (Unchanged rest of the code)
 ```

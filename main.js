@@ -418,7 +418,7 @@ function createAccessibleBookForm(options) {
     fields: [],
     submitButton: createInPageButton({
       text: 'Submit Book',
-      ariaLabel: `Submit ${options.title} form',
+      ariaLabel: `Submit ${options.title} form`,
       onClick: options.onSubmit
     })
   };
@@ -538,9 +538,84 @@ function enhanceAddBookAccessibility() {
 // Ensure accessibility improvements are applied
 enhanceAddBookAccessibility();
 
+/**
+ * Handles credential response
+ * @param {Object} response - The credential response object to handle
+ * @param {Object} options - Options for credential handling
+ * @param {Function} options.onSuccess - Success callback function
+ * @param {Function} options.onError - Error callback function
+ * @param {boolean} options.store - Whether to store the credentials
+ * @returns {Object} Result of credential handling with success status and credentials or error
+ */
+function handleCredentialResponse(response, options) {
+  try {
+    // Validate response structure
+    if (!response || typeof response !== 'object') {
+      throw new Error('Invalid credential response: Response must be an object');
+    }
+
+    // Parse and validate credential response
+    const parsedCredential = {
+      provider: response.provider || response.issuer || 'unknown',
+      token: response.accessToken || response.token || response.idToken || null,
+      refreshToken: response.refreshToken || null,
+      userId: response.userId || response.sub || response.localId || null,
+      expiry: response.expiresIn || response.expiry || null,
+      scopes: response.scope || response.scopes || [],
+      idToken: response.idToken || null
+    };
+
+    // Validate required fields based on provider
+    const validationErrors = [];
+    if (!parsedCredential.token && !parsedCredential.refreshToken) {
+      validationErrors.push('No token or refresh token provided');
+    }
+    if (!parsedCredential.provider) {
+      validationErrors.push('Provider information missing');
+    }
+
+    if (validationErrors.length > 0) {
+      throw new Error(`Credential validation failed: ${validationErrors.join(', ')}`);
+    }
+
+    // Store credentials if requested
+    let storedCredential = null;
+    if (options.store) {
+      storedCredential = {
+        ...parsedCredential,
+        storedAt: new Date().toISOString(),
+        expiresAt: parsedCredential.expiry ? 
+          new Date(Date.now() + parsedCredential.expiry * 1000).toISOString() : null
+      };
+    }
+
+    // Call success callback if provided
+    if (options.onSuccess) {
+      options.onSuccess(parsedCredential, storedCredential);
+    }
+
+    return {
+      success: true,
+      credential: parsedCredential,
+      storedCredential: storedCredential,
+      message: 'Credential response handled successfully'
+    };
+  } catch (error) {
+    // Call error callback if provided
+    if (options.onError) {
+      options.onError(error);
+    }
+
+    return {
+      success: false,
+      error: error.message || 'Unknown error handling credential response',
+      details: error
+    };
+  }
+}
+
 // Export all functions for testing and external use
 module.exports = {
-  // ... (existing exports)
   generateAccessibilityReport,
   getLangAttribute,
   getFullLangAttribute,
@@ -565,5 +640,6 @@ module.exports = {
   addBook,
   makeAccessible,
   addAriaSupport,
-  enhanceAddBookAccessibility
+  enhanceAddBookAccessibility,
+  handleCredentialResponse
 };

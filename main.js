@@ -8,3 +8,37 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 // TODO: This is the modified and merged code
+
+// Function to count dependencies in package.json
+function countDependencies() {
+  try {
+    const packageJson = require('./package.json');
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    const peerDependencies = packageJson.peerDependencies || {};
+    const optionalDependencies = packageJson.optionalDependencies || {};
+
+    return {
+      dependencies: Object.keys(dependencies).length,
+      devDependencies: Object.keys(devDependencies).length,
+      peerDependencies: Object.keys(peerDependencies).length,
+      optionalDependencies: Object.keys(optionalDependencies).length,
+      total: Object.keys(dependencies).length + 
+             Object.keys(devDependencies).length + 
+             Object.keys(peerDependencies).length + 
+             Object.keys(optionalDependencies).length
+    };
+  } catch (error) {
+    return {
+      dependencies: 0,
+      devDependencies: 0,
+      peerDependencies: 0,
+      optionalDependencies: 0,
+      total: 0,
+      error: error.message
+    };
+  }
+}
+
+// Export for use in other modules
+module.exports = { countDependencies };

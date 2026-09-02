@@ -535,7 +535,7 @@ function fixTableStructure() {
   });
 }
 
-const validateInput = (input) => input !== null && input !== undefined;
+const validateInput = (input) => input !== null && input !== undefined && input !== '';
 
 function processData(data) {
   if (!validateInput(data)) {

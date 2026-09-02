@@ -1,177 +1,260 @@
 // main.js - Accessibility-focused implementation
 
+/**
+ * Main application entry point
+ */
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs,
 // count dependencies, and address accessibility issues from insight report
 // todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
 
-functions.forEach(functionToSave => {
-  window[functionToSave] = window[functionToSave] || module.exports[functionToSave];
-});
+// Import required modules
+const http = require('http');
+const path = require('path');
 
-// Application configuration
-const config = {
-  port: process.env.PORT || 3000,
-  env: process.env.NODE_ENV || 'development'
-};
-
-/**
- * Main application entry point with accessibility features
- */
-function createServer() {
-  // ... (existing code)
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.lang || 'en';
+  }
+  return 'en';
 }
 
-// Utility for spawning a command
-function spawnSomeCommand(callback) {
-    const child_process = require('child_process');
-    const child = child_process.spawn('someCommand', [], {
-        stdio: 'inherit',
-    });
-    child.on('exit', (code, signal) => {
-        if (code === 0) {
-            callback(null, 'Successfully executed someCommand');
-        } else {
-            callback(new Error(`someCommand failed with code ${code}`));
-        }
-    });
+function getFullLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.lang || (typeof navigator !== 'undefined' ? navigator.language : undefined) || 'en-US';
+  }
+  return 'en-US';
 }
 
-/**
- * Spawn a child process to run some command with proper error handling.
- * @param {Function} callback - Invoked with (err, result) when the command exits.
- */
-function startApp() {
-  // ... (existing code)
+function personName() {
+  // ... code for handling person name
+  return 'User';
 }
 
-/**
- * Function to count dependencies
- * @returns {number} The count of dependencies
- */
-function countDependencies() {
-  return require.main.requires.length;
-}
+function validateTableAccessibility(table) {
+  const issues = [];
 
-// Additional functions to address accessibility issues from insight report
-function addressAccessibilityIssues(insightReport) {
-  // Implement function to address the reported accessibility issues
-}
-
-function generateAccessibilityReport(accessibilityReport) {
-  if (!accessibilityReport || !Array.isArray(accessibilityReport.issues)) {
-    return [];
+  if (!table.headers) {
+    issues.push('Missing headers attribute');
   }
 
-  const report = accessibilityReport.issues.map(issue => ({
-    issueType: issue.type,
-    status: issue.status || 'pending',
-    fixApplied: issue.fixApplied || ''
-  }));
-
-  return report;
-}
-
-function calculateAccessibilityScore(fixedIssues) {
-  if (!Array.isArray(fixedIssues)) {
-    return 0;
+  if (!table.scope) {
+    issues.push('Missing scope attribute');
   }
 
-  const scorePoints = {
-    'color-contrast': 5,
-    'missing-alt-text': 3,
-    'missing-aria-label': 5,
-    'heading-order': 2,
-    'other': 1
+  if (!table.querySelector || !table.querySelector('caption')) {
+    issues.push('Missing caption element');
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
   };
-
-  return fixedIssues.reduce((score, issue) => {
-    const points = scorePoints[issue.type] || scorePoints['other'];
-    return score + points;
-  }, 0);
 }
 
-function ensureUniqueLandmarksFromString(source) {
-  const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+function validateTableStructure(tables) {
+  const allIssues = [];
 
-  const matches = Array.from(source.matchAll(mainBlockRegex));
-  if (matches.length <= 1) {
-    return source;
-  }
+  const tableArray = Array.isArray(tables) ? tables : [tables];
 
-  let result = source;
-  for (let i = 1; i < matches.length; i++) {
-    const block = matches[i][0];
-    const fixedBlock = block
-      .replace(/<main([^>]*)>/, '<section$1>')
-      .replace(/<\/main>/, '</section>');
-    result = result.replace(block, fixedBlock);
-  }
+  tableArray.forEach((table, index) => {
+    const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
+    if (rows.length === 0) {
+      allIssues.push({
+        tableIndex: index,
+        issues: ['Table has no rows']
+      });
+    }
+  });
 
-  return result;
+  return {
+    success: allIssues.length === 0,
+    issues: allIssues
+  };
 }
 
 function validateLandmark(element) {
-  if (!element) {
-    return { valid: false, error: 'Element is required' };
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+
+  if (!element.tagName) {
+    issues.push('Missing tagName');
+  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
+    issues.push(`Invalid landmark: ${element.tagName}`);
   }
 
-  const landmarkRoles = [
-    'banner',
-    'main',
-    'navigation',
-    'search',
-    'contentinfo',
-    'complementary',
-    'region',
-    'form'
-  ];
+  if (element.nodeName && element.nodeName.toLowerCase() === 'div' && !element.getAttribute('role')) {
+    issues.push('Missing role attribute');
+  }
 
-  const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
-
-  const implicitLandmarks = {
-    'header': 'banner',
-    'main': 'main',
-    'nav': 'navigation',
-    'aside': 'complementary',
-    'footer': 'contentinfo',
-    'section': 'region',
-    'form': 'form'
+  return {
+    success: issues.length === 0,
+    issues
   };
+}
 
-  let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
+function validateLandmarkStructure(landmarks) {
+  const issues = [];
 
-  if (!landmarkRole) {
-    if (implicitLandmarks[tagName]) {
-      landmarkRole = implicitLandmarks[tagName];
-    } else {
-      return { valid: false, error: 'No landmark role found' };
+  if (Array.isArray(landmarks)) {
+    landmarks.forEach((landmark, index) => {
+      const result = validateLandmark(landmark);
+      if (!result.success) {
+        issues.push({
+          landmarkIndex: index,
+          issues: result.issues
+        });
+      }
+    });
+  } else {
+    const allLandmarks = document.querySelectorAll('[role]');
+    let hasMain = false;
+    let hasNavigation = false;
+
+    allLandmarks.forEach(landmark => {
+      const role = landmark.getAttribute('role');
+      if (role === 'main') hasMain = true;
+      if (role === 'navigation') hasNavigation = true;
+    });
+
+    if (!hasMain) {
+      issues.push('Missing main landmark');
+    }
+    if (!hasNavigation) {
+      issues.push('Missing navigation landmark');
     }
   }
 
-  if (!landmarkRoles.includes(landmarkRole)) {
-    return { valid: false, error: `Invalid landmark role: ${landmarkRole}` };
+  const landmarkSet = new Set();
+  const allLandmarks = document.querySelectorAll('[role]');
+  allLandmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (role && !landmarkSet.has(role)) {
+      landmarkSet.add(role);
+    } else {
+      issues.push(`Duplicate landmark role: ${role}`);
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+function getSvgAccessibleName(svg) {
+  const title = svg.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent.trim();
+  }
+  const desc = svg.querySelector('desc');
+  if (desc && desc.textContent) {
+    return desc.textContent.trim();
+  }
+  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '';
+}
+
+function createInPageButton(options) {
+  if (typeof options === 'string') {
+    // Handle legacy call with buttonId, buttonText
+    const button = document.createElement('button');
+    button.id = options;
+    button.textContent = arguments[1] || '';
+    return button;
+  }
+  return {
+    type: 'button',
+    text: options.text,
+    ariaLabel: options.ariaLabel || options.text,
+    onClick: options.onClick,
+    accessibleName: getSvgAccessibleName({ ariaLabel: options.ariaLabel })
+  };
+}
+
+function addressNewAccessibilityIssues() {
+  // Retrieve the language attribute for the HTML document
+  const lang = getLangAttribute();
+
+  // Apply the language attribute to the <html> element if not already present
+  const htmlElement = document.documentElement;
+  if (htmlElement && typeof htmlElement !== 'undefined') {
+    if (!htmlElement.getAttribute('lang')) {
+      htmlElement.setAttribute('lang', lang);
+    }
   }
 
-  return { valid: true, role: landmarkRole };
+  // Ensure the main content area has an appropriate ARIA role
+  const main = document.querySelector('main');
+  if (main && typeof main !== 'undefined') {
+    main.setAttribute('role', 'main');
+  }
+
+  // Attach an accessible label to the primary action button
+  const submitBtn = document.querySelector('button[type="submit"], button[type="button"]');
+  if (submitBtn && typeof submitBtn !== 'undefined') {
+    submitBtn.setAttribute('aria-label', personName());
+  }
 }
 
-// TODO: Implement this function for checking landmark elements
-function checkLandmarkElements() {
-  // Example logic to check for landmark elements
-  // This is a placeholder function and should be replaced with actual implementation
-  console.log('Checking landmark elements...');
+function checkTableStructure(table) {
+  // ... original table validation code
+  // Added handleInvalidTableStructure function
+  function handleInvalidTableStructure(table, error) {
+    console.error(`Table structure issues found: ${error}`);
+  }
+
+  return {
+    valid: validationResult.valid,
+    hasHeader: validationResult.hasHeader,
+    hasBody: validationResult.hasBody,
+    rowCount: validationResult.rowCount,
+    handleInvalidTableStructure
+  };
 }
 
-// Export functions for testing
-module.exports = {
+export {
+  config,
+  addBook,
   createServer,
   startApp,
-  config,
-  countDependencies,
   addressAccessibilityIssues,
   generateAccessibilityReport,
+  checkLandmarkElements,
+  appState,
+  appData,
+  validateLandmark,
+  HTML,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  ensureElementHasId,
+  addAriaLabel,
+  addHtmlLangAttribute,
+  addLandmarkRoles,
+  assignLandmarkIds,
+  fixFakeLink,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  createAccessibleLink,
+  handleCredentialResponse,
+  handleAccessibilityIssues,
   calculateAccessibilityScore,
   ensureUniqueLandmarksFromString,
   validateLandmark,
-  checkLandmarkElements
+  checkLandmarkElements,
+  checkTableStructure,
+  checkLandmarkStructure,
+  handleTableStructureError,
+  handleLandmarkStructureError,
+  initializeAccessibility,
+  setSvgAttributes
 };
+
+if (require.main === module) {
+  startApp();
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = module.exports || {};
+}

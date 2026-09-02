@@ -1,4 +1,5 @@
 // main.js - Entry point for the application
+// TODO: Existing main.js content before the merge conflict...
 
 // TODO: Address accessibility issues from insight report:
 // ... (Removed hashes for ease of reading)

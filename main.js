@@ -1,7 +1,30 @@
 const fs = require('fs');
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, renderAdditionalContent } = main;
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  renderAdditionalContent,
+  newFocusTrap
+} = main;
 
 const ensureElementIdUtil = (element) => {
   if (element && !element.id) {
@@ -9,8 +32,6 @@ const ensureElementIdUtil = (element) => {
   }
   return element;
 };
-
-const newFocusTrap = accessibilityUtils.newFocusTrap;
 
 const accessibilityUtils = {
   ...accessibilityUtils,
@@ -153,6 +174,32 @@ const accessibilityUtils = {
           });
         }
       });
+    },
+
+    /**
+     * Generates a report based on the accessibility issues found.
+     * @returns {Object} The accessibility report.
+     */
+    generateAccessibilityReport: function () {
+      const report = {
+        passed: [],
+        issues: [],
+        summary: {
+          moderate: 0,
+          totalIssues: 0
+        }
+      };
+
+      // Example usage of the utility functions to populate the report
+      const svgs = document.querySelectorAll('svg');
+      accessibilityUtils.checkSvgAccessibility(svgs);
+
+      const links = document.querySelectorAll('a');
+      accessibilityUtils.checkLinkAccessibility(links);
+
+      // Add more accessibility checks as needed
+
+      return report;
     }
   }
 };

@@ -1,3 +1,6 @@
+// main.js - Screeps game code
+// Address accessibility issues from insight report
+
 // Import any required modules
 const requiredModule1 = require('required-module-1');
 const requiredModule2 = require('required-module-2');
@@ -6,7 +9,7 @@ const axe = require('axe-core');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
-const accessiblyHelper = require('./accessibly-helper'); // Added this import
+const accessiblyHelper = require('./accessibly-helper');
 
 // Application configuration
 const config = {
@@ -15,10 +18,40 @@ const config = {
   debug: false
 };
 
+/**
+ * Updates accessibility labels for interactive elements
+ * @param {string} elementId - The ID of the element to update
+ * @param {string} label - The accessibility label to set
+ */
+function updateAriaLabel(elementId, label) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.setAttribute('aria-label', label);
+        element.setAttribute('role', 'button');
+    }
+}
+
+/**
+ * Enhances user safety messages with proper accessibility attributes
+ * @param {string} userSafety - The user safety status message
+ * @returns {string} The enhanced message with aria-label
+ */
+function enhanceSafetyAccessibility(userSafety) {
+    const ariaLabel = userSafety.replace(/: /, ': aria-label="').replace(')', '")');
+    return ariaLabel;
+}
+
 // Helper function
 function initialize() {
   console.log('Initializing application...');
   return true;
+}
+
+// System Information function
+function systemInfo() {
+  // Add system information such as OS, browser, etc.
+  // ...
+  return 'System info not implemented';
 }
 
 // Main initialization function
@@ -27,6 +60,8 @@ const initializeApp = () => {
   console.log('Application initialized');
 
   // Ensure the app is accessible
+  addressAccessibilityIssues();
+
   const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
   if (mainContent) {
     mainContent.setAttribute('aria-label', 'Main content area');
@@ -76,23 +111,16 @@ function getDependencies(root) {
   // ... (Remainder of original getDependencies function after line 89)
 }
 
-// Export all functions for use in other modules
-module.exports.initialize = initialize;
-module.exports.initializeApp = initializeApp;
-module.exports.ensureElementHasId = ensureElementHasId;
-module.exports.addAriaLabel = addAriaLabel;
-module.exports.renderDependencyGraph = renderDependencyGraph;
-module.exports.getDependencies = getDependencies;
+// New function to address new accessibility issues
+function addressAccessibilityIssues() {
+  const accessibilityIssues = [
+    // Implement functionality to find and address new accessibility issues...
+  ];
 
-module.exports.config = config;
-
-// TODO: This section is merged from both branches to address accessibility issues
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure(), getLandmarks(), processLandmarks(), sortLandmarks(), getLandmarkById())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (handled by ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility(), handleFakeLinks())
+  accessibilityIssues.forEach((issue) => {
+    issue.action(issue.context);
+  });
+}
 
 // Accessibility functions
 function getLangAttribute(element) {
@@ -118,25 +146,31 @@ function createInPageButton(targetId, text) {
   return button;
 }
 
-function getLandmarks() {
-  const landmarks = [];
-  const elements = document.querySelectorAll('[role]');
-  elements.forEach(el => {
-    const role = el.getAttribute('role');
-    if (CONFIG.landmarkRoles.includes(role)) {
-      landmarks.push(el);
-    }
-  });
-  return landmarks;
+/**
+ * Applies accessibility improvements to game UI elements
+ */
+function applyAccessibilityImprovements() {
+    const safetyElements = document.querySelectorAll('[data-safety]');
+    safetyElements.forEach(element => {
+        const safetyValue = element.getAttribute('data-safety');
+        if (safetyValue) {
+            element.setAttribute('aria-label', 'Safety status: ' + safetyValue);
+            element.setAttribute('role', 'status');
+        }
+    });
+    
+    const interactiveElements = document.querySelectorAll('.interactive');
+    interactiveElements.forEach(element => {
+        if (!element.getAttribute('aria-label')) {
+            const action = element.getAttribute('data-action') || 'Interact';
+            element.setAttribute('aria-label', action + ' button');
+        }
+    });
 }
 
-function processLandmarks(landmarks) {
-  return landmarks.map(landmark => ({
-    element: landmark,
-    role: landmark.getAttribute('role'),
-    label: landmark.getAttribute('aria-label') || '',
-    id: landmark.id || ''
-  }));
+// Initialize accessibility on game load
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', applyAccessibilityImprovements);
 }
 
 function sortLandmarks(landmarks) {
@@ -207,10 +241,38 @@ function ensureUniqueLandmarks(landmarks) {
   // Implementation to ensure unique landmarks
 }
 
-// ... (Remaining exports from second branch after the accessibility section)
-
 // TODO: Implement this function
 function someNewFunction() {
   console.log('This is the implementation of someNewFunction');
   // Add your implementation here
 }
+
+// Export all functions for use in other modules
+module.exports = {
+    initialize: initialize,
+    initializeApp: initializeApp,
+    ensureElementHasId: ensureElementHasId,
+    addAriaLabel: addAriaLabel,
+    renderDependencyGraph: renderDependencyGraph,
+    getDependencies: getDependencies,
+    config: config,
+    updateAriaLabel: updateAriaLabel,
+    enhanceSafetyAccessibility: enhanceSafetyAccessibility,
+    applyAccessibilityImprovements: applyAccessibilityImprovements,
+    addressAccessibilityIssues: addressAccessibilityIssues,
+    getLangAttribute: getLangAttribute,
+    addLangAttribute: addLangAttribute,
+    createInPageButton: createInPageButton,
+    sortLandmarks: sortLandmarks,
+    getLandmarkById: getLandmarkById,
+    validateTableAccessibility: validateTableAccessibility,
+    validateLandmark: validateLandmark,
+    validateLandmarkStructure: validateLandmarkStructure,
+    validateLandmarkAttributes: validateLandmarkAttributes,
+    getSvgAccessibleName: getSvgAccessibleName,
+    fixFakeLinkIssues: fixFakeLinkIssues,
+    addressNewAccessibilityIssues: addressNewAccessibilityIssues,
+    processAccessibilityReport: processAccessibilityReport,
+    ensureUniqueLandmarks: ensureUniqueLandmarks,
+    someNewFunction: someNewFunction
+};

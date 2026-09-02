@@ -409,23 +409,23 @@ function createAccessibleBookForm(options) {
   const form = {
     id: options.formId,
     role: 'form',
-    'aria-labelledby': `${options.formId}-title`,
+    'aria-labelledby': options.formId + '-title',
     titleElement: {
-      id: `${options.formId}-title`,
+      id: options.formId + '-title',
       text: options.title,
       level: 2
     },
     fields: [],
     submitButton: createInPageButton({
       text: 'Submit Book',
-      ariaLabel: `Submit ${options.title} form',
+      ariaLabel: 'Submit ' + options.title + ' form',
       onClick: options.onSubmit
     })
   };
 
   // Process each field with accessibility features
   options.fields.forEach((field, index) => {
-    const fieldId = `${options.formId}-field-${index}`;
+    const fieldId = options.formId + '-field-' + index;
     const accessibleField = {
       id: fieldId,
       type: field.type || 'text',
@@ -435,9 +435,9 @@ function createAccessibleBookForm(options) {
       },
       required: field.required || false,
       'aria-required': field.required ? 'true' : 'false',
-      'aria-describedby': field.description ? `${fieldId}-description` : undefined,
+      'aria-describedby': field.description ? fieldId + '-description' : undefined,
       description: field.description ? {
-        id: `${fieldId}-description`,
+        id: fieldId + '-description',
         text: field.description
       } : undefined,
       value: field.value || '',

@@ -151,3 +151,8 @@
 
 **Learning:** Declaring `aria-keyshortcuts` attributes on interactive elements requires using lowercase letters when the Shift key is not part of the shortcut combination (e.g., `Alt+r` rather than `Alt+R`), according to W3C ARIA specifications. Using uppercase letters implies that the Shift key is required (e.g., `Alt+Shift+R`), which misinforms screen-reader users when the event listener only listens for unshifted keypresses.
 **Action:** Always format `aria-keyshortcuts` strings using lowercase letters (e.g., `Alt+r`, `Alt+s`) unless the Shift key is explicitly required.
+
+## 2026-08-29 - [High-Contrast Keyboard Focus Indicators vs Hover Trigger Anti-Patterns]
+
+**Learning:** Reusing hover state handlers for keyboard focus events (`onFocus={() => setHover(true)}`) causes confusing hover scaling transforms during tab navigation while omitting true visual focus outlines. Tracking keyboard focus using dedicated focus state variables (`summaryFocused`, `refreshFocused`, `copyAllFocused`, `focusedRoom`, `jsonFocused`) and applying high-contrast focus outlines (`outline: 2px solid #004b73`, `outlineOffset: 2px`) ensures seamless visual feedback and keyboard navigation tracking (WCAG 2.4.7 Focus Visible).
+**Action:** Always maintain dedicated focus state tracking or CSS `:focus-visible` styling for action buttons, avoiding using hover state setters inside `onFocus` handlers.

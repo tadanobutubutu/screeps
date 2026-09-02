@@ -12,6 +12,13 @@
  * Main application entry point with accessibility features
  */
 
+// Import required modules
+const child_process = require('child_process');
+const path = require('path');
+const fs = require('fs');
+const dependencyContent = require('../dependencyGraphContent/indexContent');
+const indexContent = require('../indexContent/indexContent');
+
 function addSvgAccessibilityProps() {
   const svgElements = document.querySelectorAll('svg');
 
@@ -202,8 +209,6 @@ const AddressabilityIssues = {
   },
 
   spawnSomeCommand(callback) {
-    const child_process = require('child_process');
-
     const spawnOptions = {  shell: true };
 
     child_process.spawn('someCommand', [], spawnOptions, (error, stdout, stderr) => {
@@ -221,8 +226,6 @@ const AddressabilityIssues = {
   },
 
   countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
     const packageJsonPath = path.join(__dirname, '..', 'package.json');
     const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
 
@@ -237,7 +240,6 @@ const AddressabilityIssues = {
   },
 
   renderDependencyGraph() {
-    const dependencyContent = require('../dependencyGraphContent/indexContent');
     const graphContainer = document.getElementById('dependency-graph-container');
     if (graphContainer) {
       graphContainer.innerHTML = dependencyContent;
@@ -245,12 +247,19 @@ const AddressabilityIssues = {
   },
 
   renderIndexView() {
-    const indexContent = require('../indexContent/indexContent');
     const indexContainer = document.getElementById('index-container');
     if (indexContainer) {
       indexContainer.innerHTML = indexContent;
     }
   }
+};
+
+// Export the necessary functions and objects
+module.exports = {
+  addSvgAccessibilityProps,
+  checkTableStructure,
+  sampleInsightReport,
+  AddressabilityIssues
 };
 
 // ... (other functions and comments preserved)

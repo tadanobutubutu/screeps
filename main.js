@@ -26,7 +26,8 @@ import {
   ensureElementHasId,
   ensureElementHasIdOrigin,
   addAriaLabel,
-  renderDependencyGraphs
+  renderDependencyGraphs,
+  wrapPrimaryContentInMain
 } from './AccessibilityHelpers'
 
 const {

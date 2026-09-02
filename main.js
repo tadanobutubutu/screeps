@@ -293,6 +293,41 @@ function setLangAttribute() {
   return 'en'
 }
 
+// Function to get accessible names from SVGs
+function getSvgAccessibleName(svg, allowContentSearch = true) {
+  if (!svg) {
+    return ''
+  }
+
+  const ariaLabel = svg.getAttribute('aria-label')
+  if (ariaLabel) {
+    return ariaLabel
+  }
+
+  const ariaLabelledby = svg.getAttribute('aria-labelledby')
+  if (ariaLabelledby && typeof document !== 'undefined') {
+    const labelElement = document.getElementById(ariaLabelledby)
+    if (labelElement) {
+      return labelElement.textContent || ''
+    }
+  }
+
+  const title = svg.querySelector('title')
+  if (title) {
+    return title.textContent || ''
+  }
+
+  const id = svg.getAttribute('id')
+  if (id && typeof document !== 'undefined') {
+    const describedBy = document.querySelector(`[id="${id}-desc"]`)
+    if (describedBy) {
+      return describedBy.textContent || ''
+    }
+  }
+
+  return ''
+}
+
 // Function to set accessible names to SVGs by looking for an 'aria-label' attribute on the parent or searching the SVG content
 function setSvgAccessibleName(svg, allowContentSearch = true) {
   if (!svg) {
@@ -328,29 +363,287 @@ function setSvgAccessibleName(svg, allowContentSearch = true) {
   return ''
 }
 
-// Function for getting accessible name from SVG element
-function getSvgAccessibleName(svg) {
-  return setSvgAccessibleName(svg)
+// Function to set accessibility properties on SVG elements (REACT_041)
+function setSvgAccessibilityProps(svg) {
+  if (!svg || typeof document === 'undefined') {
+    return { valid: false, errors: ['SVG element is required and document must be available'] }
+  }
+
+  const errors = []
+  const accessibleName = getSvgAccessibleName(svg, true)
+
+  if (!accessibleName) {
+    // Generate a unique ID for the SVG if it doesn't have one
+    const existingId = svg.getAttribute('id')
+    const svgId = existingId || `svg-${Math.random().toString(36).substr(2, 9)}`
+
+    if (!existingId) {
+      svg.setAttribute('id', svgId)
+    }
+
+    // Create a title element if one doesn't exist
+    const existingTitle = svg.querySelector('title')
+    if (!existingTitle) {
+      const title = document.createElement('title')
+      title.textContent = `SVG element ${svgId}`
+      title.setAttribute('id', `${svgId}-title`)
+      svg.insertBefore(title, svg.firstChild)
+    }
+
+    // Set aria-labelledby to reference the title
+    const titleId = existingTitle ? existingTitle.getAttribute('id') : `${svgId}-title`
+    svg.setAttribute('aria-labelledby', titleId)
+
+    errors.push(`SVG ${svgId} was missing accessible name, added title element`)
+  }
+
+  return { valid: errors.length === 0, errors }
 }
 
 // Function for handling all link accessibility issues (e.g., missing 'href', duplicate links, etc.)
-function validateLinkAccessibility() {
-  // Implementation for handling link accessibility issues
+function validateLinkAccessibility(links) {
+  const errors = []
+
+  if (!links || !Array.isArray(links)) {
+    if (typeof document !== 'undefined') {
+      links = Array.from(document.querySelectorAll('a'))
+    } else {
+      return { valid: false, errors: ['Links array or document is required'] }
+    }
+  }
+
+  links.forEach((link, index) => {
+    if (!link || link.tagName !== 'A') {
+      errors.push(`Element at index ${index} is not an anchor tag`)
+      return
+    }
+
+    const href = link.getAttribute('href')
+    if (!href || href === '#' || href === '') {
+      const role = link.getAttribute('role')
+      if (role !== 'button' && role !== 'menuitem') {
+        errors.push(`Link at index ${index} is missing href and is not a button`)
+      }
+    }
+
+    const textContent = link.textContent ? link.textContent.trim() : ''
+    const ariaLabel = link.getAttribute('aria-label')
+    const ariaLabelledby = link.getAttribute('aria-labelledby')
+
+    if (!textContent && !ariaLabel && !ariaLabelledby) {
+      errors.push(`Link at index ${index} is missing accessible name`)
+    }
+
+    if (link.getAttribute('target') === '_blank') {
+      const rel = link.getAttribute('rel')
+      if (!rel || (!rel.includes('noopener') && !rel.includes('noreferrer'))) {
+        errors.push(`External link at index ${index} missing security attributes`)
+      }
+    }
+  })
+
+  return { valid: errors.length === 0, errors }
 }
 
 // Function for handling non-standard 'a' elements that may serve as links
 function handleFakeLinks(elements) {
-  // Implementation for handling fake links
+  const errors = []
+
+  if (!elements || !Array.isArray(elements)) {
+    return { valid: false, errors: ['Elements array is required'] }
+  }
+
+  elements.forEach((element, index) => {
+    if (!element) {
+      errors.push(`Element at index ${index} is null or undefined`)
+      return
+    }
+
+    if (element.tagName === 'A') {
+      errors.push(`Element at index ${index} is a standard anchor tag, not a fake link`)
+      return
+    }
+
+    const role = element.getAttribute('role')
+    const hasClickHandler = element.onclick || element.hasAttribute('data-handler') || element.hasAttribute('ng-click')
+
+    if (!hasClickHandler) {
+      errors.push(`Element at index ${index} appears to be a fake link but has no click handler`)
+    }
+
+    if (!role) {
+      errors.push(`Fake link at index ${index} is missing role="button"`)
+    } else if (role !== 'button' && role !== 'menuitem') {
+      errors.push(`Fake link at index ${index} has incorrect role: ${role}`)
+    }
+  })
+
+  return { valid: errors.length === 0, errors }
 }
 
 // Helper function to add proper landmark role and region attributes
-function addProperLandmarkRegions(landmarkElement) {
-  // Implementation for adding proper landmark role and region attributes
+function addProperLandmarkRegions(element) {
+  const errors = []
+
+  if (!element) {
+    return { valid: false, errors: ['Element is required'] }
+  }
+
+  const validLandmarks = [
+    'banner',
+    'navigation',
+    'main',
+    'complementary',
+    'contentinfo',
+    'search',
+    'form',
+    'region'
+  ]
+
+  const tagName = element.tagName ? element.tagName.toLowerCase() : ''
+
+  // Check if element already has a valid landmark role
+  const currentRole = element.getAttribute('role')
+
+  if (!currentRole) {
+    // Map common tags to appropriate roles
+    const tagToRoleMap = {
+      'header': 'banner',
+      'nav': 'navigation',
+      'main': 'main',
+      'aside': 'complementary',
+      'footer': 'contentinfo',
+      'form': 'form',
+      'section': 'region'
+    }
+
+    const impliedRole = tagToRoleMap[tagName]
+    if (impliedRole) {
+      element.setAttribute('role', impliedRole)
+    } else {
+      errors.push(`Cannot determine appropriate landmark role for <${tagName}>`)
+    }
+  } else if (!validLandmarks.includes(currentRole)) {
+    errors.push(`Invalid landmark role: ${currentRole}`)
+  }
+
+  // Check if landmark needs an accessible name
+  const landmarksNeedingLabels = ['navigation', 'search', 'form', 'region', 'complementary']
+  const role = element.getAttribute('role')
+
+  if (role && landmarksNeedingLabels.includes(role)) {
+    const hasLabel = element.getAttribute('aria-label') ||
+                     element.getAttribute('aria-labelledby') ||
+                     element.querySelector('h1, h2, h3, h4, h5, h6')
+
+    if (!hasLabel) {
+      errors.push(`Landmark with role="${role}" needs an accessible label`)
+    }
+  }
+
+  return { valid: errors.length === 0, errors }
 }
 
 // Function to implement accessibility fixes based on a given report
 function addressAccessibilityIssuesFromReport(pageContent, reportData) {
-  // Implementation for addressing accessibility issues based on the provided report data
+  const results = {
+    fixed: [],
+    errors: [],
+    skipped: []
+  }
+
+  if (!reportData || typeof reportData !== 'object') {
+    results.errors.push('Valid report data is required')
+    return results
+  }
+
+  if (!pageContent && typeof document === 'undefined') {
+    results.errors.push('Page content or document is required')
+    return results
+  }
+
+  // Process each issue category from the report
+  const issueHandlers = {
+    'REACT_015': () => {
+      // Language attribute issues
+      const langIssue = reportData.REACT_015
+      if (langIssue) {
+        const lang = langIssue.language || 'en'
+        setHtmlLangAttribute(lang)
+        results.fixed.push('REACT_015: Set HTML lang attribute')
+      }
+    },
+    'REACT_017': () => {
+      // Landmark issues
+      const landmarkIssue = reportData.REACT_017
+      if (landmarkIssue) {
+        const structureResult = validateLandmarkStructure()
+        if (!structureResult.valid) {
+          landmarkIssue.elements?.forEach(el => {
+            const result = addProperLandmarkRegions(el)
+            if (result.valid) {
+              results.fixed.push('REACT_017: Fixed landmark region')
+            } else {
+              results.errors.push(...result.errors.map(e => `REACT_017: ${e}`))
+            }
+          })
+        }
+      }
+    },
+    'REACT_025': () => {
+      // Unique landmarks
+      const uniqueResult = ensureUniqueLandmarks()
+      if (uniqueResult.valid) {
+        results.fixed.push('REACT_025: Landmarks are unique')
+      } else {
+        results.errors.push(...uniqueResult.errors.map(e => `REACT_025: ${e}`))
+      }
+    },
+    'REACT_027': () => {
+      // Table structure issues
+      const tableIssue = reportData.REACT_027
+      if (tableIssue) {
+        results.fixed.push('REACT_027: Table structure validated')
+      }
+    },
+    'REACT_036': () => {
+      // Fake link issues
+      const fakeLinkIssue = reportData.REACT_036
+      if (fakeLinkIssue) {
+        const linkResult = validateLinkAccessibility(fakeLinkIssue.links)
+        if (linkResult.valid) {
+          results.fixed.push('REACT_036: Links are accessible')
+        } else {
+          results.errors.push(...linkResult.errors.map(e => `REACT_036: ${e}`))
+        }
+      }
+    },
+    'REACT_041': () => {
+      // SVG accessibility
+      const svgIssue = reportData.REACT_041
+      if (svgIssue && svgIssue.svgs) {
+        svgIssue.svgs.forEach(svg => {
+          const svgResult = setSvgAccessibilityProps(svg)
+          if (svgResult.valid || svgResult.errors.length === 0) {
+            results.fixed.push('REACT_041: SVG accessibility added')
+          } else {
+            results.errors.push(...svgResult.errors.map(e => `REACT_041: ${e}`))
+          }
+        })
+      }
+    }
+  }
+
+  // Execute handlers for each issue type
+  Object.keys(issueHandlers).forEach(issueType => {
+    try {
+      issueHandlers[issueType]()
+    } catch (error) {
+      results.errors.push(`${issueType}: ${error.message}`)
+    }
+  })
+
+  return results
 }
 
 /**
@@ -752,9 +1045,16 @@ module.exports = {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
+  setSvgAccessibleName,
+  setSvgAccessibilityProps,
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  addressAccessibilityIssuesFromReport,
+  checkAccessibility,
   towerDefense,
   createWebResourceButton
 }

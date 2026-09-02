@@ -22,9 +22,14 @@ const {
   createInPageButton
 } = require('./utils');
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs, checkTableStructure (updated), check credential response, getStoredCredentials, clearCredentials
-
 const AddressabilityIssues = {
+  MISSING_ID: 'MISSING_ID',
+  MISSING_ROLE: 'MISSING_ROLE',
+  INVALID_LANDMARK: 'INVALID_LANDMARK',
+  INVALID_TABLE_STRUCTURE: 'INVALID_TABLE_STRUCTURE',
+  MISSING_SVG_NAME: 'MISSING_SVG_NAME',
+  FAKE_LINK: 'FAKE_LINK',
+  DUPLICATE_LANDMARK: 'DUPLICATE_LANDMARK',
   /* existing functions */
 };
 
@@ -32,12 +37,6 @@ const appState = {
   initialized: false,
   data: null,
   cache: new Map()
-};
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs, checkTableStructure, generateUniqueId, detectAccessibilityIssues, handleCredentialResponse, getStoredCredentials, clearCredentials
-
-const AddressabilityIssues = {
-  /* existing functions */
 };
 
 /**
@@ -49,7 +48,7 @@ const AddressabilityIssues = {
  * @returns {string} The full lang attribute (e.g., "en" or "en-US")
  */
 function getFullLangAttribute() {
-  return document.documentElement.lang || navigator.language || 'en-US';
+  return (typeof document !== 'undefined' && document.documentElement.lang) || (typeof navigator !== 'undefined' && navigator.language) || 'en-US';
 }
 
 /**
@@ -60,6 +59,15 @@ function getFullLangAttribute() {
 function addLangAttribute(element) {
   element.lang = getFullLangAttribute();
   return element;
+}
+
+/**
+ * Alias for addLangAttribute for backward compatibility
+ * @param {Object} element - The HTML element to modify
+ * @returns {Object} The modified element with lang attribute
+ */
+function setLangAttribute(element) {
+  return addLangAttribute(element);
 }
 
 /**
@@ -76,122 +84,20 @@ function personName(firstName, lastName) {
 // Added export for User Safety
 exports.userSafety = 'safe';
 
-// Other code preserved
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute() / addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure() / fixTableStructureIssues() and fixTableHeaderCellScope())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks() / addMainLandmark(), addLandmarkRolesAndFixIssues() and fixLandmarkIssues())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton() / addSvgAccessibleNames())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues() / fixFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions / addLandmarkRegions())
-
-function initializeAccessibility(container) {
-  let svgElements;
-  if (container instanceof Element) {
-    svgElements = container.querySelectorAll('svg');
-  } else if (Array.isArray(container)) {
-    svgElements = container;
-  } else {
-    svgElements = [];
-  }
-
-  svgElements.forEach(svg => {
-    /* existing functions */
-  });
-
-  /* new function */
-  function checkTableStructure(table) {
-    if (!table) {
-      return { valid: false, error: 'Table element is required' };
-    }
-
-    const hasHeader = table.querySelector('thead') !== null || table.querySelector('th') !== null;
-    const hasBody = table.querySelector('tbody') !== null;
-    const hasCaption = table.querySelector('caption') !== null;
-
-    return {
-      valid: true,
-      hasHeader,
-      hasBody,
-      hasCaption
-    };
-  }
-
-  /* new function */
-  function generateUniqueId() {
-    return 'svg-' + Math.random().toString(36).substr(2, 9);
-  }
-
-  /* new function */
-  function detectAccessibilityIssues(elements) {
-    const issues = [];
-
-    elements.forEach((element, index) => {
-      /* existing functions */
-      if (!element.id) issues.push({ element: index, type: AddressabilityIssues.MISSING_ID, message: 'Element is missing an id attribute' });
-
-      /* new function */
-      if (!element.getAttribute('role') && element.tagName !== 'IMG') {
-        issues.push({ element: index, type: AddressabilityIssues.MISSING_ROLE, message: 'Element is missing a role attribute' });
-      }
-    });
-
-    return issues;
-  }
-
-  /* modification to existing function */
-  function handleCredentialResponse(response) {
-    /* existing code */
-
-    // Announce success to screen readers
-    if (typeof announceToScreenReader === 'function') {
-      announceToScreenReader('User successfully authenticated');
-    }
-
-    // Validate the role attribute for all elements in the page (except IMG elements)
-    const elements = document.querySelectorAll(':not([role]):not(img)');
-    elements.forEach((element) => {
-      const result = AddressabilityIssues.validateLandmark(element);
-      if (!result.valid) {
-        console.warn(
-          `Element "${result.element}" has an invalid role: ${result.role} - ${result.error}`
-        );
-      }
-    });
-
-    // Validated role for new elements (except IMG elements) only after successful authentication
-    const updatedElements = [...elements];
-    const newIssues = detectAccessibilityIssues(updatedElements);
-    if (newIssues.length > 0) {
-      console.warn('Accessibility issues detected after successful authentication:');
-      newIssues.forEach(({ element, type, message }) => {
-        console.warn(`Element at index ${element}: ${message}`);
-      });
-    }
-
-    return { /* existing return statement */ };
-  }
-
-  /* existing functions */
-}
-
 /**
  * Gets the accessible name for an SVG element
  * @param {Object} svgElement - The SVG element to get the name for
  * @returns {string} The accessible name of the SVG
  */
 function getSvgAccessibleName(svgElement) {
-    // Merged implementation
-    if (!svgElement) {
-        return 'Accessible SVG Icon';
-    }
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (title) return title.textContent;
-    if (ariaLabel) return ariaLabel;
+  if (!svgElement) {
     return 'Accessible SVG Icon';
+  }
+  const title = svgElement.querySelector('title');
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (title) return title.textContent;
+  if (ariaLabel) return ariaLabel;
+  return 'Accessible SVG Icon';
 }
 
 /**
@@ -217,12 +123,11 @@ function setSvgAttributes(svg, accessibleName) {
  * @returns {Object} The created button element
  */
 function createInPageButton(text, onClick) {
-    // Implementation to create accessible in-page button
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.onclick = onClick;
-    button.setAttribute('aria-label', text);
-    return button;
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.onclick = onClick;
+  button.setAttribute('aria-label', text);
+  return button;
 }
 
 /**
@@ -232,22 +137,11 @@ function createInPageButton(text, onClick) {
  * @returns {Object} The created link element
  */
 function createAccessibleLink(href, text) {
-    // Implementation to create accessible link
-    const link = document.createElement('a');
-    link.href = href;
-    link.textContent = text;
-    link.setAttribute('aria-label', text);
-    return link;
-}
-
-/**
- * Sets the lang attribute for the HTML element
- * @param {Object} element - The HTML element to modify
- * @returns {Object} The modified element with lang attribute
- */
-function setLangAttribute(element) {
-  element.lang = getFullLangAttribute();
-  return element;
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  link.setAttribute('aria-label', text);
+  return link;
 }
 
 /**
@@ -280,6 +174,48 @@ function validateTableAccessibility(table) {
 }
 
 /**
+ * Validates table structure
+ * @param {Object} table - The table element to validate
+ * @returns {Object} Validation result
+ */
+function validateTableStructure(table) {
+  if (!table) {
+    return { valid: false, error: 'Table element is required' };
+  }
+
+  const hasHeader = table.querySelector('thead') !== null || table.querySelector('th') !== null;
+  const hasBody = table.querySelector('tbody') !== null;
+  const hasCaption = table.querySelector('caption') !== null;
+
+  return {
+    valid: true,
+    hasHeader,
+    hasBody,
+    hasCaption
+  };
+}
+
+/**
+ * Validates a landmark element
+ * @param {Object} element - The element to validate
+ * @returns {Object} Validation result
+ */
+function validateLandmark(element) {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
+  const role = element.getAttribute('role');
+  
+  if (!role) {
+    return { valid: false, element, role: null, error: 'Missing role attribute' };
+  }
+  
+  if (!landmarkRoles.includes(role)) {
+    return { valid: false, element, role, error: `Invalid landmark role: ${role}` };
+  }
+  
+  return { valid: true, element, role };
+}
+
+/**
  * Validates landmark structure in an element
  * @param {Object} element - The element to validate
  * @returns {Object} Validation result with success status and any issues found
@@ -301,6 +237,30 @@ function validateLandmarkStructure(element) {
 }
 
 /**
+ * Ensures all landmarks are unique
+ * @param {Object} container - The container to check
+ * @returns {Object} Result with unique landmarks and any duplicates
+ */
+function ensureUniqueLandmarks(container) {
+  const landmarks = container.querySelectorAll('[role]');
+  const seenRoles = new Set();
+  const duplicates = [];
+  const unique = [];
+
+  landmarks.forEach((landmark) => {
+    const role = landmark.getAttribute('role');
+    if (seenRoles.has(role)) {
+      duplicates.push({ element: landmark, role });
+    } else {
+      seenRoles.add(role);
+      unique.push(landmark);
+    }
+  });
+
+  return { unique, duplicates, valid: duplicates.length === 0 };
+}
+
+/**
  * Handles accessibility issues for the application
  * @param {Object} config - Configuration object
  */
@@ -311,6 +271,107 @@ function handleAccessibilityIssues(config) {
 /**
  * Initializes the accessibility features
  * @param {Object} container - The container element for SVG elements
+ */
+function initializeAccessibility(container) {
+  let svgElements;
+  if (container instanceof Element) {
+    svgElements = container.querySelectorAll('svg');
+  } else if (Array.isArray(container)) {
+    svgElements = container;
+  } else {
+    svgElements = [];
+  }
+
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  });
+
+  /**
+   * Checks table structure for accessibility compliance
+   * @param {Object} table - The table element to check
+   * @returns {Object} Validation result
+   */
+  function checkTableStructure(table) {
+    return validateTableStructure(table);
+  }
+
+  /**
+   * Generates a unique ID for elements
+   * @returns {string} Unique ID
+   */
+  function generateUniqueId() {
+    return 'svg-' + Math.random().toString(36).substr(2, 9);
+  }
+
+  /**
+   * Detects accessibility issues in elements
+   * @param {Array} elements - Elements to check
+   * @returns {Array} Array of issues found
+   */
+  function detectAccessibilityIssues(elements) {
+    const issues = [];
+
+    elements.forEach((element, index) => {
+      if (!element.id) {
+        issues.push({ element: index, type: AddressabilityIssues.MISSING_ID, message: 'Element is missing an id attribute' });
+      }
+
+      if (!element.getAttribute('role') && element.tagName !== 'IMG') {
+        issues.push({ element: index, type: AddressabilityIssues.MISSING_ROLE, message: 'Element is missing a role attribute' });
+      }
+    });
+
+    return issues;
+  }
+
+  /**
+   * Handles credential response after authentication
+   * @param {Object} response - The credential response
+   * @returns {Object} Result of handling
+   */
+  function handleCredentialResponse(response) {
+    // Announce success to screen readers
+    if (typeof announceToScreenReader === 'function') {
+      announceToScreenReader('User successfully authenticated');
+    }
+
+    // Validate the role attribute for all elements in the page (except IMG elements)
+    const elements = document.querySelectorAll(':not([role]):not(img)');
+    elements.forEach((element) => {
+      const result = validateLandmark(element);
+      if (!result.valid) {
+        console.warn(
+          `Element "${result.element}" has an invalid role: ${result.role} - ${result.error}`
+        );
+      }
+    });
+
+    // Validated role for new elements (except IMG elements) only after successful authentication
+    const updatedElements = [...elements];
+    const newIssues = detectAccessibilityIssues(updatedElements);
+    if (newIssues.length > 0) {
+      console.warn('Accessibility issues detected after successful authentication:');
+      newIssues.forEach(({ element, type, message }) => {
+        console.warn(`Element at index ${element}: ${message}`);
+      });
+    }
+
+    return { success: true };
+  }
+
+  // Expose nested functions for testing/extension
+  return {
+    checkTableStructure,
+    generateUniqueId,
+    detectAccessibilityIssues,
+    handleCredentialResponse
+  };
+}
+
+/**
+ * Initializes the application with accessibility features
+ * @param {Object} container - The container element
  */
 function initializeApp(container) {
   initializeAccessibility(container);
@@ -377,23 +438,33 @@ function isValidUrl(url) {
   return /^https?:\/\/.+\..+/.test(url);
 }
 
-/* existing code */
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute() / addLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure() / fixTableStructureIssues() and fixTableHeaderCellScope())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks() / addMainLandmark(), addLandmarkRolesAndFixIssues() and fixLandmarkIssues())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton() / addSvgAccessibleNames())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues() / fixFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions / addLandmarkRegions())
 
-// Export all functions from both branches
+// Export all functions
 module.exports = {
-  getLangAttribute,
   getFullLangAttribute,
   addLangAttribute,
+  setLangAttribute,
+  personName,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButton,
+  createAccessibleLink,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
   ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  createAccessibleLink,
   handleAccessibilityIssues,
+  initializeAccessibility,
   initializeApp,
   getConfig,
   validateInput,
@@ -402,5 +473,7 @@ module.exports = {
   validateFormInputs,
   isValidEmail,
   isValidUrl,
-  userSafety
+  userSafety: 'safe',
+  AddressabilityIssues,
+  appState
 };

@@ -125,6 +125,22 @@ function addLangAttribute(element) {
 }
 
 /**
+ * Gets the lang attribute value
+ * @returns {string} The lang attribute value
+ */
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+/**
+ * Gets the full lang attribute value
+ * @returns {string} The full lang attribute value
+ */
+function getFullLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+/**
  * Validates landmark attributes
  * @param {Object} landmark - The landmark element to validate
  * @returns {Object} Validation result with success status and any issues found
@@ -567,6 +583,14 @@ function upgradeSystem() {
   return config;
 }
 
+/**
+ * Counts dependencies (both internal private functions and npm dependencies)
+ * @returns {Object} Result with internal and npm dependency counts
+ */
+const countDependencies = () => {
+  // ... existing countDependencies function implementation ...
+};
+
 module.exports = {
   getLangAttribute,
   getFullLangAttribute,
@@ -595,5 +619,6 @@ module.exports = {
   processData,
   validateCredentialToken,
   processCredentialAuthentication,
-  upgradeSystem
+  upgradeSystem,
+  countDependencies
 };

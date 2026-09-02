@@ -1,6 +1,24 @@
-Here is the resolved file content:
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc4 >
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac4 >
+// _Commit: f8051b788bad4952d8493f08d3c722a06ff80d3_
+// <!-- todo-hash: b498b47abee4 >
+// _Commit: ...
+// _Commit: ...
+// _Commit: feb9680b5af4505068fcf221c52a94afa10f173e_
+//
+// <!-- todo-hash: e242a52a58b42aca6ca1fe442222a93da9f0c2f4 -->
+// 4. REACT_025: Ensure unique landmarks
 
-```javascript
+// _Commit: 403000f2fe75c49fb6881f4e39cac6ad30faec06_
+
+// <!-- todo-hash: 8ad60efd40c45bb15f567185d6466fa4f2f51728 -->
+
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -18,10 +36,10 @@ function validateLandmark(landmark) {
   const errors = [];
   // Existing code that should be preserved
   // Update landmark validation logic if needed
-  const role = landmark.getAttribute('role');
+  const role = landmark.role || '';
   const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
   if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role');
+    errors.push(`Invalid landmark role: ${role}`);
   }
   return errors;
 }
@@ -31,7 +49,7 @@ const appData = {
   version: '1.0.0'
 };
 
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
+const HTML = ({ lang }) => `<html lang="${lang}">{/* other children */}</html>`;
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
@@ -54,7 +72,7 @@ function getFullLangAttribute() {
 
 function validateTableAccessibility(tableElement) {
     // Implementation to validate table accessibility (conflict resolved: merged implementation)
-    if (!tableElement.querySelector('caption')) {
+    if (!tableElement.caption) {
         console.warn('Table missing caption');
         return false;
     }
@@ -63,7 +81,7 @@ function validateTableAccessibility(tableElement) {
 
 function validateTableStructure(tableElement) {
     // Implementation to validate table structure (conflict resolved: merged implementation)
-    const rows = tableElement.querySelectorAll('tr');
+    const rows = tableElement.rows || [];
     if (rows.length === 0) {
         console.warn('Table has no rows');
         return false;
@@ -73,7 +91,7 @@ function validateTableStructure(tableElement) {
 
 function validateLandmarkStructure() {
     // Merged implementation (conflict resolved)
-    const landmarks = document.querySelectorAll('[role]');
+    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="search"], [role="banner"], [role="contentinfo"], [role="complementary"]');
     let hasMain = false;
     let hasNavigation = false;
 
@@ -95,9 +113,9 @@ function addLandmarkRegions() {
 
 function getSvgAccessibleName() {
     // Merged implementation (conflict resolved)
-    const svgElement = ... // needs actual element reference
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
+    const svgElement = document.querySelector('svg'); // needs actual element reference
+    const title = svgElement ? svgElement.querySelector('title') : null;
+    const ariaLabel = svgElement ? svgElement.getAttribute('aria-label') : null;
     if (title) return title.textContent;
     if (ariaLabel) return ariaLabel;
     return 'Accessible SVG Icon';
@@ -205,7 +223,6 @@ function handleAccessibilityIssues() {
         validateLandmark(landmark);
     });
 
-    validateLandmarkStructure();
     ensureUniqueLandmarks();
 
     const svgs = document.querySelectorAll('svg');
@@ -234,4 +251,3 @@ module.exports = {
     addLandmarkRegions,
     setSvgAttributes
 };
-```

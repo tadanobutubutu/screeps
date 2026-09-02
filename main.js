@@ -1,4 +1,4 @@
-// Example of a resolved main.js file with exports for functionA and functionB
+// Example of a resolved main.js file with exports for functionA, functionB, createInPageButton, updateAccessibleElements, countDependencies, and exampleFunction
 // Assuming the functions are already defined and comments indicate where exports were removed
 
 // ... existing code ...
@@ -101,3 +101,14 @@ function exampleFunction() {
 
 // Add the new function to the exports
 module.exports.exampleFunction = exampleFunction;
+
+// TODO: Implement a function to extract the accessible name for an SVG from its content
+function extractAccessibleNameFromSVG(svgContent) {
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svgContent, "image/svg+xml");
+    const title = svgDoc.querySelector('title');
+    return title ? title.textContent : 'No accessible name found';
+}
+
+// Export the new function
+module.exports.extractAccessibleNameFromSVG = extractAccessibleNameFromSVG;

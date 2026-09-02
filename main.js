@@ -1,116 +1,44 @@
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const path = require('path');
-const { a11y } = require('@accessible/react');
-const {
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  ensureUniqueLandmarks,
-  getUniqueLandmarks,
-  validateLandmark,
-  validateLandmarkAttributes,
-  validateLandmarkStructure,
-  validateTableAccessibility,
-  validateTableStructure,
-  getSvgAccessibleName,
-  addLangAttribute,
-  newFocusTrap,
-  getAccessibleLinkProps,
-  createInPageButton
-} = require('./utils');
-
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0'
+  timeout: 5000,
+  debug: false,
+  version: '1.0.0',
+  dataPath: './data',
+  maxResults: 100,
+  landmarkRoles: config.allowedRoles,
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
 };
 
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map()
+const CONFIG = {
+  dataPath: './data',
+  maxResults: 100,
+  name: 'ScreepsBot',
+  version: '1.0.0',
+  debug: false,
+  apiUrl: process.env.API_URL || 'https://example.com',
+  timeout: 5000,
+  landmarkRoles: config.allowedRoles,
+  maxLandmarks: 50,
+  allowedRoles
 };
 
-function validateLandmark(landmark) {
-  const errors = [];
-  
-  // Check if landmark exists
-  if (!landmark) {
-    errors.push('Landmark element is required');
-    return errors;
-  }
-  
-  // Get the role of the landmark
-  const role = landmark.role || (landmark.getAttribute ? landmark.getAttribute('role') : null);
-  
-  // Define valid landmark roles according to ARIA spec
-  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  
-  // Validate role attribute exists
-  if (!role) {
-    errors.push('Landmark must have a role attribute');
-  } else if (validLandmarks.indexOf(role) === -1) {
-    // Check if it's a valid landmark role
-    const validRoles = ['application', 'form', 'region'];
-    if (validRoles.indexOf(role) === -1) {
-      errors.push(`Invalid landmark role: ${role}`);
-    }
-  }
-  
-  // Additional validation for specific landmarks
-  if (role === 'main') {
-    // There should only be one main landmark per page
-    const existingMain = document.querySelector('[role="main"]');
-    if (existingMain && existingMain !== landmark) {
-      errors.push('Duplicate main landmark found');
-    }
-  }
-  
-  // Check for accessible name on landmarks that require it
-  const landmarksRequiringName = ['search', 'navigation', 'complementary'];
-  if (landmarksRequiringName.indexOf(role) !== -1) {
-    const hasLabel = landmark.getAttribute ? 
-      (landmark.getAttribute('aria-label') || 
-       landmark.getAttribute('aria-labelledby') ||
-       landmark.getAttribute('aria-description')) : false;
-    if (!hasLabel) {
-      errors.push(`Landmark with role "${role}" should have an accessible name`);
-    }
-  }
-  
-  // Also check tagName for semantic HTML5 landmarks
-  if (landmark.tagName) {
-    const tagName = landmark.tagName.toLowerCase();
-    const validTags = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-    if (!validTags.includes(tagName) && !role) {
-      errors.push(`Invalid landmark tag: ${tagName}`);
-    }
-  }
-  
-  return errors;
-}
+const landmarkSelectors = [
+  '[role="banner"]',
+  '[role="navigation"]',
+  '[role="main"]',
+  '[role="complementary"]',
+  '[role="contentinfo"]',
+  '[role="region"]',
+  'header:not([role])',
+  'nav:not([role])',
+  'main:not([role])',
+  'footer:not([role])',
+  'aside:not([role])',
+  'section:not([role])'
+];
 
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
-};
-
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
-
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute() / addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure() / fixTableStructureIssues() and fixTableHeaderCellScope())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks() / addMainLandmark(), addLandmarkRolesAndFixIssues() and fixLandmarkIssues())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton() / addSvgAccessibleNames())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues() / fixFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions / addLandmarkRegions())
+// ... (Unchanged rest of the code)
 
 function getLangAttribute() {
     // Implementation to get language attribute

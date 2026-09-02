@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 // ... existing code ...
 
 // Function to count dependencies (both internal private functions and npm dependencies)

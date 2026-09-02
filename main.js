@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -18,10 +15,10 @@ function validateLandmark(landmark) {
   const errors = [];
   // Existing code that should be preserved
   // Update landmark validation logic if needed
-  const role = landmark.getAttribute('role');
+  const role = landmark.getAttribute('role') || '';
   const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role');
+  if (role && !validLandmarks.includes(role)) {
+    errors.push('Invalid landmark role: ' + role);
   }
   return errors;
 }
@@ -30,17 +27,6 @@ const appData = {
   title: 'Screeps',
   version: '1.0.0'
 };
-
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
-
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 function getLangAttribute() {
     // Implementation to get language attribute
@@ -53,7 +39,7 @@ function getFullLangAttribute() {
 }
 
 function validateTableAccessibility(tableElement) {
-    // Implementation to validate table accessibility (conflict resolved: merged implementation)
+    // Implementation to validate table accessibility
     if (!tableElement.querySelector('caption')) {
         console.warn('Table missing caption');
         return false;
@@ -62,7 +48,7 @@ function validateTableAccessibility(tableElement) {
 }
 
 function validateTableStructure(tableElement) {
-    // Implementation to validate table structure (conflict resolved: merged implementation)
+    // Implementation to validate table structure
     const rows = tableElement.querySelectorAll('tr');
     if (rows.length === 0) {
         console.warn('Table has no rows');
@@ -72,8 +58,8 @@ function validateTableStructure(tableElement) {
 }
 
 function validateLandmarkStructure() {
-    // Merged implementation (conflict resolved)
-    const landmarks = document.querySelectorAll('[role]');
+    // Merged implementation
+    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="search"], [role="banner"], [role="contentinfo"], [role="complementary"]');
     let hasMain = false;
     let hasNavigation = false;
 
@@ -94,10 +80,10 @@ function addLandmarkRegions() {
 }
 
 function getSvgAccessibleName() {
-    // Merged implementation (conflict resolved)
-    const svgElement = ... // needs actual element reference
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
+    // Merged implementation
+    const svgElement = document.querySelector('svg');
+    const title = svgElement ? svgElement.querySelector('title') : null;
+    const ariaLabel = svgElement ? svgElement.getAttribute('aria-label') : null;
     if (title) return title.textContent;
     if (ariaLabel) return ariaLabel;
     return 'Accessible SVG Icon';
@@ -114,7 +100,7 @@ function setSvgAttributes(svg, accessibleName) {
 }
 
 function ensureUniqueLandmarks(landmarksArg) {
-  // Merged implementation (conflict resolved)
+  // Merged implementation
   let landmarks = landmarksArg;
   if (!Array.isArray(landmarks)) {
     landmarks = [];
@@ -140,7 +126,7 @@ function ensureUniqueLandmarks(landmarksArg) {
   allLandmarks.forEach(landmark => {
     const role = landmark.getAttribute('role');
     if (landmarksByRole[role]) {
-      console.warn(`Duplicate landmark role: ${role}`);
+      console.warn('Duplicate landmark role: ' + role);
     } else {
       landmarksByRole[role] = true;
     }
@@ -175,7 +161,7 @@ function processData(data) {
 }
 
 function createInPageButton(text, onClick) {
-    // Implementation to create accessible in-page button (conflict resolved: merged implementation)
+    // Implementation to create accessible in-page button
     const button = document.createElement('button');
     button.textContent = text;
     button.onclick = onClick;
@@ -184,7 +170,7 @@ function createInPageButton(text, onClick) {
 }
 
 function createAccessibleLink(href, text) {
-    // Implementation to create accessible link (conflict resolved: merged implementation)
+    // Implementation to create accessible link
     const link = document.createElement('a');
     link.href = href;
     link.textContent = text;
@@ -193,7 +179,7 @@ function createAccessibleLink(href, text) {
 }
 
 function handleAccessibilityIssues() {
-    // Implementation to handle accessibility issues (conflict resolved: merged implementation)
+    // Implementation to handle accessibility issues
     const tables = document.querySelectorAll('table');
     tables.forEach(table => {
         validateTableAccessibility(table);
@@ -205,13 +191,70 @@ function handleAccessibilityIssues() {
         validateLandmark(landmark);
     });
 
-    validateLandmarkStructure();
     ensureUniqueLandmarks();
 
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
         getSvgAccessibleName(svg);
     });
+}
+
+// TODO: Implement this function for checking link and button accessibility
+function checkLinkAndButtonAccessibility() {
+    const errors = [];
+    
+    // Check all links for accessibility
+    const links = document.querySelectorAll('a');
+    links.forEach((link, index) => {
+        const text = link.textContent.trim();
+        const hasAriaLabel = link.hasAttribute('aria-label');
+        const hasAriaLabelledBy = link.hasAttribute('aria-labelledby');
+        const hasTitle = link.hasAttribute('title');
+        
+        if (!text && !hasAriaLabel && !hasAriaLabelledBy && !hasTitle) {
+            errors.push({
+                type: 'link',
+                index: index,
+                element: link,
+                message: 'Link at index ' + index + ' lacks accessible text'
+            });
+        }
+        
+        // Check for proper href
+        const href = link.getAttribute('href');
+        if (!href || href === '#') {
+            console.warn('Link at index ' + index + ' has invalid or missing href');
+        }
+    });
+    
+    // Check all buttons for accessibility
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach((button, index) => {
+        const text = button.textContent.trim();
+        const hasAriaLabel = button.hasAttribute('aria-label');
+        const hasAriaLabelledBy = button.hasAttribute('aria-labelledby');
+        
+        if (!text && !hasAriaLabel && !hasAriaLabelledBy) {
+            errors.push({
+                type: 'button',
+                index: index,
+                element: button,
+                message: 'Button at index ' + index + ' lacks accessible text'
+            });
+        }
+        
+        // Check button type attribute
+        const type = button.getAttribute('type');
+        if (!type) {
+            console.warn('Button at index ' + index + ' missing type attribute');
+        }
+    });
+    
+    return {
+        errors: errors,
+        count: errors.length,
+        passed: errors.length === 0
+    };
 }
 
 // Export all existing and new functions
@@ -227,6 +270,7 @@ module.exports = {
     createInPageButton,
     createAccessibleLink,
     handleAccessibilityIssues,
+    checkLinkAndButtonAccessibility,
     initializeApp,
     getConfig,
     validateInput,
@@ -234,4 +278,3 @@ module.exports = {
     addLandmarkRegions,
     setSvgAttributes
 };
-```

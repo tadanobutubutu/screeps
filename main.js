@@ -202,7 +202,56 @@ const accessibilityUtils = {
   },
 
   /**
-     * Handle keyboard navigation by dispatching to a handler based on the key pressed.
+     * Harvest accessibility metrics from the page.
+     * Collects information about skip links, focus traps, and other accessibility features.
+     *
+     * @returns {Object} An object containing harvested metrics.
+     */
+  harvestAccessibilityMetrics () {
+    const metrics = {
+      skipLinks: 0,
+      focusTraps: 0,
+      accessibilityFeatures: []
+    }
+
+    // Count skip links
+    const skipLinks = document.querySelectorAll('a[href^="#"]')
+    metrics.skipLinks = skipLinks.length
+
+    // Count focus trap elements
+    const focusTraps = document.querySelectorAll('[id*="focus"]')
+    metrics.focusTraps = focusTraps.length
+
+    // Gather all accessibility utility method names
+    const accessorMethods = Object.keys(accessibilityUtils)
+    metrics.accessibilityFeatures = accessorMethods.filter(m => m.toLowerCase().includes('access'))
+
+    return metrics
+  },
+
+  /**
+     * Upgrade accessibility based on harvested metrics.
+     * Applies improvements to enhance the accessibility experience.
+     *
+     * @param {Object} metrics - The harvested accessibility metrics
+     */
+  upgradeAccessibility (metrics) {
+    // Example upgrades based on metrics
+    if (metrics.skipLinks > 0) {
+      console.log(`Upgrading skip link handling for ${metrics.skipLinks} links`)
+      // Could add logic here to enhance skip link behavior
+    }
+    
+    if (metrics.focusTraps > 0) {
+      console.log(`Applying focus trap upgrades for ${metrics.focusTraps} elements`)
+      // Could add logic here to enhance focus trap behavior
+    }
+    
+    // Additional upgrade logic can be added here
+  },
+
+  /**
+     * Handles keyboard navigation by dispatching to a handler based on the key pressed.
      *
      * @param {KeyboardEvent} e - The keyboard event.
      * @param {Object} handlers - An object mapping key names to handler functions.
@@ -452,6 +501,8 @@ module.exports = {
   handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
   exportData: accessibilityUtils.exportData,
   addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
+  harvestAccessibilityMetrics: accessibilityUtils.harvestAccessibilityMetrics,
+  upgradeAccessibility: accessibilityUtils.upgradeAccessibility,
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,

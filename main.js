@@ -227,6 +227,16 @@ function generateAccessibilityReport() {
   return report;
 }
 
+// Wrap primary content in main for better structure
+function wrapPrimaryContentInMain() {
+  const primaryContent = document.querySelector('main > *');
+
+  if (primaryContent) {
+    primaryContent.parentNode.wrap(document.createElement('div'));
+    primaryContent.parentNode.firstChild.id = 'main-wrapper';
+  }
+}
+
 // Uncomment the implementation of the function for addressing new accessibility issues from the insight report
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
